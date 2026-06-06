@@ -82,10 +82,10 @@ export function AccountsTable({
         accounts.every((a) => selectedIds.has(String(a._id)));
 
     return (
-        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+        <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
             <Table>
                 <ZoruTableHeader>
-                    <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                    <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                         <ZoruTableHead className="w-10">
                             <Checkbox
                                 checked={allSelected}
@@ -93,34 +93,34 @@ export function AccountsTable({
                                 aria-label="Select all"
                             />
                         </ZoruTableHead>
-                        <ZoruTableHead className="text-zoru-ink-muted">
+                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
                             Account
                         </ZoruTableHead>
-                        <ZoruTableHead className="text-zoru-ink-muted">
+                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
                             Industry
                         </ZoruTableHead>
-                        <ZoruTableHead className="text-zoru-ink-muted">
+                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
                             Country
                         </ZoruTableHead>
-                        <ZoruTableHead className="text-zoru-ink-muted">
+                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
                             Category
                         </ZoruTableHead>
-                        <ZoruTableHead className="text-zoru-ink-muted">
+                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
                             Phone
                         </ZoruTableHead>
-                        <ZoruTableHead className="text-zoru-ink-muted">
+                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
                             GSTIN
                         </ZoruTableHead>
-                        <ZoruTableHead className="text-zoru-ink-muted">
+                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
                             Currency
                         </ZoruTableHead>
-                        <ZoruTableHead className="text-zoru-ink-muted">
+                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
                             Status
                         </ZoruTableHead>
-                        <ZoruTableHead className="text-zoru-ink-muted">
+                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
                             Created
                         </ZoruTableHead>
-                        <ZoruTableHead className="text-right text-zoru-ink-muted">
+                        <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                             Actions
                         </ZoruTableHead>
                     </ZoruTableRow>
@@ -128,7 +128,7 @@ export function AccountsTable({
                 <ZoruTableBody>
                     {loading
                         ? Array.from({ length: 5 }).map((_, i) => (
-                              <ZoruTableRow key={i} className="border-zoru-line">
+                              <ZoruTableRow key={i} className="border-[var(--st-border)]">
                                   <ZoruTableCell colSpan={11}>
                                       <Skeleton className="h-10 w-full" />
                                   </ZoruTableCell>
@@ -142,7 +142,7 @@ export function AccountsTable({
                                 return (
                                     <ZoruTableRow
                                         key={id}
-                                        className="border-zoru-line"
+                                        className="border-[var(--st-border)]"
                                     >
                                         <ZoruTableCell>
                                             <Checkbox
@@ -159,7 +159,7 @@ export function AccountsTable({
                                                 label={
                                                     <span className="flex items-center gap-2">
                                                         <Building
-                                                            className="h-4 w-4 text-zoru-ink-muted"
+                                                            className="h-4 w-4 text-[var(--st-text-secondary)]"
                                                             strokeWidth={1.75}
                                                         />
                                                         {account.name}
@@ -171,22 +171,22 @@ export function AccountsTable({
                                                     href={account.website}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="ml-6 block text-[11.5px] text-zoru-ink-muted hover:underline"
+                                                    className="ml-6 block text-[11.5px] text-[var(--st-text-secondary)] hover:underline"
                                                 >
                                                     {account.website}
                                                 </a>
                                             ) : null}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-[13px] text-zoru-ink">
+                                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                                             {account.industry || (
-                                                <span className="text-zoru-ink-muted">
+                                                <span className="text-[var(--st-text-secondary)]">
                                                     —
                                                 </span>
                                             )}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-[13px] text-zoru-ink">
+                                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                                             {account.country || (
-                                                <span className="text-zoru-ink-muted">
+                                                <span className="text-[var(--st-text-secondary)]">
                                                     —
                                                 </span>
                                             )}
@@ -200,28 +200,28 @@ export function AccountsTable({
                                                     )}
                                                 />
                                             ) : (
-                                                <span className="text-[13px] text-zoru-ink-muted">
+                                                <span className="text-[13px] text-[var(--st-text-secondary)]">
                                                     —
                                                 </span>
                                             )}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-[13px] text-zoru-ink">
+                                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                                             {account.phone || (
-                                                <span className="text-zoru-ink-muted">
+                                                <span className="text-[var(--st-text-secondary)]">
                                                     —
                                                 </span>
                                             )}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-[12.5px] font-mono text-zoru-ink">
+                                        <ZoruTableCell className="text-[12.5px] font-mono text-[var(--st-text)]">
                                             {account.gstin || (
-                                                <span className="font-sans text-zoru-ink-muted">
+                                                <span className="font-sans text-[var(--st-text-secondary)]">
                                                     —
                                                 </span>
                                             )}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-[13px] text-zoru-ink">
+                                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                                             {account.currency || (
-                                                <span className="text-zoru-ink-muted">
+                                                <span className="text-[var(--st-text-secondary)]">
                                                     —
                                                 </span>
                                             )}
@@ -235,7 +235,7 @@ export function AccountsTable({
                                             />
                                         </ZoruTableCell>
                                         <ZoruTableCell
-                                            className="text-[12.5px] text-zoru-ink-muted"
+                                            className="text-[12.5px] text-[var(--st-text-secondary)]"
                                             title={
                                                 account.createdAt
                                                     ? new Date(
@@ -256,7 +256,7 @@ export function AccountsTable({
                                                 <ZoruDropdownMenuTrigger asChild>
                                                     <button
                                                         type="button"
-                                                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
+                                                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
                                                         aria-label="Row actions"
                                                     >
                                                         <MoreHorizontal className="h-4 w-4" />

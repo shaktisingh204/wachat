@@ -183,7 +183,7 @@ function BulkExportDialog({ rows }: { rows: CrmPayslipDoc[] }) {
                     <DialogTitle>Bulk Export Payslips</DialogTitle>
                 </DialogHeader>
                 <div className="py-4 space-y-4">
-                    <p className="text-sm text-zoru-ink-muted">
+                    <p className="text-sm text-[var(--st-text-secondary)]">
                         Export payslips for a specific department.
                     </p>
                     <div className="space-y-2">
@@ -262,7 +262,7 @@ export default function PayslipsListPage() {
                             <PopoverTrigger asChild>
                                 <Button
                                     variant="outline"
-                                    className={`h-9 w-[160px] justify-start text-left font-normal ${!payPeriod ? "text-zoru-ink-muted" : ""}`}
+                                    className={`h-9 w-[160px] justify-start text-left font-normal ${!payPeriod ? "text-[var(--st-text-secondary)]" : ""}`}
                                 >
                                     <CalendarIcon className="mr-2 h-4 w-4" />
                                     {payPeriod ? fmtPeriod(payPeriod) : "Pay period"}
@@ -280,29 +280,29 @@ export default function PayslipsListPage() {
                 }
                 loading={isLoading && rows.length === 0}
             >
-                <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                     <Table>
                         <ZoruTableHeader>
-                            <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                <ZoruTableHead className="text-zoru-ink-muted">Employee</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Pay period</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted text-right">Gross</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted text-right">Net</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Issued at</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted text-right">Actions</ZoruTableHead>
+                            <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Employee</ZoruTableHead>
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Pay period</ZoruTableHead>
+                                <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Gross</ZoruTableHead>
+                                <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Net</ZoruTableHead>
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Issued at</ZoruTableHead>
+                                <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Actions</ZoruTableHead>
                             </ZoruTableRow>
                         </ZoruTableHeader>
                         <ZoruTableBody>
                             {isLoading ? (
-                                <ZoruTableRow className="border-zoru-line">
+                                <ZoruTableRow className="border-[var(--st-border)]">
                                     <ZoruTableCell colSpan={7} className="h-24 text-center">
-                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
+                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
                                     </ZoruTableCell>
                                 </ZoruTableRow>
                             ) : rows.length === 0 ? (
-                                <ZoruTableRow className="border-zoru-line">
-                                    <ZoruTableCell colSpan={7} className="h-24 text-center text-zoru-ink-muted">
+                                <ZoruTableRow className="border-[var(--st-border)]">
+                                    <ZoruTableCell colSpan={7} className="h-24 text-center text-[var(--st-text-secondary)]">
                                         No payslips match this filter.
                                     </ZoruTableCell>
                                 </ZoruTableRow>
@@ -311,25 +311,25 @@ export default function PayslipsListPage() {
                                     const status = (p.status ?? 'draft') as CrmPayslipStatus;
                                     const tone = STATUS_TONE[status] ?? 'neutral';
                                     return (
-                                        <ZoruTableRow key={p._id} className="border-zoru-line">
-                                            <ZoruTableCell className="font-medium text-zoru-ink">
+                                        <ZoruTableRow key={p._id} className="border-[var(--st-border)]">
+                                            <ZoruTableCell className="font-medium text-[var(--st-text)]">
                                                 <Link href={`${BASE}/${p._id}`} className="hover:underline">
                                                     {p.employeeName ?? p.employeeId ?? '—'}
                                                 </Link>
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="text-zoru-ink">
+                                            <ZoruTableCell className="text-[var(--st-text)]">
                                                 {fmtPeriod(p.payPeriod)}
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="text-right font-mono text-zoru-ink">
+                                            <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
                                                 {inr.format(p.gross ?? 0)}
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="text-right font-mono text-zoru-ink">
+                                            <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
                                                 {inr.format(p.net ?? 0)}
                                             </ZoruTableCell>
                                             <ZoruTableCell>
                                                 <StatusPill label={status} tone={tone} />
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="text-zoru-ink">
+                                            <ZoruTableCell className="text-[var(--st-text)]">
                                                 {fmtDate(p.issuedAt)}
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-right">

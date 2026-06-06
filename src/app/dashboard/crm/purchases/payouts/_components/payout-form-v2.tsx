@@ -267,7 +267,7 @@ export function PayoutForm({ initialData }: PayoutFormProps) {
                             Add from SabFiles
                         </SabFilePickerButton>
                         {attachments.length === 0 ? (
-                            <span className="text-[12px] text-zoru-ink-muted">
+                            <span className="text-[12px] text-[var(--st-text-secondary)]">
                                 No attachments.
                             </span>
                         ) : null}
@@ -277,13 +277,13 @@ export function PayoutForm({ initialData }: PayoutFormProps) {
                             {attachments.map((a, i) => (
                                 <li
                                     key={`${a.fileId ?? a.url}-${i}`}
-                                    className="flex items-center justify-between rounded-md border border-zoru-line px-3 py-1.5 text-[12.5px]"
+                                    className="flex items-center justify-between rounded-md border border-[var(--st-border)] px-3 py-1.5 text-[12.5px]"
                                 >
                                     <a
                                         href={a.url ?? '#'}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="truncate text-zoru-ink underline-offset-2 hover:underline"
+                                        className="truncate text-[var(--st-text)] underline-offset-2 hover:underline"
                                     >
                                         {a.name ?? a.fileId ?? a.url}
                                     </a>

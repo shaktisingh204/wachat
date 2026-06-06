@@ -82,36 +82,36 @@ function SortableCard({ id, card, isActive, onClick, onRemove }: { id: string, c
         <div ref={setNodeRef} style={style} className="relative group">
             <div
                 className={`
-                    w-32 h-40 border-2 rounded-lg cursor-pointer flex flex-col overflow-hidden bg-zoru-surface transition-all
+                    w-32 h-40 border-2 rounded-lg cursor-pointer flex flex-col overflow-hidden bg-[var(--st-bg-secondary)] transition-all
                     ${isActive ? 'border-primary shadow-md scale-105' : 'border-muted hover:border-primary/50'}
                 `}
                 onClick={onClick}
             >
                 {/* Header Preview */}
-                <div className="h-16 bg-zoru-surface-2 flex items-center justify-center text-zoru-ink-muted w-full">
+                <div className="h-16 bg-[var(--st-bg-muted)] flex items-center justify-center text-[var(--st-text-secondary)] w-full">
                     {card.headerFormat === 'IMAGE' && (card.headerSampleUrl ? <img src={card.headerSampleUrl} className="w-full h-full object-cover" /> : <ImageIcon className="h-6 w-6" />)}
                     {card.headerFormat === 'VIDEO' && <Video className="h-6 w-6" />}
                     {card.headerFormat === 'NONE' && <span className="text-xs">No Header</span>}
                 </div>
                 {/* Body Preview */}
-                <div className="p-2 text-[10px] text-zoru-ink-muted overflow-hidden flex-1 leading-tight">
+                <div className="p-2 text-[10px] text-[var(--st-text-secondary)] overflow-hidden flex-1 leading-tight">
                     {card.body || 'Empty body...'}
                 </div>
                 {/* Grip Handle */}
-                <div {...attributes} {...listeners} className="absolute top-1 left-1 p-1 bg-zoru-surface/80 rounded opacity-0 group-hover:opacity-100 cursor-grab active:cursor-grabbing hover:bg-zoru-surface-2 ring-1 ring-border">
+                <div {...attributes} {...listeners} className="absolute top-1 left-1 p-1 bg-[var(--st-bg-secondary)]/80 rounded opacity-0 group-hover:opacity-100 cursor-grab active:cursor-grabbing hover:bg-[var(--st-bg-muted)] ring-1 ring-border">
                     <GripVertical className="h-3 w-3" />
                 </div>
                 {/* Delete Button */}
                 <button
                     type="button"
                     onClick={(e) => { e.stopPropagation(); onRemove(e); }}
-                    className="absolute top-1 right-1 p-1 bg-zoru-ink/90 text-white rounded opacity-0 group-hover:opacity-100 hover:bg-zoru-ink"
+                    className="absolute top-1 right-1 p-1 bg-[var(--st-text)]/90 text-white rounded opacity-0 group-hover:opacity-100 hover:bg-[var(--st-text)]"
                 >
                     <Trash2 className="h-3 w-3" />
                 </button>
             </div>
             {/* Number Badge */}
-            <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-xs text-zoru-ink-muted font-mono">
+            <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-xs text-[var(--st-text-secondary)] font-mono">
                 Card
             </div>
         </div>
@@ -191,7 +191,7 @@ export function CarouselBuilder({ cards, onChange }: CarouselBuilderProps) {
         <div className="space-y-6">
 
             {/* 1. Filmstrip / Sorter */}
-            <div className="bg-zoru-surface-2/30 p-4 rounded-xl border">
+            <div className="bg-[var(--st-bg-muted)]/30 p-4 rounded-xl border">
                 <div className="flex items-center justify-between mb-4">
                     <Label className="text-sm font-semibold">Carousel Cards ({cards.length}/10)</Label>
                     <Button type="button" size="sm" variant="outline" onClick={addCard} disabled={cards.length >= 10}>
@@ -230,8 +230,8 @@ export function CarouselBuilder({ cards, onChange }: CarouselBuilderProps) {
                 <div className="grid md:grid-cols-12 gap-6 animate-in fade-in duration-300">
 
                     {/* Editor Column */}
-                    <div className="md:col-span-12 space-y-6 border rounded-xl p-6 bg-zoru-surface relative">
-                        <div className="absolute -top-3 left-4 bg-zoru-surface px-2 text-sm font-semibold text-zoru-ink">
+                    <div className="md:col-span-12 space-y-6 border rounded-xl p-6 bg-[var(--st-bg-secondary)] relative">
+                        <div className="absolute -top-3 left-4 bg-[var(--st-bg-secondary)] px-2 text-sm font-semibold text-[var(--st-text)]">
                             Editing Card {cards.findIndex(c => c.id === activeCardId) + 1}
                         </div>
 
@@ -240,8 +240,8 @@ export function CarouselBuilder({ cards, onChange }: CarouselBuilderProps) {
                             <Label>Header Media (Applies to all cards)</Label>
                             <div className="flex gap-4">
                                 <div className={`
-                                    flex cursor-pointer items-center justify-center p-4 border rounded-lg hover:bg-zoru-surface-2 w-24 h-24 flex-col gap-2 transition-all
-                                    ${activeCard.headerFormat === 'IMAGE' ? 'border-primary bg-zoru-ink/5' : 'border-muted'}
+                                    flex cursor-pointer items-center justify-center p-4 border rounded-lg hover:bg-[var(--st-bg-muted)] w-24 h-24 flex-col gap-2 transition-all
+                                    ${activeCard.headerFormat === 'IMAGE' ? 'border-primary bg-[var(--st-text)]/5' : 'border-muted'}
                                 `} onClick={() => {
                                         // Update ALL cards to have IMAGE format
                                         const updated = cards.map(c => ({ ...c, headerFormat: 'IMAGE' as const }));
@@ -251,8 +251,8 @@ export function CarouselBuilder({ cards, onChange }: CarouselBuilderProps) {
                                     <span className="text-xs">Image</span>
                                 </div>
                                 <div className={`
-                                    flex cursor-pointer items-center justify-center p-4 border rounded-lg hover:bg-zoru-surface-2 w-24 h-24 flex-col gap-2 transition-all
-                                    ${activeCard.headerFormat === 'VIDEO' ? 'border-primary bg-zoru-ink/5' : 'border-muted'}
+                                    flex cursor-pointer items-center justify-center p-4 border rounded-lg hover:bg-[var(--st-bg-muted)] w-24 h-24 flex-col gap-2 transition-all
+                                    ${activeCard.headerFormat === 'VIDEO' ? 'border-primary bg-[var(--st-text)]/5' : 'border-muted'}
                                 `} onClick={() => {
                                         // Update ALL cards to have VIDEO format
                                         const updated = cards.map(c => ({ ...c, headerFormat: 'VIDEO' as const }));
@@ -286,8 +286,8 @@ export function CarouselBuilder({ cards, onChange }: CarouselBuilderProps) {
                                             }}
                                         />
                                         {activeCard.headerFile && (
-                                            <div className="text-xs text-zoru-ink-muted flex items-center gap-2 bg-zoru-surface-2/50 p-2 rounded">
-                                                <span className="font-semibold text-zoru-ink">Selected:</span>
+                                            <div className="text-xs text-[var(--st-text-secondary)] flex items-center gap-2 bg-[var(--st-bg-muted)]/50 p-2 rounded">
+                                                <span className="font-semibold text-[var(--st-text)]">Selected:</span>
                                                 <span className="truncate">{activeCard.headerFile.name}</span>
                                                 <Button
                                                     type="button"
@@ -303,7 +303,7 @@ export function CarouselBuilder({ cards, onChange }: CarouselBuilderProps) {
                                                 </Button>
                                             </div>
                                         )}
-                                        <p className="text-xs text-zoru-ink-muted">This file is for approval only. Dynamic media will be sent in broadcasts.</p>
+                                        <p className="text-xs text-[var(--st-text-secondary)]">This file is for approval only. Dynamic media will be sent in broadcasts.</p>
                                     </div>
                                 </div>
                             )}
@@ -318,7 +318,7 @@ export function CarouselBuilder({ cards, onChange }: CarouselBuilderProps) {
                                 onChange={(e) => updateActiveCard('body', e.target.value)}
                                 className="min-h-[100px]"
                             />
-                            <p className="text-xs text-zoru-ink-muted text-right">{activeCard.body.length} chars</p>
+                            <p className="text-xs text-[var(--st-text-secondary)] text-right">{activeCard.body.length} chars</p>
 
                             {/* Variable Examples via helper */}
                             {(() => {
@@ -331,15 +331,15 @@ export function CarouselBuilder({ cards, onChange }: CarouselBuilderProps) {
 
                                     if (vars.length > 0) {
                                         return (
-                                            <div className="space-y-2 p-3 bg-zoru-surface-2/30 rounded border mt-4">
+                                            <div className="space-y-2 p-3 bg-[var(--st-bg-muted)]/30 rounded border mt-4">
                                                 <Label className="text-xs font-semibold flex items-center gap-2">
-                                                    <AlertCircle className="h-3 w-3 text-zoru-ink" />
+                                                    <AlertCircle className="h-3 w-3 text-[var(--st-text)]" />
                                                     Variable Values (Required)
                                                 </Label>
                                                 <div className="grid gap-2">
                                                     {vars.map(v => (
                                                         <div key={v} className="flex items-center gap-2">
-                                                            <span className="text-xs text-zoru-ink-muted w-8 font-mono">{`{{${v}}}`}</span>
+                                                            <span className="text-xs text-[var(--st-text-secondary)] w-8 font-mono">{`{{${v}}}`}</span>
                                                             <Input
                                                                 placeholder={`e.g. John`}
                                                                 className="h-8 text-sm"
@@ -365,7 +365,7 @@ export function CarouselBuilder({ cards, onChange }: CarouselBuilderProps) {
                             <Label>Buttons ({activeCard.buttons.length}/2)</Label>
                             <div className="space-y-3">
                                 {activeCard.buttons.map((btn, index) => (
-                                    <div key={index} className="flex gap-2 items-start p-3 border rounded-md bg-zoru-surface-2/20">
+                                    <div key={index} className="flex gap-2 items-start p-3 border rounded-md bg-[var(--st-bg-muted)]/20">
                                         <div className="grid gap-2 flex-1">
                                             <div className="flex flex-wrap gap-4">
                                                 <div className="flex items-center space-x-2">
@@ -420,7 +420,7 @@ export function CarouselBuilder({ cards, onChange }: CarouselBuilderProps) {
                                             )}
                                         </div>
                                         <Button variant="ghost" size="icon" onClick={() => removeActiveCardButton(index)}>
-                                            <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                            <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                         </Button>
                                     </div>
                                 ))}
@@ -436,7 +436,7 @@ export function CarouselBuilder({ cards, onChange }: CarouselBuilderProps) {
                     </div>
                 </div>
             ) : (
-                <div className="p-12 text-center border-2 border-dashed rounded-xl text-zoru-ink-muted">
+                <div className="p-12 text-center border-2 border-dashed rounded-xl text-[var(--st-text-secondary)]">
                     Select a card to edit
                 </div>
             )}

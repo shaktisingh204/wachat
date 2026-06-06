@@ -262,7 +262,7 @@ export default function SocialAuthIntegrationPage() {
               return (
                 <div key={p.title} className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <h3 className="text-[13px] font-medium text-zoru-ink">
+                    <h3 className="text-[13px] font-medium text-[var(--st-text)]">
                       {p.title}
                     </h3>
                     <Badge
@@ -316,13 +316,13 @@ export default function SocialAuthIntegrationPage() {
 
         {stats?.lastErrorMessage ? (
           <Card>
-            <ZoruCardContent className="flex items-start gap-3 border-l-2 border-zoru-danger/40 p-4">
-              <AlertCircle className="mt-0.5 h-4 w-4 text-zoru-danger" />
+            <ZoruCardContent className="flex items-start gap-3 border-l-2 border-[var(--st-danger)]/40 p-4">
+              <AlertCircle className="mt-0.5 h-4 w-4 text-[var(--st-danger)]" />
               <div>
-                <p className="text-sm font-medium text-zoru-ink">
+                <p className="text-sm font-medium text-[var(--st-text)]">
                   Last auth error
                 </p>
-                <p className="mt-0.5 text-xs text-zoru-ink-muted break-words">
+                <p className="mt-0.5 text-xs text-[var(--st-text-secondary)] break-words">
                   {stats.lastErrorMessage}
                 </p>
               </div>

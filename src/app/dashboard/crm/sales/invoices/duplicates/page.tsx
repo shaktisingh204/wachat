@@ -61,11 +61,11 @@ function KpiTile({
     return (
         <Card>
             <div className="flex items-center justify-between">
-                <p className="text-[12.5px] font-medium text-zoru-ink-muted">{label}</p>
-                <Icon className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
+                <p className="text-[12.5px] font-medium text-[var(--st-text-secondary)]">{label}</p>
+                <Icon className="h-4 w-4 text-[var(--st-text-secondary)]" strokeWidth={1.75} />
             </div>
-            <p className="mt-2 truncate text-[22px] font-semibold text-zoru-ink">{value}</p>
-            {sub ? <p className="mt-0.5 truncate text-[11.5px] text-zoru-ink-muted">{sub}</p> : null}
+            <p className="mt-2 truncate text-[22px] font-semibold text-[var(--st-text)]">{value}</p>
+            {sub ? <p className="mt-0.5 truncate text-[11.5px] text-[var(--st-text-secondary)]">{sub}</p> : null}
         </Card>
     );
 }
@@ -129,9 +129,9 @@ function MergeClusterCard({
 
     return (
         <Card className="overflow-hidden p-0">
-            <div className="flex items-center justify-between gap-2 border-b border-zoru-line p-3">
-                <h3 className="flex items-center gap-2 text-[13px] font-medium text-zoru-ink">
-                    <Layers className="h-3.5 w-3.5 text-zoru-ink-muted" />
+            <div className="flex items-center justify-between gap-2 border-b border-[var(--st-border)] p-3">
+                <h3 className="flex items-center gap-2 text-[13px] font-medium text-[var(--st-text)]">
+                    <Layers className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                     {group.members[0]?.clientId ? (
                         <EntityPickerChip entity="client" id={group.members[0].clientId} />
                     ) : (
@@ -163,13 +163,13 @@ function MergeClusterCard({
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-px bg-zoru-line md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-px bg-[var(--st-border)] md:grid-cols-2">
                 {group.members.map((m: Member) => {
                     const isSurvivor = m._id === survivor?._id;
                     return (
                         <div
                             key={m._id}
-                            className={`flex flex-col gap-2 bg-zoru-surface p-3 ${
+                            className={`flex flex-col gap-2 bg-[var(--st-bg-secondary)] p-3 ${
                                 isSurvivor ? 'ring-2 ring-inset ring-primary' : ''
                             }`}
                         >
@@ -179,7 +179,7 @@ function MergeClusterCard({
                                     label={m.invoiceNo || m._id.slice(-6)}
                                     subtitle={fmtDate(m.date)}
                                 />
-                                <label className="flex items-center gap-1.5 text-[11.5px] text-zoru-ink-muted">
+                                <label className="flex items-center gap-1.5 text-[11.5px] text-[var(--st-text-secondary)]">
                                     <input
                                         type="radio"
                                         name={`survivor-${group.key}`}
@@ -192,12 +192,12 @@ function MergeClusterCard({
                             </div>
 
                             <dl className="grid grid-cols-2 gap-1 text-[11.5px]">
-                                <dt className="text-zoru-ink-muted">Total</dt>
-                                <dd className="text-right font-mono tabular-nums text-zoru-ink">
+                                <dt className="text-[var(--st-text-secondary)]">Total</dt>
+                                <dd className="text-right font-mono tabular-nums text-[var(--st-text)]">
                                     {fmtINR(m.total, m.currency ?? 'INR')}
                                 </dd>
-                                <dt className="text-zoru-ink-muted">Status</dt>
-                                <dd className="text-right text-zoru-ink">
+                                <dt className="text-[var(--st-text-secondary)]">Status</dt>
+                                <dd className="text-right text-[var(--st-text)]">
                                     {m.status ? (
                                         <Badge variant="outline">{m.status}</Badge>
                                     ) : (
@@ -206,10 +206,10 @@ function MergeClusterCard({
                                 </dd>
                             </dl>
                             {showDiff && (
-                                <div className="mt-3 border-t border-zoru-line pt-3">
-                                    <h4 className="mb-2 text-[11.5px] font-semibold text-zoru-ink-muted">Line Items Comparison</h4>
+                                <div className="mt-3 border-t border-[var(--st-border)] pt-3">
+                                    <h4 className="mb-2 text-[11.5px] font-semibold text-[var(--st-text-secondary)]">Line Items Comparison</h4>
                                     {(!m.lineItems || m.lineItems.length === 0) ? (
-                                        <p className="text-[11px] text-zoru-ink-muted">No line items</p>
+                                        <p className="text-[11px] text-[var(--st-text-secondary)]">No line items</p>
                                     ) : (
                                         <ul className="space-y-1.5">
                                             {m.lineItems.map((item: any, i: number) => {
@@ -223,22 +223,22 @@ function MergeClusterCard({
                                                 const hasQtyDiff = !isSurvivor && survivorMatch && survivorMatch.quantity !== item.quantity;
                                                 const hasRateDiff = !isSurvivor && survivorMatch && survivorMatch.rate !== item.rate;
                                                 
-                                                let itemBg = 'bg-zoru-line/45 text-zoru-ink';
+                                                let itemBg = 'bg-[var(--st-border)]/45 text-[var(--st-text)]';
                                                 let label = null;
                                                 
                                                 if (isMissingInSurvivor) {
-                                                    itemBg = 'bg-zoru-surface-2 dark:bg-zoru-ink/20 text-zoru-ink dark:text-zoru-ink-muted border border-zoru-line/50 dark:border-zoru-line/50';
-                                                    label = <span className="text-[9px] font-semibold uppercase tracking-wider bg-zoru-surface-2 dark:bg-zoru-ink/60 px-1 py-0.5 rounded text-zoru-ink dark:text-white">Not in survivor</span>;
+                                                    itemBg = 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/20 text-[var(--st-text)] dark:text-[var(--st-text-secondary)] border border-[var(--st-border)]/50 dark:border-[var(--st-border)]/50';
+                                                    label = <span className="text-[9px] font-semibold uppercase tracking-wider bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/60 px-1 py-0.5 rounded text-[var(--st-text)] dark:text-white">Not in survivor</span>;
                                                 } else if (hasQtyDiff || hasRateDiff) {
-                                                    itemBg = 'bg-zoru-surface-2 dark:bg-zoru-ink/20 text-zoru-ink dark:text-zoru-ink-muted border border-zoru-line/50 dark:border-zoru-line/50';
+                                                    itemBg = 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/20 text-[var(--st-text)] dark:text-[var(--st-text-secondary)] border border-[var(--st-border)]/50 dark:border-[var(--st-border)]/50';
                                                     label = (
-                                                        <span className="text-[9px] font-semibold uppercase tracking-wider bg-zoru-surface-2 dark:bg-zoru-ink/60 px-1 py-0.5 rounded text-zoru-ink dark:text-white">
+                                                        <span className="text-[9px] font-semibold uppercase tracking-wider bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/60 px-1 py-0.5 rounded text-[var(--st-text)] dark:text-white">
                                                             {hasQtyDiff && hasRateDiff ? 'Qty & Rate Mismatch' : hasQtyDiff ? 'Qty Mismatch' : 'Rate Mismatch'}
                                                         </span>
                                                     );
                                                 } else if (!isSurvivor) {
-                                                    itemBg = 'bg-zoru-surface-2 dark:bg-zoru-ink/10 text-zoru-ink dark:text-zoru-ink-muted border border-zoru-line/30 dark:border-zoru-line/20';
-                                                    label = <span className="text-[9px] font-semibold uppercase tracking-wider bg-zoru-surface-2/60 dark:bg-zoru-ink/40 px-1 py-0.5 rounded text-zoru-ink dark:text-white">Identical</span>;
+                                                    itemBg = 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/10 text-[var(--st-text)] dark:text-[var(--st-text-secondary)] border border-[var(--st-border)]/30 dark:border-[var(--st-border)]/20';
+                                                    label = <span className="text-[9px] font-semibold uppercase tracking-wider bg-[var(--st-bg-muted)]/60 dark:bg-[var(--st-text)]/40 px-1 py-0.5 rounded text-[var(--st-text)] dark:text-white">Identical</span>;
                                                 }
 
                                                 return (
@@ -252,7 +252,7 @@ function MergeClusterCard({
                                                             {label}
                                                         </div>
                                                         {survivorMatch && (hasQtyDiff || hasRateDiff) && (
-                                                            <div className="mt-1.5 pt-1.5 border-t border-dashed border-zoru-line/40 dark:border-zoru-line/40 text-[10px] flex flex-col gap-0.5">
+                                                            <div className="mt-1.5 pt-1.5 border-t border-dashed border-[var(--st-border)]/40 dark:border-[var(--st-border)]/40 text-[10px] flex flex-col gap-0.5">
                                                                 <span className="font-medium">Survivor values:</span>
                                                                 <span className="opacity-75">Qty: {survivorMatch.quantity} × {fmtINR(survivorMatch.rate, m.currency ?? 'INR')} ({fmtINR(survivorMatch.rate * survivorMatch.quantity, m.currency ?? 'INR')} total)</span>
                                                             </div>
@@ -370,9 +370,9 @@ export default function InvoiceDuplicatesPage(): React.JSX.Element {
             {loaded && groups.length === 0 ? (
                 <Card className="mt-4 p-6">
                     <div className="flex flex-col items-center gap-3 text-center">
-                        <CheckCircle2 className="h-8 w-8 text-zoru-ink" />
-                        <h3 className="text-base font-medium text-zoru-ink">No duplicate clusters</h3>
-                        <p className="max-w-sm text-[13px] text-zoru-ink-muted">
+                        <CheckCircle2 className="h-8 w-8 text-[var(--st-text)]" />
+                        <h3 className="text-base font-medium text-[var(--st-text)]">No duplicate clusters</h3>
+                        <p className="max-w-sm text-[13px] text-[var(--st-text-secondary)]">
                             Invoices are matched when they share a customer and either have the
                             same invoice number or have totals within ±1% and an invoice date
                             within ±7 days.

@@ -39,20 +39,20 @@ const toneToVariant: Record<
 
 const toneOverride: Partial<Record<Tone, string>> = {
   obsidian:
-    'bg-zoru-ink text-zoru-surface hover:bg-zoru-ink/90 [background:none]',
+    'bg-[var(--st-text)] text-[var(--st-bg-secondary)] hover:bg-[var(--st-text)]/90 [background:none]',
   'rose-soft':
-    'bg-zoru-surface-2 text-zoru-ink hover:bg-zoru-surface-2/80',
+    'bg-[var(--st-bg-muted)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]/80',
 };
 
 const dotTones: Record<Tone, string> = {
-  neutral: 'bg-zoru-surface-2-foreground',
+  neutral: 'bg-[var(--st-text)]',
   rose: 'bg-zoru-ink-foreground',
-  'rose-soft': 'bg-zoru-ink',
-  obsidian: 'bg-zoru-surface',
-  green: 'bg-zoru-ink',
-  amber: 'bg-zoru-ink',
-  red: 'bg-zoru-ink',
-  blue: 'bg-zoru-ink',
+  'rose-soft': 'bg-[var(--st-text)]',
+  obsidian: 'bg-[var(--st-bg-secondary)]',
+  green: 'bg-[var(--st-text)]',
+  amber: 'bg-[var(--st-text)]',
+  red: 'bg-[var(--st-text)]',
+  blue: 'bg-[var(--st-text)]',
 };
 
 /**

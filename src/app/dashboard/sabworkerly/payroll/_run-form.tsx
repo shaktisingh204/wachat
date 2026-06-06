@@ -38,12 +38,12 @@ export function RunPayrollForm() {
     return (
         <form onSubmit={onSubmit} className="grid grid-cols-1 gap-3 md:grid-cols-3">
             {error && (
-                <div className="md:col-span-3 rounded-md border border-zoru-line/40 bg-zoru-ink/10 p-2 text-sm text-zoru-ink-muted">
+                <div className="md:col-span-3 rounded-md border border-[var(--st-border)]/40 bg-[var(--st-text)]/10 p-2 text-sm text-[var(--st-text-secondary)]">
                     {error}
                 </div>
             )}
             {message && (
-                <div className="md:col-span-3 rounded-md border border-zoru-line/40 bg-zoru-ink/10 p-2 text-sm text-white">
+                <div className="md:col-span-3 rounded-md border border-[var(--st-border)]/40 bg-[var(--st-text)]/10 p-2 text-sm text-white">
                     {message}
                 </div>
             )}

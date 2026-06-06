@@ -242,7 +242,7 @@ export default function ModulesPage(): React.JSX.Element {
       }
       filters={
         <div className="flex flex-wrap items-center gap-2">
-          <div className="inline-flex rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-0.5">
+          <div className="inline-flex rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-0.5">
             {(['all', 'enabled', 'disabled'] as const).map((v) => (
               <button
                 key={v}
@@ -251,8 +251,8 @@ export default function ModulesPage(): React.JSX.Element {
                 className={
                   'rounded-[calc(var(--zoru-radius)-2px)] px-2.5 py-1 text-[12.5px] font-medium capitalize transition-colors ' +
                   (statusFilter === v
-                    ? 'bg-zoru-bg text-zoru-ink shadow-[var(--zoru-shadow-sm)]'
-                    : 'text-zoru-ink-muted hover:text-zoru-ink')
+                    ? 'bg-[var(--st-bg)] text-[var(--st-text)] shadow-[var(--zoru-shadow-sm)]'
+                    : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]')
                 }
               >
                 {v === 'all' ? 'All' : v.charAt(0).toUpperCase() + v.slice(1)}
@@ -276,7 +276,7 @@ export default function ModulesPage(): React.JSX.Element {
       bulkBar={
         selected.size > 0 ? (
           <div className="flex items-center justify-between gap-3">
-            <span className="text-[13px] text-zoru-ink">{selected.size} selected</span>
+            <span className="text-[13px] text-[var(--st-text)]">{selected.size} selected</span>
             <div className="flex gap-2">
               <Button
                 variant="ghost"
@@ -334,11 +334,11 @@ export default function ModulesPage(): React.JSX.Element {
                     aria-label="Select all"
                   />
                 </ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Module</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Slug</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Active</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">In Menu</ZoruTableHead>
-                <ZoruTableHead className="w-[120px] text-right text-zoru-ink-muted">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Module</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Slug</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Active</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">In Menu</ZoruTableHead>
+                <ZoruTableHead className="w-[120px] text-right text-[var(--st-text-secondary)]">
                   Actions
                 </ZoruTableHead>
               </ZoruTableRow>
@@ -348,7 +348,7 @@ export default function ModulesPage(): React.JSX.Element {
                 <ZoruTableRow>
                   <ZoruTableCell
                     colSpan={6}
-                    className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                    className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     <LoaderCircle className="mx-auto h-4 w-4 animate-spin" />
                   </ZoruTableCell>
@@ -357,7 +357,7 @@ export default function ModulesPage(): React.JSX.Element {
                 <ZoruTableRow>
                   <ZoruTableCell
                     colSpan={6}
-                    className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                    className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     {rows.length === 0
                       ? 'No modules yet.'
@@ -374,7 +374,7 @@ export default function ModulesPage(): React.JSX.Element {
                         aria-label={`Select ${row.display_name ?? row.module_name}`}
                       />
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-zoru-ink">
+                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                       <RowDrawer
                         label={row.display_name || row.module_name}
                         subtitle={row.description || row.module_name}
@@ -384,7 +384,7 @@ export default function ModulesPage(): React.JSX.Element {
                       >
                         <div className="space-y-3 text-[13px]">
                           <div>
-                            <div className="text-[11px] uppercase tracking-wider text-zoru-ink-muted">
+                            <div className="text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)]">
                               Slug
                             </div>
                             <code className="font-mono text-[12px]">
@@ -393,7 +393,7 @@ export default function ModulesPage(): React.JSX.Element {
                           </div>
                           {row.description ? (
                             <div>
-                              <div className="text-[11px] uppercase tracking-wider text-zoru-ink-muted">
+                              <div className="text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)]">
                                 Description
                               </div>
                               <div>{row.description}</div>
@@ -401,7 +401,7 @@ export default function ModulesPage(): React.JSX.Element {
                           ) : null}
                           <div className="grid grid-cols-2 gap-2">
                             <div>
-                              <div className="text-[11px] uppercase tracking-wider text-zoru-ink-muted">
+                              <div className="text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)]">
                                 Active
                               </div>
                               <Badge variant={row.is_active ? 'success' : 'ghost'}>
@@ -409,7 +409,7 @@ export default function ModulesPage(): React.JSX.Element {
                               </Badge>
                             </div>
                             <div>
-                              <div className="text-[11px] uppercase tracking-wider text-zoru-ink-muted">
+                              <div className="text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)]">
                                 In Menu
                               </div>
                               <Badge variant={row.in_menu ? 'success' : 'ghost'}>
@@ -470,7 +470,7 @@ export default function ModulesPage(): React.JSX.Element {
                           onClick={() => setDeletingId(row._id)}
                           aria-label="Delete"
                         >
-                          <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                          <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                         </Button>
                       </div>
                     </ZoruTableCell>
@@ -500,7 +500,7 @@ export default function ModulesPage(): React.JSX.Element {
             ) : null}
             <div>
               <Label htmlFor="display_name">
-                Display name <span className="text-zoru-danger-ink">*</span>
+                Display name <span className="text-[var(--st-danger)]">*</span>
               </Label>
               <Input
                 id="display_name"
@@ -533,8 +533,8 @@ export default function ModulesPage(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col gap-3">
-              <div className="flex items-center justify-between rounded-lg border border-zoru-line bg-zoru-surface px-4 py-3">
-                <Label htmlFor="is_active_toggle" className="text-[13px] text-zoru-ink">
+              <div className="flex items-center justify-between rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-3">
+                <Label htmlFor="is_active_toggle" className="text-[13px] text-[var(--st-text)]">
                   Active
                 </Label>
                 <ActiveToggle
@@ -543,8 +543,8 @@ export default function ModulesPage(): React.JSX.Element {
                   defaultChecked={editing?.is_active ?? true}
                 />
               </div>
-              <div className="flex items-center justify-between rounded-lg border border-zoru-line bg-zoru-surface px-4 py-3">
-                <Label htmlFor="in_menu_toggle" className="text-[13px] text-zoru-ink">
+              <div className="flex items-center justify-between rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-3">
+                <Label htmlFor="in_menu_toggle" className="text-[13px] text-[var(--st-text)]">
                   Show in menu
                 </Label>
                 <ActiveToggle

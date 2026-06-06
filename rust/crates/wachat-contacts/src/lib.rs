@@ -66,7 +66,7 @@ use std::sync::Arc;
 use axum::{
     Router,
     extract::FromRef,
-    routing::{patch, post},
+    routing::{get, patch, post},
 };
 use sabnode_auth::AuthConfig;
 
@@ -80,6 +80,8 @@ pub use state::WachatContactsState;
 /// POST   /                          — add_contact
 /// GET    /                          — list_contacts
 /// POST   /import                    — import_contacts
+/// GET    /kanban                    — get_kanban
+/// POST   /kanban/statuses           — save_kanban_statuses
 /// PATCH  /{id}                      — update_contact_details
 /// PATCH  /{id}/status               — update_contact_status
 /// PATCH  /{id}/tags                 — update_contact_tags
@@ -91,9 +93,10 @@ pub use state::WachatContactsState;
 /// pulled via [`FromRef`] so the router does not have to know about a
 /// concrete monolithic state struct.
 ///
-/// **Route ordering note:** the literal `/import` segment is registered
-/// before the `/{id}` patterns so axum's matcher prefers the literal
-/// over the `{id}` parameter.
+/// **Route ordering note:** the literal `/import`, `/kanban`, and
+/// `/kanban/statuses` segments are registered before the `/{id}`
+/// patterns so axum's matcher prefers the literals over the `{id}`
+/// parameter.
 pub fn router<S>() -> Router<S>
 where
     S: Clone + Send + Sync + 'static,
@@ -101,8 +104,10 @@ where
     Arc<AuthConfig>: FromRef<S>,
 {
     Router::new()
-        // ---- literal segment first ------------------------------------
+        // ---- literal segments first -----------------------------------
         .route("/import", post(handlers::import_contacts))
+        .route("/kanban", get(handlers::get_kanban))
+        .route("/kanban/statuses", post(handlers::save_kanban_statuses))
         // ---- collection root ------------------------------------------
         .route(
             "/",

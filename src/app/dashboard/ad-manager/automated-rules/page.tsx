@@ -204,7 +204,7 @@ export default function AutomatedRulesPage() {
                     <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
                         <Zap className="h-6 w-6" /> Automated rules
                     </h1>
-                    <p className="text-sm text-zoru-ink-muted mt-1">
+                    <p className="text-sm text-[var(--st-text-secondary)] mt-1">
                         Automatically pause, scale or notify based on performance thresholds.
                     </p>
                 </div>
@@ -212,7 +212,7 @@ export default function AutomatedRulesPage() {
                     <Button variant="outline" size="icon" onClick={fetchRules} disabled={loading}>
                         <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
                     </Button>
-                    <Button className="bg-zoru-ink hover:bg-zoru-ink/90 text-white" onClick={() => setDialogOpen(true)}>
+                    <Button className="bg-[var(--st-text)] hover:bg-[var(--st-text)]/90 text-white" onClick={() => setDialogOpen(true)}>
                         <Plus className="h-4 w-4 mr-1" /> Create rule
                     </Button>
                 </div>
@@ -226,9 +226,9 @@ export default function AutomatedRulesPage() {
                         </div>
                     ) : rules.length === 0 ? (
                         <div className="py-16 text-center">
-                            <Zap className="h-12 w-12 mx-auto text-zoru-ink-muted" />
+                            <Zap className="h-12 w-12 mx-auto text-[var(--st-text-secondary)]" />
                             <p className="mt-3 font-semibold">No automated rules yet</p>
-                            <p className="text-sm text-zoru-ink-muted max-w-md mx-auto mt-1">
+                            <p className="text-sm text-[var(--st-text-secondary)] max-w-md mx-auto mt-1">
                                 Examples: pause ads with CTR below 0.5%, increase budget by 20% when ROAS exceeds 4x,
                                 or send a notification when daily spend crosses a threshold.
                             </p>
@@ -248,7 +248,7 @@ export default function AutomatedRulesPage() {
                                 {rules.map((r) => (
                                     <ZoruTableRow key={r.id}>
                                         <ZoruTableCell className="font-medium">{r.name}</ZoruTableCell>
-                                        <ZoruTableCell className="text-sm text-zoru-ink-muted">{formatCondition(r)}</ZoruTableCell>
+                                        <ZoruTableCell className="text-sm text-[var(--st-text-secondary)]">{formatCondition(r)}</ZoruTableCell>
                                         <ZoruTableCell>
                                             <Badge variant="outline">{formatAction(r)}</Badge>
                                         </ZoruTableCell>
@@ -261,7 +261,7 @@ export default function AutomatedRulesPage() {
                                             <Button
                                                 variant="ghost"
                                                 size="icon"
-                                                className="h-8 w-8 text-zoru-ink hover:text-zoru-ink"
+                                                className="h-8 w-8 text-[var(--st-text)] hover:text-[var(--st-text)]"
                                                 onClick={() => setDeleteId(r.id)}
                                             >
                                                 <Trash2 className="h-4 w-4" />
@@ -328,7 +328,7 @@ export default function AutomatedRulesPage() {
                                 </Select>
                             </div>
                         </div>
-                        <div className="space-y-3 border p-4 rounded-lg bg-zoru-surface-2/30">
+                        <div className="space-y-3 border p-4 rounded-lg bg-[var(--st-bg-muted)]/30">
                             <div className="flex items-center justify-between">
                                 <Label className="text-base font-medium">Conditions (AND logic)</Label>
                                 <Button 
@@ -391,7 +391,7 @@ export default function AutomatedRulesPage() {
                                         <Button 
                                             variant="ghost" 
                                             size="icon" 
-                                            className="h-9 w-9 text-zoru-ink-muted hover:text-zoru-ink"
+                                            className="h-9 w-9 text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                                             onClick={() => setConditions(conditions.filter((_, i) => i !== idx))}
                                             disabled={conditions.length === 1}
                                         >
@@ -402,7 +402,7 @@ export default function AutomatedRulesPage() {
                             ))}
                         </div>
                         
-                        <div className="space-y-3 border p-4 rounded-lg bg-zoru-surface-2/30">
+                        <div className="space-y-3 border p-4 rounded-lg bg-[var(--st-bg-muted)]/30">
                             <Label className="text-base font-medium">Logic Preview</Label>
                             <div className="grid grid-cols-5 gap-2">
                                 {METRIC_FIELDS.map(m => (
@@ -419,7 +419,7 @@ export default function AutomatedRulesPage() {
                             <div className="mt-2 flex items-center gap-2 text-sm">
                                 <span>Preview Result:</span>
                                 {evaluatePreview() === true ? (
-                                    <Badge className="bg-zoru-ink">Will Trigger</Badge>
+                                    <Badge className="bg-[var(--st-text)]">Will Trigger</Badge>
                                 ) : evaluatePreview() === false ? (
                                     <Badge variant="secondary">Will Not Trigger</Badge>
                                 ) : (
@@ -430,7 +430,7 @@ export default function AutomatedRulesPage() {
                     </div>
                     <ZoruDialogFooter>
                         <Button variant="outline" onClick={() => { setDialogOpen(false); resetForm(); }}>Cancel</Button>
-                        <Button className="bg-zoru-ink hover:bg-zoru-ink/90 text-white" onClick={handleCreate} disabled={submitting}>
+                        <Button className="bg-[var(--st-text)] hover:bg-[var(--st-text)]/90 text-white" onClick={handleCreate} disabled={submitting}>
                             {submitting ? 'Creating…' : 'Create rule'}
                         </Button>
                     </ZoruDialogFooter>

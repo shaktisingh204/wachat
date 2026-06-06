@@ -129,10 +129,10 @@ export function DeliverabilityClient() {
                     {score.factors.slice(0, 4).map((f) => (
                       <li
                         key={f.key}
-                        className="flex items-center justify-between gap-2 border-b border-zoru-line pb-1 last:border-b-0"
+                        className="flex items-center justify-between gap-2 border-b border-[var(--st-border)] pb-1 last:border-b-0"
                       >
-                        <span className="text-zoru-ink-muted">{f.note ?? f.key}</span>
-                        <span className="font-medium text-zoru-ink">
+                        <span className="text-[var(--st-text-secondary)]">{f.note ?? f.key}</span>
+                        <span className="font-medium text-[var(--st-text)]">
                           {Math.round(f.value)}
                         </span>
                       </li>
@@ -141,7 +141,7 @@ export function DeliverabilityClient() {
                 ) : null}
               </>
             ) : (
-              <p className="text-sm text-zoru-ink-muted">No score available.</p>
+              <p className="text-sm text-[var(--st-text-secondary)]">No score available.</p>
             )}
           </ZoruCardContent>
         </Card>
@@ -172,15 +172,15 @@ export function DeliverabilityClient() {
             ) : placement ? (
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                  <div className="rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-3">
-                    <p className="text-xs uppercase tracking-wide text-zoru-ink-muted">Inbox</p>
-                    <p className="text-2xl font-semibold text-zoru-ink">
+                  <div className="rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+                    <p className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">Inbox</p>
+                    <p className="text-2xl font-semibold text-[var(--st-text)]">
                       {Math.round((placement.inboxRate ?? 0) * 100)}%
                     </p>
                   </div>
-                  <div className="rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-3">
-                    <p className="text-xs uppercase tracking-wide text-zoru-ink-muted">Spam</p>
-                    <p className="text-2xl font-semibold text-zoru-ink">
+                  <div className="rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+                    <p className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">Spam</p>
+                    <p className="text-2xl font-semibold text-[var(--st-text)]">
                       {Math.round((placement.spamRate ?? 0) * 100)}%
                     </p>
                   </div>
@@ -203,7 +203,7 @@ export function DeliverabilityClient() {
                 </div>
               </div>
             ) : (
-              <p className="text-sm text-zoru-ink-muted">
+              <p className="text-sm text-[var(--st-text-secondary)]">
                 No placement data yet.
               </p>
             )}
@@ -215,7 +215,7 @@ export function DeliverabilityClient() {
 
       <section className="space-y-3">
         <div className="flex items-center gap-2">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
             Sender domains
           </h2>
         </div>
@@ -228,8 +228,8 @@ export function DeliverabilityClient() {
 
       <section className="space-y-3">
         <div className="flex items-center gap-2">
-          <Flame className="h-4 w-4 text-zoru-ink-muted" />
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          <Flame className="h-4 w-4 text-[var(--st-text-secondary)]" />
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
             Warmup runs
           </h2>
         </div>

@@ -176,7 +176,7 @@ function CanonicalTagChecker() {
         {results.length > 0 && (
           <Card>
             <ZoruCardContent className="p-0">
-              <div className="flex justify-end gap-2 p-4 border-b border-zoru-line">
+              <div className="flex justify-end gap-2 p-4 border-b border-[var(--st-border)]">
                 <Button variant="outline" size="sm" onClick={copyToClipboard}><Copy className="w-4 h-4 mr-2"/> Copy</Button>
                 <Button variant="outline" size="sm" onClick={exportCSV}><Download className="w-4 h-4 mr-2"/> Export CSV</Button>
               </div>
@@ -196,7 +196,7 @@ function CanonicalTagChecker() {
                       <TableCell className="max-w-[200px] truncate" title={r.finalUrl}>
                         <div className="flex flex-col">
                           <span>{r.finalUrl}</span>
-                          <span className="text-xs text-zoru-ink-muted">HTTP {r.httpStatus || '-'}</span>
+                          <span className="text-xs text-[var(--st-text-secondary)]">HTTP {r.httpStatus || '-'}</span>
                         </div>
                       </TableCell>
                       <TableCell className="max-w-[200px] truncate" title={r.canonical || ''}>{r.canonical || '-'}</TableCell>

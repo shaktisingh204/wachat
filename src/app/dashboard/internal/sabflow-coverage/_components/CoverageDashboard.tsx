@@ -56,10 +56,10 @@ interface Props {
 const BAND_ORDER: PriorityBand[] = ['S', 'A', 'B', 'C'];
 
 const BAND_COLOR: Record<PriorityBand, { fill: string; text: string }> = {
-    S: { fill: 'bg-zoru-ink', text: 'text-zoru-ink-muted' },
-    A: { fill: 'bg-zoru-surface-2/80', text: 'text-white' },
-    B: { fill: 'bg-zoru-surface-2/60', text: 'text-white' },
-    C: { fill: 'bg-zoru-ink/60', text: 'text-zoru-ink-muted' },
+    S: { fill: 'bg-[var(--st-text)]', text: 'text-[var(--st-text-secondary)]' },
+    A: { fill: 'bg-[var(--st-bg-muted)]/80', text: 'text-white' },
+    B: { fill: 'bg-[var(--st-bg-muted)]/60', text: 'text-white' },
+    C: { fill: 'bg-[var(--st-text)]/60', text: 'text-[var(--st-text-secondary)]' },
 };
 
 const COMPLEXITY_ORDER: Record<string, number> = {
@@ -197,15 +197,15 @@ function HeroCard({
     sub: string;
 }) {
     return (
-        <div className="rounded-2xl border border-zoru-line bg-zoru-ink/60 p-5">
-            <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-zoru-ink-muted">
-                <Icon className="h-3.5 w-3.5 text-zoru-ink-muted" />
+        <div className="rounded-2xl border border-[var(--st-border)] bg-[var(--st-text)]/60 p-5">
+            <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-[var(--st-text-secondary)]">
+                <Icon className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                 {label}
             </div>
             <div className="mt-3 text-3xl font-semibold text-white">
                 {value}
             </div>
-            <div className="mt-1 text-xs text-zoru-ink">{sub}</div>
+            <div className="mt-1 text-xs text-[var(--st-text)]">{sub}</div>
         </div>
     );
 }
@@ -253,7 +253,7 @@ function RustStubsTable({ rows }: { rows: RustStubRow[] }) {
 
     if (rows.length === 0) {
         return (
-            <p className="text-sm text-zoru-ink">
+            <p className="text-sm text-[var(--st-text)]">
                 No nodes recorded. Inventory may not yet be generated.
             </p>
         );
@@ -263,23 +263,23 @@ function RustStubsTable({ rows }: { rows: RustStubRow[] }) {
         <div className="space-y-3">
             <div className="flex items-center gap-2">
                 <div className="relative flex-1 max-w-md">
-                    <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zoru-ink" />
+                    <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--st-text)]" />
                     <input
                         type="text"
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         placeholder="Filter by node type or file path…"
-                        className="w-full rounded-lg border border-zoru-line bg-zoru-ink pl-9 pr-3 py-2 text-sm text-white placeholder:text-zoru-ink focus:border-zoru-line/60 focus:outline-none"
+                        className="w-full rounded-lg border border-[var(--st-border)] bg-[var(--st-text)] pl-9 pr-3 py-2 text-sm text-white placeholder:text-[var(--st-text)] focus:border-[var(--st-border)]/60 focus:outline-none"
                     />
                 </div>
-                <span className="text-xs text-zoru-ink">
+                <span className="text-xs text-[var(--st-text)]">
                     {filtered.length} of {rows.length} shown
                 </span>
             </div>
 
-            <div className="overflow-x-auto rounded-xl border border-zoru-line">
-                <table className="min-w-full divide-y divide-zoru-line text-sm">
-                    <thead className="bg-zoru-ink/70 text-left text-xs uppercase tracking-wider text-zoru-ink-muted">
+            <div className="overflow-x-auto rounded-xl border border-[var(--st-border)]">
+                <table className="min-w-full divide-y divide-[var(--st-border)] text-sm">
+                    <thead className="bg-[var(--st-text)]/70 text-left text-xs uppercase tracking-wider text-[var(--st-text-secondary)]">
                         <tr>
                             <th className="px-4 py-3">Node type</th>
                             <th className="px-4 py-3">Complexity</th>
@@ -288,19 +288,19 @@ function RustStubsTable({ rows }: { rows: RustStubRow[] }) {
                             <th className="px-4 py-3">File</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-zoru-line bg-zoru-ink/40 text-white">
+                    <tbody className="divide-y divide-[var(--st-border)] bg-[var(--st-text)]/40 text-white">
                         {filtered.length === 0 ? (
                             <tr>
                                 <td
                                     colSpan={5}
-                                    className="px-4 py-6 text-center text-zoru-ink"
+                                    className="px-4 py-6 text-center text-[var(--st-text)]"
                                 >
                                     No matches.
                                 </td>
                             </tr>
                         ) : (
                             filtered.map((r) => (
-                                <tr key={r.nodeType} className="hover:bg-zoru-ink/40">
+                                <tr key={r.nodeType} className="hover:bg-[var(--st-text)]/40">
                                     <td className="px-4 py-2 font-mono text-xs text-white">
                                         {r.nodeType}
                                     </td>
@@ -309,23 +309,23 @@ function RustStubsTable({ rows }: { rows: RustStubRow[] }) {
                                     </td>
                                     <td className="px-4 py-2 text-xs">
                                         {r.hasForgeFallback ? (
-                                            <span className="text-zoru-ink-muted">
+                                            <span className="text-[var(--st-text-secondary)]">
                                                 Masked
                                             </span>
                                         ) : (
-                                            <span className="text-zoru-ink-muted">
+                                            <span className="text-[var(--st-text-secondary)]">
                                                 Open
                                             </span>
                                         )}
                                     </td>
-                                    <td className="px-4 py-2 text-xs text-zoru-ink-muted">
+                                    <td className="px-4 py-2 text-xs text-[var(--st-text-secondary)]">
                                         {r.lastTouched
                                             ? new Date(r.lastTouched)
                                                   .toISOString()
                                                   .slice(0, 10)
                                             : '—'}
                                     </td>
-                                    <td className="px-4 py-2 font-mono text-[11px] text-zoru-ink">
+                                    <td className="px-4 py-2 font-mono text-[11px] text-[var(--st-text)]">
                                         {r.file ?? '—'}
                                     </td>
                                 </tr>
@@ -342,10 +342,10 @@ function ComplexityPill({ value }: { value?: string }) {
     const v = (value ?? 'low').toLowerCase();
     const tint =
         v === 'high'
-            ? 'bg-zoru-ink/15 text-zoru-ink-muted border-zoru-line/30'
+            ? 'bg-[var(--st-text)]/15 text-[var(--st-text-secondary)] border-[var(--st-border)]/30'
             : v === 'medium'
-              ? 'bg-zoru-ink/15 text-zoru-ink-muted border-zoru-line/30'
-              : 'bg-zoru-ink/15 text-zoru-ink-muted border-zoru-line/30';
+              ? 'bg-[var(--st-text)]/15 text-[var(--st-text-secondary)] border-[var(--st-border)]/30'
+              : 'bg-[var(--st-text)]/15 text-[var(--st-text-secondary)] border-[var(--st-border)]/30';
     return (
         <span
             className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-wide ${tint}`}
@@ -391,7 +391,7 @@ function MissingIntegrationsBody({ rows }: { rows: N8nMissingRow[] }) {
 
     if (grouped.length === 0) {
         return (
-            <p className="text-sm text-zoru-ink">
+            <p className="text-sm text-[var(--st-text)]">
                 No missing integrations recorded.
             </p>
         );
@@ -424,7 +424,7 @@ function CategoryGroup({
 
     return (
         <details
-            className="group rounded-xl border border-zoru-line bg-zoru-ink/40 open:bg-zoru-ink/60"
+            className="group rounded-xl border border-[var(--st-border)] bg-[var(--st-text)]/40 open:bg-[var(--st-text)]/60"
             onToggle={(e: SyntheticEvent<HTMLDetailsElement>) =>
                 setOpen(e.currentTarget.open)
             }
@@ -433,11 +433,11 @@ function CategoryGroup({
                 <span className="text-sm font-medium text-white">
                     {category}
                 </span>
-                <span className="text-xs text-zoru-ink-muted/80">
+                <span className="text-xs text-[var(--st-text-secondary)]/80">
                     {items.length} missing
                 </span>
             </summary>
-            <ul className="divide-y divide-zoru-line border-t border-zoru-line">
+            <ul className="divide-y divide-[var(--st-border)] border-t border-[var(--st-border)]">
                 {shown.map((row) => (
                     <li
                         key={row.nodeType}
@@ -446,10 +446,10 @@ function CategoryGroup({
                         <span className="font-mono text-white">
                             {row.nodeType}
                         </span>
-                        <span className="text-zoru-ink-muted">
+                        <span className="text-[var(--st-text-secondary)]">
                             {row.displayName ?? '—'}
                         </span>
-                        <span className="text-zoru-ink">
+                        <span className="text-[var(--st-text)]">
                             {row.credentialTypes?.length
                                 ? `creds: ${row.credentialTypes.join(', ')}`
                                 : 'no credential'}
@@ -457,7 +457,7 @@ function CategoryGroup({
                     </li>
                 ))}
                 {!open && overflow > 0 ? (
-                    <li className="px-4 py-2 text-xs text-zoru-ink">
+                    <li className="px-4 py-2 text-xs text-[var(--st-text)]">
                         +{overflow} more — expand to view.
                     </li>
                 ) : null}
@@ -523,7 +523,7 @@ function PriorityBandsBars({
 
     if (!BAND_ORDER.some((b) => stats[b]?.total)) {
         return (
-            <p className="text-sm text-zoru-ink">
+            <p className="text-sm text-[var(--st-text)]">
                 No priority data recorded yet.
             </p>
         );
@@ -540,20 +540,20 @@ function PriorityBandsBars({
                         <div className="flex items-center justify-between text-xs">
                             <div className="flex items-center gap-2">
                                 <span
-                                    className={`inline-flex h-5 w-5 items-center justify-center rounded-md border border-zoru-line font-mono font-semibold ${BAND_COLOR[band].text}`}
+                                    className={`inline-flex h-5 w-5 items-center justify-center rounded-md border border-[var(--st-border)] font-mono font-semibold ${BAND_COLOR[band].text}`}
                                 >
                                     {band}
                                 </span>
-                                <span className="text-zoru-ink-muted">
+                                <span className="text-[var(--st-text-secondary)]">
                                     {s.total} nodes
                                 </span>
                             </div>
-                            <span className="text-zoru-ink">
+                            <span className="text-[var(--st-text)]">
                                 {s.shipped} shipped · {s.pending} pending
                             </span>
                         </div>
                         <div
-                            className="relative h-3 overflow-hidden rounded-full bg-zoru-ink"
+                            className="relative h-3 overflow-hidden rounded-full bg-[var(--st-text)]"
                             style={{ width: `${Math.max(widthPct, 5)}%` }}
                         >
                             <div
@@ -587,7 +587,7 @@ function MarkdownSection({
             result={result}
         >
             {result.status === 'ok' ? (
-                <pre className="max-h-[480px] overflow-auto whitespace-pre-wrap rounded-lg border border-zoru-line bg-zoru-ink/70 p-4 font-mono text-xs leading-relaxed text-white">
+                <pre className="max-h-[480px] overflow-auto whitespace-pre-wrap rounded-lg border border-[var(--st-border)] bg-[var(--st-text)]/70 p-4 font-mono text-xs leading-relaxed text-white">
                     {result.data}
                 </pre>
             ) : null}
@@ -611,17 +611,17 @@ function SectionShell({
     children: ReactNode;
 }) {
     return (
-        <section className="rounded-2xl border border-zoru-line bg-zoru-ink/60 p-5">
+        <section className="rounded-2xl border border-[var(--st-border)] bg-[var(--st-text)]/60 p-5">
             <header className="mb-4 flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3">
-                    <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-zoru-line/30 bg-zoru-ink/10">
-                        <Icon className="h-4 w-4 text-zoru-ink-muted" />
+                    <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[var(--st-border)]/30 bg-[var(--st-text)]/10">
+                        <Icon className="h-4 w-4 text-[var(--st-text-secondary)]" />
                     </div>
                     <div>
                         <h2 className="text-lg font-semibold text-white">
                             {title}
                         </h2>
-                        <p className="mt-0.5 text-xs text-zoru-ink">
+                        <p className="mt-0.5 text-xs text-[var(--st-text)]">
                             {description}
                         </p>
                     </div>
@@ -641,20 +641,20 @@ function SectionShell({
 function StatusPill({ result }: { result: LoadResult<unknown> }) {
     if (result.status === 'ok') {
         return (
-            <span className="inline-flex items-center rounded-full border border-zoru-line/30 bg-zoru-ink/10 px-2 py-0.5 text-[10px] uppercase tracking-wide text-zoru-ink-muted">
+            <span className="inline-flex items-center rounded-full border border-[var(--st-border)]/30 bg-[var(--st-text)]/10 px-2 py-0.5 text-[10px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Loaded
             </span>
         );
     }
     if (result.status === 'missing') {
         return (
-            <span className="inline-flex items-center rounded-full border border-zoru-line/30 bg-zoru-ink/10 px-2 py-0.5 text-[10px] uppercase tracking-wide text-zoru-ink-muted">
+            <span className="inline-flex items-center rounded-full border border-[var(--st-border)]/30 bg-[var(--st-text)]/10 px-2 py-0.5 text-[10px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Pending
             </span>
         );
     }
     return (
-        <span className="inline-flex items-center rounded-full border border-zoru-line/30 bg-zoru-ink/10 px-2 py-0.5 text-[10px] uppercase tracking-wide text-zoru-ink-muted">
+        <span className="inline-flex items-center rounded-full border border-[var(--st-border)]/30 bg-[var(--st-text)]/10 px-2 py-0.5 text-[10px] uppercase tracking-wide text-[var(--st-text-secondary)]">
             Error
         </span>
     );
@@ -666,8 +666,8 @@ function InventoryPendingBanner({ result }: { result: LoadResult<unknown> }) {
         <div
             className={`flex items-start gap-3 rounded-xl border px-4 py-3 text-sm ${
                 isError
-                    ? 'border-zoru-line/30 bg-zoru-ink/10 text-white'
-                    : 'border-zoru-line/30 bg-zoru-ink/10 text-white'
+                    ? 'border-[var(--st-border)]/30 bg-[var(--st-text)]/10 text-white'
+                    : 'border-[var(--st-border)]/30 bg-[var(--st-text)]/10 text-white'
             }`}
         >
             {isError ? (

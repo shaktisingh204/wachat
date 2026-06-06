@@ -56,7 +56,7 @@ export default async function SeverityMatrixPage() {
       </header>
 
       {res.error ? (
-        <Card className="border-zoru-line bg-zoru-surface-2 p-3 text-sm text-zoru-ink">
+        <Card className="border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-sm text-[var(--st-text)]">
           {res.error}
         </Card>
       ) : null}

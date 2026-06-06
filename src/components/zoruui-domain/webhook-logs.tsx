@@ -185,7 +185,7 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
                          <div className="relative w-full sm:w-auto">
-                            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zoru-ink-muted" />
+                            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--st-text-secondary)]" />
                             <Input
                                 placeholder="Search logs..."
                                 className="pl-8 w-full sm:w-64"
@@ -259,7 +259,7 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
                         </Table>
                     </div>
                     <div className="flex items-center justify-end space-x-2 py-4">
-                        <span className="text-sm text-zoru-ink-muted">
+                        <span className="text-sm text-[var(--st-text-secondary)]">
                             Page {currentPage} of {totalPages > 0 ? totalPages : 1}
                         </span>
                         <Button
@@ -302,14 +302,14 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
                     <div className="mt-2 text-sm max-h-[60vh] overflow-y-auto">
                         {loadingPayload ? (
                             <div className="flex items-center justify-center p-8">
-                                <LoaderCircle className="h-6 w-6 animate-spin text-zoru-ink-muted" />
+                                <LoaderCircle className="h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
                             </div>
                         ) : selectedLogPayload ? (
-                            <pre className="p-4 bg-zoru-surface-2 rounded-md whitespace-pre-wrap font-mono text-xs">
+                            <pre className="p-4 bg-[var(--st-bg-muted)] rounded-md whitespace-pre-wrap font-mono text-xs">
                                 {JSON.stringify(selectedLogPayload, null, 2)}
                             </pre>
                         ) : (
-                            <div className="text-center text-zoru-ink-muted p-8">Could not load payload.</div>
+                            <div className="text-center text-[var(--st-text-secondary)] p-8">Could not load payload.</div>
                         )}
                     </div>
                 </ZoruDialogContent>

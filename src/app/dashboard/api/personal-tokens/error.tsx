@@ -18,7 +18,7 @@ export default function ErrorPage({
   return (
     <div className="flex h-[50vh] items-center justify-center">
       <EmptyState
-        icon={<AlertTriangle className="h-8 w-8 text-zoru-danger" />}
+        icon={<AlertTriangle className="h-8 w-8 text-[var(--st-danger)]" />}
         title="Something went wrong"
         description={
           error?.message?.length && error.message.length < 200

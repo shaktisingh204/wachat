@@ -27,9 +27,9 @@ export const orderTrackingTemplate: TemplateDefinition = {
   name: 'Order Tracking',
   description: 'Asks for an order ID and fetches live status via webhook.',
   emoji: '📦',
-  color: 'text-zoru-ink',
+  color: 'text-[var(--st-text)]',
   bgColor:
-    'bg-zoru-surface-2 dark:bg-zoru-ink/30 border-zoru-line dark:border-zoru-line',
+    'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 border-[var(--st-border)] dark:border-[var(--st-border)]',
   icon: LuPackage,
   category: 'E-commerce',
   build: () => {
@@ -100,9 +100,9 @@ export const restaurantMenuTemplate: TemplateDefinition = {
   name: 'Restaurant Menu',
   description: 'Interactive menu with categories and picture choices.',
   emoji: '🍽️',
-  color: 'text-zoru-ink',
+  color: 'text-[var(--st-text)]',
   bgColor:
-    'bg-zoru-surface-2 dark:bg-zoru-ink/30 border-zoru-line dark:border-zoru-line',
+    'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 border-[var(--st-border)] dark:border-[var(--st-border)]',
   icon: LuUtensils,
   category: 'E-commerce',
   build: () => {
@@ -186,9 +186,9 @@ export const productReturnsTemplate: TemplateDefinition = {
   name: 'Product Returns',
   description: 'Handles return requests with reason, order ID, and photos.',
   emoji: '🔁',
-  color: 'text-zoru-ink',
+  color: 'text-[var(--st-text)]',
   bgColor:
-    'bg-zoru-surface-2 dark:bg-zoru-ink/30 border-zoru-line dark:border-zoru-line',
+    'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 border-[var(--st-border)] dark:border-[var(--st-border)]',
   icon: LuRotateCw,
   category: 'E-commerce',
   build: () => {
@@ -275,9 +275,9 @@ export const faqBotTemplate: TemplateDefinition = {
   name: 'FAQ Bot',
   description: 'Answers common questions using condition branches.',
   emoji: '❓',
-  color: 'text-zoru-ink',
+  color: 'text-[var(--st-text)]',
   bgColor:
-    'bg-zoru-surface-2 dark:bg-zoru-ink/30 border-zoru-line dark:border-zoru-line',
+    'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 border-[var(--st-border)] dark:border-[var(--st-border)]',
   icon: LuCircleHelp,
   category: 'Support',
   build: () => {

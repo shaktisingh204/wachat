@@ -276,7 +276,7 @@ export function Feedback360Form({ initialData }: Feedback360FormProps) {
                     <div className="flex items-center justify-between">
                         <div>
                             <Label>Reviewers</Label>
-                            <p className="text-[11.5px] text-zoru-ink-muted">
+                            <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                                 Each reviewer answers the same score grid (1–5). Scores
                                 are averaged per dimension and into an overall rating.
                             </p>
@@ -292,7 +292,7 @@ export function Feedback360Form({ initialData }: Feedback360FormProps) {
                         </Button>
                     </div>
                     {reviewers.length === 0 ? (
-                        <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                        <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                             No reviewers yet. Click &ldquo;Add reviewer&rdquo; to start.
                         </div>
                     ) : (
@@ -300,7 +300,7 @@ export function Feedback360Form({ initialData }: Feedback360FormProps) {
                             {reviewers.map((r, idx) => (
                                 <div
                                     key={idx}
-                                    className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-3"
+                                    className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3"
                                 >
                                     <div className="mb-2 flex flex-wrap items-end gap-2">
                                         <div className="flex-1 space-y-1.5">
@@ -350,7 +350,7 @@ export function Feedback360Form({ initialData }: Feedback360FormProps) {
                                             onClick={() => removeReviewer(idx)}
                                             aria-label="Remove reviewer"
                                         >
-                                            <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                            <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                         </Button>
                                     </div>
                                     <div className="grid gap-2 sm:grid-cols-5">
@@ -427,14 +427,14 @@ export function Feedback360Form({ initialData }: Feedback360FormProps) {
                 </div>
 
                 {/* Live aggregate preview */}
-                <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-3">
+                <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3">
                     <div className="mb-2 flex items-center justify-between">
-                        <div className="text-[13px] font-medium text-zoru-ink">
+                        <div className="text-[13px] font-medium text-[var(--st-text)]">
                             Aggregated scores (preview)
                         </div>
-                        <div className="text-[12.5px] text-zoru-ink-muted">
+                        <div className="text-[12.5px] text-[var(--st-text-secondary)]">
                             Overall:{' '}
-                            <span className="font-mono tabular-nums text-zoru-ink">
+                            <span className="font-mono tabular-nums text-[var(--st-text)]">
                                 {overall != null ? overall.toFixed(2) : '—'}
                             </span>
                         </div>
@@ -443,12 +443,12 @@ export function Feedback360Form({ initialData }: Feedback360FormProps) {
                         {SCORE_CATEGORIES.map((cat) => (
                             <div
                                 key={cat.key}
-                                className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-2 py-1.5 text-center"
+                                className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1.5 text-center"
                             >
-                                <div className="text-[10.5px] uppercase tracking-wide text-zoru-ink-muted">
+                                <div className="text-[10.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                                     {cat.label}
                                 </div>
-                                <div className="font-mono text-[14px] tabular-nums text-zoru-ink">
+                                <div className="font-mono text-[14px] tabular-nums text-[var(--st-text)]">
                                     {typeof aggregated[cat.key] === 'number'
                                         ? aggregated[cat.key].toFixed(2)
                                         : '—'}

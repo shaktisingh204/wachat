@@ -149,14 +149,14 @@ export function SabbackstageTicketingTab({
     <div className="space-y-6">
       <section>
         <div className="mb-3 flex items-center justify-between">
-          <h4 className="text-[13px] font-semibold text-zoru-ink">
+          <h4 className="text-[13px] font-semibold text-[var(--st-text)]">
             Ticket types
           </h4>
           {loading ? (
-            <Loader2 className="h-4 w-4 animate-spin text-zoru-ink-muted" />
+            <Loader2 className="h-4 w-4 animate-spin text-[var(--st-text-secondary)]" />
           ) : null}
         </div>
-        <div className="grid grid-cols-1 gap-2 rounded-md border border-zoru-line p-3 md:grid-cols-5">
+        <div className="grid grid-cols-1 gap-2 rounded-md border border-[var(--st-border)] p-3 md:grid-cols-5">
           <div>
             <Label htmlFor="bt-name">Name</Label>
             <Input
@@ -188,7 +188,7 @@ export function SabbackstageTicketingTab({
             <Label htmlFor="bt-status">Status</Label>
             <select
               id="bt-status"
-              className="block h-9 w-full rounded-md border border-zoru-line bg-zoru-bg px-2 text-[13px] text-zoru-ink"
+              className="block h-9 w-full rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-2 text-[13px] text-[var(--st-text)]"
               value={form.status}
               onChange={(e) =>
                 setForm({
@@ -210,9 +210,9 @@ export function SabbackstageTicketingTab({
           </div>
         </div>
 
-        <ul className="mt-3 divide-y divide-zoru-line">
+        <ul className="mt-3 divide-y divide-[var(--st-border)]">
           {types.length === 0 ? (
-            <li className="py-3 text-[12.5px] text-zoru-ink-muted">
+            <li className="py-3 text-[12.5px] text-[var(--st-text-secondary)]">
               No ticket types yet.
             </li>
           ) : (
@@ -225,13 +225,13 @@ export function SabbackstageTicketingTab({
                 <li key={t._id} className="py-3">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div>
-                      <div className="text-[13px] font-medium text-zoru-ink">
+                      <div className="text-[13px] font-medium text-[var(--st-text)]">
                         {t.name}{' '}
-                        <span className="text-[12px] text-zoru-ink-muted">
+                        <span className="text-[12px] text-[var(--st-text-secondary)]">
                           · {formatMoney(t.priceMinor, t.currency)}
                         </span>
                       </div>
-                      <div className="mt-0.5 text-[12px] text-zoru-ink-muted">
+                      <div className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">
                         {t.soldCount} / {t.capacity || '∞'} sold
                       </div>
                     </div>
@@ -242,7 +242,7 @@ export function SabbackstageTicketingTab({
                         {t.status}
                       </Badge>
                       <select
-                        className="h-8 rounded-md border border-zoru-line bg-zoru-bg px-2 text-[12px]"
+                        className="h-8 rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-2 text-[12px]"
                         value={t.status}
                         onChange={(e) =>
                           handleStatus(
@@ -276,24 +276,24 @@ export function SabbackstageTicketingTab({
       </section>
 
       <section>
-        <h4 className="mb-2 text-[13px] font-semibold text-zoru-ink">
+        <h4 className="mb-2 text-[13px] font-semibold text-[var(--st-text)]">
           Orders log
         </h4>
         {orders.length === 0 ? (
-          <p className="text-[12.5px] text-zoru-ink-muted">No orders yet.</p>
+          <p className="text-[12.5px] text-[var(--st-text-secondary)]">No orders yet.</p>
         ) : (
-          <ul className="divide-y divide-zoru-line">
+          <ul className="divide-y divide-[var(--st-border)]">
             {orders.map((o) => (
               <li
                 key={o._id}
                 className="flex flex-wrap items-center justify-between gap-2 py-2"
               >
                 <div>
-                  <div className="text-[13px] text-zoru-ink">
+                  <div className="text-[13px] text-[var(--st-text)]">
                     {o.buyerName}{' '}
-                    <span className="text-zoru-ink-muted">· {o.buyerEmail}</span>
+                    <span className="text-[var(--st-text-secondary)]">· {o.buyerEmail}</span>
                   </div>
-                  <div className="text-[12px] text-zoru-ink-muted">
+                  <div className="text-[12px] text-[var(--st-text-secondary)]">
                     {formatMoney(o.totals.totalMinor, o.totals.currency)} ·{' '}
                     {o.items.reduce((n, it) => n + it.qty, 0)} seats
                   </div>

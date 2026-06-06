@@ -26,15 +26,15 @@ export default async function NewBillPage() {
         subtitle="Record a vendor invoice or direct expense"
         icon={Receipt}
         breadcrumb={
-          <div className="flex items-center gap-2 text-sm text-zoru-ink-muted">
+          <div className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
             <Link
               href="/dashboard/crm/purchases/expenses"
-              className="transition-colors hover:text-zoru-ink"
+              className="transition-colors hover:text-[var(--st-text)]"
             >
               Bills &amp; Expenses
             </Link>
             <span>/</span>
-            <span className="font-medium text-zoru-ink">New</span>
+            <span className="font-medium text-[var(--st-text)]">New</span>
           </div>
         }
       />

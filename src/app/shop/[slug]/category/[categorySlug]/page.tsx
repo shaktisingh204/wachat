@@ -38,7 +38,7 @@ async function CategoryContent({ slug, categorySlug }: { slug: string, categoryS
                     isEditable={false}
                 />
             ) : (
-                 <div className="text-center py-24 text-zoru-ink-muted">
+                 <div className="text-center py-24 text-[var(--st-text-secondary)]">
                     <h1 className="mt-4 text-2xl font-semibold capitalize">{categoryName}</h1>
                 </div>
             )}

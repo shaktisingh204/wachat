@@ -135,7 +135,7 @@ export function DebitNoteListClient({
             render: (row) => row.vendorId ? (
                 <EntityPickerChip entity="vendor" id={row.vendorId} />
             ) : (
-                <span className="text-zoru-ink-muted">—</span>
+                <span className="text-[var(--st-text-secondary)]">—</span>
             ),
         },
         {
@@ -145,12 +145,12 @@ export function DebitNoteListClient({
             render: (row) => row.linkedBillId ? (
                 <Link
                     href={`/dashboard/crm/purchases/expenses/${row.linkedBillId}`}
-                    className="hover:underline font-mono text-zoru-ink"
+                    className="hover:underline font-mono text-[var(--st-text)]"
                 >
                     {row.linkedBillId.slice(-8)}
                 </Link>
             ) : (
-                <span className="text-zoru-ink-muted">—</span>
+                <span className="text-[var(--st-text-secondary)]">—</span>
             ),
         },
         {
@@ -158,7 +158,7 @@ export function DebitNoteListClient({
             header: 'Date',
             sortable: true,
             render: (row) => (
-                <span className="text-zoru-ink-muted">{fmtDate(row.date)}</span>
+                <span className="text-[var(--st-text-secondary)]">{fmtDate(row.date)}</span>
             ),
         },
         {
@@ -176,7 +176,7 @@ export function DebitNoteListClient({
             header: 'Amount',
             sortable: true,
             render: (row) => (
-                <span className="font-mono tabular-nums text-zoru-ink text-right block w-full">
+                <span className="font-mono tabular-nums text-[var(--st-text)] text-right block w-full">
                     {fmtMoney(row.totals?.total, row.currency)}
                 </span>
             ),
@@ -186,7 +186,7 @@ export function DebitNoteListClient({
             header: 'Refund mode',
             sortable: true,
             render: (row) => (
-                <span className="text-zoru-ink-muted">{refundModeLabel(row.refundMode)}</span>
+                <span className="text-[var(--st-text-secondary)]">{refundModeLabel(row.refundMode)}</span>
             ),
         },
         {
@@ -199,7 +199,7 @@ export function DebitNoteListClient({
             },
             editRender: (row, value, onChange) => (
                 <select
-                    className="bg-zoru-surface-2 border border-zoru-line rounded px-1.5 py-0.5 text-xs text-zoru-ink focus:outline-none"
+                    className="bg-[var(--st-bg-muted)] border border-[var(--st-border)] rounded px-1.5 py-0.5 text-xs text-[var(--st-text)] focus:outline-none"
                     value={value || 'draft'}
                     onChange={(e) => onChange(e.target.value)}
                 >
@@ -243,7 +243,7 @@ export function DebitNoteListClient({
                                     Mark refunded
                                 </ZoruDropdownMenuItem>
                                 <ZoruDropdownMenuSeparator />
-                                <ZoruDropdownMenuItem onClick={() => onDelete(id)} className="text-zoru-danger-ink">
+                                <ZoruDropdownMenuItem onClick={() => onDelete(id)} className="text-[var(--st-danger)]">
                                     <Trash2 className="h-3.5 w-3.5 mr-1.5" />
                                     Delete
                                 </ZoruDropdownMenuItem>

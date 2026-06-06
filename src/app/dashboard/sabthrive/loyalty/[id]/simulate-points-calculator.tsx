@@ -42,7 +42,7 @@ export function SimulatePointsCalculator({
 
     return (
         <Card className="p-6">
-            <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+            <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Simulate Points Calculator
             </h2>
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -55,36 +55,36 @@ export function SimulatePointsCalculator({
                         placeholder="e.g. 1000"
                         className="mt-2"
                     />
-                    <p className="mt-2 text-xs text-zoru-ink-muted">
+                    <p className="mt-2 text-xs text-[var(--st-text-secondary)]">
                         Simulate how many points a customer would earn based on their tier and base rate (₹1 = {baseRate} pts).
                     </p>
                 </div>
-                <div className="flex flex-col justify-center space-y-3 text-[13px] text-zoru-ink rounded-lg bg-zoru-surface p-4 border border-zoru-border">
+                <div className="flex flex-col justify-center space-y-3 text-[13px] text-[var(--st-text)] rounded-lg bg-[var(--st-bg-secondary)] p-4 border border-[var(--st-border)]">
                     <div className="flex justify-between">
-                        <span className="text-zoru-ink-muted">Points Earned:</span>
+                        <span className="text-[var(--st-text-secondary)]">Points Earned:</span>
                         <span className="font-semibold">{earnedPoints.toFixed(2)} pts</span>
                     </div>
                     {activeTier ? (
                         <div className="flex justify-between">
-                            <span className="text-zoru-ink-muted">Active Tier:</span>
+                            <span className="text-[var(--st-text-secondary)]">Active Tier:</span>
                             <span className="font-semibold">{activeTier.name} ({activeMultiplier}x)</span>
                         </div>
                     ) : (
                         <div className="flex justify-between">
-                            <span className="text-zoru-ink-muted">Active Tier:</span>
+                            <span className="text-[var(--st-text-secondary)]">Active Tier:</span>
                             <span className="font-semibold">Base (1x)</span>
                         </div>
                     )}
                     {nextTier && (
                         <div className="flex justify-between">
-                            <span className="text-zoru-ink-muted">Next Tier ({nextTier.name}):</span>
+                            <span className="text-[var(--st-text-secondary)]">Next Tier ({nextTier.name}):</span>
                             <span>{Math.max(0, (nextTier.threshold || 0) - points).toFixed(0)} pts needed</span>
                         </div>
                     )}
                     {redemptionRatio ? (
-                        <div className="flex justify-between border-t border-zoru-border pt-3 mt-1">
-                            <span className="text-zoru-ink-muted">Redemption Value:</span>
-                            <span className="font-semibold text-zoru-ink">₹{redemptionValue.toFixed(2)}</span>
+                        <div className="flex justify-between border-t border-[var(--st-border)] pt-3 mt-1">
+                            <span className="text-[var(--st-text-secondary)]">Redemption Value:</span>
+                            <span className="font-semibold text-[var(--st-text)]">₹{redemptionValue.toFixed(2)}</span>
                         </div>
                     ) : null}
                 </div>

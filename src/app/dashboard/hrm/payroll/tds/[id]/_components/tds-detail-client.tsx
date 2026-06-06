@@ -304,44 +304,44 @@ export function TdsDetailClient({
         <div className="space-y-6">
             <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
-                    <div className="text-[14px] font-medium text-zoru-ink">Overview</div>
+                    <div className="text-[14px] font-medium text-[var(--st-text)]">Overview</div>
                     <StatusPill label={status} tone={tone} />
                 </div>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
                     <div>
-                        <div className="text-zoru-ink-muted">Gross amount</div>
-                        <div className="font-mono text-zoru-ink">{inr(row.grossAmount)}</div>
+                        <div className="text-[var(--st-text-secondary)]">Gross amount</div>
+                        <div className="font-mono text-[var(--st-text)]">{inr(row.grossAmount)}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">TDS amount</div>
-                        <div className="font-mono text-zoru-ink">{inr(row.tdsAmount)}</div>
+                        <div className="text-[var(--st-text-secondary)]">TDS amount</div>
+                        <div className="font-mono text-[var(--st-text)]">{inr(row.tdsAmount)}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Certificate number</div>
-                        <div className="font-mono text-[12px] text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Certificate number</div>
+                        <div className="font-mono text-[12px] text-[var(--st-text)]">
                             {(row.certificateNumber as string | undefined) ?? '—'}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Deposit challan</div>
-                        <div className="font-mono text-[12px] text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Deposit challan</div>
+                        <div className="font-mono text-[12px] text-[var(--st-text)]">
                             {(row.depositChallanNumber as string | undefined) ?? '—'}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Deposit date</div>
-                        <div className="text-zoru-ink"><DateDisplay value={row.depositDate} /></div>
+                        <div className="text-[var(--st-text-secondary)]">Deposit date</div>
+                        <div className="text-[var(--st-text)]"><DateDisplay value={row.depositDate} /></div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Employee ID</div>
-                        <div className="font-mono text-[12px] text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Employee ID</div>
+                        <div className="font-mono text-[12px] text-[var(--st-text)]">
                             {employeeId || '—'}
                         </div>
                     </div>
                     {row.notes ? (
                         <div className="sm:col-span-2">
-                            <div className="text-zoru-ink-muted">Notes</div>
-                            <div className="whitespace-pre-wrap text-zoru-ink">
+                            <div className="text-[var(--st-text-secondary)]">Notes</div>
+                            <div className="whitespace-pre-wrap text-[var(--st-text)]">
                                 {row.notes as string}
                             </div>
                         </div>
@@ -353,18 +353,18 @@ export function TdsDetailClient({
                 <Card className="p-6">
                     <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                            <div className="text-[14px] font-medium text-zoru-ink">
+                            <div className="text-[14px] font-medium text-[var(--st-text)]">
                                 Quarterly view — {employeeName} · FY {financialYear}
                             </div>
-                            <div className="text-[12.5px] text-zoru-ink-muted">
+                            <div className="text-[12.5px] text-[var(--st-text-secondary)]">
                                 FY total:{' '}
-                                <span className="font-mono text-zoru-ink">{inr(fyTotal)}</span>
+                                <span className="font-mono text-[var(--st-text)]">{inr(fyTotal)}</span>
                             </div>
                         </div>
                         
                         <div className="flex flex-wrap items-center gap-2">
                             <div className="relative">
-                                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+                                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
                                 <Input
                                     type="text"
                                     placeholder="Filter by quarter/status..."
@@ -403,10 +403,10 @@ export function TdsDetailClient({
                         </div>
                     </div>
                     
-                    <div ref={parentRef} className="overflow-x-auto rounded-lg border border-zoru-line max-h-[400px] overflow-y-auto">
+                    <div ref={parentRef} className="overflow-x-auto rounded-lg border border-[var(--st-border)] max-h-[400px] overflow-y-auto">
                         <table className="w-full text-left text-[13px] relative">
                             <thead className="sticky top-0 z-10">
-                                <tr className="border-b border-zoru-line bg-zoru-surface-2">
+                                <tr className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]">
                                     <th className="w-10 px-4 py-2">
                                         <Checkbox
                                             checked={selectedIds.size === filteredView.length && filteredView.length > 0}
@@ -414,19 +414,19 @@ export function TdsDetailClient({
                                             aria-label="Select all"
                                         />
                                     </th>
-                                    <th className="px-4 py-2 text-[12px] uppercase text-zoru-ink-muted">
+                                    <th className="px-4 py-2 text-[12px] uppercase text-[var(--st-text-secondary)]">
                                         Quarter
                                     </th>
-                                    <th className="px-4 py-2 text-right text-[12px] uppercase text-zoru-ink-muted">
+                                    <th className="px-4 py-2 text-right text-[12px] uppercase text-[var(--st-text-secondary)]">
                                         Gross
                                     </th>
-                                    <th className="px-4 py-2 text-right text-[12px] uppercase text-zoru-ink-muted">
+                                    <th className="px-4 py-2 text-right text-[12px] uppercase text-[var(--st-text-secondary)]">
                                         TDS
                                     </th>
-                                    <th className="px-4 py-2 text-[12px] uppercase text-zoru-ink-muted">
+                                    <th className="px-4 py-2 text-[12px] uppercase text-[var(--st-text-secondary)]">
                                         Status
                                     </th>
-                                    <th className="px-4 py-2 text-right text-[12px] uppercase text-zoru-ink-muted">
+                                    <th className="px-4 py-2 text-right text-[12px] uppercase text-[var(--st-text-secondary)]">
                                         Actions
                                     </th>
                                 </tr>
@@ -439,7 +439,7 @@ export function TdsDetailClient({
                             >
                                 {filteredView.length === 0 ? (
                                     <tr>
-                                        <td colSpan={6} className="px-4 py-8 text-center text-zoru-ink-muted">
+                                        <td colSpan={6} className="px-4 py-8 text-center text-[var(--st-text-secondary)]">
                                             No records found.
                                         </td>
                                     </tr>
@@ -460,7 +460,7 @@ export function TdsDetailClient({
                                         ) : (
                                         <tr
                                             key={String(q._id)}
-                                            className="border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2/50 transition-colors"
+                                            className="border-b border-[var(--st-border)] last:border-0 hover:bg-[var(--st-bg-muted)]/50 transition-colors"
                                             // Optional: apply virtual row transform if needed for true virtualization
                                             // style={{
                                             //    position: 'absolute',
@@ -477,13 +477,13 @@ export function TdsDetailClient({
                                                     aria-label={`Select record for ${q.quarter}`}
                                                 />
                                             </td>
-                                            <td className="px-4 py-2 font-mono text-zoru-ink">
+                                            <td className="px-4 py-2 font-mono text-[var(--st-text)]">
                                                 {(q.quarter as string | undefined) ?? '—'}
                                             </td>
-                                            <td className="px-4 py-2 text-right font-mono text-zoru-ink">
+                                            <td className="px-4 py-2 text-right font-mono text-[var(--st-text)]">
                                                 {inr(q.grossAmount)}
                                             </td>
-                                            <td className="px-4 py-2 text-right font-mono text-zoru-ink">
+                                            <td className="px-4 py-2 text-right font-mono text-[var(--st-text)]">
                                                 {inr(q.tdsAmount)}
                                             </td>
                                             <td className="px-4 py-2">
@@ -496,7 +496,7 @@ export function TdsDetailClient({
                                                     }
                                                 />
                                             </td>
-                                            <td className="px-4 py-2 flex items-center justify-end gap-2 text-zoru-ink-muted">
+                                            <td className="px-4 py-2 flex items-center justify-end gap-2 text-[var(--st-text-secondary)]">
                                                 <span className="mr-2 text-[11px]"><DateDisplay value={q.depositDate} /></span>
                                                 <Button
                                                     variant="secondary"

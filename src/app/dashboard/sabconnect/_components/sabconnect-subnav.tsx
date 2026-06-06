@@ -18,7 +18,7 @@ export function SabConnectSubnav() {
     return (
         <nav
             aria-label="SabConnect sections"
-            className="flex flex-wrap gap-1 rounded-xl border border-zoru-line bg-zoru-surface p-1"
+            className="flex flex-wrap gap-1 rounded-xl border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1"
         >
             {TABS.map((tab) => {
                 const active = pathname.startsWith(tab.href);
@@ -30,8 +30,8 @@ export function SabConnectSubnav() {
                         className={cn(
                             'rounded-lg px-3 py-1.5 text-sm font-medium transition-colors',
                             active
-                                ? 'bg-zoru-accent text-zoru-accent-foreground'
-                                : 'text-zoru-muted hover:bg-zoru-surface-hover hover:text-zoru-text',
+                                ? 'bg-[var(--st-accent)] text-[var(--st-text)]'
+                                : 'text-[var(--st-bg-muted)] hover:bg-[var(--st-hover)] hover:text-zoru-text',
                         )}
                     >
                         {tab.label}

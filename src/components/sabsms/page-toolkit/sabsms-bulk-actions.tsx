@@ -39,16 +39,16 @@ export function SabsmsBulkActionsBar<T>({
   const overflow = actions.slice(2);
 
   return (
-    <div className="flex flex-wrap items-center gap-2 rounded-md border border-zoru-line bg-zoru-surface-2 px-3 py-2 text-sm">
-      <Check className="h-4 w-4 text-zoru-ink" />
-      <span className="font-medium text-zoru-ink">
+    <div className="flex flex-wrap items-center gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-sm">
+      <Check className="h-4 w-4 text-[var(--st-text)]" />
+      <span className="font-medium text-[var(--st-text)]">
         {selectedCount.toLocaleString()} selected
       </span>
       {onSelectAllMatching && selectedCount < totalCount && (
         <Button
           variant="link"
           size="sm"
-          className="h-auto px-1 text-zoru-ink"
+          className="h-auto px-1 text-[var(--st-text)]"
           onClick={onSelectAllMatching}
         >
           Select all {totalCount.toLocaleString()} matching

@@ -50,11 +50,11 @@ function ToggleRow({ id, label, description, checked, onChange }: ToggleRowProps
       className="flex cursor-pointer items-start justify-between gap-4 py-2"
     >
       <div className="flex flex-col gap-0.5">
-        <span className="text-[13px] font-medium text-zoru-ink dark:text-white">
+        <span className="text-[13px] font-medium text-[var(--st-text)] dark:text-white">
           {label}
         </span>
         {description && (
-          <span className="text-[11.5px] text-zoru-ink dark:text-zoru-ink-muted leading-snug">
+          <span className="text-[11.5px] text-[var(--st-text)] dark:text-[var(--st-text-secondary)] leading-snug">
             {description}
           </span>
         )}
@@ -67,10 +67,10 @@ function ToggleRow({ id, label, description, checked, onChange }: ToggleRowProps
         type="button"
         onClick={() => onChange(!checked)}
         className={cn(
-          'relative mt-0.5 h-5 w-9 shrink-0 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-line/40',
+          'relative mt-0.5 h-5 w-9 shrink-0 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-border)]/40',
           checked
-            ? 'bg-zoru-ink'
-            : 'bg-zoru-surface-2 dark:bg-zoru-ink',
+            ? 'bg-[var(--st-text)]'
+            : 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]',
         )}
       >
         <span
@@ -94,10 +94,10 @@ interface SectionProps {
 
 function Section({ icon: Icon, title, children }: SectionProps) {
   return (
-    <div className="rounded-xl border border-zoru-line dark:border-zoru-line bg-white dark:bg-zoru-ink overflow-hidden">
-      <div className="flex items-center gap-2.5 px-4 py-3 border-b border-zoru-line dark:border-zoru-line bg-zoru-surface-2 dark:bg-zoru-ink/50">
-        <Icon className="h-4 w-4 text-zoru-ink" strokeWidth={1.75} />
-        <span className="text-[13px] font-semibold text-zoru-ink dark:text-white">
+    <div className="rounded-xl border border-[var(--st-border)] dark:border-[var(--st-border)] bg-white dark:bg-[var(--st-text)] overflow-hidden">
+      <div className="flex items-center gap-2.5 px-4 py-3 border-b border-[var(--st-border)] dark:border-[var(--st-border)] bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/50">
+        <Icon className="h-4 w-4 text-[var(--st-text)]" strokeWidth={1.75} />
+        <span className="text-[13px] font-semibold text-[var(--st-text)] dark:text-white">
           {title}
         </span>
       </div>
@@ -253,7 +253,7 @@ export function NotificationsPanel({ flowId }: NotificationsPanelProps) {
         {[1, 2, 3].map((i) => (
           <div
             key={i}
-            className="h-28 animate-pulse rounded-xl bg-zoru-surface-2 dark:bg-zoru-ink"
+            className="h-28 animate-pulse rounded-xl bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]"
           />
         ))}
       </div>
@@ -266,8 +266,8 @@ export function NotificationsPanel({ flowId }: NotificationsPanelProps) {
 
       {/* Header */}
       <div className="flex items-center gap-2 mb-1">
-        <LuBell className="h-4 w-4 text-zoru-ink" strokeWidth={1.75} />
-        <h2 className="text-[14px] font-semibold text-zoru-ink dark:text-white">
+        <LuBell className="h-4 w-4 text-[var(--st-text)]" strokeWidth={1.75} />
+        <h2 className="text-[14px] font-semibold text-[var(--st-text)] dark:text-white">
           Notifications
         </h2>
       </div>
@@ -284,7 +284,7 @@ export function NotificationsPanel({ flowId }: NotificationsPanelProps) {
 
         {emailOnSubmission && (
           <div className="flex flex-col gap-2 pt-1">
-            <span className="text-[11.5px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+            <span className="text-[11.5px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
               Recipients
             </span>
 
@@ -294,15 +294,15 @@ export function NotificationsPanel({ flowId }: NotificationsPanelProps) {
                 {emailAddresses.map((addr) => (
                   <li
                     key={addr}
-                    className="flex items-center justify-between gap-2 rounded-lg border border-zoru-line dark:border-zoru-line bg-zoru-surface-2 dark:bg-zoru-ink/60 px-3 py-1.5"
+                    className="flex items-center justify-between gap-2 rounded-lg border border-[var(--st-border)] dark:border-[var(--st-border)] bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/60 px-3 py-1.5"
                   >
-                    <span className="text-[12.5px] text-zoru-ink dark:text-zoru-ink-muted truncate">
+                    <span className="text-[12.5px] text-[var(--st-text)] dark:text-[var(--st-text-secondary)] truncate">
                       {addr}
                     </span>
                     <button
                       type="button"
                       onClick={() => removeEmail(addr)}
-                      className="shrink-0 text-zoru-ink-muted hover:text-zoru-ink transition-colors"
+                      className="shrink-0 text-[var(--st-text-secondary)] hover:text-[var(--st-text)] transition-colors"
                       aria-label={`Remove ${addr}`}
                     >
                       <LuX className="h-3.5 w-3.5" />
@@ -322,15 +322,15 @@ export function NotificationsPanel({ flowId }: NotificationsPanelProps) {
                   onKeyDown={(e) => e.key === 'Enter' && addEmail()}
                   placeholder="name@example.com"
                   className={cn(
-                    'w-full rounded-lg border px-3 py-1.5 text-[12.5px] bg-white dark:bg-zoru-ink outline-none transition-colors',
-                    'focus:ring-2 focus:ring-zoru-line/30 focus:border-zoru-line',
+                    'w-full rounded-lg border px-3 py-1.5 text-[12.5px] bg-white dark:bg-[var(--st-text)] outline-none transition-colors',
+                    'focus:ring-2 focus:ring-[var(--st-border)]/30 focus:border-[var(--st-border)]',
                     emailError
-                      ? 'border-zoru-line dark:border-zoru-line'
-                      : 'border-zoru-line dark:border-zoru-line',
+                      ? 'border-[var(--st-border)] dark:border-[var(--st-border)]'
+                      : 'border-[var(--st-border)] dark:border-[var(--st-border)]',
                   )}
                 />
                 {emailError && (
-                  <span className="text-[11px] text-zoru-ink flex items-center gap-1">
+                  <span className="text-[11px] text-[var(--st-text)] flex items-center gap-1">
                     <LuCircleAlert className="h-3 w-3" />
                     {emailError}
                   </span>
@@ -339,7 +339,7 @@ export function NotificationsPanel({ flowId }: NotificationsPanelProps) {
               <button
                 type="button"
                 onClick={addEmail}
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-zoru-line dark:border-zoru-line bg-white dark:bg-zoru-ink text-zoru-ink hover:text-zoru-ink hover:border-zoru-line transition-colors"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[var(--st-border)] dark:border-[var(--st-border)] bg-white dark:bg-[var(--st-text)] text-[var(--st-text)] hover:text-[var(--st-text)] hover:border-[var(--st-border)] transition-colors"
                 aria-label="Add email"
               >
                 <LuPlus className="h-4 w-4" strokeWidth={2} />
@@ -361,7 +361,7 @@ export function NotificationsPanel({ flowId }: NotificationsPanelProps) {
 
         {webhookOnSubmission && (
           <div className="flex flex-col gap-2 pt-1">
-            <label className="text-[11.5px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+            <label className="text-[11.5px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
               Webhook URL
             </label>
             <div className="flex gap-2">
@@ -370,7 +370,7 @@ export function NotificationsPanel({ flowId }: NotificationsPanelProps) {
                 value={webhookUrl}
                 onChange={(e) => { setWebhookUrl(e.target.value); setTestStatus('idle'); }}
                 placeholder="https://example.com/webhook"
-                className="flex-1 rounded-lg border border-zoru-line dark:border-zoru-line bg-white dark:bg-zoru-ink px-3 py-1.5 text-[12.5px] outline-none focus:ring-2 focus:ring-zoru-line/30 focus:border-zoru-line transition-colors"
+                className="flex-1 rounded-lg border border-[var(--st-border)] dark:border-[var(--st-border)] bg-white dark:bg-[var(--st-text)] px-3 py-1.5 text-[12.5px] outline-none focus:ring-2 focus:ring-[var(--st-border)]/30 focus:border-[var(--st-border)] transition-colors"
               />
               <button
                 type="button"
@@ -378,8 +378,8 @@ export function NotificationsPanel({ flowId }: NotificationsPanelProps) {
                 disabled={testing || !webhookUrl.trim()}
                 className={cn(
                   'flex items-center gap-1.5 shrink-0 rounded-lg border px-3 py-1.5 text-[12px] font-medium transition-colors',
-                  'border-zoru-line dark:border-zoru-line bg-white dark:bg-zoru-ink',
-                  'hover:border-zoru-line hover:text-zoru-ink disabled:opacity-40 disabled:pointer-events-none',
+                  'border-[var(--st-border)] dark:border-[var(--st-border)] bg-white dark:bg-[var(--st-text)]',
+                  'hover:border-[var(--st-border)] hover:text-[var(--st-text)] disabled:opacity-40 disabled:pointer-events-none',
                 )}
               >
                 {testing ? (
@@ -397,8 +397,8 @@ export function NotificationsPanel({ flowId }: NotificationsPanelProps) {
                 className={cn(
                   'flex items-center gap-1.5 rounded-lg px-3 py-2 text-[12px]',
                   testStatus === 'ok'
-                    ? 'bg-zoru-surface-2 dark:bg-zoru-ink/30 text-zoru-ink dark:text-zoru-ink-muted'
-                    : 'bg-zoru-surface-2 dark:bg-zoru-ink/30 text-zoru-ink dark:text-zoru-ink-muted',
+                    ? 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]'
+                    : 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',
                 )}
               >
                 {testStatus === 'ok' ? (
@@ -434,7 +434,7 @@ export function NotificationsPanel({ flowId }: NotificationsPanelProps) {
             <div className="flex flex-col gap-1 flex-1">
               <label
                 htmlFor="digestFrequency"
-                className="text-[11.5px] font-medium uppercase tracking-wide text-zoru-ink-muted"
+                className="text-[11.5px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]"
               >
                 Frequency
               </label>
@@ -445,12 +445,12 @@ export function NotificationsPanel({ flowId }: NotificationsPanelProps) {
                   onChange={(e) =>
                     setDigestFrequency(e.target.value as 'daily' | 'weekly')
                   }
-                  className="w-full appearance-none rounded-lg border border-zoru-line dark:border-zoru-line bg-white dark:bg-zoru-ink px-3 py-1.5 pr-8 text-[12.5px] text-zoru-ink dark:text-white outline-none focus:ring-2 focus:ring-zoru-line/30 focus:border-zoru-line transition-colors"
+                  className="w-full appearance-none rounded-lg border border-[var(--st-border)] dark:border-[var(--st-border)] bg-white dark:bg-[var(--st-text)] px-3 py-1.5 pr-8 text-[12.5px] text-[var(--st-text)] dark:text-white outline-none focus:ring-2 focus:ring-[var(--st-border)]/30 focus:border-[var(--st-border)] transition-colors"
                 >
                   <option value="daily">Daily</option>
                   <option value="weekly">Weekly</option>
                 </select>
-                <LuChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zoru-ink-muted" />
+                <LuChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
               </div>
             </div>
 
@@ -458,7 +458,7 @@ export function NotificationsPanel({ flowId }: NotificationsPanelProps) {
             <div className="flex flex-col gap-1 w-28">
               <label
                 htmlFor="digestTime"
-                className="text-[11.5px] font-medium uppercase tracking-wide text-zoru-ink-muted"
+                className="text-[11.5px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]"
               >
                 At time
               </label>
@@ -467,7 +467,7 @@ export function NotificationsPanel({ flowId }: NotificationsPanelProps) {
                 type="time"
                 value={digestTime}
                 onChange={(e) => setDigestTime(e.target.value)}
-                className="w-full rounded-lg border border-zoru-line dark:border-zoru-line bg-white dark:bg-zoru-ink px-3 py-1.5 text-[12.5px] text-zoru-ink dark:text-white outline-none focus:ring-2 focus:ring-zoru-line/30 focus:border-zoru-line transition-colors"
+                className="w-full rounded-lg border border-[var(--st-border)] dark:border-[var(--st-border)] bg-white dark:bg-[var(--st-text)] px-3 py-1.5 text-[12.5px] text-[var(--st-text)] dark:text-white outline-none focus:ring-2 focus:ring-[var(--st-border)]/30 focus:border-[var(--st-border)] transition-colors"
               />
             </div>
           </div>
@@ -481,8 +481,8 @@ export function NotificationsPanel({ flowId }: NotificationsPanelProps) {
         disabled={saving}
         className={cn(
           'flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-semibold transition-colors',
-          'bg-zoru-ink hover:bg-zoru-ink text-white disabled:opacity-50 disabled:pointer-events-none',
-          saveStatus === 'error' && 'bg-zoru-ink hover:bg-zoru-ink',
+          'bg-[var(--st-text)] hover:bg-[var(--st-text)] text-white disabled:opacity-50 disabled:pointer-events-none',
+          saveStatus === 'error' && 'bg-[var(--st-text)] hover:bg-[var(--st-text)]',
         )}
       >
         {saving ? (

@@ -43,7 +43,7 @@ export function PhaseHeader({
   };
 
   return (
-    <div className="flex flex-col gap-2 border-b border-zoru-line px-4 py-3">
+    <div className="flex flex-col gap-2 border-b border-[var(--st-border)] px-4 py-3">
       <div className="flex items-center justify-between gap-2">
         {isEditing ? (
           <Input
@@ -58,17 +58,17 @@ export function PhaseHeader({
                 setIsEditing(false);
               }
             }}
-            className="h-7 w-full border-zoru-line bg-transparent px-1 text-sm font-semibold shadow-none focus-visible:border-zoru-ink"
+            className="h-7 w-full border-[var(--st-border)] bg-transparent px-1 text-sm font-semibold shadow-none focus-visible:border-[var(--st-text)]"
           />
         ) : (
           <div
-            className="h-7 flex-1 cursor-text truncate px-1 text-sm font-semibold leading-7 text-zoru-ink hover:bg-zoru-surface-hover rounded"
+            className="h-7 flex-1 cursor-text truncate px-1 text-sm font-semibold leading-7 text-[var(--st-text)] hover:bg-[var(--st-hover)] rounded"
             onClick={() => setIsEditing(true)}
           >
             {name}
           </div>
         )}
-        <span className="shrink-0 text-xs text-zoru-ink-muted tabular-nums">
+        <span className="shrink-0 text-xs text-[var(--st-text-secondary)] tabular-nums">
           {doneCount}/{totalCount}
         </span>
       </div>

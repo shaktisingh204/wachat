@@ -56,8 +56,8 @@ function WidgetShell({ title, icon: Icon, hint, href, children }: WidgetShellPro
     <Card className="p-0">
       <ZoruCardHeader className="pb-2">
         <div className="flex items-center justify-between">
-          <ZoruCardTitle className="flex items-center gap-2 text-[14px] text-zoru-ink">
-            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-zoru-surface-2">
+          <ZoruCardTitle className="flex items-center gap-2 text-[14px] text-[var(--st-text)]">
+            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[var(--st-bg-muted)]">
               <Icon className="h-3.5 w-3.5" strokeWidth={1.75} />
             </span>
             {title}
@@ -73,10 +73,10 @@ function WidgetShell({ title, icon: Icon, hint, href, children }: WidgetShellPro
       </ZoruCardHeader>
       <ZoruCardContent className="pt-2">{children}</ZoruCardContent>
       {href ? (
-        <div className="border-t border-zoru-line px-5 py-2">
+        <div className="border-t border-[var(--st-border)] px-5 py-2">
           <Link
             href={href}
-            className="text-[12px] text-zoru-ink-muted hover:text-zoru-ink hover:underline"
+            className="text-[12px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:underline"
           >
             Open
           </Link>
@@ -87,7 +87,7 @@ function WidgetShell({ title, icon: Icon, hint, href, children }: WidgetShellPro
 }
 
 function EmptyHint({ children }: { children: React.ReactNode }) {
-  return <p className="text-[12.5px] text-zoru-ink-muted">{children}</p>;
+  return <p className="text-[12.5px] text-[var(--st-text-secondary)]">{children}</p>;
 }
 
 function ItemList({ items }: { items: DashboardWidgetItem[] }) {
@@ -96,18 +96,18 @@ function ItemList({ items }: { items: DashboardWidgetItem[] }) {
       {items.map((it) => (
         <li
           key={it._id}
-          className="flex items-start justify-between gap-3 rounded-[var(--zoru-radius-sm)] px-2 py-1.5 hover:bg-zoru-surface-2"
+          className="flex items-start justify-between gap-3 rounded-[var(--zoru-radius-sm)] px-2 py-1.5 hover:bg-[var(--st-bg-muted)]"
         >
           <div className="min-w-0 flex-1">
-            <p className="truncate text-[13px] text-zoru-ink">{it.title}</p>
+            <p className="truncate text-[13px] text-[var(--st-text)]">{it.title}</p>
             {it.subtitle ? (
-              <p className="truncate text-[11.5px] text-zoru-ink-muted">
+              <p className="truncate text-[11.5px] text-[var(--st-text-secondary)]">
                 {it.subtitle}
               </p>
             ) : null}
           </div>
           {it.meta ? (
-            <span className="shrink-0 text-[11.5px] text-zoru-ink-muted">
+            <span className="shrink-0 text-[11.5px] text-[var(--st-text-secondary)]">
               {it.meta}
             </span>
           ) : null}
@@ -120,8 +120,8 @@ function ItemList({ items }: { items: DashboardWidgetItem[] }) {
 function StatRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex items-baseline justify-between gap-3">
-      <span className="text-[12px] text-zoru-ink-muted">{label}</span>
-      <span className="text-[14px] font-medium text-zoru-ink">{value}</span>
+      <span className="text-[12px] text-[var(--st-text-secondary)]">{label}</span>
+      <span className="text-[14px] font-medium text-[var(--st-text)]">{value}</span>
     </div>
   );
 }
@@ -129,9 +129,9 @@ function StatRow({ label, value }: { label: string; value: React.ReactNode }) {
 function BigStat({ value, hint }: { value: React.ReactNode; hint?: string }) {
   return (
     <div>
-      <p className="text-[24px] leading-none text-zoru-ink">{value}</p>
+      <p className="text-[24px] leading-none text-[var(--st-text)]">{value}</p>
       {hint ? (
-        <p className="mt-1 text-[12px] text-zoru-ink-muted">{hint}</p>
+        <p className="mt-1 text-[12px] text-[var(--st-text-secondary)]">{hint}</p>
       ) : null}
     </div>
   );
@@ -530,8 +530,8 @@ export function RenderWidget({ widgetKey, label, data }: RenderWidgetProps) {
   if (Component) return <Component data={data} />;
   return (
     <Card className="p-5">
-      <p className="text-[12.5px] text-zoru-ink-muted">
-        Widget "<span className="text-zoru-ink">{label}</span>" — not yet
+      <p className="text-[12.5px] text-[var(--st-text-secondary)]">
+        Widget "<span className="text-[var(--st-text)]">{label}</span>" — not yet
         implemented.
       </p>
     </Card>

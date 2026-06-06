@@ -178,10 +178,10 @@ export default async function LateReportPage(props: PageProps) {
 
           <Card className="p-6">
             <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-[16px] font-semibold text-zoru-ink">
+              <h2 className="text-[16px] font-semibold text-[var(--st-text)]">
                 Late items by month — stacked by kind
               </h2>
-              <span className="text-[12px] text-zoru-ink-muted">
+              <span className="text-[12px] text-[var(--st-text-secondary)]">
                 {totals.kindCount} kind{totals.kindCount === 1 ? '' : 's'}
               </span>
             </div>
@@ -189,26 +189,26 @@ export default async function LateReportPage(props: PageProps) {
           </Card>
 
           <Card className="p-0">
-            <div className="overflow-x-auto rounded-lg border border-zoru-line">
+            <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
               <Table>
                 <ZoruTableHeader>
-                  <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                    <ZoruTableHead className="text-zoru-ink-muted">Kind</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Title</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Project</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Owner</ZoruTableHead>
-                    <ZoruTableHead className="text-right text-zoru-ink-muted">Due</ZoruTableHead>
-                    <ZoruTableHead className="text-right text-zoru-ink-muted">Late</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                    <ZoruTableHead className="text-right text-zoru-ink-muted">Action</ZoruTableHead>
+                  <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Kind</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Title</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Project</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Owner</ZoruTableHead>
+                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Due</ZoruTableHead>
+                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Late</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
+                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Action</ZoruTableHead>
                   </ZoruTableRow>
                 </ZoruTableHeader>
                 <ZoruTableBody>
                   {pageRows.length === 0 ? (
-                    <ZoruTableRow className="border-zoru-line">
+                    <ZoruTableRow className="border-[var(--st-border)]">
                       <ZoruTableCell
                         colSpan={8}
-                        className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                        className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                       >
                         No late items in this range.
                       </ZoruTableCell>
@@ -217,7 +217,7 @@ export default async function LateReportPage(props: PageProps) {
                     pageRows.map((r) => (
                       <ZoruTableRow
                         key={`${r.kind}-${r._id}`}
-                        className="border-zoru-line"
+                        className="border-[var(--st-border)]"
                       >
                         <ZoruTableCell>
                           <Badge variant={kindVariant(r.kind)}>
@@ -230,32 +230,32 @@ export default async function LateReportPage(props: PageProps) {
                             label={r.title}
                           />
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-zoru-ink">
+                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                           {r.projectId ? (
                             <EntityRowLink
                               href={`/dashboard/crm/projects/${r.projectId}`}
                               label={r.projectName}
                             />
                           ) : (
-                            <span className="text-zoru-ink-muted">—</span>
+                            <span className="text-[var(--st-text-secondary)]">—</span>
                           )}
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-zoru-ink">
+                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                           {r.ownerName}
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
+                        <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
                           {r.dueDate ? r.dueDate.slice(0, 10) : '—'}
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-right text-[13px] font-medium text-zoru-ink">
+                        <ZoruTableCell className="text-right text-[13px] font-medium text-[var(--st-text)]">
                           {r.lateDays}d
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-zoru-ink">
+                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                           {r.status}
                         </ZoruTableCell>
                         <ZoruTableCell className="text-right">
                           <a
                             href={kindHref(r.kind, r._id)}
-                            className="text-[13px] text-zoru-ink hover:underline font-medium"
+                            className="text-[13px] text-[var(--st-text)] hover:underline font-medium"
                           >
                             Resolve
                           </a>

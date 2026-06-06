@@ -66,15 +66,15 @@ export const SortableElement = ({ element }: { element: ElementNode }) => {
                 onClick={handleSelect}
                 className={cn(
                     "relative w-full border border-dashed transition-all group",
-                    isSelected ? "border-zoru-line z-10" : "border-zoru-line",
-                    isOver && !isDragging ? "bg-zoru-surface-2 border-zoru-line" : ""
+                    isSelected ? "border-[var(--st-border)] z-10" : "border-[var(--st-border)]",
+                    isOver && !isDragging ? "bg-[var(--st-bg-muted)] border-[var(--st-border)]" : ""
                 )}
             >
                 {/* Drag Handle for Section */}
                 <div
                     {...attributes}
                     {...listeners}
-                    className="absolute -top-3 left-1/2 -translate-x-1/2 bg-zoru-surface-2 text-xs px-2 py-0.5 rounded cursor-grab active:cursor-grabbing hover:bg-zoru-surface-2 opacity-0 group-hover:opacity-100 transition-opacity z-20"
+                    className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[var(--st-bg-muted)] text-xs px-2 py-0.5 rounded cursor-grab active:cursor-grabbing hover:bg-[var(--st-bg-muted)] opacity-0 group-hover:opacity-100 transition-opacity z-20"
                 >
                     :: Section
                 </div>
@@ -82,7 +82,7 @@ export const SortableElement = ({ element }: { element: ElementNode }) => {
                 <div className="flex flex-wrap relative min-h-[50px]">
                     {renderChildren()}
                     {element.children.length === 0 && (
-                        <div className="w-full text-center text-zoru-ink-muted py-4 pointer-events-none">
+                        <div className="w-full text-center text-[var(--st-text-secondary)] py-4 pointer-events-none">
                             Drop Columns Here
                         </div>
                     )}
@@ -102,15 +102,15 @@ export const SortableElement = ({ element }: { element: ElementNode }) => {
                 onClick={handleSelect}
                 className={cn(
                     "flex-1 min-w-[50px] border border-dashed transition-all group relative",
-                    isSelected ? "border-zoru-line z-10" : "border-zoru-line hover:border-zoru-line",
-                    isOver && !isDragging ? "bg-zoru-surface-2 border-zoru-line" : ""
+                    isSelected ? "border-[var(--st-border)] z-10" : "border-[var(--st-border)] hover:border-[var(--st-border)]",
+                    isOver && !isDragging ? "bg-[var(--st-bg-muted)] border-[var(--st-border)]" : ""
                 )}
             >
                 {/* Drag Handle for Column */}
                 <div
                     {...attributes}
                     {...listeners}
-                    className="absolute -top-3 left-2 bg-zoru-surface-2 text-xs px-2 py-0.5 rounded cursor-grab active:cursor-grabbing hover:bg-zoru-surface-2 opacity-0 group-hover:opacity-100 transition-opacity z-20"
+                    className="absolute -top-3 left-2 bg-[var(--st-bg-muted)] text-xs px-2 py-0.5 rounded cursor-grab active:cursor-grabbing hover:bg-[var(--st-bg-muted)] opacity-0 group-hover:opacity-100 transition-opacity z-20"
                 >
                     :: Col
                 </div>
@@ -118,7 +118,7 @@ export const SortableElement = ({ element }: { element: ElementNode }) => {
                 <div className="min-h-[50px] w-full p-2">
                     {renderChildren()}
                     {element.children.length === 0 && (
-                        <div className="text-center text-zoru-ink-muted py-2 text-xs pointer-events-none">
+                        <div className="text-center text-[var(--st-text-secondary)] py-2 text-xs pointer-events-none">
                             Drop Widgets
                         </div>
                     )}
@@ -137,7 +137,7 @@ export const SortableElement = ({ element }: { element: ElementNode }) => {
             onClick={handleSelect}
             className={cn(
                 "relative transition-all ring-offset-2 group cursor-move",
-                isSelected ? "ring-2 ring-zoru-line z-10" : "hover:ring-1 hover:ring-zoru-line"
+                isSelected ? "ring-2 ring-[var(--st-border)] z-10" : "hover:ring-1 hover:ring-[var(--st-border)]"
             )}
         >
             {WidgetComponent ? <WidgetComponent content={element.content} style={element.style} /> : <div>Unknown</div>}

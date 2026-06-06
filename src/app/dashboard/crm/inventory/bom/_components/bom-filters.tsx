@@ -50,7 +50,7 @@ export function BomFiltersRow(props: BomFiltersRowProps) {
         <Card>
             <ZoruCardContent className="grid grid-cols-1 gap-3 pt-4 md:grid-cols-3 lg:grid-cols-5">
                 <div className="space-y-1">
-                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Status
                     </Label>
                     <EnumFilterField
@@ -62,7 +62,7 @@ export function BomFiltersRow(props: BomFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Finished good
                     </Label>
                     <EntityFormField
@@ -75,7 +75,7 @@ export function BomFiltersRow(props: BomFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Version
                     </Label>
                     <div className="flex items-center gap-1">
@@ -93,7 +93,7 @@ export function BomFiltersRow(props: BomFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Effective date
                     </Label>
                     <div className="flex items-center gap-1">
@@ -111,7 +111,7 @@ export function BomFiltersRow(props: BomFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Active flag
                     </Label>
                     <Button

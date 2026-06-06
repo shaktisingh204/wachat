@@ -117,14 +117,14 @@ export function ClientContractsClient({ contracts }: { contracts: ClientContract
                         <ZoruTableHeader>
                             <ZoruTableRow>
                                 <ZoruTableHead onClick={() => handleSort('title')} className="cursor-pointer">
-                                    <div className="flex items-center gap-1 hover:text-zoru-ink">Name <ArrowUpDown className="h-3 w-3" /></div>
+                                    <div className="flex items-center gap-1 hover:text-[var(--st-text)]">Name <ArrowUpDown className="h-3 w-3" /></div>
                                 </ZoruTableHead>
                                 <ZoruTableHead>Type</ZoruTableHead>
                                 <ZoruTableHead onClick={() => handleSort('value')} className="cursor-pointer">
-                                    <div className="flex items-center gap-1 hover:text-zoru-ink">Amount <ArrowUpDown className="h-3 w-3" /></div>
+                                    <div className="flex items-center gap-1 hover:text-[var(--st-text)]">Amount <ArrowUpDown className="h-3 w-3" /></div>
                                 </ZoruTableHead>
                                 <ZoruTableHead onClick={() => handleSort('startDate')} className="cursor-pointer">
-                                    <div className="flex items-center gap-1 hover:text-zoru-ink">Period <ArrowUpDown className="h-3 w-3" /></div>
+                                    <div className="flex items-center gap-1 hover:text-[var(--st-text)]">Period <ArrowUpDown className="h-3 w-3" /></div>
                                 </ZoruTableHead>
                                 <ZoruTableHead>Status</ZoruTableHead>
                                 <ZoruTableHead className="text-right">Actions</ZoruTableHead>
@@ -135,10 +135,10 @@ export function ClientContractsClient({ contracts }: { contracts: ClientContract
                                 const unsigned = !c.signedAt;
                                 return (
                                     <ZoruTableRow key={c._id}>
-                                        <ZoruTableCell className="font-medium text-zoru-ink">{c.title}</ZoruTableCell>
+                                        <ZoruTableCell className="font-medium text-[var(--st-text)]">{c.title}</ZoruTableCell>
                                         <ZoruTableCell>{c.type ?? '—'}</ZoruTableCell>
                                         <ZoruTableCell>{fmtCurrency(c.value, c.currency)}</ZoruTableCell>
-                                        <ZoruTableCell className="text-xs text-zoru-ink-muted">
+                                        <ZoruTableCell className="text-xs text-[var(--st-text-secondary)]">
                                             {fmtDate(c.startDate)} – {fmtDate(c.endDate)}
                                         </ZoruTableCell>
                                         <ZoruTableCell>
@@ -200,14 +200,14 @@ export function ClientContractsClient({ contracts }: { contracts: ClientContract
                     </DialogHeader>
                     <div className="py-4">
                         {!selectedContract?.signatures?.length ? (
-                            <p className="text-sm text-zoru-ink-muted">No signatures recorded yet.</p>
+                            <p className="text-sm text-[var(--st-text-secondary)]">No signatures recorded yet.</p>
                         ) : (
                             <div className="space-y-4">
                                 {selectedContract.signatures.map((sig, i) => (
                                     <div key={i} className="flex flex-col gap-1 text-sm border-b pb-3 last:border-0 last:pb-0">
-                                        <p className="font-medium text-zoru-ink">{sig.fullName} {sig.party ? `(${sig.party})` : ''}</p>
-                                        <p className="text-xs text-zoru-ink-muted">Signed at: {fmtDate(sig.signedAt)}</p>
-                                        {sig.place && <p className="text-xs text-zoru-ink-muted">Place: {sig.place}</p>}
+                                        <p className="font-medium text-[var(--st-text)]">{sig.fullName} {sig.party ? `(${sig.party})` : ''}</p>
+                                        <p className="text-xs text-[var(--st-text-secondary)]">Signed at: {fmtDate(sig.signedAt)}</p>
+                                        {sig.place && <p className="text-xs text-[var(--st-text-secondary)]">Place: {sig.place}</p>}
                                     </div>
                                 ))}
                             </div>
@@ -224,16 +224,16 @@ export function ClientContractsClient({ contracts }: { contracts: ClientContract
                     </DialogHeader>
                     <div className="py-4">
                         {!selectedContract?.amendments?.length ? (
-                            <p className="text-sm text-zoru-ink-muted">No amendments for this contract.</p>
+                            <p className="text-sm text-[var(--st-text-secondary)]">No amendments for this contract.</p>
                         ) : (
                             <div className="space-y-4">
                                 {selectedContract.amendments.map((a, i) => (
                                     <div key={i} className="flex flex-col gap-1 text-sm border-b pb-3 last:border-0 last:pb-0">
                                         <div className="flex justify-between items-center">
-                                            <p className="font-medium text-zoru-ink">{a.title}</p>
+                                            <p className="font-medium text-[var(--st-text)]">{a.title}</p>
                                             <Badge variant="outline">{a.status}</Badge>
                                         </div>
-                                        <p className="text-xs text-zoru-ink-muted">Created: {fmtDate(a.createdAt)}</p>
+                                        <p className="text-xs text-[var(--st-text-secondary)]">Created: {fmtDate(a.createdAt)}</p>
                                     </div>
                                 ))}
                             </div>

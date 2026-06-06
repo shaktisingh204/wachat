@@ -230,7 +230,7 @@ export function CreatePackDrawer({
                     />
                 )}
 
-                <div className="mt-auto flex items-center justify-between gap-2 border-t border-zoru-line pt-3">
+                <div className="mt-auto flex items-center justify-between gap-2 border-t border-[var(--st-border)] pt-3">
                     <Button
                         variant="ghost"
                         onClick={() => onOpenChange(false)}
@@ -271,7 +271,7 @@ export function CreatePackDrawer({
 
 function Stepper({ step }: { step: 1 | 2 | 3 }) {
     return (
-        <ol className="flex items-center gap-2 text-[12px] text-zoru-ink-muted">
+        <ol className="flex items-center gap-2 text-[12px] text-[var(--st-text-secondary)]">
             {[
                 { n: 1, label: 'Basics' },
                 { n: 2, label: 'Stickers' },
@@ -280,14 +280,14 @@ function Stepper({ step }: { step: 1 | 2 | 3 }) {
                 <li
                     key={s.n}
                     className={cn(
-                        'flex items-center gap-2 rounded-full border border-zoru-line px-2.5 py-1',
-                        step === s.n && 'border-zoru-ink bg-zoru-ink text-zoru-on-primary',
+                        'flex items-center gap-2 rounded-full border border-[var(--st-border)] px-2.5 py-1',
+                        step === s.n && 'border-[var(--st-text)] bg-[var(--st-text)] text-[var(--st-text-inverted)]',
                     )}
                 >
                     <span
                         className={cn(
-                            'inline-flex h-4 w-4 items-center justify-center rounded-full bg-zoru-surface text-[10px] font-semibold',
-                            step === s.n && 'bg-zoru-on-primary text-zoru-ink',
+                            'inline-flex h-4 w-4 items-center justify-center rounded-full bg-[var(--st-bg-secondary)] text-[10px] font-semibold',
+                            step === s.n && 'bg-[var(--st-text-inverted)] text-[var(--st-text)]',
                         )}
                     >
                         {s.n}
@@ -333,7 +333,7 @@ function Step1Basics({
                     placeholder="123456789"
                     inputMode="numeric"
                 />
-                <p className="text-[11.5px] text-zoru-ink-muted">
+                <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                     Numeric Telegram user id of the pack owner. The bot must have already
                     spoken to this user. Find it via @userinfobot.
                 </p>
@@ -347,7 +347,7 @@ function Step1Basics({
                     }
                     placeholder="my_cats"
                 />
-                <p className="text-[11.5px] text-zoru-ink-muted">
+                <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                     Letters, digits, underscores. We'll suffix with{' '}
                     <code>_by_{botUsername}</code> if missing.
                 </p>
@@ -356,8 +356,8 @@ function Step1Basics({
                         className={cn(
                             'rounded-[var(--zoru-radius)] border px-3 py-2 text-[12px]',
                             validName
-                                ? 'border-zoru-line bg-zoru-surface text-zoru-ink'
-                                : 'border-zoru-line bg-zoru-surface-2 text-zoru-ink',
+                                ? 'border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]'
+                                : 'border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)]',
                         )}
                     >
                         Final name: <code className="font-mono">{fullPackName}</code>
@@ -419,7 +419,7 @@ function Step2Stickers({
     return (
         <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between">
-                <p className="text-[12.5px] text-zoru-ink-muted">
+                <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                     Add up to 50 stickers. Each needs 1–20 emojis (and a mask position for
                     mask packs).
                 </p>
@@ -435,7 +435,7 @@ function Step2Stickers({
             {stickers.length === 0 && (
                 <EmptyState
                     compact
-                    icon={<StickerIcon className="h-5 w-5 text-zoru-ink-muted" />}
+                    icon={<StickerIcon className="h-5 w-5 text-[var(--st-text-secondary)]" />}
                     title="No stickers yet"
                     description="Pick a file from SabFiles to begin."
                 />
@@ -444,10 +444,10 @@ function Step2Stickers({
                 {stickers.map((s, idx) => (
                     <li
                         key={`${s.sabFileId}-${idx}`}
-                        className="flex flex-col gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3"
+                        className="flex flex-col gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3"
                     >
                         <div className="flex items-center gap-3">
-                            <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-[var(--zoru-radius-sm)] bg-zoru-surface">
+                            <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-secondary)]">
                                 {s.sabFileMime?.startsWith('image/') ? (
                                     // eslint-disable-next-line @next/next/no-img-element
                                     <img
@@ -456,14 +456,14 @@ function Step2Stickers({
                                         className="h-full w-full object-cover"
                                     />
                                 ) : (
-                                    <ImageIcon className="h-6 w-6 text-zoru-ink-muted" />
+                                    <ImageIcon className="h-6 w-6 text-[var(--st-text-secondary)]" />
                                 )}
                             </div>
                             <div className="min-w-0 flex-1">
-                                <div className="truncate text-[13px] font-medium text-zoru-ink">
+                                <div className="truncate text-[13px] font-medium text-[var(--st-text)]">
                                     {s.sabFileName ?? 'Sticker'}
                                 </div>
-                                <div className="truncate text-[11px] text-zoru-ink-muted">
+                                <div className="truncate text-[11px] text-[var(--st-text-secondary)]">
                                     {s.sabFileMime ?? 'unknown mime'}
                                 </div>
                             </div>
@@ -524,7 +524,7 @@ function MaskFields({
     onChange: (patch: Partial<DraftSticker>) => void;
 }) {
     return (
-        <div className="grid gap-2 rounded-[var(--zoru-radius-sm)] border border-dashed border-zoru-line p-2 sm:grid-cols-4">
+        <div className="grid gap-2 rounded-[var(--zoru-radius-sm)] border border-dashed border-[var(--st-border)] p-2 sm:grid-cols-4">
             <div className="flex flex-col gap-1">
                 <Label className="text-[11px]">Anchor</Label>
                 <Select value={point} onValueChange={(v) => onChange({ maskPoint: v })}>
@@ -611,7 +611,7 @@ function Step3Review({
                 {stickers.map((s, i) => (
                     <div
                         key={i}
-                        className="flex aspect-square items-center justify-center overflow-hidden rounded-[var(--zoru-radius)] bg-zoru-surface"
+                        className="flex aspect-square items-center justify-center overflow-hidden rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)]"
                     >
                         {s.sabFileMime?.startsWith('image/') ? (
                             // eslint-disable-next-line @next/next/no-img-element
@@ -632,11 +632,11 @@ function Step3Review({
 
 function Row({ label, value }: { label: string; value: React.ReactNode }) {
     return (
-        <div className="flex items-center justify-between gap-3 border-b border-zoru-line/60 py-1.5 last:border-b-0">
-            <span className="text-[11px] uppercase tracking-[0.1em] text-zoru-ink-muted">
+        <div className="flex items-center justify-between gap-3 border-b border-[var(--st-border)]/60 py-1.5 last:border-b-0">
+            <span className="text-[11px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
                 {label}
             </span>
-            <span className="text-[13px] text-zoru-ink">{value || '—'}</span>
+            <span className="text-[13px] text-[var(--st-text)]">{value || '—'}</span>
         </div>
     );
 }

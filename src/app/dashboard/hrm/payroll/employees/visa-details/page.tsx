@@ -161,43 +161,43 @@ export default function VisaDetailsPage() {
       <Card className="p-6">
         {isLoading ? (
           <div className="flex h-32 items-center justify-center">
-            <LoaderCircle className="h-6 w-6 animate-spin text-zoru-ink-muted" />
+            <LoaderCircle className="h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-lg border border-zoru-line">
+          <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
             <table className="w-full text-[13px]">
               <thead>
-                <tr className="border-b border-zoru-line bg-zoru-surface-2">
-                  <th className="px-4 py-2.5 text-left text-[12px] text-zoru-ink-muted">Employee</th>
-                  <th className="px-4 py-2.5 text-left text-[12px] text-zoru-ink-muted">Country</th>
-                  <th className="px-4 py-2.5 text-left text-[12px] text-zoru-ink-muted">Visa #</th>
-                  <th className="px-4 py-2.5 text-left text-[12px] text-zoru-ink-muted">Issued</th>
-                  <th className="px-4 py-2.5 text-left text-[12px] text-zoru-ink-muted">Expires</th>
-                  <th className="px-4 py-2.5 text-left text-[12px] text-zoru-ink-muted">File</th>
-                  <th className="px-4 py-2.5 text-right text-[12px] text-zoru-ink-muted">Actions</th>
+                <tr className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]">
+                  <th className="px-4 py-2.5 text-left text-[12px] text-[var(--st-text-secondary)]">Employee</th>
+                  <th className="px-4 py-2.5 text-left text-[12px] text-[var(--st-text-secondary)]">Country</th>
+                  <th className="px-4 py-2.5 text-left text-[12px] text-[var(--st-text-secondary)]">Visa #</th>
+                  <th className="px-4 py-2.5 text-left text-[12px] text-[var(--st-text-secondary)]">Issued</th>
+                  <th className="px-4 py-2.5 text-left text-[12px] text-[var(--st-text-secondary)]">Expires</th>
+                  <th className="px-4 py-2.5 text-left text-[12px] text-[var(--st-text-secondary)]">File</th>
+                  <th className="px-4 py-2.5 text-right text-[12px] text-[var(--st-text-secondary)]">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {visas.length === 0 ? (
-                  <tr><td colSpan={7} className="py-10 text-center text-[13px] text-zoru-ink-muted">No visa records found.</td></tr>
+                  <tr><td colSpan={7} className="py-10 text-center text-[13px] text-[var(--st-text-secondary)]">No visa records found.</td></tr>
                 ) : (
                   visas.map((v) => (
-                    <tr key={String(v._id)} className="border-t border-zoru-line hover:bg-zoru-surface-2/50">
-                      <td className="px-4 py-2.5 text-zoru-ink">{empMap.get(String(v.user_id)) || v.user_id}</td>
-                      <td className="px-4 py-2.5 text-zoru-ink">{v.country}</td>
-                      <td className="px-4 py-2.5 font-mono text-[12px] text-zoru-ink">{v.visa_number || '—'}</td>
-                      <td className="px-4 py-2.5 text-zoru-ink-muted">{fmtDate(v.issue_date)}</td>
+                    <tr key={String(v._id)} className="border-t border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]/50">
+                      <td className="px-4 py-2.5 text-[var(--st-text)]">{empMap.get(String(v.user_id)) || v.user_id}</td>
+                      <td className="px-4 py-2.5 text-[var(--st-text)]">{v.country}</td>
+                      <td className="px-4 py-2.5 font-mono text-[12px] text-[var(--st-text)]">{v.visa_number || '—'}</td>
+                      <td className="px-4 py-2.5 text-[var(--st-text-secondary)]">{fmtDate(v.issue_date)}</td>
                       <td className="px-4 py-2.5">
                         {v.expiry_date ? (
                           <Badge variant={expiryVariant(v.expiry_date)}>{fmtDate(v.expiry_date)}</Badge>
-                        ) : <span className="text-zoru-ink-muted">—</span>}
+                        ) : <span className="text-[var(--st-text-secondary)]">—</span>}
                       </td>
                       <td className="px-4 py-2.5">
                         {v.file ? (
-                          <a href={v.file} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[12px] text-zoru-ink hover:underline">
+                          <a href={v.file} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[12px] text-[var(--st-text)] hover:underline">
                             <ExternalLink className="h-3 w-3" /> View
                           </a>
-                        ) : <span className="text-zoru-ink-muted">—</span>}
+                        ) : <span className="text-[var(--st-text-secondary)]">—</span>}
                       </td>
                       <td className="px-4 py-2.5 text-right">
                         <div className="flex justify-end gap-1">
@@ -205,7 +205,7 @@ export default function VisaDetailsPage() {
                             <Pencil className="h-3.5 w-3.5" />
                           </Button>
                           <Button variant="ghost" size="sm" onClick={() => handleDelete(String(v._id))}>
-                            <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                            <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                           </Button>
                         </div>
                       </td>
@@ -219,15 +219,15 @@ export default function VisaDetailsPage() {
       </Card>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <ZoruDialogContent className="max-w-lg border-zoru-line bg-zoru-bg">
+        <ZoruDialogContent className="max-w-lg border-[var(--st-border)] bg-[var(--st-bg)]">
           <ZoruDialogHeader>
-            <ZoruDialogTitle className="text-zoru-ink">{form._id ? 'Edit Visa Details' : 'Add Visa Details'}</ZoruDialogTitle>
+            <ZoruDialogTitle className="text-[var(--st-text)]">{form._id ? 'Edit Visa Details' : 'Add Visa Details'}</ZoruDialogTitle>
           </ZoruDialogHeader>
           <div className="grid gap-4 py-2 md:grid-cols-2">
             <div className="md:col-span-2">
-              <Label className="text-[12px] text-zoru-ink-muted">Employee <span className="text-zoru-danger-ink">*</span></Label>
+              <Label className="text-[12px] text-[var(--st-text-secondary)]">Employee <span className="text-[var(--st-danger)]">*</span></Label>
               <Select value={form.user_id || '__none__'} onValueChange={(v) => set('user_id', v === '__none__' ? '' : v)}>
-                <ZoruSelectTrigger className="mt-1.5 h-10 w-full rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                <ZoruSelectTrigger className="mt-1.5 h-10 w-full rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
                   <ZoruSelectValue placeholder="Select employee…" />
                 </ZoruSelectTrigger>
                 <ZoruSelectContent>
@@ -237,25 +237,25 @@ export default function VisaDetailsPage() {
               </Select>
             </div>
             <div>
-              <Label className="text-[12px] text-zoru-ink-muted">Country <span className="text-zoru-danger-ink">*</span></Label>
-              <Input value={form.country} onChange={(e) => set('country', e.target.value)} placeholder="e.g. United States" className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
+              <Label className="text-[12px] text-[var(--st-text-secondary)]">Country <span className="text-[var(--st-danger)]">*</span></Label>
+              <Input value={form.country} onChange={(e) => set('country', e.target.value)} placeholder="e.g. United States" className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]" />
             </div>
             <div>
-              <Label className="text-[12px] text-zoru-ink-muted">Visa Number</Label>
-              <Input value={form.visa_number} onChange={(e) => set('visa_number', e.target.value)} className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
+              <Label className="text-[12px] text-[var(--st-text-secondary)]">Visa Number</Label>
+              <Input value={form.visa_number} onChange={(e) => set('visa_number', e.target.value)} className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]" />
             </div>
             <div>
-              <Label className="text-[12px] text-zoru-ink-muted">Issue Date</Label>
-              <Input type="date" value={form.issue_date} onChange={(e) => set('issue_date', e.target.value)} className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
+              <Label className="text-[12px] text-[var(--st-text-secondary)]">Issue Date</Label>
+              <Input type="date" value={form.issue_date} onChange={(e) => set('issue_date', e.target.value)} className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]" />
             </div>
             <div>
-              <Label className="text-[12px] text-zoru-ink-muted">Expiry Date</Label>
-              <Input type="date" value={form.expiry_date} onChange={(e) => set('expiry_date', e.target.value)} className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
+              <Label className="text-[12px] text-[var(--st-text-secondary)]">Expiry Date</Label>
+              <Input type="date" value={form.expiry_date} onChange={(e) => set('expiry_date', e.target.value)} className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]" />
             </div>
             <div className="md:col-span-2">
-              <Label className="text-[12px] text-zoru-ink-muted">File URL</Label>
+              <Label className="text-[12px] text-[var(--st-text-secondary)]">File URL</Label>
               <div className="mt-1.5 flex items-center gap-2">
-                <Input type="url" value={form.file} onChange={(e) => set('file', e.target.value)} placeholder="https://…" className="h-10 flex-1 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
+                <Input type="url" value={form.file} onChange={(e) => set('file', e.target.value)} placeholder="https://…" className="h-10 flex-1 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]" />
                 <SabFilePickerButton
                   accept="document"
                   onPick={({ url }) => set('file', url)}

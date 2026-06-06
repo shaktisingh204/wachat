@@ -247,9 +247,9 @@ export default function FlowDiffPage() {
   /* ── Render ─────────────────────────────────────────────── */
 
   return (
-    <div className="flex min-h-screen flex-col bg-zoru-bg text-zoru-ink">
+    <div className="flex min-h-screen flex-col bg-[var(--st-bg)] text-[var(--st-text)]">
       {/* ── Header ─────────────────────────────────────────── */}
-      <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-zoru-line bg-zoru-surface/90 px-4 py-3 backdrop-blur-md">
+      <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)]/90 px-4 py-3 backdrop-blur-md">
         <Button variant="ghost" size="icon-sm" asChild>
           <Link
             href={`/dashboard/sabflow/flow-builder/${flowId}`}
@@ -259,10 +259,10 @@ export default function FlowDiffPage() {
           </Link>
         </Button>
         <div className="min-w-0 flex-1">
-          <p className="text-[13px] font-semibold text-zoru-ink-strong">
+          <p className="text-[13px] font-semibold text-[var(--st-text)]">
             Compare flow versions
           </p>
-          <p className="truncate text-[11.5px] text-zoru-ink-muted">
+          <p className="truncate text-[11.5px] text-[var(--st-text-secondary)]">
             {state.before?.label ?? "…"}
             {" → "}
             {state.after?.label ?? "…"}
@@ -320,7 +320,7 @@ export default function FlowDiffPage() {
       <main className="flex-1 p-4">
         {state.isLoading ? (
           <div className="flex items-center justify-center py-24">
-            <Loader2 className="h-6 w-6 animate-spin text-zoru-ink-muted" />
+            <Loader2 className="h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
           </div>
         ) : state.error ? (
           <div className="mx-auto max-w-md">
@@ -354,7 +354,7 @@ export default function FlowDiffPage() {
             <ZoruAlertDialogTitle>Restore this version?</ZoruAlertDialogTitle>
             <ZoruAlertDialogDescription>
               Restoring{" "}
-              <strong className="font-medium text-zoru-ink-strong">
+              <strong className="font-medium text-[var(--st-text)]">
                 &ldquo;{pendingLabel}&rdquo;
               </strong>{" "}
               will overwrite your current flow. This action cannot be undone.

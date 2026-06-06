@@ -151,7 +151,7 @@ const formRef = useRef<HTMLFormElement>(null);
             <form action={formAction} ref={formRef} onChange={() => setDirty(true)} className="flex flex-col gap-6">
                 
                 {draftAvailable && !draftDismissed ? (
-                    <div className="flex flex-wrap items-center justify-between gap-3 rounded border border-zoru-line/40 bg-zoru-ink/10 px-3 py-2 text-[12.5px] text-zoru-ink dark:text-zoru-ink-muted">
+                    <div className="flex flex-wrap items-center justify-between gap-3 rounded border border-[var(--st-border)]/40 bg-[var(--st-text)]/10 px-3 py-2 text-[12.5px] text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
                         <span>You have an unsaved draft from a previous session.</span>
                         <div className="flex items-center gap-2">
                             <Button size="sm" variant="outline" type="button" onClick={restoreDraft}>
@@ -258,7 +258,7 @@ const formRef = useRef<HTMLFormElement>(null);
                                     : ''
                             }
                         />
-                        <p className="text-[11.5px] text-zoru-ink-muted">
+                        <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                             Used to resolve the applicable slab at save time.
                         </p>
                     </div>
@@ -315,8 +315,8 @@ const formRef = useRef<HTMLFormElement>(null);
                 </div>
 
                 {initialData?.slabApplied ? (
-                    <div className="rounded-lg border border-dashed border-zoru-line bg-zoru-surface-2 p-3 text-[12.5px] text-zoru-ink">
-                        <span className="text-zoru-ink-muted">Slab applied:</span>{' '}
+                    <div className="rounded-lg border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-[12.5px] text-[var(--st-text)]">
+                        <span className="text-[var(--st-text-secondary)]">Slab applied:</span>{' '}
                         <span className="font-mono">
                             {initialData.slabApplied as string}
                         </span>

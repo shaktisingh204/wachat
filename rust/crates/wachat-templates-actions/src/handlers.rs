@@ -24,8 +24,10 @@ use wachat_types::Project;
 use crate::dto::{
     ActionState, ApplyActionResult, ApplyBody, BulkCreateActionResult, BulkCreateBody, CreateBody,
     CreateFlowActionResult, CreateFlowBody, DeleteByIdBody, DeleteByNameBody, EditBody,
-    LibrarySaveBody, ProjectIdQuery, SyncActionResult, SyncBody, TemplatesList, WireCreate,
+    LibrarySaveBody, MultiLangCloneBody, MultiLangCloneResult, ProjectIdQuery, SyncActionResult,
+    SyncBody, TemplatesList, WireCreate,
 };
+use crate::multilang;
 use crate::state::WachatTemplatesActionsState;
 
 const PROJECTS_COLL: &str = "projects";
@@ -119,6 +121,45 @@ pub async fn sync(
             ..Default::default()
         }),
     }
+}
+
+// ===========================================================================
+// POST /multilang/clone — create one copy of a source template per language
+// ===========================================================================
+//
+// Whole-request validation failures (bad/foreign project, no source
+// selector, empty target list, source not found) bubble as a typed
+// `ApiError` (non-200). Per-language failures (missing creds, Meta
+// rejection, …) degrade into `status = "failed"` rows and the request
+// still returns `200` with the full outcome array.
+
+#[instrument(skip_all, fields(project_id = %body.project_id))]
+pub async fn multilang_clone(
+    user: AuthUser,
+    State(s): State<WachatTemplatesActionsState>,
+    Json(body): Json<MultiLangCloneBody>,
+) -> Result<Json<MultiLangCloneResult>> {
+    if body.source_template_id.as_deref().map(str::trim).unwrap_or("").is_empty()
+        && body.source_template_name.as_deref().map(str::trim).unwrap_or("").is_empty()
+    {
+        return Err(ApiError::BadRequest(
+            "either sourceTemplateId or sourceTemplateName is required".to_owned(),
+        ));
+    }
+
+    let project = load_project_for(&user, &s.mongo, &body.project_id).await?;
+
+    let result = multilang::clone_to_languages(
+        &s.mongo,
+        s.mutator.as_ref(),
+        &project,
+        body.source_template_id.as_deref(),
+        body.source_template_name.as_deref(),
+        &body.target_languages,
+    )
+    .await?;
+
+    Ok(Json(result))
 }
 
 // ===========================================================================

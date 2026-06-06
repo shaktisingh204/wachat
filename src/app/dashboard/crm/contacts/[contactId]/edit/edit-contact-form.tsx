@@ -133,8 +133,8 @@ export function EditContactForm({ initial }: Props) {
         <div className="space-y-6">
           <Card className="p-6">
             <div className="mb-4">
-              <h2 className="text-[14px] font-semibold text-zoru-ink">Identity</h2>
-              <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+              <h2 className="text-[14px] font-semibold text-[var(--st-text)]">Identity</h2>
+              <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">
                 Name, role, and salutation.
               </p>
             </div>
@@ -142,22 +142,22 @@ export function EditContactForm({ initial }: Props) {
               <div className="space-y-2">
                 <Label
                   htmlFor="name"
-                  className="text-[12.5px] text-zoru-ink-muted"
+                  className="text-[12.5px] text-[var(--st-text-secondary)]"
                 >
-                  Full name <span className="text-zoru-danger">*</span>
+                  Full name <span className="text-[var(--st-danger)]">*</span>
                 </Label>
                 <Input
                   id="name"
                   name="name"
                   required
                   defaultValue={optimisticState.name}
-                  className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 />
               </div>
               <div className="space-y-2">
                 <Label
                   htmlFor="jobTitle"
-                  className="text-[12.5px] text-zoru-ink-muted"
+                  className="text-[12.5px] text-[var(--st-text-secondary)]"
                 >
                   Job title
                 </Label>
@@ -165,11 +165,11 @@ export function EditContactForm({ initial }: Props) {
                   id="jobTitle"
                   name="jobTitle"
                   defaultValue={optimisticState.jobTitle}
-                  className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-[12.5px] text-zoru-ink-muted">
+                <Label className="text-[12.5px] text-[var(--st-text-secondary)]">
                   Salutation
                 </Label>
                 <EntityFormField
@@ -182,12 +182,12 @@ export function EditContactForm({ initial }: Props) {
               <div className="space-y-2">
                 <Label
                   htmlFor="status"
-                  className="text-[12.5px] text-zoru-ink-muted"
+                  className="text-[12.5px] text-[var(--st-text-secondary)]"
                 >
                   Status
                 </Label>
                 <Select name="status" defaultValue={optimisticState.status}>
-                  <ZoruSelectTrigger className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                  <ZoruSelectTrigger className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
                     <ZoruSelectValue />
                   </ZoruSelectTrigger>
                   <ZoruSelectContent>
@@ -205,14 +205,14 @@ export function EditContactForm({ initial }: Props) {
 
           <Card className="p-6">
             <div className="mb-4">
-              <h2 className="text-[14px] font-semibold text-zoru-ink">Organisation</h2>
-              <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+              <h2 className="text-[14px] font-semibold text-[var(--st-text)]">Organisation</h2>
+              <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">
                 Where this contact works.
               </p>
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label className="text-[12.5px] text-zoru-ink-muted">
+                <Label className="text-[12.5px] text-[var(--st-text-secondary)]">
                   Account
                 </Label>
                 <EntityFormField
@@ -225,7 +225,7 @@ export function EditContactForm({ initial }: Props) {
               <div className="space-y-2">
                 <Label
                   htmlFor="company"
-                  className="text-[12.5px] text-zoru-ink-muted"
+                  className="text-[12.5px] text-[var(--st-text-secondary)]"
                 >
                   Company (free text)
                 </Label>
@@ -233,7 +233,7 @@ export function EditContactForm({ initial }: Props) {
                   id="company"
                   name="company"
                   defaultValue={optimisticState.company}
-                  className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 />
               </div>
             </div>
@@ -241,10 +241,10 @@ export function EditContactForm({ initial }: Props) {
 
           <Card className="p-6">
             <div className="mb-4">
-              <h2 className="text-[14px] font-semibold text-zoru-ink">
+              <h2 className="text-[14px] font-semibold text-[var(--st-text)]">
                 Contact channels
               </h2>
-              <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+              <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">
                 Email, phone, and social profiles.
               </p>
             </div>
@@ -252,9 +252,9 @@ export function EditContactForm({ initial }: Props) {
               <div className="space-y-2">
                 <Label
                   htmlFor="email"
-                  className="text-[12.5px] text-zoru-ink-muted"
+                  className="text-[12.5px] text-[var(--st-text-secondary)]"
                 >
-                  Email <span className="text-zoru-danger">*</span>
+                  Email <span className="text-[var(--st-danger)]">*</span>
                 </Label>
                 <Input
                   id="email"
@@ -262,13 +262,13 @@ export function EditContactForm({ initial }: Props) {
                   type="email"
                   required
                   defaultValue={optimisticState.email}
-                  className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 />
               </div>
               <div className="space-y-2">
                 <Label
                   htmlFor="phone"
-                  className="text-[12.5px] text-zoru-ink-muted"
+                  className="text-[12.5px] text-[var(--st-text-secondary)]"
                 >
                   Phone
                 </Label>
@@ -276,13 +276,13 @@ export function EditContactForm({ initial }: Props) {
                   id="phone"
                   name="phone"
                   defaultValue={optimisticState.phone}
-                  className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 />
               </div>
               <div className="space-y-2">
                 <Label
                   htmlFor="linkedinUrl"
-                  className="text-[12.5px] text-zoru-ink-muted"
+                  className="text-[12.5px] text-[var(--st-text-secondary)]"
                 >
                   LinkedIn URL
                 </Label>
@@ -290,13 +290,13 @@ export function EditContactForm({ initial }: Props) {
                   id="linkedinUrl"
                   name="linkedinUrl"
                   defaultValue={initial.linkedinUrl}
-                  className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 />
               </div>
               <div className="space-y-2">
                 <Label
                   htmlFor="twitterHandle"
-                  className="text-[12.5px] text-zoru-ink-muted"
+                  className="text-[12.5px] text-[var(--st-text-secondary)]"
                 >
                   X / Twitter handle
                 </Label>
@@ -304,7 +304,7 @@ export function EditContactForm({ initial }: Props) {
                   id="twitterHandle"
                   name="twitterHandle"
                   defaultValue={initial.twitterHandle}
-                  className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 />
               </div>
             </div>
@@ -312,8 +312,8 @@ export function EditContactForm({ initial }: Props) {
 
           <Card className="p-6">
             <div className="mb-4">
-              <h2 className="text-[14px] font-semibold text-zoru-ink">Lifecycle</h2>
-              <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+              <h2 className="text-[14px] font-semibold text-[var(--st-text)]">Lifecycle</h2>
+              <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">
                 Stage, source, and ownership.
               </p>
             </div>
@@ -321,7 +321,7 @@ export function EditContactForm({ initial }: Props) {
               <div className="space-y-2">
                 <Label
                   htmlFor="lifecycleStage"
-                  className="text-[12.5px] text-zoru-ink-muted"
+                  className="text-[12.5px] text-[var(--st-text-secondary)]"
                 >
                   Lifecycle stage
                 </Label>
@@ -329,7 +329,7 @@ export function EditContactForm({ initial }: Props) {
                   name="lifecycleStage"
                   defaultValue={initial.lifecycleStage || 'lead'}
                 >
-                  <ZoruSelectTrigger className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                  <ZoruSelectTrigger className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
                     <ZoruSelectValue />
                   </ZoruSelectTrigger>
                   <ZoruSelectContent>
@@ -345,7 +345,7 @@ export function EditContactForm({ initial }: Props) {
               <div className="space-y-2">
                 <Label
                   htmlFor="source"
-                  className="text-[12.5px] text-zoru-ink-muted"
+                  className="text-[12.5px] text-[var(--st-text-secondary)]"
                 >
                   Source
                 </Label>
@@ -353,7 +353,7 @@ export function EditContactForm({ initial }: Props) {
                   name="source"
                   defaultValue={initial.source || 'other'}
                 >
-                  <ZoruSelectTrigger className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                  <ZoruSelectTrigger className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
                     <ZoruSelectValue />
                   </ZoruSelectTrigger>
                   <ZoruSelectContent>
@@ -370,7 +370,7 @@ export function EditContactForm({ initial }: Props) {
               <div className="space-y-2">
                 <Label
                   htmlFor="leadScore"
-                  className="text-[12.5px] text-zoru-ink-muted"
+                  className="text-[12.5px] text-[var(--st-text-secondary)]"
                 >
                   Lead score
                 </Label>
@@ -381,11 +381,11 @@ export function EditContactForm({ initial }: Props) {
                   min={0}
                   max={100}
                   defaultValue={initial.leadScore}
-                  className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-[12.5px] text-zoru-ink-muted">
+                <Label className="text-[12.5px] text-[var(--st-text-secondary)]">
                   Owner
                 </Label>
                 <EntityFormField
@@ -400,10 +400,10 @@ export function EditContactForm({ initial }: Props) {
 
           <Card className="p-6">
             <div className="mb-4">
-              <h2 className="text-[14px] font-semibold text-zoru-ink">
+              <h2 className="text-[14px] font-semibold text-[var(--st-text)]">
                 Tags &amp; locale
               </h2>
-              <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+              <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">
                 Comma-separated tags, birthday, timezone.
               </p>
             </div>
@@ -411,7 +411,7 @@ export function EditContactForm({ initial }: Props) {
               <div className="space-y-2 md:col-span-2">
                 <Label
                   htmlFor="tags"
-                  className="text-[12.5px] text-zoru-ink-muted"
+                  className="text-[12.5px] text-[var(--st-text-secondary)]"
                 >
                   Tags
                 </Label>
@@ -420,13 +420,13 @@ export function EditContactForm({ initial }: Props) {
                   name="tags"
                   defaultValue={initial.tags.join(', ')}
                   placeholder="vip, hot, q1-target"
-                  className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 />
               </div>
               <div className="space-y-2">
                 <Label
                   htmlFor="dateOfBirth"
-                  className="text-[12.5px] text-zoru-ink-muted"
+                  className="text-[12.5px] text-[var(--st-text-secondary)]"
                 >
                   Date of birth
                 </Label>
@@ -435,11 +435,11 @@ export function EditContactForm({ initial }: Props) {
                   name="dateOfBirth"
                   type="date"
                   defaultValue={initial.dateOfBirth}
-                  className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-[12.5px] text-zoru-ink-muted">
+                <Label className="text-[12.5px] text-[var(--st-text-secondary)]">
                   Timezone
                 </Label>
                 <EntityFormField
@@ -452,7 +452,7 @@ export function EditContactForm({ initial }: Props) {
             </div>
           </Card>
 
-          <div className="flex justify-end gap-2 border-t border-zoru-line pt-4">
+          <div className="flex justify-end gap-2 border-t border-[var(--st-border)] pt-4">
             <Button
               type="button"
               variant="outline"

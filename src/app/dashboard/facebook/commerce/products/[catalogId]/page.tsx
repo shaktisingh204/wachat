@@ -172,7 +172,7 @@ export default function CatalogDetailPage() {
         id: "image",
         header: () => <span className="sr-only">Image</span>,
         cell: ({ row }) => (
-          <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface-2">
+          <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-muted)]">
             {row.original.image_url ? (
               <Image
                 src={row.original.image_url}
@@ -182,7 +182,7 @@ export default function CatalogDetailPage() {
                 className="h-full w-full object-cover"
               />
             ) : (
-              <ShoppingBag className="h-5 w-5 text-zoru-ink-muted" />
+              <ShoppingBag className="h-5 w-5 text-[var(--st-text-secondary)]" />
             )}
           </div>
         ),
@@ -191,7 +191,7 @@ export default function CatalogDetailPage() {
         accessorKey: "name",
         header: "Name",
         cell: ({ row }) => (
-          <span className="font-medium text-zoru-ink">{row.original.name ?? "—"}</span>
+          <span className="font-medium text-[var(--st-text)]">{row.original.name ?? "—"}</span>
         ),
       },
       {
@@ -241,7 +241,7 @@ export default function CatalogDetailPage() {
         accessorKey: "retailer_id",
         header: "SKU",
         cell: ({ row }) => (
-          <span className="font-mono text-[11px] text-zoru-ink-muted">
+          <span className="font-mono text-[11px] text-[var(--st-text-secondary)]">
             {row.original.retailer_id ?? "—"}
           </span>
         ),
@@ -288,14 +288,14 @@ export default function CatalogDetailPage() {
         accessorKey: "name",
         header: "Collection",
         cell: ({ row }) => (
-          <span className="font-medium text-zoru-ink">{row.original.name}</span>
+          <span className="font-medium text-[var(--st-text)]">{row.original.name}</span>
         ),
       },
       {
         accessorKey: "product_count",
         header: "Products",
         cell: ({ row }) => (
-          <span className="text-zoru-ink">
+          <span className="text-[var(--st-text)]">
             {row.original.product_count ?? 0}
           </span>
         ),
@@ -337,7 +337,7 @@ export default function CatalogDetailPage() {
           asChild
           variant="ghost"
           size="sm"
-          className="-ml-2 text-zoru-ink-muted"
+          className="-ml-2 text-[var(--st-text-secondary)]"
         >
           <Link href="/dashboard/facebook/commerce/products">
             <ChevronLeft />

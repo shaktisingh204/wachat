@@ -65,8 +65,8 @@ function formatTimestamp(iso?: string): string {
 function SectionHeader({ title, description }: { title: string; description: string }) {
     return (
         <div>
-            <h3 className="text-[15px] font-medium text-zoru-ink">{title}</h3>
-            <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">{description}</p>
+            <h3 className="text-[15px] font-medium text-[var(--st-text)]">{title}</h3>
+            <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">{description}</p>
         </div>
     );
 }
@@ -213,7 +213,7 @@ export default function SabflowSettingsPage() {
             <PageHeader className="mt-5" bordered={false}>
                 <ZoruPageHeading>
                     {activeProject?.name ? (
-                        <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-zoru-ink-subtle">
+                        <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--st-text-tertiary)]">
                             Project · {activeProject.name}
                         </p>
                     ) : null}
@@ -225,8 +225,8 @@ export default function SabflowSettingsPage() {
                 </ZoruPageHeading>
                 <div className="flex items-center gap-3">
                     <Badge variant="outline" className="gap-1.5 h-[32px] px-3">
-                        <span className="text-zoru-ink-subtle">Last saved:</span>
-                        <span className="text-zoru-ink font-medium">{formatTimestamp(settings.updatedAt)}</span>
+                        <span className="text-[var(--st-text-tertiary)]">Last saved:</span>
+                        <span className="text-[var(--st-text)] font-medium">{formatTimestamp(settings.updatedAt)}</span>
                     </Badge>
                     <Button size="sm" onClick={saveAll} disabled={savingSection === 'all'}>
                         <Save /> {savingSection === 'all' ? 'Saving…' : 'Save all'}
@@ -294,11 +294,11 @@ export default function SabflowSettingsPage() {
                 />
             </div>
 
-            <div className="mt-8 flex items-center justify-between text-[11.5px] text-zoru-ink-muted">
+            <div className="mt-8 flex items-center justify-between text-[11.5px] text-[var(--st-text-secondary)]">
                 <span>Settings apply to every flow run across your SabFlow workspaces.</span>
                 <Link
                     href="/dashboard/sabflow"
-                    className="text-zoru-ink-subtle underline-offset-2 hover:underline"
+                    className="text-[var(--st-text-tertiary)] underline-offset-2 hover:underline"
                 >
                     Back to SabFlow
                 </Link>
@@ -356,10 +356,10 @@ function DefaultsSection({
                                 executionTimeout: safeNumber(e.target.value, value.executionTimeout),
                             })
                         }
-                        className={getError(['executionTimeout']) ? 'border-zoru-line focus-visible:ring-zoru-line' : ''}
+                        className={getError(['executionTimeout']) ? 'border-[var(--st-border)] focus-visible:ring-[var(--st-border)]' : ''}
                     />
                     {getError(['executionTimeout']) && (
-                        <p className="text-[11.5px] text-zoru-ink">{getError(['executionTimeout'])}</p>
+                        <p className="text-[11.5px] text-[var(--st-text)]">{getError(['executionTimeout'])}</p>
                     )}
                 </div>
             </div>
@@ -408,18 +408,18 @@ function RetentionSection({
                                 ),
                             })
                         }
-                        className={getError(['keepRunHistoryDays']) ? 'border-zoru-line focus-visible:ring-zoru-line' : ''}
+                        className={getError(['keepRunHistoryDays']) ? 'border-[var(--st-border)] focus-visible:ring-[var(--st-border)]' : ''}
                     />
                     {getError(['keepRunHistoryDays']) && (
-                        <p className="text-[11.5px] text-zoru-ink">{getError(['keepRunHistoryDays'])}</p>
+                        <p className="text-[11.5px] text-[var(--st-text)]">{getError(['keepRunHistoryDays'])}</p>
                     )}
                 </div>
-                <div className="flex items-start justify-between gap-4 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3">
+                <div className="flex items-start justify-between gap-4 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3">
                     <div>
                         <Label htmlFor="rt-purge" className="text-[13px]">
                             Purge failed runs
                         </Label>
-                        <p className="mt-0.5 text-[11.5px] text-zoru-ink-muted">
+                        <p className="mt-0.5 text-[11.5px] text-[var(--st-text-secondary)]">
                             Remove failed runs from history immediately.
                         </p>
                     </div>
@@ -477,10 +477,10 @@ function RunLimitsSection({
                                 ),
                             })
                         }
-                        className={getError(['maxConcurrentRuns']) ? 'border-zoru-line focus-visible:ring-zoru-line' : ''}
+                        className={getError(['maxConcurrentRuns']) ? 'border-[var(--st-border)] focus-visible:ring-[var(--st-border)]' : ''}
                     />
                     {getError(['maxConcurrentRuns']) && (
-                        <p className="text-[11.5px] text-zoru-ink">{getError(['maxConcurrentRuns'])}</p>
+                        <p className="text-[11.5px] text-[var(--st-text)]">{getError(['maxConcurrentRuns'])}</p>
                     )}
                 </div>
                 <div className="grid gap-1.5">
@@ -496,10 +496,10 @@ function RunLimitsSection({
                                 maxStepsPerRun: safeNumber(e.target.value, value.maxStepsPerRun),
                             })
                         }
-                        className={getError(['maxStepsPerRun']) ? 'border-zoru-line focus-visible:ring-zoru-line' : ''}
+                        className={getError(['maxStepsPerRun']) ? 'border-[var(--st-border)] focus-visible:ring-[var(--st-border)]' : ''}
                     />
                     {getError(['maxStepsPerRun']) && (
-                        <p className="text-[11.5px] text-zoru-ink">{getError(['maxStepsPerRun'])}</p>
+                        <p className="text-[11.5px] text-[var(--st-text)]">{getError(['maxStepsPerRun'])}</p>
                     )}
                 </div>
             </div>
@@ -564,10 +564,10 @@ function WebhooksSection({
                         placeholder="https://example.com/webhooks/sabflow"
                         value={value.url}
                         onChange={(e) => onChange({ ...value, url: e.target.value })}
-                        className={getError(['url']) ? 'border-zoru-line focus-visible:ring-zoru-line' : ''}
+                        className={getError(['url']) ? 'border-[var(--st-border)] focus-visible:ring-[var(--st-border)]' : ''}
                     />
                     {getError(['url']) && (
-                        <p className="text-[11.5px] text-zoru-ink">{getError(['url'])}</p>
+                        <p className="text-[11.5px] text-[var(--st-text)]">{getError(['url'])}</p>
                     )}
                 </div>
                 <div className="grid gap-1.5">
@@ -584,10 +584,10 @@ function WebhooksSection({
                                 retryAttempts: safeNumber(e.target.value, value.retryAttempts),
                             })
                         }
-                        className={getError(['retryAttempts']) ? 'border-zoru-line focus-visible:ring-zoru-line' : ''}
+                        className={getError(['retryAttempts']) ? 'border-[var(--st-border)] focus-visible:ring-[var(--st-border)]' : ''}
                     />
                     {getError(['retryAttempts']) && (
-                        <p className="text-[11.5px] text-zoru-ink">{getError(['retryAttempts'])}</p>
+                        <p className="text-[11.5px] text-[var(--st-text)]">{getError(['retryAttempts'])}</p>
                     )}
                 </div>
                 <div className="grid gap-1.5 sm:col-span-3">
@@ -649,19 +649,19 @@ function VariablesSection({
             </div>
             <div className="mt-5 flex flex-col gap-2">
                 {value.length === 0 ? (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-bg p-4 text-center text-[12.5px] text-zoru-ink-muted">
+                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg)] p-4 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No variables yet. Click &quot;Add variable&quot; to create one.
                     </div>
                 ) : (
                     value.map((row, idx) => (
                         <div
                             key={idx}
-                            className="grid gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end"
+                            className="grid gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end"
                         >
                             <div className="grid gap-1.5">
                                 <Label
                                     htmlFor={`var-key-${idx}`}
-                                    className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle"
+                                    className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]"
                                 >
                                     Key
                                 </Label>
@@ -670,16 +670,16 @@ function VariablesSection({
                                     placeholder="API_BASE_URL"
                                     value={row.key}
                                     onChange={(e) => updateRow(idx, { key: e.target.value })}
-                                    className={getError([idx, 'key']) ? 'border-zoru-line focus-visible:ring-zoru-line' : ''}
+                                    className={getError([idx, 'key']) ? 'border-[var(--st-border)] focus-visible:ring-[var(--st-border)]' : ''}
                                 />
                                 {getError([idx, 'key']) && (
-                                    <p className="text-[11.5px] text-zoru-ink">{getError([idx, 'key'])}</p>
+                                    <p className="text-[11.5px] text-[var(--st-text)]">{getError([idx, 'key'])}</p>
                                 )}
                             </div>
                             <div className="grid gap-1.5">
                                 <Label
                                     htmlFor={`var-val-${idx}`}
-                                    className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle"
+                                    className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]"
                                 >
                                     Value
                                 </Label>
@@ -688,10 +688,10 @@ function VariablesSection({
                                     placeholder="https://api.example.com"
                                     value={row.value}
                                     onChange={(e) => updateRow(idx, { value: e.target.value })}
-                                    className={getError([idx, 'value']) ? 'border-zoru-line focus-visible:ring-zoru-line' : ''}
+                                    className={getError([idx, 'value']) ? 'border-[var(--st-border)] focus-visible:ring-[var(--st-border)]' : ''}
                                 />
                                 {getError([idx, 'value']) && (
-                                    <p className="text-[11.5px] text-zoru-ink">{getError([idx, 'value'])}</p>
+                                    <p className="text-[11.5px] text-[var(--st-text)]">{getError([idx, 'value'])}</p>
                                 )}
                             </div>
                             <Button

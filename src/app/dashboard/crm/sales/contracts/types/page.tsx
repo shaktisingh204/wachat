@@ -432,7 +432,7 @@ export default function ContractTypesPage() {
                     bulkBar={
                         selected.size > 0 ? (
                             <div className="flex flex-wrap items-center gap-2 text-[12.5px]">
-                                <span className="font-medium text-zoru-ink">{selected.size} selected</span>
+                                <span className="font-medium text-[var(--st-text)]">{selected.size} selected</span>
                                 <Button size="sm" variant="ghost" onClick={exportCsv}>
                                     <Download className="h-3.5 w-3.5" /> Export CSV
                                 </Button>
@@ -456,46 +456,46 @@ export default function ContractTypesPage() {
                     <div className="mb-4 grid grid-cols-3 gap-3">
                         <Card className="p-0">
                             <ZoruCardHeader className="pb-1 pt-3 px-4">
-                                <ZoruCardTitle className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+                                <ZoruCardTitle className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                                     Total
                                 </ZoruCardTitle>
                             </ZoruCardHeader>
                             <ZoruCardContent className="pb-3 px-4">
-                                <span className="text-2xl font-semibold tabular-nums text-zoru-ink">
+                                <span className="text-2xl font-semibold tabular-nums text-[var(--st-text)]">
                                     {kpi.total}
                                 </span>
                             </ZoruCardContent>
                         </Card>
-                        <Card className="p-0 border-zoru-line/30">
+                        <Card className="p-0 border-[var(--st-border)]/30">
                             <ZoruCardHeader className="pb-1 pt-3 px-4">
-                                <ZoruCardTitle className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink dark:text-zoru-ink-muted">
+                                <ZoruCardTitle className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
                                     Active
                                 </ZoruCardTitle>
                             </ZoruCardHeader>
                             <ZoruCardContent className="pb-3 px-4">
-                                <span className="text-2xl font-semibold tabular-nums text-zoru-ink">
+                                <span className="text-2xl font-semibold tabular-nums text-[var(--st-text)]">
                                     {kpi.active}
                                 </span>
                             </ZoruCardContent>
                         </Card>
-                        <Card className="p-0 border-zoru-line">
+                        <Card className="p-0 border-[var(--st-border)]">
                             <ZoruCardHeader className="pb-1 pt-3 px-4">
-                                <ZoruCardTitle className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+                                <ZoruCardTitle className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                                     Archived
                                 </ZoruCardTitle>
                             </ZoruCardHeader>
                             <ZoruCardContent className="pb-3 px-4">
-                                <span className="text-2xl font-semibold tabular-nums text-zoru-ink">
+                                <span className="text-2xl font-semibold tabular-nums text-[var(--st-text)]">
                                     {kpi.archived}
                                 </span>
                             </ZoruCardContent>
                         </Card>
                     </div>
 
-                    <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                    <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                         <Table>
                             <TableHeader>
-                                <TableRow className="border-zoru-line hover:bg-transparent">
+                                <TableRow className="border-[var(--st-border)] hover:bg-transparent">
                                     <TableHead className="w-[36px]">
                                         <Checkbox
                                             checked={allSelected}
@@ -503,41 +503,41 @@ export default function ContractTypesPage() {
                                             aria-label="Select all"
                                         />
                                     </TableHead>
-                                    <TableHead className="text-zoru-ink-muted">
+                                    <TableHead className="text-[var(--st-text-secondary)]">
                                         Code
                                     </TableHead>
-                                    <TableHead className="text-zoru-ink-muted">
+                                    <TableHead className="text-[var(--st-text-secondary)]">
                                         Name
                                     </TableHead>
-                                    <TableHead className="text-zoru-ink-muted">
+                                    <TableHead className="text-[var(--st-text-secondary)]">
                                         Description
                                     </TableHead>
-                                    <TableHead className="text-zoru-ink-muted">
+                                    <TableHead className="text-[var(--st-text-secondary)]">
                                         Default term
                                     </TableHead>
-                                    <TableHead className="text-zoru-ink-muted">
+                                    <TableHead className="text-[var(--st-text-secondary)]">
                                         Status
                                     </TableHead>
-                                    <TableHead className="text-zoru-ink-muted text-right">
+                                    <TableHead className="text-[var(--st-text-secondary)] text-right">
                                         Actions
                                     </TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {isLoading ? (
-                                    <TableRow className="border-zoru-line">
+                                    <TableRow className="border-[var(--st-border)]">
                                         <TableCell
                                             colSpan={7}
                                             className="h-24 text-center"
                                         >
-                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
+                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
                                         </TableCell>
                                     </TableRow>
                                 ) : items.length === 0 ? (
-                                    <TableRow className="border-zoru-line">
+                                    <TableRow className="border-[var(--st-border)]">
                                         <TableCell
                                             colSpan={7}
-                                            className="h-24 text-center text-zoru-ink-muted"
+                                            className="h-24 text-center text-[var(--st-text-secondary)]"
                                         >
                                             No contract types match this
                                             filter.
@@ -553,7 +553,7 @@ export default function ContractTypesPage() {
                                         return (
                                             <TableRow
                                                 key={row._id}
-                                                className="border-zoru-line"
+                                                className="border-[var(--st-border)]"
                                                 data-state={isSelected ? 'selected' : undefined}
                                             >
                                                 <TableCell>
@@ -563,16 +563,16 @@ export default function ContractTypesPage() {
                                                         aria-label={`Select ${row.name}`}
                                                     />
                                                 </TableCell>
-                                                <TableCell className="font-mono text-[12px] text-zoru-ink">
+                                                <TableCell className="font-mono text-[12px] text-[var(--st-text)]">
                                                     {row.code}
                                                 </TableCell>
-                                                <TableCell className="font-medium text-zoru-ink">
+                                                <TableCell className="font-medium text-[var(--st-text)]">
                                                     {row.name}
                                                 </TableCell>
-                                                <TableCell className="text-zoru-ink-muted">
+                                                <TableCell className="text-[var(--st-text-secondary)]">
                                                     {row.description ?? '—'}
                                                 </TableCell>
-                                                <TableCell className="font-mono text-[12px] text-zoru-ink">
+                                                <TableCell className="font-mono text-[12px] text-[var(--st-text)]">
                                                     {row.defaultTermMonths != null
                                                         ? `${row.defaultTermMonths} mo`
                                                         : '—'}
@@ -604,7 +604,7 @@ export default function ContractTypesPage() {
                                                             )
                                                         }
                                                     >
-                                                        <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                                        <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                                     </Button>
                                                 </TableCell>
                                             </TableRow>
@@ -665,7 +665,7 @@ export default function ContractTypesPage() {
                         <ZoruAlertDialogAction
                             onClick={confirmBulkDelete}
                             disabled={deletePending}
-                            className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
+                            className="bg-[var(--st-danger)] text-white hover:bg-[var(--st-danger)]/90"
                         >
                             {deletePending ? (
                                 <LoaderCircle className="mr-2 h-3.5 w-3.5 animate-spin" />

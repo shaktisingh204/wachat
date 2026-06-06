@@ -145,31 +145,31 @@ export function DebitNotesListPage() {
                     }
                     loading={isLoading && notes.length === 0}
                 >
-                    <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                    <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                         <Table>
                             <ZoruTableHeader>
-                                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                    <ZoruTableHead className="text-zoru-ink-muted">DN no.</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Vendor</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Date</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Reason</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Total</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted text-right">Actions</ZoruTableHead>
+                                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">DN no.</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Vendor</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Date</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Reason</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Total</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Actions</ZoruTableHead>
                                 </ZoruTableRow>
                             </ZoruTableHeader>
                             <ZoruTableBody>
                                 {isLoading ? (
-                                    <ZoruTableRow className="border-zoru-line">
+                                    <ZoruTableRow className="border-[var(--st-border)]">
                                         <ZoruTableCell colSpan={7} className="h-24 text-center">
-                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
+                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 ) : notes.length === 0 ? (
-                                    <ZoruTableRow className="border-zoru-line">
+                                    <ZoruTableRow className="border-[var(--st-border)]">
                                         <ZoruTableCell
                                             colSpan={7}
-                                            className="h-24 text-center text-zoru-ink-muted"
+                                            className="h-24 text-center text-[var(--st-text-secondary)]"
                                         >
                                             No debit notes match this filter.
                                         </ZoruTableCell>
@@ -179,8 +179,8 @@ export function DebitNotesListPage() {
                                         const status = (n.status ?? 'draft') as DebitNoteStatus;
                                         const tone = STATUS_TONE[status] ?? 'neutral';
                                         return (
-                                            <ZoruTableRow key={n._id} className="border-zoru-line">
-                                                <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
+                                            <ZoruTableRow key={n._id} className="border-[var(--st-border)]">
+                                                <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
                                                     <Link
                                                         href={`${BASE}/${n._id}`}
                                                         className="hover:underline"
@@ -188,16 +188,16 @@ export function DebitNotesListPage() {
                                                         {n.dnNo || n._id}
                                                     </Link>
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
+                                                <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
                                                     {n.vendorId}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {fmtDate(n.date)}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="capitalize text-zoru-ink">
+                                                <ZoruTableCell className="capitalize text-[var(--st-text)]">
                                                     {(n.reason ?? '').replace(/_/g, ' ')}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {fmtMoney(n.totals?.total, n.currency)}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
@@ -214,7 +214,7 @@ export function DebitNotesListPage() {
                                                         size="icon"
                                                         onClick={() => setPendingDelete(n)}
                                                     >
-                                                        <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                                        <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                                     </Button>
                                                 </ZoruTableCell>
                                             </ZoruTableRow>

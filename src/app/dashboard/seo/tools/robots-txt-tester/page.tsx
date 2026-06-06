@@ -164,21 +164,21 @@ export default function RobotsTxtTesterPage() {
         <Button onClick={run} disabled={loading}>{loading ? 'Fetching…' : 'Fetch'}</Button>
       </div>
       {error && (
-        <Card className="border-zoru-line">
-          <ZoruCardContent className="p-4 text-zoru-ink text-sm">{error}</ZoruCardContent>
+        <Card className="border-[var(--st-border)]">
+          <ZoruCardContent className="p-4 text-[var(--st-text)] text-sm">{error}</ZoruCardContent>
         </Card>
       )}
       {content && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card className="flex flex-col h-[500px]">
-            <div className="p-4 border-b font-medium bg-zoru-surface-2/50">robots.txt Content</div>
+            <div className="p-4 border-b font-medium bg-[var(--st-bg-muted)]/50">robots.txt Content</div>
             <ZoruCardContent className="p-0 flex-1 overflow-hidden">
               <pre className="text-xs p-4 h-full overflow-auto whitespace-pre-wrap">{content}</pre>
             </ZoruCardContent>
           </Card>
           
           <Card className="flex flex-col h-[500px]">
-            <div className="p-4 border-b font-medium bg-zoru-surface-2/50">Test URL Block</div>
+            <div className="p-4 border-b font-medium bg-[var(--st-bg-muted)]/50">Test URL Block</div>
             <ZoruCardContent className="p-4 flex flex-col gap-4">
               <div className="space-y-2">
                 <Label htmlFor="test-path">Path to Test</Label>
@@ -199,28 +199,28 @@ export default function RobotsTxtTesterPage() {
                 />
               </div>
               
-              <div className="mt-4 p-4 rounded-lg bg-zoru-surface-2">
+              <div className="mt-4 p-4 rounded-lg bg-[var(--st-bg-muted)]">
                 <h4 className="text-sm font-semibold mb-2">Test Result</h4>
                 {testResult ? (
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-zoru-ink-muted">Status:</span>
+                      <span className="text-sm text-[var(--st-text-secondary)]">Status:</span>
                       {testResult.allowed ? (
-                        <span className="inline-flex items-center rounded-md bg-zoru-surface-2 px-2 py-1 text-xs font-medium text-zoru-ink ring-1 ring-inset ring-zoru-line/20">
+                        <span className="inline-flex items-center rounded-md bg-[var(--st-bg-muted)] px-2 py-1 text-xs font-medium text-[var(--st-text)] ring-1 ring-inset ring-[var(--st-border)]/20">
                           ALLOWED
                         </span>
                       ) : (
-                        <span className="inline-flex items-center rounded-md bg-zoru-surface-2 px-2 py-1 text-xs font-medium text-zoru-ink ring-1 ring-inset ring-zoru-line/10">
+                        <span className="inline-flex items-center rounded-md bg-[var(--st-bg-muted)] px-2 py-1 text-xs font-medium text-[var(--st-text)] ring-1 ring-inset ring-[var(--st-border)]/10">
                           BLOCKED
                         </span>
                       )}
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-zoru-ink-muted">Applied User-Agent:</span>
+                      <span className="text-sm text-[var(--st-text-secondary)]">Applied User-Agent:</span>
                       <code className="text-xs">{testResult.appliedUa}</code>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-zoru-ink-muted">Matched Rule:</span>
+                      <span className="text-sm text-[var(--st-text-secondary)]">Matched Rule:</span>
                       <code className="text-xs">{testResult.matchedRule || 'Default (Allow all)'}</code>
                     </div>
                   </div>

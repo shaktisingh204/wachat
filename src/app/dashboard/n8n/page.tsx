@@ -358,11 +358,11 @@ export default function N8NWorkflowListPage() {
           { label: 'Total nodes', value: stats.totalNodes, icon: Activity },
         ].map(({ label, value, icon: Icon }) => (
           <Card key={label} className="p-4">
-            <Icon className="h-4 w-4 mb-2 text-zoru-ink-muted" />
-            <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+            <Icon className="h-4 w-4 mb-2 text-[var(--st-text-secondary)]" />
+            <div className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
               {label}
             </div>
-            <div className="text-[22px] text-zoru-ink">{value}</div>
+            <div className="text-[22px] text-[var(--st-text)]">{value}</div>
           </Card>
         ))}
       </div>
@@ -370,11 +370,11 @@ export default function N8NWorkflowListPage() {
       {/* Search + list */}
 
       {selectedIds.size > 0 && (
-        <div className="flex items-center gap-3 bg-zoru-surface border border-zoru-line rounded-md p-3 shadow-sm animate-in fade-in slide-in-from-top-2">
-          <span className="text-[13px] font-medium text-zoru-ink">
+        <div className="flex items-center gap-3 bg-[var(--st-bg-secondary)] border border-[var(--st-border)] rounded-md p-3 shadow-sm animate-in fade-in slide-in-from-top-2">
+          <span className="text-[13px] font-medium text-[var(--st-text)]">
             {selectedIds.size} selected
           </span>
-          <div className="h-4 w-px bg-zoru-line mx-2" />
+          <div className="h-4 w-px bg-[var(--st-border)] mx-2" />
           <Button variant="outline" size="sm" onClick={handleBulkActivate} disabled={bulkActionPending}>
             <Play className="h-3.5 w-3.5 mr-1.5" /> Activate
           </Button>
@@ -393,7 +393,7 @@ export default function N8NWorkflowListPage() {
       )}
 
       <Card className="flex flex-col min-h-[480px] p-0">
-        <div className="flex items-center gap-3 p-4 border-b border-zoru-line">
+        <div className="flex items-center gap-3 p-4 border-b border-[var(--st-border)]">
           <Input
             type="text"
             placeholder="Search workflows…"
@@ -411,30 +411,30 @@ export default function N8NWorkflowListPage() {
             <RefreshCw className={cn('h-3.5 w-3.5', isPending && 'animate-spin')} />
             Refresh
           </Button>
-          <span className="ml-auto text-[11.5px] tabular-nums text-zoru-ink-muted">
+          <span className="ml-auto text-[11.5px] tabular-nums text-[var(--st-text-secondary)]">
             {filtered.length} / {workflows.length}
           </span>
         </div>
 
         {isPending && workflows.length === 0 ? (
-          <div className="flex flex-col divide-y divide-zoru-line">
+          <div className="flex flex-col divide-y divide-[var(--st-border)]">
             {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="flex items-center gap-4 px-4 py-4">
-                <div className="h-3 w-48 animate-pulse rounded-full bg-zoru-surface-2" />
-                <div className="h-3 w-16 animate-pulse rounded-full bg-zoru-surface-2" />
-                <div className="ml-auto h-6 w-6 animate-pulse rounded-full bg-zoru-surface-2" />
+                <div className="h-3 w-48 animate-pulse rounded-full bg-[var(--st-bg-muted)]" />
+                <div className="h-3 w-16 animate-pulse rounded-full bg-[var(--st-bg-muted)]" />
+                <div className="ml-auto h-6 w-6 animate-pulse rounded-full bg-[var(--st-bg-muted)]" />
               </div>
             ))}
           </div>
         ) : filtered.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-3 py-16 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
               <CircleAlert className="h-5 w-5" />
             </div>
-            <div className="text-[13px] text-zoru-ink">
+            <div className="text-[13px] text-[var(--st-text)]">
               {query ? 'No matching workflows' : 'No workflows yet'}
             </div>
-            <div className="max-w-xs text-[11.5px] text-zoru-ink-muted">
+            <div className="max-w-xs text-[11.5px] text-[var(--st-text-secondary)]">
               {query
                 ? `Nothing matched "${query}".`
                 : 'Create your first n8n workflow to start automating tasks.'}
@@ -448,7 +448,7 @@ export default function N8NWorkflowListPage() {
           </div>
         ) : (
           <table className="w-full text-[13px]">
-            <thead className="bg-zoru-surface border-b border-zoru-line">
+            <thead className="bg-[var(--st-bg-secondary)] border-b border-[var(--st-border)]">
               <tr>
                 <th className="w-12 px-4 py-3">
                   <Checkbox 
@@ -457,32 +457,32 @@ export default function N8NWorkflowListPage() {
                     aria-label="Select all"
                   />
                 </th>
-                <th className="px-4 py-3 text-left text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                <th className="px-4 py-3 text-left text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                   Name
                 </th>
-                <th className="px-4 py-3 text-left text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                <th className="px-4 py-3 text-left text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                   Status
                 </th>
-                <th className="px-4 py-3 text-left text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                <th className="px-4 py-3 text-left text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                   Nodes
                 </th>
-                <th className="px-4 py-3 text-left text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                <th className="px-4 py-3 text-left text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                   Executions
                 </th>
-                <th className="px-4 py-3 text-left text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                <th className="px-4 py-3 text-left text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                   Last run
                 </th>
-                <th className="px-4 py-3 text-left text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                <th className="px-4 py-3 text-left text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                   Updated
                 </th>
-                <th className="px-4 py-3 text-right text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                <th className="px-4 py-3 text-right text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zoru-line">
+            <tbody className="divide-y divide-[var(--st-border)]">
               {filtered.map((wf) => (
-                <tr key={wf._id} className="hover:bg-zoru-surface transition-colors">
+                <tr key={wf._id} className="hover:bg-[var(--st-bg-secondary)] transition-colors">
                   <td className="px-4 py-3">
                     <Checkbox 
                       checked={selectedIds.has(wf._id)} 
@@ -493,7 +493,7 @@ export default function N8NWorkflowListPage() {
                   <td className="px-4 py-3">
                     <button
                       onClick={() => router.push(`/dashboard/n8n/${wf._id}`)}
-                      className="text-zoru-ink hover:underline text-left"
+                      className="text-[var(--st-text)] hover:underline text-left"
                     >
                       {wf.name}
                     </button>
@@ -508,31 +508,31 @@ export default function N8NWorkflowListPage() {
                         <span
                           className={cn(
                             'h-1.5 w-1.5 rounded-full',
-                            wf.active ? 'bg-zoru-success' : 'bg-zoru-ink-muted',
+                            wf.active ? 'bg-[var(--st-status-ok)]' : 'bg-[var(--st-text-secondary)]',
                           )}
                         />
                         {wf.active ? 'Active' : 'Inactive'}
                       </Badge>
                       {wf.active ? (
-                        <ToggleRight className="h-4 w-4 text-zoru-success-ink opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <ToggleRight className="h-4 w-4 text-[var(--st-status-ok)] opacity-0 group-hover:opacity-100 transition-opacity" />
                       ) : (
-                        <ToggleLeft className="h-4 w-4 text-zoru-ink-muted opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <ToggleLeft className="h-4 w-4 text-[var(--st-text-secondary)] opacity-0 group-hover:opacity-100 transition-opacity" />
                       )}
                     </button>
                   </td>
-                  <td className="px-4 py-3 text-zoru-ink-muted">{wf.nodes?.length ?? 0}</td>
-                  <td className="px-4 py-3 text-zoru-ink-muted">{wf.executionsCount ?? 0}</td>
+                  <td className="px-4 py-3 text-[var(--st-text-secondary)]">{wf.nodes?.length ?? 0}</td>
+                  <td className="px-4 py-3 text-[var(--st-text-secondary)]">{wf.executionsCount ?? 0}</td>
                   <td className="px-4 py-3">
                     <Badge variant={runStatusVariant(wf.lastRunStatus)}>
                       {runStatusLabel(wf.lastRunStatus)}
                     </Badge>
                     {wf.lastRunAt && (
-                      <span className="ml-1.5 text-[11px] text-zoru-ink-muted">
+                      <span className="ml-1.5 text-[11px] text-[var(--st-text-secondary)]">
                         {format(new Date(wf.lastRunAt), 'MMM d · HH:mm')}
                       </span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-[11.5px] text-zoru-ink-muted">
+                  <td className="px-4 py-3 text-[11.5px] text-[var(--st-text-secondary)]">
                     {wf.updatedAt ? format(new Date(wf.updatedAt), 'MMM d, yyyy · HH:mm') : '—'}
                   </td>
                   <td className="px-4 py-3 text-right">
@@ -556,7 +556,7 @@ export default function N8NWorkflowListPage() {
                         </ZoruDropdownMenuItem>
                         <ZoruDropdownMenuSeparator />
                         <ZoruDropdownMenuItem
-                          className="text-zoru-danger-ink focus:text-zoru-danger-ink"
+                          className="text-[var(--st-danger)] focus:text-[var(--st-danger)]"
                           onClick={() => handleDelete(wf._id, wf.name)}
                         >
                           <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete
@@ -600,24 +600,24 @@ export default function N8NWorkflowListPage() {
       {/* Templates dialog */}
       <Dialog open={showTemplates} onOpenChange={setShowTemplates}>
         <ZoruDialogContent className="max-w-4xl max-h-[85vh] overflow-hidden flex flex-col p-0">
-          <ZoruDialogHeader className="px-6 py-4 border-b border-zoru-line flex-shrink-0">
+          <ZoruDialogHeader className="px-6 py-4 border-b border-[var(--st-border)] flex-shrink-0">
             <ZoruDialogTitle className="flex items-center gap-2">
-              <LayoutTemplate className="h-5 w-5 text-zoru-ink-muted" />
+              <LayoutTemplate className="h-5 w-5 text-[var(--st-text-secondary)]" />
               Template Library
             </ZoruDialogTitle>
             <ZoruPageDescription>
               Start quickly by cloning a pre-built n8n workflow template.
             </ZoruPageDescription>
           </ZoruDialogHeader>
-          <div className="flex-1 overflow-y-auto p-6 bg-zoru-surface-2/30">
+          <div className="flex-1 overflow-y-auto p-6 bg-[var(--st-bg-muted)]/30">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {TEMPLATES.map(template => (
-                <Card key={template.id} className="p-5 flex flex-col bg-zoru-surface hover:border-zoru-brand/50 transition-colors">
+                <Card key={template.id} className="p-5 flex flex-col bg-[var(--st-bg-secondary)] hover:border-[var(--st-accent)]/50 transition-colors">
                   <div className="flex items-start justify-between gap-4 mb-2">
-                    <h3 className="font-semibold text-[15px] text-zoru-ink">{template.name}</h3>
+                    <h3 className="font-semibold text-[15px] text-[var(--st-text)]">{template.name}</h3>
                     <Badge variant="ghost" className="shrink-0">{template.nodes.length} nodes</Badge>
                   </div>
-                  <p className="text-[13px] text-zoru-ink-muted mb-6 flex-1">
+                  <p className="text-[13px] text-[var(--st-text-secondary)] mb-6 flex-1">
                     {template.description}
                   </p>
                   <Button 

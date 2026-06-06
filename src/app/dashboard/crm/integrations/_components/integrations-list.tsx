@@ -161,7 +161,7 @@ export function IntegrationsList({ items }: { items: CrmIntegrationDoc[] }) {
                                     <div className="flex items-center gap-2">
                                         <Link
                                             href={`${BASE}/${item._id}/edit`}
-                                            className="truncate text-[14px] font-semibold text-zoru-ink hover:underline"
+                                            className="truncate text-[14px] font-semibold text-[var(--st-text)] hover:underline"
                                         >
                                             {item.name}
                                         </Link>
@@ -170,7 +170,7 @@ export function IntegrationsList({ items }: { items: CrmIntegrationDoc[] }) {
                                             tone={tone}
                                         />
                                     </div>
-                                    <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-zoru-ink-muted">
+                                    <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-[var(--st-text-secondary)]">
                                         <StatusPill
                                             label={item.status ?? 'disconnected'}
                                             tone={statusTone}
@@ -207,7 +207,7 @@ export function IntegrationsList({ items }: { items: CrmIntegrationDoc[] }) {
                                 ) : null}
                             </div>
 
-                            <div className="flex items-center justify-end gap-1 border-t border-zoru-line pt-2">
+                            <div className="flex items-center justify-end gap-1 border-t border-[var(--st-border)] pt-2">
                                 <Button variant="ghost" size="sm" asChild>
                                     <Link href={`${BASE}/${item._id}/edit`}>
                                         <Edit className="h-4 w-4" /> Edit
@@ -218,7 +218,7 @@ export function IntegrationsList({ items }: { items: CrmIntegrationDoc[] }) {
                                     size="sm"
                                     onClick={() => setPendingDelete(item)}
                                 >
-                                    <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                    <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                 </Button>
                             </div>
                         </Card>

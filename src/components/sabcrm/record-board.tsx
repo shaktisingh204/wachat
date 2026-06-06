@@ -513,9 +513,9 @@ export function RecordBoard({
 
       {/* Toolbar */}
       <div className="flex items-center justify-between gap-2">
-        <span className="text-sm text-zoru-ink-muted">
+        <span className="text-sm text-[var(--st-text-secondary)]">
           Grouped by{' '}
-          <span className="font-medium text-zoru-ink">{groupField.label}</span>
+          <span className="font-medium text-[var(--st-text)]">{groupField.label}</span>
         </span>
         <Button
           type="button"
@@ -671,10 +671,10 @@ const BoardColumn = React.memo(function BoardColumn({
       aria-colcount={colCount}
       aria-dropeffect={dropEffect}
       className={cn(
-        'flex w-72 shrink-0 flex-col rounded-[var(--zoru-radius-lg)] border bg-zoru-surface/40 transition-colors',
+        'flex w-72 shrink-0 flex-col rounded-[var(--zoru-radius-lg)] border bg-[var(--st-bg-secondary)]/40 transition-colors',
         isDropTarget
-          ? 'border-zoru-line-strong bg-zoru-surface-2'
-          : 'border-zoru-line',
+          ? 'border-[var(--st-border-strong)] bg-[var(--st-bg-muted)]'
+          : 'border-[var(--st-border)]',
       )}
       onDragOver={
         droppable ? (e) => onColumnDragOver(group.key, e) : undefined
@@ -692,7 +692,7 @@ const BoardColumn = React.memo(function BoardColumn({
             {group.label}
           </Badge>
           <span
-            className="text-xs tabular-nums text-zoru-ink-muted"
+            className="text-xs tabular-nums text-[var(--st-text-secondary)]"
             aria-hidden="true"
           >
             {group.total}
@@ -706,7 +706,7 @@ const BoardColumn = React.memo(function BoardColumn({
             aria-label={`New ${object.labelSingular.toLowerCase()} in ${group.label}`}
             onClick={() => onCreate(group.key)}
           >
-            <Plus className="text-zoru-ink-muted" />
+            <Plus className="text-[var(--st-text-secondary)]" />
           </Button>
         )}
       </div>
@@ -720,7 +720,7 @@ const BoardColumn = React.memo(function BoardColumn({
         {group.records.length === 0 ? (
           <div
             aria-hidden="true"
-            className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line px-3 py-6 text-center text-xs text-zoru-ink-muted"
+            className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] px-3 py-6 text-center text-xs text-[var(--st-text-secondary)]"
           >
             {isDropTarget ? 'Drop here' : 'No records'}
           </div>
@@ -905,11 +905,11 @@ const BoardCard = React.memo(function BoardCard({
       <div className="flex items-start gap-2">
         {draggable && (
           <GripVertical
-            className="mt-0.5 h-4 w-4 shrink-0 text-zoru-ink-muted/50"
+            className="mt-0.5 h-4 w-4 shrink-0 text-[var(--st-text-secondary)]/50"
             aria-hidden
           />
         )}
-        <span className="min-w-0 flex-1 truncate text-sm font-medium text-zoru-ink">
+        <span className="min-w-0 flex-1 truncate text-sm font-medium text-[var(--st-text)]">
           {title}
         </span>
       </div>
@@ -921,7 +921,7 @@ const BoardCard = React.memo(function BoardCard({
               key={field.key}
               className="flex items-baseline justify-between gap-2 text-xs"
             >
-              <dt className="shrink-0 text-zoru-ink-muted">{field.label}</dt>
+              <dt className="shrink-0 text-[var(--st-text-secondary)]">{field.label}</dt>
               <dd className="min-w-0 truncate text-right">
                 <FieldValue field={field} value={record.data[field.key]} dense />
               </dd>
@@ -939,7 +939,7 @@ const BoardCard = React.memo(function BoardCard({
 
 function BoardColumnSkeleton(): React.ReactElement {
   return (
-    <section className="flex w-72 shrink-0 flex-col rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-surface/40">
+    <section className="flex w-72 shrink-0 flex-col rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40">
       <div className="flex items-center gap-2 px-3 pt-3">
         <Skeleton className="h-6 w-24 rounded-full" />
         <Skeleton className="h-4 w-6" />

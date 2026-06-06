@@ -30,8 +30,8 @@ export default async function SabShopPage(): Promise<React.JSX.Element> {
         <div className="zoruui flex flex-col gap-6 p-6">
             <header className="flex flex-wrap items-end justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-semibold text-zoru-ink">SabShop</h1>
-                    <p className="text-sm text-zoru-ink-muted">
+                    <h1 className="text-2xl font-semibold text-[var(--st-text)]">SabShop</h1>
+                    <p className="text-sm text-[var(--st-text-secondary)]">
                         Run multiple online stores from a single workspace.
                     </p>
                 </div>
@@ -44,16 +44,16 @@ export default async function SabShopPage(): Promise<React.JSX.Element> {
 
             {!res.ok ? (
                 <Card>
-                    <ZoruCardContent className="p-6 text-sm text-zoru-ink">
+                    <ZoruCardContent className="p-6 text-sm text-[var(--st-text)]">
                         {res.error}
                     </ZoruCardContent>
                 </Card>
             ) : items.length === 0 ? (
                 <Card>
                     <ZoruCardContent className="flex flex-col items-center gap-3 p-12 text-center">
-                        <Store className="h-10 w-10 text-zoru-ink-muted" />
-                        <h2 className="text-lg font-medium text-zoru-ink">No storefronts yet</h2>
-                        <p className="text-sm text-zoru-ink-muted">
+                        <Store className="h-10 w-10 text-[var(--st-text-secondary)]" />
+                        <h2 className="text-lg font-medium text-[var(--st-text)]">No storefronts yet</h2>
+                        <p className="text-sm text-[var(--st-text-secondary)]">
                             Spin up a tenant-scoped public store at <code>/store/&lt;slug&gt;</code>.
                         </p>
                         <Button asChild>
@@ -74,7 +74,7 @@ export default async function SabShopPage(): Promise<React.JSX.Element> {
                                 </div>
                             </ZoruCardHeader>
                             <ZoruCardContent className="flex flex-col gap-3 text-sm">
-                                <div className="flex items-center justify-between text-zoru-ink-muted">
+                                <div className="flex items-center justify-between text-[var(--st-text-secondary)]">
                                     <span>/store/{sf.slug}</span>
                                     <span>{sf.currency ?? 'INR'}</span>
                                 </div>

@@ -70,7 +70,7 @@ export function PayrollRunsFiltersRow({
   refreshing,
 }: PayrollRunsFiltersRowProps): React.JSX.Element {
   return (
-    <div className="flex flex-col gap-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3">
+    <div className="flex flex-col gap-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
       <div className="flex flex-wrap items-center gap-2">
         <EnumFilterField
           enumName="payrollRunFilterStatus"
@@ -135,7 +135,7 @@ export function PayrollRunsFiltersRow({
 
       <div className="grid gap-3 md:grid-cols-2">
         <div>
-          <Label className="text-[11px] uppercase text-zoru-ink-muted">
+          <Label className="text-[11px] uppercase text-[var(--st-text-secondary)]">
             Department
           </Label>
           <div className="mt-1">
@@ -149,7 +149,7 @@ export function PayrollRunsFiltersRow({
           </div>
         </div>
         <div>
-          <Label className="text-[11px] uppercase text-zoru-ink-muted">
+          <Label className="text-[11px] uppercase text-[var(--st-text-secondary)]">
             Employee
           </Label>
           <div className="mt-1">

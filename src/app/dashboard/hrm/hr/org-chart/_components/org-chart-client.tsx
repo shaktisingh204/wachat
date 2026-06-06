@@ -29,12 +29,12 @@ const STATUS_VARIANTS: Record<string, 'success' | 'warning' | 'ghost' | 'danger'
 };
 
 const AVATAR_COLORS = [
-  'bg-zoru-surface-2 text-zoru-ink',
-  'bg-zoru-surface-2 text-zoru-ink',
-  'bg-zoru-surface-2 text-zoru-ink',
-  'bg-zoru-surface-2 text-zoru-ink',
-  'bg-zoru-surface-2 text-zoru-ink',
-  'bg-zoru-surface-2 text-zoru-ink',
+  'bg-[var(--st-bg-muted)] text-[var(--st-text)]',
+  'bg-[var(--st-bg-muted)] text-[var(--st-text)]',
+  'bg-[var(--st-bg-muted)] text-[var(--st-text)]',
+  'bg-[var(--st-bg-muted)] text-[var(--st-text)]',
+  'bg-[var(--st-bg-muted)] text-[var(--st-text)]',
+  'bg-[var(--st-bg-muted)] text-[var(--st-text)]',
 ];
 
 function avatarColor(name: string) {
@@ -85,13 +85,13 @@ function OrgNode({ node, depth }: { node: TreeNode; depth: number }) {
   const hasChildren = node.children.length > 0;
 
   return (
-    <div className={depth > 0 ? 'ml-6 border-l border-zoru-line pl-4 pt-1' : ''}>
+    <div className={depth > 0 ? 'ml-6 border-l border-[var(--st-border)] pl-4 pt-1' : ''}>
       <div className="flex items-start gap-2 py-1.5 group">
         <button
           type="button"
           onClick={() => hasChildren && setExpanded((v) => !v)}
-          className={`mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded text-zoru-ink-muted transition-colors ${
-            hasChildren ? 'hover:text-zoru-ink cursor-pointer' : 'opacity-0 pointer-events-none'
+          className={`mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded text-[var(--st-text-secondary)] transition-colors ${
+            hasChildren ? 'hover:text-[var(--st-text)] cursor-pointer' : 'opacity-0 pointer-events-none'
           }`}
           aria-label={expanded ? 'Collapse' : 'Expand'}
         >
@@ -103,11 +103,11 @@ function OrgNode({ node, depth }: { node: TreeNode; depth: number }) {
         </div>
 
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-3 gap-y-0.5">
-          <span className="text-[13px] text-zoru-ink">{name}</span>
-          {node.designationName && <span className="text-[12px] text-zoru-ink-muted">{node.designationName}</span>}
-          {node.departmentName && <span className="hidden text-[11px] text-zoru-ink-muted sm:inline">· {node.departmentName}</span>}
+          <span className="text-[13px] text-[var(--st-text)]">{name}</span>
+          {node.designationName && <span className="text-[12px] text-[var(--st-text-secondary)]">{node.designationName}</span>}
+          {node.departmentName && <span className="hidden text-[11px] text-[var(--st-text-secondary)] sm:inline">· {node.departmentName}</span>}
           {node.status && <Badge variant={variant}>{node.status}</Badge>}
-          {hasChildren && <span className="text-[11px] text-zoru-ink-muted">{node.children.length} report{node.children.length !== 1 ? 's' : ''}</span>}
+          {hasChildren && <span className="text-[11px] text-[var(--st-text-secondary)]">{node.children.length} report{node.children.length !== 1 ? 's' : ''}</span>}
         </div>
       </div>
 
@@ -130,11 +130,11 @@ export function OrgChartClient({ employees }: { employees: Employee[] }) {
     <Card>
       {roots.length === 0 ? (
         <div className="flex flex-col items-start gap-3 p-8">
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-zoru-surface-2">
-            <Network className="h-6 w-6 text-zoru-ink" strokeWidth={1.75} />
+          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[var(--st-bg-muted)]">
+            <Network className="h-6 w-6 text-[var(--st-text)]" strokeWidth={1.75} />
           </div>
-          <h3 className="text-[15px] text-zoru-ink">No employees yet</h3>
-          <p className="max-w-xl text-[13px] text-zoru-ink-muted">
+          <h3 className="text-[15px] text-[var(--st-text)]">No employees yet</h3>
+          <p className="max-w-xl text-[13px] text-[var(--st-text-secondary)]">
             Add employees via HR-Payroll → Employees to see the org chart.
           </p>
           <Link href="/dashboard/hrm/hr/directory">
@@ -147,7 +147,7 @@ export function OrgChartClient({ employees }: { employees: Employee[] }) {
       ) : (
         <div className="p-4">
           <div className="mb-3 flex items-center justify-between">
-            <p className="text-[12px] text-zoru-ink-muted">
+            <p className="text-[12px] text-[var(--st-text-secondary)]">
               {total} employee{total !== 1 ? 's' : ''} · click rows to expand / collapse
             </p>
           </div>

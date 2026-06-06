@@ -108,7 +108,7 @@ export function NewChatDialog({ open, onOpenChange, onStartChat }: NewChatDialog
                                   )}
                                 />
                                 <span className="flex-1 truncate">{country.name}</span>
-                                <span className="text-zoru-ink-muted ml-2">+{country.code}</span>
+                                <span className="text-[var(--st-text-secondary)] ml-2">+{country.code}</span>
                               </CommandItem>
                             ))}
                           </CommandGroup>
@@ -127,7 +127,7 @@ export function NewChatDialog({ open, onOpenChange, onStartChat }: NewChatDialog
                     type="tel"
                   />
                 </div>
-                <p className="text-xs text-zoru-ink-muted">
+                <p className="text-xs text-[var(--st-text-secondary)]">
                   Format: {selectedCountry ? `+${selectedCountry.code} 9876543210` : 'Select country code first'}
                 </p>
               </div>

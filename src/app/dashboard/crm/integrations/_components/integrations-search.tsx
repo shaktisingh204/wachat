@@ -25,14 +25,14 @@ export function IntegrationsSearch() {
 
     return (
         <div className="relative mb-6 w-full max-w-sm">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
             <Input
                 placeholder="Search integrations..."
                 defaultValue={searchParams.get('q') ?? ''}
                 onChange={handleSearch}
                 className="pl-9"
             />
-            {isPending && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-zoru-ink-muted">Searching...</span>}
+            {isPending && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[var(--st-text-secondary)]">Searching...</span>}
         </div>
     );
 }

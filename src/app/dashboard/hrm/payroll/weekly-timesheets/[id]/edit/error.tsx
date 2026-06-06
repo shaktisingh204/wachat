@@ -15,7 +15,7 @@ export default function EditError({
   }, [error]);
 
   return (
-    <div className="flex flex-col items-center justify-center p-12 text-center text-[13px] text-zoru-danger-ink border border-zoru-danger-ink/20 bg-zoru-danger-surface rounded-lg">
+    <div className="flex flex-col items-center justify-center p-12 text-center text-[13px] text-[var(--st-danger)] border border-[var(--st-danger)]/20 bg-zoru-danger-surface rounded-lg">
       <h2 className="text-lg font-semibold mb-2">Something went wrong!</h2>
       <p className="font-medium mb-4">Failed to load timesheet data.</p>
       <Button variant="outline" onClick={() => reset()}>

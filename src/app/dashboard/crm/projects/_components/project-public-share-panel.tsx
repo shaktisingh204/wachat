@@ -129,12 +129,12 @@ export function ProjectPublicSharePanel({ projectId }: Props): React.ReactElemen
   return (
     <Card className="p-6">
       <header className="mb-4 flex items-center gap-2">
-        <Share2 className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
+        <Share2 className="h-4 w-4 text-[var(--st-text-secondary)]" strokeWidth={1.75} />
         <div>
-          <h2 className="text-[14px] font-semibold text-zoru-ink">
+          <h2 className="text-[14px] font-semibold text-[var(--st-text)]">
             Public share
           </h2>
-          <p className="text-[12px] text-zoru-ink-muted">
+          <p className="text-[12px] text-[var(--st-text-secondary)]">
             Generate hash-signed links to share read-only views with people
             who don&apos;t have a SabNode account.
           </p>
@@ -142,7 +142,7 @@ export function ProjectPublicSharePanel({ projectId }: Props): React.ReactElemen
       </header>
 
       {isLoading || !state ? (
-        <p className="text-[13px] text-zoru-ink-muted">Loading share state…</p>
+        <p className="text-[13px] text-[var(--st-text-secondary)]">Loading share state…</p>
       ) : (
         <div className="space-y-3">
           <ShareRow
@@ -194,16 +194,16 @@ function ShareRow({
   url: string;
 }): React.ReactElement {
   return (
-    <div className="rounded-lg border border-zoru-line p-3">
+    <div className="rounded-lg border border-[var(--st-border)] p-3">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <p className="text-[13px] font-medium text-zoru-ink">{title}</p>
-          <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+          <p className="text-[13px] font-medium text-[var(--st-text)]">{title}</p>
+          <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">
             {description}
           </p>
         </div>
         {alwaysOn ? (
-          <span className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
+          <span className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
             Always on
           </span>
         ) : (
@@ -241,8 +241,8 @@ function CopyLink({ url }: { url: string }): React.ReactElement {
   };
 
   return (
-    <div className="mt-2 flex items-center gap-2 rounded-md border border-zoru-line bg-zoru-surface px-2 py-1.5">
-      <code className="min-w-0 flex-1 truncate text-[12px] text-zoru-ink">
+    <div className="mt-2 flex items-center gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1.5">
+      <code className="min-w-0 flex-1 truncate text-[12px] text-[var(--st-text)]">
         {url}
       </code>
       <Button
@@ -253,7 +253,7 @@ function CopyLink({ url }: { url: string }): React.ReactElement {
         aria-label="Copy link"
       >
         {copied ? (
-          <Check className="h-3.5 w-3.5 text-zoru-ink" />
+          <Check className="h-3.5 w-3.5 text-[var(--st-text)]" />
         ) : (
           <Copy className="h-3.5 w-3.5" />
         )}
@@ -262,7 +262,7 @@ function CopyLink({ url }: { url: string }): React.ReactElement {
         href={url}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex h-7 w-7 items-center justify-center rounded-md text-zoru-ink-muted hover:bg-zoru-surface-2"
+        className="inline-flex h-7 w-7 items-center justify-center rounded-md text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)]"
         aria-label="Open link in new tab"
       >
         <ExternalLink className="h-3.5 w-3.5" />

@@ -371,7 +371,7 @@ export default function AutomationsPage() {
                 bulkBar={
                     selected.size > 0 ? (
                         <div className="flex flex-wrap items-center justify-between gap-3">
-                            <div className="text-[13px] text-zoru-ink">
+                            <div className="text-[13px] text-[var(--st-text)]">
                                 <span className="font-medium">{selected.size}</span> selected
                             </div>
                             <div className="flex items-center gap-2">
@@ -424,11 +424,11 @@ export default function AutomationsPage() {
                 empty={
                     !isPending && items.length === 0 ? (
                         <div className="flex flex-col items-center gap-3 p-4">
-                            <Workflow className="h-8 w-8 text-zoru-ink-muted" />
-                            <h3 className="text-base font-medium text-zoru-ink">
+                            <Workflow className="h-8 w-8 text-[var(--st-text-secondary)]" />
+                            <h3 className="text-base font-medium text-[var(--st-text)]">
                                 No automations yet
                             </h3>
-                            <p className="max-w-sm text-sm text-zoru-ink-muted">
+                            <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                                 {hasActiveFilters
                                     ? 'No automations match the current filters.'
                                     : 'Create rules to automate follow-ups, task creation and field updates.'}
@@ -481,7 +481,7 @@ export default function AutomationsPage() {
                         <div className="overflow-x-auto rounded-lg">
                             <Table>
                                 <ZoruTableHeader>
-                                    <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                                    <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                                         <ZoruTableHead className="w-10">
                                             <Checkbox
                                                 checked={allSelectedOnPage}
@@ -491,25 +491,25 @@ export default function AutomationsPage() {
                                                 aria-label="Select all"
                                             />
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-zoru-ink-muted">
+                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                             Name
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-zoru-ink-muted">
+                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                             Trigger
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-right text-zoru-ink-muted">
+                                        <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                                             Actions
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-right text-zoru-ink-muted">
+                                        <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                                             Conditions
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-right text-zoru-ink-muted">
+                                        <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                                             Runs
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-zoru-ink-muted">
+                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                             Last run
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-zoru-ink-muted">
+                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                             Status
                                         </ZoruTableHead>
                                         <ZoruTableHead className="w-10" />
@@ -522,7 +522,7 @@ export default function AutomationsPage() {
                                         return (
                                             <ZoruTableRow
                                                 key={id}
-                                                className="border-zoru-line"
+                                                className="border-[var(--st-border)]"
                                                 data-state={
                                                     selected.has(id) ? 'selected' : undefined
                                                 }
@@ -542,19 +542,19 @@ export default function AutomationsPage() {
                                                         label={a.name || 'Untitled automation'}
                                                     />
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {formatTrigger(a.trigger)}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-right text-zoru-ink">
+                                                <ZoruTableCell className="text-right text-[var(--st-text)]">
                                                     {Number(a.actionsCount ?? 0)}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-right text-zoru-ink">
+                                                <ZoruTableCell className="text-right text-[var(--st-text)]">
                                                     {Number(a.conditionsCount ?? 0)}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-right text-zoru-ink">
+                                                <ZoruTableCell className="text-right text-[var(--st-text)]">
                                                     {Number(a.runCount ?? 0)}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {formatDate(a.lastRunAt)}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
@@ -592,7 +592,7 @@ export default function AutomationsPage() {
                                                                 onSelect={() =>
                                                                     setDeleteTargetId(id)
                                                                 }
-                                                                className="text-zoru-danger"
+                                                                className="text-[var(--st-danger)]"
                                                             >
                                                                 Delete
                                                             </ZoruDropdownMenuItem>

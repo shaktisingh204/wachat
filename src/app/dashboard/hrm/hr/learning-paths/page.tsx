@@ -116,7 +116,7 @@ export default function LearningPathsPage() {
           key: 'prereq',
           label: 'Prerequisites',
           render: (r) => (
-            <span className="block max-w-[180px] truncate text-zoru-ink-muted">
+            <span className="block max-w-[180px] truncate text-[var(--st-text-secondary)]">
               {r.prerequisites || '—'}
             </span>
           ),
@@ -124,12 +124,12 @@ export default function LearningPathsPage() {
         {
           key: 'category',
           label: 'Category',
-          render: (r) => (r.category ? <HrChip>{r.category}</HrChip> : <span className="text-zoru-ink-muted">—</span>),
+          render: (r) => (r.category ? <HrChip>{r.category}</HrChip> : <span className="text-[var(--st-text-secondary)]">—</span>),
         },
         {
           key: 'difficulty',
           label: 'Difficulty',
-          render: (r) => (r.difficulty ? <HrChip>{r.difficulty}</HrChip> : <span className="text-zoru-ink-muted">—</span>),
+          render: (r) => (r.difficulty ? <HrChip>{r.difficulty}</HrChip> : <span className="text-[var(--st-text-secondary)]">—</span>),
         },
         {
           key: 'hours',
@@ -138,7 +138,7 @@ export default function LearningPathsPage() {
             r.estimatedHours != null ? (
               <span className="tabular-nums">{r.estimatedHours}h</span>
             ) : (
-              <span className="text-zoru-ink-muted">—</span>
+              <span className="text-[var(--st-text-secondary)]">—</span>
             ),
         },
         {
@@ -146,11 +146,11 @@ export default function LearningPathsPage() {
           label: 'Assigned',
           render: (r) =>
             r.assigned_to ? (
-              <span className="block max-w-[120px] truncate text-zoru-ink-muted">
+              <span className="block max-w-[120px] truncate text-[var(--st-text-secondary)]">
                 {r.assigned_to}
               </span>
             ) : (
-              <span className="text-zoru-ink-muted">—</span>
+              <span className="text-[var(--st-text-secondary)]">—</span>
             ),
         },
         {

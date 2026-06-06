@@ -134,17 +134,17 @@ function KpiStrip({ kpis }: { kpis: Gstr2bKpis }) {
       <StatCard
         label="ITC available"
         value={fmtInr(kpis.itcAvailable)}
-        icon={<TrendingUp className="h-4 w-4 text-zoru-ink" />}
+        icon={<TrendingUp className="h-4 w-4 text-[var(--st-text)]" />}
       />
       <StatCard
         label="ITC ineligible"
         value={fmtInr(kpis.itcIneligible)}
-        icon={<TrendingDown className="h-4 w-4 text-zoru-ink" />}
+        icon={<TrendingDown className="h-4 w-4 text-[var(--st-text)]" />}
       />
       <StatCard
         label="Suppliers"
         value={kpis.supplierCount.toLocaleString()}
-        icon={<AlertCircle className="h-4 w-4 text-zoru-ink" />}
+        icon={<AlertCircle className="h-4 w-4 text-[var(--st-text)]" />}
       />
     </div>
   );
@@ -320,7 +320,7 @@ export function Gstr2bClient() {
       <Card>
         <div className="flex flex-wrap items-end gap-3">
           <div>
-            <label className="mb-1 block text-[12px] text-zoru-ink-muted">
+            <label className="mb-1 block text-[12px] text-[var(--st-text-secondary)]">
               Month
             </label>
             <Select
@@ -342,7 +342,7 @@ export function Gstr2bClient() {
             </Select>
           </div>
           <div>
-            <label className="mb-1 block text-[12px] text-zoru-ink-muted">
+            <label className="mb-1 block text-[12px] text-[var(--st-text-secondary)]">
               Year
             </label>
             <Input
@@ -363,14 +363,14 @@ export function Gstr2bClient() {
             <FileInput className="h-4 w-4" /> Upload GSTR-2B JSON
           </SabFilePickerButton>
           {loading ? (
-            <LoaderCircle className="h-4 w-4 animate-spin text-zoru-ink-muted" />
+            <LoaderCircle className="h-4 w-4 animate-spin text-[var(--st-text-secondary)]" />
           ) : null}
         </div>
       </Card>
 
       {!parsed && !loading ? (
         <Card>
-          <p className="text-[13px] text-zoru-ink-muted">
+          <p className="text-[13px] text-[var(--st-text-secondary)]">
             No GSTR-2B import on file for this period. Download the JSON from
             the GST portal and upload it above.
           </p>
@@ -384,8 +384,8 @@ export function Gstr2bClient() {
 
           {/* Summary box */}
           <Card>
-            <h2 className="text-[15px] font-semibold text-zoru-ink">Summary</h2>
-            <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+            <h2 className="text-[15px] font-semibold text-[var(--st-text)]">Summary</h2>
+            <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">
               GSTIN {parsed.gstin} — Period {parsed.period}
             </p>
             <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4">
@@ -416,12 +416,12 @@ export function Gstr2bClient() {
               ].map(({ label, value }) => (
                 <div
                   key={label}
-                  className="rounded-lg border border-zoru-line bg-zoru-surface-2 p-4"
+                  className="rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4"
                 >
-                  <p className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                  <p className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                     {label}
                   </p>
-                  <p className="mt-1 font-mono text-[16px] text-zoru-ink">
+                  <p className="mt-1 font-mono text-[16px] text-[var(--st-text)]">
                     {value}
                   </p>
                 </div>
@@ -431,7 +431,7 @@ export function Gstr2bClient() {
 
           {/* Supplier table */}
           <Card className="overflow-hidden p-0">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zoru-line px-4 py-3">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--st-border)] px-4 py-3">
               <div className="flex items-center gap-2">
                 <Input
                   type="search"
@@ -453,7 +453,7 @@ export function Gstr2bClient() {
               </div>
               <div className="flex items-center gap-2">
                 {selected.size > 0 ? (
-                  <span className="text-[12.5px] text-zoru-ink">
+                  <span className="text-[12.5px] text-[var(--st-text)]">
                     {selected.size} selected
                   </span>
                 ) : null}
@@ -477,31 +477,31 @@ export function Gstr2bClient() {
             <div className="overflow-x-auto">
               <Table>
                 <ZoruTableHeader>
-                  <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                    <ZoruTableHead className="w-10 text-zoru-ink-muted">
+                  <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                    <ZoruTableHead className="w-10 text-[var(--st-text-secondary)]">
                       <Checkbox
                         checked={allChecked}
                         onCheckedChange={(c) => toggleAll(Boolean(c))}
                         aria-label="Select all suppliers"
                       />
                     </ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">GSTIN</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">GSTIN</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
                       Trade name
                     </ZoruTableHead>
-                    <ZoruTableHead className="text-right text-zoru-ink-muted">
+                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                       Invoices
                     </ZoruTableHead>
-                    <ZoruTableHead className="text-right text-zoru-ink-muted">
+                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                       Taxable
                     </ZoruTableHead>
-                    <ZoruTableHead className="text-right text-zoru-ink-muted">
+                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                       IGST
                     </ZoruTableHead>
-                    <ZoruTableHead className="text-right text-zoru-ink-muted">
+                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                       CGST
                     </ZoruTableHead>
-                    <ZoruTableHead className="text-right text-zoru-ink-muted">
+                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                       SGST
                     </ZoruTableHead>
                   </ZoruTableRow>
@@ -511,7 +511,7 @@ export function Gstr2bClient() {
                     <ZoruTableRow>
                       <ZoruTableCell
                         colSpan={8}
-                        className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                        className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                       >
                         {gstinSearch
                           ? 'No suppliers match that GSTIN / name.'
@@ -522,7 +522,7 @@ export function Gstr2bClient() {
                     filteredSuppliers.map((s) => (
                       <ZoruTableRow
                         key={s.gstin}
-                        className="border-zoru-line"
+                        className="border-[var(--st-border)]"
                         data-state={selected.has(s.gstin) ? 'selected' : undefined}
                       >
                         <ZoruTableCell>
@@ -532,25 +532,25 @@ export function Gstr2bClient() {
                             aria-label={`Select ${s.gstin}`}
                           />
                         </ZoruTableCell>
-                        <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
+                        <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
                           {s.gstin}
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-zoru-ink">
+                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text)]">
                           {s.tradeName ?? '—'}
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-zoru-ink">
+                        <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-[var(--st-text)]">
                           {s.invoiceCount}
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-right font-mono text-[12px] text-zoru-ink">
+                        <ZoruTableCell className="text-right font-mono text-[12px] text-[var(--st-text)]">
                           {s.taxableValue.toFixed(2)}
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-right font-mono text-[12px] text-zoru-ink">
+                        <ZoruTableCell className="text-right font-mono text-[12px] text-[var(--st-text)]">
                           {s.igst.toFixed(2)}
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-right font-mono text-[12px] text-zoru-ink">
+                        <ZoruTableCell className="text-right font-mono text-[12px] text-[var(--st-text)]">
                           {s.cgst.toFixed(2)}
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-right font-mono text-[12px] text-zoru-ink">
+                        <ZoruTableCell className="text-right font-mono text-[12px] text-[var(--st-text)]">
                           {s.sgst.toFixed(2)}
                         </ZoruTableCell>
                       </ZoruTableRow>

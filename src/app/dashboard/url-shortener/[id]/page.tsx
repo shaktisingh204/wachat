@@ -102,9 +102,9 @@ export default async function ShortUrlAnalyticsPage({ params }: { params: Promis
     return (
       <div className="flex min-h-full flex-col gap-6">
         <Card className="p-10 text-center">
-          <AlertTriangle className="mx-auto h-10 w-10 text-zoru-danger mb-4" />
-          <h3 className="text-sm text-zoru-ink mb-1">Failed to load data</h3>
-          <p className="text-xs text-zoru-ink-muted mb-4">An error occurred while fetching the short URL data. Please try again later.</p>
+          <AlertTriangle className="mx-auto h-10 w-10 text-[var(--st-danger)] mb-4" />
+          <h3 className="text-sm text-[var(--st-text)] mb-1">Failed to load data</h3>
+          <p className="text-xs text-[var(--st-text-secondary)] mb-4">An error occurred while fetching the short URL data. Please try again later.</p>
           <Button variant="outline" size="sm" asChild>
             <Link href="/dashboard/url-shortener">
               <ArrowLeft className="h-3.5 w-3.5" />
@@ -122,9 +122,9 @@ export default async function ShortUrlAnalyticsPage({ params }: { params: Promis
     return (
       <div className="flex min-h-full flex-col gap-6">
         <Card className="p-10 text-center">
-          <LinkIcon className="mx-auto h-10 w-10 text-zoru-ink-muted/40 mb-4" />
-          <h3 className="text-sm text-zoru-ink mb-1">Link not found</h3>
-          <p className="text-xs text-zoru-ink-muted mb-4">This short link does not exist or you do not have access to it.</p>
+          <LinkIcon className="mx-auto h-10 w-10 text-[var(--st-text-secondary)]/40 mb-4" />
+          <h3 className="text-sm text-[var(--st-text)] mb-1">Link not found</h3>
+          <p className="text-xs text-[var(--st-text-secondary)] mb-4">This short link does not exist or you do not have access to it.</p>
           <Button variant="outline" size="sm" asChild>
             <Link href="/dashboard/url-shortener">
               <ArrowLeft className="h-3.5 w-3.5" />

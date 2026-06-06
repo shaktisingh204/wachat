@@ -190,14 +190,14 @@ export default function ApiKeysPage() {
 
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface text-zoru-ink">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
             <KeyRound className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-[24px] leading-[1.2] tracking-[-0.015em] text-zoru-ink">
+            <h1 className="text-[24px] leading-[1.2] tracking-[-0.015em] text-[var(--st-text)]">
               API Keys
             </h1>
-            <p className="mt-1 text-[13px] text-zoru-ink-muted">
+            <p className="mt-1 text-[13px] text-[var(--st-text-secondary)]">
               REST tokens scoped to the SabWa module. Reuses the dashboard API
               pattern.
             </p>
@@ -208,7 +208,7 @@ export default function ApiKeysPage() {
             asChild
             size="sm"
             variant="ghost"
-            className="gap-1.5 text-zoru-ink-muted"
+            className="gap-1.5 text-[var(--st-text-secondary)]"
           >
             <Link href="/dashboard/api/docs#sabwa">
               <Book className="h-4 w-4" />
@@ -334,7 +334,7 @@ export default function ApiKeysPage() {
                             })}
                           </span>
                         ) : (
-                          <span className="text-zoru-ink-muted">Never</span>
+                          <span className="text-[var(--st-text-secondary)]">Never</span>
                         )}
                       </ZoruTableCell>
                       <ZoruTableCell>
@@ -345,14 +345,14 @@ export default function ApiKeysPage() {
                             })}
                           </span>
                         ) : (
-                          <span className="text-zoru-ink-muted">No expiry</span>
+                          <span className="text-[var(--st-text-secondary)]">No expiry</span>
                         )}
                       </ZoruTableCell>
                       <ZoruTableCell className="text-right">
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="gap-1.5 text-zoru-danger hover:text-zoru-danger"
+                          className="gap-1.5 text-[var(--st-danger)] hover:text-[var(--st-danger)]"
                           disabled={row.status !== 'active'}
                           onClick={() => setPendingRevoke(row)}
                         >
@@ -385,7 +385,7 @@ export default function ApiKeysPage() {
             <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
             <ZoruAlertDialogAction
               onClick={() => void handleRevoke()}
-              className="bg-zoru-danger text-zoru-danger-foreground hover:bg-zoru-danger/90"
+              className="bg-[var(--st-danger)] text-zoru-danger-foreground hover:bg-[var(--st-danger)]/90"
             >
               Revoke
             </ZoruAlertDialogAction>
@@ -473,7 +473,7 @@ function CreateApiKeyDialogContent({
               <Label
                 key={s.value}
                 htmlFor={`scope-${s.value}`}
-                className="flex cursor-pointer items-start gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 py-2 text-sm text-zoru-ink hover:bg-zoru-surface"
+                className="flex cursor-pointer items-start gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]"
               >
                 <Checkbox
                   id={`scope-${s.value}`}
@@ -483,7 +483,7 @@ function CreateApiKeyDialogContent({
                 />
                 <div className="flex flex-col">
                   <span className="font-mono text-xs">{s.label}</span>
-                  <span className="text-[11px] text-zoru-ink-muted">
+                  <span className="text-[11px] text-[var(--st-text-secondary)]">
                     {s.description}
                   </span>
                 </div>
@@ -523,10 +523,10 @@ function KeyRevealCard({
 }) {
   const toast = useZoruToast();
   return (
-    <Card className="border-zoru-warning/40 bg-zoru-warning/5">
+    <Card className="border-[var(--st-warn)]/40 bg-[var(--st-warn)]/5">
       <ZoruCardHeader>
-        <ZoruCardTitle className="flex items-center gap-2 text-base text-zoru-ink">
-          <AlertTriangle className="h-4 w-4 text-zoru-warning-ink" />
+        <ZoruCardTitle className="flex items-center gap-2 text-base text-[var(--st-text)]">
+          <AlertTriangle className="h-4 w-4 text-[var(--st-warn)]" />
           New API key — copy now
         </ZoruCardTitle>
         <ZoruCardDescription>
@@ -535,7 +535,7 @@ function KeyRevealCard({
         </ZoruCardDescription>
       </ZoruCardHeader>
       <ZoruCardContent className="flex items-center gap-2">
-        <code className="flex-1 truncate rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-2.5 py-1.5 text-xs text-zoru-ink">
+        <code className="flex-1 truncate rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2.5 py-1.5 text-xs text-[var(--st-text)]">
           {apiKey}
         </code>
         <Button

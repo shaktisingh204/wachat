@@ -52,7 +52,7 @@ function InitialsAvatar({ name }: { name: string }) {
     .toUpperCase();
 
   return (
-    <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-zoru-primary/15 text-[10px] font-semibold text-zoru-primary">
+    <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--st-text)]/15 text-[10px] font-semibold text-[var(--st-text)]">
       {initials || '?'}
     </span>
   );
@@ -95,8 +95,8 @@ export function TaskCard({
       onDragStart={onDragStart}
       className={[
         'cursor-grab select-none p-3 active:cursor-grabbing relative',
-        isDragging ? 'opacity-40 ring-2 ring-zoru-primary' : '',
-        isSelected ? 'ring-2 ring-zoru-primary/50 bg-zoru-primary/5' : '',
+        isDragging ? 'opacity-40 ring-2 ring-[var(--st-text)]' : '',
+        isSelected ? 'ring-2 ring-[var(--st-text)]/50 bg-[var(--st-text)]/5' : '',
       ]
         .join(' ')
         .trim()}
@@ -106,10 +106,10 @@ export function TaskCard({
         <button
           type="button"
           onClick={onToggleSelect}
-          className="absolute right-2 top-2 text-zoru-ink-muted hover:text-zoru-ink"
+          className="absolute right-2 top-2 text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
         >
           {isSelected ? (
-            <CheckSquare className="h-4 w-4 text-zoru-primary" />
+            <CheckSquare className="h-4 w-4 text-[var(--st-text)]" />
           ) : (
             <Square className="h-4 w-4" />
           )}
@@ -117,7 +117,7 @@ export function TaskCard({
       )}
 
       {/* Title */}
-      <p className="mb-2 pr-6 text-sm font-semibold leading-snug text-zoru-ink">
+      <p className="mb-2 pr-6 text-sm font-semibold leading-snug text-[var(--st-text)]">
         {task.title}
       </p>
 
@@ -137,17 +137,17 @@ export function TaskCard({
         {task.assigneeName ? (
           <div className="flex items-center gap-1.5 min-w-0">
             <InitialsAvatar name={task.assigneeName} />
-            <span className="truncate text-xs text-zoru-ink-muted">
+            <span className="truncate text-xs text-[var(--st-text-secondary)]">
               {task.assigneeName}
             </span>
           </div>
         ) : (
-          <span className="text-xs text-zoru-ink-subtle">Unassigned</span>
+          <span className="text-xs text-[var(--st-text-tertiary)]">Unassigned</span>
         )}
 
         {/* Due date */}
         {task.dueDate && mounted && (
-          <span className="shrink-0 text-xs tabular-nums text-zoru-ink-subtle">
+          <span className="shrink-0 text-xs tabular-nums text-[var(--st-text-tertiary)]">
             {fmtDate(task.dueDate)}
           </span>
         )}

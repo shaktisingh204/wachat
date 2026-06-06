@@ -60,7 +60,7 @@ export default async function EditProductionOrderPage({ params }: PageProps) {
       title={`Edit ${order.orderNo}`}
       back={{ href: `/dashboard/crm/inventory/production-orders/${orderId}`, label: 'Back to order details' }}
     >
-      <Suspense fallback={<div className="p-8 flex justify-center"><div className="animate-spin h-8 w-8 border-4 border-zoru-primary border-t-transparent rounded-full"></div></div>}>
+      <Suspense fallback={<div className="p-8 flex justify-center"><div className="animate-spin h-8 w-8 border-4 border-[var(--st-text)] border-t-transparent rounded-full"></div></div>}>
         <PoForm initial={initial} />
       </Suspense>
     </EntityDetailShell>

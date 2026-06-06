@@ -33,7 +33,7 @@ export function RowActionsMenu({
         <button
           type="button"
           aria-label={`Actions for ${app.name}`}
-          className="rounded p-1 text-zoru-ink-muted hover:bg-zoru-bg-zoru-surface-2 hover:text-zoru-ink"
+          className="rounded p-1 text-[var(--st-text-secondary)] hover:bg-zoru-bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
         >
           <MoreHorizontal className="h-4 w-4" />
         </button>
@@ -55,7 +55,7 @@ export function RowActionsMenu({
         <ZoruDropdownMenuItem onClick={onEdit}>
           <Pencil className="mr-1.5 h-3.5 w-3.5" /> Edit
         </ZoruDropdownMenuItem>
-        <ZoruDropdownMenuItem onClick={onDelete} className="text-zoru-ink">
+        <ZoruDropdownMenuItem onClick={onDelete} className="text-[var(--st-text)]">
           <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Delete
         </ZoruDropdownMenuItem>
       </ZoruDropdownMenuContent>

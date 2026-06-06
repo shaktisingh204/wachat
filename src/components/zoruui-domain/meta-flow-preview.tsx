@@ -33,14 +33,14 @@ interface RenderProps {
 /* ── text family ─────────────────────────────────────────────────── */
 
 const TextHeadingR = ({ component }: { component: any }) => (
-    <h1 className="mb-2 text-[26px] font-bold leading-tight text-zoru-ink">{component.text}</h1>
+    <h1 className="mb-2 text-[26px] font-bold leading-tight text-[var(--st-text)]">{component.text}</h1>
 );
 const TextSubheadingR = ({ component }: { component: any }) => (
-    <h2 className="mb-2 text-[18px] font-semibold leading-snug text-zoru-ink">{component.text}</h2>
+    <h2 className="mb-2 text-[18px] font-semibold leading-snug text-[var(--st-text)]">{component.text}</h2>
 );
 const TextBodyR = ({ component }: { component: any }) => {
     const cls = cn(
-        'mb-2 text-[15px] leading-normal text-zoru-ink',
+        'mb-2 text-[15px] leading-normal text-[var(--st-text)]',
         component['font-weight'] === 'bold' && 'font-bold',
         component['font-weight'] === 'italic' && 'italic',
         component['font-weight'] === 'bold_italic' && 'font-bold italic',
@@ -50,20 +50,20 @@ const TextBodyR = ({ component }: { component: any }) => {
 };
 const TextCaptionR = ({ component }: { component: any }) => (
     <p className={cn(
-        'mb-2 text-[13px] leading-normal text-zoru-ink',
+        'mb-2 text-[13px] leading-normal text-[var(--st-text)]',
         component.strikethrough && 'line-through',
     )}>{component.text}</p>
 );
 const RichTextR = ({ component }: { component: any }) => {
     const raw = Array.isArray(component.text) ? component.text.join('\n\n') : (component.text || '');
-    return <div className="mb-2 whitespace-pre-wrap text-[14px] leading-relaxed text-zoru-ink">{raw}</div>;
+    return <div className="mb-2 whitespace-pre-wrap text-[14px] leading-relaxed text-[var(--st-text)]">{raw}</div>;
 };
 
 /* ── inputs ─────────────────────────────────────────────────────── */
 
 const FieldLabel = ({ component }: { component: any }) => (
-    <Label className="mb-1 block text-[12px] font-normal text-zoru-ink">
-        {component.label} {component.required ? <span className="text-zoru-ink">*</span> : null}
+    <Label className="mb-1 block text-[12px] font-normal text-[var(--st-text)]">
+        {component.label} {component.required ? <span className="text-[var(--st-text)]">*</span> : null}
     </Label>
 );
 
@@ -78,9 +78,9 @@ const TextInputR = ({ component, formData, setFormData }: RenderProps) => (
             placeholder={component.placeholder}
             maxLength={component['max-chars']}
             disabled={component.enabled === false}
-            className="h-12 border-zoru-line bg-white text-[15px] focus-visible:ring-zoru-line"
+            className="h-12 border-[var(--st-border)] bg-white text-[15px] focus-visible:ring-[var(--st-border)]"
         />
-        {component['helper-text'] ? <p className="mt-1 text-xs text-zoru-ink">{component['helper-text']}</p> : null}
+        {component['helper-text'] ? <p className="mt-1 text-xs text-[var(--st-text)]">{component['helper-text']}</p> : null}
     </div>
 );
 
@@ -92,9 +92,9 @@ const TextAreaR = ({ component, formData, setFormData }: RenderProps) => (
             onChange={(e) => setFormData(prev => ({ ...prev, [component.name]: e.target.value }))}
             maxLength={component['max-length']}
             disabled={component.enabled === false}
-            className="min-h-[88px] border-zoru-line bg-white text-[15px] focus-visible:ring-zoru-line"
+            className="min-h-[88px] border-[var(--st-border)] bg-white text-[15px] focus-visible:ring-[var(--st-border)]"
         />
-        {component['helper-text'] ? <p className="mt-1 text-xs text-zoru-ink">{component['helper-text']}</p> : null}
+        {component['helper-text'] ? <p className="mt-1 text-xs text-[var(--st-text)]">{component['helper-text']}</p> : null}
     </div>
 );
 
@@ -105,7 +105,7 @@ const DropdownR = ({ component, formData, setFormData }: RenderProps) => (
             value={formData[component.name] ?? ''}
             onChange={(e) => setFormData(prev => ({ ...prev, [component.name]: e.target.value }))}
             disabled={component.enabled === false}
-            className="h-12 w-full rounded-md border border-zoru-line bg-white px-3 text-[15px] text-zoru-ink"
+            className="h-12 w-full rounded-md border border-[var(--st-border)] bg-white px-3 text-[15px] text-[var(--st-text)]"
         >
             <option value="">Select…</option>
             {(component['data-source'] || []).map((item: any) => (
@@ -122,12 +122,12 @@ const RadioGroupR = ({ component, formData, setFormData }: RenderProps) => {
             <FieldLabel component={component} />
             <div className="space-y-2">
                 {(component['data-source'] || []).map((item: any) => (
-                    <label key={item.id} className="flex cursor-pointer items-center gap-3 rounded-md border border-zoru-line bg-white p-3">
+                    <label key={item.id} className="flex cursor-pointer items-center gap-3 rounded-md border border-[var(--st-border)] bg-white p-3">
                         <span className={cn(
                             'flex h-4 w-4 items-center justify-center rounded-full border-2',
-                            current === item.id ? 'border-zoru-line' : 'border-zoru-line',
+                            current === item.id ? 'border-[var(--st-border)]' : 'border-[var(--st-border)]',
                         )}>
-                            {current === item.id ? <span className="h-2 w-2 rounded-full bg-zoru-ink" /> : null}
+                            {current === item.id ? <span className="h-2 w-2 rounded-full bg-[var(--st-text)]" /> : null}
                         </span>
                         <input
                             type="radio"
@@ -138,8 +138,8 @@ const RadioGroupR = ({ component, formData, setFormData }: RenderProps) => {
                             className="sr-only"
                         />
                         <div className="flex-1">
-                            <div className="text-[14.5px] text-zoru-ink">{item.title}</div>
-                            {item.description ? <div className="text-[12px] text-zoru-ink">{item.description}</div> : null}
+                            <div className="text-[14.5px] text-[var(--st-text)]">{item.title}</div>
+                            {item.description ? <div className="text-[12px] text-[var(--st-text)]">{item.description}</div> : null}
                         </div>
                     </label>
                 ))}
@@ -161,10 +161,10 @@ const CheckboxGroupR = ({ component, formData, setFormData }: RenderProps) => {
             <FieldLabel component={component} />
             <div className="space-y-2">
                 {(component['data-source'] || []).map((item: any) => (
-                    <label key={item.id} className="flex cursor-pointer items-center gap-3 rounded-md border border-zoru-line bg-white p-3">
+                    <label key={item.id} className="flex cursor-pointer items-center gap-3 rounded-md border border-[var(--st-border)] bg-white p-3">
                         <span className={cn(
                             'flex h-4 w-4 items-center justify-center rounded border-2',
-                            current.includes(item.id) ? 'border-zoru-line bg-zoru-ink' : 'border-zoru-line',
+                            current.includes(item.id) ? 'border-[var(--st-border)] bg-[var(--st-text)]' : 'border-[var(--st-border)]',
                         )}>
                             {current.includes(item.id) ? <Check className="h-3 w-3 text-white" /> : null}
                         </span>
@@ -175,8 +175,8 @@ const CheckboxGroupR = ({ component, formData, setFormData }: RenderProps) => {
                             className="sr-only"
                         />
                         <div className="flex-1">
-                            <div className="text-[14.5px] text-zoru-ink">{item.title}</div>
-                            {item.description ? <div className="text-[12px] text-zoru-ink">{item.description}</div> : null}
+                            <div className="text-[14.5px] text-[var(--st-text)]">{item.title}</div>
+                            {item.description ? <div className="text-[12px] text-[var(--st-text)]">{item.description}</div> : null}
                         </div>
                     </label>
                 ))}
@@ -205,8 +205,8 @@ const ChipsSelectorR = ({ component, formData, setFormData }: RenderProps) => {
                         className={cn(
                             'rounded-full border px-3 py-1 text-[13px] transition-colors',
                             current.includes(item.id)
-                                ? 'border-zoru-line bg-zoru-ink/10 text-zoru-ink'
-                                : 'border-zoru-line bg-white text-zoru-ink',
+                                ? 'border-[var(--st-border)] bg-[var(--st-text)]/10 text-[var(--st-text)]'
+                                : 'border-[var(--st-border)] bg-white text-[var(--st-text)]',
                         )}
                     >
                         {item.title}
@@ -226,15 +226,15 @@ const DatePickerR = ({ component, formData, setFormData }: RenderProps) => (
             min={component['min-date']}
             max={component['max-date']}
             onChange={(e) => setFormData(prev => ({ ...prev, [component.name]: e.target.value }))}
-            className="h-12 border-zoru-line bg-white text-[15px] focus-visible:ring-zoru-line"
+            className="h-12 border-[var(--st-border)] bg-white text-[15px] focus-visible:ring-[var(--st-border)]"
         />
     </div>
 );
 
 const CalendarPickerR = ({ component }: { component: any }) => (
-    <div className="mb-4 rounded-md border border-zoru-line bg-white p-3">
+    <div className="mb-4 rounded-md border border-[var(--st-border)] bg-white p-3">
         <FieldLabel component={component} />
-        <div className="mt-2 text-center text-[12px] text-zoru-ink-muted">
+        <div className="mt-2 text-center text-[12px] text-[var(--st-text-secondary)]">
             [Inline calendar · {component.mode ?? 'single'} mode]
         </div>
     </div>
@@ -246,7 +246,7 @@ const OptInR = ({ component, formData, setFormData }: RenderProps) => {
         <label className="mb-3 flex cursor-pointer items-start gap-3">
             <span className={cn(
                 'mt-0.5 flex h-4 w-4 items-center justify-center rounded border-2',
-                v ? 'border-zoru-line bg-zoru-ink' : 'border-zoru-line',
+                v ? 'border-[var(--st-border)] bg-[var(--st-text)]' : 'border-[var(--st-border)]',
             )}>
                 {v ? <Check className="h-3 w-3 text-white" /> : null}
             </span>
@@ -256,8 +256,8 @@ const OptInR = ({ component, formData, setFormData }: RenderProps) => {
                 onChange={(e) => setFormData(prev => ({ ...prev, [component.name]: e.target.checked }))}
                 className="sr-only"
             />
-            <span className="text-[13.5px] text-zoru-ink">
-                {component.label} {component.required ? <span className="text-zoru-ink">*</span> : null}
+            <span className="text-[13.5px] text-[var(--st-text)]">
+                {component.label} {component.required ? <span className="text-[var(--st-text)]">*</span> : null}
             </span>
         </label>
     );
@@ -269,7 +269,7 @@ const ImageR = ({ component }: { component: any }) => {
     const src = component.src && !component.src.startsWith('data:') ? `data:image/png;base64,${component.src}` : component.src;
     if (!src) {
         return (
-            <div className="mb-3 flex h-32 items-center justify-center rounded-md border border-dashed border-zoru-line bg-zoru-surface-2 text-[11px] text-zoru-ink-muted">
+            <div className="mb-3 flex h-32 items-center justify-center rounded-md border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[11px] text-[var(--st-text-secondary)]">
                 Image (set src to preview)
             </div>
         );
@@ -290,11 +290,11 @@ const ImageR = ({ component }: { component: any }) => {
 const ImageCarouselR = ({ component }: { component: any }) => (
     <div className="mb-3 flex gap-2 overflow-x-auto pb-1">
         {(component.images || []).length === 0 ? (
-            <div className="flex h-28 w-full items-center justify-center rounded-md border border-dashed border-zoru-line bg-zoru-surface-2 text-[11px] text-zoru-ink-muted">
+            <div className="flex h-28 w-full items-center justify-center rounded-md border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[11px] text-[var(--st-text-secondary)]">
                 Image carousel (add images)
             </div>
         ) : (component.images || []).map((img: any, i: number) => (
-            <div key={i} className="h-28 w-28 flex-shrink-0 overflow-hidden rounded-md bg-zoru-surface-2">
+            <div key={i} className="h-28 w-28 flex-shrink-0 overflow-hidden rounded-md bg-[var(--st-bg-muted)]">
                 {img.src ? (
                     <img
                         src={img.src.startsWith('data:') ? img.src : `data:image/png;base64,${img.src}`}
@@ -302,7 +302,7 @@ const ImageCarouselR = ({ component }: { component: any }) => (
                         className="h-full w-full object-cover"
                     />
                 ) : (
-                    <div className="flex h-full items-center justify-center text-[10px] text-zoru-ink-muted">image {i + 1}</div>
+                    <div className="flex h-full items-center justify-center text-[10px] text-[var(--st-text-secondary)]">image {i + 1}</div>
                 )}
             </div>
         ))}
@@ -310,21 +310,21 @@ const ImageCarouselR = ({ component }: { component: any }) => (
 );
 
 const PhotoPickerR = ({ component }: { component: any }) => (
-    <div className="mb-3 flex items-center gap-3 rounded-md border border-dashed border-zoru-line bg-zoru-surface-2 p-3">
-        <Camera className="h-5 w-5 text-zoru-ink-muted" />
+    <div className="mb-3 flex items-center gap-3 rounded-md border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3">
+        <Camera className="h-5 w-5 text-[var(--st-text-secondary)]" />
         <div className="flex-1">
-            <div className="text-[13.5px] font-medium text-zoru-ink">{component.label}</div>
-            {component.description ? <div className="text-[11.5px] text-zoru-ink">{component.description}</div> : null}
+            <div className="text-[13.5px] font-medium text-[var(--st-text)]">{component.label}</div>
+            {component.description ? <div className="text-[11.5px] text-[var(--st-text)]">{component.description}</div> : null}
         </div>
     </div>
 );
 
 const DocumentPickerR = ({ component }: { component: any }) => (
-    <div className="mb-3 flex items-center gap-3 rounded-md border border-dashed border-zoru-line bg-zoru-surface-2 p-3">
-        <FileUp className="h-5 w-5 text-zoru-ink-muted" />
+    <div className="mb-3 flex items-center gap-3 rounded-md border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3">
+        <FileUp className="h-5 w-5 text-[var(--st-text-secondary)]" />
         <div className="flex-1">
-            <div className="text-[13.5px] font-medium text-zoru-ink">{component.label}</div>
-            {component.description ? <div className="text-[11.5px] text-zoru-ink">{component.description}</div> : null}
+            <div className="text-[13.5px] font-medium text-[var(--st-text)]">{component.label}</div>
+            {component.description ? <div className="text-[11.5px] text-[var(--st-text)]">{component.description}</div> : null}
         </div>
     </div>
 );
@@ -332,7 +332,7 @@ const DocumentPickerR = ({ component }: { component: any }) => (
 /* ── navigation ──────────────────────────────────────────────────── */
 
 const EmbeddedLinkR = ({ component }: { component: any }) => (
-    <a className="mb-3 inline-flex items-center gap-1 text-[14px] font-medium text-zoru-ink">
+    <a className="mb-3 inline-flex items-center gap-1 text-[14px] font-medium text-[var(--st-text)]">
         {component.text} <ExternalLink className="h-3 w-3" />
     </a>
 );
@@ -340,16 +340,16 @@ const EmbeddedLinkR = ({ component }: { component: any }) => (
 const NavigationListR = ({ component }: { component: any }) => (
     <div className="mb-3 space-y-2">
         {(component['list-items'] || []).map((item: any, i: number) => (
-            <div key={item.id || i} className="flex items-center gap-3 rounded-md border border-zoru-line bg-white p-3">
+            <div key={item.id || i} className="flex items-center gap-3 rounded-md border border-[var(--st-border)] bg-white p-3">
                 <div className="flex-1">
-                    <div className="text-[14.5px] font-medium text-zoru-ink">{item['main-content']?.title}</div>
-                    {item['main-content']?.description ? <div className="text-[12px] text-zoru-ink">{item['main-content'].description}</div> : null}
+                    <div className="text-[14.5px] font-medium text-[var(--st-text)]">{item['main-content']?.title}</div>
+                    {item['main-content']?.description ? <div className="text-[12px] text-[var(--st-text)]">{item['main-content'].description}</div> : null}
                 </div>
-                <ChevronRight className="h-4 w-4 text-zoru-ink-muted" />
+                <ChevronRight className="h-4 w-4 text-[var(--st-text-secondary)]" />
             </div>
         ))}
         {(!component['list-items'] || component['list-items'].length === 0) ? (
-            <div className="rounded-md border border-dashed border-zoru-line bg-zoru-surface-2 p-3 text-center text-[11px] text-zoru-ink-muted">
+            <div className="rounded-md border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-center text-[11px] text-[var(--st-text-secondary)]">
                 Navigation list (add items)
             </div>
         ) : null}
@@ -359,7 +359,7 @@ const NavigationListR = ({ component }: { component: any }) => (
 /* ── fallback ────────────────────────────────────────────────────── */
 
 const GenericRenderer = ({ component }: { component: any }) => (
-    <div className="mb-2 rounded border border-dashed border-zoru-line p-2 text-center text-xs text-zoru-ink-muted">
+    <div className="mb-2 rounded border border-dashed border-[var(--st-border)] p-2 text-center text-xs text-[var(--st-text-secondary)]">
         {component.type}{component.name ? ` · ${component.name}` : ''}
     </div>
 );
@@ -459,22 +459,22 @@ export const MetaFlowPreview = ({
     }, [currentScreen]);
 
     if (!flow) {
-        return <div className="flex h-full items-center justify-center text-xs text-zoru-ink-muted">Loading preview…</div>;
+        return <div className="flex h-full items-center justify-center text-xs text-[var(--st-text-secondary)]">Loading preview…</div>;
     }
     if (!currentScreen) {
-        return <div className="flex h-full items-center justify-center text-xs text-zoru-ink-muted">Screen not found</div>;
+        return <div className="flex h-full items-center justify-center text-xs text-[var(--st-text-secondary)]">Screen not found</div>;
     }
 
     return (
         <div
-            className={cn("relative flex select-none flex-col overflow-hidden bg-zoru-surface-2 font-sans", className)}
+            className={cn("relative flex select-none flex-col overflow-hidden bg-[var(--st-bg-muted)] font-sans", className)}
             style={{
                 backgroundImage: "url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d936cd0f1d.png')",
                 backgroundBlendMode: "overlay",
             }}
         >
             {/* status bar */}
-            <div className="z-30 flex h-[44px] flex-shrink-0 items-center justify-between bg-zoru-surface px-6 text-black">
+            <div className="z-30 flex h-[44px] flex-shrink-0 items-center justify-between bg-[var(--st-bg-secondary)] px-6 text-black">
                 <span className="text-[15px] font-semibold">{now}</span>
                 <div className="flex items-center gap-1.5">
                     <Signal className="h-4 w-4 fill-black" />
@@ -484,9 +484,9 @@ export const MetaFlowPreview = ({
             </div>
 
             {/* wa chat header */}
-            <div className="z-20 flex h-[60px] flex-shrink-0 items-center border-b border-zoru-line bg-zoru-surface px-2 shadow-sm">
-                <Button variant="ghost" size="icon" className="-mr-1 text-zoru-ink"><ChevronLeft className="h-6 w-6" /></Button>
-                <div className="mr-1 text-[17px] text-zoru-ink">2</div>
+            <div className="z-20 flex h-[60px] flex-shrink-0 items-center border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 shadow-sm">
+                <Button variant="ghost" size="icon" className="-mr-1 text-[var(--st-text)]"><ChevronLeft className="h-6 w-6" /></Button>
+                <div className="mr-1 text-[17px] text-[var(--st-text)]">2</div>
                 <div className="ml-1 flex flex-1 items-center">
                     <Avatar className="mr-2 h-[36px] w-[36px]">
                         <AvatarImage src="https://github.com/shadcn.png" />
@@ -494,45 +494,45 @@ export const MetaFlowPreview = ({
                     </Avatar>
                     <div className="flex flex-col">
                         <span className="text-[16px] font-semibold leading-none text-black">Business name</span>
-                        <span className="mt-1 text-[11px] leading-none text-zoru-ink">Official business account</span>
+                        <span className="mt-1 text-[11px] leading-none text-[var(--st-text)]">Official business account</span>
                     </div>
                 </div>
             </div>
 
             {/* chat fill */}
             <div className="flex flex-1 flex-col items-center overflow-auto p-4">
-                <div className="mb-6 mt-4 rounded-[8px] bg-zoru-surface-2 px-3 py-1 shadow-sm">
-                    <span className="text-[12px] font-medium text-zoru-ink">TODAY</span>
+                <div className="mb-6 mt-4 rounded-[8px] bg-[var(--st-bg-muted)] px-3 py-1 shadow-sm">
+                    <span className="text-[12px] font-medium text-[var(--st-text)]">TODAY</span>
                 </div>
-                <div className="mb-6 max-w-[85%] rounded-[8px] bg-zoru-surface px-4 py-2 text-center shadow-sm">
-                    <span className="text-[12px] text-zoru-ink">🔒 End-to-end encrypted.</span>
+                <div className="mb-6 max-w-[85%] rounded-[8px] bg-[var(--st-bg-secondary)] px-4 py-2 text-center shadow-sm">
+                    <span className="text-[12px] text-[var(--st-text)]">🔒 End-to-end encrypted.</span>
                 </div>
                 <div className="relative mb-2 max-w-[85%] self-start rounded-tr-lg rounded-br-lg rounded-bl-lg bg-white p-1 shadow-sm">
                     <div className="p-2 pb-6">
                         <p className="text-[15px] leading-snug text-black">Hello! 👋 Click below to open the flow.</p>
                     </div>
-                    <span className="absolute bottom-1 right-2 min-w-[30px] text-right text-[11px] text-zoru-ink-muted">{now}</span>
+                    <span className="absolute bottom-1 right-2 min-w-[30px] text-right text-[11px] text-[var(--st-text-secondary)]">{now}</span>
                 </div>
                 <div className="w-[85%] self-start">
-                    <div className="flex cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-white p-2 shadow-sm transition-colors hover:bg-zoru-surface-2">
-                        <span className="text-[15px] font-medium text-zoru-ink">View flow</span>
+                    <div className="flex cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-white p-2 shadow-sm transition-colors hover:bg-[var(--st-bg-muted)]">
+                        <span className="text-[15px] font-medium text-[var(--st-text)]">View flow</span>
                     </div>
                 </div>
             </div>
 
             {/* bottom input bar */}
-            <div className="flex h-[80px] flex-shrink-0 items-center bg-zoru-surface px-4">
-                <div className="flex h-[40px] flex-1 items-center rounded-full border border-zoru-line bg-white px-4 text-[15px] text-zoru-ink-muted">Message…</div>
+            <div className="flex h-[80px] flex-shrink-0 items-center bg-[var(--st-bg-secondary)] px-4">
+                <div className="flex h-[40px] flex-1 items-center rounded-full border border-[var(--st-border)] bg-white px-4 text-[15px] text-[var(--st-text-secondary)]">Message…</div>
             </div>
 
             {/* flow modal overlay */}
             <div className="animate-in slide-in-from-bottom absolute inset-0 z-50 flex flex-col bg-white duration-300">
-                <div className="flex h-[56px] flex-shrink-0 items-center justify-between border-b border-zoru-line px-2">
+                <div className="flex h-[56px] flex-shrink-0 items-center justify-between border-b border-[var(--st-border)] px-2">
                     <div className="flex items-center">
-                        <Button variant="ghost" size="icon" className="text-zoru-ink"><X className="h-6 w-6" /></Button>
-                        <span className="ml-2 text-[17px] font-semibold text-zoru-ink">{currentScreen.title || 'Flow'}</span>
+                        <Button variant="ghost" size="icon" className="text-[var(--st-text)]"><X className="h-6 w-6" /></Button>
+                        <span className="ml-2 text-[17px] font-semibold text-[var(--st-text)]">{currentScreen.title || 'Flow'}</span>
                     </div>
-                    <Button variant="ghost" size="icon" className="text-zoru-ink"><MoreVertical className="h-5 w-5" /></Button>
+                    <Button variant="ghost" size="icon" className="text-[var(--st-text)]"><MoreVertical className="h-5 w-5" /></Button>
                 </div>
 
                 <ScrollArea className="flex-1 bg-white">
@@ -549,14 +549,14 @@ export const MetaFlowPreview = ({
                 </ScrollArea>
 
                 {footer ? (
-                    <div className="flex-shrink-0 border-t border-zoru-line bg-white p-4">
+                    <div className="flex-shrink-0 border-t border-[var(--st-border)] bg-white p-4">
                         <div className="flex flex-col gap-3">
-                            <Button className="h-[44px] w-full rounded-full bg-zoru-ink text-[15px] font-semibold text-white shadow-none hover:bg-zoru-ink">
+                            <Button className="h-[44px] w-full rounded-full bg-[var(--st-text)] text-[15px] font-semibold text-white shadow-none hover:bg-[var(--st-text)]">
                                 {footer.label || 'Continue'}
                             </Button>
                             <div className="flex items-center justify-center gap-1 opacity-60">
-                                <span className="text-[10px] text-zoru-ink">Secured by</span>
-                                <span className="text-[10px] font-bold text-zoru-ink">Meta</span>
+                                <span className="text-[10px] text-[var(--st-text)]">Secured by</span>
+                                <span className="text-[10px] font-bold text-[var(--st-text)]">Meta</span>
                             </div>
                         </div>
                     </div>

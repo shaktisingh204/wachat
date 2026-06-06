@@ -66,7 +66,7 @@ function SetDefaultButton({
                     }
                 })
             }
-            className="text-[12px] text-zoru-ink-muted"
+            className="text-[12px] text-[var(--st-text-secondary)]"
         >
             <Star className="h-3.5 w-3.5" /> Set default
         </Button>

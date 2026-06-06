@@ -45,18 +45,18 @@ export default async function SabConnectAppsPage() {
                                 href={app.url}
                                 target={app.openIn === 'iframe' ? '_self' : '_blank'}
                                 rel="noopener noreferrer"
-                                className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-accent"
+                                className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent)]"
                             >
                                 <Card className="h-full transition-shadow hover:shadow-md">
                                     <CardContent className="flex flex-col items-center gap-2 p-4 text-center">
-                                        <div className="grid size-12 place-items-center rounded-lg bg-zoru-surface-hover text-lg font-semibold text-zoru-text">
+                                        <div className="grid size-12 place-items-center rounded-lg bg-[var(--st-hover)] text-lg font-semibold text-zoru-text">
                                             {app.name.charAt(0).toUpperCase()}
                                         </div>
                                         <p className="text-sm font-semibold text-zoru-text">
                                             {app.name}
                                         </p>
                                         {app.description ? (
-                                            <p className="line-clamp-2 text-xs text-zoru-muted">
+                                            <p className="line-clamp-2 text-xs text-[var(--st-bg-muted)]">
                                                 {app.description}
                                             </p>
                                         ) : null}

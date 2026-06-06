@@ -191,11 +191,11 @@ export default function CreateSMSTemplatePage() {
   const smsInfo = useMemo(() => getSMSInfo(previewContent), [previewContent]);
 
   return (
-    <div className="flex flex-col h-full min-h-[calc(100vh-4rem)] bg-zoru-surface">
-      <div className="flex items-center justify-between px-6 py-4 border-b shrink-0 bg-zoru-surface">
+    <div className="flex flex-col h-full min-h-[calc(100vh-4rem)] bg-[var(--st-bg-secondary)]">
+      <div className="flex items-center justify-between px-6 py-4 border-b shrink-0 bg-[var(--st-bg-secondary)]">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Create Template</h1>
-          <p className="text-zoru-ink-muted text-sm mt-1">Design, test, and save SMS templates with rich variable support.</p>
+          <p className="text-[var(--st-text-secondary)] text-sm mt-1">Design, test, and save SMS templates with rich variable support.</p>
         </div>
         <div className="flex items-center gap-3">
           <Dialog open={isDltDialogOpen} onOpenChange={(open) => {
@@ -205,7 +205,7 @@ export default function CreateSMSTemplatePage() {
             }
           }}>
             <DialogTrigger asChild>
-              <Button variant="outline" className="gap-2 border-primary/20 hover:bg-zoru-ink/5 text-zoru-ink">
+              <Button variant="outline" className="gap-2 border-primary/20 hover:bg-[var(--st-text)]/5 text-[var(--st-text)]">
                 <DownloadCloud className="w-4 h-4" />
                 Import from DLT
               </Button>
@@ -221,16 +221,16 @@ export default function CreateSMSTemplatePage() {
               <div className="space-y-4 py-4">
                 {isFetchingDlt ? (
                   <div className="flex flex-col items-center justify-center py-8 space-y-4">
-                    <Loader2 className="w-8 h-8 animate-spin text-zoru-ink" />
-                    <p className="text-sm text-zoru-ink-muted">Connecting to DLT operator...</p>
+                    <Loader2 className="w-8 h-8 animate-spin text-[var(--st-text)]" />
+                    <p className="text-sm text-[var(--st-text-secondary)]">Connecting to DLT operator...</p>
                   </div>
                 ) : dltTemplatesFetched ? (
                   <div className="space-y-3">
                     {MOCK_DLT_TEMPLATES.map(tpl => (
-                      <div key={tpl.dltId} className="flex items-center justify-between p-3 border rounded-lg bg-zoru-surface">
+                      <div key={tpl.dltId} className="flex items-center justify-between p-3 border rounded-lg bg-[var(--st-bg-secondary)]">
                         <div className="space-y-1">
                           <p className="font-medium text-sm">{tpl.name}</p>
-                          <p className="text-xs text-zoru-ink-muted font-mono">ID: {tpl.dltId}</p>
+                          <p className="text-xs text-[var(--st-text-secondary)] font-mono">ID: {tpl.dltId}</p>
                         </div>
                         <Button 
                           variant="secondary" 
@@ -274,12 +274,12 @@ export default function CreateSMSTemplatePage() {
       </div>
 
       <ResizablePanelGroup direction="horizontal" className="flex-1 rounded-none border-none h-[calc(100vh-8rem)]">
-        <ResizablePanel defaultSize={55} minSize={40} className="bg-zoru-surface-2/10 h-full">
+        <ResizablePanel defaultSize={55} minSize={40} className="bg-[var(--st-bg-muted)]/10 h-full">
           <ScrollArea className="h-full w-full">
             <div className="p-6 space-y-6">
               
               {duplicateWarning && (
-                <Alert variant="destructive" className="bg-zoru-ink/10 text-zoru-ink border-destructive/20">
+                <Alert variant="destructive" className="bg-[var(--st-text)]/10 text-[var(--st-text)] border-destructive/20">
                   <AlertTriangle className="h-4 w-4" />
                   <AlertTitle>Duplicate Template Detected</AlertTitle>
                   <AlertDescription>
@@ -289,10 +289,10 @@ export default function CreateSMSTemplatePage() {
                 </Alert>
               )}
 
-              <Card className="border-zoru-line/50 shadow-sm">
+              <Card className="border-[var(--st-border)]/50 shadow-sm">
                 <CardHeader className="pb-4">
                   <CardTitle className="text-lg flex items-center gap-2">
-                    <Settings className="w-5 h-5 text-zoru-ink" />
+                    <Settings className="w-5 h-5 text-[var(--st-text)]" />
                     Template Details
                   </CardTitle>
                 </CardHeader>
@@ -304,7 +304,7 @@ export default function CreateSMSTemplatePage() {
                       placeholder="e.g. Appointment Reminder" 
                       value={templateName}
                       onChange={(e) => setTemplateName(e.target.value)}
-                      className="bg-zoru-surface"
+                      className="bg-[var(--st-bg-secondary)]"
                     />
                   </div>
                   <div className="grid gap-2">
@@ -312,16 +312,16 @@ export default function CreateSMSTemplatePage() {
                     <Input 
                       id="category" 
                       placeholder="e.g. Marketing, Transactional" 
-                      className="bg-zoru-surface"
+                      className="bg-[var(--st-bg-secondary)]"
                     />
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="border-zoru-line/50 shadow-sm border-primary/20">
+              <Card className="border-[var(--st-border)]/50 shadow-sm border-primary/20">
                 <CardHeader className="pb-4">
                   <CardTitle className="text-lg flex items-center gap-2">
-                    <AlignLeft className="w-5 h-5 text-zoru-ink" />
+                    <AlignLeft className="w-5 h-5 text-[var(--st-text)]" />
                     Message Content
                   </CardTitle>
                   <CardDescription>
@@ -332,7 +332,7 @@ export default function CreateSMSTemplatePage() {
                   <div className="grid gap-2">
                     <Textarea 
                       placeholder="Type your message here..." 
-                      className="min-h-[200px] resize-y bg-zoru-surface font-mono text-sm leading-relaxed"
+                      className="min-h-[200px] resize-y bg-[var(--st-bg-secondary)] font-mono text-sm leading-relaxed"
                       value={templateContent}
                       onChange={(e) => setTemplateContent(e.target.value)}
                     />
@@ -341,10 +341,10 @@ export default function CreateSMSTemplatePage() {
               </Card>
 
               {extractedVariables.length > 0 && (
-                <Card className="border-zoru-line/50 shadow-sm">
+                <Card className="border-[var(--st-border)]/50 shadow-sm">
                   <CardHeader className="pb-4">
                     <CardTitle className="text-lg flex items-center gap-2">
-                      <Variable className="w-5 h-5 text-zoru-ink" />
+                      <Variable className="w-5 h-5 text-[var(--st-text)]" />
                       Variable Editor
                     </CardTitle>
                     <CardDescription>
@@ -355,16 +355,16 @@ export default function CreateSMSTemplatePage() {
                     <div className="grid gap-4 sm:grid-cols-2">
                       {extractedVariables.map((v) => (
                         <div key={v} className="grid gap-2">
-                          <Label className="flex items-center gap-1.5 text-xs font-semibold text-zoru-ink-muted uppercase tracking-wider">
-                            <span className="text-zoru-ink font-mono lowercase">{'{{'}</span>
+                          <Label className="flex items-center gap-1.5 text-xs font-semibold text-[var(--st-text-secondary)] uppercase tracking-wider">
+                            <span className="text-[var(--st-text)] font-mono lowercase">{'{{'}</span>
                             {v}
-                            <span className="text-zoru-ink font-mono lowercase">{'}}'}</span>
+                            <span className="text-[var(--st-text)] font-mono lowercase">{'}}'}</span>
                           </Label>
                           <Input 
                             value={variables[v] || ""}
                             onChange={(e) => handleVariableChange(v, e.target.value)}
                             placeholder={`Mock ${v}`}
-                            className="bg-zoru-surface"
+                            className="bg-[var(--st-bg-secondary)]"
                           />
                         </div>
                       ))}
@@ -377,18 +377,18 @@ export default function CreateSMSTemplatePage() {
           </ScrollArea>
         </ResizablePanel>
 
-        <ResizableHandle withHandle className="bg-border/60 hover:bg-zoru-ink/50 transition-colors" />
+        <ResizableHandle withHandle className="bg-border/60 hover:bg-[var(--st-text)]/50 transition-colors" />
 
-        <ResizablePanel defaultSize={45} minSize={30} className="bg-zoru-surface h-full">
+        <ResizablePanel defaultSize={45} minSize={30} className="bg-[var(--st-bg-secondary)] h-full">
           <ScrollArea className="h-full w-full">
             <div className="p-6 space-y-6 flex flex-col items-center">
               
               <div className="w-full max-w-md space-y-6">
                 
-                <Card className="shadow-md border-zoru-line/50 overflow-hidden relative">
+                <Card className="shadow-md border-[var(--st-border)]/50 overflow-hidden relative">
                   <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary to-primary/40" />
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium flex items-center gap-2 text-zoru-ink-muted">
+                    <CardTitle className="text-sm font-medium flex items-center gap-2 text-[var(--st-text-secondary)]">
                       <Hash className="w-4 h-4" />
                       Delivery Analysis
                     </CardTitle>
@@ -396,14 +396,14 @@ export default function CreateSMSTemplatePage() {
                   <CardContent>
                     <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                       <div className="space-y-1">
-                        <p className="text-[10px] text-zoru-ink-muted uppercase tracking-wider font-semibold">Encoding</p>
+                        <p className="text-[10px] text-[var(--st-text-secondary)] uppercase tracking-wider font-semibold">Encoding</p>
                         <div className="flex items-center mt-1">
                           {smsInfo.gsm7 ? (
-                            <Badge variant="secondary" className="bg-zoru-ink/10 text-zoru-ink dark:text-zoru-ink-muted hover:bg-zoru-ink/20 border border-zoru-line/20 text-xs px-1.5 py-0">
+                            <Badge variant="secondary" className="bg-[var(--st-text)]/10 text-[var(--st-text)] dark:text-[var(--st-text-secondary)] hover:bg-[var(--st-text)]/20 border border-[var(--st-border)]/20 text-xs px-1.5 py-0">
                               GSM-7
                             </Badge>
                           ) : (
-                            <Badge variant="secondary" className="bg-zoru-ink/10 text-zoru-ink dark:text-zoru-ink-muted hover:bg-zoru-ink/20 border border-zoru-line/20 text-xs px-1.5 py-0">
+                            <Badge variant="secondary" className="bg-[var(--st-text)]/10 text-[var(--st-text)] dark:text-[var(--st-text-secondary)] hover:bg-[var(--st-text)]/20 border border-[var(--st-border)]/20 text-xs px-1.5 py-0">
                               Unicode
                             </Badge>
                           )}
@@ -411,23 +411,23 @@ export default function CreateSMSTemplatePage() {
                       </div>
                       
                       <div className="space-y-1">
-                        <p className="text-[10px] text-zoru-ink-muted uppercase tracking-wider font-semibold">Length</p>
+                        <p className="text-[10px] text-[var(--st-text-secondary)] uppercase tracking-wider font-semibold">Length</p>
                         <p className="text-2xl font-semibold tracking-tight leading-none mt-1">{smsInfo.len}</p>
                       </div>
 
                       <div className="space-y-1">
-                        <p className="text-[10px] text-zoru-ink-muted uppercase tracking-wider font-semibold">Parts</p>
+                        <p className="text-[10px] text-[var(--st-text-secondary)] uppercase tracking-wider font-semibold">Parts</p>
                         <p className="text-2xl font-semibold tracking-tight leading-none mt-1">{smsInfo.parts}</p>
                       </div>
 
                       <div className="space-y-1">
-                        <p className="text-[10px] text-zoru-ink-muted uppercase tracking-wider font-semibold">Remaining</p>
+                        <p className="text-[10px] text-[var(--st-text-secondary)] uppercase tracking-wider font-semibold">Remaining</p>
                         <p className="text-2xl font-semibold tracking-tight leading-none mt-1">{smsInfo.remaining}</p>
                       </div>
                     </div>
 
                     {!smsInfo.gsm7 && (
-                      <div className="mt-4 flex items-start gap-2 bg-zoru-ink/10 text-zoru-ink dark:text-zoru-ink-muted p-3 rounded-md text-sm border border-zoru-line/20">
+                      <div className="mt-4 flex items-start gap-2 bg-[var(--st-text)]/10 text-[var(--st-text)] dark:text-[var(--st-text-secondary)] p-3 rounded-md text-sm border border-[var(--st-border)]/20">
                         <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
                         <p className="text-xs">Non-GSM characters detected. Message length reduced to 70 chars per part.</p>
                       </div>
@@ -436,15 +436,15 @@ export default function CreateSMSTemplatePage() {
                 </Card>
 
                 <div className="flex justify-center pt-4">
-                  <div className="relative border-[8px] border-zoru-line rounded-[2.5rem] h-[600px] w-[300px] bg-white dark:bg-black shadow-2xl overflow-hidden ring-1 ring-border/20">
+                  <div className="relative border-[8px] border-[var(--st-border)] rounded-[2.5rem] h-[600px] w-[300px] bg-white dark:bg-black shadow-2xl overflow-hidden ring-1 ring-border/20">
                     
                     <div className="absolute top-0 inset-x-0 h-6 flex justify-center z-20">
-                      <div className="w-24 h-5 bg-zoru-ink rounded-b-xl" />
+                      <div className="w-24 h-5 bg-[var(--st-text)] rounded-b-xl" />
                     </div>
 
-                    <div className="absolute top-0 inset-x-0 h-20 bg-zoru-surface-2 dark:bg-zoru-ink/50 backdrop-blur-md border-b z-10 flex flex-col justify-end px-4 pb-2">
+                    <div className="absolute top-0 inset-x-0 h-20 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/50 backdrop-blur-md border-b z-10 flex flex-col justify-end px-4 pb-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold text-zoru-ink flex items-center gap-1">
+                        <span className="text-xs font-semibold text-[var(--st-text)] flex items-center gap-1">
                           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                           Messages
                         </span>
@@ -456,25 +456,25 @@ export default function CreateSMSTemplatePage() {
                       </div>
                     </div>
 
-                    <div className="h-full pt-24 pb-20 px-4 flex flex-col justify-end bg-zoru-surface-2 dark:bg-zoru-ink overflow-y-auto">
+                    <div className="h-full pt-24 pb-20 px-4 flex flex-col justify-end bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] overflow-y-auto">
                       <div className="flex justify-center mb-4">
-                        <span className="text-[10px] text-zoru-ink-muted uppercase tracking-widest font-semibold">Today 10:41 AM</span>
+                        <span className="text-[10px] text-[var(--st-text-secondary)] uppercase tracking-widest font-semibold">Today 10:41 AM</span>
                       </div>
                       
                       <div className="flex justify-start mb-2">
-                        <div className="bg-zoru-surface-2 dark:bg-zoru-ink text-zoru-ink dark:text-white rounded-2xl rounded-bl-sm px-4 py-2.5 max-w-[85%] shadow-sm text-[15px] leading-snug whitespace-pre-wrap font-sans relative">
+                        <div className="bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] text-[var(--st-text)] dark:text-white rounded-2xl rounded-bl-sm px-4 py-2.5 max-w-[85%] shadow-sm text-[15px] leading-snug whitespace-pre-wrap font-sans relative">
                           {previewContent || "Type a message..."}
                         </div>
                       </div>
                       
                     </div>
 
-                    <div className="absolute bottom-0 inset-x-0 h-16 bg-zoru-surface-2 dark:bg-zoru-ink/80 backdrop-blur-md border-t flex items-center px-4 gap-3 z-10">
-                      <div className="h-8 w-8 rounded-full bg-zoru-surface-2 dark:bg-zoru-ink flex items-center justify-center shrink-0">
-                        <svg className="w-5 h-5 text-zoru-ink" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+                    <div className="absolute bottom-0 inset-x-0 h-16 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/80 backdrop-blur-md border-t flex items-center px-4 gap-3 z-10">
+                      <div className="h-8 w-8 rounded-full bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] flex items-center justify-center shrink-0">
+                        <svg className="w-5 h-5 text-[var(--st-text)]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
                       </div>
-                      <div className="h-9 flex-1 bg-white dark:bg-zoru-ink rounded-full border dark:border-zoru-line flex items-center px-3">
-                        <span className="text-xs text-zoru-ink-muted">iMessage</span>
+                      <div className="h-9 flex-1 bg-white dark:bg-[var(--st-text)] rounded-full border dark:border-[var(--st-border)] flex items-center px-3">
+                        <span className="text-xs text-[var(--st-text-secondary)]">iMessage</span>
                       </div>
                     </div>
 

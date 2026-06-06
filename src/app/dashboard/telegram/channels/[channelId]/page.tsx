@@ -157,8 +157,8 @@ function SegButton({
             className={cn(
                 'rounded-[var(--zoru-radius-sm)] px-3 py-1.5 text-xs font-medium transition-colors',
                 active
-                    ? 'bg-zoru-ink text-zoru-on-primary'
-                    : 'text-zoru-ink-muted hover:text-zoru-ink',
+                    ? 'bg-[var(--st-text)] text-[var(--st-text-inverted)]'
+                    : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
             )}
         >
             {children}
@@ -169,7 +169,7 @@ function SegButton({
 function Sparkline({ points }: { points: { date: string; posts: number }[] }) {
     if (points.length === 0) {
         return (
-            <div className="flex h-32 items-center justify-center text-xs text-zoru-ink-muted">
+            <div className="flex h-32 items-center justify-center text-xs text-[var(--st-text-secondary)]">
                 No data
             </div>
         );
@@ -595,7 +595,7 @@ export default function ChannelDetailPage() {
                 <div className="min-w-0 flex-1">
                     <Link
                         href="/dashboard/telegram/channels"
-                        className="inline-flex items-center gap-1 text-xs text-zoru-ink-muted hover:text-zoru-ink"
+                        className="inline-flex items-center gap-1 text-xs text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                     >
                         <ArrowLeft className="h-3 w-3" /> Channels
                     </Link>
@@ -606,18 +606,18 @@ export default function ChannelDetailPage() {
                         >
                             <Hash className="h-4 w-4" />
                         </span>
-                        <h1 className="text-[20px] font-medium text-zoru-ink">
+                        <h1 className="text-[20px] font-medium text-[var(--st-text)]">
                             {channel.title}
                         </h1>
                         {channel.isVerified ? <Badge>verified</Badge> : null}
                     </div>
-                    <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-zoru-ink-muted">
+                    <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-[var(--st-text-secondary)]">
                         {channel.username ? (
                             <a
                                 href={`https://t.me/${channel.username}`}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="inline-flex items-center gap-1 hover:text-zoru-ink"
+                                className="inline-flex items-center gap-1 hover:text-[var(--st-text)]"
                             >
                                 @{channel.username} <ExternalLink className="h-3 w-3" />
                             </a>
@@ -651,7 +651,7 @@ export default function ChannelDetailPage() {
 
             {/* Permission warning */}
             {!channel.permissions.canPostMessages ? (
-                <Card className="flex items-center gap-2 border-zoru-line/30 bg-zoru-ink/5 p-3 text-xs text-zoru-ink">
+                <Card className="flex items-center gap-2 border-[var(--st-border)]/30 bg-[var(--st-text)]/5 p-3 text-xs text-[var(--st-text)]">
                     <AlertCircle className="h-4 w-4" /> The bot lacks the{' '}
                     <code>can_post_messages</code> permission on this channel. Update its
                     admin rights in Telegram to enable posting.
@@ -659,7 +659,7 @@ export default function ChannelDetailPage() {
             ) : null}
 
             {/* Segmented tab buttons */}
-            <div className="inline-flex w-fit gap-1 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-1">
+            <div className="inline-flex w-fit gap-1 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1">
                 <SegButton active={tab === 'posts'} onClick={() => onTabChange('posts')}>
                     Posts
                 </SegButton>
@@ -753,7 +753,7 @@ export default function ChannelDetailPage() {
                             placeholder="Updated text…"
                         />
                         <div className="flex items-center gap-2">
-                            <Label className="text-xs text-zoru-ink-muted">Parse mode</Label>
+                            <Label className="text-xs text-[var(--st-text-secondary)]">Parse mode</Label>
                             <Select
                                 value={editState.parseMode}
                                 onValueChange={(v: 'NONE' | 'HTML' | 'MarkdownV2') =>
@@ -829,7 +829,7 @@ export default function ChannelDetailPage() {
                         ).map(([key, label]) => (
                             <label
                                 key={key}
-                                className="flex items-center gap-2 rounded-[var(--zoru-radius-sm)] border border-zoru-line p-2"
+                                className="flex items-center gap-2 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] p-2"
                             >
                                 <Checkbox
                                     checked={promoteState[key]}
@@ -964,7 +964,7 @@ function PostsTab({
                 <Card key={p._id} className="p-3">
                     <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0 flex-1">
-                            <div className="flex flex-wrap items-center gap-2 text-xs text-zoru-ink-muted">
+                            <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--st-text-secondary)]">
                                 <Badge variant="outline">#{p.messageId}</Badge>
                                 <Badge variant="outline">{p.kind}</Badge>
                                 {p.isPinned ? (
@@ -982,11 +982,11 @@ function PostsTab({
                                 ) : null}
                             </div>
                             {p.text ? (
-                                <p className="mt-2 line-clamp-3 whitespace-pre-wrap text-sm text-zoru-ink">
+                                <p className="mt-2 line-clamp-3 whitespace-pre-wrap text-sm text-[var(--st-text)]">
                                     {p.text}
                                 </p>
                             ) : (
-                                <p className="mt-2 text-xs italic text-zoru-ink-muted">
+                                <p className="mt-2 text-xs italic text-[var(--st-text-secondary)]">
                                     Media post (no caption).
                                 </p>
                             )}
@@ -1045,16 +1045,16 @@ function ScheduledTab({
                 <Card key={p._id} className="p-3">
                     <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0 flex-1">
-                            <div className="flex flex-wrap items-center gap-2 text-xs text-zoru-ink-muted">
+                            <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--st-text-secondary)]">
                                 <Badge variant="outline">{p.status}</Badge>
                                 <span className="inline-flex items-center gap-1">
                                     <Calendar className="h-3 w-3" /> Sends{' '}
                                     {formatDate(p.scheduledAt)}
                                 </span>
                             </div>
-                            <p className="mt-2 line-clamp-2 whitespace-pre-wrap text-sm text-zoru-ink">
+                            <p className="mt-2 line-clamp-2 whitespace-pre-wrap text-sm text-[var(--st-text)]">
                                 {p.message.text || (
-                                    <span className="italic text-zoru-ink-muted">
+                                    <span className="italic text-[var(--st-text-secondary)]">
                                         Media post.
                                     </span>
                                 )}
@@ -1096,12 +1096,12 @@ function AdminsTab({
         <div className="flex flex-col gap-2">
             {admins.map((a) => (
                 <Card key={a.userId} className="flex items-center gap-3 p-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zoru-surface text-zoru-ink-muted">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]">
                         <Users className="h-4 w-4" />
                     </div>
                     <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                            <span className="truncate text-sm font-medium text-zoru-ink">
+                            <span className="truncate text-sm font-medium text-[var(--st-text)]">
                                 {a.name}
                             </span>
                             <Badge
@@ -1115,12 +1115,12 @@ function AdminsTab({
                                 href={`https://t.me/${a.username}`}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="text-xs text-zoru-ink-muted hover:text-zoru-ink"
+                                className="text-xs text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                             >
                                 @{a.username}
                             </a>
                         ) : (
-                            <span className="text-xs text-zoru-ink-muted">
+                            <span className="text-xs text-[var(--st-text-secondary)]">
                                 #{a.userId}
                             </span>
                         )}
@@ -1157,44 +1157,44 @@ function StatsTab({ stats }: { stats: StatsResp | null }) {
         <div className="flex flex-col gap-4">
             <div className="grid gap-3 sm:grid-cols-3">
                 <Card className="p-4">
-                    <div className="text-[11px] uppercase tracking-wider text-zoru-ink-muted">
+                    <div className="text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)]">
                         Posts (30d)
                     </div>
-                    <div className="mt-1.5 text-[22px] text-zoru-ink">
+                    <div className="mt-1.5 text-[22px] text-[var(--st-text)]">
                         {stats.postsCount}
                     </div>
                 </Card>
                 <Card className="p-4">
-                    <div className="text-[11px] uppercase tracking-wider text-zoru-ink-muted">
+                    <div className="text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)]">
                         Total views (mirror)
                     </div>
-                    <div className="mt-1.5 text-[22px] text-zoru-ink">
+                    <div className="mt-1.5 text-[22px] text-[var(--st-text)]">
                         {stats.totalViews}
                     </div>
                 </Card>
                 <Card className="p-4">
-                    <div className="text-[11px] uppercase tracking-wider text-zoru-ink-muted">
+                    <div className="text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)]">
                         Pending scheduled
                     </div>
-                    <div className="mt-1.5 text-[22px] text-zoru-ink">
+                    <div className="mt-1.5 text-[22px] text-[var(--st-text)]">
                         {stats.scheduledCount}
                     </div>
                 </Card>
             </div>
             <Card className="p-4">
-                <div className="mb-2 text-xs font-medium text-zoru-ink">
+                <div className="mb-2 text-xs font-medium text-[var(--st-text)]">
                     Posts over time
                 </div>
                 <Sparkline points={stats.series} />
-                <div className="mt-1 flex items-center justify-between text-[10px] text-zoru-ink-muted">
+                <div className="mt-1 flex items-center justify-between text-[10px] text-[var(--st-text-secondary)]">
                     <span>{stats.series[0]?.date ?? ''}</span>
                     <span>{stats.series.at(-1)?.date ?? ''}</span>
                 </div>
             </Card>
             <Card className="p-4">
-                <div className="mb-2 text-xs font-medium text-zoru-ink">Top posts</div>
+                <div className="mb-2 text-xs font-medium text-[var(--st-text)]">Top posts</div>
                 {stats.topPosts.length === 0 ? (
-                    <div className="text-xs text-zoru-ink-muted">
+                    <div className="text-xs text-[var(--st-text-secondary)]">
                         No mirrored posts in the window.
                     </div>
                 ) : (
@@ -1206,12 +1206,12 @@ function StatsTab({ stats }: { stats: StatsResp | null }) {
                             >
                                 <span className="truncate">
                                     {p.text ?? (
-                                        <span className="italic text-zoru-ink-muted">
+                                        <span className="italic text-[var(--st-text-secondary)]">
                                             Media post
                                         </span>
                                     )}
                                 </span>
-                                <span className="inline-flex items-center gap-1 text-xs text-zoru-ink-muted">
+                                <span className="inline-flex items-center gap-1 text-xs text-[var(--st-text-secondary)]">
                                     <Eye className="h-3 w-3" /> {p.views ?? 0}
                                 </span>
                             </li>
@@ -1257,7 +1257,7 @@ function ComposerDialog({
                     />
 
                     <div className="flex flex-wrap items-center gap-2">
-                        <Label className="text-xs text-zoru-ink-muted">
+                        <Label className="text-xs text-[var(--st-text-secondary)]">
                             Parse mode
                         </Label>
                         <Select
@@ -1276,7 +1276,7 @@ function ComposerDialog({
                             </ZoruSelectContent>
                         </Select>
 
-                        <Label className="ml-3 text-xs text-zoru-ink-muted">
+                        <Label className="ml-3 text-xs text-[var(--st-text-secondary)]">
                             Media type
                         </Label>
                         <Select
@@ -1298,7 +1298,7 @@ function ComposerDialog({
                     </div>
 
                     <div>
-                        <Label className="text-xs text-zoru-ink-muted">
+                        <Label className="text-xs text-[var(--st-text-secondary)]">
                             Attachment (SabFiles)
                         </Label>
                         <SabFileUrlInput
@@ -1319,9 +1319,9 @@ function ComposerDialog({
                     </div>
 
                     {/* Inline keyboard builder */}
-                    <div className="rounded-[var(--zoru-radius)] border border-zoru-line p-2">
+                    <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-2">
                         <div className="mb-1.5 flex items-center justify-between">
-                            <Label className="text-xs text-zoru-ink-muted">
+                            <Label className="text-xs text-[var(--st-text-secondary)]">
                                 Inline buttons
                             </Label>
                             <Button
@@ -1341,7 +1341,7 @@ function ComposerDialog({
                             </Button>
                         </div>
                         {state.inlineButtons.length === 0 ? (
-                            <p className="text-[11px] text-zoru-ink-muted">
+                            <p className="text-[11px] text-[var(--st-text-secondary)]">
                                 Add up to a row of URL buttons.
                             </p>
                         ) : (
@@ -1409,7 +1409,7 @@ function ComposerDialog({
                     </div>
 
                     <div>
-                        <Label className="text-xs text-zoru-ink-muted">
+                        <Label className="text-xs text-[var(--st-text-secondary)]">
                             Schedule (optional)
                         </Label>
                         <input
@@ -1418,9 +1418,9 @@ function ComposerDialog({
                             onChange={(e) =>
                                 onChange({ ...state, scheduleAt: e.target.value })
                             }
-                            className="block w-full rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 py-2 text-sm"
+                            className="block w-full rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-sm"
                         />
-                        <p className="text-[11px] text-zoru-ink-muted">
+                        <p className="text-[11px] text-[var(--st-text-secondary)]">
                             Leave empty to send now. Scheduled posts are queued for a
                             worker; cancel them anytime from the Scheduled tab.
                         </p>

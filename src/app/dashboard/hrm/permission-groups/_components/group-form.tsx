@@ -25,7 +25,7 @@ export function GroupForm({
     <>
       <div className="space-y-2">
         <Label htmlFor="grp-name">
-          Group name <span className="text-zoru-danger-ink">*</span>
+          Group name <span className="text-[var(--st-danger)]">*</span>
         </Label>
         <Input
           id="grp-name"

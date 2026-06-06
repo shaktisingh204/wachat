@@ -148,8 +148,8 @@ export default function FacebookAlbumsPage(): React.JSX.Element {
 
       <header className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl text-zoru-ink">Albums</h1>
-          <p className="mt-1 text-sm text-zoru-ink-muted">
+          <h1 className="text-2xl text-[var(--st-text)]">Albums</h1>
+          <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
             Photo albums on the connected Facebook Page. Backed by{' '}
             <code>wachat-facebook-content</code>.
           </p>
@@ -193,7 +193,7 @@ export default function FacebookAlbumsPage(): React.JSX.Element {
                     onClick={() => onExpand(a.id)}
                     className="flex items-center gap-3 text-left"
                   >
-                    <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-zoru-surface-2">
+                    <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-[var(--st-bg-muted)]">
                       {a.cover_photo?.source ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -204,15 +204,15 @@ export default function FacebookAlbumsPage(): React.JSX.Element {
                       ) : null}
                     </div>
                     <div className="flex-1">
-                      <p className="line-clamp-1 text-base text-zoru-ink">
+                      <p className="line-clamp-1 text-base text-[var(--st-text)]">
                         {a.name ?? '(untitled)'}
                       </p>
                       {a.description ? (
-                        <p className="line-clamp-1 text-xs text-zoru-ink-muted">
+                        <p className="line-clamp-1 text-xs text-[var(--st-text-secondary)]">
                           {a.description}
                         </p>
                       ) : null}
-                      <div className="mt-1 flex items-center gap-2 text-[11px] text-zoru-ink-muted">
+                      <div className="mt-1 flex items-center gap-2 text-[11px] text-[var(--st-text-secondary)]">
                         <Badge variant="ghost">{a.count ?? 0} photos</Badge>
                         {a.privacy ? <span>{a.privacy}</span> : null}
                         <span>{safeDate(a.updated_time ?? a.created_time)}</span>
@@ -226,7 +226,7 @@ export default function FacebookAlbumsPage(): React.JSX.Element {
                   </button>
 
                   {isOpen ? (
-                    <div className="border-t border-zoru-line pt-3">
+                    <div className="border-t border-[var(--st-border)] pt-3">
                       {photoLoading && photos.length === 0 ? (
                         <div className="grid grid-cols-4 gap-2 md:grid-cols-6">
                           <Skeleton className="aspect-square w-full" />
@@ -234,7 +234,7 @@ export default function FacebookAlbumsPage(): React.JSX.Element {
                           <Skeleton className="aspect-square w-full" />
                         </div>
                       ) : photos.length === 0 ? (
-                        <p className="text-xs text-zoru-ink-muted">No photos.</p>
+                        <p className="text-xs text-[var(--st-text-secondary)]">No photos.</p>
                       ) : (
                         <div className="grid grid-cols-4 gap-2 md:grid-cols-6">
                           {photos.map((p) => (
@@ -243,7 +243,7 @@ export default function FacebookAlbumsPage(): React.JSX.Element {
                               href={p.source ?? p.picture ?? '#'}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="aspect-square overflow-hidden rounded-md bg-zoru-surface-2"
+                              className="aspect-square overflow-hidden rounded-md bg-[var(--st-bg-muted)]"
                             >
                               {p.source || p.picture ? (
                                 // eslint-disable-next-line @next/next/no-img-element

@@ -83,10 +83,10 @@ export function SharePublicLinkButton({
           <Card className="w-full max-w-md p-6">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h3 className="text-[15px] font-semibold text-zoru-ink">
+                <h3 className="text-[15px] font-semibold text-[var(--st-text)]">
                   Shareable link
                 </h3>
-                <p className="mt-1 text-[12.5px] text-zoru-ink-muted">
+                <p className="mt-1 text-[12.5px] text-[var(--st-text-secondary)]">
                   Anyone with this link can view this {resourceType} without
                   logging in.
                 </p>
@@ -94,7 +94,7 @@ export function SharePublicLinkButton({
               <button
                 type="button"
                 onClick={close}
-                className="rounded-lg p-1 text-zoru-ink-muted hover:bg-zoru-surface-2"
+                className="rounded-lg p-1 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)]"
                 aria-label="Close"
               >
                 <X className="h-4 w-4" />
@@ -102,17 +102,17 @@ export function SharePublicLinkButton({
             </div>
             <div className="mt-4">
               {busy ? (
-                <div className="flex items-center gap-2 text-[13px] text-zoru-ink-muted">
+                <div className="flex items-center gap-2 text-[13px] text-[var(--st-text-secondary)]">
                   <LoaderCircle className="h-4 w-4 animate-spin" /> Generating
                   link…
                 </div>
               ) : error ? (
-                <p className="text-[12.5px] text-zoru-ink">{error}</p>
+                <p className="text-[12.5px] text-[var(--st-text)]">{error}</p>
               ) : url ? (
                 <div className="flex flex-col gap-2">
                   <Input value={url} readOnly />
                   <div className="flex items-center justify-between">
-                    <span className="text-[11.5px] text-zoru-ink-muted">
+                    <span className="text-[11.5px] text-[var(--st-text-secondary)]">
                       {copied ? 'Copied!' : 'Copy and share with your client.'}
                     </span>
                     <Button

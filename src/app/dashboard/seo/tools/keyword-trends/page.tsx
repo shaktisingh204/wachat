@@ -60,7 +60,7 @@ export default function KeywordTrendsPage() {
           {isLoading ? 'Loading...' : 'Show trend'}
         </Button>
       </div>
-      {error && <div className="text-zoru-ink mb-4">{error}</div>}
+      {error && <div className="text-[var(--st-text)] mb-4">{error}</div>}
       {submitted && data.length > 0 && !isLoading && !error && (
         <Card>
           <ZoruCardContent className="p-4">

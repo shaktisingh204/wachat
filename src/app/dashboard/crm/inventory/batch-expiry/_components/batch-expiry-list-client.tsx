@@ -143,24 +143,24 @@ function KpiCard({
   active?: boolean;
   onClick?: () => void;
 }) {
-  const borderCls = active ? 'border-zoru-primary ring-1 ring-zoru-primary' : 'border-zoru-line';
+  const borderCls = active ? 'border-[var(--st-text)] ring-1 ring-[var(--st-text)]' : 'border-[var(--st-border)]';
   const valueCls =
     tone === 'danger'
-      ? 'text-zoru-ink dark:text-zoru-ink-muted'
+      ? 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]'
       : tone === 'warning'
-        ? 'text-zoru-ink dark:text-zoru-ink-muted'
-        : 'text-zoru-ink';
+        ? 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]'
+        : 'text-[var(--st-text)]';
   return (
     <button
       type="button"
       onClick={onClick}
       className={[
-        'flex flex-col gap-1 rounded-lg border bg-zoru-surface p-3 text-left transition hover:border-zoru-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-zoru-primary',
+        'flex flex-col gap-1 rounded-lg border bg-[var(--st-bg-secondary)] p-3 text-left transition hover:border-[var(--st-text)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]',
         borderCls,
         onClick ? 'cursor-pointer' : 'cursor-default',
       ].join(' ')}
     >
-      <span className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
+      <span className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
         {label}
       </span>
       <span className={['text-xl font-semibold', valueCls].join(' ')}>
@@ -503,9 +503,9 @@ export function BatchExpiryListClient({
 
         <Card className="overflow-hidden p-0">
           {/* Toolbar */}
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zoru-line p-3">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--st-border)] p-3">
             <div className="relative w-full max-w-sm">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
               <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -528,9 +528,9 @@ export function BatchExpiryListClient({
           </div>
 
           {/* Filter row */}
-          <div className="flex flex-wrap items-end gap-3 border-b border-zoru-line bg-zoru-surface-2/40 px-3 py-2">
+          <div className="flex flex-wrap items-end gap-3 border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]/40 px-3 py-2">
             <div className="space-y-1">
-              <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+              <Label className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Status
               </Label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -548,7 +548,7 @@ export function BatchExpiryListClient({
             </div>
 
             <div className="space-y-1">
-              <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+              <Label className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Expiry
               </Label>
               <Select value={expiryFilter} onValueChange={setExpiryFilter}>
@@ -567,7 +567,7 @@ export function BatchExpiryListClient({
 
             {locationOptions.length > 0 ? (
               <div className="space-y-1">
-                <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                <Label className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                   Warehouse
                 </Label>
                 <Select
@@ -598,9 +598,9 @@ export function BatchExpiryListClient({
 
           {/* Bulk bar */}
           {selected.size > 0 ? (
-            <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 border-b border-zoru-line bg-zoru-surface px-3 py-2 shadow-sm">
-              <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink">
-                <ListChecks className="h-4 w-4 text-zoru-primary" />
+            <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 shadow-sm">
+              <div className="flex items-center gap-2 text-[12.5px] text-[var(--st-text)]">
+                <ListChecks className="h-4 w-4 text-[var(--st-text)]" />
                 {selected.size} selected
               </div>
               <div className="flex flex-wrap items-center gap-1">
@@ -650,7 +650,7 @@ export function BatchExpiryListClient({
           <div className="overflow-x-auto">
             <Table>
               <ZoruTableHeader>
-                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                   <ZoruTableHead className="w-10 pl-3">
                     <Checkbox
                       checked={allSelectedOnPage}
@@ -658,13 +658,13 @@ export function BatchExpiryListClient({
                       aria-label="Select all visible batches"
                     />
                   </ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">Item</ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">Batch no.</ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">Manufacture</ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">Expiry</ZoruTableHead>
-                  <ZoruTableHead className="text-right text-zoru-ink-muted">Qty</ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                  <ZoruTableHead className="text-right text-zoru-ink-muted">
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">Item</ZoruTableHead>
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">Batch no.</ZoruTableHead>
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">Manufacture</ZoruTableHead>
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">Expiry</ZoruTableHead>
+                  <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Qty</ZoruTableHead>
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
+                  <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                     Actions
                   </ZoruTableHead>
                 </ZoruTableRow>
@@ -674,7 +674,7 @@ export function BatchExpiryListClient({
                   <ZoruTableRow>
                     <ZoruTableCell
                       colSpan={8}
-                      className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                      className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                     >
                       {filtersActive
                         ? 'No batches match the current filters.'
@@ -690,10 +690,10 @@ export function BatchExpiryListClient({
                         key={b._id}
                         className={
                           flag.expired
-                            ? 'border-zoru-line bg-zoru-surface-2 dark:bg-zoru-ink/30'
+                            ? 'border-[var(--st-border)] bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30'
                             : flag.soon
-                              ? 'border-zoru-line bg-zoru-surface-2/50 dark:bg-zoru-ink/20'
-                              : 'border-zoru-line'
+                              ? 'border-[var(--st-border)] bg-[var(--st-bg-muted)]/50 dark:bg-[var(--st-text)]/20'
+                              : 'border-[var(--st-border)]'
                         }
                       >
                         <ZoruTableCell className="pl-3">
@@ -714,22 +714,22 @@ export function BatchExpiryListClient({
                             }
                           />
                         </ZoruTableCell>
-                        <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
+                        <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
                           {b.batchNumber}
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                        <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                           {fmtDate(b.manufactureDate)}
                         </ZoruTableCell>
                         <ZoruTableCell
                           className={
                             danger
-                              ? 'text-[13px] font-medium text-zoru-ink dark:text-zoru-ink-muted'
-                              : 'text-[13px] text-zoru-ink-muted'
+                              ? 'text-[13px] font-medium text-[var(--st-text)] dark:text-[var(--st-text-secondary)]'
+                              : 'text-[13px] text-[var(--st-text-secondary)]'
                           }
                         >
                           {fmtDate(b.expiryDate)}
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-right font-mono text-[13px] text-zoru-ink">
+                        <ZoruTableCell className="text-right font-mono text-[13px] text-[var(--st-text)]">
                           {b.quantity}
                           {b.unit ? ` ${b.unit}` : ''}
                         </ZoruTableCell>
@@ -743,19 +743,19 @@ export function BatchExpiryListClient({
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button variant="ghost" size="icon" aria-label={`Actions for ${b.batchNumber}`}>
-                                <MoreHorizontal className="h-4 w-4 text-zoru-ink-muted" />
+                                <MoreHorizontal className="h-4 w-4 text-[var(--st-text-secondary)]" />
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem asChild>
                                 <Link href={`/dashboard/crm/inventory/batch-expiry/${b._id}/edit`}>
-                                  <Edit className="mr-2 h-4 w-4 text-zoru-ink-muted" /> Edit
+                                  <Edit className="mr-2 h-4 w-4 text-[var(--st-text-secondary)]" /> Edit
                                 </Link>
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
                                 onClick={() => setSingleDeleteTarget(b)}
-                                className="text-zoru-ink focus:bg-zoru-surface-2 focus:text-zoru-ink dark:focus:bg-zoru-ink/50 dark:focus:text-zoru-ink-muted"
+                                className="text-[var(--st-text)] focus:bg-[var(--st-bg-muted)] focus:text-[var(--st-text)] dark:focus:bg-[var(--st-text)]/50 dark:focus:text-[var(--st-text-secondary)]"
                               >
                                 <Trash2 className="mr-2 h-4 w-4" /> Delete
                               </DropdownMenuItem>
@@ -772,7 +772,7 @@ export function BatchExpiryListClient({
 
           {/* Summary row */}
           {filtered.length > 0 ? (
-            <div className="border-t border-zoru-line px-3 py-2 text-[12px] text-zoru-ink-muted">
+            <div className="border-t border-[var(--st-border)] px-3 py-2 text-[12px] text-[var(--st-text-secondary)]">
               Showing {filtered.length} of {serverBatches.length} batch
               {serverBatches.length === 1 ? '' : 'es'}
               {filtersActive ? ' (filtered)' : ''}

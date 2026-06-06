@@ -26,8 +26,8 @@ function JourneysSkeleton() {
       </PageHeader>
 
       <section className="space-y-4">
-        <h2 className="text-sm font-medium uppercase tracking-wide text-zoru-ink-muted">Your journeys</h2>
-        <Card className="divide-y divide-zoru-line">
+        <h2 className="text-sm font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">Your journeys</h2>
+        <Card className="divide-y divide-[var(--st-border)]">
           {[1, 2, 3].map((i) => (
             <div key={i} className="flex items-center justify-between p-4">
               <div className="space-y-2">
@@ -41,7 +41,7 @@ function JourneysSkeleton() {
       </section>
 
       <section className="space-y-4">
-        <h2 className="text-sm font-medium uppercase tracking-wide text-zoru-ink-muted">Start from a template</h2>
+        <h2 className="text-sm font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">Start from a template</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3].map((i) => (
              <Card key={i} className="p-4 space-y-4">

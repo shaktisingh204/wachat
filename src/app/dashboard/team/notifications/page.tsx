@@ -135,12 +135,12 @@ export default function TeamNotificationsPage() {
             </PageHeader>
 
             <Card variant="soft" className="flex items-center gap-3 p-6">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                     <Mail className="h-4 w-4" />
                 </div>
                 <div>
-                    <p className="text-[13px] text-zoru-ink">Delivery channel</p>
-                    <p className="text-[12.5px] text-zoru-ink-muted">
+                    <p className="text-[13px] text-[var(--st-text)]">Delivery channel</p>
+                    <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                         Emails go to your account address. Push and Slack delivery arrive later.
                     </p>
                 </div>
@@ -149,22 +149,22 @@ export default function TeamNotificationsPage() {
             {GROUPS.map((group) => (
                 <Card key={group.title} className="p-6">
                     <div className="mb-4 flex items-start gap-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                             <Bell className="h-4 w-4" />
                         </div>
                         <div>
-                            <p className="text-[13.5px] text-zoru-ink">{group.title}</p>
-                            <p className="text-[12.5px] text-zoru-ink-muted">{group.description}</p>
+                            <p className="text-[13.5px] text-[var(--st-text)]">{group.title}</p>
+                            <p className="text-[12.5px] text-[var(--st-text-secondary)]">{group.description}</p>
                         </div>
                     </div>
-                    <ul className="divide-y divide-zoru-line">
+                    <ul className="divide-y divide-[var(--st-border)]">
                         {group.keys.map((row) => (
                             <li key={row.id} className="flex items-start justify-between gap-4 py-3">
                                 <div>
-                                    <Label htmlFor={row.id} className="text-[13px] text-zoru-ink">
+                                    <Label htmlFor={row.id} className="text-[13px] text-[var(--st-text)]">
                                         {row.label}
                                     </Label>
-                                    <p className="mt-0.5 text-[12px] text-zoru-ink-muted">{row.description}</p>
+                                    <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">{row.description}</p>
                                 </div>
                                 <Switch
                                     id={row.id}

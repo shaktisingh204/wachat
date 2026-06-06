@@ -33,11 +33,11 @@ export function GroupDetailsCard({
 
   return (
     <Card className="flex flex-col gap-5 p-5">
-      <h2 className="text-sm font-semibold text-zoru-ink">Group Details</h2>
+      <h2 className="text-sm font-semibold text-[var(--st-text)]">Group Details</h2>
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="edit-name">
-            Name <span className="text-zoru-danger-ink">*</span>
+            Name <span className="text-[var(--st-danger)]">*</span>
           </Label>
           <Input
             id="edit-name"
@@ -59,22 +59,22 @@ export function GroupDetailsCard({
       </div>
 
       {group ? (
-        <div className="flex flex-wrap gap-4 border-t border-zoru-line pt-4 text-[12px] text-zoru-ink-muted">
+        <div className="flex flex-wrap gap-4 border-t border-[var(--st-border)] pt-4 text-[12px] text-[var(--st-text-secondary)]">
           <span>
             Created:{' '}
-            <span className="text-zoru-ink">
+            <span className="text-[var(--st-text)]">
               {formatDate(group.createdAt)}
             </span>
           </span>
           <span>
             Last updated:{' '}
-            <span className="text-zoru-ink">
+            <span className="text-[var(--st-text)]">
               {formatDate(group.updatedAt)}
             </span>
           </span>
           <span>
             Employees assigned:{' '}
-            <span className="text-zoru-ink">{assignedCount}</span>
+            <span className="text-[var(--st-text)]">{assignedCount}</span>
           </span>
         </div>
       ) : null}

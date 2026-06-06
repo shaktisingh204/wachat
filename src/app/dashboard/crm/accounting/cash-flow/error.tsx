@@ -18,14 +18,14 @@ export default function CashFlowError({
 
   return (
     <div className="flex h-[50vh] flex-col items-center justify-center gap-4 text-center">
-      <div className="rounded-full bg-zoru-surface-2 p-3 text-zoru-ink dark:bg-zoru-ink/20 dark:text-zoru-ink-muted">
+      <div className="rounded-full bg-[var(--st-bg-muted)] p-3 text-[var(--st-text)] dark:bg-[var(--st-text)]/20 dark:text-[var(--st-text-secondary)]">
         <AlertCircle className="h-6 w-6" />
       </div>
       <div className="space-y-1">
-        <h2 className="text-lg font-medium text-zoru-ink">
+        <h2 className="text-lg font-medium text-[var(--st-text)]">
           Something went wrong loading the cash flow statement
         </h2>
-        <p className="text-[13px] text-zoru-ink-muted">
+        <p className="text-[13px] text-[var(--st-text-secondary)]">
           There was an error generating the report. Please try again.
         </p>
       </div>

@@ -167,9 +167,9 @@ export function ClientPage({
   if (!initialGroup) {
     return (
       <div className="flex flex-col items-center gap-4 p-12 text-center">
-        <ShieldCheck className="h-10 w-10 text-zoru-ink-muted" aria-hidden="true" />
-        <h2 className="text-lg font-semibold text-zoru-ink">Group not found</h2>
-        <p className="text-[13px] text-zoru-ink-muted">
+        <ShieldCheck className="h-10 w-10 text-[var(--st-text-secondary)]" aria-hidden="true" />
+        <h2 className="text-lg font-semibold text-[var(--st-text)]">Group not found</h2>
+        <p className="text-[13px] text-[var(--st-text-secondary)]">
           This permission group may have been deleted.
         </p>
         <Button
@@ -199,8 +199,8 @@ export function ClientPage({
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-xl font-semibold text-zoru-ink">{group?.name}</h1>
-            <p className="text-[13px] text-zoru-ink-muted">
+            <h1 className="text-xl font-semibold text-[var(--st-text)]">{group?.name}</h1>
+            <p className="text-[13px] text-[var(--st-text-secondary)]">
               Edit permissions and manage employee assignments
             </p>
           </div>

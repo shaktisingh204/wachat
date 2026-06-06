@@ -210,7 +210,7 @@ export default function HashGeneratorPage() {
                       onDrop={handleDrop}
                       onDragOver={handleDragOver}
                       onClick={() => fileInputRef.current?.click()}
-                      className="border-2 border-dashed rounded-lg p-10 flex flex-col items-center justify-center text-zoru-ink-muted hover:bg-zoru-surface-2/50 transition-colors cursor-pointer"
+                      className="border-2 border-dashed rounded-lg p-10 flex flex-col items-center justify-center text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)]/50 transition-colors cursor-pointer"
                     >
                       <UploadCloud className="w-10 h-10 mb-4 opacity-50" />
                       <p className="font-medium mb-1">Click or drag file to this area to upload</p>
@@ -223,12 +223,12 @@ export default function HashGeneratorPage() {
                       />
                     </div>
                   ) : (
-                    <div className="border rounded-lg p-4 flex items-center justify-between bg-zoru-surface-2/20">
+                    <div className="border rounded-lg p-4 flex items-center justify-between bg-[var(--st-bg-muted)]/20">
                       <div className="flex items-center gap-3 overflow-hidden">
-                        <FileIcon className="w-8 h-8 text-zoru-ink flex-shrink-0" />
+                        <FileIcon className="w-8 h-8 text-[var(--st-text)] flex-shrink-0" />
                         <div className="overflow-hidden">
                           <p className="font-medium truncate">{file.name}</p>
-                          <p className="text-xs text-zoru-ink-muted">
+                          <p className="text-xs text-[var(--st-text-secondary)]">
                             {(file.size / 1024).toFixed(2)} KB
                           </p>
                         </div>
@@ -244,7 +244,7 @@ export default function HashGeneratorPage() {
           </Card>
 
           {error && (
-            <div className="p-3 text-sm text-zoru-ink bg-zoru-ink/10 rounded-md border border-destructive/20">
+            <div className="p-3 text-sm text-[var(--st-text)] bg-[var(--st-text)]/10 rounded-md border border-destructive/20">
               {error}
             </div>
           )}
@@ -253,13 +253,13 @@ export default function HashGeneratorPage() {
             <Card className="border-primary/50 shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-300">
               <ZoruCardContent className="p-6">
                 <div className="flex items-center justify-between mb-2">
-                  <Label className="text-lg font-semibold text-zoru-ink">Result ({algo}{opMode === 'hmac' ? ' HMAC' : ''})</Label>
+                  <Label className="text-lg font-semibold text-[var(--st-text)]">Result ({algo}{opMode === 'hmac' ? ' HMAC' : ''})</Label>
                   <Button variant="secondary" size="sm" onClick={copyToClipboard}>
                     <Copy className="w-4 h-4 mr-2" />
                     Copy
                   </Button>
                 </div>
-                <div className="bg-zoru-surface-2 p-4 rounded-md break-all font-mono text-sm border">
+                <div className="bg-[var(--st-bg-muted)] p-4 rounded-md break-all font-mono text-sm border">
                   {hashResult}
                 </div>
               </ZoruCardContent>
@@ -313,7 +313,7 @@ export default function HashGeneratorPage() {
                       variant={algo === a ? 'default' : 'outline'}
                       size="sm"
                       onClick={() => { setAlgo(a); setHashResult(''); }}
-                      className={algo === a ? '' : 'text-zoru-ink-muted'}
+                      className={algo === a ? '' : 'text-[var(--st-text-secondary)]'}
                     >
                       {a}
                     </Button>

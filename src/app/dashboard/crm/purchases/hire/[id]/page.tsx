@@ -61,10 +61,10 @@ function Field({
 }) {
   return (
     <div>
-      <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
         {label}
       </div>
-      <div className="mt-1 text-[13px] text-zoru-ink">{children}</div>
+      <div className="mt-1 text-[13px] text-[var(--st-text)]">{children}</div>
     </div>
   );
 }
@@ -100,7 +100,7 @@ export default async function HireDetailPage({ params }: PageProps) {
       audit={<EntityAuditTimeline entityKind="hire" entityId={id} />}
     >
       <Card className="p-6">
-        <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Request details
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
@@ -121,17 +121,17 @@ export default async function HireDetailPage({ params }: PageProps) {
         </div>
         {hire.specs ? (
           <div className="mt-6">
-            <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+            <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
               Specifications / scope
             </div>
-            <p className="mt-1 whitespace-pre-wrap text-[13px] text-zoru-ink">
+            <p className="mt-1 whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
               {hire.specs}
             </p>
           </div>
         ) : null}
       </Card>
 
-      <div className="text-[11px] text-zoru-ink-muted">
+      <div className="text-[11px] text-[var(--st-text-secondary)]">
         Created {formatDate(hire.createdAt)} · Updated{' '}
         {formatDate(hire.updatedAt)}
       </div>

@@ -144,28 +144,28 @@ export default function ConsentLogsPage() {
           <StatCard
             label="Total entries"
             value={totalEntries.toLocaleString()}
-            className={cn(statusFilter === 'all' && 'ring-1 ring-zoru-primary rounded-[var(--zoru-radius-lg)]')}
+            className={cn(statusFilter === 'all' && 'ring-1 ring-[var(--st-text)] rounded-[var(--zoru-radius-lg)]')}
           />
         </button>
         <button type="button" className="text-left" onClick={() => setStatusFilter('granted')}>
           <StatCard
             label="Active (granted)"
             value={grantedEntries.toLocaleString()}
-            className={cn(statusFilter === 'granted' && 'ring-1 ring-zoru-primary rounded-[var(--zoru-radius-lg)]')}
+            className={cn(statusFilter === 'granted' && 'ring-1 ring-[var(--st-text)] rounded-[var(--zoru-radius-lg)]')}
           />
         </button>
         <button type="button" className="text-left" onClick={() => setStatusFilter('revoked')}>
           <StatCard
             label="Withdrawn (revoked)"
             value={revokedEntries.toLocaleString()}
-            className={cn(statusFilter === 'revoked' && 'ring-1 ring-zoru-primary rounded-[var(--zoru-radius-lg)]')}
+            className={cn(statusFilter === 'revoked' && 'ring-1 ring-[var(--st-text)] rounded-[var(--zoru-radius-lg)]')}
           />
         </button>
       </div>
 
       <Card className="p-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <div className="inline-flex gap-1 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-1">
+          <div className="inline-flex gap-1 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1">
           {(['leads', 'users'] as const).map((id) => (
             <button
               key={id}
@@ -174,8 +174,8 @@ export default function ConsentLogsPage() {
               className={cn(
                 'rounded-[var(--zoru-radius-sm)] px-3 py-1.5 text-sm transition-colors',
                 tab === id
-                  ? 'bg-zoru-bg text-zoru-ink shadow-[var(--zoru-shadow-sm)]'
-                  : 'text-zoru-ink-muted hover:text-zoru-ink',
+                  ? 'bg-[var(--st-bg)] text-[var(--st-text)] shadow-[var(--zoru-shadow-sm)]'
+                  : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
               )}
             >
               {id === 'leads' ? `Leads (${leads.length})` : `Users (${users.length})`}
@@ -204,15 +204,15 @@ export default function ConsentLogsPage() {
         </div>
 
         {tab === 'leads' ? (
-          <div className="overflow-x-auto rounded-lg border border-zoru-line">
+          <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
             <Table>
               <ZoruTableHeader>
                 <ZoruTableRow className="hover:bg-transparent">
-                  <ZoruTableHead className="text-zoru-ink-muted">Lead ID</ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">Purpose</ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">State</ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">Timestamp</ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">IP</ZoruTableHead>
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">Lead ID</ZoruTableHead>
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">Purpose</ZoruTableHead>
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">State</ZoruTableHead>
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">Timestamp</ZoruTableHead>
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">IP</ZoruTableHead>
                 </ZoruTableRow>
               </ZoruTableHeader>
               <ZoruTableBody>
@@ -228,7 +228,7 @@ export default function ConsentLogsPage() {
                   <ZoruTableRow>
                     <ZoruTableCell
                       colSpan={5}
-                      className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                      className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                     >
                       No lead consent entries match this filter.
                     </ZoruTableCell>
@@ -236,10 +236,10 @@ export default function ConsentLogsPage() {
                 ) : (
                   visibleLeads.map((row) => (
                     <ZoruTableRow key={row._id}>
-                      <ZoruTableCell className="text-[13px] text-zoru-ink">
+                      <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                         {row.lead_id || '—'}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-zoru-ink">
+                      <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                         {purposeTitle(row.purpose_consent_id)}
                       </ZoruTableCell>
                       <ZoruTableCell>
@@ -247,10 +247,10 @@ export default function ConsentLogsPage() {
                           {row.granted ? 'Granted' : 'Revoked'}
                         </Badge>
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                      <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                         {formatDateTime(row.granted_at)}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                      <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                         {row.ip_address || '—'}
                       </ZoruTableCell>
                     </ZoruTableRow>
@@ -260,15 +260,15 @@ export default function ConsentLogsPage() {
             </Table>
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-lg border border-zoru-line">
+          <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
             <Table>
               <ZoruTableHeader>
                 <ZoruTableRow className="hover:bg-transparent">
-                  <ZoruTableHead className="text-zoru-ink-muted">User ID</ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">Purpose</ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">State</ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">Timestamp</ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">IP</ZoruTableHead>
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">User ID</ZoruTableHead>
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">Purpose</ZoruTableHead>
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">State</ZoruTableHead>
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">Timestamp</ZoruTableHead>
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">IP</ZoruTableHead>
                 </ZoruTableRow>
               </ZoruTableHeader>
               <ZoruTableBody>
@@ -284,7 +284,7 @@ export default function ConsentLogsPage() {
                   <ZoruTableRow>
                     <ZoruTableCell
                       colSpan={5}
-                      className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                      className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                     >
                       No user consent entries match this filter.
                     </ZoruTableCell>
@@ -292,10 +292,10 @@ export default function ConsentLogsPage() {
                 ) : (
                   visibleUsers.map((row) => (
                     <ZoruTableRow key={row._id}>
-                      <ZoruTableCell className="text-[13px] text-zoru-ink">
+                      <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                         {row.target_user_id || '—'}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-zoru-ink">
+                      <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                         {purposeTitle(row.purpose_consent_id)}
                       </ZoruTableCell>
                       <ZoruTableCell>
@@ -303,10 +303,10 @@ export default function ConsentLogsPage() {
                           {row.granted ? 'Granted' : 'Revoked'}
                         </Badge>
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                      <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                         {formatDateTime(row.granted_at)}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                      <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                         {row.ip_address || '—'}
                       </ZoruTableCell>
                     </ZoruTableRow>

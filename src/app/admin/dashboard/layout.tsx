@@ -19,7 +19,7 @@ export default async function AdminDashboardLayout({
     }
 
     return (
-        <div className="zoruui flex h-screen bg-zoru-surface text-zoru-ink overflow-hidden">
+        <div className="zoruui flex h-screen bg-[var(--st-bg-secondary)] text-[var(--st-text)] overflow-hidden">
             {/* Sidebar */}
             <AdminSidebarNav />
 
@@ -31,7 +31,7 @@ export default async function AdminDashboardLayout({
                         <React.Suspense fallback={
                             <div className="space-y-4">
                                 {[...Array(3)].map((_, i) => (
-                                    <div key={i} className="h-32 rounded-2xl bg-zoru-bg animate-pulse" />
+                                    <div key={i} className="h-32 rounded-2xl bg-[var(--st-bg)] animate-pulse" />
                                 ))}
                             </div>
                         }>

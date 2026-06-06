@@ -124,15 +124,15 @@ export default async function ExpenseReportPage(props: {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Card className="p-6">
           <div className="mb-3">
-            <h2 className="text-[16px] font-semibold text-zoru-ink">
+            <h2 className="text-[16px] font-semibold text-[var(--st-text)]">
               Monthly trend
             </h2>
-            <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+            <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">
               Expense run-rate per month.
             </p>
           </div>
           {monthly.length === 0 ? (
-            <div className="py-8 text-center text-[13px] text-zoru-ink-muted">
+            <div className="py-8 text-center text-[13px] text-[var(--st-text-secondary)]">
               No expenses for this FY.
             </div>
           ) : (
@@ -145,15 +145,15 @@ export default async function ExpenseReportPage(props: {
         </Card>
         <Card className="p-6">
           <div className="mb-3">
-            <h2 className="text-[16px] font-semibold text-zoru-ink">
+            <h2 className="text-[16px] font-semibold text-[var(--st-text)]">
               By category
             </h2>
-            <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+            <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">
               Where the money goes.
             </p>
           </div>
           {byCategory.length === 0 ? (
-            <div className="py-8 text-center text-[13px] text-zoru-ink-muted">
+            <div className="py-8 text-center text-[13px] text-[var(--st-text-secondary)]">
               No category data.
             </div>
           ) : (
@@ -163,65 +163,65 @@ export default async function ExpenseReportPage(props: {
       </div>
 
       <Card className="p-0">
-        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+        <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <Table>
             <ZoruTableHeader>
-              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                <ZoruTableHead className="text-zoru-ink-muted">
+              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                   Date
                 </ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                   Category
                 </ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                   Description
                 </ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                   Reference
                 </ZoruTableHead>
-                <ZoruTableHead className="text-right text-zoru-ink-muted">
+                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                   Amount
                 </ZoruTableHead>
-                <ZoruTableHead className="text-right text-zoru-ink-muted">
+                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                   Tax
                 </ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                   Status
                 </ZoruTableHead>
               </ZoruTableRow>
             </ZoruTableHeader>
             <ZoruTableBody>
               {pageRows.length === 0 ? (
-                <ZoruTableRow className="border-zoru-line">
+                <ZoruTableRow className="border-[var(--st-border)]">
                   <ZoruTableCell
                     colSpan={7}
-                    className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                    className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     No expenses for this range.
                   </ZoruTableCell>
                 </ZoruTableRow>
               ) : (
                 pageRows.map((r) => (
-                  <ZoruTableRow key={r.id} className="border-zoru-line">
-                    <ZoruTableCell className="text-[13px] text-zoru-ink">
+                  <ZoruTableRow key={r.id} className="border-[var(--st-border)]">
+                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                       {r.date}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-zoru-ink">
+                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                       {r.category}
                     </ZoruTableCell>
-                    <ZoruTableCell className="max-w-[280px] truncate text-[13px] text-zoru-ink-muted">
+                    <ZoruTableCell className="max-w-[280px] truncate text-[13px] text-[var(--st-text-secondary)]">
                       <EntityRowLink
                         href={`/dashboard/crm/purchases/expenses/${r.id}`}
                         label={r.description || '(no description)'}
                       />
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                       {r.reference || '—'}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-zoru-danger-ink">
+                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-danger)]">
                       {fmtMoney(r.amount)}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-zoru-ink-muted">
+                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text-secondary)]">
                       {fmtMoney(r.taxAmount)}
                     </ZoruTableCell>
                     <ZoruTableCell>

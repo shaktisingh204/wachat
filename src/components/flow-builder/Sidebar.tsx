@@ -106,13 +106,13 @@ export const Sidebar = ({ className }: { className?: string }) => {
     <div className={cn('space-y-3', className)}>
       {/* Search */}
       <div className="relative">
-        <LuSearch className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zoru-ink-muted" />
+        <LuSearch className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search blocks..."
-          className="w-full rounded-lg border border-zoru-line bg-zoru-surface pl-8 pr-3 py-1.5 text-[12px] text-zoru-ink placeholder:text-zoru-ink-muted focus:border-accent focus:outline-none"
+          className="w-full rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] pl-8 pr-3 py-1.5 text-[12px] text-[var(--st-text)] placeholder:text-[var(--st-text-secondary)] focus:border-accent focus:outline-none"
         />
       </div>
 
@@ -124,7 +124,7 @@ export const Sidebar = ({ className }: { className?: string }) => {
             <button
               type="button"
               onClick={() => setCollapsed(c => ({ ...c, [group.title]: !c[group.title] }))}
-              className="flex w-full items-center justify-between text-[10px] font-bold uppercase tracking-[0.1em] text-zoru-ink-muted mb-1.5 hover:text-zoru-ink"
+              className="flex w-full items-center justify-between text-[10px] font-bold uppercase tracking-[0.1em] text-[var(--st-text-secondary)] mb-1.5 hover:text-[var(--st-text)]"
             >
               {group.title}
               <LuChevronDown className={cn('h-3 w-3 transition-transform', isCollapsed && '-rotate-90')} />
@@ -137,12 +137,12 @@ export const Sidebar = ({ className }: { className?: string }) => {
                   return (
                     <div
                       key={block.type}
-                      className="flex items-center gap-2 rounded-lg border border-zoru-line bg-zoru-surface px-2.5 py-2 cursor-grab active:cursor-grabbing hover:border-accent/40 hover:bg-zoru-surface-2/5 transition-colors"
+                      className="flex items-center gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2.5 py-2 cursor-grab active:cursor-grabbing hover:border-accent/40 hover:bg-[var(--st-bg-muted)]/5 transition-colors"
                       onDragStart={(event) => onDragStart(event, block.type)}
                       draggable
                     >
-                      <Icon className="h-3.5 w-3.5 shrink-0 text-zoru-ink-muted" />
-                      <span className="text-[10.5px] font-medium text-zoru-ink leading-tight truncate">{block.label}</span>
+                      <Icon className="h-3.5 w-3.5 shrink-0 text-[var(--st-text-secondary)]" />
+                      <span className="text-[10.5px] font-medium text-[var(--st-text)] leading-tight truncate">{block.label}</span>
                     </div>
                   );
                 })}

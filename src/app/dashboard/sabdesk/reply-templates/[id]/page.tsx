@@ -59,7 +59,7 @@ export default async function ReplyTemplateDetailPage({
     >
       <Card className="p-6">
         <div className="mb-4 flex flex-wrap items-center gap-2">
-          <div className="text-[14px] font-medium text-zoru-ink">Overview</div>
+          <div className="text-[14px] font-medium text-[var(--st-text)]">Overview</div>
           <StatusPill label={status} tone={tone} />
           {template.category ? (
             <Badge variant="ghost" className="capitalize">
@@ -74,20 +74,20 @@ export default async function ReplyTemplateDetailPage({
         </div>
         <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-3">
           <div>
-            <div className="text-zoru-ink-muted">Shortcut</div>
-            <div className="font-mono text-zoru-ink">
+            <div className="text-[var(--st-text-secondary)]">Shortcut</div>
+            <div className="font-mono text-[var(--st-text)]">
               {template.shortcut || "—"}
             </div>
           </div>
           <div>
-            <div className="text-zoru-ink-muted">Usage count</div>
-            <div className="font-mono text-zoru-ink">
+            <div className="text-[var(--st-text-secondary)]">Usage count</div>
+            <div className="font-mono text-[var(--st-text)]">
               {template.usageCount ?? 0}
             </div>
           </div>
           <div>
-            <div className="text-zoru-ink-muted">Active</div>
-            <div className="text-zoru-ink">
+            <div className="text-[var(--st-text-secondary)]">Active</div>
+            <div className="text-[var(--st-text)]">
               {template.isActive ? "Yes" : "No"}
             </div>
           </div>
@@ -96,7 +96,7 @@ export default async function ReplyTemplateDetailPage({
 
       {variables.length > 0 ? (
         <Card className="p-4">
-          <div className="mb-2 text-[13px] font-medium text-zoru-ink">
+          <div className="mb-2 text-[13px] font-medium text-[var(--st-text)]">
             Variables ({variables.length})
           </div>
           <div className="flex flex-wrap gap-1.5">
@@ -110,15 +110,15 @@ export default async function ReplyTemplateDetailPage({
       ) : null}
 
       <Card className="p-6">
-        <div className="mb-3 text-[15px] font-medium text-zoru-ink">
+        <div className="mb-3 text-[15px] font-medium text-[var(--st-text)]">
           Template body
         </div>
         {template.body ? (
-          <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-4 font-mono text-[13px] text-zoru-ink">
+          <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 font-mono text-[13px] text-[var(--st-text)]">
             {template.body}
           </pre>
         ) : (
-          <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+          <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
             This template has no body yet.
           </div>
         )}

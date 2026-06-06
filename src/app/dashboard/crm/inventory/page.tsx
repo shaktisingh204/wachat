@@ -123,8 +123,8 @@ async function InventoryOverviewData() {
 
 function InventoryLoading() {
     return (
-        <div className="flex h-64 w-full items-center justify-center rounded-lg border border-dashed border-zoru-line">
-            <Loader2 className="h-6 w-6 animate-spin text-zoru-ink-subtle" />
+        <div className="flex h-64 w-full items-center justify-center rounded-lg border border-dashed border-[var(--st-border)]">
+            <Loader2 className="h-6 w-6 animate-spin text-[var(--st-text-tertiary)]" />
         </div>
     );
 }

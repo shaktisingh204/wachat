@@ -54,7 +54,7 @@ export function KbCategoryTree({ articles }: KbCategoryTreeProps) {
 
   if (grouped.length === 0) {
     return (
-      <Card className="p-6 text-center text-[13px] text-zoru-ink-muted">
+      <Card className="p-6 text-center text-[13px] text-[var(--st-text-secondary)]">
         No articles match the current filters.
       </Card>
     );
@@ -75,8 +75,8 @@ export function KbCategoryTree({ articles }: KbCategoryTreeProps) {
                   className={[
                     "flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left text-[13px]",
                     isActive
-                      ? "bg-zoru-surface-2 text-zoru-ink"
-                      : "text-zoru-ink-muted hover:bg-zoru-surface-2/60 hover:text-zoru-ink",
+                      ? "bg-[var(--st-bg-muted)] text-[var(--st-text)]"
+                      : "text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)]/60 hover:text-[var(--st-text)]",
                   ].join(" ")}
                 >
                   <span className="inline-flex min-w-0 items-center gap-1.5 truncate">
@@ -93,7 +93,7 @@ export function KbCategoryTree({ articles }: KbCategoryTreeProps) {
 
       <div className="flex flex-col gap-2">
         {items.length === 0 ? (
-          <Card className="p-4 text-center text-[13px] text-zoru-ink-muted">
+          <Card className="p-4 text-center text-[13px] text-[var(--st-text-secondary)]">
             No articles in this category.
           </Card>
         ) : (
@@ -107,8 +107,8 @@ export function KbCategoryTree({ articles }: KbCategoryTreeProps) {
                 >
                   <div className="flex items-start justify-between gap-2">
                     <span className="inline-flex items-center gap-2">
-                      <BookOpen className="h-3.5 w-3.5 text-zoru-ink-muted" />
-                      <span className="text-[14px] font-medium text-zoru-ink hover:underline">
+                      <BookOpen className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
+                      <span className="text-[14px] font-medium text-[var(--st-text)] hover:underline">
                         {a.title || "Untitled"}
                       </span>
                     </span>
@@ -120,11 +120,11 @@ export function KbCategoryTree({ articles }: KbCategoryTreeProps) {
                     ) : null}
                   </div>
                   {a.body ? (
-                    <p className="line-clamp-2 text-[12.5px] text-zoru-ink-muted">
+                    <p className="line-clamp-2 text-[12.5px] text-[var(--st-text-secondary)]">
                       {a.body}
                     </p>
                   ) : null}
-                  <div className="flex items-center gap-3 text-[11.5px] text-zoru-ink-muted">
+                  <div className="flex items-center gap-3 text-[11.5px] text-[var(--st-text-secondary)]">
                     <span>Views: {a.viewCount ?? 0}</span>
                     {a.updatedAt ? (
                       <span>

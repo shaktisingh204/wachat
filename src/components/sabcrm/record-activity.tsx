@@ -259,8 +259,8 @@ function ActivityComposer({
                 className={cn(
                   'inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-medium transition-colors',
                   active
-                    ? 'border-zoru-ink bg-zoru-ink text-zoru-bg'
-                    : 'border-zoru-line bg-zoru-bg text-zoru-ink-muted hover:bg-zoru-surface',
+                    ? 'border-[var(--st-text)] bg-[var(--st-text)] text-[var(--st-bg)]'
+                    : 'border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)]',
                 )}
               >
                 <Icon className="h-3.5 w-3.5" />
@@ -325,14 +325,14 @@ function ActivityComposer({
             {attachments.map((att) => (
               <li
                 key={att.fileId}
-                className="inline-flex items-center gap-1.5 rounded-md border border-zoru-line bg-zoru-surface px-2 py-1 text-xs"
+                className="inline-flex items-center gap-1.5 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1 text-xs"
               >
-                <Paperclip className="h-3 w-3 text-zoru-ink-muted" />
+                <Paperclip className="h-3 w-3 text-[var(--st-text-secondary)]" />
                 <span className="max-w-[12rem] truncate">{att.name}</span>
                 <button
                   type="button"
                   aria-label={`Remove ${att.name}`}
-                  className="text-zoru-ink-muted hover:text-zoru-ink"
+                  className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                   onClick={() => removeAttachment(att.fileId)}
                 >
                   <X className="h-3 w-3" />
@@ -343,7 +343,7 @@ function ActivityComposer({
         )}
 
         {error && (
-          <p className="text-xs text-zoru-danger" role="alert">
+          <p className="text-xs text-[var(--st-danger)]" role="alert">
             {error}
           </p>
         )}
@@ -392,10 +392,10 @@ function TimelineEntry({
     <li className="relative flex gap-3 pb-5 last:pb-0">
       {/* Rail */}
       <div className="flex flex-col items-center">
-        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-zoru-line bg-zoru-bg text-zoru-ink">
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)]">
           <Icon className="h-3.5 w-3.5" />
         </span>
-        <span aria-hidden className="mt-1 w-px flex-1 bg-zoru-line last:hidden" />
+        <span aria-hidden className="mt-1 w-px flex-1 bg-[var(--st-border)] last:hidden" />
       </div>
 
       <div className="min-w-0 flex-1">
@@ -403,16 +403,16 @@ function TimelineEntry({
           <Badge variant="outline" className="text-[10px] uppercase">
             {meta.label}
           </Badge>
-          <span className="truncate text-sm font-medium text-zoru-ink">
+          <span className="truncate text-sm font-medium text-[var(--st-text)]">
             {activity.title}
           </span>
-          <span className="ml-auto whitespace-nowrap text-xs text-zoru-ink-muted">
+          <span className="ml-auto whitespace-nowrap text-xs text-[var(--st-text-secondary)]">
             {formatTimestamp(activity.createdAt)}
           </span>
         </div>
 
         {activity.body && (
-          <p className="mt-1 whitespace-pre-wrap text-sm text-zoru-ink-muted">
+          <p className="mt-1 whitespace-pre-wrap text-sm text-[var(--st-text-secondary)]">
             {activity.body}
           </p>
         )}
@@ -446,10 +446,10 @@ function TimelineEntry({
               </Badge>
             )}
             {busy && (
-              <Loader2 className="h-3.5 w-3.5 animate-spin text-zoru-ink-muted" />
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-[var(--st-text-secondary)]" />
             )}
             {activity.dueAt && (
-              <span className="inline-flex items-center gap-1 text-xs text-zoru-ink-muted">
+              <span className="inline-flex items-center gap-1 text-xs text-[var(--st-text-secondary)]">
                 <CalendarClock className="h-3.5 w-3.5" />
                 {formatTimestamp(activity.dueAt)}
               </span>
@@ -462,10 +462,10 @@ function TimelineEntry({
             {activity.attachments.map((att) => {
               const size = formatSize(att.size);
               const chip = (
-                <span className="inline-flex items-center gap-1.5 rounded-md border border-zoru-line bg-zoru-surface px-2 py-1 text-xs">
-                  <Paperclip className="h-3 w-3 text-zoru-ink-muted" />
+                <span className="inline-flex items-center gap-1.5 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1 text-xs">
+                  <Paperclip className="h-3 w-3 text-[var(--st-text-secondary)]" />
                   <span className="max-w-[12rem] truncate">{att.name}</span>
-                  {size && <span className="text-zoru-ink-muted">{size}</span>}
+                  {size && <span className="text-[var(--st-text-secondary)]">{size}</span>}
                 </span>
               );
               return (
@@ -494,7 +494,7 @@ function TimelineEntry({
           type="button"
           aria-label="Delete activity"
           disabled={busy}
-          className="shrink-0 self-start rounded-md p-1 text-zoru-ink-muted transition-colors hover:bg-zoru-surface hover:text-zoru-danger disabled:opacity-50"
+          className="shrink-0 self-start rounded-md p-1 text-[var(--st-text-secondary)] transition-colors hover:bg-[var(--st-bg-secondary)] hover:text-[var(--st-danger)] disabled:opacity-50"
           onClick={() => onDelete(activity._id)}
         >
           {busy ? (
@@ -623,7 +623,7 @@ export function RecordActivity({
       <Card>
         <CardContent className="p-4">
           {loading ? (
-            <div className="flex items-center justify-center gap-2 py-8 text-sm text-zoru-ink-muted">
+            <div className="flex items-center justify-center gap-2 py-8 text-sm text-[var(--st-text-secondary)]">
               <Loader2 className="h-4 w-4 animate-spin" />
               Loading activity…
             </div>
@@ -653,7 +653,7 @@ export function RecordActivity({
           ) : (
             <>
               {error && (
-                <p className="mb-3 text-xs text-zoru-danger" role="alert">
+                <p className="mb-3 text-xs text-[var(--st-danger)]" role="alert">
                   {error}
                 </p>
               )}

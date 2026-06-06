@@ -61,9 +61,9 @@ export function ReceiptReconciliationView({
   if (pendingReceipts.length === 0) {
     return (
       <Card className="p-12 flex flex-col items-center justify-center text-center border-dashed">
-        <CheckCircle2 className="h-10 w-10 text-zoru-success-ink mb-4" />
-        <h3 className="text-lg font-medium text-zoru-ink">All caught up!</h3>
-        <p className="text-sm text-zoru-ink-muted">No pending receipts to reconcile.</p>
+        <CheckCircle2 className="h-10 w-10 text-[var(--st-status-ok)] mb-4" />
+        <h3 className="text-lg font-medium text-[var(--st-text)]">All caught up!</h3>
+        <p className="text-sm text-[var(--st-text-secondary)]">No pending receipts to reconcile.</p>
       </Card>
     );
   }
@@ -72,51 +72,51 @@ export function ReceiptReconciliationView({
 
   return (
     <Card className="overflow-hidden flex min-h-[500px]">
-      <div className="w-1/3 border-r border-zoru-line bg-zoru-surface-2 p-4">
-        <h3 className="text-xs font-semibold text-zoru-ink-muted uppercase tracking-wider mb-4">Pending by Bank</h3>
+      <div className="w-1/3 border-r border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4">
+        <h3 className="text-xs font-semibold text-[var(--st-text-secondary)] uppercase tracking-wider mb-4">Pending by Bank</h3>
         <div className="space-y-1">
           {Object.entries(grouped).map(([bankId, items]) => (
             <button
               key={bankId}
               onClick={() => setSelectedBank(bankId)}
-              className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors flex justify-between items-center ${selectedBank === bankId ? 'bg-zoru-primary text-zoru-primary-ink' : 'hover:bg-zoru-surface-3 text-zoru-ink'}`}
+              className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors flex justify-between items-center ${selectedBank === bankId ? 'bg-[var(--st-text)] text-zoru-primary-ink' : 'hover:bg-[var(--st-bg-muted)] text-[var(--st-text)]'}`}
             >
               <div className="flex-1 truncate pr-2">
                 {bankId === 'unspecified' ? 'Unspecified Bank' : <EntityPickerChip entity="bankAccount" id={bankId} />}
               </div>
-              <span className={`inline-flex items-center justify-center rounded-full px-2 py-0.5 text-xs font-medium ${selectedBank === bankId ? 'bg-white/20' : 'bg-zoru-surface-1'}`}>
+              <span className={`inline-flex items-center justify-center rounded-full px-2 py-0.5 text-xs font-medium ${selectedBank === bankId ? 'bg-white/20' : 'bg-[var(--st-bg-secondary)]'}`}>
                 {items.length}
               </span>
             </button>
           ))}
         </div>
       </div>
-      <div className="w-2/3 p-0 bg-zoru-bg overflow-y-auto">
-        <div className="p-4 border-b border-zoru-line flex justify-between items-center sticky top-0 bg-zoru-bg/95 backdrop-blur z-10">
+      <div className="w-2/3 p-0 bg-[var(--st-bg)] overflow-y-auto">
+        <div className="p-4 border-b border-[var(--st-border)] flex justify-between items-center sticky top-0 bg-[var(--st-bg)]/95 backdrop-blur z-10">
           <h2 className="text-sm font-medium">Reconciling {currentGroup.length} items</h2>
-          {busyId && <div className="text-xs text-zoru-ink-muted flex items-center gap-2"><Clock className="h-3 w-3 animate-spin"/> Updating...</div>}
+          {busyId && <div className="text-xs text-[var(--st-text-secondary)] flex items-center gap-2"><Clock className="h-3 w-3 animate-spin"/> Updating...</div>}
         </div>
-        <div className="divide-y divide-zoru-line">
+        <div className="divide-y divide-[var(--st-border)]">
           {currentGroup.map(r => (
-            <div key={String(r._id)} className="p-4 flex flex-col gap-3 hover:bg-zoru-surface-2/50 transition-colors">
+            <div key={String(r._id)} className="p-4 flex flex-col gap-3 hover:bg-[var(--st-bg-muted)]/50 transition-colors">
               <div className="flex justify-between items-start">
                 <div>
-                  <div className="text-sm font-medium text-zoru-ink">{r.receiptNo}</div>
-                  <div className="text-xs text-zoru-ink-muted mt-1">
+                  <div className="text-sm font-medium text-[var(--st-text)]">{r.receiptNo}</div>
+                  <div className="text-xs text-[var(--st-text-secondary)] mt-1">
                     {r.date ? new Date(r.date).toLocaleDateString('en-US', { timeZone: 'UTC' }) : 'No date'} • {r.mode || 'Unknown mode'}
                   </div>
                 </div>
                 <div className="text-right">
                   <div className="text-sm font-mono font-medium">{r.currency || 'INR'} {r.amount}</div>
-                  <div className="text-xs text-zoru-ink-muted mt-1">{r.chequeNo || r.txnId || r.reference || 'No ref'}</div>
+                  <div className="text-xs text-[var(--st-text-secondary)] mt-1">{r.chequeNo || r.txnId || r.reference || 'No ref'}</div>
                 </div>
               </div>
               
-              <div className="flex justify-end gap-2 pt-2 border-t border-zoru-line/50">
+              <div className="flex justify-end gap-2 pt-2 border-t border-[var(--st-border)]/50">
                 <Button 
                   size="sm" 
                   variant="outline" 
-                  className="text-zoru-danger-ink border-zoru-danger-ink/20 hover:bg-zoru-danger-bg hover:border-zoru-danger-ink/30"
+                  className="text-[var(--st-danger)] border-[var(--st-danger)]/20 hover:bg-[var(--st-danger-soft)] hover:border-[var(--st-danger)]/30"
                   disabled={busyId === String(r._id)}
                   onClick={() => handleUpdateStatus(String(r._id), 'bounced')}
                 >
@@ -124,7 +124,7 @@ export function ReceiptReconciliationView({
                 </Button>
                 <Button 
                   size="sm" 
-                  className="bg-zoru-success-bg text-zoru-success-ink hover:bg-zoru-success-bg/80 border border-zoru-success-ink/20"
+                  className="bg-zoru-success-bg text-[var(--st-status-ok)] hover:bg-zoru-success-bg/80 border border-[var(--st-status-ok)]/20"
                   disabled={busyId === String(r._id)}
                   onClick={() => handleUpdateStatus(String(r._id), 'cleared')}
                 >

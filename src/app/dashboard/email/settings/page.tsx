@@ -95,14 +95,14 @@ function ComplianceForm({ user }: { user: WithId<User> }) {
                     <ZoruCardDescription>Configure settings to comply with anti-spam laws like CAN-SPAM and GDPR.</ZoruCardDescription>
                 </ZoruCardHeader>
                 <ZoruCardContent className="space-y-4">
-                    <div className="flex items-center space-x-2 rounded-lg border border-zoru-line p-4">
+                    <div className="flex items-center space-x-2 rounded-lg border border-[var(--st-border)] p-4">
                         <Switch id="unsubscribeLink" name="unsubscribeLink" defaultChecked={compliance.unsubscribeLink} />
                         <Label htmlFor="unsubscribeLink">Automatically include an unsubscribe link in email footers.</Label>
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="physicalAddress">Physical Mailing Address</Label>
                         <Textarea id="physicalAddress" name="physicalAddress" placeholder="e.g., 123 Main St, Anytown, USA 12345" defaultValue={compliance.physicalAddress} />
-                        <p className="text-xs text-zoru-ink-muted">Required by CAN-SPAM for all commercial emails.</p>
+                        <p className="text-xs text-[var(--st-text-secondary)]">Required by CAN-SPAM for all commercial emails.</p>
                     </div>
                 </ZoruCardContent>
                 <ZoruCardFooter>
@@ -139,16 +139,16 @@ function DeliverabilityTab() {
             </ZoruCardHeader>
             <ZoruCardContent className="space-y-6">
                 <div>
-                    <h3 className="mb-2 text-zoru-ink">DKIM Record</h3>
-                    <p className="text-sm text-zoru-ink-muted mb-4">DKIM adds a digital signature to your emails, allowing receiving servers to verify that the message was sent by you and was not altered in transit.</p>
+                    <h3 className="mb-2 text-[var(--st-text)]">DKIM Record</h3>
+                    <p className="text-sm text-[var(--st-text-secondary)] mb-4">DKIM adds a digital signature to your emails, allowing receiving servers to verify that the message was sent by you and was not altered in transit.</p>
                     <CodeBlock language="text" code={`Type: ${dkimRecord.type}\nHost: ${dkimRecord.host}\nValue: ${dkimRecord.value}`} />
                 </div>
                 <Separator />
                 <div>
-                    <h3 className="mb-2 text-zoru-ink">SPF Record</h3>
-                    <p className="text-sm text-zoru-ink-muted mb-4">SPF specifies which mail servers are permitted to send email on behalf of your domain. This helps prevent spoofing.</p>
+                    <h3 className="mb-2 text-[var(--st-text)]">SPF Record</h3>
+                    <p className="text-sm text-[var(--st-text-secondary)] mb-4">SPF specifies which mail servers are permitted to send email on behalf of your domain. This helps prevent spoofing.</p>
                     <CodeBlock language="text" code={`Type: ${spfRecord.type}\nHost: ${spfRecord.host}\nValue: ${spfRecord.value}`} />
-                    <p className="text-xs text-zoru-ink-muted mt-2">If you already have an SPF record, add `include:sabnode.com` to it.</p>
+                    <p className="text-xs text-[var(--st-text-secondary)] mt-2">If you already have an SPF record, add `include:sabnode.com` to it.</p>
                 </div>
                 <Alert>
                     <AlertCircle className="h-4 w-4" />
@@ -189,7 +189,7 @@ function IntegrationsTab({ userId }: { userId: string }) {
                     <ZoruCardTitle>CRM Sync</ZoruCardTitle>
                     <ZoruCardDescription>Sync contacts and activities with your favorite CRM.</ZoruCardDescription>
                 </ZoruCardHeader>
-                <ZoruCardContent className="text-center text-zoru-ink-muted p-8">
+                <ZoruCardContent className="text-center text-[var(--st-text-secondary)] p-8">
                     <p>CRM Sync is coming soon.</p>
                 </ZoruCardContent>
             </Card>
@@ -199,7 +199,7 @@ function IntegrationsTab({ userId }: { userId: string }) {
 
 function OnboardingCard({ title, description, icon: Icon, href, features }: any) {
     return (
-        <Card className="p-0 hover:border-zoru-line transition-colors cursor-pointer group relative overflow-hidden h-full flex flex-col">
+        <Card className="p-0 hover:border-[var(--st-border)] transition-colors cursor-pointer group relative overflow-hidden h-full flex flex-col">
             <ZoruCardHeader>
                 <ZoruCardTitle className="flex items-center gap-3">
                     <Icon className="h-6 w-6" />
@@ -208,10 +208,10 @@ function OnboardingCard({ title, description, icon: Icon, href, features }: any)
                 <ZoruCardDescription>{description}</ZoruCardDescription>
             </ZoruCardHeader>
             <ZoruCardContent className="flex-grow">
-                <ul className="text-sm text-zoru-ink-muted space-y-2 mb-6">
+                <ul className="text-sm text-[var(--st-text-secondary)] space-y-2 mb-6">
                     {features.map((feature: string, i: number) => (
                         <li key={i} className="flex items-start gap-2">
-                            <div className="h-1.5 w-1.5 rounded-full bg-zoru-ink mt-1.5 shrink-0" />
+                            <div className="h-1.5 w-1.5 rounded-full bg-[var(--st-text)] mt-1.5 shrink-0" />
                             <span>{feature}</span>
                         </li>
                     ))}
@@ -300,12 +300,12 @@ function EmailSettingsPageContent() {
                 {allSettings.length === 0 ? (
                     <Card className="p-0">
                         <ZoruCardContent className="flex flex-col items-center justify-center gap-4 py-16 text-center">
-                            <div className="bg-zoru-surface-2 p-4 rounded-full">
-                                <Mail className="h-10 w-10 text-zoru-ink" />
+                            <div className="bg-[var(--st-bg-muted)] p-4 rounded-full">
+                                <Mail className="h-10 w-10 text-[var(--st-text)]" />
                             </div>
                             <div className="space-y-1">
-                                <h2 className="text-xl text-zoru-ink">No email accounts yet</h2>
-                                <p className="text-sm text-zoru-ink-muted max-w-md">
+                                <h2 className="text-xl text-[var(--st-text)]">No email accounts yet</h2>
+                                <p className="text-sm text-[var(--st-text-secondary)] max-w-md">
                                     Connect a Gmail, Outlook, or custom SMTP account to start sending campaigns and syncing conversations.
                                 </p>
                             </div>
@@ -319,13 +319,13 @@ function EmailSettingsPageContent() {
                     {allSettings.map((account) => {
                         const Icon = account.provider === 'google' ? GoogleIcon : account.provider === 'outlook' ? OutlookIcon : Mail;
                         return (
-                            <Card key={account._id.toString()} className="p-0 group hover:border-zoru-line transition-all cursor-pointer" onClick={() => {
+                            <Card key={account._id.toString()} className="p-0 group hover:border-[var(--st-border)] transition-all cursor-pointer" onClick={() => {
                                 router.push(`/dashboard/email/settings?view=manage&accountId=${account._id.toString()}`);
                             }}>
                                 <ZoruCardHeader>
                                     <div className="flex justify-between items-start">
-                                        <div className="p-3 bg-zoru-surface-2 rounded-full transition-colors">
-                                            <Icon className="h-6 w-6 text-zoru-ink transition-colors" />
+                                        <div className="p-3 bg-[var(--st-bg-muted)] rounded-full transition-colors">
+                                            <Icon className="h-6 w-6 text-[var(--st-text)] transition-colors" />
                                         </div>
                                         <Badge variant="success"><CheckCircle className="h-3 w-3 mr-1" /> Active</Badge>
                                     </div>
@@ -355,11 +355,11 @@ function EmailSettingsPageContent() {
                     </div>
 
                     <div className="text-center space-y-4 max-w-2xl">
-                        <div className="bg-zoru-surface-2 p-4 rounded-full w-fit mx-auto">
-                            <Mail className="h-12 w-12 text-zoru-ink" />
+                        <div className="bg-[var(--st-bg-muted)] p-4 rounded-full w-fit mx-auto">
+                            <Mail className="h-12 w-12 text-[var(--st-text)]" />
                         </div>
-                        <h1 className="text-3xl text-zoru-ink">Connect Your Email</h1>
-                        <p className="text-lg text-zoru-ink-muted">
+                        <h1 className="text-3xl text-[var(--st-text)]">Connect Your Email</h1>
+                        <p className="text-lg text-[var(--st-text-secondary)]">
                             Link your email account to sync conversations, send campaigns, and track deliverability directly from your dashboard.
                         </p>
                     </div>
@@ -382,11 +382,11 @@ function EmailSettingsPageContent() {
                             />
                         </div>
                         <div className="w-full">
-                            <div className="h-full border border-zoru-line rounded-lg p-6 flex flex-col justify-center gap-4 bg-zoru-bg text-zoru-ink shadow-sm">
+                            <div className="h-full border border-[var(--st-border)] rounded-lg p-6 flex flex-col justify-center gap-4 bg-[var(--st-bg)] text-[var(--st-text)] shadow-sm">
                                 <div className="flex items-center gap-3 mb-2">
                                     <Mail className="h-6 w-6" /> Custom SMTP
                                 </div>
-                                <p className="text-sm text-zoru-ink-muted mb-4">Connect any email provider via SMTP/IMAP credentials.</p>
+                                <p className="text-sm text-[var(--st-text-secondary)] mb-4">Connect any email provider via SMTP/IMAP credentials.</p>
                                 <div className="flex-grow">
                                     <CrmSmtpForm settings={null} />
                                 </div>
@@ -416,8 +416,8 @@ function EmailSettingsPageContent() {
                     }}>
                         <ArrowLeft className="h-4 w-4" /> Back
                     </Button>
-                    <span className="text-zoru-ink-muted">/</span>
-                    <span className="text-zoru-ink">{currentSettings?.fromEmail}</span>
+                    <span className="text-[var(--st-text-secondary)]">/</span>
+                    <span className="text-[var(--st-text)]">{currentSettings?.fromEmail}</span>
                 </div>
 
                 <ModuleLayout
@@ -442,7 +442,7 @@ function EmailSettingsPageContent() {
                                 <ZoruCardHeader>
                                     <ZoruCardTitle className="flex items-center justify-between">
                                         <div className="flex items-center gap-2">
-                                            <div className="h-2 w-2 rounded-full bg-zoru-success animate-pulse" />
+                                            <div className="h-2 w-2 rounded-full bg-[var(--st-status-ok)] animate-pulse" />
                                             Connected via <span className="capitalize">{currentSettings.provider}</span>
                                         </div>
                                         <Badge variant="ghost">{currentSettings.fromEmail}</Badge>
@@ -452,7 +452,7 @@ function EmailSettingsPageContent() {
                                 <ZoruCardContent>
                                     <div className="flex items-center gap-4">
                                         <Button variant="outline">Re-authorize Connection</Button>
-                                        <Button variant="outline" className="text-zoru-danger-ink hover:bg-zoru-danger/10 border-zoru-danger/20" onClick={async () => {
+                                        <Button variant="outline" className="text-[var(--st-danger)] hover:bg-[var(--st-danger)]/10 border-[var(--st-danger)]/20" onClick={async () => {
                                             if (confirm('Are you sure you want to disconnect this account? This action cannot be undone.')) {
                                                 setIsLoading(true);
                                                 const result = await disconnectEmailSettings(currentSettings._id.toString());
@@ -476,7 +476,7 @@ function EmailSettingsPageContent() {
                                 <>
                                     <Separator />
                                     <div className="mt-6">
-                                        <h3 className="text-lg mb-4 text-zoru-ink">SMTP Configuration</h3>
+                                        <h3 className="text-lg mb-4 text-[var(--st-text)]">SMTP Configuration</h3>
                                         <CrmSmtpForm settings={currentSettings} />
                                     </div>
                                 </>

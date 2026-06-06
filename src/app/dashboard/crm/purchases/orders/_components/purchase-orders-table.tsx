@@ -129,7 +129,7 @@ export function PurchaseOrdersTable({
       render: (row) => row.vendorId ? (
         <EntityPickerChip entity="vendor" id={row.vendorId} />
       ) : (
-        <span className="text-zoru-ink-muted">{row.vendorLabel ?? '—'}</span>
+        <span className="text-[var(--st-text-secondary)]">{row.vendorLabel ?? '—'}</span>
       ),
     },
     {
@@ -137,7 +137,7 @@ export function PurchaseOrdersTable({
       header: 'Date',
       sortable: true,
       render: (row) => (
-        <span className="text-zoru-ink-muted">{fmtDate(row.date)}</span>
+        <span className="text-[var(--st-text-secondary)]">{fmtDate(row.date)}</span>
       ),
     },
     {
@@ -146,7 +146,7 @@ export function PurchaseOrdersTable({
       sortable: true,
       render: (row) => {
         const overdue = isDeliveryOverdue(row);
-        const overdueClass = overdue ? 'text-zoru-danger-ink font-semibold' : 'text-zoru-ink-muted';
+        const overdueClass = overdue ? 'text-[var(--st-danger)] font-semibold' : 'text-[var(--st-text-secondary)]';
         return (
           <span className={overdueClass} title={relativeDays(row.expectedDelivery)}>
             {fmtDate(row.expectedDelivery)}
@@ -158,14 +158,14 @@ export function PurchaseOrdersTable({
     {
       key: 'currency',
       header: 'Currency',
-      render: (row) => <span className="text-zoru-ink-muted">{row.currency || '—'}</span>,
+      render: (row) => <span className="text-[var(--st-text-secondary)]">{row.currency || '—'}</span>,
     },
     {
       key: 'total',
       header: 'Total',
       sortable: true,
       render: (row) => (
-        <span className="font-mono tabular-nums text-zoru-ink font-semibold">
+        <span className="font-mono tabular-nums text-[var(--st-text)] font-semibold">
           {fmtMoney(row.total, row.currency)}
         </span>
       ),
@@ -180,13 +180,13 @@ export function PurchaseOrdersTable({
           tone={statusToTone(row.status)}
         />
       ) : (
-        <span className="text-zoru-ink-muted">—</span>
+        <span className="text-[var(--st-text-secondary)]">—</span>
       ),
       editRender: (row, value, onChange) => {
         const options = ['draft', 'awaiting_approval', 'approved', 'sent', 'partial', 'received', 'closed', 'cancelled'];
         return (
           <select
-            className="h-8 w-36 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg text-zoru-ink text-[12.5px] p-1 outline-none focus:ring-1 focus:ring-zoru-primary"
+            className="h-8 w-36 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)] text-[12.5px] p-1 outline-none focus:ring-1 focus:ring-[var(--st-text)]"
             value={value !== undefined ? String(value) : 'draft'}
             onChange={(e) => onChange(e.target.value)}
           >
@@ -205,7 +205,7 @@ export function PurchaseOrdersTable({
       render: (row) => row.buyerId ? (
         <EntityPickerChip entity="user" id={row.buyerId} />
       ) : (
-        <span className="text-zoru-ink-muted">—</span>
+        <span className="text-[var(--st-text-secondary)]">—</span>
       ),
     },
     {
@@ -214,14 +214,14 @@ export function PurchaseOrdersTable({
       render: (row) => row.approverId ? (
         <EntityPickerChip entity="user" id={row.approverId} />
       ) : (
-        <span className="text-zoru-ink-muted">—</span>
+        <span className="text-[var(--st-text-secondary)]">—</span>
       ),
     },
     {
       key: 'createdAt',
       header: 'Created',
       sortable: true,
-      render: (row) => <span className="text-zoru-ink-muted">{fmtDate(row.createdAt)}</span>,
+      render: (row) => <span className="text-[var(--st-text-secondary)]">{fmtDate(row.createdAt)}</span>,
     },
     {
       key: 'actions',

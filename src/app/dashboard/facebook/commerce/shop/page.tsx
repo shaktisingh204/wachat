@@ -231,8 +231,8 @@ export default function CommerceShopPage(): React.JSX.Element {
 
       <header className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl text-zoru-ink">Shop</h1>
-          <p className="mt-1 text-sm text-zoru-ink-muted">
+          <h1 className="text-2xl text-[var(--st-text)]">Shop</h1>
+          <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
             Merchant settings and recent orders for the connected Meta Commerce
             account.
           </p>
@@ -257,38 +257,38 @@ export default function CommerceShopPage(): React.JSX.Element {
       ) : (
         <Card className="p-5">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-zoru-surface-2 text-zoru-ink-muted">
+            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
               <Store className="h-5 w-5" />
             </div>
             <div className="flex-1">
-              <p className="text-base text-zoru-ink">
+              <p className="text-base text-[var(--st-text)]">
                 {settings?.display_name ?? settings?.business_name ?? 'Merchant'}
               </p>
-              <p className="text-xs text-zoru-ink-muted">
+              <p className="text-xs text-[var(--st-text-secondary)]">
                 {settings?.id ? `ID ${settings.id}` : 'No merchant ID on record'}
               </p>
             </div>
           </div>
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div>
-              <p className="text-xs uppercase tracking-wide text-zoru-ink-subtle">
+              <p className="text-xs uppercase tracking-wide text-[var(--st-text-tertiary)]">
                 Currency
               </p>
-              <p className="text-zoru-ink">{settings?.currency ?? '—'}</p>
+              <p className="text-[var(--st-text)]">{settings?.currency ?? '—'}</p>
             </div>
             <div>
-              <p className="text-xs uppercase tracking-wide text-zoru-ink-subtle">
+              <p className="text-xs uppercase tracking-wide text-[var(--st-text-tertiary)]">
                 Payout email
               </p>
-              <p className="break-all text-zoru-ink">
+              <p className="break-all text-[var(--st-text)]">
                 {settings?.payout_email ?? settings?.email ?? '—'}
               </p>
             </div>
             <div>
-              <p className="text-xs uppercase tracking-wide text-zoru-ink-subtle">
+              <p className="text-xs uppercase tracking-wide text-[var(--st-text-tertiary)]">
                 Orders loaded
               </p>
-              <p className="text-zoru-ink">{orders.length}</p>
+              <p className="text-[var(--st-text)]">{orders.length}</p>
             </div>
           </div>
         </Card>
@@ -297,7 +297,7 @@ export default function CommerceShopPage(): React.JSX.Element {
       {/* ── Recent orders ── */}
       <section className="mt-2">
         <header className="mb-2 flex items-center justify-between">
-          <h2 className="text-base text-zoru-ink">Recent orders</h2>
+          <h2 className="text-base text-[var(--st-text)]">Recent orders</h2>
         </header>
 
         {loading && orders.length === 0 ? (
@@ -316,7 +316,7 @@ export default function CommerceShopPage(): React.JSX.Element {
           <Card className="overflow-hidden p-0">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead className="bg-zoru-surface-2 text-left text-xs uppercase tracking-wide text-zoru-ink-subtle">
+                <thead className="bg-[var(--st-bg-muted)] text-left text-xs uppercase tracking-wide text-[var(--st-text-tertiary)]">
                   <tr>
                     <th className="px-4 py-3 font-medium">Order ID</th>
                     <th className="px-4 py-3 font-medium">Customer</th>
@@ -326,21 +326,21 @@ export default function CommerceShopPage(): React.JSX.Element {
                     <th className="px-4 py-3 font-medium" aria-label="Actions" />
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zoru-line">
+                <tbody className="divide-y divide-[var(--st-border)]">
                   {orders.map((o) => (
                     <tr key={o.id}>
-                      <td className="px-4 py-3 font-mono text-xs text-zoru-ink">
+                      <td className="px-4 py-3 font-mono text-xs text-[var(--st-text)]">
                         {o.id}
                       </td>
                       <td className="px-4 py-3">
-                        <p className="text-zoru-ink">
+                        <p className="text-[var(--st-text)]">
                           {o.buyer_details?.name ?? '—'}
                         </p>
-                        <p className="text-xs text-zoru-ink-muted">
+                        <p className="text-xs text-[var(--st-text-secondary)]">
                           {o.buyer_details?.email ?? ''}
                         </p>
                       </td>
-                      <td className="px-4 py-3 text-zoru-ink">
+                      <td className="px-4 py-3 text-[var(--st-text)]">
                         {o.estimated_payment_details?.total_amount?.formatted_amount ??
                           '—'}
                       </td>
@@ -353,7 +353,7 @@ export default function CommerceShopPage(): React.JSX.Element {
                             '—'}
                         </Badge>
                       </td>
-                      <td className="px-4 py-3 text-zoru-ink-muted">
+                      <td className="px-4 py-3 text-[var(--st-text-secondary)]">
                         <span title={safeDate(o.created)}>{safeWhen(o.created)}</span>
                       </td>
                       <td className="px-4 py-3 text-right">
@@ -376,7 +376,7 @@ export default function CommerceShopPage(): React.JSX.Element {
                             </ZoruDropdownMenuItem>
                             <ZoruDropdownMenuItem
                               onSelect={() => openAction('cancel', o)}
-                              className="text-zoru-danger-ink"
+                              className="text-[var(--st-danger)]"
                             >
                               <XCircle className="mr-2 h-4 w-4" /> Cancel
                             </ZoruDropdownMenuItem>

@@ -111,45 +111,45 @@ async function AwardsPageContainer() {
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         <Card className="p-3">
-          <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+          <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
             Total programs
           </div>
-          <div className="mt-1 text-[20px] font-semibold leading-tight text-zoru-ink">
+          <div className="mt-1 text-[20px] font-semibold leading-tight text-[var(--st-text)]">
             {programs.length}
           </div>
         </Card>
         <Card className="p-3">
-          <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+          <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
             Active
           </div>
-          <div className="mt-1 text-[20px] font-semibold leading-tight text-zoru-success-ink">
+          <div className="mt-1 text-[20px] font-semibold leading-tight text-[var(--st-status-ok)]">
             {activePrograms}
           </div>
         </Card>
         <Card className="p-3">
-          <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+          <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
             Total nominations
           </div>
-          <div className="mt-1 text-[20px] font-semibold leading-tight text-zoru-ink">
+          <div className="mt-1 text-[20px] font-semibold leading-tight text-[var(--st-text)]">
             {totalNominations}
           </div>
         </Card>
         <Card className="p-3">
-          <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+          <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
             Total winners
           </div>
-          <div className="mt-1 text-[20px] font-semibold leading-tight text-zoru-ink">
+          <div className="mt-1 text-[20px] font-semibold leading-tight text-[var(--st-text)]">
             {totalWinners}
           </div>
         </Card>
         <Card className="p-3">
-          <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+          <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
             Top program
           </div>
-          <div className="mt-1 truncate text-[15px] font-semibold leading-tight text-zoru-ink">
+          <div className="mt-1 truncate text-[15px] font-semibold leading-tight text-[var(--st-text)]">
             {topProgram.name}
           </div>
-          <div className="mt-0.5 text-[11px] text-zoru-ink-muted">
+          <div className="mt-0.5 text-[11px] text-[var(--st-text-secondary)]">
             {topProgram.count} nominations
           </div>
         </Card>
@@ -157,28 +157,28 @@ async function AwardsPageContainer() {
 
       <Card className="p-6">
         <div className="mb-4">
-          <h2 className="text-[16px] text-zoru-ink">All programs</h2>
-          <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+          <h2 className="text-[16px] text-[var(--st-text)]">All programs</h2>
+          <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">
             Recognition cycles you have run, with nomination and winner counts.
           </p>
         </div>
-        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+        <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <Table>
             <ZoruTableHeader>
-              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                <ZoruTableHead className="text-zoru-ink-muted">Program name</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Period</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Total nominations</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Total winners</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
+              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Program name</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Period</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Total nominations</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Total winners</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
               </ZoruTableRow>
             </ZoruTableHeader>
             <ZoruTableBody>
               {loadError ? (
-                <ZoruTableRow className="border-zoru-line">
+                <ZoruTableRow className="border-[var(--st-border)]">
                   <ZoruTableCell
                     colSpan={5}
-                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                    className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     Could not load award programs. Please try again.
                   </ZoruTableCell>
@@ -193,8 +193,8 @@ async function AwardsPageContainer() {
                     ? program.winners.length
                     : 0;
                   return (
-                    <ZoruTableRow key={id} className="border-zoru-line">
-                      <ZoruTableCell className="text-zoru-ink">
+                    <ZoruTableRow key={id} className="border-[var(--st-border)]">
+                      <ZoruTableCell className="text-[var(--st-text)]">
                         <Link
                           href={`/dashboard/hrm/hr/awards/${id}`}
                           className="hover:underline"
@@ -202,11 +202,11 @@ async function AwardsPageContainer() {
                           {program.name || 'Untitled program'}
                         </Link>
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink">
+                      <ZoruTableCell className="text-[var(--st-text)]">
                         {formatPeriod(program.periodStart, program.periodEnd)}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink">{nominations}</ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink">{winners}</ZoruTableCell>
+                      <ZoruTableCell className="text-[var(--st-text)]">{nominations}</ZoruTableCell>
+                      <ZoruTableCell className="text-[var(--st-text)]">{winners}</ZoruTableCell>
                       <ZoruTableCell>
                         <Badge variant={getStatusVariant(program.status)}>
                           {program.status || 'draft'}
@@ -216,10 +216,10 @@ async function AwardsPageContainer() {
                   );
                 })
               ) : (
-                <ZoruTableRow className="border-zoru-line">
+                <ZoruTableRow className="border-[var(--st-border)]">
                   <ZoruTableCell
                     colSpan={5}
-                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                    className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     No award programs yet. Define a recognition cycle to start collecting nominations.
                   </ZoruTableCell>

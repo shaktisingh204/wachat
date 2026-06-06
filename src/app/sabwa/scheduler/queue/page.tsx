@@ -112,13 +112,13 @@ const STATUS_LABEL: Record<SabwaScheduledStatus, string> = {
 
 const STATUS_BADGE_CLASS: Record<SabwaScheduledStatus, string> = {
   pending:
-    "border-zoru-line bg-zoru-surface text-zoru-ink",
+    "border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]",
   paused:
-    "border-zoru-line bg-zoru-surface-2 text-zoru-ink dark:border-zoru-line dark:bg-zoru-ink dark:text-white",
-  sent: "border-zoru-line-strong bg-zoru-surface-2 text-zoru-ink",
-  failed: "border-zoru-line-strong bg-zoru-surface-2 text-zoru-ink",
+    "border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:border-[var(--st-border)] dark:bg-[var(--st-text)] dark:text-white",
+  sent: "border-[var(--st-border-strong)] bg-[var(--st-bg-muted)] text-[var(--st-text)]",
+  failed: "border-[var(--st-border-strong)] bg-[var(--st-bg-muted)] text-[var(--st-text)]",
   cancelled:
-    "border-zoru-line bg-zoru-surface text-zoru-ink-muted",
+    "border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]",
 };
 
 // ─── Mapping ────────────────────────────────────────────────────────────────
@@ -459,16 +459,16 @@ export default function SchedulerQueuePage() {
 
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface text-zoru-ink">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
             <ListChecks className="h-5 w-5" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-2xl font-semibold tracking-tight text-zoru-ink">
+              <h1 className="text-2xl font-semibold tracking-tight text-[var(--st-text)]">
                 Scheduled Queue
               </h1>
             </div>
-            <p className="text-sm text-zoru-ink-muted mt-1">
+            <p className="text-sm text-[var(--st-text-secondary)] mt-1">
               Triage every pending, sent, failed, or cancelled scheduled
               message — with bulk reschedule and cancel.
             </p>
@@ -509,13 +509,13 @@ export default function SchedulerQueuePage() {
       </div>
 
       {/* ─── Filters ─────────────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-end gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3">
+      <div className="flex flex-wrap items-end gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3">
         <div className="flex flex-1 min-w-[180px] flex-col gap-1">
           <Label htmlFor="queue-search" className="text-[11px]">
             Search target or message
           </Label>
           <div className="relative">
-            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zoru-ink-muted" />
+            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--st-text-secondary)]" />
             <Input
               id="queue-search"
               value={search}
@@ -564,7 +564,7 @@ export default function SchedulerQueuePage() {
 
       {/* ─── Bulk bar ────────────────────────────────────────────────── */}
       {selected.size > 0 && (
-        <div className="flex flex-wrap items-center gap-2 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface px-3 py-2 text-sm text-zoru-ink">
+        <div className="flex flex-wrap items-center gap-2 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-sm text-[var(--st-text)]">
           <span>
             <strong>{selected.size}</strong> selected
           </span>
@@ -585,7 +585,7 @@ export default function SchedulerQueuePage() {
                   selected={bulkRescheduleDate}
                   onSelect={setBulkRescheduleDate}
                 />
-                <div className="flex justify-end gap-2 border-t border-zoru-line p-2">
+                <div className="flex justify-end gap-2 border-t border-[var(--st-border)] p-2">
                   <Button
                     size="sm"
                     variant="ghost"
@@ -616,7 +616,7 @@ export default function SchedulerQueuePage() {
       )}
 
       {/* ─── Table ──────────────────────────────────────────────────── */}
-      <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg overflow-x-auto">
+      <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] overflow-x-auto">
         <Table>
           <ZoruTableHeader>
             <ZoruTableRow>
@@ -655,7 +655,7 @@ export default function SchedulerQueuePage() {
               <ZoruTableRow>
                 <ZoruTableCell
                   colSpan={8}
-                  className="py-10 text-center text-sm text-zoru-ink-muted"
+                  className="py-10 text-center text-sm text-[var(--st-text-secondary)]"
                 >
                   No scheduled messages match these filters.
                 </ZoruTableCell>
@@ -709,23 +709,23 @@ export default function SchedulerQueuePage() {
                     <div className="flex items-center gap-2">
                       <span
                         className={cn(
-                          "inline-flex h-6 w-6 items-center justify-center rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface text-zoru-ink",
+                          "inline-flex h-6 w-6 items-center justify-center rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]",
                         )}
                       >
                         <Icon className="h-3.5 w-3.5" />
                       </span>
                       <div className="min-w-0">
-                        <div className="truncate text-xs font-medium text-zoru-ink">
+                        <div className="truncate text-xs font-medium text-[var(--st-text)]">
                           {row.primaryTargetJid
                             ? resolve(row.primaryTargetJid)
                             : row.primaryTargetLabel}
                         </div>
-                        <div className="truncate font-mono text-[10px] text-zoru-ink-muted">
+                        <div className="truncate font-mono text-[10px] text-[var(--st-text-secondary)]">
                           {row.primaryTargetJid
                             ? formatJid(row.primaryTargetJid)
                             : ''}
                         </div>
-                        <div className="text-[10px] uppercase tracking-wide text-zoru-ink-muted">
+                        <div className="text-[10px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                           {meta.label}
                           {row.targets.length > 1 &&
                             ` +${row.targets.length - 1}`}
@@ -734,14 +734,14 @@ export default function SchedulerQueuePage() {
                     </div>
                   </ZoruTableCell>
                   <ZoruTableCell className="max-w-[28ch]">
-                    <span className="block truncate text-xs text-zoru-ink">
+                    <span className="block truncate text-xs text-[var(--st-text)]">
                       {row.payloadPreview}
                     </span>
                   </ZoruTableCell>
-                  <ZoruTableCell className="whitespace-nowrap text-xs text-zoru-ink">
+                  <ZoruTableCell className="whitespace-nowrap text-xs text-[var(--st-text)]">
                     {row.scheduledFor.toLocaleString()}
                   </ZoruTableCell>
-                  <ZoruTableCell className="text-xs text-zoru-ink">
+                  <ZoruTableCell className="text-xs text-[var(--st-text)]">
                     {recurrenceLabel(row)}
                   </ZoruTableCell>
                   <ZoruTableCell>
@@ -754,7 +754,7 @@ export default function SchedulerQueuePage() {
                       {STATUS_LABEL[row.status]}
                     </span>
                   </ZoruTableCell>
-                  <ZoruTableCell className="whitespace-nowrap text-xs text-zoru-ink-muted">
+                  <ZoruTableCell className="whitespace-nowrap text-xs text-[var(--st-text-secondary)]">
                     {row.sentAt ? row.sentAt.toLocaleString() : "—"}
                   </ZoruTableCell>
                   <ZoruTableCell
@@ -829,7 +829,7 @@ function DateRangeField({
             size="sm"
             className={cn(
               "w-[140px] justify-start font-normal",
-              !value && "text-zoru-ink-muted",
+              !value && "text-[var(--st-text-secondary)]",
             )}
           >
             <CalendarIcon className="mr-2 h-3.5 w-3.5" />
@@ -847,7 +847,7 @@ function DateRangeField({
             initialFocus
           />
           {value && (
-            <div className="border-t border-zoru-line p-2">
+            <div className="border-t border-[var(--st-border)] p-2">
               <Button
                 size="sm"
                 variant="ghost"

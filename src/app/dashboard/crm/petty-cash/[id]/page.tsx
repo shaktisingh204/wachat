@@ -87,10 +87,10 @@ function Field({
 }) {
   return (
     <div>
-      <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
         {label}
       </div>
-      <div className="mt-1 text-[13px] text-zoru-ink">{value ?? '—'}</div>
+      <div className="mt-1 text-[13px] text-[var(--st-text)]">{value ?? '—'}</div>
     </div>
   );
 }
@@ -127,25 +127,25 @@ export default async function PettyCashDetailPage({ params }: PageProps) {
             <ZoruCardContent>
               <div className="space-y-2 text-[12.5px]">
                 <div className="flex items-center justify-between">
-                  <span className="text-zoru-ink-muted">Current</span>
-                  <span className="font-mono tabular-nums text-zoru-ink">
+                  <span className="text-[var(--st-text-secondary)]">Current</span>
+                  <span className="font-mono tabular-nums text-[var(--st-text)]">
                     {fmtMoney(currentBalance, float.currency)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-zoru-ink-muted">Opening</span>
+                  <span className="text-[var(--st-text-secondary)]">Opening</span>
                   <span className="font-mono tabular-nums">
                     {fmtMoney(float.openingBalance, float.currency)}
                   </span>
                 </div>
-                <div className="flex items-center justify-between border-t border-zoru-line pt-2">
-                  <span className="text-zoru-ink-muted">Total top-ups</span>
+                <div className="flex items-center justify-between border-t border-[var(--st-border)] pt-2">
+                  <span className="text-[var(--st-text-secondary)]">Total top-ups</span>
                   <span className="font-mono tabular-nums">
                     {fmtMoney(float.totalTopUps, float.currency)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-zoru-ink-muted">Total spent</span>
+                  <span className="text-[var(--st-text-secondary)]">Total spent</span>
                   <span className="font-mono tabular-nums">
                     {fmtMoney(float.totalSpent, float.currency)}
                   </span>
@@ -159,7 +159,7 @@ export default async function PettyCashDetailPage({ params }: PageProps) {
               <ZoruCardTitle>Custodian</ZoruCardTitle>
             </ZoruCardHeader>
             <ZoruCardContent>
-              <div className="text-[12.5px] text-zoru-ink">
+              <div className="text-[12.5px] text-[var(--st-text)]">
                 {float.custodianName || '—'}
               </div>
             </ZoruCardContent>
@@ -170,7 +170,7 @@ export default async function PettyCashDetailPage({ params }: PageProps) {
               <ZoruCardTitle>Branch</ZoruCardTitle>
             </ZoruCardHeader>
             <ZoruCardContent>
-              <div className="text-[12.5px] text-zoru-ink">
+              <div className="text-[12.5px] text-[var(--st-text)]">
                 {float.branchName || '—'}
               </div>
             </ZoruCardContent>
@@ -183,14 +183,14 @@ export default async function PettyCashDetailPage({ params }: PageProps) {
             <ZoruCardContent>
               <div className="space-y-1.5 text-[12.5px]">
                 <div className="flex justify-between">
-                  <span className="text-zoru-ink-muted">Last</span>
+                  <span className="text-[var(--st-text-secondary)]">Last</span>
                   <span>{daysSince(float.lastReconciledAt)}</span>
                 </div>
                 {typeof float.lastReconcileVariance === 'number' ? (
                   <div className="flex justify-between">
-                    <span className="text-zoru-ink-muted">Variance</span>
+                    <span className="text-[var(--st-text-secondary)]">Variance</span>
                     <span
-                      className={`font-mono tabular-nums ${float.lastReconcileVariance !== 0 ? 'text-zoru-danger-ink' : ''}`}
+                      className={`font-mono tabular-nums ${float.lastReconcileVariance !== 0 ? 'text-[var(--st-danger)]' : ''}`}
                     >
                       {fmtMoney(float.lastReconcileVariance, float.currency)}
                     </span>
@@ -208,7 +208,7 @@ export default async function PettyCashDetailPage({ params }: PageProps) {
               <div className="flex flex-col gap-2 text-[12.5px]">
                 <Link
                   href={`/dashboard/crm/petty-cash/${id}/vouchers`}
-                  className="text-zoru-primary hover:underline"
+                  className="text-[var(--st-text)] hover:underline"
                 >
                   All vouchers →
                 </Link>
@@ -268,7 +268,7 @@ export default async function PettyCashDetailPage({ params }: PageProps) {
             <ZoruCardTitle>Notes</ZoruCardTitle>
           </ZoruCardHeader>
           <ZoruCardContent>
-            <p className="whitespace-pre-wrap text-[13px] text-zoru-ink">
+            <p className="whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
               {float.notes}
             </p>
           </ZoruCardContent>

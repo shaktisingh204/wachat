@@ -70,7 +70,7 @@ export function ContactsFiltersRow(props: ContactsFiltersRowProps) {
         <Card>
             <ZoruCardContent className="grid grid-cols-1 gap-3 pt-4 md:grid-cols-3 lg:grid-cols-6">
                 <div className="space-y-1">
-                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Status
                     </Label>
                     <EnumFilterField
@@ -82,7 +82,7 @@ export function ContactsFiltersRow(props: ContactsFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Lifecycle
                     </Label>
                     <EnumFilterField
@@ -94,7 +94,7 @@ export function ContactsFiltersRow(props: ContactsFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Source
                     </Label>
                     <EntityFormField
@@ -107,7 +107,7 @@ export function ContactsFiltersRow(props: ContactsFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Owner
                     </Label>
                     <EntityFormField
@@ -120,7 +120,7 @@ export function ContactsFiltersRow(props: ContactsFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Account
                     </Label>
                     <EntityFormField
@@ -133,7 +133,7 @@ export function ContactsFiltersRow(props: ContactsFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Tag
                     </Label>
                     <EntityFormField

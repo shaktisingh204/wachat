@@ -272,15 +272,15 @@ export function MilestonesListClient({ initialRows }: MilestonesListClientProps)
         }
         bulkBar={
           selection.size > 0 ? (
-            <div className="flex items-center gap-2 rounded-md bg-zoru-surface-2 px-3 py-2 text-[13px]">
-              <span className="font-medium text-zoru-ink">{selection.size} selected</span>
+            <div className="flex items-center gap-2 rounded-md bg-[var(--st-bg-muted)] px-3 py-2 text-[13px]">
+              <span className="font-medium text-[var(--st-text)]">{selection.size} selected</span>
               <Button variant="outline" size="sm" onClick={() => setConfirmBulk('complete')} disabled={bulkPending}>
                 <CheckCircle2 className="mr-1 h-3.5 w-3.5" /> Complete
               </Button>
               <Button variant="outline" size="sm" onClick={handleExport}>
                 <Download className="mr-1 h-3.5 w-3.5" /> Export
               </Button>
-              <Button variant="outline" size="sm" className="text-zoru-danger" onClick={() => setConfirmBulk('delete')} disabled={bulkPending}>
+              <Button variant="outline" size="sm" className="text-[var(--st-danger)]" onClick={() => setConfirmBulk('delete')} disabled={bulkPending}>
                 <Trash2 className="mr-1 h-3.5 w-3.5" /> Delete
               </Button>
               <Button variant="ghost" size="icon" onClick={() => setSelection(new Set())}>
@@ -324,9 +324,9 @@ export function MilestonesListClient({ initialRows }: MilestonesListClientProps)
         empty={
           !loading && filtered.length === 0 ? (
             <div className="flex flex-col items-center gap-3 p-4">
-              <Flag className="h-8 w-8 text-zoru-ink-muted" />
-              <h3 className="text-base font-medium text-zoru-ink">No milestones yet</h3>
-              <p className="max-w-sm text-sm text-zoru-ink-muted">
+              <Flag className="h-8 w-8 text-[var(--st-text-secondary)]" />
+              <h3 className="text-base font-medium text-[var(--st-text)]">No milestones yet</h3>
+              <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                 Milestones break a project into delivery checkpoints — useful for client billing and progress tracking.
               </p>
               <Button asChild>
@@ -364,10 +364,10 @@ export function MilestonesListClient({ initialRows }: MilestonesListClientProps)
           </div>
 
           {filtered.length === 0 && !loading ? null : (
-            <div className="overflow-x-auto rounded-lg border border-zoru-line">
+            <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
               <Table>
                 <ZoruTableHeader>
-                  <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                  <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                     <ZoruTableHead className="w-10">
                       {(() => {
                         const allCk = filtered.length > 0 && filtered.every((r) => selection.has(r._id));
@@ -397,7 +397,7 @@ export function MilestonesListClient({ initialRows }: MilestonesListClientProps)
                       <ZoruTableRow
                         key={r._id}
                         className={[
-                          'border-zoru-line transition-colors',
+                          'border-[var(--st-border)] transition-colors',
                           overdue ? 'border-l-2 border-l-zoru-danger' : '',
                           isReached(r) ? 'opacity-70' : '',
                         ].join(' ')}
@@ -424,16 +424,16 @@ export function MilestonesListClient({ initialRows }: MilestonesListClientProps)
                               fallback="—"
                             />
                           ) : (
-                            <span className="text-[12px] text-zoru-ink-muted">—</span>
+                            <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
                           )}
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                           {fmtDateUTC(r.startDate)}
                         </ZoruTableCell>
                         <ZoruTableCell
                           className={[
                             'text-[12.5px]',
-                            overdue ? 'text-zoru-danger' : 'text-zoru-ink-muted',
+                            overdue ? 'text-[var(--st-danger)]' : 'text-[var(--st-text-secondary)]',
                           ].join(' ')}
                         >
                           {fmtDateUTC(r.endDate)}
@@ -444,7 +444,7 @@ export function MilestonesListClient({ initialRows }: MilestonesListClientProps)
                             tone={statusToTone(r.status)}
                           />
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-right text-[12.5px] text-zoru-ink">
+                        <ZoruTableCell className="text-right text-[12.5px] text-[var(--st-text)]">
                           {fmtMoney(Number(r.cost) || null, r.currency ?? 'INR')}
                         </ZoruTableCell>
                         <ZoruTableCell className="text-right">
@@ -453,7 +453,7 @@ export function MilestonesListClient({ initialRows }: MilestonesListClientProps)
                               <button
                                 type="button"
                                 aria-label={`Actions for ${r.milestoneTitle}`}
-                                className="inline-flex h-8 w-8 items-center justify-center rounded-md text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
+                                className="inline-flex h-8 w-8 items-center justify-center rounded-md text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
                               >
                                 <MoreHorizontal className="h-4 w-4" />
                               </button>
@@ -466,7 +466,7 @@ export function MilestonesListClient({ initialRows }: MilestonesListClientProps)
                               </ZoruDropdownMenuItem>
                               <ZoruDropdownMenuItem
                                 onClick={() => setDeleteTargetId(r._id)}
-                                className="text-zoru-danger"
+                                className="text-[var(--st-danger)]"
                               >
                                 <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Delete
                               </ZoruDropdownMenuItem>

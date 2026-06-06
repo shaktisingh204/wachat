@@ -103,12 +103,12 @@ export function LeadForm({ initial, customFields }: LeadFormProps) {
       />
 
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Identity
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <Label htmlFor="firstName">First name <span className="text-zoru-danger-ink">*</span></Label>
+            <Label htmlFor="firstName">First name <span className="text-[var(--st-danger)]">*</span></Label>
             <Input
               id="firstName"
               name="firstName"
@@ -118,7 +118,7 @@ export function LeadForm({ initial, customFields }: LeadFormProps) {
             />
           </div>
           <div>
-            <Label htmlFor="lastName">Last name <span className="text-zoru-danger-ink">*</span></Label>
+            <Label htmlFor="lastName">Last name <span className="text-[var(--st-danger)]">*</span></Label>
             <Input
               id="lastName"
               name="lastName"
@@ -171,7 +171,7 @@ export function LeadForm({ initial, customFields }: LeadFormProps) {
       </Card>
 
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Workflow
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
@@ -252,7 +252,7 @@ export function LeadForm({ initial, customFields }: LeadFormProps) {
       </Card>
 
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Value & Forecast
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
@@ -309,7 +309,7 @@ export function LeadForm({ initial, customFields }: LeadFormProps) {
 
       {customFields.length > 0 ? (
         <Card className="p-6">
-          <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
             Custom fields
           </h3>
           <div className="grid gap-4 md:grid-cols-2">

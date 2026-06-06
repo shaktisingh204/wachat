@@ -260,15 +260,15 @@ export function SubtasksListClient({ initialRows }: SubtasksListClientProps) {
         }
         bulkBar={
           selection.size > 0 ? (
-            <div className="flex items-center gap-2 rounded-md bg-zoru-surface-2 px-3 py-2 text-[13px]">
-              <span className="font-medium text-zoru-ink">{selection.size} selected</span>
+            <div className="flex items-center gap-2 rounded-md bg-[var(--st-bg-muted)] px-3 py-2 text-[13px]">
+              <span className="font-medium text-[var(--st-text)]">{selection.size} selected</span>
               <Button variant="outline" size="sm" onClick={() => setConfirmBulk('complete')} disabled={bulkPending}>
                 <CheckCircle2 className="mr-1 h-3.5 w-3.5" /> Complete
               </Button>
               <Button variant="outline" size="sm" onClick={() => setConfirmBulk('assign')} disabled={bulkPending}>
                 <Edit className="mr-1 h-3.5 w-3.5" /> Assign
               </Button>
-              <Button variant="outline" size="sm" className="text-zoru-danger" onClick={() => setConfirmBulk('delete')} disabled={bulkPending}>
+              <Button variant="outline" size="sm" className="text-[var(--st-danger)]" onClick={() => setConfirmBulk('delete')} disabled={bulkPending}>
                 <Trash2 className="mr-1 h-3.5 w-3.5" /> Delete
               </Button>
               <Button variant="ghost" size="icon" onClick={() => setSelection(new Set())}>
@@ -315,9 +315,9 @@ export function SubtasksListClient({ initialRows }: SubtasksListClientProps) {
         empty={
           !loading && filtered.length === 0 ? (
             <div className="flex flex-col items-center gap-3 p-4">
-              <ListChecks className="h-8 w-8 text-zoru-ink-muted" />
-              <h3 className="text-base font-medium text-zoru-ink">No subtasks yet</h3>
-              <p className="max-w-sm text-sm text-zoru-ink-muted">
+              <ListChecks className="h-8 w-8 text-[var(--st-text-secondary)]" />
+              <h3 className="text-base font-medium text-[var(--st-text)]">No subtasks yet</h3>
+              <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                 Break a task down into smaller actionable items so the team can pick them up independently.
               </p>
               <Button asChild>
@@ -365,10 +365,10 @@ export function SubtasksListClient({ initialRows }: SubtasksListClientProps) {
           </div>
 
           {filtered.length === 0 && !loading ? null : (
-            <div className="overflow-x-auto rounded-lg border border-zoru-line">
+            <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
               <Table>
                 <ZoruTableHeader>
-                  <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                  <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                     <ZoruTableHead className="w-10">
                       {(() => {
                         const allCk = filtered.length > 0 && filtered.every((r) => selection.has(r._id));
@@ -398,7 +398,7 @@ export function SubtasksListClient({ initialRows }: SubtasksListClientProps) {
                       <ZoruTableRow
                         key={r._id}
                         className={[
-                          'border-zoru-line transition-colors',
+                          'border-[var(--st-border)] transition-colors',
                           overdue ? 'border-l-2 border-l-zoru-danger' : '',
                           isCompleted(r.status) ? 'opacity-70' : '',
                         ].join(' ')}
@@ -419,7 +419,7 @@ export function SubtasksListClient({ initialRows }: SubtasksListClientProps) {
                         </ZoruTableCell>
                         <ZoruTableCell className="text-[12.5px]">
                           {r.taskId ? (
-                            <span className="font-mono text-[11.5px] text-zoru-ink-muted">
+                            <span className="font-mono text-[11.5px] text-[var(--st-text-secondary)]">
                               {String(r.taskId).slice(-8)}
                             </span>
                           ) : (
@@ -441,7 +441,7 @@ export function SubtasksListClient({ initialRows }: SubtasksListClientProps) {
                               fallback={r.assignedToName || '—'}
                             />
                           ) : (
-                            <span className="text-[12px] text-zoru-ink-muted">
+                            <span className="text-[12px] text-[var(--st-text-secondary)]">
                               {r.assignedToName || 'Unassigned'}
                             </span>
                           )}
@@ -449,7 +449,7 @@ export function SubtasksListClient({ initialRows }: SubtasksListClientProps) {
                         <ZoruTableCell
                           className={[
                             'text-[12.5px]',
-                            overdue ? 'text-zoru-danger' : 'text-zoru-ink-muted',
+                            overdue ? 'text-[var(--st-danger)]' : 'text-[var(--st-text-secondary)]',
                           ].join(' ')}
                         >
                           {fmtDateUTC(r.dueDate)}
@@ -466,7 +466,7 @@ export function SubtasksListClient({ initialRows }: SubtasksListClientProps) {
                               <button
                                 type="button"
                                 aria-label={`Actions for ${r.title}`}
-                                className="inline-flex h-8 w-8 items-center justify-center rounded-md text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
+                                className="inline-flex h-8 w-8 items-center justify-center rounded-md text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
                               >
                                 <MoreHorizontal className="h-4 w-4" />
                               </button>
@@ -486,7 +486,7 @@ export function SubtasksListClient({ initialRows }: SubtasksListClientProps) {
                               </ZoruDropdownMenuItem>
                               <ZoruDropdownMenuItem
                                 onClick={() => setDeleteTargetId(r._id)}
-                                className="text-zoru-danger"
+                                className="text-[var(--st-danger)]"
                               >
                                 <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Delete
                               </ZoruDropdownMenuItem>
@@ -547,7 +547,7 @@ export function SubtasksListClient({ initialRows }: SubtasksListClientProps) {
                 placeholder="Pick an assignee"
               />
             </div>
-            {bulkAssignState?.error && <p className="text-sm text-zoru-danger-ink">{bulkAssignState.error}</p>}
+            {bulkAssignState?.error && <p className="text-sm text-[var(--st-danger)]">{bulkAssignState.error}</p>}
             <ZoruDialogFooter>
               <Button type="button" variant="outline" onClick={() => setConfirmBulk(null)}>Cancel</Button>
               <Button type="submit">Assign</Button>

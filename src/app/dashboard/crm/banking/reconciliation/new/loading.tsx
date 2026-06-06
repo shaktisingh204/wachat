@@ -8,7 +8,7 @@ export default function NewReconciliationLoading() {
             title="New Reconciliation"
             back={{ href: '/dashboard/crm/banking/reconciliation', label: 'Reconciliation' }}
         >
-            <div className="rounded-xl border bg-zoru-surface text-zoru-ink shadow-sm p-6 space-y-6">
+            <div className="rounded-xl border bg-[var(--st-bg-secondary)] text-[var(--st-text)] shadow-sm p-6 space-y-6">
                 <div className="grid gap-4 sm:grid-cols-3">
                     <Skeleton className="h-10 w-full" />
                     <Skeleton className="h-10 w-full" />

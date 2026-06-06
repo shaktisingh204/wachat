@@ -88,7 +88,7 @@ export function DevicePreview({
         </ZoruDrawerHeader>
 
         {warnings.length > 0 ? (
-          <div className="mx-4 mb-2 rounded border border-zoru-line/50 bg-zoru-surface-2 px-3 py-2 text-xs text-zoru-ink dark:bg-zoru-ink/40 dark:text-white">
+          <div className="mx-4 mb-2 rounded border border-[var(--st-border)]/50 bg-[var(--st-bg-muted)] px-3 py-2 text-xs text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-white">
             <strong>Renderer warnings:</strong>
             <ul className="ml-4 list-disc">
               {warnings.map((w, i) => (
@@ -128,7 +128,7 @@ function ToggleGroup<V extends string>({
   options: ToggleOption<V>[];
 }) {
   return (
-    <div className="inline-flex overflow-hidden rounded-md border border-zoru-line">
+    <div className="inline-flex overflow-hidden rounded-md border border-[var(--st-border)]">
       {options.map((opt) => {
         const Icon = opt.icon;
         const active = opt.value === value;
@@ -139,7 +139,7 @@ function ToggleGroup<V extends string>({
             variant={active ? 'default' : 'ghost'}
             size="sm"
             onClick={() => onChange(opt.value)}
-            className={cn('rounded-none gap-1.5', active ? '' : 'text-zoru-ink-muted')}
+            className={cn('rounded-none gap-1.5', active ? '' : 'text-[var(--st-text-secondary)]')}
             aria-pressed={active}
           >
             <Icon className="h-3.5 w-3.5" />

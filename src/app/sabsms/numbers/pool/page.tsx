@@ -163,7 +163,7 @@ export default function NumberPoolPage() {
       <div className="flex items-center justify-between space-y-2">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Number Pool</h2>
-          <p className="text-zoru-ink-muted">
+          <p className="text-[var(--st-text-secondary)]">
             Manage your dedicated numbers, monitor reputation, and analyze throughput.
           </p>
         </div>
@@ -217,7 +217,7 @@ export default function NumberPoolPage() {
         <Card className="md:col-span-1">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
-              <Settings className="h-5 w-5 text-zoru-ink-muted" />
+              <Settings className="h-5 w-5 text-[var(--st-text-secondary)]" />
               <span>Pool Settings</span>
             </CardTitle>
             <CardDescription>
@@ -229,7 +229,7 @@ export default function NumberPoolPage() {
               <div className="flex items-center justify-between rounded-lg border p-4">
                 <div className="space-y-0.5">
                   <Label className="text-base">Sticky Sender</Label>
-                  <p className="text-sm text-zoru-ink-muted">
+                  <p className="text-sm text-[var(--st-text-secondary)]">
                     Ensure recipients always receive messages from the same number.
                   </p>
                 </div>
@@ -242,7 +242,7 @@ export default function NumberPoolPage() {
               <div className="flex items-center justify-between rounded-lg border p-4">
                 <div className="space-y-0.5">
                   <Label className="text-base">Auto-Scaling</Label>
-                  <p className="text-sm text-zoru-ink-muted">
+                  <p className="text-sm text-[var(--st-text-secondary)]">
                     Automatically buy numbers when limits are reached.
                   </p>
                 </div>
@@ -253,7 +253,7 @@ export default function NumberPoolPage() {
               </div>
 
               {isAutoScalingEnabled && (
-                <div className="space-y-4 rounded-lg border p-4 bg-zoru-surface-2/50">
+                <div className="space-y-4 rounded-lg border p-4 bg-[var(--st-bg-muted)]/50">
                   <div className="space-y-2">
                     <Label>Throughput Threshold (%)</Label>
                     <Input 
@@ -263,7 +263,7 @@ export default function NumberPoolPage() {
                       value={throughputThreshold}
                       onChange={(e) => setThroughputThreshold(Number(e.target.value))}
                     />
-                    <p className="text-xs text-zoru-ink-muted">
+                    <p className="text-xs text-[var(--st-text-secondary)]">
                       Scale when a number exceeds this capacity.
                     </p>
                   </div>
@@ -276,7 +276,7 @@ export default function NumberPoolPage() {
                       value={maxAutoBuy}
                       onChange={(e) => setMaxAutoBuy(Number(e.target.value))}
                     />
-                    <p className="text-xs text-zoru-ink-muted">
+                    <p className="text-xs text-[var(--st-text-secondary)]">
                       Maximum numbers to purchase automatically ({autoBuyCount} used).
                     </p>
                   </div>
@@ -297,7 +297,7 @@ export default function NumberPoolPage() {
             <div className="flex items-center justify-between mb-6">
               <div className="flex flex-1 items-center space-x-2">
                 <div className="relative w-72">
-                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
                   <Input
                     placeholder="Search numbers or providers..."
                     className="pl-8"
@@ -343,18 +343,18 @@ export default function NumberPoolPage() {
                     const isOverloaded = throughputPercent >= throughputThreshold && isAutoScalingEnabled;
                     
                     return (
-                      <TableRow key={num.id} className={isOverloaded ? "bg-zoru-danger/10" : ""}>
+                      <TableRow key={num.id} className={isOverloaded ? "bg-[var(--st-danger)]/10" : ""}>
                         <TableCell className="font-medium">
                           <div className="flex flex-col">
                             <span>{num.number}</span>
-                            <span className="text-xs text-zoru-ink-muted">
+                            <span className="text-xs text-[var(--st-text-secondary)]">
                               {num.country} • {num.type}
                             </span>
                           </div>
                         </TableCell>
                         <TableCell>
                           {num.provider === "Auto-Scale" ? (
-                            <Badge variant="outline" className="text-zoru-primary border-zoru-primary">Auto-Scaled</Badge>
+                            <Badge variant="outline" className="text-[var(--st-text)] border-[var(--st-text)]">Auto-Scaled</Badge>
                           ) : num.provider}
                         </TableCell>
                         <TableCell>
@@ -365,9 +365,9 @@ export default function NumberPoolPage() {
                         </TableCell>
                         <TableCell>
                           <div className="flex flex-col space-y-1.5">
-                            <div className="flex justify-between text-xs text-zoru-ink-muted">
+                            <div className="flex justify-between text-xs text-[var(--st-text-secondary)]">
                               <span>{Math.round(num.currentThroughput)} / {num.throughputLimit}</span>
-                              <span className={throughputPercent > 90 ? "text-zoru-ink font-bold" : ""}>
+                              <span className={throughputPercent > 90 ? "text-[var(--st-text)] font-bold" : ""}>
                                 {throughputPercent}%
                               </span>
                             </div>
@@ -390,7 +390,7 @@ export default function NumberPoolPage() {
                               <DropdownMenuItem>View Analytics</DropdownMenuItem>
                               <DropdownMenuItem>Edit Routing</DropdownMenuItem>
                               <DropdownMenuSeparator />
-                              <DropdownMenuItem className="text-zoru-ink">Release Number</DropdownMenuItem>
+                              <DropdownMenuItem className="text-[var(--st-text)]">Release Number</DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>
@@ -399,7 +399,7 @@ export default function NumberPoolPage() {
                   })}
                   {filteredNumbers.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center py-6 text-zoru-ink-muted">
+                      <TableCell colSpan={6} className="text-center py-6 text-[var(--st-text-secondary)]">
                         No numbers found.
                       </TableCell>
                     </TableRow>

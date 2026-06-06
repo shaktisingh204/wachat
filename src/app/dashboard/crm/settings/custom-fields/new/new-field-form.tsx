@@ -142,7 +142,7 @@ export function NewCustomFieldForm() {
 
   if (!loaded) {
     return (
-      <div className="text-[13px] text-zoru-ink-muted">Loading…</div>
+      <div className="text-[13px] text-[var(--st-text-secondary)]">Loading…</div>
     );
   }
 
@@ -158,13 +158,13 @@ export function NewCustomFieldForm() {
         ) : null}
 
         <div>
-          <Label htmlFor="group_id" className="text-zoru-ink">
-            Group <span className="text-zoru-danger-ink">*</span>
+          <Label htmlFor="group_id" className="text-[var(--st-text)]">
+            Group <span className="text-[var(--st-danger)]">*</span>
           </Label>
           <Select name="group_id" defaultValue={defaultGroup} required>
             <ZoruSelectTrigger
               id="group_id"
-              className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+              className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
             >
               <ZoruSelectValue placeholder="Select a group" />
             </ZoruSelectTrigger>
@@ -180,19 +180,19 @@ export function NewCustomFieldForm() {
 
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <Label htmlFor="label" className="text-zoru-ink">
-              Label <span className="text-zoru-danger-ink">*</span>
+            <Label htmlFor="label" className="text-[var(--st-text)]">
+              Label <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <Input
               id="label"
               name="label"
               required
               defaultValue={existing?.label || ''}
-              className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+              className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
             />
           </div>
           <div>
-            <Label htmlFor="name" className="text-zoru-ink">
+            <Label htmlFor="name" className="text-[var(--st-text)]">
               Slug (optional)
             </Label>
             <Input
@@ -200,14 +200,14 @@ export function NewCustomFieldForm() {
               name="name"
               defaultValue={existing?.name || ''}
               placeholder="auto-generated from label"
-              className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+              className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
             />
           </div>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <Label htmlFor="type" className="text-zoru-ink">
+            <Label htmlFor="type" className="text-[var(--st-text)]">
               Type
             </Label>
             {/* TODO §1E: type needs enumName="customFieldType" — pending label/value alignment
@@ -215,7 +215,7 @@ export function NewCustomFieldForm() {
             <Select name="type" value={type} onValueChange={setType}>
               <ZoruSelectTrigger
                 id="type"
-                className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
               >
                 <ZoruSelectValue />
               </ZoruSelectTrigger>
@@ -234,7 +234,7 @@ export function NewCustomFieldForm() {
             </Select>
           </div>
           <div>
-            <Label htmlFor="position" className="text-zoru-ink">
+            <Label htmlFor="position" className="text-[var(--st-text)]">
               Position
             </Label>
             <Input
@@ -242,13 +242,13 @@ export function NewCustomFieldForm() {
               name="position"
               type="number"
               defaultValue={String(existing?.position ?? 0)}
-              className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+              className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
             />
           </div>
         </div>
 
         <div>
-          <Label htmlFor="values" className="text-zoru-ink">
+          <Label htmlFor="values" className="text-[var(--st-text)]">
             Options (comma or newline separated)
           </Label>
           <Textarea
@@ -257,15 +257,15 @@ export function NewCustomFieldForm() {
             rows={3}
             defaultValue={(existing?.values || []).join('\n')}
             placeholder="Used for select / radio / checkbox types"
-            className="rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+            className="rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
           />
         </div>
 
         {type === 'entity_ref' ? (
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <Label htmlFor="targetEntity" className="text-zoru-ink">
-                Linked entity <span className="text-zoru-danger-ink">*</span>
+              <Label htmlFor="targetEntity" className="text-[var(--st-text)]">
+                Linked entity <span className="text-[var(--st-danger)]">*</span>
               </Label>
               <Select
                 name="targetEntity"
@@ -275,7 +275,7 @@ export function NewCustomFieldForm() {
               >
                 <ZoruSelectTrigger
                   id="targetEntity"
-                  className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 >
                   <ZoruSelectValue placeholder="Pick an entity to link" />
                 </ZoruSelectTrigger>
@@ -287,12 +287,12 @@ export function NewCustomFieldForm() {
                   ))}
                 </ZoruSelectContent>
               </Select>
-              <p className="mt-1 text-[11px] text-zoru-ink-muted">
+              <p className="mt-1 text-[11px] text-[var(--st-text-secondary)]">
                 Renders as a searchable picker for the chosen entity.
               </p>
             </div>
             <div>
-              <Label htmlFor="multi" className="text-zoru-ink">
+              <Label htmlFor="multi" className="text-[var(--st-text)]">
                 Multiple values
               </Label>
               <Select
@@ -302,7 +302,7 @@ export function NewCustomFieldForm() {
               >
                 <ZoruSelectTrigger
                   id="multi"
-                  className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 >
                   <ZoruSelectValue />
                 </ZoruSelectTrigger>
@@ -317,7 +317,7 @@ export function NewCustomFieldForm() {
 
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <Label htmlFor="is_required" className="text-zoru-ink">
+            <Label htmlFor="is_required" className="text-[var(--st-text)]">
               Required
             </Label>
             <Select
@@ -326,7 +326,7 @@ export function NewCustomFieldForm() {
             >
               <ZoruSelectTrigger
                 id="is_required"
-                className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
               >
                 <ZoruSelectValue />
               </ZoruSelectTrigger>
@@ -337,7 +337,7 @@ export function NewCustomFieldForm() {
             </Select>
           </div>
           <div>
-            <Label htmlFor="display_in_table" className="text-zoru-ink">
+            <Label htmlFor="display_in_table" className="text-[var(--st-text)]">
               Show in tables
             </Label>
             <Select
@@ -346,7 +346,7 @@ export function NewCustomFieldForm() {
             >
               <ZoruSelectTrigger
                 id="display_in_table"
-                className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
               >
                 <ZoruSelectValue />
               </ZoruSelectTrigger>

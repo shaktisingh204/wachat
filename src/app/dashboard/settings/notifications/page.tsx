@@ -157,22 +157,22 @@ export default function NotificationsSettingsPage() {
             {GROUPS.map((group) => (
                 <Card key={group.titleKey} className="p-6">
                     <div className="mb-4 flex items-start gap-3">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                             <group.icon className="h-4 w-4" strokeWidth={2} />
                         </div>
                         <div>
-                            <p className="text-sm text-zoru-ink">{t(group.titleKey)}</p>
-                            <p className="text-xs text-zoru-ink-muted">{t(group.descriptionKey)}</p>
+                            <p className="text-sm text-[var(--st-text)]">{t(group.titleKey)}</p>
+                            <p className="text-xs text-[var(--st-text-secondary)]">{t(group.descriptionKey)}</p>
                         </div>
                     </div>
-                    <ul className="divide-y divide-zoru-line">
+                    <ul className="divide-y divide-[var(--st-border)]">
                         {group.rows.map((row) => (
                             <li key={row.id} className="flex items-start justify-between gap-4 py-3">
                                 <div>
                                     <Label htmlFor={row.id} className="text-[13px]">
                                         {t(row.labelKey)}
                                     </Label>
-                                    <p className="mt-0.5 text-xs text-zoru-ink-muted">{t(row.descriptionKey)}</p>
+                                    <p className="mt-0.5 text-xs text-[var(--st-text-secondary)]">{t(row.descriptionKey)}</p>
                                 </div>
                                 <Switch id={row.id} checked={!!prefs[row.id]} onCheckedChange={() => toggle(row.id)} />
                             </li>

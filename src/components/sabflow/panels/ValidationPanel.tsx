@@ -69,16 +69,16 @@ function SeveritySection({
   const Icon = isError ? LuAlertCircle : LuAlertTriangle;
 
   const headerColorCls = isError
-    ? 'text-zoru-ink dark:text-zoru-ink-muted'
-    : 'text-zoru-ink dark:text-zoru-ink-muted';
+    ? 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]'
+    : 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]';
 
   const iconBgCls = isError
-    ? 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted'
-    : 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted';
+    ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]'
+    : 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]';
 
   const rowHoverCls = isError
-    ? 'hover:bg-zoru-surface-2/60 dark:hover:bg-zoru-ink/20'
-    : 'hover:bg-zoru-surface-2/60 dark:hover:bg-zoru-ink/20';
+    ? 'hover:bg-[var(--st-bg-muted)]/60 dark:hover:bg-[var(--st-text)]/20'
+    : 'hover:bg-[var(--st-bg-muted)]/60 dark:hover:bg-[var(--st-text)]/20';
 
   const label = isError ? 'Errors' : 'Warnings';
 
@@ -160,7 +160,7 @@ function SeveritySection({
 function EmptyState() {
   return (
     <div className="flex flex-col items-center justify-center py-14 gap-3 text-center px-4">
-      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
+      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
         <LuCheckCircle className="h-6 w-6" strokeWidth={1.8} />
       </div>
       <div>
@@ -212,17 +212,17 @@ export function ValidationPanel({ flow, onFocusBlock, onResultsChange, onClose }
         {results !== null && (
           <div className="flex items-center gap-1 shrink-0">
             {errorCount > 0 && (
-              <span className="rounded-full bg-zoru-surface-2 px-1.5 py-0.5 text-[10.5px] font-bold tabular-nums text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
+              <span className="rounded-full bg-[var(--st-bg-muted)] px-1.5 py-0.5 text-[10.5px] font-bold tabular-nums text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
                 {errorCount}
               </span>
             )}
             {warningCount > 0 && (
-              <span className="rounded-full bg-zoru-surface-2 px-1.5 py-0.5 text-[10.5px] font-bold tabular-nums text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
+              <span className="rounded-full bg-[var(--st-bg-muted)] px-1.5 py-0.5 text-[10.5px] font-bold tabular-nums text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
                 {warningCount}
               </span>
             )}
             {errorCount === 0 && warningCount === 0 && (
-              <span className="rounded-full bg-zoru-surface-2 px-1.5 py-0.5 text-[10.5px] font-bold text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
+              <span className="rounded-full bg-[var(--st-bg-muted)] px-1.5 py-0.5 text-[10.5px] font-bold text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
                 OK
               </span>
             )}

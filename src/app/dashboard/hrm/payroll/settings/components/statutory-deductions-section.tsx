@@ -7,14 +7,14 @@ import type { PayrollSettings } from '@/app/actions/crm-payroll-settings.actions
 function StatutoryDeductionsSectionComponent({ settings }: { settings: PayrollSettings }) {
   return (
     <Card className="p-6">
-      <h2 className="mb-4 text-[15px] font-semibold text-zoru-ink">Statutory Deductions</h2>
+      <h2 className="mb-4 text-[15px] font-semibold text-[var(--st-text)]">Statutory Deductions</h2>
       <div className="space-y-6">
         {/* PF */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-[13px] font-medium text-zoru-ink">Provident Fund (PF)</span>
-              <p className="text-[11px] text-zoru-ink-muted">Employee + employer contribution under EPF Act</p>
+              <span className="text-[13px] font-medium text-[var(--st-text)]">Provident Fund (PF)</span>
+              <p className="text-[11px] text-[var(--st-text-secondary)]">Employee + employer contribution under EPF Act</p>
             </div>
             <Switch name="pfEnabled" defaultChecked={settings.pfEnabled} aria-label="Enable PF" />
           </div>
@@ -35,11 +35,11 @@ function StatutoryDeductionsSectionComponent({ settings }: { settings: PayrollSe
         </div>
 
         {/* ESI */}
-        <div className="space-y-3 border-t border-zoru-line pt-5">
+        <div className="space-y-3 border-t border-[var(--st-border)] pt-5">
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-[13px] font-medium text-zoru-ink">ESI (ESIC)</span>
-              <p className="text-[11px] text-zoru-ink-muted">Employees' State Insurance contribution</p>
+              <span className="text-[13px] font-medium text-[var(--st-text)]">ESI (ESIC)</span>
+              <p className="text-[11px] text-[var(--st-text-secondary)]">Employees' State Insurance contribution</p>
             </div>
             <Switch name="esiEnabled" defaultChecked={settings.esiEnabled} aria-label="Enable ESI" />
           </div>
@@ -60,18 +60,18 @@ function StatutoryDeductionsSectionComponent({ settings }: { settings: PayrollSe
         </div>
 
         {/* PT + TDS toggles */}
-        <div className="grid gap-4 border-t border-zoru-line pt-5 sm:grid-cols-2">
-          <div className="flex items-center justify-between rounded-lg border border-zoru-line bg-zoru-bg px-4 py-3">
+        <div className="grid gap-4 border-t border-[var(--st-border)] pt-5 sm:grid-cols-2">
+          <div className="flex items-center justify-between rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] px-4 py-3">
             <div>
-              <div className="text-[13px] font-medium text-zoru-ink">Professional Tax (PT)</div>
-              <div className="text-[11px] text-zoru-ink-muted">State-level professional tax deduction</div>
+              <div className="text-[13px] font-medium text-[var(--st-text)]">Professional Tax (PT)</div>
+              <div className="text-[11px] text-[var(--st-text-secondary)]">State-level professional tax deduction</div>
             </div>
             <Switch name="ptEnabled" defaultChecked={settings.ptEnabled} aria-label="Enable PT" />
           </div>
-          <div className="flex items-center justify-between rounded-lg border border-zoru-line bg-zoru-bg px-4 py-3">
+          <div className="flex items-center justify-between rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] px-4 py-3">
             <div>
-              <div className="text-[13px] font-medium text-zoru-ink">TDS (Section 192)</div>
-              <div className="text-[11px] text-zoru-ink-muted">Tax deducted at source on salary</div>
+              <div className="text-[13px] font-medium text-[var(--st-text)]">TDS (Section 192)</div>
+              <div className="text-[11px] text-[var(--st-text-secondary)]">Tax deducted at source on salary</div>
             </div>
             <Switch name="tdsEnabled" defaultChecked={settings.tdsEnabled} aria-label="Enable TDS" />
           </div>

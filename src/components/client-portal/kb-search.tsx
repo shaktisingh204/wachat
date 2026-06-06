@@ -33,7 +33,7 @@ export function KbSearch() {
     return (
         <form onSubmit={handleSubmit} className="relative max-w-md">
             <Search
-                className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted"
+                className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]"
                 aria-hidden
             />
             <Input

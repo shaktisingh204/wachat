@@ -291,10 +291,10 @@ function ChartRenderer({ series, chartType }: ChartRendererProps) {
     const total = rows[0]?.value ?? 0;
     return (
       <div className="flex flex-col items-center justify-center py-12">
-        <p className="text-6xl font-bold tracking-tight text-zoru-ink">
+        <p className="text-6xl font-bold tracking-tight text-[var(--st-text)]">
           {formatValue(total)}
         </p>
-        <p className="mt-2 text-sm text-zoru-ink-muted">
+        <p className="mt-2 text-sm text-[var(--st-text-secondary)]">
           {METRIC_LABELS[series.metric]} · {series.recordCount} records
         </p>
       </div>
@@ -504,8 +504,8 @@ function BuilderForm({ state, objects, onChange }: BuilderFormProps) {
     <div className="flex flex-col gap-5">
       {/* Name */}
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="report-name" className="text-sm font-medium text-zoru-ink">
-          Report name <span aria-hidden className="text-zoru-danger">*</span>
+        <Label htmlFor="report-name" className="text-sm font-medium text-[var(--st-text)]">
+          Report name <span aria-hidden className="text-[var(--st-danger)]">*</span>
         </Label>
         <Input
           id="report-name"
@@ -518,7 +518,7 @@ function BuilderForm({ state, objects, onChange }: BuilderFormProps) {
 
       {/* Description */}
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="report-desc" className="text-sm font-medium text-zoru-ink">
+        <Label htmlFor="report-desc" className="text-sm font-medium text-[var(--st-text)]">
           Description
         </Label>
         <Textarea
@@ -535,8 +535,8 @@ function BuilderForm({ state, objects, onChange }: BuilderFormProps) {
 
       {/* Object */}
       <div className="flex flex-col gap-1.5">
-        <Label className="text-sm font-medium text-zoru-ink">
-          Object <span aria-hidden className="text-zoru-danger">*</span>
+        <Label className="text-sm font-medium text-[var(--st-text)]">
+          Object <span aria-hidden className="text-[var(--st-danger)]">*</span>
         </Label>
         <Select value={state.object} onValueChange={handleObjectChange}>
           <SelectTrigger>
@@ -554,8 +554,8 @@ function BuilderForm({ state, objects, onChange }: BuilderFormProps) {
 
       {/* Metric */}
       <div className="flex flex-col gap-1.5">
-        <Label className="text-sm font-medium text-zoru-ink">
-          Metric <span aria-hidden className="text-zoru-danger">*</span>
+        <Label className="text-sm font-medium text-[var(--st-text)]">
+          Metric <span aria-hidden className="text-[var(--st-danger)]">*</span>
         </Label>
         <Select
           value={state.metric}
@@ -577,9 +577,9 @@ function BuilderForm({ state, objects, onChange }: BuilderFormProps) {
       {/* Metric field (only when metric ≠ count) */}
       {state.metric !== 'count' && (
         <div className="flex flex-col gap-1.5">
-          <Label className="text-sm font-medium text-zoru-ink">
+          <Label className="text-sm font-medium text-[var(--st-text)]">
             Field to {METRIC_LABELS[state.metric].toLowerCase()}{' '}
-            <span aria-hidden className="text-zoru-danger">*</span>
+            <span aria-hidden className="text-[var(--st-danger)]">*</span>
           </Label>
           <Select
             value={state.metricField}
@@ -610,9 +610,9 @@ function BuilderForm({ state, objects, onChange }: BuilderFormProps) {
 
       {/* Group by */}
       <div className="flex flex-col gap-1.5">
-        <Label className="text-sm font-medium text-zoru-ink">
+        <Label className="text-sm font-medium text-[var(--st-text)]">
           Group by{' '}
-          <span className="text-xs font-normal text-zoru-ink-muted">(optional)</span>
+          <span className="text-xs font-normal text-[var(--st-text-secondary)]">(optional)</span>
         </Label>
         <Select
           value={state.groupByField || '__none__'}
@@ -642,7 +642,7 @@ function BuilderForm({ state, objects, onChange }: BuilderFormProps) {
       {/* Time bucket — only when groupBy is a date field */}
       {isDateGroupBy && (
         <div className="flex flex-col gap-1.5">
-          <Label className="text-sm font-medium text-zoru-ink">Time bucket</Label>
+          <Label className="text-sm font-medium text-[var(--st-text)]">Time bucket</Label>
           <Select
             value={state.timeBucket}
             onValueChange={(v) => onChange({ timeBucket: v as ReportTimeBucket })}
@@ -665,7 +665,7 @@ function BuilderForm({ state, objects, onChange }: BuilderFormProps) {
 
       {/* Chart type */}
       <div className="flex flex-col gap-1.5">
-        <Label className="text-sm font-medium text-zoru-ink">Chart type</Label>
+        <Label className="text-sm font-medium text-[var(--st-text)]">Chart type</Label>
         <div className="grid grid-cols-5 gap-1">
           {(Object.keys(CHART_TYPE_LABELS) as ReportChartType[]).map((ct) => (
             <button
@@ -676,8 +676,8 @@ function BuilderForm({ state, objects, onChange }: BuilderFormProps) {
               className={cn(
                 'flex flex-col items-center gap-1 rounded-[var(--zoru-radius-sm)] border p-2 text-xs transition-colors',
                 state.chartType === ct
-                  ? 'border-zoru-ink bg-zoru-ink text-zoru-bg'
-                  : 'border-zoru-line text-zoru-ink-muted hover:border-zoru-line-strong hover:text-zoru-ink',
+                  ? 'border-[var(--st-text)] bg-[var(--st-text)] text-[var(--st-bg)]'
+                  : 'border-[var(--st-border)] text-[var(--st-text-secondary)] hover:border-[var(--st-border-strong)] hover:text-[var(--st-text)]',
               )}
             >
               {CHART_ICON[ct]}
@@ -692,9 +692,9 @@ function BuilderForm({ state, objects, onChange }: BuilderFormProps) {
         <>
           <Separator />
           <div className="flex flex-col gap-3">
-            <Label className="text-sm font-medium text-zoru-ink">
+            <Label className="text-sm font-medium text-[var(--st-text)]">
               Filters{' '}
-              <span className="text-xs font-normal text-zoru-ink-muted">
+              <span className="text-xs font-normal text-[var(--st-text-secondary)]">
                 (exact match — optional)
               </span>
             </Label>
@@ -711,7 +711,7 @@ function BuilderForm({ state, objects, onChange }: BuilderFormProps) {
                 <div key={f.key} className="flex flex-col gap-1">
                   <Label
                     htmlFor={`filter-${f.key}`}
-                    className="text-xs text-zoru-ink-muted"
+                    className="text-xs text-[var(--st-text-secondary)]"
                   >
                     {f.label}
                   </Label>
@@ -864,7 +864,7 @@ function BuilderDialog({ objects, report, trigger, onSaved }: BuilderDialogProps
       <ZoruDialogContent className="max-w-3xl p-0" aria-describedby="builder-desc">
         <div className="flex h-[90vh] max-h-[780px] flex-col">
           {/* Header */}
-          <ZoruDialogHeader className="border-b border-zoru-line px-6 py-4">
+          <ZoruDialogHeader className="border-b border-[var(--st-border)] px-6 py-4">
             <ZoruDialogTitle>
               {report ? 'Edit report' : 'Build a report'}
             </ZoruDialogTitle>
@@ -878,7 +878,7 @@ function BuilderDialog({ objects, report, trigger, onSaved }: BuilderDialogProps
           {/* Body — two-column: form + preview */}
           <div className="flex flex-1 overflow-hidden">
             {/* Left: form */}
-            <ScrollArea className="w-72 shrink-0 border-r border-zoru-line">
+            <ScrollArea className="w-72 shrink-0 border-r border-[var(--st-border)]">
               <div className="px-5 py-5">
                 <BuilderForm
                   state={state}
@@ -890,8 +890,8 @@ function BuilderDialog({ objects, report, trigger, onSaved }: BuilderDialogProps
 
             {/* Right: preview */}
             <div className="flex flex-1 flex-col overflow-hidden">
-              <div className="flex items-center justify-between border-b border-zoru-line px-5 py-3">
-                <p className="text-sm font-medium text-zoru-ink">Preview</p>
+              <div className="flex items-center justify-between border-b border-[var(--st-border)] px-5 py-3">
+                <p className="text-sm font-medium text-[var(--st-text)]">Preview</p>
                 <Button
                   variant="outline"
                   size="sm"
@@ -919,7 +919,7 @@ function BuilderDialog({ objects, report, trigger, onSaved }: BuilderDialogProps
                 {preview ? (
                   <div className="flex flex-col gap-4">
                     <div className="flex items-baseline justify-between">
-                      <p className="text-xs text-zoru-ink-muted">
+                      <p className="text-xs text-[var(--st-text-secondary)]">
                         {preview.recordCount} records · computed{' '}
                         {new Date(preview.computedAt).toLocaleTimeString()}
                       </p>
@@ -938,7 +938,7 @@ function BuilderDialog({ objects, report, trigger, onSaved }: BuilderDialogProps
 
                 {previewing && (
                   <div className="flex items-center justify-center py-16">
-                    <Loader2 className="h-6 w-6 animate-spin text-zoru-ink-muted" />
+                    <Loader2 className="h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
                   </div>
                 )}
               </ScrollArea>
@@ -946,7 +946,7 @@ function BuilderDialog({ objects, report, trigger, onSaved }: BuilderDialogProps
           </div>
 
           {/* Footer */}
-          <ZoruDialogFooter className="border-t border-zoru-line px-6 py-4">
+          <ZoruDialogFooter className="border-t border-[var(--st-border)] px-6 py-4">
             <ZoruDialogClose asChild>
               <Button variant="outline" disabled={saving}>
                 Cancel
@@ -1005,7 +1005,7 @@ function ReportViewer({ report }: ReportViewerProps) {
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
         {series && (
-          <p className="text-xs text-zoru-ink-muted">
+          <p className="text-xs text-[var(--st-text-secondary)]">
             {series.recordCount} records · computed{' '}
             {new Date(series.computedAt).toLocaleTimeString()}
           </p>
@@ -1034,7 +1034,7 @@ function ReportViewer({ report }: ReportViewerProps) {
 
       {loading && !series && (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-6 w-6 animate-spin text-zoru-ink-muted" />
+          <Loader2 className="h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
         </div>
       )}
 
@@ -1090,22 +1090,22 @@ function ReportCard({ report, objects, onUpdated, onDeleted }: ReportCardProps) 
           className="flex flex-1 items-center gap-3 text-left"
           aria-expanded={expanded}
         >
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink-muted">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
             {CHART_ICON[report.chartType ?? 'bar']}
           </span>
           <div className="flex flex-1 flex-col gap-0.5 overflow-hidden">
-            <p className="truncate text-sm font-semibold text-zoru-ink">
+            <p className="truncate text-sm font-semibold text-[var(--st-text)]">
               {report.name}
             </p>
             {report.description && (
-              <p className="truncate text-xs text-zoru-ink-muted">
+              <p className="truncate text-xs text-[var(--st-text-secondary)]">
                 {report.description}
               </p>
             )}
           </div>
           <ChevronRight
             className={cn(
-              'h-4 w-4 shrink-0 text-zoru-ink-muted transition-transform',
+              'h-4 w-4 shrink-0 text-[var(--st-text-secondary)] transition-transform',
               expanded && 'rotate-90',
             )}
           />
@@ -1153,7 +1153,7 @@ function ReportCard({ report, objects, onUpdated, onDeleted }: ReportCardProps) 
                 {deleting ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  <Trash2 className="h-4 w-4 text-zoru-danger" />
+                  <Trash2 className="h-4 w-4 text-[var(--st-danger)]" />
                 )}
                 <span className="sr-only">Delete report</span>
               </Button>
@@ -1264,7 +1264,7 @@ export function ReportsClient({
     <div className="flex flex-col gap-6">
       {/* Toolbar */}
       <div className="flex items-center justify-between gap-3">
-        <p className="text-sm text-zoru-ink-muted">
+        <p className="text-sm text-[var(--st-text-secondary)]">
           {reports.length === 0
             ? 'No reports saved yet.'
             : `${reports.length} report${reports.length === 1 ? '' : 's'}`}

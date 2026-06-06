@@ -411,7 +411,7 @@ export default function Page() {
             {/* Filters */}
             <Card className="flex flex-wrap items-end gap-3 p-4">
                 <div className="flex flex-col gap-1">
-                    <label className="text-xs text-zoru-ink-muted">Date range</label>
+                    <label className="text-xs text-[var(--st-text-secondary)]">Date range</label>
                     <ZoruDateRangePicker
                         value={{ from: range.from, to: range.to }}
                         onChange={(r) => {
@@ -421,8 +421,8 @@ export default function Page() {
                     />
                 </div>
                 <div className="flex flex-col gap-1">
-                    <label className="text-xs text-zoru-ink-muted">Granularity</label>
-                    <div className="inline-flex rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-bg p-0.5">
+                    <label className="text-xs text-[var(--st-text-secondary)]">Granularity</label>
+                    <div className="inline-flex rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)] p-0.5">
                         {GRANULARITIES.map((g) => (
                             <button
                                 key={g.key}
@@ -431,8 +431,8 @@ export default function Page() {
                                 aria-pressed={granularity === g.key}
                                 className={
                                     granularity === g.key
-                                        ? 'rounded-[calc(var(--zoru-radius-sm)-2px)] bg-zoru-surface-2 px-3 py-1 text-xs text-zoru-ink'
-                                        : 'rounded-[calc(var(--zoru-radius-sm)-2px)] px-3 py-1 text-xs text-zoru-ink-muted hover:text-zoru-ink'
+                                        ? 'rounded-[calc(var(--zoru-radius-sm)-2px)] bg-[var(--st-bg-muted)] px-3 py-1 text-xs text-[var(--st-text)]'
+                                        : 'rounded-[calc(var(--zoru-radius-sm)-2px)] px-3 py-1 text-xs text-[var(--st-text-secondary)] hover:text-[var(--st-text)]'
                                 }
                             >
                                 {g.label}
@@ -441,7 +441,7 @@ export default function Page() {
                     </div>
                 </div>
                 <div className="flex flex-col gap-1">
-                    <label className="text-xs text-zoru-ink-muted">Bot</label>
+                    <label className="text-xs text-[var(--st-text-secondary)]">Bot</label>
                     <Select
                         value={botId || '__all__'}
                         onValueChange={(v) => setBotId(v === '__all__' ? '' : v)}
@@ -460,13 +460,13 @@ export default function Page() {
                     </Select>
                 </div>
                 <div className="ml-auto flex flex-wrap items-center gap-1.5">
-                    <Filter className="h-3.5 w-3.5 text-zoru-ink-subtle" aria-hidden />
+                    <Filter className="h-3.5 w-3.5 text-[var(--st-text-tertiary)]" aria-hidden />
                     {isLoading ? (
-                        <span className="inline-flex items-center gap-1 text-xs text-zoru-ink-muted">
+                        <span className="inline-flex items-center gap-1 text-xs text-[var(--st-text-secondary)]">
                             <Loader2 className="h-3 w-3 animate-spin" /> Refreshing…
                         </span>
                     ) : (
-                        <span className="text-xs text-zoru-ink-muted">
+                        <span className="text-xs text-[var(--st-text-secondary)]">
                             Showing {range.from.toLocaleDateString()} –{' '}
                             {range.to.toLocaleDateString()}
                         </span>
@@ -498,10 +498,10 @@ export default function Page() {
                                         <Icon className="h-4 w-4" />
                                     </span>
                                     <div className="min-w-0">
-                                        <div className="text-[11.5px] text-zoru-ink-muted">
+                                        <div className="text-[11.5px] text-[var(--st-text-secondary)]">
                                             {k.label}
                                         </div>
-                                        <div className="text-[20px] leading-tight tabular-nums text-zoru-ink">
+                                        <div className="text-[20px] leading-tight tabular-nums text-[var(--st-text)]">
                                             {isLoading ? (
                                                 <Skeleton className="h-5 w-16" />
                                             ) : k.isText ? (
@@ -511,7 +511,7 @@ export default function Page() {
                                             )}
                                         </div>
                                         {k.hint && (
-                                            <div className="text-[11px] text-zoru-ink-subtle">
+                                            <div className="text-[11px] text-[var(--st-text-tertiary)]">
                                                 {k.hint}
                                             </div>
                                         )}
@@ -522,7 +522,7 @@ export default function Page() {
                     </div>
 
                     {/* View switcher (segmented buttons — no tab UI per zoruui directive) */}
-                    <div className="flex flex-wrap items-center gap-1.5 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-1">
+                    <div className="flex flex-wrap items-center gap-1.5 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1">
                         {VIEW_OPTIONS.map((v) => {
                             const Icon = v.icon;
                             const active = v.key === view;
@@ -534,8 +534,8 @@ export default function Page() {
                                     aria-pressed={active}
                                     className={
                                         active
-                                            ? 'inline-flex items-center gap-1.5 rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 px-3 py-1.5 text-xs text-zoru-ink'
-                                            : 'inline-flex items-center gap-1.5 rounded-[var(--zoru-radius-sm)] px-3 py-1.5 text-xs text-zoru-ink-muted hover:text-zoru-ink'
+                                            ? 'inline-flex items-center gap-1.5 rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] px-3 py-1.5 text-xs text-[var(--st-text)]'
+                                            : 'inline-flex items-center gap-1.5 rounded-[var(--zoru-radius-sm)] px-3 py-1.5 text-xs text-[var(--st-text-secondary)] hover:text-[var(--st-text)]'
                                     }
                                 >
                                     <Icon className="h-3.5 w-3.5" />
@@ -546,7 +546,7 @@ export default function Page() {
                     </div>
 
                     {topLevelError && (
-                        <Card className="border-zoru-danger/40 p-4 text-sm text-zoru-danger">
+                        <Card className="border-[var(--st-danger)]/40 p-4 text-sm text-[var(--st-danger)]">
                             <div className="flex items-center gap-2">
                                 <BadgeAlert className="h-4 w-4" aria-hidden />
                                 <span>Data load issue: {topLevelError}</span>
@@ -694,11 +694,11 @@ function OverviewView({
             </ChartCard>
 
             <Card className="p-5">
-                <h3 className="mb-3 text-[14px] text-zoru-ink">Top commands</h3>
+                <h3 className="mb-3 text-[14px] text-[var(--st-text)]">Top commands</h3>
                 {isLoading ? (
                     <SkeletonRows />
                 ) : topCommands.length === 0 ? (
-                    <p className="text-sm text-zoru-ink-muted">No commands yet.</p>
+                    <p className="text-sm text-[var(--st-text-secondary)]">No commands yet.</p>
                 ) : (
                     <ul className="space-y-1.5">
                         {topCommands.slice(0, 6).map((c) => (
@@ -706,7 +706,7 @@ function OverviewView({
                                 key={c.key}
                                 className="flex items-center justify-between gap-2 text-sm"
                             >
-                                <span className="truncate text-zoru-ink">/{c.key}</span>
+                                <span className="truncate text-[var(--st-text)]">/{c.key}</span>
                                 <Badge variant="secondary">{c.count}</Badge>
                             </li>
                         ))}
@@ -715,11 +715,11 @@ function OverviewView({
             </Card>
 
             <Card className="p-5">
-                <h3 className="mb-3 text-[14px] text-zoru-ink">Top contacts</h3>
+                <h3 className="mb-3 text-[14px] text-[var(--st-text)]">Top contacts</h3>
                 {isLoading ? (
                     <SkeletonRows />
                 ) : topContacts.length === 0 ? (
-                    <p className="text-sm text-zoru-ink-muted">No contact activity.</p>
+                    <p className="text-sm text-[var(--st-text-secondary)]">No contact activity.</p>
                 ) : (
                     <ul className="space-y-1.5">
                         {topContacts.slice(0, 6).map((c) => (
@@ -727,7 +727,7 @@ function OverviewView({
                                 key={c.chatId}
                                 className="flex items-center justify-between gap-2 text-sm"
                             >
-                                <span className="truncate text-zoru-ink">{c.title}</span>
+                                <span className="truncate text-[var(--st-text)]">{c.title}</span>
                                 <Badge variant="secondary">{c.messages}</Badge>
                             </li>
                         ))}
@@ -798,11 +798,11 @@ function MessagesView({
             </ChartCard>
 
             <Card className="p-5">
-                <h3 className="mb-3 text-[14px] text-zoru-ink">Top contacts by volume</h3>
+                <h3 className="mb-3 text-[14px] text-[var(--st-text)]">Top contacts by volume</h3>
                 {isLoading ? (
                     <SkeletonRows />
                 ) : topContacts.length === 0 ? (
-                    <p className="text-sm text-zoru-ink-muted">
+                    <p className="text-sm text-[var(--st-text-secondary)]">
                         No message activity in this range.
                     </p>
                 ) : (
@@ -818,7 +818,7 @@ function MessagesView({
                             {topContacts.map((c) => (
                                 <ZoruTableRow key={c.chatId}>
                                     <ZoruTableCell className="font-medium">{c.title}</ZoruTableCell>
-                                    <ZoruTableCell className="text-zoru-ink-muted">
+                                    <ZoruTableCell className="text-[var(--st-text-secondary)]">
                                         {c.chatId}
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-right tabular-nums">
@@ -880,11 +880,11 @@ function BroadcastsView({
             </ChartCard>
 
             <Card className="p-5">
-                <h3 className="mb-3 text-[14px] text-zoru-ink">Top error codes</h3>
+                <h3 className="mb-3 text-[14px] text-[var(--st-text)]">Top error codes</h3>
                 {isLoading ? (
                     <SkeletonRows />
                 ) : topErrorCodes.length === 0 ? (
-                    <p className="text-sm text-zoru-ink-muted">
+                    <p className="text-sm text-[var(--st-text-secondary)]">
                         No broadcast errors recorded.
                     </p>
                 ) : (
@@ -894,7 +894,7 @@ function BroadcastsView({
                                 key={c.key}
                                 className="flex items-center justify-between gap-3 text-sm"
                             >
-                                <span className="truncate text-zoru-ink">{c.label}</span>
+                                <span className="truncate text-[var(--st-text)]">{c.label}</span>
                                 <Badge variant="danger">{c.count}</Badge>
                             </li>
                         ))}
@@ -940,11 +940,11 @@ function CommandsView({
                 </ResponsiveContainer>
             </ChartCard>
             <Card className="p-5">
-                <h3 className="mb-3 text-[14px] text-zoru-ink">Command catalogue</h3>
+                <h3 className="mb-3 text-[14px] text-[var(--st-text)]">Command catalogue</h3>
                 {isLoading ? (
                     <SkeletonRows />
                 ) : commands.length === 0 ? (
-                    <p className="text-sm text-zoru-ink-muted">
+                    <p className="text-sm text-[var(--st-text-secondary)]">
                         No commands have been declared yet.
                     </p>
                 ) : (
@@ -960,7 +960,7 @@ function CommandsView({
                             {commands.map((c) => (
                                 <ZoruTableRow key={c.key}>
                                     <ZoruTableCell className="font-medium">/{c.key}</ZoruTableCell>
-                                    <ZoruTableCell className="text-zoru-ink-muted">
+                                    <ZoruTableCell className="text-[var(--st-text-secondary)]">
                                         {c.label}
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-right tabular-nums">
@@ -1075,11 +1075,11 @@ function FunnelView({
     const top = Math.max(stages[0]?.value ?? 0, 1);
     return (
         <Card className="p-5">
-            <h3 className="mb-4 text-[14px] text-zoru-ink">Conversion funnel</h3>
+            <h3 className="mb-4 text-[14px] text-[var(--st-text)]">Conversion funnel</h3>
             {isLoading ? (
                 <SkeletonRows />
             ) : top === 1 && stages.every((s) => s.value === 0) ? (
-                <p className="text-sm text-zoru-ink-muted">
+                <p className="text-sm text-[var(--st-text-secondary)]">
                     No funnel activity in this range.
                 </p>
             ) : (
@@ -1093,9 +1093,9 @@ function FunnelView({
                         return (
                             <div key={s.label} className="flex flex-col gap-1">
                                 <div className="flex items-center justify-between text-sm">
-                                    <span className="text-zoru-ink">{s.label}</span>
-                                    <span className="flex items-center gap-2 text-zoru-ink-muted">
-                                        <span className="tabular-nums text-zoru-ink">
+                                    <span className="text-[var(--st-text)]">{s.label}</span>
+                                    <span className="flex items-center gap-2 text-[var(--st-text-secondary)]">
+                                        <span className="tabular-nums text-[var(--st-text)]">
                                             {fmtNumber(s.value)}
                                         </span>
                                         {conv !== null && (
@@ -1105,7 +1105,7 @@ function FunnelView({
                                         )}
                                     </span>
                                 </div>
-                                <div className="h-3 w-full overflow-hidden rounded-full bg-zoru-surface-2">
+                                <div className="h-3 w-full overflow-hidden rounded-full bg-[var(--st-bg-muted)]">
                                     <div
                                         className="h-full rounded-full transition-all"
                                         style={{
@@ -1142,14 +1142,14 @@ function ChartCard({
 }) {
     return (
         <Card className="p-5">
-            <h3 className="mb-3 text-[14px] text-zoru-ink">{title}</h3>
+            <h3 className="mb-3 text-[14px] text-[var(--st-text)]">{title}</h3>
             <div style={{ height }} className="w-full">
                 {isLoading ? (
                     <div className="flex h-full items-center justify-center">
-                        <Loader2 className="h-5 w-5 animate-spin text-zoru-ink-muted" />
+                        <Loader2 className="h-5 w-5 animate-spin text-[var(--st-text-secondary)]" />
                     </div>
                 ) : empty ? (
-                    <div className="flex h-full items-center justify-center text-sm text-zoru-ink-muted">
+                    <div className="flex h-full items-center justify-center text-sm text-[var(--st-text-secondary)]">
                         No data in this range
                     </div>
                 ) : (
@@ -1189,8 +1189,8 @@ function MetricTile({
     return (
         <Card className="p-4">
             <TelegramProjectGate />
-            <div className="text-[11.5px] text-zoru-ink-muted">{label}</div>
-            <div className="text-[20px] leading-tight tabular-nums text-zoru-ink">
+            <div className="text-[11.5px] text-[var(--st-text-secondary)]">{label}</div>
+            <div className="text-[20px] leading-tight tabular-nums text-[var(--st-text)]">
                 {isLoading ? (
                     <Skeleton className="h-5 w-16" />
                 ) : asText ? (
@@ -1199,7 +1199,7 @@ function MetricTile({
                     fmtNumber(value as number)
                 )}
             </div>
-            {hint && <div className="text-[11px] text-zoru-ink-subtle">{hint}</div>}
+            {hint && <div className="text-[11px] text-[var(--st-text-tertiary)]">{hint}</div>}
         </Card>
     );
 }

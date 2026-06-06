@@ -60,29 +60,29 @@ export function DiscussionsRepliesPanel({
 
     return (
         <Card>
-            <h3 className="mb-3 text-[14px] font-semibold text-zoru-ink">
+            <h3 className="mb-3 text-[14px] font-semibold text-[var(--st-text)]">
                 Replies ({replies.length})
             </h3>
             <div className="flex flex-col gap-3">
                 {replies.length === 0 ? (
-                    <p className="text-[13px] text-zoru-ink-muted">
+                    <p className="text-[13px] text-[var(--st-text-secondary)]">
                         No replies yet — be the first.
                     </p>
                 ) : (
                     replies.map((r) => (
                         <div
                             key={r._id}
-                            className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3"
+                            className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3"
                         >
                             <div className="flex items-start justify-between gap-2">
                                 <div className="min-w-0">
-                                    <p className="text-[12px] font-semibold text-zoru-ink">
+                                    <p className="text-[12px] font-semibold text-[var(--st-text)]">
                                         {r.user_name || r.user_id}
                                     </p>
-                                    <p className="text-[11px] text-zoru-ink-muted">
+                                    <p className="text-[11px] text-[var(--st-text-secondary)]">
                                         {fmtDateTime(r.createdAt)}
                                     </p>
-                                    <p className="mt-1 whitespace-pre-wrap text-[13.5px] text-zoru-ink">
+                                    <p className="mt-1 whitespace-pre-wrap text-[13.5px] text-[var(--st-text)]">
                                         {r.body}
                                     </p>
                                 </div>

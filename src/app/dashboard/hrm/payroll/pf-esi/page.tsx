@@ -28,7 +28,7 @@ export default function PfEsiPage() {
           title="PF & ESI Compliance"
           subtitle="Loading compliance data..."
         >
-          <div className="py-12 text-center text-[13px] text-zoru-ink-muted">Loading…</div>
+          <div className="py-12 text-center text-[13px] text-[var(--st-text-secondary)]">Loading…</div>
         </EntityListShell>
       }
     >

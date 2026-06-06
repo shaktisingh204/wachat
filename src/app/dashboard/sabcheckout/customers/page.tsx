@@ -56,10 +56,10 @@ export default async function SabcheckoutCustomersPage() {
         </Card>
       ) : (
         <Card className="flex flex-col overflow-hidden">
-          <div className="flex items-center justify-between border-b border-zoru-line bg-zoru-surface p-4">
+          <div className="flex items-center justify-between border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4">
             <div className="flex items-center gap-2">
               <div className="relative">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
                 <Input
                   type="search"
                   placeholder="Search customers by name or email..."
@@ -78,7 +78,7 @@ export default async function SabcheckoutCustomersPage() {
           <ZoruCardContent className="p-0">
             {res.data.items.length === 0 ? (
               <div className="flex flex-col items-center justify-center p-12 text-center">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted mb-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] mb-4">
                   <Users className="h-6 w-6" />
                 </div>
                 <ZoruCardTitle className="text-lg">No recurring customers yet</ZoruCardTitle>
@@ -89,7 +89,7 @@ export default async function SabcheckoutCustomersPage() {
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
-                  <thead className="bg-zoru-surface-hover/50 text-zoru-ink-subtle uppercase tracking-wider">
+                  <thead className="bg-[var(--st-hover)]/50 text-[var(--st-text-tertiary)] uppercase tracking-wider">
                     <tr>
                       <th className="px-6 py-3 font-medium">Customer</th>
                       <th className="px-6 py-3 font-medium">Contact</th>
@@ -98,24 +98,24 @@ export default async function SabcheckoutCustomersPage() {
                       <th className="px-6 py-3 font-medium text-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-zoru-line">
+                  <tbody className="divide-y divide-[var(--st-border)]">
                     {res.data.items.map((c) => (
                       <tr
                         key={c._id}
-                        className="group hover:bg-zoru-surface-hover/30 transition-colors"
+                        className="group hover:bg-[var(--st-hover)]/30 transition-colors"
                       >
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center gap-3">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-zoru-surface-2 font-medium text-zoru-ink">
+                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--st-bg-muted)] font-medium text-[var(--st-text)]">
                               {(c.name ?? c.email)[0].toUpperCase()}
                             </div>
-                            <span className="font-medium text-zoru-ink">
+                            <span className="font-medium text-[var(--st-text)]">
                               {c.name ?? c.email}
                             </span>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex flex-col gap-1 text-xs text-zoru-ink-muted">
+                          <div className="flex flex-col gap-1 text-xs text-[var(--st-text-secondary)]">
                             <span className="flex items-center gap-1.5">
                               <Mail className="h-3 w-3" />
                               {c.email}
@@ -133,7 +133,7 @@ export default async function SabcheckoutCustomersPage() {
                             {c.subscriptionIds?.length ?? 0} active
                           </Badge>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-zoru-ink-muted">
+                        <td className="px-6 py-4 whitespace-nowrap text-[var(--st-text-secondary)]">
                           {c.createdAt
                             ? new Date(c.createdAt).toLocaleDateString(undefined, {
                                 year: 'numeric',

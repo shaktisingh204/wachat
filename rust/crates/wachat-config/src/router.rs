@@ -16,7 +16,10 @@ use serde::Deserialize;
 use serde_json::Value;
 use wachat_types::Project;
 
-use crate::{phone, project, qr, register, state::WachatConfigState, waba_setup, webhook, widget};
+use crate::{
+    display_name, phone, project, qr, register, state::WachatConfigState, waba_setup, webhook,
+    widget,
+};
 
 const PROJECTS_COLL: &str = "projects";
 
@@ -66,6 +69,26 @@ where
         .route(
             "/projects/{id}/phone-numbers/{pnid}/profile",
             post(update_phone_profile),
+        )
+        // Display-name change (deferred Graph feature). Literal suffixes
+        // (`display-name`, `display-name/status`) after the `{pnid}` param
+        // keep these unambiguous against the sibling phone-number routes.
+        .route(
+            "/projects/{id}/phone-numbers/{pnid}/display-name",
+            post(request_display_name),
+        )
+        .route(
+            "/projects/{id}/phone-numbers/{pnid}/display-name/status",
+            get(display_name_status),
+        )
+        // WhatsApp Flows encryption-key management (deferred Graph feature).
+        .route(
+            "/projects/{id}/phone-numbers/{pnid}/flows-encryption/generate",
+            post(generate_flows_keys),
+        )
+        .route(
+            "/projects/{id}/phone-numbers/{pnid}/flows-encryption/upload",
+            post(upload_flows_key),
         )
         .route(
             "/projects/{id}/webhook-subscription",
@@ -169,6 +192,58 @@ async fn update_phone_profile(
     let p = load_project_for(&user, &s.mongo, &id).await?;
     phone::update_profile(&s.meta, &p, &pnid, body).await?;
     Ok(Json(serde_json::json!({"ok": true})))
+}
+
+// ---------------------------------------------------------------------------
+// Display-name change + Flows encryption keys (deferred Graph features).
+// All Meta Graph / RSA work is isolated in `crate::display_name` +
+// `crate::flows_crypto`; handlers stay thin and project-scoped via
+// `load_project_for` (multi-tenant guard, identical to the rest of the crate).
+// ---------------------------------------------------------------------------
+
+#[tracing::instrument(skip_all)]
+async fn request_display_name(
+    user: AuthUser,
+    State(s): State<WachatConfigState>,
+    Path((id, pnid)): Path<(String, String)>,
+    Json(body): Json<display_name::DisplayNameBody>,
+) -> Result<Json<display_name::DisplayNameOutcome>> {
+    let p = load_project_for(&user, &s.mongo, &id).await?;
+    let out = display_name::request_change(&s.mongo, &s.meta, &p, &pnid, body).await?;
+    Ok(Json(out))
+}
+
+#[tracing::instrument(skip_all)]
+async fn display_name_status(
+    user: AuthUser,
+    State(s): State<WachatConfigState>,
+    Path((id, pnid)): Path<(String, String)>,
+) -> Result<Json<display_name::DisplayNameStatus>> {
+    let p = load_project_for(&user, &s.mongo, &id).await?;
+    let out = display_name::status(&s.meta, &p, &pnid).await?;
+    Ok(Json(out))
+}
+
+#[tracing::instrument(skip_all)]
+async fn generate_flows_keys(
+    user: AuthUser,
+    State(s): State<WachatConfigState>,
+    Path((id, pnid)): Path<(String, String)>,
+) -> Result<Json<display_name::GenerateKeysOutcome>> {
+    let p = load_project_for(&user, &s.mongo, &id).await?;
+    let out = display_name::generate_keys(&s.mongo, &p, &pnid).await?;
+    Ok(Json(out))
+}
+
+#[tracing::instrument(skip_all)]
+async fn upload_flows_key(
+    user: AuthUser,
+    State(s): State<WachatConfigState>,
+    Path((id, pnid)): Path<(String, String)>,
+) -> Result<Json<display_name::UploadKeyOutcome>> {
+    let p = load_project_for(&user, &s.mongo, &id).await?;
+    let out = display_name::upload_public_key(&s.mongo, &s.meta, &p, &pnid).await?;
+    Ok(Json(out))
 }
 
 async fn get_webhook_subscription(

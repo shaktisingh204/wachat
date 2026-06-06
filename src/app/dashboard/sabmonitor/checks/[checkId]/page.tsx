@@ -24,8 +24,8 @@ export default async function SabmonitorCheckDetailPage({
         <div className="flex flex-col gap-4">
             <div className="flex items-center justify-between">
                 <div className="flex flex-col gap-1">
-                    <h2 className="text-sm font-semibold text-zoru-ink">{check.name}</h2>
-                    <span className="text-[12px] text-zoru-ink-muted">
+                    <h2 className="text-sm font-semibold text-[var(--st-text)]">{check.name}</h2>
+                    <span className="text-[12px] text-[var(--st-text-secondary)]">
                         {check.kind} · {check.url ?? check.host ?? '—'}
                     </span>
                 </div>

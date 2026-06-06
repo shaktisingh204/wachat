@@ -26,22 +26,22 @@ function PeriodForm({ period }: { period: string }) {
     return (
         <form
             method="get"
-            className="flex flex-wrap items-end gap-2 rounded-lg border border-zoru-line bg-zoru-surface px-3 py-2"
+            className="flex flex-wrap items-end gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
         >
             <label className="flex flex-col gap-1">
-                <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                     Period (YYYY-MM)
                 </span>
                 <input
                     type="month"
                     name="period"
                     defaultValue={period}
-                    className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
+                    className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
                 />
             </label>
             <button
                 type="submit"
-                className="h-9 rounded-lg bg-zoru-ink px-3 text-[13px] font-medium text-white hover:opacity-90"
+                className="h-9 rounded-lg bg-[var(--st-text)] px-3 text-[13px] font-medium text-white hover:opacity-90"
             >
                 Apply
             </button>
@@ -128,18 +128,18 @@ export default async function ItcReconciliationPage(props: {
                 <Card>
                     <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                            <h2 className="text-[15px] font-semibold text-zoru-ink">
+                            <h2 className="text-[15px] font-semibold text-[var(--st-text)]">
                                 GSTR-2B import required
                             </h2>
-                            <p className="mt-1 text-[13px] text-zoru-ink-muted">
+                            <p className="mt-1 text-[13px] text-[var(--st-text-secondary)]">
                                 No GSTR-2B snapshot has been imported for{' '}
-                                <span className="font-medium text-zoru-ink">{period}</span>{' '}
+                                <span className="font-medium text-[var(--st-text)]">{period}</span>{' '}
                                 yet. Reconciliation is unavailable until you upload one.
                             </p>
                         </div>
                         <a
                             href="/dashboard/crm/tax/gstr2b"
-                            className="inline-flex h-9 items-center gap-2 rounded-lg bg-zoru-ink px-3 text-[13px] font-medium text-white hover:opacity-90"
+                            className="inline-flex h-9 items-center gap-2 rounded-lg bg-[var(--st-text)] px-3 text-[13px] font-medium text-white hover:opacity-90"
                         >
                             <FileDown className="h-4 w-4" />
                             Import GSTR-2B
@@ -148,7 +148,7 @@ export default async function ItcReconciliationPage(props: {
                 </Card>
             ) : !reconRes.ok ? (
                 <Card>
-                    <p className="text-[13px] text-zoru-ink">{reconRes.error}</p>
+                    <p className="text-[13px] text-[var(--st-text)]">{reconRes.error}</p>
                 </Card>
             ) : null}
 

@@ -115,7 +115,7 @@ export function LeaveCalendarView({
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <div className="min-w-[160px] text-center text-[14px] text-zoru-ink">
+          <div className="min-w-[160px] text-center text-[14px] text-[var(--st-text)]">
             {cursor.toLocaleString('en-US', {
               month: 'long',
               year: 'numeric',
@@ -147,7 +147,7 @@ export function LeaveCalendarView({
         {WEEKDAYS.map((d) => (
           <div
             key={d}
-            className="py-2 text-center text-[11px] uppercase text-zoru-ink-muted"
+            className="py-2 text-center text-[11px] uppercase text-[var(--st-text-secondary)]"
           >
             {d}
           </div>
@@ -167,13 +167,13 @@ export function LeaveCalendarView({
             <div
               key={cell.iso!}
               className={
-                'min-h-[90px] rounded-[var(--zoru-radius)] border bg-zoru-bg p-1.5 ' +
+                'min-h-[90px] rounded-[var(--zoru-radius)] border bg-[var(--st-bg)] p-1.5 ' +
                 (isToday
-                  ? 'border-zoru-primary ring-1 ring-zoru-primary'
-                  : 'border-zoru-line')
+                  ? 'border-[var(--st-text)] ring-1 ring-[var(--st-text)]'
+                  : 'border-[var(--st-border)]')
               }
             >
-              <div className="mb-1 text-[12px] text-zoru-ink">
+              <div className="mb-1 text-[12px] text-[var(--st-text)]">
                 {cell.date.getDate()}
               </div>
               <div className="space-y-1">
@@ -197,7 +197,7 @@ export function LeaveCalendarView({
                   );
                 })}
                 {dayEntries.length > 3 ? (
-                  <div className="text-[10.5px] text-zoru-ink-muted">
+                  <div className="text-[10.5px] text-[var(--st-text-secondary)]">
                     +{dayEntries.length - 3} more
                   </div>
                 ) : null}

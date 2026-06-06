@@ -102,11 +102,11 @@ export default function LogAnalyzerPage() {
     <ToolShell title="Server Log Analyzer" description="Parse massive NCSA/Combined access logs locally and find top IPs, paths, and bots.">
       <Card className="mb-6 border-dashed">
         <ZoruCardContent className="flex flex-col items-center justify-center p-8 text-center">
-          <div className="rounded-full bg-zoru-surface-2 p-3 mb-4">
-            <Upload className="h-6 w-6 text-zoru-ink-muted" />
+          <div className="rounded-full bg-[var(--st-bg-muted)] p-3 mb-4">
+            <Upload className="h-6 w-6 text-[var(--st-text-secondary)]" />
           </div>
           <h3 className="text-sm font-medium mb-1">Upload Access Log</h3>
-          <p className="text-xs text-zoru-ink-muted mb-4 max-w-sm">
+          <p className="text-xs text-[var(--st-text-secondary)] mb-4 max-w-sm">
             Select a massive NCSA/Combined log file. The file is processed locally in chunks to prevent freezing your browser.
           </p>
           
@@ -134,7 +134,7 @@ export default function LogAnalyzerPage() {
           </Button>
           
           {fileName && !loading && (
-            <div className="mt-4 flex items-center gap-2 text-xs text-zoru-ink bg-zoru-surface-2 px-3 py-1.5 rounded-full">
+            <div className="mt-4 flex items-center gap-2 text-xs text-[var(--st-text)] bg-[var(--st-bg-muted)] px-3 py-1.5 rounded-full">
               <FileText className="h-3 w-3" />
               <span>{fileName}</span>
             </div>
@@ -155,9 +155,9 @@ export default function LogAnalyzerPage() {
       {results && (
         <>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
-            <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{results.total.toLocaleString()}</div><div className="text-xs text-zoru-ink-muted">Lines parsed</div></ZoruCardContent></Card>
-            <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{results.bots.toLocaleString()}</div><div className="text-xs text-zoru-ink-muted">Bot hits</div></ZoruCardContent></Card>
-            <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{results.topIps.length.toLocaleString()}</div><div className="text-xs text-zoru-ink-muted">Unique IPs (top)</div></ZoruCardContent></Card>
+            <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{results.total.toLocaleString()}</div><div className="text-xs text-[var(--st-text-secondary)]">Lines parsed</div></ZoruCardContent></Card>
+            <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{results.bots.toLocaleString()}</div><div className="text-xs text-[var(--st-text-secondary)]">Bot hits</div></ZoruCardContent></Card>
+            <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{results.topIps.length.toLocaleString()}</div><div className="text-xs text-[var(--st-text-secondary)]">Unique IPs (top)</div></ZoruCardContent></Card>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {[['Top IPs', results.topIps], ['Top paths', results.topPaths], ['Top user agents', results.topUAs]].map(([title, list]) => (

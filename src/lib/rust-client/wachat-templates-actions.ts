@@ -21,6 +21,8 @@
  *   POST   /library/{id}/delete                  → libraryDelete
  *   POST   /library/{id}/apply                   → libraryApply
  *
+ *   POST   /multilang/clone                       → cloneMultilang
+ *
  * Server-only — uses the shared JWT-issuing fetcher.
  */
 import 'server-only';
@@ -164,6 +166,53 @@ export interface ApplyBody {
 }
 
 // ---------------------------------------------------------------------------
+// `POST /multilang/clone` — create one copy of a source template per language.
+// (Wave E backend feature; mirrors the Rust `MultiLangCloneBody`/`Result` DTOs.)
+// ---------------------------------------------------------------------------
+
+/** Per-language clone status emitted by the Rust handler. */
+export type CloneOutcomeStatus = 'created' | 'failed' | 'skipped';
+
+/**
+ * Body for `POST /multilang/clone`.
+ *
+ * Exactly one of `sourceTemplateId` / `sourceTemplateName` must be present to
+ * identify the source row (the Rust handler 400s otherwise). `targetLanguages`
+ * lists the Meta locale codes (`en_US`, `hi`, `pt_BR`, …) to create copies in.
+ */
+export interface MultiLangCloneBody {
+    projectId: string;
+    sourceTemplateId?: string;
+    sourceTemplateName?: string;
+    targetLanguages: string[];
+}
+
+/**
+ * One per-language outcome. `status` is `created` on success; `failed`
+ * (missing Meta creds, Meta rejection, unparseable source) or `skipped`
+ * (target equals the source language, or a duplicate) carry a reason in
+ * `error`. `metaId` is the Meta-assigned template id on success.
+ */
+export interface CloneOutcome {
+    language: string;
+    status: CloneOutcomeStatus;
+    error?: string;
+    metaId?: string;
+}
+
+/**
+ * Result of `POST /multilang/clone` — the per-language outcome array plus
+ * convenience counts and an echo of the resolved source template.
+ */
+export interface MultiLangCloneResult {
+    sourceName: string;
+    sourceLanguage: string;
+    created: number;
+    failed: number;
+    outcomes: CloneOutcome[];
+}
+
+// ---------------------------------------------------------------------------
 // Query helper
 // ---------------------------------------------------------------------------
 
@@ -248,6 +297,17 @@ export const wachatTemplatesActionsApi = {
                 body: JSON.stringify(body),
             },
         ),
+
+    /**
+     * `POST /multilang/clone` — clone one source template into many languages.
+     * Returns the per-language outcome array verbatim; whole-request failures
+     * (bad project, missing source, empty target list) throw via `rustFetch`.
+     */
+    cloneMultilang: (body: MultiLangCloneBody) =>
+        rustFetch<MultiLangCloneResult>(`${BASE}/multilang/clone`, {
+            method: 'POST',
+            body: JSON.stringify(body),
+        }),
 };
 
 export type WachatTemplatesActionsApi = typeof wachatTemplatesActionsApi;

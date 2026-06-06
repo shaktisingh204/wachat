@@ -19,10 +19,10 @@ interface ReportsKpiStripProps {
 }
 
 const KPI_ICONS = [
-  <ClipboardList key="0" className="h-4 w-4 text-zoru-ink-muted" />,
-  <Clock key="1" className="h-4 w-4 text-zoru-ink" />,
-  <CheckCircle2 key="2" className="h-4 w-4 text-zoru-ink" />,
-  <CalendarDays key="3" className="h-4 w-4 text-zoru-ink-muted" />,
+  <ClipboardList key="0" className="h-4 w-4 text-[var(--st-text-secondary)]" />,
+  <Clock key="1" className="h-4 w-4 text-[var(--st-text)]" />,
+  <CheckCircle2 key="2" className="h-4 w-4 text-[var(--st-text)]" />,
+  <CalendarDays key="3" className="h-4 w-4 text-[var(--st-text-secondary)]" />,
 ];
 
 export function ReportsKpiStrip({ kpisPromise }: ReportsKpiStripProps) {
@@ -34,7 +34,7 @@ export function ReportsKpiStrip({ kpisPromise }: ReportsKpiStripProps) {
         <Card key={kpi.label} variant="soft">
           <ZoruCardContent className="p-4">
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[12px] font-medium text-zoru-ink-muted uppercase tracking-wide">
+              <span className="text-[12px] font-medium text-[var(--st-text-secondary)] uppercase tracking-wide">
                 {kpi.label}
               </span>
               {KPI_ICONS[i]}
@@ -42,14 +42,14 @@ export function ReportsKpiStrip({ kpisPromise }: ReportsKpiStripProps) {
             <p
               className={`text-2xl font-semibold tabular-nums ${
                 i === 1 && kpi.value > 0
-                  ? 'text-zoru-ink'
-                  : 'text-zoru-ink'
+                  ? 'text-[var(--st-text)]'
+                  : 'text-[var(--st-text)]'
               }`}
             >
               {kpi.value}
             </p>
             {kpi.hint ? (
-              <p className="mt-0.5 text-[11px] text-zoru-ink-muted">{kpi.hint}</p>
+              <p className="mt-0.5 text-[11px] text-[var(--st-text-secondary)]">{kpi.hint}</p>
             ) : null}
           </ZoruCardContent>
         </Card>

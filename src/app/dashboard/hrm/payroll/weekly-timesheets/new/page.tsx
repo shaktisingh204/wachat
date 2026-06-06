@@ -17,7 +17,7 @@ async function EmployeesLoader() {
 
 export default function NewWeeklyTimesheetPage() {
   return (
-    <Suspense fallback={<div className="p-12 text-center text-[13px] text-zoru-ink-muted">Loading employees…</div>}>
+    <Suspense fallback={<div className="p-12 text-center text-[13px] text-[var(--st-text-secondary)]">Loading employees…</div>}>
       <EmployeesLoader />
     </Suspense>
   );

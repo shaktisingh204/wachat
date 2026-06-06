@@ -36,13 +36,13 @@ export default async function JoinsPage() {
     <div className="zoruui flex flex-col gap-6 p-6">
       <header className="flex items-end justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-wide text-zoru-ink-muted">
+          <p className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
             <Link href="/dashboard/analytics-workspace/datasets" className="hover:underline">
               Datasets
             </Link>
           </p>
-          <h1 className="text-2xl font-semibold text-zoru-ink">Joins</h1>
-          <p className="text-sm text-zoru-ink-muted">
+          <h1 className="text-2xl font-semibold text-[var(--st-text)]">Joins</h1>
+          <p className="text-sm text-[var(--st-text-secondary)]">
             Visually combine two datasets on matching columns.
           </p>
         </div>
@@ -64,7 +64,7 @@ export default async function JoinsPage() {
         </CardHeader>
         <CardContent>
           {joins.length === 0 ? (
-            <p className="text-sm text-zoru-ink-muted">No joins yet.</p>
+            <p className="text-sm text-[var(--st-text-secondary)]">No joins yet.</p>
           ) : (
             <Table>
               <TableHeader>
@@ -78,13 +78,13 @@ export default async function JoinsPage() {
               </TableHeader>
               <TableBody>
                 {joins.map((j) => (
-                  <tr key={j._id} className="border-t border-zoru-line">
+                  <tr key={j._id} className="border-t border-[var(--st-border)]">
                     <td className="py-2">{j.name}</td>
                     <td className="py-2">
                       <Badge variant="outline">{j.type}</Badge>
                     </td>
-                    <td className="py-2 text-zoru-ink-muted">{j.leftId}</td>
-                    <td className="py-2 text-zoru-ink-muted">{j.rightId}</td>
+                    <td className="py-2 text-[var(--st-text-secondary)]">{j.leftId}</td>
+                    <td className="py-2 text-[var(--st-text-secondary)]">{j.rightId}</td>
                     <td className="py-2 text-right">{j.onColumns?.length ?? 0}</td>
                   </tr>
                 ))}

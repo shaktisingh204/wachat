@@ -65,9 +65,9 @@ export function SprintPlanBoard({
       <Card className="flex flex-col gap-3 p-4">
         <div className="flex items-start justify-between gap-4">
           <div className="flex flex-col gap-1">
-            <h2 className="text-lg font-semibold text-zoru-ink">{sprint.name}</h2>
+            <h2 className="text-lg font-semibold text-[var(--st-text)]">{sprint.name}</h2>
             {sprint.goal ? (
-              <p className="text-sm text-zoru-ink-muted">{sprint.goal}</p>
+              <p className="text-sm text-[var(--st-text-secondary)]">{sprint.goal}</p>
             ) : null}
           </div>
           <div className="flex items-center gap-2">
@@ -88,7 +88,7 @@ export function SprintPlanBoard({
           </div>
         </div>
         <div className="flex flex-col gap-1.5">
-          <div className="flex items-center justify-between text-xs text-zoru-ink-muted">
+          <div className="flex items-center justify-between text-xs text-[var(--st-text-secondary)]">
             <span>Allocated</span>
             <span>
               {allocated} / {capacity || '—'} pts
@@ -135,13 +135,13 @@ function Pane({
   return (
     <Card className="flex flex-col gap-2 p-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-zoru-ink">{label}</h3>
-        <span className="text-xs text-zoru-ink-subtle">
+        <h3 className="text-sm font-semibold text-[var(--st-text)]">{label}</h3>
+        <span className="text-xs text-[var(--st-text-tertiary)]">
           {stories.length} &middot; {sumPoints(stories)} pts
         </span>
       </div>
       {stories.length === 0 ? (
-        <p className="py-6 text-center text-xs text-zoru-ink-subtle">
+        <p className="py-6 text-center text-xs text-[var(--st-text-tertiary)]">
           {emptyHint}
         </p>
       ) : (
@@ -149,9 +149,9 @@ function Pane({
           {stories.map((s) => (
             <li
               key={s._id}
-              className="flex items-center gap-2 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-bg px-3 py-2"
+              className="flex items-center gap-2 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2"
             >
-              <span className="flex-1 truncate text-sm text-zoru-ink">
+              <span className="flex-1 truncate text-sm text-[var(--st-text)]">
                 {s.title}
               </span>
               <Badge variant="ghost">{s.points ?? 0} pts</Badge>

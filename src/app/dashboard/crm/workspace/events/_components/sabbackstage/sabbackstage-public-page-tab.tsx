@@ -155,7 +155,7 @@ export function SabbackstagePublicPageTab({
 
   if (loading) {
     return (
-      <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink-muted">
+      <div className="flex items-center gap-2 text-[12.5px] text-[var(--st-text-secondary)]">
         <Loader2 className="h-3.5 w-3.5 animate-spin" /> Loading…
       </div>
     );
@@ -168,7 +168,7 @@ export function SabbackstagePublicPageTab({
           {existing ? `Status · ${form.status}` : 'Not yet created'}
         </Badge>
         <div className="flex items-center gap-2">
-          <code className="rounded bg-zoru-bg-soft px-2 py-1 text-[12px] text-zoru-ink">
+          <code className="rounded bg-zoru-bg-soft px-2 py-1 text-[12px] text-[var(--st-text)]">
             {publicUrl}
           </code>
           <Button variant="outline" type="button" onClick={copyUrl}>
@@ -197,7 +197,7 @@ export function SabbackstagePublicPageTab({
           <Label htmlFor="pp-status">Status</Label>
           <select
             id="pp-status"
-            className="block h-9 w-full rounded-md border border-zoru-line bg-zoru-bg px-2 text-[13px]"
+            className="block h-9 w-full rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-2 text-[13px]"
             value={form.status}
             onChange={(e) =>
               setForm({
@@ -260,11 +260,11 @@ export function SabbackstagePublicPageTab({
             Pick hero image
           </SabFilePickerButton>
           {form.heroImageFileId ? (
-            <span className="text-[12px] text-zoru-ink-muted">
+            <span className="text-[12px] text-[var(--st-text-secondary)]">
               Hero set: {form.heroImageName || form.heroImageFileId}
             </span>
           ) : (
-            <span className="text-[12px] text-zoru-ink-muted">
+            <span className="text-[12px] text-[var(--st-text-secondary)]">
               No hero image yet
             </span>
           )}

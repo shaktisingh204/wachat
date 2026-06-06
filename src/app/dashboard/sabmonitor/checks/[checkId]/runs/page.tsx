@@ -23,9 +23,9 @@ export default async function CheckRunsPage({ params }: PageProps): Promise<Reac
     return (
         <div className="flex flex-col gap-4">
             <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-zoru-ink">Recent runs</h2>
+                <h2 className="text-sm font-semibold text-[var(--st-text)]">Recent runs</h2>
                 <Link
-                    className="text-[12px] text-zoru-brand hover:underline"
+                    className="text-[12px] text-[var(--st-accent)] hover:underline"
                     href={`/dashboard/sabmonitor/checks/${checkId}`}
                 >
                     Back to check
@@ -45,14 +45,14 @@ export default async function CheckRunsPage({ params }: PageProps): Promise<Reac
             <Card className="zoruui">
                 <CardContent className="p-0">
                     {runs.items.length === 0 ? (
-                        <p className="p-4 text-sm text-zoru-ink-muted">
+                        <p className="p-4 text-sm text-[var(--st-text-secondary)]">
                             No runs yet — click <span className="font-medium">Run now</span> to
                             collect a first sample.
                         </p>
                     ) : (
                         <table className="w-full text-sm">
-                            <thead className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
-                                <tr className="border-b border-zoru-line">
+                            <thead className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
+                                <tr className="border-b border-[var(--st-border)]">
                                     <th className="p-3 text-left font-medium">Time</th>
                                     <th className="p-3 text-left font-medium">Region</th>
                                     <th className="p-3 text-left font-medium">Status</th>
@@ -62,18 +62,18 @@ export default async function CheckRunsPage({ params }: PageProps): Promise<Reac
                             </thead>
                             <tbody>
                                 {runs.items.map((r) => (
-                                    <tr key={r._id} className="border-b border-zoru-line">
-                                        <td className="p-3 text-zoru-ink-muted">
+                                    <tr key={r._id} className="border-b border-[var(--st-border)]">
+                                        <td className="p-3 text-[var(--st-text-secondary)]">
                                             {new Date(r.ts).toLocaleString()}
                                         </td>
-                                        <td className="p-3 text-zoru-ink-muted">{r.probeRegion}</td>
+                                        <td className="p-3 text-[var(--st-text-secondary)]">{r.probeRegion}</td>
                                         <td className="p-3">
                                             <StatusBadge status={r.status} />
                                         </td>
-                                        <td className="p-3 text-right text-zoru-ink-muted">
+                                        <td className="p-3 text-right text-[var(--st-text-secondary)]">
                                             {r.responseMs}
                                         </td>
-                                        <td className="p-3 text-right text-zoru-ink-muted">
+                                        <td className="p-3 text-right text-[var(--st-text-secondary)]">
                                             {r.httpStatusCode ?? '—'}
                                         </td>
                                     </tr>

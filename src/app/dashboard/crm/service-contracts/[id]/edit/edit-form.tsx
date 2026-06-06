@@ -179,7 +179,7 @@ export function ServiceContractEditForm({
                         <div className="space-y-2">
                             <Label htmlFor="contractNo">
                                 Contract no.{' '}
-                                <span className="text-zoru-danger-ink">*</span>
+                                <span className="text-[var(--st-danger)]">*</span>
                             </Label>
                             <Input
                                 id="contractNo"
@@ -221,7 +221,7 @@ export function ServiceContractEditForm({
                             <select
                                 value={status}
                                 onChange={(e) => setStatus(e.target.value as ContractStatus)}
-                                className="h-10 w-full rounded-lg border border-zoru-line bg-zoru-bg px-3 text-[13px] text-zoru-ink"
+                                className="h-10 w-full rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] px-3 text-[13px] text-[var(--st-text)]"
                             >
                                 {STATUS_OPTIONS.map((opt) => (
                                     <option key={opt.value} value={opt.value}>
@@ -353,10 +353,10 @@ export function ServiceContractEditForm({
                     <ZoruCardTitle>Renewal</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent>
-                    <div className="flex items-center justify-between rounded-lg border border-zoru-line bg-zoru-surface-2/40 px-3 py-2">
-                        <div className="text-[12.5px] text-zoru-ink">
+                    <div className="flex items-center justify-between rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)]/40 px-3 py-2">
+                        <div className="text-[12.5px] text-[var(--st-text)]">
                             <div className="font-medium">Auto-renew</div>
-                            <div className="text-zoru-ink-muted">
+                            <div className="text-[var(--st-text-secondary)]">
                                 Automatically renew the contract at expiry.
                             </div>
                         </div>
@@ -405,7 +405,7 @@ export function ServiceContractEditForm({
                         rows={8}
                         placeholder="Scope of work, exclusions, SLAs, payment terms…"
                     />
-                    <p className="mt-1 text-[11px] text-zoru-ink-muted">
+                    <p className="mt-1 text-[11px] text-[var(--st-text-secondary)]">
                         Plain text — rich-text editor not available in this build.
                     </p>
                 </ZoruCardContent>
@@ -418,7 +418,7 @@ export function ServiceContractEditForm({
                 <ZoruCardContent>
                     <div className="space-y-2">
                         {documents.length === 0 ? (
-                            <p className="text-[12.5px] text-zoru-ink-muted">
+                            <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                                 No documents attached yet.
                             </p>
                         ) : (
@@ -426,17 +426,17 @@ export function ServiceContractEditForm({
                                 {documents.map((doc) => (
                                     <li
                                         key={doc.id}
-                                        className="flex items-center justify-between gap-2 rounded-md border border-zoru-line bg-zoru-bg px-2.5 py-1.5 text-[12.5px]"
+                                        className="flex items-center justify-between gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-2.5 py-1.5 text-[12.5px]"
                                     >
-                                        <span className="inline-flex min-w-0 items-center gap-2 text-zoru-ink">
-                                            <FileText className="h-3.5 w-3.5 shrink-0 text-zoru-ink-muted" />
+                                        <span className="inline-flex min-w-0 items-center gap-2 text-[var(--st-text)]">
+                                            <FileText className="h-3.5 w-3.5 shrink-0 text-[var(--st-text-secondary)]" />
                                             <span className="truncate">{doc.name}</span>
                                         </span>
                                         <button
                                             type="button"
                                             onClick={() => removeDocument(doc.id)}
                                             aria-label={`Remove ${doc.name}`}
-                                            className="shrink-0 rounded p-1 text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-danger-ink"
+                                            className="shrink-0 rounded p-1 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-danger)]"
                                         >
                                             <X className="h-3.5 w-3.5" />
                                         </button>
@@ -452,7 +452,7 @@ export function ServiceContractEditForm({
                                 <Plus className="h-4 w-4" />
                                 Add document
                             </SabFilePickerButton>
-                            <span className="text-[11px] text-zoru-ink-muted">
+                            <span className="text-[11px] text-[var(--st-text-secondary)]">
                                 {documents.length}/{MAX_DOCS} attached
                             </span>
                         </div>
@@ -475,12 +475,12 @@ export function ServiceContractEditForm({
                 </ZoruCardContent>
             </Card>
 
-            <div className="sticky bottom-0 z-10 -mx-2 flex flex-wrap items-center justify-between gap-2 border-t border-zoru-line bg-zoru-bg px-2 py-3">
+            <div className="sticky bottom-0 z-10 -mx-2 flex flex-wrap items-center justify-between gap-2 border-t border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-3">
                 <div className="text-sm">
                     {state?.error ? (
-                        <span className="text-zoru-danger-ink">{state.error}</span>
+                        <span className="text-[var(--st-danger)]">{state.error}</span>
                     ) : state?.message ? (
-                        <span className="text-zoru-success-ink">{state.message}</span>
+                        <span className="text-[var(--st-status-ok)]">{state.message}</span>
                     ) : null}
                 </div>
                 <div className="flex items-center gap-2">

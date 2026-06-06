@@ -268,7 +268,7 @@ export function ActivityFeed({
               onChange={(e) => setFilters((f) => ({ ...f, to: e.target.value }))}
             />
           </div>
-          <label className="flex items-center gap-2 pb-2 text-[12px] text-zoru-ink-muted">
+          <label className="flex items-center gap-2 pb-2 text-[12px] text-[var(--st-text-secondary)]">
             <input
               type="checkbox"
               checked={involvingMe}
@@ -289,9 +289,9 @@ export function ActivityFeed({
       empty={
         filtered.length === 0 ? (
           <div className="flex flex-col items-center gap-3 p-4">
-            <Activity className="h-8 w-8 text-zoru-ink-muted" />
-            <h3 className="text-base font-medium text-zoru-ink">No activity</h3>
-            <p className="max-w-sm text-sm text-zoru-ink-muted">
+            <Activity className="h-8 w-8 text-[var(--st-text-secondary)]" />
+            <h3 className="text-base font-medium text-[var(--st-text)]">No activity</h3>
+            <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
               {activities.length === 0
                 ? 'Activity rows are written whenever your team takes action across the CRM.'
                 : 'No events match the current filters.'}
@@ -323,13 +323,13 @@ export function ActivityFeed({
 function BucketCard({ title, rows }: { title: string; rows: Row[] }): React.JSX.Element {
   return (
     <Card className="p-0">
-      <div className="border-b border-zoru-line p-4">
+      <div className="border-b border-[var(--st-border)] p-4">
         <div className="flex items-center gap-2">
-          <h2 className="text-[14px] font-semibold text-zoru-ink">{title}</h2>
+          <h2 className="text-[14px] font-semibold text-[var(--st-text)]">{title}</h2>
           <Badge variant="secondary">{rows.length}</Badge>
         </div>
       </div>
-      <ul className="divide-y divide-zoru-line">
+      <ul className="divide-y divide-[var(--st-border)]">
         {rows.map((a) => (
           <li key={a._id} className="flex items-start gap-3 p-4">
             <Avatar className="h-8 w-8">
@@ -338,20 +338,20 @@ function BucketCard({ title, rows }: { title: string; rows: Row[] }): React.JSX.
               </ZoruAvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-center gap-2 text-[13px] text-zoru-ink">
+              <div className="flex flex-wrap items-center gap-2 text-[13px] text-[var(--st-text)]">
                 <span className="font-medium">{a.actor_user_id}</span>
                 <Badge variant="secondary">{a.action}</Badge>
                 {a.resource_type ? (
                   <Badge variant="secondary">{a.resource_type}</Badge>
                 ) : null}
                 {a.resource_id ? (
-                  <span className="font-mono text-[11.5px] text-zoru-ink-muted">
+                  <span className="font-mono text-[11.5px] text-[var(--st-text-secondary)]">
                     {a.resource_id}
                   </span>
                 ) : null}
               </div>
                 {a.description ? (
-                  <p className="mt-1 text-[12.5px] text-zoru-ink-muted">{a.description}</p>
+                  <p className="mt-1 text-[12.5px] text-[var(--st-text-secondary)]">{a.description}</p>
                 ) : null}
                 <TimeDisplay occurredAt={a.occurred_at} />
               </div>
@@ -369,7 +369,7 @@ function BucketCard({ title, rows }: { title: string; rows: Row[] }): React.JSX.
     if (!occurredAt) return null;
     
     return (
-      <p className="mt-1 text-[11.5px] text-zoru-ink-muted" title={String(occurredAt)}>
+      <p className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]" title={String(occurredAt)}>
         {mounted ? formatRelative(occurredAt) : String(occurredAt).slice(0, 10)}
       </p>
     );

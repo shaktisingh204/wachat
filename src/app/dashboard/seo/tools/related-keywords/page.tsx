@@ -35,10 +35,10 @@ export default function RelatedKeywordsPage() {
   }, {} as Record<string, RelatedKeywordIdea[]>);
 
   const intentColors = {
-    informational: 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted',
-    navigational: 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted',
-    commercial: 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted',
-    transactional: 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted'
+    informational: 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]',
+    navigational: 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]',
+    commercial: 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]',
+    transactional: 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]'
   } as Record<string, string>;
 
   return (
@@ -64,7 +64,7 @@ export default function RelatedKeywordsPage() {
         <div className="flex flex-col gap-6 mt-4">
           {Object.entries(grouped).map(([intent, keywords]) => (
             <Card key={intent} className="overflow-hidden">
-              <div className="px-4 py-3 border-b bg-zoru-surface-2/40 flex items-center justify-between">
+              <div className="px-4 py-3 border-b bg-[var(--st-bg-muted)]/40 flex items-center justify-between">
                 <h3 className="font-semibold capitalize flex items-center gap-2">
                   {intent} Intent
                   <Badge variant="outline" className={cn("ml-2 capitalize", intentColors[intent])}>
@@ -89,14 +89,14 @@ export default function RelatedKeywordsPage() {
                       <TableCell className="text-right">${k.cpc.toFixed(2)}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <span className="text-xs text-zoru-ink-muted">
+                          <span className="text-xs text-[var(--st-text-secondary)]">
                             {k.competition > 0.7 ? 'High' : k.competition > 0.3 ? 'Medium' : 'Low'}
                           </span>
-                          <div className="w-16 h-2 bg-zoru-surface-2 rounded-full overflow-hidden">
+                          <div className="w-16 h-2 bg-[var(--st-bg-muted)] rounded-full overflow-hidden">
                             <div 
                               className={cn(
                                 "h-full",
-                                k.competition > 0.7 ? "bg-zoru-ink" : k.competition > 0.3 ? "bg-zoru-ink" : "bg-zoru-ink"
+                                k.competition > 0.7 ? "bg-[var(--st-text)]" : k.competition > 0.3 ? "bg-[var(--st-text)]" : "bg-[var(--st-text)]"
                               )}
                               style={{ width: `${k.competition * 100}%` }}
                             />

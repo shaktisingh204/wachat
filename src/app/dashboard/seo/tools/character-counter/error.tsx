@@ -16,15 +16,15 @@ export default function ErrorBoundary({
     }, [error]);
 
     return (
-        <div className="flex h-[400px] w-full flex-col items-center justify-center gap-4 rounded-lg border border-dashed border-destructive/50 bg-zoru-ink/10 p-8 text-center">
-            <div className="rounded-full bg-zoru-ink/20 p-4">
-                <AlertCircle className="h-8 w-8 text-zoru-ink" />
+        <div className="flex h-[400px] w-full flex-col items-center justify-center gap-4 rounded-lg border border-dashed border-destructive/50 bg-[var(--st-text)]/10 p-8 text-center">
+            <div className="rounded-full bg-[var(--st-text)]/20 p-4">
+                <AlertCircle className="h-8 w-8 text-[var(--st-text)]" />
             </div>
             <div className="space-y-2">
-                <h2 className="text-xl font-semibold tracking-tight text-zoru-ink">
+                <h2 className="text-xl font-semibold tracking-tight text-[var(--st-text)]">
                     Something went wrong!
                 </h2>
-                <p className="text-sm text-zoru-ink-muted max-w-md mx-auto">
+                <p className="text-sm text-[var(--st-text-secondary)] max-w-md mx-auto">
                     {error.message || "We encountered an unexpected error while loading the Character Counter tool. Please try again."}
                 </p>
             </div>

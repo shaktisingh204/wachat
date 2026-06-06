@@ -214,7 +214,7 @@ export function WorkbookEditor({
             </Select>
           </div>
 
-          {error && <p className="text-sm text-zoru-danger">{error}</p>}
+          {error && <p className="text-sm text-[var(--st-danger)]">{error}</p>}
 
           <div className="flex gap-2 pt-1">
             <Button onClick={saveChart} disabled={pending}>

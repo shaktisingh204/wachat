@@ -126,7 +126,7 @@ export function BillsTable({
       key: 'vendorInvoiceNo',
       header: 'Vendor Invoice #',
       sortable: true,
-      render: (row) => <span className="text-zoru-ink-muted">{row.vendorInvoiceNo || '—'}</span>,
+      render: (row) => <span className="text-[var(--st-text-secondary)]">{row.vendorInvoiceNo || '—'}</span>,
     },
     {
       key: 'vendorId',
@@ -135,14 +135,14 @@ export function BillsTable({
       render: (row) => row.vendorId ? (
         <EntityPickerChip entity="vendor" id={row.vendorId} />
       ) : (
-        <span className="text-zoru-ink-muted">{row.vendorLabel ?? '—'}</span>
+        <span className="text-[var(--st-text-secondary)]">{row.vendorLabel ?? '—'}</span>
       ),
     },
     {
       key: 'billDate',
       header: 'Bill Date',
       sortable: true,
-      render: (row) => <span className="text-zoru-ink-muted">{fmtDate(row.billDate)}</span>,
+      render: (row) => <span className="text-[var(--st-text-secondary)]">{fmtDate(row.billDate)}</span>,
     },
     {
       key: 'dueDate',
@@ -150,7 +150,7 @@ export function BillsTable({
       sortable: true,
       render: (row) => {
         const overdue = isOverdue(row);
-        const overdueClass = overdue ? 'text-zoru-danger-ink font-semibold' : 'text-zoru-ink-muted';
+        const overdueClass = overdue ? 'text-[var(--st-danger)] font-semibold' : 'text-[var(--st-text-secondary)]';
         return (
           <span className={overdueClass} title={relativeDays(row.dueDate)}>
             {fmtDate(row.dueDate)}
@@ -162,14 +162,14 @@ export function BillsTable({
     {
       key: 'currency',
       header: 'Currency',
-      render: (row) => <span className="text-zoru-ink-muted">{row.currency || '—'}</span>,
+      render: (row) => <span className="text-[var(--st-text-secondary)]">{row.currency || '—'}</span>,
     },
     {
       key: 'total',
       header: 'Total',
       sortable: true,
       render: (row) => (
-        <span className="font-mono tabular-nums text-zoru-ink font-semibold">
+        <span className="font-mono tabular-nums text-[var(--st-text)] font-semibold">
           {fmtMoney(row.total, row.currency)}
         </span>
       ),
@@ -179,7 +179,7 @@ export function BillsTable({
       header: 'Paid',
       sortable: true,
       render: (row) => (
-        <span className="font-mono tabular-nums text-zoru-ink-muted">
+        <span className="font-mono tabular-nums text-[var(--st-text-secondary)]">
           {fmtMoney(row.paid, row.currency)}
         </span>
       ),
@@ -190,7 +190,7 @@ export function BillsTable({
       sortable: true,
       render: (row) => {
         const overdue = isOverdue(row);
-        const colorClass = overdue && row.balance > 0 ? 'text-zoru-danger-ink font-semibold' : 'text-zoru-ink';
+        const colorClass = overdue && row.balance > 0 ? 'text-[var(--st-danger)] font-semibold' : 'text-[var(--st-text)]';
         return (
           <span className={`font-mono tabular-nums ${colorClass}`}>
             {fmtMoney(row.balance, row.currency)}
@@ -208,13 +208,13 @@ export function BillsTable({
           tone={statusToTone(row.status)}
         />
       ) : (
-        <span className="text-zoru-ink-muted">—</span>
+        <span className="text-[var(--st-text-secondary)]">—</span>
       ),
       editRender: (row, value, onChange) => {
         const options = ['draft', 'unpaid', 'partially_paid', 'paid', 'void', 'cancelled'];
         return (
           <select
-            className="h-8 w-36 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg text-zoru-ink text-[12.5px] p-1 outline-none focus:ring-1 focus:ring-zoru-primary"
+            className="h-8 w-36 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)] text-[12.5px] p-1 outline-none focus:ring-1 focus:ring-[var(--st-text)]"
             value={value !== undefined ? String(value) : 'draft'}
             onChange={(e) => onChange(e.target.value)}
           >
@@ -233,12 +233,12 @@ export function BillsTable({
       render: (row) => row.linkedPoId ? (
         <Link
           href={`/dashboard/crm/purchases/orders/${row.linkedPoId}`}
-          className="text-zoru-primary hover:underline font-semibold"
+          className="text-[var(--st-text)] hover:underline font-semibold"
         >
           PO
         </Link>
       ) : (
-        <span className="text-zoru-ink-muted">—</span>
+        <span className="text-[var(--st-text-secondary)]">—</span>
       ),
     },
     {

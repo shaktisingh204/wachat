@@ -62,56 +62,56 @@ const MODULE_TILES: Array<{
         label: 'Members',
         description: 'See who belongs to the workspace and manage their project roles.',
         icon: Users,
-        tone: 'from-zoru-surface-2 to-zoru-ink',
+        tone: 'from-[var(--st-bg-muted)] to-[var(--st-text)]',
     },
     {
         href: '/dashboard/team/manage-roles',
         label: 'Roles & permissions',
         description: 'Control which features each role can view, create, edit, or delete.',
         icon: ShieldCheck,
-        tone: 'from-zoru-surface-2 to-zoru-ink',
+        tone: 'from-[var(--st-bg-muted)] to-[var(--st-text)]',
     },
     {
         href: '/dashboard/team/invites',
         label: 'Invitations',
         description: 'Track pending invites, resend emails, or revoke access before it lands.',
         icon: UserPlus,
-        tone: 'from-zoru-surface-2 to-zoru-ink',
+        tone: 'from-[var(--st-bg-muted)] to-[var(--st-text)]',
     },
     {
         href: '/dashboard/team/tasks',
         label: 'Tasks',
         description: 'Kanban board for everything the team is working on.',
         icon: ListChecks,
-        tone: 'from-zoru-surface-2 to-zoru-ink',
+        tone: 'from-[var(--st-bg-muted)] to-[var(--st-text)]',
     },
     {
         href: '/dashboard/team/team-chat',
         label: 'Team chat',
         description: 'Direct messages and group channels for private collaboration.',
         icon: MessagesSquare,
-        tone: 'from-zoru-surface-2 to-zoru-ink',
+        tone: 'from-[var(--st-bg-muted)] to-[var(--st-text)]',
     },
     {
         href: '/dashboard/team/activity',
         label: 'Activity log',
         description: 'Audit trail of every team change: invites, role edits, removals.',
         icon: Activity,
-        tone: 'from-zoru-surface-2 to-zoru-ink',
+        tone: 'from-[var(--st-bg-muted)] to-[var(--st-text)]',
     },
     {
         href: '/dashboard/team/notifications',
         label: 'Notifications',
         description: 'Configure email digest, mentions, and team-event alerts.',
         icon: Bell,
-        tone: 'from-zoru-surface-2 to-zoru-ink',
+        tone: 'from-[var(--st-bg-muted)] to-[var(--st-text)]',
     },
     {
         href: '/dashboard/team/settings',
         label: 'Workspace settings',
         description: 'Defaults for invites, signatures, and agent routing.',
         icon: Settings,
-        tone: 'from-zoru-surface-2 to-zoru-ink',
+        tone: 'from-[var(--st-bg-muted)] to-[var(--st-text)]',
     },
 ];
 
@@ -217,7 +217,7 @@ export default function TeamOverviewPage() {
 
             {/* Module tiles */}
             <div className="gsap-fade-in">
-                <h2 className="mb-3 text-[14px] text-zoru-ink">Quick actions</h2>
+                <h2 className="mb-3 text-[14px] text-[var(--st-text)]">Quick actions</h2>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     {MODULE_TILES.map((tile) => (
                         <Link key={tile.href} href={tile.href} className="group">
@@ -231,10 +231,10 @@ export default function TeamOverviewPage() {
                                     <tile.icon className="h-[18px] w-[18px]" strokeWidth={2} />
                                 </div>
                                 <div className="flex items-start justify-between gap-2">
-                                    <p className="text-[13.5px] text-zoru-ink">{tile.label}</p>
-                                    <ArrowUpRight className="h-4 w-4 text-zoru-ink-muted transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                                    <p className="text-[13.5px] text-[var(--st-text)]">{tile.label}</p>
+                                    <ArrowUpRight className="h-4 w-4 text-[var(--st-text-secondary)] transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                                 </div>
-                                <p className="mt-1 text-[12.5px] leading-relaxed text-zoru-ink-muted">
+                                <p className="mt-1 text-[12.5px] leading-relaxed text-[var(--st-text-secondary)]">
                                     {tile.description}
                                 </p>
                             </Card>
@@ -247,8 +247,8 @@ export default function TeamOverviewPage() {
             <Card className="gsap-fade-in p-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h2 className="text-[14px] text-zoru-ink">Recent invitations</h2>
-                        <p className="text-[12.5px] text-zoru-ink-muted">
+                        <h2 className="text-[14px] text-[var(--st-text)]">Recent invitations</h2>
+                        <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                             Latest 5 invites across all projects.
                         </p>
                     </div>
@@ -266,19 +266,19 @@ export default function TeamOverviewPage() {
                         <Skeleton className="h-12 w-full" />
                     </div>
                 ) : data.recentInvites.length === 0 ? (
-                    <div className="mt-4 rounded-xl border border-dashed border-zoru-line bg-zoru-surface-2/50 p-6 text-center text-[13px] text-zoru-ink-muted">
+                    <div className="mt-4 rounded-xl border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)]/50 p-6 text-center text-[13px] text-[var(--st-text-secondary)]">
                         No invitations yet. Start by inviting your first teammate.
                     </div>
                 ) : (
-                    <ul className="mt-3 divide-y divide-zoru-line rounded-xl border border-zoru-line">
+                    <ul className="mt-3 divide-y divide-[var(--st-border)] rounded-xl border border-[var(--st-border)]">
                         {data.recentInvites.map((inv) => (
                             <li
                                 key={inv._id}
                                 className="flex items-center justify-between gap-4 px-4 py-3 text-[13px]"
                             >
                                 <div className="min-w-0">
-                                    <p className="truncate text-zoru-ink">{inv.inviteeEmail}</p>
-                                    <p className="truncate text-[12px] text-zoru-ink-muted">
+                                    <p className="truncate text-[var(--st-text)]">{inv.inviteeEmail}</p>
+                                    <p className="truncate text-[12px] text-[var(--st-text-secondary)]">
                                         {inv.projectName ?? 'Workspace-wide'} · {inv.role}
                                     </p>
                                 </div>
@@ -308,21 +308,21 @@ function StatCard({
     return (
         <Card variant="soft" className="p-6">
             <div className="flex items-start justify-between">
-                <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
+                <p className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                     {label}
                 </p>
                 <div
                     className={cn(
                         'flex h-7 w-7 items-center justify-center rounded-full',
-                        tone === 'amber' && 'bg-zoru-warning/15 text-zoru-warning-ink',
-                        tone === 'red' && 'bg-zoru-danger/10 text-zoru-danger-ink',
-                        tone === 'neutral' && 'bg-zoru-surface-2 text-zoru-ink',
+                        tone === 'amber' && 'bg-[var(--st-warn)]/15 text-[var(--st-warn)]',
+                        tone === 'red' && 'bg-[var(--st-danger)]/10 text-[var(--st-danger)]',
+                        tone === 'neutral' && 'bg-[var(--st-bg-muted)] text-[var(--st-text)]',
                     )}
                 >
                     {icon}
                 </div>
             </div>
-            <p className="mt-2 text-[28px] leading-none text-zoru-ink">
+            <p className="mt-2 text-[28px] leading-none text-[var(--st-text)]">
                 {loading ? <Skeleton className="inline-block h-7 w-12" /> : value}
             </p>
         </Card>

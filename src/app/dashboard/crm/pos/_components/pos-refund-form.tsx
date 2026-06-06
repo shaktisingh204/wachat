@@ -151,7 +151,7 @@ export function PosRefundForm({ original }: Props) {
             <ZoruCardContent className="flex flex-col gap-4 p-5">
                 <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                     <div className="flex flex-col gap-1">
-                        <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                        <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                             Transaction
                         </span>
                         <span className="font-mono text-[13px]">
@@ -159,7 +159,7 @@ export function PosRefundForm({ original }: Props) {
                         </span>
                     </div>
                     <div className="flex flex-col gap-1">
-                        <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                        <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                             Original method
                         </span>
                         <span className="text-[13px] capitalize">
@@ -167,7 +167,7 @@ export function PosRefundForm({ original }: Props) {
                         </span>
                     </div>
                     <div className="flex flex-col gap-1">
-                        <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                        <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                             Original total
                         </span>
                         <span className="text-[13px] tabular-nums">
@@ -175,7 +175,7 @@ export function PosRefundForm({ original }: Props) {
                         </span>
                     </div>
                     <div className="flex flex-col gap-1">
-                        <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                        <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                             Customer
                         </span>
                         <span className="text-[13px]">
@@ -187,7 +187,7 @@ export function PosRefundForm({ original }: Props) {
                 <div className="overflow-x-auto">
                     <Table>
                         <ZoruTableHeader>
-                            <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                            <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                                 <ZoruTableHead>Line</ZoruTableHead>
                                 <ZoruTableHead className="text-right">
                                     Sold qty
@@ -299,8 +299,8 @@ export function PosRefundForm({ original }: Props) {
                                 <ZoruSelectItem value="other">Other</ZoruSelectItem>
                             </ZoruSelectContent>
                         </Select>
-                        <div className="flex items-center justify-between rounded-md border border-zoru-line bg-zoru-surface-2 px-3 py-2 text-[13px]">
-                            <span className="text-zoru-ink-muted">
+                        <div className="flex items-center justify-between rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-[13px]">
+                            <span className="text-[var(--st-text-secondary)]">
                                 Refund total
                             </span>
                             <span className="font-semibold tabular-nums">

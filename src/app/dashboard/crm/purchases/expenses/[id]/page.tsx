@@ -135,7 +135,7 @@ export default async function BillDetailPage({
     if (error) {
       return (
         <div className="flex w-full flex-col gap-4 p-6">
-          <p className="text-[14px] text-zoru-ink">
+          <p className="text-[14px] text-[var(--st-text)]">
             Couldn&apos;t load this bill — {error}
           </p>
           <Button variant="outline" asChild>
@@ -223,15 +223,15 @@ export default async function BillDetailPage({
               {bill.vendorId ? (
                 <EntityPickerChip entity="vendor" id={bill.vendorId} />
               ) : (
-                <span className="text-zoru-ink-muted">No vendor linked</span>
+                <span className="text-[var(--st-text-secondary)]">No vendor linked</span>
               )}
-              <div className="flex items-center justify-between gap-2 border-t border-zoru-line pt-2">
-                <span className="text-zoru-ink-muted">Outstanding</span>
+              <div className="flex items-center justify-between gap-2 border-t border-[var(--st-border)] pt-2">
+                <span className="text-[var(--st-text-secondary)]">Outstanding</span>
                 <span
                   className={`font-mono tabular-nums ${
                     (bill.balance ?? totals.total) > 0
-                      ? 'text-zoru-danger-ink'
-                      : 'text-zoru-ink'
+                      ? 'text-[var(--st-danger)]'
+                      : 'text-[var(--st-text)]'
                   }`}
                 >
                   {fmtMoney(bill.balance ?? totals.total, currency)}
@@ -253,25 +253,25 @@ export default async function BillDetailPage({
               />
               <div className="mt-3 space-y-1.5 text-[12.5px]">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-zoru-ink-muted">Subtotal</span>
+                  <span className="text-[var(--st-text-secondary)]">Subtotal</span>
                   <span className="font-mono tabular-nums">
                     {fmtMoney(totals.subTotal, currency)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-zoru-ink-muted">Total</span>
+                  <span className="text-[var(--st-text-secondary)]">Total</span>
                   <span className="font-mono tabular-nums">
                     {fmtMoney(totals.total, currency)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-zoru-ink-muted">Created</span>
+                  <span className="text-[var(--st-text-secondary)]">Created</span>
                   <span>
                     {fmtDate(bill.createdAt ?? bill.audit?.createdAt)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-zoru-ink-muted">Updated</span>
+                  <span className="text-[var(--st-text-secondary)]">Updated</span>
                   <span>
                     {fmtDate(bill.updatedAt ?? bill.audit?.updatedAt)}
                   </span>
@@ -296,7 +296,7 @@ export default async function BillDetailPage({
       }
       audit={<EntityAuditTimeline entityKind="bill" entityId={billId} />}
     >
-      <p className="text-[12.5px] text-zoru-ink-muted">
+      <p className="text-[12.5px] text-[var(--st-text-secondary)]">
         {subtitleParts.join(' · ')}
       </p>
 
@@ -312,11 +312,11 @@ export default async function BillDetailPage({
         </ZoruCardHeader>
         <ZoruCardContent>
           {related.payouts === 0 ? (
-            <p className="text-[13px] text-zoru-ink-muted">
+            <p className="text-[13px] text-[var(--st-text-secondary)]">
               No payouts applied yet.{' '}
               <Link
                 href={`/dashboard/crm/purchases/payouts/new?fromKind=bill&fromId=${billId}`}
-                className="text-zoru-primary hover:underline"
+                className="text-[var(--st-text)] hover:underline"
               >
                 Record a payout
               </Link>
@@ -324,7 +324,7 @@ export default async function BillDetailPage({
           ) : (
             <Link
               href={`/dashboard/crm/purchases/payouts?billId=${billId}`}
-              className="text-[13px] text-zoru-primary hover:underline"
+              className="text-[13px] text-[var(--st-text)] hover:underline"
             >
               View {related.payouts} payout
               {related.payouts === 1 ? '' : 's'} applied to this bill →
@@ -343,12 +343,12 @@ export default async function BillDetailPage({
             <div className="grid gap-3 md:grid-cols-2 text-[13px]">
               {bill.linkedPoId ? (
                 <div>
-                  <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+                  <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                     Purchase order
                   </div>
                   <Link
                     href={`/dashboard/crm/purchases/orders/${bill.linkedPoId}`}
-                    className="mt-1 inline-block text-zoru-primary hover:underline"
+                    className="mt-1 inline-block text-[var(--st-text)] hover:underline"
                   >
                     {bill.linkedPoId}
                   </Link>
@@ -356,7 +356,7 @@ export default async function BillDetailPage({
               ) : null}
               {bill.linkedGrnIds && bill.linkedGrnIds.length ? (
                 <div>
-                  <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+                  <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                     GRNs
                   </div>
                   <ul className="mt-1 space-y-1">
@@ -364,7 +364,7 @@ export default async function BillDetailPage({
                       <li key={gid}>
                         <Link
                           href={`/dashboard/crm/inventory/grn/${gid}`}
-                          className="text-zoru-primary hover:underline"
+                          className="text-[var(--st-text)] hover:underline"
                         >
                           {gid}
                         </Link>
@@ -388,10 +388,10 @@ export default async function BillDetailPage({
             <div className="grid gap-4 md:grid-cols-2">
               {customFields.map((field) => (
                 <div key={String(field._id ?? field.name)}>
-                  <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+                  <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                     {field.label || field.name}
                   </div>
-                  <div className="mt-1 text-[13px] text-zoru-ink">
+                  <div className="mt-1 text-[13px] text-[var(--st-text)]">
                     <CustomFieldDisplay
                       field={field}
                       value={

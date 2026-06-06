@@ -22,15 +22,15 @@ function CopyText({ text }: { text: string }) {
   };
 
   return (
-    <div className="flex items-center justify-between text-sm border-t border-zoru-line py-2 text-zoru-ink group">
+    <div className="flex items-center justify-between text-sm border-t border-[var(--st-border)] py-2 text-[var(--st-text)] group">
       <span className="pr-4">{text}</span>
       <button 
         onClick={handleCopy}
-        className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-zoru-line/50 rounded-md shrink-0 focus:opacity-100"
+        className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-[var(--st-border)]/50 rounded-md shrink-0 focus:opacity-100"
         title="Copy to clipboard"
         aria-label="Copy to clipboard"
       >
-        {copied ? <Check className="w-4 h-4 text-zoru-ink" /> : <Copy className="w-4 h-4 text-zoru-ink/60" />}
+        {copied ? <Check className="w-4 h-4 text-[var(--st-text)]" /> : <Copy className="w-4 h-4 text-[var(--st-text)]/60" />}
       </button>
     </div>
   );
@@ -125,7 +125,7 @@ export default function AdCopyGeneratorPage() {
         <div className="space-y-1"><Label>Target audience</Label><Input value={audience} onChange={(e) => setAudience(e.target.value)} /></div>
         <div className="space-y-1"><Label>Target keyword</Label><Input value={keyword} onChange={(e) => setKeyword(e.target.value)} /></div>
         <div className="space-y-1"><Label>Tone</Label>
-          <select className="border border-zoru-line rounded-[var(--zoru-radius)] h-9 px-2 bg-zoru-bg text-zoru-ink w-full text-sm" value={tone} onChange={(e) => setTone(e.target.value)}>
+          <select className="border border-[var(--st-border)] rounded-[var(--zoru-radius)] h-9 px-2 bg-[var(--st-bg)] text-[var(--st-text)] w-full text-sm" value={tone} onChange={(e) => setTone(e.target.value)}>
             <option value="friendly">Friendly</option>
             <option value="urgent">Urgent</option>
             <option value="formal">Formal</option>
@@ -163,7 +163,7 @@ export default function AdCopyGeneratorPage() {
             
             {results.headlines.length > 0 && (
               <div>
-                <div className="text-sm font-semibold text-zoru-ink mb-2">Headlines</div>
+                <div className="text-sm font-semibold text-[var(--st-text)] mb-2">Headlines</div>
                 <div className="space-y-1">
                   {results.headlines.map((h, i) => (
                     <CopyText key={i} text={h} />
@@ -174,7 +174,7 @@ export default function AdCopyGeneratorPage() {
             
             {results.descriptions.length > 0 && (
               <div>
-                <div className="text-sm font-semibold text-zoru-ink mb-2 mt-4">Descriptions</div>
+                <div className="text-sm font-semibold text-[var(--st-text)] mb-2 mt-4">Descriptions</div>
                 <div className="space-y-1">
                   {results.descriptions.map((d, i) => (
                     <CopyText key={i} text={d} />

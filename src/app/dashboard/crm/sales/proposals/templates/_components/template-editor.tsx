@@ -104,29 +104,29 @@ export function TemplateEditor({ initial }: { initial?: TemplateEditorInitial })
       <Card className="p-6">
         <div className="grid gap-4 md:grid-cols-3">
           <div>
-            <Label className="text-zoru-ink">Template Name</Label>
+            <Label className="text-[var(--st-text)]">Template Name</Label>
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Standard SaaS Proposal"
-              className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-surface text-[13px]"
+              className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px]"
             />
           </div>
           <div className="md:col-span-1">
-            <Label className="text-zoru-ink">Default Title</Label>
+            <Label className="text-[var(--st-text)]">Default Title</Label>
             <Input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Proposal for <Client>"
-              className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-surface text-[13px]"
+              className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px]"
             />
           </div>
           <div>
-            <Label className="text-zoru-ink">Currency</Label>
+            <Label className="text-[var(--st-text)]">Currency</Label>
             <Input
               value={currency}
               onChange={(e) => setCurrency(e.target.value.toUpperCase())}
-              className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-surface text-[13px]"
+              className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px]"
             />
           </div>
         </div>
@@ -139,7 +139,7 @@ export function TemplateEditor({ initial }: { initial?: TemplateEditorInitial })
           />
           <Label
             htmlFor="signature_required"
-            className="cursor-pointer text-[13px] text-zoru-ink"
+            className="cursor-pointer text-[13px] text-[var(--st-text)]"
           >
             Require e-signature on acceptance
           </Label>

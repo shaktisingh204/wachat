@@ -58,13 +58,13 @@ import type { CustomAudience } from '@/lib/definitions';
 function AudienceRowSkeleton() {
   return (
     <div className="flex items-center gap-4 px-5 py-4 animate-pulse">
-      <div className="h-9 w-9 rounded-full bg-zoru-surface-2" />
+      <div className="h-9 w-9 rounded-full bg-[var(--st-bg-muted)]" />
       <div className="flex-1 space-y-2">
-        <div className="h-3.5 w-40 rounded bg-zoru-surface-2" />
-        <div className="h-2.5 w-24 rounded bg-zoru-surface-2" />
+        <div className="h-3.5 w-40 rounded bg-[var(--st-bg-muted)]" />
+        <div className="h-2.5 w-24 rounded bg-[var(--st-bg-muted)]" />
       </div>
-      <div className="h-6 w-16 rounded-full bg-zoru-surface-2" />
-      <div className="h-3 w-14 rounded bg-zoru-surface-2" />
+      <div className="h-6 w-16 rounded-full bg-[var(--st-bg-muted)]" />
+      <div className="h-3 w-14 rounded bg-[var(--st-bg-muted)]" />
     </div>
   );
 }
@@ -75,17 +75,17 @@ function AudienceRowSkeleton() {
 function EmptyState({ type }: { type: 'custom' | 'lookalike' }) {
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center">
-      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 mb-4">
+      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] mb-4">
         {type === 'custom' ? (
-          <Users className="h-5 w-5 text-zoru-ink-muted" />
+          <Users className="h-5 w-5 text-[var(--st-text-secondary)]" />
         ) : (
-          <Copy className="h-5 w-5 text-zoru-ink-muted" />
+          <Copy className="h-5 w-5 text-[var(--st-text-secondary)]" />
         )}
       </div>
-      <p className="text-[13px] font-medium text-zoru-ink mb-1">
+      <p className="text-[13px] font-medium text-[var(--st-text)] mb-1">
         No {type === 'custom' ? 'custom' : 'lookalike'} audiences
       </p>
-      <p className="text-[11px] text-zoru-ink-muted max-w-[240px]">
+      <p className="text-[11px] text-[var(--st-text-secondary)] max-w-[240px]">
         {type === 'custom'
           ? 'Create a custom audience from your website visitors, customer lists, or engagement data.'
           : 'Build lookalike audiences from your existing custom audiences to reach similar people.'}
@@ -100,11 +100,11 @@ function EmptyState({ type }: { type: 'custom' | 'lookalike' }) {
 function NoAccountState() {
   return (
     <div className="flex flex-col items-center justify-center py-24 text-center">
-      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-zoru-surface-2 mb-5">
-        <Users className="h-6 w-6 text-zoru-ink-muted" />
+      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--st-bg-muted)] mb-5">
+        <Users className="h-6 w-6 text-[var(--st-text-secondary)]" />
       </div>
-      <p className="text-[15px] font-medium text-zoru-ink mb-1">No ad account selected</p>
-      <p className="text-[13px] text-zoru-ink-muted mb-5 max-w-xs">
+      <p className="text-[15px] font-medium text-[var(--st-text)] mb-1">No ad account selected</p>
+      <p className="text-[13px] text-[var(--st-text-secondary)] mb-5 max-w-xs">
         Pick an ad account to view and manage your audiences.
       </p>
       <Link href="/dashboard/ad-manager/ad-accounts">
@@ -144,28 +144,28 @@ function AudienceRow({
 
   return (
     <>
-      <div className="group flex items-center gap-4 px-5 py-3.5 border-b border-zoru-line last:border-b-0 hover:bg-zoru-surface-2/50 transition-colors">
+      <div className="group flex items-center gap-4 px-5 py-3.5 border-b border-[var(--st-border)] last:border-b-0 hover:bg-[var(--st-bg-muted)]/50 transition-colors">
         {/* icon */}
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-zoru-surface-2">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--st-bg-muted)]">
           {subtype === 'LOOKALIKE' ? (
-            <Copy className="h-4 w-4 text-zoru-ink-muted" />
+            <Copy className="h-4 w-4 text-[var(--st-text-secondary)]" />
           ) : subtype === 'WEBSITE' ? (
-            <Globe className="h-4 w-4 text-zoru-ink-muted" />
+            <Globe className="h-4 w-4 text-[var(--st-text-secondary)]" />
           ) : (
-            <Target className="h-4 w-4 text-zoru-ink-muted" />
+            <Target className="h-4 w-4 text-[var(--st-text-secondary)]" />
           )}
         </div>
 
         {/* name + description */}
         <div className="flex-1 min-w-0">
-          <p className="text-[13px] font-medium text-zoru-ink truncate">{audience.name}</p>
+          <p className="text-[13px] font-medium text-[var(--st-text)] truncate">{audience.name}</p>
           {audience.description && (
-            <p className="text-[11px] text-zoru-ink-muted truncate mt-0.5">{audience.description}</p>
+            <p className="text-[11px] text-[var(--st-text-secondary)] truncate mt-0.5">{audience.description}</p>
           )}
           {isPopulating && (
             <div className="mt-2.5 flex items-center gap-2 max-w-[200px]">
               <Progress value={65} className="h-1.5 flex-1" indicatorClassName="bg-warning animate-pulse" />
-              <span className="text-[10px] text-zoru-ink-muted font-medium">Populating...</span>
+              <span className="text-[10px] text-[var(--st-text-secondary)] font-medium">Populating...</span>
             </div>
           )}
         </div>
@@ -182,7 +182,7 @@ function AudienceRow({
         </div>
 
         {/* approximate count */}
-        <span className="text-[13px] text-zoru-ink tabular-nums min-w-[72px] text-right">
+        <span className="text-[13px] text-[var(--st-text)] tabular-nums min-w-[72px] text-right">
           {audience.approximate_count_lower_bound === -1 ? 'Under 1000' : audience.approximate_count_lower_bound
             ? formatNumber(audience.approximate_count_lower_bound)
             : '--'}
@@ -192,7 +192,7 @@ function AudienceRow({
         <Button
           variant="ghost"
           size="icon"
-          className="opacity-0 group-hover:opacity-100 text-zoru-ink-muted hover:text-zoru-ink"
+          className="opacity-0 group-hover:opacity-100 text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
           onClick={() => setConfirmOpen(true)}
         >
           <Trash2 className="h-4 w-4" />
@@ -204,7 +204,7 @@ function AudienceRow({
         <ZoruDialogContent className="max-w-sm">
           <ZoruDialogHeader>
             <ZoruDialogTitle className="text-[15px]">Delete audience</ZoruDialogTitle>
-            <ZoruDialogDescription className="text-[13px] text-zoru-ink-muted">
+            <ZoruDialogDescription className="text-[13px] text-[var(--st-text-secondary)]">
               Are you sure you want to delete <strong>{audience.name}</strong>? This action cannot be undone.
             </ZoruDialogDescription>
           </ZoruDialogHeader>
@@ -248,8 +248,8 @@ function TabPill({
       className={cn(
         'h-8 px-4 rounded-full text-[12.5px] font-medium transition-all duration-150',
         active
-          ? 'bg-zoru-ink text-white shadow-sm'
-          : 'bg-zoru-surface-2 text-zoru-ink-muted hover:text-zoru-ink hover:bg-zoru-surface-2/80',
+          ? 'bg-[var(--st-text)] text-white shadow-sm'
+          : 'bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]/80',
       )}
     >
       {children}
@@ -336,10 +336,10 @@ function CreateAudienceSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <ZoruSheetContent side="right" className="w-full sm:max-w-md bg-zoru-surface overflow-y-auto">
+      <ZoruSheetContent side="right" className="w-full sm:max-w-md bg-[var(--st-bg-secondary)] overflow-y-auto">
         <ZoruSheetHeader className="mb-6">
-          <ZoruSheetTitle className="text-[18px] font-semibold text-zoru-ink">Create audience</ZoruSheetTitle>
-          <ZoruSheetDescription className="text-[13px] text-zoru-ink-muted">
+          <ZoruSheetTitle className="text-[18px] font-semibold text-[var(--st-text)]">Create audience</ZoruSheetTitle>
+          <ZoruSheetDescription className="text-[13px] text-[var(--st-text-secondary)]">
             Build a custom or lookalike audience for targeting.
           </ZoruSheetDescription>
         </ZoruSheetHeader>
@@ -357,7 +357,7 @@ function CreateAudienceSheet({
         {type === 'custom' ? (
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <Label className="text-[11px] font-medium text-zoru-ink-muted uppercase tracking-wide">
+              <Label className="text-[11px] font-medium text-[var(--st-text-secondary)] uppercase tracking-wide">
                 Name
               </Label>
               <Input
@@ -368,7 +368,7 @@ function CreateAudienceSheet({
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-[11px] font-medium text-zoru-ink-muted uppercase tracking-wide">
+              <Label className="text-[11px] font-medium text-[var(--st-text-secondary)] uppercase tracking-wide">
                 Description
               </Label>
               <Input
@@ -379,11 +379,11 @@ function CreateAudienceSheet({
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-[11px] font-medium text-zoru-ink-muted uppercase tracking-wide">
+              <Label className="text-[11px] font-medium text-[var(--st-text-secondary)] uppercase tracking-wide">
                 Source type
               </Label>
               <Select value={customSubtype} onValueChange={(v) => setCustomSubtype(v as typeof customSubtype)}>
-                <ZoruSelectTrigger className="h-10 rounded-lg border-zoru-line bg-zoru-surface text-[13px] text-zoru-ink">
+                <ZoruSelectTrigger className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px] text-[var(--st-text)]">
                   <ZoruSelectValue />
                 </ZoruSelectTrigger>
                 <ZoruSelectContent>
@@ -397,11 +397,11 @@ function CreateAudienceSheet({
         ) : (
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <Label className="text-[11px] font-medium text-zoru-ink-muted uppercase tracking-wide">
+              <Label className="text-[11px] font-medium text-[var(--st-text-secondary)] uppercase tracking-wide">
                 Source audience
               </Label>
               <Select value={lookOrigin} onValueChange={setLookOrigin}>
-                <ZoruSelectTrigger className="h-10 rounded-lg border-zoru-line bg-zoru-surface text-[13px] text-zoru-ink">
+                <ZoruSelectTrigger className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px] text-[var(--st-text)]">
                   <ZoruSelectValue placeholder="Select a source audience" />
                 </ZoruSelectTrigger>
                 <ZoruSelectContent>
@@ -415,11 +415,11 @@ function CreateAudienceSheet({
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-[11px] font-medium text-zoru-ink-muted uppercase tracking-wide">
+              <Label className="text-[11px] font-medium text-[var(--st-text-secondary)] uppercase tracking-wide">
                 Country
               </Label>
               <Select value={lookCountry} onValueChange={setLookCountry}>
-                <ZoruSelectTrigger className="h-10 rounded-lg border-zoru-line bg-zoru-surface text-[13px] text-zoru-ink">
+                <ZoruSelectTrigger className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px] text-[var(--st-text)]">
                   <ZoruSelectValue />
                 </ZoruSelectTrigger>
                 <ZoruSelectContent>
@@ -434,10 +434,10 @@ function CreateAudienceSheet({
 
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">
-                <Label className="text-[11px] font-medium text-zoru-ink-muted uppercase tracking-wide">
+                <Label className="text-[11px] font-medium text-[var(--st-text-secondary)] uppercase tracking-wide">
                   Similarity ratio
                 </Label>
-                <span className="text-[13px] font-semibold text-zoru-ink tabular-nums">{lookRatio}%</span>
+                <span className="text-[13px] font-semibold text-[var(--st-text)] tabular-nums">{lookRatio}%</span>
               </div>
               <input
                 type="range"
@@ -446,9 +446,9 @@ function CreateAudienceSheet({
                 step={1}
                 value={lookRatio}
                 onChange={(e) => setLookRatio(Number(e.target.value))}
-                className="w-full accent-foreground h-1.5 rounded-full appearance-none bg-zoru-surface-2 cursor-pointer"
+                className="w-full accent-foreground h-1.5 rounded-full appearance-none bg-[var(--st-bg-muted)] cursor-pointer"
               />
-              <div className="flex justify-between text-[10px] text-zoru-ink-muted">
+              <div className="flex justify-between text-[10px] text-[var(--st-text-secondary)]">
                 <span>1% most similar</span>
                 <span>10% broadest</span>
               </div>
@@ -457,7 +457,7 @@ function CreateAudienceSheet({
         )}
 
         {/* actions */}
-        <div className="flex gap-3 mt-8 pt-5 border-t border-zoru-line">
+        <div className="flex gap-3 mt-8 pt-5 border-t border-[var(--st-border)]">
           <Button
             variant="outline"
             className="flex-1"
@@ -530,7 +530,7 @@ function SyncCrmDialog({
 
         <div className="space-y-4 py-2">
           <div className="space-y-1.5">
-            <Label className="text-[11px] font-medium text-zoru-ink-muted uppercase tracking-wide">
+            <Label className="text-[11px] font-medium text-[var(--st-text-secondary)] uppercase tracking-wide">
               Audience Name
             </Label>
             <Input
@@ -541,11 +541,11 @@ function SyncCrmDialog({
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-[11px] font-medium text-zoru-ink-muted uppercase tracking-wide">
+            <Label className="text-[11px] font-medium text-[var(--st-text-secondary)] uppercase tracking-wide">
               CRM Segment
             </Label>
             <Select value={segment} onValueChange={setSegment}>
-              <ZoruSelectTrigger className="h-10 rounded-lg border-zoru-line bg-zoru-surface text-[13px] text-zoru-ink">
+              <ZoruSelectTrigger className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px] text-[var(--st-text)]">
                 <ZoruSelectValue placeholder="Select segment" />
               </ZoruSelectTrigger>
               <ZoruSelectContent>
@@ -638,7 +638,7 @@ export default function AudiencesPage() {
       {/* header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <h1 className="text-[26px] font-semibold tracking-tight text-zoru-ink">Audiences</h1>
+          <h1 className="text-[26px] font-semibold tracking-tight text-[var(--st-text)]">Audiences</h1>
           <Badge variant="secondary">
             <span className="tabular-nums">{audiences.length}</span>
           </Badge>
@@ -683,7 +683,7 @@ export default function AudiencesPage() {
       {/* audience list */}
       <Card className="p-0 overflow-hidden">
         {/* column header */}
-        <div className="flex items-center gap-4 px-5 py-2.5 border-b border-zoru-line text-[10px] font-medium text-zoru-ink-muted uppercase tracking-wider">
+        <div className="flex items-center gap-4 px-5 py-2.5 border-b border-[var(--st-border)] text-[10px] font-medium text-[var(--st-text-secondary)] uppercase tracking-wider">
           <div className="w-9 shrink-0" />
           <div className="flex-1">Name</div>
           <div className="w-20 text-center">Type</div>

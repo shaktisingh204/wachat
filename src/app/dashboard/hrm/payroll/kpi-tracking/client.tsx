@@ -55,13 +55,13 @@ type StringRow = Omit<Row, '_id'> & { _id: string };
 function AchievementBar({ target, actual }: { target: number; actual: number }) {
   const pct = target > 0 ? Math.min(100, Math.round((actual / target) * 100)) : 0;
   const color =
-    pct >= 100 ? 'bg-zoru-ink' : pct >= 60 ? 'bg-zoru-ink' : 'bg-zoru-ink';
+    pct >= 100 ? 'bg-[var(--st-text)]' : pct >= 60 ? 'bg-[var(--st-text)]' : 'bg-[var(--st-text)]';
   return (
     <div className="flex items-center gap-2">
-      <div className="h-1.5 w-20 overflow-hidden rounded-full bg-zoru-line">
+      <div className="h-1.5 w-20 overflow-hidden rounded-full bg-[var(--st-border)]">
         <div className={`h-full rounded-full ${color}`} style={{ width: `${pct}%` }} />
       </div>
-      <span className="text-[12px] tabular-nums text-zoru-ink-muted">{pct}%</span>
+      <span className="text-[12px] tabular-nums text-[var(--st-text-secondary)]">{pct}%</span>
     </div>
   );
 }
@@ -125,22 +125,22 @@ function InlineActualEditor({ row, onRefresh }: { row: StringRow; onRefresh: () 
               setVal(String(row.actual_value));
             }
           }}
-          className="w-16 h-7 text-xs tabular-nums px-2 py-1 bg-zoru-surface"
+          className="w-16 h-7 text-xs tabular-nums px-2 py-1 bg-[var(--st-bg-secondary)]"
         />
-        <span className="text-[11px] text-zoru-ink-muted">{row.unit}</span>
+        <span className="text-[11px] text-[var(--st-text-secondary)]">{row.unit}</span>
       </div>
     );
   }
 
   return (
     <div 
-      className="group cursor-pointer flex items-center gap-1 tabular-nums hover:bg-zoru-surface-2 p-1 rounded -m-1 transition-colors" 
+      className="group cursor-pointer flex items-center gap-1 tabular-nums hover:bg-[var(--st-bg-muted)] p-1 rounded -m-1 transition-colors" 
       onClick={() => setEditing(true)}
       title="Click to edit"
     >
       {row.actual_value}
-      <span className="text-[11px] text-zoru-ink-muted">{row.unit}</span>
-      <Pencil className="h-3 w-3 opacity-0 group-hover:opacity-100 text-zoru-ink-muted transition-opacity" />
+      <span className="text-[11px] text-[var(--st-text-secondary)]">{row.unit}</span>
+      <Pencil className="h-3 w-3 opacity-0 group-hover:opacity-100 text-[var(--st-text-secondary)] transition-opacity" />
     </div>
   );
 }
@@ -367,14 +367,14 @@ export default function KpiTrackingClient({ initialData }: { initialData: Row[] 
               r.employee_id ? (
                 <span className="block max-w-[140px] truncate">{r.employee_id}</span>
               ) : (
-                <span className="text-zoru-ink-muted">—</span>
+                <span className="text-[var(--st-text-secondary)]">—</span>
               ),
           },
           {
             key: 'period',
             label: 'Period',
             render: (r) =>
-              r.period ? <HrChip>{r.period}</HrChip> : <span className="text-zoru-ink-muted">—</span>,
+              r.period ? <HrChip>{r.period}</HrChip> : <span className="text-[var(--st-text-secondary)]">—</span>,
           },
           {
             key: 'target',
@@ -382,7 +382,7 @@ export default function KpiTrackingClient({ initialData }: { initialData: Row[] 
             render: (r) => (
               <span className="tabular-nums">
                 {r.target_value}
-                <span className="ml-0.5 text-[11px] text-zoru-ink-muted">{r.unit}</span>
+                <span className="ml-0.5 text-[11px] text-[var(--st-text-secondary)]">{r.unit}</span>
               </span>
             ),
           },

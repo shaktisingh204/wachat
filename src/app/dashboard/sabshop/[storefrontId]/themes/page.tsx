@@ -66,7 +66,7 @@ export default function ThemesPage(): React.JSX.Element {
 
     return (
         <div className="zoruui flex flex-col gap-4 p-6">
-            <h1 className="text-2xl font-semibold text-zoru-ink">Themes</h1>
+            <h1 className="text-2xl font-semibold text-[var(--st-text)]">Themes</h1>
 
             <Card className="max-w-2xl">
                 <ZoruCardHeader><ZoruCardTitle>New custom theme</ZoruCardTitle></ZoruCardHeader>
@@ -89,14 +89,14 @@ export default function ThemesPage(): React.JSX.Element {
                 <ZoruCardHeader><ZoruCardTitle>All themes</ZoruCardTitle></ZoruCardHeader>
                 <ZoruCardContent>
                     {themes.length === 0 ? (
-                        <p className="text-sm text-zoru-ink-muted">No themes yet.</p>
+                        <p className="text-sm text-[var(--st-text-secondary)]">No themes yet.</p>
                     ) : (
-                        <ul className="divide-y divide-zoru-border">
+                        <ul className="divide-y divide-[var(--st-border)]">
                             {themes.map((t) => (
                                 <li key={t._id} className="flex items-center gap-3 py-2 text-sm">
                                     <div className="flex-1">
-                                        <div className="font-medium text-zoru-ink">{t.name}</div>
-                                        {t.description && <div className="text-xs text-zoru-ink-muted">{t.description}</div>}
+                                        <div className="font-medium text-[var(--st-text)]">{t.name}</div>
+                                        {t.description && <div className="text-xs text-[var(--st-text-secondary)]">{t.description}</div>}
                                     </div>
                                     {t.system && <Badge variant="ghost">System</Badge>}
                                     {activeThemeId === t._id ? (

@@ -412,9 +412,9 @@ export default function CrmContactsPage() {
       sortable: true,
       render: (row) => (
         <div className="flex items-center gap-3">
-          <Avatar className="h-9 w-9 border border-zoru-line">
+          <Avatar className="h-9 w-9 border border-[var(--st-border)]">
             <ZoruAvatarImage src={row.avatarUrl || ''} />
-            <ZoruAvatarFallback className="bg-zoru-surface-2 text-[12px] text-zoru-ink">
+            <ZoruAvatarFallback className="bg-[var(--st-bg-muted)] text-[12px] text-[var(--st-text)]">
               {row.name?.charAt(0) ?? '?'}
             </ZoruAvatarFallback>
           </Avatar>
@@ -434,11 +434,11 @@ export default function CrmContactsPage() {
       sortable: true,
       render: (row) => (
         row.email ? (
-          <div className="flex items-center gap-1.5 text-[12.5px] text-zoru-ink">
-            <Mail className="h-3.5 w-3.5 text-zoru-ink-muted" />
+          <div className="flex items-center gap-1.5 text-[12.5px] text-[var(--st-text)]">
+            <Mail className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
             {row.email}
           </div>
-        ) : <span className="text-zoru-ink-muted">—</span>
+        ) : <span className="text-[var(--st-text-secondary)]">—</span>
       )
     },
     {
@@ -446,22 +446,22 @@ export default function CrmContactsPage() {
       header: 'Phone',
       render: (row) => (
         row.phone ? (
-          <div className="flex items-center gap-1.5 text-[12.5px] text-zoru-ink">
-            <Phone className="h-3.5 w-3.5 text-zoru-ink-muted" />
+          <div className="flex items-center gap-1.5 text-[12.5px] text-[var(--st-text)]">
+            <Phone className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
             {row.phone}
           </div>
-        ) : <span className="text-zoru-ink-muted">—</span>
+        ) : <span className="text-[var(--st-text-secondary)]">—</span>
       )
     },
     {
       key: 'jobTitle',
       header: 'Job Title',
-      render: (row) => <span className="text-[13px] text-zoru-ink">{row.jobTitle || '—'}</span>
+      render: (row) => <span className="text-[13px] text-[var(--st-text)]">{row.jobTitle || '—'}</span>
     },
     {
       key: 'company',
       header: 'Company',
-      render: (row) => <span className="text-[13px] text-zoru-ink">{row.company || '—'}</span>
+      render: (row) => <span className="text-[13px] text-[var(--st-text)]">{row.company || '—'}</span>
     },
     {
       key: 'leadScore',
@@ -499,7 +499,7 @@ export default function CrmContactsPage() {
         <select
           value={value || 'new_lead'}
           onChange={e => onChange(e.target.value)}
-          className="h-8 rounded border border-zoru-line bg-zoru-bg px-2 py-0.5 text-[12.5px] text-zoru-ink"
+          className="h-8 rounded border border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-0.5 text-[12.5px] text-[var(--st-text)]"
         >
           {STATUS_OPTIONS.map(s => (
             <option key={s} value={s}>{s.replace('_', ' ').toUpperCase()}</option>
@@ -541,7 +541,7 @@ export default function CrmContactsPage() {
       render: () => (
         <div className="space-y-4">
           <div className="space-y-1">
-            <Label className="text-[12px] font-medium text-zoru-ink-muted">Name *</Label>
+            <Label className="text-[12px] font-medium text-[var(--st-text-secondary)]">Name *</Label>
             <Input 
               value={formContact.name || ''} 
               onChange={e => handleUpdateFormField('name', e.target.value)}
@@ -550,7 +550,7 @@ export default function CrmContactsPage() {
             />
           </div>
           <div className="space-y-1">
-            <Label className="text-[12px] font-medium text-zoru-ink-muted">Email *</Label>
+            <Label className="text-[12px] font-medium text-[var(--st-text-secondary)]">Email *</Label>
             <Input 
               type="email"
               value={formContact.email || ''} 
@@ -560,7 +560,7 @@ export default function CrmContactsPage() {
             />
           </div>
           <div className="space-y-1">
-            <Label className="text-[12px] font-medium text-zoru-ink-muted">Phone</Label>
+            <Label className="text-[12px] font-medium text-[var(--st-text-secondary)]">Phone</Label>
             <Input 
               value={formContact.phone || ''} 
               onChange={e => handleUpdateFormField('phone', e.target.value)}
@@ -569,7 +569,7 @@ export default function CrmContactsPage() {
             />
           </div>
           <div className="space-y-1">
-            <Label className="text-[12px] font-medium text-zoru-ink-muted">Avatar URL</Label>
+            <Label className="text-[12px] font-medium text-[var(--st-text-secondary)]">Avatar URL</Label>
             <Input 
               value={formContact.avatarUrl || ''} 
               onChange={e => handleUpdateFormField('avatarUrl', e.target.value)}
@@ -578,12 +578,12 @@ export default function CrmContactsPage() {
             />
           </div>
           <div className="space-y-1">
-            <Label className="text-[12px] font-medium text-zoru-ink-muted">Date of Birth</Label>
+            <Label className="text-[12px] font-medium text-[var(--st-text-secondary)]">Date of Birth</Label>
             <input
               type="date"
               value={formContact.dateOfBirth ? new Date(formContact.dateOfBirth).toISOString().split('T')[0] : ''} 
               onChange={e => handleUpdateFormField('dateOfBirth', e.target.value ? new Date(e.target.value) : undefined)}
-              className="flex h-10 w-full rounded-md border border-zoru-line bg-zoru-bg px-3 py-1.5 text-[13px] text-zoru-ink shadow-sm"
+              className="flex h-10 w-full rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-1.5 text-[13px] text-[var(--st-text)] shadow-sm"
             />
           </div>
         </div>
@@ -595,7 +595,7 @@ export default function CrmContactsPage() {
       render: () => (
         <div className="space-y-4">
           <div className="space-y-1">
-            <Label className="text-[12px] font-medium text-zoru-ink-muted">Company</Label>
+            <Label className="text-[12px] font-medium text-[var(--st-text-secondary)]">Company</Label>
             <Input 
               value={formContact.company || ''} 
               onChange={e => handleUpdateFormField('company', e.target.value)}
@@ -604,7 +604,7 @@ export default function CrmContactsPage() {
             />
           </div>
           <div className="space-y-1">
-            <Label className="text-[12px] font-medium text-zoru-ink-muted">Job Title</Label>
+            <Label className="text-[12px] font-medium text-[var(--st-text-secondary)]">Job Title</Label>
             <Input 
               value={formContact.jobTitle || ''} 
               onChange={e => handleUpdateFormField('jobTitle', e.target.value)}
@@ -613,11 +613,11 @@ export default function CrmContactsPage() {
             />
           </div>
           <div className="space-y-1">
-            <Label className="text-[12px] font-medium text-zoru-ink-muted">Account</Label>
+            <Label className="text-[12px] font-medium text-[var(--st-text-secondary)]">Account</Label>
             <select
               value={formContact.accountId?.toString() || ''}
               onChange={e => handleUpdateFormField('accountId', e.target.value || undefined)}
-              className="flex h-10 w-full rounded-md border border-zoru-line bg-zoru-bg px-3 py-1.5 text-[13px] text-zoru-ink shadow-sm"
+              className="flex h-10 w-full rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-1.5 text-[13px] text-[var(--st-text)] shadow-sm"
             >
               <option value="">Select Account</option>
               {accounts.map(a => (
@@ -626,7 +626,7 @@ export default function CrmContactsPage() {
             </select>
           </div>
           <div className="space-y-1">
-            <Label className="text-[12px] font-medium text-zoru-ink-muted">Owner</Label>
+            <Label className="text-[12px] font-medium text-[var(--st-text-secondary)]">Owner</Label>
             <Input 
               value={formContact.owner || ''} 
               onChange={e => handleUpdateFormField('owner', e.target.value)}
@@ -643,11 +643,11 @@ export default function CrmContactsPage() {
       render: () => (
         <div className="space-y-4">
           <div className="space-y-1">
-            <Label className="text-[12px] font-medium text-zoru-ink-muted">Status</Label>
+            <Label className="text-[12px] font-medium text-[var(--st-text-secondary)]">Status</Label>
             <select
               value={formContact.status || 'new_lead'}
               onChange={e => handleUpdateFormField('status', e.target.value)}
-              className="flex h-10 w-full rounded-md border border-zoru-line bg-zoru-bg px-3 py-1.5 text-[13px] text-zoru-ink shadow-sm"
+              className="flex h-10 w-full rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-1.5 text-[13px] text-[var(--st-text)] shadow-sm"
             >
               {STATUS_OPTIONS.map(s => (
                 <option key={s} value={s}>{s.replace('_', ' ').toUpperCase()}</option>
@@ -655,7 +655,7 @@ export default function CrmContactsPage() {
             </select>
           </div>
           <div className="space-y-1">
-            <Label className="text-[12px] font-medium text-zoru-ink-muted">Lead Score</Label>
+            <Label className="text-[12px] font-medium text-[var(--st-text-secondary)]">Lead Score</Label>
             <Input 
               type="number"
               value={formContact.leadScore !== undefined ? formContact.leadScore : ''} 
@@ -665,11 +665,11 @@ export default function CrmContactsPage() {
             />
           </div>
           <div className="space-y-1">
-            <Label className="text-[12px] font-medium text-zoru-ink-muted">Lifecycle Stage</Label>
+            <Label className="text-[12px] font-medium text-[var(--st-text-secondary)]">Lifecycle Stage</Label>
             <select
               value={formContact.lifecycleStage || 'lead'}
               onChange={e => handleUpdateFormField('lifecycleStage', e.target.value)}
-              className="flex h-10 w-full rounded-md border border-zoru-line bg-zoru-bg px-3 py-1.5 text-[13px] text-zoru-ink shadow-sm"
+              className="flex h-10 w-full rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-1.5 text-[13px] text-[var(--st-text)] shadow-sm"
             >
               <option value="lead">LEAD</option>
               <option value="mql">MQL (Marketing Qualified)</option>
@@ -680,11 +680,11 @@ export default function CrmContactsPage() {
             </select>
           </div>
           <div className="space-y-1">
-            <Label className="text-[12px] font-medium text-zoru-ink-muted">Source</Label>
+            <Label className="text-[12px] font-medium text-[var(--st-text-secondary)]">Source</Label>
             <select
               value={formContact.source || 'website'}
               onChange={e => handleUpdateFormField('source', e.target.value)}
-              className="flex h-10 w-full rounded-md border border-zoru-line bg-zoru-bg px-3 py-1.5 text-[13px] text-zoru-ink shadow-sm"
+              className="flex h-10 w-full rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-1.5 text-[13px] text-[var(--st-text)] shadow-sm"
             >
               <option value="website">Website</option>
               <option value="referral">Referral</option>
@@ -696,7 +696,7 @@ export default function CrmContactsPage() {
             </select>
           </div>
           <div className="space-y-1">
-            <Label className="text-[12px] font-medium text-zoru-ink-muted">Tags (comma-separated)</Label>
+            <Label className="text-[12px] font-medium text-[var(--st-text-secondary)]">Tags (comma-separated)</Label>
             <Input 
               value={formContact.tags?.join(', ') || ''} 
               onChange={e => handleUpdateFormField('tags', e.target.value.split(',').map(t => t.trim()).filter(Boolean))}
@@ -705,7 +705,7 @@ export default function CrmContactsPage() {
             />
           </div>
           <div className="space-y-1">
-            <Label className="text-[12px] font-medium text-zoru-ink-muted">Timezone</Label>
+            <Label className="text-[12px] font-medium text-[var(--st-text-secondary)]">Timezone</Label>
             <Input 
               value={formContact.timezone || ''} 
               onChange={e => handleUpdateFormField('timezone', e.target.value)}
@@ -722,7 +722,7 @@ export default function CrmContactsPage() {
       render: () => (
         <div className="space-y-4">
           <div className="space-y-1">
-            <Label className="text-[12px] font-medium text-zoru-ink-muted">LinkedIn URL</Label>
+            <Label className="text-[12px] font-medium text-[var(--st-text-secondary)]">LinkedIn URL</Label>
             <Input 
               value={formContact.linkedinUrl || ''} 
               onChange={e => handleUpdateFormField('linkedinUrl', e.target.value)}
@@ -731,7 +731,7 @@ export default function CrmContactsPage() {
             />
           </div>
           <div className="space-y-1">
-            <Label className="text-[12px] font-medium text-zoru-ink-muted">Twitter Handle</Label>
+            <Label className="text-[12px] font-medium text-[var(--st-text-secondary)]">Twitter Handle</Label>
             <Input 
               value={formContact.twitterHandle || ''} 
               onChange={e => handleUpdateFormField('twitterHandle', e.target.value)}
@@ -795,7 +795,7 @@ export default function CrmContactsPage() {
           </div>
         }
         filters={
-          <div className="flex flex-wrap items-center justify-between gap-3 w-full bg-zoru-surface-2/15 border border-zoru-line/50 p-2.5 rounded-lg">
+          <div className="flex flex-wrap items-center justify-between gap-3 w-full bg-[var(--st-bg-muted)]/15 border border-[var(--st-border)]/50 p-2.5 rounded-lg">
             <div className="flex items-center gap-2">
               <CrmFilterPanel
                 fields={filterFields}
@@ -805,14 +805,14 @@ export default function CrmContactsPage() {
                 hasActiveFilters={hasActiveFilters}
               />
               {hasActiveFilters && (
-                <Button variant="ghost" size="sm" onClick={clearFilters} className="text-zoru-ink-muted hover:text-zoru-ink gap-1">
+                <Button variant="ghost" size="sm" onClick={clearFilters} className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)] gap-1">
                   Reset filters
                 </Button>
               )}
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="text-[12px] text-zoru-ink-muted">Row Density:</span>
-              <div className="flex items-center rounded-md border border-zoru-line p-0.5 bg-zoru-surface">
+              <span className="text-[12px] text-[var(--st-text-secondary)]">Row Density:</span>
+              <div className="flex items-center rounded-md border border-[var(--st-border)] p-0.5 bg-[var(--st-bg-secondary)]">
                 {['comfortable', 'compact', 'dense'].map((den) => (
                   <Button 
                     key={den} 
@@ -831,12 +831,12 @@ export default function CrmContactsPage() {
         bulkBar={
           selected.size > 0 ? (
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink">
+              <div className="flex items-center gap-2 text-[12.5px] text-[var(--st-text)]">
                 <Badge variant="info">{selected.size} selected</Badge>
                 <button
                   type="button"
                   onClick={clearSelection}
-                  className="text-zoru-ink-muted hover:text-zoru-ink"
+                  className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                 >
                   Clear
                 </button>
@@ -844,7 +844,7 @@ export default function CrmContactsPage() {
               <div className="flex flex-wrap items-center gap-2">
                 <select
                   onChange={(e) => void runBulk('status', e.target.value)}
-                  className="h-8 rounded border border-zoru-line bg-zoru-bg px-2 text-[12.5px] text-zoru-ink"
+                  className="h-8 rounded border border-[var(--st-border)] bg-[var(--st-bg)] px-2 text-[12.5px] text-[var(--st-text)]"
                 >
                   <option value="">Set status…</option>
                   {STATUS_OPTIONS.map((s) => (
@@ -872,7 +872,7 @@ export default function CrmContactsPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="text-zoru-danger-ink hover:bg-zoru-danger/10"
+                  className="text-[var(--st-danger)] hover:bg-[var(--st-danger)]/10"
                   onClick={() => void runBulk('delete')}
                 >
                   <Trash2 className="h-3.5 w-3.5" /> Delete
@@ -940,8 +940,8 @@ export default function CrmContactsPage() {
 
             {/* Float Menu Overlay */}
             {contacts.length > 0 && (
-              <div className="absolute right-3 top-14 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1.5 bg-zoru-surface border border-zoru-line px-2 py-1 rounded-md shadow-sm pointer-events-auto">
-                <span className="text-[10px] font-semibold text-zoru-ink-muted uppercase">Grid Actions</span>
+              <div className="absolute right-3 top-14 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1.5 bg-[var(--st-bg-secondary)] border border-[var(--st-border)] px-2 py-1 rounded-md shadow-sm pointer-events-auto">
+                <span className="text-[10px] font-semibold text-[var(--st-text-secondary)] uppercase">Grid Actions</span>
               </div>
             )}
           </div>

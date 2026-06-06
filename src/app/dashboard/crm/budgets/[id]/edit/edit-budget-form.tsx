@@ -312,7 +312,7 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                     <ZoruCardContent>
                         <div className="grid gap-4 md:grid-cols-2">
                             <div className="space-y-2">
-                                <Label className="text-[12.5px] text-zoru-ink-muted">
+                                <Label className="text-[12.5px] text-[var(--st-text-secondary)]">
                                     Head type
                                 </Label>
                                 <div className="flex flex-wrap gap-1.5">
@@ -324,8 +324,8 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                                                 onClick={() => setHeadType(option)}
                                                 className={`rounded-md border px-2.5 py-1 text-[12.5px] capitalize transition ${
                                                     headType === option
-                                                        ? 'border-zoru-primary bg-zoru-primary/10 text-zoru-primary'
-                                                        : 'border-zoru-line bg-zoru-bg text-zoru-ink hover:bg-zoru-surface-2'
+                                                        ? 'border-[var(--st-text)] bg-[var(--st-text)]/10 text-[var(--st-text)]'
+                                                        : 'border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]'
                                                 }`}
                                             >
                                                 {option}
@@ -335,7 +335,7 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <Label className="text-[12.5px] text-zoru-ink-muted">
+                                <Label className="text-[12.5px] text-[var(--st-text-secondary)]">
                                     Budget head
                                 </Label>
                                 <EntityFormField
@@ -351,7 +351,7 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                             <div className="space-y-2">
                                 <Label
                                     htmlFor="period"
-                                    className="text-[12.5px] text-zoru-ink-muted"
+                                    className="text-[12.5px] text-[var(--st-text-secondary)]"
                                 >
                                     Period
                                 </Label>
@@ -361,11 +361,11 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                                     defaultValue={budget.period ?? ''}
                                     placeholder="FY2026-Q1"
                                     required
-                                    className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                                    className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label className="text-[12.5px] text-zoru-ink-muted">
+                                <Label className="text-[12.5px] text-[var(--st-text-secondary)]">
                                     Scenario
                                 </Label>
                                 <div className="flex flex-wrap gap-1.5">
@@ -376,8 +376,8 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                                             onClick={() => setScenario(opt.value)}
                                             className={`rounded-md border px-2.5 py-1 text-[12.5px] transition ${
                                                 scenario === opt.value
-                                                    ? 'border-zoru-primary bg-zoru-primary/10 text-zoru-primary'
-                                                    : 'border-zoru-line bg-zoru-bg text-zoru-ink hover:bg-zoru-surface-2'
+                                                    ? 'border-[var(--st-text)] bg-[var(--st-text)]/10 text-[var(--st-text)]'
+                                                    : 'border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]'
                                             }`}
                                         >
                                             {opt.label}
@@ -398,7 +398,7 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                             <div className="space-y-2">
                                 <Label
                                     htmlFor="planAmount"
-                                    className="text-[12.5px] text-zoru-ink-muted"
+                                    className="text-[12.5px] text-[var(--st-text-secondary)]"
                                 >
                                     Plan amount
                                 </Label>
@@ -413,13 +413,13 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                                         setPlanAmount(parseFloat(e.target.value) || 0)
                                     }
                                     required
-                                    className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                                    className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                                 />
                             </div>
                             <div className="space-y-2">
                                 <Label
                                     htmlFor="alertAt"
-                                    className="text-[12.5px] text-zoru-ink-muted"
+                                    className="text-[12.5px] text-[var(--st-text-secondary)]"
                                 >
                                     Alert at (%)
                                 </Label>
@@ -430,17 +430,17 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                                     min="0"
                                     max="100"
                                     defaultValue={budget.alertAt ?? 80}
-                                    className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                                    className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label className="text-[12.5px] text-zoru-ink-muted">
+                                <Label className="text-[12.5px] text-[var(--st-text-secondary)]">
                                     Status
                                 </Label>
                                 <select
                                     value={status}
                                     onChange={(e) => setStatus(e.target.value as Status)}
-                                    className="h-10 w-full rounded-lg border border-zoru-line bg-zoru-bg px-3 text-[13px] text-zoru-ink"
+                                    className="h-10 w-full rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] px-3 text-[13px] text-[var(--st-text)]"
                                 >
                                     {STATUS_OPTIONS.map((opt) => (
                                         <option key={opt.value} value={opt.value}>
@@ -450,10 +450,10 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                                 </select>
                             </div>
                         </div>
-                        <div className="mt-4 flex items-center justify-between rounded-lg border border-zoru-line bg-zoru-surface-2/40 px-3 py-2">
-                            <div className="text-[12.5px] text-zoru-ink">
+                        <div className="mt-4 flex items-center justify-between rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)]/40 px-3 py-2">
+                            <div className="text-[12.5px] text-[var(--st-text)]">
                                 <div className="font-medium">Lock budget</div>
-                                <div className="text-zoru-ink-muted">
+                                <div className="text-[var(--st-text-secondary)]">
                                     Locked budgets can&apos;t accrue further actuals.
                                 </div>
                             </div>
@@ -472,7 +472,7 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                     </ZoruCardHeader>
                     <ZoruCardContent>
                         {allocations.length === 0 ? (
-                            <p className="text-[12.5px] text-zoru-ink-muted">
+                            <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                                 No sub-line allocations yet. Add one to break the plan amount
                                 down by department or period.
                             </p>
@@ -481,10 +481,10 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                                 {allocations.map((row) => (
                                     <div
                                         key={row.id}
-                                        className="grid gap-2 rounded-lg border border-zoru-line bg-zoru-bg p-3 md:grid-cols-12"
+                                        className="grid gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] p-3 md:grid-cols-12"
                                     >
                                         <div className="md:col-span-4">
-                                            <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                                            <Label className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                                                 Department
                                             </Label>
                                             <EntityFormField
@@ -503,7 +503,7 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                                             />
                                         </div>
                                         <div className="md:col-span-3">
-                                            <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                                            <Label className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                                                 Period
                                             </Label>
                                             <Input
@@ -514,11 +514,11 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                                                     })
                                                 }
                                                 placeholder="Q1"
-                                                className="h-9 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                                                className="h-9 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                                             />
                                         </div>
                                         <div className="md:col-span-2">
-                                            <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                                            <Label className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                                                 Amount
                                             </Label>
                                             <Input
@@ -536,11 +536,11 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                                                             parseFloat(e.target.value) || 0,
                                                     })
                                                 }
-                                                className="h-9 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                                                className="h-9 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                                             />
                                         </div>
                                         <div className="md:col-span-2">
-                                            <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                                            <Label className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                                                 Note
                                             </Label>
                                             <Input
@@ -551,14 +551,14 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                                                     })
                                                 }
                                                 placeholder="Optional"
-                                                className="h-9 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                                                className="h-9 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                                             />
                                         </div>
                                         <div className="flex items-end justify-end md:col-span-1">
                                             <button
                                                 type="button"
                                                 onClick={() => removeAllocation(row.id)}
-                                                className="rounded-md p-1.5 text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-danger-ink"
+                                                className="rounded-md p-1.5 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-danger)]"
                                                 aria-label="Remove allocation"
                                             >
                                                 <Trash2 className="h-4 w-4" />
@@ -580,29 +580,29 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                                     Add allocation
                                 </Button>
                                 
-                                <label className="inline-flex cursor-pointer items-center justify-center gap-1 whitespace-nowrap rounded-md border border-zoru-line bg-zoru-bg px-4 py-2 text-sm font-medium text-zoru-ink transition-colors hover:bg-zoru-surface hover:text-zoru-ink-strong focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zoru-primary disabled:pointer-events-none disabled:opacity-50 h-9">
+                                <label className="inline-flex cursor-pointer items-center justify-center gap-1 whitespace-nowrap rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-4 py-2 text-sm font-medium text-[var(--st-text)] transition-colors hover:bg-[var(--st-bg-secondary)] hover:text-[var(--st-text)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--st-text)] disabled:pointer-events-none disabled:opacity-50 h-9">
                                     <Upload className="h-4 w-4" />
                                     Import CSV
                                     <input type="file" accept=".csv" className="hidden" onChange={handleImportCSV} />
                                 </label>
                             </div>
                             {allocations.length > 0 ? (
-                                <div className="text-[12px] text-zoru-ink-muted">
+                                <div className="text-[12px] text-[var(--st-text-secondary)]">
                                     Allocated:{' '}
-                                    <span className="font-mono tabular-nums text-zoru-ink">
+                                    <span className="font-mono tabular-nums text-[var(--st-text)]">
                                         {allocationsTotal.toFixed(2)}
                                     </span>
                                     {' / '}
                                     Plan:{' '}
-                                    <span className="font-mono tabular-nums text-zoru-ink">
+                                    <span className="font-mono tabular-nums text-[var(--st-text)]">
                                         {planAmount.toFixed(2)}
                                     </span>
                                     {' · '}
                                     <span
                                         className={`font-mono tabular-nums ${
                                             allocationsVsPlan < 0
-                                                ? 'text-zoru-danger-ink'
-                                                : 'text-zoru-success-ink'
+                                                ? 'text-[var(--st-danger)]'
+                                                : 'text-[var(--st-status-ok)]'
                                         }`}
                                     >
                                         {allocationsVsPlan >= 0 ? 'unallocated ' : 'over by '}
@@ -621,7 +621,7 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                     <ZoruCardContent>
                         <div className="grid gap-4 md:grid-cols-2">
                             <div className="space-y-2">
-                                <Label className="text-[12.5px] text-zoru-ink-muted">
+                                <Label className="text-[12.5px] text-[var(--st-text-secondary)]">
                                     Owner
                                 </Label>
                                 <EntityFormField
@@ -634,7 +634,7 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label className="text-[12.5px] text-zoru-ink-muted">
+                                <Label className="text-[12.5px] text-[var(--st-text-secondary)]">
                                     Approver
                                 </Label>
                                 <EntityFormField
@@ -663,8 +663,8 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                                 {document ? 'Replace file' : 'Attach file'}
                             </SabFilePickerButton>
                             {document ? (
-                                <span className="inline-flex items-center gap-2 rounded-md border border-zoru-line bg-zoru-surface-2/40 px-2 py-1 text-[12.5px] text-zoru-ink">
-                                    <FileText className="h-3.5 w-3.5 text-zoru-ink-muted" />
+                                <span className="inline-flex items-center gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)]/40 px-2 py-1 text-[12.5px] text-[var(--st-text)]">
+                                    <FileText className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                                     <span className="max-w-[220px] truncate">
                                         {document.name}
                                     </span>
@@ -672,13 +672,13 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                                         type="button"
                                         onClick={() => setDocument(null)}
                                         aria-label="Remove document"
-                                        className="rounded p-0.5 text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-danger-ink"
+                                        className="rounded p-0.5 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-danger)]"
                                     >
                                         <X className="h-3 w-3" />
                                     </button>
                                 </span>
                             ) : (
-                                <span className="text-[12px] text-zoru-ink-muted">
+                                <span className="text-[12px] text-[var(--st-text-secondary)]">
                                     Pick from your SabFiles library or upload a new file.
                                 </span>
                             )}
@@ -697,12 +697,12 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                             defaultValue={budget.notes ?? ''}
                             rows={4}
                             placeholder="Assumptions, escalation policy, or context for reviewers."
-                            className="rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                            className="rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                         />
                     </ZoruCardContent>
                 </Card>
 
-                <div className="sticky bottom-0 z-10 -mx-2 flex flex-wrap items-center justify-end gap-2 border-t border-zoru-line bg-zoru-bg px-2 py-3">
+                <div className="sticky bottom-0 z-10 -mx-2 flex flex-wrap items-center justify-end gap-2 border-t border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-3">
                     <Button variant="outline" asChild>
                         <Link href={`/dashboard/crm/budgets/${budgetId}`}>Cancel</Link>
                     </Button>

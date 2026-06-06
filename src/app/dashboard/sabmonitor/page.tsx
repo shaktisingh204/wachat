@@ -24,10 +24,10 @@ export default async function SabmonitorOverviewPage(): Promise<React.JSX.Elemen
     }
 
     const stats: Array<{ label: string; value: number; tone: string }> = [
-        { label: 'Up', value: counts.up, tone: 'text-zoru-ink' },
-        { label: 'Warning', value: counts.warning, tone: 'text-zoru-ink' },
-        { label: 'Down', value: counts.down, tone: 'text-zoru-ink' },
-        { label: 'Unknown', value: counts.unknown, tone: 'text-zoru-ink-muted' },
+        { label: 'Up', value: counts.up, tone: 'text-[var(--st-text)]' },
+        { label: 'Warning', value: counts.warning, tone: 'text-[var(--st-text)]' },
+        { label: 'Down', value: counts.down, tone: 'text-[var(--st-text)]' },
+        { label: 'Unknown', value: counts.unknown, tone: 'text-[var(--st-text-secondary)]' },
     ];
 
     return (
@@ -36,7 +36,7 @@ export default async function SabmonitorOverviewPage(): Promise<React.JSX.Elemen
                 {stats.map((s) => (
                     <Card key={s.label} className="zoruui">
                         <CardContent className="flex flex-col gap-1 p-4">
-                            <span className="text-[11px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                            <span className="text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                                 {s.label}
                             </span>
                             <span className={`text-2xl font-semibold ${s.tone}`}>{s.value}</span>
@@ -47,9 +47,9 @@ export default async function SabmonitorOverviewPage(): Promise<React.JSX.Elemen
 
             <section className="flex flex-col gap-3">
                 <div className="flex items-center justify-between">
-                    <h2 className="text-sm font-semibold text-zoru-ink">Ongoing incidents</h2>
+                    <h2 className="text-sm font-semibold text-[var(--st-text)]">Ongoing incidents</h2>
                     <Link
-                        className="text-[12px] text-zoru-brand hover:underline"
+                        className="text-[12px] text-[var(--st-accent)] hover:underline"
                         href="/dashboard/sabmonitor/incidents"
                     >
                         View all
@@ -58,24 +58,24 @@ export default async function SabmonitorOverviewPage(): Promise<React.JSX.Elemen
                 <Card className="zoruui">
                     <CardContent className="p-0">
                         {ongoingRes.items.length === 0 ? (
-                            <p className="p-4 text-sm text-zoru-ink-muted">
+                            <p className="p-4 text-sm text-[var(--st-text-secondary)]">
                                 No ongoing incidents — every check is healthy.
                             </p>
                         ) : (
-                            <ul className="divide-y divide-zoru-line">
+                            <ul className="divide-y divide-[var(--st-border)]">
                                 {ongoingRes.items.map((i) => (
                                     <li key={i._id} className="flex items-center justify-between p-3">
                                         <div className="flex flex-col gap-1">
-                                            <span className="text-sm font-medium text-zoru-ink">
+                                            <span className="text-sm font-medium text-[var(--st-text)]">
                                                 Check {i.checkId}
                                             </span>
-                                            <span className="text-[12px] text-zoru-ink-muted">
+                                            <span className="text-[12px] text-[var(--st-text-secondary)]">
                                                 Started {new Date(i.startedAt).toLocaleString()}
                                             </span>
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <StatusBadge status="ongoing" />
-                                            <span className="text-[12px] uppercase tracking-wide text-zoru-ink-muted">
+                                            <span className="text-[12px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                                                 {i.severity}
                                             </span>
                                         </div>
@@ -88,14 +88,14 @@ export default async function SabmonitorOverviewPage(): Promise<React.JSX.Elemen
             </section>
 
             <section className="flex flex-col gap-3">
-                <h2 className="text-sm font-semibold text-zoru-ink">Slowest recent checks</h2>
+                <h2 className="text-sm font-semibold text-[var(--st-text)]">Slowest recent checks</h2>
                 <Card className="zoruui">
                     <CardContent className="p-0">
                         {checksRes.items.length === 0 ? (
-                            <p className="p-4 text-sm text-zoru-ink-muted">
+                            <p className="p-4 text-sm text-[var(--st-text-secondary)]">
                                 No checks configured yet.{' '}
                                 <Link
-                                    className="text-zoru-brand hover:underline"
+                                    className="text-[var(--st-accent)] hover:underline"
                                     href="/dashboard/sabmonitor/checks/new"
                                 >
                                     Add your first check
@@ -103,17 +103,17 @@ export default async function SabmonitorOverviewPage(): Promise<React.JSX.Elemen
                                 .
                             </p>
                         ) : (
-                            <ul className="divide-y divide-zoru-line">
+                            <ul className="divide-y divide-[var(--st-border)]">
                                 {checksRes.items.slice(0, 8).map((c) => (
                                     <li key={c._id} className="flex items-center justify-between p-3">
                                         <div className="flex flex-col gap-1">
                                             <Link
-                                                className="text-sm font-medium text-zoru-ink hover:underline"
+                                                className="text-sm font-medium text-[var(--st-text)] hover:underline"
                                                 href={`/dashboard/sabmonitor/checks/${c._id}`}
                                             >
                                                 {c.name}
                                             </Link>
-                                            <span className="text-[12px] text-zoru-ink-muted">
+                                            <span className="text-[12px] text-[var(--st-text-secondary)]">
                                                 {c.kind} · {c.url ?? c.host ?? '—'}
                                             </span>
                                         </div>

@@ -75,10 +75,10 @@ export function ContractFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="max-w-2xl">
         <ZoruDialogHeader>
-          <ZoruDialogTitle className="text-zoru-ink">
+          <ZoruDialogTitle className="text-[var(--st-text)]">
             {editing ? 'Edit Contract' : 'Add Contract'}
           </ZoruDialogTitle>
-          <ZoruDialogDescription className="text-zoru-ink-muted">
+          <ZoruDialogDescription className="text-[var(--st-text-secondary)]">
             Fill in the details below.
           </ZoruDialogDescription>
         </ZoruDialogHeader>
@@ -90,18 +90,18 @@ export function ContractFormDialog({
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="md:col-span-2">
-              <Label className="text-zoru-ink">
-                Title <span className="text-zoru-ink">*</span>
+              <Label className="text-[var(--st-text)]">
+                Title <span className="text-[var(--st-text)]">*</span>
               </Label>
               <Input
                 name="title"
                 required
                 defaultValue={editing?.title || ''}
-                className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-surface text-[13px]"
+                className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px]"
               />
             </div>
             <div>
-              <Label className="text-zoru-ink">Client</Label>
+              <Label className="text-[var(--st-text)]">Client</Label>
               <div className="mt-1.5">
                 <EntityFormField
                   entity="client"
@@ -114,14 +114,14 @@ export function ContractFormDialog({
               </div>
             </div>
             <div>
-              <Label className="text-zoru-ink">
-                Status <span className="text-zoru-ink">*</span>
+              <Label className="text-[var(--st-text)]">
+                Status <span className="text-[var(--st-text)]">*</span>
               </Label>
               <Select
                 name="status"
                 defaultValue={editing?.status || 'draft'}
               >
-                <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-surface text-[13px]">
+                <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px]">
                   <ZoruSelectValue />
                 </ZoruSelectTrigger>
                 <ZoruSelectContent>
@@ -134,12 +134,12 @@ export function ContractFormDialog({
               </Select>
             </div>
             <div>
-              <Label className="text-zoru-ink">E-Signature Provider</Label>
+              <Label className="text-[var(--st-text)]">E-Signature Provider</Label>
               <Select
                 name="esignProvider"
                 defaultValue={(editing as any)?.esignProvider || 'internal'}
               >
-                <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-surface text-[13px]">
+                <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px]">
                   <ZoruSelectValue />
                 </ZoruSelectTrigger>
                 <ZoruSelectContent>
@@ -151,16 +151,16 @@ export function ContractFormDialog({
               </Select>
             </div>
             <div>
-              <Label className="text-zoru-ink">Value</Label>
+              <Label className="text-[var(--st-text)]">Value</Label>
               <Input
                 type="number"
                 name="value"
                 defaultValue={editing?.value ?? ''}
-                className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-surface text-[13px]"
+                className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px]"
               />
             </div>
             <div>
-              <Label className="text-zoru-ink">Currency</Label>
+              <Label className="text-[var(--st-text)]">Currency</Label>
               <div className="mt-1.5">
                 <EntityFormField
                   entity="currency"
@@ -171,7 +171,7 @@ export function ContractFormDialog({
               </div>
             </div>
             <div>
-              <Label className="text-zoru-ink">Start Date</Label>
+              <Label className="text-[var(--st-text)]">Start Date</Label>
               <Input
                 type="date"
                 name="startDate"
@@ -182,11 +182,11 @@ export function ContractFormDialog({
                         .slice(0, 10)
                     : ''
                 }
-                className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-surface text-[13px]"
+                className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px]"
               />
             </div>
             <div>
-              <Label className="text-zoru-ink">End Date</Label>
+              <Label className="text-[var(--st-text)]">End Date</Label>
               <Input
                 type="date"
                 name="endDate"
@@ -197,12 +197,12 @@ export function ContractFormDialog({
                         .slice(0, 10)
                     : ''
                 }
-                className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-surface text-[13px]"
+                className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px]"
               />
             </div>
             <div className="md:col-span-2">
               <div className="flex justify-between items-center mb-1.5">
-                <Label className="text-zoru-ink">Body</Label>
+                <Label className="text-[var(--st-text)]">Body</Label>
                 {templates.length > 0 && (
                   <Select onValueChange={handleTemplateChange}>
                     <ZoruSelectTrigger className="h-8 w-[200px] text-[12px]">
@@ -223,7 +223,7 @@ export function ContractFormDialog({
                 rows={6}
                 value={bodyText}
                 onChange={(e) => setBodyText(e.target.value)}
-                className="rounded-lg border-zoru-line bg-zoru-surface text-[13px]"
+                className="rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px]"
               />
             </div>
           </div>

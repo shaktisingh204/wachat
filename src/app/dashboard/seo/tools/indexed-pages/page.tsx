@@ -117,21 +117,21 @@ export default function IndexedPagesPage() {
         </div>
         
         {error && (
-          <div className="text-zoru-ink text-sm font-medium">{error}</div>
+          <div className="text-[var(--st-text)] text-sm font-medium">{error}</div>
         )}
       </div>
 
       {submitted && (
         <Card className="mt-4">
           <ZoruCardContent className="p-4 space-y-4">
-            <h3 className="font-semibold text-lg text-zoru-ink dark:text-white">Search Engine Links</h3>
+            <h3 className="font-semibold text-lg text-[var(--st-text)] dark:text-white">Search Engine Links</h3>
             <div className="flex flex-col gap-2">
-              <a className="inline-flex items-center gap-2 p-3 bg-zoru-surface-2 dark:bg-zoru-ink/30 text-zoru-ink dark:text-zoru-ink-muted rounded-md hover:bg-zoru-surface-2 dark:hover:bg-zoru-ink/50 transition-colors" target="_blank" rel="noopener noreferrer" href={getGoogleUrl()}>
+              <a className="inline-flex items-center gap-2 p-3 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 text-[var(--st-text)] dark:text-[var(--st-text-secondary)] rounded-md hover:bg-[var(--st-bg-muted)] dark:hover:bg-[var(--st-text)]/50 transition-colors" target="_blank" rel="noopener noreferrer" href={getGoogleUrl()}>
                 <span className="text-xl">🔗</span>
                 <span className="font-medium">Google:</span>
                 <span className="opacity-90 break-all">site:{submitted} {submittedExactMatch ? `"${submittedExactMatch}"` : ''}</span>
               </a>
-              <a className="inline-flex items-center gap-2 p-3 bg-zoru-surface-2 dark:bg-zoru-ink/30 text-zoru-ink dark:text-zoru-ink-muted rounded-md hover:bg-zoru-surface-2 dark:hover:bg-zoru-ink/50 transition-colors" target="_blank" rel="noopener noreferrer" href={getBingUrl()}>
+              <a className="inline-flex items-center gap-2 p-3 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 text-[var(--st-text)] dark:text-[var(--st-text-secondary)] rounded-md hover:bg-[var(--st-bg-muted)] dark:hover:bg-[var(--st-text)]/50 transition-colors" target="_blank" rel="noopener noreferrer" href={getBingUrl()}>
                 <span className="text-xl">🔗</span>
                 <span className="font-medium">Bing:</span>
                 <span className="opacity-90 break-all">site:{submitted} {submittedExactMatch ? `"${submittedExactMatch}"` : ''}</span>

@@ -56,28 +56,28 @@ export default function OrgSwitcherClient({ initialData }: OrgSwitcherClientProp
     >
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {filteredData.map(item => (
-          <Card key={item.id} className="p-6 flex flex-col justify-between hover:border-zoru-accent transition-all group">
+          <Card key={item.id} className="p-6 flex flex-col justify-between hover:border-[var(--st-accent)] transition-all group">
             <div className="flex items-start justify-between">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 rounded-lg bg-zoru-neutral-hover flex items-center justify-center">
-                  <Building className="w-5 h-5 text-zoru-ink" />
+                  <Building className="w-5 h-5 text-[var(--st-text)]" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg text-zoru-ink">{item.name}</h3>
-                  <p className="text-sm text-zoru-ink-light">@{item.slug}</p>
+                  <h3 className="font-bold text-lg text-[var(--st-text)]">{item.name}</h3>
+                  <p className="text-sm text-[var(--st-text-tertiary)]">@{item.slug}</p>
                 </div>
               </div>
             </div>
-            <div className="mt-6 flex items-center justify-between border-t border-zoru-line pt-4">
-              <span className="text-sm font-medium capitalize px-2 py-1 bg-zoru-bg border border-zoru-line rounded-md">{item.role}</span>
+            <div className="mt-6 flex items-center justify-between border-t border-[var(--st-border)] pt-4">
+              <span className="text-sm font-medium capitalize px-2 py-1 bg-[var(--st-bg)] border border-[var(--st-border)] rounded-md">{item.role}</span>
               <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)} className="opacity-0 group-hover:opacity-100 transition-opacity" disabled={isPending}>
-                <Trash2 className="w-4 h-4 text-zoru-ink" />
+                <Trash2 className="w-4 h-4 text-[var(--st-text)]" />
               </Button>
             </div>
           </Card>
         ))}
         {filteredData.length === 0 && (
-          <div className="col-span-full py-12 text-center text-zoru-ink-light">No organizations found.</div>
+          <div className="col-span-full py-12 text-center text-[var(--st-text-tertiary)]">No organizations found.</div>
         )}
       </div>
 

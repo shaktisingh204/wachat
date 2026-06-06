@@ -36,23 +36,23 @@ export default async function BookingPortalPage({
   return (
     <div className="w-full p-6">
       <div className="mb-8 text-center">
-        <h1 className="text-2xl font-semibold text-zoru-ink">Manage Your Booking</h1>
-        <p className="text-zoru-ink-muted">Reference: {String(booking._id).slice(-8)}</p>
+        <h1 className="text-2xl font-semibold text-[var(--st-text)]">Manage Your Booking</h1>
+        <p className="text-[var(--st-text-secondary)]">Reference: {String(booking._id).slice(-8)}</p>
       </div>
 
       <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>{booking.service || 'Appointment Details'}</ZoruCardTitle>
         </ZoruCardHeader>
-        <ZoruCardContent className="space-y-4 text-sm text-zoru-ink">
-          <div className="flex items-center justify-between border-b border-zoru-line pb-3">
-            <span className="text-zoru-ink-muted">Status</span>
+        <ZoruCardContent className="space-y-4 text-sm text-[var(--st-text)]">
+          <div className="flex items-center justify-between border-b border-[var(--st-border)] pb-3">
+            <span className="text-[var(--st-text-secondary)]">Status</span>
             <Badge tone={getStatusTone(booking.status)} className="capitalize">
               {booking.status || 'pending'}
             </Badge>
           </div>
-          <div className="flex items-center justify-between border-b border-zoru-line pb-3 pt-1">
-            <span className="text-zoru-ink-muted">Date & Time</span>
+          <div className="flex items-center justify-between border-b border-[var(--st-border)] pb-3 pt-1">
+            <span className="text-[var(--st-text-secondary)]">Date & Time</span>
             <span className="font-medium"><ClientDate dateString={String(booking.slotStart)} /></span>
           </div>
           
@@ -63,7 +63,7 @@ export default async function BookingPortalPage({
               currentEnd={String(booking.slotEnd)} 
             />
           ) : (
-            <div className="rounded-md bg-zoru-surface-2 p-3 text-center text-zoru-ink-muted">
+            <div className="rounded-md bg-[var(--st-bg-muted)] p-3 text-center text-[var(--st-text-secondary)]">
               This booking cannot be modified at this time.
             </div>
           )}

@@ -147,7 +147,7 @@ function PageSkeleton() {
 function StepperHeader({ current }: { current: StepKey }) {
   const currentIdx = STEPS.findIndex((s) => s.key === current);
   return (
-    <ol className="flex flex-col gap-2 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-3 sm:flex-row sm:items-stretch sm:gap-0">
+    <ol className="flex flex-col gap-2 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 sm:flex-row sm:items-stretch sm:gap-0">
       {STEPS.map((step, idx) => {
         const isDone = idx < currentIdx;
         const isCurrent = idx === currentIdx;
@@ -156,18 +156,18 @@ function StepperHeader({ current }: { current: StepKey }) {
             <li
               className={cn(
                 'flex flex-1 items-start gap-3 rounded-[var(--zoru-radius)] px-3 py-2',
-                isCurrent && 'bg-zoru-surface',
+                isCurrent && 'bg-[var(--st-bg-secondary)]',
               )}
             >
               <span
                 className={cn(
                   'flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[12px]',
-                  isDone && 'bg-zoru-ink text-zoru-on-primary',
+                  isDone && 'bg-[var(--st-text)] text-[var(--st-text-inverted)]',
                   isCurrent &&
-                    'border border-zoru-ink bg-zoru-bg text-zoru-ink',
+                    'border border-[var(--st-text)] bg-[var(--st-bg)] text-[var(--st-text)]',
                   !isDone &&
                     !isCurrent &&
-                    'border border-zoru-line bg-zoru-surface-2 text-zoru-ink-muted',
+                    'border border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]',
                 )}
               >
                 {isDone ? (
@@ -181,19 +181,19 @@ function StepperHeader({ current }: { current: StepKey }) {
                   className={cn(
                     'text-[12.5px] leading-none',
                     isCurrent || isDone
-                      ? 'text-zoru-ink'
-                      : 'text-zoru-ink-muted',
+                      ? 'text-[var(--st-text)]'
+                      : 'text-[var(--st-text-secondary)]',
                   )}
                 >
                   {step.label}
                 </p>
-                <p className="mt-1 text-[11px] text-zoru-ink-muted leading-tight">
+                <p className="mt-1 text-[11px] text-[var(--st-text-secondary)] leading-tight">
                   {step.description}
                 </p>
               </div>
             </li>
             {idx !== STEPS.length - 1 ? (
-              <span className="hidden items-center px-1 text-zoru-ink-subtle sm:flex">
+              <span className="hidden items-center px-1 text-[var(--st-text-tertiary)] sm:flex">
                 <ChevronRight className="h-3.5 w-3.5" />
               </span>
             ) : null}
@@ -235,10 +235,10 @@ function StatusBadge({
 }) {
   const variant = statusVariant(status);
   const map: Record<typeof variant, string> = {
-    success: 'bg-zoru-success/15 text-zoru-success border-zoru-success/30',
-    info: 'bg-zoru-info/15 text-zoru-info border-zoru-info/30',
-    warning: 'bg-zoru-warning/15 text-zoru-warning border-zoru-warning/30',
-    danger: 'bg-zoru-danger/15 text-zoru-danger border-zoru-danger/30',
+    success: 'bg-[var(--st-status-ok)]/15 text-[var(--st-status-ok)] border-[var(--st-status-ok)]/30',
+    info: 'bg-[var(--st-text-secondary)]/15 text-[var(--st-text-secondary)] border-[var(--st-text-secondary)]/30',
+    warning: 'bg-[var(--st-warn)]/15 text-[var(--st-warn)] border-[var(--st-warn)]/30',
+    danger: 'bg-[var(--st-danger)]/15 text-[var(--st-danger)] border-[var(--st-danger)]/30',
     outline: '',
   };
   return (
@@ -314,7 +314,7 @@ export default function FacebookBroadcastsPage() {
         accessorKey: 'createdAt',
         header: 'Created',
         cell: ({ row }) => (
-          <span className="text-[12px] text-zoru-ink-muted">
+          <span className="text-[12px] text-[var(--st-text-secondary)]">
             {formatDistanceToNow(new Date(row.original.createdAt), {
               addSuffix: true,
             })}
@@ -330,7 +330,7 @@ export default function FacebookBroadcastsPage() {
         accessorKey: 'message',
         header: 'Message',
         cell: ({ row }) => (
-          <span className="line-clamp-1 max-w-[420px] text-[12.5px] text-zoru-ink">
+          <span className="line-clamp-1 max-w-[420px] text-[12.5px] text-[var(--st-text)]">
             {row.original.message}
           </span>
         ),
@@ -347,10 +347,10 @@ export default function FacebookBroadcastsPage() {
               : 0;
           return (
             <div className="flex flex-col gap-1 text-[11.5px]">
-              <span className="text-zoru-ink">
+              <span className="text-[var(--st-text)]">
                 Sent {b.successCount}/{b.totalRecipients}
               </span>
-              <span className="text-zoru-ink-muted">
+              <span className="text-[var(--st-text-secondary)]">
                 Failed {b.failedCount}
               </span>
               {b.status === 'PROCESSING' ? (
@@ -502,7 +502,7 @@ export default function FacebookBroadcastsPage() {
                           onChange={(e) => dispatch({ type: 'SET_MESSAGE', payload: e.target.value })}
                           required
                         />
-                        <p className="text-[11px] text-zoru-ink-muted">
+                        <p className="text-[11px] text-[var(--st-text-secondary)]">
                           {stateForm.message.length} characters
                         </p>
                       </div>
@@ -527,11 +527,11 @@ export default function FacebookBroadcastsPage() {
 
                   {stateForm.step === 'review' ? (
                     <div className="flex flex-col gap-4">
-                      <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-4 py-3">
-                        <p className="text-[11px] uppercase tracking-wide text-zoru-ink-subtle">
+                      <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-3">
+                        <p className="text-[11px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                           Preview
                         </p>
-                        <p className="mt-1 whitespace-pre-wrap text-[13px] text-zoru-ink">
+                        <p className="mt-1 whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
                           {stateForm.message || '— empty message —'}
                         </p>
                       </div>
@@ -560,10 +560,10 @@ export default function FacebookBroadcastsPage() {
             </Card>
 
             <div className="mt-8">
-              <h2 className="text-[14px] font-medium text-zoru-ink">
+              <h2 className="text-[14px] font-medium text-[var(--st-text)]">
                 Broadcast history
               </h2>
-              <p className="text-[12px] text-zoru-ink-muted">
+              <p className="text-[12px] text-[var(--st-text-secondary)]">
                 Every dispatch and its delivery stats.
               </p>
               <div className="mt-3">

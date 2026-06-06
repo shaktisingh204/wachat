@@ -112,27 +112,27 @@ function ColorSwatchInput({
   const valid = HEX_RE.test(value);
   return (
     <div className="flex flex-col gap-1">
-      <Label className="text-[11px] text-zoru-ink-muted">{label}</Label>
+      <Label className="text-[11px] text-[var(--st-text-secondary)]">{label}</Label>
       <div className="flex items-center gap-2">
         <input
           type="color"
           aria-label={`${label} color`}
           value={valid ? value : '#000000'}
           onChange={(e) => onChange(e.target.value)}
-          className="h-8 w-10 cursor-pointer rounded border border-zoru-line bg-zoru-bg p-0"
+          className="h-8 w-10 cursor-pointer rounded border border-[var(--st-border)] bg-[var(--st-bg)] p-0"
         />
         <Input
           value={value}
           onChange={(e) => onChange(e.target.value)}
           className={cn(
             'h-8 text-[12px] font-mono',
-            !valid && value && 'border-zoru-line/60',
+            !valid && value && 'border-[var(--st-border)]/60',
           )}
           placeholder="#RRGGBB"
         />
       </div>
       {!valid && value ? (
-        <span className="text-[10px] text-zoru-ink">Expected #RRGGBB</span>
+        <span className="text-[10px] text-[var(--st-text)]">Expected #RRGGBB</span>
       ) : null}
     </div>
   );
@@ -159,17 +159,17 @@ function ChipInput({
     setDraft('');
   }, [draft, onChange, value]);
   return (
-    <div className="flex flex-wrap items-center gap-1.5 rounded-md border border-zoru-line bg-zoru-bg px-2 py-1.5">
+    <div className="flex flex-wrap items-center gap-1.5 rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-1.5">
       {value.map((v) => (
         <span
           key={v}
-          className="inline-flex items-center gap-1 rounded-full bg-zoru-bg-zoru-surface-2 px-2 py-0.5 text-[11px] text-zoru-ink"
+          className="inline-flex items-center gap-1 rounded-full bg-zoru-bg-[var(--st-bg-muted)] px-2 py-0.5 text-[11px] text-[var(--st-text)]"
         >
           {v}
           <button
             type="button"
             aria-label={`Remove ${v}`}
-            className="text-zoru-ink-muted hover:text-zoru-ink"
+            className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
             onClick={() => onChange(value.filter((x) => x !== v))}
           >
             <XIcon className="h-3 w-3" />
@@ -189,7 +189,7 @@ function ChipInput({
         }}
         onBlur={commit}
         placeholder={placeholder || 'Add domain and press Enter'}
-        className="flex-1 min-w-[140px] bg-transparent text-[12px] outline-none placeholder:text-zoru-ink-muted"
+        className="flex-1 min-w-[140px] bg-transparent text-[12px] outline-none placeholder:text-[var(--st-text-secondary)]"
       />
     </div>
   );
@@ -324,7 +324,7 @@ export function MiniAppFormDrawer({
         <div className="grid gap-6 overflow-y-auto px-4 py-2 md:grid-cols-2">
           {/* ------- Basics ------- */}
           <section className="flex flex-col gap-3">
-            <h3 className="text-[12px] font-medium text-zoru-ink">Basics</h3>
+            <h3 className="text-[12px] font-medium text-[var(--st-text)]">Basics</h3>
             <div className="flex flex-col gap-1">
               <Label>Bot</Label>
               <Select
@@ -372,10 +372,10 @@ export function MiniAppFormDrawer({
                 placeholder="my_mini_app"
                 className={cn(
                   'font-mono',
-                  !slugValid && form.slug && 'border-zoru-line/60',
+                  !slugValid && form.slug && 'border-[var(--st-border)]/60',
                 )}
               />
-              <span className="text-[11px] text-zoru-ink-muted">
+              <span className="text-[11px] text-[var(--st-text-secondary)]">
                 Used in the t.me direct link. Lowercase letters, digits,
                 underscores only.
               </span>
@@ -390,7 +390,7 @@ export function MiniAppFormDrawer({
                 }
                 placeholder="https://example.com/app"
                 className={cn(
-                  !urlValid && form.webAppUrl && 'border-zoru-line/60',
+                  !urlValid && form.webAppUrl && 'border-[var(--st-border)]/60',
                 )}
               />
             </div>
@@ -419,7 +419,7 @@ export function MiniAppFormDrawer({
 
           {/* ------- Branding + Theme ------- */}
           <section className="flex flex-col gap-3">
-            <h3 className="text-[12px] font-medium text-zoru-ink">Branding</h3>
+            <h3 className="text-[12px] font-medium text-[var(--st-text)]">Branding</h3>
             <div className="flex flex-col gap-1">
               <Label>Photo (SabFiles)</Label>
               <SabFileUrlInput
@@ -443,7 +443,7 @@ export function MiniAppFormDrawer({
               />
             </div>
 
-            <h3 className="mt-2 text-[12px] font-medium text-zoru-ink">
+            <h3 className="mt-2 text-[12px] font-medium text-[var(--st-text)]">
               Theme params
             </h3>
             <div className="grid grid-cols-2 gap-2">
@@ -470,8 +470,8 @@ export function MiniAppFormDrawer({
                 />
               ))}
             </div>
-            <div className="mt-2 rounded-md border border-zoru-line p-3">
-              <div className="mb-2 text-[10px] uppercase tracking-wider text-zoru-ink-muted">
+            <div className="mt-2 rounded-md border border-[var(--st-border)] p-3">
+              <div className="mb-2 text-[10px] uppercase tracking-wider text-[var(--st-text-secondary)]">
                 Preview
               </div>
               <div
@@ -511,7 +511,7 @@ export function MiniAppFormDrawer({
               </div>
             </div>
 
-            <h3 className="mt-2 text-[12px] font-medium text-zoru-ink">
+            <h3 className="mt-2 text-[12px] font-medium text-[var(--st-text)]">
               Allowed domains
             </h3>
             <ChipInput
@@ -520,10 +520,10 @@ export function MiniAppFormDrawer({
               placeholder="example.com"
             />
 
-            <div className="mt-2 flex items-center justify-between rounded-md border border-zoru-line px-3 py-2">
+            <div className="mt-2 flex items-center justify-between rounded-md border border-[var(--st-border)] px-3 py-2">
               <div>
-                <div className="text-[12px] text-zoru-ink">Status</div>
-                <div className="text-[11px] text-zoru-ink-muted">
+                <div className="text-[12px] text-[var(--st-text)]">Status</div>
+                <div className="text-[11px] text-[var(--st-text-secondary)]">
                   Disabled mini apps don't accept opens.
                 </div>
               </div>

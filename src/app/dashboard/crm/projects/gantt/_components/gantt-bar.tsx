@@ -35,17 +35,17 @@ export interface GanttBarProps {
 }
 
 const STATUS_BG: Record<string, string> = {
-  done: 'bg-zoru-ink/80 border-zoru-line',
-  completed: 'bg-zoru-ink/80 border-zoru-line',
-  'in-progress': 'bg-zoru-ink/80 border-zoru-line',
-  review: 'bg-zoru-ink/80 border-zoru-line',
-  todo: 'bg-zoru-surface-2/70 border-zoru-line',
-  incomplete: 'bg-zoru-surface-2/70 border-zoru-line',
+  done: 'bg-[var(--st-text)]/80 border-[var(--st-border)]',
+  completed: 'bg-[var(--st-text)]/80 border-[var(--st-border)]',
+  'in-progress': 'bg-[var(--st-text)]/80 border-[var(--st-border)]',
+  review: 'bg-[var(--st-text)]/80 border-[var(--st-border)]',
+  todo: 'bg-[var(--st-bg-muted)]/70 border-[var(--st-border)]',
+  incomplete: 'bg-[var(--st-bg-muted)]/70 border-[var(--st-border)]',
 };
 
 const PRIORITY_RING: Record<string, string> = {
-  urgent: 'ring-2 ring-zoru-line/50',
-  high: 'ring-2 ring-zoru-line/40',
+  urgent: 'ring-2 ring-[var(--st-border)]/50',
+  high: 'ring-2 ring-[var(--st-border)]/40',
 };
 
 export function GanttBar({
@@ -59,7 +59,7 @@ export function GanttBar({
   const barTop = top + (rowHeight - GANTT_BAR_HEIGHT) / 2;
   const statusClass = STATUS_BG[task.status ?? ''] ?? STATUS_BG.todo;
   const priorityRing = PRIORITY_RING[task.priority ?? ''] ?? '';
-  const criticalRing = task.isCritical ? 'ring-2 ring-zoru-line ring-offset-1 ring-offset-zoru-bg shadow-md z-10' : '';
+  const criticalRing = task.isCritical ? 'ring-2 ring-[var(--st-border)] ring-offset-1 ring-offset-zoru-bg shadow-md z-10' : '';
 
   return (
     <div
@@ -106,7 +106,7 @@ export function GanttBar({
       <button
         type="button"
         onPointerDown={(e) => onDragStart(task._id, 'link', e)}
-        className="absolute -right-3 top-1/2 flex h-4 w-4 -translate-y-1/2 cursor-crosshair items-center justify-center rounded-full border border-zoru-line bg-zoru-bg text-[10px] text-zoru-ink shadow-sm hover:bg-zoru-surface-2"
+        className="absolute -right-3 top-1/2 flex h-4 w-4 -translate-y-1/2 cursor-crosshair items-center justify-center rounded-full border border-[var(--st-border)] bg-[var(--st-bg)] text-[10px] text-[var(--st-text)] shadow-sm hover:bg-[var(--st-bg-muted)]"
         title="Drag to another bar to create a dependency"
         aria-label="Create dependency"
       >

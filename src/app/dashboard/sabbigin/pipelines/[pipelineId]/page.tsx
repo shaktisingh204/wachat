@@ -64,7 +64,7 @@ export default async function PipelineDetailPage({
             {/* Summary card */}
             <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
-                    <div className="text-[14px] font-medium text-zoru-ink">
+                    <div className="text-[14px] font-medium text-[var(--st-text)]">
                         Overview
                     </div>
                     <StatusPill label={status} tone={tone} />
@@ -79,17 +79,17 @@ export default async function PipelineDetailPage({
                 </div>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
                     <div>
-                        <div className="text-zoru-ink-muted">Stages</div>
-                        <div className="font-mono text-zoru-ink">{stages.length}</div>
+                        <div className="text-[var(--st-text-secondary)]">Stages</div>
+                        <div className="font-mono text-[var(--st-text)]">{stages.length}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Accent color</div>
-                        <div className="flex items-center gap-2 text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Accent color</div>
+                        <div className="flex items-center gap-2 text-[var(--st-text)]">
                             {pipeline.color ? (
                                 <>
                                     <span
                                         aria-hidden
-                                        className="inline-block h-4 w-4 rounded-full border border-zoru-line"
+                                        className="inline-block h-4 w-4 rounded-full border border-[var(--st-border)]"
                                         style={{ background: pipeline.color }}
                                     />
                                     <span className="font-mono text-[12px]">
@@ -103,8 +103,8 @@ export default async function PipelineDetailPage({
                     </div>
                     {pipeline.description ? (
                         <div className="sm:col-span-2">
-                            <div className="text-zoru-ink-muted">Description</div>
-                            <div className="whitespace-pre-wrap text-zoru-ink">
+                            <div className="text-[var(--st-text-secondary)]">Description</div>
+                            <div className="whitespace-pre-wrap text-[var(--st-text)]">
                                 {pipeline.description}
                             </div>
                         </div>
@@ -115,15 +115,15 @@ export default async function PipelineDetailPage({
             {/* Stages ladder */}
             <Card className="p-6">
                 <div className="mb-3 flex items-center justify-between">
-                    <div className="text-[15px] font-medium text-zoru-ink">
+                    <div className="text-[15px] font-medium text-[var(--st-text)]">
                         Stages
                     </div>
-                    <div className="text-[12px] text-zoru-ink-muted">
+                    <div className="text-[12px] text-[var(--st-text-secondary)]">
                         {stages.length} stage{stages.length === 1 ? '' : 's'}
                     </div>
                 </div>
                 {stages.length === 0 ? (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No stages defined.
                     </div>
                 ) : (
@@ -131,27 +131,27 @@ export default async function PipelineDetailPage({
                         {stages.map((s, i) => (
                             <li
                                 key={s._id || s.id || i}
-                                className="flex flex-col gap-1 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-3 sm:flex-row sm:items-center sm:gap-4"
+                                className="flex flex-col gap-1 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 sm:flex-row sm:items-center sm:gap-4"
                             >
                                 <div className="flex items-center gap-2">
                                     {s.color ? (
                                         <span
                                             aria-hidden
-                                            className="inline-block h-3 w-3 rounded-full border border-zoru-line"
+                                            className="inline-block h-3 w-3 rounded-full border border-[var(--st-border)]"
                                             style={{ background: s.color }}
                                         />
                                     ) : null}
-                                    <span className="font-mono text-[11px] text-zoru-ink-muted">
+                                    <span className="font-mono text-[11px] text-[var(--st-text-secondary)]">
                                         #{i + 1}
                                     </span>
-                                    <span className="text-[13px] font-medium text-zoru-ink">
+                                    <span className="text-[13px] font-medium text-[var(--st-text)]">
                                         {s.name}
                                     </span>
                                 </div>
-                                <div className="flex flex-wrap items-center gap-3 text-[12px] text-zoru-ink-muted sm:ml-auto">
+                                <div className="flex flex-wrap items-center gap-3 text-[12px] text-[var(--st-text-secondary)] sm:ml-auto">
                                     <span>
                                         Probability:{' '}
-                                        <span className="font-mono text-zoru-ink">
+                                        <span className="font-mono text-[var(--st-text)]">
                                             {typeof s.probability === 'number'
                                                 ? `${s.probability}%`
                                                 : '—'}
@@ -160,7 +160,7 @@ export default async function PipelineDetailPage({
                                     {s.conditions ? (
                                         <span className="max-w-[260px] truncate">
                                             Rule:{' '}
-                                            <span className="text-zoru-ink">
+                                            <span className="text-[var(--st-text)]">
                                                 {s.conditions}
                                             </span>
                                         </span>

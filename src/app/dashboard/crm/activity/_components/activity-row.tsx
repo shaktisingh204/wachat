@@ -181,33 +181,33 @@ export function ActivityRow({
                 </ZoruAvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-2 text-[13px] text-zoru-ink">
+                <div className="flex flex-wrap items-center gap-2 text-[13px] text-[var(--st-text)]">
                     <span className="font-medium">{actor}</span>
-                    <span className="text-zoru-ink-muted">{verb}</span>
+                    <span className="text-[var(--st-text-secondary)]">{verb}</span>
                     <Badge variant={tone === 'neutral' ? 'secondary' : (tone as 'success' | 'info' | 'danger' | 'warning')}>
                         {entry.entityKind}
                     </Badge>
                     {href ? (
                         <Link
                             href={href}
-                            className="font-mono text-[11.5px] text-zoru-ink-muted underline-offset-2 hover:underline"
+                            className="font-mono text-[11.5px] text-[var(--st-text-secondary)] underline-offset-2 hover:underline"
                         >
                             {entityShortId}
                         </Link>
                     ) : entityShortId ? (
-                        <span className="font-mono text-[11.5px] text-zoru-ink-muted">
+                        <span className="font-mono text-[11.5px] text-[var(--st-text-secondary)]">
                             {entityShortId}
                         </span>
                     ) : null}
                     <span
-                        className="ml-auto text-[11.5px] text-zoru-ink-muted"
+                        className="ml-auto text-[11.5px] text-[var(--st-text-secondary)]"
                         title={mounted ? absoluteTime(entry.createdAt) : entry.createdAt}
                     >
                         {mounted ? relativeTime(entry.createdAt) : entry.createdAt.slice(0, 10)}
                     </span>
                 </div>
                 {entry.reason ? (
-                    <p className="mt-1 text-[12.5px] text-zoru-ink-muted">
+                    <p className="mt-1 text-[12.5px] text-[var(--st-text-secondary)]">
                         {entry.reason}
                     </p>
                 ) : null}

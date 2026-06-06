@@ -25,24 +25,24 @@ function getDropOffTone(rate: number): {
 } {
   if (rate >= 0.5) {
     return {
-      bg: 'bg-zoru-surface-2 dark:bg-zoru-ink/40',
-      text: 'text-zoru-ink dark:text-zoru-ink-muted',
-      border: 'border-zoru-line dark:border-zoru-line',
+      bg: 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/40',
+      text: 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',
+      border: 'border-[var(--st-border)] dark:border-[var(--st-border)]',
       label: 'High drop-off',
     };
   }
   if (rate >= 0.2) {
     return {
-      bg: 'bg-zoru-surface-2 dark:bg-zoru-ink/40',
-      text: 'text-zoru-ink dark:text-zoru-ink-muted',
-      border: 'border-zoru-line dark:border-zoru-line',
+      bg: 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/40',
+      text: 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',
+      border: 'border-[var(--st-border)] dark:border-[var(--st-border)]',
       label: 'Medium drop-off',
     };
   }
   return {
-    bg: 'bg-zoru-surface-2 dark:bg-zoru-ink/40',
-    text: 'text-zoru-ink dark:text-zoru-ink-muted',
-    border: 'border-zoru-line dark:border-zoru-line',
+    bg: 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/40',
+    text: 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',
+    border: 'border-[var(--st-border)] dark:border-[var(--st-border)]',
     label: 'Low drop-off',
   };
 }
@@ -157,7 +157,7 @@ export function AnalyticsBadge({ groupId, blockId, className }: Props) {
       return (
         <div
           className={cn(
-            'pointer-events-none flex items-center gap-1 rounded-md border border-zoru-line bg-zoru-surface-2 px-1.5 py-0.5 text-[10px] text-zoru-ink dark:border-zoru-line dark:bg-zoru-ink/40 dark:text-zoru-ink-muted',
+            'pointer-events-none flex items-center gap-1 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-1.5 py-0.5 text-[10px] text-[var(--st-text)] dark:border-[var(--st-border)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]',
             className,
           )}
           title="Failed to load analytics"

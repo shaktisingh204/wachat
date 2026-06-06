@@ -126,7 +126,7 @@ export function AnalyticsDateRangePicker({ value, onChange }: Props) {
               className={cn(
                 'rounded-md px-2 py-1 text-[11px] font-medium transition-colors',
                 isActive
-                  ? 'bg-zoru-ink text-white'
+                  ? 'bg-[var(--st-text)] text-white'
                   : 'bg-[var(--gray-3)] text-[var(--gray-11)] hover:bg-[var(--gray-4)]',
               )}
             >
@@ -146,7 +146,7 @@ export function AnalyticsDateRangePicker({ value, onChange }: Props) {
             type="date"
             value={toInputValue(value.start)}
             onChange={(e) => handleStartInput(e.target.value)}
-            className="rounded-md border border-[var(--gray-5)] bg-[var(--gray-1)] px-2 py-1 text-[12px] text-[var(--gray-12)] focus:border-zoru-line focus:outline-none"
+            className="rounded-md border border-[var(--gray-5)] bg-[var(--gray-1)] px-2 py-1 text-[12px] text-[var(--gray-12)] focus:border-[var(--st-border)] focus:outline-none"
           />
         </label>
         <label className="flex flex-1 flex-col gap-0.5">
@@ -157,7 +157,7 @@ export function AnalyticsDateRangePicker({ value, onChange }: Props) {
             type="date"
             value={toInputValue(value.end)}
             onChange={(e) => handleEndInput(e.target.value)}
-            className="rounded-md border border-[var(--gray-5)] bg-[var(--gray-1)] px-2 py-1 text-[12px] text-[var(--gray-12)] focus:border-zoru-line focus:outline-none"
+            className="rounded-md border border-[var(--gray-5)] bg-[var(--gray-1)] px-2 py-1 text-[12px] text-[var(--gray-12)] focus:border-[var(--st-border)] focus:outline-none"
           />
         </label>
       </div>

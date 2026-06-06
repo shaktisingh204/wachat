@@ -187,7 +187,7 @@ export function EventsListClient({
                 title="Events"
                 subtitle="Team meetings, webinars, and recurring sessions."
                 viewSwitcher={
-                    <div className="inline-flex rounded-md border border-zoru-line p-0.5">
+                    <div className="inline-flex rounded-md border border-[var(--st-border)] p-0.5">
                         <button
                             type="button"
                             onClick={() => setView('table')}
@@ -195,8 +195,8 @@ export function EventsListClient({
                             className={[
                                 'inline-flex items-center gap-1 rounded-sm px-2 py-1 text-[12px]',
                                 view === 'table'
-                                    ? 'bg-zoru-surface text-zoru-ink'
-                                    : 'text-zoru-ink-muted hover:text-zoru-ink',
+                                    ? 'bg-[var(--st-bg-secondary)] text-[var(--st-text)]'
+                                    : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
                             ].join(' ')}
                         >
                             <LayoutList className="h-3.5 w-3.5" /> Table
@@ -208,8 +208,8 @@ export function EventsListClient({
                             className={[
                                 'inline-flex items-center gap-1 rounded-sm px-2 py-1 text-[12px]',
                                 view === 'calendar'
-                                    ? 'bg-zoru-surface text-zoru-ink'
-                                    : 'text-zoru-ink-muted hover:text-zoru-ink',
+                                    ? 'bg-[var(--st-bg-secondary)] text-[var(--st-text)]'
+                                    : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
                             ].join(' ')}
                         >
                             <LayoutGrid className="h-3.5 w-3.5" /> Calendar
@@ -251,7 +251,7 @@ export function EventsListClient({
                 bulkBar={
                     selected.size > 0 ? (
                         <div className="flex flex-wrap items-center justify-between gap-2">
-                            <span className="text-[13px] text-zoru-ink-muted">
+                            <span className="text-[13px] text-[var(--st-text-secondary)]">
                                 {selected.size} selected
                             </span>
                             <div className="flex flex-wrap gap-2">
@@ -275,8 +275,8 @@ export function EventsListClient({
                 empty={
                     !loading && events.length === 0 ? (
                         <div className="flex flex-col items-center gap-3 p-4">
-                            <h3 className="text-base font-medium text-zoru-ink">No events yet</h3>
-                            <p className="max-w-sm text-sm text-zoru-ink-muted">
+                            <h3 className="text-base font-medium text-[var(--st-text)]">No events yet</h3>
+                            <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                                 Schedule your first team meeting or recurring session.
                             </p>
                             <Button asChild>

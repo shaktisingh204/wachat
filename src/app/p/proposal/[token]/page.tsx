@@ -46,34 +46,34 @@ async function PublicProposalPageContent({ params }: PageProps) {
       <div className="flex flex-col gap-6 lg:col-span-3">
         <div>
           <div className="flex items-center gap-3">
-            <span className="rounded bg-zoru-surface-2 border border-zoru-line px-2 py-0.5 font-mono text-[11px] font-bold text-zoru-ink uppercase">
+            <span className="rounded bg-[var(--st-bg-muted)] border border-[var(--st-border)] px-2 py-0.5 font-mono text-[11px] font-bold text-[var(--st-text)] uppercase">
               GET
             </span>
-            <span className="font-mono text-[13px] text-zoru-ink tracking-tight">
+            <span className="font-mono text-[13px] text-[var(--st-text)] tracking-tight">
               /v1/proposals/{token.slice(0, 8)}...
             </span>
           </div>
-          <h1 className="mt-2 text-2xl font-bold tracking-tight text-zoru-ink font-mono">
+          <h1 className="mt-2 text-2xl font-bold tracking-tight text-[var(--st-text)] font-mono">
             {String(proposal.proposal_number || 'PROPOSAL-SPECIFICATION')} · {String(proposal.title || 'Proposal')}
           </h1>
-          <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
+          <p className="mt-1.5 text-[13px] text-[var(--st-text-secondary)]">
             Below is the comprehensive contract/service proposal detail schema and line items.
           </p>
         </div>
 
         {/* METADATA TABLE */}
         <Card>
-          <ZoruCardHeader className="border-b border-zoru-line py-3 bg-zoru-surface-2/50">
+          <ZoruCardHeader className="border-b border-[var(--st-border)] py-3 bg-[var(--st-bg-muted)]/50">
             <div className="flex items-center gap-2">
-              <Database className="h-4 w-4 text-zoru-ink-muted" />
-              <ZoruCardTitle className="text-[12px] font-mono uppercase tracking-wider text-zoru-ink-muted">
+              <Database className="h-4 w-4 text-[var(--st-text-secondary)]" />
+              <ZoruCardTitle className="text-[12px] font-mono uppercase tracking-wider text-[var(--st-text-secondary)]">
                 Document Ledger Variables
               </ZoruCardTitle>
             </div>
           </ZoruCardHeader>
           <ZoruCardContent className="p-0">
             <Table>
-              <ZoruTableHeader className="bg-zoru-surface-2/20">
+              <ZoruTableHeader className="bg-[var(--st-bg-muted)]/20">
                 <ZoruTableRow>
                   <ZoruTableHead className="font-mono text-[11.5px]">Ledger Attribute</ZoruTableHead>
                   <ZoruTableHead className="font-mono text-[11.5px]">Type</ZoruTableHead>
@@ -83,32 +83,32 @@ async function PublicProposalPageContent({ params }: PageProps) {
               <ZoruTableBody>
                 <ZoruTableRow>
                   <ZoruTableCell className="font-mono text-[12.5px]">issue_date</ZoruTableCell>
-                  <ZoruTableCell className="font-mono text-[11px] text-zoru-ink-muted">date</ZoruTableCell>
+                  <ZoruTableCell className="font-mono text-[11px] text-[var(--st-text-secondary)]">date</ZoruTableCell>
                   <ZoruTableCell className="text-right text-[12.5px] font-medium">{fmtDate(proposal.issue_date)}</ZoruTableCell>
                 </ZoruTableRow>
                 <ZoruTableRow>
                   <ZoruTableCell className="font-mono text-[12.5px]">valid_until</ZoruTableCell>
-                  <ZoruTableCell className="font-mono text-[11px] text-zoru-ink-muted">date</ZoruTableCell>
+                  <ZoruTableCell className="font-mono text-[11px] text-[var(--st-text-secondary)]">date</ZoruTableCell>
                   <ZoruTableCell className="text-right text-[12.5px] font-medium">{fmtDate(proposal.valid_until)}</ZoruTableCell>
                 </ZoruTableRow>
                 <ZoruTableRow>
                   <ZoruTableCell className="font-mono text-[12.5px]">tax_rate</ZoruTableCell>
-                  <ZoruTableCell className="font-mono text-[11px] text-zoru-ink-muted">currency</ZoruTableCell>
+                  <ZoruTableCell className="font-mono text-[11px] text-[var(--st-text-secondary)]">currency</ZoruTableCell>
                   <ZoruTableCell className="text-right text-[12.5px] font-medium">{fmtINR(Number(proposal.tax || 0), currency)}</ZoruTableCell>
                 </ZoruTableRow>
                 <ZoruTableRow>
                   <ZoruTableCell className="font-mono text-[12.5px]">subtotal</ZoruTableCell>
-                  <ZoruTableCell className="font-mono text-[11px] text-zoru-ink-muted">currency</ZoruTableCell>
+                  <ZoruTableCell className="font-mono text-[11px] text-[var(--st-text-secondary)]">currency</ZoruTableCell>
                   <ZoruTableCell className="text-right text-[12.5px] font-medium">{fmtINR(Number(proposal.subtotal || 0), currency)}</ZoruTableCell>
                 </ZoruTableRow>
                 <ZoruTableRow>
                   <ZoruTableCell className="font-mono text-[12.5px]">proposal_total</ZoruTableCell>
-                  <ZoruTableCell className="font-mono text-[11px] text-zoru-ink-muted">currency</ZoruTableCell>
-                  <ZoruTableCell className="text-right text-[13px] font-bold text-zoru-ink bg-zoru-surface-2/40">{fmtINR(Number(proposal.total || 0), currency)}</ZoruTableCell>
+                  <ZoruTableCell className="font-mono text-[11px] text-[var(--st-text-secondary)]">currency</ZoruTableCell>
+                  <ZoruTableCell className="text-right text-[13px] font-bold text-[var(--st-text)] bg-[var(--st-bg-muted)]/40">{fmtINR(Number(proposal.total || 0), currency)}</ZoruTableCell>
                 </ZoruTableRow>
                 <ZoruTableRow>
                   <ZoruTableCell className="font-mono text-[12.5px]">proposal_status</ZoruTableCell>
-                  <ZoruTableCell className="font-mono text-[11px] text-zoru-ink-muted">string</ZoruTableCell>
+                  <ZoruTableCell className="font-mono text-[11px] text-[var(--st-text-secondary)]">string</ZoruTableCell>
                   <ZoruTableCell className="text-right">
                     <Badge variant={isAccepted ? 'success' : proposal.status === 'sent' ? 'warning' : 'outline'}>
                       {String(proposal.status || 'DRAFT').toUpperCase()}
@@ -122,14 +122,14 @@ async function PublicProposalPageContent({ params }: PageProps) {
 
         {/* LINE ITEMS */}
         <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-2 font-mono text-[11.5px] uppercase tracking-wider text-zoru-ink-muted px-1">
+          <div className="flex items-center gap-2 font-mono text-[11.5px] uppercase tracking-wider text-[var(--st-text-secondary)] px-1">
             <Layers className="h-4 w-4" />
             <span>Structured Line Items (Proposal Nodes)</span>
           </div>
           <Card>
             <ZoruCardContent className="p-0">
               <Table>
-                <ZoruTableHeader className="bg-zoru-surface-2/15">
+                <ZoruTableHeader className="bg-[var(--st-bg-muted)]/15">
                   <ZoruTableRow>
                     <ZoruTableHead className="font-mono text-[11px]">Item Node</ZoruTableHead>
                     <ZoruTableHead className="font-mono text-[11px] text-right">Qty</ZoruTableHead>
@@ -141,20 +141,20 @@ async function PublicProposalPageContent({ params }: PageProps) {
                   {items.map((it, i) => (
                     <ZoruTableRow key={i}>
                       <ZoruTableCell className="align-top py-3.5">
-                        <div className="font-bold text-[13px] text-zoru-ink font-mono">{String(it.name || '')}</div>
+                        <div className="font-bold text-[13px] text-[var(--st-text)] font-mono">{String(it.name || '')}</div>
                         {it.description ? (
-                          <div className="mt-1 text-[12px] text-zoru-ink-muted leading-normal font-medium max-w-md">
+                          <div className="mt-1 text-[12px] text-[var(--st-text-secondary)] leading-normal font-medium max-w-md">
                             {String(it.description)}
                           </div>
                         ) : null}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-right align-top py-3.5 font-mono text-[12.5px] font-bold text-zoru-ink">
+                      <ZoruTableCell className="text-right align-top py-3.5 font-mono text-[12.5px] font-bold text-[var(--st-text)]">
                         {Number(it.quantity || 0)}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-right align-top py-3.5 font-mono text-[12.5px] text-zoru-ink-muted">
+                      <ZoruTableCell className="text-right align-top py-3.5 font-mono text-[12.5px] text-[var(--st-text-secondary)]">
                         {fmtINR(Number(it.unit_price || 0), currency)}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-right align-top py-3.5 font-mono text-[12.5px] font-bold text-zoru-ink">
+                      <ZoruTableCell className="text-right align-top py-3.5 font-mono text-[12.5px] font-bold text-[var(--st-text)]">
                         {fmtINR(Number(it.total || 0), currency)}
                       </ZoruTableCell>
                     </ZoruTableRow>
@@ -170,11 +170,11 @@ async function PublicProposalPageContent({ params }: PageProps) {
           <div className="grid gap-4 md:grid-cols-2">
             {proposal.note ? (
               <div className="flex flex-col gap-2">
-                <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-zoru-ink-muted px-1 flex items-center gap-1.5">
+                <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-[var(--st-text-secondary)] px-1 flex items-center gap-1.5">
                   <FileText className="h-3.5 w-3.5" />
                   // notes
                 </span>
-                <div className="rounded-xl border border-zoru-line bg-zoru-surface-2/35 p-4 text-[13px] leading-relaxed text-zoru-ink shadow-sm">
+                <div className="rounded-xl border border-[var(--st-border)] bg-[var(--st-bg-muted)]/35 p-4 text-[13px] leading-relaxed text-[var(--st-text)] shadow-sm">
                   <pre className="whitespace-pre-wrap font-sans font-medium">{String(proposal.note)}</pre>
                 </div>
               </div>
@@ -182,11 +182,11 @@ async function PublicProposalPageContent({ params }: PageProps) {
 
             {proposal.terms ? (
               <div className="flex flex-col gap-2">
-                <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-zoru-ink-muted px-1 flex items-center gap-1.5">
+                <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-[var(--st-text-secondary)] px-1 flex items-center gap-1.5">
                   <FileText className="h-3.5 w-3.5" />
                   // terms_conditions
                 </span>
-                <div className="rounded-xl border border-zoru-line bg-zoru-surface-2/35 p-4 text-[13px] leading-relaxed text-zoru-ink shadow-sm">
+                <div className="rounded-xl border border-[var(--st-border)] bg-[var(--st-bg-muted)]/35 p-4 text-[13px] leading-relaxed text-[var(--st-text)] shadow-sm">
                   <pre className="whitespace-pre-wrap font-sans font-medium">{String(proposal.terms)}</pre>
                 </div>
               </div>
@@ -197,11 +197,11 @@ async function PublicProposalPageContent({ params }: PageProps) {
         {/* VERIFIED SIGNATURES */}
         {isAccepted && (
           <div className="flex flex-col gap-3">
-            <h3 className="font-mono text-[12px] font-bold uppercase tracking-wider text-zoru-ink-muted px-1">
+            <h3 className="font-mono text-[12px] font-bold uppercase tracking-wider text-[var(--st-text-secondary)] px-1">
               // VERIFIED.SIGNATURES
             </h3>
             {signs.length === 0 ? (
-              <p className="py-2 text-[12.5px] text-zoru-ink-muted font-mono italic px-1">
+              <p className="py-2 text-[12.5px] text-[var(--st-text-secondary)] font-mono italic px-1">
                 // No signature blobs attached to accepted proposal state.
               </p>
             ) : (
@@ -211,10 +211,10 @@ async function PublicProposalPageContent({ params }: PageProps) {
                     <ZoruCardContent className="p-4">
                       <div className="flex items-start justify-between gap-3 flex-wrap font-mono">
                         <div>
-                          <p className="text-[13px] font-bold text-zoru-ink">
+                          <p className="text-[13px] font-bold text-[var(--st-text)]">
                             {String(s.signer_name || '')}
                           </p>
-                          <p className="text-[11.5px] text-zoru-ink-muted">
+                          <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                             {String(s.signer_email || '')}
                           </p>
                         </div>
@@ -235,10 +235,10 @@ async function PublicProposalPageContent({ params }: PageProps) {
       <div className="lg:col-span-2">
         <div className="sticky top-6 flex flex-col gap-5">
           <div className="flex items-center gap-3">
-            <span className="rounded bg-zoru-surface-2 border border-zoru-line px-2 py-0.5 font-mono text-[11px] font-bold text-zoru-ink uppercase">
+            <span className="rounded bg-[var(--st-bg-muted)] border border-[var(--st-border)] px-2 py-0.5 font-mono text-[11px] font-bold text-[var(--st-text)] uppercase">
               POST
             </span>
-            <span className="font-mono text-[13px] text-zoru-ink tracking-tight">
+            <span className="font-mono text-[13px] text-[var(--st-text)] tracking-tight">
               /v1/proposals/{token.slice(0, 8)}.../accept
             </span>
           </div>
@@ -253,20 +253,20 @@ async function PublicProposalPageContent({ params }: PageProps) {
                   <h3 className="text-[14px] font-bold font-mono uppercase text-success-ink tracking-tight">
                     // PROPOSAL.ACCEPTED
                   </h3>
-                  <p className="mt-1 text-[12.5px] text-zoru-ink-muted font-sans">
+                  <p className="mt-1 text-[12.5px] text-[var(--st-text-secondary)] font-sans">
                     This proposal is approved and executed by both parties.
                   </p>
                 </div>
-                <div className="mt-4 w-full rounded border border-zoru-line bg-zoru-surface p-3 text-left font-mono text-[11px] leading-relaxed shadow-inner">
-                  <span className="text-zoru-ink-muted">{"{"}</span>
+                <div className="mt-4 w-full rounded border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 text-left font-mono text-[11px] leading-relaxed shadow-inner">
+                  <span className="text-[var(--st-text-secondary)]">{"{"}</span>
                   <div className="pl-4">
-                    <span className="text-zoru-ink">&quot;status&quot;</span>: <span className="text-zoru-ink">&quot;accepted&quot;</span>,
+                    <span className="text-[var(--st-text)]">&quot;status&quot;</span>: <span className="text-[var(--st-text)]">&quot;accepted&quot;</span>,
                     <br />
-                    <span className="text-zoru-ink">&quot;executed&quot;</span>: <span className="text-zoru-ink">true</span>,
+                    <span className="text-[var(--st-text)]">&quot;executed&quot;</span>: <span className="text-[var(--st-text)]">true</span>,
                     <br />
-                    <span className="text-zoru-ink">&quot;code&quot;</span>: <span className="text-zoru-ink">200</span>
+                    <span className="text-[var(--st-text)]">&quot;code&quot;</span>: <span className="text-[var(--st-text)]">200</span>
                   </div>
-                  <span className="text-zoru-ink-muted">{"}"}</span>
+                  <span className="text-[var(--st-text-secondary)]">{"}"}</span>
                 </div>
               </ZoruCardContent>
             </Card>

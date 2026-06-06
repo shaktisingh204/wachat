@@ -47,8 +47,8 @@ export default async function HolidayDetailPage({ params }: PageProps) {
 function Row({ label, value }: { label: string; value?: string | null }) {
     return (
         <div className="flex items-baseline gap-3">
-            <span className="w-32 shrink-0 text-zoru-ink-muted">{label}</span>
-            <span className="text-zoru-ink">{value || '—'}</span>
+            <span className="w-32 shrink-0 text-[var(--st-text-secondary)]">{label}</span>
+            <span className="text-[var(--st-text)]">{value || '—'}</span>
         </div>
     );
 }

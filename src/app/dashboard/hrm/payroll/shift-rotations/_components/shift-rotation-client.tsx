@@ -198,11 +198,11 @@ export function ShiftRotationClient({ initialData, getShiftRotationsAction }: { 
 
       <Card className="p-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
-          <h2 className="text-[16px] text-zoru-ink">All Rotations</h2>
+          <h2 className="text-[16px] text-[var(--st-text)]">All Rotations</h2>
           
           <div className="flex flex-wrap items-center gap-2">
             <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
               <Input
                 placeholder="Search..."
                 value={search}
@@ -247,10 +247,10 @@ export function ShiftRotationClient({ initialData, getShiftRotationsAction }: { 
 
         <div 
           ref={parentRef} 
-          className="overflow-auto rounded-lg border border-zoru-line print:border-none print:shadow-none print:overflow-visible max-h-[600px]"
+          className="overflow-auto rounded-lg border border-[var(--st-border)] print:border-none print:shadow-none print:overflow-visible max-h-[600px]"
         >
           <table className="w-full border-collapse text-[13px] relative">
-            <thead className="sticky top-0 z-10 bg-zoru-surface-2 print:static print:bg-transparent shadow-[0_1px_0_0_var(--zoru-line)]">
+            <thead className="sticky top-0 z-10 bg-[var(--st-bg-muted)] print:static print:bg-transparent shadow-[0_1px_0_0_var(--zoru-line)]">
               <tr>
                 <th className="px-4 py-2.5 text-left w-10">
                   <Checkbox 
@@ -259,11 +259,11 @@ export function ShiftRotationClient({ initialData, getShiftRotationsAction }: { 
                     aria-label="Select all"
                   />
                 </th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-zoru-ink-muted">Name</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-zoru-ink-muted">Description</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-zoru-ink-muted">Created</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-zoru-ink-muted">Status</th>
-                <th className="px-4 py-2.5 text-right text-[12px] font-medium text-zoru-ink-muted print:hidden">Actions</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-[var(--st-text-secondary)]">Name</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-[var(--st-text-secondary)]">Description</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-[var(--st-text-secondary)]">Created</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-[var(--st-text-secondary)]">Status</th>
+                <th className="px-4 py-2.5 text-right text-[12px] font-medium text-[var(--st-text-secondary)] print:hidden">Actions</th>
               </tr>
             </thead>
             <tbody className={pending ? 'opacity-50 transition-opacity' : ''}>
@@ -278,7 +278,7 @@ export function ShiftRotationClient({ initialData, getShiftRotationsAction }: { 
                   return (
                     <tr 
                       key={r._id || `rot-${virtualRow.index}`} 
-                      className="border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2/50 transition-colors"
+                      className="border-b border-[var(--st-border)] last:border-0 hover:bg-[var(--st-bg-muted)]/50 transition-colors"
                       data-index={virtualRow.index}
                       ref={virtualizer.measureElement}
                     >
@@ -289,13 +289,13 @@ export function ShiftRotationClient({ initialData, getShiftRotationsAction }: { 
                           aria-label={`Select ${r.name}`}
                         />
                       </td>
-                      <td className="px-4 py-2.5 text-[13px] font-medium text-zoru-ink">
+                      <td className="px-4 py-2.5 text-[13px] font-medium text-[var(--st-text)]">
                         {r.name}
                       </td>
-                      <td className="px-4 py-2.5 text-[13px] text-zoru-ink-muted">
+                      <td className="px-4 py-2.5 text-[13px] text-[var(--st-text-secondary)]">
                         {r.description || '—'}
                       </td>
-                      <td className="px-4 py-2.5 text-[13px] text-zoru-ink-muted whitespace-nowrap">
+                      <td className="px-4 py-2.5 text-[13px] text-[var(--st-text-secondary)] whitespace-nowrap">
                         {r.createdAt ? <SafeDate dateString={r.createdAt} /> : '—'}
                       </td>
                       <td className="px-4 py-2.5 whitespace-nowrap">
@@ -316,7 +316,7 @@ export function ShiftRotationClient({ initialData, getShiftRotationsAction }: { 
                             aria-label="Delete rotation"
                             onClick={() => r._id && handleDelete(r._id)}
                           >
-                            <Trash2 className="h-4 w-4 text-zoru-danger-ink" />
+                            <Trash2 className="h-4 w-4 text-[var(--st-danger)]" />
                           </Button>
                         </div>
                       </td>
@@ -324,8 +324,8 @@ export function ShiftRotationClient({ initialData, getShiftRotationsAction }: { 
                   );
                 })
               ) : (
-                <tr className="border-b border-zoru-line">
-                  <td colSpan={6} className="h-24 text-center text-[13px] text-zoru-ink-muted">
+                <tr className="border-b border-[var(--st-border)]">
+                  <td colSpan={6} className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]">
                     No rotations found matching your criteria.
                   </td>
                 </tr>

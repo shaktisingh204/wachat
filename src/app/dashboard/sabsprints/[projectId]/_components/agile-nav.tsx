@@ -30,7 +30,7 @@ export function AgileNav({ projectId }: { projectId: string }) {
   return (
     <nav
       aria-label="Agile sections"
-      className="flex items-center gap-1 border-b border-zoru-line"
+      className="flex items-center gap-1 border-b border-[var(--st-border)]"
     >
       {items.map((item) => {
         const active = item.matchPrefix
@@ -44,8 +44,8 @@ export function AgileNav({ projectId }: { projectId: string }) {
             className={cn(
               'px-3 py-2 text-sm font-medium border-b-2 -mb-px transition-colors',
               active
-                ? 'border-zoru-accent text-zoru-ink'
-                : 'border-transparent text-zoru-ink-muted hover:text-zoru-ink',
+                ? 'border-[var(--st-accent)] text-[var(--st-text)]'
+                : 'border-transparent text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
             )}
           >
             {item.label}

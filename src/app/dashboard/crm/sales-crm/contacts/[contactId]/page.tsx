@@ -177,7 +177,7 @@ export default function ContactDetailPage() {
         return (
             <div className="flex w-full flex-col gap-4">
                 <h1 className="text-xl font-semibold">Contact not found</h1>
-                <p className="text-sm text-zoru-ink-muted">
+                <p className="text-sm text-[var(--st-text-secondary)]">
                     The contact you&apos;re looking for has been removed or you
                     don&apos;t have access.
                 </p>
@@ -231,7 +231,7 @@ export default function ContactDetailPage() {
                             </ZoruCardHeader>
                             <ZoruCardContent className="space-y-3 text-sm">
                                 <div className="flex items-center justify-between gap-2">
-                                    <span className="text-zoru-ink-muted">Account</span>
+                                    <span className="text-[var(--st-text-secondary)]">Account</span>
                                     {contact.accountId ? (
                                         <EntityPickerChip
                                             entity="client"
@@ -239,11 +239,11 @@ export default function ContactDetailPage() {
                                             fallback="Linked"
                                         />
                                     ) : (
-                                        <span className="text-zoru-ink-muted">—</span>
+                                        <span className="text-[var(--st-text-secondary)]">—</span>
                                     )}
                                 </div>
                                 <div className="flex items-center justify-between gap-2">
-                                    <span className="text-zoru-ink-muted">Owner</span>
+                                    <span className="text-[var(--st-text-secondary)]">Owner</span>
                                     {contact.owner ? (
                                         <EntityPickerChip
                                             entity="user"
@@ -257,13 +257,13 @@ export default function ContactDetailPage() {
                                             fallback="Unassigned"
                                         />
                                     ) : (
-                                        <span className="text-zoru-ink-muted">
+                                        <span className="text-[var(--st-text-secondary)]">
                                             Unassigned
                                         </span>
                                     )}
                                 </div>
                                 <div className="space-y-1 pt-1">
-                                    <span className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                                    <span className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                                         Set status
                                     </span>
                                     <div className="flex flex-wrap gap-1.5">
@@ -278,8 +278,8 @@ export default function ContactDetailPage() {
                                                 className={[
                                                     'rounded-full border px-2 py-0.5 text-[11.5px]',
                                                     status === s.value
-                                                        ? 'border-zoru-primary bg-zoru-primary/10 text-zoru-ink'
-                                                        : 'border-zoru-line text-zoru-ink-muted hover:text-zoru-ink',
+                                                        ? 'border-[var(--st-text)] bg-[var(--st-text)]/10 text-[var(--st-text)]'
+                                                        : 'border-[var(--st-border)] text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
                                                 ].join(' ')}
                                             >
                                                 {s.label}
@@ -416,8 +416,8 @@ function Stat({
 }) {
     return (
         <div className="flex items-center justify-between gap-2 text-sm">
-            <span className="text-zoru-ink-muted">{label}</span>
-            <span className="text-zoru-ink">{value}</span>
+            <span className="text-[var(--st-text-secondary)]">{label}</span>
+            <span className="text-[var(--st-text)]">{value}</span>
         </div>
     );
 }
@@ -426,10 +426,10 @@ function RelatedLink({ label, href }: { label: string; href: string }) {
     return (
         <Link
             href={href}
-            className="flex items-center justify-between rounded-md px-2 py-1.5 text-sm text-zoru-ink hover:bg-zoru-surface-2"
+            className="flex items-center justify-between rounded-md px-2 py-1.5 text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
         >
             <span>{label}</span>
-            <Sparkles className="h-3.5 w-3.5 text-zoru-ink-muted" />
+            <Sparkles className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
         </Link>
     );
 }

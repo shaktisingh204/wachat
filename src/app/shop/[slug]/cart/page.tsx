@@ -42,7 +42,7 @@ export default async function CartPage(props: { params: Promise<{ slug: string }
     const params = await props.params;
     
     return (
-        <Suspense fallback={<div className="container mx-auto px-4 py-8"><h1 className="text-3xl font-bold mb-6">Your Shopping Cart</h1><div className="animate-pulse space-y-4"><div className="h-20 bg-zoru-surface-2 rounded-md"></div><div className="h-20 bg-zoru-surface-2 rounded-md"></div></div></div>}>
+        <Suspense fallback={<div className="container mx-auto px-4 py-8"><h1 className="text-3xl font-bold mb-6">Your Shopping Cart</h1><div className="animate-pulse space-y-4"><div className="h-20 bg-[var(--st-bg-muted)] rounded-md"></div><div className="h-20 bg-[var(--st-bg-muted)] rounded-md"></div></div></div>}>
             <CartContent slug={params.slug} />
         </Suspense>
     );

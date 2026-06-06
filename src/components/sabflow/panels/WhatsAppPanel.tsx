@@ -63,11 +63,11 @@ interface SectionProps {
 
 function Section({ icon: Icon, title, children, rightSlot }: SectionProps) {
   return (
-    <div className="rounded-xl border border-zoru-line dark:border-zoru-line bg-white dark:bg-zoru-ink overflow-hidden">
-      <div className="flex items-center justify-between gap-2.5 px-4 py-3 border-b border-zoru-line dark:border-zoru-line bg-zoru-surface-2 dark:bg-zoru-ink/50">
+    <div className="rounded-xl border border-[var(--st-border)] dark:border-[var(--st-border)] bg-white dark:bg-[var(--st-text)] overflow-hidden">
+      <div className="flex items-center justify-between gap-2.5 px-4 py-3 border-b border-[var(--st-border)] dark:border-[var(--st-border)] bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/50">
         <div className="flex items-center gap-2.5">
-          <Icon className="h-4 w-4 text-zoru-ink" strokeWidth={1.75} />
-          <span className="text-[13px] font-semibold text-zoru-ink dark:text-white">
+          <Icon className="h-4 w-4 text-[var(--st-text)]" strokeWidth={1.75} />
+          <span className="text-[13px] font-semibold text-[var(--st-text)] dark:text-white">
             {title}
           </span>
         </div>
@@ -101,7 +101,7 @@ function CopyRow({ label, value, monospace }: CopyRowProps) {
 
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-[11.5px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+      <span className="text-[11.5px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
         {label}
       </span>
       <div className="flex gap-2">
@@ -109,7 +109,7 @@ function CopyRow({ label, value, monospace }: CopyRowProps) {
           readOnly
           value={value}
           className={cn(
-            'flex-1 rounded-lg border border-zoru-line dark:border-zoru-line bg-zoru-surface-2 dark:bg-zoru-ink px-3 py-1.5 text-[12.5px] text-zoru-ink dark:text-zoru-ink-muted outline-none',
+            'flex-1 rounded-lg border border-[var(--st-border)] dark:border-[var(--st-border)] bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] px-3 py-1.5 text-[12.5px] text-[var(--st-text)] dark:text-[var(--st-text-secondary)] outline-none',
             monospace && 'font-mono',
           )}
           onFocus={(e) => e.currentTarget.select()}
@@ -121,8 +121,8 @@ function CopyRow({ label, value, monospace }: CopyRowProps) {
           className={cn(
             'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border transition-colors',
             copied
-              ? 'border-zoru-line text-zoru-ink bg-zoru-surface-2 dark:bg-zoru-ink/30'
-              : 'border-zoru-line dark:border-zoru-line bg-white dark:bg-zoru-ink text-zoru-ink hover:text-zoru-ink hover:border-zoru-line',
+              ? 'border-[var(--st-border)] text-[var(--st-text)] bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30'
+              : 'border-[var(--st-border)] dark:border-[var(--st-border)] bg-white dark:bg-[var(--st-text)] text-[var(--st-text)] hover:text-[var(--st-text)] hover:border-[var(--st-border)]',
           )}
         >
           {copied ? (
@@ -260,7 +260,7 @@ export function WhatsAppPanel({ flowId }: WhatsAppPanelProps) {
         {[1, 2, 3].map((i) => (
           <div
             key={i}
-            className="h-32 animate-pulse rounded-xl bg-zoru-surface-2 dark:bg-zoru-ink"
+            className="h-32 animate-pulse rounded-xl bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]"
           />
         ))}
       </div>
@@ -273,8 +273,8 @@ export function WhatsAppPanel({ flowId }: WhatsAppPanelProps) {
       {/* Header */}
       <div className="flex items-center justify-between gap-2 mb-1">
         <div className="flex items-center gap-2">
-          <LuMessageCircle className="h-4 w-4 text-zoru-ink" strokeWidth={1.75} />
-          <h2 className="text-[14px] font-semibold text-zoru-ink dark:text-white">
+          <LuMessageCircle className="h-4 w-4 text-[var(--st-text)]" strokeWidth={1.75} />
+          <h2 className="text-[14px] font-semibold text-[var(--st-text)] dark:text-white">
             WhatsApp Business
           </h2>
         </div>
@@ -282,11 +282,11 @@ export function WhatsAppPanel({ flowId }: WhatsAppPanelProps) {
           <span
             className={cn(
               'h-2 w-2 rounded-full',
-              isConfigured ? 'bg-zoru-ink shadow-[0_0_0_2px_rgba(34,197,94,0.18)]' : 'bg-zoru-surface-2 dark:bg-zoru-ink',
+              isConfigured ? 'bg-[var(--st-text)] shadow-[0_0_0_2px_rgba(34,197,94,0.18)]' : 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]',
             )}
             aria-hidden
           />
-          <span className="text-[11.5px] font-medium text-zoru-ink dark:text-zoru-ink-muted">
+          <span className="text-[11.5px] font-medium text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
             {isConfigured ? 'Connected' : 'Not connected'}
           </span>
         </div>
@@ -297,7 +297,7 @@ export function WhatsAppPanel({ flowId }: WhatsAppPanelProps) {
         <div className="flex flex-col gap-1">
           <label
             htmlFor="wa-phone-number-id"
-            className="text-[11.5px] font-medium uppercase tracking-wide text-zoru-ink-muted"
+            className="text-[11.5px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]"
           >
             Phone Number ID
           </label>
@@ -306,18 +306,18 @@ export function WhatsAppPanel({ flowId }: WhatsAppPanelProps) {
             value={phoneNumberId}
             onChange={(e) => setPhoneNumberId(e.target.value)}
             placeholder="e.g. 105954345705861"
-            className="w-full rounded-lg border border-zoru-line dark:border-zoru-line bg-white dark:bg-zoru-ink px-3 py-1.5 text-[12.5px] outline-none focus:ring-2 focus:ring-zoru-line/30 focus:border-zoru-line transition-colors"
+            className="w-full rounded-lg border border-[var(--st-border)] dark:border-[var(--st-border)] bg-white dark:bg-[var(--st-text)] px-3 py-1.5 text-[12.5px] outline-none focus:ring-2 focus:ring-[var(--st-border)]/30 focus:border-[var(--st-border)] transition-colors"
           />
         </div>
 
         <div className="flex flex-col gap-1">
           <label
             htmlFor="wa-access-token"
-            className="text-[11.5px] font-medium uppercase tracking-wide text-zoru-ink-muted"
+            className="text-[11.5px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]"
           >
             Access Token
             {hasStoredToken && (
-              <span className="ml-2 rounded bg-zoru-surface-2 dark:bg-zoru-ink/40 px-1.5 py-0.5 text-[10px] font-medium text-zoru-ink dark:text-zoru-ink-muted normal-case tracking-normal">
+              <span className="ml-2 rounded bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/40 px-1.5 py-0.5 text-[10px] font-medium text-[var(--st-text)] dark:text-[var(--st-text-secondary)] normal-case tracking-normal">
                 Saved
               </span>
             )}
@@ -330,13 +330,13 @@ export function WhatsAppPanel({ flowId }: WhatsAppPanelProps) {
               onChange={(e) => setAccessToken(e.target.value)}
               placeholder={hasStoredToken ? 'Leave blank to keep existing token' : 'EAAG…'}
               autoComplete="off"
-              className="flex-1 rounded-lg border border-zoru-line dark:border-zoru-line bg-white dark:bg-zoru-ink px-3 py-1.5 text-[12.5px] outline-none focus:ring-2 focus:ring-zoru-line/30 focus:border-zoru-line transition-colors font-mono"
+              className="flex-1 rounded-lg border border-[var(--st-border)] dark:border-[var(--st-border)] bg-white dark:bg-[var(--st-text)] px-3 py-1.5 text-[12.5px] outline-none focus:ring-2 focus:ring-[var(--st-border)]/30 focus:border-[var(--st-border)] transition-colors font-mono"
             />
             <button
               type="button"
               onClick={() => setShowToken((s) => !s)}
               aria-label={showToken ? 'Hide token' : 'Show token'}
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-zoru-line dark:border-zoru-line bg-white dark:bg-zoru-ink text-zoru-ink hover:text-zoru-ink hover:border-zoru-line transition-colors"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[var(--st-border)] dark:border-[var(--st-border)] bg-white dark:bg-[var(--st-text)] text-[var(--st-text)] hover:text-[var(--st-text)] hover:border-[var(--st-border)] transition-colors"
             >
               {showToken ? (
                 <LuEyeOff className="h-3.5 w-3.5" strokeWidth={1.75} />
@@ -350,7 +350,7 @@ export function WhatsAppPanel({ flowId }: WhatsAppPanelProps) {
         <div className="flex flex-col gap-1">
           <label
             htmlFor="wa-verify-token"
-            className="text-[11.5px] font-medium uppercase tracking-wide text-zoru-ink-muted"
+            className="text-[11.5px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]"
           >
             Verify Token
           </label>
@@ -360,13 +360,13 @@ export function WhatsAppPanel({ flowId }: WhatsAppPanelProps) {
               value={verifyToken}
               onChange={(e) => setVerifyToken(e.target.value)}
               placeholder="Auto-generated on load"
-              className="flex-1 rounded-lg border border-zoru-line dark:border-zoru-line bg-white dark:bg-zoru-ink px-3 py-1.5 text-[12.5px] outline-none focus:ring-2 focus:ring-zoru-line/30 focus:border-zoru-line transition-colors font-mono"
+              className="flex-1 rounded-lg border border-[var(--st-border)] dark:border-[var(--st-border)] bg-white dark:bg-[var(--st-text)] px-3 py-1.5 text-[12.5px] outline-none focus:ring-2 focus:ring-[var(--st-border)]/30 focus:border-[var(--st-border)] transition-colors font-mono"
             />
             <button
               type="button"
               onClick={handleRegenerateVerifyToken}
               aria-label="Regenerate verify token"
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-zoru-line dark:border-zoru-line bg-white dark:bg-zoru-ink text-zoru-ink hover:text-zoru-ink hover:border-zoru-line transition-colors"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[var(--st-border)] dark:border-[var(--st-border)] bg-white dark:bg-[var(--st-text)] text-[var(--st-text)] hover:text-[var(--st-text)] hover:border-[var(--st-border)] transition-colors"
             >
               <LuRefreshCw className="h-3.5 w-3.5" strokeWidth={1.75} />
             </button>
@@ -376,7 +376,7 @@ export function WhatsAppPanel({ flowId }: WhatsAppPanelProps) {
         <div className="flex flex-col gap-1">
           <label
             htmlFor="wa-business-account-id"
-            className="text-[11.5px] font-medium uppercase tracking-wide text-zoru-ink-muted"
+            className="text-[11.5px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]"
           >
             Business Account ID (WABA)
           </label>
@@ -385,7 +385,7 @@ export function WhatsAppPanel({ flowId }: WhatsAppPanelProps) {
             value={businessAccountId}
             onChange={(e) => setBusinessAccountId(e.target.value)}
             placeholder="e.g. 104254435827164"
-            className="w-full rounded-lg border border-zoru-line dark:border-zoru-line bg-white dark:bg-zoru-ink px-3 py-1.5 text-[12.5px] outline-none focus:ring-2 focus:ring-zoru-line/30 focus:border-zoru-line transition-colors"
+            className="w-full rounded-lg border border-[var(--st-border)] dark:border-[var(--st-border)] bg-white dark:bg-[var(--st-text)] px-3 py-1.5 text-[12.5px] outline-none focus:ring-2 focus:ring-[var(--st-border)]/30 focus:border-[var(--st-border)] transition-colors"
           />
         </div>
       </Section>
@@ -394,23 +394,23 @@ export function WhatsAppPanel({ flowId }: WhatsAppPanelProps) {
       <Section icon={LuCopy} title="Webhook URL">
         <CopyRow label="Callback URL" value={webhookUrl} monospace />
         <CopyRow label="Verify Token" value={verifyToken} monospace />
-        <p className="text-[11.5px] leading-relaxed text-zoru-ink dark:text-zoru-ink-muted">
+        <p className="text-[11.5px] leading-relaxed text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
           Paste both values into the <strong>Webhook</strong> panel of your
-          Meta app and subscribe to the <code className="rounded bg-zoru-surface-2 dark:bg-zoru-ink px-1 font-mono text-[11px]">messages</code> field on the WhatsApp
+          Meta app and subscribe to the <code className="rounded bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] px-1 font-mono text-[11px]">messages</code> field on the WhatsApp
           Business Account.
         </p>
       </Section>
 
       {/* Setup instructions */}
       <Section icon={LuInfo} title="Setup instructions">
-        <ol className="flex flex-col gap-2 pl-4 list-decimal text-[12px] leading-relaxed text-zoru-ink dark:text-zoru-ink-muted">
+        <ol className="flex flex-col gap-2 pl-4 list-decimal text-[12px] leading-relaxed text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
           <li>
             Create a Meta Developer app at{' '}
             <a
               href="https://developers.facebook.com/apps"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-zoru-ink hover:underline"
+              className="text-[var(--st-text)] hover:underline"
             >
               developers.facebook.com/apps
             </a>{' '}
@@ -436,7 +436,7 @@ export function WhatsAppPanel({ flowId }: WhatsAppPanelProps) {
           </li>
           <li>
             Subscribe the webhook to the{' '}
-            <code className="rounded bg-zoru-surface-2 dark:bg-zoru-ink px-1 font-mono text-[11px]">
+            <code className="rounded bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] px-1 font-mono text-[11px]">
               messages
             </code>{' '}
             field so incoming chats are delivered to SabFlow.
@@ -455,8 +455,8 @@ export function WhatsAppPanel({ flowId }: WhatsAppPanelProps) {
         disabled={saving}
         className={cn(
           'flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-semibold transition-colors',
-          'bg-zoru-ink hover:bg-zoru-ink text-white disabled:opacity-50 disabled:pointer-events-none',
-          saveStatus === 'error' && 'bg-zoru-ink hover:bg-zoru-ink',
+          'bg-[var(--st-text)] hover:bg-[var(--st-text)] text-white disabled:opacity-50 disabled:pointer-events-none',
+          saveStatus === 'error' && 'bg-[var(--st-text)] hover:bg-[var(--st-text)]',
         )}
       >
         {saving ? (

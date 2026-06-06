@@ -63,7 +63,7 @@ export function ChartHourlySendPattern({ data }: ChartHourlySendPatternProps) {
         >
           <ZoruChart.CartesianGrid
             strokeDasharray="3 3"
-            className="stroke-zoru-line"
+            className="stroke-[var(--st-border)]"
           />
           <ZoruChart.XAxis
             dataKey="hour"
@@ -104,7 +104,7 @@ export function ChartHourlySendPattern({ data }: ChartHourlySendPatternProps) {
           </ZoruChart.Bar>
         </ZoruChart.BarChart>
       </ZoruChartContainer>
-      <div className="flex flex-wrap items-center gap-3 px-2 text-[11px] text-zoru-ink-muted">
+      <div className="flex flex-wrap items-center gap-3 px-2 text-[11px] text-[var(--st-text-secondary)]">
         <span className="inline-flex items-center gap-1.5">
           <span
             className="h-2 w-2 rounded-sm"

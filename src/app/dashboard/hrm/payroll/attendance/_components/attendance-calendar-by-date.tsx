@@ -80,7 +80,7 @@ export function AttendanceCalendarByDate({
   return (
     <div className="flex w-full flex-col gap-3 p-3">
       <div className="flex items-center justify-between gap-2">
-        <h3 className="text-[14px] font-medium text-zoru-ink">{monthLabel}</h3>
+        <h3 className="text-[14px] font-medium text-[var(--st-text)]">{monthLabel}</h3>
         <div className="flex items-center gap-1">
           <Button
             type="button"
@@ -111,11 +111,11 @@ export function AttendanceCalendarByDate({
         </div>
       </div>
 
-      <div className="grid grid-cols-7 gap-px overflow-hidden rounded-lg border border-zoru-line bg-zoru-line text-[12px]">
+      <div className="grid grid-cols-7 gap-px overflow-hidden rounded-lg border border-[var(--st-border)] bg-[var(--st-border)] text-[12px]">
         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d) => (
           <div
             key={d}
-            className="bg-zoru-surface-2 px-2 py-1 text-center text-[11px] font-medium text-zoru-ink-muted"
+            className="bg-[var(--st-bg-muted)] px-2 py-1 text-center text-[11px] font-medium text-[var(--st-text-secondary)]"
           >
             {d}
           </div>
@@ -128,22 +128,22 @@ export function AttendanceCalendarByDate({
           return (
             <div
               key={i}
-              className={`min-h-[88px] bg-zoru-surface p-2 ${
-                inMonth ? '' : 'bg-zoru-surface-2/60 text-zoru-ink-muted'
+              className={`min-h-[88px] bg-[var(--st-bg-secondary)] p-2 ${
+                inMonth ? '' : 'bg-[var(--st-bg-muted)]/60 text-[var(--st-text-secondary)]'
               }`}
             >
               <div className="flex items-center justify-between">
                 <span
                   className={`text-[11px] ${
                     isToday
-                      ? 'inline-flex h-4 w-4 items-center justify-center rounded-full bg-zoru-primary text-white'
-                      : 'text-zoru-ink-muted'
+                      ? 'inline-flex h-4 w-4 items-center justify-center rounded-full bg-[var(--st-text)] text-white'
+                      : 'text-[var(--st-text-secondary)]'
                   }`}
                 >
                   {cell.getDate()}
                 </span>
                 {bucket ? (
-                  <span className="text-[10px] text-zoru-ink-muted">
+                  <span className="text-[10px] text-[var(--st-text-secondary)]">
                     {bucket.total}
                   </span>
                 ) : null}
@@ -151,17 +151,17 @@ export function AttendanceCalendarByDate({
               {bucket ? (
                 <div className="mt-1 flex flex-wrap gap-1 text-[10px]">
                   {bucket.present > 0 ? (
-                    <span className="rounded bg-zoru-ink/20 px-1.5 py-0.5 text-zoru-ink dark:text-white">
+                    <span className="rounded bg-[var(--st-text)]/20 px-1.5 py-0.5 text-[var(--st-text)] dark:text-white">
                       P {bucket.present}
                     </span>
                   ) : null}
                   {bucket.absent > 0 ? (
-                    <span className="rounded bg-zoru-ink/20 px-1.5 py-0.5 text-zoru-ink dark:text-white">
+                    <span className="rounded bg-[var(--st-text)]/20 px-1.5 py-0.5 text-[var(--st-text)] dark:text-white">
                       A {bucket.absent}
                     </span>
                   ) : null}
                   {bucket.leave > 0 ? (
-                    <span className="rounded bg-zoru-ink/20 px-1.5 py-0.5 text-zoru-ink dark:text-white">
+                    <span className="rounded bg-[var(--st-text)]/20 px-1.5 py-0.5 text-[var(--st-text)] dark:text-white">
                       L {bucket.leave}
                     </span>
                   ) : null}
@@ -172,7 +172,7 @@ export function AttendanceCalendarByDate({
         })}
       </div>
 
-      <p className="text-[11px] text-zoru-ink-muted">
+      <p className="text-[11px] text-[var(--st-text-secondary)]">
         Each cell shows the daily count of attendance entries by status.
       </p>
     </div>

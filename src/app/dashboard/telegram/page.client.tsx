@@ -192,7 +192,7 @@ export default function TelegramOverviewPage() {
 
     if (!activeProject) {
         return (
-            <div className="flex h-[60vh] flex-col items-center justify-center gap-3 text-zoru-ink-muted">
+            <div className="flex h-[60vh] flex-col items-center justify-center gap-3 text-[var(--st-text-secondary)]">
                 <Loader2 className="h-5 w-5 animate-spin" />
                 <p className="text-[12.5px]">Loading your Telegram workspaces…</p>
             </div>
@@ -231,14 +231,14 @@ export default function TelegramOverviewPage() {
                     </div>
                     <div>
                         <div className="flex items-center gap-2">
-                            <h1 className="text-[26px] leading-tight text-zoru-ink">
+                            <h1 className="text-[26px] leading-tight text-[var(--st-text)]">
                                 Telegram
                             </h1>
                             <Badge variant="ghost">
                                 Beta
                             </Badge>
                         </div>
-                        <p className="mt-1.5 max-w-2xl text-[13.5px] leading-relaxed text-zoru-ink-muted">
+                        <p className="mt-1.5 max-w-2xl text-[13.5px] leading-relaxed text-[var(--st-text-secondary)]">
                             Connect Telegram bots and Business accounts to SabNode. Run
                             campaigns, automate replies, handle payments in Stars, and manage
                             channels — all from one place.
@@ -247,7 +247,7 @@ export default function TelegramOverviewPage() {
                 </div>
                 <div className="flex shrink-0 items-center gap-2 flex-wrap justify-end">
                     {isMounted && lastUpdated && (
-                        <span className="text-[11px] text-zoru-ink-muted mr-2">
+                        <span className="text-[11px] text-[var(--st-text-secondary)] mr-2">
                             Last updated: {lastUpdated.toLocaleTimeString()}
                         </span>
                     )}
@@ -280,14 +280,14 @@ export default function TelegramOverviewPage() {
 
             {/* Error Display */}
             {error && (
-                <div className="bg-zoru-surface-2 text-zoru-ink p-4 rounded-xl flex items-center gap-3 border border-zoru-line">
+                <div className="bg-[var(--st-bg-muted)] text-[var(--st-text)] p-4 rounded-xl flex items-center gap-3 border border-[var(--st-border)]">
                     <AlertCircle className="h-5 w-5 shrink-0" />
                     <p className="text-sm font-medium">{error}</p>
                     <Button 
                         variant="ghost" 
                         size="sm" 
                         onClick={() => loadData(true)} 
-                        className="ml-auto text-zoru-ink hover:text-zoru-ink hover:bg-zoru-surface-2"
+                        className="ml-auto text-[var(--st-text)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
                     >
                         Try Again
                     </Button>
@@ -341,12 +341,12 @@ export default function TelegramOverviewPage() {
             {/* Quick actions */}
             <div>
                 <div className="mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <h2 className="text-[15px] text-zoru-ink shrink-0">
+                    <h2 className="text-[15px] text-[var(--st-text)] shrink-0">
                         Quick actions
                     </h2>
                     <div className="flex items-center gap-2 max-w-full sm:max-w-md w-full">
                         <div className="relative flex-1">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zoru-ink-muted" />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--st-text-secondary)]" />
                             <Input 
                                 placeholder="Search actions..." 
                                 value={searchQuery}
@@ -379,8 +379,8 @@ export default function TelegramOverviewPage() {
                         ))}
                     </div>
                 ) : (
-                    <div className="text-center py-10 bg-zoru-surface-2/50 rounded-xl border border-zoru-line">
-                        <p className="text-zoru-ink-muted text-[13px]">No actions match your search.</p>
+                    <div className="text-center py-10 bg-[var(--st-bg-muted)]/50 rounded-xl border border-[var(--st-border)]">
+                        <p className="text-[var(--st-text-secondary)] text-[13px]">No actions match your search.</p>
                         <Button variant="ghost" size="sm" className="mt-2" onClick={() => setSearchQuery('')}>
                             Clear search
                         </Button>

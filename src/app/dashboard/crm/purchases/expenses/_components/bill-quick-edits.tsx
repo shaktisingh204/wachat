@@ -116,7 +116,7 @@ export function BillQuickEdits({
     <>
       <dl className="space-y-2 text-[12.5px]">
         <div className="flex items-center justify-between gap-2">
-          <dt className="text-zoru-ink-muted">Status</dt>
+          <dt className="text-[var(--st-text-secondary)]">Status</dt>
           <dd>
             <DropdownMenu>
               <ZoruDropdownMenuTrigger asChild>
@@ -145,7 +145,7 @@ export function BillQuickEdits({
           </dd>
         </div>
         <div className="flex items-center justify-between gap-2">
-          <dt className="text-zoru-ink-muted">Vendor</dt>
+          <dt className="text-[var(--st-text-secondary)]">Vendor</dt>
           <dd>
             <button
               type="button"
@@ -159,7 +159,7 @@ export function BillQuickEdits({
               {currentVendor ? (
                 <EntityPickerChip entity="vendor" id={currentVendor} />
               ) : (
-                <span className="text-zoru-ink-muted underline-offset-2 hover:underline">
+                <span className="text-[var(--st-text-secondary)] underline-offset-2 hover:underline">
                   — set vendor
                 </span>
               )}

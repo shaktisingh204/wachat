@@ -29,7 +29,7 @@ export default function AdManagerSettingsPage() {
                         <Link key={i.href} href={i.href} className="block h-full">
                             <ZoruCard interactive variant="soft" className="h-full">
                                 <ZoruCardContent className="p-4 pt-4 sm:p-4 sm:pt-4 flex gap-3 h-full items-center">
-                                    <div className="h-10 w-10 shrink-0 rounded-lg bg-zoru-ink/10 flex items-center justify-center text-zoru-ink">
+                                    <div className="h-10 w-10 shrink-0 rounded-lg bg-[var(--st-text)]/10 flex items-center justify-center text-[var(--st-text)]">
                                         <Icon className="h-5 w-5" />
                                     </div>
                                     <div className="flex flex-col gap-0.5">

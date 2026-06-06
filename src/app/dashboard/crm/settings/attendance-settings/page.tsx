@@ -33,13 +33,13 @@ function ToggleRow({
 }) {
   const [checked, setChecked] = useState<boolean>(!!defaultChecked);
   return (
-    <div className="flex items-start justify-between gap-4 rounded-lg border border-zoru-line bg-zoru-surface px-4 py-3">
+    <div className="flex items-start justify-between gap-4 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-3">
       <div className="flex-1">
-        <Label htmlFor={name} className="text-[13px] text-zoru-ink">
+        <Label htmlFor={name} className="text-[13px] text-[var(--st-text)]">
           {label}
         </Label>
         {description ? (
-          <p className="mt-0.5 text-[12px] text-zoru-ink-muted">{description}</p>
+          <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">{description}</p>
         ) : null}
       </div>
       <Switch id={name} checked={checked} onCheckedChange={setChecked} />
@@ -136,12 +136,12 @@ export default function AttendanceSettingsPage() {
         <Card className="p-6">
           <form action={formAction} className="space-y-6">
             <section className="space-y-4">
-              <h3 className="text-[13px] uppercase tracking-wide text-zoru-ink-muted">
+              <h3 className="text-[13px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Office Hours
               </h3>
               <div className="grid gap-4 md:grid-cols-3">
                 <div>
-                  <Label htmlFor="office_start_time" className="text-[13px] text-zoru-ink">
+                  <Label htmlFor="office_start_time" className="text-[13px] text-[var(--st-text)]">
                     Start Time
                   </Label>
                   <Input
@@ -153,7 +153,7 @@ export default function AttendanceSettingsPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="office_end_time" className="text-[13px] text-zoru-ink">
+                  <Label htmlFor="office_end_time" className="text-[13px] text-[var(--st-text)]">
                     End Time
                   </Label>
                   <Input
@@ -165,7 +165,7 @@ export default function AttendanceSettingsPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="office_hours" className="text-[13px] text-zoru-ink">
+                  <Label htmlFor="office_hours" className="text-[13px] text-[var(--st-text)]">
                     Office Hours
                   </Label>
                   <Input
@@ -181,12 +181,12 @@ export default function AttendanceSettingsPage() {
             </section>
 
             <section className="space-y-4">
-              <h3 className="text-[13px] uppercase tracking-wide text-zoru-ink-muted">
+              <h3 className="text-[13px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Lateness & Half-day Rules
               </h3>
               <div className="grid gap-4 md:grid-cols-3">
                 <div>
-                  <Label htmlFor="late_mark_after" className="text-[13px] text-zoru-ink">
+                  <Label htmlFor="late_mark_after" className="text-[13px] text-[var(--st-text)]">
                     Late After (minutes)
                   </Label>
                   <Input
@@ -201,7 +201,7 @@ export default function AttendanceSettingsPage() {
                 <div>
                   <Label
                     htmlFor="early_clock_in_allowed"
-                    className="text-[13px] text-zoru-ink"
+                    className="text-[13px] text-[var(--st-text)]"
                   >
                     Early Clock-in (minutes)
                   </Label>
@@ -215,7 +215,7 @@ export default function AttendanceSettingsPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="half_day_after" className="text-[13px] text-zoru-ink">
+                  <Label htmlFor="half_day_after" className="text-[13px] text-[var(--st-text)]">
                     Half-day After (hours)
                   </Label>
                   <Input
@@ -232,7 +232,7 @@ export default function AttendanceSettingsPage() {
             </section>
 
             <section className="space-y-3">
-              <h3 className="text-[13px] uppercase tracking-wide text-zoru-ink-muted">
+              <h3 className="text-[13px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Check-in Methods
               </h3>
               <div className="grid gap-3 md:grid-cols-2">
@@ -270,12 +270,12 @@ export default function AttendanceSettingsPage() {
             </section>
 
             <section className="space-y-2">
-              <h3 className="text-[13px] uppercase tracking-wide text-zoru-ink-muted">
+              <h3 className="text-[13px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                 IP Whitelist
               </h3>
               <Label
                 htmlFor="allowed_ip_addresses"
-                className="text-[13px] text-zoru-ink"
+                className="text-[13px] text-[var(--st-text)]"
               >
                 Allowed IP addresses
               </Label>
@@ -287,7 +287,7 @@ export default function AttendanceSettingsPage() {
                 defaultValue={ipListInitial}
                 className="mt-1.5 font-mono"
               />
-              <p className="text-[12px] text-zoru-ink-muted">
+              <p className="text-[12px] text-[var(--st-text-secondary)]">
                 Leave empty to allow check-in from any network.
               </p>
             </section>

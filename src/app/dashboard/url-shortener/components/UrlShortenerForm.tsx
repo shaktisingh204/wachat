@@ -71,7 +71,7 @@ function TagsSelector({
       <ZoruPopoverTrigger asChild>
         <button
           type="button"
-          className="flex h-9 w-full items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 text-[13px] text-zoru-ink hover:border-zoru-line-strong focus:outline-none focus:border-zoru-ink"
+          className="flex h-9 w-full items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 text-[13px] text-[var(--st-text)] hover:border-[var(--st-border-strong)] focus:outline-none focus:border-[var(--st-text)]"
         >
           <span className="truncate">
             {selectedTags.length > 0
@@ -81,7 +81,7 @@ function TagsSelector({
                   .join(', ')
               : placeholder || 'Select tags...'}
           </span>
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 text-zoru-ink-muted" />
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 text-[var(--st-text-secondary)]" />
         </button>
       </ZoruPopoverTrigger>
       <ZoruPopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
@@ -90,10 +90,10 @@ function TagsSelector({
           <ZoruCommandList>
             <ZoruCommandEmpty>
               <div className="flex flex-col items-center gap-2 py-2 text-center">
-                <p className="text-[13px] text-zoru-ink-muted">No tags found.</p>
+                <p className="text-[13px] text-[var(--st-text-secondary)]">No tags found.</p>
                 <NextLink
                   href="/dashboard/url-shortener/settings"
-                  className="inline-flex items-center gap-1 text-[12px] font-medium text-zoru-ink hover:underline"
+                  className="inline-flex items-center gap-1 text-[12px] font-medium text-[var(--st-text)] hover:underline"
                 >
                   <Settings className="h-3 w-3" /> Create & manage tags
                 </NextLink>
@@ -111,7 +111,7 @@ function TagsSelector({
               ))}
               <NextLink
                 href="/dashboard/url-shortener/settings"
-                className="flex items-center gap-2 border-t border-zoru-line px-2 py-2 text-[12px] font-medium text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
+                className="flex items-center gap-2 border-t border-[var(--st-border)] px-2 py-2 text-[12px] font-medium text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
               >
                 <Settings className="h-3.5 w-3.5" /> Manage tags
               </NextLink>
@@ -169,13 +169,13 @@ export function UrlShortenerForm({
         <input type="hidden" name="tagIds" value={createTagIds.join(',')} />
         <input type="hidden" name="expiresAt" value={expiresAt?.toISOString() || ''} />
         <input type="hidden" name="domainId" value={createDomainId} />
-        <div className="border-b border-zoru-line px-5 py-4">
-          <h2 className="text-[15px] text-zoru-ink">Create a new short link</h2>
+        <div className="border-b border-[var(--st-border)] px-5 py-4">
+          <h2 className="text-[15px] text-[var(--st-text)]">Create a new short link</h2>
         </div>
         <div className="space-y-4 p-5">
           <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label htmlFor="originalUrl" className="text-[12.5px] text-zoru-ink-muted">
+              <Label htmlFor="originalUrl" className="text-[12.5px] text-[var(--st-text-secondary)]">
                 Destination URL
               </Label>
               <Input
@@ -187,7 +187,7 @@ export function UrlShortenerForm({
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="alias" className="text-[12.5px] text-zoru-ink-muted">
+              <Label htmlFor="alias" className="text-[12.5px] text-[var(--st-text-secondary)]">
                 Custom Alias (Optional)
               </Label>
               <Input id="alias" name="alias" placeholder="e.g., summer-sale" />
@@ -195,7 +195,7 @@ export function UrlShortenerForm({
           </div>
           <div className="grid md:grid-cols-3 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-[12.5px] text-zoru-ink-muted">Tags (Optional)</Label>
+              <Label className="text-[12.5px] text-[var(--st-text-secondary)]">Tags (Optional)</Label>
               <TagsSelector
                 userTags={userTags}
                 selectedTags={createTagIds}
@@ -203,11 +203,11 @@ export function UrlShortenerForm({
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[12.5px] text-zoru-ink-muted">Expiration Date (Optional)</Label>
+              <Label className="text-[12.5px] text-[var(--st-text-secondary)]">Expiration Date (Optional)</Label>
               <DatePicker date={expiresAt} setDate={setExpiresAt} />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[12.5px] text-zoru-ink-muted">Custom Domain (Optional)</Label>
+              <Label className="text-[12.5px] text-[var(--st-text-secondary)]">Custom Domain (Optional)</Label>
               <Select value={createDomainId} onValueChange={setCreateDomainId}>
                 <ZoruSelectTrigger>
                   <ZoruSelectValue />
@@ -226,7 +226,7 @@ export function UrlShortenerForm({
 
         {/* Advanced Options */}
         <details className="group px-5 pb-1">
-          <summary className="cursor-pointer list-none flex items-center gap-1.5 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink py-1 select-none w-fit">
+          <summary className="cursor-pointer list-none flex items-center gap-1.5 text-[12.5px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)] py-1 select-none w-fit">
             <ChevronDown className="h-3.5 w-3.5 transition-transform group-open:rotate-180" />
             Advanced Options
           </summary>
@@ -234,8 +234,8 @@ export function UrlShortenerForm({
 
             {/* A. Click Limit */}
             <div className="space-y-1.5">
-              <Label className="text-[12.5px] text-zoru-ink-muted">
-                Click Limit <span className="text-zoru-ink-muted/60">(optional)</span>
+              <Label className="text-[12.5px] text-[var(--st-text-secondary)]">
+                Click Limit <span className="text-[var(--st-text-secondary)]/60">(optional)</span>
               </Label>
               <Input
                 type="number"
@@ -248,7 +248,7 @@ export function UrlShortenerForm({
 
             {/* B. Password Protection */}
             <div className="space-y-1.5">
-              <Label className="text-[12.5px] text-zoru-ink-muted">Password Protection</Label>
+              <Label className="text-[12.5px] text-[var(--st-text-secondary)]">Password Protection</Label>
               <Input
                 type="password"
                 name="passwordHash"
@@ -256,12 +256,12 @@ export function UrlShortenerForm({
                 autoComplete="new-password"
                 className="text-[13px]"
               />
-              <p className="text-[11px] text-zoru-ink-muted/60">Visitors must enter this password before being redirected.</p>
+              <p className="text-[11px] text-[var(--st-text-secondary)]/60">Visitors must enter this password before being redirected.</p>
             </div>
 
             {/* C. UTM Parameters */}
             <details className="group/utm">
-              <summary className="cursor-pointer text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink list-none flex items-center gap-1.5 select-none">
+              <summary className="cursor-pointer text-[12.5px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)] list-none flex items-center gap-1.5 select-none">
                 <ChevronRight className="h-3 w-3 transition-transform group-open/utm:rotate-90" />
                 UTM Parameters
               </summary>
@@ -274,7 +274,7 @@ export function UrlShortenerForm({
                   { name: 'utmContent', label: 'Content', placeholder: 'logolink' },
                 ].map((f) => (
                   <div key={f.name} className="space-y-1">
-                    <Label className="text-[11.5px] text-zoru-ink-muted">{f.label}</Label>
+                    <Label className="text-[11.5px] text-[var(--st-text-secondary)]">{f.label}</Label>
                     <Input name={f.name} placeholder={f.placeholder} className="text-[12px] h-7" />
                   </div>
                 ))}
@@ -283,7 +283,7 @@ export function UrlShortenerForm({
 
             {/* D. Retargeting Pixels */}
             <details className="group/pixels">
-              <summary className="cursor-pointer text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink list-none flex items-center gap-1.5 select-none">
+              <summary className="cursor-pointer text-[12.5px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)] list-none flex items-center gap-1.5 select-none">
                 <ChevronRight className="h-3 w-3 transition-transform group-open/pixels:rotate-90" />
                 Retargeting Pixels
               </summary>
@@ -294,7 +294,7 @@ export function UrlShortenerForm({
                   { name: 'pixelTiktok', label: 'TikTok Pixel ID', placeholder: 'CXXXXXXXXXXXXXXX' },
                 ].map((f) => (
                   <div key={f.name} className="space-y-1">
-                    <Label className="text-[11.5px] text-zoru-ink-muted">{f.label}</Label>
+                    <Label className="text-[11.5px] text-[var(--st-text-secondary)]">{f.label}</Label>
                     <Input name={f.name} placeholder={f.placeholder} className="text-[12px] h-7" />
                   </div>
                 ))}
@@ -314,7 +314,7 @@ export function UrlShortenerForm({
                   checked={splitEnabled}
                   onCheckedChange={setSplitEnabled}
                 />
-                <Label htmlFor="splitEnabled" className="text-[12.5px] text-zoru-ink-muted cursor-pointer">
+                <Label htmlFor="splitEnabled" className="text-[12.5px] text-[var(--st-text-secondary)] cursor-pointer">
                   Enable A/B Split Testing
                 </Label>
               </div>
@@ -346,12 +346,12 @@ export function UrlShortenerForm({
                           }}
                           className="text-[12px] w-20"
                         />
-                        <span className="text-[11px] text-zoru-ink-muted">%</span>
+                        <span className="text-[11px] text-[var(--st-text-secondary)]">%</span>
                         {splitTargets.length > 2 ? (
                           <button
                             type="button"
                             onClick={() => setSplitTargets(splitTargets.filter((_, idx) => idx !== i))}
-                            className="rounded p-1 text-zoru-ink-muted hover:text-zoru-danger-ink hover:bg-zoru-danger/10"
+                            className="rounded p-1 text-[var(--st-text-secondary)] hover:text-[var(--st-danger)] hover:bg-[var(--st-danger)]/10"
                             aria-label="Remove variant"
                           >
                             <X className="h-3.5 w-3.5" />
@@ -366,7 +366,7 @@ export function UrlShortenerForm({
                     <button
                       type="button"
                       onClick={() => setSplitTargets([...splitTargets, { url: '', weight: 0 }])}
-                      className="inline-flex items-center gap-1 text-[12px] text-zoru-ink-muted hover:text-zoru-ink"
+                      className="inline-flex items-center gap-1 text-[12px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                     >
                       <Plus className="h-3.5 w-3.5" />
                       Add variant
@@ -375,8 +375,8 @@ export function UrlShortenerForm({
                       className={cn(
                         'text-[11.5px]',
                         splitTargets.reduce((s, t) => s + (t.weight || 0), 0) === 100
-                          ? 'text-zoru-success-ink'
-                          : 'text-zoru-danger-ink',
+                          ? 'text-[var(--st-status-ok)]'
+                          : 'text-[var(--st-danger)]',
                       )}
                     >
                       Weight total: {splitTargets.reduce((s, t) => s + (t.weight || 0), 0)}%
@@ -389,7 +389,7 @@ export function UrlShortenerForm({
           </div>
         </details>
 
-        <div className="flex items-center justify-between border-t border-zoru-line bg-zoru-surface-2 px-5 py-3 rounded-b-[var(--zoru-radius-lg)]">
+        <div className="flex items-center justify-between border-t border-[var(--st-border)] bg-[var(--st-bg-muted)] px-5 py-3 rounded-b-[var(--zoru-radius-lg)]">
           <SubmitButton />
           <BulkImportDialog onImportComplete={onSuccess} />
         </div>

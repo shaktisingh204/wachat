@@ -18,12 +18,12 @@ function bannerForChecks(checks: { lastStatus: string }[]): {
     const anyDown = checks.some((c) => c.lastStatus === 'down');
     const anyWarn = checks.some((c) => c.lastStatus === 'warning');
     if (anyDown) {
-        return { label: 'Partial outage', tone: 'bg-zoru-ink/15 text-zoru-ink border-zoru-line/30' };
+        return { label: 'Partial outage', tone: 'bg-[var(--st-text)]/15 text-[var(--st-text)] border-[var(--st-border)]/30' };
     }
     if (anyWarn) {
-        return { label: 'Degraded performance', tone: 'bg-zoru-ink/15 text-zoru-ink border-zoru-line/30' };
+        return { label: 'Degraded performance', tone: 'bg-[var(--st-text)]/15 text-[var(--st-text)] border-[var(--st-border)]/30' };
     }
-    return { label: 'All systems operational', tone: 'bg-zoru-ink/15 text-zoru-ink border-zoru-line/30' };
+    return { label: 'All systems operational', tone: 'bg-[var(--st-text)]/15 text-[var(--st-text)] border-[var(--st-border)]/30' };
 }
 
 export default async function PublicStatusPage({ params }: PageProps): Promise<React.JSX.Element> {
@@ -53,7 +53,7 @@ export default async function PublicStatusPage({ params }: PageProps): Promise<R
             <header className="flex flex-col gap-2">
                 <h1 className="text-3xl font-semibold">{page.title}</h1>
                 {page.customHeader && (
-                    <p className="text-sm text-zoru-ink">{page.customHeader}</p>
+                    <p className="text-sm text-[var(--st-text)]">{page.customHeader}</p>
                 )}
             </header>
 
@@ -66,28 +66,28 @@ export default async function PublicStatusPage({ params }: PageProps): Promise<R
             </section>
 
             <section className="flex flex-col gap-2">
-                <h2 className="text-sm font-semibold uppercase tracking-wide text-zoru-ink">
+                <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--st-text)]">
                     Components
                 </h2>
-                <ul className="divide-y divide-zoru-line rounded-md border border-zoru-line">
+                <ul className="divide-y divide-[var(--st-border)] rounded-md border border-[var(--st-border)]">
                     {page.checks.length === 0 ? (
-                        <li className="p-3 text-sm text-zoru-ink">No components configured.</li>
+                        <li className="p-3 text-sm text-[var(--st-text)]">No components configured.</li>
                     ) : (
                         page.checks.map((c) => (
                             <li
                                 key={c.id}
                                 className="flex items-center justify-between p-3 text-sm"
                             >
-                                <span className="font-medium text-zoru-ink">{c.name}</span>
+                                <span className="font-medium text-[var(--st-text)]">{c.name}</span>
                                 <span
                                     className={
                                         c.lastStatus === 'up'
-                                            ? 'text-zoru-ink'
+                                            ? 'text-[var(--st-text)]'
                                             : c.lastStatus === 'warning'
-                                              ? 'text-zoru-ink'
+                                              ? 'text-[var(--st-text)]'
                                               : c.lastStatus === 'down'
-                                                ? 'text-zoru-ink'
-                                                : 'text-zoru-ink'
+                                                ? 'text-[var(--st-text)]'
+                                                : 'text-[var(--st-text)]'
                                     }
                                 >
                                     {c.lastStatus}
@@ -99,23 +99,23 @@ export default async function PublicStatusPage({ params }: PageProps): Promise<R
             </section>
 
             <section className="flex flex-col gap-2">
-                <h2 className="text-sm font-semibold uppercase tracking-wide text-zoru-ink">
+                <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--st-text)]">
                     Recent incidents
                 </h2>
                 {incidents.length === 0 ? (
-                    <p className="text-sm text-zoru-ink">No recent incidents to report.</p>
+                    <p className="text-sm text-[var(--st-text)]">No recent incidents to report.</p>
                 ) : (
                     <ul className="flex flex-col gap-3">
                         {incidents.map((i) => (
-                            <li key={i._id} className="rounded-md border border-zoru-line p-3">
+                            <li key={i._id} className="rounded-md border border-[var(--st-border)] p-3">
                                 <div className="flex items-baseline justify-between">
-                                    <span className="font-medium text-zoru-ink">{i.title}</span>
-                                    <span className="text-[12px] uppercase tracking-wide text-zoru-ink">
+                                    <span className="font-medium text-[var(--st-text)]">{i.title}</span>
+                                    <span className="text-[12px] uppercase tracking-wide text-[var(--st-text)]">
                                         {i.kind}
                                     </span>
                                 </div>
-                                <p className="mt-1 text-sm text-zoru-ink">{i.body}</p>
-                                <span className="mt-2 block text-[11px] text-zoru-ink-muted">
+                                <p className="mt-1 text-sm text-[var(--st-text)]">{i.body}</p>
+                                <span className="mt-2 block text-[11px] text-[var(--st-text-secondary)]">
                                     {new Date(i.postedAt).toLocaleString()}
                                 </span>
                             </li>
@@ -124,7 +124,7 @@ export default async function PublicStatusPage({ params }: PageProps): Promise<R
                 )}
             </section>
 
-            <footer className="pt-6 text-[11px] text-zoru-ink-muted">
+            <footer className="pt-6 text-[11px] text-[var(--st-text-secondary)]">
                 Powered by SabMonitor
             </footer>
         </main>

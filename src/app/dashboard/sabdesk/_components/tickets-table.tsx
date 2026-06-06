@@ -98,10 +98,10 @@ export function TicketsTable({
     !allSelected && tickets.some((t) => selectedIds.has(String(t._id)));
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-zoru-line">
+    <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
       <Table>
         <ZoruTableHeader>
-          <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+          <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
             <ZoruTableHead className="w-[36px]">
               <Checkbox
                 aria-label="Select all tickets on this page"
@@ -128,17 +128,17 @@ export function TicketsTable({
         <ZoruTableBody>
           {loading ? (
             Array.from({ length: 6 }).map((_, i) => (
-              <ZoruTableRow key={i} className="border-zoru-line">
+              <ZoruTableRow key={i} className="border-[var(--st-border)]">
                 <ZoruTableCell colSpan={13}>
                   <Skeleton className="h-10 w-full" />
                 </ZoruTableCell>
               </ZoruTableRow>
             ))
           ) : tickets.length === 0 ? (
-            <ZoruTableRow className="border-zoru-line">
+            <ZoruTableRow className="border-[var(--st-border)]">
               <ZoruTableCell
                 colSpan={13}
-                className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
               >
                 No tickets match the current filters.
               </ZoruTableCell>
@@ -155,8 +155,8 @@ export function TicketsTable({
                 <ZoruTableRow
                   key={id}
                   className={[
-                    "border-zoru-line transition-colors",
-                    isSel ? "bg-zoru-surface-2/70" : "",
+                    "border-[var(--st-border)] transition-colors",
+                    isSel ? "bg-[var(--st-bg-muted)]/70" : "",
                   ].join(" ")}
                 >
                   <ZoruTableCell>
@@ -166,12 +166,12 @@ export function TicketsTable({
                       onCheckedChange={() => onToggleOne(id)}
                     />
                   </ZoruTableCell>
-                  <ZoruTableCell className="font-mono text-[12px] text-zoru-ink-muted">
+                  <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text-secondary)]">
                     {ticketNumber(t)}
                   </ZoruTableCell>
                   <ZoruTableCell>
                     <div className="flex items-center gap-2">
-                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                         <LifeBuoy className="h-3.5 w-3.5" />
                       </span>
                       <EntityRowLink
@@ -185,7 +185,7 @@ export function TicketsTable({
                       />
                     </div>
                   </ZoruTableCell>
-                  <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                  <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                     {t.requesterId ? (
                       <EntityPickerChip entity={kind} id={t.requesterId} />
                     ) : (
@@ -196,10 +196,10 @@ export function TicketsTable({
                     {t.channel ? (
                       <Badge variant="secondary">{t.channel}</Badge>
                     ) : (
-                      <span className="text-[12px] text-zoru-ink-muted">—</span>
+                      <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
                     )}
                   </ZoruTableCell>
-                  <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                  <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                     {t.category ? (
                       <EntityPickerChip entity="category" id={t.category} />
                     ) : (
@@ -212,10 +212,10 @@ export function TicketsTable({
                         {priority}
                       </Badge>
                     ) : (
-                      <span className="text-[12px] text-zoru-ink-muted">—</span>
+                      <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
                     )}
                   </ZoruTableCell>
-                  <ZoruTableCell className="text-[12.5px] uppercase text-zoru-ink-muted">
+                  <ZoruTableCell className="text-[12.5px] uppercase text-[var(--st-text-secondary)]">
                     {t.severity ?? "—"}
                   </ZoruTableCell>
                   <ZoruTableCell>
@@ -225,7 +225,7 @@ export function TicketsTable({
                         tone={statusToTone(status)}
                       />
                     ) : (
-                      <span className="text-[12px] text-zoru-ink-muted">—</span>
+                      <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
                     )}
                   </ZoruTableCell>
                   <ZoruTableCell>
@@ -236,7 +236,7 @@ export function TicketsTable({
                         fallback="Unassigned"
                       />
                     ) : (
-                      <span className="text-[12px] text-zoru-ink-muted">
+                      <span className="text-[12px] text-[var(--st-text-secondary)]">
                         Unassigned
                       </span>
                     )}
@@ -245,8 +245,8 @@ export function TicketsTable({
                     className={[
                       "text-[12.5px]",
                       overdue
-                        ? "font-medium text-zoru-danger-ink"
-                        : "text-zoru-ink-muted",
+                        ? "font-medium text-[var(--st-danger)]"
+                        : "text-[var(--st-text-secondary)]",
                     ].join(" ")}
                   >
                     {t.dueBy ? (
@@ -285,7 +285,7 @@ export function TicketsTable({
                     )}
                   </ZoruTableCell>
                   <ZoruTableCell
-                    className="text-[12.5px] text-zoru-ink-muted"
+                    className="text-[12.5px] text-[var(--st-text-secondary)]"
                     title={(() => {
                       if (!t.createdAt) return "";
                       const date = new Date(t.createdAt);
@@ -349,7 +349,7 @@ export function TicketsTable({
                         <button
                           type="button"
                           aria-label={`Actions for ${t.subject || id}`}
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
                         >
                           <MoreHorizontal className="h-4 w-4" />
                         </button>
@@ -374,7 +374,7 @@ export function TicketsTable({
                         <ZoruDropdownMenuSeparator />
                         <ZoruDropdownMenuItem
                           onClick={() => onDelete(id)}
-                          className="text-zoru-danger"
+                          className="text-[var(--st-danger)]"
                         >
                           <Trash2 className="mr-1.5 h-3.5 w-3.5" />
                           Delete

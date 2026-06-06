@@ -84,9 +84,9 @@ export default function ReverseImageSearchPage() {
             </div>
             
             <div className="flex items-center gap-4">
-              <div className="h-px bg-zoru-surface-2 dark:bg-zoru-ink flex-1"></div>
-              <span className="text-sm text-zoru-ink font-medium">OR</span>
-              <div className="h-px bg-zoru-surface-2 dark:bg-zoru-ink flex-1"></div>
+              <div className="h-px bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] flex-1"></div>
+              <span className="text-sm text-[var(--st-text)] font-medium">OR</span>
+              <div className="h-px bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] flex-1"></div>
             </div>
 
             <div className="flex flex-col gap-2">
@@ -99,7 +99,7 @@ export default function ReverseImageSearchPage() {
                 >
                   {uploading ? 'Uploading...' : 'Choose File'}
                 </Button>
-                <span className="text-sm text-zoru-ink">
+                <span className="text-sm text-[var(--st-text)]">
                   {fileInputRef.current?.files?.[0]?.name || 'No file chosen'}
                 </span>
                 <Input 
@@ -110,15 +110,15 @@ export default function ReverseImageSearchPage() {
                   className="hidden"
                 />
               </div>
-              {error && <p className="text-sm text-zoru-ink mt-1">{error}</p>}
+              {error && <p className="text-sm text-[var(--st-text)] mt-1">{error}</p>}
             </div>
           </ZoruCardContent>
         </Card>
 
         {preview && (
           <div className="flex flex-col gap-2">
-            <h3 className="text-sm font-semibold text-zoru-ink dark:text-zoru-ink-muted">Image Preview</h3>
-            <div className="rounded-md border border-zoru-line dark:border-zoru-line p-2 max-w-sm">
+            <h3 className="text-sm font-semibold text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">Image Preview</h3>
+            <div className="rounded-md border border-[var(--st-border)] dark:border-[var(--st-border)] p-2 max-w-sm">
               <img 
                 src={preview} 
                 alt="Search preview" 
@@ -132,18 +132,18 @@ export default function ReverseImageSearchPage() {
         {links.length > 0 && (
           <Card>
             <ZoruCardContent className="p-4 space-y-3">
-              <h3 className="text-sm font-semibold text-zoru-ink dark:text-zoru-ink-muted border-b pb-2 mb-2">Search Engines</h3>
+              <h3 className="text-sm font-semibold text-[var(--st-text)] dark:text-[var(--st-text-secondary)] border-b pb-2 mb-2">Search Engines</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {links.map((l) => (
                   <a 
                     key={l.name} 
-                    className="flex items-center gap-2 p-3 rounded-md border border-zoru-line dark:border-zoru-line hover:bg-zoru-surface-2 dark:hover:bg-zoru-ink transition-colors" 
+                    className="flex items-center gap-2 p-3 rounded-md border border-[var(--st-border)] dark:border-[var(--st-border)] hover:bg-[var(--st-bg-muted)] dark:hover:bg-[var(--st-text)] transition-colors" 
                     target="_blank" 
                     rel="noopener noreferrer" 
                     href={l.href}
                   >
                     <span className="text-lg">🔗</span> 
-                    <span className="text-sm font-medium text-zoru-ink dark:text-zoru-ink-muted">Search on {l.name}</span>
+                    <span className="text-sm font-medium text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">Search on {l.name}</span>
                   </a>
                 ))}
               </div>

@@ -46,7 +46,7 @@ export default async function SabConnectGroupsPage() {
                         <li key={g._id}>
                             <Link
                                 href={`/dashboard/sabconnect/groups/${g._id}`}
-                                className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-accent"
+                                className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent)]"
                             >
                                 <Card className="h-full transition-shadow hover:shadow-md">
                                     <CardContent className="flex flex-col gap-2 p-4">
@@ -57,11 +57,11 @@ export default async function SabConnectGroupsPage() {
                                             <Badge variant="outline">{g.visibility}</Badge>
                                         </div>
                                         {g.description ? (
-                                            <p className="line-clamp-2 text-sm text-zoru-muted">
+                                            <p className="line-clamp-2 text-sm text-[var(--st-bg-muted)]">
                                                 {g.description}
                                             </p>
                                         ) : null}
-                                        <p className="text-xs text-zoru-muted">
+                                        <p className="text-xs text-[var(--st-bg-muted)]">
                                             {g.memberCount ?? g.memberIds?.length ?? 0} members
                                         </p>
                                     </CardContent>

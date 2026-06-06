@@ -48,7 +48,7 @@ export function GoogleAnalyticsSettings({ block, onBlockChange }: Props) {
         />
         <p className="text-[10.5px] text-[var(--gray-8)] mt-1">
           Your GA4 Measurement ID (starts with{' '}
-          <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-zoru-ink">G-</code>).
+          <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-[var(--st-text)]">G-</code>).
         </p>
       </Field>
 
@@ -94,7 +94,7 @@ export function GoogleAnalyticsSettings({ block, onBlockChange }: Props) {
         />
         <p className="text-[10.5px] text-[var(--gray-8)] mt-1">
           Use{' '}
-          <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-zoru-ink">
+          <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-[var(--st-text)]">
             {'{{variable}}'}
           </code>{' '}
           to pass a dynamic value.

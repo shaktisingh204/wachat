@@ -67,7 +67,7 @@ export default function ImageFormatConverterPage() {
           <div className="space-y-1">
             <Label>Target format</Label>
             <select 
-              className="block border rounded h-9 px-2 bg-zoru-surface w-32" 
+              className="block border rounded h-9 px-2 bg-[var(--st-bg-secondary)] w-32" 
               value={format} 
               onChange={(e) => setFormat(e.target.value as any)}
             >
@@ -81,7 +81,7 @@ export default function ImageFormatConverterPage() {
             <div className="space-y-1 flex-1 min-w-[200px]">
               <div className="flex justify-between items-center text-sm px-1">
                 <Label>Quality</Label>
-                <span className="text-zoru-ink-muted">{Math.round(quality * 100)}%</span>
+                <span className="text-[var(--st-text-secondary)]">{Math.round(quality * 100)}%</span>
               </div>
               <input 
                 type="range" 
@@ -90,7 +90,7 @@ export default function ImageFormatConverterPage() {
                 step="0.01" 
                 value={quality} 
                 onChange={(e) => setQuality(parseFloat(e.target.value))}
-                className="w-full h-2 bg-zoru-surface-2 rounded-lg appearance-none cursor-pointer"
+                className="w-full h-2 bg-[var(--st-bg-muted)] rounded-lg appearance-none cursor-pointer"
               />
             </div>
           )}
@@ -102,7 +102,7 @@ export default function ImageFormatConverterPage() {
                 type="file" 
                 accept="image/*" 
                 onChange={onFile} 
-                className="block text-sm text-zoru-ink-muted file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-zoru-ink file:text-white hover:file:bg-zoru-ink/90 cursor-pointer"
+                className="block text-sm text-[var(--st-text-secondary)] file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-[var(--st-text)] file:text-white hover:file:bg-[var(--st-text)]/90 cursor-pointer"
               />
             </div>
           </div>
@@ -114,12 +114,12 @@ export default function ImageFormatConverterPage() {
               <a 
                 href={url} 
                 download={file ? `${file.name.substring(0, file.name.lastIndexOf('.')) || file.name}.${format === 'jpeg' ? 'jpg' : format}` : `converted.${format === 'jpeg' ? 'jpg' : format}`} 
-                className="text-sm bg-zoru-ink text-white px-4 py-2 rounded-md hover:bg-zoru-ink font-medium inline-block"
+                className="text-sm bg-[var(--st-text)] text-white px-4 py-2 rounded-md hover:bg-[var(--st-text)] font-medium inline-block"
               >
                 Download Converted Image
               </a>
             </div>
-            <div className="border rounded-lg p-4 bg-zoru-surface-2/10 inline-block w-full text-center">
+            <div className="border rounded-lg p-4 bg-[var(--st-bg-muted)]/10 inline-block w-full text-center">
               <img src={url} alt="converted" className="max-w-full h-auto max-h-[60vh] object-contain mx-auto rounded shadow-sm" />
             </div>
           </div>

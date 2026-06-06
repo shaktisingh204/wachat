@@ -77,10 +77,10 @@ function Field({
 }) {
   return (
     <div>
-      <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
         {label}
       </div>
-      <div className="mt-1 text-[13px] text-zoru-ink">{value ?? '—'}</div>
+      <div className="mt-1 text-[13px] text-[var(--st-text)]">{value ?? '—'}</div>
     </div>
   );
 }
@@ -132,13 +132,13 @@ export default async function BudgetDetailPage({ params }: PageProps) {
             <ZoruCardContent>
               <div className="space-y-2 text-[12.5px]">
                 <div>
-                  <div className="text-[11px] uppercase text-zoru-ink-muted">
+                  <div className="text-[11px] uppercase text-[var(--st-text-secondary)]">
                     Owner
                   </div>
                   <div className="mt-0.5">{budget.ownerName || '—'}</div>
                 </div>
                 <div>
-                  <div className="text-[11px] uppercase text-zoru-ink-muted">
+                  <div className="text-[11px] uppercase text-[var(--st-text-secondary)]">
                     Approver
                   </div>
                   <div className="mt-0.5">{budget.approverName || '—'}</div>
@@ -154,14 +154,14 @@ export default async function BudgetDetailPage({ params }: PageProps) {
             <ZoruCardContent>
               <div className="space-y-2 text-[12.5px]">
                 <div className="flex items-center justify-between">
-                  <span className="text-zoru-ink-muted">Current</span>
+                  <span className="text-[var(--st-text-secondary)]">Current</span>
                   <Badge variant="outline">
                     {budget.scenario || 'base'}
                   </Badge>
                 </div>
                 <Link
                   href={`/dashboard/crm/budgets?period=${budget.period || ''}&compare=1`}
-                  className="text-zoru-primary hover:underline"
+                  className="text-[var(--st-text)] hover:underline"
                 >
                   Switch scenario →
                 </Link>
@@ -177,7 +177,7 @@ export default async function BudgetDetailPage({ params }: PageProps) {
               <div className="flex flex-col gap-2 text-[12.5px]">
                 <Link
                   href={`/dashboard/crm/purchases/expenses?budgetId=${id}`}
-                  className="text-zoru-primary hover:underline"
+                  className="text-[var(--st-text)] hover:underline"
                 >
                   Expenses against this budget →
                 </Link>
@@ -208,7 +208,7 @@ export default async function BudgetDetailPage({ params }: PageProps) {
               label="Variance"
               value={
                 <span
-                  className={`font-mono tabular-nums ${overrun ? 'text-zoru-danger-ink' : ''}`}
+                  className={`font-mono tabular-nums ${overrun ? 'text-[var(--st-danger)]' : ''}`}
                 >
                   {fmtMoney(budget.variance)}
                 </span>
@@ -257,20 +257,20 @@ export default async function BudgetDetailPage({ params }: PageProps) {
         <ZoruCardContent>
           <Table className="text-[13px]">
             <TableHeader>
-              <TableRow className="border-b border-zoru-line/60 text-left text-[11px] uppercase text-zoru-ink-muted hover:bg-transparent">
+              <TableRow className="border-b border-[var(--st-border)]/60 text-left text-[11px] uppercase text-[var(--st-text-secondary)] hover:bg-transparent">
                 <TableHead className="py-2">Metric</TableHead>
                 <TableHead className="py-2 text-right">Amount</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              <TableRow className="border-b border-zoru-line/40">
-                <TableCell className="py-2 text-zoru-ink-muted">Planned</TableCell>
+              <TableRow className="border-b border-[var(--st-border)]/40">
+                <TableCell className="py-2 text-[var(--st-text-secondary)]">Planned</TableCell>
                 <TableCell className="py-2 text-right font-mono tabular-nums">
                   {fmtMoney(budget.planAmount)}
                 </TableCell>
               </TableRow>
-              <TableRow className="border-b border-zoru-line/40">
-                <TableCell className="py-2 text-zoru-ink-muted">Actual</TableCell>
+              <TableRow className="border-b border-[var(--st-border)]/40">
+                <TableCell className="py-2 text-[var(--st-text-secondary)]">Actual</TableCell>
                 <TableCell className="py-2 text-right font-mono tabular-nums">
                   {fmtMoney(budget.actual)}
                 </TableCell>
@@ -278,7 +278,7 @@ export default async function BudgetDetailPage({ params }: PageProps) {
               <TableRow className="border-0">
                 <TableCell className="py-2 font-medium">Variance</TableCell>
                 <TableCell
-                  className={`py-2 text-right font-mono font-medium tabular-nums ${overrun ? 'text-zoru-danger-ink' : ''}`}
+                  className={`py-2 text-right font-mono font-medium tabular-nums ${overrun ? 'text-[var(--st-danger)]' : ''}`}
                 >
                   {fmtMoney(budget.variance)}
                 </TableCell>
@@ -302,7 +302,7 @@ export default async function BudgetDetailPage({ params }: PageProps) {
           ) : (
             <Table className="text-[13px]">
               <TableHeader>
-                <TableRow className="border-b border-zoru-line/60 text-left text-[11px] uppercase text-zoru-ink-muted hover:bg-transparent">
+                <TableRow className="border-b border-[var(--st-border)]/60 text-left text-[11px] uppercase text-[var(--st-text-secondary)] hover:bg-transparent">
                   <TableHead className="py-2">Posted at</TableHead>
                   <TableHead className="py-2 text-right">Amount</TableHead>
                 </TableRow>
@@ -311,7 +311,7 @@ export default async function BudgetDetailPage({ params }: PageProps) {
                 {actualLog.map((row, idx) => (
                   <TableRow
                     key={row._id ?? `${row.postedAt}-${idx}`}
-                    className="border-b border-zoru-line/40 last:border-0"
+                    className="border-b border-[var(--st-border)]/40 last:border-0"
                   >
                     <TableCell className="py-2">{fmtDate(row.postedAt)}</TableCell>
                     <TableCell className="py-2 text-right font-mono tabular-nums">
@@ -331,7 +331,7 @@ export default async function BudgetDetailPage({ params }: PageProps) {
             <ZoruCardTitle>Notes</ZoruCardTitle>
           </ZoruCardHeader>
           <ZoruCardContent>
-            <p className="whitespace-pre-wrap text-[13px] text-zoru-ink">
+            <p className="whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
               {budget.notes}
             </p>
           </ZoruCardContent>
@@ -344,7 +344,7 @@ export default async function BudgetDetailPage({ params }: PageProps) {
             <ZoruCardTitle>Rejection reason</ZoruCardTitle>
           </ZoruCardHeader>
           <ZoruCardContent>
-            <p className="whitespace-pre-wrap text-[13px] text-zoru-danger-ink">
+            <p className="whitespace-pre-wrap text-[13px] text-[var(--st-danger)]">
               {budget.rejectReason}
             </p>
           </ZoruCardContent>

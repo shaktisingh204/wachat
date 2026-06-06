@@ -91,8 +91,8 @@ export function AnnouncementStats({
         <dl className="grid gap-2 text-[12.5px]">
             {stats.map(({ label, value }) => (
                 <div key={label} className="flex justify-between">
-                    <dt className="text-zoru-ink-muted">{label}</dt>
-                    <dd className="text-zoru-ink">{value}</dd>
+                    <dt className="text-[var(--st-text-secondary)]">{label}</dt>
+                    <dd className="text-[var(--st-text)]">{value}</dd>
                 </div>
             ))}
         </dl>

@@ -179,7 +179,7 @@ function ConditionRow({
         <select
           value={condition.operator}
           onChange={(e) => onUpdate({ operator: e.target.value as Operator })}
-          className="w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-1)] px-3 py-1.5 text-[12.5px] text-[var(--gray-12)] outline-none focus:border-zoru-line transition-colors"
+          className="w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-1)] px-3 py-1.5 text-[12.5px] text-[var(--gray-12)] outline-none focus:border-[var(--st-border)] transition-colors"
         >
           {(Object.keys(OPERATOR_LABELS) as Operator[]).map((op) => (
             <option key={op} value={op}>
@@ -207,7 +207,7 @@ function ConditionRow({
         <div className="flex justify-end pt-1">
           <button
             onClick={onRemove}
-            className="flex items-center gap-1 text-[11px] text-[var(--gray-8)] hover:text-zoru-ink transition-colors"
+            className="flex items-center gap-1 text-[11px] text-[var(--gray-8)] hover:text-[var(--st-text)] transition-colors"
           >
             <LuTrash2 className="h-3 w-3" strokeWidth={1.8} />
             Remove

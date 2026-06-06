@@ -34,10 +34,10 @@ export default function SabcrmObjectIndexLoading() {
       </div>
 
       {/* Table skeleton */}
-      <div className="overflow-hidden rounded-xl border border-zoru-line">
+      <div className="overflow-hidden rounded-xl border border-[var(--st-border)]">
         <div className="space-y-0">
           {/* Table header */}
-          <div className="flex border-b border-zoru-line bg-zoru-surface px-6 py-3">
+          <div className="flex border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-6 py-3">
             <Skeleton width="8rem" height="1rem" />
             <div className="ml-auto flex gap-6">
               <Skeleton width="6rem" height="1rem" />
@@ -50,7 +50,7 @@ export default function SabcrmObjectIndexLoading() {
           {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
-              className="flex border-b border-zoru-line px-6 py-4 last:border-b-0"
+              className="flex border-b border-[var(--st-border)] px-6 py-4 last:border-b-0"
             >
               <Skeleton width="10rem" height="1.25rem" />
               <div className="ml-auto flex gap-6">

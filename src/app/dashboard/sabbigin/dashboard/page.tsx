@@ -77,12 +77,12 @@ function Tile({
     return (
         <Card className="p-5">
             <div className="flex items-start justify-between gap-3">
-                <p className="text-[12px] font-medium uppercase tracking-wide text-zoru-ink-subtle">{label}</p>
-                <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink">
+                <p className="text-[12px] font-medium uppercase tracking-wide text-[var(--st-text-tertiary)]">{label}</p>
+                <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                     <Icon className="h-4 w-4" strokeWidth={1.75} />
                 </span>
             </div>
-            <p className="mt-3 text-[24px] font-semibold leading-none tracking-tight text-zoru-ink">{value}</p>
+            <p className="mt-3 text-[24px] font-semibold leading-none tracking-tight text-[var(--st-text)]">{value}</p>
         </Card>
     );
 }

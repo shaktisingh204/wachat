@@ -146,8 +146,8 @@ export default function InstagramDiscoveryPage(): React.JSX.Element {
 
       <header className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl text-zoru-ink">Business discovery</h1>
-          <p className="mt-1 text-sm text-zoru-ink-muted">
+          <h1 className="text-2xl text-[var(--st-text)]">Business discovery</h1>
+          <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
             Look up any public Instagram Business or Creator account by username.
           </p>
         </div>
@@ -217,10 +217,10 @@ export default function InstagramDiscoveryPage(): React.JSX.Element {
               </ZoruAvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1">
-              <p className="text-lg text-zoru-ink">{profile.name || profile.username}</p>
-              <p className="text-sm text-zoru-ink-muted">@{profile.username}</p>
+              <p className="text-lg text-[var(--st-text)]">{profile.name || profile.username}</p>
+              <p className="text-sm text-[var(--st-text-secondary)]">@{profile.username}</p>
               {profile.biography ? (
-                <p className="mt-2 text-sm text-zoru-ink whitespace-pre-line">
+                <p className="mt-2 text-sm text-[var(--st-text)] whitespace-pre-line">
                   {profile.biography}
                 </p>
               ) : null}
@@ -229,7 +229,7 @@ export default function InstagramDiscoveryPage(): React.JSX.Element {
                   href={profile.website}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-2 inline-flex text-xs text-zoru-ink-muted underline"
+                  className="mt-2 inline-flex text-xs text-[var(--st-text-secondary)] underline"
                 >
                   {profile.website}
                 </a>
@@ -248,7 +248,7 @@ export default function InstagramDiscoveryPage(): React.JSX.Element {
             </div>
           </Card>
 
-          <h2 className="mt-2 text-sm text-zoru-ink">Recent media</h2>
+          <h2 className="mt-2 text-sm text-[var(--st-text)]">Recent media</h2>
           {!profile.media?.data?.length ? (
             <EmptyState
               icon={<ImageIcon />}
@@ -265,7 +265,7 @@ export default function InstagramDiscoveryPage(): React.JSX.Element {
                     href={m.permalink ?? '#'}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block overflow-hidden rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2"
+                    className="block overflow-hidden rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)]"
                   >
                     <div className="aspect-square w-full">
                       {src ? (
@@ -277,8 +277,8 @@ export default function InstagramDiscoveryPage(): React.JSX.Element {
                         />
                       ) : null}
                     </div>
-                    <div className="p-2 text-[11px] text-zoru-ink-muted">
-                      <p className="line-clamp-2 text-zoru-ink">{m.caption ?? '(no caption)'}</p>
+                    <div className="p-2 text-[11px] text-[var(--st-text-secondary)]">
+                      <p className="line-clamp-2 text-[var(--st-text)]">{m.caption ?? '(no caption)'}</p>
                       <div className="mt-1 flex gap-3">
                         <span>♥ {formatNumber(m.like_count)}</span>
                         <span>💬 {formatNumber(m.comments_count)}</span>

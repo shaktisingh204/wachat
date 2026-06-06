@@ -124,12 +124,12 @@ export default function GlobalWachatDashboardPage() {
         </Breadcrumb>
 
         <ZoruEmptyState
-          icon={<MessageCircle className="h-10 w-10 text-zoru-ink" />}
+          icon={<MessageCircle className="h-10 w-10 text-[var(--st-text)]" />}
           title="Welcome to WhatsApp Chat"
           description="You haven't connected any WhatsApp Business Accounts yet. Connect your first account to unlock messaging, automation, and live chat."
           action={
             <Link href="/wachat/setup">
-              <Button size="md" className="bg-zoru-ink hover:bg-zoru-ink text-white">
+              <Button size="md" className="bg-[var(--st-text)] hover:bg-[var(--st-text)] text-white">
                 <Plus className="mr-2" />
                 Connect WhatsApp Account
               </Button>
@@ -156,10 +156,10 @@ export default function GlobalWachatDashboardPage() {
 
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-[26px] tracking-tight leading-none text-zoru-ink">
+          <h1 className="text-[26px] tracking-tight leading-none text-[var(--st-text)]">
             Global WhatsApp Overview
           </h1>
-          <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
+          <p className="mt-1.5 text-[13px] text-[var(--st-text-secondary)]">
             Aggregated statistics across your {wachatProjects.length} connected WhatsApp accounts
           </p>
         </div>
@@ -213,18 +213,18 @@ export default function GlobalWachatDashboardPage() {
       )}
 
       <div className="mt-4">
-        <h2 className="text-lg font-medium text-zoru-ink mb-4">Your WhatsApp Projects</h2>
+        <h2 className="text-lg font-medium text-[var(--st-text)] mb-4">Your WhatsApp Projects</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {wachatProjects.map((p) => {
             const s = statsMap[p._id.toString()];
             const sent = s?.totalSent || 0;
             const deliv = s?.totalDelivered || 0;
             return (
-              <Card key={p._id.toString()} className="p-5 flex flex-col gap-4 transition hover:border-zoru-line">
+              <Card key={p._id.toString()} className="p-5 flex flex-col gap-4 transition hover:border-[var(--st-border)]">
                 <div className="flex justify-between items-start">
                   <div>
-                    <h3 className="font-semibold text-zoru-ink">{p.name || 'Untitled project'}</h3>
-                    <p className="text-xs text-zoru-ink-muted mt-0.5">
+                    <h3 className="font-semibold text-[var(--st-text)]">{p.name || 'Untitled project'}</h3>
+                    <p className="text-xs text-[var(--st-text-secondary)] mt-0.5">
                       {p.phoneNumbers?.[0]?.display_phone_number || p.wabaId}
                     </p>
                   </div>
@@ -236,19 +236,19 @@ export default function GlobalWachatDashboardPage() {
                       router.push('/wachat/overview');
                     }}
                   >
-                    <TrendingUp className="h-3.5 w-3.5 text-zoru-ink" />
+                    <TrendingUp className="h-3.5 w-3.5 text-[var(--st-text)]" />
                   </Button>
                 </div>
                 
                 {s ? (
-                  <div className="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-zoru-line">
+                  <div className="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-[var(--st-border)]">
                     <div>
-                      <span className="text-zoru-ink-muted block">Sent</span>
-                      <span className="font-medium text-zoru-ink">{compact(sent)}</span>
+                      <span className="text-[var(--st-text-secondary)] block">Sent</span>
+                      <span className="font-medium text-[var(--st-text)]">{compact(sent)}</span>
                     </div>
                     <div>
-                      <span className="text-zoru-ink-muted block">Delivered</span>
-                      <span className="font-medium text-zoru-ink">{compact(deliv)} ({pct(deliv, sent)}%)</span>
+                      <span className="text-[var(--st-text-secondary)] block">Delivered</span>
+                      <span className="font-medium text-[var(--st-text)]">{compact(deliv)} ({pct(deliv, sent)}%)</span>
                     </div>
                   </div>
                 ) : loading ? (
@@ -257,7 +257,7 @@ export default function GlobalWachatDashboardPage() {
                     <Skeleton className="h-3 w-2/3" />
                   </div>
                 ) : (
-                  <div className="text-xs text-zoru-ink-muted pt-2 border-t border-zoru-line">
+                  <div className="text-xs text-[var(--st-text-secondary)] pt-2 border-t border-[var(--st-border)]">
                     No stats available
                   </div>
                 )}
@@ -284,14 +284,14 @@ function Kpi({
   return (
     <Card className="p-4 transition-shadow hover:shadow-[var(--zoru-shadow-sm)]">
       <div className="flex items-start justify-between">
-        <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink">
+        <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
           {icon}
         </span>
       </div>
-      <div className="mt-3.5 text-[11.5px] leading-none text-zoru-ink-muted">{label}</div>
-      <div className="mt-1.5 text-[22px] tracking-[-0.01em] leading-none text-zoru-ink">{value}</div>
+      <div className="mt-3.5 text-[11.5px] leading-none text-[var(--st-text-secondary)]">{label}</div>
+      <div className="mt-1.5 text-[22px] tracking-[-0.01em] leading-none text-[var(--st-text)]">{value}</div>
       {hint && (
-        <div className="mt-1 truncate text-[11px] leading-tight text-zoru-ink-muted">{hint}</div>
+        <div className="mt-1 truncate text-[11px] leading-tight text-[var(--st-text-secondary)]">{hint}</div>
       )}
     </Card>
   );

@@ -52,7 +52,7 @@ export default async function ProductDetailPage({
                         )}
                     </>
                 ) : (
-                    <div className="aspect-square w-full rounded-xl bg-zoru-surface-2" />
+                    <div className="aspect-square w-full rounded-xl bg-[var(--st-bg-muted)]" />
                 )}
             </div>
             <div>

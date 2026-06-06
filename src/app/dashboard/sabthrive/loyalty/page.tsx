@@ -358,7 +358,7 @@ export default function SalesLoyaltyPage(): React.JSX.Element {
         }
         bulkBar={
           selected.size > 0 ? (
-            <div className="flex flex-wrap items-center gap-2 text-sm text-zoru-ink">
+            <div className="flex flex-wrap items-center gap-2 text-sm text-[var(--st-text)]">
               <span className="font-medium">{selected.size} selected</span>
               <DropdownMenu>
                 <ZoruDropdownMenuTrigger asChild>
@@ -408,9 +408,9 @@ export default function SalesLoyaltyPage(): React.JSX.Element {
         empty={
           !isPending && rows.length === 0 ? (
             <div className="flex flex-col items-center gap-3 p-4">
-              <Award className="h-8 w-8 text-zoru-ink-muted" />
-              <h3 className="text-base font-medium text-zoru-ink">No loyalty programs yet</h3>
-              <p className="max-w-sm text-sm text-zoru-ink-muted">
+              <Award className="h-8 w-8 text-[var(--st-text-secondary)]" />
+              <h3 className="text-base font-medium text-[var(--st-text)]">No loyalty programs yet</h3>
+              <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                 Launch your first program to reward repeat customers.
               </p>
               <Button asChild>
@@ -462,7 +462,7 @@ export default function SalesLoyaltyPage(): React.JSX.Element {
             <div className="overflow-x-auto rounded-lg">
               <Table>
                 <ZoruTableHeader>
-                  <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                  <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                     <ZoruTableHead className="w-10">
                       <input
                         type="checkbox"
@@ -471,19 +471,19 @@ export default function SalesLoyaltyPage(): React.JSX.Element {
                         onChange={(e) => handleToggleAll(e.target.checked)}
                       />
                     </ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Program name</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Tiers</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Points/unit</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Expiry rule</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Program name</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Tiers</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Points/unit</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Expiry rule</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
                   </ZoruTableRow>
                 </ZoruTableHeader>
                 <ZoruTableBody>
                   {rows.length === 0 ? (
-                    <ZoruTableRow className="border-zoru-line">
+                    <ZoruTableRow className="border-[var(--st-border)]">
                       <ZoruTableCell
                         colSpan={6}
-                        className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                        className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                       >
                         {isPending ? 'Loading…' : 'No loyalty programs match these filters.'}
                       </ZoruTableCell>
@@ -494,7 +494,7 @@ export default function SalesLoyaltyPage(): React.JSX.Element {
                       const checked = selected.has(id);
                       const tiers = Array.isArray(p.tiers) ? p.tiers.length : 0;
                       return (
-                        <ZoruTableRow key={id} className="border-zoru-line">
+                        <ZoruTableRow key={id} className="border-[var(--st-border)]">
                           <ZoruTableCell>
                             <input
                               type="checkbox"
@@ -503,18 +503,18 @@ export default function SalesLoyaltyPage(): React.JSX.Element {
                               onChange={() => handleToggleOne(id)}
                             />
                           </ZoruTableCell>
-                          <ZoruTableCell className="text-zoru-ink">
+                          <ZoruTableCell className="text-[var(--st-text)]">
                             <EntityRowLink
                               href={`/dashboard/sabthrive/loyalty/${id}`}
                               label={p.name || 'Untitled program'}
                               subtitle={tiers ? `${tiers} tier${tiers === 1 ? '' : 's'}` : undefined}
                             />
                           </ZoruTableCell>
-                          <ZoruTableCell className="text-zoru-ink">{tiers}</ZoruTableCell>
-                          <ZoruTableCell className="text-zoru-ink">
+                          <ZoruTableCell className="text-[var(--st-text)]">{tiers}</ZoruTableCell>
+                          <ZoruTableCell className="text-[var(--st-text)]">
                             {formatPointsRate(p.pointsPerCurrencyUnit)}
                           </ZoruTableCell>
-                          <ZoruTableCell className="text-zoru-ink">
+                          <ZoruTableCell className="text-[var(--st-text)]">
                             {formatExpiryRule(p.expiryDays)}
                           </ZoruTableCell>
                           <ZoruTableCell>

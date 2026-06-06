@@ -36,15 +36,15 @@ export function QuotationHeaderSection({
   return (
     <Card className="space-y-4 p-6">
       <div>
-        <h2 className="text-[15px] font-semibold text-zoru-ink">Header</h2>
-        <p className="text-[12.5px] text-zoru-ink-muted">
+        <h2 className="text-[15px] font-semibold text-[var(--st-text)]">Header</h2>
+        <p className="text-[12.5px] text-[var(--st-text-secondary)]">
           Quotation number, date, and validity window.
         </p>
       </div>
       <div className="grid gap-4 md:grid-cols-3">
         <div className="space-y-1.5">
           <Label htmlFor="quotationNo">
-            Quotation # <span className="text-zoru-danger-ink">*</span>
+            Quotation # <span className="text-[var(--st-danger)]">*</span>
           </Label>
           <Input
             id="quotationNo"
@@ -56,7 +56,7 @@ export function QuotationHeaderSection({
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="date">
-            Date <span className="text-zoru-danger-ink">*</span>
+            Date <span className="text-[var(--st-danger)]">*</span>
           </Label>
           <Input
             id="date"
@@ -68,7 +68,7 @@ export function QuotationHeaderSection({
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="validUntil">
-            Valid until <span className="text-zoru-danger-ink">*</span>
+            Valid until <span className="text-[var(--st-danger)]">*</span>
           </Label>
           <Input
             id="validUntil"
@@ -101,15 +101,15 @@ export function QuotationCustomerSection({
   return (
     <Card className="space-y-4 p-6">
       <div>
-        <h2 className="text-[15px] font-semibold text-zoru-ink">Customer</h2>
-        <p className="text-[12.5px] text-zoru-ink-muted">
+        <h2 className="text-[15px] font-semibold text-[var(--st-text)]">Customer</h2>
+        <p className="text-[12.5px] text-[var(--st-text-secondary)]">
           Client, reference, sales agent, and source deal.
         </p>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-1.5">
           <Label>
-            Customer <span className="text-zoru-danger-ink">*</span>
+            Customer <span className="text-[var(--st-danger)]">*</span>
           </Label>
           <EntityFormField
             entity="client"
@@ -188,7 +188,7 @@ export function QuotationSubjectSection({
   return (
     <Card className="space-y-4 p-6">
       <div>
-        <h2 className="text-[15px] font-semibold text-zoru-ink">Subject</h2>
+        <h2 className="text-[15px] font-semibold text-[var(--st-text)]">Subject</h2>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-1.5">
@@ -250,7 +250,7 @@ export function QuotationNotesSection({
   return (
     <Card className="space-y-4 p-6">
       <div>
-        <h2 className="text-[15px] font-semibold text-zoru-ink">Notes</h2>
+        <h2 className="text-[15px] font-semibold text-[var(--st-text)]">Notes</h2>
       </div>
       <div className="grid gap-4">
         <div className="space-y-1.5">

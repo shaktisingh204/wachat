@@ -312,10 +312,10 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
     return (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             <div className="lg:col-span-7 space-y-6">
-                <Card className="border-0 shadow-lg ring-1 ring-zoru-line/5">
+                <Card className="border-0 shadow-lg ring-1 ring-[var(--st-border)]/5">
                     <ZoruCardHeader>
                         <ZoruCardTitle className="flex items-center gap-2">
-                            <Wand2 className="h-5 w-5 text-zoru-ink" />
+                            <Wand2 className="h-5 w-5 text-[var(--st-text)]" />
                             Builder Configuration
                         </ZoruCardTitle>
                         <ZoruCardDescription>Customize the content and look of your QR code.</ZoruCardDescription>
@@ -325,7 +325,7 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                         <div className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2 col-span-2 md:col-span-1">
-                                    <Label>QR Code Name <span className="text-zoru-ink">*</span></Label>
+                                    <Label>QR Code Name <span className="text-[var(--st-text)]">*</span></Label>
                                     <Input value={name} onChange={e => setName(e.target.value.slice(0, QR_FIELD_LIMITS.name))} maxLength={QR_FIELD_LIMITS.name} placeholder="e.g. Summer Campaign 2024" />
                                 </div>
                                 <div className="space-y-2 col-span-2 md:col-span-1">
@@ -339,11 +339,11 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                                 </div>
                             </div>
 
-                            <div className="flex items-center space-x-2 border rounded-lg p-3 bg-zoru-surface-2">
+                            <div className="flex items-center space-x-2 border rounded-lg p-3 bg-[var(--st-bg-muted)]">
                                 <Switch id="dynamic-mode" checked={isDynamic} onCheckedChange={setIsDynamic} disabled={dataType !== 'url'} />
                                 <Label htmlFor="dynamic-mode" className="flex-1 cursor-pointer">
                                     <span className="font-semibold block">Dynamic QR Code</span>
-                                    <span className="text-xs text-zoru-ink-muted font-normal">Track scans and update URL later without reprinting. (URL only)</span>
+                                    <span className="text-xs text-[var(--st-text-secondary)] font-normal">Track scans and update URL later without reprinting. (URL only)</span>
                                 </Label>
                             </div>
                         </div>
@@ -360,8 +360,8 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                                         className={cn(
                                             "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all border",
                                             dataType === type.value
-                                                ? "bg-zoru-ink text-white border-zoru-line shadow-md"
-                                                : "bg-white text-zoru-ink border-zoru-line hover:border-zoru-line hover:bg-zoru-surface-2"
+                                                ? "bg-[var(--st-text)] text-white border-[var(--st-border)] shadow-md"
+                                                : "bg-white text-[var(--st-text)] border-[var(--st-border)] hover:border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]"
                                         )}
                                     >
                                         <type.icon className="h-4 w-4" />
@@ -371,7 +371,7 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                             </div>
                         </div>
 
-                        <div className="p-4 bg-zoru-surface-2 rounded-lg border border-zoru-line">
+                        <div className="p-4 bg-[var(--st-bg-muted)] rounded-lg border border-[var(--st-border)]">
                             {dataType === 'url' && (
                                 <div className="space-y-2">
                                     <Label>Website URL</Label>
@@ -469,7 +469,7 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                                                 type="datetime-local"
                                                 value={calStart}
                                                 onChange={e => setCalStart(e.target.value)}
-                                                className="flex h-10 w-full rounded-md border border-zoru-line bg-zoru-surface px-3 py-2 text-sm ring-offset-zoru-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-line focus-visible:ring-offset-2"
+                                                className="flex h-10 w-full rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-sm ring-offset-zoru-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-border)] focus-visible:ring-offset-2"
                                             />
                                         </div>
                                         <div className="space-y-2">
@@ -478,7 +478,7 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                                                 type="datetime-local"
                                                 value={calEnd}
                                                 onChange={e => setCalEnd(e.target.value)}
-                                                className="flex h-10 w-full rounded-md border border-zoru-line bg-zoru-surface px-3 py-2 text-sm ring-offset-zoru-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-line focus-visible:ring-offset-2"
+                                                className="flex h-10 w-full rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-sm ring-offset-zoru-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-border)] focus-visible:ring-offset-2"
                                             />
                                         </div>
                                     </div>
@@ -500,8 +500,8 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                                             className={cn(
                                                 "flex-1 py-2 rounded-md text-sm font-medium border transition-all",
                                                 locationMode === 'address'
-                                                    ? "bg-zoru-ink text-white border-zoru-line"
-                                                    : "bg-white text-zoru-ink border-zoru-line hover:border-zoru-line"
+                                                    ? "bg-[var(--st-text)] text-white border-[var(--st-border)]"
+                                                    : "bg-white text-[var(--st-text)] border-[var(--st-border)] hover:border-[var(--st-border)]"
                                             )}
                                         >
                                             Address
@@ -511,8 +511,8 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                                             className={cn(
                                                 "flex-1 py-2 rounded-md text-sm font-medium border transition-all",
                                                 locationMode === 'latlng'
-                                                    ? "bg-zoru-ink text-white border-zoru-line"
-                                                    : "bg-white text-zoru-ink border-zoru-line hover:border-zoru-line"
+                                                    ? "bg-[var(--st-text)] text-white border-[var(--st-border)]"
+                                                    : "bg-white text-[var(--st-text)] border-[var(--st-border)] hover:border-[var(--st-border)]"
                                             )}
                                         >
                                             Lat / Lng
@@ -551,7 +551,7 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                                         <Label>Android Play Store URL</Label>
                                         <Input value={appAndroidUrl} onChange={e => setAppAndroidUrl(e.target.value)} placeholder="https://play.google.com/store/apps/..." />
                                     </div>
-                                    <p className="text-xs text-zoru-ink-muted bg-zoru-surface-2 border border-zoru-line rounded-md px-3 py-2">
+                                    <p className="text-xs text-[var(--st-text-secondary)] bg-[var(--st-bg-muted)] border border-[var(--st-border)] rounded-md px-3 py-2">
                                         The QR encodes the iOS URL. The landing page detects platform to redirect appropriately.
                                     </p>
                                 </div>
@@ -587,7 +587,7 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                             <div className="flex flex-col sm:flex-row gap-4">
                                 <nav
                                     aria-label="Design customization sections"
-                                    className="sm:w-44 flex-shrink-0 flex sm:flex-col gap-1 p-1 rounded-md border border-zoru-line bg-zoru-surface-2/40 sm:self-start"
+                                    className="sm:w-44 flex-shrink-0 flex sm:flex-col gap-1 p-1 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)]/40 sm:self-start"
                                 >
                                     {[
                                         { id: 'colors' as const, label: 'Colors', icon: Palette },
@@ -604,8 +604,8 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                                                 className={cn(
                                                     'flex items-center gap-2 px-3 py-2 text-[12.5px] rounded-md transition-colors text-left flex-1 sm:flex-none',
                                                     isActive
-                                                        ? 'bg-zoru-bg text-zoru-ink shadow-sm border border-zoru-line'
-                                                        : 'text-zoru-ink-muted hover:bg-zoru-bg hover:text-zoru-ink border border-transparent',
+                                                        ? 'bg-[var(--st-bg)] text-[var(--st-text)] shadow-sm border border-[var(--st-border)]'
+                                                        : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg)] hover:text-[var(--st-text)] border border-transparent',
                                                 )}
                                             >
                                                 <Icon className="h-3.5 w-3.5 flex-shrink-0" />
@@ -620,7 +620,7 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                                     {brandKits.length > 0 && (
                                         <div className="space-y-1.5">
                                             <div className="flex items-center justify-between">
-                                                <Label className="text-[12.5px] text-zoru-ink-muted">Brand Kit</Label>
+                                                <Label className="text-[12.5px] text-[var(--st-text-secondary)]">Brand Kit</Label>
                                                 <Button
                                                     type="button"
                                                     variant="ghost"
@@ -642,7 +642,7 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                                                                 if (kit.logoDataUri) setLogoDataUri(kit.logoDataUri);
                                                                 setShowBrandKits(false);
                                                             }}
-                                                            className="flex items-center gap-1.5 rounded-md border border-zoru-border bg-zoru-ink px-2 py-1 text-[11.5px] text-zoru-ink hover:bg-zoru-ink transition-colors"
+                                                            className="flex items-center gap-1.5 rounded-md border border-[var(--st-border)] bg-[var(--st-text)] px-2 py-1 text-[11.5px] text-[var(--st-text)] hover:bg-[var(--st-text)] transition-colors"
                                                         >
                                                             <span
                                                                 className="h-3 w-3 rounded-sm border border-white/10 flex-shrink-0"
@@ -662,7 +662,7 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                                                 <div className="flex gap-2 items-center">
                                                     <Popover>
                                                         <ZoruPopoverTrigger asChild>
-                                                            <div className="w-10 h-10 rounded border cursor-pointer ring-offset-2 hover:ring-2 ring-zoru-line" style={{ backgroundColor: dotColor }} />
+                                                            <div className="w-10 h-10 rounded border cursor-pointer ring-offset-2 hover:ring-2 ring-[var(--st-border)]" style={{ backgroundColor: dotColor }} />
                                                         </ZoruPopoverTrigger>
                                                         <ZoruPopoverContent className="w-auto p-3"><SketchPicker color={dotColor} onChange={c => setDotColor(c.hex)} disableAlpha /></ZoruPopoverContent>
                                                     </Popover>
@@ -675,7 +675,7 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                                             <div className="flex gap-2 items-center">
                                                 <Popover>
                                                     <ZoruPopoverTrigger asChild>
-                                                        <div className="w-10 h-10 rounded border cursor-pointer ring-offset-2 hover:ring-2 ring-zoru-line" style={{ backgroundColor: bgColor }} />
+                                                        <div className="w-10 h-10 rounded border cursor-pointer ring-offset-2 hover:ring-2 ring-[var(--st-border)]" style={{ backgroundColor: bgColor }} />
                                                     </ZoruPopoverTrigger>
                                                     <ZoruPopoverContent className="w-auto p-3"><SketchPicker color={bgColor} onChange={c => setBgColor(c.hex)} disableAlpha /></ZoruPopoverContent>
                                                 </Popover>
@@ -694,7 +694,7 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                                                 <ZoruSelectItem value="H">High (30%) - Best if adding logo</ZoruSelectItem>
                                             </ZoruSelectContent>
                                         </Select>
-                                        <p className="text-xs text-zoru-ink-muted">Higher correction allowed more damage/logo obstruction.</p>
+                                        <p className="text-xs text-[var(--st-text-secondary)]">Higher correction allowed more damage/logo obstruction.</p>
                                     </div>
                                 </div>
                                 )}
@@ -704,12 +704,12 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                                         <Label>Upload Logo (Center Image)</Label>
                                         <div className="flex items-center gap-4">
                                             {logoDataUri ? (
-                                                <div className="relative group w-20 h-20 border rounded-lg overflow-hidden flex items-center justify-center bg-zoru-surface-2">
+                                                <div className="relative group w-20 h-20 border rounded-lg overflow-hidden flex items-center justify-center bg-[var(--st-bg-muted)]">
                                                     <img src={logoDataUri} className="max-w-full max-h-full object-contain" alt="Logo preview" />
                                                     <button onClick={() => setLogoDataUri(undefined)} className="absolute inset-0 bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">Remove</button>
                                                 </div>
                                             ) : (
-                                                <div className="w-20 h-20 border-2 border-dashed border-zoru-line rounded-lg flex items-center justify-center text-zoru-ink-muted">
+                                                <div className="w-20 h-20 border-2 border-dashed border-[var(--st-border)] rounded-lg flex items-center justify-center text-[var(--st-text-secondary)]">
                                                     No Logo
                                                 </div>
                                             )}
@@ -720,7 +720,7 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                                                 >
                                                     <Upload className="h-4 w-4" /> Choose logo
                                                 </SabFilePickerButton>
-                                                <p className="text-xs text-zoru-ink-muted mt-1">Recommended: Square PNG with transparent background.</p>
+                                                <p className="text-xs text-[var(--st-text-secondary)] mt-1">Recommended: Square PNG with transparent background.</p>
                                             </div>
                                         </div>
                                     </div>
@@ -733,9 +733,9 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                         <div className="border rounded-lg overflow-hidden">
                             <button
                                 onClick={() => setStyleOpen(v => !v)}
-                                className="w-full flex items-center justify-between px-4 py-3 bg-zoru-surface-2 hover:bg-zoru-surface-2 transition-colors text-sm font-medium"
+                                className="w-full flex items-center justify-between px-4 py-3 bg-[var(--st-bg-muted)] hover:bg-[var(--st-bg-muted)] transition-colors text-sm font-medium"
                             >
-                                <span className="flex items-center gap-2"><QrCode className="h-4 w-4 text-zoru-ink" /> Advanced Style</span>
+                                <span className="flex items-center gap-2"><QrCode className="h-4 w-4 text-[var(--st-text)]" /> Advanced Style</span>
                                 {styleOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                             </button>
                             {styleOpen && (
@@ -750,8 +750,8 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                                                     className={cn(
                                                         "px-3 py-1.5 rounded border text-xs font-medium transition-all",
                                                         dotStyle === style.value
-                                                            ? "bg-zoru-ink text-white border-zoru-line"
-                                                            : "bg-white text-zoru-ink border-zoru-line hover:border-zoru-line"
+                                                            ? "bg-[var(--st-text)] text-white border-[var(--st-border)]"
+                                                            : "bg-white text-[var(--st-text)] border-[var(--st-border)] hover:border-[var(--st-border)]"
                                                     )}
                                                 >
                                                     {style.label}
@@ -766,7 +766,7 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                                             <Switch checked={useGradient} onCheckedChange={setUseGradient} />
                                         </div>
                                         {useGradient ? (
-                                            <div className="space-y-3 p-3 bg-zoru-surface-2 rounded-lg">
+                                            <div className="space-y-3 p-3 bg-[var(--st-bg-muted)] rounded-lg">
                                                 <div className="grid grid-cols-2 gap-3">
                                                     <div className="space-y-2">
                                                         <Label className="text-xs">Start Color</Label>
@@ -801,7 +801,7 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                                                         max={360}
                                                         value={gradient.rotation}
                                                         onChange={e => setGradient(g => ({ ...g, rotation: Number(e.target.value) }))}
-                                                        className="w-full accent-zoru-ink"
+                                                        className="w-full accent-[var(--st-text)]"
                                                     />
                                                 </div>
                                             </div>
@@ -814,9 +814,9 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                         <div className="border rounded-lg overflow-hidden">
                             <button
                                 onClick={() => setFrameOpen(v => !v)}
-                                className="w-full flex items-center justify-between px-4 py-3 bg-zoru-surface-2 hover:bg-zoru-surface-2 transition-colors text-sm font-medium"
+                                className="w-full flex items-center justify-between px-4 py-3 bg-[var(--st-bg-muted)] hover:bg-[var(--st-bg-muted)] transition-colors text-sm font-medium"
                             >
-                                <span className="flex items-center gap-2"><Smartphone className="h-4 w-4 text-zoru-ink" /> QR Frame</span>
+                                <span className="flex items-center gap-2"><Smartphone className="h-4 w-4 text-[var(--st-text)]" /> QR Frame</span>
                                 {frameOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                             </button>
                             {frameOpen && (
@@ -831,8 +831,8 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                                                     className={cn(
                                                         "px-3 py-1.5 rounded border text-xs font-medium transition-all",
                                                         frameTemplate === t.value
-                                                            ? "bg-zoru-ink text-white border-zoru-line"
-                                                            : "bg-white text-zoru-ink border-zoru-line hover:border-zoru-line"
+                                                            ? "bg-[var(--st-text)] text-white border-[var(--st-border)]"
+                                                            : "bg-white text-[var(--st-text)] border-[var(--st-border)] hover:border-[var(--st-border)]"
                                                     )}
                                                 >
                                                     {t.label}
@@ -841,7 +841,7 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                                         </div>
                                     </div>
                                     {frameTemplate !== 'none' && (
-                                        <div className="space-y-3 p-3 bg-zoru-surface-2 rounded-lg">
+                                        <div className="space-y-3 p-3 bg-[var(--st-bg-muted)] rounded-lg">
                                             <div className="space-y-2">
                                                 <Label>Frame Text</Label>
                                                 <Input
@@ -888,13 +888,13 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
             </div>
 
             <div className="lg:col-span-5 sticky top-6 space-y-6">
-                <Card className="border-0 shadow-lg ring-1 ring-zoru-line/5 overflow-hidden">
-                    <ZoruCardHeader className="bg-zoru-surface-2/50 pb-4">
+                <Card className="border-0 shadow-lg ring-1 ring-[var(--st-border)]/5 overflow-hidden">
+                    <ZoruCardHeader className="bg-[var(--st-bg-muted)]/50 pb-4">
                         <ZoruCardTitle className="text-center">Live Preview</ZoruCardTitle>
                     </ZoruCardHeader>
-                    <ZoruCardContent className="flex flex-col items-center justify-center py-8 min-h-[350px] bg-zoru-surface-2/50 relative">
-                        <div className="relative bg-white p-6 rounded-[2rem] shadow-xl border-4 border-zoru-line ring-4 ring-zoru-line" ref={qrWrapperRef}>
-                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-4 bg-zoru-ink rounded-b-xl z-10" />
+                    <ZoruCardContent className="flex flex-col items-center justify-center py-8 min-h-[350px] bg-[var(--st-bg-muted)]/50 relative">
+                        <div className="relative bg-white p-6 rounded-[2rem] shadow-xl border-4 border-[var(--st-border)] ring-4 ring-[var(--st-border)]" ref={qrWrapperRef}>
+                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-4 bg-[var(--st-text)] rounded-b-xl z-10" />
                             <QrCodeRenderer
                                 value={qrValue}
                                 size={220}
@@ -904,13 +904,13 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                                 logoDataUri={logoDataUri}
                             />
                         </div>
-                        <p className="text-sm text-zoru-ink-muted mt-6 text-center max-w-[250px] truncate">
+                        <p className="text-sm text-[var(--st-text-secondary)] mt-6 text-center max-w-[250px] truncate">
                             {qrValue || "Enter data to generate"}
                         </p>
                     </ZoruCardContent>
                     <ZoruCardFooter className="flex flex-col gap-3 pt-6 bg-white border-t">
                         <Button
-                            className="w-full h-12 text-lg bg-gradient-to-r from-zoru-ink to-zoru-ink hover:from-zoru-ink hover:to-zoru-ink shadow-lg shadow-zoru-line transition-all hover:scale-[1.02]"
+                            className="w-full h-12 text-lg bg-gradient-to-r from-[var(--st-text)] to-[var(--st-text)] hover:from-[var(--st-text)] hover:to-[var(--st-text)] shadow-lg shadow-zoru-line transition-all hover:scale-[1.02]"
                             onClick={handleSave}
                             disabled={isPending}
                         >
@@ -943,8 +943,8 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                                             key={fmt}
                                             onClick={() => { setDownloadFormat(fmt); setDownloadMenuOpen(false); }}
                                             className={cn(
-                                                "w-full text-left px-4 py-2 text-sm hover:bg-zoru-surface-2 transition-colors",
-                                                downloadFormat === fmt && "bg-zoru-surface-2 text-zoru-ink font-medium"
+                                                "w-full text-left px-4 py-2 text-sm hover:bg-[var(--st-bg-muted)] transition-colors",
+                                                downloadFormat === fmt && "bg-[var(--st-bg-muted)] text-[var(--st-text)] font-medium"
                                             )}
                                         >
                                             {fmt.toUpperCase()}
@@ -956,13 +956,13 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                     </ZoruCardFooter>
                 </Card>
 
-                <Card className="bg-zoru-surface-2 border-zoru-line">
+                <Card className="bg-[var(--st-bg-muted)] border-[var(--st-border)]">
                     <ZoruCardContent className="pt-6">
                         <div className="flex gap-3">
-                            <div className="mt-1 bg-zoru-surface-2 p-2 rounded-full h-fit"><RefreshCw className="h-4 w-4 text-zoru-ink" /></div>
+                            <div className="mt-1 bg-[var(--st-bg-muted)] p-2 rounded-full h-fit"><RefreshCw className="h-4 w-4 text-[var(--st-text)]" /></div>
                             <div>
-                                <h4 className="font-semibold text-zoru-ink">Pro Tip</h4>
-                                <p className="text-sm text-zoru-ink mt-1">
+                                <h4 className="font-semibold text-[var(--st-text)]">Pro Tip</h4>
+                                <p className="text-sm text-[var(--st-text)] mt-1">
                                     Use 'High' error correction if you plan to add a logo or print this on physical materials where it might get damaged.
                                 </p>
                             </div>

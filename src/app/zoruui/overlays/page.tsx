@@ -195,8 +195,8 @@ export default function OverlaysPage() {
   return (
     <div className="mx-auto max-w-6xl px-5 py-8 sm:px-8 lg:py-12">
       <div className="mb-8">
-        <h1 className="text-3xl font-semibold tracking-tight text-zoru-ink capitalize">overlays</h1>
-        <p className="mt-2 text-base text-zoru-ink-muted">Explore overlays components</p>
+        <h1 className="text-3xl font-semibold tracking-tight text-[var(--st-text)] capitalize">overlays</h1>
+        <p className="mt-2 text-base text-[var(--st-text-secondary)]">Explore overlays components</p>
       </div>
       <Section step="Step 3" title="Hero pill + alerts">
 <SnippetDemo code={`
@@ -343,7 +343,7 @@ export default function OverlaysPage() {
                   </ZoruDrawerDescription>
                 </ZoruDrawerHeader>
                 <div className="px-4 pb-2 sm:px-6">
-                  <p className="text-sm text-zoru-ink-muted">
+                  <p className="text-sm text-[var(--st-text-secondary)]">
                     Drawers are perfect for actions that need a moment of focus
                     without leaving the page.
                   </p>
@@ -445,7 +445,7 @@ export default function OverlaysPage() {
                   </ZoruDrawerDescription>
                 </ZoruDrawerHeader>
                 <div className="px-4 pb-2 sm:px-6">
-                  <p className="text-sm text-zoru-ink-muted">
+                  <p className="text-sm text-[var(--st-text-secondary)]">
                     Drawers are perfect for actions that need a moment of focus
                     without leaving the page.
                   </p>
@@ -490,8 +490,8 @@ export default function OverlaysPage() {
                 </Button>
               </ZoruPopoverTrigger>
               <ZoruPopoverContent>
-                <p className="text-sm font-medium text-zoru-ink">Pick a date</p>
-                <p className="mt-1 text-xs text-zoru-ink-muted">
+                <p className="text-sm font-medium text-[var(--st-text)]">Pick a date</p>
+                <p className="mt-1 text-xs text-[var(--st-text-secondary)]">
                   Calendar primitives ship in step 5.
                 </p>
               </ZoruPopoverContent>
@@ -558,8 +558,8 @@ export default function OverlaysPage() {
                 </Button>
               </ZoruPopoverTrigger>
               <ZoruPopoverContent>
-                <p className="text-sm font-medium text-zoru-ink">Pick a date</p>
-                <p className="mt-1 text-xs text-zoru-ink-muted">
+                <p className="text-sm font-medium text-[var(--st-text)]">Pick a date</p>
+                <p className="mt-1 text-xs text-[var(--st-text-secondary)]">
                   Calendar primitives ship in step 5.
                 </p>
               </ZoruPopoverContent>

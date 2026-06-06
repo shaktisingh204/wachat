@@ -53,10 +53,10 @@ export interface EntityRelatedRailProps<TKey extends string = string> {
 }
 
 const TONE_CLASS: Record<NonNullable<EntityRelatedRailItem['tone']>, string> = {
-  default: 'text-zoru-ink-muted',
-  success: 'text-zoru-success',
-  warning: 'text-zoru-warning',
-  danger: 'text-zoru-danger',
+  default: 'text-[var(--st-text-secondary)]',
+  success: 'text-[var(--st-status-ok)]',
+  warning: 'text-[var(--st-warn)]',
+  danger: 'text-[var(--st-danger)]',
 };
 
 export function EntityRelatedRail<TKey extends string = string>({
@@ -92,7 +92,7 @@ export function EntityRelatedRail<TKey extends string = string>({
 
   return (
     <Card className={`p-4 ${className ?? ''}`}>
-      <h3 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+      <h3 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
         {title}
       </h3>
       <ul className="space-y-1.5 text-[12.5px]">
@@ -101,9 +101,9 @@ export function EntityRelatedRail<TKey extends string = string>({
           const tone = TONE_CLASS[item.tone ?? 'default'];
           const body = (
             <>
-              <span className="inline-flex items-center gap-1.5 text-zoru-ink">
+              <span className="inline-flex items-center gap-1.5 text-[var(--st-text)]">
                 {item.icon ? (
-                  <span className="text-zoru-ink-muted">{item.icon}</span>
+                  <span className="text-[var(--st-text-secondary)]">{item.icon}</span>
                 ) : null}
                 {item.label}
               </span>
@@ -115,12 +115,12 @@ export function EntityRelatedRail<TKey extends string = string>({
               {item.href ? (
                 <Link
                   href={item.href}
-                  className="flex items-center justify-between gap-2 rounded px-1.5 py-1 text-zoru-ink hover:bg-zoru-surface-2"
+                  className="flex items-center justify-between gap-2 rounded px-1.5 py-1 text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
                 >
                   {body}
                 </Link>
               ) : (
-                <div className="flex items-center justify-between gap-2 rounded px-1.5 py-1 text-zoru-ink">
+                <div className="flex items-center justify-between gap-2 rounded px-1.5 py-1 text-[var(--st-text)]">
                   {body}
                 </div>
               )}

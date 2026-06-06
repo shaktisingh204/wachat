@@ -62,12 +62,12 @@ interface KpiCardProps {
 function KpiCard({ label, value, active, onClick, tone = 'neutral' }: KpiCardProps) {
   const toneClass =
     tone === 'green'
-      ? 'border-zoru-line/30 bg-zoru-ink/10 text-zoru-ink dark:text-zoru-ink-muted'
+      ? 'border-[var(--st-border)]/30 bg-[var(--st-text)]/10 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]'
       : tone === 'amber'
-        ? 'border-zoru-line/30 bg-zoru-ink/10 text-zoru-ink dark:text-zoru-ink-muted'
+        ? 'border-[var(--st-border)]/30 bg-[var(--st-text)]/10 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]'
         : tone === 'red'
-          ? 'border-zoru-line/30 bg-zoru-ink/10 text-zoru-ink dark:text-zoru-ink-muted'
-          : 'border-zoru-line bg-zoru-surface-2 text-zoru-ink-muted';
+          ? 'border-[var(--st-border)]/30 bg-[var(--st-text)]/10 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]'
+          : 'border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]';
 
   return (
     <button
@@ -76,7 +76,7 @@ function KpiCard({ label, value, active, onClick, tone = 'neutral' }: KpiCardPro
       className={[
         'flex flex-col gap-0.5 rounded-[var(--zoru-radius)] border px-4 py-3 text-left transition-all',
         toneClass,
-        active ? 'ring-2 ring-zoru-brand ring-offset-1' : 'hover:opacity-80',
+        active ? 'ring-2 ring-[var(--st-accent)] ring-offset-1' : 'hover:opacity-80',
       ].join(' ')}
     >
       <span className="text-xl font-semibold tabular-nums">{value}</span>
@@ -492,15 +492,15 @@ export function ContractListClient({
                   <CalendarRange className="h-3.5 w-3.5" /> Effective range
                 </Button>
               </summary>
-              <div className="absolute left-0 z-20 mt-2 grid w-[260px] gap-2 rounded-md border border-zoru-line bg-zoru-surface p-3 shadow-md">
-                <label className="text-[11px] text-zoru-ink-muted">From</label>
+              <div className="absolute left-0 z-20 mt-2 grid w-[260px] gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 shadow-md">
+                <label className="text-[11px] text-[var(--st-text-secondary)]">From</label>
                 <Input
                   type="date"
                   value={effectiveFrom}
                   onChange={(e) => updateFilter('eff_from', e.target.value)}
                   className="h-8 text-[12.5px]"
                 />
-                <label className="text-[11px] text-zoru-ink-muted">To</label>
+                <label className="text-[11px] text-[var(--st-text-secondary)]">To</label>
                 <Input
                   type="date"
                   value={effectiveTo}
@@ -515,15 +515,15 @@ export function ContractListClient({
                   <CalendarRange className="h-3.5 w-3.5" /> Expiry range
                 </Button>
               </summary>
-              <div className="absolute left-0 z-20 mt-2 grid w-[260px] gap-2 rounded-md border border-zoru-line bg-zoru-surface p-3 shadow-md">
-                <label className="text-[11px] text-zoru-ink-muted">From</label>
+              <div className="absolute left-0 z-20 mt-2 grid w-[260px] gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 shadow-md">
+                <label className="text-[11px] text-[var(--st-text-secondary)]">From</label>
                 <Input
                   type="date"
                   value={expiryFrom}
                   onChange={(e) => updateFilter('exp_from', e.target.value)}
                   className="h-8 text-[12.5px]"
                 />
-                <label className="text-[11px] text-zoru-ink-muted">To</label>
+                <label className="text-[11px] text-[var(--st-text-secondary)]">To</label>
                 <Input
                   type="date"
                   value={expiryTo}
@@ -538,8 +538,8 @@ export function ContractListClient({
                   Value range
                 </Button>
               </summary>
-              <div className="absolute left-0 z-20 mt-2 grid w-[220px] gap-2 rounded-md border border-zoru-line bg-zoru-surface p-3 shadow-md">
-                <label className="text-[11px] text-zoru-ink-muted">Min value</label>
+              <div className="absolute left-0 z-20 mt-2 grid w-[220px] gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 shadow-md">
+                <label className="text-[11px] text-[var(--st-text-secondary)]">Min value</label>
                 <Input
                   type="number"
                   min="0"
@@ -549,7 +549,7 @@ export function ContractListClient({
                   placeholder="0"
                   className="h-8 text-[12.5px]"
                 />
-                <label className="text-[11px] text-zoru-ink-muted">Max value</label>
+                <label className="text-[11px] text-[var(--st-text-secondary)]">Max value</label>
                 <Input
                   type="number"
                   min="0"
@@ -571,7 +571,7 @@ export function ContractListClient({
         bulkBar={
           selected.size > 0 ? (
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[12.5px] text-zoru-ink">
+              <span className="text-[12.5px] text-[var(--st-text)]">
                 {selected.size} selected
               </span>
               <Select onValueChange={(v) => bulkStatus(v as ContractStatusV2)}>
@@ -615,9 +615,9 @@ export function ContractListClient({
         empty={
           filtered.length === 0 && !filtersActive && !query ? (
             <div className="flex flex-col items-center gap-3 p-4">
-              <FileSignature className="h-8 w-8 text-zoru-ink-muted" />
-              <h3 className="text-base font-medium text-zoru-ink">No contracts yet</h3>
-              <p className="max-w-sm text-sm text-zoru-ink-muted">
+              <FileSignature className="h-8 w-8 text-[var(--st-text-secondary)]" />
+              <h3 className="text-base font-medium text-[var(--st-text)]">No contracts yet</h3>
+              <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                 Draft your first contract to start tracking signatures and renewals.
               </p>
               <Button asChild>
@@ -650,7 +650,7 @@ export function ContractListClient({
           </div>
 
           {error ? (
-            <div className="rounded border border-zoru-line/40 bg-zoru-ink/10 px-3 py-2 text-[12.5px] text-zoru-ink dark:text-zoru-ink-muted">
+            <div className="rounded border border-[var(--st-border)]/40 bg-[var(--st-text)]/10 px-3 py-2 text-[12.5px] text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
               {error}
             </div>
           ) : null}
@@ -680,7 +680,7 @@ export function ContractListClient({
                   <TableRow>
                     <TableCell
                       colSpan={8}
-                      className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                      className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                     >
                       {filtersActive || query
                         ? 'No contracts match these filters.'
@@ -710,10 +710,10 @@ export function ContractListClient({
                             subtitle={c.contractNo || undefined}
                           />
                         </TableCell>
-                        <TableCell className="text-[12.5px] text-zoru-ink">
+                        <TableCell className="text-[12.5px] text-[var(--st-text)]">
                           {c.partyName || '—'}
                         </TableCell>
-                        <TableCell className="text-[12.5px] text-zoru-ink-muted">
+                        <TableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                           {c.type
                             ? c.type.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())
                             : '—'}
@@ -724,13 +724,13 @@ export function ContractListClient({
                             tone={statusToTone(c.status)}
                           />
                         </TableCell>
-                        <TableCell className="text-[12.5px] text-zoru-ink-muted">
+                        <TableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                           {fmtDate(c.effectiveDate)}
                         </TableCell>
-                        <TableCell className="text-[12.5px] text-zoru-ink-muted">
+                        <TableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                           {fmtDate(c.expiryDate)}
                         </TableCell>
-                        <TableCell className="text-right text-[12.5px] tabular-nums text-zoru-ink">
+                        <TableCell className="text-right text-[12.5px] tabular-nums text-[var(--st-text)]">
                           {fmtMoney(c.value, c.currency)}
                         </TableCell>
                       </TableRow>

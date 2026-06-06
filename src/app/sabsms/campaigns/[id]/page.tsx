@@ -41,7 +41,7 @@ async function SabsmsCampaignDetailPageContent({ params }: PageProps) {
         ]}
         description="Sign in to view this campaign."
       >
-        <p className="text-sm text-zoru-ink-muted">No session.</p>
+        <p className="text-sm text-[var(--st-text-secondary)]">No session.</p>
       </SabsmsPageShell>
     );
   }
@@ -74,7 +74,7 @@ async function SabsmsCampaignDetailPageContent({ params }: PageProps) {
       helpBody={
         <>
           Every chart reads directly from{" "}
-          <code className="rounded bg-zoru-surface-2 px-1">
+          <code className="rounded bg-[var(--st-bg-muted)] px-1">
             sabsms_messages
           </code>{" "}
           + friends (no precomputed views). Pause / resume / cancel

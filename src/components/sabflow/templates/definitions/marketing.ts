@@ -28,9 +28,9 @@ export const productRecommendationTemplate: TemplateDefinition = {
   name: 'Product Recommendation',
   description: 'Asks preferences and recommends products with branching logic.',
   emoji: '🎁',
-  color: 'text-zoru-ink',
+  color: 'text-[var(--st-text)]',
   bgColor:
-    'bg-zoru-surface-2 dark:bg-zoru-ink/30 border-zoru-line dark:border-zoru-line',
+    'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 border-[var(--st-border)] dark:border-[var(--st-border)]',
   icon: LuGift,
   category: 'E-commerce',
   build: () => {
@@ -112,9 +112,9 @@ export const newsletterSignupTemplate: TemplateDefinition = {
   name: 'Newsletter Signup',
   description: 'Email capture with interest selection and welcome message.',
   emoji: '📰',
-  color: 'text-zoru-ink',
+  color: 'text-[var(--st-text)]',
   bgColor:
-    'bg-zoru-surface-2 dark:bg-zoru-ink/30 border-zoru-line dark:border-zoru-line',
+    'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 border-[var(--st-border)] dark:border-[var(--st-border)]',
   icon: LuNewspaper,
   category: 'Marketing',
   build: () => {
@@ -189,9 +189,9 @@ export const customerOnboardingTemplate: TemplateDefinition = {
   name: 'Customer Onboarding',
   description: 'New customer welcome flow with preferences setup.',
   emoji: '🚀',
-  color: 'text-zoru-ink',
+  color: 'text-[var(--st-text)]',
   bgColor:
-    'bg-zoru-surface-2 dark:bg-zoru-ink/30 border-zoru-line dark:border-zoru-line',
+    'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 border-[var(--st-border)] dark:border-[var(--st-border)]',
   icon: LuRocket,
   category: 'Sales',
   build: () => {
@@ -272,9 +272,9 @@ export const saasDemoRequestTemplate: TemplateDefinition = {
   name: 'SaaS Demo Request',
   description: 'Qualify leads with company size and use case questions.',
   emoji: '📝',
-  color: 'text-zoru-ink',
+  color: 'text-[var(--st-text)]',
   bgColor:
-    'bg-zoru-surface-2 dark:bg-zoru-ink/30 border-zoru-line dark:border-zoru-line',
+    'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 border-[var(--st-border)] dark:border-[var(--st-border)]',
   icon: LuClipboardList,
   category: 'Sales',
   build: () => {
@@ -371,9 +371,9 @@ export const mortgageCalculatorTemplate: TemplateDefinition = {
   name: 'Mortgage Calculator',
   description: 'Collects income, loan amount, then calculates estimated payment.',
   emoji: '🏠',
-  color: 'text-zoru-ink',
+  color: 'text-[var(--st-text)]',
   bgColor:
-    'bg-zoru-surface-2 dark:bg-zoru-ink/30 border-zoru-line dark:border-zoru-line',
+    'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 border-[var(--st-border)] dark:border-[var(--st-border)]',
   icon: LuHouse,
   category: 'Sales',
   build: () => {

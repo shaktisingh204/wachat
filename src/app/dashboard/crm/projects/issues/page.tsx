@@ -280,8 +280,8 @@ export default function ProjectIssuesPage() {
       className={[
         'inline-flex items-center gap-1 rounded-sm px-2 py-1 text-[12px]',
         view === mode
-          ? 'bg-zoru-surface text-zoru-ink'
-          : 'text-zoru-ink-muted hover:text-zoru-ink',
+          ? 'bg-[var(--st-bg-secondary)] text-[var(--st-text)]'
+          : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
       ].join(' ')}
     >
       <Icon className="h-3.5 w-3.5" />
@@ -295,7 +295,7 @@ export default function ProjectIssuesPage() {
         title="Issues"
         subtitle="Bugs, blockers, and incidents tracked against your projects."
         viewSwitcher={
-          <div className="inline-flex rounded-md border border-zoru-line p-0.5">
+          <div className="inline-flex rounded-md border border-[var(--st-border)] p-0.5">
             {viewBtn('table', 'Table', List)}
             {viewBtn('kanban', 'Kanban', LayoutGrid)}
           </div>
@@ -319,15 +319,15 @@ export default function ProjectIssuesPage() {
         }
         bulkBar={
           selection.size > 0 ? (
-            <div className="flex items-center gap-2 rounded-md bg-zoru-surface-2 px-3 py-2 text-[13px]">
-              <span className="font-medium text-zoru-ink">{selection.size} selected</span>
+            <div className="flex items-center gap-2 rounded-md bg-[var(--st-bg-muted)] px-3 py-2 text-[13px]">
+              <span className="font-medium text-[var(--st-text)]">{selection.size} selected</span>
               <Button variant="outline" size="sm" onClick={() => setConfirmBulk('close')} disabled={bulkPending}>
                 <CheckCircle2 className="mr-1 h-3.5 w-3.5" /> Close
               </Button>
               <Button variant="outline" size="sm" onClick={handleExport}>
                 <Download className="mr-1 h-3.5 w-3.5" /> Export
               </Button>
-              <Button variant="outline" size="sm" className="text-zoru-danger" onClick={() => setConfirmBulk('delete')} disabled={bulkPending}>
+              <Button variant="outline" size="sm" className="text-[var(--st-danger)]" onClick={() => setConfirmBulk('delete')} disabled={bulkPending}>
                 <Trash2 className="mr-1 h-3.5 w-3.5" /> Delete
               </Button>
               <Button variant="ghost" size="icon" onClick={() => setSelection(new Set())}>
@@ -388,9 +388,9 @@ export default function ProjectIssuesPage() {
         empty={
           !loading && filtered.length === 0 ? (
             <div className="flex flex-col items-center gap-3 p-4">
-              <Bug className="h-8 w-8 text-zoru-ink-muted" />
-              <h3 className="text-base font-medium text-zoru-ink">No issues yet</h3>
-              <p className="max-w-sm text-sm text-zoru-ink-muted">
+              <Bug className="h-8 w-8 text-[var(--st-text-secondary)]" />
+              <h3 className="text-base font-medium text-[var(--st-text)]">No issues yet</h3>
+              <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                 Track bugs, blockers, and incidents against your projects.
               </p>
               <Button asChild>
@@ -504,16 +504,16 @@ function IssuesTable({
 
   if (rows.length === 0) {
     return (
-      <div className="rounded-lg border border-zoru-line p-6 text-center text-[13px] text-zoru-ink-muted">
+      <div className="rounded-lg border border-[var(--st-border)] p-6 text-center text-[13px] text-[var(--st-text-secondary)]">
         No issues match the current filters.
       </div>
     );
   }
   return (
-    <div className="overflow-x-auto rounded-lg border border-zoru-line">
+    <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
       <Table>
         <TableHeader>
-          <TableRow className="border-zoru-line hover:bg-transparent">
+          <TableRow className="border-[var(--st-border)] hover:bg-transparent">
             <TableHead className="w-10">
               <Checkbox
                 checked={allChecked || (someChecked ? 'indeterminate' : false)}
@@ -535,7 +535,7 @@ function IssuesTable({
           {rows.map((r) => {
             const priorityLower = (r.priority ?? 'medium').toLowerCase();
             return (
-              <TableRow key={r._id} className="border-zoru-line transition-colors">
+              <TableRow key={r._id} className="border-[var(--st-border)] transition-colors">
                 <TableCell>
                   <Checkbox
                     checked={selection.has(r._id)}
@@ -558,7 +558,7 @@ function IssuesTable({
                       fallback="—"
                     />
                   ) : (
-                    <span className="text-[12px] text-zoru-ink-muted">—</span>
+                    <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
                   )}
                 </TableCell>
                 <TableCell>
@@ -575,7 +575,7 @@ function IssuesTable({
                       fallback={r.reporterName || '—'}
                     />
                   ) : (
-                    <span className="text-[12px] text-zoru-ink-muted">
+                    <span className="text-[12px] text-[var(--st-text-secondary)]">
                       {r.reporterName || '—'}
                     </span>
                   )}
@@ -588,7 +588,7 @@ function IssuesTable({
                       fallback={r.assigneeName || '—'}
                     />
                   ) : (
-                    <span className="text-[12px] text-zoru-ink-muted">
+                    <span className="text-[12px] text-[var(--st-text-secondary)]">
                       {r.assigneeName || 'Unassigned'}
                     </span>
                   )}
@@ -596,7 +596,7 @@ function IssuesTable({
                 <TableCell>
                   <StatusPill label={r.status} tone={statusToTone(r.status)} />
                 </TableCell>
-                <TableCell className="text-[12.5px] text-zoru-ink-muted">
+                <TableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                   {fmtDate(r.createdAt)}
                 </TableCell>
                 <TableCell className="text-right">
@@ -605,7 +605,7 @@ function IssuesTable({
                       <button
                         type="button"
                         aria-label={`Actions for ${r.title}`}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-md text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-md text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
                       >
                         <MoreHorizontal className="h-4 w-4" />
                       </button>
@@ -623,7 +623,7 @@ function IssuesTable({
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => onDelete(r._id)}
-                        className="text-zoru-danger"
+                        className="text-[var(--st-danger)]"
                       >
                         <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Delete
                       </DropdownMenuItem>
@@ -662,7 +662,7 @@ function IssuesKanban({ rows }: { rows: Row[] }) {
             className="flex w-[280px] shrink-0 flex-col gap-2"
           >
             <header className="flex items-center justify-between px-2 py-1.5">
-              <span className="text-[12px] font-medium uppercase tracking-wider text-zoru-ink-muted">
+              <span className="text-[12px] font-medium uppercase tracking-wider text-[var(--st-text-secondary)]">
                 {stage.label}
               </span>
               <Badge variant="secondary">{cards.length}</Badge>
@@ -674,9 +674,9 @@ function IssuesKanban({ rows }: { rows: Row[] }) {
                   <Link
                     key={r._id}
                     href={`/dashboard/crm/projects/issues/${r._id}`}
-                    className="block rounded-md border border-zoru-line bg-zoru-surface p-3 text-[13px] transition hover:border-zoru-primary"
+                    className="block rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 text-[13px] transition hover:border-[var(--st-text)]"
                   >
-                    <p className="font-medium text-zoru-ink">{r.title}</p>
+                    <p className="font-medium text-[var(--st-text)]">{r.title}</p>
                     <div className="mt-2 flex items-center justify-between gap-2">
                       {r.priority ? (
                         <StatusPill
@@ -686,7 +686,7 @@ function IssuesKanban({ rows }: { rows: Row[] }) {
                       ) : (
                         <span />
                       )}
-                      <span className="text-[11.5px] text-zoru-ink-muted">
+                      <span className="text-[11.5px] text-[var(--st-text-secondary)]">
                         {fmtDate(r.createdAt)}
                       </span>
                     </div>
@@ -694,7 +694,7 @@ function IssuesKanban({ rows }: { rows: Row[] }) {
                 );
               })}
               {cards.length === 0 ? (
-                <p className="rounded-md border border-dashed border-zoru-line p-3 text-center text-[11.5px] text-zoru-ink-muted">
+                <p className="rounded-md border border-dashed border-[var(--st-border)] p-3 text-center text-[11.5px] text-[var(--st-text-secondary)]">
                   No issues
                 </p>
               ) : null}

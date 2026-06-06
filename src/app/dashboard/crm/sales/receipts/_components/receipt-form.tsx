@@ -434,13 +434,13 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
 
             {/* ─── Header ─────────────────────────────────────────── */}
             <Card className="p-6">
-                <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                     Receipt
                 </h3>
                 <div className="grid gap-4 md:grid-cols-2">
                     <div>
                         <Label htmlFor="receiptNo">
-                            Receipt # <span className="text-zoru-danger-ink">*</span>
+                            Receipt # <span className="text-[var(--st-danger)]">*</span>
                         </Label>
                         <Input
                             id="receiptNo"
@@ -453,7 +453,7 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
                     </div>
                     <div>
                         <Label htmlFor="date">
-                            Date <span className="text-zoru-danger-ink">*</span>
+                            Date <span className="text-[var(--st-danger)]">*</span>
                         </Label>
                         <Input
                             id="date"
@@ -466,7 +466,7 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
                     </div>
                     <div>
                         <Label>
-                            Customer <span className="text-zoru-danger-ink">*</span>
+                            Customer <span className="text-[var(--st-danger)]">*</span>
                         </Label>
                         <div className="mt-1.5">
                             <EntityFormField
@@ -479,7 +479,7 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
                             />
                         </div>
                         {editing ? (
-                            <p className="mt-1 text-[11.5px] text-zoru-ink-muted">
+                            <p className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">
                                 Customer is locked after creation. Void and recreate the
                                 receipt if it must be reassigned.
                             </p>
@@ -524,7 +524,7 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
 
             {/* ─── Mode-specific reference fields ────────────────── */}
             <Card className="p-6">
-                <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                     Reference
                 </h3>
                 <div className="grid gap-4 md:grid-cols-2">
@@ -597,7 +597,7 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
                                         onChange={handleFileUpload}
                                         className="text-[13px] h-10"
                                     />
-                                    {isOcrLoading && <LoaderCircle className="h-5 w-5 mt-2.5 animate-spin text-zoru-primary" />}
+                                    {isOcrLoading && <LoaderCircle className="h-5 w-5 mt-2.5 animate-spin text-[var(--st-text)]" />}
                                     {receiptUrl && !isOcrLoading && (
                                         <Button
                                             type="button"
@@ -644,20 +644,20 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
 
             {/* ─── Apply to invoices / Outstanding Invoice Allocator ───────────────────────────── */}
             <Card className="p-6">
-                <div className="mb-6 flex items-center justify-between border-b border-zoru-line pb-4">
+                <div className="mb-6 flex items-center justify-between border-b border-[var(--st-border)] pb-4">
                     <div className="flex items-center gap-2">
-                        <Coins className="h-5 w-5 text-zoru-ink-muted" />
+                        <Coins className="h-5 w-5 text-[var(--st-text-secondary)]" />
                         <div>
-                            <h3 className="text-[14px] font-bold text-zoru-ink">
+                            <h3 className="text-[14px] font-bold text-[var(--st-text)]">
                                 Outstanding Invoice Allocator
                             </h3>
-                            <p className="text-[11.5px] text-zoru-ink-muted">
+                            <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                                 Apply lump-sums across open accounts using FIFO, Equal water-filling, or interactive sliders.
                             </p>
                         </div>
                     </div>
                     {editing && (
-                        <span className="rounded bg-zoru-surface-3 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-zoru-ink-muted">
+                        <span className="rounded bg-[var(--st-bg-muted)] px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--st-text-secondary)]">
                             Locked (Read Only)
                         </span>
                     )}
@@ -665,25 +665,25 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
 
                 {!clientId ? (
                     <div className="flex flex-col items-center justify-center py-10 text-center">
-                        <AlertCircle className="mb-2 h-8 w-8 text-zoru-ink-muted animate-pulse" />
-                        <p className="text-[13px] font-medium text-zoru-ink-muted">
+                        <AlertCircle className="mb-2 h-8 w-8 text-[var(--st-text-secondary)] animate-pulse" />
+                        <p className="text-[13px] font-medium text-[var(--st-text-secondary)]">
                             Select a customer above to load outstanding balance statements.
                         </p>
                     </div>
                 ) : invoicesLoading ? (
                     <div className="flex flex-col items-center justify-center py-10 text-center">
-                        <LoaderCircle className="mb-2 h-8 w-8 animate-spin text-zoru-ink-muted" />
-                        <p className="text-[13px] font-medium text-zoru-ink-muted">
+                        <LoaderCircle className="mb-2 h-8 w-8 animate-spin text-[var(--st-text-secondary)]" />
+                        <p className="text-[13px] font-medium text-[var(--st-text-secondary)]">
                             Loading unpaid customer statements & ledger balances…
                         </p>
                     </div>
                 ) : openInvoices.length === 0 && !editing ? (
-                    <div className="rounded-lg border border-zoru-line/20 bg-zoru-ink/5 p-5 text-center">
-                        <CheckCircle2 className="mx-auto mb-2 h-8 w-8 text-zoru-ink" />
-                        <h4 className="text-[14px] font-semibold text-zoru-ink dark:text-zoru-ink-muted">
+                    <div className="rounded-lg border border-[var(--st-border)]/20 bg-[var(--st-text)]/5 p-5 text-center">
+                        <CheckCircle2 className="mx-auto mb-2 h-8 w-8 text-[var(--st-text)]" />
+                        <h4 className="text-[14px] font-semibold text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
                             No Outstanding Balances Found
                         </h4>
-                        <p className="mx-auto mt-1 max-w-md text-[12px] text-zoru-ink dark:text-zoru-ink-muted">
+                        <p className="mx-auto mt-1 max-w-md text-[12px] text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
                             This customer has fully paid all invoices. The entire amount received will sit as an unapplied advance payment on their ledger.
                         </p>
                         <div className="mt-4 flex justify-center">
@@ -692,7 +692,7 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
                                     type="checkbox"
                                     checked={excessAsAdvance}
                                     onChange={(e) => setExcessAsAdvance(e.target.checked)}
-                                    className="h-4 w-4 rounded border-zoru-line text-zoru-ink focus:ring-zoru-line"
+                                    className="h-4 w-4 rounded border-[var(--st-border)] text-[var(--st-text)] focus:ring-[var(--st-border)]"
                                 />
                                 Auto-treat full amount as customer advance
                             </Label>
@@ -704,13 +704,13 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
                         {!editing ? (
                             <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
                                 {/* Left Panel: Control center */}
-                                <div className="space-y-5 rounded-lg border border-zoru-line bg-zoru-surface-2 p-4">
+                                <div className="space-y-5 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4">
                                     <div className="space-y-1.5">
-                                        <Label htmlFor="amountReceivedOverride" className="text-[12px] font-semibold text-zoru-ink">
+                                        <Label htmlFor="amountReceivedOverride" className="text-[12px] font-semibold text-[var(--st-text)]">
                                             Lump-Sum Amount Received
                                         </Label>
                                         <div className="relative">
-                                            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[12.5px] font-bold text-zoru-ink-muted">
+                                            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[12.5px] font-bold text-[var(--st-text-secondary)]">
                                                 {currency}
                                             </span>
                                             <Input
@@ -728,17 +728,17 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
 
                                     {/* Distribution Mode Toggles */}
                                     <div className="space-y-2">
-                                        <Label className="text-[12px] font-semibold text-zoru-ink">
+                                        <Label className="text-[12px] font-semibold text-[var(--st-text)]">
                                             Distribution Split Mode
                                         </Label>
-                                        <div className="grid grid-cols-3 gap-1 rounded-md border border-zoru-line bg-zoru-surface-3 p-1">
+                                        <div className="grid grid-cols-3 gap-1 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-1">
                                             <button
                                                 type="button"
                                                 onClick={() => setDistributeMode('manual')}
                                                 className={`rounded px-1.5 py-1 text-[11px] font-medium transition-all ${
                                                     distributeMode === 'manual'
-                                                        ? 'bg-zoru-surface-1 text-zoru-ink shadow-sm font-semibold'
-                                                        : 'text-zoru-ink-muted hover:text-zoru-ink'
+                                                        ? 'bg-[var(--st-bg-secondary)] text-[var(--st-text)] shadow-sm font-semibold'
+                                                        : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]'
                                                 }`}
                                             >
                                                 Manual
@@ -753,8 +753,8 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
                                                 }}
                                                 className={`flex items-center justify-center gap-0.5 rounded px-1.5 py-1 text-[11px] font-medium transition-all ${
                                                     distributeMode === 'fifo'
-                                                        ? 'bg-zoru-surface-1 text-zoru-ink dark:text-zoru-ink-muted shadow-sm font-semibold'
-                                                        : 'text-zoru-ink-muted hover:text-zoru-ink'
+                                                        ? 'bg-[var(--st-bg-secondary)] text-[var(--st-text)] dark:text-[var(--st-text-secondary)] shadow-sm font-semibold'
+                                                        : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]'
                                                 }`}
                                             >
                                                 <Sparkles className="h-3 w-3" /> FIFO
@@ -769,8 +769,8 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
                                                 }}
                                                 className={`flex items-center justify-center gap-0.5 rounded px-1.5 py-1 text-[11px] font-medium transition-all ${
                                                     distributeMode === 'equal'
-                                                        ? 'bg-zoru-surface-1 text-zoru-ink dark:text-zoru-ink-muted shadow-sm font-semibold'
-                                                        : 'text-zoru-ink-muted hover:text-zoru-ink'
+                                                        ? 'bg-[var(--st-bg-secondary)] text-[var(--st-text)] dark:text-[var(--st-text-secondary)] shadow-sm font-semibold'
+                                                        : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]'
                                                 }`}
                                             >
                                                 <Scale className="h-3 w-3" /> Equal
@@ -779,10 +779,10 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
                                     </div>
 
                                     {/* Real-time split calculations */}
-                                    <div className="space-y-2 border-t border-zoru-line pt-3 text-[12px]">
+                                    <div className="space-y-2 border-t border-[var(--st-border)] pt-3 text-[12px]">
                                         <div className="flex justify-between font-medium">
-                                            <span className="text-zoru-ink-muted">Total Outstanding:</span>
-                                            <span className="font-bold text-zoru-ink">
+                                            <span className="text-[var(--st-text-secondary)]">Total Outstanding:</span>
+                                            <span className="font-bold text-[var(--st-text)]">
                                                 {fmtMoney(
                                                     openInvoices.reduce((sum, inv) => sum + inv.balance, 0),
                                                     currency
@@ -791,26 +791,26 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
                                         </div>
 
                                         <div className="flex justify-between font-medium">
-                                            <span className="text-zoru-ink-muted">Cash Received:</span>
-                                            <span className="font-bold text-zoru-ink">
+                                            <span className="text-[var(--st-text-secondary)]">Cash Received:</span>
+                                            <span className="font-bold text-[var(--st-text)]">
                                                 {fmtMoney(totalAmount, currency)}
                                             </span>
                                         </div>
 
                                         <div className="flex justify-between font-medium">
-                                            <span className="text-zoru-ink-muted">Applied to Invoices:</span>
-                                            <span className="font-bold text-zoru-ink dark:text-zoru-ink-muted">
+                                            <span className="text-[var(--st-text-secondary)]">Applied to Invoices:</span>
+                                            <span className="font-bold text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
                                                 {fmtMoney(totalSettled, currency)}
                                             </span>
                                         </div>
 
-                                        <div className="flex justify-between font-medium border-t border-dashed border-zoru-line pt-2">
-                                            <span className="text-zoru-ink-muted">Remaining (Advance):</span>
+                                        <div className="flex justify-between font-medium border-t border-dashed border-[var(--st-border)] pt-2">
+                                            <span className="text-[var(--st-text-secondary)]">Remaining (Advance):</span>
                                             <span
                                                 className={`font-extrabold ${
                                                     Math.max(0, totalAmount - totalSettled) > 0
-                                                        ? 'text-zoru-ink dark:text-zoru-ink-muted'
-                                                        : 'text-zoru-ink-muted'
+                                                        ? 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]'
+                                                        : 'text-[var(--st-text-secondary)]'
                                                 }`}
                                             >
                                                 {fmtMoney(Math.max(0, totalAmount - totalSettled), currency)}
@@ -820,7 +820,7 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
 
                                     {/* Mini allocation progress bar */}
                                     <div className="space-y-1">
-                                        <div className="flex justify-between text-[10.5px] font-semibold text-zoru-ink-muted">
+                                        <div className="flex justify-between text-[10.5px] font-semibold text-[var(--st-text-secondary)]">
                                             <span>Allocation Rate</span>
                                             <span>
                                                 {totalAmount > 0
@@ -829,9 +829,9 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
                                                 %
                                             </span>
                                         </div>
-                                        <div className="h-1.5 w-full rounded-full bg-zoru-surface-3 overflow-hidden">
+                                        <div className="h-1.5 w-full rounded-full bg-[var(--st-bg-muted)] overflow-hidden">
                                             <div
-                                                className="h-full bg-zoru-ink transition-all duration-300"
+                                                className="h-full bg-[var(--st-text)] transition-all duration-300"
                                                 style={{
                                                     width: `${
                                                         totalAmount > 0
@@ -843,13 +843,13 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
                                         </div>
                                     </div>
 
-                                    <div className="border-t border-zoru-line pt-3">
-                                        <label className="flex items-start gap-2 text-[11.5px] leading-relaxed text-zoru-ink-muted hover:text-zoru-ink cursor-pointer">
+                                    <div className="border-t border-[var(--st-border)] pt-3">
+                                        <label className="flex items-start gap-2 text-[11.5px] leading-relaxed text-[var(--st-text-secondary)] hover:text-[var(--st-text)] cursor-pointer">
                                             <input
                                                 type="checkbox"
                                                 checked={excessAsAdvance}
                                                 onChange={(e) => setExcessAsAdvance(e.target.checked)}
-                                                className="mt-0.5 h-3.5 w-3.5 rounded border-zoru-line"
+                                                className="mt-0.5 h-3.5 w-3.5 rounded border-[var(--st-border)]"
                                             />
                                             Treat unapplied cash as customer advance
                                         </label>
@@ -858,9 +858,9 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
 
                                 {/* Right Panel: High-density outstanding statements grid */}
                                 <div className="space-y-3">
-                                    <div className="max-h-[360px] overflow-y-auto rounded-lg border border-zoru-line">
+                                    <div className="max-h-[360px] overflow-y-auto rounded-lg border border-[var(--st-border)]">
                                         <table className="w-full text-left text-[12.5px] border-collapse">
-                                            <thead className="sticky top-0 bg-zoru-surface-2 border-b border-zoru-line font-bold text-zoru-ink-muted text-[11.5px]">
+                                            <thead className="sticky top-0 bg-[var(--st-bg-muted)] border-b border-[var(--st-border)] font-bold text-[var(--st-text-secondary)] text-[11.5px]">
                                                 <tr>
                                                     <th className="px-3 py-2">Invoice #</th>
                                                     <th className="px-3 py-2">Due Date</th>
@@ -869,7 +869,7 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
                                                     <th className="px-3 py-2 text-right">Action</th>
                                                 </tr>
                                             </thead>
-                                            <tbody className="divide-y divide-zoru-line">
+                                            <tbody className="divide-y divide-[var(--st-border)]">
                                                 {openInvoices.map((inv) => {
                                                     const row = applyRows.find((r) => r.invoiceId === inv.id);
                                                     const allocatedVal = Number(row?.amount) || 0;
@@ -877,12 +877,12 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
                                                     const isOverdue = inv.dueDate && inv.dueDate.getTime() < Date.now();
 
                                                     return (
-                                                        <tr key={inv.id} className="hover:bg-zoru-surface-2 transition-all">
+                                                        <tr key={inv.id} className="hover:bg-[var(--st-bg-muted)] transition-all">
                                                             <td className="px-3 py-3">
-                                                                <div className="font-semibold text-zoru-ink">
+                                                                <div className="font-semibold text-[var(--st-text)]">
                                                                     {inv.invoiceNumber}
                                                                 </div>
-                                                                <div className="text-[10.5px] text-zoru-ink-muted mt-0.5">
+                                                                <div className="text-[10.5px] text-[var(--st-text-secondary)] mt-0.5">
                                                                     Date: {inv.date ? inv.date.toLocaleDateString('en-US', { timeZone: 'UTC' }) : 'N/A'}
                                                                 </div>
                                                             </td>
@@ -890,20 +890,20 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
                                                                 <span
                                                                     className={`inline-flex items-center rounded px-1.5 py-0.5 text-[11px] font-medium ${
                                                                         isOverdue
-                                                                            ? 'bg-zoru-ink/10 text-zoru-ink dark:text-zoru-ink-muted'
-                                                                            : 'bg-zoru-surface-3 text-zoru-ink-muted'
+                                                                            ? 'bg-[var(--st-text)]/10 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]'
+                                                                            : 'bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]'
                                                                     }`}
                                                                 >
                                                                     {inv.dueDate ? inv.dueDate.toLocaleDateString('en-US', { timeZone: 'UTC' }) : 'N/A'}
                                                                 </span>
                                                             </td>
-                                                            <td className="px-3 py-3 text-right font-bold text-zoru-ink">
+                                                            <td className="px-3 py-3 text-right font-bold text-[var(--st-text)]">
                                                                 {fmtMoney(inv.balance, currency)}
                                                             </td>
                                                             <td className="px-4 py-3">
                                                                 <div className="space-y-1.5">
                                                                     <div className="flex gap-2 items-center">
-                                                                        <span className="text-[11px] text-zoru-ink-muted">{currency}</span>
+                                                                        <span className="text-[11px] text-[var(--st-text-secondary)]">{currency}</span>
                                                                         <Input
                                                                             type="number"
                                                                             min={0}
@@ -922,9 +922,9 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
                                                                             max="100"
                                                                             value={percentage}
                                                                             onChange={(e) => handleSliderChange(inv.id, Number(e.target.value), inv.balance)}
-                                                                            className="h-1 w-full bg-zoru-surface-3 rounded-lg appearance-none cursor-pointer accent-zoru-ink dark:accent-zoru-ink-muted"
+                                                                            className="h-1 w-full bg-[var(--st-bg-muted)] rounded-lg appearance-none cursor-pointer accent-[var(--st-text)] dark:accent-[var(--st-text-secondary)]"
                                                                         />
-                                                                        <span className="text-[10px] font-bold text-zoru-ink-muted w-[32px] text-right">
+                                                                        <span className="text-[10px] font-bold text-[var(--st-text-secondary)] w-[32px] text-right">
                                                                             {Math.round(percentage)}%
                                                                         </span>
                                                                     </div>
@@ -936,7 +936,7 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
                                                                         type="button"
                                                                         variant="ghost"
                                                                         size="sm"
-                                                                        className="h-6 px-1.5 text-[10.5px] hover:bg-zoru-ink/10 hover:text-zoru-ink"
+                                                                        className="h-6 px-1.5 text-[10.5px] hover:bg-[var(--st-text)]/10 hover:text-[var(--st-text)]"
                                                                         onClick={() => {
                                                                             // Pay full balance or remaining totalAmount
                                                                             const maxAllocatable = distributeMode === 'manual' ? inv.balance : Math.min(inv.balance, Math.max(0, totalAmount - totalSettled + allocatedVal));
@@ -949,7 +949,7 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
                                                                         type="button"
                                                                         variant="ghost"
                                                                         size="sm"
-                                                                        className="h-6 px-1.5 text-[10.5px] text-zoru-danger-ink hover:bg-zoru-ink/10"
+                                                                        className="h-6 px-1.5 text-[10.5px] text-[var(--st-danger)] hover:bg-[var(--st-text)]/10"
                                                                         onClick={() => handleAmountChange(inv.id, '')}
                                                                     >
                                                                         Clear
@@ -962,7 +962,7 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
                                             </tbody>
                                         </table>
                                     </div>
-                                    <div className="flex justify-between items-center text-[11px] text-zoru-ink-muted px-1">
+                                    <div className="flex justify-between items-center text-[11px] text-[var(--st-text-secondary)] px-1">
                                         <span>Showing {openInvoices.length} outstanding accounts sorted by invoice date (oldest first).</span>
                                         <button
                                             type="button"
@@ -974,7 +974,7 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
                                                     amount: '',
                                                 })));
                                             }}
-                                            className="text-zoru-danger-ink hover:underline font-bold"
+                                            className="text-[var(--st-danger)] hover:underline font-bold"
                                         >
                                             Reset All Allocations
                                         </button>
@@ -983,30 +983,30 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
                             </div>
                         ) : (
                             /* Read-only Table for Edit Mode */
-                            <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                            <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                                 <table className="w-full text-left text-[12.5px] border-collapse">
-                                    <thead className="bg-zoru-surface-2 border-b border-zoru-line font-bold text-zoru-ink-muted text-[11.5px]">
+                                    <thead className="bg-[var(--st-bg-muted)] border-b border-[var(--st-border)] font-bold text-[var(--st-text-secondary)] text-[11.5px]">
                                         <tr>
                                             <th className="px-4 py-2.5">Invoice Reference</th>
                                             <th className="px-4 py-2.5 text-right">Applied Amount</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-zoru-line font-medium text-zoru-ink">
+                                    <tbody className="divide-y divide-[var(--st-border)] font-medium text-[var(--st-text)]">
                                         {applyRows.map((row) => (
-                                            <tr key={row.rowKey} className="hover:bg-zoru-surface-2">
+                                            <tr key={row.rowKey} className="hover:bg-[var(--st-bg-muted)]">
                                                 <td className="px-4 py-3">
                                                     <div className="font-semibold">
                                                         {row.invoiceLabel || (row.invoiceId ? invoiceMeta[row.invoiceId]?.label : 'N/A') || row.invoiceId}
                                                     </div>
                                                 </td>
-                                                <td className="px-4 py-3 text-right font-bold text-zoru-ink dark:text-zoru-ink-muted">
+                                                <td className="px-4 py-3 text-right font-bold text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
                                                     {fmtMoney(Number(row.amount) || 0, currency)}
                                                 </td>
                                             </tr>
                                         ))}
-                                        <tr className="bg-zoru-surface-2 font-bold">
-                                            <td className="px-4 py-3 text-zoru-ink-muted">Total Applied</td>
-                                            <td className="px-4 py-3 text-right text-zoru-ink dark:text-zoru-ink-muted">
+                                        <tr className="bg-[var(--st-bg-muted)] font-bold">
+                                            <td className="px-4 py-3 text-[var(--st-text-secondary)]">Total Applied</td>
+                                            <td className="px-4 py-3 text-right text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
                                                 {fmtMoney(totalApplied, currency)}
                                             </td>
                                         </tr>
@@ -1020,7 +1020,7 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
 
             {/* ─── TDS / charges / notes ───────────────────────── */}
             <Card className="p-6">
-                <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                     Deductions & notes
                 </h3>
                 <div className="grid gap-4 md:grid-cols-2">
@@ -1090,11 +1090,11 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
                         Scanned physical receipt document.
                     </ZoruDialogDescription>
                 </ZoruDialogHeader>
-                <div className="flex justify-center p-4 bg-zoru-surface-2 rounded-lg border border-zoru-line overflow-hidden min-h-[400px]">
+                <div className="flex justify-center p-4 bg-[var(--st-bg-muted)] rounded-lg border border-[var(--st-border)] overflow-hidden min-h-[400px]">
                     {receiptUrl ? (
                         <img src={receiptUrl} alt="Receipt Preview" className="max-w-full max-h-[60vh] object-contain" />
                     ) : (
-                        <div className="flex items-center justify-center text-zoru-ink-muted">
+                        <div className="flex items-center justify-center text-[var(--st-text-secondary)]">
                             No image available
                         </div>
                     )}

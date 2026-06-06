@@ -67,7 +67,7 @@ export default function EmailNotificationsPage() {
         description:
           'CRM events fire transactional emails through the SabNode Email module. Pick which events should trigger emails.',
         render: () => (
-          <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-4 text-sm text-zoru-ink-muted">
+          <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4 text-sm text-[var(--st-text-secondary)]">
             Templates and sender identity come from the Email module. Click any
             event in the next step to enable/disable it.
           </div>
@@ -85,9 +85,9 @@ export default function EmailNotificationsPage() {
               return (
                 <label
                   key={ev.key}
-                  className="flex items-center gap-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3 cursor-pointer"
+                  className="flex items-center gap-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 cursor-pointer"
                 >
-                  <ev.icon className="h-4 w-4 text-zoru-ink-muted" />
+                  <ev.icon className="h-4 w-4 text-[var(--st-text-secondary)]" />
                   <span className="flex-1 text-sm">{ev.label}</span>
                   <Switch
                     checked={on}
@@ -110,7 +110,7 @@ export default function EmailNotificationsPage() {
           const on = EVENT_CATALOG.filter((e) => draft.events[e.key]);
           return (
             <div className="space-y-3">
-              <p className="text-sm text-zoru-ink-muted">
+              <p className="text-sm text-[var(--st-text-secondary)]">
                 {on.length} of {EVENT_CATALOG.length} events will fire emails.
               </p>
               <div className="flex flex-wrap gap-1.5">
@@ -151,12 +151,12 @@ export default function EmailNotificationsPage() {
             <Card>
               <ZoruCardContent className="p-6 space-y-4">
                 <div>
-                  <p className="text-sm text-zoru-ink-muted">
+                  <p className="text-sm text-[var(--st-text-secondary)]">
                     Enabled events
                   </p>
                   <div className="mt-2 flex flex-wrap gap-1.5">
                     {on.length === 0 ? (
-                      <span className="text-sm text-zoru-ink-muted">None</span>
+                      <span className="text-sm text-[var(--st-text-secondary)]">None</span>
                     ) : (
                       on.map((e) => (
                         <Badge key={e.key} variant="outline">

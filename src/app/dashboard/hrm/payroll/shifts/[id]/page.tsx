@@ -21,7 +21,7 @@ export default async function ShiftDetailPage({
 
   return (
     <div className="flex flex-col gap-6 p-6">
-      <Suspense fallback={<div className="flex h-32 items-center justify-center"><LoaderCircle className="h-6 w-6 animate-spin text-zoru-ink-muted" /></div>}>
+      <Suspense fallback={<div className="flex h-32 items-center justify-center"><LoaderCircle className="h-6 w-6 animate-spin text-[var(--st-text-secondary)]" /></div>}>
         <ShiftDetailView initialShift={shift} />
       </Suspense>
     </div>

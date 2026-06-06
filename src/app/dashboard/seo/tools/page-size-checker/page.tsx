@@ -71,13 +71,13 @@ export default function PageSizeCheckerPage() {
   };
 
   const sizeMB = res ? res.bytes / (1024 * 1024) : 0;
-  let sizeColor = 'text-zoru-ink';
+  let sizeColor = 'text-[var(--st-text)]';
   let sizeStatus = 'Good';
   if (sizeMB > 2) {
-    sizeColor = 'text-zoru-ink';
+    sizeColor = 'text-[var(--st-text)]';
     sizeStatus = 'Too Large';
   } else if (sizeMB > 1) {
-    sizeColor = 'text-zoru-ink';
+    sizeColor = 'text-[var(--st-text)]';
     sizeStatus = 'Moderate';
   }
 
@@ -105,8 +105,8 @@ export default function PageSizeCheckerPage() {
       </div>
 
       {error && (
-        <Card className="border-zoru-line">
-          <ZoruCardContent className="p-4 text-zoru-ink text-sm">
+        <Card className="border-[var(--st-border)]">
+          <ZoruCardContent className="p-4 text-[var(--st-text)] text-sm">
             {error}
           </ZoruCardContent>
         </Card>
@@ -117,8 +117,8 @@ export default function PageSizeCheckerPage() {
           {[...Array(4)].map((_, i) => (
             <Card key={i}>
               <ZoruCardContent className="p-4 flex flex-col gap-2">
-                <div className="h-8 bg-zoru-surface-2 rounded w-1/2"></div>
-                <div className="h-4 bg-zoru-surface-2 rounded w-1/3"></div>
+                <div className="h-8 bg-[var(--st-bg-muted)] rounded w-1/2"></div>
+                <div className="h-4 bg-[var(--st-bg-muted)] rounded w-1/3"></div>
               </ZoruCardContent>
             </Card>
           ))}
@@ -128,7 +128,7 @@ export default function PageSizeCheckerPage() {
       {res && !loading && (
         <div className="space-y-6">
           {sizeMB > 2 && (
-            <div className="bg-zoru-surface-2 border border-zoru-line text-zoru-ink rounded-md p-4 flex gap-2 items-center">
+            <div className="bg-[var(--st-bg-muted)] border border-[var(--st-border)] text-[var(--st-text)] rounded-md p-4 flex gap-2 items-center">
               <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
@@ -139,10 +139,10 @@ export default function PageSizeCheckerPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <Card>
               <ZoruCardContent className="p-4">
-                <div className={cn("text-2xl font-bold", res.status >= 400 ? 'text-zoru-ink' : (res.status >= 300 ? 'text-zoru-ink' : 'text-zoru-ink'))}>
+                <div className={cn("text-2xl font-bold", res.status >= 400 ? 'text-[var(--st-text)]' : (res.status >= 300 ? 'text-[var(--st-text)]' : 'text-[var(--st-text)]'))}>
                   {res.status}
                 </div>
-                <div className="text-xs text-zoru-ink-muted">HTTP Status</div>
+                <div className="text-xs text-[var(--st-text-secondary)]">HTTP Status</div>
               </ZoruCardContent>
             </Card>
             <Card>
@@ -150,7 +150,7 @@ export default function PageSizeCheckerPage() {
                 <div className={cn("text-2xl font-bold", sizeColor)}>
                   {formatBytes(res.bytes)}
                 </div>
-                <div className="text-xs text-zoru-ink-muted flex justify-between">
+                <div className="text-xs text-[var(--st-text-secondary)] flex justify-between">
                   <span>Size</span>
                   <span className={sizeColor}>{sizeStatus}</span>
                 </div>
@@ -161,13 +161,13 @@ export default function PageSizeCheckerPage() {
                 <div className="text-sm font-bold truncate mt-1 mb-2" title={res.contentType || '—'}>
                   {res.contentType || '—'}
                 </div>
-                <div className="text-xs text-zoru-ink-muted">Content-Type</div>
+                <div className="text-xs text-[var(--st-text-secondary)]">Content-Type</div>
               </ZoruCardContent>
             </Card>
             <Card>
               <ZoruCardContent className="p-4">
                 <div className="text-2xl font-bold">{res.redirectChain.length}</div>
-                <div className="text-xs text-zoru-ink-muted">Redirection Hops</div>
+                <div className="text-xs text-[var(--st-text-secondary)]">Redirection Hops</div>
               </ZoruCardContent>
             </Card>
           </div>
@@ -179,13 +179,13 @@ export default function PageSizeCheckerPage() {
                 <div>
                   <div className="flex justify-between text-sm mb-1">
                     <span className="font-medium">HTML Document</span>
-                    <span className="text-zoru-ink-muted">{formatBytes(res.bytes)} (100%)</span>
+                    <span className="text-[var(--st-text-secondary)]">{formatBytes(res.bytes)} (100%)</span>
                   </div>
-                  <div className="w-full bg-zoru-surface-2 rounded-full h-2.5">
-                    <div className="bg-zoru-ink h-2.5 rounded-full" style={{ width: '100%' }}></div>
+                  <div className="w-full bg-[var(--st-bg-muted)] rounded-full h-2.5">
+                    <div className="bg-[var(--st-text)] h-2.5 rounded-full" style={{ width: '100%' }}></div>
                   </div>
                 </div>
-                <div className="text-sm text-zoru-ink-muted italic">
+                <div className="text-sm text-[var(--st-text-secondary)] italic">
                   Note: The current API returns only the raw HTML document size. Embedded resources (images, external CSS/JS) are not included in this breakdown.
                 </div>
               </div>
@@ -200,18 +200,18 @@ export default function PageSizeCheckerPage() {
             <h3 className="text-lg font-semibold mb-4">Recent Checks</h3>
             <div className="space-y-2">
               {history.map((h, i) => (
-                <div key={i} className="flex justify-between items-center p-3 hover:bg-zoru-surface-2/50 rounded-md border text-sm transition-colors">
+                <div key={i} className="flex justify-between items-center p-3 hover:bg-[var(--st-bg-muted)]/50 rounded-md border text-sm transition-colors">
                   <div className="truncate flex-1 font-medium pr-4 cursor-pointer hover:underline" onClick={() => run(h.url)}>
                     {h.url}
                   </div>
                   <div className="flex gap-4 items-center flex-shrink-0">
                     <span className={cn(
                       "font-semibold", 
-                      (h.bytes / (1024 * 1024)) > 2 ? 'text-zoru-ink' : ((h.bytes / (1024 * 1024)) > 1 ? 'text-zoru-ink' : 'text-zoru-ink')
+                      (h.bytes / (1024 * 1024)) > 2 ? 'text-[var(--st-text)]' : ((h.bytes / (1024 * 1024)) > 1 ? 'text-[var(--st-text)]' : 'text-[var(--st-text)]')
                     )}>
                       {formatBytes(h.bytes)}
                     </span>
-                    <span className="text-xs text-zoru-ink-muted w-24 text-right">
+                    <span className="text-xs text-[var(--st-text-secondary)] w-24 text-right">
                       {fmtDate(h.date)}
                     </span>
                   </div>

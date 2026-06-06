@@ -102,10 +102,10 @@ function fileTypeOf(file: WsFileStorage): FileTypeFilter {
 
 function FileTypeIcon({ file }: { file: WsFileStorage }): React.JSX.Element {
   const t = fileTypeOf(file);
-  if (t === 'image') return <FileImage className="h-4 w-4 text-zoru-ink-muted" />;
-  if (t === 'video') return <FileVideo className="h-4 w-4 text-zoru-ink-muted" />;
-  if (t === 'pdf' || t === 'doc') return <FileText className="h-4 w-4 text-zoru-ink-muted" />;
-  return <File className="h-4 w-4 text-zoru-ink-muted" />;
+  if (t === 'image') return <FileImage className="h-4 w-4 text-[var(--st-text-secondary)]" />;
+  if (t === 'video') return <FileVideo className="h-4 w-4 text-[var(--st-text-secondary)]" />;
+  if (t === 'pdf' || t === 'doc') return <FileText className="h-4 w-4 text-[var(--st-text-secondary)]" />;
+  return <File className="h-4 w-4 text-[var(--st-text-secondary)]" />;
 }
 
 /* ── folder tree ──────────────────────────────────────────────────────── */
@@ -134,8 +134,8 @@ function FolderNode({
         className={[
           'flex w-full items-center gap-1.5 rounded px-2 py-1.5 text-[13px] transition-colors',
           isActive
-            ? 'bg-zoru-primary/10 font-medium text-zoru-primary'
-            : 'text-zoru-ink hover:bg-zoru-surface-2',
+            ? 'bg-[var(--st-text)]/10 font-medium text-[var(--st-text)]'
+            : 'text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]',
         ].join(' ')}
         style={{ paddingLeft: `${8 + depth * 16}px` }}
         onClick={() => onSelect(id)}
@@ -157,7 +157,7 @@ function FolderNode({
         ) : (
           <span className="w-3.5" />
         )}
-        <FolderOpen className="h-4 w-4 shrink-0 text-zoru-ink-muted" />
+        <FolderOpen className="h-4 w-4 shrink-0 text-[var(--st-text-secondary)]" />
         <span className="truncate">{node.name}</span>
       </button>
       {expanded && node.children.length > 0 && (
@@ -401,8 +401,8 @@ export function FoldersBrowserClient({
       <div className="flex flex-col gap-4 lg:flex-row">
         {/* Folder tree */}
         <Card className="w-full shrink-0 p-0 lg:w-64">
-          <div className="flex items-center justify-between border-b border-zoru-line px-3 py-2">
-            <span className="text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          <div className="flex items-center justify-between border-b border-[var(--st-border)] px-3 py-2">
+            <span className="text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
               Folders
             </span>
             <Button
@@ -416,7 +416,7 @@ export function FoldersBrowserClient({
           </div>
 
           {showNewFolder && (
-            <div className="border-b border-zoru-line p-2 flex gap-1">
+            <div className="border-b border-[var(--st-border)] p-2 flex gap-1">
               <Input
                 placeholder="Folder name"
                 value={newFolderName}
@@ -445,12 +445,12 @@ export function FoldersBrowserClient({
                   className={[
                     'flex w-full items-center gap-1.5 rounded px-2 py-1.5 text-[13px] transition-colors',
                     activeFolderId === null
-                      ? 'bg-zoru-primary/10 font-medium text-zoru-primary'
-                      : 'text-zoru-ink hover:bg-zoru-surface-2',
+                      ? 'bg-[var(--st-text)]/10 font-medium text-[var(--st-text)]'
+                      : 'text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]',
                   ].join(' ')}
                   onClick={goToRoot}
                 >
-                  <FolderOpen className="h-4 w-4 shrink-0 text-zoru-ink-muted" />
+                  <FolderOpen className="h-4 w-4 shrink-0 text-[var(--st-text-secondary)]" />
                   All files (root)
                 </button>
               </li>
@@ -470,10 +470,10 @@ export function FoldersBrowserClient({
         {/* File list */}
         <div className="flex min-w-0 flex-1 flex-col gap-3">
           {/* Breadcrumb */}
-          <div className="flex items-center gap-1 text-[13px] text-zoru-ink-muted">
+          <div className="flex items-center gap-1 text-[13px] text-[var(--st-text-secondary)]">
             <button
               type="button"
-              className="hover:text-zoru-ink hover:underline"
+              className="hover:text-[var(--st-text)] hover:underline"
               onClick={goToRoot}
             >
               Files
@@ -481,7 +481,7 @@ export function FoldersBrowserClient({
             {activeFolderName && (
               <>
                 <ChevronRight className="h-3.5 w-3.5" />
-                <span className="font-medium text-zoru-ink">{activeFolderName}</span>
+                <span className="font-medium text-[var(--st-text)]">{activeFolderName}</span>
               </>
             )}
           </div>
@@ -555,8 +555,8 @@ export function FoldersBrowserClient({
 
           {/* Bulk bar */}
           {selected.size > 0 && (
-            <div className="flex items-center gap-2 rounded border border-zoru-line bg-zoru-surface-2 px-3 py-2">
-              <span className="text-[12.5px] text-zoru-ink">
+            <div className="flex items-center gap-2 rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2">
+              <span className="text-[12.5px] text-[var(--st-text)]">
                 {selected.size} selected
               </span>
               <Button
@@ -590,10 +590,10 @@ export function FoldersBrowserClient({
           <Card className="overflow-hidden p-0">
             {loading ? (
               <div className="flex items-center justify-center p-10">
-                <Loader2 className="h-5 w-5 animate-spin text-zoru-ink-muted" />
+                <Loader2 className="h-5 w-5 animate-spin text-[var(--st-text-secondary)]" />
               </div>
             ) : filtered.length === 0 ? (
-              <div className="p-10 text-center text-[13px] text-zoru-ink-muted">
+              <div className="p-10 text-center text-[13px] text-[var(--st-text-secondary)]">
                 No files in this location.
               </div>
             ) : (
@@ -638,12 +638,12 @@ export function FoldersBrowserClient({
                                   href={file.url}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="text-[13px] font-medium text-zoru-ink hover:underline"
+                                  className="text-[13px] font-medium text-[var(--st-text)] hover:underline"
                                 >
                                   {file.display_name ?? file.filename}
                                 </a>
                               ) : (
-                                <span className="text-[13px] font-medium text-zoru-ink">
+                                <span className="text-[13px] font-medium text-[var(--st-text)]">
                                   {file.display_name ?? file.filename}
                                 </span>
                               )}
@@ -654,15 +654,15 @@ export function FoldersBrowserClient({
                               {file.mime_type ?? file.extension ?? 'unknown'}
                             </Badge>
                           </ZoruTableCell>
-                          <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                          <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                             {formatFileSize(file.size_bytes)}
                           </ZoruTableCell>
-                          <ZoruTableCell className="font-mono text-[12px] text-zoru-ink-muted">
+                          <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text-secondary)]">
                             {file.uploaded_by_user_id
                               ? file.uploaded_by_user_id.slice(-6)
                               : '—'}
                           </ZoruTableCell>
-                          <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                          <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                             {file.createdAt
                               ? new Date(file.createdAt as string).toLocaleDateString()
                               : '—'}
@@ -673,7 +673,7 @@ export function FoldersBrowserClient({
                               variant="ghost"
                               onClick={() => void handleDeleteFile(id)}
                             >
-                              <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                              <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                             </Button>
                           </ZoruTableCell>
                         </ZoruTableRow>

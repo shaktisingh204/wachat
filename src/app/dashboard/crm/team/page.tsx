@@ -381,11 +381,11 @@ export default function TeamHubPage() {
                 empty={
                     !isLoading && filtered.length === 0 ? (
                         <div className="flex flex-col items-center gap-3 p-4">
-                            <Users className="h-8 w-8 text-zoru-ink-muted" />
-                            <h3 className="text-base font-medium text-zoru-ink">
+                            <Users className="h-8 w-8 text-[var(--st-text-secondary)]" />
+                            <h3 className="text-base font-medium text-[var(--st-text)]">
                                 {members.length === 0 ? 'No teammates yet' : 'No matches'}
                             </h3>
-                            <p className="max-w-sm text-sm text-zoru-ink-muted">
+                            <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                                 {members.length === 0
                                     ? 'Invite your first teammate to start collaborating on your CRM.'
                                     : 'Adjust filters to see your full team again.'}
@@ -407,7 +407,7 @@ export default function TeamHubPage() {
                     <KpiStrip {...kpis} />
 
                     <Card className="overflow-hidden p-0">
-                        <div className="flex items-center gap-3 border-b border-zoru-line px-4 py-3 text-[12px] text-zoru-ink-muted">
+                        <div className="flex items-center gap-3 border-b border-[var(--st-border)] px-4 py-3 text-[12px] text-[var(--st-text-secondary)]">
                             <Checkbox
                                 checked={allSelectedOnPage}
                                 onCheckedChange={(v) => toggleAll(Boolean(v))}
@@ -426,7 +426,7 @@ export default function TeamHubPage() {
                                 <Skeleton className="h-14 w-full" />
                             </div>
                         ) : (
-                            <ul role="list" className="divide-y divide-zoru-line">
+                            <ul role="list" className="divide-y divide-[var(--st-border)]">
                                 {paged.map((m) => {
                                     const id = m._id.toString();
                                     const role = deriveRole(m);
@@ -446,7 +446,7 @@ export default function TeamHubPage() {
                                     return (
                                         <li
                                             key={id}
-                                            className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-zoru-bg/60"
+                                            className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-[var(--st-bg)]/60"
                                         >
                                             <Checkbox
                                                 checked={selected.has(id)}
@@ -471,7 +471,7 @@ export default function TeamHubPage() {
                                                             <span className="truncate">
                                                                 {m.name}
                                                                 {isSelf ? (
-                                                                    <span className="ml-2 text-[11px] text-zoru-ink-muted">
+                                                                    <span className="ml-2 text-[11px] text-[var(--st-text-secondary)]">
                                                                         (you)
                                                                     </span>
                                                                 ) : null}
@@ -494,13 +494,13 @@ export default function TeamHubPage() {
                                             <div className="hidden w-32 sm:block">
                                                 <RoleBadge role={role} />
                                             </div>
-                                            <div className="hidden w-32 truncate text-[12.5px] text-zoru-ink-muted md:block">
+                                            <div className="hidden w-32 truncate text-[12.5px] text-[var(--st-text-secondary)] md:block">
                                                 {dept}
                                             </div>
                                             <div className="hidden w-24 md:block">
                                                 <StatusBadge status={status} />
                                             </div>
-                                            <div className="w-24 text-right text-[12.5px] text-zoru-ink-muted">
+                                            <div className="w-24 text-right text-[12.5px] text-[var(--st-text-secondary)]">
                                                 {joined}
                                             </div>
                                         </li>
@@ -546,25 +546,25 @@ const KpiStrip = React.memo(function KpiStrip({
             label: 'Total members',
             value: total.toLocaleString(),
             icon: Users,
-            accent: 'text-zoru-ink',
+            accent: 'text-[var(--st-text)]',
         },
         {
             label: 'Active',
             value: activeCount.toLocaleString(),
             icon: Activity,
-            accent: 'text-zoru-ink dark:text-zoru-ink-muted',
+            accent: 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',
         },
         {
             label: 'Top role',
             value: `${topRoleLabel} · ${topRoleCount}`,
             icon: Shield,
-            accent: 'text-zoru-ink dark:text-zoru-ink-muted',
+            accent: 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',
         },
         {
             label: 'Recent joins (14d)',
             value: recentJoinsCount.toLocaleString(),
             icon: UserPlus,
-            accent: 'text-zoru-ink dark:text-zoru-ink-muted',
+            accent: 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',
         },
     ];
     return (
@@ -575,14 +575,14 @@ const KpiStrip = React.memo(function KpiStrip({
                     <Card key={c.label} className="p-4">
                         <div className="flex items-start justify-between gap-2">
                             <div className="min-w-0">
-                                <p className="text-[12px] text-zoru-ink-muted">{c.label}</p>
+                                <p className="text-[12px] text-[var(--st-text-secondary)]">{c.label}</p>
                                 <p
                                     className={`mt-1 truncate text-2xl font-semibold capitalize ${c.accent}`}
                                 >
                                     {c.value}
                                 </p>
                             </div>
-                            <Icon className="h-4 w-4 shrink-0 text-zoru-ink-muted" />
+                            <Icon className="h-4 w-4 shrink-0 text-[var(--st-text-secondary)]" />
                         </div>
                     </Card>
                 );
@@ -692,7 +692,7 @@ function BulkBar({
 }: BulkBarProps) {
     return (
         <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[12.5px] font-medium text-zoru-ink">
+            <span className="text-[12.5px] font-medium text-[var(--st-text)]">
                 {count} selected
             </span>
             <Button variant="outline" size="sm" onClick={onInvite}>

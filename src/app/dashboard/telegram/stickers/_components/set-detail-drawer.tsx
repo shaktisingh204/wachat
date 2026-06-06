@@ -121,7 +121,7 @@ export function SetDetailDrawer({
                     <ZoruSheetDescription>
                         <code className="font-mono text-[12px]">{setName}</code>
                         {set?.archived && (
-                            <Badge variant="ghost" className="ml-2 text-zoru-ink">
+                            <Badge variant="ghost" className="ml-2 text-[var(--st-text)]">
                                 Archived
                             </Badge>
                         )}
@@ -417,7 +417,7 @@ function DetailBody({
     return (
         <div className="flex flex-col gap-4">
             <Card className="flex flex-col gap-3 p-3 sm:flex-row sm:items-center">
-                <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-[var(--zoru-radius)] bg-zoru-surface">
+                <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)]">
                     {set.thumbnailUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -426,19 +426,19 @@ function DetailBody({
                             className="h-full w-full object-cover"
                         />
                     ) : (
-                        <StickerIcon className="h-8 w-8 text-zoru-ink-muted" />
+                        <StickerIcon className="h-8 w-8 text-[var(--st-text-secondary)]" />
                     )}
                 </div>
                 <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                        <h3 className="truncate text-[16px] font-medium text-zoru-ink">
+                        <h3 className="truncate text-[16px] font-medium text-[var(--st-text)]">
                             {set.title}
                         </h3>
                         <Badge variant="ghost" className="capitalize">
                             {set.stickerType.replace('_', ' ')}
                         </Badge>
                     </div>
-                    <p className="truncate text-[12px] text-zoru-ink-muted">
+                    <p className="truncate text-[12px] text-[var(--st-text-secondary)]">
                         {set.stickerCount} stickers · created{' '}
                         <span suppressHydrationWarning>{new Date(set.createdAt).toLocaleDateString()}</span>
                     </p>
@@ -511,13 +511,13 @@ function DetailBody({
                     placeholder="123456789"
                     inputMode="numeric"
                 />
-                <p className="text-[11.5px] text-zoru-ink-muted">
+                <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                     Required for adding new stickers, replacing a file, or changing the thumbnail.
                 </p>
             </Card>
 
             <div className="flex items-center justify-between">
-                <h4 className="text-[13px] font-medium text-zoru-ink">Stickers</h4>
+                <h4 className="text-[13px] font-medium text-[var(--st-text)]">Stickers</h4>
                 <SabFilePickerButton
                     accept="image"
                     variant="outline"
@@ -530,7 +530,7 @@ function DetailBody({
             {sortedStickers.length === 0 ? (
                 <EmptyState
                     compact
-                    icon={<StickerIcon className="h-5 w-5 text-zoru-ink-muted" />}
+                    icon={<StickerIcon className="h-5 w-5 text-[var(--st-text-secondary)]" />}
                     title="No stickers in this pack yet"
                     description="Use Add sticker to upload one from SabFiles."
                 />
@@ -603,13 +603,13 @@ function StickerRowEditor({
     }, [sticker.fileId, sticker.emoji, sticker.keywords, sticker.maskPosition]);
 
     return (
-        <li className="grid gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3">
+        <li className="grid gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3">
             <TelegramProjectGate />
             <div className="flex items-center gap-3">
-                <span className="rounded-md bg-zoru-surface px-2 py-0.5 font-mono text-[11px] text-zoru-ink-muted">
+                <span className="rounded-md bg-[var(--st-bg-secondary)] px-2 py-0.5 font-mono text-[11px] text-[var(--st-text-secondary)]">
                     #{sticker.positionInSet + 1}
                 </span>
-                <div className="min-w-0 flex-1 truncate font-mono text-[12px] text-zoru-ink-muted">
+                <div className="min-w-0 flex-1 truncate font-mono text-[12px] text-[var(--st-text-secondary)]">
                     {sticker.fileId}
                 </div>
                 <Button
@@ -645,7 +645,7 @@ function StickerRowEditor({
                     onClick={onDelete}
                     disabled={busy === `del-${sticker.fileId}`}
                 >
-                    <Trash2 className="h-4 w-4 text-zoru-ink" />
+                    <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                 </Button>
             </div>
             <div className="grid gap-2 sm:grid-cols-2">
@@ -687,7 +687,7 @@ function StickerRowEditor({
                 </div>
             </div>
             {stickerType === 'mask' && (
-                <div className="grid gap-2 rounded-[var(--zoru-radius-sm)] border border-dashed border-zoru-line p-2 sm:grid-cols-5">
+                <div className="grid gap-2 rounded-[var(--zoru-radius-sm)] border border-dashed border-[var(--st-border)] p-2 sm:grid-cols-5">
                     <div className="flex flex-col gap-1">
                         <Label className="text-[11px]">Anchor</Label>
                         <Select value={maskPoint} onValueChange={(v) => setMaskPoint(v)}>

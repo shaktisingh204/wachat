@@ -137,10 +137,10 @@ export default function EnvelopeDetailPage() {
   };
 
   if (loading) {
-    return <div className="p-6 text-sm text-zoru-ink-muted">Loading…</div>;
+    return <div className="p-6 text-sm text-[var(--st-text-secondary)]">Loading…</div>;
   }
   if (!env) {
-    return <div className="p-6 text-sm text-zoru-ink">Envelope not found.</div>;
+    return <div className="p-6 text-sm text-[var(--st-text)]">Envelope not found.</div>;
   }
 
   return (
@@ -151,7 +151,7 @@ export default function EnvelopeDetailPage() {
             <ArrowLeft className="h-4 w-4 mr-1" />
             Back
           </Button>
-          <h1 className="text-xl font-semibold text-zoru-ink">{env.name}</h1>
+          <h1 className="text-xl font-semibold text-[var(--st-text)]">{env.name}</h1>
           <Badge variant={STATUS_BADGE[env.status] || 'outline'}>
             {env.status.replace('_', ' ')}
           </Badge>
@@ -186,16 +186,16 @@ export default function EnvelopeDetailPage() {
         </div>
       </div>
 
-      <Card className="p-4 border border-zoru-line">
-        <h3 className="text-sm font-medium text-zoru-ink mb-2">Document</h3>
+      <Card className="p-4 border border-[var(--st-border)]">
+        <h3 className="text-sm font-medium text-[var(--st-text)] mb-2">Document</h3>
         <div className="flex items-center gap-3 text-sm">
-          <span className="text-zoru-ink">{env.docName || env.docId}</span>
+          <span className="text-[var(--st-text)]">{env.docName || env.docId}</span>
           {env.docUrl && (
             <a
               href={env.docUrl}
               target="_blank"
               rel="noreferrer"
-              className="text-zoru-brand hover:underline"
+              className="text-[var(--st-accent)] hover:underline"
             >
               Open
             </a>
@@ -204,12 +204,12 @@ export default function EnvelopeDetailPage() {
       </Card>
 
       {kioskInfo && (
-        <Card className="p-4 border border-zoru-line bg-zoru-surface-2/20">
-          <h3 className="text-sm font-medium text-zoru-ink mb-2">Kiosk link ready</h3>
+        <Card className="p-4 border border-[var(--st-border)] bg-[var(--st-bg-muted)]/20">
+          <h3 className="text-sm font-medium text-[var(--st-text)] mb-2">Kiosk link ready</h3>
           <div className="text-sm">
             <div>URL: <code className="text-xs">{kioskInfo.url}</code></div>
             <div>PIN: <code className="text-xs">{kioskInfo.pin}</code></div>
-            <p className="text-xs text-zoru-ink-muted mt-1">
+            <p className="text-xs text-[var(--st-text-secondary)] mt-1">
               Open the URL on the in-person device and enter the PIN. The
               PIN hash is stored on the signer record server-side.
             </p>
@@ -217,10 +217,10 @@ export default function EnvelopeDetailPage() {
         </Card>
       )}
 
-      <Card className="p-4 border border-zoru-line">
-        <h3 className="text-sm font-medium text-zoru-ink mb-2">Signers</h3>
+      <Card className="p-4 border border-[var(--st-border)]">
+        <h3 className="text-sm font-medium text-[var(--st-text)] mb-2">Signers</h3>
         <table className="w-full text-sm">
-          <thead className="bg-zoru-surface-2">
+          <thead className="bg-[var(--st-bg-muted)]">
             <tr>
               <th className="px-3 py-2 text-left">#</th>
               <th className="px-3 py-2 text-left">Name</th>
@@ -232,18 +232,18 @@ export default function EnvelopeDetailPage() {
           </thead>
           <tbody>
             {env.signers.map((s) => (
-              <tr key={s.id} className="border-t border-zoru-line">
+              <tr key={s.id} className="border-t border-[var(--st-border)]">
                 <td className="px-3 py-2">{s.order}</td>
                 <td className="px-3 py-2">{s.name}</td>
                 <td className="px-3 py-2">{s.email}</td>
-                <td className="px-3 py-2 text-zoru-ink-muted">{s.authMethod}</td>
+                <td className="px-3 py-2 text-[var(--st-text-secondary)]">{s.authMethod}</td>
                 <td className="px-3 py-2">
                   <Badge variant="outline">{s.status}</Badge>
                 </td>
                 <td className="px-3 py-2 text-right space-x-2">
                   {s.accessToken && (
                     <a
-                      className="text-xs text-zoru-brand hover:underline"
+                      className="text-xs text-[var(--st-accent)] hover:underline"
                       href={`/sign/${env._id}?signerId=${s.id}&t=${s.accessToken}`}
                       target="_blank"
                       rel="noreferrer"
@@ -262,16 +262,16 @@ export default function EnvelopeDetailPage() {
         </table>
       </Card>
 
-      <Card className="p-4 border border-zoru-line">
-        <h3 className="text-sm font-medium text-zoru-ink mb-2">Fields ({env.fields.length})</h3>
+      <Card className="p-4 border border-[var(--st-border)]">
+        <h3 className="text-sm font-medium text-[var(--st-text)] mb-2">Fields ({env.fields.length})</h3>
         <ul className="text-sm space-y-1">
           {env.fields.map((f) => (
             <li key={f.id} className="flex items-center gap-2">
               <Badge variant="outline">{f.fieldType}</Badge>
-              <span className="text-zoru-ink-muted">{f.recipientRole}</span>
+              <span className="text-[var(--st-text-secondary)]">{f.recipientRole}</span>
               <span>{f.label || '—'}</span>
               {f.value && (
-                <span className="text-zoru-brand truncate max-w-xs">= {f.value}</span>
+                <span className="text-[var(--st-accent)] truncate max-w-xs">= {f.value}</span>
               )}
             </li>
           ))}

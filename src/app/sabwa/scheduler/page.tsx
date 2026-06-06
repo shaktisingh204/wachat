@@ -316,14 +316,14 @@ export default function SchedulerCalendarPage() {
         {/* ─── Toolbar ─────────────────────────────────────────────── */}
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex items-start gap-3">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface text-zoru-ink">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
               <CalendarClock className="h-5 w-5" />
             </div>
             <div>
-              <h1 className="text-2xl font-semibold tracking-tight text-zoru-ink">
+              <h1 className="text-2xl font-semibold tracking-tight text-[var(--st-text)]">
                 Scheduler — Calendar
               </h1>
-              <p className="text-sm text-zoru-ink-muted mt-1">
+              <p className="text-sm text-[var(--st-text-secondary)] mt-1">
                 Drag events to reschedule. Click an event to edit; click a
                 day to add.
               </p>
@@ -334,7 +334,7 @@ export default function SchedulerCalendarPage() {
             <div
               role="group"
               aria-label="Calendar view"
-              className="inline-flex rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-0.5"
+              className="inline-flex rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-0.5"
             >
               {(["month", "week", "day"] as const).map((m) => (
                 <Button
@@ -390,7 +390,7 @@ export default function SchedulerCalendarPage() {
 
         <p
           aria-live="polite"
-          className="text-sm font-medium text-zoru-ink-muted"
+          className="text-sm font-medium text-[var(--st-text-secondary)]"
         >
           {headerLabel}
         </p>
@@ -508,8 +508,8 @@ function MonthGrid({
   }, [gridStart]);
 
   return (
-    <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg overflow-hidden">
-      <div className="grid grid-cols-7 border-b border-zoru-line bg-zoru-surface text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+    <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] overflow-hidden">
+      <div className="grid grid-cols-7 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
         {DAY_LABELS.map((d) => (
           <div key={d} className="px-2 py-1.5">
             {d}
@@ -530,8 +530,8 @@ function MonthGrid({
                   onDrop={onCellDrop(d, "date")}
                   onClick={() => onCellClick(d)}
                   className={cn(
-                    "group relative min-h-[96px] cursor-pointer border-b border-r border-zoru-line p-1.5 text-xs",
-                    !inMonth && "bg-zoru-surface text-zoru-ink-subtle",
+                    "group relative min-h-[96px] cursor-pointer border-b border-r border-[var(--st-border)] p-1.5 text-xs",
+                    !inMonth && "bg-[var(--st-bg-secondary)] text-[var(--st-text-tertiary)]",
                   )}
                 >
                   <div className="mb-1 flex items-center justify-between">
@@ -539,7 +539,7 @@ function MonthGrid({
                       className={cn(
                         "inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[11px] font-medium",
                         today &&
-                          "bg-zoru-primary text-zoru-primary-foreground",
+                          "bg-[var(--st-text)] text-[var(--st-text-inverted)]",
                       )}
                     >
                       {d.getDate()}
@@ -547,7 +547,7 @@ function MonthGrid({
                     <button
                       type="button"
                       aria-label={`Add schedule on ${d.toDateString()}`}
-                      className="rounded p-0.5 opacity-0 transition group-hover:opacity-100 hover:bg-zoru-surface-2"
+                      className="rounded p-0.5 opacity-0 transition group-hover:opacity-100 hover:bg-[var(--st-bg-muted)]"
                       onClick={(ev) => {
                         ev.stopPropagation();
                         onAddInCell(d);
@@ -569,7 +569,7 @@ function MonthGrid({
                       />
                     ))}
                     {dayEvents.length > 3 && (
-                      <div className="text-[10px] text-zoru-ink-muted">
+                      <div className="text-[10px] text-[var(--st-text-secondary)]">
                         +{dayEvents.length - 3} more
                       </div>
                     )}
@@ -618,8 +618,8 @@ function WeekGrid({
 }: WeekGridProps) {
   const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
   return (
-    <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg overflow-hidden">
-      <div className="grid grid-cols-[60px_repeat(7,1fr)] border-b border-zoru-line bg-zoru-surface text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+    <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] overflow-hidden">
+      <div className="grid grid-cols-[60px_repeat(7,1fr)] border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
         <div />
         {days.map((d) => (
           <div key={d.toISOString()} className="px-2 py-1.5 text-center">
@@ -628,7 +628,7 @@ function WeekGrid({
               className={cn(
                 "mt-0.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[11px]",
                 sameDay(d, new Date()) &&
-                  "bg-zoru-primary text-zoru-primary-foreground",
+                  "bg-[var(--st-text)] text-[var(--st-text-inverted)]",
               )}
             >
               {d.getDate()}
@@ -640,7 +640,7 @@ function WeekGrid({
         <div className="grid grid-cols-[60px_repeat(7,1fr)]">
           {HOURS.map((h) => (
             <React.Fragment key={h}>
-              <div className="border-b border-r border-zoru-line px-2 py-1 text-right text-[10px] text-zoru-ink-muted">
+              <div className="border-b border-r border-[var(--st-border)] px-2 py-1 text-right text-[10px] text-[var(--st-text-secondary)]">
                 {h.toString().padStart(2, "0")}:00
               </div>
               {days.map((d) => {
@@ -656,7 +656,7 @@ function WeekGrid({
                     onDragOver={onCellDragOver}
                     onDrop={onCellDrop(slot, "time-slot")}
                     onClick={() => onSlotClick(slot)}
-                    className="relative min-h-[40px] cursor-pointer border-b border-r border-zoru-line p-0.5"
+                    className="relative min-h-[40px] cursor-pointer border-b border-r border-[var(--st-border)] p-0.5"
                   >
                     {slotEvents.map((e) => (
                       <EventChip
@@ -707,7 +707,7 @@ function DayGrid({
   onSlotClick,
 }: DayGridProps) {
   return (
-    <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg overflow-hidden">
+    <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] overflow-hidden">
       <div className="max-h-[calc(100vh-260px)] overflow-y-auto">
         <div className="grid grid-cols-[80px_1fr]">
           {HOURS.map((h) => {
@@ -716,14 +716,14 @@ function DayGrid({
             const slotEvents = events.filter((e) => e.date.getHours() === h);
             return (
               <React.Fragment key={h}>
-                <div className="border-b border-r border-zoru-line px-3 py-2 text-right text-[11px] text-zoru-ink-muted">
+                <div className="border-b border-r border-[var(--st-border)] px-3 py-2 text-right text-[11px] text-[var(--st-text-secondary)]">
                   {h.toString().padStart(2, "0")}:00
                 </div>
                 <div
                   onDragOver={onCellDragOver}
                   onDrop={onCellDrop(slot, "time-slot")}
                   onClick={() => onSlotClick(slot)}
-                  className="relative min-h-[48px] cursor-pointer border-b border-zoru-line p-1"
+                  className="relative min-h-[48px] cursor-pointer border-b border-[var(--st-border)] p-1"
                 >
                   {slotEvents.map((e) => (
                     <EventChip
@@ -783,21 +783,21 @@ function EventChip({
         }
       }}
       className={cn(
-        "cursor-grab rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface px-1.5 py-1 text-[11px] leading-tight text-zoru-ink active:cursor-grabbing hover:bg-zoru-surface-2 transition-colors flex flex-col",
+        "cursor-grab rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-1.5 py-1 text-[11px] leading-tight text-[var(--st-text)] active:cursor-grabbing hover:bg-[var(--st-bg-muted)] transition-colors flex flex-col",
         expanded && "py-1.5",
       )}
       title={`${time}${tzStr} — ${event.body} (${meta.label})`}
     >
       <div className="flex items-center gap-1 w-full overflow-hidden">
-        {isRecurring && <Repeat className="h-3 w-3 shrink-0 text-zoru-ink-muted" />}
+        {isRecurring && <Repeat className="h-3 w-3 shrink-0 text-[var(--st-text-secondary)]" />}
         <span className="font-medium tabular-nums shrink-0">{time}</span>
         {(!expanded || !event.raw.timezone) && tzStr && (
-          <span className="text-zoru-ink-muted shrink-0 text-[10px]">{tzStr}</span>
+          <span className="text-[var(--st-text-secondary)] shrink-0 text-[10px]">{tzStr}</span>
         )}
         <span className="truncate">{event.body}</span>
       </div>
       {expanded && event.raw.timezone && (
-        <div className="text-[10px] text-zoru-ink-subtle mt-0.5 truncate w-full">
+        <div className="text-[10px] text-[var(--st-text-tertiary)] mt-0.5 truncate w-full">
           {event.raw.timezone}
         </div>
       )}

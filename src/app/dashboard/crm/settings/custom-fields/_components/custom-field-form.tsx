@@ -124,7 +124,7 @@ function FlagRow({
     setChecked(defaultChecked);
   }, [defaultChecked]);
   return (
-    <label className="flex cursor-pointer items-center gap-2 text-[13px] text-zoru-ink">
+    <label className="flex cursor-pointer items-center gap-2 text-[13px] text-[var(--st-text)]">
       <Checkbox
         checked={checked}
         onCheckedChange={(v) => setChecked(v === true)}
@@ -316,8 +316,8 @@ export function CustomFieldForm({
         </div>
 
         {/* Flags */}
-        <div className="rounded-md border border-zoru-line p-3">
-          <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+        <div className="rounded-md border border-[var(--st-border)] p-3">
+          <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
             Flags
           </p>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -356,9 +356,9 @@ export function CustomFieldForm({
 
         {/* Options (select / multiselect) */}
         {showOptions ? (
-          <div className="rounded-md border border-zoru-line p-3">
+          <div className="rounded-md border border-[var(--st-border)] p-3">
             <div className="mb-2 flex items-center justify-between">
-              <p className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Options
               </p>
               <Button
@@ -376,7 +376,7 @@ export function CustomFieldForm({
               </Button>
             </div>
             {options.length === 0 ? (
-              <p className="rounded-md border border-dashed border-zoru-line px-3 py-4 text-center text-[12px] text-zoru-ink-muted">
+              <p className="rounded-md border border-dashed border-[var(--st-border)] px-3 py-4 text-center text-[12px] text-[var(--st-text-secondary)]">
                 Add at least one option for a select / multiselect field.
               </p>
             ) : (
@@ -424,8 +424,8 @@ export function CustomFieldForm({
 
         {/* Validation */}
         {showValidation ? (
-          <div className="rounded-md border border-zoru-line p-3">
-            <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+          <div className="rounded-md border border-[var(--st-border)] p-3">
+            <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
               Validation
             </p>
             <div className="grid gap-3 sm:grid-cols-3">

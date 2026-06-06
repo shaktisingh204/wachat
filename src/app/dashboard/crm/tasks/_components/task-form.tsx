@@ -252,7 +252,7 @@ export function TaskForm({ initialData }: TaskFormProps) {
                                     : ''
                             }
                         />
-                        <p className="text-[11.5px] text-zoru-ink-muted">
+                        <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                             Comma-separated ISO dates.
                         </p>
                     </div>
@@ -308,7 +308,7 @@ export function TaskForm({ initialData }: TaskFormProps) {
                         </Button>
                     </div>
                     {checklist.length === 0 ? (
-                        <p className="text-[12px] text-zoru-ink-muted">
+                        <p className="text-[12px] text-[var(--st-text-secondary)]">
                             No checklist items yet. Add steps the assignee can tick off.
                         </p>
                     ) : (
@@ -316,7 +316,7 @@ export function TaskForm({ initialData }: TaskFormProps) {
                             {checklist.map((row, idx) => (
                                 <div
                                     key={idx}
-                                    className="flex items-center gap-2 rounded-md border border-zoru-line bg-zoru-surface-2 p-2"
+                                    className="flex items-center gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2"
                                 >
                                     <Checkbox
                                         checked={!!row.done}
@@ -338,7 +338,7 @@ export function TaskForm({ initialData }: TaskFormProps) {
                                         size="icon"
                                         onClick={() => removeChecklistRow(idx)}
                                     >
-                                        <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                        <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                     </Button>
                                 </div>
                             ))}
@@ -363,13 +363,13 @@ export function TaskForm({ initialData }: TaskFormProps) {
                             {attachments.map((a, idx) => (
                                 <li
                                     key={`${a.url}-${idx}`}
-                                    className="flex items-center justify-between gap-2 rounded-md border border-zoru-line bg-zoru-surface-2 px-3 py-1.5"
+                                    className="flex items-center justify-between gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-1.5"
                                 >
                                     <a
                                         href={a.url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="max-w-[400px] truncate text-[12.5px] text-zoru-ink underline-offset-2 hover:underline"
+                                        className="max-w-[400px] truncate text-[12.5px] text-[var(--st-text)] underline-offset-2 hover:underline"
                                     >
                                         {a.name}
                                     </a>
@@ -385,7 +385,7 @@ export function TaskForm({ initialData }: TaskFormProps) {
                             ))}
                         </ul>
                     ) : (
-                        <p className="text-[12px] text-zoru-ink-muted">
+                        <p className="text-[12px] text-[var(--st-text-secondary)]">
                             No attachments. Pick from SabFiles or upload fresh.
                         </p>
                     )}

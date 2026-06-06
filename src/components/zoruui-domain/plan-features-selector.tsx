@@ -161,8 +161,8 @@ export function PlanFeaturesSelector({ defaultFeatures }: PlanFeaturesSelectorPr
         <Card className="rounded-2xl border-white/10 bg-white/5 backdrop-blur-xl shadow-lg overflow-hidden">
             <ZoruCardHeader className="border-b border-white/10 bg-gradient-to-r from-primary/10 via-transparent to-transparent">
                 <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-xl bg-zoru-ink/15 border border-primary/30 flex items-center justify-center">
-                        <Sparkles className="h-5 w-5 text-zoru-ink" />
+                    <div className="h-10 w-10 rounded-xl bg-[var(--st-text)]/15 border border-primary/30 flex items-center justify-center">
+                        <Sparkles className="h-5 w-5 text-[var(--st-text)]" />
                     </div>
                     <div className="flex-1 min-w-0">
                         <ZoruCardTitle className="text-lg">Plan Features</ZoruCardTitle>
@@ -174,7 +174,7 @@ export function PlanFeaturesSelector({ defaultFeatures }: PlanFeaturesSelectorPr
                     </div>
                     <Badge
                         variant="outline"
-                        className="rounded-full border-primary/40 bg-zoru-ink/15 text-zoru-ink font-medium"
+                        className="rounded-full border-primary/40 bg-[var(--st-text)]/15 text-[var(--st-text)] font-medium"
                     >
                         {enabledCount}/{totalKeys}
                     </Badge>
@@ -197,10 +197,10 @@ export function PlanFeaturesSelector({ defaultFeatures }: PlanFeaturesSelectorPr
                 )}
 
                 {/* Toolbar */}
-                <div className="sticky top-0 z-10 -mx-1 px-1 py-2 backdrop-blur-xl bg-zoru-surface/70 border-b border-white/10">
+                <div className="sticky top-0 z-10 -mx-1 px-1 py-2 backdrop-blur-xl bg-[var(--st-bg-secondary)]/70 border-b border-white/10">
                     <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
                         <div className="relative flex-1">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zoru-ink-muted" />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--st-text-secondary)]" />
                             <Input
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
@@ -265,9 +265,9 @@ export function PlanFeaturesSelector({ defaultFeatures }: PlanFeaturesSelectorPr
                                             className={cn(
                                                 'rounded-full text-[10px] font-normal border-white/10',
                                                 allOn
-                                                    ? 'bg-zoru-ink/15 text-zoru-ink-muted border-zoru-line/30'
+                                                    ? 'bg-[var(--st-text)]/15 text-[var(--st-text-secondary)] border-[var(--st-border)]/30'
                                                     : enabled === 0
-                                                      ? 'bg-zoru-ink/10 text-zoru-ink-muted border-zoru-line/20'
+                                                      ? 'bg-[var(--st-text)]/10 text-[var(--st-text-secondary)] border-[var(--st-border)]/20'
                                                       : 'bg-white/5',
                                             )}
                                         >
@@ -308,7 +308,7 @@ export function PlanFeaturesSelector({ defaultFeatures }: PlanFeaturesSelectorPr
                                                     className={cn(
                                                         'flex items-center gap-3 px-3 py-2.5 rounded-xl border cursor-pointer select-none transition',
                                                         checked
-                                                            ? 'bg-zoru-ink/10 border-primary/30 hover:bg-zoru-ink/15'
+                                                            ? 'bg-[var(--st-text)]/10 border-primary/30 hover:bg-[var(--st-text)]/15'
                                                             : 'bg-white/5 border-white/10 hover:bg-white/10',
                                                     )}
                                                 >
@@ -316,8 +316,8 @@ export function PlanFeaturesSelector({ defaultFeatures }: PlanFeaturesSelectorPr
                                                         className={cn(
                                                             'h-7 w-7 rounded-lg flex items-center justify-center border shrink-0',
                                                             checked
-                                                                ? 'bg-zoru-ink/20 border-primary/40 text-zoru-ink'
-                                                                : 'bg-white/5 border-white/10 text-zoru-ink-muted',
+                                                                ? 'bg-[var(--st-text)]/20 border-primary/40 text-[var(--st-text)]'
+                                                                : 'bg-white/5 border-white/10 text-[var(--st-text-secondary)]',
                                                         )}
                                                     >
                                                         {Icon && <Icon className="h-3.5 w-3.5" />}
@@ -326,7 +326,7 @@ export function PlanFeaturesSelector({ defaultFeatures }: PlanFeaturesSelectorPr
                                                         <div className="text-sm font-medium truncate">
                                                             {meta?.name || key}
                                                         </div>
-                                                        <div className="text-[10px] text-zoru-ink-muted font-mono truncate">
+                                                        <div className="text-[10px] text-[var(--st-text-secondary)] font-mono truncate">
                                                             {key}
                                                         </div>
                                                     </div>
@@ -343,7 +343,7 @@ export function PlanFeaturesSelector({ defaultFeatures }: PlanFeaturesSelectorPr
                         );
                     })}
                     {filteredCategories.length === 0 && (
-                        <div className="rounded-2xl border border-dashed border-white/10 bg-white/5 p-8 text-center text-sm text-zoru-ink-muted">
+                        <div className="rounded-2xl border border-dashed border-white/10 bg-white/5 p-8 text-center text-sm text-[var(--st-text-secondary)]">
                             No features match &ldquo;{search}&rdquo;.
                         </div>
                     )}

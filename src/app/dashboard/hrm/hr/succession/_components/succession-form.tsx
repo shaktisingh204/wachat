@@ -234,7 +234,7 @@ export function SuccessionForm({ initialData }: SuccessionFormProps) {
                         {successors.map((s, idx) => (
                             <div
                                 key={idx}
-                                className="grid grid-cols-1 gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-3 sm:grid-cols-[1.4fr_1fr_1fr_auto]"
+                                className="grid grid-cols-1 gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 sm:grid-cols-[1.4fr_1fr_1fr_auto]"
                             >
                                 <Input
                                     placeholder="Successor name"
@@ -255,7 +255,7 @@ export function SuccessionForm({ initialData }: SuccessionFormProps) {
                                     onChange={(e) =>
                                         updateSuccessor(idx, 'readiness', e.target.value)
                                     }
-                                    className="flex h-9 w-full rounded-md border border-zoru-line bg-transparent px-3 py-1 text-[13px] text-zoru-ink shadow-sm focus:outline-none focus:ring-1 focus:ring-zoru-accent"
+                                    className="flex h-9 w-full rounded-md border border-[var(--st-border)] bg-transparent px-3 py-1 text-[13px] text-[var(--st-text)] shadow-sm focus:outline-none focus:ring-1 focus:ring-[var(--st-accent)]"
                                 >
                                     <option value="">— Readiness —</option>
                                     {SUCCESSOR_READINESS.map((o) => (
@@ -272,7 +272,7 @@ export function SuccessionForm({ initialData }: SuccessionFormProps) {
                                     disabled={successors.length === 1}
                                     aria-label="Remove successor"
                                 >
-                                    <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                    <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                 </Button>
                             </div>
                         ))}

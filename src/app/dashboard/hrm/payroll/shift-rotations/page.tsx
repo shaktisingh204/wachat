@@ -25,7 +25,7 @@ export default function ShiftRotationsPage() {
         title="Shift Rotations"
         subtitle="Define cyclical shift sequences to automate assignment."
       >
-        <div className="flex items-center justify-center h-64 text-zoru-ink-muted text-[13px]">
+        <div className="flex items-center justify-center h-64 text-[var(--st-text-secondary)] text-[13px]">
           Loading shift rotations...
         </div>
       </EntityListShell>

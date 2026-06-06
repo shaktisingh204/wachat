@@ -97,11 +97,11 @@ export default function BrandRadarPage() {
     return (
         <div className="flex flex-col gap-8">
             <div>
-                <h1 className="text-3xl text-zoru-ink flex items-center gap-3">
+                <h1 className="text-3xl text-[var(--st-text)] flex items-center gap-3">
                     <Rss className="h-8 w-8" />
                     Brand Radar
                 </h1>
-                <p className="text-zoru-ink-muted mt-2">
+                <p className="text-[var(--st-text-secondary)] mt-2">
                     Track brand mentions, keywords, and sentiment across the web.
                 </p>
             </div>
@@ -160,21 +160,21 @@ export default function BrandRadarPage() {
                                 {isLoading
                                     ? [...Array(4)].map((_, i) => <Skeleton key={i} className="h-16 w-full" />)
                                     : mentions.map((mention, i) => (
-                                          <div key={i} className="flex gap-4 p-3 border-b border-zoru-line last:border-0">
-                                              <div className="text-zoru-ink-muted mt-1">{getSourceIcon(mention.source)}</div>
+                                          <div key={i} className="flex gap-4 p-3 border-b border-[var(--st-border)] last:border-0">
+                                              <div className="text-[var(--st-text-secondary)] mt-1">{getSourceIcon(mention.source)}</div>
                                               <div className="flex-1">
                                                   <div className="flex justify-between items-center">
-                                                      <p className="text-sm text-zoru-ink">{mention.author}</p>
+                                                      <p className="text-sm text-[var(--st-text)]">{mention.author}</p>
                                                       <Badge variant={getSentimentVariant(mention.sentiment)}>
                                                           {mention.sentiment}
                                                       </Badge>
                                                   </div>
-                                                  <p className="text-sm text-zoru-ink-muted">{mention.content}</p>
+                                                  <p className="text-sm text-[var(--st-text-secondary)]">{mention.content}</p>
                                                   <a
                                                       href={mention.url}
                                                       target="_blank"
                                                       rel="noopener noreferrer"
-                                                      className="text-xs text-zoru-ink hover:underline"
+                                                      className="text-xs text-[var(--st-text)] hover:underline"
                                                   >
                                                       {formatDistanceToNow(mention.date, { addSuffix: true })}
                                                   </a>
@@ -188,7 +188,7 @@ export default function BrandRadarPage() {
             )}
 
             {mentions.length === 0 && !isLoading && (
-                <div className="rounded-[var(--zoru-radius)] border-2 border-dashed border-zoru-line p-12 text-center text-zoru-ink-muted">
+                <div className="rounded-[var(--zoru-radius)] border-2 border-dashed border-[var(--st-border)] p-12 text-center text-[var(--st-text-secondary)]">
                     Enter a brand name to start scanning.
                 </div>
             )}

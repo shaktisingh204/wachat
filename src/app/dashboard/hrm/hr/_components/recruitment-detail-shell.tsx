@@ -111,7 +111,7 @@ export function RecruitmentDetailShell({
                   const variant = a.variant || 'ghost';
                   const cls =
                     variant === 'destructive'
-                      ? 'text-zoru-danger-ink'
+                      ? 'text-[var(--st-danger)]'
                       : undefined;
                   const inner = (
                     <>
@@ -190,10 +190,10 @@ export function DetailCard({
           <dl className="grid gap-2.5 md:grid-cols-2">
             {rows.map((r, i) => (
               <div key={i} className="flex items-baseline gap-2">
-                <dt className="w-36 shrink-0 text-zoru-ink-muted">
+                <dt className="w-36 shrink-0 text-[var(--st-text-secondary)]">
                   {r.label}
                 </dt>
-                <dd className="min-w-0 flex-1 break-words text-zoru-ink">
+                <dd className="min-w-0 flex-1 break-words text-[var(--st-text)]">
                   {r.value === null ||
                   r.value === undefined ||
                   r.value === ''
@@ -221,7 +221,7 @@ export function RailCard({
   return (
     <Card className="p-0">
       <ZoruCardHeader className="pb-2">
-        <ZoruCardTitle className="text-[13px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+        <ZoruCardTitle className="text-[13px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
           {title}
         </ZoruCardTitle>
       </ZoruCardHeader>
@@ -247,17 +247,17 @@ export function RailLink({
   return (
     <Link
       href={href}
-      className="flex items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-transparent px-2 py-1.5 text-zoru-ink hover:border-zoru-line hover:bg-zoru-surface-2"
+      className="flex items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-transparent px-2 py-1.5 text-[var(--st-text)] hover:border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]"
     >
       <span className="flex min-w-0 flex-col">
         <span className="truncate">{label}</span>
         {hint ? (
-          <span className="text-[11px] text-zoru-ink-muted">{hint}</span>
+          <span className="text-[11px] text-[var(--st-text-secondary)]">{hint}</span>
         ) : null}
       </span>
-      <span className="flex items-center gap-1 shrink-0 text-zoru-ink-muted">
+      <span className="flex items-center gap-1 shrink-0 text-[var(--st-text-secondary)]">
         {typeof count === 'number' ? (
-          <span className="rounded-full bg-zoru-surface-2 px-2 py-0.5 text-[11px]">
+          <span className="rounded-full bg-[var(--st-bg-muted)] px-2 py-0.5 text-[11px]">
             {count}
           </span>
         ) : null}

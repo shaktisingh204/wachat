@@ -231,57 +231,57 @@ export default function TaskboardColumnsPage() {
         </div>
 
       <Card>
-        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+        <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <Table>
             <ZoruTableHeader>
-              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                <ZoruTableHead className="text-zoru-ink-muted">Name</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Slug</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Colour</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Priority</ZoruTableHead>
-                <ZoruTableHead className="w-[180px] text-right text-zoru-ink-muted">
+              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Name</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Slug</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Colour</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Priority</ZoruTableHead>
+                <ZoruTableHead className="w-[180px] text-right text-[var(--st-text-secondary)]">
                   Actions
                 </ZoruTableHead>
               </ZoruTableRow>
             </ZoruTableHeader>
             <ZoruTableBody>
               {isLoading && rows.length === 0 ? (
-                <ZoruTableRow className="border-zoru-line">
+                <ZoruTableRow className="border-[var(--st-border)]">
                   <ZoruTableCell
                     colSpan={5}
-                    className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                    className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     Loading…
                   </ZoruTableCell>
                 </ZoruTableRow>
               ) : rows.length === 0 ? (
-                <ZoruTableRow className="border-zoru-line">
+                <ZoruTableRow className="border-[var(--st-border)]">
                   <ZoruTableCell
                     colSpan={5}
-                    className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                    className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     No columns yet — click Add to get started.
                   </ZoruTableCell>
                 </ZoruTableRow>
               ) : (
                 rows.map((row, idx) => (
-                  <ZoruTableRow key={row._id} className="border-zoru-line">
-                    <ZoruTableCell className="text-[13px] text-zoru-ink">
+                  <ZoruTableRow key={row._id} className="border-[var(--st-border)]">
+                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                       {row.columnName}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                       {row.slug || '—'}
                     </ZoruTableCell>
                     <ZoruTableCell>
                       <div className="flex items-center gap-2">
                         <span
-                          className="inline-block h-4 w-4 rounded-sm border border-zoru-line"
+                          className="inline-block h-4 w-4 rounded-sm border border-[var(--st-border)]"
                           style={{
                             backgroundColor: row.labelColor || DEFAULT_COLOR,
                           }}
                           aria-hidden
                         />
-                        <code className="text-[12px] text-zoru-ink-muted">
+                        <code className="text-[12px] text-[var(--st-text-secondary)]">
                           {row.labelColor || DEFAULT_COLOR}
                         </code>
                       </div>
@@ -323,7 +323,7 @@ export default function TaskboardColumnsPage() {
                           onClick={() => setDeletingId(row._id)}
                           aria-label="Delete"
                         >
-                          <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                          <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                         </Button>
                       </div>
                     </ZoruTableCell>
@@ -339,10 +339,10 @@ export default function TaskboardColumnsPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <ZoruDialogContent className="max-w-lg">
           <ZoruDialogHeader>
-            <ZoruDialogTitle className="text-zoru-ink">
+            <ZoruDialogTitle className="text-[var(--st-text)]">
               {editing ? 'Edit Column' : 'Add Column'}
             </ZoruDialogTitle>
-            <ZoruDialogDescription className="text-zoru-ink-muted">
+            <ZoruDialogDescription className="text-[var(--st-text-secondary)]">
               Columns are shown in the kanban board in priority order.
             </ZoruDialogDescription>
           </ZoruDialogHeader>
@@ -353,20 +353,20 @@ export default function TaskboardColumnsPage() {
             ) : null}
 
             <div>
-              <Label htmlFor="columnName" className="text-zoru-ink">
-                Column name <span className="text-zoru-danger-ink">*</span>
+              <Label htmlFor="columnName" className="text-[var(--st-text)]">
+                Column name <span className="text-[var(--st-danger)]">*</span>
               </Label>
               <Input
                 id="columnName"
                 name="columnName"
                 required
                 defaultValue={editing?.columnName || ''}
-                className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
               />
             </div>
 
             <div>
-              <Label htmlFor="slug" className="text-zoru-ink">
+              <Label htmlFor="slug" className="text-[var(--st-text)]">
                 Slug
               </Label>
               <Input
@@ -374,12 +374,12 @@ export default function TaskboardColumnsPage() {
                 name="slug"
                 defaultValue={editing?.slug || ''}
                 placeholder="in-progress"
-                className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
               />
             </div>
 
             <div>
-              <Label className="text-zoru-ink">Label colour</Label>
+              <Label className="text-[var(--st-text)]">Label colour</Label>
               <input type="hidden" name="labelColor" value={colorPreview} />
               <div className="mt-1.5">
                 <ZoruColorPicker value={colorPreview} onChange={setColorPreview} />
@@ -387,7 +387,7 @@ export default function TaskboardColumnsPage() {
             </div>
 
             <div>
-              <Label htmlFor="priority" className="text-zoru-ink">
+              <Label htmlFor="priority" className="text-[var(--st-text)]">
                 Priority
               </Label>
               <Input
@@ -395,7 +395,7 @@ export default function TaskboardColumnsPage() {
                 name="priority"
                 type="number"
                 defaultValue={String(editing?.priority ?? rows.length)}
-                className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
               />
             </div>
 
@@ -427,10 +427,10 @@ export default function TaskboardColumnsPage() {
       >
         <ZoruAlertDialogContent>
           <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle className="text-zoru-ink">
+            <ZoruAlertDialogTitle className="text-[var(--st-text)]">
               Delete column?
             </ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription className="text-zoru-ink-muted">
+            <ZoruAlertDialogDescription className="text-[var(--st-text-secondary)]">
               Existing tasks assigned to this column will not be deleted.
             </ZoruAlertDialogDescription>
           </ZoruAlertDialogHeader>

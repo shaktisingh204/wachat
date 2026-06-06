@@ -33,10 +33,10 @@ export default function FilesLoading() {
             </div>
           </div>
 
-          <div className="overflow-x-auto rounded-lg border border-zoru-line flex-1">
+          <div className="overflow-x-auto rounded-lg border border-[var(--st-border)] flex-1">
             <div className="p-4 space-y-4">
                 {Array.from({ length: 5 }).map((_, i) => (
-                    <div key={i} className="flex justify-between items-center py-2 border-b last:border-0 border-zoru-line">
+                    <div key={i} className="flex justify-between items-center py-2 border-b last:border-0 border-[var(--st-border)]">
                         <div className="flex gap-4 items-center">
                             <Skeleton className="h-10 w-10" />
                             <div className="space-y-2">

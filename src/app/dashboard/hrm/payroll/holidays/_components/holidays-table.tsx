@@ -70,7 +70,7 @@ export function HolidaysTable({
     rows.every((h) => selected.has(h._id.toString()));
 
   return (
-    <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
+    <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
       <Table>
         <ZoruTableHeader>
           <ZoruTableRow className="hover:bg-transparent">
@@ -95,7 +95,7 @@ export function HolidaysTable({
             <ZoruTableRow>
               <ZoruTableCell
                 colSpan={8}
-                className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
               >
                 {hasActiveFilters
                   ? 'No holidays match the current filters.'
@@ -106,7 +106,7 @@ export function HolidaysTable({
             rows.map((h) => {
               const id = h._id.toString();
               return (
-                <ZoruTableRow key={id} className="border-zoru-line">
+                <ZoruTableRow key={id} className="border-[var(--st-border)]">
                   <ZoruTableCell>
                     <Checkbox
                       aria-label={`Select ${h.name}`}
@@ -114,10 +114,10 @@ export function HolidaysTable({
                       onCheckedChange={() => onToggleOne(id)}
                     />
                   </ZoruTableCell>
-                  <ZoruTableCell className="text-[13px] text-zoru-ink">
+                  <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                     {fmtDate(h.date)}
                   </ZoruTableCell>
-                  <ZoruTableCell className="text-[13px] text-zoru-ink">
+                  <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                     <Link
                       href={`/dashboard/hrm/payroll/holidays/${id}`}
                       className="hover:underline"
@@ -138,11 +138,11 @@ export function HolidaysTable({
                       <StatusPill label="No" tone="neutral" />
                     )}
                   </ZoruTableCell>
-                  <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                  <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                     {locationsText(h) || '—'}
                   </ZoruTableCell>
                   <ZoruTableCell
-                    className="max-w-[220px] truncate text-[13px] text-zoru-ink-muted"
+                    className="max-w-[220px] truncate text-[13px] text-[var(--st-text-secondary)]"
                     title={h.notes ?? ''}
                   >
                     {h.notes ?? '—'}
@@ -171,7 +171,7 @@ export function HolidaysTable({
                         onClick={() => onDelete(id)}
                         aria-label="Delete"
                       >
-                        <Trash2 className="h-3.5 w-3.5 text-zoru-ink" />
+                        <Trash2 className="h-3.5 w-3.5 text-[var(--st-text)]" />
                       </Button>
                     </div>
                   </ZoruTableCell>

@@ -166,8 +166,8 @@ export function RolesEditorClient({ app, initialRoles, initialAssignments }: Pro
                     onClick={() => setSelectedRoleId(r._id)}
                     className={`w-full flex items-center justify-between gap-2 px-2 py-2 rounded-md text-sm text-left ${
                       selectedRoleId === r._id
-                        ? 'bg-zoru-ink/10 text-zoru-ink font-medium'
-                        : 'hover:bg-zoru-surface-2'
+                        ? 'bg-[var(--st-text)]/10 text-[var(--st-text)] font-medium'
+                        : 'hover:bg-[var(--st-bg-muted)]'
                     }`}
                   >
                     <span>{r.name}</span>
@@ -227,7 +227,7 @@ export function RolesEditorClient({ app, initialRoles, initialAssignments }: Pro
                       >
                         <div>
                           <div className="text-sm font-medium">{a.assigneeUserId}</div>
-                          <div className="text-xs text-zoru-ink-muted">
+                          <div className="text-xs text-[var(--st-text-secondary)]">
                             assigned {new Date(a.assignedAt).toLocaleString()}
                           </div>
                         </div>
@@ -305,7 +305,7 @@ function RuleEditor({
             }}
             placeholder='{"fieldOwnerId": "$user._id"}'
           />
-          <p className="text-xs text-zoru-ink-muted">
+          <p className="text-xs text-[var(--st-text-secondary)]">
             JSON predicate evaluated server-side. A visual rule builder is on the roadmap.
           </p>
         </div>

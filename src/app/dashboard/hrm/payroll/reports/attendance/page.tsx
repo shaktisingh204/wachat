@@ -61,11 +61,11 @@ type ZoruSelectItem = { _id: string; name: string };
 const StatCard = ({ title, value, sub, icon: Icon }: { title: string; value: string; sub?: string; icon: React.ElementType }) => (
     <Card className="flex flex-col gap-1 p-6">
         <div className="flex items-center justify-between">
-            <p className="text-[12.5px] font-medium text-zoru-ink-muted">{title}</p>
-            <Icon className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
+            <p className="text-[12.5px] font-medium text-[var(--st-text-secondary)]">{title}</p>
+            <Icon className="h-4 w-4 text-[var(--st-text-secondary)]" strokeWidth={1.75} />
         </div>
-        <p className="mt-1 text-2xl text-zoru-ink">{value}</p>
-        {sub ? <p className="text-[11.5px] text-zoru-ink-muted">{sub}</p> : null}
+        <p className="mt-1 text-2xl text-[var(--st-text)]">{value}</p>
+        {sub ? <p className="text-[11.5px] text-[var(--st-text-secondary)]">{sub}</p> : null}
     </Card>
 );
 
@@ -270,7 +270,7 @@ export default function AttendanceReportPage() {
                                     <select
                                         value={selectedEmployee}
                                         onChange={e => setSelectedEmployee(e.target.value)}
-                                        className="w-full rounded-lg border border-zoru-line bg-zoru-bg px-3 py-2 text-[13px] text-zoru-ink focus:outline-none focus:ring-2 focus:ring-primary/30"
+                                        className="w-full rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-[13px] text-[var(--st-text)] focus:outline-none focus:ring-2 focus:ring-primary/30"
                                     >
                                         <option value="">All Employees</option>
                                         {employees.map(e => <option key={e._id} value={e._id}>{e.name}</option>)}
@@ -281,7 +281,7 @@ export default function AttendanceReportPage() {
                                     <select
                                         value={selectedDept}
                                         onChange={e => setSelectedDept(e.target.value)}
-                                        className="w-full rounded-lg border border-zoru-line bg-zoru-bg px-3 py-2 text-[13px] text-zoru-ink focus:outline-none focus:ring-2 focus:ring-primary/30"
+                                        className="w-full rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-[13px] text-[var(--st-text)] focus:outline-none focus:ring-2 focus:ring-primary/30"
                                     >
                                         <option value="">All Departments</option>
                                         {departments.map(d => <option key={d._id} value={d._id}>{d.name}</option>)}
@@ -326,54 +326,54 @@ export default function AttendanceReportPage() {
             <Card className="p-6">
                 <div className="mb-4 flex items-center justify-between">
                     <div>
-                        <h2 className="text-[16px] text-zoru-ink">Employee Attendance Breakdown</h2>
-                        <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+                        <h2 className="text-[16px] text-[var(--st-text)]">Employee Attendance Breakdown</h2>
+                        <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">
                             {startDate && endDate
                                 ? `${format(startDate, 'dd MMM yyyy')} – ${format(endDate, 'dd MMM yyyy')}`
                                 : 'All time'}
                         </p>
                     </div>
                     {reportData.length > 0 && (
-                        <span className="text-[12.5px] text-zoru-ink-muted">{reportData.length} employee{reportData.length !== 1 ? 's' : ''}</span>
+                        <span className="text-[12.5px] text-[var(--st-text-secondary)]">{reportData.length} employee{reportData.length !== 1 ? 's' : ''}</span>
                     )}
                 </div>
 
-                <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                     <table className="w-full text-left text-[13px]">
                         <thead>
-                            <tr className="border-b border-zoru-line bg-zoru-surface-2">
-                                <th className="px-4 py-3 font-medium text-zoru-ink-muted">Employee</th>
-                                <th className="px-4 py-3 font-medium text-zoru-ink-muted">Department</th>
-                                <th className="px-4 py-3 text-center font-medium text-zoru-ink">Present</th>
-                                <th className="px-4 py-3 text-center font-medium text-zoru-ink">Absent</th>
-                                <th className="px-4 py-3 text-center font-medium text-zoru-ink">Late</th>
-                                <th className="px-4 py-3 text-center font-medium text-zoru-ink">WFH</th>
-                                <th className="px-4 py-3 text-center font-medium text-zoru-ink-muted">Half Day</th>
-                                <th className="px-4 py-3 text-center font-medium text-zoru-ink-muted">Leave</th>
-                                <th className="px-4 py-3 text-center font-medium text-zoru-ink-muted">Total Days</th>
-                                <th className="px-4 py-3 text-center font-medium text-zoru-ink-muted">Attendance %</th>
+                            <tr className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]">
+                                <th className="px-4 py-3 font-medium text-[var(--st-text-secondary)]">Employee</th>
+                                <th className="px-4 py-3 font-medium text-[var(--st-text-secondary)]">Department</th>
+                                <th className="px-4 py-3 text-center font-medium text-[var(--st-text)]">Present</th>
+                                <th className="px-4 py-3 text-center font-medium text-[var(--st-text)]">Absent</th>
+                                <th className="px-4 py-3 text-center font-medium text-[var(--st-text)]">Late</th>
+                                <th className="px-4 py-3 text-center font-medium text-[var(--st-text)]">WFH</th>
+                                <th className="px-4 py-3 text-center font-medium text-[var(--st-text-secondary)]">Half Day</th>
+                                <th className="px-4 py-3 text-center font-medium text-[var(--st-text-secondary)]">Leave</th>
+                                <th className="px-4 py-3 text-center font-medium text-[var(--st-text-secondary)]">Total Days</th>
+                                <th className="px-4 py-3 text-center font-medium text-[var(--st-text-secondary)]">Attendance %</th>
                             </tr>
                         </thead>
                         <tbody>
                             {isLoading ? (
                                 <tr>
                                     <td colSpan={10} className="h-48 text-center">
-                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-zoru-ink-muted" />
+                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-[var(--st-text-secondary)]" />
                                     </td>
                                 </tr>
                             ) : reportData.length > 0 ? (
                                 <>
                                     {reportData.map(row => (
-                                        <tr key={row.employeeId} className="border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2/50">
-                                            <td className="px-4 py-3 font-medium text-zoru-ink">{row.employeeName}</td>
-                                            <td className="px-4 py-3 text-zoru-ink-muted">{row.department}</td>
-                                            <td className="px-4 py-3 text-center font-semibold text-zoru-ink">{row.present}</td>
-                                            <td className="px-4 py-3 text-center font-semibold text-zoru-ink">{row.absent}</td>
-                                            <td className="px-4 py-3 text-center text-zoru-ink">{row.late}</td>
-                                            <td className="px-4 py-3 text-center text-zoru-ink">{row.wfh}</td>
-                                            <td className="px-4 py-3 text-center text-zoru-ink">{row.halfDay}</td>
-                                            <td className="px-4 py-3 text-center text-zoru-ink">{row.leave}</td>
-                                            <td className="px-4 py-3 text-center text-zoru-ink">{row.totalWorkingDays}</td>
+                                        <tr key={row.employeeId} className="border-b border-[var(--st-border)] last:border-0 hover:bg-[var(--st-bg-muted)]/50">
+                                            <td className="px-4 py-3 font-medium text-[var(--st-text)]">{row.employeeName}</td>
+                                            <td className="px-4 py-3 text-[var(--st-text-secondary)]">{row.department}</td>
+                                            <td className="px-4 py-3 text-center font-semibold text-[var(--st-text)]">{row.present}</td>
+                                            <td className="px-4 py-3 text-center font-semibold text-[var(--st-text)]">{row.absent}</td>
+                                            <td className="px-4 py-3 text-center text-[var(--st-text)]">{row.late}</td>
+                                            <td className="px-4 py-3 text-center text-[var(--st-text)]">{row.wfh}</td>
+                                            <td className="px-4 py-3 text-center text-[var(--st-text)]">{row.halfDay}</td>
+                                            <td className="px-4 py-3 text-center text-[var(--st-text)]">{row.leave}</td>
+                                            <td className="px-4 py-3 text-center text-[var(--st-text)]">{row.totalWorkingDays}</td>
                                             <td className="px-4 py-3 text-center">
                                                 <Badge variant={attendanceBadgeVariant(row.attendancePercentage)}>
                                                     {row.attendancePercentage.toFixed(1)}%
@@ -382,24 +382,24 @@ export default function AttendanceReportPage() {
                                         </tr>
                                     ))}
                                     {/* Totals row */}
-                                    <tr className="border-t-2 border-zoru-line bg-zoru-surface-2 font-semibold">
-                                        <td className="px-4 py-3 text-zoru-ink">Totals</td>
+                                    <tr className="border-t-2 border-[var(--st-border)] bg-[var(--st-bg-muted)] font-semibold">
+                                        <td className="px-4 py-3 text-[var(--st-text)]">Totals</td>
                                         <td className="px-4 py-3" />
-                                        <td className="px-4 py-3 text-center text-zoru-ink">{reportData.reduce((s, r) => s + r.present, 0)}</td>
-                                        <td className="px-4 py-3 text-center text-zoru-ink">{reportData.reduce((s, r) => s + r.absent, 0)}</td>
-                                        <td className="px-4 py-3 text-center text-zoru-ink">{reportData.reduce((s, r) => s + r.late, 0)}</td>
-                                        <td className="px-4 py-3 text-center text-zoru-ink">{reportData.reduce((s, r) => s + r.wfh, 0)}</td>
-                                        <td className="px-4 py-3 text-center text-zoru-ink">{reportData.reduce((s, r) => s + r.halfDay, 0)}</td>
-                                        <td className="px-4 py-3 text-center text-zoru-ink">{reportData.reduce((s, r) => s + r.leave, 0)}</td>
-                                        <td className="px-4 py-3 text-center text-zoru-ink">{reportData.reduce((s, r) => s + r.totalWorkingDays, 0)}</td>
-                                        <td className="px-4 py-3 text-center text-zoru-ink">
+                                        <td className="px-4 py-3 text-center text-[var(--st-text)]">{reportData.reduce((s, r) => s + r.present, 0)}</td>
+                                        <td className="px-4 py-3 text-center text-[var(--st-text)]">{reportData.reduce((s, r) => s + r.absent, 0)}</td>
+                                        <td className="px-4 py-3 text-center text-[var(--st-text)]">{reportData.reduce((s, r) => s + r.late, 0)}</td>
+                                        <td className="px-4 py-3 text-center text-[var(--st-text)]">{reportData.reduce((s, r) => s + r.wfh, 0)}</td>
+                                        <td className="px-4 py-3 text-center text-[var(--st-text)]">{reportData.reduce((s, r) => s + r.halfDay, 0)}</td>
+                                        <td className="px-4 py-3 text-center text-[var(--st-text)]">{reportData.reduce((s, r) => s + r.leave, 0)}</td>
+                                        <td className="px-4 py-3 text-center text-[var(--st-text)]">{reportData.reduce((s, r) => s + r.totalWorkingDays, 0)}</td>
+                                        <td className="px-4 py-3 text-center text-[var(--st-text)]">
                                             {(reportData.reduce((s, r) => s + r.attendancePercentage, 0) / (reportData.length || 1)).toFixed(1)}%
                                         </td>
                                     </tr>
                                 </>
                             ) : (
                                 <tr>
-                                    <td colSpan={10} className="h-24 text-center text-zoru-ink-muted">
+                                    <td colSpan={10} className="h-24 text-center text-[var(--st-text-secondary)]">
                                         No attendance data for the selected period.
                                     </td>
                                 </tr>

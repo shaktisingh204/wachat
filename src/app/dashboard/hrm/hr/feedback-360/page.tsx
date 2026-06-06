@@ -56,10 +56,10 @@ function StarBar({ value }: { value: number }) {
       {[1, 2, 3, 4, 5].map((i) => (
         <Star
           key={i}
-          className={`h-3 w-3 ${i <= n ? 'fill-zoru-ink-muted text-zoru-ink-muted' : 'fill-transparent text-zoru-line'}`}
+          className={`h-3 w-3 ${i <= n ? 'fill-[var(--st-text-secondary)] text-[var(--st-text-secondary)]' : 'fill-transparent text-[var(--st-border)]'}`}
         />
       ))}
-      <span className="ml-1 text-[12px] tabular-nums text-zoru-ink-muted">
+      <span className="ml-1 text-[12px] tabular-nums text-[var(--st-text-secondary)]">
         {value > 0 ? value.toFixed(1) : '—'}
       </span>
     </div>
@@ -145,7 +145,7 @@ export default function Feedback360Page() {
             r.type || r.reviewerType ? (
               <HrChip>{r.type ?? r.reviewerType}</HrChip>
             ) : (
-              <span className="text-zoru-ink-muted">—</span>
+              <span className="text-[var(--st-text-secondary)]">—</span>
             ),
         },
         {
@@ -155,7 +155,7 @@ export default function Feedback360Page() {
             r.period || r.reviewCycle ? (
               <HrChip>{r.period ?? r.reviewCycle}</HrChip>
             ) : (
-              <span className="text-zoru-ink-muted">—</span>
+              <span className="text-[var(--st-text-secondary)]">—</span>
             ),
         },
         {

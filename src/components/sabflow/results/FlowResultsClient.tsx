@@ -104,19 +104,19 @@ interface StatCardProps {
 
 function StatCard({ icon, label, value, sub }: StatCardProps) {
   return (
-    <div className="flex items-center gap-4 bg-white dark:bg-zoru-ink border border-zoru-line dark:border-zoru-line rounded-xl px-5 py-4">
-      <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-zoru-surface-2 dark:bg-zoru-ink/20 flex items-center justify-center text-zoru-ink">
+    <div className="flex items-center gap-4 bg-white dark:bg-[var(--st-text)] border border-[var(--st-border)] dark:border-[var(--st-border)] rounded-xl px-5 py-4">
+      <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/20 flex items-center justify-center text-[var(--st-text)]">
         {icon}
       </div>
       <div>
-        <p className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted dark:text-zoru-ink">
+        <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)] dark:text-[var(--st-text)]">
           {label}
         </p>
-        <p className="text-xl font-bold text-zoru-ink dark:text-white mt-0.5 tabular-nums">
+        <p className="text-xl font-bold text-[var(--st-text)] dark:text-white mt-0.5 tabular-nums">
           {value}
         </p>
         {sub && (
-          <p className="text-[11px] text-zoru-ink-muted dark:text-zoru-ink mt-0.5">{sub}</p>
+          <p className="text-[11px] text-[var(--st-text-secondary)] dark:text-[var(--st-text)] mt-0.5">{sub}</p>
         )}
       </div>
     </div>
@@ -154,12 +154,12 @@ function CssBarChart({ data }: BarChartProps) {
             >
               {/* Tooltip */}
               {d.count > 0 && (
-                <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 bg-zoru-ink dark:bg-zoru-ink text-white text-[10px] rounded px-1.5 py-0.5 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 bg-[var(--st-text)] dark:bg-[var(--st-text)] text-white text-[10px] rounded px-1.5 py-0.5 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
                   {d.count} on {d.date}
                 </div>
               )}
               <div
-                className="w-full rounded-t-sm bg-zoru-surface-2 dark:bg-zoru-ink transition-all duration-300 min-h-[2px]"
+                className="w-full rounded-t-sm bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] transition-all duration-300 min-h-[2px]"
                 style={{ height: `${Math.max(heightPct, d.count > 0 ? 4 : 0)}%` }}
               />
             </div>
@@ -171,7 +171,7 @@ function CssBarChart({ data }: BarChartProps) {
         {visible.map((d, i) => (
           <div key={d.date} className="flex-1 text-center">
             {i % 2 === 0 && (
-              <span className="text-[9px] text-zoru-ink-muted dark:text-zoru-ink">
+              <span className="text-[9px] text-[var(--st-text-secondary)] dark:text-[var(--st-text)]">
                 {fmtAxisDate(d.date)}
               </span>
             )}
@@ -195,15 +195,15 @@ function ExpandedRow({ submission }: { submission: Submission }) {
     <tr>
       <td
         colSpan={5}
-        className="px-4 py-4 bg-zoru-surface-2/80 dark:bg-zoru-ink/50 border-b border-zoru-line dark:border-zoru-line"
+        className="px-4 py-4 bg-[var(--st-bg-muted)]/80 dark:bg-[var(--st-text)]/50 border-b border-[var(--st-border)] dark:border-[var(--st-border)]"
       >
         <div className="space-y-3 max-w-3xl">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-zoru-ink dark:text-zoru-ink-muted">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
             Collected variables
           </p>
 
           {entries.length === 0 ? (
-            <p className="text-sm text-zoru-ink-muted dark:text-zoru-ink italic">
+            <p className="text-sm text-[var(--st-text-secondary)] dark:text-[var(--st-text)] italic">
               No variables collected.
             </p>
           ) : (
@@ -211,13 +211,13 @@ function ExpandedRow({ submission }: { submission: Submission }) {
               {entries.map(([key, val]) => (
                 <div
                   key={key}
-                  className="flex items-center gap-1.5 bg-white dark:bg-zoru-ink border border-zoru-line dark:border-zoru-line rounded-md px-2.5 py-1 text-sm"
+                  className="flex items-center gap-1.5 bg-white dark:bg-[var(--st-text)] border border-[var(--st-border)] dark:border-[var(--st-border)] rounded-md px-2.5 py-1 text-sm"
                 >
-                  <span className="font-mono text-xs text-zoru-ink dark:text-zoru-ink-muted">
+                  <span className="font-mono text-xs text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
                     {key}
                   </span>
-                  <span className="text-zoru-ink-muted dark:text-zoru-ink">=</span>
-                  <span className="text-zoru-ink dark:text-zoru-ink-muted max-w-[240px] truncate">
+                  <span className="text-[var(--st-text-secondary)] dark:text-[var(--st-text)]">=</span>
+                  <span className="text-[var(--st-text)] dark:text-[var(--st-text-secondary)] max-w-[240px] truncate">
                     {String(val)}
                   </span>
                 </div>
@@ -225,7 +225,7 @@ function ExpandedRow({ submission }: { submission: Submission }) {
             </div>
           )}
 
-          <div className="text-[11px] text-zoru-ink-muted dark:text-zoru-ink space-y-0.5 pt-1">
+          <div className="text-[11px] text-[var(--st-text-secondary)] dark:text-[var(--st-text)] space-y-0.5 pt-1">
             <div>
               Session ID:{' '}
               <span className="font-mono">{submission.sessionId || submission._id}</span>
@@ -312,18 +312,18 @@ function ResultsTab({ flowId }: ResultsTabProps) {
       <div className="flex flex-wrap items-center gap-3 justify-between">
         {/* Search */}
         <div className="relative w-64">
-          <LuSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zoru-ink-muted" />
+          <LuSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
           <input
             type="text"
             value={search}
             onChange={(e) => handleSearchChange(e.target.value)}
             placeholder="Search variable values…"
-            className="w-full pl-9 pr-8 py-2 text-[13px] bg-white dark:bg-zoru-ink border border-zoru-line dark:border-zoru-line rounded-lg outline-none focus:ring-2 focus:ring-zoru-line/30 focus:border-zoru-line transition-colors text-zoru-ink dark:text-white placeholder:text-zoru-ink-muted"
+            className="w-full pl-9 pr-8 py-2 text-[13px] bg-white dark:bg-[var(--st-text)] border border-[var(--st-border)] dark:border-[var(--st-border)] rounded-lg outline-none focus:ring-2 focus:ring-[var(--st-border)]/30 focus:border-[var(--st-border)] transition-colors text-[var(--st-text)] dark:text-white placeholder:text-[var(--st-text-secondary)]"
           />
           {search && (
             <button
               onClick={() => { handleSearchChange(''); }}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zoru-ink-muted hover:text-zoru-ink dark:hover:text-zoru-ink-muted"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--st-text-secondary)] hover:text-[var(--st-text)] dark:hover:text-[var(--st-text-secondary)]"
               aria-label="Clear search"
             >
               <LuX className="w-3.5 h-3.5" />
@@ -335,14 +335,14 @@ function ResultsTab({ flowId }: ResultsTabProps) {
           <button
             onClick={() => fetchPage(page, debouncedSearch)}
             disabled={isPending}
-            className="flex items-center gap-1.5 text-sm text-zoru-ink hover:text-zoru-ink dark:hover:text-zoru-ink-muted transition-colors disabled:opacity-50 px-2 py-1.5 rounded-lg hover:bg-zoru-surface-2 dark:hover:bg-zoru-ink"
+            className="flex items-center gap-1.5 text-sm text-[var(--st-text)] hover:text-[var(--st-text)] dark:hover:text-[var(--st-text-secondary)] transition-colors disabled:opacity-50 px-2 py-1.5 rounded-lg hover:bg-[var(--st-bg-muted)] dark:hover:bg-[var(--st-text)]"
           >
             <LuRefreshCw className={`w-3.5 h-3.5 ${isPending ? 'animate-spin' : ''}`} />
             Refresh
           </button>
           <button
             onClick={handleExport}
-            className="flex items-center gap-1.5 text-sm bg-zoru-ink hover:bg-zoru-ink text-white rounded-lg px-3 py-1.5 font-medium transition-colors"
+            className="flex items-center gap-1.5 text-sm bg-[var(--st-text)] hover:bg-[var(--st-text)] text-white rounded-lg px-3 py-1.5 font-medium transition-colors"
           >
             <LuDownload className="w-3.5 h-3.5" />
             Export CSV
@@ -351,27 +351,27 @@ function ResultsTab({ flowId }: ResultsTabProps) {
       </div>
 
       {/* Table */}
-      <div className="rounded-xl border border-zoru-line dark:border-zoru-line overflow-hidden bg-white dark:bg-zoru-ink">
+      <div className="rounded-xl border border-[var(--st-border)] dark:border-[var(--st-border)] overflow-hidden bg-white dark:bg-[var(--st-text)]">
         {/* Loading skeleton */}
         {isPending && submissions.length === 0 ? (
           <table className="w-full text-sm">
-            <thead className="bg-zoru-surface-2 dark:bg-zoru-ink/60 border-b border-zoru-line dark:border-zoru-line">
+            <thead className="bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/60 border-b border-[var(--st-border)] dark:border-[var(--st-border)]">
               <tr>
                 <th className="w-8" />
-                <th className="text-left px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-zoru-ink">ID</th>
-                <th className="text-left px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-zoru-ink hidden sm:table-cell">Started</th>
-                <th className="text-left px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-zoru-ink">Completed</th>
-                <th className="text-left px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-zoru-ink">Status</th>
+                <th className="text-left px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text)]">ID</th>
+                <th className="text-left px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text)] hidden sm:table-cell">Started</th>
+                <th className="text-left px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text)]">Completed</th>
+                <th className="text-left px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text)]">Status</th>
               </tr>
             </thead>
             <tbody>
               {Array.from({ length: 5 }).map((_, i) => (
-                <tr key={i} className="border-b border-zoru-line dark:border-zoru-line animate-pulse">
-                  <td className="px-4 py-3"><div className="h-4 w-4 bg-zoru-surface-2 dark:bg-zoru-ink rounded" /></td>
-                  <td className="px-4 py-3"><div className="h-4 w-24 bg-zoru-surface-2 dark:bg-zoru-ink rounded" /></td>
-                  <td className="px-4 py-3 hidden sm:table-cell"><div className="h-4 w-36 bg-zoru-surface-2 dark:bg-zoru-ink rounded" /></td>
-                  <td className="px-4 py-3"><div className="h-4 w-36 bg-zoru-surface-2 dark:bg-zoru-ink rounded" /></td>
-                  <td className="px-4 py-3"><div className="h-5 w-20 bg-zoru-surface-2 dark:bg-zoru-ink rounded-full" /></td>
+                <tr key={i} className="border-b border-[var(--st-border)] dark:border-[var(--st-border)] animate-pulse">
+                  <td className="px-4 py-3"><div className="h-4 w-4 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded" /></td>
+                  <td className="px-4 py-3"><div className="h-4 w-24 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded" /></td>
+                  <td className="px-4 py-3 hidden sm:table-cell"><div className="h-4 w-36 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded" /></td>
+                  <td className="px-4 py-3"><div className="h-4 w-36 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded" /></td>
+                  <td className="px-4 py-3"><div className="h-5 w-20 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded-full" /></td>
                 </tr>
               ))}
             </tbody>
@@ -379,13 +379,13 @@ function ResultsTab({ flowId }: ResultsTabProps) {
         ) : total === 0 ? (
           /* Empty state */
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-zoru-surface-2 dark:bg-zoru-ink mb-4">
-              <LuInbox className="w-7 h-7 text-zoru-ink-muted dark:text-zoru-ink" />
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] mb-4">
+              <LuInbox className="w-7 h-7 text-[var(--st-text-secondary)] dark:text-[var(--st-text)]" />
             </div>
-            <p className="text-[15px] font-semibold text-zoru-ink dark:text-zoru-ink-muted">
+            <p className="text-[15px] font-semibold text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
               {debouncedSearch ? 'No matching submissions' : 'No submissions yet'}
             </p>
-            <p className="text-sm text-zoru-ink-muted dark:text-zoru-ink mt-1 max-w-xs">
+            <p className="text-sm text-[var(--st-text-secondary)] dark:text-[var(--st-text)] mt-1 max-w-xs">
               {debouncedSearch
                 ? `Nothing matched "${debouncedSearch}". Try a different search.`
                 : 'Submissions will appear here once users complete your published flow.'}
@@ -393,7 +393,7 @@ function ResultsTab({ flowId }: ResultsTabProps) {
             {debouncedSearch && (
               <button
                 onClick={() => handleSearchChange('')}
-                className="mt-3 text-sm text-zoru-ink hover:text-zoru-ink font-medium"
+                className="mt-3 text-sm text-[var(--st-text)] hover:text-[var(--st-text)] font-medium"
               >
                 Clear search
               </button>
@@ -401,25 +401,25 @@ function ResultsTab({ flowId }: ResultsTabProps) {
           </div>
         ) : (
           <table className="w-full text-sm">
-            <thead className="bg-zoru-surface-2 dark:bg-zoru-ink/60 border-b border-zoru-line dark:border-zoru-line">
+            <thead className="bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/60 border-b border-[var(--st-border)] dark:border-[var(--st-border)]">
               <tr>
                 <th className="w-8" />
-                <th className="text-left px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-zoru-ink">
+                <th className="text-left px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text)]">
                   ID
                 </th>
-                <th className="text-left px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-zoru-ink hidden sm:table-cell">
+                <th className="text-left px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text)] hidden sm:table-cell">
                   Started
                 </th>
-                <th className="text-left px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-zoru-ink">
+                <th className="text-left px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text)]">
                   Completed
                 </th>
-                <th className="text-left px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-zoru-ink">
+                <th className="text-left px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text)]">
                   Status
                 </th>
               </tr>
             </thead>
             <tbody
-              className={`divide-y divide-zoru-line dark:divide-zoru-line transition-opacity ${isPending ? 'opacity-50' : ''}`}
+              className={`divide-y divide-[var(--st-border)] dark:divide-[var(--st-border)] transition-opacity ${isPending ? 'opacity-50' : ''}`}
             >
               {submissions.flatMap((sub) => {
                 const isExpanded = expandedId === sub._id;
@@ -427,33 +427,33 @@ function ResultsTab({ flowId }: ResultsTabProps) {
                   <tr
                     key={sub._id}
                     onClick={() => setExpandedId(isExpanded ? null : sub._id)}
-                    className="cursor-pointer hover:bg-zoru-surface-2 dark:hover:bg-zoru-ink/40 transition-colors"
+                    className="cursor-pointer hover:bg-[var(--st-bg-muted)] dark:hover:bg-[var(--st-text)]/40 transition-colors"
                   >
-                    <td className="px-3 py-3 text-zoru-ink-muted">
+                    <td className="px-3 py-3 text-[var(--st-text-secondary)]">
                       {isExpanded ? (
                         <LuChevronDown className="w-4 h-4" />
                       ) : (
                         <LuChevronRight className="w-4 h-4" />
                       )}
                     </td>
-                    <td className="px-4 py-3 font-mono text-[12px] text-zoru-ink dark:text-zoru-ink-muted">
+                    <td className="px-4 py-3 font-mono text-[12px] text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
                       {truncateId(sub.sessionId || sub._id)}
                     </td>
-                    <td className="px-4 py-3 text-zoru-ink dark:text-zoru-ink-muted hidden sm:table-cell text-[12px]">
+                    <td className="px-4 py-3 text-[var(--st-text)] dark:text-[var(--st-text-secondary)] hidden sm:table-cell text-[12px]">
                       {fmtDate(sub.startedAt)}
                     </td>
-                    <td className="px-4 py-3 text-zoru-ink dark:text-zoru-ink-muted text-[12px]">
+                    <td className="px-4 py-3 text-[var(--st-text)] dark:text-[var(--st-text-secondary)] text-[12px]">
                       {fmtDate(sub.completedAt)}
                     </td>
                     <td className="px-4 py-3">
                       {sub.isComplete ? (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted">
-                          <span className="w-1.5 h-1.5 rounded-full bg-zoru-ink inline-block" />
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[var(--st-text)] inline-block" />
                           Complete
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink dark:text-zoru-ink-muted">
-                          <span className="w-1.5 h-1.5 rounded-full bg-zoru-surface-2 inline-block" />
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[var(--st-bg-muted)] inline-block" />
                           Partial
                         </span>
                       )}
@@ -471,7 +471,7 @@ function ResultsTab({ flowId }: ResultsTabProps) {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between text-sm text-zoru-ink dark:text-zoru-ink-muted">
+        <div className="flex items-center justify-between text-sm text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
           <span className="text-[12px]">
             {total} submission{total !== 1 ? 's' : ''} total
           </span>
@@ -480,7 +480,7 @@ function ResultsTab({ flowId }: ResultsTabProps) {
               onClick={() => handlePageChange(page - 1)}
               disabled={page <= 1}
               aria-label="Previous page"
-              className="flex h-7 w-7 items-center justify-center rounded hover:bg-zoru-surface-2 dark:hover:bg-zoru-ink disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="flex h-7 w-7 items-center justify-center rounded hover:bg-[var(--st-bg-muted)] dark:hover:bg-[var(--st-text)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               <LuChevronLeft className="w-4 h-4" />
             </button>
@@ -498,7 +498,7 @@ function ResultsTab({ flowId }: ResultsTabProps) {
               }, [])
               .map((item, idx) =>
                 item === 'ellipsis' ? (
-                  <span key={`e-${idx}`} className="px-1 text-zoru-ink-muted">
+                  <span key={`e-${idx}`} className="px-1 text-[var(--st-text-secondary)]">
                     …
                   </span>
                 ) : (
@@ -507,8 +507,8 @@ function ResultsTab({ flowId }: ResultsTabProps) {
                     onClick={() => handlePageChange(item as number)}
                     className={`h-7 w-7 rounded text-[12px] font-medium transition-colors ${
                       item === page
-                        ? 'bg-zoru-ink text-white'
-                        : 'hover:bg-zoru-surface-2 dark:hover:bg-zoru-ink'
+                        ? 'bg-[var(--st-text)] text-white'
+                        : 'hover:bg-[var(--st-bg-muted)] dark:hover:bg-[var(--st-text)]'
                     }`}
                   >
                     {item}
@@ -520,7 +520,7 @@ function ResultsTab({ flowId }: ResultsTabProps) {
               onClick={() => handlePageChange(page + 1)}
               disabled={page >= totalPages}
               aria-label="Next page"
-              className="flex h-7 w-7 items-center justify-center rounded hover:bg-zoru-surface-2 dark:hover:bg-zoru-ink disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="flex h-7 w-7 items-center justify-center rounded hover:bg-[var(--st-bg-muted)] dark:hover:bg-[var(--st-text)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               <LuChevronRight className="w-4 h-4" />
             </button>
@@ -562,7 +562,7 @@ function AnalyticsTab({ flowId }: AnalyticsTabProps) {
 
   if (isPending && !data) {
     return (
-      <div className="flex items-center justify-center py-20 text-zoru-ink-muted gap-2">
+      <div className="flex items-center justify-center py-20 text-[var(--st-text-secondary)] gap-2">
         <LuLoader2 className="w-5 h-5 animate-spin" />
         <span className="text-sm">Loading analytics…</span>
       </div>
@@ -572,10 +572,10 @@ function AnalyticsTab({ flowId }: AnalyticsTabProps) {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-3 text-center">
-        <p className="text-sm text-zoru-ink dark:text-zoru-ink-muted">{error}</p>
+        <p className="text-sm text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">{error}</p>
         <button
           onClick={load}
-          className="text-sm text-zoru-ink hover:text-zoru-ink font-medium"
+          className="text-sm text-[var(--st-text)] hover:text-[var(--st-text)] font-medium"
         >
           Retry
         </button>
@@ -616,20 +616,20 @@ function AnalyticsTab({ flowId }: AnalyticsTabProps) {
       </div>
 
       {/* Submissions over time */}
-      <div className="bg-white dark:bg-zoru-ink border border-zoru-line dark:border-zoru-line rounded-xl p-5">
+      <div className="bg-white dark:bg-[var(--st-text)] border border-[var(--st-border)] dark:border-[var(--st-border)] rounded-xl p-5">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <p className="text-[13px] font-semibold text-zoru-ink dark:text-white">
+            <p className="text-[13px] font-semibold text-[var(--st-text)] dark:text-white">
               Submissions over time
             </p>
-            <p className="text-[11px] text-zoru-ink-muted dark:text-zoru-ink mt-0.5">
+            <p className="text-[11px] text-[var(--st-text-secondary)] dark:text-[var(--st-text)] mt-0.5">
               Last 30 days
             </p>
           </div>
           <button
             onClick={load}
             disabled={isPending}
-            className="flex items-center gap-1.5 text-[12px] text-zoru-ink-muted hover:text-zoru-ink dark:hover:text-zoru-ink-muted transition-colors disabled:opacity-50"
+            className="flex items-center gap-1.5 text-[12px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)] dark:hover:text-[var(--st-text-secondary)] transition-colors disabled:opacity-50"
           >
             <LuRefreshCw className={`w-3.5 h-3.5 ${isPending ? 'animate-spin' : ''}`} />
             Refresh
@@ -638,8 +638,8 @@ function AnalyticsTab({ flowId }: AnalyticsTabProps) {
 
         {data.submissionsOverTime.every((d) => d.count === 0) ? (
           <div className="flex flex-col items-center justify-center h-24 text-center">
-            <LuInbox className="w-6 h-6 text-zoru-ink-muted dark:text-zoru-ink mb-2" />
-            <p className="text-[12px] text-zoru-ink-muted dark:text-zoru-ink">
+            <LuInbox className="w-6 h-6 text-[var(--st-text-secondary)] dark:text-[var(--st-text)] mb-2" />
+            <p className="text-[12px] text-[var(--st-text-secondary)] dark:text-[var(--st-text)]">
               No submission data in the last 30 days.
             </p>
           </div>
@@ -650,11 +650,11 @@ function AnalyticsTab({ flowId }: AnalyticsTabProps) {
 
       {/* Drop-off by block */}
       {data.dropOffByBlock.length > 0 && (
-        <div className="bg-white dark:bg-zoru-ink border border-zoru-line dark:border-zoru-line rounded-xl p-5">
-          <p className="text-[13px] font-semibold text-zoru-ink dark:text-white mb-1">
+        <div className="bg-white dark:bg-[var(--st-text)] border border-[var(--st-border)] dark:border-[var(--st-border)] rounded-xl p-5">
+          <p className="text-[13px] font-semibold text-[var(--st-text)] dark:text-white mb-1">
             Drop-off points
           </p>
-          <p className="text-[11px] text-zoru-ink-muted dark:text-zoru-ink mb-4">
+          <p className="text-[11px] text-[var(--st-text-secondary)] dark:text-[var(--st-text)] mb-4">
             Where incomplete sessions last stopped
           </p>
 
@@ -667,16 +667,16 @@ function AnalyticsTab({ flowId }: AnalyticsTabProps) {
               const pct = Math.round((item.dropOffCount / maxDropOff) * 100);
               return (
                 <div key={item.blockId} className="flex items-center gap-3">
-                  <div className="w-52 shrink-0 text-[12px] text-zoru-ink dark:text-zoru-ink-muted truncate" title={item.blockLabel}>
+                  <div className="w-52 shrink-0 text-[12px] text-[var(--st-text)] dark:text-[var(--st-text-secondary)] truncate" title={item.blockLabel}>
                     {item.blockLabel}
                   </div>
-                  <div className="flex-1 h-2 bg-zoru-surface-2 dark:bg-zoru-ink rounded-full overflow-hidden">
+                  <div className="flex-1 h-2 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-zoru-surface-2 dark:bg-zoru-ink rounded-full transition-all duration-500"
+                      className="h-full bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded-full transition-all duration-500"
                       style={{ width: `${pct}%` }}
                     />
                   </div>
-                  <div className="w-8 shrink-0 text-right text-[12px] font-medium text-zoru-ink dark:text-zoru-ink-muted tabular-nums">
+                  <div className="w-8 shrink-0 text-right text-[12px] font-medium text-[var(--st-text)] dark:text-[var(--st-text-secondary)] tabular-nums">
                     {item.dropOffCount}
                   </div>
                 </div>
@@ -705,7 +705,7 @@ export function FlowResultsClient({ flowId }: FlowResultsClientProps) {
   return (
     <div className="flex flex-col gap-6">
       {/* Tab bar */}
-      <div className="flex items-center gap-1 bg-zoru-surface-2 dark:bg-zoru-ink rounded-xl p-1 self-start">
+      <div className="flex items-center gap-1 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded-xl p-1 self-start">
         {(
           [
             { id: 'results', label: 'Results', icon: LuTable2 },
@@ -717,8 +717,8 @@ export function FlowResultsClient({ flowId }: FlowResultsClientProps) {
             onClick={() => setTab(id)}
             className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-medium transition-colors ${
               tab === id
-                ? 'bg-white dark:bg-zoru-ink text-zoru-ink dark:text-white shadow-sm'
-                : 'text-zoru-ink dark:text-zoru-ink-muted hover:text-zoru-ink dark:hover:text-white'
+                ? 'bg-white dark:bg-[var(--st-text)] text-[var(--st-text)] dark:text-white shadow-sm'
+                : 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)] hover:text-[var(--st-text)] dark:hover:text-white'
             }`}
           >
             <Icon className="w-3.5 h-3.5" />

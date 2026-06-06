@@ -32,19 +32,19 @@ export interface LeadsFunnelProps {
 }
 
 const TONE_BG: Record<StatusTone, string> = {
-    neutral: 'bg-zoru-surface-2',
-    blue: 'bg-zoru-info/15',
+    neutral: 'bg-[var(--st-bg-muted)]',
+    blue: 'bg-[var(--st-text-secondary)]/15',
     amber: 'bg-zoru-warn/15',
-    green: 'bg-zoru-success/15',
-    red: 'bg-zoru-danger/15',
+    green: 'bg-[var(--st-status-ok)]/15',
+    red: 'bg-[var(--st-danger)]/15',
 };
 
 const TONE_BG_ACTIVE: Record<StatusTone, string> = {
-    neutral: 'bg-zoru-line-strong',
-    blue: 'bg-zoru-info/30 ring-1 ring-zoru-info',
+    neutral: 'bg-[var(--st-border-strong)]',
+    blue: 'bg-[var(--st-text-secondary)]/30 ring-1 ring-[var(--st-text-secondary)]',
     amber: 'bg-zoru-warn/30 ring-1 ring-zoru-warn',
-    green: 'bg-zoru-success/30 ring-1 ring-zoru-success',
-    red: 'bg-zoru-danger/30 ring-1 ring-zoru-danger',
+    green: 'bg-[var(--st-status-ok)]/30 ring-1 ring-[var(--st-status-ok)]',
+    red: 'bg-[var(--st-danger)]/30 ring-1 ring-[var(--st-danger)]',
 };
 
 export function LeadsFunnel({ stages, activeKey, onSelect }: LeadsFunnelProps) {
@@ -53,14 +53,14 @@ export function LeadsFunnel({ stages, activeKey, onSelect }: LeadsFunnelProps) {
         <Card className="h-full">
             <ZoruCardContent className="flex h-full flex-col gap-2 pt-4">
                 <div className="flex items-center justify-between">
-                    <span className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <span className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Conversion funnel
                     </span>
-                    <span className="text-[11.5px] text-zoru-ink-muted">
+                    <span className="text-[11.5px] text-[var(--st-text-secondary)]">
                         {total.toLocaleString()} total
                     </span>
                 </div>
-                <div className="flex h-7 w-full overflow-hidden rounded-md border border-zoru-line">
+                <div className="flex h-7 w-full overflow-hidden rounded-md border border-[var(--st-border)]">
                     {stages.map((stage) => {
                         const tone = statusToTone(stage.key);
                         const isActive = activeKey === stage.key;
@@ -74,19 +74,19 @@ export function LeadsFunnel({ stages, activeKey, onSelect }: LeadsFunnelProps) {
                                 style={{ flexBasis: `${flexBasis}%` }}
                                 aria-label={`Filter by ${stage.label} (${stage.count})`}
                                 className={[
-                                    'group relative flex items-center justify-center border-r border-zoru-line transition-colors last:border-r-0',
+                                    'group relative flex items-center justify-center border-r border-[var(--st-border)] transition-colors last:border-r-0',
                                     isActive ? TONE_BG_ACTIVE[tone] : TONE_BG[tone],
                                     'hover:opacity-90',
                                 ].join(' ')}
                             >
-                                <span className="text-[10.5px] font-medium text-zoru-ink truncate px-1">
+                                <span className="text-[10.5px] font-medium text-[var(--st-text)] truncate px-1">
                                     {stage.count}
                                 </span>
                             </button>
                         );
                     })}
                 </div>
-                <ul className="flex justify-between text-[10.5px] text-zoru-ink-muted">
+                <ul className="flex justify-between text-[10.5px] text-[var(--st-text-secondary)]">
                     {stages.map((s) => (
                         <li key={`label-${s.key}`} className="truncate text-center">
                             {s.label}

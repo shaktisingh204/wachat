@@ -140,11 +140,11 @@ export default async function ConversionsFunnelPage() {
             <Card className="p-6">
                 <div className="flex flex-wrap items-baseline justify-between gap-3">
                     <div>
-                        <div className="text-[12.5px] text-zoru-ink-muted">
+                        <div className="text-[12.5px] text-[var(--st-text-secondary)]">
                             Overall conversion (Leads → Invoices)
                         </div>
                         <div className="mt-1 flex items-baseline gap-2">
-                            <span className="text-[32px] font-semibold leading-none text-zoru-ink">
+                            <span className="text-[32px] font-semibold leading-none text-[var(--st-text)]">
                                 {overall}%
                             </span>
                             <StatusPill
@@ -153,16 +153,16 @@ export default async function ConversionsFunnelPage() {
                             />
                         </div>
                     </div>
-                    <div className="flex items-center gap-4 text-[12.5px] text-zoru-ink-muted">
+                    <div className="flex items-center gap-4 text-[12.5px] text-[var(--st-text-secondary)]">
                         <div>
-                            <span className="text-zoru-ink-muted">Win rate</span>{' '}
-                            <span className="font-mono text-zoru-ink">
+                            <span className="text-[var(--st-text-secondary)]">Win rate</span>{' '}
+                            <span className="font-mono text-[var(--st-text)]">
                                 {leadKpis.conversionRate}%
                             </span>
                         </div>
                         <div>
-                            <span className="text-zoru-ink-muted">Won leads</span>{' '}
-                            <span className="font-mono text-zoru-ink">{won}</span>
+                            <span className="text-[var(--st-text-secondary)]">Won leads</span>{' '}
+                            <span className="font-mono text-[var(--st-text)]">{won}</span>
                         </div>
                     </div>
                 </div>
@@ -176,21 +176,21 @@ export default async function ConversionsFunnelPage() {
                         <Link
                             key={stage.key}
                             href={stage.href}
-                            className="group rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-4 transition hover:border-zoru-line-strong hover:bg-zoru-surface-2"
+                            className="group rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4 transition hover:border-[var(--st-border-strong)] hover:bg-[var(--st-bg-muted)]"
                         >
-                            <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink-muted">
+                            <div className="flex items-center gap-2 text-[12.5px] text-[var(--st-text-secondary)]">
                                 <Icon className="h-4 w-4" strokeWidth={1.75} />
                                 {stage.label}
                             </div>
-                            <div className="mt-2 text-[26px] font-semibold leading-none text-zoru-ink">
+                            <div className="mt-2 text-[26px] font-semibold leading-none text-[var(--st-text)]">
                                 {stage.count}
                             </div>
                             {stage.detail ? (
-                                <div className="mt-1 text-[12px] text-zoru-ink-muted">
+                                <div className="mt-1 text-[12px] text-[var(--st-text-secondary)]">
                                     {stage.detail}
                                 </div>
                             ) : null}
-                            <div className="mt-3 inline-flex items-center text-[12px] text-zoru-ink-muted transition group-hover:text-zoru-ink">
+                            <div className="mt-3 inline-flex items-center text-[12px] text-[var(--st-text-secondary)] transition group-hover:text-[var(--st-text)]">
                                 Open list
                                 <ArrowRight
                                     className="ml-1 inline-block h-3.5 w-3.5 transition group-hover:translate-x-0.5"
@@ -205,20 +205,20 @@ export default async function ConversionsFunnelPage() {
             {/* Step-by-step rates */}
             <Card className="p-6">
                 <div className="mb-4 flex items-center gap-2">
-                    <TrendingUp className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
-                    <div className="text-[15px] font-medium text-zoru-ink">
+                    <TrendingUp className="h-4 w-4 text-[var(--st-text-secondary)]" strokeWidth={1.75} />
+                    <div className="text-[15px] font-medium text-[var(--st-text)]">
                         Step-by-step conversion
                     </div>
                 </div>
                 <ul className="space-y-3">
-                    <li className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-3">
-                        <div className="flex items-center gap-2 text-[13px] text-zoru-ink">
+                    <li className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3">
+                        <div className="flex items-center gap-2 text-[13px] text-[var(--st-text)]">
                             <Badge variant="ghost">Leads</Badge>
-                            <ArrowRight className="h-3.5 w-3.5 text-zoru-ink-muted" />
+                            <ArrowRight className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                             <Badge variant="ghost">Deals</Badge>
                         </div>
                         <div className="flex items-baseline gap-2">
-                            <span className="font-mono text-[16px] text-zoru-ink">
+                            <span className="font-mono text-[16px] text-[var(--st-text)]">
                                 {leadsToDeals}%
                             </span>
                             <StatusPill
@@ -227,14 +227,14 @@ export default async function ConversionsFunnelPage() {
                             />
                         </div>
                     </li>
-                    <li className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-3">
-                        <div className="flex items-center gap-2 text-[13px] text-zoru-ink">
+                    <li className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3">
+                        <div className="flex items-center gap-2 text-[13px] text-[var(--st-text)]">
                             <Badge variant="ghost">Deals</Badge>
-                            <ArrowRight className="h-3.5 w-3.5 text-zoru-ink-muted" />
+                            <ArrowRight className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                             <Badge variant="ghost">Invoices</Badge>
                         </div>
                         <div className="flex items-baseline gap-2">
-                            <span className="font-mono text-[16px] text-zoru-ink">
+                            <span className="font-mono text-[16px] text-[var(--st-text)]">
                                 {dealsToInvoices}%
                             </span>
                             <StatusPill
@@ -244,12 +244,12 @@ export default async function ConversionsFunnelPage() {
                         </div>
                     </li>
                 </ul>
-                <p className="mt-4 text-[12px] text-zoru-ink-muted">
+                <p className="mt-4 text-[12px] text-[var(--st-text-secondary)]">
                     Conversion rates use tenant-scoped totals across all time. For
                     pipeline-specific funnels see the{' '}
                     <Link
                         href="/dashboard/sabbi/reports"
-                        className="text-zoru-ink underline-offset-2 hover:underline"
+                        className="text-[var(--st-text)] underline-offset-2 hover:underline"
                     >
                         reports
                     </Link>{' '}

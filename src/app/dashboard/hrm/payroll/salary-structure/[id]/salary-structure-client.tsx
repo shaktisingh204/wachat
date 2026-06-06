@@ -86,8 +86,8 @@ function InlineEditForm({
     }
     return (
         <div className="flex items-center gap-2 group cursor-pointer" onClick={() => setIsEditing(true)}>
-            <span className="font-mono text-zoru-ink">{fmtINR(initialValue)}</span>
-            <Pencil className="h-3 w-3 text-zoru-ink-muted opacity-0 group-hover:opacity-100 transition-opacity" />
+            <span className="font-mono text-[var(--st-text)]">{fmtINR(initialValue)}</span>
+            <Pencil className="h-3 w-3 text-[var(--st-text-secondary)] opacity-0 group-hover:opacity-100 transition-opacity" />
         </div>
     );
 }
@@ -146,7 +146,7 @@ function RevisionHistory() {
     return (
         <Card className="mt-6 p-6">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
-                <div className="text-[14px] font-medium text-zoru-ink">Revision History (Virtualized)</div>
+                <div className="text-[14px] font-medium text-[var(--st-text)]">Revision History (Virtualized)</div>
                 <div className="flex items-center gap-2">
                     <Input 
                         placeholder="Advanced filter..." 
@@ -162,8 +162,8 @@ function RevisionHistory() {
                 </div>
             </div>
             
-            <div className="rounded border border-zoru-line overflow-hidden">
-                <div className="flex items-center gap-4 bg-zoru-surface-2 p-2 border-b border-zoru-line text-xs font-medium text-zoru-ink-muted">
+            <div className="rounded border border-[var(--st-border)] overflow-hidden">
+                <div className="flex items-center gap-4 bg-[var(--st-bg-muted)] p-2 border-b border-[var(--st-border)] text-xs font-medium text-[var(--st-text-secondary)]">
                     <Checkbox 
                         checked={selected.size > 0 && selected.size === filteredRevisions.length}
                         onCheckedChange={toggleAll} 
@@ -195,7 +195,7 @@ function RevisionHistory() {
                                         height: `${virtualItem.size}px`,
                                         transform: `translateY(${virtualItem.start}px)`,
                                     }}
-                                    className="flex items-center gap-4 border-b border-zoru-line p-2 text-xs hover:bg-zoru-surface-2 transition-colors"
+                                    className="flex items-center gap-4 border-b border-[var(--st-border)] p-2 text-xs hover:bg-[var(--st-bg-muted)] transition-colors"
                                 >
                                     <Checkbox 
                                         checked={isSelected}
@@ -313,14 +313,14 @@ export function SalaryStructureClient({ doc }: { doc: any }) {
             
             <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
-                    <div className="text-[14px] font-medium text-zoru-ink">
+                    <div className="text-[14px] font-medium text-[var(--st-text)]">
                         Overview
                     </div>
                     {/* WebSocket Status Indicator */}
-                    <div className="ml-auto flex items-center gap-1.5 text-xs text-zoru-ink bg-zoru-surface-2 px-2 py-0.5 rounded-full border border-zoru-line">
+                    <div className="ml-auto flex items-center gap-1.5 text-xs text-[var(--st-text)] bg-[var(--st-bg-muted)] px-2 py-0.5 rounded-full border border-[var(--st-border)]">
                         <span className="relative flex h-2 w-2">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-zoru-surface-2 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-zoru-ink"></span>
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--st-bg-muted)] opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--st-text)]"></span>
                         </span>
                         Live sync
                     </div>
@@ -328,37 +328,37 @@ export function SalaryStructureClient({ doc }: { doc: any }) {
 
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
                     <div>
-                        <div className="text-zoru-ink-muted">Employee</div>
-                        <div className="text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Employee</div>
+                        <div className="text-[var(--st-text)]">
                             {doc.employeeName ?? '—'}
                         </div>
-                        <div className="font-mono text-[11.5px] text-zoru-ink-muted">
+                        <div className="font-mono text-[11.5px] text-[var(--st-text-secondary)]">
                             {doc.employeeId}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Effective from</div>
-                        <div className="text-zoru-ink"><ClientDate date={doc.effectiveFrom} /></div>
+                        <div className="text-[var(--st-text-secondary)]">Effective from</div>
+                        <div className="text-[var(--st-text)]"><ClientDate date={doc.effectiveFrom} /></div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Created at</div>
-                        <div className="text-zoru-ink"><ClientDate date={doc.createdAt} /></div>
+                        <div className="text-[var(--st-text-secondary)]">Created at</div>
+                        <div className="text-[var(--st-text)]"><ClientDate date={doc.createdAt} /></div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Updated at</div>
-                        <div className="text-zoru-ink"><ClientDate date={doc.updatedAt} /></div>
+                        <div className="text-[var(--st-text-secondary)]">Updated at</div>
+                        <div className="text-[var(--st-text)]"><ClientDate date={doc.updatedAt} /></div>
                     </div>
                 </div>
 
                 <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                    <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-4">
-                        <div className="mb-2 text-[13px] font-medium text-zoru-ink">
+                    <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4">
+                        <div className="mb-2 text-[13px] font-medium text-[var(--st-text)]">
                             Earnings
                         </div>
                         <dl className="space-y-1.5 text-[13px]">
                             <div className="flex items-center justify-between">
-                                <dt className="text-zoru-ink-muted">Basic</dt>
-                                <dd className="font-mono text-zoru-ink">
+                                <dt className="text-[var(--st-text-secondary)]">Basic</dt>
+                                <dd className="font-mono text-[var(--st-text)]">
                                     <InlineEditForm 
                                         initialValue={optimisticDoc.basic ?? 0} 
                                         onSave={updateBasicPay}
@@ -367,66 +367,66 @@ export function SalaryStructureClient({ doc }: { doc: any }) {
                                 </dd>
                             </div>
                             <div className="flex items-center justify-between">
-                                <dt className="text-zoru-ink-muted">HRA</dt>
-                                <dd className="font-mono text-zoru-ink">
+                                <dt className="text-[var(--st-text-secondary)]">HRA</dt>
+                                <dd className="font-mono text-[var(--st-text)]">
                                     {fmtINR(doc.hra ?? 0)}
                                 </dd>
                             </div>
                             <div className="flex items-center justify-between">
-                                <dt className="text-zoru-ink-muted">DA</dt>
-                                <dd className="font-mono text-zoru-ink">
+                                <dt className="text-[var(--st-text-secondary)]">DA</dt>
+                                <dd className="font-mono text-[var(--st-text)]">
                                     {fmtINR(doc.da ?? 0)}
                                 </dd>
                             </div>
                             <div className="flex items-center justify-between">
-                                <dt className="text-zoru-ink-muted">Other allowances</dt>
-                                <dd className="font-mono text-zoru-ink">
+                                <dt className="text-[var(--st-text-secondary)]">Other allowances</dt>
+                                <dd className="font-mono text-[var(--st-text)]">
                                     {fmtINR(doc.otherAllowances ?? 0)}
                                 </dd>
                             </div>
-                            <div className="mt-2 flex items-center justify-between border-t border-zoru-line pt-2">
-                                <dt className="font-medium text-zoru-ink">Gross</dt>
-                                <dd className="font-mono font-medium text-zoru-ink">
+                            <div className="mt-2 flex items-center justify-between border-t border-[var(--st-border)] pt-2">
+                                <dt className="font-medium text-[var(--st-text)]">Gross</dt>
+                                <dd className="font-mono font-medium text-[var(--st-text)]">
                                     {fmtINR(gross)}
                                 </dd>
                             </div>
                         </dl>
                     </div>
 
-                    <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-4">
-                        <div className="mb-2 text-[13px] font-medium text-zoru-ink">
+                    <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4">
+                        <div className="mb-2 text-[13px] font-medium text-[var(--st-text)]">
                             Deductions
                         </div>
                         <dl className="space-y-1.5 text-[13px]">
                             <div className="flex items-center justify-between">
-                                <dt className="text-zoru-ink-muted">PF (employer)</dt>
-                                <dd className="font-mono text-zoru-ink">
+                                <dt className="text-[var(--st-text-secondary)]">PF (employer)</dt>
+                                <dd className="font-mono text-[var(--st-text)]">
                                     {fmtINR(doc.pfEmployer ?? 0)}
                                 </dd>
                             </div>
                             <div className="flex items-center justify-between">
-                                <dt className="text-zoru-ink-muted">PF (employee)</dt>
-                                <dd className="font-mono text-zoru-ink">
+                                <dt className="text-[var(--st-text-secondary)]">PF (employee)</dt>
+                                <dd className="font-mono text-[var(--st-text)]">
                                     {fmtINR(doc.pfEmployee ?? 0)}
                                 </dd>
                             </div>
                             <div className="flex items-center justify-between">
-                                <dt className="text-zoru-ink-muted">ESI</dt>
-                                <dd className="font-mono text-zoru-ink">
+                                <dt className="text-[var(--st-text-secondary)]">ESI</dt>
+                                <dd className="font-mono text-[var(--st-text)]">
                                     {fmtINR(doc.esi ?? 0)}
                                 </dd>
                             </div>
                             <div className="flex items-center justify-between">
-                                <dt className="text-zoru-ink-muted">Professional tax</dt>
-                                <dd className="font-mono text-zoru-ink">
+                                <dt className="text-[var(--st-text-secondary)]">Professional tax</dt>
+                                <dd className="font-mono text-[var(--st-text)]">
                                     {fmtINR(doc.professionalTax ?? 0)}
                                 </dd>
                             </div>
-                            <div className="mt-2 flex items-center justify-between border-t border-zoru-line pt-2">
-                                <dt className="font-medium text-zoru-ink">
+                            <div className="mt-2 flex items-center justify-between border-t border-[var(--st-border)] pt-2">
+                                <dt className="font-medium text-[var(--st-text)]">
                                     Total deductions
                                 </dt>
-                                <dd className="font-mono font-medium text-zoru-ink">
+                                <dd className="font-mono font-medium text-[var(--st-text)]">
                                     {fmtINR(computedDeductions)}
                                 </dd>
                             </div>
@@ -434,11 +434,11 @@ export function SalaryStructureClient({ doc }: { doc: any }) {
                     </div>
                 </div>
 
-                <div className="mt-6 flex items-center justify-between rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-4">
-                    <div className="text-[14px] font-medium text-zoru-ink">
+                <div className="mt-6 flex items-center justify-between rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4">
+                    <div className="text-[14px] font-medium text-[var(--st-text)]">
                         Net salary
                     </div>
-                    <div className="font-mono text-[18px] font-medium text-zoru-ink">
+                    <div className="font-mono text-[18px] font-medium text-[var(--st-text)]">
                         {fmtINR(net)}
                     </div>
                 </div>

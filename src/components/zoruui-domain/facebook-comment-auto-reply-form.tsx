@@ -70,7 +70,7 @@ export function FacebookCommentAutoReplyForm({ project }: FacebookCommentAutoRep
                     <div className="flex items-center justify-between rounded-lg border p-4 shadow-sm">
                         <div className="space-y-0.5">
                             <Label htmlFor="enabled" className="text-base">Enable Auto-Reply</Label>
-                            <p className="text-sm text-zoru-ink-muted">Automatically post a reply to all new top-level comments.</p>
+                            <p className="text-sm text-[var(--st-text-secondary)]">Automatically post a reply to all new top-level comments.</p>
                         </div>
                         <Switch id="enabled" name="enabled" defaultChecked={settings?.enabled ?? false} />
                     </div>
@@ -83,7 +83,7 @@ export function FacebookCommentAutoReplyForm({ project }: FacebookCommentAutoRep
                             defaultValue={(settings as any)?.replyText || ''}
                             className="min-h-32"
                         />
-                        <p className="text-xs text-zoru-ink-muted">This message will be posted as a reply to the comment.</p>
+                        <p className="text-xs text-[var(--st-text-secondary)]">This message will be posted as a reply to the comment.</p>
                     </div>
                 </ZoruCardContent>
                 <ZoruCardFooter>

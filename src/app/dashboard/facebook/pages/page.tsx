@@ -191,8 +191,8 @@ export default function FacebookConnectedPagesPage(): React.JSX.Element {
 
       <header className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl text-zoru-ink">Connected Pages</h1>
-          <p className="mt-1 text-sm text-zoru-ink-muted">
+          <h1 className="text-2xl text-[var(--st-text)]">Connected Pages</h1>
+          <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
             All Facebook Pages connected through the Meta Suite, plus details for
             the page tied to the active project.
           </p>
@@ -215,10 +215,10 @@ export default function FacebookConnectedPagesPage(): React.JSX.Element {
         <Card className="flex flex-col gap-4 p-5">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="text-xs uppercase tracking-wide text-zoru-ink-muted">
+              <p className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Active project page
               </p>
-              <h2 className="mt-1 text-lg text-zoru-ink">
+              <h2 className="mt-1 text-lg text-[var(--st-text)]">
                 {activePage?.name ?? (loading ? 'Loading…' : 'Not connected')}
               </h2>
               {activePage?.category ? (
@@ -260,23 +260,23 @@ export default function FacebookConnectedPagesPage(): React.JSX.Element {
             </div>
           ) : activePage ? (
             <div className="grid gap-4 md:grid-cols-3">
-              <div className="rounded-lg border border-zoru-line p-3">
-                <div className="flex items-center gap-2 text-xs text-zoru-ink-muted">
+              <div className="rounded-lg border border-[var(--st-border)] p-3">
+                <div className="flex items-center gap-2 text-xs text-[var(--st-text-secondary)]">
                   <Users className="h-3.5 w-3.5" /> Followers
                 </div>
-                <p className="mt-1 text-lg text-zoru-ink">
+                <p className="mt-1 text-lg text-[var(--st-text)]">
                   {formatNumber(activePage.followers_count ?? activePage.fan_count)}
                 </p>
               </div>
-              <div className="rounded-lg border border-zoru-line p-3">
-                <p className="text-xs text-zoru-ink-muted">Phone</p>
-                <p className="mt-1 text-sm text-zoru-ink">
+              <div className="rounded-lg border border-[var(--st-border)] p-3">
+                <p className="text-xs text-[var(--st-text-secondary)]">Phone</p>
+                <p className="mt-1 text-sm text-[var(--st-text)]">
                   {activePage.phone ?? '—'}
                 </p>
               </div>
-              <div className="rounded-lg border border-zoru-line p-3">
-                <p className="text-xs text-zoru-ink-muted">Website</p>
-                <p className="mt-1 truncate text-sm text-zoru-ink">
+              <div className="rounded-lg border border-[var(--st-border)] p-3">
+                <p className="text-xs text-[var(--st-text-secondary)]">Website</p>
+                <p className="mt-1 truncate text-sm text-[var(--st-text)]">
                   {activePage.website ? (
                     <a
                       href={activePage.website}
@@ -339,8 +339,8 @@ export default function FacebookConnectedPagesPage(): React.JSX.Element {
                   />
                 </div>
 
-                <div className="flex flex-col gap-4 rounded-lg border border-zoru-line p-4">
-                  <h3 className="text-sm font-medium text-zoru-ink">Advanced Sync Options</h3>
+                <div className="flex flex-col gap-4 rounded-lg border border-[var(--st-border)] p-4">
+                  <h3 className="text-sm font-medium text-[var(--st-text)]">Advanced Sync Options</h3>
                   
                   <FormField
                     control={form.control}
@@ -357,7 +357,7 @@ export default function FacebookConnectedPagesPage(): React.JSX.Element {
                           <FormLabel>
                             Integrate with Instagram profile
                           </FormLabel>
-                          <p className="text-xs text-zoru-ink-muted">
+                          <p className="text-xs text-[var(--st-text-secondary)]">
                             Update linked Instagram bio details simultaneously (about, phone, website).
                           </p>
                         </div>
@@ -373,7 +373,7 @@ export default function FacebookConnectedPagesPage(): React.JSX.Element {
                         <FormItem>
                           <div className="mb-2">
                             <FormLabel>Bulk sync across multiple pages</FormLabel>
-                            <p className="text-xs text-zoru-ink-muted">
+                            <p className="text-xs text-[var(--st-text-secondary)]">
                               Apply these details to other connected Facebook Pages.
                             </p>
                           </div>
@@ -387,7 +387,7 @@ export default function FacebookConnectedPagesPage(): React.JSX.Element {
                                   return (
                                     <FormItem
                                       key={page.id}
-                                      className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-zoru-line bg-zoru-surface p-3"
+                                      className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3"
                                     >
                                       <FormControl>
                                         <Checkbox
@@ -423,7 +423,7 @@ export default function FacebookConnectedPagesPage(): React.JSX.Element {
               </form>
             </Form>
           ) : !activePage && !loading ? (
-            <p className="text-sm text-zoru-ink-muted">
+            <p className="text-sm text-[var(--st-text-secondary)]">
               The active project does not have a Facebook Page connected yet.
             </p>
           ) : null}
@@ -431,7 +431,7 @@ export default function FacebookConnectedPagesPage(): React.JSX.Element {
       )}
 
       <section className="flex flex-col gap-3">
-        <h2 className="text-sm uppercase tracking-wide text-zoru-ink-muted">
+        <h2 className="text-sm uppercase tracking-wide text-[var(--st-text-secondary)]">
           All connected Pages
         </h2>
         {loading && pages.length === 0 ? (
@@ -452,8 +452,8 @@ export default function FacebookConnectedPagesPage(): React.JSX.Element {
               <li key={p.id}>
                 <Card className="flex h-full flex-col justify-between gap-3 p-4">
                   <div>
-                    <p className="line-clamp-1 text-base text-zoru-ink">{p.name}</p>
-                    <p className="line-clamp-1 text-xs text-zoru-ink-muted">
+                    <p className="line-clamp-1 text-base text-[var(--st-text)]">{p.name}</p>
+                    <p className="line-clamp-1 text-xs text-[var(--st-text-secondary)]">
                       {p.category}
                     </p>
                     <div className="mt-2 flex flex-wrap gap-1">
@@ -466,7 +466,7 @@ export default function FacebookConnectedPagesPage(): React.JSX.Element {
                   </div>
                   <Link
                     href="/dashboard/facebook"
-                    className="inline-flex items-center gap-1 text-xs text-zoru-ink-muted hover:text-zoru-ink"
+                    className="inline-flex items-center gap-1 text-xs text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                   >
                     Open <ExternalLink className="h-3 w-3" />
                   </Link>

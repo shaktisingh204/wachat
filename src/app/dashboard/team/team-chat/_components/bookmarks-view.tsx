@@ -64,25 +64,25 @@ export function BookmarksView({ open, onClose, onJump }: BookmarksViewProps) {
     return (
         <Sheet open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
             <ZoruSheetContent side="left" className="flex w-[360px] flex-col p-0">
-                <ZoruSheetHeader className="flex flex-row items-center justify-between gap-2 border-b border-zoru-line px-4 py-3">
+                <ZoruSheetHeader className="flex flex-row items-center justify-between gap-2 border-b border-[var(--st-border)] px-4 py-3">
                     <ZoruSheetTitle className="flex items-center gap-2 text-[13px]">
                         <Bookmark className="h-3.5 w-3.5" /> Saved messages
                     </ZoruSheetTitle>
                     <button
                         type="button"
                         onClick={onClose}
-                        className="rounded-md p-1 text-zoru-ink-muted hover:bg-zoru-surface-2"
+                        className="rounded-md p-1 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)]"
                         aria-label="Close"
                     >
                         <X className="h-4 w-4" />
                     </button>
                 </ZoruSheetHeader>
 
-                <div className="flex-1 overflow-auto bg-zoru-surface-2/40 px-3 py-3">
+                <div className="flex-1 overflow-auto bg-[var(--st-bg-muted)]/40 px-3 py-3">
                     {loading ? (
-                        <div className="text-[12px] text-zoru-ink-muted">Loading…</div>
+                        <div className="text-[12px] text-[var(--st-text-secondary)]">Loading…</div>
                     ) : items.length === 0 ? (
-                        <div className="text-[12px] text-zoru-ink-muted">
+                        <div className="text-[12px] text-[var(--st-text-secondary)]">
                             No saved messages yet. Hover a message and click the bookmark icon to save it.
                         </div>
                     ) : (
@@ -94,15 +94,15 @@ export function BookmarksView({ open, onClose, onJump }: BookmarksViewProps) {
                                 return (
                                     <li
                                         key={b._id}
-                                        className="flex items-start gap-2 rounded-md border border-zoru-line bg-zoru-bg px-3 py-2"
+                                        className="flex items-start gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2"
                                     >
                                         <button
                                             type="button"
                                             onClick={() => onJump(b.channelId, b.messageId)}
                                             className="flex-1 text-left"
                                         >
-                                            <div className="text-[12.5px] text-zoru-ink">{preview}</div>
-                                            <div className="mt-1 text-[10.5px] text-zoru-ink-muted">
+                                            <div className="text-[12.5px] text-[var(--st-text)]">{preview}</div>
+                                            <div className="mt-1 text-[10.5px] text-[var(--st-text-secondary)]">
                                                 Saved {format(new Date(b.savedAt), 'PP')}
                                             </div>
                                         </button>

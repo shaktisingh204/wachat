@@ -114,14 +114,14 @@ export function RoadmapForm() {
       {/* Back */}
       <button
         type="button"
-        className="mb-4 inline-flex items-center gap-1.5 text-sm text-zoru-ink-muted hover:text-zoru-ink transition-colors"
+        className="mb-4 inline-flex items-center gap-1.5 text-sm text-[var(--st-text-secondary)] hover:text-[var(--st-text)] transition-colors"
         onClick={() => router.back()}
       >
         <ArrowLeft className="h-4 w-4" />
         Back to Roadmaps
       </button>
 
-      <h1 className="mb-6 text-xl font-semibold text-zoru-ink">New Roadmap</h1>
+      <h1 className="mb-6 text-xl font-semibold text-[var(--st-text)]">New Roadmap</h1>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         {/* Basic info */}
@@ -196,7 +196,7 @@ export function RoadmapForm() {
             </div>
 
             {phases.length === 0 ? (
-              <p className="text-sm text-zoru-ink-muted">
+              <p className="text-sm text-[var(--st-text-secondary)]">
                 No phases yet — add at least one.
               </p>
             ) : (
@@ -223,7 +223,7 @@ export function RoadmapForm() {
                         }}
                       >
                         <div className="flex items-center gap-2 h-full">
-                          <span className="w-5 text-xs text-zoru-ink-subtle tabular-nums">
+                          <span className="w-5 text-xs text-[var(--st-text-tertiary)] tabular-nums">
                             {virtualRow.index + 1}.
                           </span>
                           <Input
@@ -239,7 +239,7 @@ export function RoadmapForm() {
                             onClick={() => removePhase(phase.id)}
                             disabled={phases.length === 1}
                           >
-                            <Trash2 className="h-4 w-4 text-zoru-ink-muted" />
+                            <Trash2 className="h-4 w-4 text-[var(--st-text-secondary)]" />
                           </Button>
                         </div>
                       </div>

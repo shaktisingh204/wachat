@@ -59,14 +59,14 @@ export function CandidatesKanban({
               <ZoruCardHeader className="pb-2">
                 <ZoruCardTitle className="flex items-center justify-between text-[13px]">
                   <span>{s.label}</span>
-                  <span className="rounded-full bg-zoru-surface-2 px-2 py-0.5 text-[11px] text-zoru-ink-muted">
+                  <span className="rounded-full bg-[var(--st-bg-muted)] px-2 py-0.5 text-[11px] text-[var(--st-text-secondary)]">
                     {items.length}
                   </span>
                 </ZoruCardTitle>
               </ZoruCardHeader>
               <ZoruCardContent className="space-y-2">
                 {items.length === 0 ? (
-                  <p className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line px-3 py-3 text-center text-[12px] text-zoru-ink-muted">
+                  <p className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] px-3 py-3 text-center text-[12px] text-[var(--st-text-secondary)]">
                     No candidates
                   </p>
                 ) : (
@@ -74,20 +74,20 @@ export function CandidatesKanban({
                     <Link
                       key={c._id}
                       href={`/dashboard/hrm/hr/candidates/${c._id}`}
-                      className="block rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-2 hover:bg-zoru-surface"
+                      className="block rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2 hover:bg-[var(--st-bg-secondary)]"
                     >
                       <div className="flex items-start justify-between gap-2">
-                        <span className="truncate text-[13px] font-medium text-zoru-ink">
+                        <span className="truncate text-[13px] font-medium text-[var(--st-text)]">
                           {c.name || '—'}
                         </span>
                         {c.rating != null ? (
-                          <span className="shrink-0 text-[11px] text-zoru-ink-muted">
+                          <span className="shrink-0 text-[11px] text-[var(--st-text-secondary)]">
                             ★ {c.rating}
                           </span>
                         ) : null}
                       </div>
                       {c.email ? (
-                        <p className="truncate text-[11.5px] text-zoru-ink-muted">
+                        <p className="truncate text-[11.5px] text-[var(--st-text-secondary)]">
                           {c.email}
                         </p>
                       ) : null}

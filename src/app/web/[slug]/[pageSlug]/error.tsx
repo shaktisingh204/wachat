@@ -18,7 +18,7 @@ export default function ErrorBoundary({
   return (
     <div className="flex h-[80vh] items-center justify-center p-6">
       <EmptyState
-        icon={<AlertCircle className="h-10 w-10 text-zoru-danger" />}
+        icon={<AlertCircle className="h-10 w-10 text-[var(--st-danger)]" />}
         title="Something went wrong"
         description={error.message || 'An unexpected error occurred while loading this module.'}
         action={<Button onClick={() => reset()}>Try again</Button>}

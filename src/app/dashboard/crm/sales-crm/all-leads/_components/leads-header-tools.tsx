@@ -33,7 +33,7 @@ export function LeadsHeaderTools({
     return (
         <div className="flex items-center gap-2">
             <LeadsViewsMenu activePresetId={activePresetId} onSelect={onSelectPreset} />
-            <div className="inline-flex rounded-md border border-zoru-line p-0.5">
+            <div className="inline-flex rounded-md border border-[var(--st-border)] p-0.5">
                 <button
                     type="button"
                     onClick={() => onViewChange('table')}
@@ -41,8 +41,8 @@ export function LeadsHeaderTools({
                     className={[
                         'inline-flex items-center gap-1 rounded-sm px-2 py-1 text-[12px]',
                         view === 'table'
-                            ? 'bg-zoru-surface text-zoru-ink'
-                            : 'text-zoru-ink-muted hover:text-zoru-ink',
+                            ? 'bg-[var(--st-bg-secondary)] text-[var(--st-text)]'
+                            : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
                     ].join(' ')}
                 >
                     <List className="h-3.5 w-3.5" /> Table
@@ -54,8 +54,8 @@ export function LeadsHeaderTools({
                     className={[
                         'inline-flex items-center gap-1 rounded-sm px-2 py-1 text-[12px]',
                         view === 'kanban'
-                            ? 'bg-zoru-surface text-zoru-ink'
-                            : 'text-zoru-ink-muted hover:text-zoru-ink',
+                            ? 'bg-[var(--st-bg-secondary)] text-[var(--st-text)]'
+                            : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
                     ].join(' ')}
                 >
                     <LayoutGrid className="h-3.5 w-3.5" /> Kanban

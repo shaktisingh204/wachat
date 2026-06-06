@@ -18,7 +18,7 @@ export interface ClaySectionListProps
 
 /**
  * ClaySectionList — semantic <ul> of selectable section rows. Each
- * row uses shadcn surface classes (`bg-zoru-surface`, `hover:bg-zoru-surface-2`)
+ * row uses shadcn surface classes (`bg-[var(--st-bg-secondary)]`, `hover:bg-[var(--st-bg-muted)]`)
  * and surfaces a drag-handle affordance on the right edge.
  */
 export function ClaySectionList({
@@ -34,20 +34,20 @@ export function ClaySectionList({
             <button
               type="button"
               onClick={item.onClick}
-              className="group flex w-full items-center justify-between gap-3 rounded-lg bg-zoru-surface px-3.5 py-3 text-left transition-colors hover:bg-zoru-surface-2"
+              className="group flex w-full items-center justify-between gap-3 rounded-lg bg-[var(--st-bg-secondary)] px-3.5 py-3 text-left transition-colors hover:bg-[var(--st-bg-muted)]"
             >
               <div className="min-w-0 flex-1">
-                <div className="text-[13px] font-semibold text-zoru-ink truncate">
+                <div className="text-[13px] font-semibold text-[var(--st-text)] truncate">
                   {item.title}
                 </div>
                 {item.meta ? (
-                  <div className="mt-0.5 text-[11px] text-zoru-ink-muted">
+                  <div className="mt-0.5 text-[11px] text-[var(--st-text-secondary)]">
                     {item.meta}
                   </div>
                 ) : null}
               </div>
               <LuGripVertical
-                className="h-4 w-4 shrink-0 text-zoru-ink-muted/70 group-hover:text-zoru-ink-muted transition-colors"
+                className="h-4 w-4 shrink-0 text-[var(--st-text-secondary)]/70 group-hover:text-[var(--st-text-secondary)] transition-colors"
                 strokeWidth={1.75}
               />
             </button>

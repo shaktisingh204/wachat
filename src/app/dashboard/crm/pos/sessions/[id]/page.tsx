@@ -119,17 +119,17 @@ function Field({
 }) {
     return (
         <div className="flex flex-col gap-1">
-            <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+            <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                 {label}
             </span>
-            <span className="text-[13px] text-zoru-ink">{value}</span>
+            <span className="text-[13px] text-[var(--st-text)]">{value}</span>
         </div>
     );
 }
 
 function TabBar({ active, id }: { active: TabKey; id: string }) {
     return (
-        <div className="flex border-b border-zoru-line">
+        <div className="flex border-b border-[var(--st-border)]">
             {TABS.map((t) => {
                 const isActive = t.key === active;
                 return (
@@ -139,8 +139,8 @@ function TabBar({ active, id }: { active: TabKey; id: string }) {
                         className={
                             'border-b-2 px-3 py-2 text-[13px] transition-colors ' +
                             (isActive
-                                ? 'border-zoru-ink font-medium text-zoru-ink'
-                                : 'border-transparent text-zoru-ink-muted hover:text-zoru-ink')
+                                ? 'border-[var(--st-text)] font-medium text-[var(--st-text)]'
+                                : 'border-transparent text-[var(--st-text-secondary)] hover:text-[var(--st-text)]')
                         }
                     >
                         {t.label}
@@ -157,31 +157,31 @@ function PosSessionDetailsSkeleton() {
             {/* Left Main column */}
             <div className="min-w-0 flex-1 space-y-6">
                 {/* Tabs skeleton */}
-                <div className="flex border-b border-zoru-line gap-4 pb-2">
-                    <div className="h-4 w-16 bg-zoru-surface-2 dark:bg-zoru-ink rounded" />
-                    <div className="h-4 w-24 bg-zoru-surface-2 dark:bg-zoru-ink rounded" />
-                    <div className="h-4 w-24 bg-zoru-surface-2 dark:bg-zoru-ink rounded" />
-                    <div className="h-4 w-16 bg-zoru-surface-2 dark:bg-zoru-ink rounded" />
+                <div className="flex border-b border-[var(--st-border)] gap-4 pb-2">
+                    <div className="h-4 w-16 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded" />
+                    <div className="h-4 w-24 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded" />
+                    <div className="h-4 w-24 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded" />
+                    <div className="h-4 w-16 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded" />
                 </div>
 
                 {/* KPI block skeleton */}
                 <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                     {[1, 2, 3, 4].map((i) => (
-                        <div key={i} className="h-20 bg-zoru-surface-2 dark:bg-zoru-ink/40 rounded-xl border border-zoru-line/50 p-4 space-y-2">
-                            <div className="h-3 w-12 bg-zoru-surface-2 dark:bg-zoru-ink rounded" />
-                            <div className="h-5 w-20 bg-zoru-surface-2 dark:bg-zoru-ink rounded" />
+                        <div key={i} className="h-20 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/40 rounded-xl border border-[var(--st-border)]/50 p-4 space-y-2">
+                            <div className="h-3 w-12 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded" />
+                            <div className="h-5 w-20 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded" />
                         </div>
                     ))}
                 </div>
 
                 {/* Main detail card skeleton */}
-                <div className="bg-zoru-surface-2 dark:bg-zoru-ink/40 rounded-xl border border-zoru-line/50 p-6 space-y-6">
-                    <div className="h-4 w-32 bg-zoru-surface-2 dark:bg-zoru-ink rounded" />
+                <div className="bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/40 rounded-xl border border-[var(--st-border)]/50 p-6 space-y-6">
+                    <div className="h-4 w-32 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded" />
                     <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
                         {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
                             <div key={i} className="space-y-1.5">
-                                <div className="h-2.5 w-16 bg-zoru-surface-2 dark:bg-zoru-ink rounded" />
-                                <div className="h-4 w-24 bg-zoru-surface-2 dark:bg-zoru-ink rounded" />
+                                <div className="h-2.5 w-16 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded" />
+                                <div className="h-4 w-24 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded" />
                             </div>
                         ))}
                     </div>
@@ -191,26 +191,26 @@ function PosSessionDetailsSkeleton() {
             {/* Right Aside column */}
             <div className="w-full md:w-80 md:shrink-0 space-y-4">
                 {/* Totals skeleton */}
-                <div className="bg-zoru-surface-2 dark:bg-zoru-ink/40 rounded-xl border border-zoru-line/50 p-6 space-y-4">
-                    <div className="h-4 w-20 bg-zoru-surface-2 dark:bg-zoru-ink rounded" />
+                <div className="bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/40 rounded-xl border border-[var(--st-border)]/50 p-6 space-y-4">
+                    <div className="h-4 w-20 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded" />
                     <div className="space-y-3">
                         {[1, 2, 3, 4, 5].map((i) => (
                             <div key={i} className="space-y-1">
-                                <div className="h-2.5 w-12 bg-zoru-surface-2 dark:bg-zoru-ink rounded" />
-                                <div className="h-4 w-16 bg-zoru-surface-2 dark:bg-zoru-ink rounded" />
+                                <div className="h-2.5 w-12 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded" />
+                                <div className="h-4 w-16 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded" />
                             </div>
                         ))}
                     </div>
                 </div>
 
                 {/* Terminal skeleton */}
-                <div className="bg-zoru-surface-2 dark:bg-zoru-ink/40 rounded-xl border border-zoru-line/50 p-6 space-y-4">
-                    <div className="h-4 w-20 bg-zoru-surface-2 dark:bg-zoru-ink rounded" />
+                <div className="bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/40 rounded-xl border border-[var(--st-border)]/50 p-6 space-y-4">
+                    <div className="h-4 w-20 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded" />
                     <div className="space-y-3">
                         {[1, 2, 3, 4].map((i) => (
                             <div key={i} className="space-y-1">
-                                <div className="h-2.5 w-12 bg-zoru-surface-2 dark:bg-zoru-ink rounded" />
-                                <div className="h-4 w-16 bg-zoru-surface-2 dark:bg-zoru-ink rounded" />
+                                <div className="h-2.5 w-12 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded" />
+                                <div className="h-4 w-16 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded" />
                             </div>
                         ))}
                     </div>
@@ -288,53 +288,53 @@ async function PosSessionDetailsContainer({
                             <Card>
                                 <ZoruCardContent className="flex items-start justify-between p-3.5">
                                     <div>
-                                        <p className="text-[10.5px] uppercase tracking-wide text-zoru-ink-muted">
+                                        <p className="text-[10.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                                             Cash
                                         </p>
-                                        <p className="mt-0.5 text-lg font-semibold text-zoru-ink tabular-nums">
+                                        <p className="mt-0.5 text-lg font-semibold text-[var(--st-text)] tabular-nums">
                                             {fmtINR(cashRevenue)}
                                         </p>
                                     </div>
-                                    <Banknote className="h-4 w-4 text-zoru-ink-muted" />
+                                    <Banknote className="h-4 w-4 text-[var(--st-text-secondary)]" />
                                 </ZoruCardContent>
                             </Card>
                             <Card>
                                 <ZoruCardContent className="flex items-start justify-between p-3.5">
                                     <div>
-                                        <p className="text-[10.5px] uppercase tracking-wide text-zoru-ink-muted">
+                                        <p className="text-[10.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                                             Card
                                         </p>
-                                        <p className="mt-0.5 text-lg font-semibold text-zoru-ink tabular-nums">
+                                        <p className="mt-0.5 text-lg font-semibold text-[var(--st-text)] tabular-nums">
                                             {fmtINR(cardRevenue)}
                                         </p>
                                     </div>
-                                    <Receipt className="h-4 w-4 text-zoru-ink-muted" />
+                                    <Receipt className="h-4 w-4 text-[var(--st-text-secondary)]" />
                                 </ZoruCardContent>
                             </Card>
                             <Card>
                                 <ZoruCardContent className="flex items-start justify-between p-3.5">
                                     <div>
-                                        <p className="text-[10.5px] uppercase tracking-wide text-zoru-ink-muted">
+                                        <p className="text-[10.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                                             UPI
                                         </p>
-                                        <p className="mt-0.5 text-lg font-semibold text-zoru-ink tabular-nums">
+                                        <p className="mt-0.5 text-lg font-semibold text-[var(--st-text)] tabular-nums">
                                             {fmtINR(upiRevenue)}
                                         </p>
                                     </div>
-                                    <Receipt className="h-4 w-4 text-zoru-ink-muted" />
+                                    <Receipt className="h-4 w-4 text-[var(--st-text-secondary)]" />
                                 </ZoruCardContent>
                             </Card>
                             <Card>
                                 <ZoruCardContent className="flex items-start justify-between p-3.5">
                                     <div>
-                                        <p className="text-[10.5px] uppercase tracking-wide text-zoru-ink-muted">
+                                        <p className="text-[10.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                                             Refunds
                                         </p>
-                                        <p className="mt-0.5 text-lg font-semibold text-zoru-ink tabular-nums">
+                                        <p className="mt-0.5 text-lg font-semibold text-[var(--st-text)] tabular-nums">
                                             {fmtINR(refundTotal)}
                                         </p>
                                     </div>
-                                    <RefreshCcw className="h-4 w-4 text-zoru-ink-muted" />
+                                    <RefreshCcw className="h-4 w-4 text-[var(--st-text-secondary)]" />
                                 </ZoruCardContent>
                             </Card>
                         </div>
@@ -372,7 +372,7 @@ async function PosSessionDetailsContainer({
                                             className={
                                                 typeof liveDiscrepancy === 'number' &&
                                                 liveDiscrepancy !== 0
-                                                    ? 'text-zoru-accent'
+                                                    ? 'text-[var(--st-accent)]'
                                                     : undefined
                                             }
                                         >
@@ -414,7 +414,7 @@ async function PosSessionDetailsContainer({
                         <div className="overflow-x-auto">
                             <Table>
                                 <ZoruTableHeader>
-                                    <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                                    <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                                         <ZoruTableHead>Number</ZoruTableHead>
                                         <ZoruTableHead>Customer</ZoruTableHead>
                                         <ZoruTableHead>Method</ZoruTableHead>
@@ -430,7 +430,7 @@ async function PosSessionDetailsContainer({
                                         <ZoruTableRow>
                                             <ZoruTableCell
                                                 colSpan={6}
-                                                className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                                                className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                                             >
                                                 No transactions in this session yet.
                                             </ZoruTableCell>
@@ -440,7 +440,7 @@ async function PosSessionDetailsContainer({
                                             <ZoruTableRow key={t._id}>
                                                 <ZoruTableCell className="font-mono text-[12px]">
                                                     <span className="inline-flex items-center gap-1">
-                                                        <Receipt className="h-3 w-3 text-zoru-ink-muted" />
+                                                        <Receipt className="h-3 w-3 text-[var(--st-text-secondary)]" />
                                                         {t.transactionNumber}
                                                     </span>
                                                 </ZoruTableCell>
@@ -510,7 +510,7 @@ async function PosSessionDetailsContainer({
                                             className={
                                                 typeof liveDiscrepancy === 'number' &&
                                                 liveDiscrepancy !== 0
-                                                    ? 'text-zoru-accent'
+                                                    ? 'text-[var(--st-accent)]'
                                                     : undefined
                                             }
                                         >
@@ -536,7 +536,7 @@ async function PosSessionDetailsContainer({
                             <div className="overflow-x-auto">
                                 <Table>
                                     <ZoruTableHeader>
-                                        <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                                        <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                                             <ZoruTableHead>Original txn</ZoruTableHead>
                                             <ZoruTableHead>Reason</ZoruTableHead>
                                             <ZoruTableHead>Method</ZoruTableHead>
@@ -552,7 +552,7 @@ async function PosSessionDetailsContainer({
                                             <ZoruTableRow>
                                                 <ZoruTableCell
                                                     colSpan={6}
-                                                    className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                                                    className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                                                 >
                                                     No refunds for this session.
                                                 </ZoruTableCell>
@@ -590,7 +590,7 @@ async function PosSessionDetailsContainer({
                         </Card>
 
                         {transactions.length > 0 ? (
-                            <p className="text-[12px] text-zoru-ink-muted">
+                            <p className="text-[12px] text-[var(--st-text-secondary)]">
                                 Need to issue a refund?{' '}
                                 <Link
                                     href={`/dashboard/crm/pos/refunds/new?originalTransactionId=${transactions[0]._id}`}
@@ -632,7 +632,7 @@ async function PosSessionDetailsContainer({
                             <Field
                                 label="Revenue"
                                 value={
-                                    <span className="text-base font-semibold text-zoru-accent">
+                                    <span className="text-base font-semibold text-[var(--st-accent)]">
                                         {fmtINR(revenue)}
                                     </span>
                                 }
@@ -661,7 +661,7 @@ async function PosSessionDetailsContainer({
                                 label="Terminal"
                                 value={
                                     <span className="inline-flex items-center gap-1.5">
-                                        <Store className="h-3.5 w-3.5 text-zoru-ink-muted" />
+                                        <Store className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                                         {session.terminalId}
                                     </span>
                                 }

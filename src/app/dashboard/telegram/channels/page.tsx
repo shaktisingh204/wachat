@@ -98,7 +98,7 @@ function KpiCard({
     return (
         <Card className="p-4">
             <div className="flex items-start justify-between">
-                <div className="text-[11px] uppercase tracking-wider text-zoru-ink-muted">
+                <div className="text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)]">
                     {label}
                 </div>
                 <div
@@ -110,9 +110,9 @@ function KpiCard({
                     } as React.HTMLAttributes<SVGElement>)}
                 </div>
             </div>
-            <div className="mt-1.5 text-[22px] leading-tight text-zoru-ink">{value}</div>
+            <div className="mt-1.5 text-[22px] leading-tight text-[var(--st-text)]">{value}</div>
             {hint ? (
-                <div className="mt-0.5 text-[11px] text-zoru-ink-muted">{hint}</div>
+                <div className="mt-0.5 text-[11px] text-[var(--st-text-secondary)]">{hint}</div>
             ) : null}
         </Card>
     );
@@ -138,7 +138,7 @@ function ChannelCard({
                 <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                         <h3
-                            className="truncate text-[15px] font-medium text-zoru-ink"
+                            className="truncate text-[15px] font-medium text-[var(--st-text)]"
                             title={channel.title}
                         >
                             {channel.title}
@@ -152,13 +152,13 @@ function ChannelCard({
                             href={tgUrl}
                             target="_blank"
                             rel="noreferrer"
-                            className="mt-0.5 inline-flex items-center gap-1 truncate text-xs text-zoru-ink-muted hover:text-zoru-ink"
+                            className="mt-0.5 inline-flex items-center gap-1 truncate text-xs text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                         >
                             @{channel.username}
                             <ExternalLink className="h-3 w-3" />
                         </a>
                     ) : (
-                        <div className="mt-0.5 truncate text-xs text-zoru-ink-muted">
+                        <div className="mt-0.5 truncate text-xs text-[var(--st-text-secondary)]">
                             {channel.chatId}
                         </div>
                     )}
@@ -187,7 +187,7 @@ function ChannelCard({
                 </DropdownMenu>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2 text-xs text-zoru-ink-muted">
+            <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--st-text-secondary)]">
                 <Badge variant="outline">{channel.type}</Badge>
                 {channel.isAdmin ? (
                     <Badge variant="secondary">
@@ -287,7 +287,7 @@ function DiscoverDialog({
                             placeholder="@channel_username or -1001234567890"
                             leadingSlot={<Hash />}
                         />
-                        <p className="text-[11px] text-zoru-ink-muted">
+                        <p className="text-[11px] text-[var(--st-text-secondary)]">
                             We will call <code>getChat</code> and verify the bot is an
                             administrator before saving.
                         </p>
@@ -548,11 +548,11 @@ export default function TelegramChannelsPage() {
             </PageHeader>
 
             {bots.length === 0 ? (
-                <Card className="p-4 text-sm text-zoru-ink-muted">
+                <Card className="p-4 text-sm text-[var(--st-text-secondary)]">
                     Connect a Telegram bot first — channels are managed through your bot.{' '}
                     <Link
                         href="/dashboard/telegram/bots"
-                        className="text-zoru-ink underline"
+                        className="text-[var(--st-text)] underline"
                     >
                         Go to bots
                     </Link>

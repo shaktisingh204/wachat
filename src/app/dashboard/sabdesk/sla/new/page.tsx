@@ -121,7 +121,7 @@ export default function NewSlaPage() {
               id="businessHoursOnly"
               name="businessHoursOnly"
               defaultChecked
-              className="h-4 w-4 rounded border-zoru-line accent-zoru-primary"
+              className="h-4 w-4 rounded border-[var(--st-border)] accent-[var(--st-text)]"
             />
             <Label htmlFor="businessHoursOnly" className="cursor-pointer">
               Business Hours Only

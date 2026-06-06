@@ -11,6 +11,6 @@ export default function CustomEcommerceLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative h-full bg-zoru-bg text-zoru-ink">{children}</div>
+    <div className="relative h-full bg-[var(--st-bg)] text-[var(--st-text)]">{children}</div>
   );
 }

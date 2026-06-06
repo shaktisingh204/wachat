@@ -183,7 +183,7 @@ export function DocumentTemplateForm({ initialData }: DocumentTemplateFormProps)
                         }
                         defaultValue={initialData?.body ?? ''}
                     />
-                    <p className="text-[11.5px] text-zoru-ink-muted">
+                    <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                         Use <code>{'{{ variableName }}'}</code> placeholders. Markdown is
                         supported.
                     </p>
@@ -198,7 +198,7 @@ export function DocumentTemplateForm({ initialData }: DocumentTemplateFormProps)
                         placeholder="employeeName, role, startDate, salary"
                         defaultValue={variablesInitial}
                     />
-                    <p className="text-[11.5px] text-zoru-ink-muted">
+                    <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                         Comma-separated list of variable names referenced by the body.
                     </p>
                 </div>
@@ -223,7 +223,7 @@ export function DocumentTemplateForm({ initialData }: DocumentTemplateFormProps)
                                     href={templateFileUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="max-w-[260px] truncate text-[12.5px] text-zoru-ink underline-offset-2 hover:underline"
+                                    className="max-w-[260px] truncate text-[12.5px] text-[var(--st-text)] underline-offset-2 hover:underline"
                                 >
                                     {templateFileName || templateFileUrl}
                                 </a>
@@ -237,7 +237,7 @@ export function DocumentTemplateForm({ initialData }: DocumentTemplateFormProps)
                                 </Button>
                             </>
                         ) : (
-                            <span className="text-[12px] text-zoru-ink-muted">
+                            <span className="text-[12px] text-[var(--st-text-secondary)]">
                                 No template file attached.
                             </span>
                         )}

@@ -52,10 +52,10 @@ export function CreateRotationForm({
 
   return (
     <Card className="p-6 mb-6">
-      <h2 className="mb-3 text-[16px] text-zoru-ink">Create Rotation</h2>
+      <h2 className="mb-3 text-[16px] text-[var(--st-text)]">Create Rotation</h2>
       <form onSubmit={handleCreate} className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_2fr_auto]">
         <div className="flex flex-col gap-1.5">
-          <Label className="text-[12px] text-zoru-ink-muted">Name</Label>
+          <Label className="text-[12px] text-[var(--st-text-secondary)]">Name</Label>
           <Input
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -65,7 +65,7 @@ export function CreateRotationForm({
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label className="text-[12px] text-zoru-ink-muted">Description</Label>
+          <Label className="text-[12px] text-[var(--st-text-secondary)]">Description</Label>
           <Input
             value={description}
             onChange={(e) => setDescription(e.target.value)}

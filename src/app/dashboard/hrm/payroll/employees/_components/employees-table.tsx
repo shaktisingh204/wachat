@@ -115,12 +115,12 @@ export function EmployeesTable({
         return (
           <Link
             href={`/dashboard/hrm/payroll/employees/${id}`}
-            className="inline-flex items-center gap-2 text-zoru-ink hover:underline"
+            className="inline-flex items-center gap-2 text-[var(--st-text)] hover:underline"
           >
-            <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-zoru-line bg-zoru-surface text-zoru-ink-muted">
+            <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]">
               <UserCircle2 className="h-4 w-4" />
             </span>
-            <span className="font-medium text-zoru-ink">{name}</span>
+            <span className="font-medium text-[var(--st-text)]">{name}</span>
           </Link>
         );
       },
@@ -130,7 +130,7 @@ export function EmployeesTable({
       header: 'Employee ID',
       sortable: true,
       render: (row) => (
-        <span className="font-mono text-[12px] text-zoru-ink">{row.employeeId || '—'}</span>
+        <span className="font-mono text-[12px] text-[var(--st-text)]">{row.employeeId || '—'}</span>
       ),
     },
     {
@@ -141,7 +141,7 @@ export function EmployeesTable({
         row.departmentId ? (
           <EntityPickerChip entity="department" id={row.departmentId} />
         ) : (
-          <span className="text-zoru-ink-muted">—</span>
+          <span className="text-[var(--st-text-secondary)]">—</span>
         )
       ),
     },
@@ -153,7 +153,7 @@ export function EmployeesTable({
         row.designationId ? (
           <EntityPickerChip entity="designation" id={row.designationId} />
         ) : (
-          <span className="text-zoru-ink-muted">{row.designation || '—'}</span>
+          <span className="text-[var(--st-text-secondary)]">{row.designation || '—'}</span>
         )
       ),
     },
@@ -161,14 +161,14 @@ export function EmployeesTable({
       key: 'workEmail',
       header: 'Email',
       sortable: true,
-      render: (row) => <span className="text-zoru-ink">{row.workEmail || '—'}</span>,
+      render: (row) => <span className="text-[var(--st-text)]">{row.workEmail || '—'}</span>,
     },
     {
       key: 'workPhone',
       header: 'Phone',
       sortable: true,
       render: (row) => (
-        <span className="text-zoru-ink-muted">{row.workPhone || row.personalPhone || '—'}</span>
+        <span className="text-[var(--st-text-secondary)]">{row.workPhone || row.personalPhone || '—'}</span>
       ),
     },
     {
@@ -179,7 +179,7 @@ export function EmployeesTable({
         row.reportingManagerId ? (
           <EntityPickerChip entity="employee" id={row.reportingManagerId} />
         ) : (
-          <span className="text-zoru-ink-muted">—</span>
+          <span className="text-[var(--st-text-secondary)]">—</span>
         )
       ),
     },
@@ -188,7 +188,7 @@ export function EmployeesTable({
       header: 'Status',
       sortable: true,
       render: (row) => {
-        if (!row.status) return <span className="text-zoru-ink-muted">—</span>;
+        if (!row.status) return <span className="text-[var(--st-text-secondary)]">—</span>;
         return (
           <StatusPill
             label={statusLabel(row.status)}
@@ -198,7 +198,7 @@ export function EmployeesTable({
       },
       editRender: (row, value, onChange) => (
         <select
-          className="bg-zoru-surface-2 border border-zoru-line rounded px-1.5 py-0.5 text-xs text-zoru-ink focus:outline-none"
+          className="bg-[var(--st-bg-muted)] border border-[var(--st-border)] rounded px-1.5 py-0.5 text-xs text-[var(--st-text)] focus:outline-none"
           value={value || 'active'}
           onChange={(e) => onChange(e.target.value)}
         >
@@ -215,13 +215,13 @@ export function EmployeesTable({
       key: 'joiningDate',
       header: 'Joined',
       sortable: true,
-      render: (row) => <span className="text-zoru-ink">{fmtDate(row.joiningDate)}</span>,
+      render: (row) => <span className="text-[var(--st-text)]">{fmtDate(row.joiningDate)}</span>,
     },
     {
       key: 'exitDate',
       header: 'Tenure',
       render: (row) => (
-        <span className="text-zoru-ink">{fmtTenure(row.joiningDate, row.exitDate)}</span>
+        <span className="text-[var(--st-text)]">{fmtTenure(row.joiningDate, row.exitDate)}</span>
       ),
     },
     {
@@ -229,7 +229,7 @@ export function EmployeesTable({
       header: 'Salary',
       sortable: true,
       render: (row) => (
-        <span className="font-mono tabular-nums text-zoru-ink">{fmtMoney(row.ctc)}</span>
+        <span className="font-mono tabular-nums text-[var(--st-text)]">{fmtMoney(row.ctc)}</span>
       ),
     },
     {
@@ -279,7 +279,7 @@ export function EmployeesTable({
   ], []);
 
   return (
-    <div className="overflow-hidden bg-zoru-surface">
+    <div className="overflow-hidden bg-[var(--st-bg-secondary)]">
       <CrmBulkyGrid<EmployeeListRow>
         columns={columns}
         data={rows}

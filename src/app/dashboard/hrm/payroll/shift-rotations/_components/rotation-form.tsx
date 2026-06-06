@@ -110,7 +110,7 @@ const PatternRowItem = React.memo(function PatternRowItem({
 }) {
     const shift = shifts.find((s) => s._id === row.shiftId);
     return (
-        <div className="grid items-end gap-3 rounded-md border border-zoru-line bg-zoru-bg p-3 md:grid-cols-[100px_1fr_auto_auto]">
+        <div className="grid items-end gap-3 rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] p-3 md:grid-cols-[100px_1fr_auto_auto]">
             <div className="space-y-1.5">
                 <Label className="text-[12px]">Day offset</Label>
                 <Input
@@ -148,7 +148,7 @@ const PatternRowItem = React.memo(function PatternRowItem({
                     </ZoruSelectContent>
                 </Select>
             </div>
-            <label className="flex items-center gap-2 pb-2 text-[12.5px] text-zoru-ink">
+            <label className="flex items-center gap-2 pb-2 text-[12.5px] text-[var(--st-text)]">
                 <Checkbox
                     checked={!!row.isOff}
                     onCheckedChange={(v) =>
@@ -167,7 +167,7 @@ const PatternRowItem = React.memo(function PatternRowItem({
                 onClick={() => removeRow(row.rowId)}
                 aria-label="Remove pattern row"
             >
-                <Trash2 className="h-4 w-4 text-zoru-ink" />
+                <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
             </Button>
         </div>
     );
@@ -452,13 +452,13 @@ export function RotationForm({ initialData, shifts }: RotationFormProps) {
                 ) : null}
 
                 {/* Pattern repeater */}
-                <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-4">
+                <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4">
                     <div className="mb-3 flex items-center justify-between">
                         <div>
-                            <div className="text-[14px] font-medium text-zoru-ink">
+                            <div className="text-[14px] font-medium text-[var(--st-text)]">
                                 Pattern
                             </div>
-                            <div className="text-[12px] text-zoru-ink-muted">
+                            <div className="text-[12px] text-[var(--st-text-secondary)]">
                                 Map each day-offset (0 .. {cycleDays - 1}) to a shift or
                                 mark it as off.
                             </div>
@@ -485,7 +485,7 @@ export function RotationForm({ initialData, shifts }: RotationFormProps) {
 
                     <div className="flex flex-col gap-2">
                         {pattern.length === 0 ? (
-                            <div className="rounded-md border border-dashed border-zoru-line bg-zoru-bg p-4 text-center text-[13px] text-zoru-ink-muted">
+                            <div className="rounded-md border border-dashed border-[var(--st-border)] bg-[var(--st-bg)] p-4 text-center text-[13px] text-[var(--st-text-secondary)]">
                                 No pattern entries yet. Add a day to start.
                             </div>
                         ) : (

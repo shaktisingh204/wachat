@@ -118,11 +118,11 @@ export function BatchExpiryTable({ batches }: { batches: CrmItemBatchDoc[] }) {
 
     if (batches.length === 0) {
         return (
-            <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-zoru-line p-8 text-center">
-                <p className="text-[14px] font-medium text-zoru-ink">
+            <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-[var(--st-border)] p-8 text-center">
+                <p className="text-[14px] font-medium text-[var(--st-text)]">
                     No batches yet
                 </p>
-                <p className="max-w-sm text-[12.5px] text-zoru-ink-muted">
+                <p className="max-w-sm text-[12.5px] text-[var(--st-text-secondary)]">
                     Track manufacture and expiry dates for batch-managed items to
                     reduce wastage and stay compliant.
                 </p>
@@ -132,29 +132,29 @@ export function BatchExpiryTable({ batches }: { batches: CrmItemBatchDoc[] }) {
 
     return (
         <>
-            <div className="overflow-x-auto rounded-lg border border-zoru-line">
+            <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                 <Table>
                     <ZoruTableHeader>
-                        <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                            <ZoruTableHead className="text-zoru-ink-muted">
+                        <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                            <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                 Item
                             </ZoruTableHead>
-                            <ZoruTableHead className="text-zoru-ink-muted">
+                            <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                 Batch no.
                             </ZoruTableHead>
-                            <ZoruTableHead className="text-zoru-ink-muted">
+                            <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                 Manufacture
                             </ZoruTableHead>
-                            <ZoruTableHead className="text-zoru-ink-muted">
+                            <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                 Expiry
                             </ZoruTableHead>
-                            <ZoruTableHead className="text-zoru-ink-muted text-right">
+                            <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">
                                 Qty
                             </ZoruTableHead>
-                            <ZoruTableHead className="text-zoru-ink-muted">
+                            <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                 Status
                             </ZoruTableHead>
-                            <ZoruTableHead className="text-zoru-ink-muted text-right">
+                            <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">
                                 Actions
                             </ZoruTableHead>
                         </ZoruTableRow>
@@ -168,13 +168,13 @@ export function BatchExpiryTable({ batches }: { batches: CrmItemBatchDoc[] }) {
                                     key={b._id}
                                     className={
                                         flag.expired
-                                            ? 'border-zoru-line bg-zoru-surface-2 dark:bg-zoru-ink/30'
+                                            ? 'border-[var(--st-border)] bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30'
                                             : flag.soon
-                                              ? 'border-zoru-line bg-zoru-surface-2/50 dark:bg-zoru-ink/20'
-                                              : 'border-zoru-line'
+                                              ? 'border-[var(--st-border)] bg-[var(--st-bg-muted)]/50 dark:bg-[var(--st-text)]/20'
+                                              : 'border-[var(--st-border)]'
                                     }
                                 >
-                                    <ZoruTableCell className="font-medium text-zoru-ink">
+                                    <ZoruTableCell className="font-medium text-[var(--st-text)]">
                                         <Link
                                             href={`${BASE}/${b._id}`}
                                             className="hover:underline"
@@ -182,22 +182,22 @@ export function BatchExpiryTable({ batches }: { batches: CrmItemBatchDoc[] }) {
                                             {b.itemName}
                                         </Link>
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
+                                    <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
                                         {b.batchNumber}
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="text-zoru-ink">
+                                    <ZoruTableCell className="text-[var(--st-text)]">
                                         {fmtDate(b.manufactureDate)}
                                     </ZoruTableCell>
                                     <ZoruTableCell
                                         className={
                                             danger
-                                                ? 'font-medium text-zoru-ink dark:text-zoru-ink-muted'
-                                                : 'text-zoru-ink'
+                                                ? 'font-medium text-[var(--st-text)] dark:text-[var(--st-text-secondary)]'
+                                                : 'text-[var(--st-text)]'
                                         }
                                     >
                                         {fmtDate(b.expiryDate)}
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="text-right font-mono text-zoru-ink">
+                                    <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
                                         {b.quantity}
                                         {b.unit ? ` ${b.unit}` : ''}
                                     </ZoruTableCell>
@@ -218,7 +218,7 @@ export function BatchExpiryTable({ batches }: { batches: CrmItemBatchDoc[] }) {
                                             size="icon"
                                             onClick={() => setPendingDelete(b)}
                                         >
-                                            <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                            <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                         </Button>
                                     </ZoruTableCell>
                                 </ZoruTableRow>

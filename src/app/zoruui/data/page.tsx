@@ -195,8 +195,8 @@ export default function DataPage() {
   return (
     <div className="mx-auto max-w-6xl px-5 py-8 sm:px-8 lg:py-12">
       <div className="mb-8">
-        <h1 className="text-3xl font-semibold tracking-tight text-zoru-ink capitalize">data</h1>
-        <p className="mt-2 text-base text-zoru-ink-muted">Explore data components</p>
+        <h1 className="text-3xl font-semibold tracking-tight text-[var(--st-text)] capitalize">data</h1>
+        <p className="mt-2 text-base text-[var(--st-text-secondary)]">Explore data components</p>
       </div>
       <Section step="Step 2" title="Display, badges, progress, skeleton">
 <SnippetDemo code={`
@@ -320,9 +320,9 @@ export default function DataPage() {
                 rowTitle={(r) => r.name}
                 rowDescription={(r) => \`Owned by \${r.owner}\`}
                 rowDialog={(r) => (
-                  <p className="text-sm text-zoru-ink-muted">
+                  <p className="text-sm text-[var(--st-text-secondary)]">
                     Replace this body with the row detail editor for{" "}
-                    <span className="font-medium text-zoru-ink">{r.name}</span>.
+                    <span className="font-medium text-[var(--st-text)]">{r.name}</span>.
                   </p>
                 )}
               />
@@ -372,9 +372,9 @@ export default function DataPage() {
                 rowTitle={(r) => r.name}
                 rowDescription={(r) => `Owned by ${r.owner}`}
                 rowDialog={(r) => (
-                  <p className="text-sm text-zoru-ink-muted">
+                  <p className="text-sm text-[var(--st-text-secondary)]">
                     Replace this body with the row detail editor for{" "}
-                    <span className="font-medium text-zoru-ink">{r.name}</span>.
+                    <span className="font-medium text-[var(--st-text)]">{r.name}</span>.
                   </p>
                 )}
               />

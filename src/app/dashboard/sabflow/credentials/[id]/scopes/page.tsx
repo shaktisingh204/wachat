@@ -124,7 +124,7 @@ export default function CredentialScopesPage() {
                 icon={Key}
                 breadcrumb={
                     <div 
-                        className="flex items-center gap-2 text-zoru-ink-muted hover:text-zoru-ink transition-colors cursor-pointer" 
+                        className="flex items-center gap-2 text-[var(--st-text-secondary)] hover:text-[var(--st-text)] transition-colors cursor-pointer" 
                         onClick={() => router.back()}
                     >
                         <ArrowLeft className="h-4 w-4" />
@@ -132,7 +132,7 @@ export default function CredentialScopesPage() {
                     </div>
                 }
                 actions={
-                    <Button onClick={handleSave} disabled={isSaving} className="gap-2 bg-zoru-ink hover:bg-zoru-ink text-white">
+                    <Button onClick={handleSave} disabled={isSaving} className="gap-2 bg-[var(--st-text)] hover:bg-[var(--st-text)] text-white">
                         {isSaving ? <span className="animate-spin">⍥</span> : <Save className="h-4 w-4" />}
                         {isSaving ? 'Saving...' : 'Save Changes'}
                     </Button>
@@ -141,26 +141,26 @@ export default function CredentialScopesPage() {
             />
 
             <m.div variants={fadeInUp}>
-                <Card className="border-zoru-line/50 shadow-sm overflow-hidden backdrop-blur-xl bg-zoru-surface/50">
-                    <CardHeader className="border-b bg-zoru-surface-2/20 pb-4">
+                <Card className="border-[var(--st-border)]/50 shadow-sm overflow-hidden backdrop-blur-xl bg-[var(--st-bg-secondary)]/50">
+                    <CardHeader className="border-b bg-[var(--st-bg-muted)]/20 pb-4">
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                             <div className="space-y-1">
                                 <CardTitle className="flex items-center gap-2 text-xl font-bold">
-                                    <Shield className="h-5 w-5 text-zoru-ink" />
+                                    <Shield className="h-5 w-5 text-[var(--st-text)]" />
                                     Access Matrix
                                 </CardTitle>
                                 <CardDescription className="text-sm">
                                     Define the resources and operations this connection is allowed to access. Unchecked operations will be denied.
                                 </CardDescription>
                             </div>
-                            <Badge variant="secondary" className="px-3 py-1 text-xs font-mono shrink-0 bg-zoru-ink text-zoru-ink">
+                            <Badge variant="secondary" className="px-3 py-1 text-xs font-mono shrink-0 bg-[var(--st-text)] text-[var(--st-text)]">
                                 {totalSelected} / {totalPossible} Scopes Selected
                             </Badge>
                         </div>
                     </CardHeader>
                     <CardContent className="p-0 overflow-x-auto">
                         <Table>
-                            <TableHeader className="bg-zoru-surface-2/30">
+                            <TableHeader className="bg-[var(--st-bg-muted)]/30">
                                 <TableRow>
                                     <TableHead className="w-[300px] py-4">Resource Category</TableHead>
                                     {OPERATIONS.map((op) => (
@@ -175,11 +175,11 @@ export default function CredentialScopesPage() {
                                     const allChecked = OPERATIONS.every((op) => categoryScopes[op.id]);
 
                                     return (
-                                        <TableRow key={category.id} className="group hover:bg-zoru-surface-2/10 transition-colors">
+                                        <TableRow key={category.id} className="group hover:bg-[var(--st-bg-muted)]/10 transition-colors">
                                             <TableCell className="font-medium py-4">
                                                 <div className="flex flex-col gap-1">
-                                                    <span className="text-zoru-ink">{category.name}</span>
-                                                    <span className="text-xs text-zoru-ink-muted font-normal">
+                                                    <span className="text-[var(--st-text)]">{category.name}</span>
+                                                    <span className="text-xs text-[var(--st-text-secondary)] font-normal">
                                                         {category.description}
                                                     </span>
                                                 </div>
@@ -202,8 +202,8 @@ export default function CredentialScopesPage() {
                                                     variant="ghost"
                                                     size="sm"
                                                     className={allChecked 
-                                                        ? "h-8 text-xs font-medium text-zoru-ink bg-zoru-ink hover:bg-zoru-ink hover:text-zoru-ink" 
-                                                        : "h-8 text-xs font-medium text-zoru-ink-muted hover:text-zoru-ink"
+                                                        ? "h-8 text-xs font-medium text-[var(--st-text)] bg-[var(--st-text)] hover:bg-[var(--st-text)] hover:text-[var(--st-text)]" 
+                                                        : "h-8 text-xs font-medium text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                                                     }
                                                     onClick={() => handleToggleAllInCategory(category.id, !allChecked)}
                                                 >
@@ -216,8 +216,8 @@ export default function CredentialScopesPage() {
                             </TableBody>
                         </Table>
                     </CardContent>
-                    <CardFooter className="bg-zoru-surface-2/20 border-t p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-                         <div className="flex items-center gap-2 text-sm text-zoru-ink-muted bg-zoru-ink/10 text-zoru-ink dark:text-zoru-ink-muted px-3 py-2 rounded-md">
+                    <CardFooter className="bg-[var(--st-bg-muted)]/20 border-t p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                         <div className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)] bg-[var(--st-text)]/10 text-[var(--st-text)] dark:text-[var(--st-text-secondary)] px-3 py-2 rounded-md">
                             <AlertCircle className="h-4 w-4 shrink-0" />
                             <span>Changes to scopes will apply immediately to newly issued tokens.</span>
                         </div>

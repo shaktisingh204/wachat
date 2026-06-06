@@ -40,20 +40,20 @@ async function ClientEstimatesPageContent() {
         <div className="flex flex-col gap-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 className="text-2xl font-semibold text-zoru-ink">Estimates</h1>
-                    <p className="text-sm text-zoru-ink-muted">
+                    <h1 className="text-2xl font-semibold text-[var(--st-text)]">Estimates</h1>
+                    <p className="text-sm text-[var(--st-text-secondary)]">
                         Review and accept estimates from your account manager.
                     </p>
                 </div>
                 
                 {Object.keys(pendingTotalsByCurrency).length > 0 && (
-                    <div className="bg-zoru-surface-2 border border-zoru-line rounded-lg p-3 text-sm flex items-center gap-3 shadow-sm">
-                        <div className="bg-zoru-surface-2 p-2 rounded-full">
-                            <Info className="h-4 w-4 text-zoru-ink" />
+                    <div className="bg-[var(--st-bg-muted)] border border-[var(--st-border)] rounded-lg p-3 text-sm flex items-center gap-3 shadow-sm">
+                        <div className="bg-[var(--st-bg-muted)] p-2 rounded-full">
+                            <Info className="h-4 w-4 text-[var(--st-text)]" />
                         </div>
                         <div>
-                            <div className="text-zoru-ink font-medium">Pending Estimates</div>
-                            <div className="text-zoru-ink flex gap-2">
+                            <div className="text-[var(--st-text)] font-medium">Pending Estimates</div>
+                            <div className="text-[var(--st-text)] flex gap-2">
                                 {Object.entries(pendingTotalsByCurrency).map(([ccy, total]) => (
                                     <span key={ccy} className="font-semibold">{fmtINR(total as number, ccy)}</span>
                                 ))}

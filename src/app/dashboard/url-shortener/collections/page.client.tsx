@@ -75,7 +75,7 @@ export default function CollectionsPage() {
 
             <div className="flex gap-4 min-h-[400px]">
                 <div className="w-56 flex-shrink-0 space-y-1">
-                    <p className="text-[11px] font-medium uppercase tracking-wider text-zoru-ink-muted/60 mb-2 px-1">Your Collections</p>
+                    <p className="text-[11px] font-medium uppercase tracking-wider text-[var(--st-text-secondary)]/60 mb-2 px-1">Your Collections</p>
                     {isLoading ? (
                         <div className="space-y-2 mt-2">
                             <Skeleton className="h-10 w-full" />
@@ -83,9 +83,9 @@ export default function CollectionsPage() {
                             <Skeleton className="h-10 w-full" />
                         </div>
                     ) : collections.length === 0 ? (
-                        <Card className="p-4 text-center text-[12px] text-zoru-ink-muted mt-2">
+                        <Card className="p-4 text-center text-[12px] text-[var(--st-text-secondary)] mt-2">
                             No collections yet.<br />
-                            <a href="/dashboard/url-shortener" className="text-zoru-ink-muted hover:underline">Create one on the Links page</a>
+                            <a href="/dashboard/url-shortener" className="text-[var(--st-text-secondary)] hover:underline">Create one on the Links page</a>
                         </Card>
                     ) : (
                         collections.map((col) => (
@@ -95,8 +95,8 @@ export default function CollectionsPage() {
                                 className={cn(
                                     'w-full flex items-center gap-2 px-3 py-2 text-[12.5px] rounded-lg border transition-colors',
                                     selectedCollection === col._id
-                                        ? 'border-zoru-line/50 bg-zoru-ink text-zoru-ink'
-                                        : 'border-transparent hover:bg-zoru-ink text-zoru-ink-muted'
+                                        ? 'border-[var(--st-border)]/50 bg-[var(--st-text)] text-[var(--st-text)]'
+                                        : 'border-transparent hover:bg-[var(--st-text)] text-[var(--st-text-secondary)]'
                                 )}
                             >
                                 <span className="h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: col.color }} />
@@ -109,13 +109,13 @@ export default function CollectionsPage() {
 
                 <div className="flex-1">
                     {!selectedCollection ? (
-                        <div className="flex flex-col items-center justify-center h-full text-center py-16 text-zoru-ink-muted">
+                        <div className="flex flex-col items-center justify-center h-full text-center py-16 text-[var(--st-text-secondary)]">
                             <FolderOpen className="h-10 w-10 mb-3 opacity-40" />
                             <p className="text-sm">Select a collection to manage its links</p>
                         </div>
                     ) : (
                         <div className="space-y-2">
-                            <p className="text-[11px] font-medium uppercase tracking-wider text-zoru-ink-muted/60 mb-3 px-1">
+                            <p className="text-[11px] font-medium uppercase tracking-wider text-[var(--st-text-secondary)]/60 mb-3 px-1">
                                 Links — click to toggle assignment to <span style={{ color: selectedCol?.color }}>{selectedCol?.name}</span>
                             </p>
                             {isLoading ? (
@@ -125,7 +125,7 @@ export default function CollectionsPage() {
                                     <Skeleton className="h-14 w-full" />
                                 </div>
                             ) : urls.length === 0 ? (
-                                <Card className="p-6 text-center text-[12px] text-zoru-ink-muted">No links yet.</Card>
+                                <Card className="p-6 text-center text-[12px] text-[var(--st-text-secondary)]">No links yet.</Card>
                             ) : (
                                 urls.map((url) => {
                                     const id = url._id.toString();
@@ -136,8 +136,8 @@ export default function CollectionsPage() {
                                             className={cn(
                                                 'group w-full flex items-center gap-3 px-3 py-2.5 rounded-lg border text-left transition-colors',
                                                 inCollection
-                                                    ? 'border-zoru-line/40 bg-zoru-surface-2/5'
-                                                    : 'border-zoru-border hover:border-zoru-border/80 hover:bg-zoru-ink'
+                                                    ? 'border-[var(--st-border)]/40 bg-[var(--st-bg-muted)]/5'
+                                                    : 'border-[var(--st-border)] hover:border-[var(--st-border)]/80 hover:bg-[var(--st-text)]'
                                             )}
                                         >
                                             <button 
@@ -145,10 +145,10 @@ export default function CollectionsPage() {
                                                 disabled={isPending}
                                                 className="flex-1 min-w-0 flex items-center gap-3 text-left"
                                             >
-                                                <Link2 className={cn('h-3.5 w-3.5 flex-shrink-0', inCollection ? 'text-zoru-ink-muted' : 'text-zoru-ink-muted')} />
+                                                <Link2 className={cn('h-3.5 w-3.5 flex-shrink-0', inCollection ? 'text-[var(--st-text-secondary)]' : 'text-[var(--st-text-secondary)]')} />
                                                 <div className="flex-1 min-w-0">
-                                                    <p className="text-[12.5px] text-zoru-ink truncate">{url.originalUrl}</p>
-                                                    <p className="text-[11px] text-zoru-ink-muted">/{url.shortCode}</p>
+                                                    <p className="text-[12.5px] text-[var(--st-text)] truncate">{url.originalUrl}</p>
+                                                    <p className="text-[11px] text-[var(--st-text-secondary)]">/{url.shortCode}</p>
                                                 </div>
                                                 {inCollection && (
                                                     <Badge variant="warning" className="text-[10px] flex-shrink-0 mr-2">In collection</Badge>

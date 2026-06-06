@@ -263,12 +263,12 @@ export default function AdsPage({ params }: { params: Promise<{ id: string }> })
             {ads.length === 0 ? (
                 <Card className="border-dashed border-2 py-12">
                     <div className="flex flex-col items-center justify-center text-center gap-4">
-                        <div className="bg-zoru-ink/10 p-4 rounded-full">
-                            <ImageIcon className="h-12 w-12 text-zoru-ink" />
+                        <div className="bg-[var(--st-text)]/10 p-4 rounded-full">
+                            <ImageIcon className="h-12 w-12 text-[var(--st-text)]" />
                         </div>
                         <div>
                             <h3 className="text-xl font-semibold">No Ads Found</h3>
-                            <p className="text-zoru-ink-muted mt-1">This ad set currently has no ads.</p>
+                            <p className="text-[var(--st-text-secondary)] mt-1">This ad set currently has no ads.</p>
                         </div>
                     </div>
                 </Card>
@@ -276,11 +276,11 @@ export default function AdsPage({ params }: { params: Promise<{ id: string }> })
                 <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
                     {ads.map((ad) => (
                         <Card key={ad.id} className="overflow-hidden">
-                            <div className="aspect-video relative bg-zoru-surface-2 flex items-center justify-center overflow-hidden">
+                            <div className="aspect-video relative bg-[var(--st-bg-muted)] flex items-center justify-center overflow-hidden">
                                 {ad.imageUrl ? (
                                     <img src={ad.imageUrl} alt={ad.name} className="w-full h-full object-cover" />
                                 ) : (
-                                    <ImageIcon className="h-12 w-12 text-zoru-ink-muted" />
+                                    <ImageIcon className="h-12 w-12 text-[var(--st-text-secondary)]" />
                                 )}
                                 <div className="absolute top-2 right-2">
                                     <Badge variant={ad.status === 'ACTIVE' ? 'default' : 'secondary'}>{ad.status}</Badge>
@@ -338,7 +338,7 @@ export default function AdsPage({ params }: { params: Promise<{ id: string }> })
                                                     <Copy className="h-4 w-4 mr-2" /> Duplicate
                                                 </ZoruDropdownMenuItem>
                                                 <ZoruDropdownMenuItem
-                                                    className="text-zoru-ink focus:text-zoru-ink"
+                                                    className="text-[var(--st-text)] focus:text-[var(--st-text)]"
                                                     onClick={() => setDeleteId(ad.id)}
                                                 >
                                                     <Trash2 className="h-4 w-4 mr-2" /> Delete
@@ -351,19 +351,19 @@ export default function AdsPage({ params }: { params: Promise<{ id: string }> })
                             </ZoruCardHeader>
                             <ZoruCardContent className="p-4 pt-0 text-sm grid grid-cols-2 gap-2">
                                 <div>
-                                    <span className="text-zoru-ink-muted block text-xs">Impressions</span>
+                                    <span className="text-[var(--st-text-secondary)] block text-xs">Impressions</span>
                                     <span className="font-medium">{ad.insights?.impressions || 0}</span>
                                 </div>
                                 <div>
-                                    <span className="text-zoru-ink-muted block text-xs">Clicks</span>
+                                    <span className="text-[var(--st-text-secondary)] block text-xs">Clicks</span>
                                     <span className="font-medium">{ad.insights?.clicks || 0}</span>
                                 </div>
                                 <div>
-                                    <span className="text-zoru-ink-muted block text-xs">Spend</span>
+                                    <span className="text-[var(--st-text-secondary)] block text-xs">Spend</span>
                                     <span className="font-medium">${ad.insights?.spend || 0}</span>
                                 </div>
                                 <div>
-                                    <span className="text-zoru-ink-muted block text-xs">CTR</span>
+                                    <span className="text-[var(--st-text-secondary)] block text-xs">CTR</span>
                                     <span className="font-medium">{ad.insights?.ctr ? Number(ad.insights.ctr).toFixed(2) : 0}%</span>
                                 </div>
                             </ZoruCardContent>

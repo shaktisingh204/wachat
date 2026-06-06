@@ -148,12 +148,12 @@ export default function TeamSettingsPage() {
                         />
                     </Field>
                 </div>
-                <div className="mt-4 flex items-start justify-between gap-4 rounded-xl border border-zoru-line bg-zoru-surface-2/50 p-3">
+                <div className="mt-4 flex items-start justify-between gap-4 rounded-xl border border-[var(--st-border)] bg-[var(--st-bg-muted)]/50 p-3">
                     <div>
-                        <Label htmlFor="approval" className="text-[13px] text-zoru-ink">
+                        <Label htmlFor="approval" className="text-[13px] text-[var(--st-text)]">
                             Require admin approval
                         </Label>
-                        <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+                        <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">
                             Members can invite, but admins must approve before the email is sent.
                         </p>
                     </div>
@@ -179,12 +179,12 @@ export default function TeamSettingsPage() {
                         onChange={(e) => update('agentSignature', e.target.value)}
                     />
                 </Field>
-                <div className="mt-4 flex items-start justify-between gap-4 rounded-xl border border-zoru-line bg-zoru-surface-2/50 p-3">
+                <div className="mt-4 flex items-start justify-between gap-4 rounded-xl border border-[var(--st-border)] bg-[var(--st-bg-muted)]/50 p-3">
                     <div>
-                        <Label htmlFor="round-robin" className="text-[13px] text-zoru-ink">
+                        <Label htmlFor="round-robin" className="text-[13px] text-[var(--st-text)]">
                             Round-robin new conversations
                         </Label>
-                        <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+                        <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">
                             Distribute incoming chats evenly among online agents.
                         </p>
                     </div>
@@ -203,12 +203,12 @@ export default function TeamSettingsPage() {
                     title="Business hours"
                     description="Used by away-replies and routing. Messages outside hours trigger the away rule."
                 />
-                <div className="mb-4 flex items-start justify-between gap-4 rounded-xl border border-zoru-line bg-zoru-surface-2/50 p-3">
+                <div className="mb-4 flex items-start justify-between gap-4 rounded-xl border border-[var(--st-border)] bg-[var(--st-bg-muted)]/50 p-3">
                     <div>
-                        <Label htmlFor="bh-enabled" className="text-[13px] text-zoru-ink">
+                        <Label htmlFor="bh-enabled" className="text-[13px] text-[var(--st-text)]">
                             Enable business hours
                         </Label>
-                        <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+                        <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">
                             When off, agents are treated as always available.
                         </p>
                     </div>
@@ -270,12 +270,12 @@ function SectionHeader({
 }) {
     return (
         <div className="mb-4 flex items-start gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                 {icon}
             </div>
             <div>
-                <p className="text-[13.5px] text-zoru-ink">{title}</p>
-                <p className="text-[12.5px] text-zoru-ink-muted">{description}</p>
+                <p className="text-[13.5px] text-[var(--st-text)]">{title}</p>
+                <p className="text-[12.5px] text-[var(--st-text-secondary)]">{description}</p>
             </div>
         </div>
     );
@@ -284,7 +284,7 @@ function SectionHeader({
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
     return (
         <div>
-            <Label className="mb-1.5 block text-[12.5px] text-zoru-ink">{label}</Label>
+            <Label className="mb-1.5 block text-[12.5px] text-[var(--st-text)]">{label}</Label>
             {children}
         </div>
     );

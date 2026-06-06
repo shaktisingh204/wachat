@@ -25,10 +25,10 @@ export default async function PlansManagementPage() {
             {/* Header */}
             <div className="flex flex-wrap items-end justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-zoru-ink">Subscription Plans</h1>
-                    <p className="text-sm text-zoru-ink-muted mt-1">Create and manage platform subscription tiers.</p>
+                    <h1 className="text-2xl font-bold text-[var(--st-text)]">Subscription Plans</h1>
+                    <p className="text-sm text-[var(--st-text-secondary)] mt-1">Create and manage platform subscription tiers.</p>
                 </div>
-                <Button asChild className="bg-zoru-ink hover:bg-zoru-surface-2 text-zoru-ink shadow-lg shadow-zoru-line/25">
+                <Button asChild className="bg-[var(--st-text)] hover:bg-[var(--st-bg-muted)] text-[var(--st-text)] shadow-lg shadow-zoru-line/25">
                     <Link href="/admin/dashboard/plans/new">
                         <PlusCircle className="mr-2 h-4 w-4" />
                         Create Plan

@@ -86,7 +86,7 @@ export default async function SabsmsWebhooksPage(props: PageProps) {
         breadcrumbs={[{ label: "Webhooks" }]}
         eyebrow="SabSMS"
       >
-        <p className="text-sm text-zoru-ink">
+        <p className="text-sm text-[var(--st-text)]">
           Sign in to view your SabSMS webhooks.
         </p>
       </SabsmsPageShell>
@@ -128,7 +128,7 @@ export default async function SabsmsWebhooksPage(props: PageProps) {
         </ul>
       }
     >
-      <Suspense fallback={<div className="h-96 w-full animate-pulse bg-zoru-surface-2 rounded-xl" />}>
+      <Suspense fallback={<div className="h-96 w-full animate-pulse bg-[var(--st-bg-muted)] rounded-xl" />}>
         <WebhooksDataLoader {...props} />
       </Suspense>
     </SabsmsPageShell>

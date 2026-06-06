@@ -211,10 +211,10 @@ export function BomForm({ initial }: BomFormProps) {
             {/* Sticky header bar */}
             <header className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                 <div>
-                    <h1 className="text-2xl font-semibold text-zoru-ink">
+                    <h1 className="text-2xl font-semibold text-[var(--st-text)]">
                         {editing ? 'Edit BOM' : 'New BOM'}
                     </h1>
-                    <p className="mt-1 text-sm text-zoru-ink-muted">
+                    <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
                         {editing
                             ? `Update the recipe for ${initial?.finishedGoodName || 'this product'}.`
                             : 'Define the components, quantities and costs for a finished product.'}
@@ -349,7 +349,7 @@ export function BomForm({ initial }: BomFormProps) {
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm">
                             <thead>
-                                <tr className="border-b border-zoru-line bg-zoru-surface-2 text-zoru-ink-muted">
+                                <tr className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                                     <th className="px-3 py-2 text-left text-xs font-medium">Item</th>
                                     <th className="px-3 py-2 text-left text-xs font-medium">Qty</th>
                                     <th className="px-3 py-2 text-left text-xs font-medium">Unit</th>
@@ -365,7 +365,7 @@ export function BomForm({ initial }: BomFormProps) {
                                 {components.map((row, idx) => (
                                     <tr
                                         key={row.id}
-                                        className="border-b border-zoru-line last:border-0 align-top"
+                                        className="border-b border-[var(--st-border)] last:border-0 align-top"
                                     >
                                         <td className="min-w-[200px] px-2 py-2">
                                             <EntityFormField
@@ -480,7 +480,7 @@ export function BomForm({ initial }: BomFormProps) {
                                                 onClick={() => removeRow(row.id)}
                                                 disabled={components.length === 1}
                                             >
-                                                <Trash2 className="h-4 w-4 text-zoru-danger-ink" />
+                                                <Trash2 className="h-4 w-4 text-[var(--st-danger)]" />
                                             </Button>
                                         </td>
                                     </tr>
@@ -502,7 +502,7 @@ export function BomForm({ initial }: BomFormProps) {
                 <ZoruCardContent className="grid grid-cols-1 gap-4 md:grid-cols-4">
                     <div className="space-y-1">
                         <Label>Material cost</Label>
-                        <div className="font-mono text-[14px] text-zoru-ink">
+                        <div className="font-mono text-[14px] text-[var(--st-text)]">
                             {materialCost.toLocaleString('en-IN', {
                                 style: 'currency',
                                 currency: 'INR',
@@ -534,7 +534,7 @@ export function BomForm({ initial }: BomFormProps) {
                     </div>
                     <div className="space-y-1">
                         <Label>Total cost</Label>
-                        <div className="font-mono text-[14px] font-semibold text-zoru-ink">
+                        <div className="font-mono text-[14px] font-semibold text-[var(--st-text)]">
                             {totalCost.toLocaleString('en-IN', {
                                 style: 'currency',
                                 currency: 'INR',
@@ -545,7 +545,7 @@ export function BomForm({ initial }: BomFormProps) {
                 </ZoruCardContent>
             </Card>
 
-            <div className="sticky bottom-0 flex justify-end gap-2 border-t border-zoru-line bg-zoru-bg py-3">
+            <div className="sticky bottom-0 flex justify-end gap-2 border-t border-[var(--st-border)] bg-[var(--st-bg)] py-3">
                 <Button variant="ghost" asChild>
                     <Link
                         href={

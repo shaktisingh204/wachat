@@ -81,14 +81,14 @@ export default async function SabsmsOverviewPage() {
 
       <div className="grid gap-6 xl:grid-cols-3 mt-6">
         <Card className="shadow-sm flex flex-col xl:col-span-3">
-          <ZoruCardHeader className="pb-4 border-b border-zoru-line">
+          <ZoruCardHeader className="pb-4 border-b border-[var(--st-border)]">
             <ZoruCardTitle className="text-lg">Active Campaigns</ZoruCardTitle>
             <ZoruCardDescription>Currently running or scheduled.</ZoruCardDescription>
           </ZoruCardHeader>
           <ZoruCardContent className="p-0 flex-1">
             <div className="w-full overflow-hidden">
               <Table className="border-0 shadow-none rounded-none w-full">
-                <ZoruTableHeader className="bg-zoru-surface-2/50 border-b border-zoru-line">
+                <ZoruTableHeader className="bg-[var(--st-bg-muted)]/50 border-b border-[var(--st-border)]">
                   <ZoruTableRow className="border-none hover:bg-transparent">
                     <ZoruTableHead className="h-9">Campaign</ZoruTableHead>
                     <ZoruTableHead className="h-9">Status</ZoruTableHead>
@@ -98,20 +98,20 @@ export default async function SabsmsOverviewPage() {
                 <ZoruTableBody>
                   {mockActiveCampaigns.map((camp) => (
                     <ZoruTableRow key={camp.id} className="group">
-                      <ZoruTableCell className="font-medium text-zoru-ink text-sm">
+                      <ZoruTableCell className="font-medium text-[var(--st-text)] text-sm">
                         {camp.name}
                       </ZoruTableCell>
                       <ZoruTableCell>
                         <Badge 
                           variant={camp.status === "Sending" ? "default" : "secondary"} 
                           className={`text-xs px-2 py-0.5 border-0 ${
-                            camp.status === "Sending" ? "bg-zoru-success/15 text-zoru-success" : ""
+                            camp.status === "Sending" ? "bg-[var(--st-status-ok)]/15 text-[var(--st-status-ok)]" : ""
                           }`}
                         >
                           {camp.status}
                         </Badge>
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-sm text-zoru-ink-muted group-hover:text-zoru-ink transition-colors">
+                      <ZoruTableCell className="text-right text-sm text-[var(--st-text-secondary)] group-hover:text-[var(--st-text)] transition-colors">
                         {camp.sent.toLocaleString()} / {camp.target.toLocaleString()}
                       </ZoruTableCell>
                     </ZoruTableRow>
@@ -120,7 +120,7 @@ export default async function SabsmsOverviewPage() {
               </Table>
             </div>
           </ZoruCardContent>
-          <div className="p-4 border-t border-zoru-line bg-zoru-surface-2/30">
+          <div className="p-4 border-t border-[var(--st-border)] bg-[var(--st-bg-muted)]/30">
             <Button variant="ghost" className="w-full text-xs font-medium" asChild>
               <Link href="/sabsms/campaigns">View all campaigns →</Link>
             </Button>

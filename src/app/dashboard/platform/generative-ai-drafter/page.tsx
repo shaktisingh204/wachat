@@ -23,7 +23,7 @@ export default async function GenerativeAIDrafterPage({
   return (
     <Suspense fallback={
       <EntityListShell title="Generative AI Drafter" subtitle="Draft emails, proposals, and contracts instantly using AI." loading={true}>
-        <div className="flex justify-center items-center py-12"><LoaderCircle className="w-8 h-8 animate-spin text-zoru-accent" /></div>
+        <div className="flex justify-center items-center py-12"><LoaderCircle className="w-8 h-8 animate-spin text-[var(--st-accent)]" /></div>
       </EntityListShell>
     }>
       <GenerativeAIDrafterClientPage initialData={drafts} total={total} currentPage={page} limit={limit} />

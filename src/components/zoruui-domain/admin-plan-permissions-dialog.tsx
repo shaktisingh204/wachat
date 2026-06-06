@@ -89,16 +89,16 @@ export function AdminPlanPermissionsDialog({
                     variant="ghost"
                     size="icon"
                     title="Manage plan permissions"
-                    className="rounded-lg hover:bg-zoru-ink/10"
+                    className="rounded-lg hover:bg-[var(--st-text)]/10"
                 >
                     <ShieldCheck className="h-4 w-4" />
                 </Button>
             </ZoruDialogTrigger>
-            <ZoruDialogContent className="max-w-5xl w-[95vw] max-h-[92vh] flex flex-col rounded-2xl border-white/10 bg-zoru-surface/95 backdrop-blur-xl p-0 overflow-hidden">
+            <ZoruDialogContent className="max-w-5xl w-[95vw] max-h-[92vh] flex flex-col rounded-2xl border-white/10 bg-[var(--st-bg-secondary)]/95 backdrop-blur-xl p-0 overflow-hidden">
                 <ZoruDialogHeader className="px-6 pt-6 pb-4 border-b border-white/10 bg-gradient-to-r from-primary/10 via-transparent to-transparent">
                     <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-xl bg-zoru-ink/15 border border-primary/30 flex items-center justify-center">
-                            <ShieldCheck className="h-5 w-5 text-zoru-ink" />
+                        <div className="h-10 w-10 rounded-xl bg-[var(--st-text)]/15 border border-primary/30 flex items-center justify-center">
+                            <ShieldCheck className="h-5 w-5 text-[var(--st-text)]" />
                         </div>
                         <div>
                             <ZoruDialogTitle className="text-lg">

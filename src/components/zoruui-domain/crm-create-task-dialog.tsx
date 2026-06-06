@@ -83,26 +83,26 @@ export function CreateTaskDialog({ onTaskCreated, contactId, dealId }: CrmCreate
           {dealId && <input type="hidden" name="dealId" value={dealId} />}
 
           <ZoruDialogHeader className="px-6 pt-6 pb-2">
-            <ZoruDialogTitle className="text-zoru-ink">Create New Task</ZoruDialogTitle>
-            <ZoruDialogDescription className="text-zoru-ink-muted">Add a new to-do item for your team.</ZoruDialogDescription>
+            <ZoruDialogTitle className="text-[var(--st-text)]">Create New Task</ZoruDialogTitle>
+            <ZoruDialogDescription className="text-[var(--st-text-secondary)]">Add a new to-do item for your team.</ZoruDialogDescription>
           </ZoruDialogHeader>
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="grid gap-4">
               <div className="space-y-2">
-                <Label htmlFor="title" className="text-zoru-ink">Title</Label>
+                <Label htmlFor="title" className="text-[var(--st-text)]">Title</Label>
                 <Input id="title" name="title" required placeholder="e.g., Follow up with Acme Corp" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="description" className="text-zoru-ink">Description (Optional)</Label>
+                <Label htmlFor="description" className="text-[var(--st-text)]">Description (Optional)</Label>
                 <Textarea id="description" name="description" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-zoru-ink">Due Date</Label>
+                  <Label className="text-[var(--st-text)]">Due Date</Label>
                   <DatePicker value={dueDate} onChange={setDueDate} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="priority" className="text-zoru-ink">Priority</Label>
+                  <Label htmlFor="priority" className="text-[var(--st-text)]">Priority</Label>
                   <Select name="priority" defaultValue="Medium">
                     <ZoruSelectTrigger id="priority"><ZoruSelectValue /></ZoruSelectTrigger>
                     <ZoruSelectContent>
@@ -114,7 +114,7 @@ export function CreateTaskDialog({ onTaskCreated, contactId, dealId }: CrmCreate
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="type" className="text-zoru-ink">Task Type</Label>
+                <Label htmlFor="type" className="text-[var(--st-text)]">Task Type</Label>
                 <Select name="type" defaultValue="Follow-up">
                   <ZoruSelectTrigger id="type"><ZoruSelectValue /></ZoruSelectTrigger>
                   <ZoruSelectContent>

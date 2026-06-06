@@ -401,7 +401,7 @@ export default function SalesGiftCardsPage(): React.JSX.Element {
         }
         bulkBar={
           selected.size > 0 ? (
-            <div className="flex flex-wrap items-center gap-2 text-sm text-zoru-ink">
+            <div className="flex flex-wrap items-center gap-2 text-sm text-[var(--st-text)]">
               <span className="font-medium">{selected.size} selected</span>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -451,9 +451,9 @@ export default function SalesGiftCardsPage(): React.JSX.Element {
         empty={
           !isPending && rows.length === 0 ? (
             <div className="flex flex-col items-center gap-3 p-4">
-              <Gift className="h-8 w-8 text-zoru-ink-muted" />
-              <h3 className="text-base font-medium text-zoru-ink">No gift cards yet</h3>
-              <p className="max-w-sm text-sm text-zoru-ink-muted">
+              <Gift className="h-8 w-8 text-[var(--st-text-secondary)]" />
+              <h3 className="text-base font-medium text-[var(--st-text)]">No gift cards yet</h3>
+              <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                 Issue your first gift card to start tracking balances and redemptions.
               </p>
               <Button asChild>
@@ -505,7 +505,7 @@ export default function SalesGiftCardsPage(): React.JSX.Element {
             <div className="overflow-x-auto rounded-lg">
               <Table>
                 <TableHeader>
-                  <TableRow className="border-zoru-line hover:bg-transparent">
+                  <TableRow className="border-[var(--st-border)] hover:bg-transparent">
                     <TableHead className="w-10">
                       <input
                         type="checkbox"
@@ -514,21 +514,21 @@ export default function SalesGiftCardsPage(): React.JSX.Element {
                         onChange={(e) => handleToggleAll(e.target.checked)}
                       />
                     </TableHead>
-                    <TableHead className="text-zoru-ink-muted">Code</TableHead>
-                    <TableHead className="text-zoru-ink-muted">Issued to</TableHead>
-                    <TableHead className="text-zoru-ink-muted">Value</TableHead>
-                    <TableHead className="text-zoru-ink-muted">Balance</TableHead>
-                    <TableHead className="text-zoru-ink-muted">Expiry</TableHead>
-                    <TableHead className="text-zoru-ink-muted">Transferable</TableHead>
-                    <TableHead className="text-zoru-ink-muted">Status</TableHead>
+                    <TableHead className="text-[var(--st-text-secondary)]">Code</TableHead>
+                    <TableHead className="text-[var(--st-text-secondary)]">Issued to</TableHead>
+                    <TableHead className="text-[var(--st-text-secondary)]">Value</TableHead>
+                    <TableHead className="text-[var(--st-text-secondary)]">Balance</TableHead>
+                    <TableHead className="text-[var(--st-text-secondary)]">Expiry</TableHead>
+                    <TableHead className="text-[var(--st-text-secondary)]">Transferable</TableHead>
+                    <TableHead className="text-[var(--st-text-secondary)]">Status</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {rows.length === 0 ? (
-                    <TableRow className="border-zoru-line">
+                    <TableRow className="border-[var(--st-border)]">
                       <TableCell
                         colSpan={8}
-                        className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                        className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                       >
                         {isPending ? 'Loading…' : 'No gift cards match these filters.'}
                       </TableCell>
@@ -539,7 +539,7 @@ export default function SalesGiftCardsPage(): React.JSX.Element {
                       const checked = selected.has(id);
                       const issuedTo = resolveIssuedTo(card);
                       return (
-                        <TableRow key={id} className="border-zoru-line">
+                        <TableRow key={id} className="border-[var(--st-border)]">
                           <TableCell>
                             <input
                               type="checkbox"
@@ -548,24 +548,24 @@ export default function SalesGiftCardsPage(): React.JSX.Element {
                               onChange={() => handleToggleOne(id)}
                             />
                           </TableCell>
-                          <TableCell className="text-zoru-ink">
+                          <TableCell className="text-[var(--st-text)]">
                             <EntityRowLink
                               href={`/dashboard/crm/sales/gift-cards/${id}`}
                               label={card.code || 'Untitled card'}
                               subtitle={issuedTo !== '—' ? issuedTo : undefined}
                             />
                           </TableCell>
-                          <TableCell className="text-zoru-ink">{issuedTo}</TableCell>
-                          <TableCell className="text-zoru-ink">
+                          <TableCell className="text-[var(--st-text)]">{issuedTo}</TableCell>
+                          <TableCell className="text-[var(--st-text)]">
                             {fmtINR(card.value)}
                           </TableCell>
-                          <TableCell className="text-zoru-ink">
+                          <TableCell className="text-[var(--st-text)]">
                             {fmtINR(card.balance)}
                           </TableCell>
-                          <TableCell className="text-zoru-ink">
+                          <TableCell className="text-[var(--st-text)]">
                             {fmtDate(card.expiryDate)}
                           </TableCell>
-                          <TableCell className="text-zoru-ink">
+                          <TableCell className="text-[var(--st-text)]">
                             {card.transferable === true
                               ? 'Yes'
                               : card.transferable === false

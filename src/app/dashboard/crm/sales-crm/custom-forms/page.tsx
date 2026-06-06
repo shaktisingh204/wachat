@@ -374,7 +374,7 @@ export default function CustomFormsPage() {
                 bulkBar={
                     selected.size > 0 ? (
                         <div className="flex flex-wrap items-center justify-between gap-3">
-                            <div className="text-[13px] text-zoru-ink">
+                            <div className="text-[13px] text-[var(--st-text)]">
                                 <span className="font-medium">{selected.size}</span> selected
                             </div>
                             <div className="flex items-center gap-2">
@@ -427,11 +427,11 @@ export default function CustomFormsPage() {
                 empty={
                     !isPending && displayedForms.length === 0 ? (
                         <div className="flex flex-col items-center gap-3 p-4">
-                            <FileText className="h-8 w-8 text-zoru-ink-muted" />
-                            <h3 className="text-base font-medium text-zoru-ink">
+                            <FileText className="h-8 w-8 text-[var(--st-text-secondary)]" />
+                            <h3 className="text-base font-medium text-[var(--st-text)]">
                                 No forms found
                             </h3>
-                            <p className="max-w-sm text-sm text-zoru-ink-muted">
+                            <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                                 {hasActiveFilters
                                     ? 'No forms match the current filters.'
                                     : 'Capture leads and submissions by building your first public form.'}
@@ -484,7 +484,7 @@ export default function CustomFormsPage() {
                         <div className="overflow-x-auto rounded-lg">
                             <Table>
                                 <ZoruTableHeader>
-                                    <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                                    <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                                         <ZoruTableHead className="w-10">
                                             <Checkbox
                                                 checked={allSelectedOnPage}
@@ -494,22 +494,22 @@ export default function CustomFormsPage() {
                                                 aria-label="Select all"
                                             />
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-zoru-ink-muted">
+                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                             Name
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-zoru-ink-muted">
+                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                             Status
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-right text-zoru-ink-muted">
+                                        <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                                             Fields
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-right text-zoru-ink-muted">
+                                        <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                                             Submissions
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-zoru-ink-muted">
+                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                             Created
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-zoru-ink-muted">
+                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                             Updated
                                         </ZoruTableHead>
                                         <ZoruTableHead className="w-10" />
@@ -523,7 +523,7 @@ export default function CustomFormsPage() {
                                         return (
                                             <ZoruTableRow
                                                 key={id}
-                                                className="border-zoru-line"
+                                                className="border-[var(--st-border)]"
                                                 data-state={
                                                     selected.has(id) ? 'selected' : undefined
                                                 }
@@ -554,18 +554,18 @@ export default function CustomFormsPage() {
                                                         </Badge>
                                                     )}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-right text-zoru-ink">
+                                                <ZoruTableCell className="text-right text-[var(--st-text)]">
                                                     {Array.isArray(f.fields)
                                                         ? f.fields.length
                                                         : 0}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-right text-zoru-ink">
+                                                <ZoruTableCell className="text-right text-[var(--st-text)]">
                                                     {subs.toLocaleString()}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {formatDate(f.createdAt)}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {formatDate(f.updatedAt)}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
@@ -606,7 +606,7 @@ export default function CustomFormsPage() {
                                                                 onSelect={() =>
                                                                     setDeleteTargetId(id)
                                                                 }
-                                                                className="text-zoru-danger"
+                                                                className="text-[var(--st-danger)]"
                                                             >
                                                                 Delete
                                                             </ZoruDropdownMenuItem>

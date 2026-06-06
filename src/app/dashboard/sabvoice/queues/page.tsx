@@ -172,13 +172,13 @@ export default function VoiceQueuesPage() {
                 </Badge>
               </div>
               {q.description && (
-                <p className="text-sm text-zoru-ink-muted">{q.description}</p>
+                <p className="text-sm text-[var(--st-text-secondary)]">{q.description}</p>
               )}
-              <div className="grid grid-cols-2 gap-2 text-xs text-zoru-ink-muted">
-                <div>Strategy: <span className="text-zoru-ink">{q.strategy}</span></div>
-                <div>Wait: <span className="text-zoru-ink">{q.maxWaitSecs}s</span></div>
-                <div>Agents: <span className="text-zoru-ink">{q.agentIds.length}</span></div>
-                <div>Fallback: <span className="text-zoru-ink">{q.fallback ?? '—'}</span></div>
+              <div className="grid grid-cols-2 gap-2 text-xs text-[var(--st-text-secondary)]">
+                <div>Strategy: <span className="text-[var(--st-text)]">{q.strategy}</span></div>
+                <div>Wait: <span className="text-[var(--st-text)]">{q.maxWaitSecs}s</span></div>
+                <div>Agents: <span className="text-[var(--st-text)]">{q.agentIds.length}</span></div>
+                <div>Fallback: <span className="text-[var(--st-text)]">{q.fallback ?? '—'}</span></div>
               </div>
               <div className="flex gap-2 mt-1">
                 <Button size="sm" variant="outline" onClick={() => openEdit(q)}>
@@ -187,7 +187,7 @@ export default function VoiceQueuesPage() {
                 <Button
                   size="sm"
                   variant="outline"
-                  className="text-zoru-ink"
+                  className="text-[var(--st-text)]"
                   onClick={() => remove(q._id)}
                 >
                   <Trash2 className="h-3 w-3 mr-1" /> Archive

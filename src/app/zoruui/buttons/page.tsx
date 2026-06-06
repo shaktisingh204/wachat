@@ -195,8 +195,8 @@ export default function ButtonsPage() {
   return (
     <div className="mx-auto max-w-6xl px-5 py-8 sm:px-8 lg:py-12">
       <div className="mb-8">
-        <h1 className="text-3xl font-semibold tracking-tight text-zoru-ink capitalize">buttons</h1>
-        <p className="mt-2 text-base text-zoru-ink-muted">Explore buttons components</p>
+        <h1 className="text-3xl font-semibold tracking-tight text-[var(--st-text)] capitalize">buttons</h1>
+        <p className="mt-2 text-base text-[var(--st-text-secondary)]">Explore buttons components</p>
       </div>
       <Section step="Step 2" title="Buttons">
 <SnippetDemo code={`

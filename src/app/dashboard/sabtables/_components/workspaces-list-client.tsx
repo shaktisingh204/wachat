@@ -97,7 +97,7 @@ export function WorkspacesListClient({ initialItems }: Props) {
                   <div className="min-w-0">
                     <div className="font-semibold truncate">{w.name}</div>
                     {w.description ? (
-                      <div className="text-sm text-zoru-ink-muted line-clamp-2">
+                      <div className="text-sm text-[var(--st-text-secondary)] line-clamp-2">
                         {w.description}
                       </div>
                     ) : null}

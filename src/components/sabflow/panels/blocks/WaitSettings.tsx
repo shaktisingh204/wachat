@@ -66,7 +66,7 @@ export function WaitSettings({ block, onBlockChange, variables: _variables = [] 
               className={cn(
                 'rounded-md border px-2.5 py-1 text-[11.5px] font-medium transition-colors',
                 duration === preset
-                  ? 'border-zoru-line/50 bg-zoru-ink/10 text-zoru-ink'
+                  ? 'border-[var(--st-border)]/50 bg-[var(--st-text)]/10 text-[var(--st-text)]'
                   : 'border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-9)] hover:text-[var(--gray-12)]',
               )}
             >
@@ -84,7 +84,7 @@ export function WaitSettings({ block, onBlockChange, variables: _variables = [] 
             step={1}
             value={duration}
             onChange={(e) => update({ duration: Number(e.target.value) })}
-            className="flex-1 accent-zoru-ink"
+            className="flex-1 accent-[var(--st-text)]"
           />
           <div className="flex items-center gap-1 shrink-0">
             <input
@@ -94,7 +94,7 @@ export function WaitSettings({ block, onBlockChange, variables: _variables = [] 
               step={1}
               value={duration}
               onChange={(e) => update({ duration: Number(e.target.value) })}
-              className="w-[70px] rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-2 py-1.5 text-[13px] text-center text-[var(--gray-12)] outline-none focus:border-zoru-line transition-colors"
+              className="w-[70px] rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-2 py-1.5 text-[13px] text-center text-[var(--gray-12)] outline-none focus:border-[var(--st-border)] transition-colors"
             />
             <span className="text-[12px] text-[var(--gray-9)]">
               {unit.slice(0, 3)}
@@ -113,7 +113,7 @@ export function WaitSettings({ block, onBlockChange, variables: _variables = [] 
             placeholder="Please wait… or {{customMessage}}"
             className={cn(
               'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px]',
-              'text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-zoru-line transition-colors pr-8',
+              'text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[var(--st-border)] transition-colors pr-8',
             )}
           />
           <LuBraces

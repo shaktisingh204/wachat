@@ -97,7 +97,7 @@ export function CannedMessageFormDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <ZoruDialogContent className="max-w-[540px] border border-zoru-line bg-zoru-bg p-0 shadow-lg">
+      <ZoruDialogContent className="max-w-[540px] border border-[var(--st-border)] bg-[var(--st-bg)] p-0 shadow-lg">
         <form action={action} ref={formRef}>
           <input type="hidden" name="projectId" value={projectId} />
           {existingMessage && (
@@ -108,15 +108,15 @@ export function CannedMessageFormDialog({
             />
           )}
 
-          <ZoruDialogHeader className="flex flex-row items-start gap-3 border-b border-zoru-line px-6 py-5">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-zoru-surface-2 text-zoru-ink">
+          <ZoruDialogHeader className="flex flex-row items-start gap-3 border-b border-[var(--st-border)] px-6 py-5">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
               <Bookmark className="h-5 w-5" strokeWidth={2} />
             </span>
             <div className="min-w-0 flex-1">
-              <ZoruDialogTitle className="text-[16px] font-semibold text-zoru-ink leading-tight">
+              <ZoruDialogTitle className="text-[16px] font-semibold text-[var(--st-text)] leading-tight">
                 {existingMessage ? 'Edit canned message' : 'Create canned message'}
               </ZoruDialogTitle>
-              <ZoruDialogDescription className="mt-0.5 text-[12px] text-zoru-ink-muted leading-snug">
+              <ZoruDialogDescription className="mt-0.5 text-[12px] text-[var(--st-text-secondary)] leading-snug">
                 Save a message for quick use in live chat conversations.
               </ZoruDialogDescription>
             </div>
@@ -127,9 +127,9 @@ export function CannedMessageFormDialog({
             <div className="flex flex-col gap-1.5">
               <Label
                 htmlFor="name"
-                className="text-[11.5px] font-semibold text-zoru-ink-muted"
+                className="text-[11.5px] font-semibold text-[var(--st-text-secondary)]"
               >
-                Name <span className="ml-1 text-zoru-danger-ink">*</span>
+                Name <span className="ml-1 text-[var(--st-danger)]">*</span>
               </Label>
               <Input
                 id="name"
@@ -138,7 +138,7 @@ export function CannedMessageFormDialog({
                 defaultValue={existingMessage?.name}
                 required
               />
-              <p className="text-[11px] text-zoru-ink-muted">
+              <p className="text-[11px] text-[var(--st-text-secondary)]">
                 A unique name to identify this message.
               </p>
             </div>
@@ -147,9 +147,9 @@ export function CannedMessageFormDialog({
             <div className="flex flex-col gap-1.5">
               <Label
                 htmlFor="type"
-                className="text-[11.5px] font-semibold text-zoru-ink-muted"
+                className="text-[11.5px] font-semibold text-[var(--st-text-secondary)]"
               >
-                Type <span className="ml-1 text-zoru-danger-ink">*</span>
+                Type <span className="ml-1 text-[var(--st-danger)]">*</span>
               </Label>
               <Select
                 name="type"
@@ -177,9 +177,9 @@ export function CannedMessageFormDialog({
               <div className="flex flex-col gap-1.5">
                 <Label
                   htmlFor="text"
-                  className="text-[11.5px] font-semibold text-zoru-ink-muted"
+                  className="text-[11.5px] font-semibold text-[var(--st-text-secondary)]"
                 >
-                  Content <span className="ml-1 text-zoru-danger-ink">*</span>
+                  Content <span className="ml-1 text-[var(--st-danger)]">*</span>
                 </Label>
                 <Textarea
                   id="text"
@@ -195,9 +195,9 @@ export function CannedMessageFormDialog({
                 <div className="flex flex-col gap-1.5">
                   <Label
                     htmlFor="mediaUrl"
-                    className="text-[11.5px] font-semibold text-zoru-ink-muted"
+                    className="text-[11.5px] font-semibold text-[var(--st-text-secondary)]"
                   >
-                    Media URL <span className="ml-1 text-zoru-danger-ink">*</span>
+                    Media URL <span className="ml-1 text-[var(--st-danger)]">*</span>
                   </Label>
                   <Input
                     id="mediaUrl"
@@ -210,10 +210,10 @@ export function CannedMessageFormDialog({
                 <div className="flex flex-col gap-1.5">
                   <Label
                     htmlFor="caption"
-                    className="text-[11.5px] font-semibold text-zoru-ink-muted"
+                    className="text-[11.5px] font-semibold text-[var(--st-text-secondary)]"
                   >
                     Caption{' '}
-                    <span className="ml-1 text-zoru-ink-muted/70 font-normal">
+                    <span className="ml-1 text-[var(--st-text-secondary)]/70 font-normal">
                       (optional)
                     </span>
                   </Label>
@@ -228,10 +228,10 @@ export function CannedMessageFormDialog({
                   <div className="flex flex-col gap-1.5">
                     <Label
                       htmlFor="fileName"
-                      className="text-[11.5px] font-semibold text-zoru-ink-muted"
+                      className="text-[11.5px] font-semibold text-[var(--st-text-secondary)]"
                     >
                       File name{' '}
-                      <span className="ml-1 text-zoru-ink-muted/70 font-normal">
+                      <span className="ml-1 text-[var(--st-text-secondary)]/70 font-normal">
                         (optional)
                       </span>
                     </Label>
@@ -247,15 +247,15 @@ export function CannedMessageFormDialog({
             )}
 
             {/* Favourite toggle */}
-            <div className="flex items-center justify-between rounded-[12px] border border-zoru-line bg-zoru-surface-2 px-4 py-3">
+            <div className="flex items-center justify-between rounded-[12px] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-3">
               <div>
                 <Label
                   htmlFor="isFavourite"
-                  className="text-[13px] font-medium text-zoru-ink"
+                  className="text-[13px] font-medium text-[var(--st-text)]"
                 >
                   Mark as favourite
                 </Label>
-                <div className="mt-0.5 text-[11px] text-zoru-ink-muted">
+                <div className="mt-0.5 text-[11px] text-[var(--st-text-secondary)]">
                   Pins this message to the top of the canned list.
                 </div>
               </div>
@@ -267,7 +267,7 @@ export function CannedMessageFormDialog({
             </div>
           </div>
 
-          <ZoruDialogFooter className="border-t border-zoru-line px-6 py-4 sm:justify-end gap-2">
+          <ZoruDialogFooter className="border-t border-[var(--st-border)] px-6 py-4 sm:justify-end gap-2">
             <Button
               type="button"
               variant="outline"

@@ -89,10 +89,10 @@ export function BomTable({
         !allSelected && boms.some((b) => selectedIds.has(String(b._id)));
 
     return (
-        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+        <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
             <Table>
                 <ZoruTableHeader>
-                    <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                    <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                         <ZoruTableHead className="w-[36px]">
                             <Checkbox
                                 aria-label="Select all BOMs on this page"
@@ -114,17 +114,17 @@ export function BomTable({
                 <ZoruTableBody>
                     {loading ? (
                         Array.from({ length: 6 }).map((_, i) => (
-                            <ZoruTableRow key={i} className="border-zoru-line">
+                            <ZoruTableRow key={i} className="border-[var(--st-border)]">
                                 <ZoruTableCell colSpan={10}>
                                     <Skeleton className="h-10 w-full" />
                                 </ZoruTableCell>
                             </ZoruTableRow>
                         ))
                     ) : boms.length === 0 ? (
-                        <ZoruTableRow className="border-zoru-line">
+                        <ZoruTableRow className="border-[var(--st-border)]">
                             <ZoruTableCell
                                 colSpan={10}
-                                className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                                className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                             >
                                 No BOMs match the current filters.
                             </ZoruTableCell>
@@ -145,9 +145,9 @@ export function BomTable({
                                 <RowContextMenu key={id} bomId={id}>
                                 <ZoruTableRow
                                     className={[
-                                        'border-zoru-line transition-colors',
+                                        'border-[var(--st-border)] transition-colors',
                                         status === 'archived' ? 'opacity-70' : '',
-                                        isSel ? 'bg-zoru-surface-2/70' : '',
+                                        isSel ? 'bg-[var(--st-bg-muted)]/70' : '',
                                     ].join(' ')}
                                 >
                                     <ZoruTableCell>
@@ -172,24 +172,24 @@ export function BomTable({
                                                 fallback={bom.finishedGoodName || fgId.slice(-6)}
                                             />
                                         ) : (
-                                            <span className="text-[13px] text-zoru-ink">
+                                            <span className="text-[13px] text-[var(--st-text)]">
                                                 {bom.finishedGoodName || '—'}
                                             </span>
                                         )}
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                                    <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                                         {bom.version || '—'}
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
+                                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
                                         {fmtNum(bom.outputQty)} {bom.unit || ''}
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
+                                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
                                         {Array.isArray(bom.components) ? bom.components.length : 0}
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="text-right font-mono text-[12.5px] text-zoru-ink">
+                                    <ZoruTableCell className="text-right font-mono text-[12.5px] text-[var(--st-text)]">
                                         {fmtMoney(bom.totalCost)}
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                                    <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                                         {fmtDate(bom.effectiveDate)}
                                     </ZoruTableCell>
                                     <ZoruTableCell>
@@ -201,7 +201,7 @@ export function BomTable({
                                                 <button
                                                     type="button"
                                                     aria-label={`Actions for ${bom.bomNo}`}
-                                                    className="inline-flex h-8 w-8 items-center justify-center rounded-md text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
+                                                    className="inline-flex h-8 w-8 items-center justify-center rounded-md text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
                                                 >
                                                     <MoreHorizontal className="h-4 w-4" />
                                                 </button>
@@ -243,7 +243,7 @@ export function BomTable({
                                                 </ZoruDropdownMenuItem>
                                                 <ZoruDropdownMenuItem
                                                     onClick={() => onDelete(id)}
-                                                    className="text-zoru-danger"
+                                                    className="text-[var(--st-danger)]"
                                                 >
                                                     <Trash2 className="mr-1.5 h-3.5 w-3.5" />
                                                     Delete

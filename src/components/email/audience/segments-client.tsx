@@ -126,7 +126,7 @@ export function EmailSegmentsClient() {
                     {seg.cachedCount?.toLocaleString() ?? '—'} matches
                   </Badge>
                   {seg.cachedAt ? (
-                    <span className="text-xs text-zoru-ink-muted">
+                    <span className="text-xs text-[var(--st-text-secondary)]">
                       updated {new Date(seg.cachedAt).toLocaleString()}
                     </span>
                   ) : null}
@@ -136,7 +136,7 @@ export function EmailSegmentsClient() {
                 <Button variant="outline" size="sm" onClick={() => handleRecount(seg)}>
                   <RefreshCw className="h-3 w-3" /> Recount
                 </Button>
-                <Button variant="ghost" size="sm" className="text-zoru-ink ml-auto" onClick={() => handleDelete(seg)}>
+                <Button variant="ghost" size="sm" className="text-[var(--st-text)] ml-auto" onClick={() => handleDelete(seg)}>
                   <Trash2 className="h-3 w-3" /> Delete
                 </Button>
               </ZoruCardFooter>
@@ -225,7 +225,7 @@ function NewSegmentDialog({ open, onOpenChange, onCreated }: NewSegmentDialogPro
         </div>
 
         <ZoruDialogFooter className="flex flex-row items-center gap-2 justify-between">
-          <div className="text-sm text-zoru-ink-muted">
+          <div className="text-sm text-[var(--st-text-secondary)]">
             {previewMatches !== null ? (
               <Badge variant="outline">{previewMatches.toLocaleString()} matches</Badge>
             ) : null}

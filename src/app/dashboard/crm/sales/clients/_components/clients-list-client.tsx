@@ -273,7 +273,7 @@ export function ClientsListClient({
         bulkBar={
           selected.size > 0 ? (
             <div className="flex flex-wrap items-center gap-2 text-[13px]">
-              <span className="font-medium text-zoru-ink">{selected.size} selected</span>
+              <span className="font-medium text-[var(--st-text)]">{selected.size} selected</span>
               <Button
                 size="sm"
                 variant="outline"
@@ -291,7 +291,7 @@ export function ClientsListClient({
               <Button
                 size="sm"
                 variant="ghost"
-                className="text-zoru-danger-ink"
+                className="text-[var(--st-danger)]"
                 onClick={() => setPendingBulkDelete(true)}
                 disabled={busy}
               >
@@ -311,11 +311,11 @@ export function ClientsListClient({
             <StatCard label="Active" value={kpis.active.toLocaleString()} />
             <StatCard label="Archived" value={kpis.archived.toLocaleString()} />
             <StatCard label="Strategic" value={kpis.strategic.toLocaleString()} />
-            <div className="flex flex-1 flex-col gap-1 rounded-md border border-zoru-line/40 bg-zoru-surface-2 px-3 py-2.5">
-              <span className="flex items-center gap-1 text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+            <div className="flex flex-1 flex-col gap-1 rounded-md border border-[var(--st-border)]/40 bg-[var(--st-bg-muted)] px-3 py-2.5">
+              <span className="flex items-center gap-1 text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                 <CircleDollarSign className="h-3 w-3" /> ARR
               </span>
-              <span className="text-[18px] font-semibold tabular-nums text-zoru-ink">
+              <span className="text-[18px] font-semibold tabular-nums text-[var(--st-text)]">
                 {fmtINR(kpis.totalArr)}
               </span>
             </div>
@@ -323,14 +323,14 @@ export function ClientsListClient({
         ) : null}
 
         {error ? (
-          <div className="rounded border border-zoru-line/40 bg-zoru-ink/10 px-3 py-2 text-[12.5px] text-zoru-ink dark:text-zoru-ink-muted">
+          <div className="rounded border border-[var(--st-border)]/40 bg-[var(--st-text)]/10 px-3 py-2 text-[12.5px] text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
             {error}
           </div>
         ) : null}
 
         <Card className="overflow-hidden p-0">
           {/* Filter / tab bar */}
-          <div className="flex flex-wrap items-center gap-3 border-b border-zoru-line p-3">
+          <div className="flex flex-wrap items-center gap-3 border-b border-[var(--st-border)] p-3">
             <div className="flex gap-1">
               <Button
                 size="sm"
@@ -354,7 +354,7 @@ export function ClientsListClient({
               </Button>
             </div>
             <div className="relative max-w-xs flex-1">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
               <Input
                 placeholder="Search by name, industry, or website…"
                 value={query}
@@ -411,12 +411,12 @@ export function ClientsListClient({
                 variant="ghost"
                 size="sm"
                 onClick={clearFilters}
-                className="text-[12px] text-zoru-ink-muted"
+                className="text-[12px] text-[var(--st-text-secondary)]"
               >
                 <X className="h-3.5 w-3.5" /> Clear filters
               </Button>
             ) : null}
-            <div className="ml-auto flex items-center gap-1 bg-zoru-surface-2 p-1 rounded-md border border-zoru-line">
+            <div className="ml-auto flex items-center gap-1 bg-[var(--st-bg-muted)] p-1 rounded-md border border-[var(--st-border)]">
               <Button
                 size="sm"
                 variant={viewMode === 'list' ? 'default' : 'ghost'}
@@ -437,13 +437,13 @@ export function ClientsListClient({
           </div>
 
           {viewMode === 'map' ? (
-            <div className="border-t border-zoru-line">
+            <div className="border-t border-[var(--st-border)]">
               <ClientsMapView accounts={accounts} />
             </div>
           ) : (
             <Table>
               <TableHeader>
-                <TableRow className="border-zoru-line hover:bg-transparent">
+                <TableRow className="border-[var(--st-border)] hover:bg-transparent">
                   <TableHead className="w-[36px]">
                     <Checkbox
                       checked={allSelected}
@@ -451,13 +451,13 @@ export function ClientsListClient({
                       aria-label="Select all"
                     />
                   </TableHead>
-                  <TableHead className="text-zoru-ink-muted">Account Name</TableHead>
-                  <TableHead className="text-zoru-ink-muted">Industry</TableHead>
-                  <TableHead className="text-zoru-ink-muted">Phone</TableHead>
-                  <TableHead className="text-zoru-ink-muted">Status</TableHead>
-                  <TableHead className="text-zoru-ink-muted">Engagement</TableHead>
-                  <TableHead className="text-zoru-ink-muted">Last Activity</TableHead>
-                  <TableHead className="text-right text-zoru-ink-muted">Actions</TableHead>
+                  <TableHead className="text-[var(--st-text-secondary)]">Account Name</TableHead>
+                  <TableHead className="text-[var(--st-text-secondary)]">Industry</TableHead>
+                  <TableHead className="text-[var(--st-text-secondary)]">Phone</TableHead>
+                  <TableHead className="text-[var(--st-text-secondary)]">Status</TableHead>
+                  <TableHead className="text-[var(--st-text-secondary)]">Engagement</TableHead>
+                  <TableHead className="text-[var(--st-text-secondary)]">Last Activity</TableHead>
+                  <TableHead className="text-right text-[var(--st-text-secondary)]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -471,7 +471,7 @@ export function ClientsListClient({
                     return (
                       <TableRow
                         key={id}
-                        className="border-zoru-line"
+                        className="border-[var(--st-border)]"
                         data-state={isSelected ? 'selected' : undefined}
                       >
                         <TableCell>
@@ -486,16 +486,16 @@ export function ClientsListClient({
                             href={`/dashboard/crm/accounts/${id}`}
                             label={
                               <span className="flex items-center gap-2">
-                                <Building className="h-4 w-4 shrink-0 text-zoru-ink-muted" />
+                                <Building className="h-4 w-4 shrink-0 text-[var(--st-text-secondary)]" />
                                 {account.name}
                               </span>
                             }
                           />
                         </TableCell>
-                        <TableCell className="text-[13px] text-zoru-ink">
+                        <TableCell className="text-[13px] text-[var(--st-text)]">
                           {account.industry || '—'}
                         </TableCell>
-                        <TableCell className="text-[13px] text-zoru-ink">
+                        <TableCell className="text-[13px] text-[var(--st-text)]">
                           {account.phone || '—'}
                         </TableCell>
                         <TableCell>
@@ -507,11 +507,11 @@ export function ClientsListClient({
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <span className="text-[13px] font-medium text-zoru-ink">
+                          <span className="text-[13px] font-medium text-[var(--st-text)]">
                             {score !== undefined ? score : '—'}
                           </span>
                         </TableCell>
-                        <TableCell className="text-[13px] text-zoru-ink-muted">
+                        <TableCell className="text-[13px] text-[var(--st-text-secondary)]">
                           {lastAct}
                         </TableCell>
                         <TableCell className="text-right">
@@ -549,10 +549,10 @@ export function ClientsListClient({
                     );
                   })
                 ) : (
-                  <TableRow className="border-zoru-line">
+                  <TableRow className="border-[var(--st-border)]">
                     <TableCell
                       colSpan={8}
-                      className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                      className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                     >
                       {hasFilterActive || query
                         ? 'No accounts match these filters.'
@@ -565,7 +565,7 @@ export function ClientsListClient({
           )}
 
           {/* Pagination */}
-          <div className="mt-4 p-4 border-t border-zoru-line">
+          <div className="mt-4 p-4 border-t border-[var(--st-border)]">
             <PaginationBar page={page} limit={limit} hasMore={hasMore} />
           </div>
         </Card>
@@ -619,7 +619,7 @@ export function ClientsListClient({
                 confirmBulkDelete();
               }}
               disabled={busy}
-              className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
+              className="bg-[var(--st-danger)] text-white hover:bg-[var(--st-danger)]/90"
             >
               {busy ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : null}
               Delete permanently

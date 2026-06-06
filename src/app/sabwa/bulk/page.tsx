@@ -264,7 +264,7 @@ interface StepperProps {
 function Stepper({ current, onJump, furthestUnlocked }: StepperProps) {
   return (
     <ol
-      className="grid grid-cols-1 gap-2 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-3 sm:grid-cols-4"
+      className="grid grid-cols-1 gap-2 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 sm:grid-cols-4"
       aria-label="Wizard steps"
     >
       {STEPS.map((label, idx) => {
@@ -279,9 +279,9 @@ function Stepper({ current, onJump, furthestUnlocked }: StepperProps) {
               disabled={!isReachable}
               className={cn(
                 'flex flex-1 items-center gap-2 rounded-[var(--zoru-radius)] px-3 py-2 text-left text-[12.5px] transition',
-                isActive && 'bg-zoru-ink text-zoru-on-primary',
-                !isActive && isComplete && 'bg-zoru-surface text-zoru-ink',
-                !isActive && !isComplete && 'text-zoru-ink-muted',
+                isActive && 'bg-[var(--st-text)] text-[var(--st-text-inverted)]',
+                !isActive && isComplete && 'bg-[var(--st-bg-secondary)] text-[var(--st-text)]',
+                !isActive && !isComplete && 'text-[var(--st-text-secondary)]',
                 !isReachable && 'opacity-50',
               )}
               aria-current={isActive ? 'step' : undefined}
@@ -290,9 +290,9 @@ function Stepper({ current, onJump, furthestUnlocked }: StepperProps) {
                 aria-hidden
                 className={cn(
                   'flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10.5px] font-semibold',
-                  isActive && 'bg-zoru-on-primary text-zoru-ink',
-                  !isActive && isComplete && 'bg-zoru-ink text-zoru-on-primary',
-                  !isActive && !isComplete && 'border border-zoru-line-strong text-zoru-ink-muted',
+                  isActive && 'bg-[var(--st-text-inverted)] text-[var(--st-text)]',
+                  !isActive && isComplete && 'bg-[var(--st-text)] text-[var(--st-text-inverted)]',
+                  !isActive && !isComplete && 'border border-[var(--st-border-strong)] text-[var(--st-text-secondary)]',
                 )}
               >
                 {isComplete ? <Check className="h-3 w-3" /> : idx + 1}
@@ -301,7 +301,7 @@ function Stepper({ current, onJump, furthestUnlocked }: StepperProps) {
             </button>
             {idx < STEPS.length - 1 && (
               <ChevronRight
-                className="hidden h-4 w-4 shrink-0 text-zoru-ink-muted sm:hidden"
+                className="hidden h-4 w-4 shrink-0 text-[var(--st-text-secondary)] sm:hidden"
                 aria-hidden
               />
             )}
@@ -369,7 +369,7 @@ function Step1Audience({
         <div
           role="group"
           aria-label="Audience source"
-          className="inline-flex flex-wrap gap-1 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-1"
+          className="inline-flex flex-wrap gap-1 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1"
         >
           {AUDIENCE_OPTIONS.map((opt) => (
             <Button
@@ -397,7 +397,7 @@ function Step1Audience({
               onChange={(e) => onChange({ ...state, pasted: e.target.value })}
               rows={6}
             />
-            <p className="text-xs text-zoru-ink-muted">
+            <p className="text-xs text-[var(--st-text-secondary)]">
               Country code required. Non-digit characters are stripped.
             </p>
           </div>
@@ -506,8 +506,8 @@ function Step1Audience({
                   </div>
                 </div>
 
-                <div className="rounded-[var(--zoru-radius)] border border-zoru-line">
-                  <div className="border-b border-zoru-line bg-zoru-surface px-3 py-1.5 text-xs font-medium text-zoru-ink">
+                <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
+                  <div className="border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-1.5 text-xs font-medium text-[var(--st-text)]">
                     Preview — first 5 rows
                   </div>
                   <div className="overflow-x-auto">
@@ -584,7 +584,7 @@ function Step1Audience({
                 </ZoruSelectItem>
               </ZoruSelectContent>
             </Select>
-            <p className="text-xs text-zoru-ink-muted">
+            <p className="text-xs text-[var(--st-text-secondary)]">
               Members are messaged 1:1 — the group itself receives nothing.
             </p>
           </div>
@@ -608,12 +608,12 @@ function Step1Audience({
               {recipientCount.toLocaleString()} recipient
               {recipientCount === 1 ? '' : 's'}
             </Badge>
-            <span className="text-xs text-zoru-ink-muted">
+            <span className="text-xs text-[var(--st-text-secondary)]">
               cap {maxRecipients.toLocaleString()}
             </span>
           </div>
           {exceeded && (
-            <p className="text-xs text-zoru-danger">
+            <p className="text-xs text-[var(--st-danger)]">
               Exceeds your plan cap. Upgrade or trim the list.
             </p>
           )}
@@ -654,7 +654,7 @@ function Step2Compose({
         <ZoruCardTitle className="text-base">Compose</ZoruCardTitle>
         <ZoruCardDescription>
           Write the message body. Use{' '}
-          <code className="rounded bg-zoru-surface px-1 text-xs text-zoru-ink">
+          <code className="rounded bg-[var(--st-bg-secondary)] px-1 text-xs text-[var(--st-text)]">
             {'{{firstName}}'}
           </code>{' '}
           and other variables — they are substituted per recipient.
@@ -729,9 +729,9 @@ function Step2Compose({
         <div className="grid gap-3 md:grid-cols-2">
           <div className="space-y-1">
             <Label className="text-xs">Live preview</Label>
-            <div className="min-h-[88px] whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3 text-sm text-zoru-ink">
+            <div className="min-h-[88px] whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 text-sm text-[var(--st-text)]">
               {preview || (
-                <span className="text-zoru-ink-muted">
+                <span className="text-[var(--st-text-secondary)]">
                   Preview shows here as you type.
                 </span>
               )}
@@ -750,7 +750,7 @@ function Step2Compose({
                 {state.media ? 'Replace' : 'Attach media'}
               </SabFilePickerButton>
               {state.media && (
-                <div className="flex items-center gap-1 rounded-[var(--zoru-radius)] bg-zoru-surface px-2 py-1 text-xs text-zoru-ink">
+                <div className="flex items-center gap-1 rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] px-2 py-1 text-xs text-[var(--st-text)]">
                   <span className="max-w-[160px] truncate">
                     {state.media.name}
                   </span>
@@ -758,7 +758,7 @@ function Step2Compose({
                     type="button"
                     onClick={() => onChange({ ...state, media: null })}
                     aria-label="Remove attachment"
-                    className="rounded p-0.5 hover:bg-zoru-bg"
+                    className="rounded p-0.5 hover:bg-[var(--st-bg)]"
                   >
                     <X className="h-3 w-3" />
                   </button>
@@ -774,7 +774,7 @@ function Step2Compose({
           <div className="flex items-center justify-between">
             <div>
               <Label className="text-sm">A/B variant</Label>
-              <p className="text-xs text-zoru-ink-muted">
+              <p className="text-xs text-[var(--st-text-secondary)]">
                 Split-test a second body — recipients are randomly assigned.
               </p>
             </div>
@@ -813,7 +813,7 @@ function Step2Compose({
                 placeholder="Variant B body…"
               />
               {previewVariant && (
-                <div className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3 text-sm text-zoru-ink">
+                <div className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 text-sm text-[var(--st-text)]">
                   {previewVariant}
                 </div>
               )}
@@ -861,10 +861,10 @@ function Step3Review({
     onChange({ ...settings, perMinute: RATE_PRESETS[p].perMinute });
 
   const riskColor: Record<typeof risk.label, string> = {
-    low: 'text-zoru-success',
-    moderate: 'text-zoru-warning',
-    high: 'text-zoru-warning',
-    critical: 'text-zoru-danger',
+    low: 'text-[var(--st-status-ok)]',
+    moderate: 'text-[var(--st-warn)]',
+    high: 'text-[var(--st-warn)]',
+    critical: 'text-[var(--st-danger)]',
   };
 
   return (
@@ -877,20 +877,20 @@ function Step3Review({
       </ZoruCardHeader>
       <ZoruCardContent className="space-y-5">
         <div className="grid gap-3 sm:grid-cols-3">
-          <div className="rounded-[var(--zoru-radius)] border border-zoru-line p-3">
-            <p className="text-xs text-zoru-ink-muted">Recipients</p>
-            <p className="text-xl font-semibold tabular-nums text-zoru-ink">
+          <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-3">
+            <p className="text-xs text-[var(--st-text-secondary)]">Recipients</p>
+            <p className="text-xl font-semibold tabular-nums text-[var(--st-text)]">
               {recipientCount.toLocaleString()}
             </p>
           </div>
-          <div className="rounded-[var(--zoru-radius)] border border-zoru-line p-3">
-            <p className="text-xs text-zoru-ink-muted">Estimated duration</p>
-            <p className="text-xl font-semibold tabular-nums text-zoru-ink">
+          <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-3">
+            <p className="text-xs text-[var(--st-text-secondary)]">Estimated duration</p>
+            <p className="text-xl font-semibold tabular-nums text-[var(--st-text)]">
               {fmtDuration(estimatedSec)}
             </p>
           </div>
-          <div className="rounded-[var(--zoru-radius)] border border-zoru-line p-3">
-            <p className="text-xs text-zoru-ink-muted">Ban-risk score</p>
+          <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-3">
+            <p className="text-xs text-[var(--st-text-secondary)]">Ban-risk score</p>
             <p
               className={cn(
                 'text-xl font-semibold tabular-nums',
@@ -943,7 +943,7 @@ function Step3Review({
               }
               className="flex-1"
             />
-            <span className="w-16 text-right text-sm tabular-nums text-zoru-ink">
+            <span className="w-16 text-right text-sm tabular-nums text-[var(--st-text)]">
               {settings.perMinute}/min
             </span>
           </div>
@@ -962,7 +962,7 @@ function Step3Review({
               }
               className="flex-1"
             />
-            <span className="w-16 text-right text-sm tabular-nums text-zoru-ink">
+            <span className="w-16 text-right text-sm tabular-nums text-[var(--st-text)]">
               ±{settings.jitterSec}s
             </span>
           </div>
@@ -1024,7 +1024,7 @@ function Step3Review({
           </div>
         </div>
 
-        <div className="flex items-start gap-2 rounded-[var(--zoru-radius)] border border-zoru-line p-3">
+        <div className="flex items-start gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-3">
           <Checkbox
             id="first-contact"
             checked={settings.firstContactOnly}
@@ -1036,14 +1036,14 @@ function Step3Review({
             <Label htmlFor="first-contact" className="cursor-pointer text-sm">
               Skip first-contact recipients
             </Label>
-            <p className="text-xs text-zoru-ink-muted">
+            <p className="text-xs text-[var(--st-text-secondary)]">
               Don&apos;t bulk-message contacts who have never messaged you.
               Strongly recommended.
             </p>
           </div>
         </div>
 
-        <div className="flex items-start gap-2 rounded-[var(--zoru-radius)] border border-zoru-danger/40 bg-zoru-danger/5 p-3">
+        <div className="flex items-start gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-danger)]/40 bg-[var(--st-danger)]/5 p-3">
           <Checkbox
             id="accept-tos"
             checked={settings.acceptedToS}
@@ -1056,7 +1056,7 @@ function Step3Review({
               I understand WhatsApp ToS risk and accept that my account may be
               banned.
             </Label>
-            <p className="text-xs text-zoru-ink-muted">
+            <p className="text-xs text-[var(--st-text-secondary)]">
               Submit is disabled until this is checked. Bulk sending on a
               personal account is explicitly against WhatsApp&apos;s ToS.
             </p>
@@ -1150,7 +1150,7 @@ function Step4Run({ run, onControl, resolve }: Step4PropsWithResolver) {
       </ZoruCardHeader>
       <ZoruCardContent className="space-y-4">
         <div className="space-y-2">
-          <div className="flex items-center justify-between text-xs text-zoru-ink-muted">
+          <div className="flex items-center justify-between text-xs text-[var(--st-text-secondary)]">
             <span>
               {done.toLocaleString()} / {total.toLocaleString()} processed
             </span>
@@ -1199,10 +1199,10 @@ function Step4Run({ run, onControl, resolve }: Step4PropsWithResolver) {
           {(['pending', 'sent', 'failed', 'cancelled'] as const).map((k) => (
             <div
               key={k}
-              className="rounded-[var(--zoru-radius)] border border-zoru-line p-2 text-xs"
+              className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-2 text-xs"
             >
-              <p className="text-zoru-ink-muted capitalize">{k}</p>
-              <p className="text-base font-semibold tabular-nums text-zoru-ink">
+              <p className="text-[var(--st-text-secondary)] capitalize">{k}</p>
+              <p className="text-base font-semibold tabular-nums text-[var(--st-text)]">
                 {counts[k]}
               </p>
             </div>
@@ -1230,7 +1230,7 @@ function Step4Run({ run, onControl, resolve }: Step4PropsWithResolver) {
               </ZoruSelectContent>
             </Select>
           </div>
-          <div className="max-h-64 overflow-y-auto rounded-[var(--zoru-radius)] border border-zoru-line">
+          <div className="max-h-64 overflow-y-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
             <Table>
               <ZoruTableHeader>
                 <ZoruTableRow>
@@ -1251,10 +1251,10 @@ function Step4Run({ run, onControl, resolve }: Step4PropsWithResolver) {
                     <ZoruTableRow key={r.jid}>
                       <ZoruTableCell className="text-xs">
                         <div className="flex flex-col">
-                          <span className="font-medium text-zoru-ink">
+                          <span className="font-medium text-[var(--st-text)]">
                             {resolved === jidForLookup ? fallback : resolved}
                           </span>
-                          <span className="font-mono text-[10px] text-zoru-ink-muted">
+                          <span className="font-mono text-[10px] text-[var(--st-text-secondary)]">
                             {fallback}
                           </span>
                         </div>
@@ -1274,7 +1274,7 @@ function Step4Run({ run, onControl, resolve }: Step4PropsWithResolver) {
                   <ZoruTableRow>
                     <ZoruTableCell
                       colSpan={2}
-                      className="text-center text-xs text-zoru-ink-muted"
+                      className="text-center text-xs text-[var(--st-text-secondary)]"
                     >
                       …and {(filtered.length - 200).toLocaleString()} more
                     </ZoruTableCell>
@@ -1310,7 +1310,7 @@ function PastCampaignsTable({ items }: { items: PastCampaign[] }) {
       </ZoruCardHeader>
       <ZoruCardContent className="px-0">
         {items.length === 0 ? (
-          <div className="px-4 py-6 text-center text-sm text-zoru-ink-muted">
+          <div className="px-4 py-6 text-center text-sm text-[var(--st-text-secondary)]">
             No campaigns yet.
           </div>
         ) : (
@@ -1326,7 +1326,7 @@ function PastCampaignsTable({ items }: { items: PastCampaign[] }) {
             <ZoruTableBody>
               {items.map((c) => (
                 <ZoruTableRow key={c.id}>
-                  <ZoruTableCell className="font-medium text-zoru-ink">
+                  <ZoruTableCell className="font-medium text-[var(--st-text)]">
                     {c.name}
                   </ZoruTableCell>
                   <ZoruTableCell className="text-right tabular-nums">
@@ -1337,7 +1337,7 @@ function PastCampaignsTable({ items }: { items: PastCampaign[] }) {
                       {c.status}
                     </Badge>
                   </ZoruTableCell>
-                  <ZoruTableCell className="text-xs text-zoru-ink-muted">
+                  <ZoruTableCell className="text-xs text-[var(--st-text-secondary)]">
                     {c.startedAt.toLocaleString()}
                   </ZoruTableCell>
                 </ZoruTableRow>
@@ -1626,7 +1626,7 @@ export default function BulkSenderPage() {
 
   return (
     <ZoruTooltipProvider>
-      <div className="space-y-4 bg-zoru-bg p-3 md:p-6">
+      <div className="space-y-4 bg-[var(--st-bg)] p-3 md:p-6">
         <Breadcrumb>
           <ZoruBreadcrumbList>
             <ZoruBreadcrumbItem>
@@ -1645,14 +1645,14 @@ export default function BulkSenderPage() {
 
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-start gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface text-zoru-ink">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
               <Send className="h-5 w-5" />
             </div>
             <div>
-              <h1 className="text-[20px] tracking-[-0.015em] text-zoru-ink leading-[1.2]">
+              <h1 className="text-[20px] tracking-[-0.015em] text-[var(--st-text)] leading-[1.2]">
                 Bulk Sender
               </h1>
-              <p className="mt-0.5 text-xs text-zoru-ink-muted">
+              <p className="mt-0.5 text-xs text-[var(--st-text-secondary)]">
                 Audience → Compose → Review → Run, with anti-ban guardrails.
               </p>
             </div>
@@ -1668,7 +1668,7 @@ export default function BulkSenderPage() {
                 type="button"
                 onClick={dismissBanner}
                 aria-label="Dismiss"
-                className="rounded p-0.5 text-zoru-ink-muted hover:bg-zoru-surface"
+                className="rounded p-0.5 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)]"
               >
                 <X className="h-3.5 w-3.5" />
               </button>

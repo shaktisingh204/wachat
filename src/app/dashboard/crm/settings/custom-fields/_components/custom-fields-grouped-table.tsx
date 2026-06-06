@@ -65,7 +65,7 @@ export function CustomFieldsGroupedTable({
         return (
             <Card className="p-6">
                 <div className="text-center">
-                    <p className="text-[13px] text-zoru-ink-muted">
+                    <p className="text-[13px] text-[var(--st-text-secondary)]">
                         No groups match the active filter.
                     </p>
                 </div>
@@ -82,7 +82,7 @@ export function CustomFieldsGroupedTable({
                     <Card key={group._id} className="p-6">
                         <div className="flex flex-wrap items-center justify-between gap-3 pb-3">
                             <div className="flex items-center gap-2">
-                                <h2 className="text-[16px] text-zoru-ink">
+                                <h2 className="text-[16px] text-[var(--st-text)]">
                                     {group.name}
                                 </h2>
                                 <Badge variant="default">
@@ -98,7 +98,7 @@ export function CustomFieldsGroupedTable({
                                 </Link>
                             </Button>
                         </div>
-                        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                        <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                             <Table>
                                 <ZoruTableHeader>
                                     <ZoruTableRow className="hover:bg-transparent">
@@ -131,22 +131,22 @@ export function CustomFieldsGroupedTable({
                                                 aria-label="Select group"
                                             />
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-zoru-ink-muted">
+                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                             Label
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-zoru-ink-muted">
+                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                             Slug
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-zoru-ink-muted">
+                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                             Type
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-zoru-ink-muted">
+                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                             Required
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-zoru-ink-muted">
+                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                             In Table
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="w-[180px] text-right text-zoru-ink-muted">
+                                        <ZoruTableHead className="w-[180px] text-right text-[var(--st-text-secondary)]">
                                             Actions
                                         </ZoruTableHead>
                                     </ZoruTableRow>
@@ -156,7 +156,7 @@ export function CustomFieldsGroupedTable({
                                         <ZoruTableRow>
                                             <ZoruTableCell
                                                 colSpan={7}
-                                                className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                                                className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                                             >
                                                 {search || entityFilter !== 'all'
                                                     ? 'No fields match your filter.'
@@ -181,10 +181,10 @@ export function CustomFieldsGroupedTable({
                                                         aria-label="Select row"
                                                     />
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-[13px] text-zoru-ink">
+                                                <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                                                     {field.label}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                                                <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                                                     {field.name}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
@@ -272,7 +272,7 @@ export function CustomFieldsGroupedTable({
                                                             onClick={() => onDelete(field._id)}
                                                             aria-label="Delete"
                                                         >
-                                                            <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                                                            <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                                                         </Button>
                                                     </div>
                                                 </ZoruTableCell>

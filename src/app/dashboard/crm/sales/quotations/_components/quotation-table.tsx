@@ -78,7 +78,7 @@ export function QuotationTable({
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-[12.5px]">
-        <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
+        <thead className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
           <tr>
             <th className={`${cell} text-left`}>
               <input
@@ -105,7 +105,7 @@ export function QuotationTable({
             <tr>
               <td
                 colSpan={11}
-                className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
               >
                 {filtersActive
                   ? 'No quotations match the current filters.'
@@ -114,7 +114,7 @@ export function QuotationTable({
             </tr>
           ) : (
             quotations.map((q) => (
-              <tr key={q._id} className="border-t border-zoru-line hover:bg-zoru-surface-2/60">
+              <tr key={q._id} className="border-t border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]/60">
                 <td className={`${cell} align-middle`}>
                   <input
                     type="checkbox"
@@ -134,27 +134,27 @@ export function QuotationTable({
                   {q.clientId ? (
                     <EntityPickerChip entity="client" id={q.clientId} />
                   ) : (
-                    <span className="text-zoru-ink-muted">—</span>
+                    <span className="text-[var(--st-text-secondary)]">—</span>
                   )}
                 </td>
-                <td className={`${cell} align-middle text-zoru-ink-muted`}>
+                <td className={`${cell} align-middle text-[var(--st-text-secondary)]`}>
                   {fmtDate(q.date)}
                 </td>
                 <td
                   className={`${cell} align-middle ${
                     q.expired
-                      ? 'font-medium text-zoru-danger-ink'
-                      : 'text-zoru-ink-muted'
+                      ? 'font-medium text-[var(--st-danger)]'
+                      : 'text-[var(--st-text-secondary)]'
                   }`}
                 >
                   {fmtDate(q.validUntil)}
                   {q.expired ? <span className="ml-1 text-[10.5px]">expired</span> : null}
                 </td>
-                <td className={`${cell} align-middle text-zoru-ink-muted`}>
+                <td className={`${cell} align-middle text-[var(--st-text-secondary)]`}>
                   {q.currency || defaultCurrency}
                 </td>
                 <td
-                  className={`${cell} text-right align-middle font-mono tabular-nums text-zoru-ink`}
+                  className={`${cell} text-right align-middle font-mono tabular-nums text-[var(--st-text)]`}
                 >
                   {fmtMoney(q.total, q.currency ?? defaultCurrency)}
                 </td>
@@ -168,7 +168,7 @@ export function QuotationTable({
                     '—'
                   )}
                 </td>
-                <td className={`${cell} align-middle text-zoru-ink-muted`}>
+                <td className={`${cell} align-middle text-[var(--st-text-secondary)]`}>
                   {fmtDate(q.createdAt)}
                 </td>
                 <td className={`${cell} text-right align-middle`}>

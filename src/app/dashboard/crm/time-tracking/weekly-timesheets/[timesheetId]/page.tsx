@@ -8,13 +8,13 @@ function TimesheetSkeleton() {
   return (
     <div className="flex w-full flex-col gap-6 p-4 md:p-6 animate-pulse">
       <div className="flex items-center justify-between">
-        <div className="h-8 w-48 rounded bg-zoru-surface-2" />
+        <div className="h-8 w-48 rounded bg-[var(--st-bg-muted)]" />
         <div className="flex gap-2">
-          <div className="h-9 w-20 rounded bg-zoru-surface-2" />
-          <div className="h-9 w-20 rounded bg-zoru-surface-2" />
+          <div className="h-9 w-20 rounded bg-[var(--st-bg-muted)]" />
+          <div className="h-9 w-20 rounded bg-[var(--st-bg-muted)]" />
         </div>
       </div>
-      <div className="h-[300px] w-full rounded-lg bg-zoru-surface-2" />
+      <div className="h-[300px] w-full rounded-lg bg-[var(--st-bg-muted)]" />
     </div>
   );
 }

@@ -66,7 +66,7 @@ export function QuotationSummarySection({
   return (
     <Card className="space-y-4 p-6">
       <div>
-        <h2 className="text-[15px] font-semibold text-zoru-ink">Summary</h2>
+        <h2 className="text-[15px] font-semibold text-[var(--st-text)]">Summary</h2>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2 text-[13px]">
@@ -104,10 +104,10 @@ export function QuotationAttachmentsSection({
   return (
     <Card className="space-y-4 p-6">
       <div>
-        <h2 className="text-[15px] font-semibold text-zoru-ink">
+        <h2 className="text-[15px] font-semibold text-[var(--st-text)]">
           Attachments &amp; signature
         </h2>
-        <p className="text-[12.5px] text-zoru-ink-muted">
+        <p className="text-[12.5px] text-[var(--st-text-secondary)]">
           All files come from SabFiles. URL pastes are intentionally disabled.
         </p>
       </div>
@@ -118,13 +118,13 @@ export function QuotationAttachmentsSection({
             {attachments.map((url) => (
               <span
                 key={url}
-                className="inline-flex items-center gap-1.5 rounded border border-zoru-line bg-zoru-surface-2 px-2 py-1 text-[12px] text-zoru-ink"
+                className="inline-flex items-center gap-1.5 rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2 py-1 text-[12px] text-[var(--st-text)]"
               >
-                <Paperclip className="h-3 w-3 text-zoru-ink-muted" />
+                <Paperclip className="h-3 w-3 text-[var(--st-text-secondary)]" />
                 <span className="max-w-[16ch] truncate">{url.split('/').pop()}</span>
                 <button
                   type="button"
-                  className="text-zoru-danger-ink hover:opacity-80"
+                  className="text-[var(--st-danger)] hover:opacity-80"
                   aria-label="Remove attachment"
                   onClick={() => onRemoveAttachment(url)}
                 >
@@ -145,13 +145,13 @@ export function QuotationAttachmentsSection({
           <Label>Signature image</Label>
           <div className="flex flex-wrap items-center gap-2">
             {signatureImage ? (
-              <span className="inline-flex items-center gap-1.5 rounded border border-zoru-line bg-zoru-surface-2 px-2 py-1 text-[12px] text-zoru-ink">
+              <span className="inline-flex items-center gap-1.5 rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2 py-1 text-[12px] text-[var(--st-text)]">
                 <span className="max-w-[16ch] truncate">
                   {signatureImage.split('/').pop()}
                 </span>
                 <button
                   type="button"
-                  className="text-zoru-danger-ink hover:opacity-80"
+                  className="text-[var(--st-danger)] hover:opacity-80"
                   aria-label="Remove signature"
                   onClick={() => onSetSignature('')}
                 >
@@ -181,7 +181,7 @@ export function QuotationTemplateSection({
   return (
     <Card className="space-y-4 p-6">
       <div>
-        <h2 className="text-[15px] font-semibold text-zoru-ink">Template</h2>
+        <h2 className="text-[15px] font-semibold text-[var(--st-text)]">Template</h2>
       </div>
       <div className="space-y-1.5">
         <Label>Template</Label>
@@ -212,8 +212,8 @@ function SummaryRow({
     <div
       className={
         emphasis
-          ? 'flex justify-between border-t border-zoru-line pt-2 text-zoru-ink'
-          : 'flex justify-between text-zoru-ink-muted'
+          ? 'flex justify-between border-t border-[var(--st-border)] pt-2 text-[var(--st-text)]'
+          : 'flex justify-between text-[var(--st-text-secondary)]'
       }
     >
       <span>{label}</span>
@@ -235,7 +235,7 @@ function NumberRow({
 }) {
   return (
     <div className="flex items-center justify-between gap-2">
-      <Label className="text-[12.5px] text-zoru-ink-muted">{label}</Label>
+      <Label className="text-[12.5px] text-[var(--st-text-secondary)]">{label}</Label>
       <Input
         type="number"
         step="0.01"

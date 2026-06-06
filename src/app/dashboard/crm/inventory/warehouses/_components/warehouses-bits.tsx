@@ -78,9 +78,9 @@ function KpiCard({ label, value, icon, active, onClick }: KpiCardProps) {
             type="button"
             onClick={onClick}
             className={[
-                'text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-zoru-primary',
+                'text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]',
                 active
-                    ? 'ring-1 ring-zoru-primary rounded-[var(--zoru-radius-lg)]'
+                    ? 'ring-1 ring-[var(--st-text)] rounded-[var(--zoru-radius-lg)]'
                     : '',
             ].join(' ')}
         >
@@ -174,9 +174,9 @@ export function WarehousesFiltersRow({
     hasActiveFilters,
 }: WarehousesFiltersRowProps) {
     return (
-        <div className="grid grid-cols-1 gap-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-4 md:grid-cols-3 lg:grid-cols-6">
+        <div className="grid grid-cols-1 gap-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4 md:grid-cols-3 lg:grid-cols-6">
             <div className="space-y-1">
-                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                     Type
                 </Label>
                 <Select
@@ -207,7 +207,7 @@ export function WarehousesFiltersRow({
             </div>
 
             <div className="space-y-1">
-                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                     Status
                 </Label>
                 <Select
@@ -238,7 +238,7 @@ export function WarehousesFiltersRow({
             </div>
 
             <div className="space-y-1">
-                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                     Manager
                 </Label>
                 <EntityFormField
@@ -251,7 +251,7 @@ export function WarehousesFiltersRow({
             </div>
 
             <div className="space-y-1">
-                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                     Country
                 </Label>
                 <EntityFormField
@@ -270,7 +270,7 @@ export function WarehousesFiltersRow({
             </div>
 
             <div className="space-y-1">
-                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                     State
                 </Label>
                 <EntityFormField
@@ -287,7 +287,7 @@ export function WarehousesFiltersRow({
             </div>
 
             <div className="space-y-1">
-                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                     City / Default
                 </Label>
                 <div className="flex items-center gap-1">
@@ -363,13 +363,13 @@ export function WarehousesBulkBar({
     if (count === 0) return null;
     return (
         <div className="flex flex-wrap items-center gap-2">
-            <span className="font-medium text-zoru-ink">
+            <span className="font-medium text-[var(--st-text)]">
                 {count} selected
             </span>
             <Button variant="ghost" size="sm" onClick={onClear}>
                 <X className="h-3.5 w-3.5" /> Clear
             </Button>
-            <span className="mx-1 h-4 w-px bg-zoru-line" />
+            <span className="mx-1 h-4 w-px bg-[var(--st-border)]" />
             <Button variant="outline" size="sm" onClick={onArchive}>
                 <Archive className="h-3.5 w-3.5" /> Archive
             </Button>
@@ -380,7 +380,7 @@ export function WarehousesBulkBar({
                 variant="outline"
                 size="sm"
                 onClick={onDelete}
-                className="text-zoru-danger-ink"
+                className="text-[var(--st-danger)]"
             >
                 <Trash2 className="h-3.5 w-3.5" /> Delete
             </Button>

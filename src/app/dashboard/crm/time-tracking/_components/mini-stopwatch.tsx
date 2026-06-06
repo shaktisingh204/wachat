@@ -72,16 +72,16 @@ export function MiniStopwatch() {
   };
 
   return (
-    <Card className="fixed bottom-6 right-6 z-50 p-3 shadow-xl border-zoru-brand-line/50 bg-zoru-bg w-64 animate-in slide-in-from-bottom-5">
+    <Card className="fixed bottom-6 right-6 z-50 p-3 shadow-xl border-zoru-brand-line/50 bg-[var(--st-bg)] w-64 animate-in slide-in-from-bottom-5">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <Clock className="w-4 h-4 text-zoru-brand-ink animate-pulse" />
-          <span className="text-xs uppercase tracking-widest text-zoru-ink-muted">Active Timer</span>
+          <span className="text-xs uppercase tracking-widest text-[var(--st-text-secondary)]">Active Timer</span>
         </div>
       </div>
       
       <Link href={`/dashboard/crm/time-tracking/time-logs/${runningLog._id}`} className="block mb-3 hover:underline">
-        <div className="text-sm font-medium text-zoru-ink truncate">
+        <div className="text-sm font-medium text-[var(--st-text)] truncate">
           {runningLog.memo || 'General Time Log'}
         </div>
       </Link>
@@ -93,7 +93,7 @@ export function MiniStopwatch() {
           size="sm" 
           onClick={handleStop}
           disabled={loading}
-          className="h-7 px-2 text-zoru-danger-ink border-zoru-danger-ink/30 hover:bg-zoru-danger-ink/10"
+          className="h-7 px-2 text-[var(--st-danger)] border-[var(--st-danger)]/30 hover:bg-[var(--st-danger)]/10"
         >
           <Square className="w-3.5 h-3.5 mr-1 fill-current" />
           Stop

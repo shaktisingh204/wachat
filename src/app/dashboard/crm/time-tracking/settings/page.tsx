@@ -107,7 +107,7 @@ export default function TimeTrackingSettingsPage() {
       </div>
 
       <Card className="p-6">
-        <div className="divide-y divide-zoru-line">
+        <div className="divide-y divide-[var(--st-border)]">
           {ITEMS.map(({ module, label, description, icon: Icon }) => {
             const enabled = isEnabled(module);
             return (
@@ -116,22 +116,22 @@ export default function TimeTrackingSettingsPage() {
                 className="flex items-center justify-between gap-4 py-4 first:pt-0 last:pb-0"
               >
                 <div className="flex items-start gap-3">
-                  <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-zoru-surface-2">
+                  <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--st-bg-muted)]">
                     <Icon
-                      className="h-4.5 w-4.5 text-zoru-ink"
+                      className="h-4.5 w-4.5 text-[var(--st-text)]"
                       strokeWidth={1.75}
                     />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <p className="text-[14px] font-semibold text-zoru-ink">
+                      <p className="text-[14px] font-semibold text-[var(--st-text)]">
                         {label}
                       </p>
                       <Badge variant={enabled ? 'success' : 'ghost'}>
                         {enabled ? 'Enabled' : 'Disabled'}
                       </Badge>
                     </div>
-                    <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+                    <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">
                       {description}
                     </p>
                   </div>

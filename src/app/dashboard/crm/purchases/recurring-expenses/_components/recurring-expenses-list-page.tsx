@@ -148,31 +148,31 @@ export function RecurringExpensesListPage() {
                     }
                     loading={isLoading && rows.length === 0}
                 >
-                    <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                    <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                         <Table>
                             <ZoruTableHeader>
-                                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                    <ZoruTableHead className="text-zoru-ink-muted">Name</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Vendor</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Amount</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Frequency</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Next run</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted text-right">Actions</ZoruTableHead>
+                                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Name</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Vendor</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Amount</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Frequency</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Next run</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Actions</ZoruTableHead>
                                 </ZoruTableRow>
                             </ZoruTableHeader>
                             <ZoruTableBody>
                                 {isLoading ? (
-                                    <ZoruTableRow className="border-zoru-line">
+                                    <ZoruTableRow className="border-[var(--st-border)]">
                                         <ZoruTableCell colSpan={7} className="h-24 text-center">
-                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
+                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 ) : filtered.length === 0 ? (
-                                    <ZoruTableRow className="border-zoru-line">
+                                    <ZoruTableRow className="border-[var(--st-border)]">
                                         <ZoruTableCell
                                             colSpan={7}
-                                            className="h-24 text-center text-zoru-ink-muted"
+                                            className="h-24 text-center text-[var(--st-text-secondary)]"
                                         >
                                             No recurring expenses match this filter.
                                         </ZoruTableCell>
@@ -182,8 +182,8 @@ export function RecurringExpensesListPage() {
                                         const status = r.status;
                                         const tone = STATUS_TONE[status] ?? 'neutral';
                                         return (
-                                            <ZoruTableRow key={r._id} className="border-zoru-line">
-                                                <ZoruTableCell className="font-medium text-zoru-ink">
+                                            <ZoruTableRow key={r._id} className="border-[var(--st-border)]">
+                                                <ZoruTableCell className="font-medium text-[var(--st-text)]">
                                                     <Link
                                                         href={`${BASE}/${r._id}`}
                                                         className="hover:underline"
@@ -191,16 +191,16 @@ export function RecurringExpensesListPage() {
                                                         {r.name}
                                                     </Link>
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
+                                                <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
                                                     {r.vendor_id ?? '—'}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {fmtMoney(r.amount, r.currency)}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="capitalize text-zoru-ink">
+                                                <ZoruTableCell className="capitalize text-[var(--st-text)]">
                                                     {r.frequency}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {fmtDate(r.next_run_at)}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
@@ -217,7 +217,7 @@ export function RecurringExpensesListPage() {
                                                         size="icon"
                                                         onClick={() => setPendingDelete(r)}
                                                     >
-                                                        <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                                        <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                                     </Button>
                                                 </ZoruTableCell>
                                             </ZoruTableRow>

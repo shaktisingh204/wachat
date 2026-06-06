@@ -148,24 +148,24 @@ export default function DesignationsPage() {
 
             <Card className="p-6">
                 <div className="mb-4 flex items-center justify-between">
-                    <h2 className="text-[16px] text-zoru-ink">All Designations</h2>
+                    <h2 className="text-[16px] text-[var(--st-text)]">All Designations</h2>
                     <Badge variant="secondary">{designations.length} total</Badge>
                 </div>
-                <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                     <table className="w-full text-left text-[13px]">
                         <thead>
-                            <tr className="border-b border-zoru-line bg-zoru-surface-2">
-                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">Designation</th>
-                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">Department</th>
-                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">Level / Grade</th>
-                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">Actions</th>
+                            <tr className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]">
+                                <th className="px-4 py-3 text-[12px] uppercase text-[var(--st-text-secondary)]">Designation</th>
+                                <th className="px-4 py-3 text-[12px] uppercase text-[var(--st-text-secondary)]">Department</th>
+                                <th className="px-4 py-3 text-[12px] uppercase text-[var(--st-text-secondary)]">Level / Grade</th>
+                                <th className="px-4 py-3 text-right text-[12px] uppercase text-[var(--st-text-secondary)]">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {isLoading ? (
                                 <tr>
                                     <td colSpan={4} className="h-24 text-center">
-                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
+                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
                                     </td>
                                 </tr>
                             ) : designations.length > 0 ? (
@@ -174,19 +174,19 @@ export default function DesignationsPage() {
                                         ? deptNameById[(desig as any).department_id.toString()] ?? '—'
                                         : '—';
                                     return (
-                                        <tr key={desig._id.toString()} className="border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2/50 transition-colors">
+                                        <tr key={desig._id.toString()} className="border-b border-[var(--st-border)] last:border-0 hover:bg-[var(--st-bg-muted)]/50 transition-colors">
                                             <td className="px-4 py-3">
-                                                <div className="text-zoru-ink">{desig.name}</div>
+                                                <div className="text-[var(--st-text)]">{desig.name}</div>
                                                 {desig.description ? (
-                                                    <div className="text-[11.5px] text-zoru-ink-muted">{desig.description}</div>
+                                                    <div className="text-[11.5px] text-[var(--st-text-secondary)]">{desig.description}</div>
                                                 ) : null}
                                             </td>
-                                            <td className="px-4 py-3 text-zoru-ink-muted">{deptName}</td>
+                                            <td className="px-4 py-3 text-[var(--st-text-secondary)]">{deptName}</td>
                                             <td className="px-4 py-3">
                                                 {(desig as any).level ? (
                                                     <Badge variant="info">{(desig as any).level}</Badge>
                                                 ) : (
-                                                    <span className="text-zoru-ink-muted">—</span>
+                                                    <span className="text-[var(--st-text-secondary)]">—</span>
                                                 )}
                                             </td>
                                             <td className="px-4 py-3">
@@ -206,7 +206,7 @@ export default function DesignationsPage() {
                                                         disabled={deleteTransition}
                                                         aria-label="Delete"
                                                     >
-                                                        <Trash2 className="h-3.5 w-3.5 text-zoru-ink" />
+                                                        <Trash2 className="h-3.5 w-3.5 text-[var(--st-text)]" />
                                                     </Button>
                                                 </div>
                                             </td>
@@ -215,7 +215,7 @@ export default function DesignationsPage() {
                                 })
                             ) : (
                                 <tr>
-                                    <td colSpan={4} className="h-24 text-center text-[13px] text-zoru-ink-muted">
+                                    <td colSpan={4} className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]">
                                         No designations yet. Click &quot;Add Designation&quot; to create one.
                                     </td>
                                 </tr>
@@ -228,10 +228,10 @@ export default function DesignationsPage() {
             <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) setEditing(null); }}>
                 <ZoruDialogContent>
                     <ZoruDialogHeader>
-                        <ZoruDialogTitle className="text-zoru-ink">
+                        <ZoruDialogTitle className="text-[var(--st-text)]">
                             {editing ? 'Edit Designation' : 'Add Designation'}
                         </ZoruDialogTitle>
-                        <ZoruDialogDescription className="text-zoru-ink-muted">
+                        <ZoruDialogDescription className="text-[var(--st-text-secondary)]">
                             Fill in the designation details. Only the name is required.
                         </ZoruDialogDescription>
                     </ZoruDialogHeader>
@@ -244,8 +244,8 @@ export default function DesignationsPage() {
                         <input type="hidden" name="level" value={level === '__none__' ? '' : level} />
 
                         <div>
-                            <Label htmlFor="desig-name" className="text-[13px] text-zoru-ink">
-                                Designation Name <span className="text-zoru-ink">*</span>
+                            <Label htmlFor="desig-name" className="text-[13px] text-[var(--st-text)]">
+                                Designation Name <span className="text-[var(--st-text)]">*</span>
                             </Label>
                             <Input
                                 id="desig-name"
@@ -253,12 +253,12 @@ export default function DesignationsPage() {
                                 required
                                 defaultValue={editing?.name ?? ''}
                                 placeholder="e.g. Senior Software Engineer"
-                                className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                                className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                             />
                         </div>
 
                         <div>
-                            <Label htmlFor="desig-desc" className="text-[13px] text-zoru-ink">
+                            <Label htmlFor="desig-desc" className="text-[13px] text-[var(--st-text)]">
                                 Description
                             </Label>
                             <Textarea
@@ -267,18 +267,18 @@ export default function DesignationsPage() {
                                 rows={2}
                                 defaultValue={editing?.description ?? ''}
                                 placeholder="Optional description"
-                                className="mt-1.5 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                                className="mt-1.5 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                             />
                         </div>
 
                         <div>
-                            <Label htmlFor="desig-dept" className="text-[13px] text-zoru-ink">
+                            <Label htmlFor="desig-dept" className="text-[13px] text-[var(--st-text)]">
                                 Department
                             </Label>
                             <Select value={deptId} onValueChange={setDeptId}>
                                 <ZoruSelectTrigger
                                     id="desig-dept"
-                                    className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                                    className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                                 >
                                     <ZoruSelectValue placeholder="— No department —" />
                                 </ZoruSelectTrigger>
@@ -294,13 +294,13 @@ export default function DesignationsPage() {
                         </div>
 
                         <div>
-                            <Label htmlFor="desig-level" className="text-[13px] text-zoru-ink">
+                            <Label htmlFor="desig-level" className="text-[13px] text-[var(--st-text)]">
                                 Level / Grade
                             </Label>
                             <Select value={level} onValueChange={setLevel}>
                                 <ZoruSelectTrigger
                                     id="desig-level"
-                                    className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                                    className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                                 >
                                     <ZoruSelectValue placeholder="— No level —" />
                                 </ZoruSelectTrigger>

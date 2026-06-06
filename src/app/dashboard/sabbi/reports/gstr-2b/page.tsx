@@ -132,12 +132,12 @@ export default async function Gstr2bPage(props: {
             primaryAction={<MonthPicker />}
         >
             {importRes.error ? (
-                <div className="rounded-lg border border-zoru-line/30 bg-zoru-ink/5 px-3 py-2 text-[13px] text-zoru-ink dark:text-zoru-ink-muted">
+                <div className="rounded-lg border border-[var(--st-border)]/30 bg-[var(--st-text)]/5 px-3 py-2 text-[13px] text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
                     {importRes.error}
                 </div>
             ) : null}
             {!parsed && !importRes.error ? (
-                <div className="rounded-lg border border-zoru-line bg-zoru-surface px-3 py-2 text-[13px] text-zoru-ink-muted">
+                <div className="rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-[13px] text-[var(--st-text-secondary)]">
                     No GSTR-2B JSON imported for {String(month).padStart(2, '0')}-
                     {year}. KPIs below are derived from your own purchase
                     documents until you import the portal payload.

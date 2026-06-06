@@ -321,12 +321,12 @@ export default function PermissionGroupsClient({
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <ShieldCheck className="h-6 w-6 text-zoru-ink-muted" aria-hidden="true" />
+          <ShieldCheck className="h-6 w-6 text-[var(--st-text-secondary)]" aria-hidden="true" />
           <div>
-            <h1 className="text-xl font-semibold text-zoru-ink">
+            <h1 className="text-xl font-semibold text-[var(--st-text)]">
               Permission Groups
             </h1>
-            <p className="text-[13px] text-zoru-ink-muted">
+            <p className="text-[13px] text-[var(--st-text-secondary)]">
               Define role-based access sets and assign them to employees
             </p>
           </div>
@@ -359,13 +359,13 @@ export default function PermissionGroupsClient({
 
       {/* Bulk action bar */}
       {selected.size > 0 ? (
-        <div className="flex items-center justify-between rounded-md border border-zoru-line bg-zoru-surface-2 px-4 py-2">
+        <div className="flex items-center justify-between rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-2">
           <div className="flex items-center gap-2">
             <Badge variant="default">{selected.size} selected</Badge>
             <button
               type="button"
               onClick={() => setSelected(new Set())}
-              className="text-[12px] text-zoru-ink-muted hover:text-zoru-ink"
+              className="text-[12px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
             >
               Clear
             </button>
@@ -410,7 +410,7 @@ export default function PermissionGroupsClient({
         <select
           value={hasEmployees}
           onChange={(e) => setHasEmployees(e.target.value)}
-          className="h-9 rounded-md border border-zoru-line bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zoru-ink/20 disabled:cursor-not-allowed disabled:opacity-50"
+          className="h-9 rounded-md border border-[var(--st-border)] bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--st-text)]/20 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <option value="all">All Assignments</option>
           <option value="yes">Has Employees</option>
@@ -421,7 +421,7 @@ export default function PermissionGroupsClient({
             variant="ghost" 
             size="sm" 
             onClick={() => { setSearch(''); setMinModules(''); setHasEmployees('all'); }}
-            className="text-zoru-ink-muted hover:text-zoru-ink"
+            className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
           >
             Clear Filters
           </Button>
@@ -432,11 +432,11 @@ export default function PermissionGroupsClient({
       <Card className="p-0">
         <div 
           ref={parentRef}
-          className="overflow-auto rounded-[var(--zoru-radius)] border border-zoru-line max-h-[600px]"
+          className="overflow-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)] max-h-[600px]"
         >
           <Table className="relative">
             <ZoruTableHeader>
-              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                 <ZoruTableHead className="w-10">
                   <Checkbox
                     checked={allSelected ? true : someSelected ? 'indeterminate' : false}
@@ -463,7 +463,7 @@ export default function PermissionGroupsClient({
                     <ZoruTableRow>
                       <ZoruTableCell
                         colSpan={6}
-                        className="h-28 text-center text-[13px] text-zoru-ink-muted"
+                        className="h-28 text-center text-[13px] text-[var(--st-text-secondary)]"
                       >
                         {search || minModules !== ''
                           ? 'No groups match your search.'
@@ -479,7 +479,7 @@ export default function PermissionGroupsClient({
                     return (
                       <ZoruTableRow 
                         key={g._id} 
-                        className="border-zoru-line absolute top-0 left-0 w-full"
+                        className="border-[var(--st-border)] absolute top-0 left-0 w-full"
                         style={{
                           height: `${virtualItem.size}px`,
                           transform: `translateY(${virtualItem.start}px)`,
@@ -492,7 +492,7 @@ export default function PermissionGroupsClient({
                             aria-label={`Select ${g.name}`}
                           />
                         </ZoruTableCell>
-                        <ZoruTableCell className="font-medium text-zoru-ink">
+                        <ZoruTableCell className="font-medium text-[var(--st-text)]">
                           <Link
                             href={`/dashboard/hrm/permission-groups/${g._id}`}
                             className="hover:underline"
@@ -500,7 +500,7 @@ export default function PermissionGroupsClient({
                             {g.name}
                           </Link>
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                        <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                           {g.description ?? '—'}
                         </ZoruTableCell>
                         <ZoruTableCell className="text-center text-[13px]">
@@ -512,7 +512,7 @@ export default function PermissionGroupsClient({
                           {empCount > 0 ? (
                             <Badge variant="default">{empCount}</Badge>
                           ) : (
-                            <span className="text-zoru-ink-muted">0</span>
+                            <span className="text-[var(--st-text-secondary)]">0</span>
                           )}
                         </ZoruTableCell>
                         <ZoruTableCell className="text-right">
@@ -531,7 +531,7 @@ export default function PermissionGroupsClient({
                               aria-label="Delete"
                               onClick={() => setPendingDelete(g)}
                             >
-                              <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                              <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                             </Button>
                           </div>
                         </ZoruTableCell>

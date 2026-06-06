@@ -103,11 +103,11 @@ export function AssignedEmployeesList({ shiftId }: { shiftId: string }) {
   };
 
   return (
-    <div className="flex flex-col gap-4 rounded-lg border border-zoru-line bg-zoru-bg p-4">
+    <div className="flex flex-col gap-4 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] p-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h3 className="text-lg font-medium text-zoru-ink">Assigned Employees</h3>
-          <p className="text-sm text-zoru-ink-muted">
+          <h3 className="text-lg font-medium text-[var(--st-text)]">Assigned Employees</h3>
+          <p className="text-sm text-[var(--st-text-secondary)]">
             {filteredEmployees.length} employees currently assigned to this shift.
           </p>
         </div>
@@ -128,7 +128,7 @@ export function AssignedEmployeesList({ shiftId }: { shiftId: string }) {
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative flex-1">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
           <Input 
             placeholder="Search employees..." 
             value={search}
@@ -150,8 +150,8 @@ export function AssignedEmployeesList({ shiftId }: { shiftId: string }) {
         </div>
       </div>
 
-      <div className="rounded-md border border-zoru-line">
-        <div className="flex bg-zoru-subtle px-4 py-3 text-sm font-medium text-zoru-ink-muted">
+      <div className="rounded-md border border-[var(--st-border)]">
+        <div className="flex bg-zoru-subtle px-4 py-3 text-sm font-medium text-[var(--st-text-secondary)]">
           <div className="w-[40px]">
             <Checkbox 
               checked={filteredEmployees.length > 0 && selectedIds.size === filteredEmployees.length}
@@ -188,7 +188,7 @@ export function AssignedEmployeesList({ shiftId }: { shiftId: string }) {
                     height: `${virtualRow.size}px`,
                     transform: `translateY(${virtualRow.start}px)`,
                   }}
-                  className="flex items-center border-b border-zoru-line px-4 text-sm hover:bg-zoru-subtle"
+                  className="flex items-center border-b border-[var(--st-border)] px-4 text-sm hover:bg-zoru-subtle"
                 >
                   <div className="w-[40px]">
                     <Checkbox 
@@ -200,7 +200,7 @@ export function AssignedEmployeesList({ shiftId }: { shiftId: string }) {
                   <div className="flex-1">{emp.name}</div>
                   <div className="flex-1">{emp.department}</div>
                   {/* Hydration safe rendering with deterministic string */}
-                  <div className="flex-1 text-right text-zoru-ink-muted">
+                  <div className="flex-1 text-right text-[var(--st-text-secondary)]">
                     {emp.joinedDate}
                   </div>
                 </div>

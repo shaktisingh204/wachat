@@ -134,17 +134,17 @@ function diffLines(a: string[], b: string[]): DiffLine[] {
 const LINE_PALETTE: Record<DiffLineKind, string> = {
   unchanged: 'bg-transparent text-[var(--gray-11)]',
   removed:
-    'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted',
+    'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]',
   added:
-    'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted',
+    'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]',
 };
 
 const LINE_GUTTER: Record<DiffLineKind, string> = {
   unchanged: 'text-[var(--gray-7)]',
   removed:
-    'text-zoru-ink-muted dark:text-zoru-ink',
+    'text-[var(--st-text-secondary)] dark:text-[var(--st-text)]',
   added:
-    'text-zoru-ink dark:text-zoru-ink',
+    'text-[var(--st-text)] dark:text-[var(--st-text)]',
 };
 
 const LINE_SIGIL: Record<DiffLineKind, string> = {
@@ -249,21 +249,21 @@ export function PlaybackDiff({
             {fieldLabel} diff
           </p>
           <p className="mt-0.5 text-[11px] text-[var(--gray-9)] font-mono truncate">
-            <span className="text-zoru-ink dark:text-zoru-ink-muted">A:</span>{' '}
+            <span className="text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">A:</span>{' '}
             {nodeA}
             <span className="mx-1.5 text-[var(--gray-6)]">→</span>
-            <span className="text-zoru-ink dark:text-zoru-ink-muted">B:</span>{' '}
+            <span className="text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">B:</span>{' '}
             {nodeB}
           </p>
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
           {stats.removed > 0 && (
-            <span className="rounded-md border border-zoru-line bg-zoru-surface-2 px-1.5 py-0.5 text-[11px] font-medium tabular-nums text-zoru-ink dark:border-zoru-line/60 dark:bg-zoru-ink/30 dark:text-zoru-ink-muted">
+            <span className="rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-1.5 py-0.5 text-[11px] font-medium tabular-nums text-[var(--st-text)] dark:border-[var(--st-border)]/60 dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]">
               −{stats.removed}
             </span>
           )}
           {stats.added > 0 && (
-            <span className="rounded-md border border-zoru-line bg-zoru-surface-2 px-1.5 py-0.5 text-[11px] font-medium tabular-nums text-zoru-ink dark:border-zoru-line/60 dark:bg-zoru-ink/30 dark:text-zoru-ink-muted">
+            <span className="rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-1.5 py-0.5 text-[11px] font-medium tabular-nums text-[var(--st-text)] dark:border-[var(--st-border)]/60 dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]">
               +{stats.added}
             </span>
           )}
@@ -278,7 +278,7 @@ export function PlaybackDiff({
       {/* ── Column headers ──────────────────────────────────────────── */}
       <div className="grid grid-cols-2 gap-px">
         <div className="flex items-center gap-2 rounded-tl-lg rounded-tr-none border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-1.5">
-          <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-sm bg-zoru-surface-2 text-[9px] font-bold text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
+          <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-sm bg-[var(--st-bg-muted)] text-[9px] font-bold text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
             A
           </span>
           <span className="text-[11.5px] font-medium text-[var(--gray-11)] truncate">
@@ -289,7 +289,7 @@ export function PlaybackDiff({
           </span>
         </div>
         <div className="flex items-center gap-2 rounded-tl-none rounded-tr-lg border border-l-0 border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-1.5">
-          <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-sm bg-zoru-surface-2 text-[9px] font-bold text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
+          <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-sm bg-[var(--st-bg-muted)] text-[9px] font-bold text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
             B
           </span>
           <span className="text-[11.5px] font-medium text-[var(--gray-11)] truncate">

@@ -223,7 +223,7 @@ export default function TelegramStickersPage() {
 
             {!activeProjectId ? (
                 <EmptyState
-                    icon={<StickerIcon className="h-6 w-6 text-zoru-ink-muted" />}
+                    icon={<StickerIcon className="h-6 w-6 text-[var(--st-text-secondary)]" />}
                     title="Select a project"
                     description="Pick a project from the sidebar to manage sticker packs."
                 />
@@ -232,7 +232,7 @@ export default function TelegramStickersPage() {
                     <KpiSkeleton />
                 ) : (
                     <EmptyState
-                        icon={<StickerIcon className="h-6 w-6 text-zoru-ink-muted" />}
+                        icon={<StickerIcon className="h-6 w-6 text-[var(--st-text-secondary)]" />}
                         title="No connected bots yet"
                         description="Connect a Telegram bot in /dashboard/telegram/connections to start managing sticker packs."
                     />
@@ -245,7 +245,7 @@ export default function TelegramStickersPage() {
                         <GridSkeleton />
                     ) : setsError ? (
                         <EmptyState
-                            icon={<StickerIcon className="h-6 w-6 text-zoru-ink-muted" />}
+                            icon={<StickerIcon className="h-6 w-6 text-[var(--st-text-secondary)]" />}
                             title="Couldn't load packs"
                             description={setsError}
                             action={
@@ -256,7 +256,7 @@ export default function TelegramStickersPage() {
                         />
                     ) : sets.length === 0 ? (
                         <EmptyState
-                            icon={<StickerIcon className="h-6 w-6 text-zoru-ink-muted" />}
+                            icon={<StickerIcon className="h-6 w-6 text-[var(--st-text-secondary)]" />}
                             title="No sticker packs yet"
                             description="Create your first pack to publish stickers via this bot."
                             action={

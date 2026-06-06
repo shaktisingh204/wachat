@@ -132,7 +132,7 @@ function formatWAText(s: string): React.ReactNode {
   transform(RE_CODE, (inner, key) => (
     <code
       key={key}
-      className="rounded bg-zoru-surface px-1 py-0.5 font-mono text-[0.85em]"
+      className="rounded bg-[var(--st-bg-secondary)] px-1 py-0.5 font-mono text-[0.85em]"
     >
       {inner}
     </code>
@@ -172,15 +172,15 @@ function StatusTicks({ status }: { status: SabwaMessageStatus }) {
     );
   }
   if (status === "sent") {
-    return <Check aria-label="Sent" className="h-3 w-3 text-zoru-ink-muted" />;
+    return <Check aria-label="Sent" className="h-3 w-3 text-[var(--st-text-secondary)]" />;
   }
   if (status === "delivered") {
     return (
-      <CheckCheck aria-label="Delivered" className="h-3 w-3 text-zoru-ink-muted" />
+      <CheckCheck aria-label="Delivered" className="h-3 w-3 text-[var(--st-text-secondary)]" />
     );
   }
   if (status === "read") {
-    return <CheckCheck aria-label="Read" className="h-3 w-3 text-zoru-ink" />;
+    return <CheckCheck aria-label="Read" className="h-3 w-3 text-[var(--st-text)]" />;
   }
   return null;
 }
@@ -200,18 +200,18 @@ function QuotedPreview({
       ? resolveJid(quoted.fromJid)
       : formatJid(quoted.fromJid);
   return (
-    <div className="mb-1 flex items-stretch gap-2 rounded-[var(--zoru-radius)] border-l-2 border-zoru-line bg-zoru-surface p-1.5">
+    <div className="mb-1 flex items-stretch gap-2 rounded-[var(--zoru-radius)] border-l-2 border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1.5">
       {showAvatar ? (
         <div
           aria-hidden
-          className="h-6 w-6 shrink-0 rounded-full bg-zoru-line"
+          className="h-6 w-6 shrink-0 rounded-full bg-[var(--st-border)]"
         />
       ) : null}
       <div className="min-w-0 flex-1">
-        <p className="truncate text-[11px] font-medium text-zoru-ink dark:text-zoru-ink-muted">
+        <p className="truncate text-[11px] font-medium text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
           {authorLabel}
         </p>
-        <p className="line-clamp-1 text-[11px] text-zoru-ink-muted">
+        <p className="line-clamp-1 text-[11px] text-[var(--st-text-secondary)]">
           {quoted.body ?? quoted.caption ?? `[${quoted.type}]`}
         </p>
       </div>
@@ -265,13 +265,13 @@ function MediaContent({ message }: { message: SabwaMessage }) {
       <Card className="flex w-72 max-w-full items-center gap-3 p-2">
         <div
           aria-hidden
-          className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface text-zoru-ink-muted"
+          className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]"
         >
           <FileIcon className="h-5 w-5" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium text-zoru-ink">{name}</p>
-          <p className="truncate text-xs text-zoru-ink-muted">
+          <p className="truncate text-sm font-medium text-[var(--st-text)]">{name}</p>
+          <p className="truncate text-xs text-[var(--st-text-secondary)]">
             {mediaMime ?? ""}
             {mediaSize ? ` · ${formatSize(mediaSize)}` : ""}
           </p>
@@ -281,7 +281,7 @@ function MediaContent({ message }: { message: SabwaMessage }) {
           download
           target="_blank"
           rel="noreferrer"
-          className="inline-flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius)] hover:bg-zoru-surface"
+          className="inline-flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius)] hover:bg-[var(--st-bg-secondary)]"
           aria-label="Download"
         >
           <Download className="h-4 w-4" />
@@ -305,7 +305,7 @@ function ReactionsRow({ message }: { message: SabwaMessage }) {
       {Array.from(counts.entries()).map(([emoji, count]) => (
         <span
           key={emoji}
-          className="inline-flex items-center gap-1 rounded-full border border-zoru-line bg-zoru-bg px-1.5 py-0.5 text-[11px]"
+          className="inline-flex items-center gap-1 rounded-full border border-[var(--st-border)] bg-[var(--st-bg)] px-1.5 py-0.5 text-[11px]"
         >
           <span>{emoji}</span>
           {count > 1 ? <span className="tabular-nums">{count}</span> : null}
@@ -377,10 +377,10 @@ export function MessageBubble({
             onPointerCancel={cancelPress}
             className={cn(
               "relative max-w-[min(80%,32rem)] rounded-[var(--zoru-radius)] px-3 py-2 text-sm shadow-sm",
-              "focus:outline-none focus-visible:ring-2 focus-visible:ring-zoru-ink",
+              "focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]",
               fromMe
-                ? "bg-zoru-surface-2 dark:bg-zoru-ink/30"
-                : "border border-zoru-line bg-zoru-bg",
+                ? "bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30"
+                : "border border-[var(--st-border)] bg-[var(--st-bg)]",
             )}
           >
             {quoted ? (
@@ -401,10 +401,10 @@ export function MessageBubble({
 
             <ReactionsRow message={message} />
 
-            <div className="mt-1 flex items-center justify-end gap-1 text-[10px] text-zoru-ink-muted">
+            <div className="mt-1 flex items-center justify-end gap-1 text-[10px] text-[var(--st-text-secondary)]">
               {message.starred ? (
                 <Star
-                  className="h-3 w-3 text-zoru-ink"
+                  className="h-3 w-3 text-[var(--st-text)]"
                   fill="currentColor"
                   aria-label="Starred"
                 />
@@ -443,7 +443,7 @@ export function MessageBubble({
           {canDeleteForEveryone ? (
             <ZoruDropdownMenuItem
               onSelect={() => fire("delete_all")}
-              className="text-zoru-danger"
+              className="text-[var(--st-danger)]"
             >
               <Trash2 className="mr-2 h-4 w-4" /> Delete for everyone
             </ZoruDropdownMenuItem>

@@ -91,7 +91,7 @@ export function RunsListClient({ definitionId, runs }: RunsListClientProps) {
 
             {chartData.length > 1 && (
                 <Card className="p-4">
-                    <h3 className="mb-2 text-sm font-medium text-zoru-ink">Row Count Over Time</h3>
+                    <h3 className="mb-2 text-sm font-medium text-[var(--st-text)]">Row Count Over Time</h3>
                     <div className="h-[120px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
                             <LineChart data={chartData}>
@@ -109,7 +109,7 @@ export function RunsListClient({ definitionId, runs }: RunsListClientProps) {
             <Card>
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm">
-                        <thead className="text-left text-zoru-ink-muted border-b border-zoru-line/50">
+                        <thead className="text-left text-[var(--st-text-secondary)] border-b border-[var(--st-border)]/50">
                             <tr>
                                 <th className="px-3 py-2 font-medium">Started</th>
                                 <th className="px-3 py-2 font-medium">Status</th>
@@ -123,7 +123,7 @@ export function RunsListClient({ definitionId, runs }: RunsListClientProps) {
                         <tbody>
                             {runs.length === 0 && (
                                 <tr>
-                                    <td colSpan={7} className="px-3 py-6 text-center text-zoru-ink-muted">
+                                    <td colSpan={7} className="px-3 py-6 text-center text-[var(--st-text-secondary)]">
                                         No runs yet. Trigger one from the report page.
                                     </td>
                                 </tr>
@@ -138,21 +138,21 @@ export function RunsListClient({ definitionId, runs }: RunsListClientProps) {
                                 const emailOk = r.delivered?.email?.ok ?? null;
                                 const webhookOk = r.delivered?.webhook?.ok ?? null;
                                 return (
-                                    <tr key={r._id} className="border-b border-zoru-line/50 last:border-0 hover:bg-zoru-surface-2/50">
+                                    <tr key={r._id} className="border-b border-[var(--st-border)]/50 last:border-0 hover:bg-[var(--st-bg-muted)]/50">
                                         <td className="px-3 py-2 font-mono text-xs">
                                             {fmtDate(r.startedAt)}
                                         </td>
                                         <td className="px-3 py-2">
                                             <Badge variant={tone}>{r.status}</Badge>
                                         </td>
-                                        <td className="px-3 py-2 text-zoru-ink-muted">
+                                        <td className="px-3 py-2 text-[var(--st-text-secondary)]">
                                             {r.trigger}
                                         </td>
                                         <td className="px-3 py-2 font-mono">{r.rowCount ?? 0}</td>
-                                        <td className="px-3 py-2 text-zoru-ink-muted">
+                                        <td className="px-3 py-2 text-[var(--st-text-secondary)]">
                                             {durationMs(r.startedAt, r.finishedAt)}
                                         </td>
-                                        <td className="px-3 py-2 text-xs text-zoru-ink-muted">
+                                        <td className="px-3 py-2 text-xs text-[var(--st-text-secondary)]">
                                             {emailOk === null ? '—' : emailOk ? 'email ok' : 'email fail'}
                                             {' · '}
                                             {webhookOk === null ? '—' : webhookOk ? 'webhook ok' : 'webhook fail'}
@@ -160,7 +160,7 @@ export function RunsListClient({ definitionId, runs }: RunsListClientProps) {
                                         <td className="px-3 py-2">
                                             <Link
                                                 href={`/dashboard/sabbi/reports/${definitionId}/runs/${r._id}`}
-                                                className="text-xs font-medium text-zoru-ink hover:underline"
+                                                className="text-xs font-medium text-[var(--st-text)] hover:underline"
                                             >
                                                 View →
                                             </Link>

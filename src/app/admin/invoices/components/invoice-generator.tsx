@@ -123,8 +123,8 @@ export function InvoiceGenerator() {
       {/* Editor Section */}
       <div className="flex flex-col gap-6">
         <Card className="p-6">
-          <h2 className="text-lg font-semibold text-zoru-ink mb-4 flex items-center gap-2">
-            <FileText className="w-5 h-5 text-zoru-brand" />
+          <h2 className="text-lg font-semibold text-[var(--st-text)] mb-4 flex items-center gap-2">
+            <FileText className="w-5 h-5 text-[var(--st-accent)]" />
             Invoice Details
           </h2>
           <div className="grid grid-cols-2 gap-4">
@@ -165,7 +165,7 @@ export function InvoiceGenerator() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card className="p-6 space-y-4">
-            <h3 className="font-medium text-zoru-ink">From (Sender)</h3>
+            <h3 className="font-medium text-[var(--st-text)]">From (Sender)</h3>
             <div className="space-y-3">
               <div className="space-y-1">
                 <Label>Name / Company</Label>
@@ -194,7 +194,7 @@ export function InvoiceGenerator() {
           </Card>
 
           <Card className="p-6 space-y-4">
-            <h3 className="font-medium text-zoru-ink">To (Client)</h3>
+            <h3 className="font-medium text-[var(--st-text)]">To (Client)</h3>
             <div className="space-y-3">
               <div className="space-y-1">
                 <Label>Name / Company</Label>
@@ -228,7 +228,7 @@ export function InvoiceGenerator() {
 
         <Card className="p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-medium text-zoru-ink">Line Items</h3>
+            <h3 className="font-medium text-[var(--st-text)]">Line Items</h3>
             <Button variant="outline" size="sm" onClick={addItem}>
               <Plus className="w-4 h-4 mr-2" />
               Add Item
@@ -237,7 +237,7 @@ export function InvoiceGenerator() {
           
           <div className="space-y-4">
             {items.map((item, index) => (
-              <div key={item.id} className="flex gap-4 items-start bg-zoru-surface-2 p-3 rounded-md">
+              <div key={item.id} className="flex gap-4 items-start bg-[var(--st-bg-muted)] p-3 rounded-md">
                 <div className="flex-1 space-y-2">
                   <Label className="text-xs">Description</Label>
                   <Input
@@ -268,7 +268,7 @@ export function InvoiceGenerator() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="text-zoru-danger hover:text-zoru-danger hover:bg-zoru-danger/10"
+                    className="text-[var(--st-danger)] hover:text-[var(--st-danger)] hover:bg-[var(--st-danger)]/10"
                     onClick={() => removeItem(item.id)}
                     disabled={items.length === 1}
                   >
@@ -322,7 +322,7 @@ export function InvoiceGenerator() {
       {/* Preview Section */}
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-zoru-ink flex items-center gap-2">
+          <h2 className="text-lg font-semibold text-[var(--st-text)] flex items-center gap-2">
             <Eye className="w-5 h-5" />
             Live Preview
           </h2>
@@ -334,7 +334,7 @@ export function InvoiceGenerator() {
           </div>
         </div>
 
-        <div className="bg-zoru-surface-2 p-4 md:p-8 rounded-lg overflow-x-auto border border-zoru-line">
+        <div className="bg-[var(--st-bg-muted)] p-4 md:p-8 rounded-lg overflow-x-auto border border-[var(--st-border)]">
           {/* Invoice A4 Container */}
           <div 
             ref={previewRef}
@@ -346,40 +346,40 @@ export function InvoiceGenerator() {
             }}
           >
             {/* Header */}
-            <div className="flex justify-between items-start border-b border-zoru-line pb-8 mb-8">
+            <div className="flex justify-between items-start border-b border-[var(--st-border)] pb-8 mb-8">
               <div>
-                <h1 className="text-4xl font-bold text-zoru-ink mb-2">INVOICE</h1>
-                <p className="text-zoru-ink font-medium">{invoiceData.invoiceNumber}</p>
+                <h1 className="text-4xl font-bold text-[var(--st-text)] mb-2">INVOICE</h1>
+                <p className="text-[var(--st-text)] font-medium">{invoiceData.invoiceNumber}</p>
               </div>
               <div className="text-right">
-                <h2 className="text-xl font-bold text-zoru-ink">{invoiceData.sender.name}</h2>
-                <p className="text-zoru-ink whitespace-pre-line text-sm mt-1">{invoiceData.sender.address}</p>
-                <p className="text-zoru-ink text-sm">{invoiceData.sender.email}</p>
+                <h2 className="text-xl font-bold text-[var(--st-text)]">{invoiceData.sender.name}</h2>
+                <p className="text-[var(--st-text)] whitespace-pre-line text-sm mt-1">{invoiceData.sender.address}</p>
+                <p className="text-[var(--st-text)] text-sm">{invoiceData.sender.email}</p>
               </div>
             </div>
 
             {/* Meta Info */}
             <div className="grid grid-cols-2 gap-8 mb-8">
               <div>
-                <h3 className="text-xs font-bold text-zoru-ink-muted uppercase tracking-wider mb-2">Billed To</h3>
+                <h3 className="text-xs font-bold text-[var(--st-text-secondary)] uppercase tracking-wider mb-2">Billed To</h3>
                 {invoiceData.receiver.name ? (
                   <>
-                    <p className="font-bold text-zoru-ink">{invoiceData.receiver.name}</p>
-                    <p className="text-zoru-ink whitespace-pre-line text-sm mt-1">{invoiceData.receiver.address}</p>
-                    <p className="text-zoru-ink text-sm">{invoiceData.receiver.email}</p>
+                    <p className="font-bold text-[var(--st-text)]">{invoiceData.receiver.name}</p>
+                    <p className="text-[var(--st-text)] whitespace-pre-line text-sm mt-1">{invoiceData.receiver.address}</p>
+                    <p className="text-[var(--st-text)] text-sm">{invoiceData.receiver.email}</p>
                   </>
                 ) : (
-                  <p className="text-zoru-ink-muted italic text-sm">Client details not provided</p>
+                  <p className="text-[var(--st-text-secondary)] italic text-sm">Client details not provided</p>
                 )}
               </div>
               <div className="text-right">
                 <div className="mb-4">
-                  <h3 className="text-xs font-bold text-zoru-ink-muted uppercase tracking-wider mb-1">Invoice Date</h3>
-                  <p className="text-zoru-ink font-medium">{invoiceData.date || "-"}</p>
+                  <h3 className="text-xs font-bold text-[var(--st-text-secondary)] uppercase tracking-wider mb-1">Invoice Date</h3>
+                  <p className="text-[var(--st-text)] font-medium">{invoiceData.date || "-"}</p>
                 </div>
                 <div>
-                  <h3 className="text-xs font-bold text-zoru-ink-muted uppercase tracking-wider mb-1">Due Date</h3>
-                  <p className="text-zoru-ink font-medium">{invoiceData.dueDate || "-"}</p>
+                  <h3 className="text-xs font-bold text-[var(--st-text-secondary)] uppercase tracking-wider mb-1">Due Date</h3>
+                  <p className="text-[var(--st-text)] font-medium">{invoiceData.dueDate || "-"}</p>
                 </div>
               </div>
             </div>
@@ -387,20 +387,20 @@ export function InvoiceGenerator() {
             {/* Table */}
             <table className="w-full mb-8">
               <thead>
-                <tr className="border-b-2 border-zoru-line text-left">
-                  <th className="py-3 text-sm font-bold text-zoru-ink">Description</th>
-                  <th className="py-3 text-sm font-bold text-zoru-ink text-center w-24">Qty</th>
-                  <th className="py-3 text-sm font-bold text-zoru-ink text-right w-32">Rate</th>
-                  <th className="py-3 text-sm font-bold text-zoru-ink text-right w-32">Amount</th>
+                <tr className="border-b-2 border-[var(--st-border)] text-left">
+                  <th className="py-3 text-sm font-bold text-[var(--st-text)]">Description</th>
+                  <th className="py-3 text-sm font-bold text-[var(--st-text)] text-center w-24">Qty</th>
+                  <th className="py-3 text-sm font-bold text-[var(--st-text)] text-right w-32">Rate</th>
+                  <th className="py-3 text-sm font-bold text-[var(--st-text)] text-right w-32">Amount</th>
                 </tr>
               </thead>
               <tbody>
                 {items.map((item, index) => (
-                  <tr key={index} className="border-b border-zoru-line">
-                    <td className="py-4 text-sm text-zoru-ink">{item.description || "-"}</td>
-                    <td className="py-4 text-sm text-zoru-ink text-center">{item.quantity}</td>
-                    <td className="py-4 text-sm text-zoru-ink text-right">{formatCurrency(item.rate)}</td>
-                    <td className="py-4 text-sm text-zoru-ink text-right font-medium">
+                  <tr key={index} className="border-b border-[var(--st-border)]">
+                    <td className="py-4 text-sm text-[var(--st-text)]">{item.description || "-"}</td>
+                    <td className="py-4 text-sm text-[var(--st-text)] text-center">{item.quantity}</td>
+                    <td className="py-4 text-sm text-[var(--st-text)] text-right">{formatCurrency(item.rate)}</td>
+                    <td className="py-4 text-sm text-[var(--st-text)] text-right font-medium">
                       {formatCurrency(item.quantity * item.rate)}
                     </td>
                   </tr>
@@ -411,23 +411,23 @@ export function InvoiceGenerator() {
             {/* Totals */}
             <div className="flex justify-end mb-12">
               <div className="w-72 space-y-3">
-                <div className="flex justify-between text-sm text-zoru-ink">
+                <div className="flex justify-between text-sm text-[var(--st-text)]">
                   <span>Subtotal</span>
                   <span>{formatCurrency(subtotal)}</span>
                 </div>
                 {invoiceData.discountRate > 0 && (
-                  <div className="flex justify-between text-sm text-zoru-ink">
+                  <div className="flex justify-between text-sm text-[var(--st-text)]">
                     <span>Discount ({invoiceData.discountRate}%)</span>
-                    <span className="text-zoru-ink">-{formatCurrency(discount)}</span>
+                    <span className="text-[var(--st-text)]">-{formatCurrency(discount)}</span>
                   </div>
                 )}
                 {invoiceData.taxRate > 0 && (
-                  <div className="flex justify-between text-sm text-zoru-ink">
+                  <div className="flex justify-between text-sm text-[var(--st-text)]">
                     <span>Tax ({invoiceData.taxRate}%)</span>
                     <span>{formatCurrency(tax)}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-lg font-bold text-zoru-ink border-t border-zoru-line pt-3">
+                <div className="flex justify-between text-lg font-bold text-[var(--st-text)] border-t border-[var(--st-border)] pt-3">
                   <span>Total</span>
                   <span>{formatCurrency(total)}</span>
                 </div>
@@ -436,9 +436,9 @@ export function InvoiceGenerator() {
 
             {/* Notes */}
             {invoiceData.notes && (
-              <div className="border-t border-zoru-line pt-8">
-                <h3 className="text-xs font-bold text-zoru-ink-muted uppercase tracking-wider mb-2">Notes</h3>
-                <p className="text-sm text-zoru-ink whitespace-pre-line">{invoiceData.notes}</p>
+              <div className="border-t border-[var(--st-border)] pt-8">
+                <h3 className="text-xs font-bold text-[var(--st-text-secondary)] uppercase tracking-wider mb-2">Notes</h3>
+                <p className="text-sm text-[var(--st-text)] whitespace-pre-line">{invoiceData.notes}</p>
               </div>
             )}
           </div>

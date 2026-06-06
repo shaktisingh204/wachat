@@ -77,11 +77,11 @@ function KpiCard({
 }) {
     return (
         <Card className="p-5">
-            <div className="flex items-center gap-2 text-zoru-ink-muted">
+            <div className="flex items-center gap-2 text-[var(--st-text-secondary)]">
                 {icon}
                 <p className="text-[12.5px] font-medium">{label}</p>
             </div>
-            <div className="mt-2 text-[22px] font-semibold text-zoru-ink">
+            <div className="mt-2 text-[22px] font-semibold text-[var(--st-text)]">
                 {typeof value === 'number' ? value.toLocaleString() : value}
             </div>
         </Card>
@@ -171,13 +171,13 @@ export function DashboardsList({
             <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                     <div>
-                        <h2 className="text-[16px] text-zoru-ink">All dashboards</h2>
-                        <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+                        <h2 className="text-[16px] text-[var(--st-text)]">All dashboards</h2>
+                        <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">
                             Boards owned by you or shared with your team.
                         </p>
                     </div>
                     <div className="relative w-64">
-                        <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zoru-ink-muted" />
+                        <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--st-text-secondary)]" />
                         <Input
                             placeholder="Search by title or owner…"
                             value={search}
@@ -186,23 +186,23 @@ export function DashboardsList({
                         />
                     </div>
                 </div>
-                <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                     <Table>
                         <ZoruTableHeader>
-                            <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                <ZoruTableHead className="text-zoru-ink-muted">Title</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Owner</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Widgets</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Shared with</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Updated</ZoruTableHead>
+                            <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Title</ZoruTableHead>
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Owner</ZoruTableHead>
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Widgets</ZoruTableHead>
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Shared with</ZoruTableHead>
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Updated</ZoruTableHead>
                             </ZoruTableRow>
                         </ZoruTableHeader>
                         <ZoruTableBody ref={tableBodyRef}>
                             {loadError ? (
-                                <ZoruTableRow className="border-zoru-line">
+                                <ZoruTableRow className="border-[var(--st-border)]">
                                     <ZoruTableCell
                                         colSpan={5}
-                                        className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                                        className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                                     >
                                         Could not load dashboards. Please try again.
                                     </ZoruTableCell>
@@ -212,31 +212,31 @@ export function DashboardsList({
                                     const owner = d.ownerName || d.ownerId || '—';
                                     const widgetCount = Array.isArray(d.widgets) ? d.widgets.length : 0;
                                     return (
-                                        <ZoruTableRow key={d._id} className="dashboard-row border-zoru-line">
-                                            <ZoruTableCell className="text-zoru-ink">
+                                        <ZoruTableRow key={d._id} className="dashboard-row border-[var(--st-border)]">
+                                            <ZoruTableCell className="text-[var(--st-text)]">
                                                 <EntityRowLink
                                                     href={`/dashboard/sabbi/dashboards/${d._id}`}
                                                     label={d.title || 'Untitled dashboard'}
                                                 />
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="text-zoru-ink">{owner}</ZoruTableCell>
-                                            <ZoruTableCell className="text-zoru-ink">
+                                            <ZoruTableCell className="text-[var(--st-text)]">{owner}</ZoruTableCell>
+                                            <ZoruTableCell className="text-[var(--st-text)]">
                                                 {widgetCount}
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="text-zoru-ink">
+                                            <ZoruTableCell className="text-[var(--st-text)]">
                                                 {renderSharedWith(d.sharedWith, d.shareScope)}
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="text-zoru-ink">
+                                            <ZoruTableCell className="text-[var(--st-text)]">
                                                 <span suppressHydrationWarning>{formatDateTime(d.updatedAt)}</span>
                                             </ZoruTableCell>
                                         </ZoruTableRow>
                                     );
                                 })
                             ) : (
-                                <ZoruTableRow className="border-zoru-line">
+                                <ZoruTableRow className="border-[var(--st-border)]">
                                     <ZoruTableCell
                                         colSpan={5}
-                                        className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                                        className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                                     >
                                         {search
                                             ? 'No dashboards match this search.'

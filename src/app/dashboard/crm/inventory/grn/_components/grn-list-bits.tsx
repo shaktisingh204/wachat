@@ -74,26 +74,26 @@ interface KpiCardProps {
 function KpiCard({ label, value, active, onClick, tone }: KpiCardProps) {
     const ring =
         tone === 'amber'
-            ? 'border-zoru-line/40'
+            ? 'border-[var(--st-border)]/40'
             : tone === 'green'
-                ? 'border-zoru-line/40'
+                ? 'border-[var(--st-border)]/40'
                 : tone === 'red'
-                    ? 'border-zoru-line/40'
-                    : 'border-zoru-line';
+                    ? 'border-[var(--st-border)]/40'
+                    : 'border-[var(--st-border)]';
     return (
         <button
             type="button"
             onClick={onClick}
             className={`flex flex-1 flex-col gap-1 rounded-md border px-3 py-2.5 text-left transition-colors ${ring} ${
                 active
-                    ? 'bg-zoru-surface ring-1 ring-zoru-primary/40'
-                    : 'bg-zoru-surface-2 hover:bg-zoru-surface'
+                    ? 'bg-[var(--st-bg-secondary)] ring-1 ring-[var(--st-text)]/40'
+                    : 'bg-[var(--st-bg-muted)] hover:bg-[var(--st-bg-secondary)]'
             }`}
         >
-            <span className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+            <span className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                 {label}
             </span>
-            <span className="text-[18px] font-semibold tabular-nums text-zoru-ink">
+            <span className="text-[18px] font-semibold tabular-nums text-[var(--st-text)]">
                 {value}
             </span>
         </button>
@@ -107,20 +107,20 @@ function KpiCard({ label, value, active, onClick, tone }: KpiCardProps) {
 function KpiStatic({ label, value, tone }: { label: string; value: string; tone: 'amber' | 'green' | 'neutral' | 'red' }) {
     const ring =
         tone === 'amber'
-            ? 'border-zoru-line/40'
+            ? 'border-[var(--st-border)]/40'
             : tone === 'green'
-                ? 'border-zoru-line/40'
+                ? 'border-[var(--st-border)]/40'
                 : tone === 'red'
-                    ? 'border-zoru-line/40'
-                    : 'border-zoru-line';
+                    ? 'border-[var(--st-border)]/40'
+                    : 'border-[var(--st-border)]';
     return (
         <div
-            className={`flex flex-1 flex-col gap-1 rounded-md border bg-zoru-surface-2 px-3 py-2.5 text-left ${ring}`}
+            className={`flex flex-1 flex-col gap-1 rounded-md border bg-[var(--st-bg-muted)] px-3 py-2.5 text-left ${ring}`}
         >
-            <span className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+            <span className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                 {label}
             </span>
-            <span className="text-[18px] font-semibold tabular-nums text-zoru-ink">
+            <span className="text-[18px] font-semibold tabular-nums text-[var(--st-text)]">
                 {value}
             </span>
         </div>
@@ -197,9 +197,9 @@ export function GrnFiltersBar({
     hasActive: boolean;
 }) {
     return (
-        <div className="flex flex-wrap items-center gap-3 border-b border-zoru-line p-3">
+        <div className="flex flex-wrap items-center gap-3 border-b border-[var(--st-border)] p-3">
             <div className="relative max-w-sm flex-1">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
                 <Input
                     value={filters.query}
                     onChange={(e) => onQueryChange(e.target.value)}
@@ -251,8 +251,8 @@ export function GrnFiltersBar({
                         <CalendarRange className="h-3.5 w-3.5" /> Date range
                     </Button>
                 </summary>
-                <div className="absolute right-0 z-20 mt-2 grid w-[280px] gap-2 rounded-md border border-zoru-line bg-zoru-surface p-3 shadow-md">
-                    <label className="text-[11px] text-zoru-ink-muted">Receipt date — from</label>
+                <div className="absolute right-0 z-20 mt-2 grid w-[280px] gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 shadow-md">
+                    <label className="text-[11px] text-[var(--st-text-secondary)]">Receipt date — from</label>
                     <Input
                         type="date"
                         value={filters.dateFrom}
@@ -261,7 +261,7 @@ export function GrnFiltersBar({
                         }
                         className="h-8 text-[12.5px]"
                     />
-                    <label className="text-[11px] text-zoru-ink-muted">Receipt date — to</label>
+                    <label className="text-[11px] text-[var(--st-text-secondary)]">Receipt date — to</label>
                     <Input
                         type="date"
                         value={filters.dateTo}
@@ -277,7 +277,7 @@ export function GrnFiltersBar({
                     variant="ghost"
                     size="sm"
                     onClick={onClear}
-                    className="ml-auto text-[12px] text-zoru-ink-muted"
+                    className="ml-auto text-[12px] text-[var(--st-text-secondary)]"
                 >
                     <X className="h-3.5 w-3.5" /> Clear
                 </Button>
@@ -306,12 +306,12 @@ export function GrnBulkBar({
 }) {
     if (count === 0) return null;
     return (
-        <div className="sticky top-0 z-10 flex flex-wrap items-center gap-2 border-b border-zoru-line bg-zoru-surface px-3 py-2 text-[12.5px]">
-            <span className="font-medium text-zoru-ink">{count} selected</span>
+        <div className="sticky top-0 z-10 flex flex-wrap items-center gap-2 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-[12.5px]">
+            <span className="font-medium text-[var(--st-text)]">{count} selected</span>
             <Button variant="ghost" size="sm" onClick={onClear}>
                 <X className="h-3.5 w-3.5" /> Clear
             </Button>
-            <span className="mx-1 h-4 w-px bg-zoru-line" />
+            <span className="mx-1 h-4 w-px bg-[var(--st-border)]" />
             <Button variant="outline" size="sm" onClick={onExport}>
                 <Download className="h-3.5 w-3.5" /> Export CSV
             </Button>
@@ -327,7 +327,7 @@ export function GrnBulkBar({
                 variant="outline"
                 size="sm"
                 onClick={onDelete}
-                className="text-zoru-danger-ink"
+                className="text-[var(--st-danger)]"
             >
                 <Trash2 className="h-3.5 w-3.5" /> Delete
             </Button>

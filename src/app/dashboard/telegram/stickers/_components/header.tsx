@@ -74,11 +74,11 @@ export function Header({
                     <StickerIcon className="h-6 w-6 text-white" strokeWidth={1.75} />
                 </div>
                 <div>
-                    <p className="text-[11px] uppercase tracking-[0.1em] text-zoru-ink-muted">
+                    <p className="text-[11px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
                         Telegram
                     </p>
-                    <h1 className="text-[22px] leading-tight text-zoru-ink">Telegram Stickers</h1>
-                    <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-zoru-ink-muted">
+                    <h1 className="text-[22px] leading-tight text-[var(--st-text)]">Telegram Stickers</h1>
+                    <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-[var(--st-text-secondary)]">
                         Create, edit and publish sticker packs through the bot you select.
                         Files come from your SabFiles library — no external URLs.
                     </p>

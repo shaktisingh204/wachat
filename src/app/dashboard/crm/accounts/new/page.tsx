@@ -67,7 +67,7 @@ export default function NewAccountPage() {
             title="New Account"
             back={{ href: '/dashboard/crm/accounts', label: 'Accounts' }}
         >
-            <React.Suspense fallback={<div className="p-4 text-sm text-zoru-ink animate-pulse">Loading form...</div>}>
+            <React.Suspense fallback={<div className="p-4 text-sm text-[var(--st-text)] animate-pulse">Loading form...</div>}>
                 <AccountFormWithParams />
             </React.Suspense>
         </EntityDetailShell>

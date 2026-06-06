@@ -24,15 +24,15 @@ export function BioAnalytics({ link, onClose }: Props) {
         </DialogHeader>
 
         <div className="space-y-4 py-4">
-          <div className="flex justify-between items-center bg-zoru-ink p-4 rounded-lg">
-            <span className="text-zoru-ink-muted text-sm">Total Clicks</span>
+          <div className="flex justify-between items-center bg-[var(--st-text)] p-4 rounded-lg">
+            <span className="text-[var(--st-text-secondary)] text-sm">Total Clicks</span>
             <span className="text-xl font-semibold text-white">{totalClicks}</span>
           </div>
 
           <div className="space-y-3">
-            <h4 className="text-sm font-medium text-zoru-ink-muted">Top Countries</h4>
+            <h4 className="text-sm font-medium text-[var(--st-text-secondary)]">Top Countries</h4>
             {entries.length === 0 ? (
-              <p className="text-xs text-zoru-ink">No geo data available yet.</p>
+              <p className="text-xs text-[var(--st-text)]">No geo data available yet.</p>
             ) : (
               <div className="space-y-2">
                 {entries.map(([countryCode, clicks]) => {
@@ -40,10 +40,10 @@ export function BioAnalytics({ link, onClose }: Props) {
                   return (
                     <div key={countryCode} className="flex items-center justify-between text-sm">
                       <div className="flex items-center gap-2">
-                        <span className="w-6 text-center text-xs font-mono bg-zoru-ink text-zoru-ink-muted rounded px-1 py-0.5">{countryCode}</span>
-                        <span className="text-zoru-ink-muted">{clicks} clicks</span>
+                        <span className="w-6 text-center text-xs font-mono bg-[var(--st-text)] text-[var(--st-text-secondary)] rounded px-1 py-0.5">{countryCode}</span>
+                        <span className="text-[var(--st-text-secondary)]">{clicks} clicks</span>
                       </div>
-                      <span className="text-zoru-ink text-xs">{percentage}%</span>
+                      <span className="text-[var(--st-text)] text-xs">{percentage}%</span>
                     </div>
                   );
                 })}

@@ -199,7 +199,7 @@ export function InterviewsView({ initial }: { initial: Interview[] }) {
         r.candidateId ? (
           <Link
             href={`/dashboard/hrm/hr/candidates/${r.candidateId}`}
-            className="text-zoru-ink hover:underline"
+            className="text-[var(--st-text)] hover:underline"
           >
             {shorten(r.candidateId)}
           </Link>
@@ -230,7 +230,7 @@ export function InterviewsView({ initial }: { initial: Interview[] }) {
           <Link
             href={r.meetingLink}
             target="_blank"
-            className="text-zoru-ink underline-offset-2 hover:underline"
+            className="text-[var(--st-text)] underline-offset-2 hover:underline"
           >
             Open
           </Link>

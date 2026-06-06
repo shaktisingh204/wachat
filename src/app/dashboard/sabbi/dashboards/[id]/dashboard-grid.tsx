@@ -49,7 +49,7 @@ export function DashboardGrid({ widgets, resolvedData }: DashboardGridProps) {
                             minHeight: `${hMin}px`,
                         }}
                     >
-                        <div className="border-b border-zoru-line px-4 py-2 text-[12.5px] font-medium text-zoru-ink flex items-center justify-between">
+                        <div className="border-b border-[var(--st-border)] px-4 py-2 text-[12.5px] font-medium text-[var(--st-text)] flex items-center justify-between">
                             <span>{w.title}</span>
                         </div>
                         <div className="h-[calc(100%-33px)] min-h-[80px]">

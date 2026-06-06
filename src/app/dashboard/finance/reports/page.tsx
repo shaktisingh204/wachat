@@ -29,7 +29,7 @@ export default function ReportsPage() {
       <div className="animate-fade flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Financial Reports</h1>
-          <p className="text-zoru-ink-muted mt-1">
+          <p className="text-[var(--st-text-secondary)] mt-1">
             Real-time interactive reports.
           </p>
         </div>
@@ -115,13 +115,13 @@ export default function ReportsPage() {
           )}
 
           {activeReport === 'pl' && (
-            <div className="text-center text-zoru-ink-muted py-10">
+            <div className="text-center text-[var(--st-text-secondary)] py-10">
               Profit & Loss statement visualization goes here.
             </div>
           )}
 
           {activeReport === 'balance_sheet' && (
-            <div className="text-center text-zoru-ink-muted py-10">
+            <div className="text-center text-[var(--st-text-secondary)] py-10">
               Balance Sheet visualization goes here.
             </div>
           )}

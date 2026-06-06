@@ -81,10 +81,10 @@ export function KbTable({
     !allSelected && articles.some((a) => selectedIds.has(String(a._id)));
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-zoru-line">
+    <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
       <Table>
         <ZoruTableHeader>
-          <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+          <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
             <ZoruTableHead className="w-[36px]">
               <Checkbox
                 aria-label="Select all articles"
@@ -108,17 +108,17 @@ export function KbTable({
         <ZoruTableBody>
           {loading ? (
             Array.from({ length: 6 }).map((_, i) => (
-              <ZoruTableRow key={i} className="border-zoru-line">
+              <ZoruTableRow key={i} className="border-[var(--st-border)]">
                 <ZoruTableCell colSpan={10}>
                   <Skeleton className="h-10 w-full" />
                 </ZoruTableCell>
               </ZoruTableRow>
             ))
           ) : articles.length === 0 ? (
-            <ZoruTableRow className="border-zoru-line">
+            <ZoruTableRow className="border-[var(--st-border)]">
               <ZoruTableCell
                 colSpan={10}
-                className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
               >
                 No articles match the current filters.
               </ZoruTableCell>
@@ -133,8 +133,8 @@ export function KbTable({
                 <ZoruTableRow
                   key={id}
                   className={[
-                    "border-zoru-line transition-colors",
-                    isSel ? "bg-zoru-surface-2/70" : "",
+                    "border-[var(--st-border)] transition-colors",
+                    isSel ? "bg-[var(--st-bg-muted)]/70" : "",
                   ].join(" ")}
                 >
                   <ZoruTableCell>
@@ -146,7 +146,7 @@ export function KbTable({
                   </ZoruTableCell>
                   <ZoruTableCell>
                     <div className="flex items-center gap-2">
-                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                         <BookOpen className="h-3.5 w-3.5" />
                       </span>
                       <EntityRowLink
@@ -166,7 +166,7 @@ export function KbTable({
                       />
                     </div>
                   </ZoruTableCell>
-                  <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                  <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                     {a.category ? (
                       <EntityPickerChip
                         entity="category"
@@ -184,7 +184,7 @@ export function KbTable({
                         tone={statusToTone(a.status)}
                       />
                     ) : (
-                      <span className="text-[12px] text-zoru-ink-muted">—</span>
+                      <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
                     )}
                   </ZoruTableCell>
                   <ZoruTableCell>
@@ -195,12 +195,12 @@ export function KbTable({
                         {visibility}
                       </Badge>
                     ) : (
-                      <span className="text-[12px] text-zoru-ink-muted">—</span>
+                      <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
                     )}
                   </ZoruTableCell>
                   <ZoruTableCell>
                     {tags.length === 0 ? (
-                      <span className="text-[12px] text-zoru-ink-muted">—</span>
+                      <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
                     ) : (
                       <div className="flex flex-wrap gap-1">
                         {tags.slice(0, 3).map((t) => (
@@ -209,24 +209,24 @@ export function KbTable({
                           </Badge>
                         ))}
                         {tags.length > 3 ? (
-                          <span className="text-[11px] text-zoru-ink-muted">
+                          <span className="text-[11px] text-[var(--st-text-secondary)]">
                             +{tags.length - 3}
                           </span>
                         ) : null}
                       </div>
                     )}
                   </ZoruTableCell>
-                  <ZoruTableCell className="text-right text-[12.5px] text-zoru-ink-muted">
+                  <ZoruTableCell className="text-right text-[12.5px] text-[var(--st-text-secondary)]">
                     <span className="inline-flex items-center gap-1">
                       <Eye className="h-3 w-3" />
                       {a.viewCount ?? 0}
                     </span>
                   </ZoruTableCell>
-                  <ZoruTableCell className="text-right text-[12.5px] text-zoru-ink-muted">
+                  <ZoruTableCell className="text-right text-[12.5px] text-[var(--st-text-secondary)]">
                     {helpfulPct(a)}
                   </ZoruTableCell>
                   <ZoruTableCell
-                    className="text-[12.5px] text-zoru-ink-muted"
+                    className="text-[12.5px] text-[var(--st-text-secondary)]"
                     title={
                       a.updatedAt ? new Date(a.updatedAt).toLocaleString() : ""
                     }
@@ -243,7 +243,7 @@ export function KbTable({
                         <button
                           type="button"
                           aria-label={`Actions for ${a.title || id}`}
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
                         >
                           <MoreHorizontal className="h-4 w-4" />
                         </button>
@@ -268,7 +268,7 @@ export function KbTable({
                         <ZoruDropdownMenuSeparator />
                         <ZoruDropdownMenuItem
                           onClick={() => onDelete(id)}
-                          className="text-zoru-danger"
+                          className="text-[var(--st-danger)]"
                         >
                           <Trash2 className="mr-1.5 h-3.5 w-3.5" />
                           Delete

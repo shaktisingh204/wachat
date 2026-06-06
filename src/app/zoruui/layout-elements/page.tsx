@@ -195,8 +195,8 @@ export default function LayoutElementsPage() {
   return (
     <div className="mx-auto max-w-6xl px-5 py-8 sm:px-8 lg:py-12">
       <div className="mb-8">
-        <h1 className="text-3xl font-semibold tracking-tight text-zoru-ink capitalize">layout elements</h1>
-        <p className="mt-2 text-base text-zoru-ink-muted">Explore layout elements components</p>
+        <h1 className="text-3xl font-semibold tracking-tight text-[var(--st-text)] capitalize">layout elements</h1>
+        <p className="mt-2 text-base text-[var(--st-text-secondary)]">Explore layout elements components</p>
       </div>
       <Section
           step="Step 4"
@@ -272,12 +272,12 @@ export default function LayoutElementsPage() {
                 <ZoruCardDescription>240px tall, custom scrollbar.</ZoruCardDescription>
               </ZoruCardHeader>
               <ZoruCardContent>
-                <ScrollArea className="h-60 rounded-[var(--zoru-radius)] border border-zoru-line p-3">
-                  <ul className="space-y-2 text-sm text-zoru-ink">
+                <ScrollArea className="h-60 rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-3">
+                  <ul className="space-y-2 text-sm text-[var(--st-text)]">
                     {Array.from({ length: 24 }).map((_, i) => (
                       <li
                         key={i}
-                        className="rounded-[var(--zoru-radius-sm)] bg-zoru-surface px-3 py-2"
+                        className="rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-secondary)] px-3 py-2"
                       >
                         Row {i + 1}
                       </li>
@@ -318,12 +318,12 @@ export default function LayoutElementsPage() {
                 <ZoruCardDescription>240px tall, custom scrollbar.</ZoruCardDescription>
               </ZoruCardHeader>
               <ZoruCardContent>
-                <ScrollArea className="h-60 rounded-[var(--zoru-radius)] border border-zoru-line p-3">
-                  <ul className="space-y-2 text-sm text-zoru-ink">
+                <ScrollArea className="h-60 rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-3">
+                  <ul className="space-y-2 text-sm text-[var(--st-text)]">
                     {Array.from({ length: 24 }).map((_, i) => (
                       <li
                         key={i}
-                        className="rounded-[var(--zoru-radius-sm)] bg-zoru-surface px-3 py-2"
+                        className="rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-secondary)] px-3 py-2"
                       >
                         Row {i + 1}
                       </li>
@@ -364,8 +364,8 @@ export default function LayoutElementsPage() {
           subtitle="Sidebar + header + dock — no vertical app rail (apps live in the dock now), no multi-tab strip. Step 8 wires the admin instance, step 9 the dashboard."
         >
 <SnippetDemo code={`
-          <div className="overflow-hidden rounded-[var(--zoru-radius-lg)] border border-zoru-line">
-            <div className="flex h-[420px] w-full bg-zoru-bg">
+          <div className="overflow-hidden rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)]">
+            <div className="flex h-[420px] w-full bg-[var(--st-bg)]">
               <ZoruAppSidebar
                 heading="Dashboard"
                 caption="Overview"
@@ -436,8 +436,8 @@ export default function LayoutElementsPage() {
           </div>
         `}>
 
-          <div className="overflow-hidden rounded-[var(--zoru-radius-lg)] border border-zoru-line">
-            <div className="flex h-[420px] w-full bg-zoru-bg">
+          <div className="overflow-hidden rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)]">
+            <div className="flex h-[420px] w-full bg-[var(--st-bg)]">
               <ZoruAppSidebar
                 heading="Dashboard"
                 caption="Overview"

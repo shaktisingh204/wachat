@@ -36,14 +36,14 @@ export function CompleteStep({
     return (
         <div className="space-y-6 text-center sm:text-left">
             <div className="flex flex-col items-center gap-3 sm:flex-row">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-primary/10">
-                    <CheckCircle2 className="h-6 w-6 text-zoru-primary" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-text)]/10">
+                    <CheckCircle2 className="h-6 w-6 text-[var(--st-text)]" />
                 </div>
                 <div>
-                    <h2 className="text-2xl font-bold text-zoru-ink">
+                    <h2 className="text-2xl font-bold text-[var(--st-text)]">
                         Welcome aboard{userName ? `, ${userName}` : ''}!
                     </h2>
-                    <p className="text-zoru-ink-muted">
+                    <p className="text-[var(--st-text-secondary)]">
                         Your workspace is ready. Here's what's tailored for
                         you.
                     </p>
@@ -51,9 +51,9 @@ export function CompleteStep({
             </div>
 
             {activated.length > 0 && (
-                <div className="rounded-xl border border-zoru-line bg-zoru-surface/40 p-5">
-                    <p className="flex items-center gap-2 text-sm font-semibold text-zoru-ink">
-                        <Sparkles className="h-4 w-4 text-zoru-primary" />
+                <div className="rounded-xl border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40 p-5">
+                    <p className="flex items-center gap-2 text-sm font-semibold text-[var(--st-text)]">
+                        <Sparkles className="h-4 w-4 text-[var(--st-text)]" />
                         Your stack
                     </p>
                     <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -63,10 +63,10 @@ export function CompleteStep({
                                 <div
                                     key={m.id}
                                     className={cn(
-                                        'flex items-center gap-2 rounded-lg border border-zoru-line bg-zoru-bg px-3 py-2 text-sm text-zoru-ink'
+                                        'flex items-center gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-sm text-[var(--st-text)]'
                                     )}
                                 >
-                                    <Icon className="h-4 w-4 text-zoru-primary" />
+                                    <Icon className="h-4 w-4 text-[var(--st-text)]" />
                                     <span className="font-medium">
                                         {m.name}
                                     </span>
@@ -78,7 +78,7 @@ export function CompleteStep({
             )}
 
             <div className="space-y-3">
-                <p className="text-sm font-semibold text-zoru-ink">Next up</p>
+                <p className="text-sm font-semibold text-[var(--st-text)]">Next up</p>
                 <div className="grid gap-2">
                     <NextLink
                         href="/wachat"
@@ -122,13 +122,13 @@ function NextLink({
     return (
         <Link
             href={href}
-            className="group flex items-start justify-between rounded-xl border border-zoru-line bg-zoru-bg p-4 transition hover:border-zoru-primary/60 hover:shadow-sm"
+            className="group flex items-start justify-between rounded-xl border border-[var(--st-border)] bg-[var(--st-bg)] p-4 transition hover:border-[var(--st-text)]/60 hover:shadow-sm"
         >
             <div>
-                <p className="text-sm font-semibold text-zoru-ink">{title}</p>
-                <p className="text-xs text-zoru-ink-muted">{description}</p>
+                <p className="text-sm font-semibold text-[var(--st-text)]">{title}</p>
+                <p className="text-xs text-[var(--st-text-secondary)]">{description}</p>
             </div>
-            <ArrowRight className="mt-1 h-4 w-4 text-zoru-ink-muted transition group-hover:translate-x-1 group-hover:text-zoru-primary" />
+            <ArrowRight className="mt-1 h-4 w-4 text-[var(--st-text-secondary)] transition group-hover:translate-x-1 group-hover:text-[var(--st-text)]" />
         </Link>
     );
 }

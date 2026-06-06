@@ -478,7 +478,7 @@ export function LeadForm({ mode, initial, prefill, showConvert = true }: LeadFor
             </Card>
 
             {/* ─── Sticky action bar ─────────────────────────────────── */}
-            <div className="sticky bottom-0 z-10 -mx-4 mt-2 border-t border-zoru-line bg-zoru-bg/95 px-4 py-3 backdrop-blur">
+            <div className="sticky bottom-0 z-10 -mx-4 mt-2 border-t border-[var(--st-border)] bg-[var(--st-bg)]/95 px-4 py-3 backdrop-blur">
                 <div className="flex flex-wrap items-center justify-end gap-2">
                     <Button
                         type="button"

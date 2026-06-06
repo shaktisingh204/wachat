@@ -86,10 +86,10 @@ function Field({
 }) {
     return (
         <div>
-            <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+            <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                 {label}
             </div>
-            <div className="mt-1 text-[13px] text-zoru-ink">{children}</div>
+            <div className="mt-1 text-[13px] text-[var(--st-text)]">{children}</div>
         </div>
     );
 }
@@ -104,7 +104,7 @@ function SectionNav({ active }: { active: 'overview' | 'comments' | 'files' | 'r
     return (
         <nav
             aria-label="Notice sections"
-            className="flex flex-wrap gap-1 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-1 text-[12.5px]"
+            className="flex flex-wrap gap-1 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1 text-[12.5px]"
         >
             {items.map((item) => (
                 <a
@@ -112,8 +112,8 @@ function SectionNav({ active }: { active: 'overview' | 'comments' | 'files' | 'r
                     href={`#section-${item.id}`}
                     className={
                         item.id === active
-                            ? 'rounded-[calc(var(--zoru-radius)-2px)] bg-zoru-bg px-3 py-1.5 font-medium text-zoru-ink shadow-sm'
-                            : 'rounded-[calc(var(--zoru-radius)-2px)] px-3 py-1.5 text-zoru-ink-muted hover:text-zoru-ink'
+                            ? 'rounded-[calc(var(--zoru-radius)-2px)] bg-[var(--st-bg)] px-3 py-1.5 font-medium text-[var(--st-text)] shadow-sm'
+                            : 'rounded-[calc(var(--zoru-radius)-2px)] px-3 py-1.5 text-[var(--st-text-secondary)] hover:text-[var(--st-text)]'
                     }
                 >
                     {item.label}
@@ -162,26 +162,26 @@ export default async function NoticeDetailPage({
                             </ZoruCardHeader>
                             <ZoruCardContent>
                                 <dl className="grid grid-cols-2 gap-y-1.5 text-[12.5px]">
-                                    <dt className="text-zoru-ink-muted">Status</dt>
+                                    <dt className="text-[var(--st-text-secondary)]">Status</dt>
                                     <dd>
                                         <Badge variant="outline">{status.label}</Badge>
                                     </dd>
-                                    <dt className="text-zoru-ink-muted">Audience</dt>
-                                    <dd className="text-zoru-ink">{audience}</dd>
-                                    <dt className="text-zoru-ink-muted">Pinned</dt>
-                                    <dd className="text-zoru-ink">
+                                    <dt className="text-[var(--st-text-secondary)]">Audience</dt>
+                                    <dd className="text-[var(--st-text)]">{audience}</dd>
+                                    <dt className="text-[var(--st-text-secondary)]">Pinned</dt>
+                                    <dd className="text-[var(--st-text)]">
                                         {n.pinned ? 'Yes' : 'No'}
                                     </dd>
-                                    <dt className="text-zoru-ink-muted">Attachments</dt>
-                                    <dd className="text-zoru-ink">
+                                    <dt className="text-[var(--st-text-secondary)]">Attachments</dt>
+                                    <dd className="text-[var(--st-text)]">
                                         {fileAttached ? 'Yes' : 'No'}
                                     </dd>
-                                    <dt className="text-zoru-ink-muted">Published</dt>
-                                    <dd className="text-zoru-ink">
+                                    <dt className="text-[var(--st-text-secondary)]">Published</dt>
+                                    <dd className="text-[var(--st-text)]">
                                         {fmtDate(n.createdAt)}
                                     </dd>
-                                    <dt className="text-zoru-ink-muted">Updated</dt>
-                                    <dd className="text-zoru-ink">
+                                    <dt className="text-[var(--st-text-secondary)]">Updated</dt>
+                                    <dd className="text-[var(--st-text)]">
                                         {fmtDate(n.updatedAt ?? n.createdAt)}
                                     </dd>
                                 </dl>
@@ -219,7 +219,7 @@ export default async function NoticeDetailPage({
                                             />
                                         ))}
                                         {n.employee_ids.length > 8 ? (
-                                            <span className="text-[11.5px] text-zoru-ink-muted">
+                                            <span className="text-[11.5px] text-[var(--st-text-secondary)]">
                                                 +{n.employee_ids.length - 8} more
                                             </span>
                                         ) : null}
@@ -275,9 +275,9 @@ export default async function NoticeDetailPage({
                                 <Badge variant="info">Attachments</Badge>
                             ) : null}
                         </div>
-                        <div className="whitespace-pre-wrap text-[14px] leading-relaxed text-zoru-ink">
+                        <div className="whitespace-pre-wrap text-[14px] leading-relaxed text-[var(--st-text)]">
                             {n.description || (
-                                <span className="text-zoru-ink-muted">
+                                <span className="text-[var(--st-text-secondary)]">
                                     No body content.
                                 </span>
                             )}
@@ -331,7 +331,7 @@ export default async function NoticeDetailPage({
                         <ZoruCardTitle>Acknowledgements</ZoruCardTitle>
                     </ZoruCardHeader>
                     <ZoruCardContent>
-                        <p className="text-[12.5px] text-zoru-ink-muted">
+                        <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                             Per-user reads are tracked via markNoticeViewed; a
                             per-notice roster surfaces here once
                             getNoticeAcknowledgements() lands (TODO 1D.2).
@@ -347,20 +347,20 @@ export default async function NoticeDetailPage({
                         <div className="flex flex-col gap-2 text-[12.5px]">
                             <Link
                                 href="/dashboard/crm/workspace/notices"
-                                className="text-zoru-primary hover:underline"
+                                className="text-[var(--st-text)] hover:underline"
                             >
                                 All notices →
                             </Link>
                             <Link
                                 href="/dashboard/sabconnect/announcements"
-                                className="text-zoru-primary hover:underline"
+                                className="text-[var(--st-text)] hover:underline"
                             >
                                 Announcements →
                             </Link>
                             {n.department_id ? (
                                 <Link
                                     href={`/dashboard/crm/hr/departments/${n.department_id}`}
-                                    className="text-zoru-primary hover:underline"
+                                    className="text-[var(--st-text)] hover:underline"
                                 >
                                     Owning department →
                                 </Link>
@@ -369,7 +369,7 @@ export default async function NoticeDetailPage({
                     </ZoruCardContent>
                 </Card>
 
-                <p className="text-[11px] text-zoru-ink-muted">
+                <p className="text-[11px] text-[var(--st-text-secondary)]">
                     Created {fmtDate(n.createdAt)} · Updated{' '}
                     {fmtDate(n.updatedAt ?? n.createdAt)}
                 </p>

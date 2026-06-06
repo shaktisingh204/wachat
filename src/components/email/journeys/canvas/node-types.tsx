@@ -21,13 +21,13 @@ interface NodeVisualMeta {
 }
 
 export const NODE_META: Record<EmailJourneyNodeType, NodeVisualMeta> = {
-  trigger:   { icon: Zap,       label: 'Trigger',   accent: 'text-zoru-ink' },
-  email:     { icon: Mail,      label: 'Email',     accent: 'text-zoru-ink' },
-  wait:      { icon: Clock,     label: 'Wait',      accent: 'text-zoru-ink' },
-  condition: { icon: GitBranch, label: 'Condition', accent: 'text-zoru-ink' },
-  action:    { icon: Wand2,     label: 'Action',    accent: 'text-zoru-ink' },
-  split:     { icon: Split,     label: 'A/B split', accent: 'text-zoru-ink' },
-  exit:      { icon: Flag,      label: 'Exit',      accent: 'text-zoru-ink' },
+  trigger:   { icon: Zap,       label: 'Trigger',   accent: 'text-[var(--st-text)]' },
+  email:     { icon: Mail,      label: 'Email',     accent: 'text-[var(--st-text)]' },
+  wait:      { icon: Clock,     label: 'Wait',      accent: 'text-[var(--st-text)]' },
+  condition: { icon: GitBranch, label: 'Condition', accent: 'text-[var(--st-text)]' },
+  action:    { icon: Wand2,     label: 'Action',    accent: 'text-[var(--st-text)]' },
+  split:     { icon: Split,     label: 'A/B split', accent: 'text-[var(--st-text)]' },
+  exit:      { icon: Flag,      label: 'Exit',      accent: 'text-[var(--st-text)]' },
 };
 
 interface JourneyNodeCardProps {
@@ -43,7 +43,7 @@ interface JourneyNodeCardProps {
  * cards with simple vertical connectors via CSS — no react-flow.
  */
 export function JourneyNodeCard({ node, selected, onSelect, index }: JourneyNodeCardProps) {
-  const meta = NODE_META[node.type] ?? { icon: Activity, label: node.type, accent: 'text-zoru-ink' };
+  const meta = NODE_META[node.type] ?? { icon: Activity, label: node.type, accent: 'text-[var(--st-text)]' };
   const Icon = meta.icon;
   const summary = nodeSummary(node);
 
@@ -52,16 +52,16 @@ export function JourneyNodeCard({ node, selected, onSelect, index }: JourneyNode
       type="button"
       onClick={onSelect}
       className={cn(
-        'group relative w-full max-w-md rounded-xl border bg-zoru-surface-1 px-4 py-3 text-left shadow-sm transition',
-        'hover:border-zoru-ink-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-accent',
-        selected ? 'border-zoru-accent ring-1 ring-zoru-accent' : 'border-zoru-line',
+        'group relative w-full max-w-md rounded-xl border bg-[var(--st-bg-secondary)] px-4 py-3 text-left shadow-sm transition',
+        'hover:border-[var(--st-text-secondary)]/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent)]',
+        selected ? 'border-[var(--st-accent)] ring-1 ring-[var(--st-accent)]' : 'border-[var(--st-border)]',
       )}
     >
-      <span className="absolute -left-2 top-3 flex h-5 w-5 items-center justify-center rounded-full border border-zoru-line bg-zoru-surface-2 text-[10px] font-medium tabular-nums">
+      <span className="absolute -left-2 top-3 flex h-5 w-5 items-center justify-center rounded-full border border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[10px] font-medium tabular-nums">
         {index + 1}
       </span>
       <div className="flex items-start gap-3">
-        <span className={cn('mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-surface-2', meta.accent)}>
+        <span className={cn('mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-bg-muted)]', meta.accent)}>
           <Icon className="h-4 w-4" />
         </span>
         <div className="min-w-0 flex-1">
@@ -71,7 +71,7 @@ export function JourneyNodeCard({ node, selected, onSelect, index }: JourneyNode
               <span className="truncate text-sm font-medium">{node.data.label}</span>
             ) : null}
           </div>
-          <p className="mt-1 text-xs text-zoru-ink-muted line-clamp-2">{summary}</p>
+          <p className="mt-1 text-xs text-[var(--st-text-secondary)] line-clamp-2">{summary}</p>
         </div>
       </div>
     </button>

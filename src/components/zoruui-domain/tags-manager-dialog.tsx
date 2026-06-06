@@ -113,7 +113,7 @@ export function TagsManagerDialog({ isOpen, onOpenChange, user, onTagsUpdated }:
                         <ZoruDialogDescription>Create, edit, or delete your custom labels.</ZoruDialogDescription>
                     </ZoruDialogHeader>
                     <div className="py-4 space-y-4 max-h-[60vh] overflow-y-auto">
-                        <div className="grid grid-cols-[1fr,auto,auto] items-center gap-2 p-2 font-medium text-sm text-zoru-ink-muted">
+                        <div className="grid grid-cols-[1fr,auto,auto] items-center gap-2 p-2 font-medium text-sm text-[var(--st-text-secondary)]">
                             <span>Label Name</span>
                             <span className="text-center">Color</span>
                             <span className="w-10"></span>
@@ -133,7 +133,7 @@ export function TagsManagerDialog({ isOpen, onOpenChange, user, onTagsUpdated }:
                                         className="h-9 w-14 p-1"
                                     />
                                     <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveTag(tag._id)}>
-                                        <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                        <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                     </Button>
                                 </div>
                             ))}
@@ -142,7 +142,7 @@ export function TagsManagerDialog({ isOpen, onOpenChange, user, onTagsUpdated }:
                             <Plus className="mr-2 h-4 w-4" />
                             Add Label
                         </Button>
-                        {validationError && <p className="text-sm text-zoru-ink">{validationError}</p>}
+                        {validationError && <p className="text-sm text-[var(--st-text)]">{validationError}</p>}
                     </div>
                     <ZoruDialogFooter>
                         <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>

@@ -166,8 +166,8 @@ export function ReferralsClient({
     <div className="zoruui flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-zoru-ink">Referrals</h2>
-          <p className="text-sm text-zoru-ink-muted">
+          <h2 className="text-lg font-semibold text-[var(--st-text)]">Referrals</h2>
+          <p className="text-sm text-[var(--st-text-secondary)]">
             Each code is owned by a member. Conversions and reward credits are
             tracked per code.
           </p>
@@ -182,7 +182,7 @@ export function ReferralsClient({
           <div className="overflow-x-auto rounded-lg">
             <Table>
               <ZoruTableHeader>
-                <ZoruTableRow className="border-zoru-line">
+                <ZoruTableRow className="border-[var(--st-border)]">
                   <ZoruTableHead>Code</ZoruTableHead>
                   <ZoruTableHead>Owner</ZoruTableHead>
                   <ZoruTableHead>Program</ZoruTableHead>
@@ -204,20 +204,20 @@ export function ReferralsClient({
                   </ZoruTableRow>
                 ) : (
                   referrals.map((r) => (
-                    <ZoruTableRow key={r._id} className="border-zoru-line">
-                      <ZoruTableCell className="font-mono text-zoru-ink">
+                    <ZoruTableRow key={r._id} className="border-[var(--st-border)]">
+                      <ZoruTableCell className="font-mono text-[var(--st-text)]">
                         {r.code}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink">
+                      <ZoruTableCell className="text-[var(--st-text)]">
                         {memberLabelById.get(r.memberId) ?? '—'}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink">
+                      <ZoruTableCell className="text-[var(--st-text)]">
                         {r.programId ? programNameById.get(r.programId) ?? '—' : '—'}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink">
+                      <ZoruTableCell className="text-[var(--st-text)]">
                         {(r.conversions?.length ?? 0).toLocaleString()}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink">
+                      <ZoruTableCell className="text-[var(--st-text)]">
                         {(r.rewardPoints ?? 0).toLocaleString()}
                       </ZoruTableCell>
                       <ZoruTableCell>
@@ -240,7 +240,7 @@ export function ReferralsClient({
                           onClick={() => handleDelete(r._id)}
                           aria-label="Deactivate referral"
                         >
-                          <Trash2 className="h-4 w-4 text-zoru-ink" />
+                          <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                         </Button>
                       </ZoruTableCell>
                     </ZoruTableRow>
@@ -252,23 +252,23 @@ export function ReferralsClient({
         </Card>
 
         <Card className="p-4">
-          <h3 className="text-sm font-semibold text-zoru-ink">Attribution leaderboard</h3>
-          <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+          <h3 className="text-sm font-semibold text-[var(--st-text)]">Attribution leaderboard</h3>
+          <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">
             Top codes by total points awarded.
           </p>
-          <ol className="mt-3 flex flex-col divide-y divide-zoru-line">
+          <ol className="mt-3 flex flex-col divide-y divide-[var(--st-border)]">
             {leaderboard.length === 0 ? (
-              <li className="py-3 text-[13px] text-zoru-ink-muted">No conversions yet.</li>
+              <li className="py-3 text-[13px] text-[var(--st-text-secondary)]">No conversions yet.</li>
             ) : (
               leaderboard.map((r, idx) => (
                 <li key={r._id} className="flex items-center justify-between py-2 text-sm">
                   <div className="flex items-center gap-2">
-                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-zoru-surface-muted text-[11px] font-semibold">
+                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[11px] font-semibold">
                       {idx + 1}
                     </span>
-                    <code className="font-mono text-zoru-ink">{r.code}</code>
+                    <code className="font-mono text-[var(--st-text)]">{r.code}</code>
                   </div>
-                  <span className="font-semibold text-zoru-ink">
+                  <span className="font-semibold text-[var(--st-text)]">
                     {(r.rewardPoints ?? 0).toLocaleString()}
                   </span>
                 </li>

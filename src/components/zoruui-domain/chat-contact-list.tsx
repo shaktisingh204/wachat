@@ -104,7 +104,7 @@ export function ChatContactList({
     );
 
     return (
-        <div className="h-full flex flex-col overflow-hidden bg-zoru-surface">
+        <div className="h-full flex flex-col overflow-hidden bg-[var(--st-bg-secondary)]">
             <div className="p-3 border-b flex-shrink-0 flex items-center justify-between">
                 {sessionUser ? (
                     <div className="flex items-center gap-3">
@@ -138,7 +138,7 @@ export function ChatContactList({
 
             <div className="p-3 border-b flex-shrink-0 space-y-3">
                 <div className="relative">
-                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
                     <Input
                         placeholder="Search or start new chat"
                         className="pl-8"
@@ -167,8 +167,8 @@ export function ChatContactList({
                     className={cn(
                         'rounded-full px-3 py-1 text-[11px] font-semibold transition-colors',
                         chatFilter === 'all'
-                            ? 'bg-zoru-ink text-white'
-                            : 'bg-zoru-surface-2 text-zoru-ink-muted hover:bg-zoru-surface-2'
+                            ? 'bg-[var(--st-text)] text-white'
+                            : 'bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)]'
                     )}
                 >
                     All
@@ -179,8 +179,8 @@ export function ChatContactList({
                     className={cn(
                         'rounded-full px-3 py-1 text-[11px] font-semibold transition-colors',
                         chatFilter === 'unread'
-                            ? 'bg-zoru-ink text-white'
-                            : 'bg-zoru-surface-2 text-zoru-ink-muted hover:bg-zoru-surface-2'
+                            ? 'bg-[var(--st-text)] text-white'
+                            : 'bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)]'
                     )}
                 >
                     Unread{unreadCount > 0 && ` (${unreadCount})`}
@@ -204,8 +204,8 @@ export function ChatContactList({
                                     key={contact._id.toString()}
                                     onClick={() => onSelectContact(contact)}
                                     className={cn(
-                                        "flex w-full items-start gap-3 p-3 text-left transition-all duration-200 rounded-xl mx-2 mb-1 w-[calc(100%-16px)] hover:bg-zoru-surface-2/50",
-                                        selectedContactId === contact._id.toString() && "bg-zoru-surface-2 shadow-sm"
+                                        "flex w-full items-start gap-3 p-3 text-left transition-all duration-200 rounded-xl mx-2 mb-1 w-[calc(100%-16px)] hover:bg-[var(--st-bg-muted)]/50",
+                                        selectedContactId === contact._id.toString() && "bg-[var(--st-bg-muted)] shadow-sm"
                                     )}
                                 >
                                     <Avatar>
@@ -215,18 +215,18 @@ export function ChatContactList({
                                         <div className="flex justify-between items-start">
                                             <span className={cn(
                                                 "font-medium truncate pr-2",
-                                                unreadCount > 0 ? "text-zoru-ink" : "text-zoru-ink/80"
+                                                unreadCount > 0 ? "text-[var(--st-text)]" : "text-[var(--st-text)]/80"
                                             )}>
                                                 {contact.name || contact.waId}
                                             </span>
                                             {lastMsgTime && (
-                                                <span className="text-[10px] text-zoru-ink-muted whitespace-nowrap flex-shrink-0 mt-0.5">
+                                                <span className="text-[10px] text-[var(--st-text-secondary)] whitespace-nowrap flex-shrink-0 mt-0.5">
                                                     {format(new Date(lastMsgTime), 'HH:mm')}
                                                 </span>
                                             )}
                                         </div>
                                         <div className="flex justify-between items-center mt-0.5">
-                                            <span className="text-xs text-zoru-ink-muted truncate block max-w-[180px]">
+                                            <span className="text-xs text-[var(--st-text-secondary)] truncate block max-w-[180px]">
                                                 {lastMsgContent}
                                             </span>
                                             {unreadCount > 0 && (
@@ -240,12 +240,12 @@ export function ChatContactList({
                             );
                         })}
                         <div ref={loadMoreRef} className="flex justify-center items-center p-4">
-                            {hasMoreContacts && <LoaderCircle className="h-5 w-5 animate-spin text-zoru-ink-muted" />}
+                            {hasMoreContacts && <LoaderCircle className="h-5 w-5 animate-spin text-[var(--st-text-secondary)]" />}
                         </div>
                     </>
                 ) : (
-                    <div className="flex flex-col items-center gap-2 p-8 text-center text-sm text-zoru-ink-muted">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink/50">
+                    <div className="flex flex-col items-center gap-2 p-8 text-center text-sm text-[var(--st-text-secondary)]">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)]/50">
                             <Users className="h-5 w-5" />
                         </div>
                         <div>No contacts found{searchQuery ? ' for your search' : ' for this number'}.</div>

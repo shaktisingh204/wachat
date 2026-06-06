@@ -82,16 +82,16 @@ function NodeComponent({ node, onSelect, isSelected }: { node: CrmAutomationNode
             )}
         >
             <div className="flex flex-row items-center gap-4 p-4">
-                <div className="rounded-lg bg-zoru-surface-2 p-2">
-                    <BlockIcon className="h-5 w-5 text-zoru-ink-muted" />
+                <div className="rounded-lg bg-[var(--st-bg-muted)] p-2">
+                    <BlockIcon className="h-5 w-5 text-[var(--st-text-secondary)]" />
                 </div>
                 <div>
-                    <p className="text-[14px] font-semibold text-zoru-ink">{node.data.label}</p>
+                    <p className="text-[14px] font-semibold text-[var(--st-text)]">{node.data.label}</p>
                     {node.type === 'triggerTagAdded' && node.data.tagName && (
-                        <p className="text-[12px] text-zoru-ink-muted">Tag: {node.data.tagName}</p>
+                        <p className="text-[12px] text-[var(--st-text-secondary)]">Tag: {node.data.tagName}</p>
                     )}
                     {node.type === 'delay' && (
-                        <p className="text-[12px] text-zoru-ink-muted">
+                        <p className="text-[12px] text-[var(--st-text-secondary)]">
                             Wait for {node.data.delayValue || 1} {node.data.delayUnit || 'days'}
                         </p>
                     )}
@@ -105,7 +105,7 @@ function AddActionPopover({ onAddNode, sourceNodeId, sourceHandle }: { onAddNode
     return (
         <Popover>
             <ZoruPopoverTrigger asChild>
-                <Button variant="outline" size="icon" className="rounded-full bg-zoru-surface hover:bg-zoru-surface-2 shadow-md">
+                <Button variant="outline" size="icon" className="rounded-full bg-[var(--st-bg-secondary)] hover:bg-[var(--st-bg-muted)] shadow-md">
                     <Plus className="h-5 w-5" />
                 </Button>
             </ZoruPopoverTrigger>
@@ -338,28 +338,28 @@ export default function CrmAutomationsPage() {
     const avgSuccess = 0;
 
     return (
-        <div className="flex h-[calc(100vh-theme(spacing.20))] bg-zoru-surface-2/30">
-            <aside className="w-72 bg-zoru-surface border-r p-4 flex flex-col gap-4">
+        <div className="flex h-[calc(100vh-theme(spacing.20))] bg-[var(--st-bg-muted)]/30">
+            <aside className="w-72 bg-[var(--st-bg-secondary)] border-r p-4 flex flex-col gap-4">
                 <h2 className="text-xl font-bold">Automations</h2>
                 <div className="grid grid-cols-2 gap-2 text-[11px]">
-                    <div className="rounded border bg-zoru-surface p-2">
-                        <div className="text-zoru-ink-muted">Active</div>
+                    <div className="rounded border bg-[var(--st-bg-secondary)] p-2">
+                        <div className="text-[var(--st-text-secondary)]">Active</div>
                         <div className="text-base font-semibold">{activeCount}</div>
                     </div>
-                    <div className="rounded border bg-zoru-surface p-2">
-                        <div className="text-zoru-ink-muted">Runs 30d</div>
+                    <div className="rounded border bg-[var(--st-bg-secondary)] p-2">
+                        <div className="text-[var(--st-text-secondary)]">Runs 30d</div>
                         <div className="text-base font-semibold">{totalRuns30d}</div>
                     </div>
-                    <div className="rounded border bg-zoru-surface p-2">
-                        <div className="text-zoru-ink-muted">Failed</div>
+                    <div className="rounded border bg-[var(--st-bg-secondary)] p-2">
+                        <div className="text-[var(--st-text-secondary)]">Failed</div>
                         <div className="text-base font-semibold">{failedRuns}</div>
                     </div>
-                    <div className="rounded border bg-zoru-surface p-2">
-                        <div className="text-zoru-ink-muted">Success</div>
+                    <div className="rounded border bg-[var(--st-bg-secondary)] p-2">
+                        <div className="text-[var(--st-text-secondary)]">Success</div>
                         <div className="text-base font-semibold">{avgSuccess}%</div>
                     </div>
                 </div>
-                <p className="text-[10.5px] text-zoru-ink-muted">
+                <p className="text-[10.5px] text-[var(--st-text-secondary)]">
                     Run metrics will populate once the automation runtime ships. Rule
                     configs persist today.
                 </p>
@@ -369,7 +369,7 @@ export default function CrmAutomationsPage() {
                 <ScrollArea className="flex-1 -mx-4">
                     <div className="px-4">
                         {flows.map(flow => (
-                            <Button key={flow._id.toString()} variant="ghost" className={cn("w-full justify-start", currentFlow?._id.toString() === flow._id.toString() && 'bg-zoru-surface-2')} onClick={() => handleSelectFlow(flow._id.toString())}>
+                            <Button key={flow._id.toString()} variant="ghost" className={cn("w-full justify-start", currentFlow?._id.toString() === flow._id.toString() && 'bg-[var(--st-bg-muted)]')} onClick={() => handleSelectFlow(flow._id.toString())}>
                                 {flow.name}
                             </Button>
                         ))}
@@ -382,12 +382,12 @@ export default function CrmAutomationsPage() {
                 </div>
             </aside>
             <div className="flex-1 flex flex-col relative">
-                 <header className="flex-shrink-0 flex items-center justify-between p-3 bg-zoru-surface border-b">
+                 <header className="flex-shrink-0 flex items-center justify-between p-3 bg-[var(--st-bg-secondary)] border-b">
                      <div className="flex items-center gap-2">
                         <Input id="automation-name-input" key={currentFlow?._id.toString()} defaultValue={currentFlow?.name || 'New Automation'} className="text-lg font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto" />
                     </div>
                     <div className="flex items-center gap-2">
-                        <span className="text-xs text-zoru-ink-muted">Last run: N/A</span>
+                        <span className="text-xs text-[var(--st-text-secondary)]">Last run: N/A</span>
                         <div className="flex items-center gap-2"><Label htmlFor="enabled-switch" className="text-sm">Enabled</Label><Switch id="enabled-switch" /></div>
                         <Button variant="outline" size="sm" onClick={() => setIsWebhookTestOpen(true)}><Webhook className="mr-2 h-4 w-4"/>Test Trigger</Button>
                         <ZoruAlertDialog>
@@ -414,11 +414,11 @@ export default function CrmAutomationsPage() {
                             {nodes.length > 0 && renderNodeAndChildren(nodes[0].id)}
                         </div>
                     </ScrollArea>
-                    <aside className="col-span-4 bg-zoru-surface border-l p-4">
+                    <aside className="col-span-4 bg-[var(--st-bg-secondary)] border-l p-4">
                         {selectedNode ? (
                            <CrmAutomationBlockEditor node={selectedNode} onUpdate={(data) => updateNodeData(selectedNodeId!, data)} />
                         ) : (
-                            <div className="flex items-center justify-center h-full text-zoru-ink-muted text-center">
+                            <div className="flex items-center justify-center h-full text-[var(--st-text-secondary)] text-center">
                                 <p>Select a block to configure its properties.</p>
                             </div>
                         )}
@@ -429,7 +429,7 @@ export default function CrmAutomationsPage() {
                   >
                     <div className="p-2">
                         <div className="flex items-center gap-2">
-                            <Wand2 className="h-5 w-5 shrink-0 text-zoru-ink-muted" />
+                            <Wand2 className="h-5 w-5 shrink-0 text-[var(--st-text-secondary)]" />
                             <Input
                                 placeholder="Describe your workflow and let AI build it..."
                                 className="border-none shadow-none focus-visible:ring-0"
@@ -465,19 +465,19 @@ export default function CrmAutomationsPage() {
                                 onClick={() => handleApplyTemplate(template)}
                             >
                                 <h3 className="font-semibold text-lg mb-2">{template.name}</h3>
-                                <p className="text-sm text-zoru-ink-muted flex-1">{template.description}</p>
+                                <p className="text-sm text-[var(--st-text-secondary)] flex-1">{template.description}</p>
                                 <div className="mt-4 flex gap-2 flex-wrap">
                                     {template.nodes.slice(0, 3).map((node, i) => {
                                         const BlockIcon = [...blockTypes, { type: 'triggerTagAdded', label: 'Trigger', icon: Play }].find(b => b.type === node.type)?.icon || Play;
                                         return (
-                                            <div key={i} className="flex items-center gap-1 text-xs bg-zoru-surface-2 px-2 py-1 rounded">
+                                            <div key={i} className="flex items-center gap-1 text-xs bg-[var(--st-bg-muted)] px-2 py-1 rounded">
                                                 <BlockIcon className="w-3 h-3" />
                                                 <span>{node.data.label}</span>
                                             </div>
                                         );
                                     })}
                                     {template.nodes.length > 3 && (
-                                        <span className="text-xs text-zoru-ink-muted self-center">+{template.nodes.length - 3} more</span>
+                                        <span className="text-xs text-[var(--st-text-secondary)] self-center">+{template.nodes.length - 3} more</span>
                                     )}
                                 </div>
                             </Card>
@@ -500,15 +500,15 @@ export default function CrmAutomationsPage() {
                             <Label htmlFor="webhook-payload">JSON Payload</Label>
                             <textarea
                                 id="webhook-payload"
-                                className="w-full min-h-[150px] p-3 text-sm font-mono border rounded-md bg-zoru-surface-2/50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zoru-line"
+                                className="w-full min-h-[150px] p-3 text-sm font-mono border rounded-md bg-[var(--st-bg-muted)]/50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--st-border)]"
                                 value={webhookPayload}
                                 onChange={(e) => setWebhookPayload(e.target.value)}
                             />
                         </div>
                         {webhookResult && (
-                            <div className="p-3 bg-zoru-surface-2 rounded-md border text-sm">
+                            <div className="p-3 bg-[var(--st-bg-muted)] rounded-md border text-sm">
                                 <p className="font-semibold mb-1">Result:</p>
-                                <pre className="text-xs text-zoru-ink-muted whitespace-pre-wrap">{webhookResult}</pre>
+                                <pre className="text-xs text-[var(--st-text-secondary)] whitespace-pre-wrap">{webhookResult}</pre>
                             </div>
                         )}
                         <Button 

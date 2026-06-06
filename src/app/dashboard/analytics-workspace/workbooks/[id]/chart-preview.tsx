@@ -29,7 +29,7 @@ export function ChartPreview({ chartType, rows, columns }: Props) {
   const measureKey = columns.find((c) => c.role === 'measure')?.key;
 
   if (rows.length === 0) {
-    return <p className="text-sm text-zoru-ink-muted">No rows returned.</p>;
+    return <p className="text-sm text-[var(--st-text-secondary)]">No rows returned.</p>;
   }
 
   if (chartType === 'kpi') {
@@ -39,10 +39,10 @@ export function ChartPreview({ chartType, rows, columns }: Props) {
     );
     return (
       <div className="flex flex-col gap-1">
-        <span className="text-xs uppercase tracking-wide text-zoru-ink-muted">
+        <span className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
           {measureKey ?? 'value'}
         </span>
-        <span className="text-3xl font-semibold text-zoru-ink">{total}</span>
+        <span className="text-3xl font-semibold text-[var(--st-text)]">{total}</span>
       </div>
     );
   }
@@ -68,7 +68,7 @@ export function ChartPreview({ chartType, rows, columns }: Props) {
           </TableHeader>
           <TableBody>
             {rows.slice(0, 100).map((r, i) => (
-              <tr key={i} className="border-t border-zoru-line">
+              <tr key={i} className="border-t border-[var(--st-border)]">
                 {keys.map((k) => (
                   <td key={k} className="py-1.5 text-sm">
                     {String((r as Record<string, unknown>)[k] ?? '')}
@@ -84,7 +84,7 @@ export function ChartPreview({ chartType, rows, columns }: Props) {
 
   if (!dimKey || !measureKey) {
     return (
-      <p className="text-sm text-zoru-ink-muted">
+      <p className="text-sm text-[var(--st-text-secondary)]">
         Need at least one dimension and one measure to render this chart.
       </p>
     );

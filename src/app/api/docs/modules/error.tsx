@@ -16,10 +16,10 @@ export default function ErrorBoundary({
   }, [error]);
 
   return (
-    <div className="zoruui min-h-screen bg-zoru-bg text-zoru-ink flex items-center justify-center p-6">
-      <div className="max-w-md w-full bg-zoru-surface border border-zoru-line rounded-[var(--zoru-radius)] p-6 shadow-sm text-center">
+    <div className="zoruui min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] flex items-center justify-center p-6">
+      <div className="max-w-md w-full bg-[var(--st-bg-secondary)] border border-[var(--st-border)] rounded-[var(--zoru-radius)] p-6 shadow-sm text-center">
         <h2 className="text-xl font-semibold mb-2">Something went wrong!</h2>
-        <p className="text-sm text-zoru-ink-muted mb-6">
+        <p className="text-sm text-[var(--st-text-secondary)] mb-6">
           There was an error loading the API modules directory.
         </p>
         <Button onClick={() => reset()} variant="default" className="w-full">

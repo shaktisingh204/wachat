@@ -120,7 +120,7 @@ function StepperHeader({
   const currentIdx = STEPS.findIndex((s) => s.key === current);
 
   return (
-    <ol className="flex flex-col gap-2 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-3 sm:flex-row sm:items-stretch sm:gap-0">
+    <ol className="flex flex-col gap-2 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 sm:flex-row sm:items-stretch sm:gap-0">
       {STEPS.map((step, idx) => {
         const isDone = idx < currentIdx;
         const isCurrent = idx === currentIdx;
@@ -129,19 +129,19 @@ function StepperHeader({
             <li
               className={cn(
                 "flex flex-1 items-start gap-3 rounded-[var(--zoru-radius)] px-3 py-2",
-                isCurrent && "bg-zoru-surface",
+                isCurrent && "bg-[var(--st-bg-secondary)]",
               )}
             >
               <span
                 className={cn(
                   "flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[12px]",
                   isDone &&
-                    "bg-zoru-ink text-zoru-on-primary",
+                    "bg-[var(--st-text)] text-[var(--st-text-inverted)]",
                   isCurrent &&
-                    "border border-zoru-ink bg-zoru-bg text-zoru-ink",
+                    "border border-[var(--st-text)] bg-[var(--st-bg)] text-[var(--st-text)]",
                   !isDone &&
                     !isCurrent &&
-                    "border border-zoru-line bg-zoru-surface-2 text-zoru-ink-muted",
+                    "border border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]",
                 )}
               >
                 {isDone ? (
@@ -154,18 +154,18 @@ function StepperHeader({
                 <p
                   className={cn(
                     "text-[12.5px] leading-none",
-                    isCurrent || isDone ? "text-zoru-ink" : "text-zoru-ink-muted",
+                    isCurrent || isDone ? "text-[var(--st-text)]" : "text-[var(--st-text-secondary)]",
                   )}
                 >
                   {step.label}
                 </p>
-                <p className="mt-1 text-[11px] text-zoru-ink-muted leading-tight">
+                <p className="mt-1 text-[11px] text-[var(--st-text-secondary)] leading-tight">
                   {step.description}
                 </p>
               </div>
             </li>
             {idx !== STEPS.length - 1 ? (
-              <span className="hidden items-center px-1 text-zoru-ink-subtle sm:flex">
+              <span className="hidden items-center px-1 text-[var(--st-text-tertiary)] sm:flex">
                 <ChevronRight className="h-3.5 w-3.5" />
               </span>
             ) : null}
@@ -188,13 +188,13 @@ function ConnectStep({
   return (
     <Card className="p-6">
       <div className="flex flex-col items-start gap-2">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-zoru-line bg-zoru-surface px-3 py-1 text-[11px] text-zoru-ink-muted">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-1 text-[11px] text-[var(--st-text-secondary)]">
           <Sparkles className="h-3 w-3" /> Step 1 of 3
         </span>
-        <h2 className="text-[20px] tracking-tight text-zoru-ink leading-tight">
+        <h2 className="text-[20px] tracking-tight text-[var(--st-text)] leading-tight">
           Connect your Meta account
         </h2>
-        <p className="max-w-2xl text-[13px] text-zoru-ink-muted leading-relaxed">
+        <p className="max-w-2xl text-[13px] text-[var(--st-text-secondary)] leading-relaxed">
           We&apos;ll redirect you to Meta to authorize SabNode. You can grant access
           to multiple Pages at once — you&apos;ll pick which one to manage in the
           next step.
@@ -253,10 +253,10 @@ function ConnectStep({
         ].map((p) => (
           <div
             key={p.title}
-            className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3"
+            className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3"
           >
-            <p className="text-[12px] text-zoru-ink">{p.title}</p>
-            <p className="mt-1 text-[11.5px] text-zoru-ink-muted leading-snug">
+            <p className="text-[12px] text-[var(--st-text)]">{p.title}</p>
+            <p className="mt-1 text-[11.5px] text-[var(--st-text-secondary)] leading-snug">
               {p.body}
             </p>
           </div>
@@ -282,13 +282,13 @@ function PickPageStep({
   return (
     <Card className="p-6">
       <div className="flex flex-col items-start gap-2">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-zoru-line bg-zoru-surface px-3 py-1 text-[11px] text-zoru-ink-muted">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-1 text-[11px] text-[var(--st-text-secondary)]">
           <Sparkles className="h-3 w-3" /> Step 2 of 3
         </span>
-        <h2 className="text-[20px] tracking-tight text-zoru-ink leading-tight">
+        <h2 className="text-[20px] tracking-tight text-[var(--st-text)] leading-tight">
           Pick a page to focus on
         </h2>
-        <p className="max-w-2xl text-[13px] text-zoru-ink-muted leading-relaxed">
+        <p className="max-w-2xl text-[13px] text-[var(--st-text-secondary)] leading-relaxed">
           Choose which Facebook Page you want to manage now. You can switch
           between pages anytime from the project switcher.
         </p>
@@ -305,8 +305,8 @@ function PickPageStep({
               className={cn(
                 "flex items-start gap-3 rounded-[var(--zoru-radius-lg)] border p-4 text-left transition-colors focus-visible:outline-none",
                 active
-                  ? "border-zoru-ink bg-zoru-surface"
-                  : "border-zoru-line bg-zoru-bg hover:bg-zoru-surface",
+                  ? "border-[var(--st-text)] bg-[var(--st-bg-secondary)]"
+                  : "border-[var(--st-border)] bg-[var(--st-bg)] hover:bg-[var(--st-bg-secondary)]",
               )}
             >
               <Avatar className="h-10 w-10">
@@ -318,14 +318,14 @@ function PickPageStep({
                 </ZoruAvatarFallback>
               </Avatar>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-[13px] text-zoru-ink">{p.name}</p>
-                <p className="mt-0.5 truncate text-[11.5px] text-zoru-ink-muted">
+                <p className="truncate text-[13px] text-[var(--st-text)]">{p.name}</p>
+                <p className="mt-0.5 truncate text-[11.5px] text-[var(--st-text-secondary)]">
                   Page ID: {p.facebookPageId || "—"}
                 </p>
                 <div className="mt-2 flex flex-wrap items-center gap-1.5">
                   {p.adAccountId ? (
                     <Badge variant="outline" className="gap-1">
-                      <CheckCircle2 className="h-3 w-3 text-zoru-success" />
+                      <CheckCircle2 className="h-3 w-3 text-[var(--st-status-ok)]" />
                       Ad account
                     </Badge>
                   ) : (
@@ -346,8 +346,8 @@ function PickPageStep({
                 className={cn(
                   "mt-1 flex h-5 w-5 items-center justify-center rounded-full",
                   active
-                    ? "bg-zoru-ink text-zoru-on-primary"
-                    : "border border-zoru-line bg-zoru-bg",
+                    ? "bg-[var(--st-text)] text-[var(--st-text-inverted)]"
+                    : "border border-[var(--st-border)] bg-[var(--st-bg)]",
                 )}
               >
                 {active ? <CheckCircle2 className="h-3 w-3" /> : null}
@@ -360,12 +360,12 @@ function PickPageStep({
           <Link
             href="/api/auth/meta-suite/login"
             onClick={onConnectAnother}
-            className="flex flex-col items-center justify-center gap-2 rounded-[var(--zoru-radius-lg)] border-2 border-dashed border-zoru-line bg-zoru-bg p-6 text-center transition-colors hover:border-zoru-line-strong hover:bg-zoru-surface"
+            className="flex flex-col items-center justify-center gap-2 rounded-[var(--zoru-radius-lg)] border-2 border-dashed border-[var(--st-border)] bg-[var(--st-bg)] p-6 text-center transition-colors hover:border-[var(--st-border-strong)] hover:bg-[var(--st-bg-secondary)]"
           >
-            <span className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink">
+            <span className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
               <FacebookGlyph className="h-5 w-5" />
             </span>
-            <p className="text-[12.5px] text-zoru-ink">Connect another page</p>
+            <p className="text-[12.5px] text-[var(--st-text)]">Connect another page</p>
           </Link>
         ) : null}
       </div>
@@ -383,13 +383,13 @@ function LinkAssetsStep({
   return (
     <Card className="p-6">
       <div className="flex flex-col items-start gap-2">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-zoru-line bg-zoru-surface px-3 py-1 text-[11px] text-zoru-ink-muted">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-1 text-[11px] text-[var(--st-text-secondary)]">
           <Sparkles className="h-3 w-3" /> Step 3 of 3
         </span>
-        <h2 className="text-[20px] tracking-tight text-zoru-ink leading-tight">
+        <h2 className="text-[20px] tracking-tight text-[var(--st-text)] leading-tight">
           Link your other assets
         </h2>
-        <p className="max-w-2xl text-[13px] text-zoru-ink-muted leading-relaxed">
+        <p className="max-w-2xl text-[13px] text-[var(--st-text-secondary)] leading-relaxed">
           Verify the WhatsApp and Instagram accounts that you&apos;d like to
           manage alongside this Page.
         </p>
@@ -449,13 +449,13 @@ function AssetRow({
   actionLabel: string;
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-4">
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink">
+    <div className="flex items-center gap-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
         {icon}
       </span>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-[13px] text-zoru-ink">{title}</p>
-        <p className="mt-0.5 truncate text-[11.5px] text-zoru-ink-muted">
+        <p className="truncate text-[13px] text-[var(--st-text)]">{title}</p>
+        <p className="mt-0.5 truncate text-[11.5px] text-[var(--st-text-secondary)]">
           {subtitle}
         </p>
       </div>
@@ -464,7 +464,7 @@ function AssetRow({
         className="gap-1"
       >
         {status === "connected" ? (
-          <CheckCircle2 className="h-3 w-3 text-zoru-success" />
+          <CheckCircle2 className="h-3 w-3 text-[var(--st-status-ok)]" />
         ) : (
           <Circle className="h-2.5 w-2.5" />
         )}
@@ -595,7 +595,7 @@ export default function FacebookSetupPage() {
 
       <PageHeader className="mt-5" bordered={false}>
         <ZoruPageHeading>
-          <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-zoru-ink-subtle">
+          <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--st-text-tertiary)]">
             Meta Suite onboarding
           </p>
           <ZoruPageTitle>Get connected in three steps</ZoruPageTitle>

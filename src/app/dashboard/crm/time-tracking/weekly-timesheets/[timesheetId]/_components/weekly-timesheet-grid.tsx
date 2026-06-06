@@ -293,7 +293,7 @@ export function WeeklyTimesheetGrid({ timesheetId, dataPromise }: WeeklyTimeshee
                 Approve
               </Button>
               <Button variant="outline" onClick={() => setRejecting(true)}>
-                <X className="h-4 w-4 text-zoru-danger-ink" strokeWidth={1.75} />
+                <X className="h-4 w-4 text-[var(--st-danger)]" strokeWidth={1.75} />
                 Reject
               </Button>
             </>
@@ -312,18 +312,18 @@ export function WeeklyTimesheetGrid({ timesheetId, dataPromise }: WeeklyTimeshee
     >
       {isLoading && !ts ? (
         <Card className="p-6">
-          <div className="h-40 w-full animate-pulse rounded bg-zoru-surface-2" />
+          <div className="h-40 w-full animate-pulse rounded bg-[var(--st-bg-muted)]" />
         </Card>
       ) : !ts ? (
         <Card className="p-6">
-          <p className="text-center text-[13px] text-zoru-ink-muted">
+          <p className="text-center text-[13px] text-[var(--st-text-secondary)]">
             Timesheet not found.
           </p>
         </Card>
       ) : (
         <>
           {ts.reason ? (
-            <div className="rounded-lg border border-zoru-line bg-zoru-surface-2/40 p-3 text-[12.5px] text-zoru-danger-ink">
+            <div className="rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)]/40 p-3 text-[12.5px] text-[var(--st-danger)]">
               <span className="font-semibold">Rejection reason: </span>
               {ts.reason}
             </div>
@@ -332,14 +332,14 @@ export function WeeklyTimesheetGrid({ timesheetId, dataPromise }: WeeklyTimeshee
           <Card className="p-6">
             <div className="mb-3 flex flex-wrap items-end gap-3">
               <div className="min-w-[220px] flex-1">
-                <Label className="text-[11px] uppercase tracking-[0.18em] text-zoru-ink-muted">
+                <Label className="text-[11px] uppercase tracking-[0.18em] text-[var(--st-text-secondary)]">
                   Add Task Row
                 </Label>
                 <Input
                   value={newTaskId}
                   onChange={(e) => setNewTaskId(e.target.value)}
                   placeholder="Task ID (optional — leave blank for general)"
-                  className="mt-1 h-9 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="mt-1 h-9 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 />
               </div>
               <Button variant="outline" onClick={addTaskRow}>
@@ -348,25 +348,25 @@ export function WeeklyTimesheetGrid({ timesheetId, dataPromise }: WeeklyTimeshee
               </Button>
             </div>
 
-            <div className="overflow-x-auto rounded-lg border border-zoru-line">
+            <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
               <table className="w-full text-[13px]">
-                <thead className="bg-zoru-surface-2">
+                <thead className="bg-[var(--st-bg-muted)]">
                   <tr>
-                    <th className="p-3 text-left text-[11.5px] font-medium uppercase tracking-[0.1em] text-zoru-ink-muted">
+                    <th className="p-3 text-left text-[11.5px] font-medium uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
                       Task
                     </th>
                     {weekDates.map((d, i) => (
                       <th
                         key={d}
-                        className="p-3 text-center text-[11.5px] font-medium uppercase tracking-[0.1em] text-zoru-ink-muted"
+                        className="p-3 text-center text-[11.5px] font-medium uppercase tracking-[0.1em] text-[var(--st-text-secondary)]"
                       >
                         <div>{DAY_LABELS[i]}</div>
-                        <div className="text-[10.5px] normal-case tracking-normal text-zoru-ink-muted">
+                        <div className="text-[10.5px] normal-case tracking-normal text-[var(--st-text-secondary)]">
                           {d.slice(5)}
                         </div>
                       </th>
                     ))}
-                    <th className="p-3 text-right text-[11.5px] font-medium uppercase tracking-[0.1em] text-zoru-ink-muted">
+                    <th className="p-3 text-right text-[11.5px] font-medium uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
                       Total
                     </th>
                     <th className="w-10" />
@@ -377,7 +377,7 @@ export function WeeklyTimesheetGrid({ timesheetId, dataPromise }: WeeklyTimeshee
                     <tr>
                       <td
                         colSpan={weekDates.length + 3}
-                        className="p-6 text-center text-[13px] text-zoru-ink-muted"
+                        className="p-6 text-center text-[13px] text-[var(--st-text-secondary)]"
                       >
                         No rows — add a task ID above to start logging.
                       </td>
@@ -393,11 +393,11 @@ export function WeeklyTimesheetGrid({ timesheetId, dataPromise }: WeeklyTimeshee
                       return (
                         <tr
                           key={tid}
-                          className="border-t border-zoru-line"
+                          className="border-t border-[var(--st-border)]"
                         >
-                          <td className="p-2 text-zoru-ink">
+                          <td className="p-2 text-[var(--st-text)]">
                             {tid === '__no_task__' ? (
-                              <span className="text-zoru-ink-muted">
+                              <span className="text-[var(--st-text-secondary)]">
                                 (General)
                               </span>
                             ) : (
@@ -414,18 +414,18 @@ export function WeeklyTimesheetGrid({ timesheetId, dataPromise }: WeeklyTimeshee
                                 onChange={(e) =>
                                   updateCell(tid, d, e.target.value)
                                 }
-                                className="h-9 w-20 rounded-lg border-zoru-line bg-zoru-bg text-center text-[13px] tabular-nums"
+                                className="h-9 w-20 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-center text-[13px] tabular-nums"
                               />
                             </td>
                           ))}
-                          <td className="p-2 text-right font-mono tabular-nums text-zoru-ink">
+                          <td className="p-2 text-right font-mono tabular-nums text-[var(--st-text)]">
                             {rowTotal.toFixed(2)}
                           </td>
                           <td className="p-2">
                             <button
                               type="button"
                               onClick={() => removeTaskRow(tid)}
-                              className="text-zoru-ink-muted hover:text-zoru-danger-ink"
+                              className="text-[var(--st-text-secondary)] hover:text-[var(--st-danger)]"
                               aria-label="Remove row"
                             >
                               <Trash2
@@ -439,20 +439,20 @@ export function WeeklyTimesheetGrid({ timesheetId, dataPromise }: WeeklyTimeshee
                     })
                   )}
                 </tbody>
-                <tfoot className="bg-zoru-surface-2">
-                  <tr className="border-t border-zoru-line">
-                    <td className="p-3 text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
+                <tfoot className="bg-[var(--st-bg-muted)]">
+                  <tr className="border-t border-[var(--st-border)]">
+                    <td className="p-3 text-[11.5px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
                       Day totals
                     </td>
                     {weekDates.map((d) => (
                       <td
                         key={d}
-                        className="p-3 text-center font-mono tabular-nums text-zoru-ink"
+                        className="p-3 text-center font-mono tabular-nums text-[var(--st-text)]"
                       >
                         {(totals.dayTotals[d] || 0).toFixed(2)}
                       </td>
                     ))}
-                    <td className="p-3 text-right font-mono font-semibold tabular-nums text-zoru-ink">
+                    <td className="p-3 text-right font-mono font-semibold tabular-nums text-[var(--st-text)]">
                       {totals.grand.toFixed(2)}
                     </td>
                     <td />
@@ -475,8 +475,8 @@ export function WeeklyTimesheetGrid({ timesheetId, dataPromise }: WeeklyTimeshee
       >
         <ZoruDialogContent className="max-w-md">
           <ZoruDialogHeader>
-            <ZoruDialogTitle className="text-zoru-ink">Reject timesheet</ZoruDialogTitle>
-            <ZoruDialogDescription className="text-zoru-ink-muted">
+            <ZoruDialogTitle className="text-[var(--st-text)]">Reject timesheet</ZoruDialogTitle>
+            <ZoruDialogDescription className="text-[var(--st-text-secondary)]">
               Give a reason so the employee can revise and resubmit.
             </ZoruDialogDescription>
           </ZoruDialogHeader>
@@ -485,7 +485,7 @@ export function WeeklyTimesheetGrid({ timesheetId, dataPromise }: WeeklyTimeshee
             value={rejectReason}
             onChange={(e) => setRejectReason(e.target.value)}
             placeholder="Reason…"
-            className="rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+            className="rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
           />
           <ZoruDialogFooter className="gap-2">
             <Button

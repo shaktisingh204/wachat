@@ -74,10 +74,10 @@ export function RepeaterBlockEditor({ settings, onUpdate }: { settings: any, onU
                     <ZoruAccordionTrigger>Repeater Items</ZoruAccordionTrigger>
                     <ZoruAccordionContent className="space-y-4 pt-2">
                         {items.map((item: RepeaterItem, index: number) => (
-                            <Card key={item.id} className="relative bg-zoru-surface">
+                            <Card key={item.id} className="relative bg-[var(--st-bg-secondary)]">
                                 <ZoruCardContent className="p-4 space-y-3">
                                     <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-7 w-7" onClick={() => removeItem(index)}>
-                                        <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                        <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                     </Button>
                                     <h4 className="font-medium">Item {index + 1}</h4>
                                     <div className="space-y-2">

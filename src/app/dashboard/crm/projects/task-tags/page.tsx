@@ -34,7 +34,7 @@ export default function TaskTagsPage() {
           key: 'color',
           label: 'Color',
           render: (r) =>
-            r.color ? <span className="inline-flex items-center gap-2"><span className="h-3 w-3 rounded-full border border-zoru-line" style={{ backgroundColor: r.color }} />{r.color}</span> : '—',
+            r.color ? <span className="inline-flex items-center gap-2"><span className="h-3 w-3 rounded-full border border-[var(--st-border)]" style={{ backgroundColor: r.color }} />{r.color}</span> : '—',
         },
       ]}
       fields={[

@@ -37,7 +37,7 @@ export function FunnelTile({
         <div className="flex items-center gap-2 text-xs">
           <Link
             href={drilldownHref}
-            className="text-zoru-ink-muted hover:text-zoru-ink"
+            className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
           >
             Open in logs
           </Link>
@@ -54,19 +54,19 @@ export function FunnelTile({
             const widthPct = top > 0 ? Math.max(2, (s.value / top) * 100) : 0;
             return (
               <li key={s.step} className="flex items-center gap-3">
-                <span className="w-24 text-sm text-zoru-ink-muted">
+                <span className="w-24 text-sm text-[var(--st-text-secondary)]">
                   {s.step}
                 </span>
-                <div className="relative h-7 flex-1 overflow-hidden rounded bg-zoru-surface-2">
+                <div className="relative h-7 flex-1 overflow-hidden rounded bg-[var(--st-bg-muted)]">
                   <div
-                    className="h-full bg-zoru-ink/70"
+                    className="h-full bg-[var(--st-text)]/70"
                     style={{ width: `${widthPct}%` }}
                   />
-                  <span className="absolute inset-0 flex items-center px-2 text-xs font-medium text-zoru-ink">
+                  <span className="absolute inset-0 flex items-center px-2 text-xs font-medium text-[var(--st-text)]">
                     {s.value.toLocaleString()}
                   </span>
                 </div>
-                <span className="w-16 text-right text-xs text-zoru-ink-muted">
+                <span className="w-16 text-right text-xs text-[var(--st-text-secondary)]">
                   {s.drop > 0 ? `−${s.drop}%` : "—"}
                 </span>
               </li>

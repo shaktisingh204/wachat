@@ -128,7 +128,7 @@ export default function SabassistNewSessionPage() {
       <div className="mb-4">
         <Link
           href="/dashboard/sabvoice/assist"
-          className="text-sm text-zoru-ink-muted inline-flex items-center gap-1"
+          className="text-sm text-[var(--st-text-secondary)] inline-flex items-center gap-1"
         >
           <ArrowLeft className="h-4 w-4" /> All sessions
         </Link>
@@ -137,7 +137,7 @@ export default function SabassistNewSessionPage() {
       {issued ? (
         <Card className="p-6 max-w-2xl space-y-4">
           <div className="flex items-center gap-2">
-            <ScreenShare className="h-5 w-5 text-zoru-brand" />
+            <ScreenShare className="h-5 w-5 text-[var(--st-accent)]" />
             <div className="font-medium">Session ready</div>
             <Badge variant="default">Token issued</Badge>
           </div>
@@ -170,7 +170,7 @@ export default function SabassistNewSessionPage() {
               <div>
                 <Label>One-time PIN</Label>
                 <div className="flex items-center gap-2 mt-1">
-                  <div className="font-mono text-2xl tracking-widest bg-zoru-surface-2 px-4 py-2 rounded">
+                  <div className="font-mono text-2xl tracking-widest bg-[var(--st-bg-muted)] px-4 py-2 rounded">
                     {issued.oneTimePin}
                   </div>
                   <Button
@@ -184,7 +184,7 @@ export default function SabassistNewSessionPage() {
                 </div>
               </div>
             )}
-            <div className="text-xs text-zoru-ink-muted">
+            <div className="text-xs text-[var(--st-text-secondary)]">
               Expires {new Date(issued.expiresAt).toLocaleString()}
             </div>
           </div>
@@ -207,15 +207,15 @@ export default function SabassistNewSessionPage() {
                 type="button"
                 className={`p-3 rounded-lg border text-left transition-colors ${
                   mode === 'attended'
-                    ? 'border-zoru-brand bg-zoru-surface-2'
-                    : 'border-zoru-border'
+                    ? 'border-[var(--st-accent)] bg-[var(--st-bg-muted)]'
+                    : 'border-[var(--st-border)]'
                 }`}
                 onClick={() => setMode('attended')}
               >
                 <div className="flex items-center gap-2 font-medium">
                   <KeyRound className="h-4 w-4" /> Attended
                 </div>
-                <div className="text-xs text-zoru-ink-muted mt-1">
+                <div className="text-xs text-[var(--st-text-secondary)] mt-1">
                   Customer must enter a 6-digit PIN and click allow.
                 </div>
               </button>
@@ -223,15 +223,15 @@ export default function SabassistNewSessionPage() {
                 type="button"
                 className={`p-3 rounded-lg border text-left transition-colors ${
                   mode === 'unattended'
-                    ? 'border-zoru-brand bg-zoru-surface-2'
-                    : 'border-zoru-border'
+                    ? 'border-[var(--st-accent)] bg-[var(--st-bg-muted)]'
+                    : 'border-[var(--st-border)]'
                 }`}
                 onClick={() => setMode('unattended')}
               >
                 <div className="flex items-center gap-2 font-medium">
                   <ServerCog className="h-4 w-4" /> Unattended
                 </div>
-                <div className="text-xs text-zoru-ink-muted mt-1">
+                <div className="text-xs text-[var(--st-text-secondary)] mt-1">
                   Pre-registered device with cached consent.
                 </div>
               </button>
@@ -301,9 +301,9 @@ export default function SabassistNewSessionPage() {
                 </SelectContent>
               </Select>
               {devices.length === 0 && (
-                <div className="text-xs text-zoru-ink-muted mt-1">
+                <div className="text-xs text-[var(--st-text-secondary)] mt-1">
                   No devices yet —{' '}
-                  <Link href="/dashboard/sabvoice/assist/devices" className="text-zoru-brand">
+                  <Link href="/dashboard/sabvoice/assist/devices" className="text-[var(--st-accent)]">
                     register one
                   </Link>
                   .

@@ -83,7 +83,7 @@ export function QuickAssignDialog({
                         <select
                             name="employee_id"
                             required
-                            className="flex h-10 w-full items-center justify-between rounded-md border border-zoru-line bg-transparent px-3 py-2 text-[14px] ring-offset-zoru-surface placeholder:text-zoru-ink-muted focus:outline-none focus:ring-2 focus:ring-zoru-line focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="flex h-10 w-full items-center justify-between rounded-md border border-[var(--st-border)] bg-transparent px-3 py-2 text-[14px] ring-offset-zoru-surface placeholder:text-[var(--st-text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--st-border)] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                         >
                             <option value="">Select employee...</option>
                             {employees.map((emp) => (

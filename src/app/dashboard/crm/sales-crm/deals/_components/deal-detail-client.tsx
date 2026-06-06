@@ -187,22 +187,22 @@ export function DealDetailClient({
           {/* Main profile layout (Overview, breakdown, products) */}
           <div className="lg:col-span-2 space-y-6">
             {/* High-density Deal Overview card */}
-            <Card className="p-6 border border-zoru-line bg-zoru-surface">
-              <h2 className="text-[14px] font-semibold uppercase tracking-wider text-zoru-ink-muted mb-4 flex items-center gap-2">
-                <Layers className="h-4 w-4 text-zoru-ink" /> Deal Details &amp; Assignments
+            <Card className="p-6 border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+              <h2 className="text-[14px] font-semibold uppercase tracking-wider text-[var(--st-text-secondary)] mb-4 flex items-center gap-2">
+                <Layers className="h-4 w-4 text-[var(--st-text)]" /> Deal Details &amp; Assignments
               </h2>
               <div className="grid gap-4 md:grid-cols-2">
                 <DetailField label="Deal Owner">
-                  <span className="font-medium text-zoru-ink flex items-center gap-1.5">
-                    <User className="h-3.5 w-3.5 text-zoru-ink-muted" />
+                  <span className="font-medium text-[var(--st-text)] flex items-center gap-1.5">
+                    <User className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                     {deal.ownerId ? `User ${String(deal.ownerId).slice(-6)}` : '—'}
                   </span>
                 </DetailField>
                 <DetailField label="Target Pipeline">
-                  <span className="font-semibold text-zoru-ink">{deal.pipelineId || '—'}</span>
+                  <span className="font-semibold text-[var(--st-text)]">{deal.pipelineId || '—'}</span>
                 </DetailField>
                 <DetailField label="Client Label">
-                  <span className="font-semibold text-zoru-ink">{deal.clientLabel || '—'}</span>
+                  <span className="font-semibold text-[var(--st-text)]">{deal.clientLabel || '—'}</span>
                 </DetailField>
                 <DetailField label="Lead Source">{deal.leadSource || '—'}</DetailField>
                 <DetailField label="Priority Level">
@@ -217,9 +217,9 @@ export function DealDetailClient({
             </Card>
 
             {/* Bulky Financials / Forecasting Cards with Harmonious HSL tailwinds */}
-            <Card className="p-6 border border-zoru-line bg-zoru-surface">
-              <h2 className="text-[14px] font-semibold uppercase tracking-wider text-zoru-ink-muted mb-4 flex items-center gap-2">
-                <TrendingUp className="h-4 w-4 text-zoru-success-ink" /> Revenue &amp; Forecast breakdown
+            <Card className="p-6 border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+              <h2 className="text-[14px] font-semibold uppercase tracking-wider text-[var(--st-text-secondary)] mb-4 flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-[var(--st-status-ok)]" /> Revenue &amp; Forecast breakdown
               </h2>
               <div className="grid gap-4 sm:grid-cols-3">
                 <Stat label="Total Amount" value={fmtMoney(amount, dealCurrency)} icon={<DollarSign className="h-4 w-4" />} />
@@ -233,13 +233,13 @@ export function DealDetailClient({
 
             {/* Associated Products table */}
             {Array.isArray(deal.products) && deal.products.length > 0 && (
-              <Card className="p-6 border border-zoru-line bg-zoru-surface">
-                <h2 className="text-[14px] font-semibold uppercase tracking-wider text-zoru-ink-muted mb-4">
+              <Card className="p-6 border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+                <h2 className="text-[14px] font-semibold uppercase tracking-wider text-[var(--st-text-secondary)] mb-4">
                   Line Items / Products Configured
                 </h2>
-                <div className="overflow-x-auto rounded-lg border border-zoru-line bg-zoru-surface-2/15">
+                <div className="overflow-x-auto rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)]/15">
                   <table className="w-full text-[12.5px] leading-tight">
-                    <thead className="bg-zoru-surface-2/50 border-b border-zoru-line text-zoru-ink-muted">
+                    <thead className="bg-[var(--st-bg-muted)]/50 border-b border-[var(--st-border)] text-[var(--st-text-secondary)]">
                       <tr>
                         <th className="p-3 text-left">Product Name</th>
                         <th className="p-3 text-right">Qty</th>
@@ -251,11 +251,11 @@ export function DealDetailClient({
                       {deal.products.map((p: any, i: number) => {
                         const total = (p.quantity ?? 0) * (p.price ?? 0);
                         return (
-                          <tr key={i} className="border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2/20">
-                            <td className="p-3 font-medium text-zoru-ink">{p.name}</td>
+                          <tr key={i} className="border-b border-[var(--st-border)] last:border-0 hover:bg-[var(--st-bg-muted)]/20">
+                            <td className="p-3 font-medium text-[var(--st-text)]">{p.name}</td>
                             <td className="p-3 text-right font-mono tabular-nums">{p.quantity}</td>
                             <td className="p-3 text-right font-mono tabular-nums">{fmtMoney(p.price, dealCurrency)}</td>
-                            <td className="p-3 text-right font-mono font-semibold tabular-nums text-zoru-ink">{fmtMoney(total, dealCurrency)}</td>
+                            <td className="p-3 text-right font-mono font-semibold tabular-nums text-[var(--st-text)]">{fmtMoney(total, dealCurrency)}</td>
                           </tr>
                         );
                       })}
@@ -267,7 +267,7 @@ export function DealDetailClient({
 
             {/* 360-Timeline combined view */}
             <div className="space-y-4">
-              <h2 className="text-[15px] font-semibold text-zoru-ink px-1">Engagement &amp; System Activity logs</h2>
+              <h2 className="text-[15px] font-semibold text-[var(--st-text)] px-1">Engagement &amp; System Activity logs</h2>
               <Crm360Timeline
                 items={timelineItems}
                 onAddComment={handleAddComment}
@@ -279,8 +279,8 @@ export function DealDetailClient({
           {/* Right quick-action sidebar */}
           <div className="space-y-6">
             {/* Progress Stepper tracking stage */}
-            <Card className="p-5 border border-zoru-line bg-zoru-surface">
-              <h3 className="text-[13px] font-semibold uppercase tracking-wider text-zoru-ink-muted mb-4">
+            <Card className="p-5 border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+              <h3 className="text-[13px] font-semibold uppercase tracking-wider text-[var(--st-text-secondary)] mb-4">
                 Pipeline Stages
               </h3>
               <ol className="space-y-2">
@@ -291,19 +291,19 @@ export function DealDetailClient({
                       key={s}
                       className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-[12.5px] transition-colors ${
                         isCurrent
-                          ? 'bg-zoru-ink/10 border border-primary/20 font-semibold text-zoru-ink shadow-sm'
-                          : 'text-zoru-ink-muted hover:bg-zoru-surface-2/20'
+                          ? 'bg-[var(--st-text)]/10 border border-primary/20 font-semibold text-[var(--st-text)] shadow-sm'
+                          : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)]/20'
                       }`}
                     >
                       <span
                         className={`inline-block h-2 w-2 rounded-full ${
-                          isCurrent ? 'bg-zoru-ink animate-pulse' : 'bg-zoru-line'
+                          isCurrent ? 'bg-[var(--st-text)] animate-pulse' : 'bg-[var(--st-border)]'
                         }`}
                         aria-hidden
                       />
                       {s}
                       {isCurrent ? (
-                        <span className="ml-auto text-[10px] tracking-wider uppercase font-bold text-zoru-ink">
+                        <span className="ml-auto text-[10px] tracking-wider uppercase font-bold text-[var(--st-text)]">
                           current
                         </span>
                       ) : null}
@@ -314,8 +314,8 @@ export function DealDetailClient({
             </Card>
 
             {/* At a glance controls */}
-            <Card className="p-5 border border-zoru-line bg-zoru-surface">
-              <h3 className="text-[13px] font-semibold uppercase tracking-wider text-zoru-ink-muted mb-3">
+            <Card className="p-5 border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+              <h3 className="text-[13px] font-semibold uppercase tracking-wider text-[var(--st-text-secondary)] mb-3">
                 At a glance
               </h3>
               <DealQuickEdits
@@ -325,20 +325,20 @@ export function DealDetailClient({
                 status={dealStatus}
                 stages={stages}
               />
-              <div className="mt-4 pt-3 border-t border-zoru-line space-y-2 text-[12.5px]">
+              <div className="mt-4 pt-3 border-t border-[var(--st-border)] space-y-2 text-[12.5px]">
                 <div className="flex items-center justify-between">
-                  <span className="text-zoru-ink-subtle">Stage age</span>
-                  <span className="font-mono text-zoru-ink font-semibold">
+                  <span className="text-[var(--st-text-tertiary)]">Stage age</span>
+                  <span className="font-mono text-[var(--st-text)] font-semibold">
                     {stageAge != null ? `${stageAge} days` : '—'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-zoru-ink-subtle">Created At</span>
-                  <span className="font-semibold text-zoru-ink">{fmtDate(deal.createdAt)}</span>
+                  <span className="text-[var(--st-text-tertiary)]">Created At</span>
+                  <span className="font-semibold text-[var(--st-text)]">{fmtDate(deal.createdAt)}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-zoru-ink-subtle">Last Updated</span>
-                  <span className="font-semibold text-zoru-ink">{fmtDate(deal.updatedAt)}</span>
+                  <span className="text-[var(--st-text-tertiary)]">Last Updated</span>
+                  <span className="font-semibold text-[var(--st-text)]">{fmtDate(deal.updatedAt)}</span>
                 </div>
               </div>
             </Card>
@@ -388,22 +388,22 @@ export function DealDetailClient({
 function DetailField({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-1">
-      <div className="text-[11px] font-bold uppercase tracking-wider text-zoru-ink-subtle">
+      <div className="text-[11px] font-bold uppercase tracking-wider text-[var(--st-text-tertiary)]">
         {label}
       </div>
-      <div className="text-[13px] text-zoru-ink">{children}</div>
+      <div className="text-[13px] text-[var(--st-text)]">{children}</div>
     </div>
   );
 }
 
 function Stat({ label, value, icon }: { label: string; value: React.ReactNode; icon?: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-zoru-line bg-zoru-surface-2/20 px-4 py-3 flex items-start justify-between shadow-[var(--zoru-shadow-sm)]">
+    <div className="rounded-xl border border-[var(--st-border)] bg-[var(--st-bg-muted)]/20 px-4 py-3 flex items-start justify-between shadow-[var(--zoru-shadow-sm)]">
       <div className="space-y-1">
-        <dt className="text-[10.5px] font-bold uppercase tracking-wider text-zoru-ink-subtle">{label}</dt>
-        <dd className="font-mono font-bold text-[15px] tabular-nums text-zoru-ink">{value}</dd>
+        <dt className="text-[10.5px] font-bold uppercase tracking-wider text-[var(--st-text-tertiary)]">{label}</dt>
+        <dd className="font-mono font-bold text-[15px] tabular-nums text-[var(--st-text)]">{value}</dd>
       </div>
-      {icon && <span className="text-zoru-ink opacity-80 mt-0.5">{icon}</span>}
+      {icon && <span className="text-[var(--st-text)] opacity-80 mt-0.5">{icon}</span>}
     </div>
   );
 }

@@ -660,12 +660,12 @@ const userSettingsItems = [
 ];
 
 const FullPageSkeleton = () => (
-    <div className="flex h-screen w-screen bg-zoru-surface p-2 gap-2">
-        <div className="w-16 rounded-lg bg-zoru-surface p-2"><Skeleton className="h-full w-full" /></div>
-        <div className="w-60 rounded-lg bg-zoru-surface p-2"><Skeleton className="h-full w-full" /></div>
+    <div className="flex h-screen w-screen bg-[var(--st-bg-secondary)] p-2 gap-2">
+        <div className="w-16 rounded-lg bg-[var(--st-bg-secondary)] p-2"><Skeleton className="h-full w-full" /></div>
+        <div className="w-60 rounded-lg bg-[var(--st-bg-secondary)] p-2"><Skeleton className="h-full w-full" /></div>
         <div className="flex-1 flex flex-col gap-2">
-            <div className="h-16 rounded-lg bg-zoru-surface p-4"><Skeleton className="h-full w-full" /></div>
-            <div className="flex-1 rounded-lg bg-zoru-surface p-4"><Skeleton className="h-full w-full" /></div>
+            <div className="h-16 rounded-lg bg-[var(--st-bg-secondary)] p-4"><Skeleton className="h-full w-full" /></div>
+            <div className="flex-1 rounded-lg bg-[var(--st-bg-secondary)] p-4"><Skeleton className="h-full w-full" /></div>
         </div>
     </div>
 );
@@ -821,8 +821,8 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
 
     return (
         <SidebarProvider>
-            <div className={cn("admin-dashboard flex h-screen w-full flex-col bg-zoru-surface-2/30", appRailPosition === 'top' ? 'app-rail-top' : 'app-rail-left')}>
-                <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between gap-4 border-b bg-zoru-surface px-4">
+            <div className={cn("admin-dashboard flex h-screen w-full flex-col bg-[var(--st-bg-muted)]/30", appRailPosition === 'top' ? 'app-rail-top' : 'app-rail-left')}>
+                <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between gap-4 border-b bg-[var(--st-bg-secondary)] px-4">
                     <div className="flex items-center gap-2">
                         <SidebarTrigger>
                             <Button variant="ghost" size="icon" className="md:hidden">

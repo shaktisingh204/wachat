@@ -24,14 +24,14 @@ export function UrlShortenerGeoAnalytics({ urls }: { urls: WithId<ShortUrl>[] })
 
   return (
     <Card className="p-4">
-      <div className="text-[11px] uppercase tracking-wider text-zoru-ink-muted mb-2">
+      <div className="text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)] mb-2">
         Geographic Analytics (Top Countries)
       </div>
       <div className="space-y-2">
         {topCountries.map(([country, count]) => (
           <div key={country} className="flex items-center justify-between text-sm">
-            <span className="text-zoru-ink">{country}</span>
-            <span className="font-mono text-zoru-ink-muted">{count.toLocaleString()} clicks</span>
+            <span className="text-[var(--st-text)]">{country}</span>
+            <span className="font-mono text-[var(--st-text-secondary)]">{count.toLocaleString()} clicks</span>
           </div>
         ))}
       </div>

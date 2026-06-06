@@ -141,12 +141,12 @@ export default async function MarketplaceQueuePage({ searchParams }: PageProps) 
       {/* Header */}
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-zoru-ink mb-1">
+          <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-[var(--st-text)] mb-1">
             <ShieldCheck className="h-3.5 w-3.5" />
             Admin · SabFlow Marketplace
           </div>
-          <h1 className="text-2xl font-bold text-zoru-ink">Review Queue</h1>
-          <p className="text-sm text-zoru-ink-muted mt-1">
+          <h1 className="text-2xl font-bold text-[var(--st-text)]">Review Queue</h1>
+          <p className="text-sm text-[var(--st-text-secondary)] mt-1">
             Approve or reject user-submitted workflow templates.
             {total > 0 && ` ${total} submission${total === 1 ? '' : 's'} in this view.`}
           </p>
@@ -154,7 +154,7 @@ export default async function MarketplaceQueuePage({ searchParams }: PageProps) 
       </div>
 
       {/* Status filter tabs */}
-      <div className="flex gap-1 border-b border-zoru-line">
+      <div className="flex gap-1 border-b border-[var(--st-border)]">
         {tabs.map((tab) => {
           const isActive =
             (tab.value === '' && !statusFilter) || tab.value === statusFilter;
@@ -169,8 +169,8 @@ export default async function MarketplaceQueuePage({ searchParams }: PageProps) 
               className={[
                 'px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors',
                 isActive
-                  ? 'border-zoru-line text-zoru-ink'
-                  : 'border-transparent text-zoru-ink-muted hover:text-zoru-ink hover:border-zoru-line',
+                  ? 'border-[var(--st-border)] text-[var(--st-text)]'
+                  : 'border-transparent text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:border-[var(--st-border)]',
               ].join(' ')}
             >
               {tab.label}
@@ -181,7 +181,7 @@ export default async function MarketplaceQueuePage({ searchParams }: PageProps) 
 
       {/* Content */}
       {loadError ? (
-        <div className="rounded-xl border border-zoru-line bg-zoru-surface-2 p-4 text-sm text-zoru-ink">
+        <div className="rounded-xl border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 text-sm text-[var(--st-text)]">
           {loadError}
         </div>
       ) : (

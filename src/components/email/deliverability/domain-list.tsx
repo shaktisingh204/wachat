@@ -118,7 +118,7 @@ export function DomainList({ domains, onUpdated }: DomainListProps) {
                           <ChevronDown className="h-4 w-4 transition-transform data-[state=open]:rotate-180" />
                         </Button>
                       </ZoruCollapsibleTrigger>
-                      <span className="font-medium text-zoru-ink">{d.domain}</span>
+                      <span className="font-medium text-[var(--st-text)]">{d.domain}</span>
                     </div>
                     <div>
                       {d.verified ? (
@@ -157,7 +157,7 @@ export function DomainList({ domains, onUpdated }: DomainListProps) {
                     </div>
                   </div>
                   <ZoruCollapsibleContent>
-                    <div className="space-y-2 border-t border-zoru-line bg-zoru-surface-2 p-4">
+                    <div className="space-y-2 border-t border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4">
                       <DnsRecordRow record={d.spf} label="SPF" />
                       <DnsRecordRow record={d.dkim} label={`DKIM${d.dkimSelector ? ` (${d.dkimSelector})` : ''}`} />
                       <DnsRecordRow record={d.dmarc} label="DMARC" />

@@ -45,8 +45,8 @@ export default async function AttendancePortalPage() {
   }
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-zoru-bg text-zoru-ink">
-      <header className="border-b border-zoru-border bg-white px-6 py-4 flex items-center justify-between shadow-sm">
+    <div className="flex min-h-screen w-full flex-col bg-[var(--st-bg)] text-[var(--st-text)]">
+      <header className="border-b border-[var(--st-border)] bg-white px-6 py-4 flex items-center justify-between shadow-sm">
         <h1 className="text-xl font-bold font-heading">Time Tracking Portal</h1>
         <div className="text-sm font-medium flex items-center gap-2">
           {session.user.image && (
@@ -62,7 +62,7 @@ export default async function AttendancePortalPage() {
              todayAttendance={todayAttendance}
            />
            {error && (
-             <div className="text-zoru-ink text-center mt-4 text-sm">{error}</div>
+             <div className="text-[var(--st-text)] text-center mt-4 text-sm">{error}</div>
            )}
         </div>
       </main>

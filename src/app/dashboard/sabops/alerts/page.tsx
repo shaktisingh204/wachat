@@ -61,7 +61,7 @@ export default function AlertsPage() {
                                         </div>
                                     </TableCell>
                                     <TableCell>{alert.source}</TableCell>
-                                    <TableCell className="text-sm text-zoru-muted-foreground">{alert.time}</TableCell>
+                                    <TableCell className="text-sm text-[var(--st-text-secondary)]">{alert.time}</TableCell>
                                     <TableCell className="text-right">
                                         <Button variant="secondary" size="sm">Resolve</Button>
                                     </TableCell>

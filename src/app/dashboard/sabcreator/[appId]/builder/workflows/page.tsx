@@ -66,7 +66,7 @@ export default async function WorkflowsListPage({
             >
               <div>
                 <div className="font-medium">{w.name}</div>
-                <div className="text-xs text-zoru-ink-muted">
+                <div className="text-xs text-[var(--st-text-secondary)]">
                   trigger: {w.trigger.kind}
                   {w.sabflowRefId
                     ? ` · sabflow ${w.sabflowRefId.slice(-6)}`

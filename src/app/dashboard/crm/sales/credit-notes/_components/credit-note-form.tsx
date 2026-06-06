@@ -257,13 +257,13 @@ export function CreditNoteForm({ initial }: CreditNoteFormProps) {
 
       {/* ─── Header ─────────────────────────────────────────────── */}
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Credit note
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <Label htmlFor="cnNo">
-              Credit note # <span className="text-zoru-danger-ink">*</span>
+              Credit note # <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <Input
               id="cnNo"
@@ -276,7 +276,7 @@ export function CreditNoteForm({ initial }: CreditNoteFormProps) {
           </div>
           <div>
             <Label htmlFor="date">
-              Date <span className="text-zoru-danger-ink">*</span>
+              Date <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <Input
               id="date"
@@ -289,7 +289,7 @@ export function CreditNoteForm({ initial }: CreditNoteFormProps) {
           </div>
           <div>
             <Label>
-              Customer <span className="text-zoru-danger-ink">*</span>
+              Customer <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <div className="mt-1.5">
               <EntityFormField
@@ -304,11 +304,11 @@ export function CreditNoteForm({ initial }: CreditNoteFormProps) {
             <Label>
               Linked invoice
               {refundMode === 'credit' ? (
-                <span className="ml-1 text-[10.5px] uppercase tracking-wider text-zoru-ink dark:text-zoru-ink-muted">
+                <span className="ml-1 text-[10.5px] uppercase tracking-wider text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
                   apply target
                 </span>
               ) : (
-                <span className="ml-1 text-[10.5px] uppercase tracking-wider text-zoru-ink-muted">
+                <span className="ml-1 text-[10.5px] uppercase tracking-wider text-[var(--st-text-secondary)]">
                   optional reference
                 </span>
               )}
@@ -326,7 +326,7 @@ export function CreditNoteForm({ initial }: CreditNoteFormProps) {
                 required={refundMode === 'credit'}
               />
             </div>
-            <p className="mt-1 text-[11px] text-zoru-ink-muted">
+            <p className="mt-1 text-[11px] text-[var(--st-text-secondary)]">
               {refundMode === 'credit'
                 ? 'Required for "Apply as customer credit" — the credit settles against this invoice.'
                 : refundMode === 'cash'
@@ -362,7 +362,7 @@ export function CreditNoteForm({ initial }: CreditNoteFormProps) {
       {/* ─── Line items ─────────────────────────────────────────── */}
       <Card className="p-6">
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          <h3 className="text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
             Line items
           </h3>
           <Button type="button" size="sm" variant="outline" onClick={addRow}>
@@ -469,7 +469,7 @@ export function CreditNoteForm({ initial }: CreditNoteFormProps) {
                       variant="ghost"
                       onClick={() => removeRow(row.rowKey)}
                       disabled={items.length <= 1}
-                      className="text-zoru-danger-ink"
+                      className="text-[var(--st-danger)]"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>
@@ -483,7 +483,7 @@ export function CreditNoteForm({ initial }: CreditNoteFormProps) {
 
       {/* ─── Totals ─────────────────────────────────────────────── */}
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Totals
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
@@ -535,11 +535,11 @@ export function CreditNoteForm({ initial }: CreditNoteFormProps) {
           </div>
         </div>
 
-        <div className="mt-6 flex flex-col items-end gap-1 border-t border-zoru-line pt-4 text-[13px] tabular-nums">
-          <div className="text-zoru-ink-muted">
-            Subtotal: <span className="ml-2 text-zoru-ink">{fmtMoney(totals.subTotal, currency)}</span>
+        <div className="mt-6 flex flex-col items-end gap-1 border-t border-[var(--st-border)] pt-4 text-[13px] tabular-nums">
+          <div className="text-[var(--st-text-secondary)]">
+            Subtotal: <span className="ml-2 text-[var(--st-text)]">{fmtMoney(totals.subTotal, currency)}</span>
           </div>
-          <div className="text-[15px] font-semibold text-zoru-ink">
+          <div className="text-[15px] font-semibold text-[var(--st-text)]">
             Total: {fmtMoney(totals.total, currency)}
           </div>
         </div>
@@ -547,7 +547,7 @@ export function CreditNoteForm({ initial }: CreditNoteFormProps) {
 
       {/* ─── Refund + Status ────────────────────────────────────── */}
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Refund & status
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
@@ -584,24 +584,24 @@ export function CreditNoteForm({ initial }: CreditNoteFormProps) {
             </div>
           </div>
           <div className="flex flex-col justify-end gap-2">
-            <label className="flex items-center gap-2 text-[13px] text-zoru-ink-muted">
+            <label className="flex items-center gap-2 text-[13px] text-[var(--st-text-secondary)]">
               <input
                 type="checkbox"
                 name="taxRecalc"
                 value="true"
                 defaultChecked={!!initial?.taxRecalc}
-                className="h-4 w-4 rounded border-zoru-line"
+                className="h-4 w-4 rounded border-[var(--st-border)]"
               />
               Recompute taxes from line items
             </label>
             {refundMode === 'credit' && (
-              <label className="flex items-center gap-2 text-[13px] text-zoru-ink-muted">
+              <label className="flex items-center gap-2 text-[13px] text-[var(--st-text-secondary)]">
                 <input
                   type="checkbox"
                   name="autoApply"
                   value="true"
                   defaultChecked={!!initial?.autoApply}
-                  className="h-4 w-4 rounded border-zoru-line"
+                  className="h-4 w-4 rounded border-[var(--st-border)]"
                 />
                 Auto-apply to future invoices
               </label>

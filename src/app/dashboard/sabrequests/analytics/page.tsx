@@ -20,7 +20,7 @@ export default async function RequestsAnalyticsPage() {
     if (!a) {
         return (
             <div className="zoruui p-6">
-                <Card className="p-8 text-center text-sm text-zoru-ink-muted">
+                <Card className="p-8 text-center text-sm text-[var(--st-text-secondary)]">
                     {res.error ?? 'No analytics available yet.'}
                 </Card>
             </div>
@@ -30,7 +30,7 @@ export default async function RequestsAnalyticsPage() {
         <div className="zoruui flex flex-col gap-6 p-6">
             <header>
                 <h1 className="text-2xl font-semibold">Request analytics</h1>
-                <p className="text-sm text-zoru-ink-muted">
+                <p className="text-sm text-[var(--st-text-secondary)]">
                     SLA breach rate, decision time, and bottleneck stages.
                 </p>
             </header>
@@ -39,7 +39,7 @@ export default async function RequestsAnalyticsPage() {
                 {(['pending', 'approved', 'rejected', 'cancelled'] as const).map(
                     (k) => (
                         <Card key={k} className="p-4">
-                            <div className="text-xs uppercase tracking-wide text-zoru-ink-muted">
+                            <div className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
                                 {k}
                             </div>
                             <div className="text-2xl font-semibold">
@@ -52,7 +52,7 @@ export default async function RequestsAnalyticsPage() {
 
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 <Card className="p-4">
-                    <div className="text-xs uppercase tracking-wide text-zoru-ink-muted">
+                    <div className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
                         SLA breach rate
                     </div>
                     <div className="text-3xl font-semibold">
@@ -60,7 +60,7 @@ export default async function RequestsAnalyticsPage() {
                     </div>
                 </Card>
                 <Card className="p-4">
-                    <div className="text-xs uppercase tracking-wide text-zoru-ink-muted">
+                    <div className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
                         Average decision time
                     </div>
                     <div className="text-3xl font-semibold">
@@ -72,13 +72,13 @@ export default async function RequestsAnalyticsPage() {
             </div>
 
             <Card className="p-4">
-                <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-zoru-ink-muted">
+                <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                     By blueprint
                 </h2>
                 {a.byBlueprint.length === 0 ? (
-                    <div className="text-sm text-zoru-ink-muted">No data.</div>
+                    <div className="text-sm text-[var(--st-text-secondary)]">No data.</div>
                 ) : (
-                    <ul className="divide-y divide-zoru-line">
+                    <ul className="divide-y divide-[var(--st-border)]">
                         {a.byBlueprint.map((b) => (
                             <li
                                 key={b.blueprintId}
@@ -88,7 +88,7 @@ export default async function RequestsAnalyticsPage() {
                                     <div className="text-sm font-medium">
                                         {b.blueprintName ?? '—'}
                                     </div>
-                                    <div className="text-xs text-zoru-ink-muted">
+                                    <div className="text-xs text-[var(--st-text-secondary)]">
                                         {b.count} requests
                                     </div>
                                 </div>
@@ -108,15 +108,15 @@ export default async function RequestsAnalyticsPage() {
             </Card>
 
             <Card className="p-4">
-                <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-zoru-ink-muted">
+                <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                     Bottleneck stages
                 </h2>
                 {a.bottleneckStages.length === 0 ? (
-                    <div className="text-sm text-zoru-ink-muted">
+                    <div className="text-sm text-[var(--st-text-secondary)]">
                         Nothing waiting.
                     </div>
                 ) : (
-                    <ul className="divide-y divide-zoru-line">
+                    <ul className="divide-y divide-[var(--st-border)]">
                         {a.bottleneckStages.map((s, i) => (
                             <li
                                 key={i}

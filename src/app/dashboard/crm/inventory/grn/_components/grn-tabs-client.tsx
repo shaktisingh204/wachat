@@ -33,17 +33,17 @@ export function GrnTabsClient({
 
     return (
         <Tabs value={currentTab} onValueChange={onValueChange} className="w-full">
-            <TabsList className="w-full justify-start overflow-x-auto rounded-none border-b border-zoru-line bg-transparent p-0">
+            <TabsList className="w-full justify-start overflow-x-auto rounded-none border-b border-[var(--st-border)] bg-transparent p-0">
                 <TabsTrigger 
                     value="items" 
-                    className="relative rounded-none border-b-2 border-transparent bg-transparent px-4 pb-3 pt-2 font-medium text-zoru-ink-muted shadow-none transition-none data-[state=active]:border-zoru-primary data-[state=active]:text-zoru-ink data-[state=active]:shadow-none"
+                    className="relative rounded-none border-b-2 border-transparent bg-transparent px-4 pb-3 pt-2 font-medium text-[var(--st-text-secondary)] shadow-none transition-none data-[state=active]:border-[var(--st-text)] data-[state=active]:text-[var(--st-text)] data-[state=active]:shadow-none"
                 >
                     Line Items
                 </TabsTrigger>
                 {vehicleContent && (
                     <TabsTrigger 
                         value="vehicle" 
-                        className="relative rounded-none border-b-2 border-transparent bg-transparent px-4 pb-3 pt-2 font-medium text-zoru-ink-muted shadow-none transition-none data-[state=active]:border-zoru-primary data-[state=active]:text-zoru-ink data-[state=active]:shadow-none"
+                        className="relative rounded-none border-b-2 border-transparent bg-transparent px-4 pb-3 pt-2 font-medium text-[var(--st-text-secondary)] shadow-none transition-none data-[state=active]:border-[var(--st-text)] data-[state=active]:text-[var(--st-text)] data-[state=active]:shadow-none"
                     >
                         Vehicle & Transport
                     </TabsTrigger>
@@ -51,7 +51,7 @@ export function GrnTabsClient({
                 {attachmentsContent && (
                     <TabsTrigger 
                         value="attachments" 
-                        className="relative rounded-none border-b-2 border-transparent bg-transparent px-4 pb-3 pt-2 font-medium text-zoru-ink-muted shadow-none transition-none data-[state=active]:border-zoru-primary data-[state=active]:text-zoru-ink data-[state=active]:shadow-none"
+                        className="relative rounded-none border-b-2 border-transparent bg-transparent px-4 pb-3 pt-2 font-medium text-[var(--st-text-secondary)] shadow-none transition-none data-[state=active]:border-[var(--st-text)] data-[state=active]:text-[var(--st-text)] data-[state=active]:shadow-none"
                     >
                         Attachments
                     </TabsTrigger>
@@ -59,7 +59,7 @@ export function GrnTabsClient({
                 {notesContent && (
                     <TabsTrigger 
                         value="notes" 
-                        className="relative rounded-none border-b-2 border-transparent bg-transparent px-4 pb-3 pt-2 font-medium text-zoru-ink-muted shadow-none transition-none data-[state=active]:border-zoru-primary data-[state=active]:text-zoru-ink data-[state=active]:shadow-none"
+                        className="relative rounded-none border-b-2 border-transparent bg-transparent px-4 pb-3 pt-2 font-medium text-[var(--st-text-secondary)] shadow-none transition-none data-[state=active]:border-[var(--st-text)] data-[state=active]:text-[var(--st-text)] data-[state=active]:shadow-none"
                     >
                         Notes
                     </TabsTrigger>

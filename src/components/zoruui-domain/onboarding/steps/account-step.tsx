@@ -132,10 +132,10 @@ export function AccountStep({ onAccountCreated }: AccountStepProps) {
 
             <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-zoru-line" />
+                    <span className="w-full border-t border-[var(--st-border)]" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-zoru-bg px-2 text-zoru-ink-muted">
+                    <span className="bg-[var(--st-bg)] px-2 text-[var(--st-text-secondary)]">
                         Or use your email
                     </span>
                 </div>
@@ -183,7 +183,7 @@ export function AccountStep({ onAccountCreated }: AccountStepProps) {
                         <button
                             type="button"
                             onClick={() => setShowPassword((v) => !v)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-zoru-ink-muted hover:text-zoru-ink"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                             aria-label={
                                 showPassword
                                     ? 'Hide password'
@@ -197,7 +197,7 @@ export function AccountStep({ onAccountCreated }: AccountStepProps) {
                             )}
                         </button>
                     </div>
-                    <p className="text-xs text-zoru-ink-muted">
+                    <p className="text-xs text-[var(--st-text-secondary)]">
                         Must be at least 8 characters. Use a mix of letters
                         and numbers.
                     </p>

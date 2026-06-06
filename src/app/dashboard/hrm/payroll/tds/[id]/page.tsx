@@ -86,7 +86,7 @@ export default async function TdsDetailPage({
                 title="Loading..."
                 back={{ href: BASE, label: 'TDS' }}
             >
-                <div className="h-40 animate-pulse bg-zoru-surface-2 rounded-md" />
+                <div className="h-40 animate-pulse bg-[var(--st-bg-muted)] rounded-md" />
             </EntityDetailShell>
         }>
             <TdsDetailContent id={id} />

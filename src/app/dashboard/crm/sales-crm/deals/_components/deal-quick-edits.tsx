@@ -103,11 +103,11 @@ export function DealQuickEdits({ dealId, ownerId, stage, status, stages }: DealQ
     <>
       <dl className="space-y-2 text-[12.5px]">
         <div className="flex items-center justify-between gap-2">
-          <dt className="text-zoru-ink-muted">Owner</dt>
+          <dt className="text-[var(--st-text-secondary)]">Owner</dt>
           <dd>
             <button
               type="button"
-              className="rounded transition-opacity hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-zoru-primary"
+              className="rounded transition-opacity hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]"
               onClick={() => {
                 setDraftOwner(currentOwner);
                 setOwnerDialogOpen(true);
@@ -117,13 +117,13 @@ export function DealQuickEdits({ dealId, ownerId, stage, status, stages }: DealQ
               {currentOwner ? (
                 <EntityPickerChip entity="user" id={currentOwner} />
               ) : (
-                <span className="text-zoru-ink-muted underline-offset-2 hover:underline">— assign owner</span>
+                <span className="text-[var(--st-text-secondary)] underline-offset-2 hover:underline">— assign owner</span>
               )}
             </button>
           </dd>
         </div>
         <div className="flex items-center justify-between gap-2">
-          <dt className="text-zoru-ink-muted">Stage</dt>
+          <dt className="text-[var(--st-text-secondary)]">Stage</dt>
           <dd>
             <DropdownMenu>
               <ZoruDropdownMenuTrigger asChild>
@@ -150,7 +150,7 @@ export function DealQuickEdits({ dealId, ownerId, stage, status, stages }: DealQ
           </dd>
         </div>
         <div className="flex items-center justify-between gap-2">
-          <dt className="text-zoru-ink-muted">Status</dt>
+          <dt className="text-[var(--st-text-secondary)]">Status</dt>
           <dd>
             <DropdownMenu>
               <ZoruDropdownMenuTrigger asChild>

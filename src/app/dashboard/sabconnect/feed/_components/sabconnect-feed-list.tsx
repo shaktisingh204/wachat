@@ -106,8 +106,8 @@ export function SabConnectFeedList(props: Props) {
                         onClick={() => setFilter(k)}
                         className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
                             filter === k
-                                ? 'border-zoru-accent bg-zoru-accent text-zoru-accent-foreground'
-                                : 'border-zoru-line bg-transparent text-zoru-muted hover:bg-zoru-surface-hover'
+                                ? 'border-[var(--st-accent)] bg-[var(--st-accent)] text-[var(--st-text)]'
+                                : 'border-[var(--st-border)] bg-transparent text-[var(--st-bg-muted)] hover:bg-[var(--st-hover)]'
                         }`}
                     >
                         {k === 'all' ? 'All' : KIND_VARIANTS[k]?.label ?? k}
@@ -141,7 +141,7 @@ export function SabConnectFeedList(props: Props) {
                                                     <Badge variant={kind.variant}>{kind.label}</Badge>
                                                 </div>
                                                 <time
-                                                    className="text-xs text-zoru-muted"
+                                                    className="text-xs text-[var(--st-bg-muted)]"
                                                     dateTime={row.createdAt}
                                                 >
                                                     {new Date(row.createdAt).toLocaleString()}
@@ -170,7 +170,7 @@ export function SabConnectFeedList(props: Props) {
                                         ) : (
                                             <Link
                                                 href={row.href}
-                                                className="text-xs font-medium text-zoru-accent hover:underline"
+                                                className="text-xs font-medium text-[var(--st-accent)] hover:underline"
                                             >
                                                 Open in workspace →
                                             </Link>

@@ -28,9 +28,9 @@ export const leadCaptureTemplate: TemplateDefinition = {
   name: 'Lead Capture',
   description: 'Collect name, email, and phone number from prospects.',
   emoji: '🎯',
-  color: 'text-zoru-ink',
+  color: 'text-[var(--st-text)]',
   bgColor:
-    'bg-zoru-surface-2 dark:bg-zoru-ink/30 border-zoru-line dark:border-zoru-line',
+    'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 border-[var(--st-border)] dark:border-[var(--st-border)]',
   icon: LuUserRoundSearch,
   category: 'Marketing',
   build: () => {
@@ -88,9 +88,9 @@ export const customerSupportTemplate: TemplateDefinition = {
   name: 'Customer Support',
   description: 'Route users to the right support agent or knowledge base.',
   emoji: '🎧',
-  color: 'text-zoru-ink',
+  color: 'text-[var(--st-text)]',
   bgColor:
-    'bg-zoru-surface-2 dark:bg-zoru-ink/30 border-zoru-line dark:border-zoru-line',
+    'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 border-[var(--st-border)] dark:border-[var(--st-border)]',
   icon: LuHeadphones,
   category: 'Support',
   build: () => {
@@ -157,9 +157,9 @@ export const feedbackSurveyTemplate: TemplateDefinition = {
   name: 'Feedback Survey',
   description: 'Gather product or service feedback with ratings and comments.',
   emoji: '📝',
-  color: 'text-zoru-ink',
+  color: 'text-[var(--st-text)]',
   bgColor:
-    'bg-zoru-surface-2 dark:bg-zoru-ink/30 border-zoru-line dark:border-zoru-line',
+    'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 border-[var(--st-border)] dark:border-[var(--st-border)]',
   icon: LuMessageSquareText,
   category: 'Marketing',
   build: () => {
@@ -225,9 +225,9 @@ export const quizTemplate: TemplateDefinition = {
   name: 'Quiz',
   description: 'Engage users with a trivia or knowledge quiz.',
   emoji: '🧠',
-  color: 'text-zoru-ink',
+  color: 'text-[var(--st-text)]',
   bgColor:
-    'bg-zoru-surface-2 dark:bg-zoru-ink/30 border-zoru-line dark:border-zoru-line',
+    'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 border-[var(--st-border)] dark:border-[var(--st-border)]',
   icon: LuBrain,
   category: 'Marketing',
   build: () => {

@@ -42,7 +42,7 @@ export default async function SabsmsProvisionNumberPage() {
       helpBody={
         <>
           We{`’`}ll write a {`pending`} row to{" "}
-          <code className="rounded bg-zoru-surface-2 px-1">sabsms_numbers</code>{" "}
+          <code className="rounded bg-[var(--st-bg-muted)] px-1">sabsms_numbers</code>{" "}
           and an audit-log entry. The engine flips the row to{" "}
           {`active`} after the provider call returns.
         </>

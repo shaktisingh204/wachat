@@ -372,21 +372,21 @@ export function TimeLogsClient({
     >
       {/* ── Active Timer Banner ── */}
       {mounted && runningLog && (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-zoru-line bg-zoru-surface-2/30 px-4 py-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)]/30 px-4 py-3">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-zoru-surface-2">
-              <Timer className="h-4 w-4 text-zoru-ink" strokeWidth={1.75} />
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--st-bg-muted)]">
+              <Timer className="h-4 w-4 text-[var(--st-text)]" strokeWidth={1.75} />
             </div>
             <div>
-              <p className="text-[13px] text-zoru-ink">Timer running</p>
-              <p className="font-mono text-[12px] text-zoru-ink-muted">
+              <p className="text-[13px] text-[var(--st-text)]">Timer running</p>
+              <p className="font-mono text-[12px] text-[var(--st-text-secondary)]">
                 {elapsedLabel(runningLog.start_time)}
                 {runningLog.memo ? ` · ${runningLog.memo}` : ''}
               </p>
             </div>
           </div>
           <Button variant="outline" disabled={isPending} onClick={() => handleStopTimer(String(runningLog._id))}>
-            <Square className="h-3.5 w-3.5 fill-current text-zoru-ink" strokeWidth={1.75} />
+            <Square className="h-3.5 w-3.5 fill-current text-[var(--st-text)]" strokeWidth={1.75} />
             Stop Timer
           </Button>
         </div>
@@ -407,8 +407,8 @@ export function TimeLogsClient({
         {/* Card header + filters */}
         <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h2 className="text-[16px] text-zoru-ink">Time Entries</h2>
-            <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+            <h2 className="text-[16px] text-[var(--st-text)]">Time Entries</h2>
+            <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">
               {filteredLogs.length} entr{filteredLogs.length === 1 ? 'y' : 'ies'}
               {(fromDate || toDate || statusFilter !== 'all') ? ' (filtered)' : ''}
               {filteredLogs.length > 0 ? ` · ${totalFormatted} total` : ''}
@@ -429,15 +429,15 @@ export function TimeLogsClient({
 
         {/* Bulk Actions Banner */}
         {selectedIds.size > 0 && (
-          <div className="mb-4 flex items-center justify-between rounded-md bg-zoru-bg-zoru-surface-2 p-2 px-3 border border-zoru-line">
-            <span className="text-sm font-medium text-zoru-ink">{selectedIds.size} selected</span>
+          <div className="mb-4 flex items-center justify-between rounded-md bg-zoru-bg-[var(--st-bg-muted)] p-2 px-3 border border-[var(--st-border)]">
+            <span className="text-sm font-medium text-[var(--st-text)]">{selectedIds.size} selected</span>
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm" onClick={handleBulkApprove} disabled={isPending}>
-                <Check className="h-3.5 w-3.5 mr-1 text-zoru-ink" />
+                <Check className="h-3.5 w-3.5 mr-1 text-[var(--st-text)]" />
                 Approve
               </Button>
               <Button variant="outline" size="sm" onClick={handleBulkDelete} disabled={isPending}>
-                <Trash2 className="h-3.5 w-3.5 mr-1 text-zoru-danger-ink" />
+                <Trash2 className="h-3.5 w-3.5 mr-1 text-[var(--st-danger)]" />
                 Delete
               </Button>
             </div>
@@ -445,35 +445,35 @@ export function TimeLogsClient({
         )}
 
         {/* Table */}
-        <div ref={tableContainerRef} className="overflow-y-auto max-h-[600px] rounded-lg border border-zoru-line bg-zoru-bg shadow-sm">
-          <table className="w-full caption-bottom text-sm text-zoru-ink">
-            <ZoruTableHeader className="sticky top-0 z-10 bg-zoru-bg">
-              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+        <div ref={tableContainerRef} className="overflow-y-auto max-h-[600px] rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] shadow-sm">
+          <table className="w-full caption-bottom text-sm text-[var(--st-text)]">
+            <ZoruTableHeader className="sticky top-0 z-10 bg-[var(--st-bg)]">
+              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                 <ZoruTableHead className="w-10 text-center">
                   <Checkbox 
                     checked={filteredLogs.length > 0 && selectedIds.size === filteredLogs.length} 
                     onCheckedChange={toggleSelectAll} 
                   />
                 </ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Employee</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Start Time</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">End Time</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Duration</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Memo</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                <ZoruTableHead className="text-right text-zoru-ink-muted">Actions</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Employee</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Start Time</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">End Time</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Duration</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Memo</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
+                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Actions</ZoruTableHead>
               </ZoruTableRow>
             </ZoruTableHeader>
             <ZoruTableBody style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
               {isPending && filteredLogs.length === 0 ? (
-                <ZoruTableRow className="border-zoru-line">
-                  <ZoruTableCell colSpan={8} className="h-24 text-center text-[13px] text-zoru-ink-muted">
+                <ZoruTableRow className="border-[var(--st-border)]">
+                  <ZoruTableCell colSpan={8} className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]">
                     Loading…
                   </ZoruTableCell>
                 </ZoruTableRow>
               ) : filteredLogs.length === 0 ? (
-                <ZoruTableRow className="border-zoru-line">
-                  <ZoruTableCell colSpan={8} className="h-24 text-center text-[13px] text-zoru-ink-muted">
+                <ZoruTableRow className="border-[var(--st-border)]">
+                  <ZoruTableCell colSpan={8} className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]">
                     No time entries found.
                   </ZoruTableCell>
                 </ZoruTableRow>
@@ -490,7 +490,7 @@ export function TimeLogsClient({
                   return (
                     <ZoruTableRow
                       key={id}
-                      className={isRunning ? 'border-zoru-line bg-zoru-surface-2/10' : 'border-zoru-line'}
+                      className={isRunning ? 'border-[var(--st-border)] bg-[var(--st-bg-muted)]/10' : 'border-[var(--st-border)]'}
                       style={{
                         position: 'absolute',
                         top: 0,
@@ -503,19 +503,19 @@ export function TimeLogsClient({
                       <ZoruTableCell className="w-10 text-center">
                         <Checkbox checked={selectedIds.has(id)} onCheckedChange={() => toggleSelect(id)} />
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] font-medium text-zoru-ink">
+                      <ZoruTableCell className="text-[13px] font-medium text-[var(--st-text)]">
                         {log.user_id || '—'}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-zoru-ink">
+                      <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                         {mounted ? formatTs(log.start_time) : '—'}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-zoru-ink">
-                        {!mounted ? '—' : isRunning ? <span className="text-zoru-ink">Running…</span> : formatTs(log.end_time)}
+                      <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
+                        {!mounted ? '—' : isRunning ? <span className="text-[var(--st-text)]">Running…</span> : formatTs(log.end_time)}
                       </ZoruTableCell>
-                      <ZoruTableCell className="font-mono text-[13px] text-zoru-ink">
+                      <ZoruTableCell className="font-mono text-[13px] text-[var(--st-text)]">
                         {duration}
                       </ZoruTableCell>
-                      <ZoruTableCell className="max-w-[150px] truncate text-[11.5px] text-zoru-ink-muted">
+                      <ZoruTableCell className="max-w-[150px] truncate text-[11.5px] text-[var(--st-text-secondary)]">
                         {log.memo || '—'}
                       </ZoruTableCell>
                       <ZoruTableCell>
@@ -525,16 +525,16 @@ export function TimeLogsClient({
                         <div className="flex justify-end gap-1">
                           {isRunning && (
                             <Button variant="outline" size="sm" title="Stop Timer" disabled={isPending} onClick={() => handleStopTimer(id)}>
-                              <Square className="h-3.5 w-3.5 fill-current text-zoru-ink" />
+                              <Square className="h-3.5 w-3.5 fill-current text-[var(--st-text)]" />
                             </Button>
                           )}
                           {isPendingStatus && (
                             <>
                               <Button variant="outline" size="sm" title="Approve" disabled={isPending} onClick={() => handleApprove(id)}>
-                                <Check className="h-3.5 w-3.5 text-zoru-ink" />
+                                <Check className="h-3.5 w-3.5 text-[var(--st-text)]" />
                               </Button>
                               <Button variant="outline" size="sm" title="Reject" disabled={isPending} onClick={() => handleReject(id)}>
-                                <X className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                                <X className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                               </Button>
                             </>
                           )}

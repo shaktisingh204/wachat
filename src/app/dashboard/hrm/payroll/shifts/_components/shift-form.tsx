@@ -137,7 +137,7 @@ export function ShiftForm({
                             type="color"
                             value={color}
                             onChange={(e) => setColor(e.target.value)}
-                            className="h-9 w-12 cursor-pointer rounded-md border border-zoru-line bg-transparent p-1"
+                            className="h-9 w-12 cursor-pointer rounded-md border border-[var(--st-border)] bg-transparent p-1"
                             aria-label="Pick shift color"
                         />
                         <Input
@@ -199,7 +199,7 @@ export function ShiftForm({
                         return (
                             <label
                                 key={d.value}
-                                className="flex items-center gap-2 rounded-md border border-zoru-line bg-zoru-bg px-2.5 py-1.5 text-[12.5px] text-zoru-ink"
+                                className="flex items-center gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-2.5 py-1.5 text-[12.5px] text-[var(--st-text)]"
                             >
                                 <Checkbox
                                     checked={checked}
@@ -234,14 +234,14 @@ export function ShiftForm({
             </div>
 
             <div className="flex flex-wrap items-center gap-4">
-                <label className="flex items-center gap-2 text-[13px] text-zoru-ink">
+                <label className="flex items-center gap-2 text-[13px] text-[var(--st-text)]">
                     <Checkbox
                         checked={isNight}
                         onCheckedChange={(v) => setIsNight(Boolean(v))}
                     />
                     Night shift (crosses midnight)
                 </label>
-                <label className="flex items-center gap-2 text-[13px] text-zoru-ink">
+                <label className="flex items-center gap-2 text-[13px] text-[var(--st-text)]">
                     <Checkbox
                         checked={isDefault}
                         onCheckedChange={(v) => setIsDefault(Boolean(v))}

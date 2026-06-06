@@ -80,10 +80,10 @@ export default function SabassistCustomerLandingPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-zoru-surface">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-[var(--st-bg-secondary)]">
       <Card className="p-6 max-w-md w-full space-y-4">
         <div className="flex items-center gap-2">
-          <ScreenShare className="h-6 w-6 text-zoru-brand" />
+          <ScreenShare className="h-6 w-6 text-[var(--st-accent)]" />
           <div className="font-semibold">SabAssist</div>
           <Badge variant="outline">remote support</Badge>
         </div>
@@ -100,7 +100,7 @@ export default function SabassistCustomerLandingPage() {
             <div>
               <Label htmlFor="pin">One-time PIN (if you were given one)</Label>
               <div className="flex items-center gap-2 mt-1">
-                <KeyRound className="h-4 w-4 text-zoru-ink-muted" />
+                <KeyRound className="h-4 w-4 text-[var(--st-text-secondary)]" />
                 <Input
                   id="pin"
                   inputMode="numeric"
@@ -118,7 +118,7 @@ export default function SabassistCustomerLandingPage() {
         )}
 
         {phase === 'connecting' && (
-          <div className="text-center text-zoru-ink-muted py-6">
+          <div className="text-center text-[var(--st-text-secondary)] py-6">
             Verifying access…
           </div>
         )}
@@ -173,7 +173,7 @@ export default function SabassistCustomerLandingPage() {
           </>
         )}
 
-        <div className="text-xs text-zoru-ink-muted text-center pt-2">
+        <div className="text-xs text-[var(--st-text-secondary)] text-center pt-2">
           Powered by SabAssist · this link is single-use.
         </div>
       </Card>

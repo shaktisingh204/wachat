@@ -286,8 +286,8 @@ export function VendorBidForm({ initialData }: VendorBidFormProps) {
                             <Plus className="mr-1.5 h-3.5 w-3.5" /> Add row
                         </Button>
                     </div>
-                    <div className="rounded-lg border border-zoru-line">
-                        <div className="grid grid-cols-12 gap-2 border-b border-zoru-line bg-zoru-surface-2 px-3 py-2 text-[11.5px] font-medium text-zoru-ink-muted">
+                    <div className="rounded-lg border border-[var(--st-border)]">
+                        <div className="grid grid-cols-12 gap-2 border-b border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-[11.5px] font-medium text-[var(--st-text-secondary)]">
                             <div className="col-span-3">Item id</div>
                             <div className="col-span-2">Qty</div>
                             <div className="col-span-2">Rate</div>
@@ -298,7 +298,7 @@ export function VendorBidForm({ initialData }: VendorBidFormProps) {
                         {items.map((row, i) => (
                             <div
                                 key={i}
-                                className="grid grid-cols-12 gap-2 border-b border-zoru-line px-3 py-2 last:border-b-0"
+                                className="grid grid-cols-12 gap-2 border-b border-[var(--st-border)] px-3 py-2 last:border-b-0"
                             >
                                 <Input
                                     className="col-span-3"
@@ -354,14 +354,14 @@ export function VendorBidForm({ initialData }: VendorBidFormProps) {
                                         onClick={() => removeRow(i)}
                                         disabled={items.length === 1}
                                     >
-                                        <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                        <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                     </Button>
                                 </div>
                             </div>
                         ))}
                     </div>
-                    <div className="text-right text-[12.5px] text-zoru-ink-muted">
-                        Computed subTotal: <span className="font-mono text-zoru-ink">{subTotal.toFixed(2)}</span>
+                    <div className="text-right text-[12.5px] text-[var(--st-text-secondary)]">
+                        Computed subTotal: <span className="font-mono text-[var(--st-text)]">{subTotal.toFixed(2)}</span>
                     </div>
                 </div>
 
@@ -395,7 +395,7 @@ export function VendorBidForm({ initialData }: VendorBidFormProps) {
                             Add from SabFiles
                         </SabFilePickerButton>
                         {attachments.length === 0 ? (
-                            <span className="text-[12px] text-zoru-ink-muted">
+                            <span className="text-[12px] text-[var(--st-text-secondary)]">
                                 No attachments.
                             </span>
                         ) : null}
@@ -405,13 +405,13 @@ export function VendorBidForm({ initialData }: VendorBidFormProps) {
                             {attachments.map((a, i) => (
                                 <li
                                     key={`${a.fileId ?? a.url}-${i}`}
-                                    className="flex items-center justify-between rounded-md border border-zoru-line px-3 py-1.5 text-[12.5px]"
+                                    className="flex items-center justify-between rounded-md border border-[var(--st-border)] px-3 py-1.5 text-[12.5px]"
                                 >
                                     <a
                                         href={a.url ?? '#'}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="truncate text-zoru-ink underline-offset-2 hover:underline"
+                                        className="truncate text-[var(--st-text)] underline-offset-2 hover:underline"
                                     >
                                         {a.name ?? a.fileId ?? a.url}
                                     </a>

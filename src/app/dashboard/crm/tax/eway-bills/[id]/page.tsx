@@ -58,14 +58,14 @@ function Field({
 }) {
   return (
     <div>
-      <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
         {label}
       </div>
       <div
         className={
           mono
-            ? 'mt-1 font-mono text-[12.5px] break-all text-zoru-ink'
-            : 'mt-1 text-[13px] text-zoru-ink'
+            ? 'mt-1 font-mono text-[12.5px] break-all text-[var(--st-text)]'
+            : 'mt-1 text-[13px] text-[var(--st-text)]'
         }
       >
         {children}
@@ -153,24 +153,24 @@ export default async function EWayBillDetailPage(props: {
             <ZoruCardContent>
               <div className="space-y-2 text-[12.5px]">
                 <div className="flex items-center justify-between">
-                  <span className="text-zoru-ink-muted">Bill</span>
+                  <span className="text-[var(--st-text-secondary)]">Bill</span>
                   <Badge variant="outline">{status}</Badge>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-zoru-ink-muted">Provider</span>
-                  <span className="font-mono text-zoru-ink">
+                  <span className="text-[var(--st-text-secondary)]">Provider</span>
+                  <span className="font-mono text-[var(--st-text)]">
                     {bill.provider ?? '—'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-zoru-ink-muted">GST portal sync</span>
+                  <span className="text-[var(--st-text-secondary)]">GST portal sync</span>
                   <Badge variant="outline">
                     {bill.rawResponse ? 'synced' : 'pending'}
                   </Badge>
                 </div>
-                <div className="flex items-center justify-between border-t border-zoru-line pt-1.5">
-                  <span className="text-zoru-ink-muted">Generated at</span>
-                  <span className="text-zoru-ink">
+                <div className="flex items-center justify-between border-t border-[var(--st-border)] pt-1.5">
+                  <span className="text-[var(--st-text-secondary)]">Generated at</span>
+                  <span className="text-[var(--st-text)]">
                     {fmtDateTime(bill.ewbDate)}
                   </span>
                 </div>
@@ -186,7 +186,7 @@ export default async function EWayBillDetailPage(props: {
               <div className="flex justify-center">
                 <QrCodeRenderer value={qrPayload} size={160} />
               </div>
-              <p className="mt-2 text-center text-[11px] text-zoru-ink-muted">
+              <p className="mt-2 text-center text-[11px] text-[var(--st-text-secondary)]">
                 Scan to verify EWB {bill.ewbNo}
               </p>
             </ZoruCardContent>
@@ -201,16 +201,16 @@ export default async function EWayBillDetailPage(props: {
                 {bill.linkedInvoiceId ? (
                   <Link
                     href={`/dashboard/crm/sales/invoices/${bill.linkedInvoiceId}`}
-                    className="text-zoru-primary hover:underline"
+                    className="text-[var(--st-text)] hover:underline"
                   >
                     Linked invoice →
                   </Link>
                 ) : (
-                  <span className="text-zoru-ink-muted">No linked invoice</span>
+                  <span className="text-[var(--st-text-secondary)]">No linked invoice</span>
                 )}
                 <Link
                   href="/dashboard/crm/tax/eway-bills"
-                  className="text-zoru-primary hover:underline"
+                  className="text-[var(--st-text)] hover:underline"
                 >
                   All e-way bills →
                 </Link>
@@ -280,14 +280,14 @@ export default async function EWayBillDetailPage(props: {
         </ZoruCardHeader>
         <ZoruCardContent>
           {items.length === 0 ? (
-            <p className="text-[13px] text-zoru-ink-muted">
+            <p className="text-[13px] text-[var(--st-text-secondary)]">
               No line items recorded on this bill. Items are typically sourced
               from the linked invoice.
             </p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-[12.5px]">
-                <thead className="border-b border-zoru-line text-left text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                <thead className="border-b border-[var(--st-border)] text-left text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                   <tr>
                     <th className="py-2 pr-3 font-medium">Description</th>
                     <th className="py-2 pr-3 font-medium">HSN</th>
@@ -302,26 +302,26 @@ export default async function EWayBillDetailPage(props: {
                 </thead>
                 <tbody>
                   {items.map((it, i) => (
-                    <tr key={i} className="border-b border-zoru-line/60">
-                      <td className="py-2 pr-3 text-zoru-ink">
+                    <tr key={i} className="border-b border-[var(--st-border)]/60">
+                      <td className="py-2 pr-3 text-[var(--st-text)]">
                         {it.description ?? '—'}
                       </td>
-                      <td className="py-2 pr-3 font-mono text-zoru-ink">
+                      <td className="py-2 pr-3 font-mono text-[var(--st-text)]">
                         {it.hsn ?? '—'}
                       </td>
-                      <td className="py-2 pr-3 text-right font-mono tabular-nums text-zoru-ink">
+                      <td className="py-2 pr-3 text-right font-mono tabular-nums text-[var(--st-text)]">
                         {it.quantity ?? '—'} {it.unit ?? ''}
                       </td>
-                      <td className="py-2 pr-3 text-right font-mono tabular-nums text-zoru-ink">
+                      <td className="py-2 pr-3 text-right font-mono tabular-nums text-[var(--st-text)]">
                         {inr(it.taxableValue)}
                       </td>
-                      <td className="py-2 pr-3 text-right font-mono tabular-nums text-zoru-ink">
+                      <td className="py-2 pr-3 text-right font-mono tabular-nums text-[var(--st-text)]">
                         {inr(it.cgst)}
                       </td>
-                      <td className="py-2 pr-3 text-right font-mono tabular-nums text-zoru-ink">
+                      <td className="py-2 pr-3 text-right font-mono tabular-nums text-[var(--st-text)]">
                         {inr(it.sgst)}
                       </td>
-                      <td className="py-2 text-right font-mono tabular-nums text-zoru-ink">
+                      <td className="py-2 text-right font-mono tabular-nums text-[var(--st-text)]">
                         {inr(it.igst)}
                       </td>
                     </tr>
@@ -343,14 +343,14 @@ export default async function EWayBillDetailPage(props: {
               <li>
                 <Link
                   href={`/dashboard/crm/sales/invoices/${bill.linkedInvoiceId}`}
-                  className="text-zoru-primary hover:underline"
+                  className="text-[var(--st-text)] hover:underline"
                 >
                   Source invoice → {String(bill.linkedInvoiceId)}
                 </Link>
               </li>
             ) : null}
             {documents.length === 0 ? (
-              <li className="text-zoru-ink-muted">
+              <li className="text-[var(--st-text-secondary)]">
                 No supporting documents attached. Add via SabFiles on the linked
                 invoice.
               </li>
@@ -362,12 +362,12 @@ export default async function EWayBillDetailPage(props: {
                       href={d.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-zoru-primary hover:underline"
+                      className="text-[var(--st-text)] hover:underline"
                     >
                       {d.name ?? d.url}
                     </a>
                   ) : (
-                    <span className="text-zoru-ink">{d.name ?? '—'}</span>
+                    <span className="text-[var(--st-text)]">{d.name ?? '—'}</span>
                   )}
                 </li>
               ))
@@ -382,25 +382,25 @@ export default async function EWayBillDetailPage(props: {
         </ZoruCardHeader>
         <ZoruCardContent>
           {history.length === 0 ? (
-            <p className="text-[13px] text-zoru-ink-muted">No history.</p>
+            <p className="text-[13px] text-[var(--st-text-secondary)]">No history.</p>
           ) : (
             <ol className="flex flex-col gap-2 text-[12px]">
               {history.map((h, i) => (
                 <li
                   key={i}
-                  className="rounded-md border border-zoru-line bg-zoru-surface p-2"
+                  className="rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-medium text-zoru-ink">{h.kind}</span>
-                    <span className="text-zoru-ink-muted">
+                    <span className="font-medium text-[var(--st-text)]">{h.kind}</span>
+                    <span className="text-[var(--st-text-secondary)]">
                       {fmtDateTime(h.at)}
                     </span>
                   </div>
                   {h.reason ? (
-                    <p className="mt-1 text-zoru-ink-muted">{h.reason}</p>
+                    <p className="mt-1 text-[var(--st-text-secondary)]">{h.reason}</p>
                   ) : null}
                   {h.details ? (
-                    <pre className="mt-1 whitespace-pre-wrap text-[10px] text-zoru-ink-muted">
+                    <pre className="mt-1 whitespace-pre-wrap text-[10px] text-[var(--st-text-secondary)]">
                       {JSON.stringify(h.details, null, 2)}
                     </pre>
                   ) : null}

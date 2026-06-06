@@ -553,7 +553,7 @@ export default function TelegramWebhooksPage() {
       </div>
 
       {/* Segmented control */}
-      <div className="flex w-full flex-wrap gap-1 rounded-md border bg-zoru-surface-2/30 p-1">
+      <div className="flex w-full flex-wrap gap-1 rounded-md border bg-[var(--st-bg-muted)]/30 p-1">
         {SECTIONS.map((s) => (
           <button
             key={s}
@@ -561,8 +561,8 @@ export default function TelegramWebhooksPage() {
             onClick={() => setSection(s)}
             className={`flex-1 rounded-sm px-3 py-1.5 text-sm font-medium capitalize transition ${
               section === s
-                ? "bg-zoru-surface shadow-sm"
-                : "text-zoru-ink-muted hover:text-zoru-ink"
+                ? "bg-[var(--st-bg-secondary)] shadow-sm"
+                : "text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
             }`}
           >
             {s}
@@ -672,7 +672,7 @@ export default function TelegramWebhooksPage() {
             </ZoruDrawerDescription>
           </ZoruDrawerHeader>
           <div className="p-4">
-            <ScrollArea className="max-h-[60vh] rounded-md border bg-zoru-surface-2/20 p-3">
+            <ScrollArea className="max-h-[60vh] rounded-md border bg-[var(--st-bg-muted)]/20 p-3">
               <pre className="text-xs leading-relaxed">
                 {drawerDelivery
                   ? JSON.stringify(drawerDelivery.payload ?? {}, null, 2)

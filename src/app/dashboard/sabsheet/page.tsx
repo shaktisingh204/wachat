@@ -16,7 +16,7 @@ export default async function SabsheetIndexPage() {
       <header className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">SabSheet</h1>
-          <p className="text-sm text-zoru-ink-muted">
+          <p className="text-sm text-[var(--st-text-secondary)]">
             Collaborative spreadsheets — workbooks, sheets, formulas, pivots.
           </p>
         </div>
@@ -34,7 +34,7 @@ export default async function SabsheetIndexPage() {
             <Card key={wb._id} className="p-4">
               <Link href={`/dashboard/sabsheet/${wb._id}`} className="block space-y-2">
                 <div className="text-base font-medium">{wb.title}</div>
-                <div className="text-xs text-zoru-ink-muted">
+                <div className="text-xs text-[var(--st-text-secondary)]">
                   v{wb.version}
                   {wb.updatedAt ? ` · updated ${new Date(wb.updatedAt).toLocaleDateString()}` : ''}
                 </div>

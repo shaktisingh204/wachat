@@ -13,14 +13,14 @@ export function KpiCard({
 }) {
   return (
     <Card className="p-4">
-      <div className="text-[11px] uppercase tracking-wider text-zoru-ink-muted">
+      <div className="text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)]">
         {label}
       </div>
-      <div className="mt-1.5 text-[22px] text-zoru-ink leading-tight">
+      <div className="mt-1.5 text-[22px] text-[var(--st-text)] leading-tight">
         {value}
       </div>
       {hint ? (
-        <div className="mt-0.5 text-[11px] text-zoru-ink-muted">{hint}</div>
+        <div className="mt-0.5 text-[11px] text-[var(--st-text-secondary)]">{hint}</div>
       ) : null}
     </Card>
   );

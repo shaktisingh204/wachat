@@ -197,7 +197,7 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
       id: "sentAt",
       header: "Sent at",
       render: (r) => (
-        <span className="text-xs text-zoru-ink-muted">
+        <span className="text-xs text-[var(--st-text-secondary)]">
           {r.sentAt ? new Date(r.sentAt).toLocaleString() : "—"}
         </span>
       ),
@@ -206,7 +206,7 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
       id: "deliveredAt",
       header: "Delivered at",
       render: (r) => (
-        <span className="text-xs text-zoru-ink-muted">
+        <span className="text-xs text-[var(--st-text-secondary)]">
           {r.deliveredAt ? new Date(r.deliveredAt).toLocaleString() : "—"}
         </span>
       ),
@@ -216,11 +216,11 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
       header: "Error",
       render: (r) =>
         r.errorMessage ? (
-          <span className="text-xs text-zoru-ink" title={r.errorMessage}>
+          <span className="text-xs text-[var(--st-text)]" title={r.errorMessage}>
             {r.errorMessage.slice(0, 32)}
           </span>
         ) : (
-          <span className="text-xs text-zoru-ink-muted">—</span>
+          <span className="text-xs text-[var(--st-text-secondary)]">—</span>
         ),
     },
   ];
@@ -282,7 +282,7 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
               <Badge variant={statusVariant(detail.status)}>
                 {detail.status}
               </Badge>
-              <span className="text-sm text-zoru-ink-muted">
+              <span className="text-sm text-[var(--st-text-secondary)]">
                 {detail.scheduleKind} · {detail.senderStrategy}
               </span>
               {detail.abVariant && (
@@ -298,7 +298,7 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
                   <Badge variant={statusVariant(b.label)}>
                     {b.label}
                   </Badge>
-                  <span className="font-medium text-zoru-ink">
+                  <span className="font-medium text-[var(--st-text)]">
                     {b.count.toLocaleString()}
                   </span>
                 </span>
@@ -306,7 +306,7 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
             </div>
             <div className="flex items-center gap-2">
               <Progress value={progress} className="h-1.5 w-48" />
-              <span className="text-xs text-zoru-ink-muted">
+              <span className="text-xs text-[var(--st-text-secondary)]">
                 {progress}% of {detail.audienceSize.toLocaleString()}
               </span>
             </div>
@@ -434,7 +434,7 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
       </Card>
 
       {shareUrl && (
-        <div className="rounded-md border border-zoru-line bg-zoru-surface-2 px-3 py-2 text-sm">
+        <div className="rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-sm">
           Public share link minted —{" "}
           <code className="rounded bg-white px-1 text-xs">{shareUrl}</code>{" "}
           (TODO: <code>/sabsms/share/[token]</code> read-side route)
@@ -451,7 +451,7 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
         </ZoruCardHeader>
         <ZoruCardContent>
           {bundle.timeline.length === 0 ? (
-            <p className="py-8 text-center text-sm text-zoru-ink-muted">
+            <p className="py-8 text-center text-sm text-[var(--st-text-secondary)]">
               No send events yet.
             </p>
           ) : (
@@ -462,7 +462,7 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
               >
                 <ZoruChart.CartesianGrid
                   strokeDasharray="3 3"
-                  className="stroke-zoru-line"
+                  className="stroke-[var(--st-border)]"
                 />
                 <ZoruChart.XAxis
                   dataKey="bucket"
@@ -523,7 +523,7 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
               >
                 <ZoruChart.CartesianGrid
                   strokeDasharray="3 3"
-                  className="stroke-zoru-line"
+                  className="stroke-[var(--st-border)]"
                 />
                 <ZoruChart.XAxis type="number" fontSize={10} hide />
                 <ZoruChart.YAxis
@@ -554,7 +554,7 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
           </ZoruCardHeader>
           <ZoruCardContent>
             {bundle.providers.length === 0 ? (
-              <p className="py-8 text-center text-sm text-zoru-ink-muted">
+              <p className="py-8 text-center text-sm text-[var(--st-text-secondary)]">
                 No data yet.
               </p>
             ) : (
@@ -565,7 +565,7 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
                 >
                   <ZoruChart.CartesianGrid
                     strokeDasharray="3 3"
-                    className="stroke-zoru-line"
+                    className="stroke-[var(--st-border)]"
                   />
                   <ZoruChart.XAxis
                     dataKey="provider"
@@ -600,7 +600,7 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
           </ZoruCardHeader>
           <ZoruCardContent>
             {bundle.countries.length === 0 ? (
-              <p className="py-8 text-center text-sm text-zoru-ink-muted">
+              <p className="py-8 text-center text-sm text-[var(--st-text-secondary)]">
                 No data yet.
               </p>
             ) : (
@@ -611,7 +611,7 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
                 >
                   <ZoruChart.CartesianGrid
                     strokeDasharray="3 3"
-                    className="stroke-zoru-line"
+                    className="stroke-[var(--st-border)]"
                   />
                   <ZoruChart.XAxis
                     dataKey="country"
@@ -645,7 +645,7 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
           </ZoruCardHeader>
           <ZoruCardContent>
             {bundle.senderRotation.length === 0 ? (
-              <p className="py-8 text-center text-sm text-zoru-ink-muted">
+              <p className="py-8 text-center text-sm text-[var(--st-text-secondary)]">
                 No data yet.
               </p>
             ) : (
@@ -683,19 +683,19 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
           </ZoruCardHeader>
           <ZoruCardContent>
             <div className="grid grid-cols-2 gap-2 text-sm">
-              <div className="text-zoru-ink-muted">Cost</div>
+              <div className="text-[var(--st-text-secondary)]">Cost</div>
               <div className="text-right font-medium">
                 {formatCents(bundle.costMargin.cost)}
               </div>
-              <div className="text-zoru-ink-muted">Price</div>
+              <div className="text-[var(--st-text-secondary)]">Price</div>
               <div className="text-right font-medium">
                 {formatCents(bundle.costMargin.price)}
               </div>
-              <div className="text-zoru-ink-muted">Margin</div>
+              <div className="text-[var(--st-text-secondary)]">Margin</div>
               <div className="text-right font-medium">
                 {formatCents(bundle.costMargin.margin)}
               </div>
-              <div className="text-zoru-ink-muted">Margin %</div>
+              <div className="text-[var(--st-text-secondary)]">Margin %</div>
               <div className="text-right font-medium">
                 {bundle.costMargin.marginPct}%
               </div>
@@ -715,7 +715,7 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
           </ZoruCardHeader>
           <ZoruCardContent>
             {bundle.replies.length === 0 ? (
-              <p className="py-8 text-center text-sm text-zoru-ink-muted">
+              <p className="py-8 text-center text-sm text-[var(--st-text-secondary)]">
                 No replies yet.
               </p>
             ) : (
@@ -726,7 +726,7 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
                 >
                   <ZoruChart.CartesianGrid
                     strokeDasharray="3 3"
-                    className="stroke-zoru-line"
+                    className="stroke-[var(--st-border)]"
                   />
                   <ZoruChart.XAxis
                     dataKey="bucket"
@@ -762,7 +762,7 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
           </ZoruCardHeader>
           <ZoruCardContent>
             {bundle.optOuts.length === 0 ? (
-              <p className="py-8 text-center text-sm text-zoru-ink-muted">
+              <p className="py-8 text-center text-sm text-[var(--st-text-secondary)]">
                 No opt-outs yet.
               </p>
             ) : (
@@ -773,7 +773,7 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
                 >
                   <ZoruChart.CartesianGrid
                     strokeDasharray="3 3"
-                    className="stroke-zoru-line"
+                    className="stroke-[var(--st-border)]"
                   />
                   <ZoruChart.XAxis
                     dataKey="bucket"
@@ -811,7 +811,7 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
           </ZoruCardHeader>
           <ZoruCardContent className="p-0">
             {bundle.clickHeat.length === 0 ? (
-              <p className="px-6 py-8 text-center text-sm text-zoru-ink-muted">
+              <p className="px-6 py-8 text-center text-sm text-[var(--st-text-secondary)]">
                 No clicks tracked yet. Wrap a URL with the SabSMS link
                 shortener to populate this card.
               </p>
@@ -853,7 +853,7 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
           </ZoruCardHeader>
           <ZoruCardContent className="p-0">
             {bundle.ab.variants.length === 0 ? (
-              <p className="px-6 py-8 text-center text-sm text-zoru-ink-muted">
+              <p className="px-6 py-8 text-center text-sm text-[var(--st-text-secondary)]">
                 Single-variant campaign — no A/B split.
               </p>
             ) : (
@@ -928,7 +928,7 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
         </ZoruCardHeader>
         <ZoruCardContent className="p-0">
           {bundle.webhookFires.length === 0 ? (
-            <p className="px-6 py-8 text-center text-sm text-zoru-ink-muted">
+            <p className="px-6 py-8 text-center text-sm text-[var(--st-text-secondary)]">
               No webhook deliveries yet for this campaign.
             </p>
           ) : (
@@ -954,12 +954,12 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
                     <ZoruTableCell className="text-right text-xs">
                       {w.attempts}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-xs text-zoru-ink-muted">
+                    <ZoruTableCell className="text-xs text-[var(--st-text-secondary)]">
                       {w.createdAt
                         ? new Date(w.createdAt).toLocaleString()
                         : "—"}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-xs text-zoru-ink-muted">
+                    <ZoruTableCell className="text-xs text-[var(--st-text-secondary)]">
                       {w.deliveredAt
                         ? new Date(w.deliveredAt).toLocaleString()
                         : "—"}
@@ -1032,30 +1032,30 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
               <Badge variant={statusVariant(drawerRow.status)}>
                 {drawerRow.status}
               </Badge>
-              <span className="text-zoru-ink-muted">{drawerRow.provider}</span>
+              <span className="text-[var(--st-text-secondary)]">{drawerRow.provider}</span>
             </div>
             <dl className="grid grid-cols-2 gap-2">
-              <dt className="text-zoru-ink-muted">Sent</dt>
+              <dt className="text-[var(--st-text-secondary)]">Sent</dt>
               <dd>{drawerRow.sentAt ? new Date(drawerRow.sentAt).toLocaleString() : "—"}</dd>
-              <dt className="text-zoru-ink-muted">Delivered</dt>
+              <dt className="text-[var(--st-text-secondary)]">Delivered</dt>
               <dd>
                 {drawerRow.deliveredAt
                   ? new Date(drawerRow.deliveredAt).toLocaleString()
                   : "—"}
               </dd>
-              <dt className="text-zoru-ink-muted">Segments</dt>
+              <dt className="text-[var(--st-text-secondary)]">Segments</dt>
               <dd>{drawerRow.segments ?? "—"}</dd>
-              <dt className="text-zoru-ink-muted">Cost</dt>
+              <dt className="text-[var(--st-text-secondary)]">Cost</dt>
               <dd>{drawerRow.cost !== undefined ? formatCents(drawerRow.cost) : "—"}</dd>
               {drawerRow.variant && (
                 <>
-                  <dt className="text-zoru-ink-muted">A/B variant</dt>
+                  <dt className="text-[var(--st-text-secondary)]">A/B variant</dt>
                   <dd>{drawerRow.variant}</dd>
                 </>
               )}
             </dl>
             {drawerRow.errorMessage && (
-              <div className="rounded-md border border-zoru-line bg-zoru-surface-2 px-3 py-2 text-xs text-zoru-ink">
+              <div className="rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-xs text-[var(--st-text)]">
                 {drawerRow.errorMessage}
               </div>
             )}

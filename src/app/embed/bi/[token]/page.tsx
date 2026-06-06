@@ -34,12 +34,12 @@ export default async function PublicEmbedPage({
   }
 
   return (
-    <div className="zoruui min-h-screen bg-zoru-bg p-6">
+    <div className="zoruui min-h-screen bg-[var(--st-bg)] p-6">
       <div className="mx-auto flex max-w-6xl flex-col gap-4">
         <header>
-          <h1 className="text-2xl font-semibold text-zoru-ink">{payload.name}</h1>
+          <h1 className="text-2xl font-semibold text-[var(--st-text)]">{payload.name}</h1>
           {payload.description && (
-            <p className="text-sm text-zoru-ink-muted">{payload.description}</p>
+            <p className="text-sm text-[var(--st-text-secondary)]">{payload.description}</p>
           )}
         </header>
 
@@ -65,7 +65,7 @@ export default async function PublicEmbedPage({
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm text-zoru-ink-muted">
+                    <p className="text-sm text-[var(--st-text-secondary)]">
                       Embedded chart payloads are rendered by the workbook
                       owner&apos;s saved config. Interactive previews require
                       a logged-in session.

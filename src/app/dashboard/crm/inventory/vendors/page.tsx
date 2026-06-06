@@ -465,11 +465,11 @@ export default function VendorsPage() {
                 empty={
                     !isPending && pageRows.length === 0 && allVendors.length === 0 ? (
                         <div className="flex flex-col items-center gap-3 p-4">
-                            <Building2 className="h-8 w-8 text-zoru-ink-muted" />
-                            <h3 className="text-base font-medium text-zoru-ink">
+                            <Building2 className="h-8 w-8 text-[var(--st-text-secondary)]" />
+                            <h3 className="text-base font-medium text-[var(--st-text)]">
                                 No vendors yet
                             </h3>
-                            <p className="max-w-sm text-sm text-zoru-ink-muted">
+                            <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                                 Add your first supplier to start tracking purchase orders,
                                 bills, and payouts.
                             </p>
@@ -505,7 +505,7 @@ export default function VendorsPage() {
                     />
 
                     <Card>
-                        <h2 className="text-[16px] font-semibold text-zoru-ink">
+                        <h2 className="text-[16px] font-semibold text-[var(--st-text)]">
                             All Vendors
                             {totalFiltered !== allVendors.length ? (
                                 <Badge variant="secondary" className="ml-2">
@@ -514,11 +514,11 @@ export default function VendorsPage() {
                                 </Badge>
                             ) : null}
                         </h2>
-                        <div className="mt-4 overflow-x-auto rounded-lg border border-zoru-line">
+                        <div className="mt-4 overflow-x-auto rounded-lg border border-[var(--st-border)]">
                             <Table>
                                 <ZoruTableHeader>
-                                    <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                        <ZoruTableHead className="w-10 text-zoru-ink-muted">
+                                    <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                                        <ZoruTableHead className="w-10 text-[var(--st-text-secondary)]">
                                             <Checkbox
                                                 aria-label="Select all on page"
                                                 checked={
@@ -529,19 +529,19 @@ export default function VendorsPage() {
                                                 }
                                             />
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-zoru-ink-muted">
+                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                             Vendor Name
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-zoru-ink-muted">
+                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                             Email
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-zoru-ink-muted">
+                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                             Phone
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-zoru-ink-muted">
+                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                             Type
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-right text-zoru-ink-muted">
+                                        <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                                             Actions
                                         </ZoruTableHead>
                                     </ZoruTableRow>
@@ -554,7 +554,7 @@ export default function VendorsPage() {
                                             return (
                                                 <ZoruTableRow
                                                     key={id}
-                                                    className="border-zoru-line"
+                                                    className="border-[var(--st-border)]"
                                                     data-state={isSel ? 'selected' : undefined}
                                                 >
                                                     <ZoruTableCell>
@@ -564,7 +564,7 @@ export default function VendorsPage() {
                                                             onCheckedChange={() => handleToggleOne(id)}
                                                         />
                                                     </ZoruTableCell>
-                                                    <ZoruTableCell className="font-medium text-zoru-ink">
+                                                    <ZoruTableCell className="font-medium text-[var(--st-text)]">
                                                         <EntityRowLink
                                                             href={`/dashboard/crm/purchases/vendors/${id}`}
                                                             label={vendor.name}
@@ -576,10 +576,10 @@ export default function VendorsPage() {
                                                             }
                                                         />
                                                     </ZoruTableCell>
-                                                    <ZoruTableCell className="text-zoru-ink">
+                                                    <ZoruTableCell className="text-[var(--st-text)]">
                                                         {vendor.email || 'N/A'}
                                                     </ZoruTableCell>
-                                                    <ZoruTableCell className="text-zoru-ink">
+                                                    <ZoruTableCell className="text-[var(--st-text)]">
                                                         {vendor.phone || 'N/A'}
                                                     </ZoruTableCell>
                                                     <ZoruTableCell>
@@ -594,17 +594,17 @@ export default function VendorsPage() {
                                                             aria-label={`Delete ${vendor.name}`}
                                                             onClick={() => setDeleteTargetId(id)}
                                                         >
-                                                            <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                                            <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                                         </Button>
                                                     </ZoruTableCell>
                                                 </ZoruTableRow>
                                             );
                                         })
                                     ) : (
-                                        <ZoruTableRow className="border-zoru-line">
+                                        <ZoruTableRow className="border-[var(--st-border)]">
                                             <ZoruTableCell
                                                 colSpan={6}
-                                                className="h-24 text-center text-zoru-ink-muted"
+                                                className="h-24 text-center text-[var(--st-text-secondary)]"
                                             >
                                                 {hasActiveFilters || search
                                                     ? 'No vendors match your filters.'

@@ -18,6 +18,13 @@ tracing = "0.1"
 anyhow = "1"
 futures = "0.3"
 
+# RSA-2048 keypair generation for WhatsApp Flows data-exchange encryption.
+# `pem` enables PKCS#8 (private) / SPKI (public) PEM export; `rand` supplies
+# the CSPRNG that `RsaPrivateKey::new` requires. rsa 0.9 + rand 0.8 are
+# already in the workspace lockfile, so this pulls in no new dep trees.
+rsa = { version = "0.9", features = ["pem"] }
+rand = "0.8"
+
 sabnode-common = { path = "../common" }
 sabnode-auth = { path = "../auth" }
 sabnode-db = { path = "../db" }

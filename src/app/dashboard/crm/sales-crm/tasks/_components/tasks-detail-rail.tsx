@@ -52,7 +52,7 @@ export function TaskDetailRail({
                 </ZoruCardHeader>
                 <ZoruCardContent className="space-y-3 text-sm">
                     <div className="flex items-center justify-between gap-2">
-                        <span className="text-zoru-ink-muted">Assignee</span>
+                        <span className="text-[var(--st-text-secondary)]">Assignee</span>
                         {task.assignedTo ? (
                             <EntityPickerChip
                                 entity="user"
@@ -60,22 +60,22 @@ export function TaskDetailRail({
                                 fallback="Unassigned"
                             />
                         ) : (
-                            <span className="text-zoru-ink-muted">Unassigned</span>
+                            <span className="text-[var(--st-text-secondary)]">Unassigned</span>
                         )}
                     </div>
                     <div className="flex items-center justify-between gap-2">
-                        <span className="text-zoru-ink-muted">Created by</span>
+                        <span className="text-[var(--st-text-secondary)]">Created by</span>
                         {(task as any).createdBy ? (
                             <EntityPickerChip
                                 entity="user"
                                 id={String((task as any).createdBy)}
                             />
                         ) : (
-                            <span className="text-zoru-ink-muted">—</span>
+                            <span className="text-[var(--st-text-secondary)]">—</span>
                         )}
                     </div>
                     <div className="flex items-center justify-between gap-2">
-                        <span className="text-zoru-ink-muted">Priority</span>
+                        <span className="text-[var(--st-text-secondary)]">Priority</span>
                         <StatusPill
                             label={(task.priority as string) || 'Medium'}
                             tone={
@@ -88,7 +88,7 @@ export function TaskDetailRail({
                         />
                     </div>
                     <div className="space-y-1 pt-1">
-                        <span className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                        <span className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                             Set status
                         </span>
                         <div className="flex flex-wrap gap-1.5">
@@ -101,8 +101,8 @@ export function TaskDetailRail({
                                     className={[
                                         'rounded-full border px-2 py-0.5 text-[11.5px]',
                                         status === s
-                                            ? 'border-zoru-primary bg-zoru-primary/10 text-zoru-ink'
-                                            : 'border-zoru-line text-zoru-ink-muted hover:text-zoru-ink',
+                                            ? 'border-[var(--st-text)] bg-[var(--st-text)]/10 text-[var(--st-text)]'
+                                            : 'border-[var(--st-border)] text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
                                     ].join(' ')}
                                 >
                                     {s}
@@ -127,7 +127,7 @@ export function TaskDetailRail({
                         {linkedTargetHref ? (
                             <Link
                                 href={linkedTargetHref}
-                                className="inline-flex items-center gap-1 text-[12.5px] text-zoru-primary hover:underline"
+                                className="inline-flex items-center gap-1 text-[12.5px] text-[var(--st-text)] hover:underline"
                             >
                                 Open {linkedKindLabel.toLowerCase()}{' '}
                                 <ExternalLink className="h-3 w-3" />
@@ -143,7 +143,7 @@ export function TaskDetailRail({
                 </ZoruCardHeader>
                 <ZoruCardContent className="space-y-2 text-sm">
                     {related.length === 0 ? (
-                        <p className="text-zoru-ink-muted">
+                        <p className="text-[var(--st-text-secondary)]">
                             No other tasks on this entity yet.
                         </p>
                     ) : (
@@ -152,9 +152,9 @@ export function TaskDetailRail({
                                 <li key={String(r._id)}>
                                     <Link
                                         href={`/dashboard/crm/sales-crm/tasks/${String(r._id)}`}
-                                        className="flex items-center justify-between rounded-md px-2 py-1.5 hover:bg-zoru-surface-2"
+                                        className="flex items-center justify-between rounded-md px-2 py-1.5 hover:bg-[var(--st-bg-muted)]"
                                     >
-                                        <span className="truncate text-zoru-ink">{r.title}</span>
+                                        <span className="truncate text-[var(--st-text)]">{r.title}</span>
                                         <StatusPill
                                             label={(r.status as string) || 'To-Do'}
                                             tone={statusToTone((r.status as string) || 'To-Do')}

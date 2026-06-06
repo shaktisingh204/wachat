@@ -325,7 +325,7 @@ export default function NewStockAdjustmentPage() {
                         <div className="space-y-3">
                             <div className="flex items-center gap-4 mb-4">
                                 <div className="flex items-center gap-2 flex-1">
-                                    <ScanBarcode className="h-4 w-4 text-zoru-ink-muted" />
+                                    <ScanBarcode className="h-4 w-4 text-[var(--st-text-secondary)]" />
                                     <Input 
                                         placeholder="Scan barcode here..." 
                                         value={barcode}
@@ -334,7 +334,7 @@ export default function NewStockAdjustmentPage() {
                                         disabled={isScanning}
                                         className="max-w-[250px] font-mono"
                                     />
-                                    {isScanning && <span className="text-xs text-zoru-ink-muted animate-pulse">Searching...</span>}
+                                    {isScanning && <span className="text-xs text-[var(--st-text-secondary)] animate-pulse">Searching...</span>}
                                 </div>
                                 <div>
                                     <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()}>
@@ -343,9 +343,9 @@ export default function NewStockAdjustmentPage() {
                                     <input type="file" ref={fileInputRef} onChange={handleCsvUpload} className="hidden" accept=".csv" />
                                 </div>
                             </div>
-                            <div className="overflow-x-auto rounded-md border border-zoru-line">
+                            <div className="overflow-x-auto rounded-md border border-[var(--st-border)]">
                                 <table className="w-full text-[12.5px]">
-                                    <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
+                                    <thead className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                                         <tr>
                                             <th className="px-2 py-2 text-left font-medium">
                                                 Item
@@ -379,7 +379,7 @@ export default function NewStockAdjustmentPage() {
                                             return (
                                                 <tr
                                                     key={l.key}
-                                                    className="border-t border-zoru-line"
+                                                    className="border-t border-[var(--st-border)]"
                                                 >
                                                     <td className="px-2 py-1.5 min-w-[180px]">
                                                         <EntityFormField
@@ -421,10 +421,10 @@ export default function NewStockAdjustmentPage() {
                                                         className={[
                                                             'px-2 py-1.5 text-right font-mono',
                                                             delta > 0
-                                                                ? 'text-zoru-ink'
+                                                                ? 'text-[var(--st-text)]'
                                                                 : delta < 0
-                                                                  ? 'text-zoru-ink'
-                                                                  : 'text-zoru-ink-muted',
+                                                                  ? 'text-[var(--st-text)]'
+                                                                  : 'text-[var(--st-text-secondary)]',
                                                         ].join(' ')}
                                                     >
                                                         {delta > 0 ? '+' : ''}
@@ -470,7 +470,7 @@ export default function NewStockAdjustmentPage() {
                                                             type="button"
                                                             onClick={() => removeLine(idx)}
                                                             disabled={lines.length === 1}
-                                                            className="inline-flex h-7 w-7 items-center justify-center rounded text-zoru-ink-muted hover:bg-zoru-surface-2 disabled:opacity-30"
+                                                            className="inline-flex h-7 w-7 items-center justify-center rounded text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] disabled:opacity-30"
                                                             aria-label="Remove row"
                                                         >
                                                             <Trash2 className="h-3.5 w-3.5" />
@@ -491,9 +491,9 @@ export default function NewStockAdjustmentPage() {
                                 >
                                     <Plus className="h-3.5 w-3.5" /> Add line
                                 </Button>
-                                <div className="text-[12.5px] text-zoru-ink-muted">
+                                <div className="text-[12.5px] text-[var(--st-text-secondary)]">
                                     Total impact:{' '}
-                                    <span className="font-mono text-zoru-ink">
+                                    <span className="font-mono text-[var(--st-text)]">
                                         {totalImpact.toLocaleString('en-IN', {
                                             maximumFractionDigits: 2,
                                         })}
@@ -550,7 +550,7 @@ export default function NewStockAdjustmentPage() {
                                 <Label>Physical Stock Proofs</Label>
                                 <div className="flex flex-wrap gap-2">
                                     {attachments.map((url, i) => (
-                                        <div key={i} className="flex items-center gap-1 rounded bg-zoru-surface-2 px-2 py-1 text-xs dark:bg-zoru-ink">
+                                        <div key={i} className="flex items-center gap-1 rounded bg-[var(--st-bg-muted)] px-2 py-1 text-xs dark:bg-[var(--st-text)]">
                                             <Paperclip className="h-3 w-3" />
                                             <span className="max-w-[200px] truncate">{url.split('/').pop()}</span>
                                         </div>

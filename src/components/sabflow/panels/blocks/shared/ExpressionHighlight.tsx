@@ -207,9 +207,9 @@ function isIdentifierChar(char: string): boolean {
 /* ── Rendering ────────────────────────────────────────────────────────────── */
 
 const TOKEN_CLASS: Record<TokenKind, string> = {
-  'expr-root': 'text-zoru-ink-muted font-medium',
-  string: 'text-zoru-ink-muted',
-  number: 'text-zoru-ink-muted',
+  'expr-root': 'text-[var(--st-text-secondary)] font-medium',
+  string: 'text-[var(--st-text-secondary)]',
+  number: 'text-[var(--st-text-secondary)]',
   operator: 'text-[var(--gray-9)]',
   punctuation: 'text-[var(--gray-9)]',
   identifier: 'text-[var(--gray-12)]',

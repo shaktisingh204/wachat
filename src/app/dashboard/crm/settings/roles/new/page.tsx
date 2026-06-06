@@ -47,7 +47,7 @@ export default function NewRolePage() {
         <form action={formAction} className="w-full space-y-4 p-6">
           <div>
             <Label htmlFor="display_name">
-              Display name <span className="text-zoru-danger-ink">*</span>
+              Display name <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <Input
               id="display_name"
@@ -64,7 +64,7 @@ export default function NewRolePage() {
               name="name"
               placeholder="auto-generated from display name"
             />
-            <p className="mt-1 text-[12px] text-zoru-ink-muted">
+            <p className="mt-1 text-[12px] text-[var(--st-text-secondary)]">
               Lowercase identifier used in permission checks.
             </p>
           </div>
@@ -76,7 +76,7 @@ export default function NewRolePage() {
 
           <div className="flex items-center gap-2">
             <Checkbox id="is_admin" name="is_admin" value="true" />
-            <Label htmlFor="is_admin" className="text-[13px] text-zoru-ink">
+            <Label htmlFor="is_admin" className="text-[13px] text-[var(--st-text)]">
               Admin role — grants all permissions automatically
             </Label>
           </div>

@@ -94,9 +94,9 @@ function FilterGroupEditor({ group, onChange, depth, onRemove }: GroupProps) {
   };
 
   return (
-    <div className={depth === 0 ? 'space-y-3' : 'rounded-lg border border-zoru-line bg-zoru-surface-raised p-3 space-y-3'}>
+    <div className={depth === 0 ? 'space-y-3' : 'rounded-lg border border-[var(--st-border)] bg-zoru-surface-raised p-3 space-y-3'}>
       <div className="flex items-center gap-2">
-        <Label className="text-xs uppercase tracking-wide text-zoru-ink-muted">
+        <Label className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
           Match
         </Label>
         <Select

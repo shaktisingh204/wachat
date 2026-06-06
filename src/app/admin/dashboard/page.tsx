@@ -105,26 +105,26 @@ function HeroStat({
   accent?: boolean;
 }) {
   return (
-    <div className="rounded-2xl border border-zoru-line bg-zoru-bg p-5 flex flex-col gap-3">
+    <div className="rounded-2xl border border-[var(--st-border)] bg-[var(--st-bg)] p-5 flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold text-zoru-ink-muted uppercase tracking-wider">
+        <span className="text-xs font-semibold text-[var(--st-text-secondary)] uppercase tracking-wider">
           {title}
         </span>
         <div
-          className={`h-8 w-8 rounded-lg flex items-center justify-center ${accent ? "bg-zoru-surface-2 border border-zoru-line" : "bg-zoru-surface"}`}
+          className={`h-8 w-8 rounded-lg flex items-center justify-center ${accent ? "bg-[var(--st-bg-muted)] border border-[var(--st-border)]" : "bg-[var(--st-bg-secondary)]"}`}
         >
           <Icon
-            className={`h-4 w-4 ${accent ? "text-zoru-ink" : "text-zoru-ink"}`}
+            className={`h-4 w-4 ${accent ? "text-[var(--st-text)]" : "text-[var(--st-text)]"}`}
           />
         </div>
       </div>
       <div>
         <div
-          className={`text-3xl font-bold tracking-tight ${accent ? "text-zoru-ink" : "text-zoru-ink"}`}
+          className={`text-3xl font-bold tracking-tight ${accent ? "text-[var(--st-text)]" : "text-[var(--st-text)]"}`}
         >
           {value}
         </div>
-        {sub && <p className="text-xs text-zoru-ink-muted mt-1">{sub}</p>}
+        {sub && <p className="text-xs text-[var(--st-text-secondary)] mt-1">{sub}</p>}
       </div>
     </div>
   );
@@ -140,15 +140,15 @@ function MiniStat({
   icon: React.ElementType;
 }) {
   return (
-    <div className="rounded-xl border border-zoru-line bg-zoru-bg p-4 flex items-center gap-3 hover:border-zoru-line hover:bg-zoru-bg transition-all">
-      <div className="h-9 w-9 rounded-xl bg-zoru-surface border border-zoru-line flex items-center justify-center shrink-0">
-        <Icon className="h-4 w-4 text-zoru-ink" />
+    <div className="rounded-xl border border-[var(--st-border)] bg-[var(--st-bg)] p-4 flex items-center gap-3 hover:border-[var(--st-border)] hover:bg-[var(--st-bg)] transition-all">
+      <div className="h-9 w-9 rounded-xl bg-[var(--st-bg-secondary)] border border-[var(--st-border)] flex items-center justify-center shrink-0">
+        <Icon className="h-4 w-4 text-[var(--st-text)]" />
       </div>
       <div className="min-w-0 flex-1">
-        <div className="text-lg font-bold text-zoru-ink tabular-nums truncate">
+        <div className="text-lg font-bold text-[var(--st-text)] tabular-nums truncate">
           {fmt(value)}
         </div>
-        <div className="text-[11px] text-zoru-ink-muted truncate">{label}</div>
+        <div className="text-[11px] text-[var(--st-text-secondary)] truncate">{label}</div>
       </div>
     </div>
   );
@@ -173,30 +173,30 @@ function StatSection({
     { bg: string; text: string; border: string }
   > = {
     emerald: {
-      bg: "bg-zoru-surface-2",
-      text: "text-zoru-ink",
-      border: "border-zoru-line",
+      bg: "bg-[var(--st-bg-muted)]",
+      text: "text-[var(--st-text)]",
+      border: "border-[var(--st-border)]",
     },
-    sky: { bg: "bg-zoru-surface-2", text: "text-zoru-ink", border: "border-zoru-line" },
+    sky: { bg: "bg-[var(--st-bg-muted)]", text: "text-[var(--st-text)]", border: "border-[var(--st-border)]" },
     violet: {
-      bg: "bg-zoru-surface-2",
-      text: "text-zoru-ink",
-      border: "border-zoru-line",
+      bg: "bg-[var(--st-bg-muted)]",
+      text: "text-[var(--st-text)]",
+      border: "border-[var(--st-border)]",
     },
     rose: {
-      bg: "bg-zoru-surface-2",
-      text: "text-zoru-ink",
-      border: "border-zoru-line",
+      bg: "bg-[var(--st-bg-muted)]",
+      text: "text-[var(--st-text)]",
+      border: "border-[var(--st-border)]",
     },
     amber: {
-      bg: "bg-zoru-surface-2",
-      text: "text-zoru-ink",
-      border: "border-zoru-line",
+      bg: "bg-[var(--st-bg-muted)]",
+      text: "text-[var(--st-text)]",
+      border: "border-[var(--st-border)]",
     },
     cyan: {
-      bg: "bg-zoru-surface-2",
-      text: "text-zoru-ink",
-      border: "border-zoru-line",
+      bg: "bg-[var(--st-bg-muted)]",
+      text: "text-[var(--st-text)]",
+      border: "border-[var(--st-border)]",
     },
   };
   const c = accentClasses[accent] ?? accentClasses.emerald;
@@ -210,9 +210,9 @@ function StatSection({
           <Icon className={`h-4 w-4 ${c.text}`} />
         </div>
         <div>
-          <h2 className="text-sm font-semibold text-zoru-ink">{title}</h2>
+          <h2 className="text-sm font-semibold text-[var(--st-text)]">{title}</h2>
           {description && (
-            <p className="text-[11px] text-zoru-ink-muted">{description}</p>
+            <p className="text-[11px] text-[var(--st-text-secondary)]">{description}</p>
           )}
         </div>
       </div>
@@ -235,10 +235,10 @@ function StatSection({
 /* ---------------------------------------------------------------- */
 
 const statusVariant: Record<string, string> = {
-  Completed: "bg-zoru-surface-2 text-zoru-ink border-zoru-line",
-  Queued: "bg-zoru-surface text-zoru-ink border-zoru-line",
-  Processing: "bg-zoru-surface-2 text-zoru-ink border-zoru-line",
-  Failed: "bg-zoru-ink/15 text-zoru-ink border-zoru-line/30",
+  Completed: "bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]",
+  Queued: "bg-[var(--st-bg-secondary)] text-[var(--st-text)] border-[var(--st-border)]",
+  Processing: "bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]",
+  Failed: "bg-[var(--st-text)]/15 text-[var(--st-text)] border-[var(--st-border)]/30",
 };
 
 import { cache, Suspense } from "react";
@@ -248,7 +248,7 @@ const getCachedStats = cache(getAdminDashboardStats);
 
 function StatsFallback({ title }: { title: string }) {
   return (
-    <div className="h-32 rounded-2xl border border-zoru-line bg-zoru-surface flex items-center justify-center animate-pulse text-sm text-zoru-ink-muted">
+    <div className="h-32 rounded-2xl border border-[var(--st-border)] bg-[var(--st-bg-secondary)] flex items-center justify-center animate-pulse text-sm text-[var(--st-text-secondary)]">
       Loading {title}...
     </div>
   );
@@ -586,11 +586,11 @@ async function ProjectsTableWrapper({
   const totalPages = Math.ceil(totalProjects / PROJECTS_PER_PAGE);
 
   return (
-    <div className="lg:col-span-3 rounded-2xl border border-zoru-line bg-zoru-bg overflow-hidden">
-      <div className="px-6 py-4 border-b border-zoru-line flex items-center justify-between gap-4">
+    <div className="lg:col-span-3 rounded-2xl border border-[var(--st-border)] bg-[var(--st-bg)] overflow-hidden">
+      <div className="px-6 py-4 border-b border-[var(--st-border)] flex items-center justify-between gap-4">
         <div>
-          <h2 className="font-semibold text-zoru-ink">All Projects</h2>
-          <p className="text-xs text-zoru-ink-muted mt-0.5">
+          <h2 className="font-semibold text-[var(--st-text)]">All Projects</h2>
+          <p className="text-xs text-[var(--st-text-secondary)] mt-0.5">
             {fmt(totalProjects)} total
           </p>
         </div>
@@ -601,41 +601,41 @@ async function ProjectsTableWrapper({
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-zoru-line">
-              <th className="text-left px-6 py-3 text-xs font-semibold text-zoru-ink-muted uppercase tracking-wider">
+            <tr className="border-b border-[var(--st-border)]">
+              <th className="text-left px-6 py-3 text-xs font-semibold text-[var(--st-text-secondary)] uppercase tracking-wider">
                 Project
               </th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-zoru-ink-muted uppercase tracking-wider">
+              <th className="text-left px-4 py-3 text-xs font-semibold text-[var(--st-text-secondary)] uppercase tracking-wider">
                 Plan
               </th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-zoru-ink-muted uppercase tracking-wider">
+              <th className="text-left px-4 py-3 text-xs font-semibold text-[var(--st-text-secondary)] uppercase tracking-wider">
                 Credits
               </th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-zoru-ink-muted uppercase tracking-wider">
+              <th className="text-left px-4 py-3 text-xs font-semibold text-[var(--st-text-secondary)] uppercase tracking-wider">
                 MPS
               </th>
               <th className="px-4 py-3" />
             </tr>
           </thead>
-          <tbody className="divide-y divide-zoru-line">
+          <tbody className="divide-y divide-[var(--st-border)]">
             {projects.length > 0 ? (
               projects.map((project: ProjectWithPlan) => (
                 <tr
                   key={project._id.toString()}
-                  className="hover:bg-zoru-surface transition-colors"
+                  className="hover:bg-[var(--st-bg-secondary)] transition-colors"
                 >
-                  <td className="px-6 py-3 font-medium text-zoru-ink">
+                  <td className="px-6 py-3 font-medium text-[var(--st-text)]">
                     {project.name}
                   </td>
                   <td className="px-4 py-3">
-                    <span className="inline-flex items-center rounded-full border border-zoru-line bg-zoru-surface px-2.5 py-0.5 text-xs font-medium text-zoru-ink">
+                    <span className="inline-flex items-center rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2.5 py-0.5 text-xs font-medium text-[var(--st-text)]">
                       {project.plan?.name || "N/A"}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-zoru-ink tabular-nums">
+                  <td className="px-4 py-3 text-[var(--st-text)] tabular-nums">
                     {project.credits?.toLocaleString() ?? 0}
                   </td>
-                  <td className="px-4 py-3 text-zoru-ink tabular-nums">
+                  <td className="px-4 py-3 text-[var(--st-text)] tabular-nums">
                     {project.messagesPerSecond ?? "—"}
                   </td>
                   <td className="px-4 py-3">
@@ -666,7 +666,7 @@ async function ProjectsTableWrapper({
               <tr>
                 <td
                   colSpan={5}
-                  className="px-6 py-12 text-center text-zoru-ink-muted"
+                  className="px-6 py-12 text-center text-[var(--st-text-secondary)]"
                 >
                   No projects found.
                 </td>
@@ -675,8 +675,8 @@ async function ProjectsTableWrapper({
           </tbody>
         </table>
       </div>
-      <div className="px-6 py-3 border-t border-zoru-line flex items-center justify-between">
-        <span className="text-xs text-zoru-ink-muted">
+      <div className="px-6 py-3 border-t border-[var(--st-border)] flex items-center justify-between">
+        <span className="text-xs text-[var(--st-text-secondary)]">
           Page {currentPage} of {totalPages > 0 ? totalPages : 1}
         </span>
         <div className="flex gap-2">
@@ -685,7 +685,7 @@ async function ProjectsTableWrapper({
             size="sm"
             asChild
             disabled={currentPage <= 1}
-            className="border-zoru-line bg-zoru-surface text-zoru-ink hover:bg-zoru-surface hover:text-zoru-ink disabled:opacity-40"
+            className="border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)] hover:text-[var(--st-text)] disabled:opacity-40"
           >
             <Link
               href={`/admin/dashboard?page=${currentPage - 1}${query ? `&query=${query}` : ""}`}
@@ -698,7 +698,7 @@ async function ProjectsTableWrapper({
             size="sm"
             asChild
             disabled={currentPage >= totalPages}
-            className="border-zoru-line bg-zoru-surface text-zoru-ink hover:bg-zoru-surface hover:text-zoru-ink disabled:opacity-40"
+            className="border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)] hover:text-[var(--st-text)] disabled:opacity-40"
           >
             <Link
               href={`/admin/dashboard?page=${currentPage + 1}${query ? `&query=${query}` : ""}`}
@@ -719,14 +719,14 @@ async function RecentBroadcastsWrapper() {
   const recentBroadcasts = broadcastData.broadcasts;
 
   return (
-    <div className="lg:col-span-2 rounded-2xl border border-zoru-line bg-zoru-bg overflow-hidden">
-      <div className="px-6 py-4 border-b border-zoru-line">
-        <h2 className="font-semibold text-zoru-ink">Recent Broadcasts</h2>
-        <p className="text-xs text-zoru-ink-muted mt-0.5">
+    <div className="lg:col-span-2 rounded-2xl border border-[var(--st-border)] bg-[var(--st-bg)] overflow-hidden">
+      <div className="px-6 py-4 border-b border-[var(--st-border)]">
+        <h2 className="font-semibold text-[var(--st-text)]">Recent Broadcasts</h2>
+        <p className="text-xs text-[var(--st-text-secondary)] mt-0.5">
           Latest campaigns across the platform
         </p>
       </div>
-      <div className="divide-y divide-zoru-line">
+      <div className="divide-y divide-[var(--st-border)]">
         {recentBroadcasts.length > 0 ? (
           recentBroadcasts.map((b: any) => {
             const statusClass =
@@ -734,13 +734,13 @@ async function RecentBroadcastsWrapper() {
             return (
               <div
                 key={b._id.toString()}
-                className="px-6 py-3 flex items-center gap-3 hover:bg-zoru-surface transition-colors"
+                className="px-6 py-3 flex items-center gap-3 hover:bg-[var(--st-bg-secondary)] transition-colors"
               >
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-zoru-ink truncate">
+                  <p className="text-sm font-medium text-[var(--st-text)] truncate">
                     {b.templateName || "Unknown template"}
                   </p>
-                  <p className="text-xs text-zoru-ink-muted">
+                  <p className="text-xs text-[var(--st-text-secondary)]">
                     {new Date(b.createdAt).toLocaleString()}
                   </p>
                 </div>
@@ -753,15 +753,15 @@ async function RecentBroadcastsWrapper() {
             );
           })
         ) : (
-          <div className="px-6 py-12 text-center text-zoru-ink-muted text-sm">
+          <div className="px-6 py-12 text-center text-[var(--st-text-secondary)] text-sm">
             No broadcasts yet.
           </div>
         )}
       </div>
-      <div className="px-6 py-3 border-t border-zoru-line">
+      <div className="px-6 py-3 border-t border-[var(--st-border)]">
         <Link
           href="/admin/dashboard/broadcast-log"
-          className="text-xs text-zoru-ink hover:text-zoru-ink-muted font-medium transition-colors"
+          className="text-xs text-[var(--st-text)] hover:text-[var(--st-text-secondary)] font-medium transition-colors"
         >
           View all broadcasts →
         </Link>
@@ -787,14 +787,14 @@ export default async function AdminDashboardPage({
       {/* Page header */}
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-zoru-ink">Dashboard</h1>
-          <p className="text-sm text-zoru-ink-muted mt-1">
+          <h1 className="text-2xl font-bold text-[var(--st-text)]">Dashboard</h1>
+          <p className="text-sm text-[var(--st-text-secondary)] mt-1">
             Platform-wide overview — all users, all modules.
           </p>
         </div>
         <div className="text-right hidden sm:block">
-          <div className="text-xs text-zoru-ink-muted">Total data points</div>
-          <div className="text-sm font-semibold text-zoru-ink">Live</div>
+          <div className="text-xs text-[var(--st-text-secondary)]">Total data points</div>
+          <div className="text-sm font-semibold text-[var(--st-text)]">Live</div>
         </div>
       </div>
 
@@ -839,7 +839,7 @@ export default async function AdminDashboardPage({
 
       <Suspense
         fallback={
-          <div className="h-96 rounded-2xl border border-zoru-line bg-zoru-surface flex items-center justify-center animate-pulse text-sm text-zoru-ink-muted">
+          <div className="h-96 rounded-2xl border border-[var(--st-border)] bg-[var(--st-bg-secondary)] flex items-center justify-center animate-pulse text-sm text-[var(--st-text-secondary)]">
             Loading projects...
           </div>
         }

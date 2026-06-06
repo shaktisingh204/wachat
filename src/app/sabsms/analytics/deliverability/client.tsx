@@ -43,7 +43,7 @@ export default function DeliverabilityPage({ dlrTrendData, volumeVsDlrData, fail
   const [showReroute, setShowReroute] = useState(true);
 
   return (
-    <div className="flex h-full flex-col overflow-y-auto bg-zoru-surface-2/50 pb-12">
+    <div className="flex h-full flex-col overflow-y-auto bg-[var(--st-bg-muted)]/50 pb-12">
       <SabsmsPageShell
         title="Deliverability Command Center"
         description="Enterprise-grade observability into delivery rates, latency, and carrier anomalies."
@@ -65,7 +65,7 @@ export default function DeliverabilityPage({ dlrTrendData, volumeVsDlrData, fail
         ]}
       >
         {/* Filters and Actions */}
-        <div className="mb-6 flex items-center justify-between bg-white p-4 rounded-xl border border-zoru-line shadow-sm">
+        <div className="mb-6 flex items-center justify-between bg-white p-4 rounded-xl border border-[var(--st-border)] shadow-sm">
           <SabsmsFilterBar
             searchPlaceholder="Search routes, carriers, or templates..."
             facets={[
@@ -110,91 +110,91 @@ export default function DeliverabilityPage({ dlrTrendData, volumeVsDlrData, fail
 
         {/* Massive KPI Row */}
         <div className="mb-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="rounded-xl border border-zoru-line bg-white p-5 shadow-sm relative overflow-hidden group">
+          <div className="rounded-xl border border-[var(--st-border)] bg-white p-5 shadow-sm relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-              <Globe className="h-16 w-16 text-zoru-ink" />
+              <Globe className="h-16 w-16 text-[var(--st-text)]" />
             </div>
-            <p className="text-sm text-zoru-ink font-medium uppercase tracking-wider mb-1">Global DLR</p>
+            <p className="text-sm text-[var(--st-text)] font-medium uppercase tracking-wider mb-1">Global DLR</p>
             <div className="flex items-end gap-3 mb-2">
-              <h2 className="text-4xl font-bold text-zoru-ink">98.4%</h2>
-              <span className="flex items-center text-sm font-medium text-zoru-ink mb-1 bg-zoru-surface-2 px-2 py-0.5 rounded-full">
+              <h2 className="text-4xl font-bold text-[var(--st-text)]">98.4%</h2>
+              <span className="flex items-center text-sm font-medium text-[var(--st-text)] mb-1 bg-[var(--st-bg-muted)] px-2 py-0.5 rounded-full">
                 <ArrowUpRight className="h-3 w-3 mr-1" />
                 0.6%
               </span>
             </div>
-            <p className="text-xs text-zoru-ink">vs 97.8% trailing 7 days</p>
+            <p className="text-xs text-[var(--st-text)]">vs 97.8% trailing 7 days</p>
           </div>
 
-          <div className="rounded-xl border border-zoru-line bg-white p-5 shadow-sm relative overflow-hidden group">
+          <div className="rounded-xl border border-[var(--st-border)] bg-white p-5 shadow-sm relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-              <Layers className="h-16 w-16 text-zoru-ink" />
+              <Layers className="h-16 w-16 text-[var(--st-text)]" />
             </div>
-            <p className="text-sm text-zoru-ink font-medium uppercase tracking-wider mb-1">Total Volume</p>
+            <p className="text-sm text-[var(--st-text)] font-medium uppercase tracking-wider mb-1">Total Volume</p>
             <div className="flex items-end gap-3 mb-2">
-              <h2 className="text-4xl font-bold text-zoru-ink">3.2M</h2>
-              <span className="flex items-center text-sm font-medium text-zoru-ink mb-1 bg-zoru-surface-2 px-2 py-0.5 rounded-full">
+              <h2 className="text-4xl font-bold text-[var(--st-text)]">3.2M</h2>
+              <span className="flex items-center text-sm font-medium text-[var(--st-text)] mb-1 bg-[var(--st-bg-muted)] px-2 py-0.5 rounded-full">
                 <ArrowUpRight className="h-3 w-3 mr-1" />
                 12.4%
               </span>
             </div>
-            <p className="text-xs text-zoru-ink">Messages processed this period</p>
+            <p className="text-xs text-[var(--st-text)]">Messages processed this period</p>
           </div>
 
-          <div className="rounded-xl border border-zoru-line bg-white p-5 shadow-sm relative overflow-hidden group">
+          <div className="rounded-xl border border-[var(--st-border)] bg-white p-5 shadow-sm relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-              <ActivitySquare className="h-16 w-16 text-zoru-ink" />
+              <ActivitySquare className="h-16 w-16 text-[var(--st-text)]" />
             </div>
-            <p className="text-sm text-zoru-ink font-medium uppercase tracking-wider mb-1">Avg Latency (p95)</p>
+            <p className="text-sm text-[var(--st-text)] font-medium uppercase tracking-wider mb-1">Avg Latency (p95)</p>
             <div className="flex items-end gap-3 mb-2">
-              <h2 className="text-4xl font-bold text-zoru-ink">2.4s</h2>
-              <span className="flex items-center text-sm font-medium text-zoru-ink mb-1 bg-zoru-surface-2 px-2 py-0.5 rounded-full">
+              <h2 className="text-4xl font-bold text-[var(--st-text)]">2.4s</h2>
+              <span className="flex items-center text-sm font-medium text-[var(--st-text)] mb-1 bg-[var(--st-bg-muted)] px-2 py-0.5 rounded-full">
                 <ArrowUpRight className="h-3 w-3 mr-1" />
                 0.3s
               </span>
             </div>
-            <p className="text-xs text-zoru-ink">Elevated latency in APAC region</p>
+            <p className="text-xs text-[var(--st-text)]">Elevated latency in APAC region</p>
           </div>
 
-          <div className="rounded-xl border border-zoru-line bg-white p-5 shadow-sm relative overflow-hidden group">
+          <div className="rounded-xl border border-[var(--st-border)] bg-white p-5 shadow-sm relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-              <ShieldAlert className="h-16 w-16 text-zoru-ink" />
+              <ShieldAlert className="h-16 w-16 text-[var(--st-text)]" />
             </div>
-            <p className="text-sm text-zoru-ink font-medium uppercase tracking-wider mb-1">Carrier Blocks</p>
+            <p className="text-sm text-[var(--st-text)] font-medium uppercase tracking-wider mb-1">Carrier Blocks</p>
             <div className="flex items-end gap-3 mb-2">
-              <h2 className="text-4xl font-bold text-zoru-ink">1.2%</h2>
-              <span className="flex items-center text-sm font-medium text-zoru-ink mb-1 bg-zoru-surface-2 px-2 py-0.5 rounded-full">
+              <h2 className="text-4xl font-bold text-[var(--st-text)]">1.2%</h2>
+              <span className="flex items-center text-sm font-medium text-[var(--st-text)] mb-1 bg-[var(--st-bg-muted)] px-2 py-0.5 rounded-full">
                 <ArrowDownRight className="h-3 w-3 mr-1" />
                 0.2%
               </span>
             </div>
-            <p className="text-xs text-zoru-ink">Improved spam detection rates</p>
+            <p className="text-xs text-[var(--st-text)]">Improved spam detection rates</p>
           </div>
         </div>
 
         {/* Machine Learning / Intelligent Reroute Alert */}
         {showReroute && (
-          <div className="mb-6 rounded-xl border border-zoru-line bg-gradient-to-r from-zoru-surface-2 to-zoru-surface-2 p-5 shadow-sm">
+          <div className="mb-6 rounded-xl border border-[var(--st-border)] bg-gradient-to-r from-[var(--st-bg-muted)] to-[var(--st-bg-muted)] p-5 shadow-sm">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <div className="flex items-start gap-4">
-                <div className="bg-zoru-surface-2 p-2 rounded-lg mt-1">
-                  <Network className="h-6 w-6 text-zoru-ink" />
+                <div className="bg-[var(--st-bg-muted)] p-2 rounded-lg mt-1">
+                  <Network className="h-6 w-6 text-[var(--st-text)]" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-zoru-ink text-lg flex items-center gap-2">
+                  <h4 className="font-bold text-[var(--st-text)] text-lg flex items-center gap-2">
                     Intelligent Re-route Recommendation
-                    <Badge className="bg-zoru-ink hover:bg-zoru-ink text-white border-0">AI Optimization</Badge>
+                    <Badge className="bg-[var(--st-text)] hover:bg-[var(--st-text)] text-white border-0">AI Optimization</Badge>
                   </h4>
-                  <p className="text-zoru-ink mt-1 max-w-3xl">
+                  <p className="text-[var(--st-text)] mt-1 max-w-3xl">
                     Our routing engine detected a <strong>12% DLR drop</strong> on Plivo for <strong>India (IN)</strong> traffic over the last 2 hours. 
                     Shifting traffic to Twilio will restore DLR to ~94% and reduce p95 latency by 3.1s. Estimated cost impact: +$45/day.
                   </p>
                 </div>
               </div>
               <div className="flex gap-3 shrink-0">
-                <Button variant="outline" className="border-zoru-line text-zoru-ink hover:bg-zoru-surface-2" onClick={() => setShowReroute(false)}>
+                <Button variant="outline" className="border-[var(--st-border)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]" onClick={() => setShowReroute(false)}>
                   Dismiss
                 </Button>
-                <Button className="bg-zoru-ink hover:bg-zoru-ink text-white shadow-md shadow-zoru-line" onClick={() => setShowReroute(false)}>
+                <Button className="bg-[var(--st-text)] hover:bg-[var(--st-text)] text-white shadow-md shadow-zoru-line" onClick={() => setShowReroute(false)}>
                   Execute Failover
                 </Button>
               </div>
@@ -206,16 +206,16 @@ export default function DeliverabilityPage({ dlrTrendData, volumeVsDlrData, fail
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
           
           {/* Main Area Chart - Takes 2 columns */}
-          <div className="rounded-xl border border-zoru-line bg-white p-5 shadow-sm xl:col-span-2 flex flex-col min-h-[400px]">
+          <div className="rounded-xl border border-[var(--st-border)] bg-white p-5 shadow-sm xl:col-span-2 flex flex-col min-h-[400px]">
             <div className="flex justify-between items-center mb-6">
               <div>
-                <h3 className="font-bold text-lg text-zoru-ink">Provider Deliverability Trends</h3>
-                <p className="text-sm text-zoru-ink">Real-time delivery rates across top gateway providers</p>
+                <h3 className="font-bold text-lg text-[var(--st-text)]">Provider Deliverability Trends</h3>
+                <p className="text-sm text-[var(--st-text)]">Real-time delivery rates across top gateway providers</p>
               </div>
-              <div className="flex items-center gap-2 bg-zoru-surface-2 p-1 rounded-lg">
-                <button className="px-3 py-1 text-xs font-medium bg-white shadow-sm rounded-md text-zoru-ink">DLR %</button>
-                <button className="px-3 py-1 text-xs font-medium text-zoru-ink hover:text-zoru-ink transition-colors">Latency</button>
-                <button className="px-3 py-1 text-xs font-medium text-zoru-ink hover:text-zoru-ink transition-colors">Volume</button>
+              <div className="flex items-center gap-2 bg-[var(--st-bg-muted)] p-1 rounded-lg">
+                <button className="px-3 py-1 text-xs font-medium bg-white shadow-sm rounded-md text-[var(--st-text)]">DLR %</button>
+                <button className="px-3 py-1 text-xs font-medium text-[var(--st-text)] hover:text-[var(--st-text)] transition-colors">Latency</button>
+                <button className="px-3 py-1 text-xs font-medium text-[var(--st-text)] hover:text-[var(--st-text)] transition-colors">Volume</button>
               </div>
             </div>
             
@@ -268,10 +268,10 @@ export default function DeliverabilityPage({ dlrTrendData, volumeVsDlrData, fail
           </div>
 
           {/* Failure Reasons Donut */}
-          <div className="rounded-xl border border-zoru-line bg-white p-5 shadow-sm flex flex-col min-h-[400px]">
+          <div className="rounded-xl border border-[var(--st-border)] bg-white p-5 shadow-sm flex flex-col min-h-[400px]">
             <div className="mb-2">
-              <h3 className="font-bold text-lg text-zoru-ink">Failure Telemetry</h3>
-              <p className="text-sm text-zoru-ink">Breakdown of non-delivery reasons</p>
+              <h3 className="font-bold text-lg text-[var(--st-text)]">Failure Telemetry</h3>
+              <p className="text-sm text-[var(--st-text)]">Breakdown of non-delivery reasons</p>
             </div>
             
             <div className="flex-1 w-full relative flex items-center justify-center">
@@ -294,8 +294,8 @@ export default function DeliverabilityPage({ dlrTrendData, volumeVsDlrData, fail
                 </PieChart>
               </ChartContainer>
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                <span className="text-3xl font-bold text-zoru-ink">12.5k</span>
-                <span className="text-xs text-zoru-ink uppercase tracking-wider font-medium">Total Failures</span>
+                <span className="text-3xl font-bold text-[var(--st-text)]">12.5k</span>
+                <span className="text-xs text-[var(--st-text)] uppercase tracking-wider font-medium">Total Failures</span>
               </div>
             </div>
             
@@ -304,8 +304,8 @@ export default function DeliverabilityPage({ dlrTrendData, volumeVsDlrData, fail
                 <div key={item.name} className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-sm shrink-0" style={{ backgroundColor: COLORS[i] }} />
                   <div className="flex flex-col">
-                    <span className="text-xs font-medium text-zoru-ink truncate w-[100px]" title={item.name}>{item.name.split(' ')[0]}</span>
-                    <span className="text-xs text-zoru-ink">{item.value.toLocaleString()}</span>
+                    <span className="text-xs font-medium text-[var(--st-text)] truncate w-[100px]" title={item.name}>{item.name.split(' ')[0]}</span>
+                    <span className="text-xs text-[var(--st-text)]">{item.value.toLocaleString()}</span>
                   </div>
                 </div>
               ))}
@@ -317,10 +317,10 @@ export default function DeliverabilityPage({ dlrTrendData, volumeVsDlrData, fail
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           
           {/* Composed Chart for Volume vs DLR */}
-          <div className="rounded-xl border border-zoru-line bg-white p-5 shadow-sm">
+          <div className="rounded-xl border border-[var(--st-border)] bg-white p-5 shadow-sm">
             <div className="mb-6">
-              <h3 className="font-bold text-lg text-zoru-ink">Volume vs Deliverability</h3>
-              <p className="text-sm text-zoru-ink">Correlation between send volume and delivery success</p>
+              <h3 className="font-bold text-lg text-[var(--st-text)]">Volume vs Deliverability</h3>
+              <p className="text-sm text-[var(--st-text)]">Correlation between send volume and delivery success</p>
             </div>
             <div className="h-[300px] w-full">
               <ChartContainer config={chartConfig} className="h-full w-full">
@@ -339,10 +339,10 @@ export default function DeliverabilityPage({ dlrTrendData, volumeVsDlrData, fail
           </div>
 
           {/* Regional Performance - Horizontal Bar Chart */}
-          <div className="rounded-xl border border-zoru-line bg-white p-5 shadow-sm">
+          <div className="rounded-xl border border-[var(--st-border)] bg-white p-5 shadow-sm">
             <div className="mb-6">
-              <h3 className="font-bold text-lg text-zoru-ink">Regional Performance</h3>
-              <p className="text-sm text-zoru-ink">Delivery rates across global territories</p>
+              <h3 className="font-bold text-lg text-[var(--st-text)]">Regional Performance</h3>
+              <p className="text-sm text-[var(--st-text)]">Delivery rates across global territories</p>
             </div>
             <div className="h-[300px] w-full">
               <ChartContainer config={chartConfig} className="h-full w-full">
@@ -363,36 +363,36 @@ export default function DeliverabilityPage({ dlrTrendData, volumeVsDlrData, fail
         </div>
 
         {/* Detailed Data Tables Segment */}
-        <div className="rounded-xl border border-zoru-line bg-white shadow-sm flex flex-col overflow-hidden">
-          <div className="border-b border-zoru-line bg-zoru-surface-2/80 px-6 py-4 flex flex-wrap gap-6 text-sm">
+        <div className="rounded-xl border border-[var(--st-border)] bg-white shadow-sm flex flex-col overflow-hidden">
+          <div className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]/80 px-6 py-4 flex flex-wrap gap-6 text-sm">
             <button 
               onClick={() => setActiveTab('templates')} 
-              className={`pb-1 relative font-medium transition-colors ${activeTab === 'templates' ? 'text-zoru-ink' : 'text-zoru-ink hover:text-zoru-ink'}`}
+              className={`pb-1 relative font-medium transition-colors ${activeTab === 'templates' ? 'text-[var(--st-text)]' : 'text-[var(--st-text)] hover:text-[var(--st-text)]'}`}
             >
               Template Performance
-              {activeTab === 'templates' && <div className="absolute -bottom-4 left-0 right-0 h-0.5 bg-zoru-ink rounded-t-full"></div>}
+              {activeTab === 'templates' && <div className="absolute -bottom-4 left-0 right-0 h-0.5 bg-[var(--st-text)] rounded-t-full"></div>}
             </button>
             <button 
               onClick={() => setActiveTab('routes')} 
-              className={`pb-1 relative font-medium transition-colors ${activeTab === 'routes' ? 'text-zoru-ink' : 'text-zoru-ink hover:text-zoru-ink'}`}
+              className={`pb-1 relative font-medium transition-colors ${activeTab === 'routes' ? 'text-[var(--st-text)]' : 'text-[var(--st-text)] hover:text-[var(--st-text)]'}`}
             >
               Route Health
-              {activeTab === 'routes' && <div className="absolute -bottom-4 left-0 right-0 h-0.5 bg-zoru-ink rounded-t-full"></div>}
+              {activeTab === 'routes' && <div className="absolute -bottom-4 left-0 right-0 h-0.5 bg-[var(--st-text)] rounded-t-full"></div>}
             </button>
             <button 
               onClick={() => setActiveTab('anomalies')} 
-              className={`pb-1 relative font-medium transition-colors ${activeTab === 'anomalies' ? 'text-zoru-ink' : 'text-zoru-ink hover:text-zoru-ink'}`}
+              className={`pb-1 relative font-medium transition-colors ${activeTab === 'anomalies' ? 'text-[var(--st-text)]' : 'text-[var(--st-text)] hover:text-[var(--st-text)]'}`}
             >
               Detected Anomalies
-              <Badge className="ml-2 bg-zoru-surface-2 text-zoru-ink border-zoru-line px-1.5 py-0 h-5 text-[10px]">3 New</Badge>
-              {activeTab === 'anomalies' && <div className="absolute -bottom-4 left-0 right-0 h-0.5 bg-zoru-ink rounded-t-full"></div>}
+              <Badge className="ml-2 bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)] px-1.5 py-0 h-5 text-[10px]">3 New</Badge>
+              {activeTab === 'anomalies' && <div className="absolute -bottom-4 left-0 right-0 h-0.5 bg-[var(--st-text)] rounded-t-full"></div>}
             </button>
           </div>
           
           <div className="p-0 flex-1 overflow-x-auto">
             {activeTab === 'templates' && (
               <table className="w-full text-sm text-left whitespace-nowrap">
-                <thead className="text-xs text-zoru-ink bg-white border-b border-zoru-line uppercase tracking-wider">
+                <thead className="text-xs text-[var(--st-text)] bg-white border-b border-[var(--st-border)] uppercase tracking-wider">
                   <tr>
                     <th className="px-6 py-4 font-semibold">Template Name</th>
                     <th className="px-6 py-4 font-semibold">Deliverability</th>
@@ -401,31 +401,31 @@ export default function DeliverabilityPage({ dlrTrendData, volumeVsDlrData, fail
                     <th className="px-6 py-4 font-semibold text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zoru-line">
+                <tbody className="divide-y divide-[var(--st-border)]">
                   {tableDataTemplateDLR.map(t => (
-                    <tr key={t.id} className="hover:bg-zoru-surface-2 transition-colors">
-                      <td className="px-6 py-4 font-medium text-zoru-ink">{t.name}</td>
+                    <tr key={t.id} className="hover:bg-[var(--st-bg-muted)] transition-colors">
+                      <td className="px-6 py-4 font-medium text-[var(--st-text)]">{t.name}</td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
-                          <span className={`font-semibold ${t.dlr >= 98 ? 'text-zoru-ink' : t.dlr >= 90 ? 'text-zoru-ink' : 'text-zoru-ink'}`}>
+                          <span className={`font-semibold ${t.dlr >= 98 ? 'text-[var(--st-text)]' : t.dlr >= 90 ? 'text-[var(--st-text)]' : 'text-[var(--st-text)]'}`}>
                             {t.dlr}%
                           </span>
-                          {t.trend === 'up' && <TrendingUp className="h-4 w-4 text-zoru-ink" />}
-                          {t.trend === 'down' && <TrendingUp className="h-4 w-4 text-zoru-ink rotate-180" />}
+                          {t.trend === 'up' && <TrendingUp className="h-4 w-4 text-[var(--st-text)]" />}
+                          {t.trend === 'down' && <TrendingUp className="h-4 w-4 text-[var(--st-text)] rotate-180" />}
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-zoru-ink">{t.volume.toLocaleString()}</td>
+                      <td className="px-6 py-4 text-[var(--st-text)]">{t.volume.toLocaleString()}</td>
                       <td className="px-6 py-4">
                         {t.dlr >= 98 ? (
-                          <Badge variant="outline" className="text-zoru-ink border-zoru-line bg-zoru-surface-2">Excellent</Badge>
+                          <Badge variant="outline" className="text-[var(--st-text)] border-[var(--st-border)] bg-[var(--st-bg-muted)]">Excellent</Badge>
                         ) : t.dlr >= 90 ? (
-                          <Badge variant="outline" className="text-zoru-ink border-zoru-line bg-zoru-surface-2">Fair</Badge>
+                          <Badge variant="outline" className="text-[var(--st-text)] border-[var(--st-border)] bg-[var(--st-bg-muted)]">Fair</Badge>
                         ) : (
-                          <Badge variant="outline" className="text-zoru-ink border-zoru-line bg-zoru-surface-2">Poor</Badge>
+                          <Badge variant="outline" className="text-[var(--st-text)] border-[var(--st-border)] bg-[var(--st-bg-muted)]">Poor</Badge>
                         )}
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <Button variant="ghost" size="sm" className="text-zoru-ink hover:text-zoru-ink hover:bg-zoru-surface-2">Inspect</Button>
+                        <Button variant="ghost" size="sm" className="text-[var(--st-text)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]">Inspect</Button>
                       </td>
                     </tr>
                   ))}
@@ -434,43 +434,43 @@ export default function DeliverabilityPage({ dlrTrendData, volumeVsDlrData, fail
             )}
             
             {activeTab === 'routes' && (
-              <div className="p-8 text-center text-zoru-ink flex flex-col items-center">
-                <Network className="h-12 w-12 text-zoru-ink-muted mb-3" />
-                <h4 className="text-zoru-ink font-medium mb-1">Route Health Matrix</h4>
+              <div className="p-8 text-center text-[var(--st-text)] flex flex-col items-center">
+                <Network className="h-12 w-12 text-[var(--st-text-secondary)] mb-3" />
+                <h4 className="text-[var(--st-text)] font-medium mb-1">Route Health Matrix</h4>
                 <p className="max-w-md text-sm">Detailed route performance matrix is loaded dynamically based on selected timeframe and provider.</p>
                 <Button className="mt-4" variant="outline">Load Route Matrix</Button>
               </div>
             )}
 
             {activeTab === 'anomalies' && (
-              <div className="divide-y divide-zoru-line">
-                <div className="p-6 flex items-start gap-4 hover:bg-zoru-surface-2 transition-colors">
-                  <div className="bg-zoru-surface-2 p-2 rounded-full shrink-0">
-                    <AlertTriangle className="h-5 w-5 text-zoru-ink" />
+              <div className="divide-y divide-[var(--st-border)]">
+                <div className="p-6 flex items-start gap-4 hover:bg-[var(--st-bg-muted)] transition-colors">
+                  <div className="bg-[var(--st-bg-muted)] p-2 rounded-full shrink-0">
+                    <AlertTriangle className="h-5 w-5 text-[var(--st-text)]" />
                   </div>
                   <div className="flex-1">
-                    <h4 className="text-zoru-ink font-semibold text-base mb-1">Spam Block Spike: "Promo Flash Sale"</h4>
-                    <p className="text-zoru-ink text-sm mb-3">Carrier filtering rates for this template increased by 45% in the last 2 hours, primarily affecting Verizon US subscribers.</p>
+                    <h4 className="text-[var(--st-text)] font-semibold text-base mb-1">Spam Block Spike: "Promo Flash Sale"</h4>
+                    <p className="text-[var(--st-text)] text-sm mb-3">Carrier filtering rates for this template increased by 45% in the last 2 hours, primarily affecting Verizon US subscribers.</p>
                     <div className="flex gap-2">
-                      <Button size="sm" className="bg-zoru-ink hover:bg-zoru-ink text-white">Pause Campaign</Button>
+                      <Button size="sm" className="bg-[var(--st-text)] hover:bg-[var(--st-text)] text-white">Pause Campaign</Button>
                       <Button size="sm" variant="outline">View Filtered Logs</Button>
                     </div>
                   </div>
-                  <span className="text-xs text-zoru-ink-muted font-medium whitespace-nowrap">2 hrs ago</span>
+                  <span className="text-xs text-[var(--st-text-secondary)] font-medium whitespace-nowrap">2 hrs ago</span>
                 </div>
                 
-                <div className="p-6 flex items-start gap-4 hover:bg-zoru-surface-2 transition-colors">
-                  <div className="bg-zoru-surface-2 p-2 rounded-full shrink-0">
-                    <Activity className="h-5 w-5 text-zoru-ink" />
+                <div className="p-6 flex items-start gap-4 hover:bg-[var(--st-bg-muted)] transition-colors">
+                  <div className="bg-[var(--st-bg-muted)] p-2 rounded-full shrink-0">
+                    <Activity className="h-5 w-5 text-[var(--st-text)]" />
                   </div>
                   <div className="flex-1">
-                    <h4 className="text-zoru-ink font-semibold text-base mb-1">API Throttling: Vonage UK</h4>
-                    <p className="text-zoru-ink text-sm mb-3">Sender +44 7700 900000 is hitting rate limits (HTTP 429). 2,400 messages queued.</p>
+                    <h4 className="text-[var(--st-text)] font-semibold text-base mb-1">API Throttling: Vonage UK</h4>
+                    <p className="text-[var(--st-text)] text-sm mb-3">Sender +44 7700 900000 is hitting rate limits (HTTP 429). 2,400 messages queued.</p>
                     <div className="flex gap-2">
                       <Button size="sm" variant="outline">Adjust Throughput</Button>
                     </div>
                   </div>
-                  <span className="text-xs text-zoru-ink-muted font-medium whitespace-nowrap">4 hrs ago</span>
+                  <span className="text-xs text-[var(--st-text-secondary)] font-medium whitespace-nowrap">4 hrs ago</span>
                 </div>
               </div>
             )}

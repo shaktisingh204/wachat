@@ -195,8 +195,8 @@ export default function MarketingPage() {
   return (
     <div className="mx-auto max-w-6xl px-5 py-8 sm:px-8 lg:py-12">
       <div className="mb-8">
-        <h1 className="text-3xl font-semibold tracking-tight text-zoru-ink capitalize">marketing</h1>
-        <p className="mt-2 text-base text-zoru-ink-muted">Explore marketing components</p>
+        <h1 className="text-3xl font-semibold tracking-tight text-[var(--st-text)] capitalize">marketing</h1>
+        <p className="mt-2 text-base text-[var(--st-text-secondary)]">Explore marketing components</p>
       </div>
       <Section step="Step 6" title="Logos strip + testimonials wall">
 <SnippetDemo code={`
@@ -290,7 +290,7 @@ export default function MarketingPage() {
               period="/ month"
               featured
               cta={
-                <Button block className="bg-zoru-on-primary text-zoru-ink hover:bg-zoru-on-primary/90">
+                <Button block className="bg-[var(--st-text-inverted)] text-[var(--st-text)] hover:bg-[var(--st-text-inverted)]/90">
                   Choose Pro
                 </Button>
               }
@@ -368,7 +368,7 @@ export default function MarketingPage() {
               period="/ month"
               featured
               cta={
-                <Button block className="bg-zoru-on-primary text-zoru-ink hover:bg-zoru-on-primary/90">
+                <Button block className="bg-[var(--st-text-inverted)] text-[var(--st-text)] hover:bg-[var(--st-text-inverted)]/90">
                   Choose Pro
                 </Button>
               }
@@ -436,10 +436,10 @@ export default function MarketingPage() {
             description="Every primitive is in place. Steps 7–10 wire the existing modules onto the new shell."
             actions={
               <>
-                <Button className="bg-zoru-on-primary text-zoru-ink hover:bg-zoru-on-primary/90">
+                <Button className="bg-[var(--st-text-inverted)] text-[var(--st-text)] hover:bg-[var(--st-text-inverted)]/90">
                   Start the migration
                 </Button>
-                <Button variant="ghost" className="text-zoru-on-primary hover:bg-zoru-on-primary/10">
+                <Button variant="ghost" className="text-[var(--st-text-inverted)] hover:bg-[var(--st-text-inverted)]/10">
                   Read the plan →
                 </Button>
               </>
@@ -483,10 +483,10 @@ export default function MarketingPage() {
             description="Every primitive is in place. Steps 7–10 wire the existing modules onto the new shell."
             actions={
               <>
-                <Button className="bg-zoru-on-primary text-zoru-ink hover:bg-zoru-on-primary/90">
+                <Button className="bg-[var(--st-text-inverted)] text-[var(--st-text)] hover:bg-[var(--st-text-inverted)]/90">
                   Start the migration
                 </Button>
-                <Button variant="ghost" className="text-zoru-on-primary hover:bg-zoru-on-primary/10">
+                <Button variant="ghost" className="text-[var(--st-text-inverted)] hover:bg-[var(--st-text-inverted)]/10">
                   Read the plan →
                 </Button>
               </>

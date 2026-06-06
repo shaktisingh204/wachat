@@ -89,7 +89,7 @@ export function RuleDetailDrawer({ open, onOpenChange, rule, projectId }: Props)
                 </ZoruDrawerHeader>
 
                 <div className="px-6 pb-3">
-                    <div role="tablist" className="inline-flex rounded-md border bg-zoru-surface p-0.5">
+                    <div role="tablist" className="inline-flex rounded-md border bg-[var(--st-bg-secondary)] p-0.5">
                         {(
                             [
                                 ['overview', 'Overview', FileText],
@@ -105,8 +105,8 @@ export function RuleDetailDrawer({ open, onOpenChange, rule, projectId }: Props)
                                 className={cn(
                                     'flex items-center gap-1.5 rounded-sm px-3 py-1.5 text-sm',
                                     mode === key
-                                        ? 'bg-zoru-ink/10 text-zoru-ink'
-                                        : 'text-zoru-ink-muted hover:text-zoru-ink',
+                                        ? 'bg-[var(--st-text)]/10 text-[var(--st-text)]'
+                                        : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
                                 )}
                             >
                                 <Icon className="h-3.5 w-3.5" />
@@ -166,7 +166,7 @@ function OverviewPane({ rule }: { rule: RuleRow }) {
                 <Card>
                     <ZoruCardContent className="p-4 text-sm">
                         <p>{triggerSummary(rule.trigger)}</p>
-                        <pre className="mt-2 max-h-40 overflow-auto rounded bg-zoru-surface-2/40 p-2 text-xs">
+                        <pre className="mt-2 max-h-40 overflow-auto rounded bg-[var(--st-bg-muted)]/40 p-2 text-xs">
                             {JSON.stringify(rule.trigger, null, 2)}
                         </pre>
                     </ZoruCardContent>
@@ -176,17 +176,17 @@ function OverviewPane({ rule }: { rule: RuleRow }) {
             <section>
                 <h4 className="mb-2 text-sm font-semibold">Conditions</h4>
                 {rule.conditions.length === 0 ? (
-                    <p className="text-sm text-zoru-ink-muted">
+                    <p className="text-sm text-[var(--st-text-secondary)]">
                         No conditions — fires whenever the trigger matches.
                     </p>
                 ) : (
                     <ul className="space-y-1 text-sm">
                         {rule.conditions.map((c, i) => (
-                            <li key={i} className="rounded-md border bg-zoru-surface/60 p-2">
+                            <li key={i} className="rounded-md border bg-[var(--st-bg-secondary)]/60 p-2">
                                 <span className="font-medium">
                                     {conditionLabel(c.kind)}
                                 </span>{' '}
-                                <span className="text-xs text-zoru-ink-muted">
+                                <span className="text-xs text-[var(--st-text-secondary)]">
                                     {c.payload !== null && c.payload !== undefined
                                         ? JSON.stringify(c.payload)
                                         : ''}
@@ -200,11 +200,11 @@ function OverviewPane({ rule }: { rule: RuleRow }) {
             <section>
                 <h4 className="mb-2 text-sm font-semibold">Actions</h4>
                 {rule.actions.length === 0 ? (
-                    <p className="text-sm text-zoru-ink-muted">No actions.</p>
+                    <p className="text-sm text-[var(--st-text-secondary)]">No actions.</p>
                 ) : (
                     <ol className="space-y-1 text-sm">
                         {rule.actions.map((a, i) => (
-                            <li key={i} className="rounded-md border bg-zoru-surface/60 p-2">
+                            <li key={i} className="rounded-md border bg-[var(--st-bg-secondary)]/60 p-2">
                                 <Badge variant="ghost">#{i + 1}</Badge>{' '}
                                 <span className="font-medium">{actionLabel(a.kind)}</span>
                             </li>
@@ -228,7 +228,7 @@ function OverviewPane({ rule }: { rule: RuleRow }) {
                     {!rule.cooldown.perChatSeconds &&
                         !rule.cooldown.perRuleSeconds &&
                         !rule.cooldown.perDayLimit && (
-                            <p className="text-zoru-ink-muted">No cooldown.</p>
+                            <p className="text-[var(--st-text-secondary)]">No cooldown.</p>
                         )}
                 </div>
             </section>
@@ -239,7 +239,7 @@ function OverviewPane({ rule }: { rule: RuleRow }) {
 function Row({ label, value }: { label: string; value: React.ReactNode }) {
     return (
         <div className="flex items-center justify-between gap-4">
-            <span className="text-zoru-ink-muted">{label}</span>
+            <span className="text-[var(--st-text-secondary)]">{label}</span>
             <span className="text-right tabular-nums">{value}</span>
         </div>
     );
@@ -370,7 +370,7 @@ function TestPane({ rule, projectId }: { rule: RuleRow; projectId: string }) {
             </div>
 
             {err && (
-                <p className="text-sm text-zoru-ink" role="alert">
+                <p className="text-sm text-[var(--st-text)]" role="alert">
                     {err}
                 </p>
             )}
@@ -380,7 +380,7 @@ function TestPane({ rule, projectId }: { rule: RuleRow; projectId: string }) {
                     <Badge variant={matched ? 'success' : 'ghost'}>
                         {matched ? 'Rule matched' : 'Rule did not match'}
                     </Badge>
-                    <div className="rounded-md border bg-zoru-surface/60 p-3">
+                    <div className="rounded-md border bg-[var(--st-bg-secondary)]/60 p-3">
                         <h5 className="mb-2 text-sm font-semibold">
                             Evaluation steps
                         </h5>
@@ -398,7 +398,7 @@ function TestPane({ rule, projectId }: { rule: RuleRow; projectId: string }) {
                                     <div>
                                         <p>{s.label}</p>
                                         {s.detail && (
-                                            <p className="text-xs text-zoru-ink-muted">
+                                            <p className="text-xs text-[var(--st-text-secondary)]">
                                                 {s.detail}
                                             </p>
                                         )}
@@ -408,7 +408,7 @@ function TestPane({ rule, projectId }: { rule: RuleRow; projectId: string }) {
                         </ol>
                     </div>
                     {matched && actions.length > 0 && (
-                        <div className="rounded-md border bg-zoru-surface/60 p-3">
+                        <div className="rounded-md border bg-[var(--st-bg-secondary)]/60 p-3">
                             <h5 className="mb-2 text-sm font-semibold">
                                 Actions that would fire
                             </h5>
@@ -465,7 +465,7 @@ function RunsPane({ rule, projectId }: { rule: RuleRow; projectId: string }) {
     return (
         <div className="space-y-3">
             <div className="flex items-center justify-between">
-                <p className="text-sm text-zoru-ink-muted">
+                <p className="text-sm text-[var(--st-text-secondary)]">
                     Recent fires for this rule.
                 </p>
                 <Button
@@ -482,19 +482,19 @@ function RunsPane({ rule, projectId }: { rule: RuleRow; projectId: string }) {
             </div>
 
             {err && (
-                <p className="text-sm text-zoru-ink" role="alert">
+                <p className="text-sm text-[var(--st-text)]" role="alert">
                     {err}
                 </p>
             )}
 
             {runs.length === 0 && !loading ? (
-                <p className="text-sm text-zoru-ink-muted">No fires yet.</p>
+                <p className="text-sm text-[var(--st-text-secondary)]">No fires yet.</p>
             ) : (
                 <ul className="space-y-1 text-sm">
                     {runs.map((r) => (
                         <li
                             key={r._id}
-                            className="rounded-md border bg-zoru-surface/60 p-2"
+                            className="rounded-md border bg-[var(--st-bg-secondary)]/60 p-2"
                         >
                             <div className="flex items-center justify-between">
                                 <span className="font-medium">
@@ -508,7 +508,7 @@ function RunsPane({ rule, projectId }: { rule: RuleRow; projectId: string }) {
                                     {r.status}
                                 </Badge>
                             </div>
-                            <div className="mt-1 text-xs text-zoru-ink-muted">
+                            <div className="mt-1 text-xs text-[var(--st-text-secondary)]">
                                 {new Date(r.firedAt).toLocaleString()} · chat{' '}
                                 {r.chatId ?? '—'} · {r.actionsCount} actions
                             </div>

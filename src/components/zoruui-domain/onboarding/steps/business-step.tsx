@@ -235,10 +235,10 @@ export function BusinessStep({
                                 disabled={isPending}
                                 aria-pressed={active}
                                 className={cn(
-                                    'flex items-start gap-3 rounded-xl border border-zoru-line p-4 text-left transition',
+                                    'flex items-start gap-3 rounded-xl border border-[var(--st-border)] p-4 text-left transition',
                                     active
-                                        ? 'border-zoru-primary bg-zoru-primary/5 shadow-sm'
-                                        : 'hover:border-zoru-primary/60 hover:bg-zoru-surface/50'
+                                        ? 'border-[var(--st-text)] bg-[var(--st-text)]/5 shadow-sm'
+                                        : 'hover:border-[var(--st-text)]/60 hover:bg-[var(--st-bg-secondary)]/50'
                                 )}
                             >
                                 <span
@@ -246,8 +246,8 @@ export function BusinessStep({
                                     className={cn(
                                         'mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border transition',
                                         active
-                                            ? 'border-zoru-primary bg-zoru-primary text-zoru-on-primary'
-                                            : 'border-zoru-line bg-zoru-bg'
+                                            ? 'border-[var(--st-text)] bg-[var(--st-text)] text-[var(--st-text-inverted)]'
+                                            : 'border-[var(--st-border)] bg-[var(--st-bg)]'
                                     )}
                                 >
                                     {active ? (
@@ -255,10 +255,10 @@ export function BusinessStep({
                                     ) : null}
                                 </span>
                                 <div>
-                                    <p className="text-sm font-semibold text-zoru-ink">
+                                    <p className="text-sm font-semibold text-[var(--st-text)]">
                                         {uc.label}
                                     </p>
-                                    <p className="text-xs text-zoru-ink-muted">
+                                    <p className="text-xs text-[var(--st-text-secondary)]">
                                         {uc.description}
                                     </p>
                                 </div>

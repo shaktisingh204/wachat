@@ -97,11 +97,11 @@ export function TileActions({
         description="Generated explanation for the current window."
       >
         {busy && (
-          <p className="text-sm text-zoru-ink-muted">Asking the model…</p>
+          <p className="text-sm text-[var(--st-text-secondary)]">Asking the model…</p>
         )}
-        {error && <p className="text-sm text-zoru-ink">{error}</p>}
+        {error && <p className="text-sm text-[var(--st-text)]">{error}</p>}
         {explanation && (
-          <p className="whitespace-pre-wrap text-sm leading-6 text-zoru-ink">
+          <p className="whitespace-pre-wrap text-sm leading-6 text-[var(--st-text)]">
             {explanation}
           </p>
         )}

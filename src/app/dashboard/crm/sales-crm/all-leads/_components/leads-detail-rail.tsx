@@ -49,7 +49,7 @@ export function LeadsDetailRail({
                         {lead.pipelineId ? (
                             <EntityPickerChip entity="pipeline" id={lead.pipelineId} />
                         ) : (
-                            <span className="text-zoru-ink-muted">—</span>
+                            <span className="text-[var(--st-text-secondary)]">—</span>
                         )}
                     </RailRow>
                     <RailRow label="Stage">
@@ -177,7 +177,7 @@ function RailRow({
 }) {
     return (
         <div className="flex items-center justify-between gap-2">
-            <span className="text-zoru-ink-muted">{label}</span>
+            <span className="text-[var(--st-text-secondary)]">{label}</span>
             {children}
         </div>
     );
@@ -186,8 +186,8 @@ function RailRow({
 function Stat({ label, value }: { label: string; value: React.ReactNode }) {
     return (
         <div className="flex items-center justify-between gap-2 text-sm">
-            <span className="text-zoru-ink-muted">{label}</span>
-            <span className="text-zoru-ink">{value}</span>
+            <span className="text-[var(--st-text-secondary)]">{label}</span>
+            <span className="text-[var(--st-text)]">{value}</span>
         </div>
     );
 }
@@ -204,7 +204,7 @@ function RelatedLink({
     return (
         <Link
             href={href}
-            className="flex items-center justify-between rounded-md px-2 py-1.5 text-sm text-zoru-ink hover:bg-zoru-surface-2"
+            className="flex items-center justify-between rounded-md px-2 py-1.5 text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
         >
             <span>{label}</span>
             <Badge variant={count > 0 ? 'info' : 'default'}>{count}</Badge>

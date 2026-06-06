@@ -93,23 +93,23 @@ function ProjectConnectionCard({
   return (
     <Card className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex min-w-0 items-start gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
           <FacebookGlyph className="h-5 w-5" />
         </div>
         <div className="min-w-0">
-          <p className="truncate text-[14px] text-zoru-ink">{project.name}</p>
-          <p className="mt-0.5 truncate text-[11.5px] text-zoru-ink-muted">
+          <p className="truncate text-[14px] text-[var(--st-text)]">{project.name}</p>
+          <p className="mt-0.5 truncate text-[11.5px] text-[var(--st-text-secondary)]">
             WABA ID: {project.wabaId || "—"}
           </p>
           <div className="mt-2 inline-flex items-center gap-1.5">
             {isConnected ? (
               <Badge variant="outline" className="gap-1">
-                <CheckCircle2 className="h-3 w-3 text-zoru-success" />
+                <CheckCircle2 className="h-3 w-3 text-[var(--st-status-ok)]" />
                 Connected
               </Badge>
             ) : (
               <Badge variant="secondary" className="gap-1">
-                <XCircle className="h-3 w-3 text-zoru-ink-subtle" />
+                <XCircle className="h-3 w-3 text-[var(--st-text-tertiary)]" />
                 Not connected
               </Badge>
             )}
@@ -129,7 +129,7 @@ function ProjectConnectionCard({
             </a>
           </Button>
         ) : (
-          <span className="text-[12px] text-zoru-danger">
+          <span className="text-[12px] text-[var(--st-danger)]">
             Facebook integration not configured.
           </span>
         )}
@@ -195,7 +195,7 @@ export default function AllProjectsPage() {
 
       <PageHeader className="mt-5" bordered={false}>
         <ZoruPageHeading>
-          <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-zoru-ink-subtle">
+          <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--st-text-tertiary)]">
             Project connections
           </p>
           <ZoruPageTitle>All project connections</ZoruPageTitle>
@@ -266,12 +266,12 @@ export default function AllProjectsPage() {
       <div className="mt-8">
         <Card className="flex flex-col gap-2 p-5 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-start gap-3">
-            <span className="mt-0.5 flex h-7 w-7 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink-muted">
+            <span className="mt-0.5 flex h-7 w-7 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
               <Sparkles className="h-3.5 w-3.5" />
             </span>
             <div>
-              <p className="text-[13px] text-zoru-ink">Connect for full Meta Suite</p>
-              <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+              <p className="text-[13px] text-[var(--st-text)]">Connect for full Meta Suite</p>
+              <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">
                 Once connected, you can send broadcasts, manage Messenger,
                 schedule posts and run Click-to-WhatsApp ads.
               </p>

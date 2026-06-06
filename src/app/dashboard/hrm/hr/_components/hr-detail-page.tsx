@@ -130,12 +130,12 @@ export function HrDetailPage({
                   key={`${sec.title}-${i}`}
                   className={f.fullWidth ? 'md:col-span-2' : ''}
                 >
-                  <dt className="text-xs uppercase tracking-wide text-zoru-ink-muted">
+                  <dt className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
                     {f.label}
                   </dt>
-                  <dd className="mt-1 text-sm text-zoru-ink">
+                  <dd className="mt-1 text-sm text-[var(--st-text)]">
                     {f.value === undefined || f.value === null || f.value === ''
-                      ? <span className="text-zoru-ink-muted">—</span>
+                      ? <span className="text-[var(--st-text-secondary)]">—</span>
                       : f.value}
                   </dd>
                 </div>

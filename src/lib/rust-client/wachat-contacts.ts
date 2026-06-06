@@ -14,6 +14,8 @@
  *   PATCH  /{id}/status               → updateStatus
  *   PATCH  /{id}/tags                 → updateTags
  *   DELETE /{id}                      → delete
+ *   GET    /kanban?projectId=&...     → getKanban
+ *   POST   /kanban/statuses           → saveKanbanStatuses
  *
  * Server-only — uses the shared JWT-issuing fetcher.
  */
@@ -106,6 +108,47 @@ export interface SuccessResponse {
     success: boolean;
 }
 
+/**
+ * One kanban column from `GET /v1/contacts/kanban`.
+ *
+ * Mirrors the Rust `KanbanColumn` DTO: `id` is the stable status slug the
+ * move handler (`PATCH /{id}/status`) persists, `title` is the human label
+ * (currently identical to `id`), and `contacts` are the raw stored contact
+ * documents (`_id` → hex, dates → ISO 8601) — the same `Contact` shape the
+ * board already understands.
+ */
+export interface KanbanColumn {
+    id: string;
+    title: string;
+    contacts: any[];
+}
+
+/**
+ * Response for `GET /v1/contacts/kanban`. Column ordering mirrors the native
+ * board: default statuses (`new`, `open`, `resolved`) first, then any custom
+ * `kanbanStatuses` saved on the project, deduped.
+ */
+export interface KanbanResponse {
+    columns: KanbanColumn[];
+}
+
+/** Query for `GET /v1/contacts/kanban`. */
+export interface KanbanQuery {
+    projectId: string;
+    /** Optional phone-number scope; omit for "all numbers in the project". */
+    phoneNumberId?: string;
+}
+
+/**
+ * Body for `POST /v1/contacts/kanban/statuses`. The full list of column names
+ * currently on the board (defaults + custom); the Rust handler strips the
+ * default statuses before persisting only the user-added lists.
+ */
+export interface SaveKanbanStatusesBody {
+    projectId: string;
+    statuses: string[];
+}
+
 // ---------------------------------------------------------------------------
 // Query helpers — keep `?projectId=…&...` strings off the call sites.
 // ---------------------------------------------------------------------------
@@ -182,6 +225,19 @@ export const wachatContactsApi = {
     delete: (contactId: string) =>
         rustFetch<SuccessResponse>(`${BASE}/${encodeURIComponent(contactId)}`, {
             method: 'DELETE',
+        }),
+
+    /** `GET /v1/contacts/kanban?...` — getKanbanData (contacts-domain board). */
+    getKanban: (projectId: string, phoneNumberId?: string) =>
+        rustFetch<KanbanResponse>(
+            `${BASE}/kanban${qs({ projectId, phoneNumberId })}`,
+        ),
+
+    /** `POST /v1/contacts/kanban/statuses` — saveKanbanStatuses. */
+    saveKanbanStatuses: (projectId: string, statuses: string[]) =>
+        rustFetch<SuccessResponse>(`${BASE}/kanban/statuses`, {
+            method: 'POST',
+            body: JSON.stringify({ projectId, statuses } satisfies SaveKanbanStatusesBody),
         }),
 };
 

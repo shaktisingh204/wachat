@@ -205,9 +205,9 @@ export default async function VendorDetailPage({ params }: PageProps) {
                                 <Link
                                     key={item.label}
                                     href={item.href}
-                                    className="flex items-center justify-between rounded-md px-2 py-1.5 text-[13px] text-zoru-ink hover:bg-zoru-surface-2"
+                                    className="flex items-center justify-between rounded-md px-2 py-1.5 text-[13px] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
                                 >
-                                    <span className="inline-flex items-center gap-2 text-zoru-ink-muted">
+                                    <span className="inline-flex items-center gap-2 text-[var(--st-text-secondary)]">
                                         {item.icon}
                                         {item.label}
                                     </span>
@@ -311,7 +311,7 @@ export default async function VendorDetailPage({ params }: PageProps) {
                         <ZoruCardTitle>Notes</ZoruCardTitle>
                     </ZoruCardHeader>
                     <ZoruCardContent>
-                        <p className="whitespace-pre-wrap text-[13px] text-zoru-ink">
+                        <p className="whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
                             {v.notes}
                         </p>
                     </ZoruCardContent>
@@ -324,8 +324,8 @@ export default async function VendorDetailPage({ params }: PageProps) {
 function Row({ label, value }: { label: string; value?: string | null }) {
     return (
         <div className="flex items-baseline gap-3">
-            <span className="w-32 shrink-0 text-zoru-ink-muted">{label}</span>
-            <span className="text-zoru-ink">{value || '—'}</span>
+            <span className="w-32 shrink-0 text-[var(--st-text-secondary)]">{label}</span>
+            <span className="text-[var(--st-text)]">{value || '—'}</span>
         </div>
     );
 }

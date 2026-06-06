@@ -163,13 +163,13 @@ export function LeaveForm({ initial, leaveTypes, isLocked, leaveBalances }: Leav
       ) : null}
 
       {warning && (
-        <div className="rounded-md border border-zoru-line/50 bg-zoru-ink/10 p-4 text-sm font-medium text-zoru-ink">
+        <div className="rounded-md border border-[var(--st-border)]/50 bg-[var(--st-text)]/10 p-4 text-sm font-medium text-[var(--st-text)]">
           {warning}
         </div>
       )}
 
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Applicant
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
@@ -185,7 +185,7 @@ export function LeaveForm({ initial, leaveTypes, isLocked, leaveBalances }: Leav
           </div>
           <div>
             <Label htmlFor="leaveTypeId">
-              Leave type <span className="text-zoru-danger-ink">*</span>
+              Leave type <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <div className="mt-1.5">
               <Select
@@ -199,13 +199,13 @@ export function LeaveForm({ initial, leaveTypes, isLocked, leaveBalances }: Leav
                 </ZoruSelectTrigger>
                 <ZoruSelectContent>
                   {leaveTypes.length === 0 ? (
-                    <div className="px-3 py-2 text-[12.5px] text-zoru-ink-muted">
+                    <div className="px-3 py-2 text-[12.5px] text-[var(--st-text-secondary)]">
                       No leave types yet — add one under Leave Types.
                     </div>
                   ) : (
                     leaveTypes.map((lt) => (
                       <ZoruSelectItem key={lt._id} value={lt._id}>
-                        <span className="font-mono text-[12px] text-zoru-ink-muted">
+                        <span className="font-mono text-[12px] text-[var(--st-text-secondary)]">
                           {lt.code}
                         </span>
                         <span className="ml-2">{lt.name}</span>
@@ -220,13 +220,13 @@ export function LeaveForm({ initial, leaveTypes, isLocked, leaveBalances }: Leav
       </Card>
 
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Range
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <Label htmlFor="from">
-              Start date <span className="text-zoru-danger-ink">*</span>
+              Start date <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <Input
               id="from"
@@ -240,7 +240,7 @@ export function LeaveForm({ initial, leaveTypes, isLocked, leaveBalances }: Leav
           </div>
           <div>
             <Label htmlFor="to">
-              End date <span className="text-zoru-danger-ink">*</span>
+              End date <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <Input
               id="to"
@@ -265,9 +265,9 @@ export function LeaveForm({ initial, leaveTypes, isLocked, leaveBalances }: Leav
             </Label>
           </div>
           {editing && typeof initial?.days === 'number' ? (
-            <div className="md:col-span-2 rounded-md border border-zoru-line bg-zoru-surface px-3 py-2 text-[12.5px] text-zoru-ink-muted">
+            <div className="md:col-span-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-[12.5px] text-[var(--st-text-secondary)]">
               Current computed duration:{' '}
-              <span className="tabular-nums text-zoru-ink">
+              <span className="tabular-nums text-[var(--st-text)]">
                 {initial.days} day{initial.days === 1 ? '' : 's'}
               </span>
               . The Rust handler recomputes this whenever the range or
@@ -278,7 +278,7 @@ export function LeaveForm({ initial, leaveTypes, isLocked, leaveBalances }: Leav
       </Card>
 
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Workflow
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
@@ -292,7 +292,7 @@ export function LeaveForm({ initial, leaveTypes, isLocked, leaveBalances }: Leav
                 disabled={!editing}
               />
             </div>
-            <p className="mt-1 text-[11.5px] text-zoru-ink-muted">
+            <p className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">
               Status transitions go through dedicated approve / reject /
               cancel actions — this control is informational.
             </p>
@@ -306,7 +306,7 @@ export function LeaveForm({ initial, leaveTypes, isLocked, leaveBalances }: Leav
                 initialId={initialApproverId(initial)}
               />
             </div>
-            <p className="mt-1 text-[11.5px] text-zoru-ink-muted">
+            <p className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">
               Approver chain is appended on the approve action; this
               picker is a hint shown to the reviewer.
             </p>

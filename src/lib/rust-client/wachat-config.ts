@@ -229,6 +229,20 @@ export interface SubscribeBody {
     userAccessToken: string;
 }
 
+/**
+ * Body for `POST /v1/wachat/config/projects/:id/phone-numbers/:pnid/display-name`.
+ *
+ * Mirrors `wachat_config::display_name::DisplayNameBody`. The Rust handler
+ * forwards `displayName` to Meta's phone-number node as `new_display_name`,
+ * then records a local `PENDING_REVIEW` marker on the project doc — the review
+ * outcome is asynchronous, so poll {@link getDisplayNameStatus} for the live
+ * state. An empty/whitespace-only name is rejected server-side with a typed
+ * `Validation` error.
+ */
+export interface SetDisplayNameBody {
+    displayName: string;
+}
+
 // ---------------------------------------------------------------------------
 // Response shapes
 // ---------------------------------------------------------------------------
@@ -251,6 +265,66 @@ export interface QrCode {
 /** Result of `GET /v1/wachat/config/projects/:id/webhook-subscription`. */
 export interface SubscriptionStatus {
     isActive: boolean;
+}
+
+/**
+ * Result of `POST /v1/wachat/config/projects/:id/phone-numbers/:pnid/display-name`.
+ *
+ * Mirrors `wachat_config::display_name::DisplayNameOutcome`. `status` is the
+ * local pending marker the Rust side just persisted (`"PENDING_REVIEW"`).
+ */
+export interface DisplayNameOutcome {
+    phoneNumberId: string;
+    requestedName: string;
+    status: string;
+}
+
+/**
+ * Result of `GET /v1/wachat/config/projects/:id/phone-numbers/:pnid/display-name/status`.
+ *
+ * Mirrors `wachat_config::display_name::DisplayNameStatus`. Every Graph-sourced
+ * field is `serde(skip_serializing_if = "Option::is_none")` on the Rust side,
+ * so each is genuinely optional over the wire:
+ * - `verifiedName` — Meta's current verified display name, if any.
+ * - `nameStatus` — review state of the *current* name (`APPROVED` / `PENDING_REVIEW` / …).
+ * - `newNameStatus` — review state of an *in-flight* name change, when one exists.
+ * - `requestedName` — the name we last asked Meta to apply (from the project doc).
+ */
+export interface DisplayNameStatus {
+    phoneNumberId: string;
+    verifiedName?: string;
+    nameStatus?: string;
+    newNameStatus?: string;
+    requestedName?: string;
+}
+
+/**
+ * Result of `POST /v1/wachat/config/projects/:id/phone-numbers/:pnid/flows-encryption/generate`.
+ *
+ * Mirrors `wachat_config::display_name::GenerateKeysOutcome`. Only the SPKI
+ * `publicKey` PEM crosses the wire — the private half is persisted on the
+ * project doc and never serialized back out. `metaStatus` is `"NOT_UPLOADED"`
+ * right after keygen (call {@link uploadFlowsEncryption} to push it to Meta).
+ */
+export interface GenerateFlowsKeysOutcome {
+    phoneNumberId: string;
+    /** SPKI PEM (`-----BEGIN PUBLIC KEY-----`). */
+    publicKey: string;
+    /** `"NOT_UPLOADED"` | `"UPLOADED"` | `"FAILED"`. */
+    metaStatus: string;
+}
+
+/**
+ * Result of `POST /v1/wachat/config/projects/:id/phone-numbers/:pnid/flows-encryption/upload`.
+ *
+ * Mirrors `wachat_config::display_name::UploadKeyOutcome`. `metaStatus` is
+ * `"UPLOADED"` on success; a Meta-side failure returns a typed error (and flips
+ * the persisted status to `"FAILED"` best-effort) rather than this shape.
+ */
+export interface UploadFlowsKeyOutcome {
+    phoneNumberId: string;
+    /** `"UPLOADED"` | `"FAILED"`. */
+    metaStatus: string;
 }
 
 /**
@@ -364,6 +438,63 @@ export const wachatConfigApi = {
                 method: 'POST',
                 body: JSON.stringify(body),
             },
+        ),
+
+    // ----------- /projects/:id/phone-numbers/:pnid/display-name (Wave E) -----------
+
+    /**
+     * `POST .../phone-numbers/:pnid/display-name` — submit a display-name
+     * change to Meta and persist a `PENDING_REVIEW` marker. Returns the local
+     * pending outcome; poll {@link getDisplayNameStatus} for the live review
+     * state. A missing project access token degrades to a typed `BadRequest`
+     * on the Rust side (no crash) so unconfigured projects surface gracefully.
+     */
+    setDisplayName: (
+        projectId: string,
+        phoneNumberId: string,
+        body: SetDisplayNameBody,
+    ) =>
+        rustFetch<DisplayNameOutcome>(
+            `${BASE}/projects/${encodeURIComponent(projectId)}/phone-numbers/${encodeURIComponent(phoneNumberId)}/display-name`,
+            {
+                method: 'POST',
+                body: JSON.stringify(body),
+            },
+        ),
+
+    /**
+     * `GET .../phone-numbers/:pnid/display-name/status` — read the live
+     * display-name review status from Meta (verified name + current/pending
+     * review states), alongside the locally-recorded requested name.
+     */
+    getDisplayNameStatus: (projectId: string, phoneNumberId: string) =>
+        rustFetch<DisplayNameStatus>(
+            `${BASE}/projects/${encodeURIComponent(projectId)}/phone-numbers/${encodeURIComponent(phoneNumberId)}/display-name/status`,
+        ),
+
+    // ----------- /projects/:id/phone-numbers/:pnid/flows-encryption (Wave E) -----------
+
+    /**
+     * `POST .../phone-numbers/:pnid/flows-encryption/generate` — generate an
+     * RSA-2048 keypair, store the private half on the project doc, and return
+     * the SPKI public-key PEM. Status starts at `NOT_UPLOADED`.
+     */
+    generateFlowsEncryption: (projectId: string, phoneNumberId: string) =>
+        rustFetch<GenerateFlowsKeysOutcome>(
+            `${BASE}/projects/${encodeURIComponent(projectId)}/phone-numbers/${encodeURIComponent(phoneNumberId)}/flows-encryption/generate`,
+            { method: 'POST' },
+        ),
+
+    /**
+     * `POST .../phone-numbers/:pnid/flows-encryption/upload` — upload the
+     * stored public key to Meta (`whatsapp_business_encryption`) and flip the
+     * persisted status to `UPLOADED`. Requires {@link generateFlowsEncryption}
+     * to have run first (otherwise the Rust side returns a typed `BadRequest`).
+     */
+    uploadFlowsEncryption: (projectId: string, phoneNumberId: string) =>
+        rustFetch<UploadFlowsKeyOutcome>(
+            `${BASE}/projects/${encodeURIComponent(projectId)}/phone-numbers/${encodeURIComponent(phoneNumberId)}/flows-encryption/upload`,
+            { method: 'POST' },
         ),
 
     // ----------- /webhooks/* + /projects/:id/webhooks/* -----------

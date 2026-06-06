@@ -215,7 +215,7 @@ function ViewSwitcher({
     onChange: (v: View) => void;
 }) {
     return (
-        <div className="flex gap-1 rounded-full border border-zoru-line bg-zoru-bg p-1">
+        <div className="flex gap-1 rounded-full border border-[var(--st-border)] bg-[var(--st-bg)] p-1">
             {VIEWS.map((v) => (
                 <button
                     key={v.key}
@@ -224,8 +224,8 @@ function ViewSwitcher({
                     className={cn(
                         'h-8 rounded-full px-4 text-[12.5px] font-medium transition-colors',
                         view === v.key
-                            ? 'bg-zoru-ink text-white shadow-sm'
-                            : 'text-zoru-ink-muted hover:bg-zoru-surface-2/60 hover:text-zoru-ink',
+                            ? 'bg-[var(--st-text)] text-white shadow-sm'
+                            : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)]/60 hover:text-[var(--st-text)]',
                     )}
                     aria-pressed={view === v.key}
                 >
@@ -526,7 +526,7 @@ export default function TelegramPaymentsPage() {
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <ViewSwitcher view={view} onChange={setView} />
                 <div className="flex items-center gap-2">
-                    <Label className="text-xs text-zoru-ink-muted">
+                    <Label className="text-xs text-[var(--st-text-secondary)]">
                         Display currency
                     </Label>
                     <Select
@@ -678,7 +678,7 @@ function PaymentsSection(props: PaymentsSectionProps) {
                 <div className="mb-3 flex items-center justify-between">
                     <div>
                         <div className="text-sm font-medium">Daily volume</div>
-                        <div className="text-xs text-zoru-ink-muted">
+                        <div className="text-xs text-[var(--st-text-secondary)]">
                             Revenue is summed across successful payments. Drag the
                             range above to focus.
                         </div>
@@ -715,7 +715,7 @@ function PaymentsSection(props: PaymentsSectionProps) {
                             </BarChart>
                         </ResponsiveContainer>
                     ) : (
-                        <div className="flex h-full items-center justify-center text-xs text-zoru-ink-muted">
+                        <div className="flex h-full items-center justify-center text-xs text-[var(--st-text-secondary)]">
                             No payments in this range yet.
                         </div>
                     )}
@@ -727,7 +727,7 @@ function PaymentsSection(props: PaymentsSectionProps) {
                 <div className="flex min-w-[200px] flex-1 flex-col gap-1">
                     <Label className="text-xs">Search</Label>
                     <div className="relative">
-                        <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zoru-ink-muted" />
+                        <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--st-text-secondary)]" />
                         <Input
                             placeholder="chat id, user id, or charge id"
                             value={props.search}
@@ -827,7 +827,7 @@ function PaymentsSection(props: PaymentsSectionProps) {
                         {props.payments.length === 0 && (
                             <ZoruTableRow>
                                 <ZoruTableCell colSpan={6}>
-                                    <div className="py-10 text-center text-sm text-zoru-ink-muted">
+                                    <div className="py-10 text-center text-sm text-[var(--st-text-secondary)]">
                                         No payments match these filters yet.
                                     </div>
                                 </ZoruTableCell>
@@ -837,7 +837,7 @@ function PaymentsSection(props: PaymentsSectionProps) {
                             <ZoruTableRow key={p._id}>
                                 <ZoruTableCell>
                                     <div className="text-sm">{p.username ?? '—'}</div>
-                                    <div className="text-xs text-zoru-ink-muted">
+                                    <div className="text-xs text-[var(--st-text-secondary)]">
                                         {p.chatId ?? p.userId ?? '—'}
                                     </div>
                                 </ZoruTableCell>
@@ -877,8 +877,8 @@ function PaymentsSection(props: PaymentsSectionProps) {
                         ))}
                     </ZoruTableBody>
                 </Table>
-                <div className="flex items-center justify-between border-t border-zoru-line px-3 py-2 text-xs">
-                    <div className="text-zoru-ink-muted">
+                <div className="flex items-center justify-between border-t border-[var(--st-border)] px-3 py-2 text-xs">
+                    <div className="text-[var(--st-text-secondary)]">
                         Page {props.page} of {totalPages} • {props.paymentsTotal} total
                     </div>
                     <div className="flex gap-2">
@@ -955,7 +955,7 @@ function PaymentsSection(props: PaymentsSectionProps) {
                             {detail.orderInfo ? (
                                 <div>
                                     <Label className="text-xs">Order info</Label>
-                                    <pre className="max-h-40 overflow-auto rounded bg-zoru-surface-2/40 p-2 text-[11px]">
+                                    <pre className="max-h-40 overflow-auto rounded bg-[var(--st-bg-muted)]/40 p-2 text-[11px]">
                                         {JSON.stringify(detail.orderInfo, null, 2)}
                                     </pre>
                                 </div>
@@ -963,7 +963,7 @@ function PaymentsSection(props: PaymentsSectionProps) {
                             {detail.shippingAddress ? (
                                 <div>
                                     <Label className="text-xs">Shipping address</Label>
-                                    <pre className="max-h-40 overflow-auto rounded bg-zoru-surface-2/40 p-2 text-[11px]">
+                                    <pre className="max-h-40 overflow-auto rounded bg-[var(--st-bg-muted)]/40 p-2 text-[11px]">
                                         {JSON.stringify(detail.shippingAddress, null, 2)}
                                     </pre>
                                 </div>
@@ -1046,7 +1046,7 @@ function InvoicesSection({
                     {invoices.length === 0 && (
                         <ZoruTableRow>
                             <ZoruTableCell colSpan={6}>
-                                <div className="py-10 text-center text-sm text-zoru-ink-muted">
+                                <div className="py-10 text-center text-sm text-[var(--st-text-secondary)]">
                                     No invoices sent or created yet.
                                 </div>
                             </ZoruTableCell>
@@ -1148,7 +1148,7 @@ function TemplatesSection({
                         {templates.length === 0 && (
                             <ZoruTableRow>
                                 <ZoruTableCell colSpan={5}>
-                                    <div className="py-10 text-center text-sm text-zoru-ink-muted">
+                                    <div className="py-10 text-center text-sm text-[var(--st-text-secondary)]">
                                         No templates yet. Create one to send invoices.
                                     </div>
                                 </ZoruTableCell>
@@ -1452,7 +1452,7 @@ function TemplateDrawer({
                     </Field>
 
                     {/* Prices */}
-                    <div className="rounded-md border border-zoru-line p-3">
+                    <div className="rounded-md border border-[var(--st-border)] p-3">
                         <div className="mb-2 flex items-center justify-between">
                             <Label>Price lines</Label>
                             <Button
@@ -1556,7 +1556,7 @@ function ToggleRow({
     onChange: (v: boolean) => void;
 }) {
     return (
-        <label className="flex items-center justify-between gap-2 rounded border border-zoru-line bg-zoru-bg px-3 py-2 text-sm">
+        <label className="flex items-center justify-between gap-2 rounded border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-sm">
             <span>{label}</span>
             <Switch checked={value} onCheckedChange={onChange} />
         </label>
@@ -1636,7 +1636,7 @@ function SendInvoiceDialog({
                         directly to a chat, or get a shareable invoice link.
                     </ZoruDialogDescription>
                 </ZoruDialogHeader>
-                <div className="flex gap-1 rounded-full border border-zoru-line bg-zoru-bg p-1">
+                <div className="flex gap-1 rounded-full border border-[var(--st-border)] bg-[var(--st-bg)] p-1">
                     {(['send', 'link'] as const).map((m) => (
                         <button
                             key={m}
@@ -1645,8 +1645,8 @@ function SendInvoiceDialog({
                             className={cn(
                                 'h-7 flex-1 rounded-full text-xs',
                                 mode === m
-                                    ? 'bg-zoru-ink text-white'
-                                    : 'text-zoru-ink-muted',
+                                    ? 'bg-[var(--st-text)] text-white'
+                                    : 'text-[var(--st-text-secondary)]',
                             )}
                         >
                             {m === 'send' ? (
@@ -1690,8 +1690,8 @@ function SendInvoiceDialog({
                         </Field>
                     ) : null}
                     {linkResult ? (
-                        <div className="rounded border border-zoru-line bg-zoru-surface-2/40 p-2 text-xs">
-                            <div className="mb-1 text-zoru-ink-muted">Invoice link:</div>
+                        <div className="rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)]/40 p-2 text-xs">
+                            <div className="mb-1 text-[var(--st-text-secondary)]">Invoice link:</div>
                             <a
                                 href={linkResult}
                                 target="_blank"
@@ -1780,7 +1780,7 @@ function ProvidersSection({
                 </Button>
             </div>
             {bots.length === 0 && (
-                <Card className="p-4 text-sm text-zoru-ink-muted">
+                <Card className="p-4 text-sm text-[var(--st-text-secondary)]">
                     Connect a Telegram bot to this project first — provider tokens
                     are attached to a specific bot.
                 </Card>
@@ -1801,7 +1801,7 @@ function ProvidersSection({
                         {providers.length === 0 && (
                             <ZoruTableRow>
                                 <ZoruTableCell colSpan={6}>
-                                    <div className="py-10 text-center text-sm text-zoru-ink-muted">
+                                    <div className="py-10 text-center text-sm text-[var(--st-text-secondary)]">
                                         No provider tokens saved yet.
                                     </div>
                                 </ZoruTableCell>

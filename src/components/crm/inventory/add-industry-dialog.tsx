@@ -53,18 +53,18 @@ export function AddIndustryDialog({ open, onOpenChange, onIndustryAdded, default
         <Dialog open={open} onOpenChange={onOpenChange}>
             <ZoruDialogContent className="sm:max-w-[425px]">
                 <ZoruDialogHeader>
-                    <ZoruDialogTitle className="text-zoru-ink">Add Industry</ZoruDialogTitle>
-                    <ZoruDialogDescription className="text-zoru-ink-muted">
+                    <ZoruDialogTitle className="text-[var(--st-text)]">Add Industry</ZoruDialogTitle>
+                    <ZoruDialogDescription className="text-[var(--st-text-secondary)]">
                         Details about the industry.
                     </ZoruDialogDescription>
                 </ZoruDialogHeader>
                 <form ref={formRef} action={formAction} className="grid gap-4 py-4">
                     <div className="grid gap-2">
-                        <Label htmlFor="name" className="text-zoru-ink">Name</Label>
+                        <Label htmlFor="name" className="text-[var(--st-text)]">Name</Label>
                         <Input id="name" name="name" required defaultValue={defaultName} />
                     </div>
                     <div className="grid gap-2">
-                        <Label htmlFor="description" className="text-zoru-ink">Description (Optional)</Label>
+                        <Label htmlFor="description" className="text-[var(--st-text)]">Description (Optional)</Label>
                         <Textarea id="description" name="description" />
                     </div>
                     <ZoruDialogFooter>

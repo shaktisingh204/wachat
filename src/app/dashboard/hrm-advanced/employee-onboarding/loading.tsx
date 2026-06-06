@@ -17,7 +17,7 @@ export default function Loading() {
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-zoru-surface p-4 rounded-lg border">
+      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-[var(--st-bg-secondary)] p-4 rounded-lg border">
         <div className="flex gap-4 w-full max-w-md">
           <Skeleton className="h-10 w-full" />
           <Skeleton className="h-10 w-32" />

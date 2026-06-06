@@ -362,31 +362,31 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
         >
           <div className="relative">
             <ZoruRadioGroupItem value="STANDARD" id="t-standard" className="peer sr-only" />
-            <Label htmlFor="t-standard" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-zoru-surface p-4 hover:bg-zoru-surface-2 hover:text-zoru-ink peer-data-[state=checked]:border-primary peer-data-[state=checked]:text-zoru-ink cursor-pointer h-full">
+            <Label htmlFor="t-standard" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-[var(--st-bg-secondary)] p-4 hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] peer-data-[state=checked]:border-primary peer-data-[state=checked]:text-[var(--st-text)] cursor-pointer h-full">
               <MessageSquare className="mb-3 h-6 w-6" />
               <div className="text-center space-y-1">
                 <div className="font-semibold">Standard Message</div>
-                <div className="text-xs text-zoru-ink-muted">Text, Media, Buttons</div>
+                <div className="text-xs text-[var(--st-text-secondary)]">Text, Media, Buttons</div>
               </div>
             </Label>
           </div>
           <div className="relative">
             <ZoruRadioGroupItem value="MARKETING_CAROUSEL" id="t-carousel" className="peer sr-only" />
-            <Label htmlFor="t-carousel" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-zoru-surface p-4 hover:bg-zoru-surface-2 hover:text-zoru-ink peer-data-[state=checked]:border-primary peer-data-[state=checked]:text-zoru-ink cursor-pointer h-full">
+            <Label htmlFor="t-carousel" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-[var(--st-bg-secondary)] p-4 hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] peer-data-[state=checked]:border-primary peer-data-[state=checked]:text-[var(--st-text)] cursor-pointer h-full">
               <LayoutGrid className="mb-3 h-6 w-6" />
               <div className="text-center space-y-1">
                 <div className="font-semibold">Marketing Carousel</div>
-                <div className="text-xs text-zoru-ink-muted">Scrollable cards with media</div>
+                <div className="text-xs text-[var(--st-text-secondary)]">Scrollable cards with media</div>
               </div>
             </Label>
           </div>
           <div className="relative">
             <ZoruRadioGroupItem value="CATALOG_MESSAGE" id="t-catalog" className="peer sr-only" />
-            <Label htmlFor="t-catalog" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-zoru-surface p-4 hover:bg-zoru-surface-2 hover:text-zoru-ink peer-data-[state=checked]:border-primary peer-data-[state=checked]:text-zoru-ink cursor-pointer h-full">
+            <Label htmlFor="t-catalog" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-[var(--st-bg-secondary)] p-4 hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] peer-data-[state=checked]:border-primary peer-data-[state=checked]:text-[var(--st-text)] cursor-pointer h-full">
               <ShoppingBag className="mb-3 h-6 w-6" />
               <div className="text-center space-y-1">
                 <div className="font-semibold">Product Catalog</div>
-                <div className="text-xs text-zoru-ink-muted">Interactive product list</div>
+                <div className="text-xs text-[var(--st-text-secondary)]">Interactive product list</div>
               </div>
             </Label>
           </div>
@@ -441,7 +441,7 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
                     <Label>Header</Label>
                     <RadioGroup value={headerFormat} onValueChange={setHeaderFormat} className="flex flex-wrap gap-2">
                       {['NONE', 'TEXT', 'IMAGE', 'VIDEO', 'DOCUMENT'].map(f => (
-                        <div key={f} className="flex items-center space-x-2 border p-2 rounded cursor-pointer hover:bg-zoru-surface-2">
+                        <div key={f} className="flex items-center space-x-2 border p-2 rounded cursor-pointer hover:bg-[var(--st-bg-muted)]">
                           <ZoruRadioGroupItem value={f} id={`h-${f}`} />
                           <Label htmlFor={`h-${f}`} className="cursor-pointer">{f}</Label>
                         </div>
@@ -453,7 +453,7 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
                       <div className="space-y-2">
                         <Input name="headerText" placeholder="Header Text (e.g. Welcome {{1}})" value={headerText} onChange={e => setHeaderText(e.target.value)} />
                         {headerText.match(/{{\s*(\d+)\s*}}/g) && (
-                          <div className="mt-2 text-sm bg-zoru-surface-2/30 p-2 rounded">
+                          <div className="mt-2 text-sm bg-[var(--st-bg-muted)]/30 p-2 rounded">
                             <Label className="text-xs font-semibold mb-1 block">Header Variable Example</Label>
                             <Input name="headerExample" placeholder="e.g. Discount" className="h-8" required />
                           </div>
@@ -471,7 +471,7 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
                                 headerFormat === 'DOCUMENT' ? "application/pdf" : undefined
                           }
                         />
-                        <div className="text-xs text-zoru-ink-muted">OR</div>
+                        <div className="text-xs text-[var(--st-text-secondary)]">OR</div>
                         <Input name="headerSampleUrl" placeholder="https://..." value={headerSampleUrl} onChange={e => setHeaderSampleUrl(e.target.value)} />
                       </div>
                     )}
@@ -493,12 +493,12 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
 
                       if (vars.length > 0) {
                         return (
-                          <div className="space-y-2 p-3 bg-zoru-surface-2/30 rounded border mt-2">
+                          <div className="space-y-2 p-3 bg-[var(--st-bg-muted)]/30 rounded border mt-2">
                             <Label className="text-xs font-semibold">Variable Examples (Required)</Label>
                             <div className="grid gap-2">
                               {vars.map(v => (
                                 <div key={v} className="flex items-center gap-2">
-                                  <span className="text-xs text-zoru-ink-muted w-8 font-mono">{`{{${v}}}`}</span>
+                                  <span className="text-xs text-[var(--st-text-secondary)] w-8 font-mono">{`{{${v}}}`}</span>
                                   <Input
                                     name={`body_example_${v}`}
                                     placeholder={`e.g. John`}
@@ -530,7 +530,7 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
                 </div>
 
                 {buttons.map((b, i) => (
-                  <div key={i} className="p-3 border rounded relative bg-zoru-surface-2/20">
+                  <div key={i} className="p-3 border rounded relative bg-[var(--st-bg-muted)]/20">
                     <div className="font-semibold text-xs mb-1">{b.type}</div>
                     <Input
                       placeholder="Label"
@@ -636,13 +636,13 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
                     <Label>Section Title</Label>
                     <Input value={catalogSection1Title} onChange={e => setCatalogSection1Title(e.target.value)} />
                   </div>
-                  <div className="p-4 border rounded-md bg-zoru-surface-2/20 text-sm">
+                  <div className="p-4 border rounded-md bg-[var(--st-bg-muted)]/20 text-sm">
                     {catalogSection1Ids.length === 0 ? (
-                      <span className="text-zoru-ink-muted">No products selected. Click "Select Products" above.</span>
+                      <span className="text-[var(--st-text-secondary)]">No products selected. Click "Select Products" above.</span>
                     ) : (
                       <div className="grid grid-cols-2 gap-2">
                         {catalogSection1Ids.map(id => (
-                          <div key={id} className="bg-zoru-surface border p-2 rounded flex justify-between items-center">
+                          <div key={id} className="bg-[var(--st-bg-secondary)] border p-2 rounded flex justify-between items-center">
                             <span className="truncate flex-1" title={id}>{id}</span>
                             <Button type="button" variant="ghost" size="icon" className="h-4 w-4 ml-2" onClick={() => setCatalogSection1Ids(ids => ids.filter(x => x !== id))}>
                               <Trash2 className="h-3 w-3" />
@@ -672,10 +672,10 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
                     <Input value={catalogSection2Title} onChange={e => setCatalogSection2Title(e.target.value)} />
                   </div>
                   {catalogSection2Ids.length > 0 && (
-                    <div className="p-4 border rounded-md bg-zoru-surface-2/20 text-sm">
+                    <div className="p-4 border rounded-md bg-[var(--st-bg-muted)]/20 text-sm">
                       <div className="grid grid-cols-2 gap-2">
                         {catalogSection2Ids.map(id => (
-                          <div key={id} className="bg-zoru-surface border p-2 rounded flex justify-between items-center">
+                          <div key={id} className="bg-[var(--st-bg-secondary)] border p-2 rounded flex justify-between items-center">
                             <span className="truncate flex-1" title={id}>{id}</span>
                             <Button type="button" variant="ghost" size="icon" className="h-4 w-4 ml-2" onClick={() => setCatalogSection2Ids(ids => ids.filter(x => x !== id))}>
                               <Trash2 className="h-3 w-3" />
@@ -696,7 +696,7 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
           <Card className="sticky top-6">
             <ZoruCardHeader><ZoruCardTitle>Publish</ZoruCardTitle></ZoruCardHeader>
             <ZoruCardContent>
-              <p className="text-sm text-zoru-ink-muted mb-4">
+              <p className="text-sm text-[var(--st-text-secondary)] mb-4">
                 {templateType === 'STANDARD' && "Submitting will send this template to Meta for review. Approval usually takes 1 minute."}
                 {templateType === 'MARKETING_CAROUSEL' && "Carousels are validated by Meta. Ensure all images are high quality."}
                 {templateType === 'CATALOG_MESSAGE' && "Product messages are saved locally and do NOT require Meta approval."}

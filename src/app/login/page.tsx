@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 
 export default function Page(props: any) {
   return (
-    <div className="zoruui min-h-screen bg-zoru-bg text-zoru-ink">
+    <div className="zoruui min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
       <Suspense fallback={<Loading />}>
         <ClientPage {...props} />
       </Suspense>

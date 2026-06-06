@@ -236,7 +236,7 @@ export function BlocksSideBar() {
                 'w-full py-1.5 text-[12px] rounded-md',
                 'bg-[var(--gray-3)] border border-[var(--gray-5)]',
                 'text-[var(--gray-12)] placeholder:text-[var(--gray-9)]',
-                'outline-none focus:border-zoru-line focus:ring-1 focus:ring-zoru-line/20',
+                'outline-none focus:border-[var(--st-border)] focus:ring-1 focus:ring-[var(--st-border)]/20',
                 'transition-colors',
               )}
               style={{ paddingLeft: '1.875rem', paddingRight: query ? '1.5rem' : '0.5rem' }}
@@ -258,7 +258,7 @@ export function BlocksSideBar() {
             className={cn(
               'flex h-7 w-7 shrink-0 items-center justify-center rounded-md transition-colors',
               isLocked
-                ? 'bg-zoru-ink/10 text-zoru-ink'
+                ? 'bg-[var(--st-text)]/10 text-[var(--st-text)]'
                 : 'text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
             )}
             title={isLocked ? 'Unpin sidebar' : 'Pin sidebar open'}

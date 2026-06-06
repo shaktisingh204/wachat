@@ -17,11 +17,11 @@ export default function VendorsError({
 
   return (
     <div className="flex h-[50vh] flex-col items-center justify-center gap-4 text-center">
-      <div className="rounded-full bg-zoru-danger/10 p-4">
-        <AlertCircle className="h-8 w-8 text-zoru-danger-ink" />
+      <div className="rounded-full bg-[var(--st-danger)]/10 p-4">
+        <AlertCircle className="h-8 w-8 text-[var(--st-danger)]" />
       </div>
-      <h2 className="text-xl font-semibold text-zoru-ink">Failed to load Vendors</h2>
-      <p className="max-w-md text-sm text-zoru-ink-muted">
+      <h2 className="text-xl font-semibold text-[var(--st-text)]">Failed to load Vendors</h2>
+      <p className="max-w-md text-sm text-[var(--st-text-secondary)]">
         {error.message || 'We encountered an issue while loading vendors data.'}
       </p>
       <Button onClick={() => reset()} variant="outline">

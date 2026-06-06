@@ -14,7 +14,7 @@ export function ResponseTimeChart({
 }): React.JSX.Element {
     if (points.length === 0) {
         return (
-            <p className="text-sm text-zoru-ink-muted">No data points to chart yet.</p>
+            <p className="text-sm text-[var(--st-text-secondary)]">No data points to chart yet.</p>
         );
     }
     const w = 800;

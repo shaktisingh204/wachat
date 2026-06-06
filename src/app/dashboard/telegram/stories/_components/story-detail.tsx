@@ -47,11 +47,11 @@ function Row({
     children: React.ReactNode;
 }) {
     return (
-        <div className="grid grid-cols-[180px_1fr] gap-3 border-b border-zoru-line/40 py-1.5 last:border-b-0">
-            <span className="text-[12px] uppercase tracking-[0.08em] text-zoru-ink-muted">
+        <div className="grid grid-cols-[180px_1fr] gap-3 border-b border-[var(--st-border)]/40 py-1.5 last:border-b-0">
+            <span className="text-[12px] uppercase tracking-[0.08em] text-[var(--st-text-secondary)]">
                 {label}
             </span>
-            <span className="text-zoru-ink">{children}</span>
+            <span className="text-[var(--st-text)]">{children}</span>
         </div>
     );
 }
@@ -103,11 +103,11 @@ export function StoryDetail({
                 </ZoruDrawerDescription>
             </ZoruDrawerHeader>
             <div className="grid gap-4 px-6 pb-6">
-                <div className="flex h-56 w-full items-center justify-center rounded-md border border-zoru-line bg-zoru-surface-2">
+                <div className="flex h-56 w-full items-center justify-center rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)]">
                     {row.content.mediaKind === 'photo' ? (
-                        <ImageIcon className="h-10 w-10 text-zoru-ink-subtle" />
+                        <ImageIcon className="h-10 w-10 text-[var(--st-text-tertiary)]" />
                     ) : (
-                        <VideoIcon className="h-10 w-10 text-zoru-ink-subtle" />
+                        <VideoIcon className="h-10 w-10 text-[var(--st-text-tertiary)]" />
                     )}
                 </div>
                 <div className="grid gap-2 text-sm">
@@ -145,7 +145,7 @@ export function StoryDetail({
                     </Row>
                     {row.errorMessage ? (
                         <Row label="Last error">
-                            <span className="text-zoru-danger-ink">
+                            <span className="text-[var(--st-danger)]">
                                 {row.errorMessage}
                             </span>
                         </Row>

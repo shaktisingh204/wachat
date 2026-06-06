@@ -25,10 +25,10 @@ export default async function TraceDetailPage({ params }: PageProps): Promise<Re
     return (
         <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1">
-                <h2 className="text-sm font-semibold text-zoru-ink">
+                <h2 className="text-sm font-semibold text-[var(--st-text)]">
                     Trace <span className="font-mono text-[12px]">{traceId}</span>
                 </h2>
-                <span className="text-[12px] text-zoru-ink-muted">
+                <span className="text-[12px] text-[var(--st-text-secondary)]">
                     {trace.rootService ?? '—'} · {trace.rootOperation ?? '—'} · {trace.durationMs}ms ·{' '}
                     {trace.spanCount} spans
                 </span>

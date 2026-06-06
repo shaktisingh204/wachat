@@ -97,16 +97,16 @@ export default async function BatchDetailPage({
         >
             {/* Expiry alert */}
             {expired ? (
-                <Card className="flex items-center gap-3 border-zoru-line bg-zoru-surface-2 p-4 dark:border-zoru-line dark:bg-zoru-ink/40">
-                    <AlertTriangle className="h-5 w-5 text-zoru-ink dark:text-zoru-ink-muted" />
-                    <div className="text-[13px] text-zoru-ink dark:text-white">
+                <Card className="flex items-center gap-3 border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 dark:border-[var(--st-border)] dark:bg-[var(--st-text)]/40">
+                    <AlertTriangle className="h-5 w-5 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]" />
+                    <div className="text-[13px] text-[var(--st-text)] dark:text-white">
                         This batch expired {Math.abs(days!)} day{Math.abs(days!) === 1 ? '' : 's'} ago. Quarantine remaining stock immediately.
                     </div>
                 </Card>
             ) : soon ? (
-                <Card className="flex items-center gap-3 border-zoru-line bg-zoru-surface-2 p-4 dark:border-zoru-line dark:bg-zoru-ink/40">
-                    <AlertTriangle className="h-5 w-5 text-zoru-ink dark:text-zoru-ink-muted" />
-                    <div className="text-[13px] text-zoru-ink dark:text-white">
+                <Card className="flex items-center gap-3 border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 dark:border-[var(--st-border)] dark:bg-[var(--st-text)]/40">
+                    <AlertTriangle className="h-5 w-5 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]" />
+                    <div className="text-[13px] text-[var(--st-text)] dark:text-white">
                         Expires in {days} day{days === 1 ? '' : 's'}. Plan rotation or markdown.
                     </div>
                 </Card>
@@ -115,7 +115,7 @@ export default async function BatchDetailPage({
             {/* Summary card */}
             <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
-                    <div className="text-[14px] font-medium text-zoru-ink">
+                    <div className="text-[14px] font-medium text-[var(--st-text)]">
                         Overview
                     </div>
                     <StatusPill
@@ -125,60 +125,60 @@ export default async function BatchDetailPage({
                 </div>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
                     <div>
-                        <div className="text-zoru-ink-muted">Item</div>
-                        <div className="text-zoru-ink">{batch.itemName}</div>
+                        <div className="text-[var(--st-text-secondary)]">Item</div>
+                        <div className="text-[var(--st-text)]">{batch.itemName}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Batch number</div>
-                        <div className="font-mono text-zoru-ink">{batch.batchNumber}</div>
+                        <div className="text-[var(--st-text-secondary)]">Batch number</div>
+                        <div className="font-mono text-[var(--st-text)]">{batch.batchNumber}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Manufacture date</div>
-                        <div className="text-zoru-ink">{fmtDate(batch.manufactureDate)}</div>
+                        <div className="text-[var(--st-text-secondary)]">Manufacture date</div>
+                        <div className="text-[var(--st-text)]">{fmtDate(batch.manufactureDate)}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Expiry date</div>
+                        <div className="text-[var(--st-text-secondary)]">Expiry date</div>
                         <div
                             className={
                                 expired
-                                    ? 'font-medium text-zoru-ink dark:text-zoru-ink-muted'
+                                    ? 'font-medium text-[var(--st-text)] dark:text-[var(--st-text-secondary)]'
                                     : soon
-                                      ? 'font-medium text-zoru-ink dark:text-zoru-ink-muted'
-                                      : 'text-zoru-ink'
+                                      ? 'font-medium text-[var(--st-text)] dark:text-[var(--st-text-secondary)]'
+                                      : 'text-[var(--st-text)]'
                             }
                         >
                             {fmtDate(batch.expiryDate)}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Quantity</div>
-                        <div className="font-mono text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Quantity</div>
+                        <div className="font-mono text-[var(--st-text)]">
                             {batch.quantity}
                             {batch.unit ? ` ${batch.unit}` : ''}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Cost price</div>
-                        <div className="font-mono text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Cost price</div>
+                        <div className="font-mono text-[var(--st-text)]">
                             {fmtINR(batch.costPrice)}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Location</div>
-                        <div className="font-mono text-[12px] text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Location</div>
+                        <div className="font-mono text-[12px] text-[var(--st-text)]">
                             {batch.locationId ?? '—'}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Supplier</div>
-                        <div className="font-mono text-[12px] text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Supplier</div>
+                        <div className="font-mono text-[12px] text-[var(--st-text)]">
                             {batch.supplierId ?? '—'}
                         </div>
                     </div>
                     {batch.notes ? (
                         <div className="sm:col-span-2">
-                            <div className="text-zoru-ink-muted">Notes</div>
-                            <div className="whitespace-pre-wrap text-zoru-ink">
+                            <div className="text-[var(--st-text-secondary)]">Notes</div>
+                            <div className="whitespace-pre-wrap text-[var(--st-text)]">
                                 {batch.notes}
                             </div>
                         </div>

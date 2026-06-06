@@ -82,7 +82,7 @@ export default function SchemaGeneratorPage() {
   return (
     <ToolShell title="Schema Markup Generator" description="Generate JSON-LD structured data.">
       <div className="flex gap-2">
-        <select className="border rounded h-9 px-2 bg-zoru-surface" value={type} onChange={(e) => setType(e.target.value as SchemaType)}>
+        <select className="border rounded h-9 px-2 bg-[var(--st-bg-secondary)]" value={type} onChange={(e) => setType(e.target.value as SchemaType)}>
           <option value="Article">Article</option>
           <option value="Product">Product</option>
           <option value="LocalBusiness">LocalBusiness</option>
@@ -142,7 +142,7 @@ export default function SchemaGeneratorPage() {
         </>}
       </div>
       <Button onClick={() => navigator.clipboard.writeText(schema)}>Copy to Clipboard</Button>
-      <div className="border rounded-md overflow-hidden bg-zoru-surface">
+      <div className="border rounded-md overflow-hidden bg-[var(--st-bg-secondary)]">
         <CodeMirror
           value={schema}
           editable={false}

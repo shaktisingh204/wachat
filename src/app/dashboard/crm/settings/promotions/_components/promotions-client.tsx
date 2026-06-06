@@ -135,15 +135,15 @@ function EditDialog({
           </ZoruDialogHeader>
           <div className="grid grid-cols-1 gap-4 py-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="name">Name <span className="text-zoru-danger-ink">*</span></Label>
+              <Label htmlFor="name">Name <span className="text-[var(--st-danger)]">*</span></Label>
               <Input id="name" name="name" required defaultValue={initial?.name ?? ''} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="code">Code <span className="text-zoru-danger-ink">*</span></Label>
+              <Label htmlFor="code">Code <span className="text-[var(--st-danger)]">*</span></Label>
               <Input id="code" name="code" required placeholder="SUMMER25" defaultValue={initial?.code ?? ''} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="type">Type <span className="text-zoru-danger-ink">*</span></Label>
+              <Label htmlFor="type">Type <span className="text-[var(--st-danger)]">*</span></Label>
               <Select name="type" defaultValue={initial?.type ?? 'percent'}>
                 <ZoruSelectTrigger id="type"><ZoruSelectValue /></ZoruSelectTrigger>
                 <ZoruSelectContent>
@@ -153,7 +153,7 @@ function EditDialog({
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="value">Value <span className="text-zoru-danger-ink">*</span></Label>
+              <Label htmlFor="value">Value <span className="text-[var(--st-danger)]">*</span></Label>
               <Input id="value" name="value" type="number" required defaultValue={String(initial?.value ?? '')} />
             </div>
             <div className="space-y-2">
@@ -356,7 +356,7 @@ export function PromotionsClient(): React.JSX.Element {
               </ZoruSelectContent>
             </Select>
             <div className="flex items-center gap-1.5">
-              <label className="text-[12px] text-zoru-ink-muted">From</label>
+              <label className="text-[12px] text-[var(--st-text-secondary)]">From</label>
               <Input
                 type="date"
                 className="h-9 w-[140px]"
@@ -365,7 +365,7 @@ export function PromotionsClient(): React.JSX.Element {
               />
             </div>
             <div className="flex items-center gap-1.5">
-              <label className="text-[12px] text-zoru-ink-muted">To</label>
+              <label className="text-[12px] text-[var(--st-text-secondary)]">To</label>
               <Input
                 type="date"
                 className="h-9 w-[140px]"
@@ -385,7 +385,7 @@ export function PromotionsClient(): React.JSX.Element {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-2 text-[12.5px]">
                 <Badge variant="default">{selected.size} selected</Badge>
-                <button type="button" onClick={() => setSelected(new Set())} className="text-zoru-ink-muted hover:text-zoru-ink">Clear</button>
+                <button type="button" onClick={() => setSelected(new Set())} className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]">Clear</button>
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <Button variant="outline" size="sm" onClick={handleExportCsv}><Download className="mr-1 h-3.5 w-3.5" /> Export CSV</Button>
@@ -425,20 +425,20 @@ export function PromotionsClient(): React.JSX.Element {
           )}
 
           <Card className="p-0">
-            <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
+            <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
               <Table>
                 <ZoruTableHeader>
-                  <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                  <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                     <ZoruTableHead className="w-10">
                       <Checkbox checked={allSelected ? true : someSelected ? 'indeterminate' : false} onCheckedChange={(v) => togglePage(v === true)} aria-label="Select all on page" />
                     </ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Name</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Code</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Discount</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Usage limit</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Valid until</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                    <ZoruTableHead className="text-right text-zoru-ink-muted">Actions</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Name</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Code</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Discount</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Usage limit</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Valid until</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
+                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Actions</ZoruTableHead>
                   </ZoruTableRow>
                 </ZoruTableHeader>
                 <ZoruTableBody>
@@ -448,39 +448,39 @@ export function PromotionsClient(): React.JSX.Element {
                     ))
                   ) : pageRows.length === 0 ? (
                     <ZoruTableRow>
-                      <ZoruTableCell colSpan={8} className="h-24 text-center text-[13px] text-zoru-ink-muted">
+                      <ZoruTableCell colSpan={8} className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]">
                         No promotions match this filter.
                       </ZoruTableCell>
                     </ZoruTableRow>
                   ) : (
                     pageRows.map((row) => (
-                      <ZoruTableRow key={row._id} className="border-zoru-line">
+                      <ZoruTableRow key={row._id} className="border-[var(--st-border)]">
                         <ZoruTableCell>
                           <Checkbox checked={selected.has(row._id)} onCheckedChange={() => toggleOne(row._id)} aria-label={`Select ${row.name}`} />
                         </ZoruTableCell>
-                        <ZoruTableCell className="font-medium text-zoru-ink">
+                        <ZoruTableCell className="font-medium text-[var(--st-text)]">
                           <RowDrawer label={row.name} title={`Promotion · ${row.name}`} description="Promotion details. Use Edit to modify.">
                             <div className="space-y-3 text-sm">
-                              <div><div className="text-xs text-zoru-ink-muted">Name</div><div>{row.name}</div></div>
-                              <div><div className="text-xs text-zoru-ink-muted">Code</div><Badge>{row.code}</Badge></div>
-                              <div><div className="text-xs text-zoru-ink-muted">Discount</div><div>{row.type === 'percent' ? `${row.value}%` : `${row.value} (fixed)`}</div></div>
-                              <div><div className="text-xs text-zoru-ink-muted">Start</div><div>{fmtDate(row.start_date)}</div></div>
-                              <div><div className="text-xs text-zoru-ink-muted">End</div><div>{fmtDate(row.end_date)}</div></div>
-                              <div><div className="text-xs text-zoru-ink-muted">Usage limit</div><div>{row.usage_limit ?? 'Unlimited'}</div></div>
-                              <div><div className="text-xs text-zoru-ink-muted">Status</div><Badge variant={statusVariant(row)}>{statusLabel(row)}</Badge></div>
+                              <div><div className="text-xs text-[var(--st-text-secondary)]">Name</div><div>{row.name}</div></div>
+                              <div><div className="text-xs text-[var(--st-text-secondary)]">Code</div><Badge>{row.code}</Badge></div>
+                              <div><div className="text-xs text-[var(--st-text-secondary)]">Discount</div><div>{row.type === 'percent' ? `${row.value}%` : `${row.value} (fixed)`}</div></div>
+                              <div><div className="text-xs text-[var(--st-text-secondary)]">Start</div><div>{fmtDate(row.start_date)}</div></div>
+                              <div><div className="text-xs text-[var(--st-text-secondary)]">End</div><div>{fmtDate(row.end_date)}</div></div>
+                              <div><div className="text-xs text-[var(--st-text-secondary)]">Usage limit</div><div>{row.usage_limit ?? 'Unlimited'}</div></div>
+                              <div><div className="text-xs text-[var(--st-text-secondary)]">Status</div><Badge variant={statusVariant(row)}>{statusLabel(row)}</Badge></div>
                             </div>
                           </RowDrawer>
                         </ZoruTableCell>
                         <ZoruTableCell className="text-[13px]">
                           <Badge>{row.code}</Badge>
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-zoru-ink">
+                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                           {row.type === 'percent' ? `${row.value}%` : row.value}
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-zoru-ink">
+                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                           {row.usage_limit ?? 'Unlimited'}
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-zoru-ink">
+                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                           {fmtDate(row.end_date)}
                         </ZoruTableCell>
                         <ZoruTableCell className="text-[13px]">
@@ -490,7 +490,7 @@ export function PromotionsClient(): React.JSX.Element {
                           <div className="flex justify-end gap-1">
                             <Button variant="ghost" size="sm" onClick={() => { setEditing(row); setDialogOpen(true); }} aria-label={`Edit ${row.name}`}>Edit</Button>
                             <Button variant="ghost" size="sm" onClick={() => setPendingDelete(row)} aria-label={`Delete ${row.name}`}>
-                              <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                              <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                             </Button>
                           </div>
                         </ZoruTableCell>

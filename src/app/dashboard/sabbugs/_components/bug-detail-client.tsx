@@ -256,7 +256,7 @@ function CommentsTab({
               </span>
               <button
                 type="button"
-                className="text-[var(--zoru-ink-muted)] hover:text-zoru-ink"
+                className="text-[var(--zoru-ink-muted)] hover:text-[var(--st-text)]"
                 onClick={() => remove(c._id)}
               >
                 Delete

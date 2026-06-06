@@ -54,10 +54,10 @@ export default function StorefrontOverviewPage(): React.JSX.Element {
         <div className="flex flex-col gap-6">
             <header className="flex flex-wrap items-end justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-semibold tracking-tight text-zoru-ink">
+                    <h1 className="text-2xl font-semibold tracking-tight text-[var(--st-text)]">
                         {sf ? sf.displayName : 'Storefront Overview'}
                     </h1>
-                    <p className="text-sm text-zoru-ink-muted">
+                    <p className="text-sm text-[var(--st-text-secondary)]">
                         Here's what's happening with your store today.
                     </p>
                 </div>
@@ -74,11 +74,11 @@ export default function StorefrontOverviewPage(): React.JSX.Element {
                 <Card>
                     <ZoruCardHeader className="flex flex-row items-center justify-between pb-2">
                         <ZoruCardTitle className="text-sm font-medium">Total Revenue</ZoruCardTitle>
-                        <DollarSign className="h-4 w-4 text-zoru-ink-muted" />
+                        <DollarSign className="h-4 w-4 text-[var(--st-text-secondary)]" />
                     </ZoruCardHeader>
                     <ZoruCardContent>
                         <div className="text-2xl font-bold">₹45,231.89</div>
-                        <p className="text-xs text-zoru-ink-muted flex items-center gap-1 mt-1 text-green-600">
+                        <p className="text-xs text-[var(--st-text-secondary)] flex items-center gap-1 mt-1 text-green-600">
                             <ArrowUpRight className="h-3 w-3" />
                             +20.1% from last month
                         </p>
@@ -87,11 +87,11 @@ export default function StorefrontOverviewPage(): React.JSX.Element {
                 <Card>
                     <ZoruCardHeader className="flex flex-row items-center justify-between pb-2">
                         <ZoruCardTitle className="text-sm font-medium">Orders</ZoruCardTitle>
-                        <CreditCard className="h-4 w-4 text-zoru-ink-muted" />
+                        <CreditCard className="h-4 w-4 text-[var(--st-text-secondary)]" />
                     </ZoruCardHeader>
                     <ZoruCardContent>
                         <div className="text-2xl font-bold">+2350</div>
-                        <p className="text-xs text-zoru-ink-muted flex items-center gap-1 mt-1 text-green-600">
+                        <p className="text-xs text-[var(--st-text-secondary)] flex items-center gap-1 mt-1 text-green-600">
                             <ArrowUpRight className="h-3 w-3" />
                             +180.1% from last month
                         </p>
@@ -100,11 +100,11 @@ export default function StorefrontOverviewPage(): React.JSX.Element {
                 <Card>
                     <ZoruCardHeader className="flex flex-row items-center justify-between pb-2">
                         <ZoruCardTitle className="text-sm font-medium">Sales</ZoruCardTitle>
-                        <Activity className="h-4 w-4 text-zoru-ink-muted" />
+                        <Activity className="h-4 w-4 text-[var(--st-text-secondary)]" />
                     </ZoruCardHeader>
                     <ZoruCardContent>
                         <div className="text-2xl font-bold">+12,234</div>
-                        <p className="text-xs text-zoru-ink-muted flex items-center gap-1 mt-1 text-green-600">
+                        <p className="text-xs text-[var(--st-text-secondary)] flex items-center gap-1 mt-1 text-green-600">
                             <ArrowUpRight className="h-3 w-3" />
                             +19% from last month
                         </p>
@@ -113,11 +113,11 @@ export default function StorefrontOverviewPage(): React.JSX.Element {
                 <Card>
                     <ZoruCardHeader className="flex flex-row items-center justify-between pb-2">
                         <ZoruCardTitle className="text-sm font-medium">Active Now</ZoruCardTitle>
-                        <Users className="h-4 w-4 text-zoru-ink-muted" />
+                        <Users className="h-4 w-4 text-[var(--st-text-secondary)]" />
                     </ZoruCardHeader>
                     <ZoruCardContent>
                         <div className="text-2xl font-bold">+573</div>
-                        <p className="text-xs text-zoru-ink-muted flex items-center gap-1 mt-1 text-red-500">
+                        <p className="text-xs text-[var(--st-text-secondary)] flex items-center gap-1 mt-1 text-red-500">
                             <ArrowDownRight className="h-3 w-3" />
                             -12% since last hour
                         </p>
@@ -134,10 +134,10 @@ export default function StorefrontOverviewPage(): React.JSX.Element {
                         <div className="h-[300px] w-full flex items-end gap-2 px-4">
                             {/* Fake bar chart using divs */}
                             {[40, 25, 60, 80, 50, 90, 75, 45, 65, 85, 55, 70].map((h, i) => (
-                                <div key={i} className="bg-zoru-ink flex-1 rounded-t-sm transition-all hover:bg-opacity-80" style={{ height: `${h}%` }}></div>
+                                <div key={i} className="bg-[var(--st-text)] flex-1 rounded-t-sm transition-all hover:bg-opacity-80" style={{ height: `${h}%` }}></div>
                             ))}
                         </div>
-                        <div className="flex justify-between px-4 mt-2 text-xs text-zoru-ink-muted">
+                        <div className="flex justify-between px-4 mt-2 text-xs text-[var(--st-text-secondary)]">
                             <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
                             <span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span>
                         </div>
@@ -160,7 +160,7 @@ export default function StorefrontOverviewPage(): React.JSX.Element {
                                 <div key={order.id} className="flex items-center">
                                     <div className="ml-0 space-y-1">
                                         <p className="text-sm font-medium leading-none">{order.customer}</p>
-                                        <p className="text-sm text-zoru-ink-muted">{order.email}</p>
+                                        <p className="text-sm text-[var(--st-text-secondary)]">{order.email}</p>
                                     </div>
                                     <div className="ml-auto flex items-center gap-4">
                                         <Badge variant={order.status === 'Paid' ? 'success' : order.status === 'Pending' ? 'warning' : 'destructive'}>{order.status}</Badge>

@@ -37,7 +37,7 @@ function fullName(row: EmployeeListRow): string {
 export function EmployeesGrid({ rows, filtersActive }: EmployeesGridProps) {
   if (rows.length === 0) {
     return (
-      <div className="p-6 text-center text-[13px] text-zoru-ink-muted">
+      <div className="p-6 text-center text-[13px] text-[var(--st-text-secondary)]">
         {filtersActive
           ? 'No employees match the current filters.'
           : 'No employees yet — click "New Employee" to add the first one.'}
@@ -56,17 +56,17 @@ export function EmployeesGrid({ rows, filtersActive }: EmployeesGridProps) {
             className="flex flex-col gap-3 p-4 transition hover:shadow-md"
           >
             <div className="flex items-start gap-3">
-              <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-zoru-line bg-zoru-surface text-zoru-ink-muted">
+              <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]">
                 <UserCircle2 className="h-5 w-5" />
               </span>
               <div className="min-w-0 flex-1">
                 <Link
                   href={`/dashboard/hrm/payroll/employees/${id}`}
-                  className="truncate text-[14px] font-medium text-zoru-ink hover:underline"
+                  className="truncate text-[14px] font-medium text-[var(--st-text)] hover:underline"
                 >
                   {name}
                 </Link>
-                <p className="truncate font-mono text-[11px] text-zoru-ink-muted">
+                <p className="truncate font-mono text-[11px] text-[var(--st-text-secondary)]">
                   {emp.employeeId || id.slice(-6)}
                 </p>
               </div>
@@ -78,7 +78,7 @@ export function EmployeesGrid({ rows, filtersActive }: EmployeesGridProps) {
               ) : null}
             </div>
 
-            <div className="flex flex-col gap-1 text-[12px] text-zoru-ink-muted">
+            <div className="flex flex-col gap-1 text-[12px] text-[var(--st-text-secondary)]">
               {emp.designationId ? (
                 <EntityPickerChip
                   entity="designation"

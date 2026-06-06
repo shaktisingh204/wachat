@@ -243,7 +243,7 @@ export function LearningPathForm({ initialData }: LearningPathFormProps) {
                 <div className="space-y-2">
                     <div className="flex items-baseline justify-between">
                         <Label>Trainings</Label>
-                        <span className="text-[11.5px] text-zoru-ink-muted">
+                        <span className="text-[11.5px] text-[var(--st-text-secondary)]">
                             {selectedTrainings.length} selected
                         </span>
                     </div>
@@ -293,7 +293,7 @@ export function LearningPathForm({ initialData }: LearningPathFormProps) {
 
                     {/* Chips list */}
                     {selectedTrainings.length === 0 ? (
-                        <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                        <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                             No trainings selected yet.
                         </div>
                     ) : (
@@ -311,7 +311,7 @@ export function LearningPathForm({ initialData }: LearningPathFormProps) {
                                         <button
                                             type="button"
                                             aria-label={`Remove ${trainingName(id)}`}
-                                            className="ml-0.5 inline-flex h-4 w-4 items-center justify-center rounded hover:bg-zoru-surface"
+                                            className="ml-0.5 inline-flex h-4 w-4 items-center justify-center rounded hover:bg-[var(--st-bg-secondary)]"
                                             onClick={() => removeTraining(id)}
                                         >
                                             <X className="h-3 w-3" />

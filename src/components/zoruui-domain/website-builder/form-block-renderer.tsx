@@ -116,7 +116,7 @@ export const FormBlockRenderer: React.FC<FormBlockRendererProps> = ({ settings }
     }
     
     if (successMessage) {
-        return <div className="p-8 text-center border-2 border-dashed rounded-lg text-zoru-ink border-zoru-line bg-zoru-surface-2"><CheckCircle className="mx-auto h-12 w-12" /><h3 className="mt-4 text-lg font-semibold">{successMessage}</h3></div>;
+        return <div className="p-8 text-center border-2 border-dashed rounded-lg text-[var(--st-text)] border-[var(--st-border)] bg-[var(--st-bg-muted)]"><CheckCircle className="mx-auto h-12 w-12" /><h3 className="mt-4 text-lg font-semibold">{successMessage}</h3></div>;
     }
 
     const descriptionStyle: React.CSSProperties = {
@@ -200,12 +200,12 @@ export const FormBlockRenderer: React.FC<FormBlockRendererProps> = ({ settings }
                                         }}
                                     />
                                     {field.description && <p className="text-xs pt-1" style={descriptionStyle}>{field.description}</p>}
-                                    {errors[fieldName] && <p className="text-sm font-medium text-zoru-ink">{errors[fieldName]?.message as string}</p>}
+                                    {errors[fieldName] && <p className="text-sm font-medium text-[var(--st-text)]">{errors[fieldName]?.message as string}</p>}
                                 </div>
                             </div>
                         )
                     })}
-                     {submissionStatus === 'error' && <div className="col-span-12 p-4 bg-zoru-ink/10 text-zoru-ink text-sm rounded-md flex items-center gap-2"><AlertCircle className="h-4 w-4"/><p>{errorMessage}</p></div>}
+                     {submissionStatus === 'error' && <div className="col-span-12 p-4 bg-[var(--st-text)]/10 text-[var(--st-text)] text-sm rounded-md flex items-center gap-2"><AlertCircle className="h-4 w-4"/><p>{errorMessage}</p></div>}
                 </ZoruCardContent>
                 <ZoruCardFooter style={{justifyContent: settings.buttonAlign || 'flex-start'}}>
                     <Button id={settings.buttonId} type="submit" size={settings.buttonSize} className="submit-button" disabled={isPending}>

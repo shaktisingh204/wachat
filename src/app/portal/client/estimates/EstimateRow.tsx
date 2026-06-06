@@ -23,11 +23,11 @@ function fmtCurrency(n: number, ccy: string): string {
 
 function getStatusColor(status: string) {
     const s = status.toLowerCase();
-    if (s === 'waiting' || s === 'sent') return 'bg-zoru-surface-2 text-zoru-ink border-zoru-line';
-    if (s === 'accepted') return 'bg-zoru-surface-2 text-zoru-ink border-zoru-line';
-    if (s === 'declined') return 'bg-zoru-surface-2 text-zoru-ink border-zoru-line';
-    if (s === 'revision-requested') return 'bg-zoru-surface-2 text-zoru-ink border-zoru-line';
-    return 'bg-zoru-surface-2 text-zoru-ink border-zoru-line';
+    if (s === 'waiting' || s === 'sent') return 'bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]';
+    if (s === 'accepted') return 'bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]';
+    if (s === 'declined') return 'bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]';
+    if (s === 'revision-requested') return 'bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]';
+    return 'bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]';
 }
 
 export function EstimateRow({ est }: { est: ClientEstimate }) {
@@ -76,11 +76,11 @@ export function EstimateRow({ est }: { est: ClientEstimate }) {
 
     return (
         <>
-            <ZoruTableRow className="cursor-pointer hover:bg-zoru-surface-2" onClick={toggleExpand}>
+            <ZoruTableRow className="cursor-pointer hover:bg-[var(--st-bg-muted)]" onClick={toggleExpand}>
                 <ZoruTableCell className="w-10">
-                    {expanded ? <ChevronDown className="h-4 w-4 text-zoru-ink-muted" /> : <ChevronRight className="h-4 w-4 text-zoru-ink-muted" />}
+                    {expanded ? <ChevronDown className="h-4 w-4 text-[var(--st-text-secondary)]" /> : <ChevronRight className="h-4 w-4 text-[var(--st-text-secondary)]" />}
                 </ZoruTableCell>
-                <ZoruTableCell className="font-medium text-zoru-ink">{est.number}</ZoruTableCell>
+                <ZoruTableCell className="font-medium text-[var(--st-text)]">{est.number}</ZoruTableCell>
                 <ZoruTableCell>{fmtDate(est.validTill)}</ZoruTableCell>
                 <ZoruTableCell>{fmtCurrency(est.total, est.currency)}</ZoruTableCell>
                 <ZoruTableCell>
@@ -94,24 +94,24 @@ export function EstimateRow({ est }: { est: ClientEstimate }) {
                             </Button>
                         </div>
                     ) : (
-                        <span className="text-xs text-zoru-ink-muted">—</span>
+                        <span className="text-xs text-[var(--st-text-secondary)]">—</span>
                     )}
                 </ZoruTableCell>
             </ZoruTableRow>
             {expanded && (
                 <ZoruTableRow>
-                    <ZoruTableCell colSpan={6} className="bg-zoru-surface-2 p-0 border-b">
+                    <ZoruTableCell colSpan={6} className="bg-[var(--st-bg-muted)] p-0 border-b">
                         <div className="p-6">
                             <h3 className="font-semibold text-lg mb-4">Line Items</h3>
                             {loading ? (
-                                <div className="flex items-center gap-2 text-sm text-zoru-ink">
+                                <div className="flex items-center gap-2 text-sm text-[var(--st-text)]">
                                     <Loader2 className="h-4 w-4 animate-spin" /> Loading items...
                                 </div>
                             ) : items && items.length > 0 ? (
                                 <div className="space-y-6">
                                     <div className="border rounded-md overflow-hidden bg-white">
                                         <table className="w-full text-sm text-left">
-                                            <thead className="bg-zoru-surface-2 text-zoru-ink font-medium">
+                                            <thead className="bg-[var(--st-bg-muted)] text-[var(--st-text)] font-medium">
                                                 <tr>
                                                     <th className="px-4 py-2 border-b">Description</th>
                                                     <th className="px-4 py-2 border-b text-right">Qty</th>
@@ -128,7 +128,7 @@ export function EstimateRow({ est }: { est: ClientEstimate }) {
                                                                 <div>{item.description}</div>
                                                                 {waiting && (
                                                                     <div className="mt-2 text-xs">
-                                                                        <div className="flex items-center gap-1 text-zoru-ink mb-1">
+                                                                        <div className="flex items-center gap-1 text-[var(--st-text)] mb-1">
                                                                             <MessageSquare className="h-3 w-3" /> Comment on this item
                                                                         </div>
                                                                         <textarea
@@ -154,7 +154,7 @@ export function EstimateRow({ est }: { est: ClientEstimate }) {
                                     {waiting && (
                                         <div className="bg-white p-4 border rounded-md">
                                             <h4 className="font-medium mb-2">Request Revision</h4>
-                                            <p className="text-sm text-zoru-ink mb-3">
+                                            <p className="text-sm text-[var(--st-text)] mb-3">
                                                 If you need changes to this estimate before accepting, leave your comments above and provide a general note below.
                                             </p>
                                             <textarea
@@ -164,7 +164,7 @@ export function EstimateRow({ est }: { est: ClientEstimate }) {
                                                 className="w-full border rounded p-2 text-sm mb-3"
                                                 rows={3}
                                             />
-                                            {error && <div className="text-zoru-ink text-sm mb-3">{error}</div>}
+                                            {error && <div className="text-[var(--st-text)] text-sm mb-3">{error}</div>}
                                             <Button 
                                                 onClick={handleRequestRevision} 
                                                 disabled={submitting || (generalComment.trim() === '' && Object.keys(itemComments).filter(k => itemComments[k].trim() !== '').length === 0)}
@@ -175,7 +175,7 @@ export function EstimateRow({ est }: { est: ClientEstimate }) {
                                     )}
                                 </div>
                             ) : (
-                                <div className="text-sm text-zoru-ink italic">No line items found.</div>
+                                <div className="text-sm text-[var(--st-text)] italic">No line items found.</div>
                             )}
                         </div>
                     </ZoruTableCell>

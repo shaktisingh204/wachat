@@ -321,7 +321,7 @@ export function TaxonomyLookupPage<R extends TaxonomyRow>({
         bulkBar={
           selected.size > 0 ? (
             <div className="flex items-center justify-between gap-3">
-              <span className="text-[12.5px] text-zoru-ink-muted">{selected.size} selected</span>
+              <span className="text-[12.5px] text-[var(--st-text-secondary)]">{selected.size} selected</span>
               <div className="flex items-center gap-2">
                 <Button variant="outline" size="sm" onClick={() => setSelected(new Set())}>
                   Clear
@@ -335,7 +335,7 @@ export function TaxonomyLookupPage<R extends TaxonomyRow>({
                   Export selected
                 </Button>
                 <Button variant="outline" size="sm" onClick={() => setPendingBulk(true)}>
-                  <Trash2 className="h-3.5 w-3.5 text-zoru-ink" strokeWidth={1.75} />
+                  <Trash2 className="h-3.5 w-3.5 text-[var(--st-text)]" strokeWidth={1.75} />
                   Delete selected
                 </Button>
               </div>
@@ -368,7 +368,7 @@ export function TaxonomyLookupPage<R extends TaxonomyRow>({
             <div className="overflow-x-auto">
               <table className="w-full text-left text-[13px]">
                 <thead>
-                  <tr className="border-b border-zoru-line bg-zoru-surface-2">
+                  <tr className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]">
                     <th className="w-10 px-3 py-3">
                       <Checkbox
                         checked={allOnPageSelected}
@@ -377,17 +377,17 @@ export function TaxonomyLookupPage<R extends TaxonomyRow>({
                       />
                     </th>
                     {columns.map((c) => (
-                      <th key={c.key} className="px-4 py-3 font-medium text-zoru-ink-muted">
+                      <th key={c.key} className="px-4 py-3 font-medium text-[var(--st-text-secondary)]">
                         {c.label}
                       </th>
                     ))}
-                    <th className="px-4 py-3 text-right font-medium text-zoru-ink-muted">Actions</th>
+                    <th className="px-4 py-3 text-right font-medium text-[var(--st-text-secondary)]">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {pageRows.length === 0 ? (
                     <tr>
-                      <td colSpan={columns.length + 2} className="px-4 py-10 text-center text-zoru-ink-muted">
+                      <td colSpan={columns.length + 2} className="px-4 py-10 text-center text-[var(--st-text-secondary)]">
                         {rows.length === 0
                           ? `No ${title.toLowerCase()} yet. Click "New ${singular}" to create one.`
                           : `No ${title.toLowerCase()} match the current filters.`}
@@ -398,7 +398,7 @@ export function TaxonomyLookupPage<R extends TaxonomyRow>({
                       const isSel = selected.has(row._id);
                       const name = String(row[nameKey] ?? '');
                       return (
-                        <tr key={row._id} className="border-b border-zoru-line last:border-0">
+                        <tr key={row._id} className="border-b border-[var(--st-border)] last:border-0">
                           <td className="px-3 py-3">
                             <Checkbox
                               checked={isSel}
@@ -414,7 +414,7 @@ export function TaxonomyLookupPage<R extends TaxonomyRow>({
                             />
                           </td>
                           {columns.map((c, idx) => (
-                            <td key={c.key} className="px-4 py-3 text-zoru-ink">
+                            <td key={c.key} className="px-4 py-3 text-[var(--st-text)]">
                               {idx === 0 ? (
                                 <RowDrawer
                                   label={
@@ -422,7 +422,7 @@ export function TaxonomyLookupPage<R extends TaxonomyRow>({
                                       {hasColor && row.color ? (
                                         <span
                                           aria-hidden
-                                          className="inline-block h-3 w-3 rounded-full border border-zoru-line"
+                                          className="inline-block h-3 w-3 rounded-full border border-[var(--st-border)]"
                                           style={{ backgroundColor: row.color }}
                                         />
                                       ) : null}
@@ -449,7 +449,7 @@ export function TaxonomyLookupPage<R extends TaxonomyRow>({
                                 Edit
                               </Button>
                               <Button variant="outline" size="sm" onClick={() => setPendingDelete(row)}>
-                                <Trash2 className="h-3.5 w-3.5 text-zoru-ink" strokeWidth={1.75} />
+                                <Trash2 className="h-3.5 w-3.5 text-[var(--st-text)]" strokeWidth={1.75} />
                                 Delete
                               </Button>
                             </div>
@@ -526,16 +526,16 @@ function RowDrawerBody<R extends TaxonomyRow>({
       <dl className="space-y-3">
         {columns.map((c) => (
           <div key={c.key}>
-            <dt className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">{c.label}</dt>
-            <dd className="text-zoru-ink">
+            <dt className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">{c.label}</dt>
+            <dd className="text-[var(--st-text)]">
               {c.render ? c.render(row) : String((row as Record<string, unknown>)[c.key] ?? '—')}
             </dd>
           </div>
         ))}
         {row.description ? (
           <div>
-            <dt className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">Description</dt>
-            <dd className="text-zoru-ink">{row.description}</dd>
+            <dt className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">Description</dt>
+            <dd className="text-[var(--st-text)]">{row.description}</dd>
           </div>
         ) : null}
       </dl>
@@ -614,7 +614,7 @@ function TaxonomyDialog<R extends TaxonomyRow>({
                       name={f.name}
                       required={f.required}
                       defaultValue={defaultVal}
-                      className="flex h-10 w-full rounded-md border border-zoru-line bg-zoru-surface px-3 py-2 text-sm ring-offset-zoru-surface placeholder:text-zoru-ink-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-line disabled:cursor-not-allowed disabled:opacity-50"
+                      className="flex h-10 w-full rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-sm ring-offset-zoru-surface placeholder:text-[var(--st-text-secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-border)] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {f.placeholder ? (
                         <option value="">{f.placeholder}</option>

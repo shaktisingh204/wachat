@@ -52,7 +52,7 @@ export function LiveCanvas({ docState, updateDocState, documentType }: LiveCanva
 
     return (
         <div 
-            className={`w-full max-w-[800px] min-h-[1056px] bg-white shadow-lg ring-1 ring-zoru-line ${containerPadding} ${fontClass} transition-all duration-300 relative`}
+            className={`w-full max-w-[800px] min-h-[1056px] bg-white shadow-lg ring-1 ring-[var(--st-border)] ${containerPadding} ${fontClass} transition-all duration-300 relative`}
             style={{ 
                 fontFamily: designMetadata.fontFamily !== 'Inter' ? `"${designMetadata.fontFamily}", sans-serif` : undefined,
             }}
@@ -66,7 +66,7 @@ export function LiveCanvas({ docState, updateDocState, documentType }: LiveCanva
             <div className={`flex items-start justify-between border-b pb-8 mb-8 border-opacity-30`} style={{ borderColor: designMetadata.themeColor }}>
                 <div className="flex-1 space-y-4">
                     {designMetadata.showLogo && (
-                        <div className="h-12 w-32 bg-zoru-surface-2 flex items-center justify-center rounded text-xs text-zoru-ink-muted">
+                        <div className="h-12 w-32 bg-[var(--st-bg-muted)] flex items-center justify-center rounded text-xs text-[var(--st-text-secondary)]">
                             Company Logo
                         </div>
                     )}
@@ -76,20 +76,20 @@ export function LiveCanvas({ docState, updateDocState, documentType }: LiveCanva
                         type="text"
                         value={docState.title}
                         onChange={(e) => updateDocState({ title: e.target.value })}
-                        className="text-4xl font-bold bg-transparent outline-none w-full hover:bg-zoru-surface-2 transition-colors placeholder:text-zoru-ink-muted"
+                        className="text-4xl font-bold bg-transparent outline-none w-full hover:bg-[var(--st-bg-muted)] transition-colors placeholder:text-[var(--st-text-secondary)]"
                         placeholder="Document Title"
                         style={{ color: designMetadata.themeColor }}
                     />
                     
-                    <div className="text-sm text-zoru-ink uppercase tracking-widest">
+                    <div className="text-sm text-[var(--st-text)] uppercase tracking-widest">
                         {documentType} 
-                        {docState.status && <span className="ml-2 px-2 py-0.5 rounded-full text-[10px] bg-zoru-surface-2">{docState.status}</span>}
+                        {docState.status && <span className="ml-2 px-2 py-0.5 rounded-full text-[10px] bg-[var(--st-bg-muted)]">{docState.status}</span>}
                     </div>
                 </div>
                 
-                <div className="text-right space-y-1 text-sm text-zoru-ink">
-                    <div><span className="font-semibold text-zoru-ink">Total Amount:</span> {docState.currency} <input type="number" value={docState.totalAmount} onChange={(e) => updateDocState({ totalAmount: Number(e.target.value) })} className="w-24 text-right bg-transparent outline-none hover:bg-zoru-surface-2 p-1 rounded" /></div>
-                    {docState.validUntil && <div><span className="font-semibold text-zoru-ink">Valid Until:</span> {new Date(docState.validUntil).toLocaleDateString()}</div>}
+                <div className="text-right space-y-1 text-sm text-[var(--st-text)]">
+                    <div><span className="font-semibold text-[var(--st-text)]">Total Amount:</span> {docState.currency} <input type="number" value={docState.totalAmount} onChange={(e) => updateDocState({ totalAmount: Number(e.target.value) })} className="w-24 text-right bg-transparent outline-none hover:bg-[var(--st-bg-muted)] p-1 rounded" /></div>
+                    {docState.validUntil && <div><span className="font-semibold text-[var(--st-text)]">Valid Until:</span> {new Date(docState.validUntil).toLocaleDateString()}</div>}
                 </div>
             </div>
 
@@ -102,7 +102,7 @@ export function LiveCanvas({ docState, updateDocState, documentType }: LiveCanva
                             value={section.heading}
                             onChange={(e) => updateSection(idx, { heading: e.target.value })}
                             placeholder="Section Heading"
-                            className="text-xl font-semibold mb-3 w-full bg-transparent outline-none hover:bg-zoru-surface-2 p-1 -ml-1 rounded transition-colors"
+                            className="text-xl font-semibold mb-3 w-full bg-transparent outline-none hover:bg-[var(--st-bg-muted)] p-1 -ml-1 rounded transition-colors"
                             style={{ color: designMetadata.themeColor }}
                         />
                         
@@ -111,7 +111,7 @@ export function LiveCanvas({ docState, updateDocState, documentType }: LiveCanva
                             value={section.body}
                             onChange={(e) => updateSection(idx, { body: e.target.value })}
                             placeholder="Enter section content here. Markdown is supported."
-                            className="w-full min-h-[100px] text-zoru-ink leading-relaxed bg-transparent outline-none hover:bg-zoru-surface-2 p-1 -ml-1 rounded transition-colors resize-none overflow-hidden"
+                            className="w-full min-h-[100px] text-[var(--st-text)] leading-relaxed bg-transparent outline-none hover:bg-[var(--st-bg-muted)] p-1 -ml-1 rounded transition-colors resize-none overflow-hidden"
                             onInput={(e) => {
                                 // Auto-resize
                                 e.currentTarget.style.height = 'auto';
@@ -121,13 +121,13 @@ export function LiveCanvas({ docState, updateDocState, documentType }: LiveCanva
 
                         {/* Hover actions for blocks */}
                         <div className="absolute -left-12 top-0 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-1">
-                            <Button variant="ghost" size="icon" className="h-6 w-6 text-zoru-ink-muted hover:text-zoru-ink cursor-move">
+                            <Button variant="ghost" size="icon" className="h-6 w-6 text-[var(--st-text-secondary)] hover:text-[var(--st-text)] cursor-move">
                                 <GripVertical className="h-4 w-4" />
                             </Button>
                             <Button 
                                 variant="ghost" 
                                 size="icon" 
-                                className="h-6 w-6 text-zoru-ink-muted hover:text-zoru-ink"
+                                className="h-6 w-6 text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                                 onClick={() => removeSection(idx)}
                                 disabled={docState.sections.length === 1}
                             >
@@ -139,14 +139,14 @@ export function LiveCanvas({ docState, updateDocState, documentType }: LiveCanva
             </div>
 
             {/* Add block trigger */}
-            <div className="mt-8 pt-4 border-t border-dashed border-zoru-line text-center">
-                <Button variant="outline" size="sm" onClick={addSection} className="text-zoru-ink">
+            <div className="mt-8 pt-4 border-t border-dashed border-[var(--st-border)] text-center">
+                <Button variant="outline" size="sm" onClick={addSection} className="text-[var(--st-text)]">
                     <Plus className="mr-2 h-4 w-4" /> Add Section
                 </Button>
             </div>
 
             {/* Footer */}
-            <div className="absolute bottom-12 left-12 right-12 text-center text-xs text-zoru-ink-muted border-t pt-4">
+            <div className="absolute bottom-12 left-12 right-12 text-center text-xs text-[var(--st-text-secondary)] border-t pt-4">
                 Generated dynamically via Sabnode Live Editor
             </div>
         </div>

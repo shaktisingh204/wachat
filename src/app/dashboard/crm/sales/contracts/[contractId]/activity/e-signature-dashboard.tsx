@@ -42,9 +42,9 @@ export function ESignatureDashboard({ contractId, provider, partyName, partyEmai
   ];
 
   return (
-    <Card className="mt-6 border-zoru-line">
-      <ZoruCardHeader className="border-b border-zoru-line pb-3">
-        <ZoruCardTitle className="text-[14px] font-medium text-zoru-ink flex items-center gap-2">
+    <Card className="mt-6 border-[var(--st-border)]">
+      <ZoruCardHeader className="border-b border-[var(--st-border)] pb-3">
+        <ZoruCardTitle className="text-[14px] font-medium text-[var(--st-text)] flex items-center gap-2">
           E-Signature Tracking Dashboard
           {provider !== 'none' && (
             <Badge variant="outline" className="ml-2 font-normal">
@@ -55,11 +55,11 @@ export function ESignatureDashboard({ contractId, provider, partyName, partyEmai
       </ZoruCardHeader>
       <ZoruCardContent className="pt-4">
         {provider === 'none' ? (
-          <div className="text-sm text-zoru-ink-muted">
+          <div className="text-sm text-[var(--st-text-secondary)]">
             E-signature is not enabled for this contract. Edit the contract to select a provider.
           </div>
         ) : (
-          <div className="overflow-hidden rounded-md border border-zoru-line">
+          <div className="overflow-hidden rounded-md border border-[var(--st-border)]">
             <Table>
               <ZoruTableHeader>
                 <ZoruTableRow>
@@ -74,20 +74,20 @@ export function ESignatureDashboard({ contractId, provider, partyName, partyEmai
                   <ZoruTableRow key={s.id}>
                     <ZoruTableCell>
                       <div className="flex flex-col">
-                        <span className="font-medium text-zoru-ink">{s.name}</span>
-                        <span className="text-xs text-zoru-ink-muted flex items-center gap-1 mt-0.5">
+                        <span className="font-medium text-[var(--st-text)]">{s.name}</span>
+                        <span className="text-xs text-[var(--st-text-secondary)] flex items-center gap-1 mt-0.5">
                           <Mail className="h-3 w-3" /> {s.email}
                         </span>
                       </div>
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-zoru-ink-muted">{s.role}</ZoruTableCell>
+                    <ZoruTableCell className="text-[var(--st-text-secondary)]">{s.role}</ZoruTableCell>
                     <ZoruTableCell>
                       {s.status === 'signed' ? (
                         <Badge variant="success" className="flex w-fit items-center gap-1">
                           <CheckCircle2 className="h-3 w-3" /> Signed
                         </Badge>
                       ) : s.status === 'viewed' ? (
-                        <Badge variant="outline" className="flex w-fit items-center gap-1 text-zoru-ink border-zoru-line bg-zoru-surface-2">
+                        <Badge variant="outline" className="flex w-fit items-center gap-1 text-[var(--st-text)] border-[var(--st-border)] bg-[var(--st-bg-muted)]">
                           <Clock className="h-3 w-3" /> Viewed
                         </Badge>
                       ) : s.status === 'declined' ? (
@@ -95,12 +95,12 @@ export function ESignatureDashboard({ contractId, provider, partyName, partyEmai
                           <XCircle className="h-3 w-3" /> Declined
                         </Badge>
                       ) : (
-                        <Badge variant="ghost" className="flex w-fit items-center gap-1 bg-zoru-surface-2 text-zoru-ink border-zoru-line">
+                        <Badge variant="ghost" className="flex w-fit items-center gap-1 bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]">
                           <Clock className="h-3 w-3" /> Pending
                         </Badge>
                       )}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-xs text-zoru-ink-muted">
+                    <ZoruTableCell className="text-right text-xs text-[var(--st-text-secondary)]">
                       {s.lastActivity}
                     </ZoruTableCell>
                   </ZoruTableRow>

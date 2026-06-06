@@ -209,8 +209,8 @@ export default function FacebookAgentsPage(): React.JSX.Element {
 
       <header className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl text-zoru-ink">Facebook Agents</h1>
-          <p className="mt-1 text-sm text-zoru-ink-muted">
+          <h1 className="text-2xl text-[var(--st-text)]">Facebook Agents</h1>
+          <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
             Chatbot agents that auto-reply to Messenger and Page comments.
           </p>
         </div>
@@ -253,7 +253,7 @@ export default function FacebookAgentsPage(): React.JSX.Element {
                 <Card className="flex h-full flex-col gap-3 p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="line-clamp-1 text-base text-zoru-ink">{a.name}</p>
+                      <p className="line-clamp-1 text-base text-[var(--st-text)]">{a.name}</p>
                       <Badge
                         variant={a.isActive ? 'success' : 'ghost'}
                         className="mt-1"
@@ -287,13 +287,13 @@ export default function FacebookAgentsPage(): React.JSX.Element {
                     </div>
                   </div>
                   {a.personality ? (
-                    <p className="line-clamp-3 text-xs text-zoru-ink-muted">
+                    <p className="line-clamp-3 text-xs text-[var(--st-text-secondary)]">
                       {a.personality}
                     </p>
                   ) : null}
                   {a.model ? (
-                    <p className="text-[11px] text-zoru-ink-muted">
-                      Model: <span className="text-zoru-ink">{a.model}</span>
+                    <p className="text-[11px] text-[var(--st-text-secondary)]">
+                      Model: <span className="text-[var(--st-text)]">{a.model}</span>
                     </p>
                   ) : null}
                 </Card>
@@ -363,7 +363,7 @@ export default function FacebookAgentsPage(): React.JSX.Element {
                 </ZoruSelectContent>
               </Select>
             </div>
-            <p className="text-[11px] text-zoru-ink-muted">
+            <p className="text-[11px] text-[var(--st-text-secondary)]">
               Note: the Rust backend currently uses a single project-wide model;
               this selection is stored client-side until per-agent model wiring lands.
             </p>

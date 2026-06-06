@@ -106,7 +106,7 @@ function SortableWidget({ id, children }: SortableWidgetProps) {
             <div
                 {...attributes}
                 {...listeners}
-                className="mt-4 cursor-grab active:cursor-grabbing text-zoru-ink-muted opacity-0 group-hover:opacity-100 transition-opacity"
+                className="mt-4 cursor-grab active:cursor-grabbing text-[var(--st-text-secondary)] opacity-0 group-hover:opacity-100 transition-opacity"
             >
                 <GripVertical className="h-5 w-5" />
             </div>
@@ -198,8 +198,8 @@ export function ClientOverviewContent({
         <div className="flex flex-col gap-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-semibold text-zoru-ink">Welcome back</h1>
-                    <p className="text-sm text-zoru-ink-muted">
+                    <h1 className="text-2xl font-semibold text-[var(--st-text)]">Welcome back</h1>
+                    <p className="text-sm text-[var(--st-text-secondary)]">
                         A snapshot of your account.
                     </p>
                 </div>
@@ -223,19 +223,19 @@ export function ClientOverviewContent({
                                 <DialogTitle>Customize Dashboard</DialogTitle>
                             </DialogHeader>
                             <div className="space-y-4 py-4">
-                                <p className="text-sm text-zoru-ink-muted">
+                                <p className="text-sm text-[var(--st-text-secondary)]">
                                     Toggle the visibility of your dashboard widgets. You can drag and drop them on the dashboard to reorder.
                                 </p>
                                 <div className="space-y-2">
                                     {widgets.map(w => (
-                                        <div key={w.id} className="flex items-center justify-between p-3 border border-zoru-line rounded-[var(--zoru-radius-sm)]">
+                                        <div key={w.id} className="flex items-center justify-between p-3 border border-[var(--st-border)] rounded-[var(--zoru-radius-sm)]">
                                             <span className="font-medium capitalize">{w.id === 'kpis' ? 'Quick Stats' : w.id === 'activity' ? 'Recent Activity' : 'Quick Links'}</span>
                                             <Button
                                                 variant="ghost"
                                                 size="icon"
                                                 onClick={() => toggleWidget(w.id)}
                                             >
-                                                {w.visible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4 text-zoru-ink-muted" />}
+                                                {w.visible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4 text-[var(--st-text-secondary)]" />}
                                             </Button>
                                         </div>
                                     ))}
@@ -301,13 +301,13 @@ function KpisWidget({ kpis }: { kpis: ClientPortalKpis }) {
                 const Icon = tile.icon;
                 return (
                     <Link key={tile.label} href={tile.href}>
-                        <Card className="transition-colors hover:bg-zoru-surface-2 h-full">
+                        <Card className="transition-colors hover:bg-[var(--st-bg-muted)] h-full">
                             <ZoruCardContent className="flex items-center justify-between p-4 h-full">
                                 <div>
-                                    <div className="text-xs text-zoru-ink-muted">{tile.label}</div>
-                                    <div className="mt-1 text-2xl font-semibold text-zoru-ink">{tile.value}</div>
+                                    <div className="text-xs text-[var(--st-text-secondary)]">{tile.label}</div>
+                                    <div className="mt-1 text-2xl font-semibold text-[var(--st-text)]">{tile.value}</div>
                                 </div>
-                                <Icon className="h-5 w-5 text-zoru-ink-muted" />
+                                <Icon className="h-5 w-5 text-[var(--st-text-secondary)]" />
                             </ZoruCardContent>
                         </Card>
                     </Link>
@@ -325,7 +325,7 @@ function ActivityWidget({ activity }: { activity: ClientActivityItem[] }) {
             </ZoruCardHeader>
             <ZoruCardContent>
                 {activity.length === 0 ? (
-                    <div className="py-6 text-center text-sm text-zoru-ink-muted">
+                    <div className="py-6 text-center text-sm text-[var(--st-text-secondary)]">
                         No recent activity yet.
                     </div>
                 ) : (
@@ -334,16 +334,16 @@ function ActivityWidget({ activity }: { activity: ClientActivityItem[] }) {
                             <li key={`${it.link}-${idx}`} className="flex items-start gap-3">
                                 <span
                                     aria-hidden
-                                    className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-zoru-primary"
+                                    className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--st-text)]"
                                 />
                                 <div className="min-w-0 flex-1">
                                     <Link
                                         href={it.link}
-                                        className="block truncate text-sm font-medium text-zoru-ink hover:underline hover:text-zoru-primary transition-colors"
+                                        className="block truncate text-sm font-medium text-[var(--st-text)] hover:underline hover:text-[var(--st-text)] transition-colors"
                                     >
                                         {it.title}
                                     </Link>
-                                    <div className="text-[11px] text-zoru-ink-muted mt-0.5">
+                                    <div className="text-[11px] text-[var(--st-text-secondary)] mt-0.5">
                                         {formatRelative(it.when)}
                                     </div>
                                 </div>
@@ -376,9 +376,9 @@ function QuickLinksWidget() {
                             <Link
                                 key={q.label}
                                 href={q.href}
-                                className="flex items-center gap-3 rounded-[var(--zoru-radius-sm)] border border-zoru-line p-4 text-sm font-medium text-zoru-ink transition-colors hover:bg-zoru-surface-2 hover:border-zoru-primary/30"
+                                className="flex items-center gap-3 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] p-4 text-sm font-medium text-[var(--st-text)] transition-colors hover:bg-[var(--st-bg-muted)] hover:border-[var(--st-text)]/30"
                             >
-                                <Icon className="h-5 w-5 text-zoru-primary" />
+                                <Icon className="h-5 w-5 text-[var(--st-text)]" />
                                 <span>{q.label}</span>
                             </Link>
                         );

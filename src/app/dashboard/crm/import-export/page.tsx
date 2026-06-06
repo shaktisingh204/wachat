@@ -144,7 +144,7 @@ async function KpiStatsGridWrapper({ searchParams }: { searchParams?: Promise<{ 
 
     if ('error' in stats) {
         return (
-            <div className="flex items-center justify-center p-6 text-sm text-zoru-danger border border-zoru-danger/20 rounded-xl bg-zoru-danger/5">
+            <div className="flex items-center justify-center p-6 text-sm text-[var(--st-danger)] border border-[var(--st-danger)]/20 rounded-xl bg-[var(--st-danger)]/5">
                 <AlertCircle className="w-4 h-4 mr-2" />
                 {stats.error}
             </div>
@@ -191,9 +191,9 @@ export default async function ImportExportLandingPage(props: { searchParams?: Pr
     if (!canView) {
         return (
             <div className="flex flex-col items-center justify-center p-12 text-center">
-                <AlertCircle className="h-8 w-8 text-zoru-ink-muted mb-4" />
-                <h2 className="text-lg font-semibold text-zoru-ink">Access Denied</h2>
-                <p className="text-sm text-zoru-ink-muted">You do not have permission to view Import & Export.</p>
+                <AlertCircle className="h-8 w-8 text-[var(--st-text-secondary)] mb-4" />
+                <h2 className="text-lg font-semibold text-[var(--st-text)]">Access Denied</h2>
+                <p className="text-sm text-[var(--st-text-secondary)]">You do not have permission to view Import & Export.</p>
             </div>
         );
     }
@@ -216,8 +216,8 @@ export default async function ImportExportLandingPage(props: { searchParams?: Pr
             
             <PageHeader>
                 <div className="flex items-start gap-3">
-                    <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-zoru-surface-2">
-                        <FileSpreadsheet className="h-5 w-5 text-zoru-ink" strokeWidth={1.75} />
+                    <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--st-bg-muted)]">
+                        <FileSpreadsheet className="h-5 w-5 text-[var(--st-text)]" strokeWidth={1.75} />
                     </div>
                     <ZoruPageHeading>
                         <ZoruPageTitle>
@@ -239,10 +239,10 @@ export default async function ImportExportLandingPage(props: { searchParams?: Pr
             <ImportWizardShell initialJobs={recentJobs} />
 
             <div className="flex flex-col gap-2">
-                <h2 className="text-sm font-semibold text-zoru-ink">
+                <h2 className="text-sm font-semibold text-[var(--st-text)]">
                     Per-entity wizards
                 </h2>
-                <p className="text-[12.5px] text-zoru-ink-muted">
+                <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                     Specialised legacy importers with entity-specific dedupe
                     rules. The generic wizard above replaces these for most
                     workflows.
@@ -258,15 +258,15 @@ export default async function ImportExportLandingPage(props: { searchParams?: Pr
                                 href={`/dashboard/crm/import-export/${t.entityKind}`}
                                 className="block"
                             >
-                                <Card className="flex flex-col gap-2 p-4 transition-colors hover:border-zoru-accent">
+                                <Card className="flex flex-col gap-2 p-4 transition-colors hover:border-[var(--st-accent)]">
                                     <div className="flex items-center gap-2">
-                                        <Icon className="h-5 w-5 text-zoru-accent" />
-                                        <h2 className="text-sm font-medium text-zoru-ink">
+                                        <Icon className="h-5 w-5 text-[var(--st-accent)]" />
+                                        <h2 className="text-sm font-medium text-[var(--st-text)]">
                                             {t.label}
                                         </h2>
-                                        <ArrowRight className="ml-auto h-4 w-4 text-zoru-ink-muted" />
+                                        <ArrowRight className="ml-auto h-4 w-4 text-[var(--st-text-secondary)]" />
                                     </div>
-                                    <p className="text-[12.5px] text-zoru-ink-muted">
+                                    <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                                         {t.description}
                                     </p>
                                 </Card>

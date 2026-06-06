@@ -132,17 +132,17 @@ function RecordingCard({ recording }: { recording: MeetRecording }) {
             className="w-full rounded bg-black"
           />
         ) : (
-          <div className="rounded border border-dashed border-zoru-line p-6 text-center text-sm text-zoru-ink-muted">
+          <div className="rounded border border-dashed border-[var(--st-border)] p-6 text-center text-sm text-[var(--st-text-secondary)]">
             Media not yet ready.
           </div>
         )}
         {recording.transcriptFileId ? (
-          <div className="text-xs text-zoru-ink-muted flex items-center gap-1">
+          <div className="text-xs text-[var(--st-text-secondary)] flex items-center gap-1">
             <FileText className="h-3 w-3" /> Transcript available
           </div>
         ) : null}
         {recording.errorMessage ? (
-          <div className="text-xs text-zoru-ink">{recording.errorMessage}</div>
+          <div className="text-xs text-[var(--st-text)]">{recording.errorMessage}</div>
         ) : null}
       </CardContent>
     </Card>

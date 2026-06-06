@@ -258,7 +258,7 @@ export function PipelineForm({ initialData }: PipelineFormProps) {
                         </Button>
                     </div>
                     {stages.length === 0 ? (
-                        <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                        <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                             At least one stage is required.
                         </div>
                     ) : (
@@ -266,19 +266,19 @@ export function PipelineForm({ initialData }: PipelineFormProps) {
                             {stages.map((s, idx) => (
                                 <div
                                     key={s._id || s.id || `new-${idx}`}
-                                    className="grid grid-cols-1 gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-3 sm:grid-cols-[auto_1fr_120px_120px_2fr_auto]"
+                                    className="grid grid-cols-1 gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 sm:grid-cols-[auto_1fr_120px_120px_2fr_auto]"
                                 >
                                     <div className="flex flex-col items-center justify-center gap-1 self-center">
                                         <button
                                             type="button"
                                             onClick={() => moveStage(idx, -1)}
                                             disabled={idx === 0}
-                                            className="text-zoru-ink-muted hover:text-zoru-ink disabled:opacity-30"
+                                            className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)] disabled:opacity-30"
                                             aria-label="Move up"
                                         >
                                             <GripVertical className="h-4 w-4" />
                                         </button>
-                                        <span className="font-mono text-[10px] text-zoru-ink-muted">
+                                        <span className="font-mono text-[10px] text-[var(--st-text-secondary)]">
                                             {idx + 1}
                                         </span>
                                     </div>
@@ -330,7 +330,7 @@ export function PipelineForm({ initialData }: PipelineFormProps) {
                                         onClick={() => removeStage(idx)}
                                         aria-label="Remove stage"
                                     >
-                                        <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                        <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                     </Button>
                                 </div>
                             ))}

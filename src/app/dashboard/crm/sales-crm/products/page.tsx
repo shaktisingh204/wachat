@@ -409,7 +409,7 @@ export default function ProductsPage() {
                 bulkBar={
                     selected.size > 0 ? (
                         <div className="flex flex-wrap items-center justify-between gap-3">
-                            <div className="text-[13px] text-zoru-ink">
+                            <div className="text-[13px] text-[var(--st-text)]">
                                 <span className="font-medium">{selected.size}</span> selected
                             </div>
                             <div className="flex items-center gap-2">
@@ -448,11 +448,11 @@ export default function ProductsPage() {
                 empty={
                     !isPending && displayedProducts.length === 0 ? (
                         <div className="flex flex-col items-center gap-3 p-4">
-                            <Package className="h-8 w-8 text-zoru-ink-muted" />
-                            <h3 className="text-base font-medium text-zoru-ink">
+                            <Package className="h-8 w-8 text-[var(--st-text-secondary)]" />
+                            <h3 className="text-base font-medium text-[var(--st-text)]">
                                 No products found
                             </h3>
-                            <p className="max-w-sm text-sm text-zoru-ink-muted">
+                            <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                                 {hasActiveFilters
                                     ? 'No products match the current filters.'
                                     : 'Start your catalog by adding the first product.'}
@@ -506,7 +506,7 @@ export default function ProductsPage() {
                         <div className="overflow-x-auto rounded-lg">
                             <Table>
                                 <ZoruTableHeader>
-                                    <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                                    <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                                         <ZoruTableHead className="w-10">
                                             <Checkbox
                                                 checked={allSelectedOnPage}
@@ -516,25 +516,25 @@ export default function ProductsPage() {
                                                 aria-label="Select all"
                                             />
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-zoru-ink-muted">
+                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                             Name
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-zoru-ink-muted">
+                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                             SKU
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-zoru-ink-muted">
+                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                             Type
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-right text-zoru-ink-muted">
+                                        <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                                             Cost
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-right text-zoru-ink-muted">
+                                        <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                                             Price
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-right text-zoru-ink-muted">
+                                        <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                                             Stock
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-zoru-ink-muted">
+                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                             Status
                                         </ZoruTableHead>
                                         <ZoruTableHead className="w-10" />
@@ -550,7 +550,7 @@ export default function ProductsPage() {
                                         return (
                                             <ZoruTableRow
                                                 key={id}
-                                                className="border-zoru-line"
+                                                className="border-[var(--st-border)]"
                                                 data-state={
                                                     selected.has(id) ? 'selected' : undefined
                                                 }
@@ -571,27 +571,27 @@ export default function ProductsPage() {
                                                         subtitle={p.description?.slice(0, 60)}
                                                     />
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {p.sku || '—'}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {p.itemType === 'service'
                                                         ? 'Service'
                                                         : 'Goods'}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-right text-zoru-ink">
+                                                <ZoruTableCell className="text-right text-[var(--st-text)]">
                                                     {formatCurrency(
                                                         Number(p.costPrice ?? 0),
                                                         p.currency,
                                                     )}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-right text-zoru-ink">
+                                                <ZoruTableCell className="text-right text-[var(--st-text)]">
                                                     {formatCurrency(
                                                         Number(p.sellingPrice ?? 0),
                                                         p.currency,
                                                     )}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-right text-zoru-ink">
+                                                <ZoruTableCell className="text-right text-[var(--st-text)]">
                                                     {p.isTrackInventory
                                                         ? Number(p.totalStock ?? 0).toLocaleString()
                                                         : '—'}
@@ -646,7 +646,7 @@ export default function ProductsPage() {
                                                                 onSelect={() =>
                                                                     setDeleteTargetId(id)
                                                                 }
-                                                                className="text-zoru-danger"
+                                                                className="text-[var(--st-danger)]"
                                                             >
                                                                 Delete
                                                             </ZoruDropdownMenuItem>

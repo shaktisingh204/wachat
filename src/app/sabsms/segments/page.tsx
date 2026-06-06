@@ -31,7 +31,7 @@ export default async function SabsmsSegmentsPage({ searchParams }: PageProps) {
         description="Sign in to manage audience predicates."
         breadcrumbs={[{ label: "Segments" }]}
       >
-        <p className="text-sm text-zoru-ink">
+        <p className="text-sm text-[var(--st-text)]">
           You must be signed in to see this page.
         </p>
       </SabsmsPageShell>
@@ -79,7 +79,7 @@ export default async function SabsmsSegmentsPage({ searchParams }: PageProps) {
             membership list at save time; dynamic segments re-evaluate every
             time they are read.
           </p>
-          <p className="text-xs text-zoru-ink">
+          <p className="text-xs text-[var(--st-text)]">
             Marketing segments must include a consent gate
             (<code>unsubscribed = false</code>) — the builder will block save
             otherwise.
@@ -99,7 +99,7 @@ export default async function SabsmsSegmentsPage({ searchParams }: PageProps) {
       ]}
     >
       {errorMessage ? (
-        <div className="rounded-md border border-zoru-line bg-zoru-surface-2 p-3 text-sm text-zoru-ink">
+        <div className="rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-sm text-[var(--st-text)]">
           {errorMessage}
         </div>
       ) : null}

@@ -59,7 +59,7 @@ function DeleteQrCodeButton({ qrCode, onDeleted }: { qrCode: WithId<QrCode>, onD
     return (
         <ZoruAlertDialog>
             <ZoruAlertDialogTrigger asChild>
-                <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-zoru-ink"/></Button>
+                <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-[var(--st-text)]"/></Button>
             </ZoruAlertDialogTrigger>
             <ZoruAlertDialogContent>
                 <ZoruAlertDialogHeader>
@@ -151,7 +151,7 @@ export function SavedQrCodes({ initialQrCodes }: { initialQrCodes: WithId<QrCode
                                             {code.shortUrl && <Badge variant="secondary">Dynamic</Badge>}
                                         </div>
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="text-zoru-ink-muted truncate max-w-xs font-mono text-xs">
+                                    <ZoruTableCell className="text-[var(--st-text-secondary)] truncate max-w-xs font-mono text-xs">
                                         {code.shortUrl ? (
                                             <Button asChild variant="outline" size="sm">
                                                 <Link href={`/dashboard/url-shortener/${code.shortUrl._id}`}>

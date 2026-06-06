@@ -55,14 +55,14 @@ export function InterviewsCalendar({
       </ZoruCardHeader>
       <ZoruCardContent>
         {sortedKeys.length === 0 ? (
-          <p className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line px-3 py-6 text-center text-[13px] text-zoru-ink-muted">
+          <p className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] px-3 py-6 text-center text-[13px] text-[var(--st-text-secondary)]">
             No interviews scheduled.
           </p>
         ) : (
           <ul className="space-y-3">
             {sortedKeys.map((day) => (
               <li key={day}>
-                <h4 className="mb-1.5 text-[12px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+                <h4 className="mb-1.5 text-[12px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                   {fmtDate(day)}
                 </h4>
                 <div className="grid gap-1.5 md:grid-cols-2 lg:grid-cols-3">
@@ -70,10 +70,10 @@ export function InterviewsCalendar({
                     <Link
                       key={i._id}
                       href={`/dashboard/hrm/hr/interviews/${i._id}`}
-                      className="block rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-2 hover:bg-zoru-surface"
+                      className="block rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2 hover:bg-[var(--st-bg-secondary)]"
                     >
                       <div className="flex items-center justify-between gap-2">
-                        <span className="text-[12px] font-medium text-zoru-ink">
+                        <span className="text-[12px] font-medium text-[var(--st-text)]">
                           {i.scheduledAt
                             ? new Date(i.scheduledAt).toLocaleTimeString([], {
                                 hour: '2-digit',
@@ -87,7 +87,7 @@ export function InterviewsCalendar({
                           tone={statusToTone(i.result)}
                         />
                       </div>
-                      <p className="truncate text-[11.5px] text-zoru-ink-muted">
+                      <p className="truncate text-[11.5px] text-[var(--st-text-secondary)]">
                         {i.interviewerName || '—'} · {i.type || '—'}
                       </p>
                     </Link>

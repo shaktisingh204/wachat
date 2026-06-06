@@ -37,7 +37,7 @@ export function ChartAiUsage({ data }: ChartAiUsageProps) {
       >
         <ZoruChart.CartesianGrid
           strokeDasharray="3 3"
-          className="stroke-zoru-line"
+          className="stroke-[var(--st-border)]"
         />
         <ZoruChart.XAxis
           dataKey="date"

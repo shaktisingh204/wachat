@@ -298,8 +298,8 @@ export function SegmentBuilder({
           <div
             className={`rounded-md border px-3 py-2 text-sm ${
               banner.kind === "ok"
-                ? "border-zoru-line bg-zoru-surface-2 text-zoru-ink"
-                : "border-zoru-line bg-zoru-surface-2 text-zoru-ink"
+                ? "border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)]"
+                : "border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)]"
             }`}
           >
             <div className="flex items-start justify-between gap-3">
@@ -387,20 +387,20 @@ export function SegmentBuilder({
                   }
                   className="flex gap-3"
                 >
-                  <label className="flex items-center gap-2 rounded-md border border-zoru-line px-3 py-2 text-sm">
+                  <label className="flex items-center gap-2 rounded-md border border-[var(--st-border)] px-3 py-2 text-sm">
                     <ZoruRadioGroupItem value="dynamic" id="kind-dynamic" />
                     <div>
                       <div className="font-medium">Dynamic</div>
-                      <div className="text-xs text-zoru-ink">
+                      <div className="text-xs text-[var(--st-text)]">
                         Re-evaluated on read.
                       </div>
                     </div>
                   </label>
-                  <label className="flex items-center gap-2 rounded-md border border-zoru-line px-3 py-2 text-sm">
+                  <label className="flex items-center gap-2 rounded-md border border-[var(--st-border)] px-3 py-2 text-sm">
                     <ZoruRadioGroupItem value="static" id="kind-static" />
                     <div>
                       <div className="font-medium">Static</div>
-                      <div className="text-xs text-zoru-ink">
+                      <div className="text-xs text-[var(--st-text)]">
                         Frozen list at save time.
                       </div>
                     </div>
@@ -472,7 +472,7 @@ export function SegmentBuilder({
                 </ZoruCardDescription>
               </div>
               {matchedCount !== null && (
-                <Badge variant="outline" className="text-zoru-ink bg-zoru-surface-2 border-zoru-line">
+                <Badge variant="outline" className="text-[var(--st-text)] bg-[var(--st-bg-muted)] border-[var(--st-border)]">
                   <Calculator className="mr-1 h-3 w-3" />
                   ~{matchedCount.toLocaleString()} matching
                 </Badge>
@@ -495,16 +495,16 @@ export function SegmentBuilder({
             </ZoruCardDescription>
           </ZoruCardHeader>
           <ZoruCardContent>
-            <pre className="overflow-auto rounded-md border border-zoru-line bg-zoru-surface-2 p-3 text-xs">
+            <pre className="overflow-auto rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-xs">
               <code>{`SELECT * FROM contacts WHERE\n  ${sql}`}</code>
             </pre>
           </ZoruCardContent>
         </Card>
 
         {draft.category === "marketing" && (
-          <Card className="border-zoru-line bg-zoru-surface-2">
+          <Card className="border-[var(--st-border)] bg-[var(--st-bg-muted)]">
             <ZoruCardHeader>
-              <ZoruCardTitle className="text-zoru-ink">
+              <ZoruCardTitle className="text-[var(--st-text)]">
                 Marketing attestation
               </ZoruCardTitle>
               <ZoruCardDescription>
@@ -530,7 +530,7 @@ export function SegmentBuilder({
           </Card>
         )}
 
-        <div className="flex flex-wrap items-center gap-2 sticky bottom-0 rounded-md border border-zoru-line bg-white p-3 shadow-sm">
+        <div className="flex flex-wrap items-center gap-2 sticky bottom-0 rounded-md border border-[var(--st-border)] bg-white p-3 shadow-sm">
           <Button onClick={handleSave} disabled={busy === "save"}>
             <Save className="mr-1.5 h-3.5 w-3.5" />
             {busy === "save" ? "Saving…" : "Save segment"}
@@ -587,7 +587,7 @@ export function SegmentBuilder({
           </ZoruCardHeader>
           <ZoruCardContent>
             {sample.length === 0 ? (
-              <p className="text-xs text-zoru-ink">
+              <p className="text-xs text-[var(--st-text)]">
                 No matching contacts yet.
               </p>
             ) : (
@@ -595,10 +595,10 @@ export function SegmentBuilder({
                 {sample.map((c) => (
                   <li
                     key={c.id || c.phone}
-                    className="flex items-center justify-between rounded-md border border-zoru-line px-2 py-1.5 text-sm"
+                    className="flex items-center justify-between rounded-md border border-[var(--st-border)] px-2 py-1.5 text-sm"
                   >
                     <span className="font-mono text-xs">{c.phone}</span>
-                    <span className="text-[11px] text-zoru-ink">
+                    <span className="text-[11px] text-[var(--st-text)]">
                       {c.country ?? "—"}
                     </span>
                   </li>
@@ -617,7 +617,7 @@ export function SegmentBuilder({
           </ZoruCardHeader>
           <ZoruCardContent className="space-y-2">
             {importableSegments.length === 0 ? (
-              <p className="text-xs text-zoru-ink">
+              <p className="text-xs text-[var(--st-text)]">
                 No saved segments to import from yet.
               </p>
             ) : (
@@ -634,7 +634,7 @@ export function SegmentBuilder({
                 </ZoruSelectContent>
               </Select>
             )}
-            <p className="text-[11px] text-zoru-ink">
+            <p className="text-[11px] text-[var(--st-text)]">
               <Import className="mr-1 inline h-3 w-3" />
               Imports replace the current predicate.
             </p>
@@ -667,15 +667,15 @@ export function SegmentBuilder({
               <div
                 className={`rounded-md border px-3 py-2 text-xs ${
                   testResult.matched
-                    ? "border-zoru-line bg-zoru-surface-2 text-zoru-ink"
-                    : "border-zoru-line bg-zoru-surface-2 text-zoru-ink"
+                    ? "border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)]"
+                    : "border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)]"
                 }`}
               >
                 {testResult.matched
                   ? "Matches the predicate."
                   : "Does not match the predicate."}
                 {!testResult.contactFound && (
-                  <span className="ml-1 text-zoru-ink">
+                  <span className="ml-1 text-[var(--st-text)]">
                     (no contact in your DB — evaluated against the phone only)
                   </span>
                 )}
@@ -718,9 +718,9 @@ export function SegmentBuilder({
         )}
 
         {shareToken && (
-          <Card className="border-zoru-line bg-zoru-surface-2">
+          <Card className="border-[var(--st-border)] bg-[var(--st-bg-muted)]">
             <ZoruCardHeader>
-              <ZoruCardTitle className="text-zoru-ink text-sm">
+              <ZoruCardTitle className="text-[var(--st-text)] text-sm">
                 Share link
               </ZoruCardTitle>
             </ZoruCardHeader>
@@ -756,7 +756,7 @@ export function SegmentBuilder({
               {aiBusy ? "Thinking…" : "Generate"}
             </Button>
           </div>
-          <p className="text-[11px] text-zoru-ink">
+          <p className="text-[11px] text-[var(--st-text)]">
             Stub: returns a placeholder predicate until the SabSMS LLM
             gateway lands.
           </p>
@@ -774,12 +774,12 @@ export function SegmentBuilder({
           <div className="space-y-3 text-xs">
             <div>
               <div className="mb-1 font-semibold">Current</div>
-              <pre className="overflow-auto rounded border border-zoru-line bg-zoru-surface-2 p-2">
+              <pre className="overflow-auto rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2">
                 {JSON.stringify(versionsState.current, null, 2)}
               </pre>
             </div>
             {versionsState.versions.length === 0 ? (
-              <p className="text-zoru-ink">
+              <p className="text-[var(--st-text)]">
                 No prior versions yet. Every save records a snapshot here.
               </p>
             ) : (
@@ -791,7 +791,7 @@ export function SegmentBuilder({
                     <div className="mb-1 font-semibold">
                       {new Date(v.at).toLocaleString()} — {v.note ?? "save"}
                     </div>
-                    <pre className="overflow-auto rounded border border-zoru-line bg-zoru-surface-2 p-2">
+                    <pre className="overflow-auto rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2">
                       {JSON.stringify(v.predicate, null, 2)}
                     </pre>
                   </div>

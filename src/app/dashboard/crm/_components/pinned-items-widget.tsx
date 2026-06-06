@@ -178,10 +178,10 @@ export function PinnedItemsWidget({ className }: PinnedItemsWidgetProps) {
     <Card className={className ?? 'p-6'}>
       <div className="flex items-center justify-between pb-3">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-surface-2">
-            <Pin className="h-4 w-4 text-zoru-ink" strokeWidth={1.75} />
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-bg-muted)]">
+            <Pin className="h-4 w-4 text-[var(--st-text)]" strokeWidth={1.75} />
           </div>
-          <h2 className="text-[15px] text-zoru-ink">Pinned items</h2>
+          <h2 className="text-[15px] text-[var(--st-text)]">Pinned items</h2>
           <Badge variant="ghost">{totalCount}</Badge>
         </div>
         <Link href="/dashboard/crm/pinned">
@@ -198,8 +198,8 @@ export function PinnedItemsWidget({ className }: PinnedItemsWidgetProps) {
           <Skeleton className="h-10 w-full" />
         </div>
       ) : groups.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-zoru-line p-8 text-center">
-          <p className="text-[13px] text-zoru-ink-muted">
+        <div className="rounded-lg border border-dashed border-[var(--st-border)] p-8 text-center">
+          <p className="text-[13px] text-[var(--st-text-secondary)]">
             No pinned items yet — use the pin icon on any task, project, lead,
             or invoice to add it here.
           </p>
@@ -209,7 +209,7 @@ export function PinnedItemsWidget({ className }: PinnedItemsWidgetProps) {
           {groups.map((g) => (
             <section key={g.entityType}>
               <div className="mb-2 flex items-center justify-between">
-                <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
+                <p className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                   {ENTITY_LABELS[g.entityType] ?? g.entityType}
                 </p>
                 <Badge variant="ghost">{g.items.length}</Badge>
@@ -222,16 +222,16 @@ export function PinnedItemsWidget({ className }: PinnedItemsWidgetProps) {
                     onDragStart={(e) => onDragStart(e, g.entityType, it._id)}
                     onDragOver={onDragOver}
                     onDrop={(e) => onDrop(e, g.entityType, it._id)}
-                    className="group flex items-center gap-2 rounded-lg border border-zoru-line bg-zoru-bg p-2 hover:border-zoru-line-strong"
+                    className="group flex items-center gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] p-2 hover:border-[var(--st-border-strong)]"
                   >
                     <GripVertical
-                      className="h-3.5 w-3.5 cursor-grab text-zoru-ink-muted active:cursor-grabbing"
+                      className="h-3.5 w-3.5 cursor-grab text-[var(--st-text-secondary)] active:cursor-grabbing"
                       strokeWidth={1.75}
                       aria-hidden
                     />
                     <Link
                       href={hrefFor(it)}
-                      className="min-w-0 flex-1 truncate text-[12.5px] text-zoru-ink hover:underline"
+                      className="min-w-0 flex-1 truncate text-[12.5px] text-[var(--st-text)] hover:underline"
                     >
                       {it.title || `${g.entityType} ${String(it.entityId).slice(-6)}`}
                     </Link>

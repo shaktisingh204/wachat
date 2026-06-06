@@ -84,7 +84,7 @@ export function EditProformaForm({
                 <div className="space-y-5">
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div className="space-y-1.5">
-                            <Label htmlFor="proformaNumber" className="text-zoru-ink">
+                            <Label htmlFor="proformaNumber" className="text-[var(--st-text)]">
                                 Proforma Number
                             </Label>
                             <Input
@@ -94,7 +94,7 @@ export function EditProformaForm({
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <Label htmlFor="status" className="text-zoru-ink">
+                            <Label htmlFor="status" className="text-[var(--st-text)]">
                                 Status
                             </Label>
                             <Select
@@ -118,7 +118,7 @@ export function EditProformaForm({
 
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div className="space-y-1.5">
-                            <Label htmlFor="proformaDate" className="text-zoru-ink">
+                            <Label htmlFor="proformaDate" className="text-[var(--st-text)]">
                                 Proforma Date
                             </Label>
                             <Input
@@ -129,7 +129,7 @@ export function EditProformaForm({
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <Label htmlFor="validTillDate" className="text-zoru-ink">
+                            <Label htmlFor="validTillDate" className="text-[var(--st-text)]">
                                 Valid Till
                             </Label>
                             <Input
@@ -142,7 +142,7 @@ export function EditProformaForm({
                     </div>
 
                     <div className="space-y-1.5">
-                        <Label className="text-zoru-ink">Currency</Label>
+                        <Label className="text-[var(--st-text)]">Currency</Label>
                         <EntityFormField
                             entity="currency"
                             name="currency"
@@ -151,7 +151,7 @@ export function EditProformaForm({
                     </div>
 
                     <div className="space-y-1.5">
-                        <Label htmlFor="notes" className="text-zoru-ink">
+                        <Label htmlFor="notes" className="text-[var(--st-text)]">
                             Notes
                         </Label>
                         <Textarea

@@ -77,16 +77,16 @@ export function TimeLogsTable({
 }: TimeLogsTableProps) {
   if (rows.length === 0) {
     return (
-      <div className="rounded-lg border border-zoru-line p-6 text-center text-[13px] text-zoru-ink-muted">
+      <div className="rounded-lg border border-[var(--st-border)] p-6 text-center text-[13px] text-[var(--st-text-secondary)]">
         No time logs match the current filters.
       </div>
     );
   }
   return (
-    <div className="overflow-x-auto rounded-lg border border-zoru-line">
+    <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
       <Table>
         <ZoruTableHeader>
-          <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+          <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
             {selected !== undefined ? <ZoruTableHead className="w-10" /> : null}
             <ZoruTableHead>Memo</ZoruTableHead>
             <ZoruTableHead>Employee</ZoruTableHead>
@@ -105,7 +105,7 @@ export function TimeLogsTable({
             return (
               <ZoruTableRow
                 key={log._id}
-                className="border-zoru-line transition-colors"
+                className="border-[var(--st-border)] transition-colors"
               >
                 {selected !== undefined && log._id ? (
                   <ZoruTableCell>
@@ -130,7 +130,7 @@ export function TimeLogsTable({
                       fallback="—"
                     />
                   ) : (
-                    <span className="text-[12px] text-zoru-ink-muted">—</span>
+                    <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
                   )}
                 </ZoruTableCell>
                 <ZoruTableCell>
@@ -141,10 +141,10 @@ export function TimeLogsTable({
                       fallback="—"
                     />
                   ) : (
-                    <span className="text-[12px] text-zoru-ink-muted">—</span>
+                    <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
                   )}
                 </ZoruTableCell>
-                <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                   {log.task_id ? (
                     <span className="font-mono">
                       {String(log.task_id).slice(-8)}
@@ -153,10 +153,10 @@ export function TimeLogsTable({
                     '—'
                   )}
                 </ZoruTableCell>
-                <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                   {fmt(log.start_time)}
                 </ZoruTableCell>
-                <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-zoru-ink">
+                <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-[var(--st-text)]">
                   {log.end_time ? (
                     wsFormatDuration(log.start_time, log.end_time)
                   ) : (
@@ -167,7 +167,7 @@ export function TimeLogsTable({
                   {(log as { billable?: boolean }).billable ? (
                     <Badge variant="success">Billable</Badge>
                   ) : (
-                    <span className="text-[12px] text-zoru-ink-muted">—</span>
+                    <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
                   )}
                 </ZoruTableCell>
                 <ZoruTableCell>
@@ -197,7 +197,7 @@ export function TimeLogsTable({
                           onClick={() => log._id && onApprove(log._id)}
                           aria-label="Approve"
                         >
-                          <Check className="h-3.5 w-3.5 text-zoru-ink" />
+                          <Check className="h-3.5 w-3.5 text-[var(--st-text)]" />
                         </Button>
                         <Button
                           size="sm"
@@ -205,7 +205,7 @@ export function TimeLogsTable({
                           onClick={() => onReject(log)}
                           aria-label="Reject"
                         >
-                          <X className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                          <X className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                         </Button>
                       </>
                     ) : null}
@@ -215,7 +215,7 @@ export function TimeLogsTable({
                       onClick={() => log._id && onDelete(log._id)}
                       aria-label="Delete"
                     >
-                      <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                      <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                     </Button>
                   </div>
                 </ZoruTableCell>

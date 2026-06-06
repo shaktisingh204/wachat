@@ -12,9 +12,9 @@ export default function ExpensePolicyError({
 }) {
   return (
     <div className="flex h-full min-h-[400px] flex-col items-center justify-center gap-4 text-center">
-      <div className="rounded-full bg-zoru-surface-2 p-4">
+      <div className="rounded-full bg-[var(--st-bg-muted)] p-4">
         <svg
-          className="h-8 w-8 text-zoru-ink"
+          className="h-8 w-8 text-[var(--st-text)]"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -28,7 +28,7 @@ export default function ExpensePolicyError({
         </svg>
       </div>
       <h2 className="text-xl font-semibold">Failed to load expense claims</h2>
-      <p className="max-w-md text-sm text-zoru-ink-muted">
+      <p className="max-w-md text-sm text-[var(--st-text-secondary)]">
         {error.message || 'An unexpected error occurred while fetching expense policy data.'}
       </p>
       <Button onClick={() => reset()} variant="outline">

@@ -94,9 +94,9 @@ export default function NginxRedirectPage() {
       <div className="space-y-4">
         <div className="space-y-3">
           {rows.map((r) => (
-            <div key={r.id} className="flex flex-col xl:flex-row gap-2 items-start xl:items-center bg-zoru-surface-2/30 p-3 xl:p-0 xl:bg-transparent rounded-lg">
+            <div key={r.id} className="flex flex-col xl:flex-row gap-2 items-start xl:items-center bg-[var(--st-bg-muted)]/30 p-3 xl:p-0 xl:bg-transparent rounded-lg">
               <select 
-                className="border rounded-md h-9 px-2 bg-zoru-surface text-sm min-w-[110px] w-full xl:w-auto" 
+                className="border rounded-md h-9 px-2 bg-[var(--st-bg-secondary)] text-sm min-w-[110px] w-full xl:w-auto" 
                 value={r.matchType} 
                 onChange={(e) => updateRow(r.id, 'matchType', e.target.value as MatchType)}
               >
@@ -112,7 +112,7 @@ export default function NginxRedirectPage() {
                   placeholder="/old-path" 
                   className="w-full"
                 />
-                <ArrowRight className="w-4 h-4 text-zoru-ink-muted shrink-0 hidden md:block" />
+                <ArrowRight className="w-4 h-4 text-[var(--st-text-secondary)] shrink-0 hidden md:block" />
                 <Input 
                   value={r.to} 
                   onChange={(e) => updateRow(r.id, 'to', e.target.value)} 
@@ -123,7 +123,7 @@ export default function NginxRedirectPage() {
 
               <div className="flex gap-2 items-center w-full xl:w-auto justify-end">
                 <select 
-                  className="border rounded-md h-9 px-2 bg-zoru-surface text-sm" 
+                  className="border rounded-md h-9 px-2 bg-[var(--st-bg-secondary)] text-sm" 
                   value={r.method} 
                   onChange={(e) => updateRow(r.id, 'method', e.target.value as MethodType)}
                 >
@@ -132,7 +132,7 @@ export default function NginxRedirectPage() {
                 </select>
 
                 <select 
-                  className="border rounded-md h-9 px-2 bg-zoru-surface text-sm" 
+                  className="border rounded-md h-9 px-2 bg-[var(--st-bg-secondary)] text-sm" 
                   value={r.status} 
                   onChange={(e) => updateRow(r.id, 'status', e.target.value as StatusType)}
                 >
@@ -143,7 +143,7 @@ export default function NginxRedirectPage() {
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="shrink-0 text-zoru-ink hover:text-zoru-ink hover:bg-zoru-ink/10"
+                  className="shrink-0 text-[var(--st-text)] hover:text-[var(--st-text)] hover:bg-[var(--st-text)]/10"
                   onClick={() => removeRow(r.id)}
                 >
                   <Trash2 className="w-4 h-4" />
@@ -163,7 +163,7 @@ export default function NginxRedirectPage() {
         <Textarea 
           readOnly 
           value={out} 
-          className="min-h-[260px] font-mono text-sm bg-zoru-surface-2/50 p-4" 
+          className="min-h-[260px] font-mono text-sm bg-[var(--st-bg-muted)]/50 p-4" 
         />
       </div>
     </ToolShell>

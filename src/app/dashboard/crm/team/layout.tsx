@@ -87,8 +87,8 @@ function RemoveAgentButton({
       </ZoruAlertDialogTrigger>
       <ZoruAlertDialogContent>
         <ZoruAlertDialogHeader>
-          <ZoruAlertDialogTitle className="text-zoru-ink">Are you sure?</ZoruAlertDialogTitle>
-          <ZoruAlertDialogDescription className="text-zoru-ink-muted">
+          <ZoruAlertDialogTitle className="text-[var(--st-text)]">Are you sure?</ZoruAlertDialogTitle>
+          <ZoruAlertDialogDescription className="text-[var(--st-text-secondary)]">
             This will remove the agent&apos;s access from all of your projects. This action cannot
             be undone.
           </ZoruAlertDialogDescription>
@@ -128,8 +128,8 @@ function InviteAgentForm({ onAgentInvited }: { onAgentInvited: () => void }) {
   return (
     <Card className="border-dashed p-6">
       <div className="mb-4">
-        <h2 className="text-[16px] font-semibold text-zoru-ink">Invite a New Team Member</h2>
-        <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+        <h2 className="text-[16px] font-semibold text-[var(--st-text)]">Invite a New Team Member</h2>
+        <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">
           Assign a role to the new user. They must have an existing SabNode account. This will
           grant them access to all your current and future projects with the selected role.
         </p>
@@ -149,7 +149,7 @@ function InviteAgentForm({ onAgentInvited }: { onAgentInvited: () => void }) {
             type="email"
             placeholder="Enter agent's email"
             required
-            className="h-10 rounded-lg border-zoru-line bg-zoru-surface text-[13px]"
+            className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px]"
           />
         </div>
         <div className="space-y-2">
@@ -159,7 +159,7 @@ function InviteAgentForm({ onAgentInvited }: { onAgentInvited: () => void }) {
           <Select name="role" defaultValue="agent">
             <ZoruSelectTrigger
               id="role"
-              className="h-10 w-full rounded-lg border-zoru-line bg-zoru-surface text-[13px] sm:w-[180px]"
+              className="h-10 w-full rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px] sm:w-[180px]"
             >
               <ZoruSelectValue placeholder="Select role" />
             </ZoruSelectTrigger>
@@ -212,12 +212,12 @@ export default function ManageUsersPage() {
     >
 
       <InviteAgentForm onAgentInvited={fetchData} />
-      <Separator className="bg-zoru-line" />
+      <Separator className="bg-[var(--st-border)]" />
 
       <Card className="p-6">
         <div className="mb-4">
-          <h2 className="text-[16px] font-semibold text-zoru-ink">Team Members</h2>
-          <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+          <h2 className="text-[16px] font-semibold text-[var(--st-text)]">Team Members</h2>
+          <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">
             A list of all users in your team.
           </p>
         </div>
@@ -231,27 +231,27 @@ export default function ManageUsersPage() {
             teamMembers.map((agent: any) => (
               <div
                 key={agent._id.toString()}
-                className="flex items-center justify-between gap-4 rounded-lg border border-zoru-line bg-zoru-surface-2 p-4"
+                className="flex items-center justify-between gap-4 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4"
               >
                 <div className="flex items-center gap-4">
-                  <Avatar className="border border-zoru-line">
+                  <Avatar className="border border-[var(--st-border)]">
                     <ZoruAvatarImage
                       src={`https://i.pravatar.cc/150?u=${agent.email}`}
                       alt={agent.name}
                     />
-                    <ZoruAvatarFallback className="bg-zoru-surface-2 text-[12px] text-zoru-ink">
+                    <ZoruAvatarFallback className="bg-[var(--st-bg-muted)] text-[12px] text-[var(--st-text)]">
                       {agent.name.substring(0, 2).toUpperCase()}
                     </ZoruAvatarFallback>
                   </Avatar>
                   <div className="space-y-0.5">
-                    <p className="text-[13px] font-medium leading-none text-zoru-ink">
+                    <p className="text-[13px] font-medium leading-none text-[var(--st-text)]">
                       {agent.name}
                     </p>
-                    <p className="text-[12.5px] text-zoru-ink-muted">{agent.email}</p>
+                    <p className="text-[12.5px] text-[var(--st-text-secondary)]">{agent.email}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="text-[12.5px] text-zoru-ink-muted">
+                  <div className="text-[12.5px] text-[var(--st-text-secondary)]">
                     {agent.roles && Object.keys(agent.roles).length > 0
                       ? `Role: ${Object.values(agent.roles)[0]}`
                       : 'No specific project roles'}
@@ -264,7 +264,7 @@ export default function ManageUsersPage() {
               </div>
             ))
           ) : (
-            <p className="py-8 text-center text-[13px] text-zoru-ink-muted">
+            <p className="py-8 text-center text-[13px] text-[var(--st-text-secondary)]">
               No team members have been invited yet.
             </p>
           )}

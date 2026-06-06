@@ -172,12 +172,12 @@ function SortableFieldItem({ field, isSelected, onClick, onMove, canMove }: {
             <Card
                 variant="soft"
                 padded={false}
-                className={`p-3 cursor-pointer hover:bg-zoru-surface-2 flex items-center gap-2 ${isSelected ? 'ring-2 ring-primary' : ''}`}
+                className={`p-3 cursor-pointer hover:bg-[var(--st-bg-muted)] flex items-center gap-2 ${isSelected ? 'ring-2 ring-primary' : ''}`}
                 onClick={onClick}
             >
                 <button
                     type="button"
-                    className="cursor-grab touch-none text-zoru-ink-muted hover:text-zoru-ink"
+                    className="cursor-grab touch-none text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                     {...attributes}
                     {...listeners}
                     aria-label="Drag to reorder"
@@ -186,16 +186,16 @@ function SortableFieldItem({ field, isSelected, onClick, onMove, canMove }: {
                     <GripVertical className="h-4 w-4" />
                 </button>
                 <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm text-zoru-ink truncate">
+                    <p className="font-semibold text-sm text-[var(--st-text)] truncate">
                         {field.label || 'Untitled Field'} {field.required && '*'}
                     </p>
-                    <p className="text-xs text-zoru-ink-muted">{field.type}</p>
+                    <p className="text-xs text-[var(--st-text-secondary)]">{field.type}</p>
                 </div>
                 {canMove && onMove && (
                     <button
                         type="button"
                         onClick={(e) => { e.stopPropagation(); onMove(); }}
-                        className="text-xs text-zoru-ink-muted hover:text-zoru-ink"
+                        className="text-xs text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                         aria-label="Move to next page"
                     >
                         <ChevronRight className="h-4 w-4" />
@@ -416,12 +416,12 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
 
     return (
         <div className="h-full flex flex-col">
-            <header className="flex-shrink-0 flex items-center justify-between p-3 border-b border-zoru-line bg-zoru-surface">
+            <header className="flex-shrink-0 flex items-center justify-between p-3 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
                 <div className="flex items-center gap-2">
                     <Button variant="ghost" size="icon" onClick={() => router.back()}>
                         <ArrowLeft className="h-4 w-4" />
                     </Button>
-                    <Input value={formName} onChange={e => setFormName(e.target.value)} className="text-lg font-semibold text-zoru-ink border-none shadow-none focus-visible:ring-0 p-1 h-auto" />
+                    <Input value={formName} onChange={e => setFormName(e.target.value)} className="text-lg font-semibold text-[var(--st-text)] border-none shadow-none focus-visible:ring-0 p-1 h-auto" />
                 </div>
                 <div className="flex items-center gap-2">
                     {initialForm?._id && (
@@ -443,12 +443,12 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                 </div>
             </header>
             <div className="flex-1 grid grid-cols-12 min-h-0">
-                <div className="col-span-3 border-r border-zoru-line p-4 overflow-y-auto">
+                <div className="col-span-3 border-r border-[var(--st-border)] p-4 overflow-y-auto">
                     <div className="space-y-4">
                         {/* Pages strip */}
                         <div className="space-y-2">
                             <div className="flex items-center justify-between">
-                                <h2 className="text-sm font-semibold text-zoru-ink">Pages</h2>
+                                <h2 className="text-sm font-semibold text-[var(--st-text)]">Pages</h2>
                                 <Button variant="ghost" size="sm" onClick={addPage}>
                                     <Plus className="h-3 w-3 mr-1" /> Add
                                 </Button>
@@ -457,23 +457,23 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                                 {pages.map((p, i) => (
                                     <div
                                         key={p.id}
-                                        className={`flex items-center gap-2 rounded-md border px-2 py-1.5 cursor-pointer ${i === activePageIndex ? 'border-primary bg-zoru-surface-2' : 'border-zoru-line hover:bg-zoru-surface-2/50'}`}
+                                        className={`flex items-center gap-2 rounded-md border px-2 py-1.5 cursor-pointer ${i === activePageIndex ? 'border-primary bg-[var(--st-bg-muted)]' : 'border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]/50'}`}
                                         onClick={() => { setActivePageIndex(i); setSelectedFieldId(null); }}
                                     >
-                                        <span className="text-xs font-mono text-zoru-ink-muted">{i + 1}</span>
+                                        <span className="text-xs font-mono text-[var(--st-text-secondary)]">{i + 1}</span>
                                         <Input
                                             value={p.title}
                                             onChange={(e) => updatePage(i, { title: e.target.value })}
                                             onClick={(e) => e.stopPropagation()}
                                             className="h-7 text-xs flex-1 border-none shadow-none focus-visible:ring-0 bg-transparent p-0"
                                         />
-                                        <span className="text-xs text-zoru-ink-muted">{p.fields.length}</span>
+                                        <span className="text-xs text-[var(--st-text-secondary)]">{p.fields.length}</span>
                                         {pages.length > 1 && (
                                             <button
                                                 type="button"
                                                 onClick={(e) => { e.stopPropagation(); removePage(i); }}
                                                 aria-label="Remove page"
-                                                className="text-zoru-ink-muted hover:text-zoru-ink"
+                                                className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                                             >
                                                 <X className="h-3 w-3" />
                                             </button>
@@ -485,8 +485,8 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
 
                         <div className="h-px bg-border" />
 
-                        <h2 className="text-sm font-semibold text-zoru-ink">Fields on this page</h2>
-                        <p className="text-xs text-zoru-ink-muted">Drag to reorder. Use the chevron to push a field to the next page.</p>
+                        <h2 className="text-sm font-semibold text-[var(--st-text)]">Fields on this page</h2>
+                        <p className="text-xs text-[var(--st-text-secondary)]">Drag to reorder. Use the chevron to push a field to the next page.</p>
                          <DropdownMenu>
                             <ZoruDropdownMenuTrigger asChild>
                                 <Button variant="outline" size="sm" className="w-full">
@@ -519,24 +519,24 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                         </DndContext>
                     </div>
                 </div>
-                <main className="col-span-6 bg-zoru-surface-2 overflow-y-auto p-4 md:p-8">
+                <main className="col-span-6 bg-[var(--st-bg-muted)] overflow-y-auto p-4 md:p-8">
                     {pages.length > 1 && (
                         <div className="mb-4 flex items-center justify-center gap-2">
                             {pages.map((p, i) => (
                                 <div key={p.id} className="flex items-center gap-2">
-                                    <span className={`text-xs px-2 py-1 rounded-full ${i === activePageIndex ? 'bg-zoru-ink text-white' : 'bg-zoru-surface-2 text-zoru-ink-muted'}`}>
+                                    <span className={`text-xs px-2 py-1 rounded-full ${i === activePageIndex ? 'bg-[var(--st-text)] text-white' : 'bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]'}`}>
                                         {i + 1}. {p.title}
                                     </span>
-                                    {i < pages.length - 1 && <ChevronRight className="h-3 w-3 text-zoru-ink-muted" />}
+                                    {i < pages.length - 1 && <ChevronRight className="h-3 w-3 text-[var(--st-text-secondary)]" />}
                                 </div>
                             ))}
                         </div>
                     )}
                     <CrmFormPreview settings={{ ...settings, fields }} />
                 </main>
-                 <aside className="col-span-3 border-l border-zoru-line p-4 overflow-y-auto">
+                 <aside className="col-span-3 border-l border-[var(--st-border)] p-4 overflow-y-auto">
                     <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-lg font-semibold text-zoru-ink">Properties</h2>
+                        <h2 className="text-lg font-semibold text-[var(--st-text)]">Properties</h2>
                          {selectedFieldId && (
                             <Button variant="ghost" size="sm" onClick={() => setSelectedFieldId(null)}>
                                 <ArrowLeft className="mr-2 h-4 w-4" />
@@ -584,7 +584,7 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                                                 type="color"
                                                 value={theme.primaryColor || '#2563eb'}
                                                 onChange={(e) => setTheme({ primaryColor: e.target.value })}
-                                                className="h-9 w-12 rounded border border-zoru-line bg-transparent"
+                                                className="h-9 w-12 rounded border border-[var(--st-border)] bg-transparent"
                                                 aria-label="Primary color"
                                             />
                                             <Input
@@ -622,7 +622,7 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                                     <div className="space-y-2">
                                         <Label>Logo</Label>
                                         {theme.logoFileUrl && (
-                                            <div className="flex items-center gap-2 text-xs text-zoru-ink-muted">
+                                            <div className="flex items-center gap-2 text-xs text-[var(--st-text-secondary)]">
                                                 <span className="truncate">{theme.logoFileUrl}</span>
                                                 <Button variant="ghost" size="sm" onClick={() => setTheme({ logoFileId: undefined, logoFileUrl: undefined })}>Remove</Button>
                                             </div>
@@ -637,7 +637,7 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                                     <div className="space-y-2">
                                         <Label>Background</Label>
                                         {theme.backgroundFileUrl && (
-                                            <div className="flex items-center gap-2 text-xs text-zoru-ink-muted">
+                                            <div className="flex items-center gap-2 text-xs text-[var(--st-text-secondary)]">
                                                 <span className="truncate">{theme.backgroundFileUrl}</span>
                                                 <Button variant="ghost" size="sm" onClick={() => setTheme({ backgroundFileId: undefined, backgroundFileUrl: undefined })}>Remove</Button>
                                             </div>
@@ -749,8 +749,8 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                                                     />
                                                     <Label>Create contact</Label>
                                                 </div>
-                                                <div className="space-y-2 pt-2 border-t border-zoru-line">
-                                                    <p className="text-xs text-zoru-ink-muted">Field mapping (CRM field → form field ID)</p>
+                                                <div className="space-y-2 pt-2 border-t border-[var(--st-border)]">
+                                                    <p className="text-xs text-[var(--st-text-secondary)]">Field mapping (CRM field → form field ID)</p>
                                                     {mappingTargets.map(target => (
                                                         <div key={target} className="grid grid-cols-2 gap-2 items-center">
                                                             <span className="text-xs font-mono">{target}</span>

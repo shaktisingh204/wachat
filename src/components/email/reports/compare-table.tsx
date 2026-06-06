@@ -57,7 +57,7 @@ export function CompareTable({ rows }: CompareTableProps) {
             const totals: Partial<EmailMetricsTotals> = r.totals ?? {};
             return (
               <ZoruTableRow key={r.campaignId}>
-                <ZoruTableCell className="font-medium text-zoru-ink">
+                <ZoruTableCell className="font-medium text-[var(--st-text)]">
                   {r.campaignName}
                 </ZoruTableCell>
                 <ZoruTableCell className="text-right">{fmt(totals.sent)}</ZoruTableCell>

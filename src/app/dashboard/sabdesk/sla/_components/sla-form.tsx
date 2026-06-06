@@ -102,11 +102,11 @@ export function SlaForm({ initialData }: SlaFormProps) {
       {isEditing ? <input type="hidden" name="status" value={status} /> : null}
 
       <Card className="p-6">
-        <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">Basics</h2>
+        <h2 className="mb-4 text-[14px] font-medium text-[var(--st-text)]">Basics</h2>
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <div className="space-y-1.5 sm:col-span-2">
             <Label htmlFor="name">
-              Name <span className="text-zoru-danger-ink">*</span>
+              Name <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <Input
               id="name"
@@ -138,7 +138,7 @@ export function SlaForm({ initialData }: SlaFormProps) {
       </Card>
 
       <Card className="p-6">
-        <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">
+        <h2 className="mb-4 text-[14px] font-medium text-[var(--st-text)]">
           Response targets
         </h2>
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
@@ -168,10 +168,10 @@ export function SlaForm({ initialData }: SlaFormProps) {
               defaultValue={initialData?.resolutionMinutes ?? ""}
             />
           </div>
-          <div className="flex items-center justify-between rounded-md border border-zoru-line px-3 py-2 sm:col-span-2">
+          <div className="flex items-center justify-between rounded-md border border-[var(--st-border)] px-3 py-2 sm:col-span-2">
             <div className="flex flex-col">
               <Label htmlFor="bh-toggle">Business hours only</Label>
-              <span className="text-xs text-zoru-ink-muted">
+              <span className="text-xs text-[var(--st-text-secondary)]">
                 Pause the SLA clock outside of configured business hours.
               </span>
             </div>
@@ -185,7 +185,7 @@ export function SlaForm({ initialData }: SlaFormProps) {
       </Card>
 
       <Card className="p-6">
-        <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">
+        <h2 className="mb-4 text-[14px] font-medium text-[var(--st-text)]">
           Escalation
         </h2>
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
@@ -215,7 +215,7 @@ export function SlaForm({ initialData }: SlaFormProps) {
       </Card>
 
       <Card className="p-6">
-        <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">Notes</h2>
+        <h2 className="mb-4 text-[14px] font-medium text-[var(--st-text)]">Notes</h2>
         <div className="grid grid-cols-1 gap-5">
           <div className="space-y-1.5">
             <Label htmlFor="description">Description</Label>

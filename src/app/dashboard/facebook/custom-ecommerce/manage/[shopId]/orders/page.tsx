@@ -111,7 +111,7 @@ export default function OrdersPage() {
         accessorKey: "_id",
         header: "Order ID",
         cell: ({ row }) => (
-          <span className="font-mono text-xs text-zoru-ink">
+          <span className="font-mono text-xs text-[var(--st-text)]">
             {row.original._id.toString().slice(-8)}
           </span>
         ),
@@ -186,8 +186,8 @@ export default function OrdersPage() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-[20px] tracking-tight text-zoru-ink">Orders</h2>
-          <p className="text-[13px] text-zoru-ink-muted">
+          <h2 className="text-[20px] tracking-tight text-[var(--st-text)]">Orders</h2>
+          <p className="text-[13px] text-[var(--st-text-secondary)]">
             View and manage orders from your custom shop.
           </p>
         </div>
@@ -235,16 +235,16 @@ export default function OrdersPage() {
           {activeOrder ? (
             <div className="mt-4 space-y-4 text-sm">
               <div>
-                <p className="text-xs uppercase tracking-wide text-zoru-ink-subtle">
+                <p className="text-xs uppercase tracking-wide text-[var(--st-text-tertiary)]">
                   Order ID
                 </p>
-                <p className="font-mono text-zoru-ink">
+                <p className="font-mono text-[var(--st-text)]">
                   {activeOrder._id.toString()}
                 </p>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <p className="text-xs uppercase tracking-wide text-zoru-ink-subtle">
+                  <p className="text-xs uppercase tracking-wide text-[var(--st-text-tertiary)]">
                     Status
                   </p>
                   <Badge
@@ -255,67 +255,67 @@ export default function OrdersPage() {
                   </Badge>
                 </div>
                 <div>
-                  <p className="text-xs uppercase tracking-wide text-zoru-ink-subtle">
+                  <p className="text-xs uppercase tracking-wide text-[var(--st-text-tertiary)]">
                     Total
                   </p>
-                  <p className="text-zoru-ink">
+                  <p className="text-[var(--st-text)]">
                     {formatMoney.format(activeOrder.total)}
                   </p>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <p className="text-xs uppercase tracking-wide text-zoru-ink-subtle">
+                  <p className="text-xs uppercase tracking-wide text-[var(--st-text-tertiary)]">
                     Created
                   </p>
-                  <p className="text-zoru-ink">
+                  <p className="text-[var(--st-text)]">
                     {activeOrder.createdAt
                       ? format(new Date(activeOrder.createdAt), "PP · p")
                       : "—"}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs uppercase tracking-wide text-zoru-ink-subtle">
+                  <p className="text-xs uppercase tracking-wide text-[var(--st-text-tertiary)]">
                     Payment
                   </p>
-                  <p className="capitalize text-zoru-ink">
+                  <p className="capitalize text-[var(--st-text)]">
                     {activeOrder.paymentStatus || "—"}
                   </p>
                 </div>
               </div>
               <Separator />
               <div>
-                <p className="text-xs uppercase tracking-wide text-zoru-ink-subtle">
+                <p className="text-xs uppercase tracking-wide text-[var(--st-text-tertiary)]">
                   Customer
                 </p>
-                <p className="text-zoru-ink">
+                <p className="text-[var(--st-text)]">
                   {activeOrder.customerInfo?.name || "—"}
                 </p>
-                <p className="text-xs text-zoru-ink-muted">
+                <p className="text-xs text-[var(--st-text-secondary)]">
                   {activeOrder.customerInfo?.email || "—"}
                 </p>
                 {activeOrder.customerInfo?.phone ? (
-                  <p className="text-xs text-zoru-ink-muted">
+                  <p className="text-xs text-[var(--st-text-secondary)]">
                     {activeOrder.customerInfo.phone}
                   </p>
                 ) : null}
               </div>
               <Separator />
               <div>
-                <p className="text-xs uppercase tracking-wide text-zoru-ink-subtle">
+                <p className="text-xs uppercase tracking-wide text-[var(--st-text-tertiary)]">
                   Items
                 </p>
                 <ul className="mt-2 space-y-1.5">
                   {activeOrder.items.map((item, i) => (
                     <li
                       key={i}
-                      className="flex items-center justify-between text-zoru-ink"
+                      className="flex items-center justify-between text-[var(--st-text)]"
                     >
                       <span className="truncate">
                         {item.productName}
                         {item.quantity > 1 ? ` × ${item.quantity}` : ""}
                       </span>
-                      <span className="text-zoru-ink-muted">
+                      <span className="text-[var(--st-text-secondary)]">
                         {formatMoney.format(item.price * item.quantity)}
                       </span>
                     </li>
@@ -326,18 +326,18 @@ export default function OrdersPage() {
                 <>
                   <Separator />
                   <div>
-                    <p className="text-xs uppercase tracking-wide text-zoru-ink-subtle">
+                    <p className="text-xs uppercase tracking-wide text-[var(--st-text-tertiary)]">
                       Shipping address
                     </p>
-                    <p className="text-zoru-ink">
+                    <p className="text-[var(--st-text)]">
                       {activeOrder.shippingAddress.street}
                     </p>
-                    <p className="text-zoru-ink">
+                    <p className="text-[var(--st-text)]">
                       {activeOrder.shippingAddress.city},{" "}
                       {activeOrder.shippingAddress.state}{" "}
                       {activeOrder.shippingAddress.zip}
                     </p>
-                    <p className="text-zoru-ink-muted">
+                    <p className="text-[var(--st-text-secondary)]">
                       {activeOrder.shippingAddress.country}
                     </p>
                   </div>

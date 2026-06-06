@@ -10,8 +10,8 @@ export default function BenefitsPortalPage() {
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex flex-col gap-1 md:flex-row md:items-center md:justify-between space-y-2 md:space-y-0 mb-6">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight text-zoru-ink">Benefits Portal</h2>
-          <p className="text-zoru-ink-muted">Manage employee benefits, perks, and track costs.</p>
+          <h2 className="text-3xl font-bold tracking-tight text-[var(--st-text)]">Benefits Portal</h2>
+          <p className="text-[var(--st-text-secondary)]">Manage employee benefits, perks, and track costs.</p>
         </div>
       </div>
       

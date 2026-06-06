@@ -19,7 +19,7 @@ export default async function NewFixedAssetPage() {
       title="New fixed asset"
       back={{ href: '/dashboard/crm/fixed-assets', label: 'Fixed Assets' }}
     >
-      <Suspense fallback={<div className="p-8 text-center text-sm text-zoru-ink-muted">Loading form...</div>}>
+      <Suspense fallback={<div className="p-8 text-center text-sm text-[var(--st-text-secondary)]">Loading form...</div>}>
         <FixedAssetForm />
       </Suspense>
     </EntityDetailShell>

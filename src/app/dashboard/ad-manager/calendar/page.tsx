@@ -180,7 +180,7 @@ export default function CampaignCalendarPage() {
                                 onChange={(e) => setEditName(e.target.value)} 
                             />
                         </div>
-                        <div className="text-sm text-zoru-ink-muted">
+                        <div className="text-sm text-[var(--st-text-secondary)]">
                             <strong>Status:</strong> {selectedCampaign?.effective_status || selectedCampaign?.status}
                             <br />
                             <strong>Start:</strong> {selectedCampaign?.start_time ? new Date(selectedCampaign.start_time).toLocaleString() : 'N/A'}
@@ -191,7 +191,7 @@ export default function CampaignCalendarPage() {
                     <ZoruDialogFooter>
                         <Button variant="outline" onClick={() => setSelectedCampaign(null)}>Cancel</Button>
                         <Button 
-                            className="bg-zoru-ink hover:bg-zoru-ink/90 text-white"
+                            className="bg-[var(--st-text)] hover:bg-[var(--st-text)]/90 text-white"
                             onClick={() => {
                                 // Mock saving the campaign edit
                                 setCampaigns(prev => prev.map(c => 

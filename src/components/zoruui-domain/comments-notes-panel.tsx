@@ -99,13 +99,13 @@ export function CommentsNotesPanel({ entityId, entityType, open, onOpenChange }:
       <ZoruDialogContent className="max-w-lg">
         <ZoruDialogHeader>
           <ZoruDialogTitle className="flex items-center gap-2">
-            <MessageSquare className="h-4 w-4 text-zoru-ink-muted" />
+            <MessageSquare className="h-4 w-4 text-[var(--st-text-secondary)]" />
             Notes &amp; Comments
-            <span className="ml-1 text-[11px] text-zoru-ink-muted font-normal capitalize">{entityType}</span>
+            <span className="ml-1 text-[11px] text-[var(--st-text-secondary)] font-normal capitalize">{entityType}</span>
           </ZoruDialogTitle>
         </ZoruDialogHeader>
 
-        <div className="flex gap-1 border-b border-zoru-line">
+        <div className="flex gap-1 border-b border-[var(--st-border)]">
           {tabs.map((tab) => (
             <button
               key={tab.key}
@@ -113,8 +113,8 @@ export function CommentsNotesPanel({ entityId, entityType, open, onOpenChange }:
               onClick={() => setActiveTab(tab.key)}
               className={`flex items-center gap-1.5 px-3 py-2 text-[12.5px] border-b-2 transition-colors -mb-px ${
                 activeTab === tab.key
-                  ? 'border-zoru-ink text-zoru-ink'
-                  : 'border-transparent text-zoru-ink-muted hover:text-zoru-ink'
+                  ? 'border-[var(--st-text)] text-[var(--st-text)]'
+                  : 'border-transparent text-[var(--st-text-secondary)] hover:text-[var(--st-text)]'
               }`}
             >
               {tab.label}
@@ -128,7 +128,7 @@ export function CommentsNotesPanel({ entityId, entityType, open, onOpenChange }:
         <div className="min-h-[240px] pt-2">
           {activeTab === 'notes' ? (
             <div className="space-y-3">
-              <div className="flex items-center gap-1.5 text-[12px] text-zoru-ink-muted">
+              <div className="flex items-center gap-1.5 text-[12px] text-[var(--st-text-secondary)]">
                 <StickyNote className="h-3.5 w-3.5" />
                 Private note — only visible to you
               </div>
@@ -140,7 +140,7 @@ export function CommentsNotesPanel({ entityId, entityType, open, onOpenChange }:
                 placeholder="Write a private note..."
               />
               <div className="flex items-center justify-between">
-                <span className="text-[11px] text-zoru-ink-muted">{note.length}/2000</span>
+                <span className="text-[11px] text-[var(--st-text-secondary)]">{note.length}/2000</span>
                 <Button size="sm" onClick={saveNote}>
                   {noteSaved ? 'Saved!' : 'Save Note'}
                 </Button>
@@ -151,25 +151,25 @@ export function CommentsNotesPanel({ entityId, entityType, open, onOpenChange }:
           {activeTab === 'comments' ? (
             <div className="flex flex-col gap-3">
               {comments.length === 0 ? (
-                <p className="py-6 text-center text-[12.5px] text-zoru-ink-muted">No comments yet.</p>
+                <p className="py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">No comments yet.</p>
               ) : (
                 <ul className="space-y-2 max-h-[200px] overflow-y-auto pr-1">
                   {comments.map((c) => (
-                    <li key={c.id} className="rounded-lg border border-zoru-line bg-zoru-surface-2 px-3 py-2.5">
+                    <li key={c.id} className="rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2.5">
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="text-[11.5px] font-medium text-zoru-ink">You</span>
-                            <span className="text-[10.5px] text-zoru-ink-muted">
+                            <span className="text-[11.5px] font-medium text-[var(--st-text)]">You</span>
+                            <span className="text-[10.5px] text-[var(--st-text-secondary)]">
                               {new Date(c.createdAt).toLocaleString()}
                             </span>
                           </div>
-                          <p className="text-[12.5px] text-zoru-ink whitespace-pre-wrap break-words">{c.text}</p>
+                          <p className="text-[12.5px] text-[var(--st-text)] whitespace-pre-wrap break-words">{c.text}</p>
                         </div>
                         <button
                           type="button"
                           onClick={() => deleteComment(c.id)}
-                          className="rounded p-1 text-zoru-ink-muted hover:bg-zoru-danger/10 hover:text-zoru-danger-ink shrink-0"
+                          className="rounded p-1 text-[var(--st-text-secondary)] hover:bg-[var(--st-danger)]/10 hover:text-[var(--st-danger)] shrink-0"
                           aria-label="Delete comment"
                         >
                           <Trash2 className="h-3 w-3" />
@@ -179,7 +179,7 @@ export function CommentsNotesPanel({ entityId, entityType, open, onOpenChange }:
                   ))}
                 </ul>
               )}
-              <div className="space-y-2 border-t border-zoru-line pt-3">
+              <div className="space-y-2 border-t border-[var(--st-border)] pt-3">
                 <Textarea
                   value={commentDraft}
                   onChange={(e) => setCommentDraft(e.target.value)}
@@ -188,7 +188,7 @@ export function CommentsNotesPanel({ entityId, entityType, open, onOpenChange }:
                   placeholder="Add a comment..."
                 />
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] text-zoru-ink-muted">{commentDraft.length}/500</span>
+                  <span className="text-[11px] text-[var(--st-text-secondary)]">{commentDraft.length}/500</span>
                   <Button size="sm" onClick={postComment} disabled={!commentDraft.trim()}>
                     Post
                   </Button>
@@ -200,29 +200,29 @@ export function CommentsNotesPanel({ entityId, entityType, open, onOpenChange }:
           {activeTab === 'attachments' ? (
             <div className="flex flex-col gap-3">
               {attachments.length === 0 ? (
-                <p className="py-6 text-center text-[12.5px] text-zoru-ink-muted">No attachments yet.</p>
+                <p className="py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">No attachments yet.</p>
               ) : (
                 <ul className="space-y-2 max-h-[200px] overflow-y-auto pr-1">
                   {attachments.map((a) => (
-                    <li key={a.id} className="flex items-center justify-between gap-2 rounded-lg border border-zoru-line bg-zoru-surface-2 px-3 py-2.5">
+                    <li key={a.id} className="flex items-center justify-between gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2.5">
                       <div className="flex items-center gap-2 min-w-0">
-                        <Paperclip className="h-3.5 w-3.5 text-zoru-ink-muted shrink-0" />
+                        <Paperclip className="h-3.5 w-3.5 text-[var(--st-text-secondary)] shrink-0" />
                         <a
                           href={a.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="truncate text-[12.5px] text-zoru-ink hover:underline"
+                          className="truncate text-[12.5px] text-[var(--st-text)] hover:underline"
                         >
                           {a.name}
                         </a>
-                        <span className="text-[10.5px] text-zoru-ink-muted whitespace-nowrap">
+                        <span className="text-[10.5px] text-[var(--st-text-secondary)] whitespace-nowrap">
                           {new Date(a.addedAt).toLocaleDateString()}
                         </span>
                       </div>
                       <button
                         type="button"
                         onClick={() => removeAttachment(a.id)}
-                        className="rounded p-1 text-zoru-ink-muted hover:bg-zoru-danger/10 hover:text-zoru-danger-ink shrink-0"
+                        className="rounded p-1 text-[var(--st-text-secondary)] hover:bg-[var(--st-danger)]/10 hover:text-[var(--st-danger)] shrink-0"
                         aria-label="Remove attachment"
                       >
                         <Trash2 className="h-3 w-3" />
@@ -231,7 +231,7 @@ export function CommentsNotesPanel({ entityId, entityType, open, onOpenChange }:
                   ))}
                 </ul>
               )}
-              <div className="border-t border-zoru-line pt-3">
+              <div className="border-t border-[var(--st-border)] pt-3">
                 <SabFilePickerButton onPick={handleAttachPick} variant="outline">
                   <Paperclip className="h-3.5 w-3.5" />
                   Attach File

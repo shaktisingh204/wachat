@@ -212,7 +212,7 @@ function ServiceDialog({
                                     placeholder="e.g. UX-CONSULT"
                                     defaultValue={initialData?.code ?? ''}
                                 />
-                                <p className="text-[11.5px] text-zoru-ink-muted">
+                                <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                                     Optional, unique per tenant.
                                 </p>
                             </div>
@@ -320,7 +320,7 @@ function ServiceDialog({
                                     placeholder="e.g. 60"
                                     defaultValue={initialData?.durationMinutes ?? ''}
                                 />
-                                <p className="text-[11.5px] text-zoru-ink-muted">
+                                <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                                     Typical session length, when applicable.
                                 </p>
                             </div>
@@ -357,7 +357,7 @@ function ServiceDialog({
                                 pickerTitle="Choose service image"
                                 placeholder="No image chosen"
                             />
-                            <p className="text-[11.5px] text-zoru-ink-muted">
+                            <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                                 Files come from SabFiles — pick from library or
                                 upload fresh.
                             </p>
@@ -710,14 +710,14 @@ export default function ServicesPage() {
                     bulkBar={
                         selected.size > 0 ? (
                             <div className="flex flex-wrap items-center justify-between gap-3">
-                                <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink">
+                                <div className="flex items-center gap-2 text-[12.5px] text-[var(--st-text)]">
                                     <Badge variant="info">
                                         {selected.size} selected
                                     </Badge>
                                     <button
                                         type="button"
                                         onClick={() => setSelected(new Set())}
-                                        className="text-zoru-ink-muted hover:text-zoru-ink"
+                                        className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                                     >
                                         Clear
                                     </button>
@@ -810,10 +810,10 @@ export default function ServicesPage() {
                             />
                         </div>
 
-                        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                        <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                             <Table>
                                 <ZoruTableHeader>
-                                    <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                                    <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                                         <ZoruTableHead className="w-10">
                                             <input
                                                 type="checkbox"
@@ -844,19 +844,19 @@ export default function ServicesPage() {
                                 </ZoruTableHeader>
                                 <ZoruTableBody>
                                     {isLoading ? (
-                                        <ZoruTableRow className="border-zoru-line">
+                                        <ZoruTableRow className="border-[var(--st-border)]">
                                             <ZoruTableCell
                                                 colSpan={8}
                                                 className="h-20 text-center"
                                             >
-                                                <LoaderCircle className="mx-auto h-5 w-5 animate-spin text-zoru-ink-muted" />
+                                                <LoaderCircle className="mx-auto h-5 w-5 animate-spin text-[var(--st-text-secondary)]" />
                                             </ZoruTableCell>
                                         </ZoruTableRow>
                                     ) : paged.length === 0 ? (
-                                        <ZoruTableRow className="border-zoru-line">
+                                        <ZoruTableRow className="border-[var(--st-border)]">
                                             <ZoruTableCell
                                                 colSpan={8}
-                                                className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                                                className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                                             >
                                                 No services match this filter.
                                             </ZoruTableCell>
@@ -873,7 +873,7 @@ export default function ServicesPage() {
                                             return (
                                                 <ZoruTableRow
                                                     key={id}
-                                                    className="border-zoru-line"
+                                                    className="border-[var(--st-border)]"
                                                 >
                                                     <ZoruTableCell>
                                                         <input
@@ -887,7 +887,7 @@ export default function ServicesPage() {
                                                             }
                                                         />
                                                     </ZoruTableCell>
-                                                    <ZoruTableCell className="font-medium text-zoru-ink">
+                                                    <ZoruTableCell className="font-medium text-[var(--st-text)]">
                                                         <div className="flex items-center gap-2">
                                                             {r.imageUrl ? (
                                                                 // eslint-disable-next-line @next/next/no-img-element
@@ -897,9 +897,9 @@ export default function ServicesPage() {
                                                                     className="h-6 w-6 rounded object-cover"
                                                                 />
                                                             ) : (
-                                                                <div className="flex h-6 w-6 items-center justify-center rounded bg-zoru-surface-2">
+                                                                <div className="flex h-6 w-6 items-center justify-center rounded bg-[var(--st-bg-muted)]">
                                                                     <Briefcase
-                                                                        className="h-3 w-3 text-zoru-ink-muted"
+                                                                        className="h-3 w-3 text-[var(--st-text-secondary)]"
                                                                         strokeWidth={
                                                                             1.75
                                                                         }
@@ -909,16 +909,16 @@ export default function ServicesPage() {
                                                             <span>{r.name}</span>
                                                         </div>
                                                     </ZoruTableCell>
-                                                    <ZoruTableCell className="font-mono text-[12px] text-zoru-ink-muted">
+                                                    <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text-secondary)]">
                                                         {r.code || '—'}
                                                     </ZoruTableCell>
-                                                    <ZoruTableCell className="text-[12.5px] text-zoru-ink">
+                                                    <ZoruTableCell className="text-[12.5px] text-[var(--st-text)]">
                                                         {r.category || '—'}
                                                     </ZoruTableCell>
-                                                    <ZoruTableCell className="text-[12.5px] text-zoru-ink">
+                                                    <ZoruTableCell className="text-[12.5px] text-[var(--st-text)]">
                                                         {BILLABLE_LABELS[billable]}
                                                     </ZoruTableCell>
-                                                    <ZoruTableCell className="text-right font-mono text-zoru-ink">
+                                                    <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
                                                         {r.defaultPrice != null
                                                             ? fmtINR(r.defaultPrice, r.currency ?? 'INR')
                                                             : '—'}
@@ -948,7 +948,7 @@ export default function ServicesPage() {
                                                             }
                                                             aria-label={`Archive ${r.name}`}
                                                         >
-                                                            <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                                            <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                                         </Button>
                                                     </ZoruTableCell>
                                                 </ZoruTableRow>

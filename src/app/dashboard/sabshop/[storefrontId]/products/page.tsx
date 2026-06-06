@@ -131,9 +131,9 @@ export default function ProductsPage() {
 
       <Card>
         <CardContent className="p-0">
-          <div className="flex flex-col sm:flex-row items-center justify-between p-4 border-b border-zoru-line gap-4">
+          <div className="flex flex-col sm:flex-row items-center justify-between p-4 border-b border-[var(--st-border)] gap-4">
             <div className="relative w-full sm:max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zoru-ink-subtle" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--st-text-tertiary)]" />
               <Input
                 placeholder="Search products..."
                 className="pl-9 w-full"
@@ -144,7 +144,7 @@ export default function ProductsPage() {
             <div className="flex items-center gap-2 w-full sm:w-auto">
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-[140px]">
-                  <Filter className="w-4 h-4 mr-2 text-zoru-ink-subtle" />
+                  <Filter className="w-4 h-4 mr-2 text-[var(--st-text-tertiary)]" />
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -173,7 +173,7 @@ export default function ProductsPage() {
               <TableBody>
                 {filteredProducts.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center h-32 text-zoru-ink-muted">
+                    <TableCell colSpan={7} className="text-center h-32 text-[var(--st-text-secondary)]">
                       No products found.
                     </TableCell>
                   </TableRow>
@@ -184,20 +184,20 @@ export default function ProductsPage() {
                         <img 
                           src={product.image} 
                           alt={product.title}
-                          className="w-12 h-12 rounded-md object-cover border border-zoru-line"
+                          className="w-12 h-12 rounded-md object-cover border border-[var(--st-border)]"
                         />
                       </TableCell>
                       <TableCell>
-                        <div className="font-medium text-zoru-ink">{product.title}</div>
-                        <div className="text-xs text-zoru-ink-subtle">{product.id}</div>
+                        <div className="font-medium text-[var(--st-text)]">{product.title}</div>
+                        <div className="text-xs text-[var(--st-text-tertiary)]">{product.id}</div>
                       </TableCell>
                       <TableCell>{getStatusBadge(product.status)}</TableCell>
                       <TableCell>
-                        <span className={product.inventory === 0 ? "text-zoru-error font-medium" : "text-zoru-ink"}>
+                        <span className={product.inventory === 0 ? "text-zoru-error font-medium" : "text-[var(--st-text)]"}>
                           {product.inventory} in stock
                         </span>
                       </TableCell>
-                      <TableCell className="text-zoru-ink-muted">{product.type}</TableCell>
+                      <TableCell className="text-[var(--st-text-secondary)]">{product.type}</TableCell>
                       <TableCell className="text-right font-medium">{product.price}</TableCell>
                       <TableCell>
                         <DropdownMenu>

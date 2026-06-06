@@ -356,7 +356,7 @@ function DynamicSelect({
         <p className="text-[11px] text-[var(--gray-9)] leading-snug">Loading options…</p>
       )}
       {error && !loading && (
-        <p className="text-[11px] text-zoru-ink leading-snug">
+        <p className="text-[11px] text-[var(--st-text)] leading-snug">
           {error} — using fallback options.
         </p>
       )}
@@ -421,7 +421,7 @@ function KeyValueListInput({ rows, onChange }: KvProps) {
       <button
         type="button"
         onClick={addRow}
-        className="flex items-center gap-1.5 rounded-lg border border-dashed border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-1.5 text-[12px] text-[var(--gray-10)] hover:border-zoru-line hover:text-zoru-ink transition-colors"
+        className="flex items-center gap-1.5 rounded-lg border border-dashed border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-1.5 text-[12px] text-[var(--gray-10)] hover:border-[var(--st-border)] hover:text-[var(--st-text)] transition-colors"
       >
         <LuPlus className="h-3.5 w-3.5" />
         Add row

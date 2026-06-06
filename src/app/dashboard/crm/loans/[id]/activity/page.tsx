@@ -27,7 +27,7 @@ export default async function LoanActivityPage({ params }: PageProps) {
                     label: 'Back to loan',
                 }}
             >
-                <div className="p-4 text-sm text-zoru-ink">Login required to view activity.</div>
+                <div className="p-4 text-sm text-[var(--st-text)]">Login required to view activity.</div>
             </EntityDetailShell>
         );
     }

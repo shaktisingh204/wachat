@@ -17,14 +17,14 @@ export function WidgetIntegration({ loyaltyId }: { loyaltyId: string }) {
 
     return (
         <Card className="p-6">
-            <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+            <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Portal Widget Integration
             </h2>
-            <p className="text-[13px] text-zoru-ink mb-4">
+            <p className="text-[13px] text-[var(--st-text)] mb-4">
                 Embed this loyalty portal directly into your website. The widget allows customers to view their point balance, current tier, and redeem rewards.
             </p>
             <div className="relative">
-                <pre className="bg-zoru-surface border border-zoru-border rounded-md p-4 text-[12px] text-zoru-ink overflow-x-auto">
+                <pre className="bg-[var(--st-bg-secondary)] border border-[var(--st-border)] rounded-md p-4 text-[12px] text-[var(--st-text)] overflow-x-auto">
                     <code>{snippet}</code>
                 </pre>
                 <Button 
@@ -34,7 +34,7 @@ export function WidgetIntegration({ loyaltyId }: { loyaltyId: string }) {
                     onClick={copyToClipboard}
                     title="Copy snippet"
                 >
-                    {copied ? <Check className="h-4 w-4 text-zoru-ink" /> : <Copy className="h-4 w-4" />}
+                    {copied ? <Check className="h-4 w-4 text-[var(--st-text)]" /> : <Copy className="h-4 w-4" />}
                 </Button>
             </div>
         </Card>

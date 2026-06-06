@@ -43,9 +43,9 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
 
 function Fallback({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) {
   return (
-    <div className="flex flex-col items-center justify-center p-12 text-center border rounded-lg border-zoru-danger/20 bg-zoru-danger/5">
-      <h2 className="mb-2 text-lg font-bold text-zoru-danger-ink">Something went wrong in the BOM module</h2>
-      <p className="max-w-md mb-4 text-sm text-zoru-ink-muted">{error.message || 'Something went wrong.'}</p>
+    <div className="flex flex-col items-center justify-center p-12 text-center border rounded-lg border-[var(--st-danger)]/20 bg-[var(--st-danger)]/5">
+      <h2 className="mb-2 text-lg font-bold text-[var(--st-danger)]">Something went wrong in the BOM module</h2>
+      <p className="max-w-md mb-4 text-sm text-[var(--st-text-secondary)]">{error.message || 'Something went wrong.'}</p>
       <Button variant="outline" onClick={resetErrorBoundary}>
         Try again
       </Button>

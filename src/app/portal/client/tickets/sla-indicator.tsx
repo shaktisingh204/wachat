@@ -43,7 +43,7 @@ export function SlaIndicator({ dueBy, status }: { dueBy: string | null; status: 
     return (
         <div className={cn(
             "flex items-center gap-1.5 text-xs font-medium px-2 py-1 rounded-md",
-            isOverdue ? "bg-zoru-surface-2 text-zoru-ink" : "bg-zoru-surface-2 text-zoru-ink"
+            isOverdue ? "bg-[var(--st-bg-muted)] text-[var(--st-text)]" : "bg-[var(--st-bg-muted)] text-[var(--st-text)]"
         )}>
             <Clock className="w-3.5 h-3.5" />
             <span>{isOverdue ? 'SLA Overdue' : `Due in ${timeLeft}`}</span>

@@ -268,9 +268,9 @@ export function EstimateTemplateForm({
                             Add line item
                         </Button>
                     </div>
-                    <div className="overflow-hidden rounded-[var(--zoru-radius)] border border-zoru-line">
+                    <div className="overflow-hidden rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
                         <table className="w-full text-[13px]">
-                            <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
+                            <thead className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                                 <tr>
                                     <th className="w-8 px-1 py-2" />
                                     <th className="px-3 py-2 text-left font-medium">
@@ -292,7 +292,7 @@ export function EstimateTemplateForm({
                                 {items.map((it, idx) => (
                                     <tr
                                         key={idx}
-                                        className="border-t border-zoru-line"
+                                        className="border-t border-[var(--st-border)]"
                                     >
                                         {/* drag-handle spacer — keeps columns aligned with thead */}
                                         <td className="w-8 px-1 py-2" />
@@ -342,7 +342,7 @@ export function EstimateTemplateForm({
                                                 className="text-right"
                                             />
                                         </td>
-                                        <td className="px-3 py-2 text-right font-mono text-zoru-ink">
+                                        <td className="px-3 py-2 text-right font-mono text-[var(--st-text)]">
                                             {fmtCurrency(
                                                 it.quantity * it.rate,
                                             )}
@@ -356,19 +356,19 @@ export function EstimateTemplateForm({
                                                 disabled={items.length === 1}
                                                 title="Remove item"
                                             >
-                                                <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                                <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                             </Button>
                                         </td>
                                     </tr>
                                 ))}
-                                <tr className="border-t border-zoru-line bg-zoru-surface-2">
+                                <tr className="border-t border-[var(--st-border)] bg-[var(--st-bg-muted)]">
                                     <td
                                         colSpan={4}
-                                        className="px-3 py-2 text-right text-zoru-ink-muted"
+                                        className="px-3 py-2 text-right text-[var(--st-text-secondary)]"
                                     >
                                         Subtotal
                                     </td>
-                                    <td className="px-3 py-2 text-right font-mono font-medium text-zoru-ink">
+                                    <td className="px-3 py-2 text-right font-mono font-medium text-[var(--st-text)]">
                                         {fmtCurrency(subtotal)}
                                     </td>
                                     <td />
@@ -456,10 +456,10 @@ export function SortableRow({
   };
 
   return (
-    <tr ref={setNodeRef} style={style} className="border-t border-zoru-line bg-white">
+    <tr ref={setNodeRef} style={style} className="border-t border-[var(--st-border)] bg-white">
       <td className="px-1 py-2">
         <div 
-          className="cursor-grab p-1 text-zoru-ink-muted hover:text-zoru-ink active:cursor-grabbing"
+          className="cursor-grab p-1 text-[var(--st-text-secondary)] hover:text-[var(--st-text)] active:cursor-grabbing"
           {...attributes} 
           {...listeners}
         >
@@ -493,7 +493,7 @@ export function SortableRow({
           className="text-right"
         />
       </td>
-      <td className="px-3 py-2 text-right font-mono text-zoru-ink">
+      <td className="px-3 py-2 text-right font-mono text-[var(--st-text)]">
         {(!Number.isFinite(it.quantity * it.rate) ? '0.00' : (it.quantity * it.rate).toFixed(2))}
       </td>
       <td className="px-3 py-2 text-right">
@@ -505,7 +505,7 @@ export function SortableRow({
           disabled={!canRemove}
           title="Remove item"
         >
-          <Trash2 className="h-4 w-4 text-zoru-ink" />
+          <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
         </Button>
       </td>
     </tr>

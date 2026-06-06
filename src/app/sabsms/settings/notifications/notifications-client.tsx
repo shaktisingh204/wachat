@@ -120,7 +120,7 @@ export function NotificationsClient({ initialConfig }: { initialConfig: any }) {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Notification Settings</h1>
-            <p className="text-zoru-ink-muted">Manage how and when your workspace receives alerts.</p>
+            <p className="text-[var(--st-text-secondary)]">Manage how and when your workspace receives alerts.</p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={exportConfig}>
@@ -150,21 +150,21 @@ export function NotificationsClient({ initialConfig }: { initialConfig: any }) {
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
                       <Label>Mute All Notifications</Label>
-                      <p className="text-sm text-zoru-ink-muted">Temporarily pause all alerts.</p>
+                      <p className="text-sm text-[var(--st-text-secondary)]">Temporarily pause all alerts.</p>
                     </div>
                     <Switch checked={config.muteAll} onCheckedChange={() => handleToggle('muteAll')} />
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
                       <Label>Critical-Only Mode</Label>
-                      <p className="text-sm text-zoru-ink-muted">Only receive high-severity alerts.</p>
+                      <p className="text-sm text-[var(--st-text-secondary)]">Only receive high-severity alerts.</p>
                     </div>
                     <Switch checked={config.criticalOnly} onCheckedChange={() => handleToggle('criticalOnly')} />
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
                       <Label>AI Daily Summary</Label>
-                      <p className="text-sm text-zoru-ink-muted">Opt-in to daily AI-generated digests.</p>
+                      <p className="text-sm text-[var(--st-text-secondary)]">Opt-in to daily AI-generated digests.</p>
                     </div>
                     <Switch checked={config.aiDailySummary} onCheckedChange={() => handleToggle('aiDailySummary')} />
                   </div>
@@ -194,7 +194,7 @@ export function NotificationsClient({ initialConfig }: { initialConfig: any }) {
                     <div className="flex items-center justify-between">
                       <div className="space-y-0.5">
                         <Label>Alert Debouncing (Anti-Fatigue)</Label>
-                        <p className="text-sm text-zoru-ink-muted">Summarize repeating alerts (e.g., &quot;15 errors in 1 hour&quot;).</p>
+                        <p className="text-sm text-[var(--st-text-secondary)]">Summarize repeating alerts (e.g., &quot;15 errors in 1 hour&quot;).</p>
                       </div>
                       <Switch 
                         checked={config.debouncing?.enabled || false} 
@@ -213,7 +213,7 @@ export function NotificationsClient({ initialConfig }: { initialConfig: any }) {
                     <div className="flex items-center justify-between">
                       <div className="space-y-0.5">
                         <Label>Quiet Hours</Label>
-                        <p className="text-sm text-zoru-ink-muted">Pause non-critical alerts during this window.</p>
+                        <p className="text-sm text-[var(--st-text-secondary)]">Pause non-critical alerts during this window.</p>
                       </div>
                       <Switch 
                         checked={config.quietHours.enabled} 
@@ -242,7 +242,7 @@ export function NotificationsClient({ initialConfig }: { initialConfig: any }) {
               <CardContent className="p-0">
                 <div className="divide-y border rounded-md">
                   {config.events.map((evt: any, i: number) => (
-                    <div key={evt.id} className="bg-zoru-surface flex flex-col border-b last:border-b-0">
+                    <div key={evt.id} className="bg-[var(--st-bg-secondary)] flex flex-col border-b last:border-b-0">
                       <div className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div>
                           <div className="flex items-center gap-2">
@@ -251,7 +251,7 @@ export function NotificationsClient({ initialConfig }: { initialConfig: any }) {
                             {evt.threshold && <Badge variant="secondary" className="h-5 text-[10px]">Threshold: {evt.threshold}</Badge>}
                             {evt.debounceMinutes > 0 && <Badge variant="outline" className="h-5 text-[10px]">Debounced: {evt.debounceMinutes}m</Badge>}
                           </div>
-                          <p className="text-xs text-zoru-ink-muted mt-1 font-mono">{evt.id}</p>
+                          <p className="text-xs text-[var(--st-text-secondary)] mt-1 font-mono">{evt.id}</p>
                         </div>
                         <div className="flex flex-wrap gap-2 items-center">
                           {config.channels.filter((c: any) => c.enabled).map((ch: any) => {
@@ -273,10 +273,10 @@ export function NotificationsClient({ initialConfig }: { initialConfig: any }) {
                         </div>
                       </div>
                       {expandedEvent === i && (
-                        <div className="px-4 pb-4 pt-2 border-t bg-zoru-surface-2/20 space-y-4">
+                        <div className="px-4 pb-4 pt-2 border-t bg-[var(--st-bg-muted)]/20 space-y-4">
                           <div className="space-y-1">
                             <Label className="text-sm">Event-Specific Debouncing</Label>
-                            <p className="text-xs text-zoru-ink-muted">Summarize multiple occurrences of this event into a single notification.</p>
+                            <p className="text-xs text-[var(--st-text-secondary)]">Summarize multiple occurrences of this event into a single notification.</p>
                           </div>
                           <div className="flex items-center gap-2">
                             <span className="text-sm">Window (mins):</span>
@@ -291,7 +291,7 @@ export function NotificationsClient({ initialConfig }: { initialConfig: any }) {
                               }} 
                               className="w-24 h-8 text-sm" 
                             />
-                            <span className="text-xs text-zoru-ink-muted ml-2">(Set to 0 to disable)</span>
+                            <span className="text-xs text-[var(--st-text-secondary)] ml-2">(Set to 0 to disable)</span>
                           </div>
                         </div>
                       )}
@@ -313,7 +313,7 @@ export function NotificationsClient({ initialConfig }: { initialConfig: any }) {
                     <Switch checked={ch.enabled} onCheckedChange={() => handleChannelToggle(i)} />
                   </CardHeader>
                   <CardContent className="flex-1 pb-2 space-y-4">
-                    <p className="text-xs text-zoru-ink-muted capitalize">
+                    <p className="text-xs text-[var(--st-text-secondary)] capitalize">
                       Type: {ch.type}
                     </p>
                     {(ch.type === 'slack' || ch.type === 'discord') && (
@@ -362,16 +362,16 @@ export function NotificationsClient({ initialConfig }: { initialConfig: any }) {
                 {config.recipientOverrides.length > 0 ? (
                   <div className="divide-y border rounded-md">
                     {config.recipientOverrides.map((ro: any, idx: number) => (
-                      <div key={idx} className="p-3 text-sm flex items-center justify-between bg-zoru-surface">
+                      <div key={idx} className="p-3 text-sm flex items-center justify-between bg-[var(--st-bg-secondary)]">
                         <div>
-                          <span className="font-medium">{ro.userId}</span> overridden <span className="font-mono text-zoru-ink-muted">{ro.eventId}</span>
+                          <span className="font-medium">{ro.userId}</span> overridden <span className="font-mono text-[var(--st-text-secondary)]">{ro.eventId}</span>
                         </div>
                         <Badge variant="outline">{ro.mute ? 'Muted' : 'Custom'}</Badge>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-zoru-ink-muted">No active overrides.</p>
+                  <p className="text-sm text-[var(--st-text-secondary)]">No active overrides.</p>
                 )}
               </CardContent>
             </Card>
@@ -379,20 +379,20 @@ export function NotificationsClient({ initialConfig }: { initialConfig: any }) {
             <div className="grid gap-4 md:grid-cols-2">
               <Card className="border-destructive/20">
                 <CardHeader>
-                  <CardTitle className="text-base text-zoru-ink">Danger Zone</CardTitle>
+                  <CardTitle className="text-base text-[var(--st-text)]">Danger Zone</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium">Bulk Unsubscribe</p>
-                      <p className="text-xs text-zoru-ink-muted">Remove all active event subscriptions.</p>
+                      <p className="text-xs text-[var(--st-text-secondary)]">Remove all active event subscriptions.</p>
                     </div>
                     <Button variant="destructive" size="sm" onClick={handleBulkUnsubscribe}>Unsubscribe</Button>
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium">Restore Defaults</p>
-                      <p className="text-xs text-zoru-ink-muted">Reset configuration to factory settings.</p>
+                      <p className="text-xs text-[var(--st-text-secondary)]">Reset configuration to factory settings.</p>
                     </div>
                     <Button variant="outline" size="sm" onClick={handleRestoreDefaults}>Restore</Button>
                   </div>
@@ -407,21 +407,21 @@ export function NotificationsClient({ initialConfig }: { initialConfig: any }) {
                 <CardContent>
                   <div className="space-y-3">
                     <div className="flex items-start gap-3">
-                      <div className="h-6 w-6 rounded-full bg-zoru-surface-2 flex items-center justify-center shrink-0">
+                      <div className="h-6 w-6 rounded-full bg-[var(--st-bg-muted)] flex items-center justify-center shrink-0">
                         <Edit2 className="h-3 w-3" />
                       </div>
                       <div>
                         <p className="text-sm">Admin disabled Slack channel</p>
-                        <p className="text-xs text-zoru-ink-muted">2 hours ago</p>
+                        <p className="text-xs text-[var(--st-text-secondary)]">2 hours ago</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
-                      <div className="h-6 w-6 rounded-full bg-zoru-surface-2 flex items-center justify-center shrink-0">
+                      <div className="h-6 w-6 rounded-full bg-[var(--st-bg-muted)] flex items-center justify-center shrink-0">
                         <Globe className="h-3 w-3" />
                       </div>
                       <div>
                         <p className="text-sm">Webhook secret rotated</p>
-                        <p className="text-xs text-zoru-ink-muted">Yesterday</p>
+                        <p className="text-xs text-[var(--st-text-secondary)]">Yesterday</p>
                       </div>
                     </div>
                     <Button variant="link" size="sm" className="px-0">View full audit log &rarr;</Button>

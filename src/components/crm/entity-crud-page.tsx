@@ -94,7 +94,7 @@ export function EntityCrudPage<T extends { _id?: string }>({
         />
       }
     >
-      <div className="rounded-md border border-zoru-line overflow-hidden">
+      <div className="rounded-md border border-[var(--st-border)] overflow-hidden">
         <Table>
           <ZoruTableHeader>
             <ZoruTableRow>
@@ -113,7 +113,7 @@ export function EntityCrudPage<T extends { _id?: string }>({
                 <ZoruTableCell className="text-right">
                   <div className="flex justify-end gap-2">
                     <Button variant="ghost" size="sm" onClick={() => { setEditingItem(row); setIsDialogOpen(true); }}>Edit</Button>
-                    <Button variant="ghost" size="sm" className="text-zoru-ink" onClick={() => handleDelete(row._id!)}>Del</Button>
+                    <Button variant="ghost" size="sm" className="text-[var(--st-text)]" onClick={() => handleDelete(row._id!)}>Del</Button>
                   </div>
                 </ZoruTableCell>
               </ZoruTableRow>
@@ -133,7 +133,7 @@ export function EntityCrudPage<T extends { _id?: string }>({
                 <label className="text-sm font-medium">{f.label}</label>
                 {f.type === 'select' ? (
                   <select
-                    className="flex h-10 w-full rounded-md border border-zoru-line bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zoru-brand"
+                    className="flex h-10 w-full rounded-md border border-[var(--st-border)] bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--st-accent)]"
                     value={String(editingItem?.[f.name] || '')}
                     onChange={(e) => setEditingItem({ ...editingItem, [f.name]: e.target.value })}
                   >

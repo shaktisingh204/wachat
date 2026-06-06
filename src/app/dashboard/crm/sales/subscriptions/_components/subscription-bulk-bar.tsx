@@ -35,8 +35,8 @@ export function SubscriptionBulkBar({
   if (count === 0) return null;
   return (
     <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2">
-      <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink">
-        <ListChecks className="h-4 w-4 text-zoru-primary" />
+      <div className="flex items-center gap-2 text-[12.5px] text-[var(--st-text)]">
+        <ListChecks className="h-4 w-4 text-[var(--st-text)]" />
         {count} selected
       </div>
       <div className="flex flex-wrap items-center gap-1">

@@ -114,7 +114,7 @@ export default function NewEnvelopePage() {
             <ArrowLeft className="h-4 w-4 mr-1" />
             Back
           </Button>
-          <h1 className="text-xl font-semibold text-zoru-ink">New envelope</h1>
+          <h1 className="text-xl font-semibold text-[var(--st-text)]">New envelope</h1>
         </div>
         <div className="flex gap-2">
           <Button
@@ -132,7 +132,7 @@ export default function NewEnvelopePage() {
         </div>
       </div>
 
-      <Card className="p-4 border border-zoru-line space-y-4">
+      <Card className="p-4 border border-[var(--st-border)] space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <Label>Envelope name</Label>
@@ -157,29 +157,29 @@ export default function NewEnvelopePage() {
               {doc ? 'Replace document' : 'Pick document from SabFiles'}
             </SabFilePickerButton>
             {doc && (
-              <span className="text-sm text-zoru-ink-muted">{doc.name}</span>
+              <span className="text-sm text-[var(--st-text-secondary)]">{doc.name}</span>
             )}
           </div>
         </div>
       </Card>
 
       <Accordion type="single" collapsible className="w-full">
-        <AccordionItem value="advanced" className="border border-zoru-line rounded-xl bg-white px-4">
-          <AccordionTrigger className="py-3 hover:no-underline text-sm font-medium text-zoru-ink">
+        <AccordionItem value="advanced" className="border border-[var(--st-border)] rounded-xl bg-white px-4">
+          <AccordionTrigger className="py-3 hover:no-underline text-sm font-medium text-[var(--st-text)]">
             <div className="flex items-center gap-2">
-              <Settings2 className="w-4 h-4 text-zoru-ink-muted" />
+              <Settings2 className="w-4 h-4 text-[var(--st-text-secondary)]" />
               Advanced Settings (Reminders & Expirations)
             </div>
           </AccordionTrigger>
           <AccordionContent className="pb-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2 border-t border-zoru-line">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2 border-t border-[var(--st-border)]">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <Label>Send automatic reminders</Label>
                   <Switch checked={remindersEnabled} onCheckedChange={setRemindersEnabled} />
                 </div>
                 {remindersEnabled && (
-                  <div className="flex items-center gap-2 text-sm text-zoru-ink-muted">
+                  <div className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
                     Remind every <Input type="number" className="w-20 inline-flex" value={reminderDays} onChange={(e)=>setReminderDays(parseInt(e.target.value))} /> days
                   </div>
                 )}
@@ -190,7 +190,7 @@ export default function NewEnvelopePage() {
                   <Switch checked={expireEnabled} onCheckedChange={setExpireEnabled} />
                 </div>
                 {expireEnabled && (
-                  <div className="flex items-center gap-2 text-sm text-zoru-ink-muted">
+                  <div className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
                     Void after <Input type="number" className="w-20 inline-flex" value={expireDays} onChange={(e)=>setExpireDays(parseInt(e.target.value))} /> days
                   </div>
                 )}
@@ -200,8 +200,8 @@ export default function NewEnvelopePage() {
         </AccordionItem>
       </Accordion>
 
-      <Card className="p-4 border border-zoru-line">
-        <h3 className="text-sm font-medium text-zoru-ink mb-3">Signers & Recipients</h3>
+      <Card className="p-4 border border-[var(--st-border)]">
+        <h3 className="text-sm font-medium text-[var(--st-text)] mb-3">Signers & Recipients</h3>
         <SignersEditor
           signers={signers}
           routingOrder={routingOrder}
@@ -220,8 +220,8 @@ export default function NewEnvelopePage() {
       )}
 
       {doc ? (
-        <Card className="p-4 border border-zoru-line">
-          <h3 className="text-sm font-medium text-zoru-ink mb-3">
+        <Card className="p-4 border border-[var(--st-border)]">
+          <h3 className="text-sm font-medium text-[var(--st-text)] mb-3">
             Place fields on the document
           </h3>
           <PdfFieldOverlay
@@ -232,7 +232,7 @@ export default function NewEnvelopePage() {
           />
         </Card>
       ) : (
-        <Card className="p-8 border border-dashed border-zoru-line text-center text-sm text-zoru-ink-muted">
+        <Card className="p-8 border border-dashed border-[var(--st-border)] text-center text-sm text-[var(--st-text-secondary)]">
           Pick a document above to start placing signature fields.
         </Card>
       )}

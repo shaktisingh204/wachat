@@ -35,11 +35,11 @@ const BODY_TYPES: { value: BodyType; label: string }[] = [
 ];
 
 const METHOD_BADGE: Record<HttpMethod, string> = {
-  GET:    'border-zoru-line/40 bg-zoru-ink/10 text-zoru-ink-muted',
-  POST:   'border-zoru-line/40   bg-zoru-ink/10   text-zoru-ink-muted',
-  PUT:    'border-zoru-line/40  bg-zoru-ink/10  text-zoru-ink-muted',
-  PATCH:  'border-zoru-line/40 bg-zoru-ink/10 text-zoru-ink-muted',
-  DELETE: 'border-zoru-line/40    bg-zoru-ink/10    text-zoru-ink-muted',
+  GET:    'border-[var(--st-border)]/40 bg-[var(--st-text)]/10 text-[var(--st-text-secondary)]',
+  POST:   'border-[var(--st-border)]/40   bg-[var(--st-text)]/10   text-[var(--st-text-secondary)]',
+  PUT:    'border-[var(--st-border)]/40  bg-[var(--st-text)]/10  text-[var(--st-text-secondary)]',
+  PATCH:  'border-[var(--st-border)]/40 bg-[var(--st-text)]/10 text-[var(--st-text-secondary)]',
+  DELETE: 'border-[var(--st-border)]/40    bg-[var(--st-text)]/10    text-[var(--st-text-secondary)]',
 };
 
 /* ══════════════════════════════════════════════════════════
@@ -101,7 +101,7 @@ function KVList({
           <button
             type="button"
             onClick={() => remove(r.id)}
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded text-[var(--gray-8)] hover:bg-[var(--gray-4)] hover:text-zoru-ink-muted transition-colors"
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded text-[var(--gray-8)] hover:bg-[var(--gray-4)] hover:text-[var(--st-text-secondary)] transition-colors"
             aria-label="Remove row"
           >
             <LuTrash2 className="h-3.5 w-3.5" strokeWidth={1.8} />
@@ -142,7 +142,7 @@ function Toggle({
       <Icon
         className={cn(
           'h-5 w-5 transition-colors',
-          checked ? 'text-zoru-ink' : 'text-[var(--gray-7)]',
+          checked ? 'text-[var(--st-text)]' : 'text-[var(--gray-7)]',
         )}
         strokeWidth={1.8}
       />
@@ -156,10 +156,10 @@ function Toggle({
    ══════════════════════════════════════════════════════════ */
 
 function statusColor(code: number): string {
-  if (code >= 500) return 'text-zoru-ink-muted';
-  if (code >= 400) return 'text-zoru-ink-muted';
-  if (code >= 300) return 'text-zoru-ink-muted';
-  return 'text-zoru-ink-muted';
+  if (code >= 500) return 'text-[var(--st-text-secondary)]';
+  if (code >= 400) return 'text-[var(--st-text-secondary)]';
+  if (code >= 300) return 'text-[var(--st-text-secondary)]';
+  return 'text-[var(--st-text-secondary)]';
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -349,7 +349,7 @@ export function HttpRequestSettings({ block, onBlockChange, variables = [] }: Pr
             >
               {t.label}
               {t.count !== undefined && (
-                <span className="rounded-full bg-zoru-ink px-1.5 py-px text-[9px] font-semibold text-white leading-none">
+                <span className="rounded-full bg-[var(--st-text)] px-1.5 py-px text-[9px] font-semibold text-white leading-none">
                   {t.count}
                 </span>
               )}
@@ -396,7 +396,7 @@ export function HttpRequestSettings({ block, onBlockChange, variables = [] }: Pr
                   className={cn(
                     'flex-1 rounded-md border py-1.5 text-[11.5px] font-medium transition-colors',
                     body.type === bt.value
-                      ? 'border-zoru-line bg-zoru-ink text-zoru-ink'
+                      ? 'border-[var(--st-border)] bg-[var(--st-text)] text-[var(--st-text)]'
                       : 'border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-9)] hover:text-[var(--gray-12)]',
                   )}
                 >
@@ -419,7 +419,7 @@ export function HttpRequestSettings({ block, onBlockChange, variables = [] }: Pr
               />
               <p className="mt-1 text-[11px] text-[var(--gray-8)]">
                 Use{' '}
-                <code className="rounded bg-[var(--gray-3)] px-1 font-mono text-zoru-ink">
+                <code className="rounded bg-[var(--gray-3)] px-1 font-mono text-[var(--st-text)]">
                   {'{{variable}}'}
                 </code>{' '}
                 to inject flow variables.
@@ -496,7 +496,7 @@ export function HttpRequestSettings({ block, onBlockChange, variables = [] }: Pr
             </span>
             <p className="text-[11px] text-[var(--gray-8)]">
               Extract values from the response using JSONPath expressions (e.g.{' '}
-              <code className="rounded bg-[var(--gray-3)] px-1 font-mono text-zoru-ink">
+              <code className="rounded bg-[var(--gray-3)] px-1 font-mono text-[var(--st-text)]">
                 $.data.user.name
               </code>
               ).
@@ -543,7 +543,7 @@ export function HttpRequestSettings({ block, onBlockChange, variables = [] }: Pr
                       responseMappings: responseMappings.filter((x) => x.id !== m.id),
                     })
                   }
-                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded text-[var(--gray-8)] hover:bg-[var(--gray-4)] hover:text-zoru-ink-muted transition-colors"
+                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded text-[var(--gray-8)] hover:bg-[var(--gray-4)] hover:text-[var(--st-text-secondary)] transition-colors"
                   aria-label="Remove mapping"
                 >
                   <LuTrash2 className="h-3.5 w-3.5" strokeWidth={1.8} />
@@ -592,7 +592,7 @@ export function HttpRequestSettings({ block, onBlockChange, variables = [] }: Pr
         type="button"
         onClick={handleTest}
         disabled={!url.trim() || isTesting}
-        className="flex w-full items-center justify-center gap-2 rounded-lg border border-zoru-line px-3 py-2 text-[12px] font-medium text-zoru-ink hover:bg-zoru-ink disabled:cursor-not-allowed disabled:opacity-40 transition-colors"
+        className="flex w-full items-center justify-center gap-2 rounded-lg border border-[var(--st-border)] px-3 py-2 text-[12px] font-medium text-[var(--st-text)] hover:bg-[var(--st-text)] disabled:cursor-not-allowed disabled:opacity-40 transition-colors"
       >
         {isTesting ? (
           <LuLoader className="h-3.5 w-3.5 animate-spin" strokeWidth={2} />
@@ -627,7 +627,7 @@ export function HttpRequestSettings({ block, onBlockChange, variables = [] }: Pr
                   </span>
                 </>
               ) : (
-                <span className="text-[11px] text-zoru-ink-muted font-medium">Error</span>
+                <span className="text-[11px] text-[var(--st-text-secondary)] font-medium">Error</span>
               )}
             </div>
             {testExpanded ? (

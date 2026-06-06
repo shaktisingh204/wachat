@@ -306,7 +306,7 @@ export default function KnowledgeBaseCategoriesPage(): React.JSX.Element {
         }
         filters={
           <div className="flex flex-wrap items-center gap-2">
-            <div className="inline-flex rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-0.5">
+            <div className="inline-flex rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-0.5">
               {(['all', 'with', 'empty'] as const).map((v) => (
                 <button
                   key={v}
@@ -315,8 +315,8 @@ export default function KnowledgeBaseCategoriesPage(): React.JSX.Element {
                   className={
                     'rounded-[calc(var(--zoru-radius)-2px)] px-2.5 py-1 text-[12.5px] font-medium capitalize transition-colors ' +
                     (filters.populated === v
-                      ? 'bg-zoru-bg text-zoru-ink shadow-[var(--zoru-shadow-sm)]'
-                      : 'text-zoru-ink-muted hover:text-zoru-ink')
+                      ? 'bg-[var(--st-bg)] text-[var(--st-text)] shadow-[var(--zoru-shadow-sm)]'
+                      : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]')
                   }
                 >
                   {v === 'all' ? 'All' : v === 'with' ? 'With articles' : 'Empty'}
@@ -341,7 +341,7 @@ export default function KnowledgeBaseCategoriesPage(): React.JSX.Element {
         bulkBar={
           selected.size > 0 ? (
             <div className="flex items-center justify-between gap-3">
-              <span className="text-[13px] text-zoru-ink">
+              <span className="text-[13px] text-[var(--st-text)]">
                 {selected.size} selected
               </span>
               <div className="flex gap-2">
@@ -366,8 +366,8 @@ export default function KnowledgeBaseCategoriesPage(): React.JSX.Element {
         empty={
           !loading && rows.length === 0 ? (
             <div className="flex flex-col items-center gap-2 p-4">
-              <Folder className="h-5 w-5 text-zoru-ink-muted" />
-              <p className="text-sm text-zoru-ink-muted">
+              <Folder className="h-5 w-5 text-[var(--st-text-secondary)]" />
+              <p className="text-sm text-[var(--st-text-secondary)]">
                 No categories yet — click <strong>New category</strong> above.
               </p>
             </div>
@@ -397,15 +397,15 @@ export default function KnowledgeBaseCategoriesPage(): React.JSX.Element {
           <div className="flex justify-end pb-1">
             <Link
               href="/dashboard/crm/workspace/knowledge-base"
-              className="inline-flex items-center gap-1 text-[12.5px] text-zoru-ink-muted hover:underline"
+              className="inline-flex items-center gap-1 text-[12.5px] text-[var(--st-text-secondary)] hover:underline"
             >
               <ArrowLeft className="h-3 w-3" /> Back to knowledge base
             </Link>
           </div>
 
-          <div className="overflow-x-auto rounded-[var(--zoru-radius-lg)] border border-zoru-line">
+          <div className="overflow-x-auto rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)]">
             <table className="w-full min-w-[640px] text-[13px]">
-              <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
+              <thead className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                 <tr>
                   <th className="w-8 px-3 py-2 text-left">
                     <Checkbox
@@ -427,10 +427,10 @@ export default function KnowledgeBaseCategoriesPage(): React.JSX.Element {
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zoru-line bg-zoru-bg">
+              <tbody className="divide-y divide-[var(--st-border)] bg-[var(--st-bg)]">
                 {visible.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="p-6 text-center text-zoru-ink-muted">
+                    <td colSpan={5} className="p-6 text-center text-[var(--st-text-secondary)]">
                       No categories match the current filters.
                     </td>
                   </tr>
@@ -441,7 +441,7 @@ export default function KnowledgeBaseCategoriesPage(): React.JSX.Element {
                     ? new Date(r.createdAt as string).toLocaleDateString()
                     : '—';
                   return (
-                    <tr key={r._id} className="hover:bg-zoru-surface">
+                    <tr key={r._id} className="hover:bg-[var(--st-bg-secondary)]">
                       <td className="px-3 py-2">
                         <Checkbox
                           checked={selected.has(r._id)}
@@ -465,7 +465,7 @@ export default function KnowledgeBaseCategoriesPage(): React.JSX.Element {
                             width="sm"
                           >
                             <div className="flex flex-col gap-3">
-                              <div className="text-[12px] text-zoru-ink-muted">
+                              <div className="text-[12px] text-[var(--st-text-secondary)]">
                                 Created {created}
                               </div>
                               <Button
@@ -496,7 +496,7 @@ export default function KnowledgeBaseCategoriesPage(): React.JSX.Element {
                           <BookOpen className="h-3 w-3" /> {count}
                         </Badge>
                       </td>
-                      <td className="px-3 py-2 text-zoru-ink-muted">{created}</td>
+                      <td className="px-3 py-2 text-[var(--st-text-secondary)]">{created}</td>
                       <td className="px-3 py-2 text-right">
                         <Button
                           variant="ghost"

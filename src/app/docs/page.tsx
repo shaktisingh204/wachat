@@ -16,7 +16,7 @@ async function Inner() {
 
 export default function Page() {
     return (
-        <Suspense fallback={<div className="min-h-screen bg-zoru-surface" />}>
+        <Suspense fallback={<div className="min-h-screen bg-[var(--st-bg-secondary)]" />}>
             <Inner />
         </Suspense>
     );

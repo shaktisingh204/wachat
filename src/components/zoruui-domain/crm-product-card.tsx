@@ -76,29 +76,29 @@ export function CrmProductCard({ product, currency, onEdit, onDelete, shopSlug }
         <Card className="flex flex-col p-0">
             <div className="group block flex-grow flex flex-col">
                 <div className="p-0">
-                    <div className="relative aspect-[4/5] bg-zoru-surface-2 rounded-t-xl overflow-hidden">
+                    <div className="relative aspect-[4/5] bg-[var(--st-bg-muted)] rounded-t-xl overflow-hidden">
                         <Image src={getImage() || 'https://placehold.co/400x500.png'} alt={product.name} layout="fill" objectFit="cover" data-ai-hint="product photo" />
                     </div>
                     <div className="p-4">
-                        <h3 className="text-lg font-semibold text-zoru-ink">{product.name}</h3>
+                        <h3 className="text-lg font-semibold text-[var(--st-text)]">{product.name}</h3>
                     </div>
                 </div>
                 <div className="p-4 pt-0 flex-grow">
-                    <p className="text-sm text-zoru-ink-muted line-clamp-2 h-10">{product.description}</p>
+                    <p className="text-sm text-[var(--st-text-secondary)] line-clamp-2 h-10">{product.description}</p>
                     <div className="flex justify-between items-center mt-4">
-                        <p className="text-lg font-semibold text-zoru-ink">{new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(getPrice())}</p>
+                        <p className="text-lg font-semibold text-[var(--st-text)]">{new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(getPrice())}</p>
                         {stockStatus()}
                     </div>
                 </div>
             </div>
-            <div className="p-4 flex justify-end gap-2 border-t border-zoru-line">
+            <div className="p-4 flex justify-end gap-2 border-t border-[var(--st-border)]">
                 <Button variant="outline" size="sm" onClick={onEdit} leading={<Edit className="h-4 w-4" />}>Edit</Button>
                 <ZoruAlertDialog>
                     <ZoruAlertDialogTrigger asChild>
                         <Button size="sm" leading={<Trash2 className="h-4 w-4" />}>Delete</Button>
                     </ZoruAlertDialogTrigger>
                     <ZoruAlertDialogContent>
-                        <ZoruAlertDialogHeader><ZoruAlertDialogTitle className="text-zoru-ink">Delete Product?</ZoruAlertDialogTitle><ZoruAlertDialogDescription className="text-zoru-ink-muted">This will permanently delete "{product.name}".</ZoruAlertDialogDescription></ZoruAlertDialogHeader>
+                        <ZoruAlertDialogHeader><ZoruAlertDialogTitle className="text-[var(--st-text)]">Delete Product?</ZoruAlertDialogTitle><ZoruAlertDialogDescription className="text-[var(--st-text-secondary)]">This will permanently delete "{product.name}".</ZoruAlertDialogDescription></ZoruAlertDialogHeader>
                         <ZoruAlertDialogFooter>
                             <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
                             <ZoruAlertDialogAction onClick={handleDelete}>Delete</ZoruAlertDialogAction>

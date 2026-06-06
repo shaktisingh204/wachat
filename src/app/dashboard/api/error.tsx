@@ -18,7 +18,7 @@ export default function ErrorBoundary({
   return (
     <div className="flex h-full min-h-[400px] w-full flex-col items-center justify-center p-6">
       <EmptyState
-        icon={<AlertTriangle className="text-zoru-ink" />}
+        icon={<AlertTriangle className="text-[var(--st-text)]" />}
         title="Something went wrong!"
         description={error.message || 'An unexpected error occurred while loading the API Hub.'}
         action={

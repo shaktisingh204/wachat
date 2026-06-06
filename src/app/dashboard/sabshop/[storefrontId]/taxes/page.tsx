@@ -88,8 +88,8 @@ export default function TaxesPage(): React.JSX.Element {
                 
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight text-zoru-ink">Taxes & Duties</h1>
-                        <p className="text-zoru-ink-muted mt-1">Configure regional tax overrides and how taxes are applied to prices.</p>
+                        <h1 className="text-3xl font-bold tracking-tight text-[var(--st-text)]">Taxes & Duties</h1>
+                        <p className="text-[var(--st-text-secondary)] mt-1">Configure regional tax overrides and how taxes are applied to prices.</p>
                     </div>
                     {!isCreating && (
                         <Button onClick={() => setIsCreating(true)} className="gap-2">
@@ -102,7 +102,7 @@ export default function TaxesPage(): React.JSX.Element {
             {isCreating ? (
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-2">
                     <div className="lg:col-span-2 space-y-6">
-                        <Button variant="ghost" onClick={() => setIsCreating(false)} className="gap-2 -ml-4 mb-2 text-zoru-ink-muted">
+                        <Button variant="ghost" onClick={() => setIsCreating(false)} className="gap-2 -ml-4 mb-2 text-[var(--st-text-secondary)]">
                             <ArrowLeft className="h-4 w-4" /> Back to tax rules
                         </Button>
                         
@@ -128,14 +128,14 @@ export default function TaxesPage(): React.JSX.Element {
                                             value={draft.region} 
                                             onChange={(e) => setDraft({ ...draft, region: e.target.value.toUpperCase() })} 
                                         />
-                                        <p className="text-[10px] text-zoru-ink-muted">Use ISO country or state codes.</p>
+                                        <p className="text-[10px] text-[var(--st-text-secondary)]">Use ISO country or state codes.</p>
                                     </div>
                                 </div>
                                 
                                 <div className="space-y-2">
                                     <Label>Tax Rate</Label>
                                     <div className="relative max-w-[200px]">
-                                        <Percent className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zoru-ink-muted" />
+                                        <Percent className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--st-text-secondary)]" />
                                         <Input
                                             className="pl-9"
                                             type="number"
@@ -159,15 +159,15 @@ export default function TaxesPage(): React.JSX.Element {
                                 <ZoruCardDescription>How this tax behaves with your product prices.</ZoruCardDescription>
                             </ZoruCardHeader>
                             <ZoruCardContent>
-                                <label className="flex items-start gap-3 p-4 border border-zoru-border rounded-lg cursor-pointer hover:bg-zoru-background-hover transition-colors">
+                                <label className="flex items-start gap-3 p-4 border border-[var(--st-border)] rounded-lg cursor-pointer hover:bg-[var(--st-hover)] transition-colors">
                                     <Checkbox 
                                         className="mt-1"
                                         checked={!!draft.inclusive} 
                                         onCheckedChange={(c) => setDraft({ ...draft, inclusive: c === true })} 
                                     />
                                     <div>
-                                        <p className="font-medium text-zoru-ink text-sm">Tax is included in product prices</p>
-                                        <p className="text-xs text-zoru-ink-muted mt-1">
+                                        <p className="font-medium text-[var(--st-text)] text-sm">Tax is included in product prices</p>
+                                        <p className="text-xs text-[var(--st-text-secondary)] mt-1">
                                             Customers will pay the exact price shown on your store. The tax portion is calculated from that total.
                                         </p>
                                     </div>
@@ -196,7 +196,7 @@ export default function TaxesPage(): React.JSX.Element {
                                         onCheckedChange={(c) => setDraft({ ...draft, active: c })} 
                                     />
                                 </div>
-                                <p className="text-xs text-zoru-ink-muted mt-2">
+                                <p className="text-xs text-[var(--st-text-secondary)] mt-2">
                                     {draft.active ? 'This tax rule is currently active and will be applied at checkout.' : 'This tax rule is disabled and will not apply.'}
                                 </p>
                             </ZoruCardContent>
@@ -207,7 +207,7 @@ export default function TaxesPage(): React.JSX.Element {
                 <div className="animate-in fade-in slide-in-from-bottom-2 space-y-4">
                     {items.length > 0 && (
                         <div className="flex items-center gap-2 max-w-sm">
-                            <Search className="h-4 w-4 text-zoru-ink-muted absolute ml-3" />
+                            <Search className="h-4 w-4 text-[var(--st-text-secondary)] absolute ml-3" />
                             <Input 
                                 placeholder="Search tax rules..." 
                                 className="pl-9"
@@ -220,7 +220,7 @@ export default function TaxesPage(): React.JSX.Element {
                     <Card>
                         <div className="overflow-x-auto">
                             <table className="w-full text-sm text-left">
-                                <thead className="bg-zoru-background-hover/50 border-b border-zoru-border text-xs uppercase text-zoru-ink-muted">
+                                <thead className="bg-[var(--st-hover)]/50 border-b border-[var(--st-border)] text-xs uppercase text-[var(--st-text-secondary)]">
                                     <tr>
                                         <th className="px-6 py-4 font-medium">Tax Name</th>
                                         <th className="px-6 py-4 font-medium">Region</th>
@@ -230,25 +230,25 @@ export default function TaxesPage(): React.JSX.Element {
                                         <th className="px-6 py-4 text-right font-medium">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-zoru-border">
+                                <tbody className="divide-y divide-[var(--st-border)]">
                                     {items.length === 0 ? (
                                         <tr>
-                                            <td colSpan={6} className="px-6 py-12 text-center text-zoru-ink-muted">
-                                                <Receipt className="h-10 w-10 mx-auto text-zoru-border mb-3" />
-                                                <p className="font-medium text-zoru-ink mb-1">No tax rules</p>
+                                            <td colSpan={6} className="px-6 py-12 text-center text-[var(--st-text-secondary)]">
+                                                <Receipt className="h-10 w-10 mx-auto text-[var(--st-border)] mb-3" />
+                                                <p className="font-medium text-[var(--st-text)] mb-1">No tax rules</p>
                                                 <p className="text-sm">Create a tax rule to start charging taxes on orders.</p>
                                             </td>
                                         </tr>
                                     ) : filteredItems.length === 0 ? (
                                         <tr>
-                                            <td colSpan={6} className="px-6 py-8 text-center text-zoru-ink-muted">
+                                            <td colSpan={6} className="px-6 py-8 text-center text-[var(--st-text-secondary)]">
                                                 No tax rules match your search.
                                             </td>
                                         </tr>
                                     ) : (
                                         filteredItems.map((r) => (
-                                            <tr key={r._id} className="hover:bg-zoru-background-hover/30 transition-colors group">
-                                                <td className="px-6 py-4 font-medium text-zoru-ink">
+                                            <tr key={r._id} className="hover:bg-[var(--st-hover)]/30 transition-colors group">
+                                                <td className="px-6 py-4 font-medium text-[var(--st-text)]">
                                                     {r.name}
                                                 </td>
                                                 <td className="px-6 py-4">
@@ -257,11 +257,11 @@ export default function TaxesPage(): React.JSX.Element {
                                                 <td className="px-6 py-4">
                                                     {(r.rate * 100).toFixed(1)}%
                                                 </td>
-                                                <td className="px-6 py-4 text-zoru-ink-muted">
+                                                <td className="px-6 py-4 text-[var(--st-text-secondary)]">
                                                     {r.inclusive ? 'Included in price' : 'Added at checkout'}
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    <Badge variant={r.active ? 'success' : 'default'} className={!r.active ? 'bg-zoru-ink-muted text-white' : ''}>
+                                                    <Badge variant={r.active ? 'success' : 'default'} className={!r.active ? 'bg-[var(--st-text-secondary)] text-white' : ''}>
                                                         {r.active ? 'Active' : 'Disabled'}
                                                     </Badge>
                                                 </td>

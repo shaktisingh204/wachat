@@ -19,7 +19,7 @@ export interface SabsmsEmptyProps {
 
 export function SabsmsEmpty({ icon, title, description, action }: SabsmsEmptyProps) {
   return (
-    <div className="rounded-md border border-dashed border-zoru-line bg-white p-10">
+    <div className="rounded-md border border-dashed border-[var(--st-border)] bg-white p-10">
       <EmptyState
         icon={icon ?? <Inbox />}
         title={title}
@@ -47,12 +47,12 @@ export interface SabsmsErrorStateProps {
 
 export function SabsmsErrorState({ message, onRetry }: SabsmsErrorStateProps) {
   return (
-    <div className="rounded-md border border-zoru-line bg-zoru-surface-2 p-6">
+    <div className="rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-6">
       <div className="flex items-start gap-3">
-        <AlertTriangle className="mt-0.5 h-5 w-5 text-zoru-ink" />
+        <AlertTriangle className="mt-0.5 h-5 w-5 text-[var(--st-text)]" />
         <div className="flex-1">
-          <div className="font-medium text-zoru-ink">Something went wrong</div>
-          <div className="mt-1 text-sm text-zoru-ink">{message}</div>
+          <div className="font-medium text-[var(--st-text)]">Something went wrong</div>
+          <div className="mt-1 text-sm text-[var(--st-text)]">{message}</div>
           {onRetry && (
             <Button
               variant="outline"
@@ -76,13 +76,13 @@ export interface SabsmsTableSkeletonProps {
 
 export function SabsmsTableSkeleton({ columns, rows = 10 }: SabsmsTableSkeletonProps) {
   return (
-    <div className="overflow-hidden rounded-md border border-zoru-line bg-white">
-      <div className="grid bg-zoru-surface-2 p-3" style={{ gridTemplateColumns: `repeat(${columns}, minmax(0,1fr))` }}>
+    <div className="overflow-hidden rounded-md border border-[var(--st-border)] bg-white">
+      <div className="grid bg-[var(--st-bg-muted)] p-3" style={{ gridTemplateColumns: `repeat(${columns}, minmax(0,1fr))` }}>
         {Array.from({ length: columns }).map((_, i) => (
           <Skeleton key={i} className="h-4 w-3/4" />
         ))}
       </div>
-      <div className="divide-y divide-zoru-line">
+      <div className="divide-y divide-[var(--st-border)]">
         {Array.from({ length: rows }).map((_, r) => (
           <div
             key={r}

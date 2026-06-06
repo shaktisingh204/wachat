@@ -149,7 +149,7 @@ export default function NewGdprEraseRequestPage() {
                                 placeholder={`Pick a ${activeEntity}…`}
                                 required
                             />
-                            <p className="text-[12px] text-zoru-ink-muted">
+                            <p className="text-[12px] text-[var(--st-text-secondary)]">
                                 {subjectLabel
                                     ? `Selected: ${subjectLabel}`
                                     : 'Search by name or email.'}
@@ -166,7 +166,7 @@ export default function NewGdprEraseRequestPage() {
                             onChange={(id) => setScope((id ?? 'soft_redact') as EraseScope)}
                             placeholder="Pick a scope"
                         />
-                        <p className="text-[12px] text-zoru-ink-muted">
+                        <p className="text-[12px] text-[var(--st-text-secondary)]">
                             {SCOPES.find((s) => s.value === scope)?.help}
                         </p>
                     </div>
@@ -182,7 +182,7 @@ export default function NewGdprEraseRequestPage() {
                         />
                     </div>
 
-                    <div className="flex justify-end gap-2 border-t border-zoru-line pt-4">
+                    <div className="flex justify-end gap-2 border-t border-[var(--st-border)] pt-4">
                         <Button type="button" variant="outline" asChild>
                             <Link href="/dashboard/crm/settings/gdpr/removal-requests">
                                 Cancel

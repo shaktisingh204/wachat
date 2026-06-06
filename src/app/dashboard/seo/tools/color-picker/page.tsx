@@ -103,7 +103,7 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
     if (this.state.hasError) {
       return (
         <ToolShell title="Color Picker" description="An error occurred while loading this tool.">
-          <div className="p-4 border border-zoru-line bg-zoru-surface-2 text-zoru-ink rounded">
+          <div className="p-4 border border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)] rounded">
             <h2 className="font-semibold">Something went wrong</h2>
             <p className="mt-2 text-sm">{this.state.error?.message}</p>
           </div>
@@ -227,7 +227,7 @@ function ColorPickerContent() {
                 </div>
               </div>
 
-              {error && <div className="text-sm text-zoru-ink">{error}</div>}
+              {error && <div className="text-sm text-[var(--st-text)]">{error}</div>}
 
               {extractedColors.length > 0 && (
                 <div className="space-y-3">

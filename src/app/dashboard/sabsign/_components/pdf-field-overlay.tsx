@@ -90,11 +90,11 @@ export function PdfFieldOverlay({
       {/* Toolbox */}
       <div className="space-y-4">
         <div>
-          <div className="text-xs font-medium text-zoru-ink-muted mb-2">
+          <div className="text-xs font-medium text-[var(--st-text-secondary)] mb-2">
             Assign new fields to
           </div>
           <select
-            className="w-full h-9 rounded-md border border-zoru-line bg-zoru-bg px-2 text-sm text-zoru-ink"
+            className="w-full h-9 rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-2 text-sm text-[var(--st-text)]"
             value={activeRole}
             onChange={(e) => setActiveRole(e.target.value)}
           >
@@ -107,7 +107,7 @@ export function PdfFieldOverlay({
           </select>
         </div>
         <div className="space-y-1">
-          <div className="text-xs font-medium text-zoru-ink-muted mb-1">Fields</div>
+          <div className="text-xs font-medium text-[var(--st-text-secondary)] mb-1">Fields</div>
           {FIELD_TYPES.map((p) => (
             <Button
               key={p.type}
@@ -124,7 +124,7 @@ export function PdfFieldOverlay({
       </div>
 
       {/* Document + overlay */}
-      <div className="relative border border-zoru-line rounded-xl overflow-hidden bg-zoru-surface">
+      <div className="relative border border-[var(--st-border)] rounded-xl overflow-hidden bg-[var(--st-bg-secondary)]">
         <div className="relative" ref={surfaceRef}>
           <iframe
             src={docUrl}
@@ -174,7 +174,7 @@ function DraggableField({ field, onChange, onRemove }: DraggableFieldProps) {
 
   return (
     <div
-      className="absolute pointer-events-auto group rounded-md border-2 border-dashed border-zoru-brand bg-zoru-brand/10 hover:bg-zoru-brand/20 cursor-move flex items-center justify-center text-xs text-zoru-brand font-medium select-none"
+      className="absolute pointer-events-auto group rounded-md border-2 border-dashed border-[var(--st-accent)] bg-[var(--st-accent)]/10 hover:bg-[var(--st-accent)]/20 cursor-move flex items-center justify-center text-xs text-[var(--st-accent)] font-medium select-none"
       style={{ left: field.x, top: field.y, width: field.w, height: field.h }}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
@@ -183,7 +183,7 @@ function DraggableField({ field, onChange, onRemove }: DraggableFieldProps) {
       <span>{field.label || field.fieldType}</span>
       <button
         type="button"
-        className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-zoru-ink text-white text-xs hidden group-hover:flex items-center justify-center"
+        className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-[var(--st-text)] text-white text-xs hidden group-hover:flex items-center justify-center"
         onClick={(e) => {
           e.stopPropagation();
           onRemove();

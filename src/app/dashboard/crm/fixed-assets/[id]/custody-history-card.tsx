@@ -31,7 +31,7 @@ export async function CustodyHistoryCard({ assetId }: { assetId: string }) {
           <ZoruCardTitle>Custody history</ZoruCardTitle>
         </ZoruCardHeader>
         <ZoruCardContent>
-          <p className="text-[13px] text-zoru-ink-muted">No custody changes recorded yet.</p>
+          <p className="text-[13px] text-[var(--st-text-secondary)]">No custody changes recorded yet.</p>
         </ZoruCardContent>
       </Card>
     );
@@ -43,14 +43,14 @@ export async function CustodyHistoryCard({ assetId }: { assetId: string }) {
         <ZoruCardTitle>Custody history</ZoruCardTitle>
       </ZoruCardHeader>
       <ZoruCardContent>
-        <ol className="relative space-y-4 border-l border-zoru-line pl-4 ml-2">
+        <ol className="relative space-y-4 border-l border-[var(--st-border)] pl-4 ml-2">
           {entries.map((entry) => {
             const assigneeId = entry.diff?.custodianEmployeeId?.after;
             return (
               <li key={entry._id.toString()} className="relative">
-                <span className="absolute -left-[21px] top-1.5 inline-block size-2.5 rounded-full border border-white bg-zoru-primary" />
+                <span className="absolute -left-[21px] top-1.5 inline-block size-2.5 rounded-full border border-white bg-[var(--st-text)]" />
                 <div className="flex flex-col gap-1 text-[13px]">
-                  <span className="text-zoru-ink-muted text-[11px]">
+                  <span className="text-[var(--st-text-secondary)] text-[11px]">
                     {new Date(entry.createdAt).toLocaleDateString()}
                   </span>
                   <div>
@@ -62,7 +62,7 @@ export async function CustodyHistoryCard({ assetId }: { assetId: string }) {
                       <span>Unassigned</span>
                     )}
                   </div>
-                  {entry.reason && <p className="text-zoru-ink-muted text-[12px]">{entry.reason}</p>}
+                  {entry.reason && <p className="text-[var(--st-text-secondary)] text-[12px]">{entry.reason}</p>}
                 </div>
               </li>
             );

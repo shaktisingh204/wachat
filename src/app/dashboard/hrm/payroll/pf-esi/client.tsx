@@ -101,7 +101,7 @@ export default function PfEsiClient({
                         <Download className="w-4 h-4" /> Export ECR
                     </Button>
                     <Select value={String(month)} onValueChange={val => setMonth(Number(val))}>
-                        <ZoruSelectTrigger className="w-36 h-9 rounded-full border-zoru-line bg-zoru-bg text-[13px]">
+                        <ZoruSelectTrigger className="w-36 h-9 rounded-full border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
                             <ZoruSelectValue />
                         </ZoruSelectTrigger>
                         <ZoruSelectContent>
@@ -109,7 +109,7 @@ export default function PfEsiClient({
                         </ZoruSelectContent>
                     </Select>
                     <Select value={String(year)} onValueChange={val => setYear(Number(val))}>
-                        <ZoruSelectTrigger className="w-28 h-9 rounded-full border-zoru-line bg-zoru-bg text-[13px]">
+                        <ZoruSelectTrigger className="w-28 h-9 rounded-full border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
                             <ZoruSelectValue />
                         </ZoruSelectTrigger>
                         <ZoruSelectContent>
@@ -122,75 +122,75 @@ export default function PfEsiClient({
 
             <div className="grid gap-4 md:grid-cols-3">
                 <Card className="p-6">
-                    <p className="text-[12.5px] font-medium text-zoru-ink-muted">Total PF Liability</p>
-                    <div className="mt-2 text-2xl text-zoru-ink">{fmtINR(totalPF)}</div>
-                    <p className="mt-1 text-[11.5px] text-zoru-ink-muted">Employee share @ {PF_RATE}% of basic</p>
+                    <p className="text-[12.5px] font-medium text-[var(--st-text-secondary)]">Total PF Liability</p>
+                    <div className="mt-2 text-2xl text-[var(--st-text)]">{fmtINR(totalPF)}</div>
+                    <p className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">Employee share @ {PF_RATE}% of basic</p>
                 </Card>
                 <Card className="p-6">
-                    <p className="text-[12.5px] font-medium text-zoru-ink-muted">Total ESI Liability</p>
-                    <div className="mt-2 text-2xl text-zoru-ink">{fmtINR(totalESI)}</div>
-                    <p className="mt-1 text-[11.5px] text-zoru-ink-muted">Employee share @ {ESI_RATE}% (ceiling {fmtINR(ESI_WAGE_CEILING)})</p>
+                    <p className="text-[12.5px] font-medium text-[var(--st-text-secondary)]">Total ESI Liability</p>
+                    <div className="mt-2 text-2xl text-[var(--st-text)]">{fmtINR(totalESI)}</div>
+                    <p className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">Employee share @ {ESI_RATE}% (ceiling {fmtINR(ESI_WAGE_CEILING)})</p>
                 </Card>
                 <Card className="p-6">
-                    <p className="text-[12.5px] font-medium text-zoru-ink-muted">Total Combined</p>
-                    <div className="mt-2 text-2xl text-zoru-ink">{fmtINR(totalPF + totalESI)}</div>
-                    <p className="mt-1 text-[11.5px] text-zoru-ink-muted">{rows.length} employees this period</p>
+                    <p className="text-[12.5px] font-medium text-[var(--st-text-secondary)]">Total Combined</p>
+                    <div className="mt-2 text-2xl text-[var(--st-text)]">{fmtINR(totalPF + totalESI)}</div>
+                    <p className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">{rows.length} employees this period</p>
                 </Card>
             </div>
 
             <Card className="p-6">
                 <div className="mb-4">
-                    <h2 className="text-[16px] text-zoru-ink">Employee PF & ESI Breakdown</h2>
-                    <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">Contribution details, registration numbers, and UAN per employee.</p>
+                    <h2 className="text-[16px] text-[var(--st-text)]">Employee PF & ESI Breakdown</h2>
+                    <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">Contribution details, registration numbers, and UAN per employee.</p>
                 </div>
-                <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                     <table className="w-full text-left text-[13px]">
                         <thead>
-                            <tr className="border-b border-zoru-line bg-zoru-surface-2">
-                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">Employee</th>
-                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">Gross Salary</th>
-                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">PF Rate (%)</th>
-                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">PF Amount</th>
-                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">ESI Rate (%)</th>
-                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">ESI Amount</th>
-                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">PF Number</th>
-                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">ESI Number</th>
-                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">UAN</th>
+                            <tr className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]">
+                                <th className="px-4 py-3 text-[12px] uppercase text-[var(--st-text-secondary)]">Employee</th>
+                                <th className="px-4 py-3 text-right text-[12px] uppercase text-[var(--st-text-secondary)]">Gross Salary</th>
+                                <th className="px-4 py-3 text-right text-[12px] uppercase text-[var(--st-text-secondary)]">PF Rate (%)</th>
+                                <th className="px-4 py-3 text-right text-[12px] uppercase text-[var(--st-text-secondary)]">PF Amount</th>
+                                <th className="px-4 py-3 text-right text-[12px] uppercase text-[var(--st-text-secondary)]">ESI Rate (%)</th>
+                                <th className="px-4 py-3 text-right text-[12px] uppercase text-[var(--st-text-secondary)]">ESI Amount</th>
+                                <th className="px-4 py-3 text-[12px] uppercase text-[var(--st-text-secondary)]">PF Number</th>
+                                <th className="px-4 py-3 text-[12px] uppercase text-[var(--st-text-secondary)]">ESI Number</th>
+                                <th className="px-4 py-3 text-[12px] uppercase text-[var(--st-text-secondary)]">UAN</th>
                             </tr>
                         </thead>
                         <tbody>
                             {isLoading ? (
                                 <tr>
                                     <td colSpan={9} className="h-48 text-center">
-                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-zoru-ink-muted" />
+                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-[var(--st-text-secondary)]" />
                                     </td>
                                 </tr>
                             ) : rows.length > 0 ? (
                                 rows.map((row, idx) => (
-                                    <tr key={row._id?.toString() ?? idx} className="border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2/50 transition-colors">
+                                    <tr key={row._id?.toString() ?? idx} className="border-b border-[var(--st-border)] last:border-0 hover:bg-[var(--st-bg-muted)]/50 transition-colors">
                                         <td className="px-4 py-3">
-                                            <div className="font-medium text-zoru-ink">
+                                            <div className="font-medium text-[var(--st-text)]">
                                                 {row.employee?.firstName} {row.employee?.lastName}
                                             </div>
-                                            <div className="text-[11.5px] text-zoru-ink-muted">{row.employee?.designationName ?? '—'}</div>
+                                            <div className="text-[11.5px] text-[var(--st-text-secondary)]">{row.employee?.designationName ?? '—'}</div>
                                         </td>
-                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmtINR(row.grossSalary ?? 0)}</td>
-                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">{row.pfRate}%</td>
-                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmtINR(row.pf)}</td>
-                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">
+                                        <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]">{fmtINR(row.grossSalary ?? 0)}</td>
+                                        <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]">{row.pfRate}%</td>
+                                        <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]">{fmtINR(row.pf)}</td>
+                                        <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]">
                                             {row.esiApplicable ? `${row.esiRate}%` : <Badge variant="secondary">N/A</Badge>}
                                         </td>
-                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">
+                                        <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]">
                                             {row.esiApplicable ? fmtINR(row.esi) : '—'}
                                         </td>
-                                        <td className="px-4 py-3 font-mono text-[12px] text-zoru-ink-muted">{row.pfNumber}</td>
-                                        <td className="px-4 py-3 font-mono text-[12px] text-zoru-ink-muted">{row.esiNumber}</td>
-                                        <td className="px-4 py-3 font-mono text-[12px] text-zoru-ink-muted">{row.uan}</td>
+                                        <td className="px-4 py-3 font-mono text-[12px] text-[var(--st-text-secondary)]">{row.pfNumber}</td>
+                                        <td className="px-4 py-3 font-mono text-[12px] text-[var(--st-text-secondary)]">{row.esiNumber}</td>
+                                        <td className="px-4 py-3 font-mono text-[12px] text-[var(--st-text-secondary)]">{row.uan}</td>
                                     </tr>
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan={9} className="h-24 text-center text-[13px] text-zoru-ink-muted">
+                                    <td colSpan={9} className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]">
                                         No payroll data for {periodLabel}. Generate payroll first.
                                     </td>
                                 </tr>
@@ -198,11 +198,11 @@ export default function PfEsiClient({
                         </tbody>
                         {rows.length > 0 && (
                             <tfoot>
-                                <tr className="border-t-2 border-zoru-line bg-zoru-surface-2">
-                                    <td colSpan={3} className="px-4 py-3 text-[12.5px] text-zoru-ink">Totals</td>
-                                    <td className="px-4 py-3 text-right font-mono text-[12.5px] text-zoru-ink">{fmtINR(totalPF)}</td>
+                                <tr className="border-t-2 border-[var(--st-border)] bg-[var(--st-bg-muted)]">
+                                    <td colSpan={3} className="px-4 py-3 text-[12.5px] text-[var(--st-text)]">Totals</td>
+                                    <td className="px-4 py-3 text-right font-mono text-[12.5px] text-[var(--st-text)]">{fmtINR(totalPF)}</td>
                                     <td />
-                                    <td className="px-4 py-3 text-right font-mono text-[12.5px] text-zoru-ink">{fmtINR(totalESI)}</td>
+                                    <td className="px-4 py-3 text-right font-mono text-[12.5px] text-[var(--st-text)]">{fmtINR(totalESI)}</td>
                                     <td colSpan={3} />
                                 </tr>
                             </tfoot>

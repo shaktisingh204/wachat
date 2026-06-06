@@ -117,7 +117,7 @@ export default function SabassistDevicesPage() {
       <div className="mb-4 flex items-center justify-between">
         <Link
           href="/dashboard/sabvoice/assist"
-          className="text-sm text-zoru-ink-muted inline-flex items-center gap-1"
+          className="text-sm text-[var(--st-text-secondary)] inline-flex items-center gap-1"
         >
           <ArrowLeft className="h-4 w-4" /> Sessions
         </Link>
@@ -127,14 +127,14 @@ export default function SabassistDevicesPage() {
       </div>
 
       {rows.length === 0 ? (
-        <Card className="p-8 text-center text-zoru-ink-muted">
+        <Card className="p-8 text-center text-[var(--st-text-secondary)]">
           No devices registered yet.
         </Card>
       ) : (
         <div className="grid gap-3">
           {rows.map((d) => (
             <Card key={d._id} className="p-4 flex items-center gap-4">
-              <div className="w-10 h-10 rounded-lg bg-zoru-surface-2 flex items-center justify-center text-zoru-brand">
+              <div className="w-10 h-10 rounded-lg bg-[var(--st-bg-muted)] flex items-center justify-center text-[var(--st-accent)]">
                 <ServerCog className="h-5 w-5" />
               </div>
               <div className="flex-1 min-w-0">
@@ -149,10 +149,10 @@ export default function SabassistDevicesPage() {
                     <Badge variant="outline">agent {d.agentVersion}</Badge>
                   )}
                 </div>
-                <div className="text-xs text-zoru-ink-muted mt-1 font-mono truncate">
+                <div className="text-xs text-[var(--st-text-secondary)] mt-1 font-mono truncate">
                   {d.deviceFingerprint}
                 </div>
-                <div className="text-xs text-zoru-ink-muted">
+                <div className="text-xs text-[var(--st-text-secondary)]">
                   Last seen{' '}
                   {d.lastSeenAt ? new Date(d.lastSeenAt).toLocaleString() : 'never'}
                 </div>

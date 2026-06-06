@@ -35,7 +35,7 @@ function EditProjectSkeleton() {
             {/* Simulated Cards/Sections */}
             <div className="flex flex-col gap-4">
                 {/* Basic info card skeleton */}
-                <div className="rounded-xl border border-zoru-line p-6 space-y-6">
+                <div className="rounded-xl border border-[var(--st-border)] p-6 space-y-6">
                     <div className="space-y-2">
                         <Skeleton className="h-6 w-32 rounded" />
                         <Skeleton className="h-4 w-64 rounded" />
@@ -69,7 +69,7 @@ function EditProjectSkeleton() {
                 </div>
 
                 {/* Timeline & status card skeleton */}
-                <div className="rounded-xl border border-zoru-line p-6 space-y-6">
+                <div className="rounded-xl border border-[var(--st-border)] p-6 space-y-6">
                     <div className="space-y-2">
                         <Skeleton className="h-6 w-40 rounded" />
                         <Skeleton className="h-4 w-64 rounded" />
@@ -99,7 +99,7 @@ function EditProjectSkeleton() {
                 </div>
 
                 {/* Budget & hours skeleton */}
-                <div className="rounded-xl border border-zoru-line p-6 space-y-6">
+                <div className="rounded-xl border border-[var(--st-border)] p-6 space-y-6">
                     <div className="space-y-2">
                         <Skeleton className="h-6 w-36 rounded" />
                         <Skeleton className="h-4 w-64 rounded" />
@@ -134,7 +134,7 @@ function EditProjectSkeleton() {
                 </div>
 
                 {/* Description & notes skeleton */}
-                <div className="rounded-xl border border-zoru-line p-6 space-y-6">
+                <div className="rounded-xl border border-[var(--st-border)] p-6 space-y-6">
                     <div className="space-y-2">
                         <Skeleton className="h-6 w-44 rounded" />
                     </div>
@@ -152,7 +152,7 @@ function EditProjectSkeleton() {
             </div>
 
             {/* Bottom action bar skeleton */}
-            <div className="sticky bottom-0 bg-zoru-bg border-t border-zoru-line py-3 flex items-center justify-end gap-2">
+            <div className="sticky bottom-0 bg-[var(--st-bg)] border-t border-[var(--st-border)] py-3 flex items-center justify-end gap-2">
                 <Skeleton className="h-10 w-20 rounded" />
                 <Skeleton className="h-10 w-32 rounded" />
             </div>

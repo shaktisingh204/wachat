@@ -27,10 +27,10 @@ export default async function AnalyticsPage({ params }: PageProps) {
   const stat = (label: string, value: string | number) => (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm text-zoru-ink-muted">{label}</CardTitle>
+        <CardTitle className="text-sm text-[var(--st-text-secondary)]">{label}</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-semibold text-zoru-ink">{value}</div>
+        <div className="text-2xl font-semibold text-[var(--st-text)]">{value}</div>
       </CardContent>
     </Card>
   );

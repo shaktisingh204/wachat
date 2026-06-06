@@ -153,7 +153,7 @@ export function JourneyDetailClient({ journeyId }: JourneyDetailClientProps) {
               {dirty ? <Badge variant="secondary">Unsaved</Badge> : null}
             </div>
             {journey.description ? (
-              <p className="text-xs text-zoru-ink-muted line-clamp-1">{journey.description}</p>
+              <p className="text-xs text-[var(--st-text-secondary)] line-clamp-1">{journey.description}</p>
             ) : null}
           </div>
         </div>
@@ -177,7 +177,7 @@ export function JourneyDetailClient({ journeyId }: JourneyDetailClientProps) {
       <div
         role="tablist"
         aria-label="Journey view"
-        className="inline-flex items-center rounded-lg border border-zoru-line bg-zoru-surface-2 p-1"
+        className="inline-flex items-center rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-1"
       >
         <SegmentedButton active={tab === 'canvas'}   onClick={() => setTab('canvas')}>
           <GitBranch className="h-4 w-4" /> Canvas
@@ -216,13 +216,13 @@ export function JourneyDetailClient({ journeyId }: JourneyDetailClientProps) {
             <Label htmlFor="j-desc">Description</Label>
             <Textarea id="j-desc" rows={4} value={description} onChange={(e) => { setDescription(e.target.value); setDirty(true); }} />
           </div>
-          <p className="text-xs text-zoru-ink-muted">
+          <p className="text-xs text-[var(--st-text-secondary)]">
             Re-entry policy and trigger detail edits live on the trigger node — open the Canvas tab and pick the trigger step.
           </p>
           <div>
             <Link
               href={`/dashboard/email/journeys/${journeyId}#runs`}
-              className="text-sm text-zoru-accent hover:underline"
+              className="text-sm text-[var(--st-accent)] hover:underline"
             >
               View enrolment runs →
             </Link>
@@ -253,8 +253,8 @@ function SegmentedButton({
       className={cn(
         'inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-sm transition',
         active
-          ? 'bg-zoru-surface-1 text-zoru-ink shadow-sm'
-          : 'text-zoru-ink-muted hover:text-zoru-ink',
+          ? 'bg-[var(--st-bg-secondary)] text-[var(--st-text)] shadow-sm'
+          : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
       )}
     >
       {children}
@@ -299,13 +299,13 @@ function ReportTab({ journeyId }: { journeyId: string }) {
       <Card className="p-4">
         <p className="text-sm font-medium mb-3">Per-node breakdown</p>
         {Object.keys(report.perNode).length === 0 ? (
-          <p className="text-sm text-zoru-ink-muted">No node-level data yet — runs haven't accumulated.</p>
+          <p className="text-sm text-[var(--st-text-secondary)]">No node-level data yet — runs haven't accumulated.</p>
         ) : (
-          <ul className="divide-y divide-zoru-line">
+          <ul className="divide-y divide-[var(--st-border)]">
             {Object.entries(report.perNode).map(([nodeId, stats]) => (
               <li key={nodeId} className="flex items-center justify-between py-2 text-sm">
                 <span className="font-mono text-xs">{nodeId}</span>
-                <span className="text-zoru-ink-muted">
+                <span className="text-[var(--st-text-secondary)]">
                   {stats.trueCount !== undefined || stats.falseCount !== undefined
                     ? `true: ${stats.trueCount ?? 0} · false: ${stats.falseCount ?? 0}`
                     : `count: ${stats.count ?? 0}`}

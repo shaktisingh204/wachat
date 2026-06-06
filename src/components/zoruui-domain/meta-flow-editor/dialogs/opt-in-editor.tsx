@@ -15,7 +15,7 @@ export function OptInEditor({ component, updateField }: OptInEditorProps) {
             <div className="space-y-2">
                 <Label htmlFor="name">Name (ID)</Label>
                 <Input id="name" value={component.name || ''} onChange={(e) => updateField('name', e.target.value)} required />
-                <p className="text-[10px] text-zoru-ink-muted">Unique ID used for data binding (true/false).</p>
+                <p className="text-[10px] text-[var(--st-text-secondary)]">Unique ID used for data binding (true/false).</p>
             </div>
             <div className="space-y-2">
                 <Label htmlFor="label">Label</Label>
@@ -25,7 +25,7 @@ export function OptInEditor({ component, updateField }: OptInEditorProps) {
             <div className="space-y-2">
                 <Label htmlFor="on-click-action">On Click Action (optional)</Label>
                 {/* OptIn usually manages its own state, but sometimes triggers logic. Keeping simple for now, usually no action needed. */}
-                <p className="text-xs text-zoru-ink-muted">OptIn components automatically toggle their state.</p>
+                <p className="text-xs text-[var(--st-text-secondary)]">OptIn components automatically toggle their state.</p>
             </div>
 
             <DynamicBooleanInput label="Required" value={component.required} onChange={v => updateField('required', v)} />

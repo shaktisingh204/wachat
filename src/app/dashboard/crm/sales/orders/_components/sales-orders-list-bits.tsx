@@ -43,26 +43,26 @@ interface KpiCardProps {
 function KpiCard({ label, value, active, onClick, tone }: KpiCardProps) {
   const ring =
     tone === 'amber'
-      ? 'border-zoru-line/40'
+      ? 'border-[var(--st-border)]/40'
       : tone === 'green'
-        ? 'border-zoru-line/40'
+        ? 'border-[var(--st-border)]/40'
         : tone === 'red'
-          ? 'border-zoru-line/40'
-          : 'border-zoru-line';
+          ? 'border-[var(--st-border)]/40'
+          : 'border-[var(--st-border)]';
   return (
     <button
       type="button"
       onClick={onClick}
       className={`flex flex-1 flex-col gap-1 rounded-md border px-3 py-2.5 text-left transition-colors ${ring} ${
         active
-          ? 'bg-zoru-surface ring-1 ring-zoru-primary/40'
-          : 'bg-zoru-surface-2 hover:bg-zoru-surface'
+          ? 'bg-[var(--st-bg-secondary)] ring-1 ring-[var(--st-text)]/40'
+          : 'bg-[var(--st-bg-muted)] hover:bg-[var(--st-bg-secondary)]'
       }`}
     >
-      <span className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+      <span className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
         {label}
       </span>
-      <span className="text-[18px] font-semibold tabular-nums text-zoru-ink">
+      <span className="text-[18px] font-semibold tabular-nums text-[var(--st-text)]">
         {value}
       </span>
     </button>
@@ -110,20 +110,20 @@ interface HeadlineKpiCardProps {
 function HeadlineKpiCard({ label, value, tone }: HeadlineKpiCardProps) {
   const ring =
     tone === 'amber'
-      ? 'border-zoru-line/40'
+      ? 'border-[var(--st-border)]/40'
       : tone === 'green'
-        ? 'border-zoru-line/40'
+        ? 'border-[var(--st-border)]/40'
         : tone === 'red'
-          ? 'border-zoru-line/40'
-          : 'border-zoru-line';
+          ? 'border-[var(--st-border)]/40'
+          : 'border-[var(--st-border)]';
   return (
     <div
-      className={`flex flex-1 flex-col gap-1 rounded-md border bg-zoru-surface-2 px-3 py-2.5 ${ring}`}
+      className={`flex flex-1 flex-col gap-1 rounded-md border bg-[var(--st-bg-muted)] px-3 py-2.5 ${ring}`}
     >
-      <span className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+      <span className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
         {label}
       </span>
-      <span className="text-[18px] font-semibold tabular-nums text-zoru-ink">
+      <span className="text-[18px] font-semibold tabular-nums text-[var(--st-text)]">
         {value}
       </span>
     </div>
@@ -209,7 +209,7 @@ export function SoPresetBar({
 }) {
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <span className="text-[11.5px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+      <span className="text-[11.5px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
         Presets:
       </span>
       {SO_PRESETS.map((p) => (
@@ -228,7 +228,7 @@ export function SoPresetBar({
           variant="ghost"
           size="sm"
           onClick={onClear}
-          className="ml-auto text-[12px] text-zoru-ink-muted"
+          className="ml-auto text-[12px] text-[var(--st-text-secondary)]"
         >
           <X className="h-3.5 w-3.5" /> Clear filters
         </Button>
@@ -269,9 +269,9 @@ export function SoFiltersBar({
   onUpdate: (updates: Record<string, string | undefined>) => void;
 }) {
   return (
-    <div className="flex flex-wrap items-center gap-3 border-b border-zoru-line p-3">
+    <div className="flex flex-wrap items-center gap-3 border-b border-[var(--st-border)] p-3">
       <div className="relative max-w-sm flex-1">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
         <Input
           value={filters.query}
           onChange={(e) => onQueryChange(e.target.value)}
@@ -325,29 +325,29 @@ export function SoFiltersBar({
             <CalendarRange className="h-3.5 w-3.5" /> Date range
           </Button>
         </summary>
-        <div className="absolute right-0 z-20 mt-2 grid w-[280px] gap-2 rounded-md border border-zoru-line bg-zoru-surface p-3 shadow-md">
-          <label className="text-[11px] text-zoru-ink-muted">Order date — from</label>
+        <div className="absolute right-0 z-20 mt-2 grid w-[280px] gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 shadow-md">
+          <label className="text-[11px] text-[var(--st-text-secondary)]">Order date — from</label>
           <Input
             type="date"
             value={filters.dateFrom}
             onChange={(e) => onUpdate({ dateFrom: e.target.value || undefined, page: '1' })}
             className="h-8 text-[12.5px]"
           />
-          <label className="text-[11px] text-zoru-ink-muted">Order date — to</label>
+          <label className="text-[11px] text-[var(--st-text-secondary)]">Order date — to</label>
           <Input
             type="date"
             value={filters.dateTo}
             onChange={(e) => onUpdate({ dateTo: e.target.value || undefined, page: '1' })}
             className="h-8 text-[12.5px]"
           />
-          <label className="text-[11px] text-zoru-ink-muted">Expected shipment — from</label>
+          <label className="text-[11px] text-[var(--st-text-secondary)]">Expected shipment — from</label>
           <Input
             type="date"
             value={filters.shipFrom}
             onChange={(e) => onUpdate({ shipFrom: e.target.value || undefined, page: '1' })}
             className="h-8 text-[12.5px]"
           />
-          <label className="text-[11px] text-zoru-ink-muted">Expected shipment — to</label>
+          <label className="text-[11px] text-[var(--st-text-secondary)]">Expected shipment — to</label>
           <Input
             type="date"
             value={filters.shipTo}
@@ -382,17 +382,17 @@ export function SoActiveFilterChips({
   if (chips.length === 0) return null;
 
   return (
-    <div className="flex flex-wrap gap-2 border-b border-zoru-line bg-zoru-surface-2 px-3 py-2">
+    <div className="flex flex-wrap gap-2 border-b border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2">
       {chips.map((f) => (
         <span
           key={f.key}
-          className="inline-flex items-center gap-1 rounded-full border border-zoru-line bg-zoru-surface px-2 py-0.5 text-[11.5px] text-zoru-ink"
+          className="inline-flex items-center gap-1 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-0.5 text-[11.5px] text-[var(--st-text)]"
         >
           {f.label}
           <button
             type="button"
             onClick={() => onRemove(f.key)}
-            className="text-zoru-ink-muted hover:text-zoru-ink"
+            className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
             aria-label={`Clear ${f.label}`}
           >
             <X className="h-3 w-3" />
@@ -434,12 +434,12 @@ export function SoBulkBar({
 }) {
   if (count === 0) return null;
   return (
-    <div className="sticky top-0 z-10 flex flex-wrap items-center gap-2 border-b border-zoru-line bg-zoru-surface px-3 py-2 text-[12.5px]">
-      <span className="font-medium text-zoru-ink">{count} selected</span>
+    <div className="sticky top-0 z-10 flex flex-wrap items-center gap-2 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-[12.5px]">
+      <span className="font-medium text-[var(--st-text)]">{count} selected</span>
       <Button variant="ghost" size="sm" onClick={onClear}>
         <X className="h-3.5 w-3.5" /> Clear
       </Button>
-      <span className="mx-1 h-4 w-px bg-zoru-line" />
+      <span className="mx-1 h-4 w-px bg-[var(--st-border)]" />
       <Select onValueChange={(v) => onStatus(v as CrmSalesOrderStatus)}>
         <ZoruSelectTrigger className="h-8 w-[150px] text-[12px]">
           <ZoruSelectValue placeholder="Change status…" />
@@ -470,7 +470,7 @@ export function SoBulkBar({
         variant="outline"
         size="sm"
         onClick={onDelete}
-        className="text-zoru-danger-ink"
+        className="text-[var(--st-danger)]"
       >
         <Trash2 className="h-3.5 w-3.5" /> Delete
       </Button>

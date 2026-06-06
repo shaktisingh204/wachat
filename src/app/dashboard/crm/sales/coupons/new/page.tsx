@@ -89,7 +89,7 @@ export default function NewCouponPage() {
           {/* Coupon Code */}
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="code">
-              Coupon Code <span className="text-zoru-ink">*</span>
+              Coupon Code <span className="text-[var(--st-text)]">*</span>
             </Label>
             <Input
               id="code"
@@ -183,7 +183,7 @@ export default function NewCouponPage() {
               id="validFrom"
               name="validFrom"
               type="date"
-              className="flex h-9 w-full max-w-xs rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-3 py-1 text-[13px] text-zoru-ink shadow-sm outline-none transition-colors placeholder:text-zoru-ink-muted focus:border-zoru-accent focus:ring-1 focus:ring-zoru-accent disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex h-9 w-full max-w-xs rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-1 text-[13px] text-[var(--st-text)] shadow-sm outline-none transition-colors placeholder:text-[var(--st-text-secondary)] focus:border-[var(--st-accent)] focus:ring-1 focus:ring-[var(--st-accent)] disabled:cursor-not-allowed disabled:opacity-50"
             />
           </div>
 
@@ -194,7 +194,7 @@ export default function NewCouponPage() {
               id="validTo"
               name="validTo"
               type="date"
-              className="flex h-9 w-full max-w-xs rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-3 py-1 text-[13px] text-zoru-ink shadow-sm outline-none transition-colors placeholder:text-zoru-ink-muted focus:border-zoru-accent focus:ring-1 focus:ring-zoru-accent disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex h-9 w-full max-w-xs rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-1 text-[13px] text-[var(--st-text)] shadow-sm outline-none transition-colors placeholder:text-[var(--st-text-secondary)] focus:border-[var(--st-accent)] focus:ring-1 focus:ring-[var(--st-accent)] disabled:cursor-not-allowed disabled:opacity-50"
             />
           </div>
 
@@ -223,7 +223,7 @@ export default function NewCouponPage() {
           </div>
 
           {state.error && (
-            <p className="text-[13px] text-zoru-ink">{state.error}</p>
+            <p className="text-[13px] text-[var(--st-text)]">{state.error}</p>
           )}
 
           <div className="flex items-center gap-3">

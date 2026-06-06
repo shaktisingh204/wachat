@@ -119,7 +119,7 @@ function RelatedPanel({
     <Card>
       <CardHeader className="flex flex-row items-center justify-between gap-3 py-3">
         <CardTitle className="flex items-center gap-2 text-sm">
-          <Link2 className="h-4 w-4 text-zoru-ink-muted" />
+          <Link2 className="h-4 w-4 text-[var(--st-text-secondary)]" />
           {field.label}
         </CardTitle>
         <Badge variant="outline">{records.length}</Badge>
@@ -134,15 +134,15 @@ function RelatedPanel({
             />
           </div>
         ) : (
-          <ul className="divide-y divide-zoru-line">
+          <ul className="divide-y divide-[var(--st-border)]">
             {records.map((r) => (
               <li key={r._id}>
                 <Link
                   href={`/sabcrm/${targetSlug}/${r._id}`}
-                  className="flex items-center justify-between gap-3 px-5 py-3 text-sm transition-colors hover:bg-zoru-surface-muted"
+                  className="flex items-center justify-between gap-3 px-5 py-3 text-sm transition-colors hover:bg-[var(--st-bg-muted)]"
                 >
                   <span className="min-w-0 truncate font-medium">{r.label}</span>
-                  <ArrowUpRight className="h-4 w-4 shrink-0 text-zoru-ink-muted" />
+                  <ArrowUpRight className="h-4 w-4 shrink-0 text-[var(--st-text-secondary)]" />
                 </Link>
               </li>
             ))}

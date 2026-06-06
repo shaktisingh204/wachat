@@ -59,8 +59,8 @@ export default function QrCodeSettingsPage() {
                         Back to QR Code Maker
                     </Link>
                 </Button>
-                <h1 className="text-3xl text-zoru-ink">QR Code Maker Settings</h1>
-                <p className="text-zoru-ink-muted">Manage your tags. Tags can be applied to QR codes and short links to help you organize them.</p>
+                <h1 className="text-3xl text-[var(--st-text)]">QR Code Maker Settings</h1>
+                <p className="text-[var(--st-text-secondary)]">Manage your tags. Tags can be applied to QR codes and short links to help you organize them.</p>
             </div>
             <TagsSettingsTab user={user} />
         </div>

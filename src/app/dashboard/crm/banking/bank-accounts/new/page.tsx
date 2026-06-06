@@ -18,7 +18,7 @@ export default function NewBankAccountPage() {
             title="New Bank Account"
             back={{ href: BASE, label: 'Bank Accounts' }}
         >
-            <Suspense fallback={<div className="h-[400px] w-full animate-pulse rounded-xl bg-zoru-surface-2/50" />}>
+            <Suspense fallback={<div className="h-[400px] w-full animate-pulse rounded-xl bg-[var(--st-bg-muted)]/50" />}>
                 <PaymentAccountFormClient />
             </Suspense>
         </EntityDetailShell>

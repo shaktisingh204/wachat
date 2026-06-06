@@ -145,32 +145,32 @@ export function TopProductsReport({
       {/* Filter row */}
       <form
         onSubmit={pushFilters}
-        className="flex flex-wrap items-end gap-2 rounded-lg border border-zoru-line bg-zoru-surface px-3 py-2"
+        className="flex flex-wrap items-end gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
       >
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
             From
           </span>
           <input
             type="date"
             name="from"
             defaultValue={from}
-            className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
+            className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
           />
         </label>
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
             To
           </span>
           <input
             type="date"
             name="to"
             defaultValue={to}
-            className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
+            className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
           />
         </label>
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
             Category
           </span>
           <input
@@ -178,11 +178,11 @@ export function TopProductsReport({
             value={categoryInput}
             onChange={(e) => setCategoryInput(e.target.value)}
             placeholder="Any"
-            className="h-9 w-32 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
+            className="h-9 w-32 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
           />
         </label>
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
             Min units
           </span>
           <input
@@ -191,7 +191,7 @@ export function TopProductsReport({
             value={minQtyInput}
             onChange={(e) => setMinQtyInput(e.target.value)}
             placeholder="0"
-            className="h-9 w-24 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
+            className="h-9 w-24 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
           />
         </label>
         <Button type="submit" size="sm" disabled={isPending}>
@@ -228,12 +228,12 @@ export function TopProductsReport({
       {/* Bar chart */}
       <Card>
         <div className="mb-3">
-          <h2 className="text-[16px] font-semibold text-zoru-ink">
+          <h2 className="text-[16px] font-semibold text-[var(--st-text)]">
             Top 10 products by revenue
           </h2>
         </div>
         {chartData.length === 0 ? (
-          <div className="py-8 text-center text-[13px] text-zoru-ink-muted">
+          <div className="py-8 text-center text-[13px] text-[var(--st-text-secondary)]">
             No product sales in this range.
           </div>
         ) : (
@@ -285,36 +285,36 @@ export function TopProductsReport({
 
       {/* Data table */}
       <Card>
-        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+        <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <Table>
             <ZoruTableHeader>
-              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                <ZoruTableHead className="w-10 text-zoru-ink-muted">
+              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                <ZoruTableHead className="w-10 text-[var(--st-text-secondary)]">
                   #
                 </ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                   Product
                 </ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                   Category
                 </ZoruTableHead>
-                <ZoruTableHead className="text-right text-zoru-ink-muted">
+                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                   Units
                 </ZoruTableHead>
-                <ZoruTableHead className="text-right text-zoru-ink-muted">
+                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                   Revenue
                 </ZoruTableHead>
-                <ZoruTableHead className="text-right text-zoru-ink-muted">
+                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                   Avg price
                 </ZoruTableHead>
               </ZoruTableRow>
             </ZoruTableHeader>
             <ZoruTableBody>
               {pageRows.length === 0 ? (
-                <ZoruTableRow className="border-zoru-line">
+                <ZoruTableRow className="border-[var(--st-border)]">
                   <ZoruTableCell
                     colSpan={6}
-                    className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                    className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     No products sold in this range.
                   </ZoruTableCell>
@@ -323,27 +323,27 @@ export function TopProductsReport({
                 pageRows.map((r, i) => (
                   <ZoruTableRow
                     key={`${r.productName}-${start + i}`}
-                    className="border-zoru-line"
+                    className="border-[var(--st-border)]"
                   >
-                    <ZoruTableCell className="text-zoru-ink-muted">
+                    <ZoruTableCell className="text-[var(--st-text-secondary)]">
                       {start + i + 1}
                     </ZoruTableCell>
-                    <ZoruTableCell className="font-medium text-zoru-ink">
+                    <ZoruTableCell className="font-medium text-[var(--st-text)]">
                       <EntityRowLink
                         href={productHref(r.productName)}
                         label={r.productName}
                       />
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                       {r.category}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
+                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
                       {fmtNumber(r.units)}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] font-medium text-zoru-ink">
+                    <ZoruTableCell className="text-right text-[13px] font-medium text-[var(--st-text)]">
                       {fmtMoney(r.revenue)}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
+                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
                       {fmtMoney(r.avgPrice)}
                     </ZoruTableCell>
                   </ZoruTableRow>

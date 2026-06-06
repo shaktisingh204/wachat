@@ -70,14 +70,14 @@ function OrgNodeCard({ row }: { row: EmployeeListRow }) {
   return (
     <Link
       href={`/dashboard/hrm/payroll/employees/${row._id}`}
-      className="inline-flex max-w-xs items-center gap-2 rounded-md border border-zoru-line bg-zoru-bg px-2.5 py-1.5 text-left text-[12.5px] text-zoru-ink hover:border-zoru-ink/40"
+      className="inline-flex max-w-xs items-center gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-2.5 py-1.5 text-left text-[12.5px] text-[var(--st-text)] hover:border-[var(--st-text)]/40"
     >
-      <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-zoru-surface text-zoru-ink-muted">
+      <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]">
         <UserCircle2 className="h-4 w-4" />
       </span>
       <span className="flex min-w-0 flex-col leading-tight">
         <span className="truncate font-medium">{fullName(row)}</span>
-        <span className="truncate text-[11px] text-zoru-ink-muted">
+        <span className="truncate text-[11px] text-[var(--st-text-secondary)]">
           {row.designation ?? row.employeeId ?? ''}
         </span>
       </span>
@@ -96,12 +96,12 @@ function OrgNodeCard({ row }: { row: EmployeeListRow }) {
 function OrgList({ nodes }: { nodes: OrgNode[] }) {
   if (nodes.length === 0) return null;
   return (
-    <ul className="ml-4 mt-1 space-y-1 border-l border-zoru-line pl-3">
+    <ul className="ml-4 mt-1 space-y-1 border-l border-[var(--st-border)] pl-3">
       {nodes.map((n) => (
         <li key={n.row._id} className="relative">
           <span
             aria-hidden
-            className="absolute -left-3 top-3 h-px w-3 bg-zoru-line"
+            className="absolute -left-3 top-3 h-px w-3 bg-[var(--st-border)]"
           />
           <OrgNodeCard row={n.row} />
           {n.reports.length > 0 ? <OrgList nodes={n.reports} /> : null}
@@ -116,7 +116,7 @@ export function EmployeesOrgChart({ rows }: EmployeesOrgChartProps) {
 
   if (rows.length === 0) {
     return (
-      <div className="p-6 text-center text-[13px] text-zoru-ink-muted">
+      <div className="p-6 text-center text-[13px] text-[var(--st-text-secondary)]">
         No employees match the current filters.
       </div>
     );
@@ -124,7 +124,7 @@ export function EmployeesOrgChart({ rows }: EmployeesOrgChartProps) {
 
   return (
     <div className="overflow-x-auto p-4">
-      <p className="mb-3 text-[11px] text-zoru-ink-muted">
+      <p className="mb-3 text-[11px] text-[var(--st-text-secondary)]">
         Tree rooted at employees with no reporting manager. Click a node to
         open their profile.
       </p>

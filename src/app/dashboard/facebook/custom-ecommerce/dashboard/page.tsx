@@ -23,8 +23,8 @@ export default function CustomEcommerceDashboardRedirect() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col items-center justify-center gap-3 px-6 pt-24 pb-10">
-      <LoaderCircle className="h-8 w-8 animate-spin text-zoru-ink-muted" />
-      <p className="text-[13px] text-zoru-ink-muted">
+      <LoaderCircle className="h-8 w-8 animate-spin text-[var(--st-text-secondary)]" />
+      <p className="text-[13px] text-[var(--st-text-secondary)]">
         Redirecting to your shops…
       </p>
       <Skeleton className="h-4 w-40" />

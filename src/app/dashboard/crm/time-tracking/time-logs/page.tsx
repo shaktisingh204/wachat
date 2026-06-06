@@ -24,10 +24,10 @@ export default async function TimeLogsPage(props: TimeLogsPageProps) {
 
   return (
     <Suspense fallback={
-      <div className="flex h-64 items-center justify-center rounded-lg border border-dashed border-zoru-line bg-zoru-surface">
+      <div className="flex h-64 items-center justify-center rounded-lg border border-dashed border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
         <div className="text-center">
-          <p className="text-sm font-medium text-zoru-ink">Loading time logs...</p>
-          <p className="text-[12px] text-zoru-ink-muted">Please wait while we compile hours.</p>
+          <p className="text-sm font-medium text-[var(--st-text)]">Loading time logs...</p>
+          <p className="text-[12px] text-[var(--st-text-secondary)]">Please wait while we compile hours.</p>
         </div>
       </div>
     }>

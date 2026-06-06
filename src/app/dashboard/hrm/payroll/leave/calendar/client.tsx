@@ -172,7 +172,7 @@ export default function LeaveCalendarClient({
               <ChevronLeft className="h-4 w-4" />
               <span className="sr-only">Prev</span>
             </Button>
-            <div className="min-w-[200px] text-center font-medium text-[15px] text-zoru-ink">
+            <div className="min-w-[200px] text-center font-medium text-[15px] text-[var(--st-text)]">
               {label}
             </div>
             <Button variant="outline" onClick={goNext}>
@@ -185,22 +185,22 @@ export default function LeaveCalendarClient({
           </div>
           
           <div className="flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-1 rounded-md border border-zoru-line p-1">
+            <div className="flex items-center gap-1 rounded-md border border-[var(--st-border)] p-1">
               <button 
                 onClick={() => setViewMode('month')} 
-                className={`px-3 py-1 text-[13px] rounded-sm transition-colors ${viewMode === 'month' ? 'bg-zoru-ink text-white' : 'text-zoru-ink hover:bg-zoru-bg'}`}
+                className={`px-3 py-1 text-[13px] rounded-sm transition-colors ${viewMode === 'month' ? 'bg-[var(--st-text)] text-white' : 'text-[var(--st-text)] hover:bg-[var(--st-bg)]'}`}
               >
                 Month
               </button>
               <button 
                 onClick={() => setViewMode('week')} 
-                className={`px-3 py-1 text-[13px] rounded-sm transition-colors ${viewMode === 'week' ? 'bg-zoru-ink text-white' : 'text-zoru-ink hover:bg-zoru-bg'}`}
+                className={`px-3 py-1 text-[13px] rounded-sm transition-colors ${viewMode === 'week' ? 'bg-[var(--st-text)] text-white' : 'text-[var(--st-text)] hover:bg-[var(--st-bg)]'}`}
               >
                 Week
               </button>
               <button 
                 onClick={() => setViewMode('day')} 
-                className={`px-3 py-1 text-[13px] rounded-sm transition-colors ${viewMode === 'day' ? 'bg-zoru-ink text-white' : 'text-zoru-ink hover:bg-zoru-bg'}`}
+                className={`px-3 py-1 text-[13px] rounded-sm transition-colors ${viewMode === 'day' ? 'bg-[var(--st-text)] text-white' : 'text-[var(--st-text)] hover:bg-[var(--st-bg)]'}`}
               >
                 Day
               </button>
@@ -210,7 +210,7 @@ export default function LeaveCalendarClient({
               <select
                 value={departmentFilter}
                 onChange={(e) => setDepartmentFilter(e.target.value)}
-                className="h-[34px] rounded-md border border-zoru-line bg-transparent pl-8 pr-3 text-[13px] text-zoru-ink focus:border-zoru-brand focus:outline-none focus:ring-1 focus:ring-zoru-brand"
+                className="h-[34px] rounded-md border border-[var(--st-border)] bg-transparent pl-8 pr-3 text-[13px] text-[var(--st-text)] focus:border-[var(--st-accent)] focus:outline-none focus:ring-1 focus:ring-[var(--st-accent)]"
               >
                 <option value="">All Departments</option>
                 {departments.map((d) => (
@@ -219,7 +219,7 @@ export default function LeaveCalendarClient({
                   </option>
                 ))}
               </select>
-              <Filter className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-zoru-ink-muted" />
+              <Filter className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
             </div>
           </div>
         </div>
@@ -231,7 +231,7 @@ export default function LeaveCalendarClient({
                 {WEEKDAYS.map((d) => (
                   <div
                     key={d}
-                    className="py-2 text-center text-[11.5px] uppercase text-zoru-ink-muted"
+                    className="py-2 text-center text-[11.5px] uppercase text-[var(--st-text-secondary)]"
                   >
                     {d}
                   </div>
@@ -260,19 +260,19 @@ export default function LeaveCalendarClient({
                   <div
                     key={cell.iso!}
                     className={
-                      `rounded-lg border bg-zoru-bg p-2 transition-colors hover:bg-zoru-bg-hover ` +
+                      `rounded-lg border bg-[var(--st-bg)] p-2 transition-colors hover:bg-zoru-bg-hover ` +
                       (isToday
-                        ? 'border-zoru-ink ring-1 ring-zoru-ink '
-                        : 'border-zoru-line ') +
+                        ? 'border-[var(--st-text)] ring-1 ring-[var(--st-text)] '
+                        : 'border-[var(--st-border)] ') +
                       (viewMode === 'day' ? 'min-h-[300px] ' : 'min-h-[120px] ')
                     }
                   >
                     <div className="mb-2 flex items-center justify-between">
-                      <span className={`text-[13px] font-medium ${isToday ? 'text-zoru-ink' : 'text-zoru-ink-muted'}`}>
+                      <span className={`text-[13px] font-medium ${isToday ? 'text-[var(--st-text)]' : 'text-[var(--st-text-secondary)]'}`}>
                         {viewMode === 'day' ? '' : cell.date.getDate()}
                       </span>
                       {dayEntries.length > 0 && (
-                        <span className="rounded bg-zoru-line/50 px-1.5 py-0.5 text-[10px] font-medium text-zoru-ink-muted">
+                        <span className="rounded bg-[var(--st-border)]/50 px-1.5 py-0.5 text-[10px] font-medium text-[var(--st-text-secondary)]">
                           {dayEntries.length} out
                         </span>
                       )}
@@ -304,9 +304,9 @@ export default function LeaveCalendarClient({
                             </ZoruTooltipTrigger>
                             <ZoruTooltipContent side="top">
                               <div className="flex flex-col gap-1 text-[13px] py-1">
-                                <span className="font-semibold text-zoru-bg">{e.employeeName ?? 'Employee'}</span>
-                                <span className="text-zoru-bg/80">{e.type_name} {e.half_day_type ? `(${e.half_day_type})` : ''}</span>
-                                <span className="text-zoru-bg/80 font-mono text-[11px] mt-1">{dateRangeStr}</span>
+                                <span className="font-semibold text-[var(--st-bg)]">{e.employeeName ?? 'Employee'}</span>
+                                <span className="text-[var(--st-bg)]/80">{e.type_name} {e.half_day_type ? `(${e.half_day_type})` : ''}</span>
+                                <span className="text-[var(--st-bg)]/80 font-mono text-[11px] mt-1">{dateRangeStr}</span>
                               </div>
                             </ZoruTooltipContent>
                           </Tooltip>
@@ -316,15 +316,15 @@ export default function LeaveCalendarClient({
                         <Popover>
                           <ZoruPopoverTrigger asChild>
                             <div 
-                              className="inline-block cursor-pointer text-[11px] font-medium text-zoru-ink-muted hover:text-zoru-ink hover:underline py-0.5"
+                              className="inline-block cursor-pointer text-[11px] font-medium text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:underline py-0.5"
                             >
                               +{hiddenCount} more
                             </div>
                           </ZoruPopoverTrigger>
                           <ZoruPopoverContent side="bottom" align="start" className="w-64 p-3 z-50">
-                            <div className="mb-2 text-[13px] font-medium text-zoru-ink border-b border-zoru-line pb-2 flex justify-between items-center">
+                            <div className="mb-2 text-[13px] font-medium text-[var(--st-text)] border-b border-[var(--st-border)] pb-2 flex justify-between items-center">
                               <span>{cell.date ? fmtDate(cell.date, 'EEE, MMM d') : ''}</span>
-                              <span className="text-[11px] text-zoru-ink-muted">{dayEntries.length} leaves</span>
+                              <span className="text-[11px] text-[var(--st-text-secondary)]">{dayEntries.length} leaves</span>
                             </div>
                             <div className="flex flex-col gap-1.5 max-h-[250px] overflow-y-auto scrollbar-thin scrollbar-thumb-zoru-line scrollbar-track-transparent pr-1">
                               {dayEntries.map((e) => (
@@ -343,9 +343,9 @@ export default function LeaveCalendarClient({
                                 </div>
                               ))}
                             </div>
-                            <div className="mt-3 text-center pt-2 border-t border-zoru-line">
+                            <div className="mt-3 text-center pt-2 border-t border-[var(--st-border)]">
                               <button
-                                className="text-[12px] text-zoru-brand hover:underline font-medium"
+                                className="text-[12px] text-[var(--st-accent)] hover:underline font-medium"
                                 onClick={() => {
                                   setCursor(cell.date!);
                                   setViewMode('day');
@@ -366,7 +366,7 @@ export default function LeaveCalendarClient({
         </div>
 
         {isLoading ? (
-          <p className="mt-4 text-center text-[13px] text-zoru-ink-muted">Loading…</p>
+          <p className="mt-4 text-center text-[13px] text-[var(--st-text-secondary)]">Loading…</p>
         ) : null}
       </Card>
       </ZoruTooltipProvider>

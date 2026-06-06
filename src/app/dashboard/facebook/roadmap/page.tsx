@@ -340,10 +340,10 @@ export default function FacebookRoadmapPage() {
           return (
             <div
               key={status}
-              className="rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-4"
+              className="rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4"
             >
               <div className="flex items-center justify-between">
-                <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink [&_svg]:size-4">
+                <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)] [&_svg]:size-4">
                   <Icon />
                 </span>
                 <Badge variant={STATUS_BADGE[status]}>
@@ -353,11 +353,11 @@ export default function FacebookRoadmapPage() {
               {loading ? (
                 <Skeleton className="mt-3 h-[22px] w-12" />
               ) : (
-                <p className="mt-3 text-[22px] tracking-tight text-zoru-ink leading-none">
+                <p className="mt-3 text-[22px] tracking-tight text-[var(--st-text)] leading-none">
                   {grouped[status].length}
                 </p>
               )}
-              <p className="mt-1 text-[12px] text-zoru-ink-muted">
+              <p className="mt-1 text-[12px] text-[var(--st-text-secondary)]">
                 {STATUS_LABELS[status].toLowerCase()} item
                 {!loading && grouped[status].length !== 1 ? 's' : ''}
               </p>
@@ -376,11 +376,11 @@ export default function FacebookRoadmapPage() {
             <section key={status}>
               <div className="flex items-end justify-between">
                 <div>
-                  <h2 className="flex items-center gap-2 text-[18px] tracking-tight text-zoru-ink leading-none">
-                    <Icon className="h-4 w-4 text-zoru-ink-muted" />
+                  <h2 className="flex items-center gap-2 text-[18px] tracking-tight text-[var(--st-text)] leading-none">
+                    <Icon className="h-4 w-4 text-[var(--st-text-secondary)]" />
                     {STATUS_LABELS[status]}
                   </h2>
-                  <p className="mt-1.5 text-[12.5px] text-zoru-ink-muted">
+                  <p className="mt-1.5 text-[12.5px] text-[var(--st-text-secondary)]">
                     {loading ? (
                       <Skeleton className="h-4 w-16" />
                     ) : (
@@ -419,7 +419,7 @@ export default function FacebookRoadmapPage() {
                       >
                         <div className="flex flex-col gap-3">
                           <div className="flex items-start justify-between gap-2">
-                            <span className="flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink [&_svg]:size-4">
+                            <span className="flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)] [&_svg]:size-4">
                               <ItemIcon />
                             </span>
                             <Badge variant={STATUS_BADGE[item.status]}>
@@ -427,18 +427,18 @@ export default function FacebookRoadmapPage() {
                             </Badge>
                           </div>
                           <div className="flex flex-col gap-1">
-                            <p className="text-[11px] uppercase tracking-wide text-zoru-ink-subtle">
+                            <p className="text-[11px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                               {item.area}
                             </p>
-                            <p className="text-[15px] text-zoru-ink leading-tight">
+                            <p className="text-[15px] text-[var(--st-text)] leading-tight">
                               {item.title}
                             </p>
-                            <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted leading-relaxed">
+                            <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)] leading-relaxed">
                               {item.description}
                             </p>
                           </div>
                           {item.eta && (
-                            <p className="mt-1 inline-flex items-center gap-1.5 text-[11.5px] text-zoru-ink-muted">
+                            <p className="mt-1 inline-flex items-center gap-1.5 text-[11.5px] text-[var(--st-text-secondary)]">
                               <Clock className="h-3 w-3" />
                               ETA · {item.eta}
                             </p>
@@ -446,14 +446,14 @@ export default function FacebookRoadmapPage() {
                         </div>
                         
                         {item.status === 'planned' && (
-                          <div className="mt-2 pt-3 border-t border-zoru-line">
+                          <div className="mt-2 pt-3 border-t border-[var(--st-border)]">
                             <button
                               type="button"
                               onClick={() => handleUpvote(item.id)}
                               className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium transition-colors ${
                                 item.hasUpvoted
-                                  ? 'bg-zoru-brand text-white'
-                                  : 'bg-zoru-surface-2 text-zoru-ink hover:bg-zoru-surface-3'
+                                  ? 'bg-[var(--st-accent)] text-white'
+                                  : 'bg-[var(--st-bg-muted)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]'
                               }`}
                             >
                               <ThumbsUp className={`h-3.5 w-3.5 ${item.hasUpvoted ? 'fill-current' : ''}`} />

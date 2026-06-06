@@ -51,9 +51,9 @@ export function DnsRecordRow({ record, label }: DnsRecordRowProps) {
   }, [value]);
 
   return (
-    <div className="flex flex-col gap-2 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-3 sm:flex-row sm:items-center">
+    <div className="flex flex-col gap-2 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 sm:flex-row sm:items-center">
       <div className="flex min-w-[88px] items-center gap-2">
-        <span className="text-xs font-semibold uppercase tracking-wide text-zoru-ink">
+        <span className="text-xs font-semibold uppercase tracking-wide text-[var(--st-text)]">
           {label ?? record?.type ?? '—'}
         </span>
         <Badge variant={statusToTone[status] ?? 'secondary'}>
@@ -62,15 +62,15 @@ export function DnsRecordRow({ record, label }: DnsRecordRowProps) {
       </div>
       <div className="flex min-w-0 flex-1 flex-col">
         {record?.host ? (
-          <span className="truncate text-xs text-zoru-ink-muted">
+          <span className="truncate text-xs text-[var(--st-text-secondary)]">
             {record.host}
           </span>
         ) : null}
-        <code className="truncate text-xs text-zoru-ink">
+        <code className="truncate text-xs text-[var(--st-text)]">
           {value || '—'}
         </code>
         {record?.error ? (
-          <span className="text-xs text-zoru-danger-ink">{record.error}</span>
+          <span className="text-xs text-[var(--st-danger)]">{record.error}</span>
         ) : null}
       </div>
       <Button

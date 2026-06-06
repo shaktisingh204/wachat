@@ -11,7 +11,7 @@ export default function NewApiTransactionPage(): React.JSX.Element {
     const router = useRouter();
     return (
         <div className="flex flex-col gap-4">
-            <h2 className="text-sm font-semibold text-zoru-ink">New API transaction</h2>
+            <h2 className="text-sm font-semibold text-[var(--st-text)]">New API transaction</h2>
             <JsonEditorForm
                 submitLabel="Create transaction"
                 onSubmit={async ({ name, stepsJson }) => {

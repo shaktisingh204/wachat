@@ -105,10 +105,10 @@ function Field({
 }) {
   return (
     <div>
-      <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
         {label}
       </div>
-      <div className="mt-1 text-[13px] text-zoru-ink">{children}</div>
+      <div className="mt-1 text-[13px] text-[var(--st-text)]">{children}</div>
     </div>
   );
 }
@@ -151,16 +151,16 @@ export default async function ServiceContractDetailPage({ params }: PageProps) {
             <ZoruCardContent>
               <div className="space-y-2 text-[12.5px]">
                 <div className="flex items-center justify-between">
-                  <span className="text-zoru-ink-muted">Status</span>
+                  <span className="text-[var(--st-text-secondary)]">Status</span>
                   <Badge variant="outline">{status}</Badge>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-zoru-ink-muted">Days remaining</span>
+                  <span className="text-[var(--st-text-secondary)]">Days remaining</span>
                   <span
                     className={`font-mono tabular-nums ${
                       remaining !== null && remaining < 0
-                        ? 'text-zoru-danger-ink'
-                        : 'text-zoru-ink'
+                        ? 'text-[var(--st-danger)]'
+                        : 'text-[var(--st-text)]'
                     }`}
                   >
                     {remaining === null
@@ -170,8 +170,8 @@ export default async function ServiceContractDetailPage({ params }: PageProps) {
                       : `${remaining}d`}
                   </span>
                 </div>
-                <div className="flex items-center justify-between border-t border-zoru-line pt-2">
-                  <span className="text-zoru-ink-muted">Billing</span>
+                <div className="flex items-center justify-between border-t border-[var(--st-border)] pt-2">
+                  <span className="text-[var(--st-text-secondary)]">Billing</span>
                   <span className="font-mono tabular-nums">
                     {fmtMoney(contract.billingAmount, contract.currency)}
                   </span>
@@ -191,7 +191,7 @@ export default async function ServiceContractDetailPage({ params }: PageProps) {
                   id={contract.customerId}
                 />
               ) : (
-                <span className="text-[12.5px] text-zoru-ink-muted">
+                <span className="text-[12.5px] text-[var(--st-text-secondary)]">
                   {contract.customerName || '—'}
                 </span>
               )}
@@ -203,7 +203,7 @@ export default async function ServiceContractDetailPage({ params }: PageProps) {
               <ZoruCardTitle>Technician</ZoruCardTitle>
             </ZoruCardHeader>
             <ZoruCardContent>
-              <span className="text-[12.5px] text-zoru-ink">
+              <span className="text-[12.5px] text-[var(--st-text)]">
                 {contract.technician || '—'}
               </span>
             </ZoruCardContent>
@@ -217,13 +217,13 @@ export default async function ServiceContractDetailPage({ params }: PageProps) {
               <div className="flex flex-col gap-2 text-[12.5px]">
                 <Link
                   href={`/dashboard/sabdesk?contractId=${id}`}
-                  className="text-zoru-primary hover:underline"
+                  className="text-[var(--st-text)] hover:underline"
                 >
                   Tickets under this contract →
                 </Link>
                 <Link
                   href={`/dashboard/crm/sales/invoices?contractId=${id}`}
-                  className="text-zoru-primary hover:underline"
+                  className="text-[var(--st-text)] hover:underline"
                 >
                   Linked invoices →
                 </Link>
@@ -286,14 +286,14 @@ export default async function ServiceContractDetailPage({ params }: PageProps) {
         </ZoruCardHeader>
         <ZoruCardContent>
           {visits.length === 0 ? (
-            <p className="text-[13px] text-zoru-ink-muted">
+            <p className="text-[13px] text-[var(--st-text-secondary)]">
               No visits scheduled. Use{' '}
               <strong>Schedule visit</strong> in the header to add one.
             </p>
           ) : (
             <table className="w-full text-[13px]">
               <thead>
-                <tr className="border-b border-zoru-line/60 text-left text-[11px] uppercase text-zoru-ink-muted">
+                <tr className="border-b border-[var(--st-border)]/60 text-left text-[11px] uppercase text-[var(--st-text-secondary)]">
                   <th className="py-2">Date</th>
                   <th className="py-2">Technician</th>
                   <th className="py-2">Status</th>
@@ -303,7 +303,7 @@ export default async function ServiceContractDetailPage({ params }: PageProps) {
                 {visits.map((v, idx) => (
                   <tr
                     key={v._id ?? `${v.date}-${idx}`}
-                    className="border-b border-zoru-line/40 last:border-0"
+                    className="border-b border-[var(--st-border)]/40 last:border-0"
                   >
                     <td className="py-2">{fmtDate(v.date)}</td>
                     <td className="py-2">{v.technician || '—'}</td>
@@ -326,11 +326,11 @@ export default async function ServiceContractDetailPage({ params }: PageProps) {
         </ZoruCardHeader>
         <ZoruCardContent>
           {/* TODO 1D.2: billing-history child collection not yet implemented */}
-          <p className="text-[13px] text-zoru-ink-muted">
+          <p className="text-[13px] text-[var(--st-text-secondary)]">
             No billing entries yet.{' '}
             <Link
               href={`/dashboard/crm/sales/invoices?contractId=${id}`}
-              className="text-zoru-primary hover:underline"
+              className="text-[var(--st-text)] hover:underline"
             >
               View linked invoices →
             </Link>
@@ -344,7 +344,7 @@ export default async function ServiceContractDetailPage({ params }: PageProps) {
             <ZoruCardTitle>Notes</ZoruCardTitle>
           </ZoruCardHeader>
           <ZoruCardContent>
-            <p className="whitespace-pre-wrap text-[13px] text-zoru-ink">
+            <p className="whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
               {contract.notes}
             </p>
           </ZoruCardContent>

@@ -214,15 +214,15 @@ export default function CashFlowPage(): React.JSX.Element {
 
     const chart = (
         <div>
-            <h2 className="text-[15px] font-semibold text-zoru-ink">
+            <h2 className="text-[15px] font-semibold text-[var(--st-text)]">
                 Cash flow by category (stacked)
             </h2>
-            <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+            <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">
                 Operating / investing / financing components per {period === 'monthly' ? 'month' : 'quarter'}.
             </p>
             <div className="mt-4 h-72 w-full">
                 {aggregated.length === 0 ? (
-                    <div className="flex h-full items-center justify-center text-[13px] text-zoru-ink-muted">
+                    <div className="flex h-full items-center justify-center text-[13px] text-[var(--st-text-secondary)]">
                         No cash movement in this range.
                     </div>
                 ) : (
@@ -249,44 +249,44 @@ export default function CashFlowPage(): React.JSX.Element {
     const table = (
         <Table>
             <TableHeader>
-                <TableRow className="border-zoru-line hover:bg-transparent">
-                    <TableHead className="text-zoru-ink-muted">Period</TableHead>
-                    <TableHead className="text-zoru-ink-muted text-right">Operating</TableHead>
-                    <TableHead className="text-zoru-ink-muted text-right">Investing</TableHead>
-                    <TableHead className="text-zoru-ink-muted text-right">Financing</TableHead>
-                    <TableHead className="text-zoru-ink-muted text-right">Inflow</TableHead>
-                    <TableHead className="text-zoru-ink-muted text-right">Outflow</TableHead>
-                    <TableHead className="text-zoru-ink-muted text-right">Net</TableHead>
+                <TableRow className="border-[var(--st-border)] hover:bg-transparent">
+                    <TableHead className="text-[var(--st-text-secondary)]">Period</TableHead>
+                    <TableHead className="text-[var(--st-text-secondary)] text-right">Operating</TableHead>
+                    <TableHead className="text-[var(--st-text-secondary)] text-right">Investing</TableHead>
+                    <TableHead className="text-[var(--st-text-secondary)] text-right">Financing</TableHead>
+                    <TableHead className="text-[var(--st-text-secondary)] text-right">Inflow</TableHead>
+                    <TableHead className="text-[var(--st-text-secondary)] text-right">Outflow</TableHead>
+                    <TableHead className="text-[var(--st-text-secondary)] text-right">Net</TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
                 {pageRows.length === 0 ? (
-                    <TableRow className="border-zoru-line">
-                        <TableCell colSpan={7} className="h-24 text-center text-zoru-ink-muted">
+                    <TableRow className="border-[var(--st-border)]">
+                        <TableCell colSpan={7} className="h-24 text-center text-[var(--st-text-secondary)]">
                             No data in this range.
                         </TableCell>
                     </TableRow>
                 ) : (
                     pageRows.map((m) => (
-                        <TableRow key={m.month} className="border-zoru-line">
-                            <TableCell className="font-medium text-zoru-ink">{m.month}</TableCell>
-                            <TableCell className="text-right font-mono text-zoru-ink">
+                        <TableRow key={m.month} className="border-[var(--st-border)]">
+                            <TableCell className="font-medium text-[var(--st-text)]">{m.month}</TableCell>
+                            <TableCell className="text-right font-mono text-[var(--st-text)]">
                                 {fmtMoney(m.operating)}
                             </TableCell>
-                            <TableCell className="text-right font-mono text-zoru-ink">
+                            <TableCell className="text-right font-mono text-[var(--st-text)]">
                                 {fmtMoney(m.investing)}
                             </TableCell>
-                            <TableCell className="text-right font-mono text-zoru-ink">
+                            <TableCell className="text-right font-mono text-[var(--st-text)]">
                                 {fmtMoney(m.financing)}
                             </TableCell>
-                            <TableCell className="text-right font-mono text-zoru-ink">
+                            <TableCell className="text-right font-mono text-[var(--st-text)]">
                                 {fmtMoney(m.inflow)}
                             </TableCell>
-                            <TableCell className="text-right font-mono text-zoru-ink">
+                            <TableCell className="text-right font-mono text-[var(--st-text)]">
                                 {fmtMoney(m.outflow)}
                             </TableCell>
                             <TableCell
-                                className={`text-right font-mono font-semibold ${m.net >= 0 ? 'text-zoru-ink' : 'text-zoru-ink'}`}
+                                className={`text-right font-mono font-semibold ${m.net >= 0 ? 'text-[var(--st-text)]' : 'text-[var(--st-text)]'}`}
                             >
                                 {fmtMoney(m.net)}
                             </TableCell>

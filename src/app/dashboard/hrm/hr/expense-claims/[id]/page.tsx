@@ -193,13 +193,13 @@ export default async function ExpenseClaimDetailPage({ params }: PageProps) {
             </HrDetailGrid>
 
             <Card className="p-6">
-                <div className="mb-4 text-[15px] font-medium text-zoru-ink">Claim lines</div>
+                <div className="mb-4 text-[15px] font-medium text-[var(--st-text)]">Claim lines</div>
                 {lines.length === 0 ? (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No itemized lines — this claim has a single amount only.
                     </div>
                 ) : (
-                    <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
+                    <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
                         <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow>

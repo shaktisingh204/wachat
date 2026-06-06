@@ -40,8 +40,8 @@ export function ClayNotificationCard({
         className={cn(
           'flex w-full items-center gap-2.5 rounded-[12px] px-3 py-2.5 transition-colors',
           isObsidian
-            ? 'bg-zoru-ink text-zoru-surface hover:bg-zoru-ink/90'
-            : 'hover:bg-zoru-surface-2',
+            ? 'bg-[var(--st-text)] text-[var(--st-bg-secondary)] hover:bg-[var(--st-text)]/90'
+            : 'hover:bg-[var(--st-bg-muted)]',
         )}
       >
         {icon ? (
@@ -49,8 +49,8 @@ export function ClayNotificationCard({
             className={cn(
               'flex h-7 w-7 shrink-0 items-center justify-center rounded-md',
               isObsidian
-                ? 'bg-zoru-surface/10 text-zoru-surface'
-                : 'bg-zoru-surface-2 text-zoru-ink-muted',
+                ? 'bg-[var(--st-bg-secondary)]/10 text-[var(--st-bg-secondary)]'
+                : 'bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]',
             )}
           >
             {icon}
@@ -62,7 +62,7 @@ export function ClayNotificationCard({
         <LuArrowUpRight
           className={cn(
             'h-3.5 w-3.5 shrink-0 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5',
-            isObsidian ? 'text-zoru-surface/70' : 'text-zoru-ink-muted/70',
+            isObsidian ? 'text-[var(--st-bg-secondary)]/70' : 'text-[var(--st-text-secondary)]/70',
           )}
           strokeWidth={2}
         />

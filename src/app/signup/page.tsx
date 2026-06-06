@@ -149,10 +149,10 @@ export default function ClientSignupPage() {
 
   if (settings && !settings.allowClientSignup) {
     return (
-      <main className="zoruui min-h-screen bg-zoru-bg px-4 py-16 text-zoru-ink">
+      <main className="zoruui min-h-screen bg-[var(--st-bg)] px-4 py-16 text-[var(--st-text)]">
         <Card className="mx-auto max-w-lg p-8 text-center">
-          <h1 className="text-2xl text-zoru-ink">Signup unavailable</h1>
-          <p className="mt-2 text-sm text-zoru-ink-muted">
+          <h1 className="text-2xl text-[var(--st-text)]">Signup unavailable</h1>
+          <p className="mt-2 text-sm text-[var(--st-text-secondary)]">
             New client signups are currently closed. Please contact the SabNode team for access.
           </p>
         </Card>
@@ -162,10 +162,10 @@ export default function ClientSignupPage() {
 
   if (submitted) {
     return (
-      <main className="zoruui min-h-screen bg-zoru-bg px-4 py-16 text-zoru-ink">
+      <main className="zoruui min-h-screen bg-[var(--st-bg)] px-4 py-16 text-[var(--st-text)]">
         <Card className="mx-auto max-w-lg p-8 text-center">
-          <h1 className="text-2xl text-zoru-ink">Account created</h1>
-          <p className="mt-3 text-sm text-zoru-ink-muted">
+          <h1 className="text-2xl text-[var(--st-text)]">Account created</h1>
+          <p className="mt-3 text-sm text-[var(--st-text-secondary)]">
             {settings?.requireAdminApproval
               ? 'Your account is awaiting admin approval. You will receive an email when activated.'
               : 'Your account has been created and is ready to use. You will receive a welcome email shortly.'}
@@ -181,11 +181,11 @@ export default function ClientSignupPage() {
   }
 
   return (
-    <main className="zoruui min-h-screen bg-zoru-bg px-4 py-12 text-zoru-ink">
+    <main className="zoruui min-h-screen bg-[var(--st-bg)] px-4 py-12 text-[var(--st-text)]">
       <Card className="mx-auto max-w-xl p-8">
         <header className="mb-6">
-          <h1 className="text-2xl text-zoru-ink">Create a client account</h1>
-          <p className="mt-1 text-sm text-zoru-ink-muted">
+          <h1 className="text-2xl text-[var(--st-text)]">Create a client account</h1>
+          <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
             {settings?.requireAdminApproval
               ? 'Tell us about your business. An admin will review your request before activation.'
               : 'Tell us about your business to get started.'}
@@ -197,7 +197,7 @@ export default function ClientSignupPage() {
             <Label htmlFor="company_name">Company name</Label>
             <Input id="company_name" {...register('company_name')} />
             {errors.company_name && (
-              <span className="text-xs text-zoru-ink">{errors.company_name.message}</span>
+              <span className="text-xs text-[var(--st-text)]">{errors.company_name.message}</span>
             )}
           </div>
 
@@ -205,7 +205,7 @@ export default function ClientSignupPage() {
             <Label htmlFor="contact_name">Contact name</Label>
             <Input id="contact_name" {...register('contact_name')} />
             {errors.contact_name && (
-              <span className="text-xs text-zoru-ink">{errors.contact_name.message}</span>
+              <span className="text-xs text-[var(--st-text)]">{errors.contact_name.message}</span>
             )}
           </div>
 
@@ -219,7 +219,7 @@ export default function ClientSignupPage() {
                 {...register('email')}
               />
               {errors.email && (
-                <span className="text-xs text-zoru-ink">{errors.email.message}</span>
+                <span className="text-xs text-[var(--st-text)]">{errors.email.message}</span>
               )}
             </div>
             <div className="grid gap-2">
@@ -231,7 +231,7 @@ export default function ClientSignupPage() {
                 {...register('password')}
               />
               {errors.password && (
-                <span className="text-xs text-zoru-ink">{errors.password.message}</span>
+                <span className="text-xs text-[var(--st-text)]">{errors.password.message}</span>
               )}
             </div>
           </div>
@@ -245,7 +245,7 @@ export default function ClientSignupPage() {
                 {...register('mobile')}
               />
               {errors.mobile && (
-                <span className="text-xs text-zoru-ink">{errors.mobile.message}</span>
+                <span className="text-xs text-[var(--st-text)]">{errors.mobile.message}</span>
               )}
             </div>
             <div className="grid gap-2">
@@ -269,7 +269,7 @@ export default function ClientSignupPage() {
                 )}
               />
               {errors.country && (
-                <span className="text-xs text-zoru-ink">{errors.country.message}</span>
+                <span className="text-xs text-[var(--st-text)]">{errors.country.message}</span>
               )}
             </div>
           </div>
@@ -283,12 +283,12 @@ export default function ClientSignupPage() {
               {...register('website')}
             />
             {errors.website && (
-              <span className="text-xs text-zoru-ink">{errors.website.message}</span>
+              <span className="text-xs text-[var(--st-text)]">{errors.website.message}</span>
             )}
           </div>
 
           <div className="mt-2 grid gap-1">
-            <label className="flex items-start gap-2 text-sm text-zoru-ink">
+            <label className="flex items-start gap-2 text-sm text-[var(--st-text)]">
               <Controller
                 control={control}
                 name="agree_to_terms"
@@ -314,12 +314,12 @@ export default function ClientSignupPage() {
               </span>
             </label>
             {errors.agree_to_terms && (
-              <span className="text-xs text-zoru-ink">{errors.agree_to_terms.message}</span>
+              <span className="text-xs text-[var(--st-text)]">{errors.agree_to_terms.message}</span>
             )}
           </div>
 
           <div className="mt-2 flex items-center justify-between gap-3">
-            <Link href="/login" className="text-sm text-zoru-ink-muted underline">
+            <Link href="/login" className="text-sm text-[var(--st-text-secondary)] underline">
               Already have an account? Sign in
             </Link>
             <Button type="submit" disabled={isPending}>

@@ -94,12 +94,12 @@ function KpiCard({
   icon: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-1 rounded-lg border border-zoru-line bg-zoru-surface p-3">
-      <div className="flex items-center gap-1.5 text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
+    <div className="flex flex-col gap-1 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+      <div className="flex items-center gap-1.5 text-[11.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
         {icon}
         {label}
       </div>
-      <span className="text-xl font-semibold text-zoru-ink">{value}</span>
+      <span className="text-xl font-semibold text-[var(--st-text)]">{value}</span>
     </div>
   );
 }
@@ -335,7 +335,7 @@ export default function CrmFormsPage() {
         filters={
           <div className="flex flex-wrap items-end gap-3">
             <div className="space-y-1">
-              <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+              <Label className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Status
               </Label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -435,14 +435,14 @@ export default function CrmFormsPage() {
         ) : filtered.length === 0 ? (
           <Card variant="outline" className="border-dashed">
             <div className="flex flex-col items-center gap-3 py-12 text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-zoru-surface-2">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[var(--st-bg-muted)]">
                 <ClipboardList
-                  className="h-6 w-6 text-zoru-ink"
+                  className="h-6 w-6 text-[var(--st-text)]"
                   strokeWidth={1.75}
                 />
               </div>
-              <h3 className="text-[15px] font-semibold text-zoru-ink">No forms found</h3>
-              <p className="max-w-md text-[12.5px] text-zoru-ink-muted">
+              <h3 className="text-[15px] font-semibold text-[var(--st-text)]">No forms found</h3>
+              <p className="max-w-md text-[12.5px] text-[var(--st-text-secondary)]">
                 {statusFilter !== 'all'
                   ? 'No forms match the current status filter.'
                   : 'Create your first form to start capturing leads.'}
@@ -459,7 +459,7 @@ export default function CrmFormsPage() {
             <div className="overflow-x-auto">
               <Table>
                 <ZoruTableHeader>
-                  <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                  <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                     <ZoruTableHead className="w-10 pl-3">
                       <Checkbox
                         checked={allSelectedOnPage}
@@ -479,8 +479,8 @@ export default function CrmFormsPage() {
                   {Object.entries(groupedFiltered).map(([category, catForms]) => (
                     <React.Fragment key={category}>
                       {Object.keys(groupedFiltered).length > 1 && (
-                        <ZoruTableRow className="bg-zoru-surface/50 hover:bg-zoru-surface/50">
-                          <ZoruTableCell colSpan={7} className="py-2 text-[12px] font-semibold text-zoru-ink-muted uppercase tracking-wider">
+                        <ZoruTableRow className="bg-[var(--st-bg-secondary)]/50 hover:bg-[var(--st-bg-secondary)]/50">
+                          <ZoruTableCell colSpan={7} className="py-2 text-[12px] font-semibold text-[var(--st-text-secondary)] uppercase tracking-wider">
                             {category}
                           </ZoruTableCell>
                         </ZoruTableRow>
@@ -490,7 +490,7 @@ export default function CrmFormsPage() {
                         const status = resolveStatus(form);
                         const isActive = status === 'published';
                         return (
-                          <ZoruTableRow key={id} className="border-zoru-line">
+                          <ZoruTableRow key={id} className="border-[var(--st-border)]">
                             <ZoruTableCell className="pl-3">
                               <Checkbox
                                 checked={selected.has(id)}
@@ -515,10 +515,10 @@ export default function CrmFormsPage() {
                                 aria-label="Toggle active status"
                               />
                             </ZoruTableCell>
-                            <ZoruTableCell className="text-right text-[13px] font-medium text-zoru-ink">
+                            <ZoruTableCell className="text-right text-[13px] font-medium text-[var(--st-text)]">
                               {(form.submissionCount ?? 0).toLocaleString()}
                             </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                        <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                           {form.createdAt
                             ? formatDistanceToNow(new Date(form.createdAt), { addSuffix: true })
                             : '—'}
@@ -546,7 +546,7 @@ export default function CrmFormsPage() {
                               aria-label="Delete"
                               onClick={() => setDeletingId(id)}
                             >
-                              <Trash2 className="h-4 w-4 text-zoru-ink" />
+                              <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                             </Button>
                           </div>
                         </ZoruTableCell>
@@ -572,7 +572,7 @@ export default function CrmFormsPage() {
             >
               Previous
             </Button>
-            <span className="text-[13px] text-zoru-ink-muted">
+            <span className="text-[13px] text-[var(--st-text-secondary)]">
               Page {currentPage} of {totalPages}
             </span>
             <Button

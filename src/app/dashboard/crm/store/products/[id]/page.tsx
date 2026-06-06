@@ -35,10 +35,10 @@ function Field({
 }) {
     return (
         <div className={fullWidth ? 'sm:col-span-2' : undefined}>
-            <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+            <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                 {label}
             </div>
-            <div className="mt-1 text-[13px] text-zoru-ink">{children}</div>
+            <div className="mt-1 text-[13px] text-[var(--st-text)]">{children}</div>
         </div>
     );
 }
@@ -101,7 +101,7 @@ export default async function ProductDetailPage({
             }
         >
             <Card className="p-6">
-                <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                     Product details
                 </h2>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
@@ -139,7 +139,7 @@ export default async function ProductDetailPage({
 
             {images.length > 0 ? (
                 <Card className="p-6">
-                    <h2 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                    <h2 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                         Images
                     </h2>
                     <div className="flex flex-wrap gap-3">
@@ -149,7 +149,7 @@ export default async function ProductDetailPage({
                                 key={url}
                                 src={url}
                                 alt={title}
-                                className="h-24 w-24 rounded-md border border-zoru-line object-cover"
+                                className="h-24 w-24 rounded-md border border-[var(--st-border)] object-cover"
                             />
                         ))}
                     </div>
@@ -161,7 +161,7 @@ export default async function ProductDetailPage({
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         {categories.length > 0 ? (
                             <div>
-                                <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+                                <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                                     Categories
                                 </div>
                                 <div className="mt-2 flex flex-wrap gap-2">
@@ -175,7 +175,7 @@ export default async function ProductDetailPage({
                         ) : null}
                         {tags.length > 0 ? (
                             <div>
-                                <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+                                <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                                     Tags
                                 </div>
                                 <div className="mt-2 flex flex-wrap gap-2">

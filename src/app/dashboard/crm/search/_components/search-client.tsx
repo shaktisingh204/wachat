@@ -60,12 +60,12 @@ export function SearchClient({
 
   return (
     <div className="flex flex-col gap-4">
-      <label className="text-[12.5px] font-medium text-zoru-ink-muted" htmlFor="crm-global-search">
+      <label className="text-[12.5px] font-medium text-[var(--st-text-secondary)]" htmlFor="crm-global-search">
         Search query
       </label>
       <div className="relative">
         <SearchIcon
-          className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted"
+          className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]"
           aria-hidden
         />
         <Input
@@ -73,7 +73,7 @@ export function SearchClient({
           ref={inputRef}
           defaultValue={initialQuery}
           placeholder="Start typing to search across clients, invoices, leads, items…"
-          className="h-11 rounded-lg border-zoru-line bg-zoru-bg pl-9 text-[13.5px]"
+          className="h-11 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] pl-9 text-[13.5px]"
           onChange={handleChange}
           aria-label="CRM global search"
           autoComplete="off"

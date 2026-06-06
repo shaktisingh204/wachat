@@ -97,12 +97,12 @@ export function NewConnectionDialog({ isOpen, onOpenChange, app, onConnectionSav
             case 'oauth':
                 return (
                     <div className="text-center space-y-4">
-                        <p className="text-sm text-zoru-ink-muted">To connect {app.name}, you'll be redirected to their authorization page.</p>
+                        <p className="text-sm text-[var(--st-text-secondary)]">To connect {app.name}, you'll be redirected to their authorization page.</p>
                         <Button type="button" disabled>Connect via {app.name}</Button>
                     </div>
                 );
             default:
-                return <p className="text-sm text-zoru-ink-muted text-center">This app integration is not yet fully configured.</p>
+                return <p className="text-sm text-[var(--st-text-secondary)] text-center">This app integration is not yet fully configured.</p>
         }
     }
 
@@ -117,8 +117,8 @@ export function NewConnectionDialog({ isOpen, onOpenChange, app, onConnectionSav
                         {app?.logo ? (
                             <Image src={app.logo} alt={`${app.name} logo`} width={48} height={48} className="rounded-md" />
                         ) : app?.icon ? (
-                            <div className="w-12 h-12 bg-zoru-surface-2 flex items-center justify-center rounded-md">
-                                <app.icon className="w-8 h-8 text-zoru-ink-muted" />
+                            <div className="w-12 h-12 bg-[var(--st-bg-muted)] flex items-center justify-center rounded-md">
+                                <app.icon className="w-8 h-8 text-[var(--st-text-secondary)]" />
                             </div>
                         ) : null}
                         <ZoruDialogTitle>Connect to {app?.name}</ZoruDialogTitle>

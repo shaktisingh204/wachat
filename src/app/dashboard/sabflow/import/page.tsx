@@ -193,8 +193,8 @@ export default function SabFlowImportPage() {
         <div className="lg:col-span-1 space-y-6">
           <Card className="p-0 border-zoru-ink-border/50 shadow-sm bg-gradient-to-br from-zoru-base-surface to-zoru-base-background">
             <ZoruCardHeader className="pb-3 border-b border-zoru-ink-border/30">
-              <ZoruCardTitle className="flex items-center gap-2 text-base text-zoru-ink">
-                <FileJson className="h-5 w-5 text-zoru-brand" />
+              <ZoruCardTitle className="flex items-center gap-2 text-base text-[var(--st-text)]">
+                <FileJson className="h-5 w-5 text-[var(--st-accent)]" />
                 Upload Configuration
               </ZoruCardTitle>
             </ZoruCardHeader>
@@ -206,8 +206,8 @@ export default function SabFlowImportPage() {
                 hint="Drop a .json flow export file here"
                 disabled={isProcessing}
               />
-              <div className="mt-4 flex items-start gap-3 rounded-md bg-zoru-brand/5 p-3 text-sm text-zoru-ink-muted">
-                <FileCode2 className="mt-0.5 h-4 w-4 shrink-0 text-zoru-brand" />
+              <div className="mt-4 flex items-start gap-3 rounded-md bg-[var(--st-accent)]/5 p-3 text-sm text-[var(--st-text-secondary)]">
+                <FileCode2 className="mt-0.5 h-4 w-4 shrink-0 text-[var(--st-accent)]" />
                 <p>
                   We recommend validating large flows before finalizing the import
                   to prevent logical loops and missing connections.
@@ -224,14 +224,14 @@ export default function SabFlowImportPage() {
               <ZoruCardContent className="p-4">
                 <dl className="space-y-4 text-sm">
                   <div>
-                    <dt className="text-zoru-ink-muted">Flow Name</dt>
-                    <dd className="font-medium text-zoru-ink mt-1">
+                    <dt className="text-[var(--st-text-secondary)]">Flow Name</dt>
+                    <dd className="font-medium text-[var(--st-text)] mt-1">
                       {previewData.name}
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-zoru-ink-muted">Schema Version</dt>
-                    <dd className="font-medium text-zoru-ink mt-1">
+                    <dt className="text-[var(--st-text-secondary)]">Schema Version</dt>
+                    <dd className="font-medium text-[var(--st-text)] mt-1">
                       <Badge variant="secondary" className="font-mono">
                         v{previewData.version}
                       </Badge>
@@ -239,14 +239,14 @@ export default function SabFlowImportPage() {
                   </div>
                   <div className="grid grid-cols-2 gap-4 pt-2 border-t border-zoru-ink-border/30">
                     <div>
-                      <dt className="text-zoru-ink-muted">Total Nodes</dt>
-                      <dd className="text-xl font-semibold text-zoru-ink mt-1">
+                      <dt className="text-[var(--st-text-secondary)]">Total Nodes</dt>
+                      <dd className="text-xl font-semibold text-[var(--st-text)] mt-1">
                         {previewData.nodeCount}
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-zoru-ink-muted">Total Edges</dt>
-                      <dd className="text-xl font-semibold text-zoru-ink mt-1">
+                      <dt className="text-[var(--st-text-secondary)]">Total Edges</dt>
+                      <dd className="text-xl font-semibold text-[var(--st-text)] mt-1">
                         {previewData.edgeCount}
                       </dd>
                     </div>
@@ -262,7 +262,7 @@ export default function SabFlowImportPage() {
             <Card className="h-full min-h-[400px] flex items-center justify-center border-dashed border-zoru-ink-border/50 bg-zoru-base-surface/50">
               <EmptyState
                 compact
-                icon={<Workflow className="h-8 w-8 text-zoru-ink-muted" />}
+                icon={<Workflow className="h-8 w-8 text-[var(--st-text-secondary)]" />}
                 title="Awaiting Configuration"
                 description="Upload a SabFlow JSON export to generate a detailed validation preview."
               />
@@ -270,12 +270,12 @@ export default function SabFlowImportPage() {
           ) : isProcessing ? (
             <Card className="h-full min-h-[400px] flex items-center justify-center border-zoru-ink-border/50 shadow-sm">
               <div className="flex flex-col items-center text-center space-y-4">
-                <RefreshCw className="h-8 w-8 animate-spin text-zoru-brand" />
+                <RefreshCw className="h-8 w-8 animate-spin text-[var(--st-accent)]" />
                 <div>
-                  <h3 className="text-lg font-medium text-zoru-ink">
+                  <h3 className="text-lg font-medium text-[var(--st-text)]">
                     Parsing & Validating...
                   </h3>
-                  <p className="text-sm text-zoru-ink-muted mt-1 max-w-[250px]">
+                  <p className="text-sm text-[var(--st-text-secondary)] mt-1 max-w-[250px]">
                     Checking node references, validating required properties, and
                     building the structural map.
                   </p>
@@ -339,7 +339,7 @@ export default function SabFlowImportPage() {
                       <ZoruTableBody>
                         {previewData?.nodes.map((node) => (
                           <ZoruTableRow key={node.id}>
-                            <ZoruTableCell className="font-mono text-xs text-zoru-ink-muted">
+                            <ZoruTableCell className="font-mono text-xs text-[var(--st-text-secondary)]">
                               {node.id}
                             </ZoruTableCell>
                             <ZoruTableCell>
@@ -379,7 +379,7 @@ export default function SabFlowImportPage() {
                                 </Badge>
                               )}
                             </ZoruTableCell>
-                            <ZoruTableCell className="text-sm text-zoru-ink-muted">
+                            <ZoruTableCell className="text-sm text-[var(--st-text-secondary)]">
                               {node.message}
                             </ZoruTableCell>
                           </ZoruTableRow>

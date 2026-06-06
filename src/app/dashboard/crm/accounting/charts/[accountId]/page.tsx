@@ -138,12 +138,12 @@ export default async function ChartOfAccountDetailPage(props: {
             rightRail={
                 <div className="flex flex-col gap-4">
                     <Card className="p-4">
-                        <p className="text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                        <p className="text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                             Snapshot
                         </p>
                         <dl className="mt-2 space-y-1.5 text-[13px]">
                             <div className="flex justify-between gap-3">
-                                <dt className="text-zoru-ink-muted">Nature</dt>
+                                <dt className="text-[var(--st-text-secondary)]">Nature</dt>
                                 <dd>
                                     {natureRaw ? (
                                         <StatusPill
@@ -156,28 +156,28 @@ export default async function ChartOfAccountDetailPage(props: {
                                 </dd>
                             </div>
                             <div className="flex justify-between gap-3">
-                                <dt className="text-zoru-ink-muted">Sub-nature</dt>
+                                <dt className="text-[var(--st-text-secondary)]">Sub-nature</dt>
                                 <dd className="text-right">{subNatureRaw.replace(/_/g, ' ') || '—'}</dd>
                             </div>
                             <div className="flex justify-between gap-3">
-                                <dt className="text-zoru-ink-muted">Parent group</dt>
+                                <dt className="text-[var(--st-text-secondary)]">Parent group</dt>
                                 <dd className="text-right">{groupName || '—'}</dd>
                             </div>
                             <div className="flex justify-between gap-3">
-                                <dt className="text-zoru-ink-muted">Currency</dt>
+                                <dt className="text-[var(--st-text-secondary)]">Currency</dt>
                                 <dd className="font-mono">{account.currency}</dd>
                             </div>
                         </dl>
                     </Card>
                     <Card className="p-4">
-                        <p className="text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                        <p className="text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                             Related
                         </p>
                         <ul className="mt-2 space-y-1.5 text-[13px]">
                             <li>
                                 <Link
                                     href={`/dashboard/crm/accounting/groups`}
-                                    className="text-zoru-ink hover:underline"
+                                    className="text-[var(--st-text)] hover:underline"
                                 >
                                     Account groups
                                 </Link>
@@ -185,7 +185,7 @@ export default async function ChartOfAccountDetailPage(props: {
                             <li>
                                 <Link
                                     href="/dashboard/crm/accounting/vouchers"
-                                    className="text-zoru-ink hover:underline"
+                                    className="text-[var(--st-text)] hover:underline"
                                 >
                                     Voucher books
                                 </Link>
@@ -193,7 +193,7 @@ export default async function ChartOfAccountDetailPage(props: {
                             <li>
                                 <Link
                                     href="/dashboard/crm/accounting/trial-balance"
-                                    className="text-zoru-ink hover:underline"
+                                    className="text-[var(--st-text)] hover:underline"
                                 >
                                     Trial balance
                                 </Link>
@@ -223,10 +223,10 @@ export default async function ChartOfAccountDetailPage(props: {
 
                 {account.description ? (
                     <Card>
-                        <p className="text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                        <p className="text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                             Description
                         </p>
-                        <p className="mt-1.5 whitespace-pre-wrap text-[13px] text-zoru-ink">
+                        <p className="mt-1.5 whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
                             {account.description}
                         </p>
                     </Card>
@@ -234,48 +234,48 @@ export default async function ChartOfAccountDetailPage(props: {
 
                 <Card className="p-0">
                     <div className="px-4 py-3">
-                        <p className="text-[13px] font-semibold text-zoru-ink">
+                        <p className="text-[13px] font-semibold text-[var(--st-text)]">
                             Recent transactions ({recent.length})
                         </p>
-                        <p className="text-[11.5px] text-zoru-ink-muted">
+                        <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                             Last 50 voucher entries that touched this account.
                         </p>
                     </div>
-                    <div className="overflow-x-auto border-t border-zoru-line">
+                    <div className="overflow-x-auto border-t border-[var(--st-border)]">
                         <Table>
                             <ZoruTableHeader>
-                                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                    <ZoruTableHead className="text-zoru-ink-muted">Date</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Voucher #</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Note</ZoruTableHead>
-                                    <ZoruTableHead className="text-right text-zoru-ink-muted">Debit</ZoruTableHead>
-                                    <ZoruTableHead className="text-right text-zoru-ink-muted">Credit</ZoruTableHead>
+                                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Date</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Voucher #</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Note</ZoruTableHead>
+                                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Debit</ZoruTableHead>
+                                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Credit</ZoruTableHead>
                                 </ZoruTableRow>
                             </ZoruTableHeader>
                             <ZoruTableBody>
                                 {flattenedRecent.length === 0 ? (
-                                    <ZoruTableRow className="border-zoru-line">
-                                        <ZoruTableCell colSpan={5} className="h-24 text-center text-zoru-ink-muted">
+                                    <ZoruTableRow className="border-[var(--st-border)]">
+                                        <ZoruTableCell colSpan={5} className="h-24 text-center text-[var(--st-text-secondary)]">
                                             No transactions posted yet.
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 ) : (
                                     flattenedRecent.map((entry) => {
                                         return (
-                                            <ZoruTableRow key={entry._id} className="border-zoru-line">
-                                                <ZoruTableCell className="text-zoru-ink">
+                                            <ZoruTableRow key={entry._id} className="border-[var(--st-border)]">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {entry.date}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
+                                                <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
                                                     {entry.voucherNumber}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-[12px] text-zoru-ink-muted">
+                                                <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
                                                     {entry.note}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-right font-mono text-zoru-ink">
+                                                <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
                                                     {entry.debit > 0 ? fmtMoney(entry.debit, account.currency) : '—'}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-right font-mono text-zoru-ink">
+                                                <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
                                                     {entry.credit > 0 ? fmtMoney(entry.credit, account.currency) : '—'}
                                                 </ZoruTableCell>
                                             </ZoruTableRow>
@@ -303,15 +303,15 @@ function SummaryCell({ label, value, type, currency, accent }: SummaryCellProps)
     return (
         <div
             className={[
-                'rounded-lg border border-zoru-line p-3',
-                accent ? 'bg-zoru-surface-2' : 'bg-zoru-surface-2',
+                'rounded-lg border border-[var(--st-border)] p-3',
+                accent ? 'bg-[var(--st-bg-muted)]' : 'bg-[var(--st-bg-muted)]',
             ].join(' ')}
         >
-            <p className="text-[11.5px] text-zoru-ink-muted">{label}</p>
-            <p className="mt-1 text-[18px] font-semibold text-zoru-ink">
+            <p className="text-[11.5px] text-[var(--st-text-secondary)]">{label}</p>
+            <p className="mt-1 text-[18px] font-semibold text-[var(--st-text)]">
                 {fmtMoney(value, currency)}
             </p>
-            <p className="text-[11px] font-mono text-zoru-ink-muted">{type}</p>
+            <p className="text-[11px] font-mono text-[var(--st-text-secondary)]">{type}</p>
         </div>
     );
 }

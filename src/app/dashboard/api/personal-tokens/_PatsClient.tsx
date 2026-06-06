@@ -118,7 +118,7 @@ export function PatsClient({ initialTokens }: Props): JSX.Element {
           <div className="space-y-2">
             <p className="font-semibold text-sm">Save this token now — shown once. Treat it as a password.</p>
             <div className="flex items-center gap-2">
-              <code className="flex-1 text-xs font-mono bg-zoru-surface border border-zoru-line rounded px-3 py-2 text-zoru-ink overflow-x-auto">
+              <code className="flex-1 text-xs font-mono bg-[var(--st-bg-secondary)] border border-[var(--st-border)] rounded px-3 py-2 text-[var(--st-text)] overflow-x-auto">
                 {revealed}
               </code>
               <Button size="sm" variant="outline" onClick={() => navigator.clipboard.writeText(revealed)}>
@@ -191,11 +191,11 @@ export function PatsClient({ initialTokens }: Props): JSX.Element {
             {tokens.map((t) => (
               <ZoruTableRow key={t._id}>
                 <ZoruTableCell>{t.name}</ZoruTableCell>
-                <ZoruTableCell className="font-mono text-xs text-zoru-ink-muted">
+                <ZoruTableCell className="font-mono text-xs text-[var(--st-text-secondary)]">
                   {t.scopes.join(' ') || '*'}
                 </ZoruTableCell>
-                <ZoruTableCell className="text-xs text-zoru-ink-muted" suppressHydrationWarning>{fmt(t.createdAt)}</ZoruTableCell>
-                <ZoruTableCell className="text-xs text-zoru-ink-muted" suppressHydrationWarning>
+                <ZoruTableCell className="text-xs text-[var(--st-text-secondary)]" suppressHydrationWarning>{fmt(t.createdAt)}</ZoruTableCell>
+                <ZoruTableCell className="text-xs text-[var(--st-text-secondary)]" suppressHydrationWarning>
                   {t.expiresAt ? fmt(t.expiresAt) : '—'}
                 </ZoruTableCell>
                 <ZoruTableCell>
@@ -212,7 +212,7 @@ export function PatsClient({ initialTokens }: Props): JSX.Element {
                       size="sm"
                       onClick={() => handleRevoke(t._id)}
                       disabled={busy}
-                      className="text-zoru-danger hover:text-zoru-danger"
+                      className="text-[var(--st-danger)] hover:text-[var(--st-danger)]"
                     >
                       Revoke
                     </Button>

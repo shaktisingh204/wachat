@@ -137,7 +137,7 @@ export default function IntegrationsPage() {
       </PageHeader>
 
       <div className="flex flex-wrap items-center gap-3">
-        <div className="flex flex-wrap gap-1 rounded-full border border-zoru-line bg-zoru-bg p-1">
+        <div className="flex flex-wrap gap-1 rounded-full border border-[var(--st-border)] bg-[var(--st-bg)] p-1">
           {CATEGORIES.map((c) => (
             <button
               key={c.id}
@@ -146,8 +146,8 @@ export default function IntegrationsPage() {
               className={cn(
                 'rounded-full px-3 py-1.5 text-[12.5px] transition-colors',
                 filter === c.id
-                  ? 'bg-zoru-ink text-zoru-on-primary'
-                  : 'text-zoru-ink-muted hover:text-zoru-ink',
+                  ? 'bg-[var(--st-text)] text-[var(--st-text-inverted)]'
+                  : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
               )}
             >
               {t(c.labelKey)}
@@ -170,7 +170,7 @@ export default function IntegrationsPage() {
           return (
             <Card key={i.id} className="flex flex-col gap-3 p-5">
               <div className="flex items-start justify-between">
-                <div className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink">
+                <div className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                   <Icon className="h-5 w-5" />
                 </div>
                 {i.connected ? (
@@ -180,8 +180,8 @@ export default function IntegrationsPage() {
                 )}
               </div>
               <div>
-                <p className="text-[14px] text-zoru-ink">{i.name}</p>
-                <p className="mt-1 text-[12.5px] leading-relaxed text-zoru-ink-muted">
+                <p className="text-[14px] text-[var(--st-text)]">{i.name}</p>
+                <p className="mt-1 text-[12.5px] leading-relaxed text-[var(--st-text-secondary)]">
                   {t(i.descriptionKey)}
                 </p>
               </div>

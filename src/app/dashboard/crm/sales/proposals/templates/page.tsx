@@ -224,7 +224,7 @@ export default function ProposalTemplatesPage() {
         bulkBar={
           selected.size > 0 ? (
             <div className="flex flex-wrap items-center gap-2 text-[13px]">
-              <span className="font-medium text-zoru-ink">{selected.size} selected</span>
+              <span className="font-medium text-[var(--st-text)]">{selected.size} selected</span>
               <Button size="sm" variant="outline" onClick={bulkArchive} disabled={busy}>
                 <Archive className="h-3.5 w-3.5" /> Archive
               </Button>
@@ -234,7 +234,7 @@ export default function ProposalTemplatesPage() {
               <Button
                 size="sm"
                 variant="ghost"
-                className="text-zoru-danger-ink"
+                className="text-[var(--st-danger)]"
                 onClick={() => setPendingBulkDelete(true)}
                 disabled={busy}
               >
@@ -249,9 +249,9 @@ export default function ProposalTemplatesPage() {
       >
         <Card className="overflow-hidden p-0">
           {/* Filter bar */}
-          <div className="flex flex-wrap items-center gap-3 border-b border-zoru-line p-3">
+          <div className="flex flex-wrap items-center gap-3 border-b border-[var(--st-border)] p-3">
             <div className="relative max-w-sm flex-1">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
               <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -297,7 +297,7 @@ export default function ProposalTemplatesPage() {
                   setStatusFilter('');
                   setCategoryFilter('');
                 }}
-                className="text-[12px] text-zoru-ink-muted"
+                className="text-[12px] text-[var(--st-text-secondary)]"
               >
                 <X className="h-3.5 w-3.5" /> Clear
               </Button>
@@ -306,7 +306,7 @@ export default function ProposalTemplatesPage() {
 
           <Table>
             <TableHeader>
-              <TableRow className="border-zoru-line hover:bg-transparent">
+              <TableRow className="border-[var(--st-border)] hover:bg-transparent">
                 <TableHead className="w-[36px]">
                   <Checkbox
                     checked={allSelected}
@@ -314,11 +314,11 @@ export default function ProposalTemplatesPage() {
                     aria-label="Select all"
                   />
                 </TableHead>
-                <TableHead className="text-zoru-ink-muted">Name</TableHead>
-                <TableHead className="text-zoru-ink-muted">Title</TableHead>
-                <TableHead className="text-zoru-ink-muted">Currency</TableHead>
-                <TableHead className="text-right text-zoru-ink-muted">Total</TableHead>
-                <TableHead className="text-zoru-ink-muted">Status</TableHead>
+                <TableHead className="text-[var(--st-text-secondary)]">Name</TableHead>
+                <TableHead className="text-[var(--st-text-secondary)]">Title</TableHead>
+                <TableHead className="text-[var(--st-text-secondary)]">Currency</TableHead>
+                <TableHead className="text-right text-[var(--st-text-secondary)]">Total</TableHead>
+                <TableHead className="text-[var(--st-text-secondary)]">Status</TableHead>
                 <TableHead className="w-24" />
               </TableRow>
             </TableHeader>
@@ -326,14 +326,14 @@ export default function ProposalTemplatesPage() {
               {isLoading ? (
                 <TableRow>
                   <TableCell colSpan={7} className="h-24 text-center">
-                    <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
+                    <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
                   </TableCell>
                 </TableRow>
               ) : filtered.length === 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={7}
-                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                    className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     {hasActive || query
                       ? 'No templates match these filters.'
@@ -347,7 +347,7 @@ export default function ProposalTemplatesPage() {
                   return (
                     <TableRow
                       key={t._id}
-                      className="border-zoru-line"
+                      className="border-[var(--st-border)]"
                       data-state={isSelected ? 'selected' : undefined}
                     >
                       <TableCell>
@@ -363,13 +363,13 @@ export default function ProposalTemplatesPage() {
                           label={t.name || '—'}
                         />
                       </TableCell>
-                      <TableCell className="text-[13px] text-zoru-ink">
+                      <TableCell className="text-[13px] text-[var(--st-text)]">
                         {t.title || '—'}
                       </TableCell>
-                      <TableCell className="text-[13px] text-zoru-ink">
+                      <TableCell className="text-[13px] text-[var(--st-text)]">
                         {t.currency || '—'}
                       </TableCell>
-                      <TableCell className="text-right text-[13px] text-zoru-ink">
+                      <TableCell className="text-right text-[13px] text-[var(--st-text)]">
                         {fmtINR(t.total, t.currency)}
                       </TableCell>
                       <TableCell>
@@ -398,7 +398,7 @@ export default function ProposalTemplatesPage() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="text-zoru-danger-ink"
+                            className="text-[var(--st-danger)]"
                             onClick={() => setPendingDelete(t)}
                           >
                             <Trash2 className="h-3.5 w-3.5" />
@@ -435,7 +435,7 @@ export default function ProposalTemplatesPage() {
                 confirmDelete();
               }}
               disabled={busy}
-              className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
+              className="bg-[var(--st-danger)] text-white hover:bg-[var(--st-danger)]/90"
             >
               {busy ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : null}
               Delete permanently
@@ -465,7 +465,7 @@ export default function ProposalTemplatesPage() {
                 confirmBulkDelete();
               }}
               disabled={busy}
-              className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
+              className="bg-[var(--st-danger)] text-white hover:bg-[var(--st-danger)]/90"
             >
               {busy ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : null}
               Delete permanently

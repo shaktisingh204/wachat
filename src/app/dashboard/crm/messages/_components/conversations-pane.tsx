@@ -77,8 +77,8 @@ export function ConversationsPane({ conversations, activePeerId }: Conversations
       </Modal>
 
     <Card className="overflow-hidden p-0">
-      <div className="border-b border-zoru-line px-4 py-3 flex justify-between items-center">
-        <p className="text-[12.5px] font-medium text-zoru-ink-muted flex items-center gap-2">
+      <div className="border-b border-[var(--st-border)] px-4 py-3 flex justify-between items-center">
+        <p className="text-[12.5px] font-medium text-[var(--st-text-secondary)] flex items-center gap-2">
           Conversations
           {totalUnread > 0 && (
             <Badge variant="danger" className="h-4 px-1.5 text-[10px] leading-none">
@@ -91,11 +91,11 @@ export function ConversationsPane({ conversations, activePeerId }: Conversations
         </Button>
       </div>
       {conversations.length === 0 ? (
-        <div className="flex h-40 items-center justify-center px-4 text-center text-[12.5px] text-zoru-ink-muted">
+        <div className="flex h-40 items-center justify-center px-4 text-center text-[12.5px] text-[var(--st-text-secondary)]">
           No conversations yet.
         </div>
       ) : (
-        <ul className="divide-y divide-zoru-line">
+        <ul className="divide-y divide-[var(--st-border)]">
           {conversations.map((c) => {
             const active = c.peer_user_id === activePeerId;
             return (
@@ -104,22 +104,22 @@ export function ConversationsPane({ conversations, activePeerId }: Conversations
                   href={`/dashboard/crm/messages/${c.peer_user_id}`}
                   className={cn(
                     'flex items-start gap-3 px-4 py-3 transition',
-                    active ? 'bg-zoru-surface-2' : 'hover:bg-zoru-surface-2',
+                    active ? 'bg-[var(--st-bg-muted)]' : 'hover:bg-[var(--st-bg-muted)]',
                   )}
                 >
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-zoru-surface-2">
-                    <UserCircle2 className="h-5 w-5 text-zoru-ink-muted" />
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--st-bg-muted)]">
+                    <UserCircle2 className="h-5 w-5 text-[var(--st-text-secondary)]" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="truncate text-[13px] font-medium text-zoru-ink">
+                      <span className="truncate text-[13px] font-medium text-[var(--st-text)]">
                         {c.peer_user_id}
                       </span>
-                      <span className="shrink-0 text-[11px] text-zoru-ink-muted">
+                      <span className="shrink-0 text-[11px] text-[var(--st-text-secondary)]">
                         {formatTime(c.last_message_at)}
                       </span>
                     </div>
-                    <p className="mt-0.5 truncate text-[12px] text-zoru-ink-muted">
+                    <p className="mt-0.5 truncate text-[12px] text-[var(--st-text-secondary)]">
                       {truncate(c.last_message || '(attachment)')}
                     </p>
                   </div>

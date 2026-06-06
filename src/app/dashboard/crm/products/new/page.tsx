@@ -32,76 +32,76 @@ function ItemFormSkeleton() {
     <div className="space-y-6 w-full animate-pulse">
       {/* Basic Details Skeleton */}
       <ZoruCard className="p-6 space-y-4">
-        <ZoruSkeleton className="h-6 w-32 rounded bg-zoru-surface-2 dark:bg-zoru-ink" />
+        <ZoruSkeleton className="h-6 w-32 rounded bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]" />
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <ZoruSkeleton className="h-4 w-16 rounded bg-zoru-surface-2 dark:bg-zoru-ink" />
-            <ZoruSkeleton className="h-10 w-full rounded bg-zoru-surface-2 dark:bg-zoru-ink" />
+            <ZoruSkeleton className="h-4 w-16 rounded bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]" />
+            <ZoruSkeleton className="h-10 w-full rounded bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]" />
           </div>
           <div className="space-y-2">
-            <ZoruSkeleton className="h-4 w-12 rounded bg-zoru-surface-2 dark:bg-zoru-ink" />
-            <ZoruSkeleton className="h-10 w-full rounded bg-zoru-surface-2 dark:bg-zoru-ink" />
+            <ZoruSkeleton className="h-4 w-12 rounded bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]" />
+            <ZoruSkeleton className="h-10 w-full rounded bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]" />
           </div>
         </div>
         <div className="space-y-2">
-          <ZoruSkeleton className="h-4 w-20 rounded bg-zoru-surface-2 dark:bg-zoru-ink" />
-          <ZoruSkeleton className="h-10 w-full rounded bg-zoru-surface-2 dark:bg-zoru-ink" />
+          <ZoruSkeleton className="h-4 w-20 rounded bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]" />
+          <ZoruSkeleton className="h-10 w-full rounded bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]" />
         </div>
       </ZoruCard>
 
       {/* Pricing & Stock Skeleton */}
       <ZoruCard className="p-6 space-y-4">
-        <ZoruSkeleton className="h-6 w-36 rounded bg-zoru-surface-2 dark:bg-zoru-ink" />
+        <ZoruSkeleton className="h-6 w-36 rounded bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]" />
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <ZoruSkeleton className="h-4 w-24 rounded bg-zoru-surface-2 dark:bg-zoru-ink" />
-            <ZoruSkeleton className="h-10 w-full rounded bg-zoru-surface-2 dark:bg-zoru-ink" />
+            <ZoruSkeleton className="h-4 w-24 rounded bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]" />
+            <ZoruSkeleton className="h-10 w-full rounded bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]" />
           </div>
           <div className="space-y-2">
-            <ZoruSkeleton className="h-4 w-20 rounded bg-zoru-surface-2 dark:bg-zoru-ink" />
-            <ZoruSkeleton className="h-10 w-full rounded bg-zoru-surface-2 dark:bg-zoru-ink" />
+            <ZoruSkeleton className="h-4 w-20 rounded bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]" />
+            <ZoruSkeleton className="h-10 w-full rounded bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]" />
           </div>
         </div>
         <div className="grid grid-cols-2 gap-4 items-center">
           <div className="flex items-center gap-2 h-10">
-            <ZoruSkeleton className="h-4 w-4 rounded bg-zoru-surface-2 dark:bg-zoru-ink" />
-            <ZoruSkeleton className="h-4 w-28 rounded bg-zoru-surface-2 dark:bg-zoru-ink" />
+            <ZoruSkeleton className="h-4 w-4 rounded bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]" />
+            <ZoruSkeleton className="h-4 w-28 rounded bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]" />
           </div>
           <div className="space-y-2">
-            <ZoruSkeleton className="h-4 w-24 rounded bg-zoru-surface-2 dark:bg-zoru-ink" />
-            <ZoruSkeleton className="h-10 w-full rounded bg-zoru-surface-2 dark:bg-zoru-ink" />
+            <ZoruSkeleton className="h-4 w-24 rounded bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]" />
+            <ZoruSkeleton className="h-10 w-full rounded bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]" />
           </div>
         </div>
         <div className="space-y-2">
-          <ZoruSkeleton className="h-4 w-40 rounded bg-zoru-surface-2 dark:bg-zoru-ink" />
-          <ZoruSkeleton className="h-10 w-full rounded bg-zoru-surface-2 dark:bg-zoru-ink" />
+          <ZoruSkeleton className="h-4 w-40 rounded bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]" />
+          <ZoruSkeleton className="h-10 w-full rounded bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]" />
         </div>
       </ZoruCard>
 
       {/* Supplier Information Skeleton */}
       <ZoruCard className="p-6 space-y-4">
-        <ZoruSkeleton className="h-6 w-44 rounded bg-zoru-surface-2 dark:bg-zoru-ink" />
-        <ZoruSkeleton className="h-4 w-64 rounded bg-zoru-surface-2 dark:bg-zoru-ink" />
+        <ZoruSkeleton className="h-6 w-44 rounded bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]" />
+        <ZoruSkeleton className="h-4 w-64 rounded bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]" />
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <ZoruSkeleton className="h-4 w-28 rounded bg-zoru-surface-2 dark:bg-zoru-ink" />
-            <ZoruSkeleton className="h-10 w-full rounded bg-zoru-surface-2 dark:bg-zoru-ink" />
+            <ZoruSkeleton className="h-4 w-28 rounded bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]" />
+            <ZoruSkeleton className="h-10 w-full rounded bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]" />
           </div>
           <div className="space-y-2">
-            <ZoruSkeleton className="h-4 w-32 rounded bg-zoru-surface-2 dark:bg-zoru-ink" />
-            <ZoruSkeleton className="h-10 w-full rounded bg-zoru-surface-2 dark:bg-zoru-ink" />
+            <ZoruSkeleton className="h-4 w-32 rounded bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]" />
+            <ZoruSkeleton className="h-10 w-full rounded bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]" />
           </div>
         </div>
         <div className="space-y-2">
-          <ZoruSkeleton className="h-4 w-32 rounded bg-zoru-surface-2 dark:bg-zoru-ink" />
-          <ZoruSkeleton className="h-10 w-full rounded bg-zoru-surface-2 dark:bg-zoru-ink" />
+          <ZoruSkeleton className="h-4 w-32 rounded bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]" />
+          <ZoruSkeleton className="h-10 w-full rounded bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]" />
         </div>
       </ZoruCard>
 
       {/* Actions Skeleton */}
       <div className="flex justify-end gap-2">
-        <ZoruSkeleton className="h-10 w-24 rounded bg-zoru-surface-2 dark:bg-zoru-ink" />
-        <ZoruSkeleton className="h-10 w-32 rounded bg-zoru-surface-2 dark:bg-zoru-ink" />
+        <ZoruSkeleton className="h-10 w-24 rounded bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]" />
+        <ZoruSkeleton className="h-10 w-32 rounded bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]" />
       </div>
     </div>
   );

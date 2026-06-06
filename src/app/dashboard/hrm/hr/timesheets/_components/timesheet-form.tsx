@@ -174,7 +174,7 @@ export function TimesheetForm({ initial }: Props): React.JSX.Element {
     return (
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
             <Card className="p-6">
-                <h2 className="mb-4 text-[14px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                <h2 className="mb-4 text-[14px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                     Header
                 </h2>
                 <div className="grid gap-4 md:grid-cols-3">
@@ -182,7 +182,7 @@ export function TimesheetForm({ initial }: Props): React.JSX.Element {
                         <Label>Employee *</Label>
                         {/* TODO 1E.sweep: dynamic list — needs EntityKey "employee" (already exists; just swap to <EntityFormField entity="employee">) */}
                         <Select value={employeeId || undefined} onValueChange={setEmployeeId}>
-                            <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                            <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
                                 <ZoruSelectValue placeholder="Select employee" />
                             </ZoruSelectTrigger>
                             <ZoruSelectContent>
@@ -201,7 +201,7 @@ export function TimesheetForm({ initial }: Props): React.JSX.Element {
                             value={weekStart}
                             onChange={(e) => setWeekStart(e.target.value)}
                             required
-                            className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                            className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                         />
                     </div>
                     <div>
@@ -210,7 +210,7 @@ export function TimesheetForm({ initial }: Props): React.JSX.Element {
                             type="date"
                             value={weekEnd}
                             onChange={(e) => setWeekEnd(e.target.value)}
-                            className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                            className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                         />
                     </div>
                 </div>
@@ -218,11 +218,11 @@ export function TimesheetForm({ initial }: Props): React.JSX.Element {
 
             <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-baseline justify-between gap-3">
-                    <h2 className="text-[14px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                    <h2 className="text-[14px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                         Daily hours
                     </h2>
-                    <span className="text-[12px] text-zoru-ink-muted">
-                        Total: <strong className="text-zoru-ink">{totalHours.toFixed(2)}h</strong>
+                    <span className="text-[12px] text-[var(--st-text-secondary)]">
+                        Total: <strong className="text-[var(--st-text)]">{totalHours.toFixed(2)}h</strong>
                     </span>
                 </div>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-7">
@@ -235,7 +235,7 @@ export function TimesheetForm({ initial }: Props): React.JSX.Element {
                                 min="0"
                                 value={String(dailyHours[idx] ?? 0)}
                                 onChange={(e) => updateDay(idx, e.target.value)}
-                                className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                                className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                             />
                         </div>
                     ))}
@@ -244,7 +244,7 @@ export function TimesheetForm({ initial }: Props): React.JSX.Element {
 
             <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                    <h2 className="text-[14px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                    <h2 className="text-[14px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                         Project breakdowns
                     </h2>
                     <Button type="button" variant="outline" size="sm" onClick={addProject}>
@@ -252,7 +252,7 @@ export function TimesheetForm({ initial }: Props): React.JSX.Element {
                     </Button>
                 </div>
                 {projects.length === 0 ? (
-                    <p className="text-[13px] text-zoru-ink-muted">
+                    <p className="text-[13px] text-[var(--st-text-secondary)]">
                         No project breakdowns. Optional — useful for billable splits.
                     </p>
                 ) : (
@@ -270,7 +270,7 @@ export function TimesheetForm({ initial }: Props): React.JSX.Element {
                                             updateProject(i, { projectId: e.target.value })
                                         }
                                         placeholder="proj_…"
-                                        className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                                        className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                                     />
                                 </div>
                                 <div>
@@ -283,7 +283,7 @@ export function TimesheetForm({ initial }: Props): React.JSX.Element {
                                         onChange={(e) =>
                                             updateProject(i, { hours: Number(e.target.value) || 0 })
                                         }
-                                        className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                                        className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                                     />
                                 </div>
                                 <Button
@@ -292,7 +292,7 @@ export function TimesheetForm({ initial }: Props): React.JSX.Element {
                                     size="icon"
                                     onClick={() => removeProject(i)}
                                 >
-                                    <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                    <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                 </Button>
                             </div>
                         ))}
@@ -301,7 +301,7 @@ export function TimesheetForm({ initial }: Props): React.JSX.Element {
             </Card>
 
             <Card className="p-6">
-                <h2 className="mb-4 text-[14px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                <h2 className="mb-4 text-[14px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                     Status & notes
                 </h2>
                 <div className="grid gap-4 md:grid-cols-2">
@@ -326,7 +326,7 @@ export function TimesheetForm({ initial }: Props): React.JSX.Element {
                             value={notes}
                             onChange={(e) => setNotes(e.target.value)}
                             rows={3}
-                            className="mt-1.5 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                            className="mt-1.5 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                         />
                     </div>
                 </div>

@@ -25,7 +25,7 @@ export default function SubtasksLoading() {
         </div>
 
         {/* Table skeleton */}
-        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+        <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <div className="p-4 space-y-4">
             <div className="flex justify-between border-b pb-2">
               <Skeleton className="h-4 w-32" />

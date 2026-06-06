@@ -112,7 +112,7 @@ function MultiSelectCombobox({
                                 );
                             })
                         ) : (
-                            <span className="text-zoru-ink-muted font-normal">{placeholder}</span>
+                            <span className="text-[var(--st-text-secondary)] font-normal">{placeholder}</span>
                         )}
                     </div>
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -263,8 +263,8 @@ export function ContactInfoPanel({ project, contact, onContactUpdate, onClose }:
     }, [project.tags]);
 
     return (
-        <div className="flex flex-col h-full bg-zoru-surface border-l">
-            <div className="px-4 py-3 border-b flex items-center justify-between bg-zoru-surface-2/20 flex-shrink-0">
+        <div className="flex flex-col h-full bg-[var(--st-bg-secondary)] border-l">
+            <div className="px-4 py-3 border-b flex items-center justify-between bg-[var(--st-bg-muted)]/20 flex-shrink-0">
                 <h3 className="font-semibold text-lg">Contact Info</h3>
                 <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onClose}>
                     <X className="h-4 w-4" />
@@ -285,10 +285,10 @@ export function ContactInfoPanel({ project, contact, onContactUpdate, onClose }:
                                 className="h-8 text-center font-medium"
                                 autoFocus
                             />
-                            <Button size="icon" variant="ghost" className="h-8 w-8 shrink-0 text-zoru-ink hover:text-zoru-ink hover:bg-zoru-surface-2" onClick={handleSaveName} disabled={isPending}>
+                            <Button size="icon" variant="ghost" className="h-8 w-8 shrink-0 text-[var(--st-text)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]" onClick={handleSaveName} disabled={isPending}>
                                 <Check className="h-4 w-4" />
                             </Button>
-                            <Button size="icon" variant="ghost" className="h-8 w-8 shrink-0 text-zoru-ink-muted" onClick={() => { setIsEditingName(false); setEditedName(contact.name); }}>
+                            <Button size="icon" variant="ghost" className="h-8 w-8 shrink-0 text-[var(--st-text-secondary)]" onClick={() => { setIsEditingName(false); setEditedName(contact.name); }}>
                                 <X className="h-4 w-4" />
                             </Button>
                         </div>
@@ -296,15 +296,15 @@ export function ContactInfoPanel({ project, contact, onContactUpdate, onClose }:
                         <div className="flex items-center gap-2 group mb-1 justify-center">
                             <h2 className="text-xl font-semibold">{contact.name}</h2>
                             <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => setIsEditingName(true)}>
-                                <Pencil className="h-3 w-3 text-zoru-ink-muted" />
+                                <Pencil className="h-3 w-3 text-[var(--st-text-secondary)]" />
                             </Button>
                         </div>
                     )}
-                    <p className="text-sm text-zoru-ink-muted mb-4">{contact.waId}</p>
+                    <p className="text-sm text-[var(--st-text-secondary)] mb-4">{contact.waId}</p>
 
                     <div className="grid grid-cols-2 gap-4 w-full">
                         <div className="space-y-1.5">
-                            <Label className="text-xs text-zoru-ink-muted">Status</Label>
+                            <Label className="text-xs text-[var(--st-text-secondary)]">Status</Label>
                             <Select value={status} onValueChange={handleStatusChange} disabled={isPending}>
                                 <ZoruSelectTrigger id="status" className="h-9"><ZoruSelectValue /></ZoruSelectTrigger>
                                 <ZoruSelectContent>
@@ -315,7 +315,7 @@ export function ContactInfoPanel({ project, contact, onContactUpdate, onClose }:
                             </Select>
                         </div>
                         <div className="space-y-1.5">
-                            <Label className="text-xs text-zoru-ink-muted">Agent</Label>
+                            <Label className="text-xs text-[var(--st-text-secondary)]">Agent</Label>
                             <Select value={assignedAgentId || 'unassigned'} onValueChange={handleAgentChange} disabled={isPending}>
                                 <ZoruSelectTrigger id="agent" className="h-9"><ZoruSelectValue /></ZoruSelectTrigger>
                                 <ZoruSelectContent>
@@ -333,7 +333,7 @@ export function ContactInfoPanel({ project, contact, onContactUpdate, onClose }:
                     <div className="space-y-2">
                         <div className="flex items-center justify-between">
                             <Label>Tags</Label>
-                            <Button variant="ghost" size="sm" className="h-6 gap-1 text-[10px] text-zoru-ink-muted" onClick={() => setIsTagsManagerOpen(true)}>
+                            <Button variant="ghost" size="sm" className="h-6 gap-1 text-[10px] text-[var(--st-text-secondary)]" onClick={() => setIsTagsManagerOpen(true)}>
                                 <Settings className="h-3 w-3" />
                                 Manage
                             </Button>
@@ -383,13 +383,13 @@ export function ContactInfoPanel({ project, contact, onContactUpdate, onClose }:
                                     </Button>
                                 </div>
                             ) : (
-                                <div className="text-center text-sm text-zoru-ink-muted py-8 bg-zoru-surface-2/30 rounded-lg border border-dashed">
+                                <div className="text-center text-sm text-[var(--st-text-secondary)] py-8 bg-[var(--st-bg-muted)]/30 rounded-lg border border-dashed">
                                     No custom attributes found
                                 </div>
                             )}
                         </TabsContent>
                         <TabsContent value="files" className="mt-4">
-                            <div className="text-center text-sm text-zoru-ink-muted py-8 bg-zoru-surface-2/30 rounded-lg border border-dashed">
+                            <div className="text-center text-sm text-[var(--st-text-secondary)] py-8 bg-[var(--st-bg-muted)]/30 rounded-lg border border-dashed">
                                 No shared files
                             </div>
                         </TabsContent>

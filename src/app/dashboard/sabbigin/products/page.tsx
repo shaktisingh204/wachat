@@ -49,12 +49,12 @@ export default async function SabbiginProductsPage({ searchParams }: PageProps) 
                 <SabbiginNav active="/dashboard/sabbigin/products" />
 
                 {products.length === 0 ? (
-                    <Card className="p-6 text-sm text-zoru-ink-muted">
+                    <Card className="p-6 text-sm text-[var(--st-text-secondary)]">
                         No products yet. Add your first one from the full CRM (the create form lives there).
                     </Card>
                 ) : (
                     <Card className="overflow-hidden p-0">
-                        <ul className="divide-y divide-zoru-border">
+                        <ul className="divide-y divide-[var(--st-border)]">
                             {products.map((p) => {
                                 const id = String(p._id);
                                 const price = (p as { price?: number; rate?: number }).price ?? (p as { rate?: number }).rate ?? 0;
@@ -63,13 +63,13 @@ export default async function SabbiginProductsPage({ searchParams }: PageProps) 
                                     <li key={id}>
                                         <Link
                                             href={`/dashboard/crm/sales-crm/products/${id}`}
-                                            className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-zoru-surface-2"
+                                            className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-[var(--st-bg-muted)]"
                                         >
                                             <div className="min-w-0">
-                                                <p className="truncate text-sm font-medium text-zoru-ink">{p.name ?? 'Product'}</p>
-                                                <p className="truncate text-xs text-zoru-ink-muted">{sku || '—'}</p>
+                                                <p className="truncate text-sm font-medium text-[var(--st-text)]">{p.name ?? 'Product'}</p>
+                                                <p className="truncate text-xs text-[var(--st-text-secondary)]">{sku || '—'}</p>
                                             </div>
-                                            <p className="shrink-0 text-sm font-medium text-zoru-ink">
+                                            <p className="shrink-0 text-sm font-medium text-[var(--st-text)]">
                                                 {formatCurrency(price)}
                                             </p>
                                         </Link>

@@ -300,7 +300,7 @@ export function DisciplinaryForm({ initialData }: DisciplinaryFormProps) {
                         </SabFilePickerButton>
                     </div>
                     {evidence.length === 0 ? (
-                        <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-4 text-center text-[12.5px] text-zoru-ink-muted">
+                        <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-4 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                             No evidence attached. Use &ldquo;Add evidence&rdquo; to
                             attach files from SabFiles.
                         </div>
@@ -309,13 +309,13 @@ export function DisciplinaryForm({ initialData }: DisciplinaryFormProps) {
                             {evidence.map((e) => (
                                 <li
                                     key={e.url}
-                                    className="flex items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 px-3 py-2"
+                                    className="flex items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2"
                                 >
                                     <a
                                         href={e.url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="max-w-[80%] truncate text-[12.5px] text-zoru-ink underline-offset-2 hover:underline"
+                                        className="max-w-[80%] truncate text-[12.5px] text-[var(--st-text)] underline-offset-2 hover:underline"
                                     >
                                         {e.name || e.url}
                                     </a>
@@ -349,7 +349,7 @@ export function DisciplinaryForm({ initialData }: DisciplinaryFormProps) {
                         </Button>
                     </div>
                     {hearings.length === 0 ? (
-                        <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-4 text-center text-[12.5px] text-zoru-ink-muted">
+                        <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-4 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                             No hearings scheduled. Use &ldquo;Add hearing&rdquo; to
                             record one.
                         </div>
@@ -358,7 +358,7 @@ export function DisciplinaryForm({ initialData }: DisciplinaryFormProps) {
                             {hearings.map((h, idx) => (
                                 <div
                                     key={idx}
-                                    className="grid grid-cols-1 gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-3 sm:grid-cols-[140px_1fr_2fr_auto]"
+                                    className="grid grid-cols-1 gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 sm:grid-cols-[140px_1fr_2fr_auto]"
                                 >
                                     <Input
                                         type="date"
@@ -388,7 +388,7 @@ export function DisciplinaryForm({ initialData }: DisciplinaryFormProps) {
                                         onClick={() => removeHearing(idx)}
                                         aria-label="Remove hearing"
                                     >
-                                        <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                        <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                     </Button>
                                 </div>
                             ))}

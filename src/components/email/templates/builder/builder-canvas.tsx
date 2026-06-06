@@ -54,7 +54,7 @@ export function BuilderCanvas({
     >
       <div className="min-h-full px-6 py-8" style={containerStyle}>
         {doc.settings.preheader ? (
-          <p className="mx-auto mb-2 max-w-[600px] text-xs italic text-zoru-ink-muted">
+          <p className="mx-auto mb-2 max-w-[600px] text-xs italic text-[var(--st-text-secondary)]">
             Preheader: {doc.settings.preheader}
           </p>
         ) : null}
@@ -136,7 +136,7 @@ function BlockRow({
     >
       <div
         className={cn(
-          'pointer-events-none absolute right-2 top-2 z-10 flex items-center gap-1 rounded-md border border-zoru-line bg-zoru-surface p-1 opacity-0 shadow-sm transition-opacity',
+          'pointer-events-none absolute right-2 top-2 z-10 flex items-center gap-1 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1 opacity-0 shadow-sm transition-opacity',
           'group-hover:pointer-events-auto group-hover:opacity-100',
           selected && 'pointer-events-auto opacity-100',
         )}
@@ -177,7 +177,7 @@ function BlockRow({
           size="icon-sm"
           aria-label="Delete block"
           onClick={() => onDelete(block.id)}
-          className="text-zoru-danger"
+          className="text-[var(--st-danger)]"
         >
           <Trash2 className="h-3.5 w-3.5" />
         </Button>
@@ -206,7 +206,7 @@ function BlockPreview({ block }: { block: EmailBuilderBlock }) {
             whiteSpace: 'pre-wrap',
           }}
         >
-          {(p.content as string) || <span className="text-zoru-ink-muted">Empty text</span>}
+          {(p.content as string) || <span className="text-[var(--st-text-secondary)]">Empty text</span>}
         </div>
       );
     }
@@ -228,7 +228,7 @@ function BlockPreview({ block }: { block: EmailBuilderBlock }) {
               style={{ maxWidth: (p.width as number) ?? 600, height: 'auto', display: 'inline-block' }}
             />
           ) : (
-            <div className="rounded border border-dashed border-zoru-line bg-zoru-surface-2/40 p-8 text-xs text-zoru-ink-muted">
+            <div className="rounded border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)]/40 p-8 text-xs text-[var(--st-text-secondary)]">
               Pick an image from SabFiles
             </div>
           )}
@@ -268,9 +268,9 @@ function BlockPreview({ block }: { block: EmailBuilderBlock }) {
           }}
         >
           {Array.from({ length: columns }).map((_, idx) => (
-            <div key={idx} className="rounded border border-dashed border-zoru-line/60 bg-zoru-surface-2/30 p-2">
+            <div key={idx} className="rounded border border-dashed border-[var(--st-border)]/60 bg-[var(--st-bg-muted)]/30 p-2">
               {children[idx] ? <BlockPreview block={children[idx]} /> : (
-                <span className="text-xs text-zoru-ink-muted">Column {idx + 1}</span>
+                <span className="text-xs text-[var(--st-text-secondary)]">Column {idx + 1}</span>
               )}
             </div>
           ))}
@@ -302,7 +302,7 @@ function BlockPreview({ block }: { block: EmailBuilderBlock }) {
           {networks.map((n, idx) => (
             <span
               key={`${n.network}-${idx}`}
-              className="mx-1 inline-block rounded bg-zoru-surface-2 px-2 py-1 text-xs text-zoru-ink-muted"
+              className="mx-1 inline-block rounded bg-[var(--st-bg-muted)] px-2 py-1 text-xs text-[var(--st-text-secondary)]"
             >
               {n.network}
             </span>
@@ -322,7 +322,7 @@ function BlockPreview({ block }: { block: EmailBuilderBlock }) {
               style={{ maxWidth: (p.width as number) ?? 600, height: 'auto' }}
             />
           ) : (
-            <div className="rounded border border-dashed border-zoru-line bg-zoru-surface-2/40 p-8 text-xs text-zoru-ink-muted">
+            <div className="rounded border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)]/40 p-8 text-xs text-[var(--st-text-secondary)]">
               Add video src
             </div>
           )}
@@ -347,8 +347,8 @@ function BlockPreview({ block }: { block: EmailBuilderBlock }) {
     }
     case 'html': {
       return (
-        <div className="m-2 rounded border border-dashed border-zoru-line bg-zoru-surface-2/40 p-3 font-mono text-xs">
-          <span className="text-zoru-ink-muted">[Raw HTML]</span>
+        <div className="m-2 rounded border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)]/40 p-3 font-mono text-xs">
+          <span className="text-[var(--st-text-secondary)]">[Raw HTML]</span>
           <pre className="mt-1 whitespace-pre-wrap break-all">
             {((p.html as string) ?? '').slice(0, 240) || '<!-- empty -->'}
           </pre>
@@ -357,14 +357,14 @@ function BlockPreview({ block }: { block: EmailBuilderBlock }) {
     }
     case 'amp': {
       return (
-        <div className="m-2 rounded border border-dashed border-zoru-line/60 bg-zoru-ink/10 p-3 font-mono text-xs">
-          <span className="text-zoru-ink">[AMP only]</span>
+        <div className="m-2 rounded border border-dashed border-[var(--st-border)]/60 bg-[var(--st-text)]/10 p-3 font-mono text-xs">
+          <span className="text-[var(--st-text)]">[AMP only]</span>
         </div>
       );
     }
     default: {
       return (
-        <div className="p-3 text-xs text-zoru-ink-muted">
+        <div className="p-3 text-xs text-[var(--st-text-secondary)]">
           Unknown block type
         </div>
       );

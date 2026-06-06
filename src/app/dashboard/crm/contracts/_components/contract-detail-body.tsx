@@ -51,10 +51,10 @@ function fmtMoney(value?: number, currency?: string): string {
 function Field({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div>
-      <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
         {label}
       </div>
-      <div className="mt-1 text-[13px] text-zoru-ink">{value ?? '—'}</div>
+      <div className="mt-1 text-[13px] text-[var(--st-text)]">{value ?? '—'}</div>
     </div>
   );
 }
@@ -113,15 +113,15 @@ export function ContractDetailBody({ contract }: ContractDetailBodyProps) {
             />
             {contract.signers && contract.signers.length > 0 ? (
               <div className="md:col-span-2">
-                <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+                <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                   Signers on record
                 </div>
-                <ul className="mt-1 space-y-1 text-[13px] text-zoru-ink">
+                <ul className="mt-1 space-y-1 text-[13px] text-[var(--st-text)]">
                   {contract.signers.map((s, idx) => (
                     <li key={`${s.email}-${idx}`} className="flex gap-2">
-                      <span className="text-zoru-ink-muted">{idx + 1}.</span>
+                      <span className="text-[var(--st-text-secondary)]">{idx + 1}.</span>
                       <span>{s.name || '—'}</span>
-                      <span className="text-zoru-ink-muted">{s.email}</span>
+                      <span className="text-[var(--st-text-secondary)]">{s.email}</span>
                     </li>
                   ))}
                 </ul>
@@ -137,7 +137,7 @@ export function ContractDetailBody({ contract }: ContractDetailBodyProps) {
             <ZoruCardTitle>Terms &amp; body</ZoruCardTitle>
           </ZoruCardHeader>
           <ZoruCardContent>
-            <pre className="whitespace-pre-wrap font-sans text-[13px] text-zoru-ink">
+            <pre className="whitespace-pre-wrap font-sans text-[13px] text-[var(--st-text)]">
               {contract.body}
             </pre>
           </ZoruCardContent>
@@ -156,36 +156,36 @@ export function ContractDetailBody({ contract }: ContractDetailBodyProps) {
               <Field label="Signed at" value={fmtDateTime(contract.signedAt)} />
               {contract.signatureDataUrl ? (
                 <div className="md:col-span-3">
-                  <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+                  <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                     Signature
                   </div>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={contract.signatureDataUrl}
                     alt="Signature"
-                    className="mt-1 max-h-24 rounded-lg border border-zoru-line bg-white p-2"
+                    className="mt-1 max-h-24 rounded-lg border border-[var(--st-border)] bg-white p-2"
                   />
                 </div>
               ) : null}
             </div>
           ) : contract.sentAt ? (
-            <p className="text-[13px] text-zoru-ink-muted">
+            <p className="text-[13px] text-[var(--st-text-secondary)]">
               Sent for signature on {fmtDateTime(contract.sentAt)}. Awaiting
               signer response.
             </p>
           ) : (
-            <p className="text-[13px] text-zoru-ink-muted">
+            <p className="text-[13px] text-[var(--st-text-secondary)]">
               No signature events yet.
             </p>
           )}
           {contract.voidedAt ? (
-            <p className="mt-3 text-[12.5px] text-zoru-danger-ink">
+            <p className="mt-3 text-[12.5px] text-[var(--st-danger)]">
               Voided {fmtDateTime(contract.voidedAt)}
               {contract.voidReason ? ` — ${contract.voidReason}` : ''}
             </p>
           ) : null}
           {contract.renewedAt ? (
-            <p className="mt-3 text-[12.5px] text-zoru-ink-muted">
+            <p className="mt-3 text-[12.5px] text-[var(--st-text-secondary)]">
               Last renewed {fmtDateTime(contract.renewedAt)}
             </p>
           ) : null}
@@ -198,7 +198,7 @@ export function ContractDetailBody({ contract }: ContractDetailBodyProps) {
             <ZoruCardTitle>Notes</ZoruCardTitle>
           </ZoruCardHeader>
           <ZoruCardContent>
-            <p className="whitespace-pre-wrap text-[13px] text-zoru-ink">
+            <p className="whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
               {contract.notes}
             </p>
           </ZoruCardContent>

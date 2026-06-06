@@ -30,32 +30,32 @@ const columns: ColumnDef<PermissionRow>[] = [
   {
     accessorKey: "module",
     header: "Module",
-    cell: ({ row }) => <span className="font-semibold text-zoru-ink">{row.original.module}</span>,
+    cell: ({ row }) => <span className="font-semibold text-[var(--st-text)]">{row.original.module}</span>,
   },
   {
     accessorKey: "permission",
     header: "Permission",
-    cell: ({ row }) => <span className="text-zoru-ink">{row.original.permission}</span>,
+    cell: ({ row }) => <span className="text-[var(--st-text)]">{row.original.permission}</span>,
   },
   {
     accessorKey: "admin",
     header: "Admin",
-    cell: ({ row }) => row.original.admin ? <CheckCircle2 className="w-5 h-5 text-zoru-ink" /> : <XCircle className="w-5 h-5 text-white" />,
+    cell: ({ row }) => row.original.admin ? <CheckCircle2 className="w-5 h-5 text-[var(--st-text)]" /> : <XCircle className="w-5 h-5 text-white" />,
   },
   {
     accessorKey: "marketer",
     header: "Marketer",
-    cell: ({ row }) => row.original.marketer ? <CheckCircle2 className="w-5 h-5 text-zoru-ink" /> : <XCircle className="w-5 h-5 text-white" />,
+    cell: ({ row }) => row.original.marketer ? <CheckCircle2 className="w-5 h-5 text-[var(--st-text)]" /> : <XCircle className="w-5 h-5 text-white" />,
   },
   {
     accessorKey: "agent",
     header: "Agent",
-    cell: ({ row }) => row.original.agent ? <CheckCircle2 className="w-5 h-5 text-zoru-ink" /> : <XCircle className="w-5 h-5 text-white" />,
+    cell: ({ row }) => row.original.agent ? <CheckCircle2 className="w-5 h-5 text-[var(--st-text)]" /> : <XCircle className="w-5 h-5 text-white" />,
   },
   {
     accessorKey: "developer",
     header: "Developer",
-    cell: ({ row }) => row.original.developer ? <CheckCircle2 className="w-5 h-5 text-zoru-ink" /> : <XCircle className="w-5 h-5 text-white" />,
+    cell: ({ row }) => row.original.developer ? <CheckCircle2 className="w-5 h-5 text-[var(--st-text)]" /> : <XCircle className="w-5 h-5 text-white" />,
   },
 ];
 
@@ -63,10 +63,10 @@ export function RbacMatrixClient() {
   return (
     <div className="space-y-4">
       <div>
-        <h3 className="text-lg font-medium text-zoru-ink tracking-tight">Role-Based Access Control</h3>
-        <p className="text-sm text-zoru-ink">Overview of permissions assigned to each role.</p>
+        <h3 className="text-lg font-medium text-[var(--st-text)] tracking-tight">Role-Based Access Control</h3>
+        <p className="text-sm text-[var(--st-text)]">Overview of permissions assigned to each role.</p>
       </div>
-      <div className="bg-white p-4 rounded-xl shadow-sm border border-zoru-line">
+      <div className="bg-white p-4 rounded-xl shadow-sm border border-[var(--st-border)]">
         <DataTable
           columns={columns}
           data={rbacData}

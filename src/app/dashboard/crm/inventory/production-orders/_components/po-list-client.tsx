@@ -383,11 +383,11 @@ export function PoListClient({ initialOrders, initialKpis }: PoListClientProps) 
                 empty={
                     filtered.length === 0 ? (
                         <div className="flex flex-col items-center gap-3 p-4">
-                            <Factory className="h-8 w-8 text-zoru-ink-muted" />
-                            <h3 className="text-base font-medium text-zoru-ink">
+                            <Factory className="h-8 w-8 text-[var(--st-text-secondary)]" />
+                            <h3 className="text-base font-medium text-[var(--st-text)]">
                                 No production orders yet
                             </h3>
-                            <p className="max-w-sm text-sm text-zoru-ink-muted">
+                            <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                                 Create one from a BOM to start tracking manufacturing job cards.
                             </p>
                             <Button asChild>

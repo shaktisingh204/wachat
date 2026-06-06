@@ -237,14 +237,14 @@ export default function Page() {
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface text-zoru-ink">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
             <MessageSquareReply className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-[24px] tracking-[-0.015em] text-zoru-ink leading-[1.2]">
+            <h1 className="text-[24px] tracking-[-0.015em] text-[var(--st-text)] leading-[1.2]">
               Quick replies
             </h1>
-            <p className="mt-1 text-[13px] text-zoru-ink-muted max-w-2xl">
+            <p className="mt-1 text-[13px] text-[var(--st-text-secondary)] max-w-2xl">
               Slash-command shortcuts that expand into saved blurbs inside the
               chat composer.
             </p>
@@ -258,7 +258,7 @@ export default function Page() {
       <Card>
         <ZoruCardHeader>
           <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -333,7 +333,7 @@ export default function Page() {
                     />
                   </ZoruTableCell>
                   <ZoruTableCell>
-                    <code className="rounded bg-zoru-surface px-1.5 py-0.5 text-xs font-medium text-zoru-ink">
+                    <code className="rounded bg-[var(--st-bg-secondary)] px-1.5 py-0.5 text-xs font-medium text-[var(--st-text)]">
                       {r.shortcut}
                     </code>
                     {r.mediaSabFileId && (
@@ -343,12 +343,12 @@ export default function Page() {
                     )}
                   </ZoruTableCell>
                   <ZoruTableCell className="max-w-md">
-                    <span className="line-clamp-1 text-sm text-zoru-ink-muted">
+                    <span className="line-clamp-1 text-sm text-[var(--st-text-secondary)]">
                       {r.body || '—'}
                     </span>
                   </ZoruTableCell>
                   <ZoruTableCell className="text-sm">{r.usageCount}</ZoruTableCell>
-                  <ZoruTableCell className="text-sm text-zoru-ink-muted">
+                  <ZoruTableCell className="text-sm text-[var(--st-text-secondary)]">
                     {formatRelative(r.lastUsedAt)}
                   </ZoruTableCell>
                   <ZoruTableCell>
@@ -366,14 +366,14 @@ export default function Page() {
                         <button
                           type="button"
                           onClick={() => openEdit(r)}
-                          className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm text-zoru-ink hover:bg-zoru-surface"
+                          className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]"
                         >
                           <Edit3 className="h-3.5 w-3.5" /> Edit
                         </button>
                         <button
                           type="button"
                           onClick={() => void onDelete(r.id)}
-                          className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm text-zoru-danger hover:bg-zoru-surface"
+                          className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm text-[var(--st-danger)] hover:bg-[var(--st-bg-secondary)]"
                         >
                           <Trash2 className="h-3.5 w-3.5" /> Delete
                         </button>
@@ -482,12 +482,12 @@ function QuickReplyDialog({
               aria-invalid={dupShortcut || undefined}
             />
             {!shortcut.startsWith('/') && shortcut && (
-              <p className="text-[11px] text-zoru-ink-muted">
+              <p className="text-[11px] text-[var(--st-text-secondary)]">
                 Will be saved as <code>{normalized}</code>.
               </p>
             )}
             {dupShortcut && (
-              <p className="text-[11px] text-zoru-danger">
+              <p className="text-[11px] text-[var(--st-danger)]">
                 Another quick reply already uses this shortcut.
               </p>
             )}
@@ -528,12 +528,12 @@ function QuickReplyDialog({
         <div className="space-y-1.5">
           <div className="flex justify-between items-center">
             <Label htmlFor="qr-body">Body</Label>
-            <div className="flex items-center gap-1.5 text-[11px] text-zoru-ink-muted">
+            <div className="flex items-center gap-1.5 text-[11px] text-[var(--st-text-secondary)]">
               <span>Variables:</span>
-              <button type="button" onClick={() => setBody(b => b + '{{first_name}} ')} className="hover:text-zoru-ink hover:underline decoration-dotted transition-colors">{'{{first_name}}'}</button>
-              <button type="button" onClick={() => setBody(b => b + '{{last_name}} ')} className="hover:text-zoru-ink hover:underline decoration-dotted transition-colors">{'{{last_name}}'}</button>
-              <button type="button" onClick={() => setBody(b => b + '{{name}} ')} className="hover:text-zoru-ink hover:underline decoration-dotted transition-colors">{'{{name}}'}</button>
-              <button type="button" onClick={() => setBody(b => b + '{{phone}} ')} className="hover:text-zoru-ink hover:underline decoration-dotted transition-colors">{'{{phone}}'}</button>
+              <button type="button" onClick={() => setBody(b => b + '{{first_name}} ')} className="hover:text-[var(--st-text)] hover:underline decoration-dotted transition-colors">{'{{first_name}}'}</button>
+              <button type="button" onClick={() => setBody(b => b + '{{last_name}} ')} className="hover:text-[var(--st-text)] hover:underline decoration-dotted transition-colors">{'{{last_name}}'}</button>
+              <button type="button" onClick={() => setBody(b => b + '{{name}} ')} className="hover:text-[var(--st-text)] hover:underline decoration-dotted transition-colors">{'{{name}}'}</button>
+              <button type="button" onClick={() => setBody(b => b + '{{phone}} ')} className="hover:text-[var(--st-text)] hover:underline decoration-dotted transition-colors">{'{{phone}}'}</button>
             </div>
           </div>
           <Textarea
@@ -546,18 +546,18 @@ function QuickReplyDialog({
         </div>
 
         {/* Live preview */}
-        <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3">
-          <p className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+        <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3">
+          <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
             Live preview
           </p>
-          <p className="mt-1 text-xs text-zoru-ink-muted">
+          <p className="mt-1 text-xs text-[var(--st-text-secondary)]">
             When user types{' '}
-            <code className="rounded bg-zoru-surface px-1 py-0.5 text-xs text-zoru-ink">
+            <code className="rounded bg-[var(--st-bg-secondary)] px-1 py-0.5 text-xs text-[var(--st-text)]">
               {normalized || '/shortcut'}
             </code>{' '}
             the chat composer expands to:
           </p>
-          <div className="mt-2 max-w-md rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-3 py-2 text-sm text-zoru-ink shadow-[var(--zoru-shadow-sm)]">
+          <div className="mt-2 max-w-md rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-sm text-[var(--st-text)] shadow-[var(--zoru-shadow-sm)]">
             <p className="whitespace-pre-wrap">
               {body ? (
                 body
@@ -567,13 +567,13 @@ function QuickReplyDialog({
                   .replace(/\{\{\s*phone\s*\}\}/gi, '+1 234 567 8900')
                   .replace(/\{\{\s*company\s*\}\}/gi, 'Acme Corp')
               ) : (
-                <span className="italic text-zoru-ink-muted">
+                <span className="italic text-[var(--st-text-secondary)]">
                   (empty body)
                 </span>
               )}
             </p>
             {mediaSabFileId && (
-              <p className="mt-1 text-[11px] text-zoru-ink-muted">
+              <p className="mt-1 text-[11px] text-[var(--st-text-secondary)]">
                 + media: {mediaName || mediaSabFileId}
               </p>
             )}

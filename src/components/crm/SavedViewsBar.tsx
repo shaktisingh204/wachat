@@ -276,20 +276,20 @@ export function SavedViewsBar({
     return (
         <div
             className={cn(
-                'flex w-full flex-wrap items-center gap-2 rounded-md border border-zoru-line bg-zoru-surface p-2',
+                'flex w-full flex-wrap items-center gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2',
                 className,
             )}
             data-saved-views-bar
             data-entity-kind={entityKind}
         >
-            <span className="inline-flex items-center gap-1 px-1 text-[12px] font-medium text-zoru-ink-muted">
+            <span className="inline-flex items-center gap-1 px-1 text-[12px] font-medium text-[var(--st-text-secondary)]">
                 <Eye className="h-3.5 w-3.5" /> Views
             </span>
 
             {loading ? (
-                <span className="text-[12px] text-zoru-ink-muted">Loading…</span>
+                <span className="text-[12px] text-[var(--st-text-secondary)]">Loading…</span>
             ) : views.length === 0 ? (
-                <span className="text-[12px] text-zoru-ink-muted">
+                <span className="text-[12px] text-[var(--st-text-secondary)]">
                     No saved views yet — capture the current filters below.
                 </span>
             ) : (
@@ -302,8 +302,8 @@ export function SavedViewsBar({
                                     className={cn(
                                         'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[12px] transition-colors',
                                         isActive
-                                            ? 'border-zoru-accent bg-zoru-accent/10 text-zoru-ink'
-                                            : 'border-zoru-line bg-zoru-bg text-zoru-ink-muted hover:border-zoru-line-strong hover:text-zoru-ink',
+                                            ? 'border-[var(--st-accent)] bg-[var(--st-accent)]/10 text-[var(--st-text)]'
+                                            : 'border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text-secondary)] hover:border-[var(--st-border-strong)] hover:text-[var(--st-text)]',
                                     )}
                                 >
                                     <button
@@ -323,7 +323,7 @@ export function SavedViewsBar({
                                             <Lock className="h-3 w-3 opacity-60" />
                                         )}
                                         {view.isDefault ? (
-                                            <Star className="h-3 w-3 fill-current text-zoru-ink" />
+                                            <Star className="h-3 w-3 fill-current text-[var(--st-text)]" />
                                         ) : null}
                                         <span className="max-w-[16ch] truncate">
                                             {view.name}
@@ -332,7 +332,7 @@ export function SavedViewsBar({
                                     <button
                                         type="button"
                                         onClick={() => void handleToggleDefault(view)}
-                                        className="ml-1 inline-flex items-center text-zoru-ink-muted hover:text-zoru-ink"
+                                        className="ml-1 inline-flex items-center text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                                         aria-label={
                                             view.isDefault
                                                 ? 'Unpin default'
@@ -353,7 +353,7 @@ export function SavedViewsBar({
                                     <button
                                         type="button"
                                         onClick={() => void handleDelete(view)}
-                                        className="inline-flex items-center text-zoru-ink-muted hover:text-zoru-ink"
+                                        className="inline-flex items-center text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                                         aria-label="Delete view"
                                         title="Delete view"
                                     >
@@ -423,7 +423,7 @@ export function SavedViewsBar({
                             </Select>
                         </div>
 
-                        <label className="flex items-center gap-2 text-sm text-zoru-ink">
+                        <label className="flex items-center gap-2 text-sm text-[var(--st-text)]">
                             <input
                                 type="checkbox"
                                 checked={saveIsDefault}

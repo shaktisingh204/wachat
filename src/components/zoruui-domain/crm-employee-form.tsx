@@ -139,12 +139,12 @@ function toDate(v: unknown): Date | undefined {
 
 /* ───────────────────────── shared bits ───────────────────────── */
 
-const labelCls = 'text-[12.5px] text-zoru-ink-muted';
-const inputCls = 'h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]';
-const triggerCls = 'h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]';
+const labelCls = 'text-[12.5px] text-[var(--st-text-secondary)]';
+const inputCls = 'h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]';
+const triggerCls = 'h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]';
 
 function Req() {
-    return <span className="ml-0.5 text-zoru-danger-ink">*</span>;
+    return <span className="ml-0.5 text-[var(--st-danger)]">*</span>;
 }
 
 function SectionCard({
@@ -160,16 +160,16 @@ function SectionCard({
 }) {
     return (
         <Card className="overflow-hidden p-0">
-            <div className="flex items-center gap-3 border-b border-zoru-line bg-zoru-surface px-5 py-3.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-zoru-line bg-zoru-bg">
-                    <Icon className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
+            <div className="flex items-center gap-3 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-5 py-3.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)]">
+                    <Icon className="h-4 w-4 text-[var(--st-text-secondary)]" strokeWidth={1.75} />
                 </div>
                 <div className="flex flex-col">
-                    <span className="text-[13.5px] font-medium text-zoru-ink">
+                    <span className="text-[13.5px] font-medium text-[var(--st-text)]">
                         {title}
                     </span>
                     {description ? (
-                        <span className="text-[12px] text-zoru-ink-muted">{description}</span>
+                        <span className="text-[12px] text-[var(--st-text-secondary)]">{description}</span>
                     ) : null}
                 </div>
             </div>
@@ -595,7 +595,7 @@ export function EmployeeForm({
                 </div>
 
                 <div className="mt-5">
-                    <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-zoru-ink-subtle">
+                    <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Work Location
                     </div>
                     <div className="grid gap-4 md:grid-cols-3">
@@ -657,7 +657,7 @@ export function EmployeeForm({
                             name="about_me"
                             rows={3}
                             defaultValue={detail?.about_me ?? ''}
-                            className="rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                            className="rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                         />
                     </Field>
                     <Field label="Gender">
@@ -761,7 +761,7 @@ export function EmployeeForm({
                             name="hobbies"
                             rows={2}
                             defaultValue={detail?.hobbies ?? ''}
-                            className="rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                            className="rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                         />
                     </Field>
                     <Field label="Address" htmlFor="address" span={2}>
@@ -770,7 +770,7 @@ export function EmployeeForm({
                             name="address"
                             rows={2}
                             defaultValue={detail?.address ?? ''}
-                            className="rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                            className="rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                         />
                     </Field>
                 </div>
@@ -998,7 +998,7 @@ export function EmployeeForm({
             ) : null}
 
             {/* ─── Sticky Action Bar ─── */}
-            <div className="fixed inset-x-0 bottom-0 z-30 border-t border-zoru-line bg-zoru-bg/95 backdrop-blur supports-[backdrop-filter]:bg-zoru-bg/80">
+            <div className="fixed inset-x-0 bottom-0 z-30 border-t border-[var(--st-border)] bg-[var(--st-bg)]/95 backdrop-blur supports-[backdrop-filter]:bg-[var(--st-bg)]/80">
                 <div className="mx-auto flex w-full max-w-4xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
                     <Button
                         type="button"

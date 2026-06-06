@@ -204,7 +204,7 @@ function ActivityItem({
   return (
     <li
       className={cn(
-        'group flex items-start gap-3 rounded-md border border-transparent p-3 transition-all hover:bg-zoru-surface-muted hover:border-zoru-line',
+        'group flex items-start gap-3 rounded-md border border-transparent p-3 transition-all hover:bg-[var(--st-bg-muted)] hover:border-[var(--st-border)]',
         onClick && 'cursor-pointer',
       )}
       onClick={onClick}
@@ -220,7 +220,7 @@ function ActivityItem({
       <AuthorAvatar author={author} authorId={activity.authorId} />
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
-          <span className="text-sm font-medium text-zoru-ink">{authorName}</span>
+          <span className="text-sm font-medium text-[var(--st-text)]">{authorName}</span>
           {!isComment && (
             <Badge
               variant="outline"
@@ -230,32 +230,32 @@ function ActivityItem({
               {TYPE_LABEL[activity.type]}
             </Badge>
           )}
-          <span className="text-xs text-zoru-ink-muted">
+          <span className="text-xs text-[var(--st-text-secondary)]">
             {relativeTime(activity.createdAt, nowMs)}
           </span>
         </div>
 
         {!isComment && activity.title ? (
-          <p className="mt-1 text-sm font-medium text-zoru-ink line-clamp-1">
+          <p className="mt-1 text-sm font-medium text-[var(--st-text)] line-clamp-1">
             {activity.title}
           </p>
         ) : null}
 
         {activity.body ? (
-          <p className="mt-1 text-sm text-zoru-ink-muted line-clamp-2">
+          <p className="mt-1 text-sm text-[var(--st-text-secondary)] line-clamp-2">
             {activity.body}
           </p>
         ) : null}
 
         {activity.targetObject && (
-          <p className="mt-1 text-xs text-zoru-ink-muted">
+          <p className="mt-1 text-xs text-[var(--st-text-secondary)]">
             on <span className="font-medium">{activity.targetObject}</span>
           </p>
         )}
       </div>
 
       {onClick && (
-        <ChevronRight className="h-4 w-4 shrink-0 text-zoru-ink-muted transition-transform group-hover:translate-x-1" />
+        <ChevronRight className="h-4 w-4 shrink-0 text-[var(--st-text-secondary)] transition-transform group-hover:translate-x-1" />
       )}
     </li>
   );

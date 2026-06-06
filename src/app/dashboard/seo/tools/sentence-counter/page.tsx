@@ -51,10 +51,10 @@ export default function SentenceCounterPage() {
           className={cn(
             'transition-colors duration-200 rounded-[2px]',
             isVeryLong
-              ? 'bg-zoru-surface-2/60 dark:bg-zoru-ink/40 border-b border-zoru-line dark:border-zoru-line'
+              ? 'bg-[var(--st-bg-muted)]/60 dark:bg-[var(--st-text)]/40 border-b border-[var(--st-border)] dark:border-[var(--st-border)]'
               : '',
             isLong
-              ? 'bg-zoru-surface-2/60 dark:bg-zoru-ink/40 border-b border-zoru-line dark:border-zoru-line'
+              ? 'bg-[var(--st-bg-muted)]/60 dark:bg-[var(--st-text)]/40 border-b border-[var(--st-border)] dark:border-[var(--st-border)]'
               : ''
           )}
           title={
@@ -90,20 +90,20 @@ export default function SentenceCounterPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-6">
         <Card>
           <ZoruCardContent className="p-4 flex flex-col justify-center items-center">
-            <div className="text-3xl font-bold text-zoru-ink">{sentencesCount}</div>
-            <div className="text-sm text-zoru-ink-subtle font-medium mt-1">Sentences</div>
+            <div className="text-3xl font-bold text-[var(--st-text)]">{sentencesCount}</div>
+            <div className="text-sm text-[var(--st-text-tertiary)] font-medium mt-1">Sentences</div>
           </ZoruCardContent>
         </Card>
         <Card>
           <ZoruCardContent className="p-4 flex flex-col justify-center items-center">
-            <div className="text-3xl font-bold text-zoru-ink">{wordsCount}</div>
-            <div className="text-sm text-zoru-ink-subtle font-medium mt-1">Words</div>
+            <div className="text-3xl font-bold text-[var(--st-text)]">{wordsCount}</div>
+            <div className="text-sm text-[var(--st-text-tertiary)] font-medium mt-1">Words</div>
           </ZoruCardContent>
         </Card>
         <Card>
           <ZoruCardContent className="p-4 flex flex-col justify-center items-center">
-            <div className="text-3xl font-bold text-zoru-ink">{avg}</div>
-            <div className="text-sm text-zoru-ink-subtle font-medium mt-1">Words / sentence</div>
+            <div className="text-3xl font-bold text-[var(--st-text)]">{avg}</div>
+            <div className="text-sm text-[var(--st-text-tertiary)] font-medium mt-1">Words / sentence</div>
           </ZoruCardContent>
         </Card>
       </div>
@@ -111,34 +111,34 @@ export default function SentenceCounterPage() {
       {text.trim() && (
         <div className="mt-8">
           <div className="flex items-center gap-2 mb-3">
-            <h3 className="text-lg font-semibold text-zoru-ink">Analysis</h3>
+            <h3 className="text-lg font-semibold text-[var(--st-text)]">Analysis</h3>
             {hasHardToRead ? (
-              <span className="inline-flex items-center text-xs bg-zoru-surface-2 text-zoru-ink px-2 py-1 rounded-full font-medium">
+              <span className="inline-flex items-center text-xs bg-[var(--st-bg-muted)] text-[var(--st-text)] px-2 py-1 rounded-full font-medium">
                 <AlertCircle className="w-3 h-3 mr-1" />
                 {hardToReadSentences.length} hard to read {hardToReadSentences.length === 1 ? 'sentence' : 'sentences'}
               </span>
             ) : (
-              <span className="inline-flex items-center text-xs bg-zoru-surface-2 text-zoru-ink px-2 py-1 rounded-full font-medium">
+              <span className="inline-flex items-center text-xs bg-[var(--st-bg-muted)] text-[var(--st-text)] px-2 py-1 rounded-full font-medium">
                 <CheckCircle2 className="w-3 h-3 mr-1" />
                 Easy to read
               </span>
             )}
           </div>
 
-          <Card className="bg-zoru-bg overflow-hidden border-zoru-line">
+          <Card className="bg-[var(--st-bg)] overflow-hidden border-[var(--st-border)]">
             <div className="p-4 text-sm leading-relaxed whitespace-pre-wrap font-sans">
               {renderHighlightedText()}
             </div>
           </Card>
 
           {hasHardToRead && (
-            <div className="mt-4 flex gap-4 text-xs text-zoru-ink-subtle">
+            <div className="mt-4 flex gap-4 text-xs text-[var(--st-text-tertiary)]">
               <div className="flex items-center gap-1.5">
-                <div className="w-3 h-3 rounded-sm bg-zoru-surface-2/60 border border-zoru-line"></div>
+                <div className="w-3 h-3 rounded-sm bg-[var(--st-bg-muted)]/60 border border-[var(--st-border)]"></div>
                 <span>Hard to read (&gt;20 words)</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="w-3 h-3 rounded-sm bg-zoru-surface-2/60 border border-zoru-line"></div>
+                <div className="w-3 h-3 rounded-sm bg-[var(--st-bg-muted)]/60 border border-[var(--st-border)]"></div>
                 <span>Very hard to read (&gt;25 words)</span>
               </div>
             </div>

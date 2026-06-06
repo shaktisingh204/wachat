@@ -17,8 +17,8 @@ export default function ErrorBoundary({
     return (
         <div className="flex h-[50vh] flex-col items-center justify-center gap-4">
             <div className="text-center">
-                <h2 className="text-lg font-semibold text-zoru-ink">Something went wrong!</h2>
-                <p className="text-sm text-zoru-ink-muted">Failed to load salary structure details.</p>
+                <h2 className="text-lg font-semibold text-[var(--st-text)]">Something went wrong!</h2>
+                <p className="text-sm text-[var(--st-text-secondary)]">Failed to load salary structure details.</p>
             </div>
             <Button onClick={() => reset()}>Try again</Button>
         </div>

@@ -69,7 +69,7 @@ export function BaseShellClient({
       <div className="border-b px-4 py-2 flex items-center gap-3">
         <Link
           href={`/dashboard/sabtables/${workspaceId}`}
-          className="inline-flex items-center text-sm text-zoru-ink-muted hover:text-zoru-ink"
+          className="inline-flex items-center text-sm text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
         >
           <ChevronLeft className="w-4 h-4 mr-1" />
           {/* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */}
@@ -96,8 +96,8 @@ export function BaseShellClient({
               className={cn(
                 'px-3 py-2 text-sm border-b-2 -mb-px transition whitespace-nowrap',
                 active
-                  ? 'border-primary text-zoru-ink font-medium'
-                  : 'border-transparent text-zoru-ink-muted hover:text-zoru-ink',
+                  ? 'border-primary text-[var(--st-text)] font-medium'
+                  : 'border-transparent text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
               )}
             >
               {t.name}

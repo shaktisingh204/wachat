@@ -82,18 +82,18 @@ function KpiTile({
 }) {
     const toneClass =
         tone === 'positive'
-            ? 'text-zoru-ink'
+            ? 'text-[var(--st-text)]'
             : tone === 'negative'
-              ? 'text-zoru-ink'
-              : 'text-zoru-ink';
+              ? 'text-[var(--st-text)]'
+              : 'text-[var(--st-text)]';
     return (
         <Card>
             <div className="flex items-center justify-between">
-                <p className="text-[12.5px] font-medium text-zoru-ink-muted">{label}</p>
-                <Icon className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
+                <p className="text-[12.5px] font-medium text-[var(--st-text-secondary)]">{label}</p>
+                <Icon className="h-4 w-4 text-[var(--st-text-secondary)]" strokeWidth={1.75} />
             </div>
             <p className={`mt-2 truncate text-[22px] font-semibold ${toneClass}`}>{value}</p>
-            {sub ? <p className="mt-0.5 truncate text-[11.5px] text-zoru-ink-muted">{sub}</p> : null}
+            {sub ? <p className="mt-0.5 truncate text-[11.5px] text-[var(--st-text-secondary)]">{sub}</p> : null}
         </Card>
     );
 }
@@ -188,7 +188,7 @@ export function ProductPnlClient({
     }) => (
         <ZoruTableHead
             onClick={() => requestSort(columnKey)}
-            className="cursor-pointer text-zoru-ink-muted hover:text-zoru-ink"
+            className="cursor-pointer text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
         >
             <div className="flex items-center gap-2">
                 {label}
@@ -252,8 +252,8 @@ export function ProductPnlClient({
             </div>
 
             <Card className="mt-4">
-                <h2 className="text-[16px] font-semibold text-zoru-ink">Monthly P&L</h2>
-                <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+                <h2 className="text-[16px] font-semibold text-[var(--st-text)]">Monthly P&L</h2>
+                <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">
                     Revenue vs. COGS, with the resulting gross profit line.
                 </p>
                 <div className="mt-4 h-[280px] w-full">
@@ -291,12 +291,12 @@ export function ProductPnlClient({
             </Card>
 
             <Card className="mt-4">
-                <h2 className="text-[16px] font-semibold text-zoru-ink">Per-product profitability</h2>
-                <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">All figures are in INR (₹).</p>
-                <div className="mt-4 overflow-x-auto rounded-lg border border-zoru-line">
+                <h2 className="text-[16px] font-semibold text-[var(--st-text)]">Per-product profitability</h2>
+                <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">All figures are in INR (₹).</p>
+                <div className="mt-4 overflow-x-auto rounded-lg border border-[var(--st-border)]">
                     <Table>
                         <ZoruTableHeader>
-                            <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                            <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                                 <SortableHeader columnKey="productName" label="Product" />
                                 <SortableHeader columnKey="netSoldQty" label="Net qty" />
                                 <SortableHeader columnKey="totalRevenue" label="Revenue" />
@@ -310,29 +310,29 @@ export function ProductPnlClient({
                         <ZoruTableBody>
                             {sortedData.length > 0 ? (
                                 sortedData.map((item) => (
-                                    <ZoruTableRow key={item.productId} className="border-zoru-line">
+                                    <ZoruTableRow key={item.productId} className="border-[var(--st-border)]">
                                         <ZoruTableCell>
-                                            <p className="font-medium text-zoru-ink">{item.productName}</p>
-                                            <p className="font-mono text-[11.5px] text-zoru-ink-muted">{item.sku}</p>
+                                            <p className="font-medium text-[var(--st-text)]">{item.productName}</p>
+                                            <p className="font-mono text-[11.5px] text-[var(--st-text-secondary)]">{item.sku}</p>
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-center text-zoru-ink">
+                                        <ZoruTableCell className="text-center text-[var(--st-text)]">
                                             {item.netSoldQty}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-zoru-ink">
+                                        <ZoruTableCell className="text-[var(--st-text)]">
                                             {fmtINR(item.totalRevenue)}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-zoru-ink">
+                                        <ZoruTableCell className="text-[var(--st-text)]">
                                             {fmtINR(item.avgSellingPrice)}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-zoru-ink">
+                                        <ZoruTableCell className="text-[var(--st-text)]">
                                             {fmtINR(item.totalCogs)}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="font-semibold text-zoru-ink">
+                                        <ZoruTableCell className="font-semibold text-[var(--st-text)]">
                                             {fmtINR(item.grossProfit)}
                                         </ZoruTableCell>
                                         <ZoruTableCell
                                             className={`font-semibold ${
-                                                item.grossMargin < 0 ? 'text-zoru-ink' : 'text-zoru-ink'
+                                                item.grossMargin < 0 ? 'text-[var(--st-text)]' : 'text-[var(--st-text)]'
                                             }`}
                                         >
                                             {item.grossMargin.toFixed(2)}%
@@ -368,8 +368,8 @@ export function ProductPnlClient({
                                     </ZoruTableRow>
                                 ))
                             ) : (
-                                <ZoruTableRow className="border-zoru-line">
-                                    <ZoruTableCell colSpan={8} className="h-64 text-center text-zoru-ink-muted">
+                                <ZoruTableRow className="border-[var(--st-border)]">
+                                    <ZoruTableCell colSpan={8} className="h-64 text-center text-[var(--st-text-secondary)]">
                                         No sales data found to generate the report.
                                     </ZoruTableCell>
                                 </ZoruTableRow>

@@ -117,12 +117,12 @@ export default function EstimateRequestsPage() {
 
       {showForm ? (
         <Card className="p-6">
-          <h2 className="mb-3 text-[16px] text-zoru-ink">
+          <h2 className="mb-3 text-[16px] text-[var(--st-text)]">
             New Estimate Request
           </h2>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <Label className="text-zoru-ink">Requester Name</Label>
+              <Label className="text-[var(--st-text)]">Requester Name</Label>
               <Input
                 value={requesterName}
                 onChange={(e) => setRequesterName(e.target.value)}
@@ -130,7 +130,7 @@ export default function EstimateRequestsPage() {
               />
             </div>
             <div>
-              <Label className="text-zoru-ink">Requester Email</Label>
+              <Label className="text-[var(--st-text)]">Requester Email</Label>
               <Input
                 type="email"
                 value={requesterEmail}
@@ -139,7 +139,7 @@ export default function EstimateRequestsPage() {
               />
             </div>
             <div className="md:col-span-2">
-              <Label className="text-zoru-ink">Description</Label>
+              <Label className="text-[var(--st-text)]">Description</Label>
               <Textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -149,7 +149,7 @@ export default function EstimateRequestsPage() {
               />
             </div>
             <div>
-              <Label className="text-zoru-ink">Desired Date</Label>
+              <Label className="text-[var(--st-text)]">Desired Date</Label>
               <Input
                 type="date"
                 value={desiredDate}
@@ -176,29 +176,29 @@ export default function EstimateRequestsPage() {
       ) : null}
 
       <Card className="p-6">
-        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+        <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <Table>
             <TableHeader>
-              <TableRow className="border-zoru-line hover:bg-transparent">
-                <TableHead className="text-zoru-ink-muted">Description</TableHead>
-                <TableHead className="text-zoru-ink-muted">Requester</TableHead>
-                <TableHead className="text-zoru-ink-muted">Desired Date</TableHead>
-                <TableHead className="text-zoru-ink-muted">Status</TableHead>
-                <TableHead className="text-zoru-ink-muted">Created</TableHead>
+              <TableRow className="border-[var(--st-border)] hover:bg-transparent">
+                <TableHead className="text-[var(--st-text-secondary)]">Description</TableHead>
+                <TableHead className="text-[var(--st-text-secondary)]">Requester</TableHead>
+                <TableHead className="text-[var(--st-text-secondary)]">Desired Date</TableHead>
+                <TableHead className="text-[var(--st-text-secondary)]">Status</TableHead>
+                <TableHead className="text-[var(--st-text-secondary)]">Created</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRow className="border-zoru-line">
+                <TableRow className="border-[var(--st-border)]">
                   <TableCell colSpan={5} className="h-24 text-center">
-                    <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
+                    <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
                   </TableCell>
                 </TableRow>
               ) : rows.length === 0 ? (
-                <TableRow className="border-zoru-line">
+                <TableRow className="border-[var(--st-border)]">
                   <TableCell
                     colSpan={5}
-                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                    className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     No estimate requests yet.
                   </TableCell>
@@ -207,27 +207,27 @@ export default function EstimateRequestsPage() {
                 rows.map((r) => (
                   <TableRow
                     key={r._id}
-                    className="cursor-pointer border-zoru-line hover:bg-zoru-surface-2"
+                    className="cursor-pointer border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]"
                     onClick={() =>
                       router.push(`/dashboard/crm/sales/estimate-requests/${r._id}`)
                     }
                   >
-                    <TableCell className="max-w-[320px] truncate text-zoru-ink">
+                    <TableCell className="max-w-[320px] truncate text-[var(--st-text)]">
                       <EntityRowLink
                         href={`/dashboard/crm/sales/estimate-requests/${r._id}`}
                         label={r.description}
                         subtitle={r.status ? `Status: ${r.status}` : undefined}
                       />
                     </TableCell>
-                    <TableCell className="text-zoru-ink">
+                    <TableCell className="text-[var(--st-text)]">
                       {r.requester_name || '—'}
                       {r.requester_email ? (
-                        <span className="block text-[11.5px] text-zoru-ink-muted">
+                        <span className="block text-[11.5px] text-[var(--st-text-secondary)]">
                           {r.requester_email}
                         </span>
                       ) : null}
                     </TableCell>
-                    <TableCell className="text-zoru-ink">
+                    <TableCell className="text-[var(--st-text)]">
                       {fmtDate(r.desired_date)}
                     </TableCell>
                     <TableCell>
@@ -235,7 +235,7 @@ export default function EstimateRequestsPage() {
                         {r.status}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-zoru-ink">
+                    <TableCell className="text-[var(--st-text)]">
                       {fmtDate(r.createdAt)}
                     </TableCell>
                   </TableRow>

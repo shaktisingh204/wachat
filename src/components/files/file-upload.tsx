@@ -262,9 +262,9 @@ export default function FileUpload() {
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-3">
           <h3 className="text-sm font-medium">
-            Files <span className="text-zoru-ink-muted">({files.length})</span>
+            Files <span className="text-[var(--st-text-secondary)]">({files.length})</span>
           </h3>
-          <span className="text-zoru-ink-muted text-xs">
+          <span className="text-[var(--st-text-secondary)] text-xs">
             Total: {formatBytes(totalSize)}
           </span>
         </div>
@@ -276,22 +276,22 @@ export default function FileUpload() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search by name, type, or extension..."
-              className="bg-zoru-surface ring-offset-zoru-surface focus-visible:ring-zoru-line placeholder:text-zoru-ink-muted h-8 w-56 rounded-md px-7 text-[13px] outline-none focus-visible:ring-[2px] shadow-sm"
+              className="bg-[var(--st-bg-secondary)] ring-offset-zoru-surface focus-visible:ring-[var(--st-border)] placeholder:text-[var(--st-text-secondary)] h-8 w-56 rounded-md px-7 text-[13px] outline-none focus-visible:ring-[2px] shadow-sm"
               aria-label="Search files"
             />
             <SearchIcon
-              className="text-zoru-ink-muted pointer-events-none absolute left-2 top-1/2 size-3 -translate-y-1/2 opacity-70"
+              className="text-[var(--st-text-secondary)] pointer-events-none absolute left-2 top-1/2 size-3 -translate-y-1/2 opacity-70"
               aria-hidden="true"
             />
           </div>
 
           <div className="flex items-center gap-1">
-            <label htmlFor="sortby" className="text-zoru-ink-muted sr-only">
+            <label htmlFor="sortby" className="text-[var(--st-text-secondary)] sr-only">
               Sort by
             </label>
             <select
               id="sortby"
-              className="bg-zoru-surface h-8 rounded-md px-2 text-[13px] shadow-sm"
+              className="bg-[var(--st-bg-secondary)] h-8 rounded-md px-2 text-[13px] shadow-sm"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
               aria-label="Sort files"
@@ -366,7 +366,7 @@ export default function FileUpload() {
         onDragOver={handleDragOver}
         onDrop={handleDrop}
         data-dragging={isDragging || undefined}
-        className="bg-zoru-surface data-[dragging=true]:bg-zoru-surface-2/50 has-[input:focus]:ring-zoru-line/50 rounded-xl border border-dashed border-zoru-line p-3 transition-colors has-[input:focus]:ring-[3px] shadow-sm"
+        className="bg-[var(--st-bg-secondary)] data-[dragging=true]:bg-[var(--st-bg-muted)]/50 has-[input:focus]:ring-[var(--st-border)]/50 rounded-xl border border-dashed border-[var(--st-border)] p-3 transition-colors has-[input:focus]:ring-[3px] shadow-sm"
         aria-label="Drop files here or use the select button to upload"
       >
         <input
@@ -377,12 +377,12 @@ export default function FileUpload() {
         />
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <div className="bg-zoru-surface me-1 flex size-9 shrink-0 items-center justify-center rounded-full shadow-sm">
+            <div className="bg-[var(--st-bg-secondary)] me-1 flex size-9 shrink-0 items-center justify-center rounded-full shadow-sm">
               <FileIcon className="size-4 opacity-60" aria-hidden="true" />
             </div>
             <div className="text-xs">
               <p className="font-medium">Drop files to upload</p>
-              <p className="text-zoru-ink-muted">
+              <p className="text-[var(--st-text-secondary)]">
                 Up to {maxFiles} files · {formatBytes(maxSize)} per file
               </p>
             </div>
@@ -407,12 +407,12 @@ export default function FileUpload() {
                   onChange={toggleAll}
                   aria-label={allSelected ? "Unselect all" : "Select all"}
                 />
-                <span className="text-zoru-ink-muted">
+                <span className="text-[var(--st-text-secondary)]">
                   {selected.size}/{filtered.length} selected
                 </span>
               </label>
               {!noneSelected && (
-                <span className="text-zoru-ink-muted hidden sm:inline">
+                <span className="text-[var(--st-text-secondary)] hidden sm:inline">
                   • {formatBytes(
                     filtered
                       .filter((f) => selected.has(f.id))
@@ -449,10 +449,10 @@ export default function FileUpload() {
           </div>
 
           {view === "list" ? (
-            <div className="bg-zoru-surface overflow-hidden rounded-md shadow-sm">
+            <div className="bg-[var(--st-bg-secondary)] overflow-hidden rounded-md shadow-sm">
               <Table>
                 <ZoruTableHeader className="text-xs">
-                  <ZoruTableRow className="bg-zoru-surface-2/50">
+                  <ZoruTableRow className="bg-[var(--st-bg-muted)]/50">
                     <ZoruTableHead className="h-9 w-10 py-2">
                       <span className="sr-only">Select</span>
                     </ZoruTableHead>
@@ -487,25 +487,25 @@ export default function FileUpload() {
                             <span className="shrink-0">{getFileIcon(entry)}</span>
                             <span className="truncate">{name}</span>
                           </span>
-                          <div className="mt-1 h-1.5 w-44 overflow-hidden rounded bg-zoru-surface-2/50">
+                          <div className="mt-1 h-1.5 w-44 overflow-hidden rounded bg-[var(--st-bg-muted)]/50">
                             <div
-                              className="h-full bg-zoru-ink/60"
+                              className="h-full bg-[var(--st-text)]/60"
                               style={{ width: `${percentOfMax}%` }}
                               aria-hidden="true"
                             />
                           </div>
                         </TableCell>
-                        <TableCell className="text-zoru-ink-muted py-2">
+                        <TableCell className="text-[var(--st-text-secondary)] py-2">
                           {niceSubtype(type)}
                         </TableCell>
-                        <TableCell className="text-zoru-ink-muted py-2">
+                        <TableCell className="text-[var(--st-text-secondary)] py-2">
                           {formatBytes(size)}
                         </TableCell>
                         <TableCell className="py-2 text-right whitespace-nowrap">
                           <Button
                             size="icon"
                             variant="ghost"
-                            className="text-zoru-ink-muted/80 hover:text-zoru-ink size-8 hover:bg-transparent"
+                            className="text-[var(--st-text-secondary)]/80 hover:text-[var(--st-text)] size-8 hover:bg-transparent"
                             aria-label={`Open ${name}`}
                             onClick={() => url && window.open(url, "_blank", "noopener,noreferrer")}
                             title="Open preview"
@@ -515,7 +515,7 @@ export default function FileUpload() {
                           <Button
                             size="icon"
                             variant="ghost"
-                            className="text-zoru-ink-muted/80 hover:text-zoru-ink size-8 hover:bg-transparent"
+                            className="text-[var(--st-text-secondary)]/80 hover:text-[var(--st-text)] size-8 hover:bg-transparent"
                             aria-label={`Download ${name}`}
                             onClick={() => downloadOne(entry)}
                             title="Download"
@@ -525,7 +525,7 @@ export default function FileUpload() {
                           <Button
                             size="icon"
                             variant="ghost"
-                            className="text-zoru-ink-muted/80 hover:text-zoru-ink size-8 hover:bg-transparent"
+                            className="text-[var(--st-text-secondary)]/80 hover:text-[var(--st-text)] size-8 hover:bg-transparent"
                             aria-label={`Copy link for ${name}`}
                             onClick={() => copyLink(entry)}
                             title="Copy link"
@@ -539,7 +539,7 @@ export default function FileUpload() {
                           <Button
                             size="icon"
                             variant="ghost"
-                            className="text-zoru-ink/80 hover:text-zoru-ink size-8 hover:bg-transparent"
+                            className="text-[var(--st-text)]/80 hover:text-[var(--st-text)] size-8 hover:bg-transparent"
                             aria-label={`Remove ${name}`}
                             onClick={() => removeFile(entry.id)}
                             title="Remove"
@@ -555,7 +555,7 @@ export default function FileUpload() {
             </div>
           ) : (
             <div
-              className="bg-zoru-surface grid grid-cols-2 gap-3 rounded-md p-3 sm:grid-cols-3 lg:grid-cols-4 shadow-sm"
+              className="bg-[var(--st-bg-secondary)] grid grid-cols-2 gap-3 rounded-md p-3 sm:grid-cols-3 lg:grid-cols-4 shadow-sm"
               role="list"
               aria-label="Files grid"
             >
@@ -571,10 +571,10 @@ export default function FileUpload() {
                   <div
                     key={entry.id}
                     role="listitem"
-                    className="data-[selected=true]:ring-zoru-line/60 group relative flex flex-col overflow-hidden rounded-md bg-zoru-surface shadow-sm"
+                    className="data-[selected=true]:ring-[var(--st-border)]/60 group relative flex flex-col overflow-hidden rounded-md bg-[var(--st-bg-secondary)] shadow-sm"
                     data-selected={isSelected || undefined}
                   >
-                    <label className="bg-zoru-surface/80 absolute left-2 top-2 z-10 inline-flex items-center gap-1 rounded px-1.5 py-1">
+                    <label className="bg-[var(--st-bg-secondary)]/80 absolute left-2 top-2 z-10 inline-flex items-center gap-1 rounded px-1.5 py-1">
                       <input
                         type="checkbox"
                         className="accent-foreground size-3.5"
@@ -584,7 +584,7 @@ export default function FileUpload() {
                       />
                     </label>
 
-                    <div className="relative h-28 w-full overflow-hidden bg-zoru-surface-2/40">
+                    <div className="relative h-28 w-full overflow-hidden bg-[var(--st-bg-muted)]/40">
                       {isImage && url ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -604,7 +604,7 @@ export default function FileUpload() {
                       <div className="truncate text-[13px] font-medium" title={name}>
                         {name}
                       </div>
-                      <div className="text-zoru-ink-muted text-[12px]">
+                      <div className="text-[var(--st-text-secondary)] text-[12px]">
                         {niceSubtype(type)} · {formatBytes(size)}
                       </div>
                       <div className="mt-auto flex items-center justify-end gap-1">
@@ -645,7 +645,7 @@ export default function FileUpload() {
                         <Button
                           size="icon"
                           variant="ghost"
-                          className="text-zoru-ink/80 hover:text-zoru-ink size-8 hover:bg-transparent"
+                          className="text-[var(--st-text)]/80 hover:text-[var(--st-text)] size-8 hover:bg-transparent"
                           aria-label={`Remove ${name}`}
                           onClick={() => removeFile(entry.id)}
                           title="Remove"
@@ -661,14 +661,14 @@ export default function FileUpload() {
           )}
         </>
       ) : (
-        <p className="text-zoru-ink-muted text-center text-sm">
+        <p className="text-[var(--st-text-secondary)] text-center text-sm">
           {files.length === 0 ? "No files yet. Add or drop files above." : "No files match your search."}
         </p>
       )}
 
       {errors.length > 0 && (
         <div
-          className="text-zoru-ink flex items-center gap-1 text-xs"
+          className="text-[var(--st-text)] flex items-center gap-1 text-xs"
           role="alert"
           aria-live="assertive"
         >

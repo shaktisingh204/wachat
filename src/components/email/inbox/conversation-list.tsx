@@ -92,8 +92,8 @@ export function ConversationList({
   }, [hasMore, loadingMore, loading, onLoadMore]);
 
   return (
-    <div className="flex h-full min-h-0 flex-col bg-zoru-surface">
-      <div className="flex items-center gap-2 border-b border-zoru-line p-3">
+    <div className="flex h-full min-h-0 flex-col bg-[var(--st-bg-secondary)]">
+      <div className="flex items-center gap-2 border-b border-[var(--st-border)] p-3">
         <Input
           value={query}
           onChange={(e) => onQueryChange(e.target.value)}
@@ -101,21 +101,21 @@ export function ConversationList({
           placeholder="Search conversations…"
         />
       </div>
-      <div className="border-b border-zoru-line px-4 py-1.5 text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+      <div className="border-b border-[var(--st-border)] px-4 py-1.5 text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
         {loading ? 'Loading…' : `${total} conversation${total === 1 ? '' : 's'}`}
       </div>
       <ScrollArea className="min-h-0 flex-1">
         {loading && threads.length === 0 ? (
-          <div className="flex h-40 items-center justify-center text-sm text-zoru-ink-muted">
+          <div className="flex h-40 items-center justify-center text-sm text-[var(--st-text-secondary)]">
             <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading conversations…
           </div>
         ) : threads.length === 0 ? (
-          <div className="flex h-40 flex-col items-center justify-center gap-1 text-center text-sm text-zoru-ink-muted">
-            <div className="font-medium text-zoru-ink">No conversations</div>
+          <div className="flex h-40 flex-col items-center justify-center gap-1 text-center text-sm text-[var(--st-text-secondary)]">
+            <div className="font-medium text-[var(--st-text)]">No conversations</div>
             <div className="text-xs">Try a different filter or search.</div>
           </div>
         ) : (
-          <ul className="divide-y divide-zoru-line">
+          <ul className="divide-y divide-[var(--st-border)]">
             {threads.map((t) => {
               const selected = t._id === selectedId;
               const tone = STATUS_TONE[t.status];
@@ -144,13 +144,13 @@ export function ConversationList({
                           className={cn(
                             'flex-1 truncate text-sm',
                             t.unread
-                              ? 'font-semibold text-zoru-ink'
-                              : 'text-zoru-ink',
+                              ? 'font-semibold text-[var(--st-text)]'
+                              : 'text-[var(--st-text)]',
                           )}
                         >
                           {fromName}
                         </span>
-                        <span className="shrink-0 text-[11px] text-zoru-ink-muted">
+                        <span className="shrink-0 text-[11px] text-[var(--st-text-secondary)]">
                           {relTime(t.lastMessageAt)}
                         </span>
                       </div>
@@ -158,24 +158,24 @@ export function ConversationList({
                         className={cn(
                           'truncate text-sm',
                           t.unread
-                            ? 'font-medium text-zoru-ink'
-                            : 'text-zoru-ink-muted',
+                            ? 'font-medium text-[var(--st-text)]'
+                            : 'text-[var(--st-text-secondary)]',
                         )}
                       >
                         {t.subject || '(no subject)'}
                       </div>
-                      <div className="truncate text-xs text-zoru-ink-muted">
+                      <div className="truncate text-xs text-[var(--st-text-secondary)]">
                         {t.lastMessagePreview}
                       </div>
                       <div className="mt-1 flex items-center gap-1.5">
                         {t.unread && (
                           <span
                             aria-label="Unread"
-                            className="h-1.5 w-1.5 rounded-full bg-zoru-ink"
+                            className="h-1.5 w-1.5 rounded-full bg-[var(--st-text)]"
                           />
                         )}
                         {t.starred && (
-                          <Star className="h-3 w-3 fill-zoru-ink-muted text-zoru-ink" />
+                          <Star className="h-3 w-3 fill-[var(--st-text-secondary)] text-[var(--st-text)]" />
                         )}
                         <Badge variant={tone.variant} className="text-[10px]">
                           {tone.label}
@@ -190,7 +190,7 @@ export function ConversationList({
                         {(t.labels ?? []).slice(0, 2).map((l) => (
                           <span
                             key={l}
-                            className="rounded-full border border-zoru-line bg-zoru-bg px-1.5 py-px text-[10px] text-zoru-ink-muted"
+                            className="rounded-full border border-[var(--st-border)] bg-[var(--st-bg)] px-1.5 py-px text-[10px] text-[var(--st-text-secondary)]"
                           >
                             {l}
                           </span>
@@ -206,7 +206,7 @@ export function ConversationList({
         {hasMore && (
           <div
             ref={sentinelRef}
-            className="flex items-center justify-center py-4 text-xs text-zoru-ink-muted"
+            className="flex items-center justify-center py-4 text-xs text-[var(--st-text-secondary)]"
           >
             {loadingMore ? (
               <>

@@ -53,8 +53,8 @@ async function ClientTicketsPageContent(props: { searchParams?: { status?: strin
         <div className="flex flex-col gap-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                    <h1 className="text-2xl font-semibold text-zoru-ink">Support Tickets</h1>
-                    <p className="text-sm text-zoru-ink-muted">
+                    <h1 className="text-2xl font-semibold text-[var(--st-text)]">Support Tickets</h1>
+                    <p className="text-sm text-[var(--st-text-secondary)]">
                         Submit and track requests from your account team.
                     </p>
                 </div>
@@ -85,8 +85,8 @@ async function ClientTicketsPageContent(props: { searchParams?: { status?: strin
                             </ZoruTableHeader>
                             <ZoruTableBody>
                                 {tickets.map((t) => (
-                                    <ZoruTableRow key={t._id} className={t.awaitingClientResponse ? "bg-zoru-surface-2/30" : ""}>
-                                        <ZoruTableCell className="text-xs text-zoru-ink-muted">
+                                    <ZoruTableRow key={t._id} className={t.awaitingClientResponse ? "bg-[var(--st-bg-muted)]/30" : ""}>
+                                        <ZoruTableCell className="text-xs text-[var(--st-text-secondary)]">
                                             {t.number ?? t._id.slice(-6).toUpperCase()}
                                         </ZoruTableCell>
                                         <ZoruTableCell>
@@ -94,12 +94,12 @@ async function ClientTicketsPageContent(props: { searchParams?: { status?: strin
                                                 <div className="flex items-center gap-2">
                                                     <Link
                                                         href={`/portal/client/tickets/${t._id}`}
-                                                        className="font-medium text-zoru-ink hover:underline"
+                                                        className="font-medium text-[var(--st-text)] hover:underline"
                                                     >
                                                         {t.subject}
                                                     </Link>
                                                     {t.awaitingClientResponse && (
-                                                        <span className="text-[10px] font-semibold tracking-wide uppercase px-1.5 py-0.5 rounded-full bg-zoru-surface-2 text-zoru-ink">
+                                                        <span className="text-[10px] font-semibold tracking-wide uppercase px-1.5 py-0.5 rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                                                             Action Required
                                                         </span>
                                                     )}

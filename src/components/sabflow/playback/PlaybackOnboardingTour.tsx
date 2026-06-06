@@ -384,9 +384,9 @@ function TourStepCard({
             className={cn(
               'h-1.5 rounded-full transition-all',
               i === stepIdx
-                ? 'w-5 bg-zoru-ink'
+                ? 'w-5 bg-[var(--st-text)]'
                 : i < stepIdx
-                ? 'w-1.5 bg-zoru-ink/60'
+                ? 'w-1.5 bg-[var(--st-text)]/60'
                 : 'w-1.5 bg-[var(--gray-5)]',
             )}
             aria-hidden
@@ -429,7 +429,7 @@ function TourStepCard({
           <button
             type="button"
             onClick={onNext}
-            className="rounded-md bg-zoru-ink px-3 py-1 text-[11.5px] font-semibold text-white hover:bg-zoru-ink"
+            className="rounded-md bg-[var(--st-text)] px-3 py-1 text-[11.5px] font-semibold text-white hover:bg-[var(--st-text)]"
             autoFocus
           >
             {isLast ? 'Finish' : 'Next'}

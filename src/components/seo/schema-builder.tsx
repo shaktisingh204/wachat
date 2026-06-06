@@ -174,17 +174,17 @@ export default function SchemaBuilder() {
                         <ZoruCardContent>
                             <div className="space-y-3">
                                 {templates.map(template => (
-                                    <div key={template.id} className="flex items-center justify-between p-3 border rounded-[var(--zoru-radius)] border-zoru-line bg-zoru-surface-2">
+                                    <div key={template.id} className="flex items-center justify-between p-3 border rounded-[var(--zoru-radius)] border-[var(--st-border)] bg-[var(--st-bg-muted)]">
                                         <div>
-                                            <p className="font-medium text-sm text-zoru-ink">{template.name}</p>
-                                            <p className="text-xs text-zoru-ink-muted">{template.type}</p>
+                                            <p className="font-medium text-sm text-[var(--st-text)]">{template.name}</p>
+                                            <p className="text-xs text-[var(--st-text-secondary)]">{template.type}</p>
                                         </div>
                                         <div className="flex gap-2">
                                             <Button variant="secondary" size="sm" onClick={() => loadTemplate(template.id)}>
                                                 <Download className="h-4 w-4 mr-1" />
                                                 Load
                                             </Button>
-                                            <Button variant="ghost" size="sm" className="text-zoru-danger hover:text-zoru-danger hover:bg-zoru-danger/10" onClick={() => deleteTemplate(template.id)}>
+                                            <Button variant="ghost" size="sm" className="text-[var(--st-danger)] hover:text-[var(--st-danger)] hover:bg-[var(--st-danger)]/10" onClick={() => deleteTemplate(template.id)}>
                                                 <Trash2 className="h-4 w-4" />
                                             </Button>
                                         </div>
@@ -202,7 +202,7 @@ export default function SchemaBuilder() {
                 </ZoruCardHeader>
                 <ZoruCardContent>
                     <div className="relative">
-                        <pre className="bg-zoru-ink text-white p-4 rounded-[var(--zoru-radius-lg)] overflow-auto text-xs min-h-[300px]">
+                        <pre className="bg-[var(--st-text)] text-white p-4 rounded-[var(--zoru-radius-lg)] overflow-auto text-xs min-h-[300px]">
                             {jsonLd}
                         </pre>
                         <Button

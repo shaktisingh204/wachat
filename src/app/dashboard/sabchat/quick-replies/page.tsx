@@ -181,7 +181,7 @@ function QuickReplyFormDialog({
                   placeholder="/welcome"
                   className="font-mono text-sm"
                 />
-                <p className="text-[10px] text-zoru-ink-muted">
+                <p className="text-[10px] text-[var(--st-text-secondary)]">
                   Must start with a `/` and contain no spaces.
                 </p>
               </div>
@@ -191,7 +191,7 @@ function QuickReplyFormDialog({
                   <div className="flex items-center gap-2">
                     <Switch id="scope" defaultChecked={true} />
                     <Label htmlFor="scope" className="font-normal text-sm cursor-pointer flex items-center gap-1.5">
-                      <Users className="h-3.5 w-3.5 text-zoru-ink-muted" /> Team (All Agents)
+                      <Users className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" /> Team (All Agents)
                     </Label>
                   </div>
                 </div>
@@ -202,17 +202,17 @@ function QuickReplyFormDialog({
               <div className="flex items-center justify-between">
                 <Label htmlFor="message">Message Template</Label>
                 <Button type="button" variant="outline" size="sm" className="h-7 text-xs">
-                  <Wand2 className="h-3 w-3 mr-1 text-zoru-ink" />
+                  <Wand2 className="h-3 w-3 mr-1 text-[var(--st-text)]" />
                   AI Improve
                 </Button>
               </div>
               
               {/* Dynamic Variables Toolbar */}
-              <div className="flex flex-wrap gap-2 p-2 bg-zoru-surface-2 rounded-t-[var(--zoru-radius-sm)] border border-b-0 border-zoru-line">
-                <span className="text-xs text-zoru-ink-muted flex items-center mr-2"><Code className="h-3 w-3 mr-1" /> Insert Variable:</span>
-                <Badge variant="outline" className="cursor-pointer hover:bg-zoru-surface text-[10px]" onClick={() => insertVariable('visitor.name')}>visitor.name</Badge>
-                <Badge variant="outline" className="cursor-pointer hover:bg-zoru-surface text-[10px]" onClick={() => insertVariable('agent.name')}>agent.name</Badge>
-                <Badge variant="outline" className="cursor-pointer hover:bg-zoru-surface text-[10px]" onClick={() => insertVariable('company.name')}>company.name</Badge>
+              <div className="flex flex-wrap gap-2 p-2 bg-[var(--st-bg-muted)] rounded-t-[var(--zoru-radius-sm)] border border-b-0 border-[var(--st-border)]">
+                <span className="text-xs text-[var(--st-text-secondary)] flex items-center mr-2"><Code className="h-3 w-3 mr-1" /> Insert Variable:</span>
+                <Badge variant="outline" className="cursor-pointer hover:bg-[var(--st-bg-secondary)] text-[10px]" onClick={() => insertVariable('visitor.name')}>visitor.name</Badge>
+                <Badge variant="outline" className="cursor-pointer hover:bg-[var(--st-bg-secondary)] text-[10px]" onClick={() => insertVariable('agent.name')}>agent.name</Badge>
+                <Badge variant="outline" className="cursor-pointer hover:bg-[var(--st-bg-secondary)] text-[10px]" onClick={() => insertVariable('company.name')}>company.name</Badge>
               </div>
               
               <Textarea
@@ -221,7 +221,7 @@ function QuickReplyFormDialog({
                 value={messageText}
                 onChange={(e) => setMessageText(e.target.value)}
                 required
-                className="min-h-32 rounded-t-none border-t-0 focus-visible:ring-0 focus-visible:border-zoru-ink"
+                className="min-h-32 rounded-t-none border-t-0 focus-visible:ring-0 focus-visible:border-[var(--st-text)]"
               />
             </div>
             
@@ -242,8 +242,8 @@ function QuickReplyFormDialog({
               <div className="space-y-2">
                 <Label>Keyboard Shortcut</Label>
                 <div className="flex items-center gap-2">
-                  <kbd className="px-2 py-1 bg-zoru-surface-2 border border-zoru-line rounded text-xs font-mono text-zoru-ink-muted">Cmd</kbd>
-                  <span className="text-zoru-ink-muted text-xs">+</span>
+                  <kbd className="px-2 py-1 bg-[var(--st-bg-muted)] border border-[var(--st-border)] rounded text-xs font-mono text-[var(--st-text-secondary)]">Cmd</kbd>
+                  <span className="text-[var(--st-text-secondary)] text-xs">+</span>
                   <Input placeholder="Key..." className="w-16 h-8 text-center uppercase" maxLength={1} />
                 </div>
               </div>
@@ -365,7 +365,7 @@ export default function SabChatQuickRepliesPage() {
         <div className="flex flex-col sm:flex-row justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="relative w-72">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
               <Input 
                 placeholder="Search shortcuts or messages..." 
                 className="pl-9 h-9" 
@@ -386,9 +386,9 @@ export default function SabChatQuickRepliesPage() {
           </div>
           
           {selectedBulk.length > 0 && (
-            <div className="flex items-center gap-3 bg-zoru-surface-2 px-3 py-1.5 rounded-[var(--zoru-radius-sm)] border border-zoru-line">
+            <div className="flex items-center gap-3 bg-[var(--st-bg-muted)] px-3 py-1.5 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)]">
               <span className="text-xs font-medium">{selectedBulk.length} selected</span>
-              <Button variant="outline" size="sm" className="h-7 text-xs text-zoru-ink border-zoru-line hover:bg-zoru-surface-2 hover:text-zoru-ink">
+              <Button variant="outline" size="sm" className="h-7 text-xs text-[var(--st-text)] border-[var(--st-border)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]">
                 <Trash2 className="h-3 w-3 mr-1.5" /> Delete
               </Button>
             </div>
@@ -411,7 +411,7 @@ export default function SabChatQuickRepliesPage() {
       ) : (
         <Card className="overflow-hidden p-0 shadow-sm">
           <Table>
-            <ZoruTableHeader className="bg-zoru-surface-2/50">
+            <ZoruTableHeader className="bg-[var(--st-bg-muted)]/50">
               <ZoruTableRow>
                 <ZoruTableHead className="w-12 text-center">
                   <Checkbox checked={selectedBulk.length === filteredReplies.length && filteredReplies.length > 0} 
@@ -436,16 +436,16 @@ export default function SabChatQuickRepliesPage() {
                       <Checkbox checked={selectedBulk.includes(reply._id.toString())} onCheckedChange={() => toggleBulk(reply._id.toString())} />
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <Button variant="ghost" size="icon-sm" className="h-6 w-6 cursor-grab active:cursor-grabbing text-zoru-ink-subtle hover:text-zoru-ink">
+                      <Button variant="ghost" size="icon-sm" className="h-6 w-6 cursor-grab active:cursor-grabbing text-[var(--st-text-tertiary)] hover:text-[var(--st-text)]">
                         <GripVertical className="h-4 w-4" />
                       </Button>
                     </ZoruTableCell>
-                    <ZoruTableCell className="font-mono text-sm text-zoru-ink font-medium">
+                    <ZoruTableCell className="font-mono text-sm text-[var(--st-text)] font-medium">
                       {reply.shortcut}
                     </ZoruTableCell>
                     <ZoruTableCell>
                       <div className="flex flex-col gap-1">
-                        <span className="max-w-lg truncate text-sm text-zoru-ink-muted">
+                        <span className="max-w-lg truncate text-sm text-[var(--st-text-secondary)]">
                           {reply.message}
                         </span>
                       </div>
@@ -454,7 +454,7 @@ export default function SabChatQuickRepliesPage() {
                       <ZoruTooltipProvider>
                         <ZoruTooltip>
                           <ZoruTooltipTrigger asChild>
-                            <Badge variant="outline" className={cn("gap-1.5", isTeam ? "bg-zoru-surface-2 text-zoru-ink border-zoru-line" : "bg-zoru-surface-2 text-zoru-ink border-zoru-line")}>
+                            <Badge variant="outline" className={cn("gap-1.5", isTeam ? "bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]" : "bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]")}>
                               {isTeam ? <Users className="h-3 w-3" /> : <User className="h-3 w-3" />}
                               {isTeam ? "Team" : "Personal"}
                             </Badge>
@@ -464,8 +464,8 @@ export default function SabChatQuickRepliesPage() {
                       </ZoruTooltipProvider>
                     </ZoruTableCell>
                     <ZoruTableCell className="text-right">
-                      <div className="flex flex-col items-end gap-1 text-xs text-zoru-ink-muted">
-                        <span className="flex items-center gap-1.5 font-medium text-zoru-ink"><Activity className="h-3 w-3 text-zoru-ink" /> {uses}</span>
+                      <div className="flex flex-col items-end gap-1 text-xs text-[var(--st-text-secondary)]">
+                        <span className="flex items-center gap-1.5 font-medium text-[var(--st-text)]"><Activity className="h-3 w-3 text-[var(--st-text)]" /> {uses}</span>
                         <span className="text-[10px] flex items-center gap-1"><Clock className="h-3 w-3" /> 2d ago</span>
                       </div>
                     </ZoruTableCell>
@@ -481,7 +481,7 @@ export default function SabChatQuickRepliesPage() {
                         </Button>
                         <ZoruAlertDialog>
                           <ZoruAlertDialogTrigger asChild>
-                            <Button variant="ghost" size="icon-sm" className="text-zoru-ink hover:text-zoru-ink hover:bg-zoru-surface-2">
+                            <Button variant="ghost" size="icon-sm" className="text-[var(--st-text)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]">
                               <Trash2 />
                             </Button>
                           </ZoruAlertDialogTrigger>

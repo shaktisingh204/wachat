@@ -120,12 +120,12 @@ export function RichTextMentionsEditor({
   };
 
   return (
-    <div className={`relative flex flex-col rounded-md border border-zoru-line bg-zoru-bg ${className || ''}`}>
-      <div className="flex items-center gap-1 border-b border-zoru-line px-2 py-1.5 bg-zoru-surface-2 rounded-t-md">
+    <div className={`relative flex flex-col rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] ${className || ''}`}>
+      <div className="flex items-center gap-1 border-b border-[var(--st-border)] px-2 py-1.5 bg-[var(--st-bg-muted)] rounded-t-md">
         <button
           type="button"
           onClick={() => insertText('**', '**')}
-          className="p-1.5 hover:bg-zoru-bg rounded text-zoru-ink-muted hover:text-zoru-ink"
+          className="p-1.5 hover:bg-[var(--st-bg)] rounded text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
           title="Bold"
         >
           <Bold className="h-4 w-4" />
@@ -133,7 +133,7 @@ export function RichTextMentionsEditor({
         <button
           type="button"
           onClick={() => insertText('_', '_')}
-          className="p-1.5 hover:bg-zoru-bg rounded text-zoru-ink-muted hover:text-zoru-ink"
+          className="p-1.5 hover:bg-[var(--st-bg)] rounded text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
           title="Italic"
         >
           <Italic className="h-4 w-4" />
@@ -141,7 +141,7 @@ export function RichTextMentionsEditor({
         <button
           type="button"
           onClick={() => insertText('\n- ')}
-          className="p-1.5 hover:bg-zoru-bg rounded text-zoru-ink-muted hover:text-zoru-ink"
+          className="p-1.5 hover:bg-[var(--st-bg)] rounded text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
           title="Bullet List"
         >
           <List className="h-4 w-4" />
@@ -153,12 +153,12 @@ export function RichTextMentionsEditor({
         onChange={handleChange}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
-        className="w-full resize-y min-h-[120px] bg-transparent p-3 text-[13px] text-zoru-ink outline-none"
+        className="w-full resize-y min-h-[120px] bg-transparent p-3 text-[13px] text-[var(--st-text)] outline-none"
       />
       
       {mentionQuery && (
-        <div className="absolute left-4 bottom-full mb-1 w-64 rounded-md border border-zoru-line bg-white shadow-lg shadow-black/5 z-10 overflow-hidden">
-          <div className="px-3 py-2 text-[11px] font-semibold text-zoru-ink-muted bg-zoru-surface-2 border-b border-zoru-line flex items-center justify-between">
+        <div className="absolute left-4 bottom-full mb-1 w-64 rounded-md border border-[var(--st-border)] bg-white shadow-lg shadow-black/5 z-10 overflow-hidden">
+          <div className="px-3 py-2 text-[11px] font-semibold text-[var(--st-text-secondary)] bg-[var(--st-bg-muted)] border-b border-[var(--st-border)] flex items-center justify-between">
             <span>People</span>
             {loading && <LoaderCircle className="h-3 w-3 animate-spin" />}
           </div>
@@ -168,7 +168,7 @@ export function RichTextMentionsEditor({
                 <div
                   key={u.id}
                   className={`px-3 py-2 text-[12.5px] cursor-pointer rounded-sm ${
-                    i === selectedIndex ? 'bg-zoru-primary/10 text-zoru-primary' : 'text-zoru-ink hover:bg-zoru-bg'
+                    i === selectedIndex ? 'bg-[var(--st-text)]/10 text-[var(--st-text)]' : 'text-[var(--st-text)] hover:bg-[var(--st-bg)]'
                   }`}
                   onMouseDown={(e) => {
                     e.preventDefault(); // keep focus
@@ -186,7 +186,7 @@ export function RichTextMentionsEditor({
               ))}
             </div>
           ) : !loading ? (
-            <div className="px-3 py-3 text-[12.5px] text-zoru-ink-muted text-center">No users found</div>
+            <div className="px-3 py-3 text-[12.5px] text-[var(--st-text-secondary)] text-center">No users found</div>
           ) : null}
         </div>
       )}

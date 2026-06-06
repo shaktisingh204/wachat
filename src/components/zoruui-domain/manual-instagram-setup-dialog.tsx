@@ -74,7 +74,7 @@ export function ManualInstagramSetupDialog() {
             <CardDescription>Enter your credentials directly if you are an advanced user.</CardDescription>
           </CardHeader>
           <CardContent className="flex-grow flex flex-col items-center justify-center p-6">
-            <Key className="h-10 w-10 text-zoru-ink-muted mb-4" />
+            <Key className="h-10 w-10 text-[var(--st-text-secondary)] mb-4" />
             <Button variant="outline">Connect Manually</Button>
           </CardContent>
         </Card>
@@ -85,7 +85,7 @@ export function ManualInstagramSetupDialog() {
             <ZoruDialogTitle>Manual Instagram/Facebook Connection</ZoruDialogTitle>
             <ZoruDialogDescription>
               Enter your Page ID and a permanent Access Token. For help, see the{' '}
-              <Link href="/dashboard/instagram/setup/docs" className="text-zoru-ink hover:underline" onClick={() => setOpen(false)}>
+              <Link href="/dashboard/instagram/setup/docs" className="text-[var(--st-text)] hover:underline" onClick={() => setOpen(false)}>
                 manual setup guide
               </Link>.
             </ZoruDialogDescription>

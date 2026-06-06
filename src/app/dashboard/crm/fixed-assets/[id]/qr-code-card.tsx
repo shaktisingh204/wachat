@@ -49,10 +49,10 @@ export function QrCodeCard({ value, code }: { value: string, code: string }) {
         </Button>
       </ZoruCardHeader>
       <ZoruCardContent className="flex flex-col items-center justify-center p-6">
-        <div className="rounded-lg bg-white p-4 shadow-sm border border-zoru-line" id="qr-svg-wrapper">
+        <div className="rounded-lg bg-white p-4 shadow-sm border border-[var(--st-border)]" id="qr-svg-wrapper">
           <QRCode id="asset-qr-code" value={value} size={150} level="H" />
         </div>
-        <p className="mt-4 text-[12px] text-zoru-ink-muted">Scan to open asset in CRM</p>
+        <p className="mt-4 text-[12px] text-[var(--st-text-secondary)]">Scan to open asset in CRM</p>
       </ZoruCardContent>
     </Card>
   );

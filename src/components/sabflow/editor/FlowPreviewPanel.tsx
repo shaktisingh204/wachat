@@ -638,11 +638,11 @@ function runFlowEngine(
 /* ── Typing indicator ─────────────────────────────────── */
 function TypingDots() {
   return (
-    <div className="flex items-center gap-1 rounded-2xl rounded-tl-sm px-4 py-3 w-fit shadow-sm bg-zoru-surface">
+    <div className="flex items-center gap-1 rounded-2xl rounded-tl-sm px-4 py-3 w-fit shadow-sm bg-[var(--st-bg-secondary)]">
       {[0, 1, 2].map((i) => (
         <span
           key={i}
-          className="h-1.5 w-1.5 rounded-full bg-zoru-ink animate-bounce"
+          className="h-1.5 w-1.5 rounded-full bg-[var(--st-text)] animate-bounce"
           style={{ animationDelay: `${i * 130}ms` }}
         />
       ))}
@@ -654,7 +654,7 @@ function TypingDots() {
 function HostBubble({ msg }: { msg: HostMsg }) {
   if (msg.kind === 'text') {
     return (
-      <div className="max-w-[80%] rounded-2xl rounded-tl-sm px-4 py-2.5 text-[13px] leading-relaxed shadow-sm bg-zoru-surface text-zoru-ink animate-in fade-in-0 slide-in-from-left-2 duration-200">
+      <div className="max-w-[80%] rounded-2xl rounded-tl-sm px-4 py-2.5 text-[13px] leading-relaxed shadow-sm bg-[var(--st-bg-secondary)] text-[var(--st-text)] animate-in fade-in-0 slide-in-from-left-2 duration-200">
         {msg.text}
       </div>
     );
@@ -706,7 +706,7 @@ function HostBubble({ msg }: { msg: HostMsg }) {
             href={msg.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="underline hover:text-zoru-ink"
+            className="underline hover:text-[var(--st-text)]"
           >
             {msg.url}
           </a>
@@ -720,7 +720,7 @@ function HostBubble({ msg }: { msg: HostMsg }) {
 /* ── Guest message bubble ─────────────────────────────── */
 function GuestBubble({ text }: { text: string }) {
   return (
-    <div className="max-w-[80%] rounded-2xl rounded-tr-sm px-4 py-2.5 text-[13px] leading-relaxed shadow-sm self-end bg-zoru-ink text-white animate-in fade-in-0 slide-in-from-right-2 duration-200">
+    <div className="max-w-[80%] rounded-2xl rounded-tr-sm px-4 py-2.5 text-[13px] leading-relaxed shadow-sm self-end bg-[var(--st-text)] text-white animate-in fade-in-0 slide-in-from-right-2 duration-200">
       {text}
     </div>
   );
@@ -740,7 +740,7 @@ function ChoiceButtons({
         <button
           key={c.id}
           onClick={() => onChoose(c.id)}
-          className="rounded-xl border border-zoru-line px-3 py-1.5 text-[12.5px] font-medium text-zoru-ink transition-colors hover:bg-zoru-surface active:scale-95"
+          className="rounded-xl border border-[var(--st-border)] px-3 py-1.5 text-[12.5px] font-medium text-[var(--st-text)] transition-colors hover:bg-[var(--st-bg-secondary)] active:scale-95"
         >
           {c.label}
         </button>
@@ -792,7 +792,7 @@ function VariablesPanel({
                 key={row.name}
                 className="flex items-baseline gap-2 text-[11.5px]"
               >
-                <code className="text-zoru-ink dark:text-zoru-ink-muted shrink-0 font-mono">
+                <code className="text-[var(--st-text)] dark:text-[var(--st-text-secondary)] shrink-0 font-mono">
                   {row.name}
                 </code>
                 <span className="text-[var(--gray-7)] shrink-0">=</span>
@@ -1159,7 +1159,7 @@ export function FlowPreviewPanel({ flow, onClose }: Props) {
       {/* ── Drag handle (left border) ─────────────────── */}
       <div
         onMouseDown={handleDragMouseDown}
-        className="absolute left-0 top-0 h-full w-1.5 cursor-col-resize z-30 group/resize hover:bg-zoru-ink/20 transition-colors"
+        className="absolute left-0 top-0 h-full w-1.5 cursor-col-resize z-30 group/resize hover:bg-[var(--st-text)]/20 transition-colors"
         title="Drag to resize"
       >
         <div className="absolute left-0 top-1/2 -translate-y-1/2 flex flex-col items-center opacity-0 group-hover/resize:opacity-100 transition-opacity pointer-events-none">
@@ -1178,7 +1178,7 @@ export function FlowPreviewPanel({ flow, onClose }: Props) {
           className={cn(
             'flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-[12px] font-medium transition-colors active:scale-95',
             debugOpen
-              ? 'bg-zoru-surface text-zoru-ink border border-zoru-line/30'
+              ? 'bg-[var(--st-bg-secondary)] text-[var(--st-text)] border border-[var(--st-border)]/30'
               : 'border border-[var(--gray-5)] text-[var(--gray-11)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
           )}
         >
@@ -1197,14 +1197,14 @@ export function FlowPreviewPanel({ flow, onClose }: Props) {
           className={cn(
             'flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-[12px] font-medium transition-colors',
             liveMode
-              ? 'bg-zoru-ink/15 text-zoru-ink border border-zoru-line/40 dark:text-zoru-ink-muted'
+              ? 'bg-[var(--st-text)]/15 text-[var(--st-text)] border border-[var(--st-border)]/40 dark:text-[var(--st-text-secondary)]'
               : 'border border-[var(--gray-5)] text-[var(--gray-11)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
           )}
         >
           <span
             className={cn(
               'inline-block h-1.5 w-1.5 rounded-full',
-              liveMode ? 'bg-zoru-ink animate-pulse' : 'bg-[var(--gray-7)]',
+              liveMode ? 'bg-[var(--st-text)] animate-pulse' : 'bg-[var(--gray-7)]',
             )}
           />
           Live
@@ -1214,7 +1214,7 @@ export function FlowPreviewPanel({ flow, onClose }: Props) {
         <button
           onClick={startSimulator}
           title="Restart preview"
-          className="flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-[12px] font-medium text-white bg-zoru-ink hover:bg-zoru-ink transition-colors active:scale-95"
+          className="flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-[12px] font-medium text-white bg-[var(--st-text)] hover:bg-[var(--st-text)] transition-colors active:scale-95"
         >
           <LuRefreshCw className="h-3.5 w-3.5" strokeWidth={2} />
           Restart
@@ -1298,7 +1298,7 @@ export function FlowPreviewPanel({ flow, onClose }: Props) {
             className={cn(
               'flex h-8 w-8 shrink-0 items-center justify-center rounded-xl transition-colors active:scale-95',
               textValue.trim()
-                ? 'bg-zoru-ink text-white hover:bg-zoru-ink'
+                ? 'bg-[var(--st-text)] text-white hover:bg-[var(--st-text)]'
                 : 'bg-[var(--gray-4)] text-[var(--gray-8)] cursor-not-allowed',
             )}
           >

@@ -226,8 +226,8 @@ export default function FacebookModerationPage(): React.JSX.Element {
 
       <header className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl text-zoru-ink">Moderation</h1>
-          <p className="mt-1 text-sm text-zoru-ink-muted">
+          <h1 className="text-2xl text-[var(--st-text)]">Moderation</h1>
+          <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
             Auto-handle comments and visitor posts that match your patterns.
           </p>
         </div>
@@ -271,7 +271,7 @@ export default function FacebookModerationPage(): React.JSX.Element {
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <p className="line-clamp-1 text-base text-zoru-ink">
+                        <p className="line-clamp-1 text-base text-[var(--st-text)]">
                           {r.name ?? r.keywords ?? '(unnamed)'}
                         </p>
                         <Badge variant={actionVariant(r.action)}>
@@ -279,12 +279,12 @@ export default function FacebookModerationPage(): React.JSX.Element {
                         </Badge>
                       </div>
                       {r.keywords || r.pattern ? (
-                        <p className="mt-1 line-clamp-1 font-mono text-xs text-zoru-ink-muted">
+                        <p className="mt-1 line-clamp-1 font-mono text-xs text-[var(--st-text-secondary)]">
                           {r.keywords ?? r.pattern}
                         </p>
                       ) : null}
                       {r.autoReplyText ? (
-                        <p className="mt-1 line-clamp-1 text-xs text-zoru-ink-muted">
+                        <p className="mt-1 line-clamp-1 text-xs text-[var(--st-text-secondary)]">
                           Auto-reply: {r.autoReplyText}
                         </p>
                       ) : null}
@@ -297,7 +297,7 @@ export default function FacebookModerationPage(): React.JSX.Element {
                           disabled={mutating}
                           aria-label="Toggle rule active"
                         />
-                        <span className="text-xs text-zoru-ink-muted">
+                        <span className="text-xs text-[var(--st-text-secondary)]">
                           {r.isActive ? 'Enabled' : 'Disabled'}
                         </span>
                       </div>

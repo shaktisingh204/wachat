@@ -126,14 +126,14 @@ export default function GDPRPage() {
         <div className="flex items-center gap-1.5">
           {r.status === "Pending" || r.status === "In Progress" ? (
             r.slaDaysRemaining < 0 ? (
-              <span className="text-zoru-ink font-bold flex items-center gap-1"><AlertTriangle className="h-3 w-3" /> Breached</span>
+              <span className="text-[var(--st-text)] font-bold flex items-center gap-1"><AlertTriangle className="h-3 w-3" /> Breached</span>
             ) : r.slaDaysRemaining < 5 ? (
-              <span className="text-zoru-ink font-medium flex items-center gap-1"><Clock className="h-3 w-3" /> {r.slaDaysRemaining} days</span>
+              <span className="text-[var(--st-text)] font-medium flex items-center gap-1"><Clock className="h-3 w-3" /> {r.slaDaysRemaining} days</span>
             ) : (
-              <span className="text-zoru-ink flex items-center gap-1"><Clock className="h-3 w-3" /> {r.slaDaysRemaining} days</span>
+              <span className="text-[var(--st-text)] flex items-center gap-1"><Clock className="h-3 w-3" /> {r.slaDaysRemaining} days</span>
             )
           ) : (
-            <span className="text-zoru-ink-muted">Resolved</span>
+            <span className="text-[var(--st-text-secondary)]">Resolved</span>
           )}
         </div>
       ),
@@ -141,7 +141,7 @@ export default function GDPRPage() {
     {
       id: "date",
       header: "Received",
-      render: (r) => <span className="text-zoru-ink">{r.dateReceived}</span>,
+      render: (r) => <span className="text-[var(--st-text)]">{r.dateReceived}</span>,
     },
   ];
 
@@ -149,7 +149,7 @@ export default function GDPRPage() {
     {
       id: "pattern",
       header: "Pattern Name",
-      render: (r) => <span className="font-medium text-sm flex items-center gap-2"><EyeOff className="h-4 w-4 text-zoru-ink-muted" /> {r.patternName}</span>,
+      render: (r) => <span className="font-medium text-sm flex items-center gap-2"><EyeOff className="h-4 w-4 text-[var(--st-text-secondary)]" /> {r.patternName}</span>,
     },
     {
       id: "status",
@@ -163,13 +163,13 @@ export default function GDPRPage() {
     {
       id: "matches",
       header: "Matches Detected",
-      render: (r) => <span className="text-zoru-ink">{r.matchesDetected.toLocaleString()}</span>,
+      render: (r) => <span className="text-[var(--st-text)]">{r.matchesDetected.toLocaleString()}</span>,
     },
     {
       id: "confidence",
       header: "AI Confidence",
       render: (r) => (
-        <span className={r.confidence > 99 ? "text-zoru-ink font-medium" : "text-zoru-ink"}>
+        <span className={r.confidence > 99 ? "text-[var(--st-text)] font-medium" : "text-[var(--st-text)]"}>
           {r.confidence}%
         </span>
       ),
@@ -177,7 +177,7 @@ export default function GDPRPage() {
     {
       id: "last",
       header: "Last Fired",
-      render: (r) => <span className="text-zoru-ink text-sm">{r.lastFired}</span>,
+      render: (r) => <span className="text-[var(--st-text)] text-sm">{r.lastFired}</span>,
     },
   ];
 
@@ -406,23 +406,23 @@ export default function GDPRPage() {
             </ZoruCardHeader>
             <ZoruCardContent className="space-y-4">
               <div className="flex justify-between items-center">
-                <span className="text-sm font-medium text-zoru-ink">DPIA Template</span>
+                <span className="text-sm font-medium text-[var(--st-text)]">DPIA Template</span>
                 <Button variant="outline" size="sm" className="h-8">
                   <Download className="h-3 w-3 mr-2" /> Download
                 </Button>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm font-medium text-zoru-ink">Data Processing Addendum</span>
+                <span className="text-sm font-medium text-[var(--st-text)]">Data Processing Addendum</span>
                 <Button variant="outline" size="sm" className="h-8">
                   <FileText className="h-3 w-3 mr-2" /> DPA PDF
                 </Button>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm font-medium text-zoru-ink">Sub-processor List</span>
+                <span className="text-sm font-medium text-[var(--st-text)]">Sub-processor List</span>
                 <Button variant="ghost" size="sm" className="h-8">View List</Button>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm font-medium text-zoru-ink">SCCs Config</span>
+                <span className="text-sm font-medium text-[var(--st-text)]">SCCs Config</span>
                 <Button variant="ghost" size="sm" className="h-8">Configure</Button>
               </div>
             </ZoruCardContent>
@@ -456,7 +456,7 @@ export default function GDPRPage() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>AI PII Redaction</Label>
-                  <div className="text-xs text-zoru-ink">
+                  <div className="text-xs text-[var(--st-text)]">
                     Redact PII before processing
                   </div>
                 </div>
@@ -466,7 +466,7 @@ export default function GDPRPage() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>Strict Erasure</Label>
-                  <div className="text-xs text-zoru-ink">
+                  <div className="text-xs text-[var(--st-text)]">
                     Irreversible cryptographic wiping
                   </div>
                 </div>
@@ -476,7 +476,7 @@ export default function GDPRPage() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>Webhook on Request</Label>
-                  <div className="text-xs text-zoru-ink">
+                  <div className="text-xs text-[var(--st-text)]">
                     Fire hook when DSR received
                   </div>
                 </div>
@@ -492,7 +492,7 @@ export default function GDPRPage() {
                 <Button variant="link" className="px-0 text-sm h-auto justify-start">
                   <Users className="h-3 w-3 mr-2" /> Cookie & SDK Disclosures
                 </Button>
-                <Button variant="link" className="px-0 text-sm h-auto justify-start text-zoru-ink hover:text-zoru-ink">
+                <Button variant="link" className="px-0 text-sm h-auto justify-start text-[var(--st-text)] hover:text-[var(--st-text)]">
                   <AlertTriangle className="h-3 w-3 mr-2" /> Breach Notification Protocol
                 </Button>
               </div>

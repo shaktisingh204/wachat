@@ -31,7 +31,7 @@ export interface ClaySidebarProps extends React.HTMLAttributes<HTMLElement> {
 /**
  * ClaySidebar — left column for the dashboard. Active-state and nav
  * item rendering logic is preserved verbatim; only the styling tokens
- * have been migrated to shadcn (`bg-sidebar`, `bg-zoru-surface-2`, etc.)
+ * have been migrated to shadcn (`bg-sidebar`, `bg-[var(--st-bg-muted)]`, etc.)
  * The shadcn `Sidebar` primitive is intentionally not used here
  * because its built-in collapsible/provider chrome would diverge
  * from the simple props this component exposes.
@@ -52,7 +52,7 @@ export function ClaySidebar({
         'sticky top-0 flex h-full max-h-full shrink-0 flex-col pb-5',
         'w-[244px] px-4 pt-6',
         // Use the sidebar token if defined; fall back to muted background.
-        'bg-zoru-ink',
+        'bg-[var(--st-text)]',
         className,
       )}
       {...props}
@@ -61,7 +61,7 @@ export function ClaySidebar({
 
       <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden pr-1">
         <div className="px-2">
-          <h2 className="text-[17px] font-semibold tracking-tight text-zoru-ink leading-none">
+          <h2 className="text-[17px] font-semibold tracking-tight text-[var(--st-text)] leading-none">
             {groupTitle}
           </h2>
         </div>
@@ -81,7 +81,7 @@ export function ClaySidebar({
             <div key={i}>
               {group.title ? (
                 <div className="flex items-center justify-between px-2.5 pb-2">
-                  <span className="text-[10.5px] uppercase tracking-[0.08em] font-semibold text-zoru-ink-muted">
+                  <span className="text-[10.5px] uppercase tracking-[0.08em] font-semibold text-[var(--st-text-secondary)]">
                     {group.title}
                   </span>
                   {group.addable ? (
@@ -89,7 +89,7 @@ export function ClaySidebar({
                       type="button"
                       onClick={group.onAdd}
                       aria-label={`Add ${group.title}`}
-                      className="flex h-5 w-5 items-center justify-center rounded-md text-zoru-ink-muted hover:bg-zoru-surface hover:text-zoru-ink transition-colors"
+                      className="flex h-5 w-5 items-center justify-center rounded-md text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)] hover:text-[var(--st-text)] transition-colors"
                     >
                       <LuPlus className="h-3.5 w-3.5" strokeWidth={2} />
                     </button>
@@ -115,8 +115,8 @@ export function ClaySidebar({
 
 const navItemClass = cn(
   'flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] font-medium leading-tight transition-colors',
-  'text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink',
-  'data-[active=true]:bg-zoru-ink data-[active=true]:text-white data-[active=true]:hover:bg-zoru-ink',
+  'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]',
+  'data-[active=true]:bg-[var(--st-text)] data-[active=true]:text-white data-[active=true]:hover:bg-[var(--st-text)]',
 );
 
 function NavItem({ item }: { item: ClayNavItem }) {

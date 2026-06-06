@@ -58,7 +58,7 @@ function TextField({
 }) {
     return (
         <div className={fullWidth ? 'md:col-span-2' : ''}>
-            <Label htmlFor={name} className="text-[13px] text-zoru-ink">
+            <Label htmlFor={name} className="text-[13px] text-[var(--st-text)]">
                 {label}
             </Label>
             <Input
@@ -90,7 +90,7 @@ function PickerField({
 }) {
     return (
         <div>
-            <Label className="text-[13px] text-zoru-ink">{label}</Label>
+            <Label className="text-[13px] text-[var(--st-text)]">{label}</Label>
             <div className="mt-1.5">
                 <EntityFormField
                     entity={entity}
@@ -212,7 +212,7 @@ export default function CompanyProfilePage() {
                                 <div>
                                     <Label
                                         htmlFor="logo"
-                                        className="text-[13px] text-zoru-ink"
+                                        className="text-[13px] text-[var(--st-text)]"
                                     >
                                         Logo
                                     </Label>
@@ -276,7 +276,7 @@ export default function CompanyProfilePage() {
                                 <div className="md:col-span-2">
                                     <Label
                                         htmlFor="address"
-                                        className="text-[13px] text-zoru-ink"
+                                        className="text-[13px] text-[var(--st-text)]"
                                     >
                                         Primary Address
                                     </Label>

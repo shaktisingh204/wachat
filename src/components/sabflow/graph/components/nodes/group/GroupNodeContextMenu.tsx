@@ -38,7 +38,7 @@ function MenuItem({ icon, label, shortcut, variant = 'default', disabled = false
         disabled
           ? 'cursor-not-allowed opacity-40'
           : variant === 'danger'
-            ? 'cursor-pointer text-zoru-ink hover:bg-zoru-surface-2 dark:hover:bg-zoru-ink/30'
+            ? 'cursor-pointer text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] dark:hover:bg-[var(--st-text)]/30'
             : 'cursor-pointer text-[var(--gray-12)] hover:bg-[var(--gray-3)]',
       ].join(' ')}
     >

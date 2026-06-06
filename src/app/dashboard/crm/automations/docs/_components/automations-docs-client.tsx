@@ -393,7 +393,7 @@ export function AutomationsDocsClient({
         {/* ── My Automations tab ──────────────────────────────────────── */}
         <TabsContent value="automations" className="mt-4 space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <span className="text-[13px] text-zoru-ink-muted">
+            <span className="text-[13px] text-[var(--st-text-secondary)]">
               {total.toLocaleString()} automation{total !== 1 ? 's' : ''}
             </span>
             <div className="flex gap-2">
@@ -410,8 +410,8 @@ export function AutomationsDocsClient({
 
           {/* Bulk bar */}
           {selected.size > 0 && (
-            <div className="flex flex-wrap items-center gap-2 rounded border border-zoru-line bg-zoru-surface-2 px-3 py-2">
-              <span className="text-[12.5px] text-zoru-ink">{selected.size} selected</span>
+            <div className="flex flex-wrap items-center gap-2 rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2">
+              <span className="text-[12.5px] text-[var(--st-text)]">{selected.size} selected</span>
               <Button
                 size="sm"
                 onClick={() => void handleBulk('activate')}
@@ -445,15 +445,15 @@ export function AutomationsDocsClient({
           <Card className="overflow-hidden p-0">
             {loading ? (
               <div className="flex items-center justify-center p-10">
-                <Loader2 className="h-5 w-5 animate-spin text-zoru-ink-muted" />
+                <Loader2 className="h-5 w-5 animate-spin text-[var(--st-text-secondary)]" />
               </div>
             ) : automations.length === 0 ? (
               <div className="p-10 text-center">
-                <p className="text-[13px] text-zoru-ink-muted">
+                <p className="text-[13px] text-[var(--st-text-secondary)]">
                   No automations yet.{' '}
                   <Link
                     href="/dashboard/crm/automations/new"
-                    className="text-zoru-primary hover:underline"
+                    className="text-[var(--st-text)] hover:underline"
                   >
                     Create your first automation
                   </Link>
@@ -494,7 +494,7 @@ export function AutomationsDocsClient({
                             className="h-3.5 w-3.5"
                           />
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] font-medium text-zoru-ink">
+                        <ZoruTableCell className="text-[13px] font-medium text-[var(--st-text)]">
                           <Link
                             href={`/dashboard/crm/automations/${a._id}`}
                             className="hover:underline"
@@ -502,10 +502,10 @@ export function AutomationsDocsClient({
                             {a.name}
                           </Link>
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                           {a.trigger ?? '—'}
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                           {a.actionsCount ?? 0}
                         </ZoruTableCell>
                         <ZoruTableCell>
@@ -515,10 +515,10 @@ export function AutomationsDocsClient({
                             <Badge variant="secondary" className="text-[11px]">Paused</Badge>
                           )}
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                           {a.lastRunAt ? safeFormatDate(a.lastRunAt) : '—'}
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                           {a.runCount ?? 0}
                         </ZoruTableCell>
                         <ZoruTableCell>
@@ -536,7 +536,7 @@ export function AutomationsDocsClient({
 
           {totalPages > 1 && (
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="text-[12.5px] text-zoru-ink-muted">
+              <span className="text-[12.5px] text-[var(--st-text-secondary)]">
                 Page {page} of {totalPages}
               </span>
               <div className="flex gap-1">
@@ -566,8 +566,8 @@ export function AutomationsDocsClient({
           {/* Variables section */}
           <Card>
             <div className="mb-4">
-              <h2 className="text-[16px] font-semibold text-zoru-ink">Using Variables</h2>
-              <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+              <h2 className="text-[16px] font-semibold text-[var(--st-text)]">Using Variables</h2>
+              <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">
                 Variables let you personalise automations using live CRM data. Use double
                 curly braces:{' '}
                 <Badge variant="ghost" className="font-mono">
@@ -578,7 +578,7 @@ export function AutomationsDocsClient({
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               {Object.entries(VARIABLES_DOC).map(([ns, fields]) => (
                 <div key={ns}>
-                  <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                  <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                     {ns}
                   </p>
                   <ul className="space-y-1">
@@ -598,15 +598,15 @@ export function AutomationsDocsClient({
           <Separator />
 
           <div>
-            <h2 className="text-[18px] font-bold text-zoru-ink">Automation Blocks</h2>
-            <p className="mt-1 text-[13px] text-zoru-ink-muted">
+            <h2 className="text-[18px] font-bold text-[var(--st-text)]">Automation Blocks</h2>
+            <p className="mt-1 text-[13px] text-[var(--st-text-secondary)]">
               All available triggers, actions, and logic nodes.
             </p>
           </div>
 
           {/* Triggers */}
           <div>
-            <h3 className="mb-2 text-[14px] font-semibold text-zoru-ink">Triggers</h3>
+            <h3 className="mb-2 text-[14px] font-semibold text-[var(--st-text)]">Triggers</h3>
             <Accordion type="multiple" className="w-full">
               {BLOCK_DOCS.filter((d) => d.category === 'Trigger').map((doc, idx) => (
                 <ZoruAccordionItem value={`trigger-${idx}`} key={idx}>
@@ -614,9 +614,9 @@ export function AutomationsDocsClient({
                     {doc.title}
                   </ZoruAccordionTrigger>
                   <ZoruAccordionContent className="space-y-3 pt-1">
-                    <p className="text-[13px] text-zoru-ink-muted">{doc.description}</p>
+                    <p className="text-[13px] text-[var(--st-text-secondary)]">{doc.description}</p>
                     <div>
-                      <p className="mb-1 text-[12px] font-semibold text-zoru-ink">
+                      <p className="mb-1 text-[12px] font-semibold text-[var(--st-text)]">
                         Properties
                       </p>
                       <ul className="space-y-1 text-[12.5px]">
@@ -628,8 +628,8 @@ export function AutomationsDocsClient({
                       </ul>
                     </div>
                     <div>
-                      <p className="mb-1 text-[12px] font-semibold text-zoru-ink">Outputs</p>
-                      <ul className="space-y-0.5 text-[12.5px] text-zoru-ink-muted">
+                      <p className="mb-1 text-[12px] font-semibold text-[var(--st-text)]">Outputs</p>
+                      <ul className="space-y-0.5 text-[12.5px] text-[var(--st-text-secondary)]">
                         {doc.outputs.map((o) => (
                           <li key={o}>{o}</li>
                         ))}
@@ -643,7 +643,7 @@ export function AutomationsDocsClient({
 
           {/* Actions */}
           <div>
-            <h3 className="mb-2 text-[14px] font-semibold text-zoru-ink">Actions</h3>
+            <h3 className="mb-2 text-[14px] font-semibold text-[var(--st-text)]">Actions</h3>
             <Accordion type="multiple" className="w-full">
               {BLOCK_DOCS.filter((d) => d.category === 'Action').map((doc, idx) => (
                 <ZoruAccordionItem value={`action-${idx}`} key={idx}>
@@ -651,9 +651,9 @@ export function AutomationsDocsClient({
                     {doc.title}
                   </ZoruAccordionTrigger>
                   <ZoruAccordionContent className="space-y-3 pt-1">
-                    <p className="text-[13px] text-zoru-ink-muted">{doc.description}</p>
+                    <p className="text-[13px] text-[var(--st-text-secondary)]">{doc.description}</p>
                     <div>
-                      <p className="mb-1 text-[12px] font-semibold text-zoru-ink">
+                      <p className="mb-1 text-[12px] font-semibold text-[var(--st-text)]">
                         Properties
                       </p>
                       <ul className="space-y-1 text-[12.5px]">
@@ -672,7 +672,7 @@ export function AutomationsDocsClient({
 
           {/* Logic */}
           <div>
-            <h3 className="mb-2 text-[14px] font-semibold text-zoru-ink">Logic</h3>
+            <h3 className="mb-2 text-[14px] font-semibold text-[var(--st-text)]">Logic</h3>
             <Accordion type="multiple" className="w-full">
               {BLOCK_DOCS.filter((d) => d.category === 'Logic').map((doc, idx) => (
                 <ZoruAccordionItem value={`logic-${idx}`} key={idx}>
@@ -680,9 +680,9 @@ export function AutomationsDocsClient({
                     {doc.title}
                   </ZoruAccordionTrigger>
                   <ZoruAccordionContent className="space-y-3 pt-1">
-                    <p className="text-[13px] text-zoru-ink-muted">{doc.description}</p>
+                    <p className="text-[13px] text-[var(--st-text-secondary)]">{doc.description}</p>
                     <div>
-                      <p className="mb-1 text-[12px] font-semibold text-zoru-ink">
+                      <p className="mb-1 text-[12px] font-semibold text-[var(--st-text)]">
                         Properties
                       </p>
                       <ul className="space-y-1 text-[12.5px]">
@@ -694,8 +694,8 @@ export function AutomationsDocsClient({
                       </ul>
                     </div>
                     <div>
-                      <p className="mb-1 text-[12px] font-semibold text-zoru-ink">Outputs</p>
-                      <ul className="space-y-0.5 text-[12.5px] text-zoru-ink-muted">
+                      <p className="mb-1 text-[12px] font-semibold text-[var(--st-text)]">Outputs</p>
+                      <ul className="space-y-0.5 text-[12.5px] text-[var(--st-text-secondary)]">
                         {doc.outputs.map((o) => (
                           <li key={o}>{o}</li>
                         ))}
@@ -711,8 +711,8 @@ export function AutomationsDocsClient({
         {/* ── Templates tab ───────────────────────────────────────────── */}
         <TabsContent value="templates" className="mt-4">
           <div className="mb-4">
-            <h2 className="text-[16px] font-semibold text-zoru-ink">Pre-built templates</h2>
-            <p className="mt-1 text-[13px] text-zoru-ink-muted">
+            <h2 className="text-[16px] font-semibold text-[var(--st-text)]">Pre-built templates</h2>
+            <p className="mt-1 text-[13px] text-[var(--st-text-secondary)]">
               Start from a working automation and customise it for your workflow.
             </p>
           </div>
@@ -720,8 +720,8 @@ export function AutomationsDocsClient({
             {TEMPLATES.map((tpl) => (
               <Card key={tpl.id} className="flex flex-col gap-3 p-4">
                 <div className="flex-1">
-                  <h3 className="text-[14px] font-semibold text-zoru-ink">{tpl.title}</h3>
-                  <p className="mt-1 text-[12.5px] text-zoru-ink-muted">{tpl.description}</p>
+                  <h3 className="text-[14px] font-semibold text-[var(--st-text)]">{tpl.title}</h3>
+                  <p className="mt-1 text-[12.5px] text-[var(--st-text-secondary)]">{tpl.description}</p>
                 </div>
                 <div className="flex flex-wrap items-center gap-1">
                   <Badge variant="outline" className="text-[11px]">

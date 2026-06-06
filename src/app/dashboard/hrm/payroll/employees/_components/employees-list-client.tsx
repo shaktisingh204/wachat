@@ -402,7 +402,7 @@ export function EmployeesListClient({
       <EmployeesKpiStrip kpi={kpi} active={preset} onSelect={applyPreset} />
 
       {error ? (
-        <div className="rounded border border-zoru-line/40 bg-zoru-ink/10 px-3 py-2 text-[12.5px] text-zoru-ink dark:text-zoru-ink-muted">
+        <div className="rounded border border-[var(--st-border)]/40 bg-[var(--st-text)]/10 px-3 py-2 text-[12.5px] text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
           {error}
         </div>
       ) : null}
@@ -476,7 +476,7 @@ export function EmployeesListClient({
         )}
 
         {view === 'table' ? (
-          <div className="border-t border-zoru-line p-3">
+          <div className="border-t border-[var(--st-border)] p-3">
             <PaginationBar page={page} limit={limit} hasMore={hasMore} />
           </div>
         ) : null}

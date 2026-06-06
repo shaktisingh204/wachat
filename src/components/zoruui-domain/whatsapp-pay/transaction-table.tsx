@@ -242,7 +242,7 @@ export function TransactionTable({ data }: { data: PaymentTransaction[] }) {
                 </Table>
             </div>
             <div className="flex items-center justify-end space-x-2 py-4">
-                <div className="flex-1 text-sm text-zoru-ink-muted">
+                <div className="flex-1 text-sm text-[var(--st-text-secondary)]">
                     {table.getFilteredSelectedRowModel().rows.length} of{" "}
                     {table.getFilteredRowModel().rows.length} row(s) selected.
                 </div>

@@ -83,14 +83,14 @@ export function AiCopilotPanel({ templateType, onInsert, currentContent }: AiCop
     };
 
     return (
-        <div className="flex h-full flex-col gap-4 p-4 text-zoru-ink">
-            <div className="flex items-center gap-2 border-b border-zoru-line pb-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-md bg-zoru-ink/20 text-zoru-ink-muted">
+        <div className="flex h-full flex-col gap-4 p-4 text-[var(--st-text)]">
+            <div className="flex items-center gap-2 border-b border-[var(--st-border)] pb-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-md bg-[var(--st-text)]/20 text-[var(--st-text-secondary)]">
                     <Sparkles className="h-4.5 w-4.5 animate-pulse" />
                 </div>
                 <div>
                     <h3 className="font-semibold text-sm">AI Content Optimizer</h3>
-                    <p className="text-[11px] text-zoru-ink-muted">Generate high-converting template copy</p>
+                    <p className="text-[11px] text-[var(--st-text-secondary)]">Generate high-converting template copy</p>
                 </div>
             </div>
 
@@ -98,10 +98,10 @@ export function AiCopilotPanel({ templateType, onInsert, currentContent }: AiCop
                 <div className="flex flex-col gap-1.5">
                     <Label htmlFor="ai-tone" className="text-xs font-medium">Tone of Voice</Label>
                     <Select value={tone} onValueChange={setTone}>
-                        <ZoruSelectTrigger id="ai-tone" className="h-8.5 text-xs bg-zoru-ink/40 border-zoru-line">
+                        <ZoruSelectTrigger id="ai-tone" className="h-8.5 text-xs bg-[var(--st-text)]/40 border-[var(--st-border)]">
                             <ZoruSelectValue placeholder="Select tone" />
                         </ZoruSelectTrigger>
-                        <ZoruSelectContent className="bg-zoru-ink border-zoru-line">
+                        <ZoruSelectContent className="bg-[var(--st-text)] border-[var(--st-border)]">
                             <ZoruSelectItem value="professional">💼 Professional / Corporate</ZoruSelectItem>
                             <ZoruSelectItem value="friendly">👋 Friendly / Warm</ZoruSelectItem>
                             <ZoruSelectItem value="empathy">❤️ Empathetic / Supportive</ZoruSelectItem>
@@ -118,14 +118,14 @@ export function AiCopilotPanel({ templateType, onInsert, currentContent }: AiCop
                         placeholder="e.g. Write a friendly welcome email that requests them to click a setup link..."
                         value={prompt}
                         onChange={(e) => setPrompt(e.target.value)}
-                        className="min-h-[80px] text-xs bg-zoru-ink/40 border-zoru-line focus:border-zoru-line/50 resize-none font-sans"
+                        className="min-h-[80px] text-xs bg-[var(--st-text)]/40 border-[var(--st-border)] focus:border-[var(--st-border)]/50 resize-none font-sans"
                     />
                 </div>
 
                 <Button 
                     onClick={handleGenerate} 
                     disabled={loading || !prompt.trim()} 
-                    className="w-full h-8.5 bg-gradient-to-r from-zoru-ink to-zoru-ink hover:from-zoru-ink hover:to-zoru-ink text-white font-medium text-xs rounded-md shadow-lg shadow-zoru-line/20"
+                    className="w-full h-8.5 bg-gradient-to-r from-[var(--st-text)] to-[var(--st-text)] hover:from-[var(--st-text)] hover:to-[var(--st-text)] text-white font-medium text-xs rounded-md shadow-lg shadow-zoru-line/20"
                 >
                     {loading ? (
                         <>
@@ -143,14 +143,14 @@ export function AiCopilotPanel({ templateType, onInsert, currentContent }: AiCop
 
             {/* Quick Prompts */}
             <div className="flex flex-col gap-1.5">
-                <span className="text-[11px] font-semibold text-zoru-ink-muted uppercase tracking-wider">Quick Suggestions</span>
+                <span className="text-[11px] font-semibold text-[var(--st-text-secondary)] uppercase tracking-wider">Quick Suggestions</span>
                 <div className="flex flex-wrap gap-1.5">
                     {quickPrompts[templateType].map((qp, i) => (
                         <button
                             key={i}
                             type="button"
                             onClick={() => handleQuickPrompt(qp)}
-                            className="rounded-full bg-zoru-ink hover:bg-zoru-ink border border-zoru-line hover:border-zoru-line px-2.5 py-1 text-[11px] text-zoru-ink-muted hover:text-zoru-ink transition-colors text-left"
+                            className="rounded-full bg-[var(--st-text)] hover:bg-[var(--st-text)] border border-[var(--st-border)] hover:border-[var(--st-border)] px-2.5 py-1 text-[11px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)] transition-colors text-left"
                         >
                             {qp}
                         </button>
@@ -160,22 +160,22 @@ export function AiCopilotPanel({ templateType, onInsert, currentContent }: AiCop
 
             {/* AI Results */}
             <div className="flex-1 min-h-0 flex flex-col gap-2 overflow-hidden">
-                <span className="text-[11px] font-semibold text-zoru-ink-muted uppercase tracking-wider border-t border-zoru-line/80 pt-3">Generated Variations</span>
+                <span className="text-[11px] font-semibold text-[var(--st-text-secondary)] uppercase tracking-wider border-t border-[var(--st-border)]/80 pt-3">Generated Variations</span>
                 
                 <div className="flex-1 overflow-y-auto flex flex-col gap-3 pr-1">
                     {suggestions.length > 0 ? (
                         suggestions.map((sug, idx) => (
-                            <div key={idx} className="group relative flex flex-col gap-2 rounded-lg border border-zoru-line bg-zoru-ink/20 hover:bg-zoru-ink/20 p-3 transition-colors">
+                            <div key={idx} className="group relative flex flex-col gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-text)]/20 hover:bg-[var(--st-text)]/20 p-3 transition-colors">
                                 <div className="absolute right-2 top-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                     <Button
                                         size="sm"
                                         variant="outline"
-                                        className="h-6 w-6 p-0 bg-zoru-ink border-zoru-line"
+                                        className="h-6 w-6 p-0 bg-[var(--st-text)] border-[var(--st-border)]"
                                         onClick={() => handleCopy(sug, idx)}
                                         title="Copy to clipboard"
                                     >
                                         {copiedIndex === idx ? (
-                                            <Check className="h-3 w-3 text-zoru-ink-muted" />
+                                            <Check className="h-3 w-3 text-[var(--st-text-secondary)]" />
                                         ) : (
                                             <Copy className="h-3 w-3" />
                                         )}
@@ -183,23 +183,23 @@ export function AiCopilotPanel({ templateType, onInsert, currentContent }: AiCop
                                     <Button
                                         size="sm"
                                         variant="outline"
-                                        className="h-6 text-[10px] px-1.5 bg-zoru-ink border-zoru-line text-zoru-ink-muted hover:text-zoru-ink-muted gap-1"
+                                        className="h-6 text-[10px] px-1.5 bg-[var(--st-text)] border-[var(--st-border)] text-[var(--st-text-secondary)] hover:text-[var(--st-text-secondary)] gap-1"
                                         onClick={() => onInsert(sug)}
                                     >
                                         Insert <ArrowRight className="h-2.5 w-2.5" />
                                     </Button>
                                 </div>
-                                <div className="whitespace-pre-wrap font-mono text-[11px] leading-relaxed text-zoru-ink-muted pr-12 select-text">
+                                <div className="whitespace-pre-wrap font-mono text-[11px] leading-relaxed text-[var(--st-text-secondary)] pr-12 select-text">
                                     {sug}
                                 </div>
-                                <div className="text-[9px] text-zoru-ink-muted/70 font-semibold uppercase tracking-widest mt-1">
+                                <div className="text-[9px] text-[var(--st-text-secondary)]/70 font-semibold uppercase tracking-widest mt-1">
                                     Variation {idx + 1}
                                 </div>
                             </div>
                         ))
                     ) : (
-                        <div className="flex flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-zoru-line bg-zoru-ink/10 p-6 text-center text-xs text-zoru-ink-muted">
-                            <Sparkles className="h-8 w-8 text-zoru-ink mb-2" strokeWidth={1} />
+                        <div className="flex flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-[var(--st-border)] bg-[var(--st-text)]/10 p-6 text-center text-xs text-[var(--st-text-secondary)]">
+                            <Sparkles className="h-8 w-8 text-[var(--st-text)] mb-2" strokeWidth={1} />
                             Provide a prompt above and click generate to view beautiful, customized variations ready to use in your campaign.
                         </div>
                     )}

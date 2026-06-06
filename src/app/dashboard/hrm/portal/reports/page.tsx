@@ -346,14 +346,14 @@ function TaskReportsContent() {
     <div className="space-y-6 p-6">
         {/* Header */}
         <div>
-          <h1 className="text-[20px] font-semibold text-zoru-ink">Task Reports</h1>
-          <p className="mt-1 text-[13px] text-zoru-ink-muted">
+          <h1 className="text-[20px] font-semibold text-[var(--st-text)]">Task Reports</h1>
+          <p className="mt-1 text-[13px] text-[var(--st-text-secondary)]">
             Reports from your team when they complete assigned tasks.
           </p>
         </div>
 
         {/* Segmented view switcher (no Tabs per project directive) */}
-        <div className="inline-flex items-center rounded-lg border border-zoru-line bg-zoru-surface p-0.5 gap-0.5">
+        <div className="inline-flex items-center rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-0.5 gap-0.5">
           <Button
             variant={view === 'inbox' ? 'default' : 'ghost'}
             size="sm"
@@ -399,8 +399,8 @@ function TaskReportsContent() {
 
             {/* Bulk action bar */}
             {selectedIds.size > 0 && (
-              <div className="flex items-center gap-3 rounded-lg border border-zoru-line bg-zoru-surface px-4 py-2.5">
-                <span className="text-[13px] text-zoru-ink-muted">
+              <div className="flex items-center gap-3 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-2.5">
+                <span className="text-[13px] text-[var(--st-text-secondary)]">
                   {selectedIds.size} selected
                 </span>
                 <Button
@@ -462,7 +462,7 @@ function TaskReportsContent() {
             )}
 
             {/* Table */}
-            <React.Suspense fallback={<div className="h-64 bg-zoru-surface animate-pulse rounded-lg" />}>
+            <React.Suspense fallback={<div className="h-64 bg-[var(--st-bg-secondary)] animate-pulse rounded-lg" />}>
               <ReportsInboxTable
                 reports={filteredInbox}
                 loading={inboxLoading}
@@ -479,7 +479,7 @@ function TaskReportsContent() {
         {/* ── HISTORY VIEW ── */}
         {view === 'history' && (
           <div className="space-y-5">
-            <p className="text-[13px] text-zoru-ink-muted">
+            <p className="text-[13px] text-[var(--st-text-secondary)]">
               Tasks you have completed. Read-only — your manager will acknowledge each entry.
             </p>
             <React.Suspense fallback={<HistoryTableSkeleton />}>

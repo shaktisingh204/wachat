@@ -84,19 +84,19 @@ export function CrmAddVendorDialog({ onVendorAdded, defaultOpen = false, default
             </ZoruDialogTrigger>
             <ZoruDialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
                 <ZoruDialogHeader>
-                    <ZoruDialogTitle className="text-zoru-ink">Add New Vendor</ZoruDialogTitle>
-                    <ZoruDialogDescription className="text-zoru-ink-muted">
+                    <ZoruDialogTitle className="text-[var(--st-text)]">Add New Vendor</ZoruDialogTitle>
+                    <ZoruDialogDescription className="text-[var(--st-text-secondary)]">
                         Enter the details of the new vendor here. Click save when you're done.
                     </ZoruDialogDescription>
                 </ZoruDialogHeader>
                 <form ref={formRef} action={formAction} className="grid gap-4 py-4">
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label htmlFor="name" className="text-zoru-ink">Business/Vendor Name *</Label>
+                            <Label htmlFor="name" className="text-[var(--st-text)]">Business/Vendor Name *</Label>
                             <Input id="name" name="name" required maxLength={100} defaultValue={defaultName} />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="displayName" className="text-zoru-ink">Display Name</Label>
+                            <Label htmlFor="displayName" className="text-[var(--st-text)]">Display Name</Label>
                             <Input id="displayName" name="displayName" maxLength={100} placeholder="Nickname (Optional)" />
                         </div>
                     </div>
@@ -115,7 +115,7 @@ export function CrmAddVendorDialog({ onVendorAdded, defaultOpen = false, default
                                 </div>
                                 <div className="grid grid-cols-3 gap-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="country" className="text-zoru-ink">Country</Label>
+                                        <Label htmlFor="country" className="text-[var(--st-text)]">Country</Label>
                                         <EntityFormField
                                             entity="country"
                                             name="country"
@@ -126,7 +126,7 @@ export function CrmAddVendorDialog({ onVendorAdded, defaultOpen = false, default
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="state" className="text-zoru-ink">State</Label>
+                                        <Label htmlFor="state" className="text-[var(--st-text)]">State</Label>
                                         <EntityFormField
                                             entity="state"
                                             name="state"
@@ -135,7 +135,7 @@ export function CrmAddVendorDialog({ onVendorAdded, defaultOpen = false, default
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="city" className="text-zoru-ink">City/Town</Label>
+                                        <Label htmlFor="city" className="text-[var(--st-text)]">City/Town</Label>
                                         <EntityFormField
                                             entity="city"
                                             name="city"

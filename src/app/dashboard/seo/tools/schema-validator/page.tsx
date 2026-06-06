@@ -34,16 +34,16 @@ export default function SchemaValidatorPage() {
   return (
     <ToolShell title="Schema Validator" description="Validate and inspect JSON-LD structured data.">
       <Textarea value={raw} onChange={(e) => setRaw(e.target.value)} placeholder="Paste JSON-LD or <script> tag…" className="min-h-[240px] font-mono text-xs" />
-      {result?.ok === false && <Card className="border-zoru-line"><ZoruCardContent className="p-4 text-zoru-ink text-sm">{result.error}</ZoruCardContent></Card>}
+      {result?.ok === false && <Card className="border-[var(--st-border)]"><ZoruCardContent className="p-4 text-[var(--st-text)] text-sm">{result.error}</ZoruCardContent></Card>}
       {result?.ok && (
         <Card><ZoruCardContent className="p-4 space-y-4">
           <div className="space-y-2">
-            <div className="text-sm"><span className="font-semibold">@context:</span> {result.parsed['@context'] || <span className="text-zoru-ink-muted">—</span>}</div>
-            <div className="text-sm"><span className="font-semibold">@type:</span> {result.parsed['@type'] || <span className="text-zoru-ink-muted">—</span>}</div>
+            <div className="text-sm"><span className="font-semibold">@context:</span> {result.parsed['@context'] || <span className="text-[var(--st-text-secondary)]">—</span>}</div>
+            <div className="text-sm"><span className="font-semibold">@type:</span> {result.parsed['@type'] || <span className="text-[var(--st-text-secondary)]">—</span>}</div>
           </div>
           
           {result.validation && result.validation.valid === true && (
-            <div className="p-3 bg-zoru-surface-2 text-zoru-ink rounded-md border border-zoru-line flex items-start gap-2 text-sm">
+            <div className="p-3 bg-[var(--st-bg-muted)] text-[var(--st-text)] rounded-md border border-[var(--st-border)] flex items-start gap-2 text-sm">
               <CheckCircle2 className="w-5 h-5 mt-0.5 shrink-0" />
               <div>
                 <p className="font-semibold">Valid {result.parsed['@type']} Schema</p>
@@ -53,7 +53,7 @@ export default function SchemaValidatorPage() {
           )}
 
           {result.validation && result.validation.valid === false && (
-            <div className="p-3 bg-zoru-surface-2 text-zoru-ink rounded-md border border-zoru-line flex items-start gap-2 text-sm">
+            <div className="p-3 bg-[var(--st-bg-muted)] text-[var(--st-text)] rounded-md border border-[var(--st-border)] flex items-start gap-2 text-sm">
               <AlertCircle className="w-5 h-5 mt-0.5 shrink-0" />
               <div>
                 <p className="font-semibold">Invalid {result.parsed['@type']} Schema</p>
@@ -67,12 +67,12 @@ export default function SchemaValidatorPage() {
           )}
 
           {result.parsed['@type'] && result.validation?.valid === null && (
-            <div className="text-xs text-zoru-ink-muted italic">
+            <div className="text-xs text-[var(--st-text-secondary)] italic">
               Note: No strict validation rules defined yet for "@type": {result.parsed['@type']}.
             </div>
           )}
 
-          <pre className="text-xs bg-zoru-surface-2 p-3 rounded overflow-auto">{JSON.stringify(result.parsed, null, 2)}</pre>
+          <pre className="text-xs bg-[var(--st-bg-muted)] p-3 rounded overflow-auto">{JSON.stringify(result.parsed, null, 2)}</pre>
         </ZoruCardContent></Card>
       )}
     </ToolShell>

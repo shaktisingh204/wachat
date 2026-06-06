@@ -131,7 +131,7 @@ export default function EditWeeklyTimesheetForm({
 
   if (!mounted) {
     // Prevent hydration mismatch by rendering a skeleton or empty form briefly
-    return <div className="h-64 animate-pulse bg-zoru-surface-1 rounded-lg border border-zoru-line" />;
+    return <div className="h-64 animate-pulse bg-[var(--st-bg-secondary)] rounded-lg border border-[var(--st-border)]" />;
   }
 
   return (
@@ -143,7 +143,7 @@ export default function EditWeeklyTimesheetForm({
             <span>{collaborators} viewing</span>
           </div>
         )}
-        <div className="hidden md:flex gap-2 mr-2 border-r border-zoru-line pr-4">
+        <div className="hidden md:flex gap-2 mr-2 border-r border-[var(--st-border)] pr-4">
           <Button variant="outline" size="sm" type="button" onClick={() => toast({ title: 'Filter', description: 'Advanced filtering opened.'})}>
             <Filter className="w-4 h-4 mr-1" /> Filter Entries
           </Button>
@@ -164,7 +164,7 @@ export default function EditWeeklyTimesheetForm({
       <div className="mt-8">
         <form onSubmit={handleSubmit} className="grid gap-5 md:grid-cols-2">
           {!canEdit && (
-            <div className="rounded-lg border border-zoru-line bg-zoru-surface-2 px-3 py-2 text-[12.5px] text-zoru-ink-muted md:col-span-2">
+            <div className="rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-[12.5px] text-[var(--st-text-secondary)] md:col-span-2">
               This timesheet is {status} — saving metadata changes will not
               reset its approval state.
             </div>

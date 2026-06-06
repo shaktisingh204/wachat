@@ -80,7 +80,7 @@ export default async function JobDetailPage({
             {/* Summary card */}
             <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
-                    <div className="text-[14px] font-medium text-zoru-ink">
+                    <div className="text-[14px] font-medium text-[var(--st-text)]">
                         Overview
                     </div>
                     {tags.map((t) => (
@@ -91,57 +91,57 @@ export default async function JobDetailPage({
                 </div>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
                     <div>
-                        <div className="text-zoru-ink-muted">Employment type</div>
-                        <div className="capitalize text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Employment type</div>
+                        <div className="capitalize text-[var(--st-text)]">
                             {pretty(job.employmentType as string)}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Work mode</div>
-                        <div className="capitalize text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Work mode</div>
+                        <div className="capitalize text-[var(--st-text)]">
                             {pretty(job.remotePolicy as string | undefined)}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Location</div>
-                        <div className="text-zoru-ink">{job.location || '—'}</div>
+                        <div className="text-[var(--st-text-secondary)]">Location</div>
+                        <div className="text-[var(--st-text)]">{job.location || '—'}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Openings (filled / total)</div>
-                        <div className="font-mono text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Openings (filled / total)</div>
+                        <div className="font-mono text-[var(--st-text)]">
                             {job.filled ?? 0} / {job.openings ?? 0}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Experience</div>
-                        <div className="text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Experience</div>
+                        <div className="text-[var(--st-text)]">
                             {job.experienceMin ?? 0}–{job.experienceMax ?? 0} yrs
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Salary range</div>
-                        <div className="text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Salary range</div>
+                        <div className="text-[var(--st-text)]">
                             {fmtINR(job.salaryMin, job.currency)} –{' '}
                             {fmtINR(job.salaryMax, job.currency)}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Publish at</div>
-                        <div className="text-zoru-ink">{fmtDate(job.publishAt)}</div>
+                        <div className="text-[var(--st-text-secondary)]">Publish at</div>
+                        <div className="text-[var(--st-text)]">{fmtDate(job.publishAt)}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Close at</div>
-                        <div className="text-zoru-ink">{fmtDate(job.closeAt)}</div>
+                        <div className="text-[var(--st-text-secondary)]">Close at</div>
+                        <div className="text-[var(--st-text)]">{fmtDate(job.closeAt)}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Hiring manager</div>
-                        <div className="font-mono text-[12px] text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Hiring manager</div>
+                        <div className="font-mono text-[12px] text-[var(--st-text)]">
                             {job.hiringManagerId || '—'}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Department</div>
-                        <div className="text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Department</div>
+                        <div className="text-[var(--st-text)]">
                             {job.departmentName || job.departmentId || '—'}
                         </div>
                     </div>
@@ -151,15 +151,15 @@ export default async function JobDetailPage({
             {/* Public posting link */}
             {job.publishUrl ? (
                 <Card className="flex flex-wrap items-center justify-between gap-2 p-4">
-                    <div className="flex items-center gap-2 text-[13px] text-zoru-ink">
-                        <ExternalLink className="h-4 w-4 text-zoru-ink-muted" />
+                    <div className="flex items-center gap-2 text-[13px] text-[var(--st-text)]">
+                        <ExternalLink className="h-4 w-4 text-[var(--st-text-secondary)]" />
                         Public posting
                     </div>
                     <a
                         href={job.publishUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="max-w-full truncate text-[12.5px] text-zoru-ink underline-offset-2 hover:underline"
+                        className="max-w-full truncate text-[12.5px] text-[var(--st-text)] underline-offset-2 hover:underline"
                     >
                         {job.publishUrl}
                     </a>
@@ -168,15 +168,15 @@ export default async function JobDetailPage({
 
             {/* Description */}
             <Card className="p-6">
-                <div className="mb-3 text-[15px] font-medium text-zoru-ink">
+                <div className="mb-3 text-[15px] font-medium text-[var(--st-text)]">
                     Description
                 </div>
                 {job.description ? (
-                    <div className="prose prose-sm prose-zoru max-w-none text-[13px] text-zoru-ink p-4 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2" 
+                    <div className="prose prose-sm prose-zoru max-w-none text-[13px] text-[var(--st-text)] p-4 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)]" 
                          dangerouslySetInnerHTML={{ __html: job.description }} 
                     />
                 ) : (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No description.
                     </div>
                 )}
@@ -185,10 +185,10 @@ export default async function JobDetailPage({
             {/* Responsibilities */}
             {job.responsibilities ? (
                 <Card className="p-6">
-                    <div className="mb-3 text-[15px] font-medium text-zoru-ink">
+                    <div className="mb-3 text-[15px] font-medium text-[var(--st-text)]">
                         Responsibilities
                     </div>
-                    <div className="prose prose-sm prose-zoru max-w-none text-[13px] text-zoru-ink p-4 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2" 
+                    <div className="prose prose-sm prose-zoru max-w-none text-[13px] text-[var(--st-text)] p-4 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)]" 
                          dangerouslySetInnerHTML={{ __html: job.responsibilities }} 
                     />
                 </Card>
@@ -197,10 +197,10 @@ export default async function JobDetailPage({
             {/* Requirements */}
             {job.requirements ? (
                 <Card className="p-6">
-                    <div className="mb-3 text-[15px] font-medium text-zoru-ink">
+                    <div className="mb-3 text-[15px] font-medium text-[var(--st-text)]">
                         Requirements
                     </div>
-                    <div className="prose prose-sm prose-zoru max-w-none text-[13px] text-zoru-ink p-4 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2" 
+                    <div className="prose prose-sm prose-zoru max-w-none text-[13px] text-[var(--st-text)] p-4 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)]" 
                          dangerouslySetInnerHTML={{ __html: job.requirements }} 
                     />
                 </Card>

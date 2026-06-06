@@ -471,13 +471,13 @@ export default function TelegramAdsPage() {
                     <Megaphone className="h-6 w-6 text-white" strokeWidth={1.75} />
                 </div>
                 <div className="flex-1">
-                    <p className="text-[11px] uppercase tracking-[0.14em] text-zoru-ink-subtle">
+                    <p className="text-[11px] uppercase tracking-[0.14em] text-[var(--st-text-tertiary)]">
                         Telegram
                     </p>
-                    <h1 className="mt-0.5 text-[22px] leading-tight text-zoru-ink">
+                    <h1 className="mt-0.5 text-[22px] leading-tight text-[var(--st-text)]">
                         Telegram Ads
                     </h1>
-                    <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-zoru-ink-muted">
+                    <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-[var(--st-text-secondary)]">
                         Track campaigns from ads.telegram.org in your own database — record budgets,
                         impressions, clicks, generate UTM links, and import/export performance via CSV.
                     </p>
@@ -500,7 +500,7 @@ export default function TelegramAdsPage() {
 
             {!projectId ? (
                 <Card className="p-6">
-                    <div className="flex items-center gap-2 text-zoru-ink-muted">
+                    <div className="flex items-center gap-2 text-[var(--st-text-secondary)]">
                         <AlertCircle className="h-4 w-4" />
                         <span className="text-sm">Select a project to view Telegram ad campaigns.</span>
                     </div>
@@ -535,8 +535,8 @@ export default function TelegramAdsPage() {
             <Card className="p-4">
                 <div className="mb-2 flex items-center justify-between gap-3">
                     <div>
-                        <h2 className="text-[14px] text-zoru-ink">Performance over time</h2>
-                        <p className="text-[12px] text-zoru-ink-muted">
+                        <h2 className="text-[14px] text-[var(--st-text)]">Performance over time</h2>
+                        <p className="text-[12px] text-[var(--st-text-secondary)]">
                             Impressions / clicks (bars) and spend (line)
                         </p>
                     </div>
@@ -578,7 +578,7 @@ export default function TelegramAdsPage() {
                         </ComposedChart>
                     </ZoruChartContainer>
                 ) : (
-                    <div className="flex h-[200px] items-center justify-center text-sm text-zoru-ink-muted">
+                    <div className="flex h-[200px] items-center justify-center text-sm text-[var(--st-text-secondary)]">
                         No data in the selected range.
                     </div>
                 )}
@@ -588,7 +588,7 @@ export default function TelegramAdsPage() {
             <Card className="p-3">
                 <div className="flex flex-wrap items-center gap-3">
                     <div className="relative flex-1 min-w-[220px]">
-                        <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zoru-ink-subtle" />
+                        <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--st-text-tertiary)]" />
                         <Input
                             placeholder="Search name, notes, platform ID"
                             value={search}
@@ -634,7 +634,7 @@ export default function TelegramAdsPage() {
                         ))}
                     </div>
                 ) : error ? (
-                    <div className="flex items-center gap-2 p-6 text-sm text-zoru-danger-ink">
+                    <div className="flex items-center gap-2 p-6 text-sm text-[var(--st-danger)]">
                         <AlertCircle className="h-4 w-4" />
                         {error}
                     </div>
@@ -653,7 +653,7 @@ export default function TelegramAdsPage() {
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm">
-                            <thead className="border-b border-zoru-line bg-zoru-surface-2 text-left text-[12px] uppercase tracking-wide text-zoru-ink-subtle">
+                            <thead className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)] text-left text-[12px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                                 <tr>
                                     <th className="w-10 p-3">
                                         <Checkbox
@@ -679,7 +679,7 @@ export default function TelegramAdsPage() {
                                     return (
                                         <tr
                                             key={row._id}
-                                            className="group border-b border-zoru-line/60 last:border-b-0 hover:bg-zoru-surface-2/40"
+                                            className="group border-b border-[var(--st-border)]/60 last:border-b-0 hover:bg-[var(--st-bg-muted)]/40"
                                         >
                                             <td className="p-3">
                                                 <Checkbox
@@ -694,10 +694,10 @@ export default function TelegramAdsPage() {
                                                     }
                                                 />
                                             </td>
-                                            <td className="p-3 text-zoru-ink">
+                                            <td className="p-3 text-[var(--st-text)]">
                                                 <div className="font-medium">{row.name}</div>
                                                 {row.landingUrl ? (
-                                                    <div className="truncate text-[12px] text-zoru-ink-muted max-w-[260px]">
+                                                    <div className="truncate text-[12px] text-[var(--st-text-secondary)] max-w-[260px]">
                                                         {row.landingUrl}
                                                     </div>
                                                 ) : null}
@@ -707,7 +707,7 @@ export default function TelegramAdsPage() {
                                                     {row.status}
                                                 </Badge>
                                             </td>
-                                            <td className="p-3 font-mono text-[12px] text-zoru-ink-muted">
+                                            <td className="p-3 font-mono text-[12px] text-[var(--st-text-secondary)]">
                                                 {row.platformId || '—'}
                                             </td>
                                             <td className="p-3 text-right">
@@ -718,7 +718,7 @@ export default function TelegramAdsPage() {
                                             </td>
                                             <td className="p-3 text-right">{fmtNumber(row.clicks)}</td>
                                             <td className="p-3 text-right">{ctr.toFixed(2)}%</td>
-                                            <td className="p-3 text-zoru-ink-muted">
+                                            <td className="p-3 text-[var(--st-text-secondary)]">
                                                 {fmtDate(row.updatedAt)}
                                             </td>
                                             <td className="p-3">
@@ -758,7 +758,7 @@ export default function TelegramAdsPage() {
                 )}
 
                 {data && rows.length > 0 ? (
-                    <div className="flex items-center justify-between border-t border-zoru-line p-3 text-[12px] text-zoru-ink-muted">
+                    <div className="flex items-center justify-between border-t border-[var(--st-border)] p-3 text-[12px] text-[var(--st-text-secondary)]">
                         <span>
                             {(page - 1) * PAGE_SIZE + 1}–{(page - 1) * PAGE_SIZE + rows.length} of{' '}
                             {data.total}
@@ -890,7 +890,7 @@ export default function TelegramAdsPage() {
                             </Field>
                         </div>
                         {editorErr ? (
-                            <p className="text-[12.5px] text-zoru-danger-ink sm:col-span-2">
+                            <p className="text-[12.5px] text-[var(--st-danger)] sm:col-span-2">
                                 {editorErr}
                             </p>
                         ) : null}
@@ -921,9 +921,9 @@ export default function TelegramAdsPage() {
                         </ZoruDialogDescription>
                     </ZoruDialogHeader>
                     <div className="grid gap-3">
-                        <div className="text-[12px] text-zoru-ink-muted">
+                        <div className="text-[12px] text-[var(--st-text-secondary)]">
                             Sample:
-                            <pre className="mt-1 overflow-x-auto rounded-md border border-zoru-line bg-zoru-surface-2 p-2 font-mono text-[11.5px]">
+                            <pre className="mt-1 overflow-x-auto rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2 font-mono text-[11.5px]">
 {`name,impressions,clicks,budget_cents,status,platform_id,landing_url
 Launch promo,12000,420,5000,active,ad_abc,https://you/lp`}
                             </pre>
@@ -974,20 +974,20 @@ Launch promo,12000,420,5000,active,ad_abc,https://you/lp`}
                         </ZoruDialogDescription>
                     </ZoruDialogHeader>
                     {!utmRow?.landingUrl ? (
-                        <p className="text-[13px] text-zoru-danger-ink">
+                        <p className="text-[13px] text-[var(--st-danger)]">
                             This campaign has no landing URL — add one to generate a UTM link.
                         </p>
                     ) : utmLoading ? (
                         <Skeleton className="h-12 w-full" />
                     ) : utmResult ? (
                         <div className="space-y-3">
-                            <code className="block break-all rounded-md border border-zoru-line bg-zoru-surface-2 p-2 font-mono text-[12px]">
+                            <code className="block break-all rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2 font-mono text-[12px]">
                                 {utmResult.shortUrl}
                             </code>
                             {utmResult.longUrl !== utmResult.shortUrl ? (
-                                <details className="text-[12px] text-zoru-ink-muted">
+                                <details className="text-[12px] text-[var(--st-text-secondary)]">
                                     <summary className="cursor-pointer select-none">Long URL</summary>
-                                    <code className="mt-1 block break-all rounded-md border border-zoru-line bg-zoru-surface-2 p-2 font-mono text-[12px]">
+                                    <code className="mt-1 block break-all rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2 font-mono text-[12px]">
                                         {utmResult.longUrl}
                                     </code>
                                 </details>
@@ -1059,13 +1059,13 @@ function KpiCard({
     return (
         <Card>
             <ZoruCardContent className="flex flex-col gap-1 pt-5">
-                <p className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-subtle">
+                <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-tertiary)]">
                     {label}
                 </p>
                 {loading ? (
                     <Skeleton className="h-7 w-24" />
                 ) : (
-                    <p className="text-2xl font-semibold tracking-tight text-zoru-ink">{value}</p>
+                    <p className="text-2xl font-semibold tracking-tight text-[var(--st-text)]">{value}</p>
                 )}
             </ZoruCardContent>
         </Card>
@@ -1082,7 +1082,7 @@ function Field({
     return (
         <label className="flex flex-col gap-1.5">
             <TelegramProjectGate />
-            <span className="text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
+            <span className="text-[11.5px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
                 {label}
             </span>
             {children}

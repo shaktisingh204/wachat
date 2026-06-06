@@ -75,8 +75,8 @@ export function ImportExportClient({ entityKind, canImport, canExport, onExportS
             {canExport && (
                 <Card className="flex flex-wrap items-center justify-between gap-3 p-4">
                 <div>
-                    <h2 className="text-sm font-medium text-zoru-ink">Export</h2>
-                    <p className="text-[12.5px] text-zoru-ink-muted">
+                    <h2 className="text-sm font-medium text-[var(--st-text)]">Export</h2>
+                    <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                         Download all {entityKind} rows in your tenant (capped
                         at 10,000).
                     </p>
@@ -100,7 +100,7 @@ export function ImportExportClient({ entityKind, canImport, canExport, onExportS
                 <BulkImportWizard entityKind={entityKind} />
             ) : (
                 <Card className="p-4 text-center">
-                    <p className="text-sm text-zoru-ink-muted">You do not have permission to run bulk imports.</p>
+                    <p className="text-sm text-[var(--st-text-secondary)]">You do not have permission to run bulk imports.</p>
                 </Card>
             )}
         </div>

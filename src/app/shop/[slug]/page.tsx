@@ -48,8 +48,8 @@ async function ShopContent({ slug }: { slug: string }) {
                     isEditable={false}
                 />
             ) : (
-                <div className="text-center py-24 text-zoru-ink-muted">
-                    <LayoutGrid className="mx-auto h-12 w-12 text-zoru-ink-muted/50"/>
+                <div className="text-center py-24 text-[var(--st-text-secondary)]">
+                    <LayoutGrid className="mx-auto h-12 w-12 text-[var(--st-text-secondary)]/50"/>
                     <h1 className="mt-4 text-2xl font-semibold">{shop.name}</h1>
                     <p className="mt-2 text-sm">This shop is under construction. Come back soon!</p>
                 </div>

@@ -48,9 +48,9 @@ export default async function CrmGlobalSearchPage({ searchParams }: PageProps) {
       {q.length === 0 ? (
         <Card className="p-10">
           <div className="flex flex-col items-center justify-center gap-2 text-center">
-            <SearchIcon className="h-8 w-8 text-zoru-ink-muted" aria-hidden />
-            <p className="text-[14px] font-medium text-zoru-ink">Type to search</p>
-            <p className="text-[12.5px] text-zoru-ink-muted">
+            <SearchIcon className="h-8 w-8 text-[var(--st-text-secondary)]" aria-hidden />
+            <p className="text-[14px] font-medium text-[var(--st-text)]">Type to search</p>
+            <p className="text-[12.5px] text-[var(--st-text-secondary)]">
               Start typing above to search across every CRM entity in your tenant.
             </p>
           </div>
@@ -58,10 +58,10 @@ export default async function CrmGlobalSearchPage({ searchParams }: PageProps) {
       ) : groups.length === 0 ? (
         <Card className="p-10">
           <div className="flex flex-col items-center justify-center gap-2 text-center">
-            <p className="text-[14px] font-medium text-zoru-ink">
+            <p className="text-[14px] font-medium text-[var(--st-text)]">
               No results for &ldquo;{q}&rdquo;.
             </p>
-            <p className="text-[12.5px] text-zoru-ink-muted">
+            <p className="text-[12.5px] text-[var(--st-text-secondary)]">
               Try a different query, or check that you have view permission on the entity kind
               you&rsquo;re looking for.
             </p>

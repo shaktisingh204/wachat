@@ -72,15 +72,15 @@ export default function AdminAssetsPage() {
     return (
         <div className="p-6 md:p-10 space-y-8 max-w-7xl mx-auto">
             <div>
-                <h1 className="text-2xl font-bold text-zoru-ink">Asset Management</h1>
-                <p className="text-sm text-zoru-ink-muted mt-1">
+                <h1 className="text-2xl font-bold text-[var(--st-text)]">Asset Management</h1>
+                <p className="text-sm text-[var(--st-text-secondary)] mt-1">
                     Manage global builder and media assets.
                 </p>
             </div>
             
             {isLoading ? (
-                <div className="flex h-64 items-center justify-center rounded-2xl border border-zoru-line bg-zoru-bg">
-                    <LoaderCircle className="h-6 w-6 animate-spin text-zoru-ink-muted" />
+                <div className="flex h-64 items-center justify-center rounded-2xl border border-[var(--st-border)] bg-[var(--st-bg)]">
+                    <LoaderCircle className="h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
                 </div>
             ) : (
                 <ZoruFilesPage 
@@ -89,7 +89,7 @@ export default function AdminAssetsPage() {
                     onUpload={handleUpload}
                     onDelete={handleDelete}
                     empty={
-                        <div className="py-20 text-center text-zoru-ink-muted">
+                        <div className="py-20 text-center text-[var(--st-text-secondary)]">
                             No assets found. Click upload to add new assets.
                         </div>
                     }

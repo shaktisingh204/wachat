@@ -206,10 +206,10 @@ export default function FlowBuilderDocsPage() {
             Back to flow builder
           </Link>
         </Button>
-        <h2 className="text-[24px] tracking-tight text-zoru-ink">
+        <h2 className="text-[24px] tracking-tight text-[var(--st-text)]">
           Flow builder documentation
         </h2>
-        <p className="mt-2 max-w-3xl text-[14px] text-zoru-ink-muted">
+        <p className="mt-2 max-w-3xl text-[14px] text-[var(--st-text-secondary)]">
           Welcome to the Flow Builder guide. Here you can learn about each
           building block and how to use them to create powerful automations
           for your Messenger conversations.
@@ -263,10 +263,10 @@ export default function FlowBuilderDocsPage() {
       <Separator />
 
       <div>
-        <h3 className="text-[20px] tracking-tight text-zoru-ink">
+        <h3 className="text-[20px] tracking-tight text-[var(--st-text)]">
           Flow blocks
         </h3>
-        <p className="mt-1 text-[13px] text-zoru-ink-muted">
+        <p className="mt-1 text-[13px] text-[var(--st-text-secondary)]">
           An overview of all available blocks and their configurations.
         </p>
       </div>
@@ -278,11 +278,11 @@ export default function FlowBuilderDocsPage() {
               {doc.title}
             </ZoruAccordionTrigger>
             <ZoruAccordionContent className="space-y-4 pt-2">
-              <p className="text-[14px] text-zoru-ink-muted">
+              <p className="text-[14px] text-[var(--st-text-secondary)]">
                 {doc.description}
               </p>
               <div className="space-y-2">
-                <h4 className="text-sm tracking-tight text-zoru-ink">
+                <h4 className="text-sm tracking-tight text-[var(--st-text)]">
                   Properties
                 </h4>
                 <ul className="list-inside list-disc space-y-1 text-sm">
@@ -294,7 +294,7 @@ export default function FlowBuilderDocsPage() {
                 </ul>
               </div>
               <div className="space-y-2">
-                <h4 className="text-sm tracking-tight text-zoru-ink">
+                <h4 className="text-sm tracking-tight text-[var(--st-text)]">
                   Outputs
                 </h4>
                 <ul className="list-inside list-disc space-y-1 text-sm">
@@ -304,7 +304,7 @@ export default function FlowBuilderDocsPage() {
                 </ul>
               </div>
               {doc.notes ? (
-                <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-3 text-sm">
+                <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-sm">
                   <p>
                     <strong>Note:</strong> {doc.notes}
                   </p>

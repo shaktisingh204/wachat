@@ -69,8 +69,8 @@ export function DeviceBreakdown({ data, title = 'Device breakdown' }: DeviceBrea
                     className="h-2 w-2 rounded-full"
                     style={{ backgroundColor: ZORU_CHART_PALETTE[i % ZORU_CHART_PALETTE.length] }}
                   />
-                  <span className="capitalize text-zoru-ink-muted">{d.device}</span>
-                  <span className="ml-auto font-medium text-zoru-ink">
+                  <span className="capitalize text-[var(--st-text-secondary)]">{d.device}</span>
+                  <span className="ml-auto font-medium text-[var(--st-text)]">
                     {Math.round((d.count / total) * 100)}%
                   </span>
                 </li>

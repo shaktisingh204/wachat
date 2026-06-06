@@ -44,7 +44,7 @@ export function ModuleSidebar({ items, activeValue, onValueChange, title }: Modu
                         {item.icon && <item.icon className="mr-2 h-4 w-4" />}
                         <span className="flex-1 text-left">{item.label}</span>
                         {item.badge && (
-                            <span className="ml-auto text-xs bg-zoru-ink/10 text-zoru-ink px-2 py-0.5 rounded-full">
+                            <span className="ml-auto text-xs bg-[var(--st-text)]/10 text-[var(--st-text)] px-2 py-0.5 rounded-full">
                                 {item.badge}
                             </span>
                         )}
@@ -56,7 +56,7 @@ export function ModuleSidebar({ items, activeValue, onValueChange, title }: Modu
                         <Button
                             key={item.href}
                             variant={isActive ? "secondary" : "ghost"}
-                            className={cn("justify-start w-full", isActive && "bg-zoru-surface-2 font-medium")}
+                            className={cn("justify-start w-full", isActive && "bg-[var(--st-bg-muted)] font-medium")}
                             asChild
                         >
                             <Link href={item.href}>
@@ -70,7 +70,7 @@ export function ModuleSidebar({ items, activeValue, onValueChange, title }: Modu
                     <Button
                         key={item.value}
                         variant={isActive ? "secondary" : "ghost"}
-                        className={cn("justify-start w-full", isActive && "bg-zoru-surface-2 font-medium")}
+                        className={cn("justify-start w-full", isActive && "bg-[var(--st-bg-muted)] font-medium")}
                         onClick={() => onValueChange?.(item.value!)}
                     >
                         {content}

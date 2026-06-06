@@ -18,9 +18,9 @@ export default function SabFlowError({
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[400px] gap-4 p-8 text-center">
-      <AlertCircle className="w-12 h-12 text-zoru-danger" />
+      <AlertCircle className="w-12 h-12 text-[var(--st-danger)]" />
       <h2 className="text-xl font-semibold">Something went wrong!</h2>
-      <p className="text-zoru-ink-muted max-w-md">
+      <p className="text-[var(--st-text-secondary)] max-w-md">
         We encountered an error loading the SabFlow dashboard data. Please try again.
       </p>
       <Button onClick={() => reset()} variant="outline">

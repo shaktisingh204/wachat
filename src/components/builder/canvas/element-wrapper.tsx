@@ -42,14 +42,14 @@ export const ElementWrapper = ({ element }: ElementWrapperProps) => {
         return (
             <div
                 onClick={handleSelect}
-                className={cn("w-full transition-all hover:border-zoru-line border-dashed border", isSelected ? "border-zoru-line z-10" : "border-zoru-line")}
+                className={cn("w-full transition-all hover:border-[var(--st-border)] border-dashed border", isSelected ? "border-[var(--st-border)] z-10" : "border-[var(--st-border)]")}
                 style={element.style}
             >
                 {/* Placeholder for Section controls (drag handle, delete) */}
-                {isSelected && <div className="absolute -top-6 left-0 bg-zoru-ink text-white text-xs px-2 py-1 rounded-t">Section</div>}
+                {isSelected && <div className="absolute -top-6 left-0 bg-[var(--st-text)] text-white text-xs px-2 py-1 rounded-t">Section</div>}
                 <div className="flex flex-wrap" style={{ minHeight: '50px' }}>
                     {renderChildren()}
-                    {element.children.length === 0 && <div className="w-full text-center text-zoru-ink-muted py-4">Drop Columns Here</div>}
+                    {element.children.length === 0 && <div className="w-full text-center text-[var(--st-text-secondary)] py-4">Drop Columns Here</div>}
                 </div>
             </div>
         );
@@ -59,12 +59,12 @@ export const ElementWrapper = ({ element }: ElementWrapperProps) => {
         return (
             <div
                 onClick={handleSelect}
-                className={cn("flex-1 min-w-[50px] transition-all hover:border-zoru-line border-dashed border", isSelected ? "border-zoru-line z-10" : "border-zoru-line")}
+                className={cn("flex-1 min-w-[50px] transition-all hover:border-[var(--st-border)] border-dashed border", isSelected ? "border-[var(--st-border)] z-10" : "border-[var(--st-border)]")}
                 style={element.style}
             >
-                {isSelected && <div className="absolute -top-5 left-0 bg-zoru-ink text-white text-xs px-2 rounded-t">Column</div>}
+                {isSelected && <div className="absolute -top-5 left-0 bg-[var(--st-text)] text-white text-xs px-2 rounded-t">Column</div>}
                 {renderChildren()}
-                {element.children.length === 0 && <div className="text-center text-zoru-ink-muted py-2 text-sm">Drop Widgets Here</div>}
+                {element.children.length === 0 && <div className="text-center text-[var(--st-text-secondary)] py-2 text-sm">Drop Widgets Here</div>}
             </div>
         );
     }
@@ -73,9 +73,9 @@ export const ElementWrapper = ({ element }: ElementWrapperProps) => {
     return (
         <div
             onClick={handleSelect}
-            className={cn("relative transition-all hover:border-zoru-line border-dashed border", isSelected ? "border-zoru-line z-10" : "border-transparent")}
+            className={cn("relative transition-all hover:border-[var(--st-border)] border-dashed border", isSelected ? "border-[var(--st-border)] z-10" : "border-transparent")}
         >
-            {isSelected && <div className="absolute -top-5 right-0 bg-zoru-ink text-white text-xs px-2 rounded-t">Widget</div>}
+            {isSelected && <div className="absolute -top-5 right-0 bg-[var(--st-text)] text-white text-xs px-2 rounded-t">Widget</div>}
             {WidgetComponent ? <WidgetComponent content={element.content} style={element.style} /> : <div>Unknown Widget</div>}
         </div>
     );

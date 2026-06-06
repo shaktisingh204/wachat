@@ -103,7 +103,7 @@ export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectC
         <Card
             className={cn(
                 "group relative flex flex-col transition-all duration-300",
-                "border-zoru-line/50 bg-zoru-surface/50 backdrop-blur-sm",
+                "border-[var(--st-border)]/50 bg-[var(--st-bg-secondary)]/50 backdrop-blur-sm",
                 "hover:shadow-xl hover:-translate-y-1 hover:border-primary/50",
                 "cursor-pointer overflow-hidden"
             )}
@@ -112,7 +112,7 @@ export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectC
             {/* Gradient Accent Line */}
             <div className={cn(
                 "absolute top-0 left-0 w-full h-1 bg-gradient-to-r",
-                isWhatsAppProject ? "from-zoru-ink to-zoru-ink" : "from-zoru-ink to-zoru-ink"
+                isWhatsAppProject ? "from-[var(--st-text)] to-[var(--st-text)]" : "from-[var(--st-text)] to-[var(--st-text)]"
             )} />
 
             <ZoruCardHeader className="pb-2 pt-5">
@@ -120,19 +120,19 @@ export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectC
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                             {isWhatsAppProject ? (
-                                <div className="h-6 w-6 rounded-full bg-zoru-surface-2 flex items-center justify-center flex-shrink-0">
-                                    <Phone className="h-3 w-3 text-zoru-ink" />
+                                <div className="h-6 w-6 rounded-full bg-[var(--st-bg-muted)] flex items-center justify-center flex-shrink-0">
+                                    <Phone className="h-3 w-3 text-[var(--st-text)]" />
                                 </div>
                             ) : (
-                                <div className="h-6 w-6 rounded-full bg-zoru-surface-2 flex items-center justify-center flex-shrink-0">
-                                    <FacebookIcon className="h-3 w-3 text-zoru-ink" />
+                                <div className="h-6 w-6 rounded-full bg-[var(--st-bg-muted)] flex items-center justify-center flex-shrink-0">
+                                    <FacebookIcon className="h-3 w-3 text-[var(--st-text)]" />
                                 </div>
                             )}
-                            <h3 className="text-lg font-bold truncate leading-tight group-hover:text-zoru-ink transition-colors">
+                            <h3 className="text-lg font-bold truncate leading-tight group-hover:text-[var(--st-text)] transition-colors">
                                 {project.name}
                             </h3>
                         </div>
-                        <div className="flex items-center gap-2 text-xs text-zoru-ink-muted ml-8">
+                        <div className="flex items-center gap-2 text-xs text-[var(--st-text-secondary)] ml-8">
                             <div className="font-mono opacity-70">
                                 {project.wabaId ? `WABA: ${project.wabaId.slice(0, 10)}...` : `Page: ${project.facebookPageId}`}
                             </div>
@@ -155,7 +155,7 @@ export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectC
                         {/* Actions Menu */}
                         <DropdownMenu>
                             <ZoruDropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 text-zoru-ink-muted hover:text-zoru-ink">
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-[var(--st-text-secondary)] hover:text-[var(--st-text)]">
                                     <MoreVertical className="h-4 w-4" />
                                     <span className="sr-only">Open menu</span>
                                 </Button>
@@ -190,15 +190,15 @@ export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectC
             <ZoruCardContent className="space-y-4 pb-4">
                 {/* Metrics Grid */}
                 <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div className="flex flex-col gap-1 p-2 rounded-md bg-zoru-surface-2/40 group-hover:bg-zoru-surface-2/60 transition-colors">
-                        <span className="text-[10px] uppercase tracking-wider text-zoru-ink-muted font-semibold flex items-center gap-1.5">
+                    <div className="flex flex-col gap-1 p-2 rounded-md bg-[var(--st-bg-muted)]/40 group-hover:bg-[var(--st-bg-muted)]/60 transition-colors">
+                        <span className="text-[10px] uppercase tracking-wider text-[var(--st-text-secondary)] font-semibold flex items-center gap-1.5">
                             <Calendar className="h-3 w-3" /> Created
                         </span>
                         <span className="font-medium truncate">{createdDate || 'Loading...'}</span>
                     </div>
 
-                    <div className="flex flex-col gap-1 p-2 rounded-md bg-zoru-surface-2/40 group-hover:bg-zoru-surface-2/60 transition-colors">
-                        <span className="text-[10px] uppercase tracking-wider text-zoru-ink-muted font-semibold flex items-center gap-1.5">
+                    <div className="flex flex-col gap-1 p-2 rounded-md bg-[var(--st-bg-muted)]/40 group-hover:bg-[var(--st-bg-muted)]/60 transition-colors">
+                        <span className="text-[10px] uppercase tracking-wider text-[var(--st-text-secondary)] font-semibold flex items-center gap-1.5">
                             <BarChart2 className="h-3 w-3" /> Msg Tier
                         </span>
                         <span>
@@ -206,21 +206,21 @@ export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectC
                                 <Badge variant={getThroughputVariant(throughputLevel)} className="h-5 px-1.5 text-[10px]">
                                     {formatThroughput(throughputLevel)}
                                 </Badge>
-                            ) : (<span className="text-zoru-ink-muted">-</span>)}
+                            ) : (<span className="text-[var(--st-text-secondary)]">-</span>)}
                         </span>
                     </div>
 
                     {isWhatsAppProject && (
                         <>
-                            <div className="flex flex-col gap-1 p-2 rounded-md bg-zoru-surface-2/40 group-hover:bg-zoru-surface-2/60 transition-colors">
-                                <span className="text-[10px] uppercase tracking-wider text-zoru-ink-muted font-semibold flex items-center gap-1.5">
+                            <div className="flex flex-col gap-1 p-2 rounded-md bg-[var(--st-bg-muted)]/40 group-hover:bg-[var(--st-bg-muted)]/60 transition-colors">
+                                <span className="text-[10px] uppercase tracking-wider text-[var(--st-text-secondary)] font-semibold flex items-center gap-1.5">
                                     <Phone className="h-3 w-3" /> Numbers
                                 </span>
                                 <span className="font-medium">{project.phoneNumbers?.length || 0}</span>
                             </div>
 
-                            <div className="flex flex-col gap-1 p-2 rounded-md bg-zoru-surface-2/40 group-hover:bg-zoru-surface-2/60 transition-colors">
-                                <span className="text-[10px] uppercase tracking-wider text-zoru-ink-muted font-semibold flex items-center gap-1.5">
+                            <div className="flex flex-col gap-1 p-2 rounded-md bg-[var(--st-bg-muted)]/40 group-hover:bg-[var(--st-bg-muted)]/60 transition-colors">
+                                <span className="text-[10px] uppercase tracking-wider text-[var(--st-text-secondary)] font-semibold flex items-center gap-1.5">
                                     <Webhook className="h-3 w-3" /> Webhook
                                 </span>
                                 <div>
@@ -228,14 +228,14 @@ export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectC
                                         <div className={cn(
                                             "inline-flex items-center gap-1.5 px-1.5 py-0.5 rounded-full text-[10px] font-medium border",
                                             webhookStatus.isActive
-                                                ? "bg-zoru-ink/10 text-zoru-ink border-zoru-line dark:border-zoru-line"
-                                                : "bg-zoru-ink/10 text-zoru-ink border-zoru-line dark:border-zoru-line"
+                                                ? "bg-[var(--st-text)]/10 text-[var(--st-text)] border-[var(--st-border)] dark:border-[var(--st-border)]"
+                                                : "bg-[var(--st-text)]/10 text-[var(--st-text)] border-[var(--st-border)] dark:border-[var(--st-border)]"
                                         )}>
-                                            <span className={cn("h-1.5 w-1.5 rounded-full", webhookStatus.isActive ? "bg-zoru-ink" : "bg-zoru-ink")} />
+                                            <span className={cn("h-1.5 w-1.5 rounded-full", webhookStatus.isActive ? "bg-[var(--st-text)]" : "bg-[var(--st-text)]")} />
                                             {webhookStatus.isActive ? 'Active' : 'Inactive'}
                                         </div>
                                     ) : (
-                                        <span className="text-[10px] text-zoru-ink-muted">Checking...</span>
+                                        <span className="text-[10px] text-[var(--st-text-secondary)]">Checking...</span>
                                     )}
                                 </div>
                             </div>

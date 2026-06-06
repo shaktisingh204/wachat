@@ -25,7 +25,7 @@ export function WebsiteBuilderHeader({
   onSave,
 }: WebsiteBuilderHeaderProps) {
   return (
-    <header className="flex-shrink-0 flex items-center justify-between gap-4 p-3 border-b bg-zoru-surface/80 backdrop-blur-md sticky top-0 z-50">
+    <header className="flex-shrink-0 flex items-center justify-between gap-4 p-3 border-b bg-[var(--st-bg-secondary)]/80 backdrop-blur-md sticky top-0 z-50">
       <div className="flex items-center gap-2">
         <Button variant="ghost" size="icon" asChild>
           <Link href={`/dashboard/website-builder`}>

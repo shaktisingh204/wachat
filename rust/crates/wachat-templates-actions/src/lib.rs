@@ -44,6 +44,7 @@
 
 pub mod dto;
 pub mod handlers;
+pub mod multilang;
 pub mod router;
 pub mod state;
 

@@ -17,7 +17,7 @@ export default function ErrorBoundary({
   return (
     <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
       <h2 className="text-2xl font-bold">Something went wrong!</h2>
-      <p className="text-zoru-ink-muted">Failed to load the favicon generator.</p>
+      <p className="text-[var(--st-text-secondary)]">Failed to load the favicon generator.</p>
       <Button onClick={() => reset()}>Try again</Button>
     </div>
   );

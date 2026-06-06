@@ -200,7 +200,7 @@ export function WelcomeKitForm({ initialData }: WelcomeKitFormProps) {
                         </Button>
                     </div>
                     {items.length === 0 ? (
-                        <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                        <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                             No items yet. Add one with the button above.
                         </div>
                     ) : (
@@ -208,10 +208,10 @@ export function WelcomeKitForm({ initialData }: WelcomeKitFormProps) {
                             {items.map((it, idx) => (
                                 <div
                                     key={idx}
-                                    className="grid grid-cols-1 items-end gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3 sm:grid-cols-[1fr_140px_140px_120px_auto]"
+                                    className="grid grid-cols-1 items-end gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 sm:grid-cols-[1fr_140px_140px_120px_auto]"
                                 >
                                     <div className="space-y-1">
-                                        <Label className="text-[11px] text-zoru-ink-muted">
+                                        <Label className="text-[11px] text-[var(--st-text-secondary)]">
                                             Item name
                                         </Label>
                                         <Input
@@ -224,7 +224,7 @@ export function WelcomeKitForm({ initialData }: WelcomeKitFormProps) {
                                         />
                                     </div>
                                     <div className="space-y-1">
-                                        <Label className="text-[11px] text-zoru-ink-muted">
+                                        <Label className="text-[11px] text-[var(--st-text-secondary)]">
                                             SKU
                                         </Label>
                                         <Input
@@ -236,7 +236,7 @@ export function WelcomeKitForm({ initialData }: WelcomeKitFormProps) {
                                         />
                                     </div>
                                     <div className="space-y-1">
-                                        <Label className="text-[11px] text-zoru-ink-muted">
+                                        <Label className="text-[11px] text-[var(--st-text-secondary)]">
                                             Delivered at
                                         </Label>
                                         <Input
@@ -271,7 +271,7 @@ export function WelcomeKitForm({ initialData }: WelcomeKitFormProps) {
                                         onClick={() => removeItem(idx)}
                                         aria-label="Remove item"
                                     >
-                                        <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                        <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                     </Button>
                                 </div>
                             ))}

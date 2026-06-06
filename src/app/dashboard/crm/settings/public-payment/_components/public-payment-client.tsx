@@ -36,14 +36,14 @@ type Row = Omit<WsPaymentGatewayCredential, '_id' | 'userId'> & {
 };
 
 const GATEWAY_COLORS: Record<string, string> = {
-  razorpay: 'bg-zoru-info/10 text-zoru-info-ink',
-  stripe: 'bg-zoru-surface-2 text-zoru-ink',
-  paypal: 'bg-zoru-warning/15 text-zoru-warning-ink',
-  payfast: 'bg-zoru-success/10 text-zoru-success-ink',
-  paytm: 'bg-zoru-info/10 text-zoru-info-ink',
-  mollie: 'bg-zoru-danger/10 text-zoru-danger-ink',
-  authorize_net: 'bg-zoru-surface-2 text-zoru-ink',
-  square: 'bg-zoru-ink text-white',
+  razorpay: 'bg-[var(--st-text-secondary)]/10 text-[var(--st-text-secondary)]',
+  stripe: 'bg-[var(--st-bg-muted)] text-[var(--st-text)]',
+  paypal: 'bg-[var(--st-warn)]/15 text-[var(--st-warn)]',
+  payfast: 'bg-[var(--st-status-ok)]/10 text-[var(--st-status-ok)]',
+  paytm: 'bg-[var(--st-text-secondary)]/10 text-[var(--st-text-secondary)]',
+  mollie: 'bg-[var(--st-danger)]/10 text-[var(--st-danger)]',
+  authorize_net: 'bg-[var(--st-bg-muted)] text-[var(--st-text)]',
+  square: 'bg-[var(--st-text)] text-white',
 };
 
 const GATEWAY_LABELS: Record<string, string> = {
@@ -174,14 +174,14 @@ export function PublicPaymentClient(): React.JSX.Element {
           </div>
         ) : rows.length === 0 ? (
           <Card className="p-6">
-            <div className="py-8 text-center text-[13px] text-zoru-ink-muted">
+            <div className="py-8 text-center text-[13px] text-[var(--st-text-secondary)]">
               No gateways configured yet. Go to Payment Gateways settings to add one.
             </div>
           </Card>
         ) : (
           <div className="flex flex-col gap-3">
             {rows.map((row) => {
-              const colorCls = GATEWAY_COLORS[row.gateway] ?? 'bg-zoru-surface-2 text-zoru-ink';
+              const colorCls = GATEWAY_COLORS[row.gateway] ?? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]';
               const label = GATEWAY_LABELS[row.gateway] ?? row.gateway;
               const letter = label.charAt(0).toUpperCase();
               const testResult = testResults.get(row._id);
@@ -199,7 +199,7 @@ export function PublicPaymentClient(): React.JSX.Element {
                     {/* Info block */}
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-medium text-zoru-ink">{label}</span>
+                        <span className="font-medium text-[var(--st-text)]">{label}</span>
                         <Badge variant={row.mode === 'live' ? 'success' : 'warning'}>
                           {row.mode}
                         </Badge>
@@ -212,7 +212,7 @@ export function PublicPaymentClient(): React.JSX.Element {
                             : <Badge variant="destructive"><XCircle className="mr-1 h-3 w-3" />Failed</Badge>
                         )}
                       </div>
-                      <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+                      <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">
                         {row.show_on_public
                           ? 'Visible on public pay pages'
                           : 'Hidden from public pay pages'}

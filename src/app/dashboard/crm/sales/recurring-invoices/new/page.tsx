@@ -142,7 +142,7 @@ export default function NewRecurringInvoicePage() {
       <Card className="p-6">
         <div className="grid gap-4 md:grid-cols-3">
           <div className="space-y-1.5 md:col-span-2">
-            <Label className="text-zoru-ink">Client</Label>
+            <Label className="text-[var(--st-text)]">Client</Label>
             <EntityFormField
               entity="client"
               name="client_id"
@@ -150,7 +150,7 @@ export default function NewRecurringInvoicePage() {
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-zoru-ink">Currency</Label>
+            <Label className="text-[var(--st-text)]">Currency</Label>
             <EntityFormField
               entity="currency"
               name="currency"
@@ -160,7 +160,7 @@ export default function NewRecurringInvoicePage() {
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-zoru-ink">Every</Label>
+            <Label className="text-[var(--st-text)]">Every</Label>
             <Input
               type="number"
               min={1}
@@ -169,7 +169,7 @@ export default function NewRecurringInvoicePage() {
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-zoru-ink">Frequency</Label>
+            <Label className="text-[var(--st-text)]">Frequency</Label>
             <EnumFormField
               enumName="recurringInvoiceFrequency"
               name="__frequency_picker"
@@ -178,7 +178,7 @@ export default function NewRecurringInvoicePage() {
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-zoru-ink">Start Date</Label>
+            <Label className="text-[var(--st-text)]">Start Date</Label>
             <Input
               type="date"
               value={startDate}
@@ -186,7 +186,7 @@ export default function NewRecurringInvoicePage() {
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-zoru-ink">Until Date (optional)</Label>
+            <Label className="text-[var(--st-text)]">Until Date (optional)</Label>
             <Input
               type="date"
               value={untilDate}
@@ -194,7 +194,7 @@ export default function NewRecurringInvoicePage() {
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-zoru-ink">Stop after N invoices (optional)</Label>
+            <Label className="text-[var(--st-text)]">Stop after N invoices (optional)</Label>
             <Input
               type="number"
               min={0}
@@ -207,7 +207,7 @@ export default function NewRecurringInvoicePage() {
 
       <Card className="p-6">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-[15px] text-zoru-ink">Items</h2>
+          <h2 className="text-[15px] text-[var(--st-text)]">Items</h2>
           <Button
             type="button"
             variant="outline"
@@ -218,22 +218,22 @@ export default function NewRecurringInvoicePage() {
             Add line
           </Button>
         </div>
-        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+        <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <table className="w-full text-sm">
-            <thead className="bg-zoru-surface-2">
-              <tr className="border-b border-zoru-line text-left">
-                <th className="p-2 text-zoru-ink">Item</th>
-                <th className="p-2 text-zoru-ink">Description</th>
-                <th className="p-2 text-right text-zoru-ink">Qty</th>
-                <th className="p-2 text-right text-zoru-ink">Unit</th>
-                <th className="p-2 text-right text-zoru-ink">Tax %</th>
-                <th className="p-2 text-right text-zoru-ink">Amount</th>
+            <thead className="bg-[var(--st-bg-muted)]">
+              <tr className="border-b border-[var(--st-border)] text-left">
+                <th className="p-2 text-[var(--st-text)]">Item</th>
+                <th className="p-2 text-[var(--st-text)]">Description</th>
+                <th className="p-2 text-right text-[var(--st-text)]">Qty</th>
+                <th className="p-2 text-right text-[var(--st-text)]">Unit</th>
+                <th className="p-2 text-right text-[var(--st-text)]">Tax %</th>
+                <th className="p-2 text-right text-[var(--st-text)]">Amount</th>
                 <th className="p-2" />
               </tr>
             </thead>
             <tbody>
               {items.map((row) => (
-                <tr key={row.id} className="border-b border-zoru-line">
+                <tr key={row.id} className="border-b border-[var(--st-border)]">
                   <td className="p-2 min-w-[200px]">
                     <EntityPicker
                       entity="item"
@@ -253,7 +253,7 @@ export default function NewRecurringInvoicePage() {
                       }}
                     />
                     {row.name ? (
-                      <p className="mt-1 text-[11px] text-zoru-ink-muted">{row.name}</p>
+                      <p className="mt-1 text-[11px] text-[var(--st-text-secondary)]">{row.name}</p>
                     ) : null}
                   </td>
                   <td className="p-2">
@@ -303,7 +303,7 @@ export default function NewRecurringInvoicePage() {
                     <button
                       type="button"
                       onClick={() => removeRow(row.id)}
-                      className="text-zoru-danger-ink"
+                      className="text-[var(--st-danger)]"
                       aria-label="Remove row"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -313,8 +313,8 @@ export default function NewRecurringInvoicePage() {
               ))}
             </tbody>
             <tfoot>
-              <tr className="bg-zoru-surface-2">
-                <td colSpan={5} className="p-3 text-right text-zoru-ink-muted">
+              <tr className="bg-[var(--st-bg-muted)]">
+                <td colSpan={5} className="p-3 text-right text-[var(--st-text-secondary)]">
                   Subtotal
                 </td>
                 <td className="p-3 text-right">
@@ -323,7 +323,7 @@ export default function NewRecurringInvoicePage() {
                 <td />
               </tr>
               <tr>
-                <td colSpan={5} className="p-3 text-right text-zoru-ink-muted">
+                <td colSpan={5} className="p-3 text-right text-[var(--st-text-secondary)]">
                   Tax
                 </td>
                 <td className="p-3 text-right">
@@ -332,7 +332,7 @@ export default function NewRecurringInvoicePage() {
                 <td />
               </tr>
               <tr>
-                <td colSpan={5} className="p-3 text-right text-zoru-ink-muted">
+                <td colSpan={5} className="p-3 text-right text-[var(--st-text-secondary)]">
                   Discount
                 </td>
                 <td className="p-3 text-right">
@@ -346,14 +346,14 @@ export default function NewRecurringInvoicePage() {
                 </td>
                 <td />
               </tr>
-              <tr className="bg-zoru-surface-2">
+              <tr className="bg-[var(--st-bg-muted)]">
                 <td
                   colSpan={5}
-                  className="p-3 text-right text-zoru-ink"
+                  className="p-3 text-right text-[var(--st-text)]"
                 >
                   Total
                 </td>
-                <td className="p-3 text-right text-zoru-ink">
+                <td className="p-3 text-right text-[var(--st-text)]">
                   {fmtMoney(total, currency)}
                 </td>
                 <td />
@@ -364,7 +364,7 @@ export default function NewRecurringInvoicePage() {
       </Card>
 
       <Card className="p-6">
-        <Label className="text-zoru-ink">Notes</Label>
+        <Label className="text-[var(--st-text)]">Notes</Label>
         <Textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}

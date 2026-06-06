@@ -390,10 +390,10 @@ export function UpstreamDataPicker({
                   onClick={() => insertVar(variable)}
                   className={cn(
                     'group flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5',
-                    focusedKey === key ? 'bg-zoru-ink/10' : 'hover:bg-[var(--gray-3)]',
+                    focusedKey === key ? 'bg-[var(--st-text)]/10' : 'hover:bg-[var(--gray-3)]',
                   )}
                 >
-                  <span className="shrink-0 rounded bg-zoru-surface-2 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
+                  <span className="shrink-0 rounded bg-[var(--st-bg-muted)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
                     Var
                   </span>
                   <div className="flex flex-1 flex-col min-w-0 leading-tight">
@@ -435,11 +435,11 @@ export function UpstreamDataPicker({
                   className={cn(
                     'group flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5',
                     focusedKey === key
-                      ? 'bg-zoru-ink/10'
+                      ? 'bg-[var(--st-text)]/10'
                       : 'hover:bg-[var(--gray-3)]',
                   )}
                 >
-                  <span className="shrink-0 rounded bg-zoru-surface-2 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
+                  <span className="shrink-0 rounded bg-[var(--st-bg-muted)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
                     Glb
                   </span>
                   <div className="flex flex-1 flex-col min-w-0 leading-tight">

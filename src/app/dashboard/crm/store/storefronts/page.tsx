@@ -204,7 +204,7 @@ export default function StorefrontListPage(): React.JSX.Element {
                     <Card>
                         <ZoruCardContent className="flex flex-wrap items-end gap-3 pt-4">
                             <div className="min-w-[160px] space-y-1">
-                                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                                <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                                     Status
                                 </Label>
                                 <Select
@@ -228,7 +228,7 @@ export default function StorefrontListPage(): React.JSX.Element {
                 bulkBar={
                     selected.size > 0 ? (
                         <div className="flex flex-wrap items-center gap-2">
-                            <span className="text-sm font-medium text-zoru-ink">
+                            <span className="text-sm font-medium text-[var(--st-text)]">
                                 {selected.size} selected
                             </span>
                             <span className="flex-1" />
@@ -263,8 +263,8 @@ export default function StorefrontListPage(): React.JSX.Element {
                 empty={
                     !isPending && filtered.length === 0 ? (
                         <div className="flex flex-col items-center gap-3 p-8">
-                            <Store className="h-8 w-8 text-zoru-ink-muted" />
-                            <h3 className="text-base font-medium text-zoru-ink">
+                            <Store className="h-8 w-8 text-[var(--st-text-secondary)]" />
+                            <h3 className="text-base font-medium text-[var(--st-text)]">
                                 {statusFilter !== 'all' ? 'No storefronts match this filter' : 'No storefronts yet'}
                             </h3>
                             <Button variant="outline" asChild>
@@ -328,13 +328,13 @@ export default function StorefrontListPage(): React.JSX.Element {
                                                         subtitle={String(sf.slug ?? '')}
                                                     />
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {String(sf.slug ?? '—')}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {String(sf.domain ?? '—')}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {String(sf.currency ?? 'INR')}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>

@@ -186,7 +186,7 @@ export default function SettingsOverviewPage() {
 
       {SECTIONS.map((section) => (
         <div key={section.title ?? section.titleKey}>
-          <h2 className="mb-3 text-[13px] uppercase tracking-wide text-zoru-ink-muted">
+          <h2 className="mb-3 text-[13px] uppercase tracking-wide text-[var(--st-text-secondary)]">
             {section.title ?? t(section.titleKey!)}
           </h2>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -195,16 +195,16 @@ export default function SettingsOverviewPage() {
               return (
                 <Link key={tile.href} href={tile.href} className="group">
                   <Card className="h-full p-4 transition-shadow group-hover:shadow-[var(--zoru-shadow-md)]">
-                    <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink">
+                    <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                       <Icon className="h-[18px] w-[18px]" />
                     </div>
                     <div className="flex items-start justify-between gap-2">
-                      <p className="text-[13.5px] text-zoru-ink">
+                      <p className="text-[13.5px] text-[var(--st-text)]">
                         {tile.label ?? t(tile.labelKey!)}
                       </p>
-                      <ArrowUpRight className="h-4 w-4 text-zoru-ink-muted transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-zoru-ink" />
+                      <ArrowUpRight className="h-4 w-4 text-[var(--st-text-secondary)] transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[var(--st-text)]" />
                     </div>
-                    <p className="mt-1 text-[12.5px] leading-relaxed text-zoru-ink-muted">
+                    <p className="mt-1 text-[12.5px] leading-relaxed text-[var(--st-text-secondary)]">
                       {tile.description ?? t(tile.descriptionKey!)}
                     </p>
                   </Card>

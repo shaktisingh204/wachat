@@ -267,7 +267,7 @@ export function Composer({
   return (
     <div
       className={cn(
-        "flex w-full flex-col gap-2 border-t border-zoru-line bg-zoru-bg p-2",
+        "flex w-full flex-col gap-2 border-t border-[var(--st-border)] bg-[var(--st-bg)] p-2",
         className,
       )}
       // sessionId / chatJid are part of the public API for callers
@@ -277,12 +277,12 @@ export function Composer({
       data-chat-jid={chatJid}
     >
       {replyTo ? (
-        <div className="flex items-start gap-2 rounded-[var(--zoru-radius)] border-l-2 border-zoru-primary bg-zoru-surface/60 px-2 py-1.5">
+        <div className="flex items-start gap-2 rounded-[var(--zoru-radius)] border-l-2 border-[var(--st-text)] bg-[var(--st-bg-secondary)]/60 px-2 py-1.5">
           <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-medium text-zoru-ink">
+            <p className="text-[11px] font-medium text-[var(--st-text)]">
               Replying to {replyTo.authorName ?? "message"}
             </p>
-            <p className="line-clamp-1 text-xs text-zoru-ink-muted">
+            <p className="line-clamp-1 text-xs text-[var(--st-text-secondary)]">
               {replyTo.message.body ??
                 replyTo.message.caption ??
                 `[${replyTo.message.type}]`}
@@ -320,7 +320,7 @@ export function Composer({
                 <button
                   key={emoji}
                   type="button"
-                  className="rounded p-1 text-xl hover:bg-zoru-surface-2"
+                  className="rounded p-1 text-xl hover:bg-[var(--st-bg-muted)]"
                   onClick={() => {
                     insertEmoji(emoji);
                     setEmojiOpen(false);
@@ -369,7 +369,7 @@ export function Composer({
               <div className="space-y-2">
                 <label
                   htmlFor="composer-schedule-at"
-                  className="text-xs font-medium text-zoru-ink"
+                  className="text-xs font-medium text-[var(--st-text)]"
                 >
                   Send at
                 </label>
@@ -431,7 +431,7 @@ export function Composer({
       </div>
 
       {disabled && disabledReason ? (
-        <p className="px-2 text-xs text-zoru-ink-muted">{disabledReason}</p>
+        <p className="px-2 text-xs text-[var(--st-text-secondary)]">{disabledReason}</p>
       ) : null}
     </div>
   );

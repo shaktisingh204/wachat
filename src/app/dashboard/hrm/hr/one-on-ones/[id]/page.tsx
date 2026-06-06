@@ -26,7 +26,7 @@ export default async function OneOnOneDetailPage({
   const list = (await getOneOnOnes()) as Row[];
   const row = list.find((r) => String(r._id) === id) ?? null;
 
-  if (!row) return <div className="text-sm text-zoru-ink-muted">1:1 not found.</div>;
+  if (!row) return <div className="text-sm text-[var(--st-text-secondary)]">1:1 not found.</div>;
 
   const scheduled = row.scheduled_date ?? row.scheduledAt;
   const duration = row.duration_minutes ?? row.durationMinutes;

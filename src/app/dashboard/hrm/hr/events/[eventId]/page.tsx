@@ -72,11 +72,11 @@ function Field({
 }) {
     return (
         <div>
-            <div className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+            <div className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                 {Icon ? <Icon className="h-3 w-3" aria-hidden="true" /> : null}
                 {label}
             </div>
-            <div className="mt-1 text-[13px] text-zoru-ink">{children}</div>
+            <div className="mt-1 text-[13px] text-[var(--st-text)]">{children}</div>
         </div>
     );
 }
@@ -118,7 +118,7 @@ export default async function WorkplaceEventDetailPage({ params }: PageProps) {
             }
         >
             {event.bannerUrl ? (
-                <div className="overflow-hidden rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-surface">
+                <div className="overflow-hidden rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                         src={event.bannerUrl}
@@ -158,7 +158,7 @@ export default async function WorkplaceEventDetailPage({ params }: PageProps) {
                                             href={event.meetingUrl}
                                             target="_blank"
                                             rel="noreferrer noopener"
-                                            className="inline-flex w-fit items-center gap-1 text-xs text-zoru-primary hover:underline"
+                                            className="inline-flex w-fit items-center gap-1 text-xs text-[var(--st-text)] hover:underline"
                                         >
                                             <Video className="h-3 w-3" /> Join meeting
                                         </a>
@@ -204,7 +204,7 @@ export default async function WorkplaceEventDetailPage({ params }: PageProps) {
                         <ZoruCardTitle>Agenda / description</ZoruCardTitle>
                     </ZoruCardHeader>
                     <ZoruCardContent>
-                        <p className="whitespace-pre-wrap text-[13.5px] leading-relaxed text-zoru-ink">
+                        <p className="whitespace-pre-wrap text-[13.5px] leading-relaxed text-[var(--st-text)]">
                             {event.description}
                         </p>
                     </ZoruCardContent>

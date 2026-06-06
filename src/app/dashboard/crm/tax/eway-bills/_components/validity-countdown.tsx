@@ -35,7 +35,7 @@ export function ValidityCountdown({ validUpto, status }: ValidityCountdownProps)
   }, [status, target]);
 
   if (target === null) {
-    return <span className="text-[12.5px] text-zoru-ink-muted">—</span>;
+    return <span className="text-[12.5px] text-[var(--st-text-secondary)]">—</span>;
   }
 
   if (status === 'cancelled') {
@@ -53,7 +53,7 @@ export function ValidityCountdown({ validUpto, status }: ValidityCountdownProps)
   return (
     <div className="flex flex-col gap-0.5">
       <Badge variant={tone}>{`Expires in ${formatDelta(delta)}`}</Badge>
-      <span className="text-[11px] text-zoru-ink-muted">
+      <span className="text-[11px] text-[var(--st-text-secondary)]">
         {(() => {
           const date = new Date(target);
           const day = String(date.getUTCDate()).padStart(2, '0');

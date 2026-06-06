@@ -374,7 +374,7 @@ export default function StorageIntegrationPage() {
             ) : null}
 
             {driver === 'local' ? (
-              <div className="rounded-lg border border-dashed border-zoru-line bg-zoru-bg p-4 text-xs text-zoru-ink-muted">
+              <div className="rounded-lg border border-dashed border-[var(--st-border)] bg-[var(--st-bg)] p-4 text-xs text-[var(--st-text-secondary)]">
                 Local driver writes to the application&apos;s storage folder.
                 No credentials required.
               </div>
@@ -393,13 +393,13 @@ export default function StorageIntegrationPage() {
 
         {stats?.lastErrorMessage ? (
           <Card>
-            <ZoruCardContent className="flex items-start gap-3 border-l-2 border-zoru-danger/40 p-4">
-              <AlertCircle className="mt-0.5 h-4 w-4 text-zoru-danger" />
+            <ZoruCardContent className="flex items-start gap-3 border-l-2 border-[var(--st-danger)]/40 p-4">
+              <AlertCircle className="mt-0.5 h-4 w-4 text-[var(--st-danger)]" />
               <div>
-                <p className="text-sm font-medium text-zoru-ink">
+                <p className="text-sm font-medium text-[var(--st-text)]">
                   Last upload error
                 </p>
-                <p className="mt-0.5 text-xs text-zoru-ink-muted break-words">
+                <p className="mt-0.5 text-xs text-[var(--st-text-secondary)] break-words">
                   {stats.lastErrorMessage}
                 </p>
               </div>

@@ -149,20 +149,20 @@ export function RewardsPortalClient({
   }, [referralUrl, toast]);
 
   return (
-    <div className="zoruui min-h-screen bg-zoru-bg p-4 md:p-8">
+    <div className="zoruui min-h-screen bg-[var(--st-bg)] p-4 md:p-8">
       <div className="mx-auto flex max-w-5xl flex-col gap-6">
         <header className="flex flex-col gap-2">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
             Rewards
           </p>
-          <h1 className="text-3xl font-semibold text-zoru-ink">{programName}</h1>
+          <h1 className="text-3xl font-semibold text-[var(--st-text)]">{programName}</h1>
           {programDescription ? (
-            <p className="max-w-2xl text-sm text-zoru-ink-muted">{programDescription}</p>
+            <p className="max-w-2xl text-sm text-[var(--st-text-secondary)]">{programDescription}</p>
           ) : null}
           {referrerCode ? (
-            <p className="text-[12px] text-zoru-ink-muted">
+            <p className="text-[12px] text-[var(--st-text-secondary)]">
               You arrived via referral code{' '}
-              <code className="font-mono text-zoru-ink">{referrerCode}</code> — your inviter
+              <code className="font-mono text-[var(--st-text)]">{referrerCode}</code> — your inviter
               will be credited when you qualify.
             </p>
           ) : null}
@@ -171,32 +171,32 @@ export function RewardsPortalClient({
         <Card>
           <ZoruCardContent className="flex flex-wrap items-center justify-between gap-3 p-6">
             <div className="flex items-center gap-3">
-              <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-zoru-brand/10 text-zoru-brand">
+              <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-accent)]/10 text-[var(--st-accent)]">
                 <Coins className="h-6 w-6" />
               </span>
               <div>
-                <p className="text-[12px] text-zoru-ink-muted">Your balance</p>
-                <p className="text-2xl font-semibold text-zoru-ink">
+                <p className="text-[12px] text-[var(--st-text-secondary)]">Your balance</p>
+                <p className="text-2xl font-semibold text-[var(--st-text)]">
                   {balance.toLocaleString()} pts
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
+              <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                 <Crown className="h-6 w-6" />
               </span>
               <div>
-                <p className="text-[12px] text-zoru-ink-muted">Current tier</p>
+                <p className="text-[12px] text-[var(--st-text-secondary)]">Current tier</p>
                 <Badge variant="success">{tier}</Badge>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-muted text-zoru-ink">
+              <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                 <Sparkles className="h-6 w-6" />
               </span>
               <div>
-                <p className="text-[12px] text-zoru-ink-muted">Lifetime points</p>
-                <p className="text-base font-semibold text-zoru-ink">
+                <p className="text-[12px] text-[var(--st-text-secondary)]">Lifetime points</p>
+                <p className="text-base font-semibold text-[var(--st-text)]">
                   {(member?.lifetimePoints ?? 0).toLocaleString()}
                 </p>
               </div>
@@ -205,7 +205,7 @@ export function RewardsPortalClient({
         </Card>
 
         <section className="flex flex-col gap-3">
-          <h2 className="text-lg font-semibold text-zoru-ink">Available rewards</h2>
+          <h2 className="text-lg font-semibold text-[var(--st-text)]">Available rewards</h2>
           {catalog.length === 0 ? (
             <EmptyState
               title="No rewards available yet"
@@ -217,17 +217,17 @@ export function RewardsPortalClient({
                 const affordable = balance >= item.pointsCost;
                 return (
                   <Card key={item._id} className="flex flex-col p-4">
-                    <div className="flex h-32 w-full items-center justify-center rounded-md bg-zoru-surface-muted">
-                      <Gift className="h-10 w-10 text-zoru-ink-muted" />
+                    <div className="flex h-32 w-full items-center justify-center rounded-md bg-[var(--st-bg-muted)]">
+                      <Gift className="h-10 w-10 text-[var(--st-text-secondary)]" />
                     </div>
                     <div className="mt-3 flex flex-col gap-1">
-                      <h3 className="text-base font-semibold text-zoru-ink">{item.name}</h3>
+                      <h3 className="text-base font-semibold text-[var(--st-text)]">{item.name}</h3>
                       {item.description ? (
-                        <p className="text-[12px] text-zoru-ink-muted">{item.description}</p>
+                        <p className="text-[12px] text-[var(--st-text-secondary)]">{item.description}</p>
                       ) : null}
                     </div>
                     <div className="mt-3 flex items-center justify-between">
-                      <span className="text-sm font-semibold text-zoru-ink">
+                      <span className="text-sm font-semibold text-[var(--st-text)]">
                         {item.pointsCost.toLocaleString()} pts
                       </span>
                       <Button
@@ -242,7 +242,7 @@ export function RewardsPortalClient({
                       </Button>
                     </div>
                     {!affordable ? (
-                      <p className="mt-1 text-[11px] text-zoru-ink-muted">
+                      <p className="mt-1 text-[11px] text-[var(--st-text-secondary)]">
                         Need {(item.pointsCost - balance).toLocaleString()} more points.
                       </p>
                     ) : null}
@@ -278,7 +278,7 @@ export function RewardsPortalClient({
                       <Copy className="h-4 w-4" /> Copy
                     </Button>
                   </div>
-                  <p className="text-[12px] text-zoru-ink-muted">
+                  <p className="text-[12px] text-[var(--st-text-secondary)]">
                     Conversions so far:{' '}
                     <strong>{referral.conversions?.length ?? 0}</strong> · Points earned:{' '}
                     <strong>{(referral.rewardPoints ?? 0).toLocaleString()}</strong>
@@ -299,7 +299,7 @@ export function RewardsPortalClient({
           <ZoruDialogHeader>
             <ZoruDialogTitle>Confirm redemption</ZoruDialogTitle>
           </ZoruDialogHeader>
-          <div className="py-2 text-sm text-zoru-ink">
+          <div className="py-2 text-sm text-[var(--st-text)]">
             {redeemTarget ? (
               <p>
                 Redeem <strong>{redeemTarget.name}</strong> for{' '}

@@ -89,7 +89,7 @@ function StatusEditForm({ row, onDone }: { row: Row; onDone: () => void }) {
             type="color"
             id="st-color-picker"
             defaultValue={row.color ?? '#64748b'}
-            className="h-8 w-10 cursor-pointer rounded border border-zoru-line bg-transparent"
+            className="h-8 w-10 cursor-pointer rounded border border-[var(--st-border)] bg-transparent"
             onChange={(e) => {
               const inp = document.getElementById('st-color-text') as HTMLInputElement | null;
               if (inp) inp.value = e.target.value;
@@ -230,8 +230,8 @@ export function StatusesClient({ rows: initialRows, kpi }: Props) {
   const bulkBar =
     selected.size > 0 ? (
       <div className="flex flex-wrap items-center justify-between gap-2 text-[12.5px]">
-        <div className="flex items-center gap-2 text-zoru-ink">
-          <ListChecks className="h-4 w-4 text-zoru-primary" />
+        <div className="flex items-center gap-2 text-[var(--st-text)]">
+          <ListChecks className="h-4 w-4 text-[var(--st-text)]" />
           {selected.size} selected
         </div>
         <div className="flex items-center gap-1">
@@ -251,8 +251,8 @@ export function StatusesClient({ rows: initialRows, kpi }: Props) {
   const empty =
     filtered.length === 0 ? (
       <div className="flex flex-col items-center gap-3 py-10 text-center">
-        <Flag className="h-8 w-8 text-zoru-ink-muted" strokeWidth={1.5} />
-        <p className="text-[13px] text-zoru-ink-muted">
+        <Flag className="h-8 w-8 text-[var(--st-text-secondary)]" strokeWidth={1.5} />
+        <p className="text-[13px] text-[var(--st-text-secondary)]">
           {search || typeFilter !== 'all' ? 'No statuses match your filters.' : 'No statuses yet.'}
         </p>
       </div>
@@ -282,7 +282,7 @@ export function StatusesClient({ rows: initialRows, kpi }: Props) {
         empty={empty}
         loading={false}
       >
-        <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
+        <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
           <Table>
             <ZoruTableHeader>
               <ZoruTableRow>
@@ -292,7 +292,7 @@ export function StatusesClient({ rows: initialRows, kpi }: Props) {
                     checked={allSelectedOnPage}
                     onChange={toggleAll}
                     aria-label="Select all"
-                    className="rounded border-zoru-line"
+                    className="rounded border-[var(--st-border)]"
                   />
                 </ZoruTableHead>
                 <ZoruTableHead>Status</ZoruTableHead>
@@ -314,7 +314,7 @@ export function StatusesClient({ rows: initialRows, kpi }: Props) {
                         checked={selected.has(row._id)}
                         onChange={() => toggleRow(row._id)}
                         aria-label={`Select ${row.type}`}
-                        className="rounded border-zoru-line"
+                        className="rounded border-[var(--st-border)]"
                       />
                     </ZoruTableCell>
                     <ZoruTableCell>
@@ -345,23 +345,23 @@ export function StatusesClient({ rows: initialRows, kpi }: Props) {
                       </RowDrawer>
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <span className="font-mono text-[11.5px] text-zoru-ink-muted">{color}</span>
+                      <span className="font-mono text-[11.5px] text-[var(--st-text-secondary)]">{color}</span>
                     </ZoruTableCell>
-                    <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
+                    <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
                       {row.priority ?? 0}
                     </ZoruTableCell>
                     <ZoruTableCell>
                       <span
                         className={
                           row.default
-                            ? 'inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium bg-zoru-surface-2 text-zoru-ink'
-                            : 'text-[12px] text-zoru-ink-muted'
+                            ? 'inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium bg-[var(--st-bg-muted)] text-[var(--st-text)]'
+                            : 'text-[12px] text-[var(--st-text-secondary)]'
                         }
                       >
                         {row.default ? 'Yes' : 'No'}
                       </span>
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[12px] text-zoru-ink-muted">
+                    <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
                       {fmtDate(row.createdAt)}
                     </ZoruTableCell>
                     <ZoruTableCell>
@@ -372,7 +372,7 @@ export function StatusesClient({ rows: initialRows, kpi }: Props) {
                         disabled={isPending}
                         aria-label={`Delete ${row.type}`}
                       >
-                        <Trash2 className="h-3.5 w-3.5 text-zoru-danger" />
+                        <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                       </Button>
                     </ZoruTableCell>
                   </ZoruTableRow>

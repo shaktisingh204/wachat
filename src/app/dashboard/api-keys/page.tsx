@@ -118,7 +118,7 @@ export default function ApiKeysPage() {
   if (isLoading) {
     return (
       <div className="flex min-h-[300px] items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-zoru-ink-muted" />
+        <Loader2 className="h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
       </div>
     );
   }
@@ -153,7 +153,7 @@ export default function ApiKeysPage() {
 
       {showCreate && (
         <Card className="p-5">
-          <h2 className="mb-3 text-[15px] text-zoru-ink">New API key</h2>
+          <h2 className="mb-3 text-[15px] text-[var(--st-text)]">New API key</h2>
           <div className="flex max-w-md gap-3">
             <Input
               value={newName}
@@ -206,7 +206,7 @@ export default function ApiKeysPage() {
         <Card className="overflow-x-auto p-0">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-zoru-line text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+              <tr className="border-b border-[var(--st-border)] text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                 <th className="px-5 py-3">Name</th>
                 <th className="px-5 py-3">Key</th>
                 <th className="px-5 py-3">Status</th>
@@ -216,15 +216,15 @@ export default function ApiKeysPage() {
             </thead>
             <tbody>
               {keys.map((k) => (
-                <tr key={k._id} className="border-b border-zoru-line last:border-0">
-                  <td className="px-5 py-3 text-sm text-zoru-ink">{k.name}</td>
-                  <td className="px-5 py-3 font-mono text-sm text-zoru-ink">{maskKey(k.key)}</td>
+                <tr key={k._id} className="border-b border-[var(--st-border)] last:border-0">
+                  <td className="px-5 py-3 text-sm text-[var(--st-text)]">{k.name}</td>
+                  <td className="px-5 py-3 font-mono text-sm text-[var(--st-text)]">{maskKey(k.key)}</td>
                   <td className="px-5 py-3">
                     <Badge variant={k.isActive ? 'success' : 'danger'}>
                       {k.isActive ? 'Active' : 'Revoked'}
                     </Badge>
                   </td>
-                  <td className="px-5 py-3 text-xs text-zoru-ink-muted">
+                  <td className="px-5 py-3 text-xs text-[var(--st-text-secondary)]">
                     {k.createdAt ? new Date(k.createdAt).toLocaleDateString() : '-'}
                   </td>
                   <td className="px-5 py-3 text-right">
@@ -236,7 +236,7 @@ export default function ApiKeysPage() {
                         aria-label="Copy"
                       >
                         {copiedId === k._id ? (
-                          <Check className="h-3.5 w-3.5 text-zoru-success-ink" />
+                          <Check className="h-3.5 w-3.5 text-[var(--st-status-ok)]" />
                         ) : (
                           <Copy className="h-3.5 w-3.5" />
                         )}
@@ -249,7 +249,7 @@ export default function ApiKeysPage() {
                           disabled={isMutating}
                           aria-label="Revoke"
                         >
-                          <Trash2 className="h-3.5 w-3.5 text-zoru-danger" />
+                          <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                         </Button>
                       )}
                     </div>

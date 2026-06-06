@@ -87,7 +87,7 @@ export function PredicateCanvas({ predicate, onChange }: PredicateCanvasProps) {
   return (
     <div className="space-y-3">
       <GroupNode node={root} path={[]} onUpdate={update} depth={0} />
-      <div className="flex items-center gap-2 text-xs text-zoru-ink">
+      <div className="flex items-center gap-2 text-xs text-[var(--st-text)]">
         <Badge variant="outline" className="text-[10px]">
           ROOT
         </Badge>
@@ -149,11 +149,11 @@ function GroupNode({ node, path, depth, onUpdate }: GroupNodeProps) {
   }
 
   const depthColors = [
-    "border-zoru-line bg-white",
-    "border-zoru-line bg-zoru-surface-2/30",
-    "border-zoru-line bg-zoru-surface-2/30",
-    "border-zoru-line bg-zoru-surface-2/30",
-    "border-zoru-line bg-zoru-surface-2/30",
+    "border-[var(--st-border)] bg-white",
+    "border-[var(--st-border)] bg-[var(--st-bg-muted)]/30",
+    "border-[var(--st-border)] bg-[var(--st-bg-muted)]/30",
+    "border-[var(--st-border)] bg-[var(--st-bg-muted)]/30",
+    "border-[var(--st-border)] bg-[var(--st-bg-muted)]/30",
   ];
   const colorClass = depthColors[Math.min(depth, depthColors.length - 1)];
 
@@ -178,7 +178,7 @@ function GroupNode({ node, path, depth, onUpdate }: GroupNodeProps) {
             <ZoruSelectItem value="or">Any of</ZoruSelectItem>
           </ZoruSelectContent>
         </Select>
-        <span className="text-xs text-zoru-ink font-medium">
+        <span className="text-xs text-[var(--st-text)] font-medium">
           {node.op === "and"
             ? "Contacts matching every rule below."
             : "Contacts matching at least one rule below."}
@@ -194,7 +194,7 @@ function GroupNode({ node, path, depth, onUpdate }: GroupNodeProps) {
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 text-zoru-ink hover:bg-zoru-surface-2 hover:text-zoru-ink"
+              className="h-8 text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
               onClick={removeSelf}
               aria-label="Remove group"
             >
@@ -214,7 +214,7 @@ function GroupNode({ node, path, depth, onUpdate }: GroupNodeProps) {
       </div>
 
       {node.children.length === 0 ? (
-        <div className="flex items-center justify-center rounded-md border border-dashed border-zoru-line bg-zoru-surface-2/50 p-4 text-xs italic text-zoru-ink">
+        <div className="flex items-center justify-center rounded-md border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)]/50 p-4 text-xs italic text-[var(--st-text)]">
           No rules yet — click "Rule" to add one.
         </div>
       ) : (
@@ -277,7 +277,7 @@ function LeafNode({ node, onChange, onRemove }: LeafNodeProps) {
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-2 rounded-md border border-zoru-line bg-white p-2">
+    <div className="flex flex-wrap items-center gap-2 rounded-md border border-[var(--st-border)] bg-white p-2">
       <Select
         value={node.field}
         onValueChange={(v) => changeField(v as SegmentField)}
@@ -319,7 +319,7 @@ function LeafNode({ node, onChange, onRemove }: LeafNodeProps) {
         aria-label="Remove rule"
         className="ml-auto"
       >
-        <Trash2 className="h-3.5 w-3.5 text-zoru-ink" />
+        <Trash2 className="h-3.5 w-3.5 text-[var(--st-text)]" />
       </Button>
     </div>
   );

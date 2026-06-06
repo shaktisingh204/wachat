@@ -71,7 +71,7 @@ export function JourneysClient() {
       </PageHeader>
 
       <section className="space-y-4">
-        <h2 className="text-sm font-medium uppercase tracking-wide text-zoru-ink-muted">Your journeys</h2>
+        <h2 className="text-sm font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">Your journeys</h2>
         {loading ? (
           <Skeleton className="h-64 w-full" />
         ) : journeys.length === 0 ? (
@@ -87,7 +87,7 @@ export function JourneysClient() {
       </section>
 
       <section className="space-y-4">
-        <h2 className="text-sm font-medium uppercase tracking-wide text-zoru-ink-muted">Start from a template</h2>
+        <h2 className="text-sm font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">Start from a template</h2>
         <JourneyTemplateGallery onCreated={refresh} />
       </section>
 

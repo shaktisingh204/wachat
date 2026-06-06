@@ -99,17 +99,17 @@ export default async function PaymentReportPage(props: {
       {/* Filter row */}
       <form
         method="get"
-        className="flex flex-wrap items-end gap-2 rounded-lg border border-zoru-line bg-zoru-surface px-3 py-2"
+        className="flex flex-wrap items-end gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
       >
         {sp.from && <input type="hidden" name="from" value={sp.from} />}
         {sp.to && <input type="hidden" name="to" value={sp.to} />}
 
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">Payment mode</span>
+          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">Payment mode</span>
           <select
             name="mode"
             defaultValue={sp.mode ?? ''}
-            className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
+            className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
           >
             <option value="">All modes</option>
             <option value="cash">Cash</option>
@@ -121,22 +121,22 @@ export default async function PaymentReportPage(props: {
         </label>
 
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">Client search</span>
+          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">Client search</span>
           <input
             type="text"
             name="client"
             defaultValue={sp.client ?? ''}
             placeholder="Client name..."
-            className="h-9 w-44 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
+            className="h-9 w-44 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
           />
         </label>
 
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">Currency</span>
+          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">Currency</span>
           <select
             name="currency"
             defaultValue={sp.currency ?? ''}
-            className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
+            className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
           >
             <option value="">INR (default)</option>
             <option value="USD">USD</option>
@@ -146,11 +146,11 @@ export default async function PaymentReportPage(props: {
         </label>
 
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">Status</span>
+          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">Status</span>
           <select
             name="status"
             defaultValue={sp.status ?? ''}
-            className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
+            className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
           >
             <option value="">All</option>
             <option value="received">Received</option>
@@ -161,13 +161,13 @@ export default async function PaymentReportPage(props: {
 
         <button
           type="submit"
-          className="h-9 rounded-lg bg-zoru-ink px-4 text-[13px] font-medium text-white"
+          className="h-9 rounded-lg bg-[var(--st-text)] px-4 text-[13px] font-medium text-white"
         >
           Apply
         </button>
         <a
           href="?"
-          className="inline-flex h-9 items-center rounded-lg border border-zoru-line px-3 text-[13px] text-zoru-ink-muted"
+          className="inline-flex h-9 items-center rounded-lg border border-[var(--st-border)] px-3 text-[13px] text-[var(--st-text-secondary)]"
         >
           Reset
         </a>
@@ -185,13 +185,13 @@ export default async function PaymentReportPage(props: {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Card className="p-6">
           <div className="mb-3">
-            <h2 className="text-[16px] font-semibold text-zoru-ink">MTD vs target</h2>
-            <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+            <h2 className="text-[16px] font-semibold text-[var(--st-text)]">MTD vs target</h2>
+            <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">
               Daily receipts compared to last 3-month average.
             </p>
           </div>
           {mtdByDay.length === 0 ? (
-            <div className="py-8 text-center text-[13px] text-zoru-ink-muted">No receipts this month.</div>
+            <div className="py-8 text-center text-[13px] text-[var(--st-text-secondary)]">No receipts this month.</div>
           ) : (
             <PaymentMtdLine data={mtdByDay} />
           )}
@@ -199,11 +199,11 @@ export default async function PaymentReportPage(props: {
 
         <Card className="p-6">
           <div className="mb-3">
-            <h2 className="text-[16px] font-semibold text-zoru-ink">By payment method</h2>
-            <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">Cash / card / UPI / bank breakdown.</p>
+            <h2 className="text-[16px] font-semibold text-[var(--st-text)]">By payment method</h2>
+            <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">Cash / card / UPI / bank breakdown.</p>
           </div>
           {byMethod.length === 0 ? (
-            <div className="py-8 text-center text-[13px] text-zoru-ink-muted">No payment method data.</div>
+            <div className="py-8 text-center text-[13px] text-[var(--st-text-secondary)]">No payment method data.</div>
           ) : (
             <PaymentMethodBar data={byMethod} />
           )}
@@ -213,13 +213,13 @@ export default async function PaymentReportPage(props: {
       {/* Monthly trend line chart */}
       <Card className="p-6">
         <div className="mb-3">
-          <h2 className="text-[16px] font-semibold text-zoru-ink">Monthly receipt trend</h2>
-          <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+          <h2 className="text-[16px] font-semibold text-[var(--st-text)]">Monthly receipt trend</h2>
+          <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">
             Total payments received per month across the fiscal year.
           </p>
         </div>
         {monthlyTrend.length === 0 ? (
-          <div className="py-8 text-center text-[13px] text-zoru-ink-muted">No monthly data.</div>
+          <div className="py-8 text-center text-[13px] text-[var(--st-text-secondary)]">No monthly data.</div>
         ) : (
           <MonthlyTrendLine data={monthlyTrend} label="Received" color="#7ec77d" />
         )}
@@ -227,40 +227,40 @@ export default async function PaymentReportPage(props: {
 
       {/* Receipt table */}
       <Card className="p-0">
-        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+        <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <Table>
             <ZoruTableHeader>
-              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                <ZoruTableHead className="text-zoru-ink-muted">Receipt #</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Date</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Client</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Invoice</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Method</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                <ZoruTableHead className="text-right text-zoru-ink-muted">Amount</ZoruTableHead>
+              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Receipt #</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Date</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Client</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Invoice</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Method</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
+                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Amount</ZoruTableHead>
               </ZoruTableRow>
             </ZoruTableHeader>
             <ZoruTableBody>
               {pageRows.length === 0 ? (
-                <ZoruTableRow className="border-zoru-line">
+                <ZoruTableRow className="border-[var(--st-border)]">
                   <ZoruTableCell
                     colSpan={7}
-                    className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                    className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     No receipts for selected filters.
                   </ZoruTableCell>
                 </ZoruTableRow>
               ) : (
                 pageRows.map((r: PaymentReceiptRow) => (
-                  <ZoruTableRow key={r.id} className="border-zoru-line">
+                  <ZoruTableRow key={r.id} className="border-[var(--st-border)]">
                     <ZoruTableCell>
                       <EntityRowLink
                         href={`/dashboard/crm/sales/receipts/${r.id}`}
                         label={r.receiptNumber}
                       />
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-zoru-ink-muted">{r.date}</ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-zoru-ink">{r.clientName}</ZoruTableCell>
+                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">{r.date}</ZoruTableCell>
+                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">{r.clientName}</ZoruTableCell>
                     <ZoruTableCell>
                       {r.invoiceId ? (
                         <EntityRowLink
@@ -268,7 +268,7 @@ export default async function PaymentReportPage(props: {
                           label={r.invoiceNumber || 'View'}
                         />
                       ) : (
-                        <span className="text-[13px] text-zoru-ink-muted">—</span>
+                        <span className="text-[13px] text-[var(--st-text-secondary)]">—</span>
                       )}
                     </ZoruTableCell>
                     <ZoruTableCell>
@@ -281,7 +281,7 @@ export default async function PaymentReportPage(props: {
                         <Badge variant="success">Received</Badge>
                       )}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] font-medium text-zoru-success-ink">
+                    <ZoruTableCell className="text-right text-[13px] font-medium text-[var(--st-status-ok)]">
                       {fmtMoney(r.amount)}
                     </ZoruTableCell>
                   </ZoruTableRow>

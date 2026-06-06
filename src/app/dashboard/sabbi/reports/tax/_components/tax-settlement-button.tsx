@@ -21,7 +21,7 @@ export function TaxSettlementButton({ period, taxType, amount }: { period: strin
         }
     };
 
-    if (amount <= 0) return <span className="text-[12px] text-zoru-ink-muted">Settled</span>;
+    if (amount <= 0) return <span className="text-[12px] text-[var(--st-text-secondary)]">Settled</span>;
 
     return (
         <Button variant="outline" size="sm" onClick={handleSettle} disabled={isSettling} className="h-7 text-[12px]">

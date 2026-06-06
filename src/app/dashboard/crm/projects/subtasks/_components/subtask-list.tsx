@@ -165,11 +165,11 @@ export function SubtaskList({
         <Card className="p-4">
             <header className="mb-3 flex items-center justify-between">
                 <div>
-                    <h3 className="text-[14px] font-semibold text-zoru-ink">
+                    <h3 className="text-[14px] font-semibold text-[var(--st-text)]">
                         {title}
                     </h3>
                     {totalCount > 0 ? (
-                        <p className="mt-0.5 text-[11.5px] text-zoru-ink-muted">
+                        <p className="mt-0.5 text-[11.5px] text-[var(--st-text-secondary)]">
                             {completedCount} of {totalCount} complete
                         </p>
                     ) : null}
@@ -177,16 +177,16 @@ export function SubtaskList({
             </header>
 
             {isLoading ? (
-                <div className="flex items-center gap-2 py-4 text-[12px] text-zoru-ink-muted">
+                <div className="flex items-center gap-2 py-4 text-[12px] text-[var(--st-text-secondary)]">
                     <LoaderCircle className="h-4 w-4 animate-spin" />
                     Loading subtasks…
                 </div>
             ) : rows.length === 0 ? (
-                <p className="rounded-md border border-dashed border-zoru-line p-3 text-center text-[12px] text-zoru-ink-muted">
+                <p className="rounded-md border border-dashed border-[var(--st-border)] p-3 text-center text-[12px] text-[var(--st-text-secondary)]">
                     No subtasks yet.
                 </p>
             ) : (
-                <ul className="flex flex-col divide-y divide-zoru-line">
+                <ul className="flex flex-col divide-y divide-[var(--st-border)]">
                     {rows.map((r) => {
                         const isDone = r.status === 'done';
                         return (
@@ -201,10 +201,10 @@ export function SubtaskList({
                                         isDone ? 'Mark as todo' : 'Mark as done'
                                     }
                                     disabled={statusPending}
-                                    className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full text-zoru-ink-muted hover:text-zoru-ink disabled:opacity-50"
+                                    className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full text-[var(--st-text-secondary)] hover:text-[var(--st-text)] disabled:opacity-50"
                                 >
                                     {isDone ? (
-                                        <CheckCircle2 className="h-4 w-4 text-zoru-success-ink" />
+                                        <CheckCircle2 className="h-4 w-4 text-[var(--st-status-ok)]" />
                                     ) : (
                                         <Circle className="h-4 w-4" />
                                     )}
@@ -214,13 +214,13 @@ export function SubtaskList({
                                         className={[
                                             'truncate text-[13px]',
                                             isDone
-                                                ? 'text-zoru-ink-muted line-through'
-                                                : 'text-zoru-ink',
+                                                ? 'text-[var(--st-text-secondary)] line-through'
+                                                : 'text-[var(--st-text)]',
                                         ].join(' ')}
                                     >
                                         {r.title}
                                     </p>
-                                    <div className="mt-0.5 flex flex-wrap items-center gap-2 text-[11.5px] text-zoru-ink-muted">
+                                    <div className="mt-0.5 flex flex-wrap items-center gap-2 text-[11.5px] text-[var(--st-text-secondary)]">
                                         <StatusPill
                                             label={r.status.replace(/_/g, ' ')}
                                             tone={statusToTone(r.status)}
@@ -235,7 +235,7 @@ export function SubtaskList({
                                         type="button"
                                         onClick={() => handleDelete(r._id)}
                                         disabled={deletingId === r._id}
-                                        className="inline-flex h-7 w-7 items-center justify-center rounded-md text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-danger disabled:opacity-50"
+                                        className="inline-flex h-7 w-7 items-center justify-center rounded-md text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-danger)] disabled:opacity-50"
                                         aria-label={`Delete ${r.title}`}
                                     >
                                         {deletingId === r._id ? (
@@ -315,7 +315,7 @@ function AddSubtaskInline({
             <button
                 type="button"
                 onClick={() => setExpanded(true)}
-                className="mt-3 flex w-full items-center gap-2 rounded-md border border-dashed border-zoru-line px-3 py-2 text-[12.5px] text-zoru-ink-muted hover:border-zoru-line/80 hover:text-zoru-ink"
+                className="mt-3 flex w-full items-center gap-2 rounded-md border border-dashed border-[var(--st-border)] px-3 py-2 text-[12.5px] text-[var(--st-text-secondary)] hover:border-[var(--st-border)]/80 hover:text-[var(--st-text)]"
             >
                 <Plus className="h-3.5 w-3.5" /> Add subtask
             </button>
@@ -325,7 +325,7 @@ function AddSubtaskInline({
     return (
         <form
             action={formAction}
-            className="mt-3 flex flex-col gap-2 rounded-md border border-zoru-line bg-zoru-surface-2 p-2"
+            className="mt-3 flex flex-col gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2"
         >
             <input type="hidden" name="parentId" value={parentId} />
             <input type="hidden" name="parentKind" value={parentKind} />

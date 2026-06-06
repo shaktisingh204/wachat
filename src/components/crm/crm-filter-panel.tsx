@@ -66,26 +66,26 @@ export function CrmFilterPanel({
           <SlidersHorizontal className="h-3.5 w-3.5" />
           Filter Options
           {hasActiveFilters && (
-            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-zoru-ink text-[10px] text-white">
+            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[var(--st-text)] text-[10px] text-white">
               {Object.keys(filters).length}
             </span>
           )}
         </Button>
       </ZoruSheetTrigger>
-      <ZoruSheetContent className="w-[380px] sm:w-[420px] bg-zoru-surface overflow-y-auto">
+      <ZoruSheetContent className="w-[380px] sm:w-[420px] bg-[var(--st-bg-secondary)] overflow-y-auto">
         <ZoruSheetHeader>
-          <ZoruSheetTitle className="text-lg font-semibold text-zoru-ink flex items-center gap-2">
+          <ZoruSheetTitle className="text-lg font-semibold text-[var(--st-text)] flex items-center gap-2">
             <Filter className="h-4 w-4" /> Filter Panel
           </ZoruSheetTitle>
-          <ZoruSheetDescription className="text-sm text-zoru-ink-muted">
+          <ZoruSheetDescription className="text-sm text-[var(--st-text-secondary)]">
             Configure multi-dimensional filters or save custom dashboard views.
           </ZoruSheetDescription>
         </ZoruSheetHeader>
 
         {/* Saved Segments Section */}
         {savedSegments.length > 0 && (
-          <div className="mt-6 border-b border-zoru-line pb-4">
-            <h3 className="text-[11px] font-semibold uppercase tracking-wider text-zoru-ink-muted mb-2.5">
+          <div className="mt-6 border-b border-[var(--st-border)] pb-4">
+            <h3 className="text-[11px] font-semibold uppercase tracking-wider text-[var(--st-text-secondary)] mb-2.5">
               Saved Views / Segments
             </h3>
             <div className="flex flex-wrap gap-1.5">
@@ -94,7 +94,7 @@ export function CrmFilterPanel({
                   key={seg.id}
                   variant="outline"
                   size="sm"
-                  className="h-7 text-[12px] bg-zoru-bg"
+                  className="h-7 text-[12px] bg-[var(--st-bg)]"
                   onClick={() => onApplySegment && onApplySegment(seg.id)}
                 >
                   {seg.name}
@@ -111,7 +111,7 @@ export function CrmFilterPanel({
 
             return (
               <div key={field.key} className="space-y-1.5">
-                <Label className="text-[12px] font-medium text-zoru-ink-muted">
+                <Label className="text-[12px] font-medium text-[var(--st-text-secondary)]">
                   {field.label}
                 </Label>
 
@@ -126,7 +126,7 @@ export function CrmFilterPanel({
 
                 {field.type === 'select' && (
                   <select
-                    className="flex h-9 w-full rounded-md border border-zoru-line bg-zoru-bg px-3 py-1.5 text-[13px] text-zoru-ink shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zoru-line"
+                    className="flex h-9 w-full rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-1.5 text-[13px] text-[var(--st-text)] shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--st-border)]"
                     value={val ?? 'all'}
                     onChange={(e) => onUpdateFilter(field.key, e.target.value)}
                   >
@@ -164,10 +164,10 @@ export function CrmFilterPanel({
 
         {/* Save Segment Block */}
         {onSaveSegment && (
-          <div className="mt-8 pt-4 border-t border-zoru-line">
+          <div className="mt-8 pt-4 border-t border-[var(--st-border)]">
             {showSaveSegment ? (
               <div className="space-y-2.5">
-                <Label className="text-[12px] font-medium text-zoru-ink-muted">
+                <Label className="text-[12px] font-medium text-[var(--st-text-secondary)]">
                   Segment Name
                 </Label>
                 <div className="flex gap-2">
@@ -202,12 +202,12 @@ export function CrmFilterPanel({
           </div>
         )}
 
-        <ZoruSheetFooter className="mt-8 pt-4 border-t border-zoru-line flex flex-row items-center gap-2">
+        <ZoruSheetFooter className="mt-8 pt-4 border-t border-[var(--st-border)] flex flex-row items-center gap-2">
           {hasActiveFilters && (
             <Button
               variant="outline"
               size="sm"
-              className="flex-1 h-9 text-[12.5px] gap-1 text-zoru-danger-ink hover:bg-zoru-danger/10"
+              className="flex-1 h-9 text-[12.5px] gap-1 text-[var(--st-danger)] hover:bg-[var(--st-danger)]/10"
               onClick={onClearFilters}
             >
               <X className="h-3.5 w-3.5" /> Reset Filters

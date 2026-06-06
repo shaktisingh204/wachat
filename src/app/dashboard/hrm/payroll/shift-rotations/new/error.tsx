@@ -16,7 +16,7 @@ export default function NewShiftRotationError({
     }, [error]);
 
     return (
-        <div className="flex h-[400px] w-full flex-col items-center justify-center gap-4 rounded-md border border-destructive/20 bg-zoru-ink/10 p-8 text-center text-zoru-ink">
+        <div className="flex h-[400px] w-full flex-col items-center justify-center gap-4 rounded-md border border-destructive/20 bg-[var(--st-text)]/10 p-8 text-center text-[var(--st-text)]">
             <AlertCircle className="h-10 w-10" />
             <div className="space-y-1">
                 <h3 className="text-lg font-semibold">Failed to load data</h3>

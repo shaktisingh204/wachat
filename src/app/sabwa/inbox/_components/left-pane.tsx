@@ -91,13 +91,13 @@ export function LeftPane({
 
   return (
     <aside
-      className={cn('flex h-full w-full flex-col bg-zoru-bg', className)}
+      className={cn('flex h-full w-full flex-col bg-[var(--st-bg)]', className)}
       aria-label="Chats"
     >
-      <div className="flex shrink-0 flex-col gap-2 border-b border-zoru-line p-2">
+      <div className="flex shrink-0 flex-col gap-2 border-b border-[var(--st-border)] p-2">
         <div className="relative">
           <Search
-            className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted"
+            className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]"
             aria-hidden
           />
           <Input
@@ -134,10 +134,10 @@ export function LeftPane({
                 className="flex items-center gap-3 rounded-md p-2"
                 aria-hidden
               >
-                <div className="h-10 w-10 shrink-0 animate-pulse rounded-full bg-zoru-surface" />
+                <div className="h-10 w-10 shrink-0 animate-pulse rounded-full bg-[var(--st-bg-secondary)]" />
                 <div className="flex-1 space-y-1.5">
-                  <div className="h-3 w-2/3 animate-pulse rounded bg-zoru-surface" />
-                  <div className="h-2 w-4/5 animate-pulse rounded bg-zoru-surface" />
+                  <div className="h-3 w-2/3 animate-pulse rounded bg-[var(--st-bg-secondary)]" />
+                  <div className="h-2 w-4/5 animate-pulse rounded bg-[var(--st-bg-secondary)]" />
                 </div>
               </div>
             ))}

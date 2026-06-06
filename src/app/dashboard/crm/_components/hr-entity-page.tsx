@@ -162,14 +162,14 @@ const TONE_TO_VARIANT: Record<
 };
 
 const DOT_CLASS: Record<LegacyTone, string> = {
-  neutral: 'bg-zoru-ink-muted',
-  rose: 'bg-zoru-ink',
-  'rose-soft': 'bg-zoru-ink',
-  obsidian: 'bg-zoru-ink',
-  green: 'bg-zoru-success',
-  amber: 'bg-zoru-warning',
-  red: 'bg-zoru-danger',
-  blue: 'bg-zoru-ink-muted',
+  neutral: 'bg-[var(--st-text-secondary)]',
+  rose: 'bg-[var(--st-text)]',
+  'rose-soft': 'bg-[var(--st-text)]',
+  obsidian: 'bg-[var(--st-text)]',
+  green: 'bg-[var(--st-status-ok)]',
+  amber: 'bg-[var(--st-warn)]',
+  red: 'bg-[var(--st-danger)]',
+  blue: 'bg-[var(--st-text-secondary)]',
 };
 
 export const ClayBadge = React.forwardRef<HTMLSpanElement, ClayBadgeProps>(
@@ -414,7 +414,7 @@ function FieldArray({
       <input type="hidden" name={field.name} value={hiddenValue} />
 
       {rows.length === 0 ? (
-        <p className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-2.5 text-center text-[12px] text-zoru-ink-muted">
+        <p className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2.5 text-center text-[12px] text-[var(--st-text-secondary)]">
           No rows yet — click Add below to start.
         </p>
       ) : (
@@ -422,7 +422,7 @@ function FieldArray({
           {rows.map((row, i) => (
             <div
               key={i}
-              className="flex flex-wrap items-end gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-2"
+              className="flex flex-wrap items-end gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2"
             >
               {subs.map((s) => {
                 const fieldId = `${field.name}-${i}-${s.name}`;
@@ -468,7 +468,7 @@ function FieldArray({
                 variant="ghost"
                 size="sm"
                 onClick={() => removeRow(i)}
-                className="text-zoru-danger-ink"
+                className="text-[var(--st-danger)]"
                 aria-label="Remove row"
               >
                 <Trash2 className="h-3.5 w-3.5" />
@@ -484,7 +484,7 @@ function FieldArray({
       </Button>
 
       {field.help ? (
-        <p className="text-[11.5px] text-zoru-ink-muted">{field.help}</p>
+        <p className="text-[11.5px] text-[var(--st-text-secondary)]">{field.help}</p>
       ) : null}
     </div>
   );
@@ -630,7 +630,7 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
     >
 
       <Card className="p-6">
-        <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
+        <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
           <Table>
             <ZoruTableHeader>
               <ZoruTableRow>
@@ -655,7 +655,7 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
                 <ZoruTableRow>
                   <ZoruTableCell
                     colSpan={columns.length + 1}
-                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                    className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     {emptyText || `No ${singular.toLowerCase()} yet — click Add to get started.`}
                   </ZoruTableCell>
@@ -670,7 +670,7 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
                       const wrapWithDialogTrigger =
                         colIdx === 0 && rowOpensEditDialog && !basePath;
                       return (
-                        <ZoruTableCell key={c.key} className="text-[13px] text-zoru-ink">
+                        <ZoruTableCell key={c.key} className="text-[13px] text-[var(--st-text)]">
                           {wrapWithLink ? (
                             <EntityRowLink
                               href={`${basePath}/${row._id}`}
@@ -683,9 +683,9 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
                                 setEditing(row);
                                 setDialogOpen(true);
                               }}
-                              className="group inline-flex flex-col items-start gap-0.5 rounded-sm text-left outline-none transition-colors hover:text-zoru-ink focus-visible:ring-2 focus-visible:ring-zoru-line focus-visible:ring-offset-1"
+                              className="group inline-flex flex-col items-start gap-0.5 rounded-sm text-left outline-none transition-colors hover:text-[var(--st-text)] focus-visible:ring-2 focus-visible:ring-[var(--st-border)] focus-visible:ring-offset-1"
                             >
-                              <span className="font-medium text-zoru-ink transition-colors group-hover:text-zoru-ink group-hover:underline group-focus-visible:underline">
+                              <span className="font-medium text-[var(--st-text)] transition-colors group-hover:text-[var(--st-text)] group-hover:underline group-focus-visible:underline">
                                 {content}
                               </span>
                             </button>
@@ -720,7 +720,7 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
                           size="sm"
                           onClick={() => setDeletingId(row._id)}
                         >
-                          <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                          <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                         </Button>
                       </div>
                     </ZoruTableCell>
@@ -756,7 +756,7 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
                 >
                   <Label htmlFor={field.name}>
                     {field.label}
-                    {field.required ? <span className="text-zoru-danger-ink"> *</span> : null}
+                    {field.required ? <span className="text-[var(--st-danger)]"> *</span> : null}
                   </Label>
                   <div className="mt-1.5">
                     {renderField(

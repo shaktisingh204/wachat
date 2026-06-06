@@ -51,7 +51,7 @@ class ErrorBoundary extends React.Component<{ fallback: React.ReactNode; childre
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
     return (
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center border-b py-3 gap-2">
-            <dt className="text-zoru-ink-muted">{label}</dt>
+            <dt className="text-[var(--st-text-secondary)]">{label}</dt>
             <dd className="font-semibold text-left sm:text-right">{value}</dd>
         </div>
     );
@@ -317,7 +317,7 @@ function InformationRecordsSection() {
                 </div>
                 <div className="flex flex-col sm:flex-row gap-2 mt-4 items-center justify-between">
                     <div className="relative w-full sm:w-64">
-                        <Search className="absolute left-2 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+                        <Search className="absolute left-2 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
                         <Input 
                             placeholder="Filter records..." 
                             value={search}
@@ -327,7 +327,7 @@ function InformationRecordsSection() {
                     </div>
                     {selectedIds.size > 0 && (
                         <div className="flex items-center gap-2">
-                            <span className="text-sm text-zoru-ink-muted">{selectedIds.size} selected</span>
+                            <span className="text-sm text-[var(--st-text-secondary)]">{selectedIds.size} selected</span>
                             <Button variant="destructive" size="sm" onClick={handleBulkDelete}>
                                 <Trash className="w-4 h-4 mr-1" /> Delete Selected
                             </Button>
@@ -337,7 +337,7 @@ function InformationRecordsSection() {
             </ZoruCardHeader>
             <ZoruCardContent className="flex-1 overflow-hidden p-0 relative">
                 {/* Header row */}
-                <div className="flex items-center border-b bg-zoru-surface-2/50 p-3 sticky top-0 z-10 text-sm font-medium">
+                <div className="flex items-center border-b bg-[var(--st-bg-muted)]/50 p-3 sticky top-0 z-10 text-sm font-medium">
                     <div className="w-[50px] flex justify-center">
                         <Checkbox 
                             checked={filteredRecords.length > 0 && selectedIds.size === filteredRecords.length} 
@@ -352,7 +352,7 @@ function InformationRecordsSection() {
                 </div>
                 
                 {isAdding && (
-                    <div className="p-3 border-b bg-zoru-surface-2/20">
+                    <div className="p-3 border-b bg-[var(--st-bg-muted)]/20">
                         <InfoRecordForm 
                             onSubmit={handleAdd} 
                             onCancel={() => setIsAdding(false)} 
@@ -376,7 +376,7 @@ function InformationRecordsSection() {
                             return (
                                 <div
                                     key={record.id}
-                                    className="absolute top-0 left-0 w-full flex items-center border-b p-2 group hover:bg-zoru-surface-2/30 transition-colors"
+                                    className="absolute top-0 left-0 w-full flex items-center border-b p-2 group hover:bg-[var(--st-bg-muted)]/30 transition-colors"
                                     style={{
                                         height: `${virtualRow.size}px`,
                                         transform: `translateY(${virtualRow.start}px)`,
@@ -401,8 +401,8 @@ function InformationRecordsSection() {
                                     ) : (
                                         <>
                                             <div className="flex-1 px-2 font-medium truncate" title={record.key}>{record.key}</div>
-                                            <div className="flex-1 px-2 text-zoru-ink-muted truncate" title={record.value}>{record.value}</div>
-                                            <div className="w-[150px] px-2 text-xs text-zoru-ink-muted hidden sm:block shrink-0">
+                                            <div className="flex-1 px-2 text-[var(--st-text-secondary)] truncate" title={record.value}>{record.value}</div>
+                                            <div className="w-[150px] px-2 text-xs text-[var(--st-text-secondary)] hidden sm:block shrink-0">
                                                 {formatDate(record.updatedAt)}
                                             </div>
                                             <div className="w-[100px] flex justify-end gap-1 px-2 shrink-0">
@@ -471,7 +471,7 @@ export default function ProjectInformationPage() {
             <div className="flex flex-col gap-8">
                 <div>
                     <h1 className="text-3xl font-bold font-headline">Project Information</h1>
-                    <p className="text-zoru-ink-muted">General and technical details about your project.</p>
+                    <p className="text-[var(--st-text-secondary)]">General and technical details about your project.</p>
                 </div>
                 <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
@@ -491,7 +491,7 @@ export default function ProjectInformationPage() {
         <div className="flex flex-col gap-8">
             <div>
                 <h1 className="text-3xl font-bold font-headline">Project Information</h1>
-                <p className="text-zoru-ink-muted">General and technical details for "{project.name}".</p>
+                <p className="text-[var(--st-text-secondary)]">General and technical details for "{project.name}".</p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -544,7 +544,7 @@ export default function ProjectInformationPage() {
                                 <InfoRow label="Last Updated" value={formatDate(paymentConfig.updated_timestamp * 1000)} />
                             </dl>
                         ) : (
-                            <div className="text-center text-zoru-ink-muted py-8">
+                            <div className="text-center text-[var(--st-text-secondary)] py-8">
                                 <p>No payment configuration data received for this project yet.</p>
                             </div>
                         )}

@@ -213,8 +213,8 @@ export default function FacebookEventsPage(): React.JSX.Element {
 
       <header className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl text-zoru-ink">Events</h1>
-          <p className="mt-1 text-sm text-zoru-ink-muted">
+          <h1 className="text-2xl text-[var(--st-text)]">Events</h1>
+          <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
             Plan and track upcoming events on the connected Facebook Page.
           </p>
         </div>
@@ -265,7 +265,7 @@ export default function FacebookEventsPage(): React.JSX.Element {
                   onClick={() => openDetails(ev)}
                   className="flex flex-1 flex-col text-left"
                 >
-                  <div className="h-32 w-full bg-zoru-surface-2">
+                  <div className="h-32 w-full bg-[var(--st-bg-muted)]">
                     {ev.cover?.source ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
@@ -276,8 +276,8 @@ export default function FacebookEventsPage(): React.JSX.Element {
                     ) : null}
                   </div>
                   <div className="flex flex-1 flex-col gap-2 p-4">
-                    <p className="line-clamp-2 text-base text-zoru-ink">{ev.name}</p>
-                    <div className="flex flex-wrap items-center gap-2 text-xs text-zoru-ink-muted">
+                    <p className="line-clamp-2 text-base text-[var(--st-text)]">{ev.name}</p>
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--st-text-secondary)]">
                       <span className="inline-flex items-center gap-1">
                         <CalendarDays className="h-3.5 w-3.5" />
                         {safeWhen(ev.start_time)}
@@ -298,7 +298,7 @@ export default function FacebookEventsPage(): React.JSX.Element {
                     </div>
                   </div>
                 </button>
-                <div className="flex items-center justify-end border-t border-zoru-line p-2">
+                <div className="flex items-center justify-end border-t border-[var(--st-border)] p-2">
                   <DropdownMenu>
                     <ZoruDropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon-sm" aria-label="Event actions">
@@ -311,7 +311,7 @@ export default function FacebookEventsPage(): React.JSX.Element {
                       </ZoruDropdownMenuItem>
                       <ZoruDropdownMenuItem
                         onSelect={() => setConfirmDelete(ev)}
-                        className="text-zoru-danger-ink"
+                        className="text-[var(--st-danger)]"
                       >
                         <Trash2 className="mr-2 h-4 w-4" /> Cancel event
                       </ZoruDropdownMenuItem>
@@ -392,7 +392,7 @@ export default function FacebookEventsPage(): React.JSX.Element {
           {activeEvent ? (
             <div className="mt-4 space-y-4 text-sm">
               {activeEvent.cover?.source ? (
-                <div className="h-32 w-full overflow-hidden rounded-md bg-zoru-surface-2">
+                <div className="h-32 w-full overflow-hidden rounded-md bg-[var(--st-bg-muted)]">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={activeEvent.cover.source}
@@ -402,10 +402,10 @@ export default function FacebookEventsPage(): React.JSX.Element {
                 </div>
               ) : null}
               <div>
-                <p className="text-xs uppercase tracking-wide text-zoru-ink-subtle">
+                <p className="text-xs uppercase tracking-wide text-[var(--st-text-tertiary)]">
                   When
                 </p>
-                <p className="text-zoru-ink">
+                <p className="text-[var(--st-text)]">
                   {activeEvent.start_time
                     ? new Date(activeEvent.start_time).toLocaleString()
                     : '—'}
@@ -413,44 +413,44 @@ export default function FacebookEventsPage(): React.JSX.Element {
               </div>
               {placeName(activeEvent) ? (
                 <div>
-                  <p className="text-xs uppercase tracking-wide text-zoru-ink-subtle">
+                  <p className="text-xs uppercase tracking-wide text-[var(--st-text-tertiary)]">
                     Where
                   </p>
-                  <p className="text-zoru-ink">{placeName(activeEvent)}</p>
+                  <p className="text-[var(--st-text)]">{placeName(activeEvent)}</p>
                 </div>
               ) : null}
               {activeEvent.description ? (
                 <div>
-                  <p className="text-xs uppercase tracking-wide text-zoru-ink-subtle">
+                  <p className="text-xs uppercase tracking-wide text-[var(--st-text-tertiary)]">
                     Description
                   </p>
-                  <p className="whitespace-pre-wrap text-zoru-ink">
+                  <p className="whitespace-pre-wrap text-[var(--st-text)]">
                     {activeEvent.description}
                   </p>
                 </div>
               ) : null}
               <div className="grid grid-cols-3 gap-3">
                 <Card className="p-3">
-                  <p className="text-xs text-zoru-ink-muted">Attending</p>
-                  <p className="text-lg text-zoru-ink">
+                  <p className="text-xs text-[var(--st-text-secondary)]">Attending</p>
+                  <p className="text-lg text-[var(--st-text)]">
                     {activeEvent.attending_count ?? 0}
                   </p>
                 </Card>
                 <Card className="p-3">
-                  <p className="text-xs text-zoru-ink-muted">Interested</p>
-                  <p className="text-lg text-zoru-ink">
+                  <p className="text-xs text-[var(--st-text-secondary)]">Interested</p>
+                  <p className="text-lg text-[var(--st-text)]">
                     {activeEvent.interested_count ?? 0}
                   </p>
                 </Card>
                 <Card className="p-3">
-                  <p className="text-xs text-zoru-ink-muted">Maybe</p>
-                  <p className="text-lg text-zoru-ink">
+                  <p className="text-xs text-[var(--st-text-secondary)]">Maybe</p>
+                  <p className="text-lg text-[var(--st-text)]">
                     {activeEvent.maybe_count ?? 0}
                   </p>
                 </Card>
               </div>
               <div>
-                <p className="text-xs uppercase tracking-wide text-zoru-ink-subtle">
+                <p className="text-xs uppercase tracking-wide text-[var(--st-text-tertiary)]">
                   Attendees
                 </p>
                 {attendeeLoading ? (
@@ -459,13 +459,13 @@ export default function FacebookEventsPage(): React.JSX.Element {
                     <Skeleton className="h-4 w-2/3" />
                   </div>
                 ) : attendees.length === 0 ? (
-                  <p className="text-xs text-zoru-ink-muted">No attendees yet.</p>
+                  <p className="text-xs text-[var(--st-text-secondary)]">No attendees yet.</p>
                 ) : (
                   <ul className="mt-2 space-y-1">
                     {attendees.slice(0, 50).map((a, i) => (
                       <li
                         key={a.id ?? `${i}-${a.name ?? 'attendee'}`}
-                        className="text-zoru-ink"
+                        className="text-[var(--st-text)]"
                       >
                         {a.name ?? '(unknown)'}
                       </li>

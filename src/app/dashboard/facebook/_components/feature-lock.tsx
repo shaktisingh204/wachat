@@ -36,15 +36,15 @@ export function FeatureLockOverlay({
 }) {
   if (isAllowed) return null;
   return (
-    <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 rounded-[var(--zoru-radius-lg)] bg-zoru-bg/80 p-6 text-center backdrop-blur-sm">
-      <span className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
+    <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 rounded-[var(--zoru-radius-lg)] bg-[var(--st-bg)]/80 p-6 text-center backdrop-blur-sm">
+      <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
         <Lock className="h-5 w-5" />
       </span>
       <div className="flex flex-col gap-1">
-        <h3 className="text-base font-semibold text-zoru-ink">
+        <h3 className="text-base font-semibold text-[var(--st-text)]">
           &lsquo;{featureName}&rsquo; is a premium feature
         </h3>
-        <p className="text-sm text-zoru-ink-muted">
+        <p className="text-sm text-[var(--st-text-secondary)]">
           This feature is not included in your current plan.
         </p>
       </div>

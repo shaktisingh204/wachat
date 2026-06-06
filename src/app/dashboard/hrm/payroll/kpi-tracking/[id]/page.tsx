@@ -16,7 +16,7 @@ export default async function KpiDetailPage({
   const list = (await getCrmKpis()) as WithId<CrmKpi>[];
   const row = list.find((r) => String(r._id) === id) ?? null;
 
-  if (!row) return <div className="text-sm text-zoru-ink-muted">KPI not found.</div>;
+  if (!row) return <div className="text-sm text-[var(--st-text-secondary)]">KPI not found.</div>;
 
   const achievement =
     row.target_value > 0

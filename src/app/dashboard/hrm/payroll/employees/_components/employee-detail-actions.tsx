@@ -147,7 +147,7 @@ export function EmployeeDetailActions({
         <ZoruDropdownMenuTrigger asChild>
           <button
             type="button"
-            className="focus:outline-none focus-visible:ring-2 focus-visible:ring-zoru-primary"
+            className="focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]"
             aria-label="Change status"
           >
             <StatusPill

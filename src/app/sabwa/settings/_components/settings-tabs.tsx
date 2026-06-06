@@ -29,7 +29,7 @@ export function SettingsTabs() {
     <nav
       role="navigation"
       aria-label="Settings sections"
-      className="inline-flex flex-wrap gap-1 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-1"
+      className="inline-flex flex-wrap gap-1 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1"
     >
       {SECTIONS.map((section) => {
         const active = pathname === section.href;
@@ -41,8 +41,8 @@ export function SettingsTabs() {
             className={cn(
               'inline-flex h-8 items-center justify-center whitespace-nowrap rounded-[calc(var(--zoru-radius)-2px)] px-3 text-xs font-medium transition-colors',
               active
-                ? 'bg-zoru-primary text-zoru-primary-foreground shadow-[var(--zoru-shadow-sm)]'
-                : 'text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink',
+                ? 'bg-[var(--st-text)] text-[var(--st-text-inverted)] shadow-[var(--zoru-shadow-sm)]'
+                : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]',
             )}
           >
             {section.label}

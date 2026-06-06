@@ -28,7 +28,7 @@ export function EmailAccountSwitcher({
           <ZoruSelectValue placeholder="Select account" />
         </ZoruSelectTrigger>
         <ZoruSelectContent className="max-w-[300px]">
-          <ZoruSelectItem value="back_to_list" className="font-medium text-zoru-ink-muted mb-1">
+          <ZoruSelectItem value="back_to_list" className="font-medium text-[var(--st-text-secondary)] mb-1">
             ← All accounts
           </ZoruSelectItem>
 
@@ -39,7 +39,7 @@ export function EmailAccountSwitcher({
                   <span className="font-semibold text-sm truncate w-full">
                     {acc.fromName || 'Account'}
                   </span>
-                  <span className="text-xs text-zoru-ink-muted truncate w-full">
+                  <span className="text-xs text-[var(--st-text-secondary)] truncate w-full">
                     {acc.fromEmail}
                   </span>
                 </div>
@@ -47,8 +47,8 @@ export function EmailAccountSwitcher({
             ))}
           </div>
 
-          <div className="h-px bg-zoru-line my-1" />
-          <ZoruSelectItem value="connect_new" className="text-zoru-ink focus:text-zoru-ink font-medium py-3">
+          <div className="h-px bg-[var(--st-border)] my-1" />
+          <ZoruSelectItem value="connect_new" className="text-[var(--st-text)] focus:text-[var(--st-text)] font-medium py-3">
             <div className="flex items-center gap-2 font-semibold">
               <PlusCircle className="h-4 w-4" /> Connect a new account
             </div>

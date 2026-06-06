@@ -37,7 +37,7 @@ export default function NewProductPage() {
 
   return (
     <div className="flex-1 space-y-6 p-8 w-full max-w-5xl mx-auto">
-      <div className="flex items-center gap-2 text-sm text-zoru-ink-muted mb-4 hover:text-zoru-ink transition-colors cursor-pointer w-fit" onClick={() => router.back()}>
+      <div className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)] mb-4 hover:text-[var(--st-text)] transition-colors cursor-pointer w-fit" onClick={() => router.back()}>
         <ArrowLeft className="w-4 h-4" />
         Back to Products
       </div>
@@ -88,12 +88,12 @@ export default function NewProductPage() {
               <CardDescription>Add images, videos, or 3D models.</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="border-2 border-dashed border-zoru-line rounded-xl p-10 flex flex-col items-center justify-center text-center bg-zoru-surface/50 hover:bg-zoru-surface transition-colors cursor-pointer">
-                <div className="w-12 h-12 bg-zoru-surface-2 rounded-full flex items-center justify-center mb-4">
-                  <Upload className="w-6 h-6 text-zoru-ink-subtle" />
+              <div className="border-2 border-dashed border-[var(--st-border)] rounded-xl p-10 flex flex-col items-center justify-center text-center bg-[var(--st-bg-secondary)]/50 hover:bg-[var(--st-bg-secondary)] transition-colors cursor-pointer">
+                <div className="w-12 h-12 bg-[var(--st-bg-muted)] rounded-full flex items-center justify-center mb-4">
+                  <Upload className="w-6 h-6 text-[var(--st-text-tertiary)]" />
                 </div>
-                <h3 className="text-sm font-medium text-zoru-ink mb-1">Click to upload or drag and drop</h3>
-                <p className="text-xs text-zoru-ink-muted max-w-[200px]">
+                <h3 className="text-sm font-medium text-[var(--st-text)] mb-1">Click to upload or drag and drop</h3>
+                <p className="text-xs text-[var(--st-text-secondary)] max-w-[200px]">
                   SVG, PNG, JPG or GIF (max. 800x400px)
                 </p>
                 <Button variant="secondary" size="sm" className="mt-6">
@@ -112,23 +112,23 @@ export default function NewProductPage() {
                 <div className="space-y-2">
                   <Label htmlFor="price">Price</Label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zoru-ink-subtle">$</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--st-text-tertiary)]">$</span>
                     <Input id="price" type="number" placeholder="0.00" className="pl-7" />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="compare-price">Compare at price</Label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zoru-ink-subtle">$</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--st-text-tertiary)]">$</span>
                     <Input id="compare-price" type="number" placeholder="0.00" className="pl-7" />
                   </div>
                 </div>
               </div>
-              <div className="mt-6 pt-6 border-t border-zoru-line">
+              <div className="mt-6 pt-6 border-t border-[var(--st-border)]">
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label className="text-base">Charge tax on this product</Label>
-                    <p className="text-xs text-zoru-ink-muted">Applies to the base price.</p>
+                    <p className="text-xs text-[var(--st-text-secondary)]">Applies to the base price.</p>
                   </div>
                   <Switch defaultChecked />
                 </div>
@@ -168,7 +168,7 @@ export default function NewProductPage() {
                       <Label>Option values</Label>
                       <Input placeholder="Small, Medium, Large" />
                     </div>
-                    <Button variant="ghost" size="icon" className="mb-0.5 text-zoru-ink-muted hover:text-zoru-error">
+                    <Button variant="ghost" size="icon" className="mb-0.5 text-[var(--st-text-secondary)] hover:text-zoru-error">
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>
@@ -208,7 +208,7 @@ export default function NewProductPage() {
                   </SelectItem>
                 </SelectContent>
               </Select>
-              <p className="text-xs text-zoru-ink-muted leading-relaxed">
+              <p className="text-xs text-[var(--st-text-secondary)] leading-relaxed">
                 This product will be hidden from all sales channels.
               </p>
             </CardContent>
@@ -251,7 +251,7 @@ export default function NewProductPage() {
                 <Label>Barcode (ISBN, UPC, GTIN, etc.)</Label>
                 <Input placeholder="e.g. 123456789012" />
               </div>
-              <div className="mt-4 pt-4 border-t border-zoru-line space-y-4">
+              <div className="mt-4 pt-4 border-t border-[var(--st-border)] space-y-4">
                 <div className="flex items-center justify-between">
                   <Label>Track quantity</Label>
                   <Switch defaultChecked />

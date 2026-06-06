@@ -328,17 +328,17 @@ export default function PermissionTypesPage() {
       bulkBar={
         selected.size > 0 ? (
           <div className="flex flex-wrap items-center gap-2 text-[13px]">
-            <span className="font-medium text-zoru-ink">
+            <span className="font-medium text-[var(--st-text)]">
               {selected.size} selected
             </span>
-            <span className="text-zoru-ink-muted">·</span>
+            <span className="text-[var(--st-text-secondary)]">·</span>
             <Button
               variant="ghost"
               size="sm"
               disabled={bulkDeleting}
               onClick={() => setBulkDeleteOpen(true)}
             >
-              <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+              <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
               Delete
             </Button>
             <Button
@@ -408,16 +408,16 @@ export default function PermissionTypesPage() {
                       aria-label="Select all on page"
                     />
                   </ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
                     Name
                   </ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
                     Display
                   </ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
                     Category
                   </ZoruTableHead>
-                  <ZoruTableHead className="w-[140px] text-right text-zoru-ink-muted">
+                  <ZoruTableHead className="w-[140px] text-right text-[var(--st-text-secondary)]">
                     Actions
                   </ZoruTableHead>
                 </ZoruTableRow>
@@ -427,7 +427,7 @@ export default function PermissionTypesPage() {
                   <ZoruTableRow>
                     <ZoruTableCell
                       colSpan={5}
-                      className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                      className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                     >
                       <LoaderCircle className="mx-auto h-4 w-4 animate-spin" />
                     </ZoruTableCell>
@@ -436,7 +436,7 @@ export default function PermissionTypesPage() {
                   <ZoruTableRow>
                     <ZoruTableCell
                       colSpan={5}
-                      className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                      className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                     >
                       No types match the current filters.
                     </ZoruTableCell>
@@ -464,19 +464,19 @@ export default function PermissionTypesPage() {
                           >
                             <div className="space-y-3 text-sm">
                               <div>
-                                <div className="text-zoru-ink-muted text-xs">
+                                <div className="text-[var(--st-text-secondary)] text-xs">
                                   Name
                                 </div>
                                 <div className="font-mono">{row.name}</div>
                               </div>
                               <div>
-                                <div className="text-zoru-ink-muted text-xs">
+                                <div className="text-[var(--st-text-secondary)] text-xs">
                                   Display name
                                 </div>
                                 <div>{row.display_name || '—'}</div>
                               </div>
                               <div>
-                                <div className="text-zoru-ink-muted text-xs">
+                                <div className="text-[var(--st-text-secondary)] text-xs">
                                   Category
                                 </div>
                                 <div>{builtin ? 'Built-in' : 'Custom'}</div>
@@ -497,7 +497,7 @@ export default function PermissionTypesPage() {
                             </div>
                           </RowDrawer>
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-zoru-ink">
+                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                           {row.display_name || '—'}
                         </ZoruTableCell>
                         <ZoruTableCell>
@@ -524,7 +524,7 @@ export default function PermissionTypesPage() {
                               onClick={() => setDeletingId(row._id)}
                               aria-label="Delete"
                             >
-                              <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                              <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                             </Button>
                           </div>
                         </ZoruTableCell>
@@ -566,7 +566,7 @@ export default function PermissionTypesPage() {
             ) : null}
             <div>
               <Label htmlFor="name">
-                Name <span className="text-zoru-danger-ink">*</span>
+                Name <span className="text-[var(--st-danger)]">*</span>
               </Label>
               <Input
                 id="name"

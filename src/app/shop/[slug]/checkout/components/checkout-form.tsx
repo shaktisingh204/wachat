@@ -81,9 +81,9 @@ export function CheckoutForm({ currency }: { currency: string }) {
             <div>
                 <div className="flex flex-col mb-6 gap-2">
                   <h2 className="text-2xl font-bold">Guest Checkout</h2>
-                  <p className="text-sm text-zoru-ink-muted">
+                  <p className="text-sm text-[var(--st-text-secondary)]">
                     Checking out as a guest. Already have an account?{' '}
-                    <Link href={`/shop/${params.slug}/account/login`} className="text-zoru-ink hover:underline">
+                    <Link href={`/shop/${params.slug}/account/login`} className="text-[var(--st-text)] hover:underline">
                       Log in here
                     </Link>.
                   </p>
@@ -180,7 +180,7 @@ export function CheckoutForm({ currency }: { currency: string }) {
                     <ZoruCardHeader><ZoruCardTitle>Your Order</ZoruCardTitle></ZoruCardHeader>
                     <ZoruCardContent className="space-y-4">
                         {cart.length === 0 ? (
-                          <div className="text-sm text-zoru-ink-muted text-center py-4">Your cart is empty</div>
+                          <div className="text-sm text-[var(--st-text-secondary)] text-center py-4">Your cart is empty</div>
                         ) : (
                           cart.map(item => (
                                <div key={item.productId} className="flex justify-between items-center text-sm">

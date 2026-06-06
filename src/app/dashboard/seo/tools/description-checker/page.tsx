@@ -141,11 +141,11 @@ export default function DescriptionCheckerPage() {
                         </TableCell>
                         <TableCell>
                           {r.error ? (
-                            <span className="text-zoru-ink text-sm">{r.error}</span>
+                            <span className="text-[var(--st-text)] text-sm">{r.error}</span>
                           ) : r.desc ? (
                             <span className="text-sm">{r.desc}</span>
                           ) : (
-                            <span className="text-zoru-ink-muted italic text-sm">No description found</span>
+                            <span className="text-[var(--st-text-secondary)] italic text-sm">No description found</span>
                           )}
                         </TableCell>
                         <TableCell>
@@ -153,19 +153,19 @@ export default function DescriptionCheckerPage() {
                         </TableCell>
                         <TableCell>
                           {r.error ? (
-                            <div className="flex items-center text-zoru-ink text-xs gap-1">
+                            <div className="flex items-center text-[var(--st-text)] text-xs gap-1">
                               <AlertTriangle className="w-3 h-3" /> Error
                             </div>
                           ) : isMissing ? (
-                            <div className="flex items-center text-zoru-ink text-xs gap-1">
+                            <div className="flex items-center text-[var(--st-text)] text-xs gap-1">
                               <XCircle className="w-3 h-3" /> Missing
                             </div>
                           ) : isOk ? (
-                            <div className="flex items-center text-zoru-ink text-xs gap-1">
+                            <div className="flex items-center text-[var(--st-text)] text-xs gap-1">
                               <CheckCircle2 className="w-3 h-3" /> Good
                             </div>
                           ) : (
-                            <div className="flex items-center text-zoru-ink text-xs gap-1">
+                            <div className="flex items-center text-[var(--st-text)] text-xs gap-1">
                               <AlertTriangle className="w-3 h-3" /> {isTooShort ? 'Too short' : 'Too long'}
                             </div>
                           )}

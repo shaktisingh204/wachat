@@ -25,8 +25,8 @@ export function PinnedStrip({
 }: PinnedStripProps) {
     if (!pins.length) return null;
     return (
-        <div className="flex items-center gap-2 border-b border-zoru-line bg-zoru-surface-2/60 px-3 py-2">
-            <Pin className="h-3.5 w-3.5 text-zoru-ink-muted" />
+        <div className="flex items-center gap-2 border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]/60 px-3 py-2">
+            <Pin className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
             <div className="flex flex-1 gap-2 overflow-x-auto">
                 {pins.map((pin) => {
                     const id = String((pin as any)._id);
@@ -36,7 +36,7 @@ export function PinnedStrip({
                     return (
                         <div
                             key={id}
-                            className="flex shrink-0 items-center gap-2 rounded-full border border-zoru-line bg-zoru-bg px-3 py-1 text-[11.5px] text-zoru-ink"
+                            className="flex shrink-0 items-center gap-2 rounded-full border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-1 text-[11.5px] text-[var(--st-text)]"
                         >
                             <button
                                 type="button"

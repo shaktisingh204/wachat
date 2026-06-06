@@ -18,7 +18,7 @@ export default async function WorkflowEditorRoute({ params }: Props) {
   }
 
   return (
-    <Suspense fallback={<div className="p-8 text-center text-zoru-ink">Loading Workflow Editor...</div>}>
+    <Suspense fallback={<div className="p-8 text-center text-[var(--st-text)]">Loading Workflow Editor...</div>}>
       <N8NWorkflowEditorPage workflow={workflow as any} />
     </Suspense>
   );

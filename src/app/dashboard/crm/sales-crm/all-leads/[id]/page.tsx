@@ -194,7 +194,7 @@ export default function LeadDetailPage() {
         return (
             <div className="flex w-full flex-col gap-4">
                 <h1 className="text-xl font-semibold">Lead not found</h1>
-                <p className="text-sm text-zoru-ink-muted">
+                <p className="text-sm text-[var(--st-text-secondary)]">
                     The lead you're looking for has been removed or you don't have access.
                 </p>
                 <Button asChild variant="outline" className="w-fit">
@@ -370,10 +370,10 @@ export default function LeadDetailPage() {
                         />
                         {lead.description ? (
                             <div className="space-y-1 sm:col-span-2">
-                                <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                                <p className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                                     Notes
                                 </p>
-                                <p className="whitespace-pre-line text-sm text-zoru-ink">
+                                <p className="whitespace-pre-line text-sm text-[var(--st-text)]">
                                     {lead.description}
                                 </p>
                             </div>
@@ -390,7 +390,7 @@ export default function LeadDetailPage() {
                         <Field
                             label="Estimated value"
                             value={
-                                <span className="block truncate font-mono text-base text-zoru-ink" title={formatMoney(lead.value, lead.currency)}>
+                                <span className="block truncate font-mono text-base text-[var(--st-text)]" title={formatMoney(lead.value, lead.currency)}>
                                     {formatMoney(lead.value, lead.currency)}
                                 </span>
                             }
@@ -401,7 +401,7 @@ export default function LeadDetailPage() {
                             value={expectedClose ? expectedClose.toLocaleDateString('en-US', { timeZone: 'UTC' }) : '—'}
                         />
                         <div className="sm:col-span-3">
-                            <div className="flex items-center justify-between text-[12.5px] text-zoru-ink-muted">
+                            <div className="flex items-center justify-between text-[12.5px] text-[var(--st-text-secondary)]">
                                 <span>Probability</span>
                                 <span>{probability}%</span>
                             </div>
@@ -467,10 +467,10 @@ export default function LeadDetailPage() {
 function Field({ label, value }: { label: string; value: React.ReactNode }) {
     return (
         <div className="space-y-0.5">
-            <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+            <p className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                 {label}
             </p>
-            <div className="text-sm text-zoru-ink">{value}</div>
+            <div className="text-sm text-[var(--st-text)]">{value}</div>
         </div>
     );
 }

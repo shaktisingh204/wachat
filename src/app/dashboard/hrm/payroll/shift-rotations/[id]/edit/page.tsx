@@ -28,9 +28,9 @@ export default async function EditShiftRotationPage({
             subtitle="Update rotation scope, pattern and cycle."
         >
             <Suspense fallback={
-                <div className="flex h-64 items-center justify-center rounded-lg border border-zoru-line bg-zoru-surface">
-                    <div className="flex flex-col items-center gap-2 text-zoru-ink-muted">
-                        <LoaderCircle className="h-8 w-8 animate-spin text-zoru-primary" />
+                <div className="flex h-64 items-center justify-center rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+                    <div className="flex flex-col items-center gap-2 text-[var(--st-text-secondary)]">
+                        <LoaderCircle className="h-8 w-8 animate-spin text-[var(--st-text)]" />
                         <span className="text-sm font-medium">Loading rotation...</span>
                     </div>
                 </div>
@@ -52,7 +52,7 @@ async function EditShiftRotationContent({ rotationId }: { rotationId: string }) 
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-zoru-ink">{rotation.name}</h3>
+                <h3 className="text-lg font-semibold text-[var(--st-text)]">{rotation.name}</h3>
                 <ExportRotationButton rotation={rotation} shifts={shiftsRes.items ?? []} />
             </div>
             <RotationForm

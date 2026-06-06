@@ -285,9 +285,9 @@ export default function UrlShortenerPage() {
       <div className="flex min-h-full flex-col gap-6">
         {breadcrumbs}
         <Card className="p-10 text-center">
-          <AlertCircle className="mx-auto h-10 w-10 text-zoru-ink-muted/40 mb-4" />
-          <h3 className="text-sm text-zoru-ink mb-1">Not logged in</h3>
-          <p className="text-xs text-zoru-ink-muted">Please log in to use the URL Shortener.</p>
+          <AlertCircle className="mx-auto h-10 w-10 text-[var(--st-text-secondary)]/40 mb-4" />
+          <h3 className="text-sm text-[var(--st-text)] mb-1">Not logged in</h3>
+          <p className="text-xs text-[var(--st-text-secondary)]">Please log in to use the URL Shortener.</p>
         </Card>
       </div>
     );

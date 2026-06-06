@@ -212,14 +212,14 @@ export default function ProfileSettingsPage() {
       </Breadcrumb>
 
       <div className="flex items-start gap-3">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface text-zoru-ink">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
           <UserCog className="h-5 w-5" />
         </div>
         <div className="min-w-0">
-          <h1 className="text-[24px] leading-[1.2] tracking-[-0.015em] text-zoru-ink">
+          <h1 className="text-[24px] leading-[1.2] tracking-[-0.015em] text-[var(--st-text)]">
             Settings — Profile
           </h1>
-          <p className="mt-1 text-[13px] text-zoru-ink-muted">
+          <p className="mt-1 text-[13px] text-[var(--st-text-secondary)]">
             Manage the public face of your connected WhatsApp account — name,
             about, and profile picture.
           </p>
@@ -240,20 +240,20 @@ export default function ProfileSettingsPage() {
         </ZoruCardHeader>
         <ZoruCardContent className="grid gap-4 md:grid-cols-2">
           <div className="space-y-1">
-            <Label className="text-xs uppercase tracking-wide text-zoru-ink-muted">
+            <Label className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
               Phone number
             </Label>
-            <div className="flex items-center gap-2 text-sm text-zoru-ink">
-              <Phone className="h-4 w-4 text-zoru-ink-muted" />
+            <div className="flex items-center gap-2 text-sm text-[var(--st-text)]">
+              <Phone className="h-4 w-4 text-[var(--st-text-secondary)]" />
               <span className="font-mono">{phoneE164 ?? '—'}</span>
             </div>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs uppercase tracking-wide text-zoru-ink-muted">
+            <Label className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
               Last connected
             </Label>
-            <div className="flex items-center gap-2 text-sm text-zoru-ink">
-              <Clock className="h-4 w-4 text-zoru-ink-muted" />
+            <div className="flex items-center gap-2 text-sm text-[var(--st-text)]">
+              <Clock className="h-4 w-4 text-[var(--st-text-secondary)]" />
               <span>
                 {lastConnectedAt
                   ? new Date(lastConnectedAt).toLocaleString()
@@ -264,11 +264,11 @@ export default function ProfileSettingsPage() {
           {deviceMeta && (
             <>
               <div className="space-y-1">
-                <Label className="text-xs uppercase tracking-wide text-zoru-ink-muted">
+                <Label className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
                   Device Platform
                 </Label>
-                <div className="flex items-center gap-2 text-sm text-zoru-ink">
-                  <MonitorSmartphone className="h-4 w-4 text-zoru-ink-muted" />
+                <div className="flex items-center gap-2 text-sm text-[var(--st-text)]">
+                  <MonitorSmartphone className="h-4 w-4 text-[var(--st-text-secondary)]" />
                   <span>
                     {deviceMeta.platform ?? 'Unknown'}
                     {deviceMeta.appVersion ? ` (v${deviceMeta.appVersion})` : ''}
@@ -276,11 +276,11 @@ export default function ProfileSettingsPage() {
                 </div>
               </div>
               <div className="space-y-1">
-                <Label className="text-xs uppercase tracking-wide text-zoru-ink-muted">
+                <Label className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
                   Battery Level
                 </Label>
-                <div className="flex items-center gap-2 text-sm text-zoru-ink">
-                  <Battery className="h-4 w-4 text-zoru-ink-muted" />
+                <div className="flex items-center gap-2 text-sm text-[var(--st-text)]">
+                  <Battery className="h-4 w-4 text-[var(--st-text-secondary)]" />
                   <span>
                     {deviceMeta.batteryLevel !== undefined
                       ? `${deviceMeta.batteryLevel}%`
@@ -312,7 +312,7 @@ export default function ProfileSettingsPage() {
               maxLength={25}
               disabled={loading || pending}
             />
-            <p className="text-xs text-zoru-ink-muted">
+            <p className="text-xs text-[var(--st-text-secondary)]">
               Up to 25 characters.
             </p>
           </div>
@@ -328,7 +328,7 @@ export default function ProfileSettingsPage() {
               rows={3}
               disabled={loading || pending}
             />
-            <p className="text-xs text-zoru-ink-muted">
+            <p className="text-xs text-[var(--st-text-secondary)]">
               Up to 139 characters.
             </p>
           </div>
@@ -338,7 +338,7 @@ export default function ProfileSettingsPage() {
           <div className="space-y-2">
             <Label>Profile picture</Label>
             <div className="flex flex-wrap items-center gap-4">
-              <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border border-zoru-line bg-zoru-surface text-zoru-ink-muted">
+              <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]">
                 {profilePicUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -378,7 +378,7 @@ export default function ProfileSettingsPage() {
                   )}
               </div>
             </div>
-            <p className="text-xs text-zoru-ink-muted">
+            <p className="text-xs text-[var(--st-text-secondary)]">
               Square images work best. SabFiles only — external URLs are not
               accepted.
             </p>

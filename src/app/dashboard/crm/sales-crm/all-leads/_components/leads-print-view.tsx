@@ -35,14 +35,14 @@ export function LeadsPrintView({ lead }: { lead: WithId<CrmLead> }) {
 
     return (
         <div className="mx-auto max-w-3xl space-y-6 p-6 print:p-2">
-            <header className="border-b border-zoru-line pb-3">
-                <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+            <header className="border-b border-[var(--st-border)] pb-3">
+                <p className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                     Lead
                 </p>
                 <h1 className="text-2xl font-semibold">
                     {lead.title || lead.contactName || 'Untitled lead'}
                 </h1>
-                <p className="text-sm text-zoru-ink-muted">Status: {status}</p>
+                <p className="text-sm text-[var(--st-text-secondary)]">Status: {status}</p>
             </header>
             <PrintSection title="Contact">
                 <PrintRow label="Name" value={lead.contactName} />
@@ -86,8 +86,8 @@ function PrintSection({
     children: React.ReactNode;
 }) {
     return (
-        <section className="border-b border-zoru-line pb-3">
-            <h2 className="mb-1.5 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-subtle">
+        <section className="border-b border-[var(--st-border)] pb-3">
+            <h2 className="mb-1.5 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-tertiary)]">
                 {title}
             </h2>
             <div className="space-y-1">{children}</div>
@@ -98,8 +98,8 @@ function PrintSection({
 function PrintRow({ label, value }: { label: string; value: React.ReactNode }) {
     return (
         <div className="flex justify-between gap-3 text-sm">
-            <span className="text-zoru-ink-muted">{label}</span>
-            <span className="text-right text-zoru-ink">{value}</span>
+            <span className="text-[var(--st-text-secondary)]">{label}</span>
+            <span className="text-right text-[var(--st-text)]">{value}</span>
         </div>
     );
 }

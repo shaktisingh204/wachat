@@ -184,7 +184,7 @@ export function AnnouncementForm({
             <Card className="p-0">
                 <ZoruCardHeader>
                     <ZoruCardTitle>Content</ZoruCardTitle>
-                    <p className="text-[12px] text-zoru-ink-muted">
+                    <p className="text-[12px] text-[var(--st-text-secondary)]">
                         Title and body. Markdown supported in the body.
                     </p>
                 </ZoruCardHeader>
@@ -192,7 +192,7 @@ export function AnnouncementForm({
                     <div>
                         <Label htmlFor="title">
                             Title{' '}
-                            <span className="text-zoru-danger-ink">*</span>
+                            <span className="text-[var(--st-danger)]">*</span>
                         </Label>
                         <Input
                             id="title"
@@ -206,7 +206,7 @@ export function AnnouncementForm({
                     </div>
                     <div>
                         <Label htmlFor="body">
-                            Body <span className="text-zoru-danger-ink">*</span>
+                            Body <span className="text-[var(--st-danger)]">*</span>
                         </Label>
                         <Textarea
                             id="body"
@@ -218,7 +218,7 @@ export function AnnouncementForm({
                             className="mt-1.5 font-mono text-[12.5px]"
                             placeholder="Markdown or plain text…"
                         />
-                        <p className="mt-1 text-[11.5px] text-zoru-ink-muted">
+                        <p className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">
                             No shared rich-text editor in the repo today —
                             markdown is rendered on the detail page.
                         </p>
@@ -254,7 +254,7 @@ export function AnnouncementForm({
                             ) : null}
                         </div>
                         {bannerUrl ? (
-                            <div className="mt-2 truncate rounded-lg border border-zoru-line px-2 py-1.5 text-[12px] text-zoru-ink">
+                            <div className="mt-2 truncate rounded-lg border border-[var(--st-border)] px-2 py-1.5 text-[12px] text-[var(--st-text)]">
                                 {bannerName || bannerUrl}
                             </div>
                         ) : null}
@@ -301,7 +301,7 @@ export function AnnouncementForm({
             <Card className="p-0">
                 <ZoruCardHeader>
                     <ZoruCardTitle>Audience</ZoruCardTitle>
-                    <p className="text-[12px] text-zoru-ink-muted">
+                    <p className="text-[12px] text-[var(--st-text-secondary)]">
                         Choose who sees the announcement.
                     </p>
                 </ZoruCardHeader>
@@ -324,7 +324,7 @@ export function AnnouncementForm({
                     {audienceMode !== 'all' ? (
                         <div>
                             <Label>Target departments / teams</Label>
-                            <p className="mb-2 text-[11.5px] text-zoru-ink-muted">
+                            <p className="mb-2 text-[11.5px] text-[var(--st-text-secondary)]">
                                 Pick the recipients of this announcement.
                             </p>
                             <div className="flex flex-wrap items-end gap-2">
@@ -358,9 +358,9 @@ export function AnnouncementForm({
                                     {departments.map((d) => (
                                         <li
                                             key={d.id}
-                                            className="inline-flex items-center gap-1.5 rounded-full border border-zoru-line bg-zoru-surface-2 px-2 py-0.5 text-[12px]"
+                                            className="inline-flex items-center gap-1.5 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2 py-0.5 text-[12px]"
                                         >
-                                            <span className="text-zoru-ink">
+                                            <span className="text-[var(--st-text)]">
                                                 {d.name || d.id}
                                             </span>
                                             <button
@@ -369,7 +369,7 @@ export function AnnouncementForm({
                                                     removeDepartment(d.id)
                                                 }
                                                 aria-label={`Remove ${d.name || d.id}`}
-                                                className="text-zoru-ink-muted hover:text-zoru-danger-ink"
+                                                className="text-[var(--st-text-secondary)] hover:text-[var(--st-danger)]"
                                             >
                                                 <X className="h-3 w-3" />
                                             </button>
@@ -495,7 +495,7 @@ export function AnnouncementForm({
                 <ZoruCardHeader className="flex flex-row items-center justify-between gap-2">
                     <div>
                         <ZoruCardTitle>Attachments</ZoruCardTitle>
-                        <p className="text-[12px] text-zoru-ink-muted">
+                        <p className="text-[12px] text-[var(--st-text-secondary)]">
                             Files from your SabFiles library.
                         </p>
                     </div>
@@ -522,7 +522,7 @@ export function AnnouncementForm({
                 </ZoruCardHeader>
                 <ZoruCardContent>
                     {attachments.length === 0 ? (
-                        <p className="rounded-md border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-3 text-center text-[12px] text-zoru-ink-muted">
+                        <p className="rounded-md border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-3 text-center text-[12px] text-[var(--st-text-secondary)]">
                             No attachments yet.
                         </p>
                     ) : (
@@ -530,9 +530,9 @@ export function AnnouncementForm({
                             {attachments.map((a) => (
                                 <li
                                     key={a.id}
-                                    className="flex items-center justify-between gap-2 rounded-md border border-zoru-line px-2.5 py-1.5 text-[12.5px]"
+                                    className="flex items-center justify-between gap-2 rounded-md border border-[var(--st-border)] px-2.5 py-1.5 text-[12.5px]"
                                 >
-                                    <span className="truncate text-zoru-ink">
+                                    <span className="truncate text-[var(--st-text)]">
                                         {a.name}
                                     </span>
                                     <Button
@@ -556,14 +556,14 @@ export function AnnouncementForm({
             {state?.error ? (
                 <p
                     role="alert"
-                    className="text-sm text-zoru-danger-ink"
+                    className="text-sm text-[var(--st-danger)]"
                 >
                     {state.error}
                 </p>
             ) : null}
 
             {/* ── Sticky footer ───────────────────────────────────── */}
-            <div className="sticky bottom-0 -mx-4 -mb-4 mt-1 flex flex-wrap items-center justify-between gap-2 border-t border-zoru-line bg-zoru-bg px-4 py-3 md:-mx-6 md:px-6">
+            <div className="sticky bottom-0 -mx-4 -mb-4 mt-1 flex flex-wrap items-center justify-between gap-2 border-t border-[var(--st-border)] bg-[var(--st-bg)] px-4 py-3 md:-mx-6 md:px-6">
                 <Button variant="ghost" asChild>
                     <Link href={BASE}>
                         <ArrowLeft className="mr-2 h-4 w-4" /> Cancel

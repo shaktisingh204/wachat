@@ -44,7 +44,7 @@ export function AdminDuplicatePlanButton({
             onClick={handleClick}
             disabled={isPending}
             aria-label={`Duplicate ${planName}`}
-            className="text-zoru-ink hover:text-zoru-ink hover:bg-zoru-surface-2"
+            className="text-[var(--st-text)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
         >
             {isPending ? (
                 <LoaderCircle className="h-4 w-4 animate-spin" />

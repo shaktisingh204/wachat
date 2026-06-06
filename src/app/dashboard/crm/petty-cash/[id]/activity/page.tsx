@@ -21,7 +21,7 @@ export default async function PettyCashActivityPage({ params }: PageProps) {
             eyebrow="PETTY CASH ACTIVITY"
             back={{ href: `/dashboard/crm/petty-cash/${id}`, label: 'Back to float' }}
         >
-            <React.Suspense fallback={<div className="h-64 w-full animate-pulse bg-zoru-surface-2 rounded-md" />}>
+            <React.Suspense fallback={<div className="h-64 w-full animate-pulse bg-[var(--st-bg-muted)] rounded-md" />}>
                 <EntityAuditTimeline entityKind="petty_cash" entityId={id} />
             </React.Suspense>
         </EntityDetailShell>

@@ -85,13 +85,13 @@ export function ContactPanel({
   return (
     <aside
       className={cn(
-        'flex h-full w-full flex-col border-l border-zoru-line bg-zoru-bg',
+        'flex h-full w-full flex-col border-l border-[var(--st-border)] bg-[var(--st-bg)]',
         className,
       )}
       aria-label="Contact panel"
     >
-      <div className="flex h-14 shrink-0 items-center justify-between border-b border-zoru-line px-3">
-        <p className="text-sm font-semibold text-zoru-ink">Contact info</p>
+      <div className="flex h-14 shrink-0 items-center justify-between border-b border-[var(--st-border)] px-3">
+        <p className="text-sm font-semibold text-[var(--st-text)]">Contact info</p>
         {onClose ? (
           <Button
             type="button"
@@ -106,7 +106,7 @@ export function ContactPanel({
       </div>
 
       <ScrollArea className="flex-1">
-        <div className="flex flex-col items-center gap-2 border-b border-zoru-line px-4 py-6">
+        <div className="flex flex-col items-center gap-2 border-b border-[var(--st-border)] px-4 py-6">
           <Avatar className="h-24 w-24">
             {chat.profilePicUrl ? (
               <ZoruAvatarImage src={chat.profilePicUrl} alt={name} />
@@ -115,16 +115,16 @@ export function ContactPanel({
               {isGroup ? <Users className="h-8 w-8" /> : initials}
             </ZoruAvatarFallback>
           </Avatar>
-          <p className="text-base font-semibold text-zoru-ink">{name}</p>
-          <p className="text-xs text-zoru-ink-muted">{subtitle}</p>
+          <p className="text-base font-semibold text-[var(--st-text)]">{name}</p>
+          <p className="text-xs text-[var(--st-text-secondary)]">{subtitle}</p>
           {isGroup ? (
-            <p className="text-xs text-zoru-ink-muted">
+            <p className="text-xs text-[var(--st-text-secondary)]">
               {chat.participants ?? 0} participants
             </p>
           ) : null}
         </div>
 
-        <div className="grid grid-cols-3 gap-1 border-b border-zoru-line p-2 text-xs">
+        <div className="grid grid-cols-3 gap-1 border-b border-[var(--st-border)] p-2 text-xs">
           <Button
             type="button"
             variant="ghost"
@@ -146,7 +146,7 @@ export function ContactPanel({
           <Button
             type="button"
             variant="ghost"
-            className="flex-col gap-1 py-3 text-[11px] text-zoru-danger hover:text-zoru-danger"
+            className="flex-col gap-1 py-3 text-[11px] text-[var(--st-danger)] hover:text-[var(--st-danger)]"
             onClick={onBlock}
           >
             <Ban className="h-4 w-4" />
@@ -158,7 +158,7 @@ export function ContactPanel({
           <div
             role="group"
             aria-label="Media filter"
-            className="mb-3 grid grid-cols-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-0.5 text-xs"
+            className="mb-3 grid grid-cols-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-0.5 text-xs"
           >
             <Button
               type="button"
@@ -205,7 +205,7 @@ export function ContactPanel({
           </div>
 
           {active.length === 0 ? (
-            <div className="flex flex-col items-center gap-2 py-8 text-center text-xs text-zoru-ink-muted">
+            <div className="flex flex-col items-center gap-2 py-8 text-center text-xs text-[var(--st-text-secondary)]">
               {tab === 'photos' ? (
                 <ImageIcon className="h-6 w-6" aria-hidden />
               ) : tab === 'videos' ? (
@@ -220,10 +220,10 @@ export function ContactPanel({
               {active.map((m) => (
                 <li
                   key={m.messageId}
-                  className="flex items-center gap-2 rounded-[var(--zoru-radius)] p-2 hover:bg-zoru-surface-2"
+                  className="flex items-center gap-2 rounded-[var(--zoru-radius)] p-2 hover:bg-[var(--st-bg-muted)]"
                 >
-                  <FileText className="h-4 w-4 shrink-0 text-zoru-ink-muted" />
-                  <span className="truncate text-xs text-zoru-ink">
+                  <FileText className="h-4 w-4 shrink-0 text-[var(--st-text-secondary)]" />
+                  <span className="truncate text-xs text-[var(--st-text)]">
                     {m.body ?? m.caption ?? 'Document'}
                   </span>
                 </li>
@@ -239,7 +239,7 @@ export function ContactPanel({
                 // eslint-disable-next-line @next/next/no-img-element
                 <div
                   key={m.messageId}
-                  className="aspect-square overflow-hidden rounded-[var(--zoru-radius)] bg-zoru-surface"
+                  className="aspect-square overflow-hidden rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)]"
                 >
                   {tab === 'photos' ? (
                     // eslint-disable-next-line @next/next/no-img-element

@@ -318,7 +318,7 @@ export default function PermissionsPage() {
       filters={
         <>
           <div className="flex items-center gap-2">
-            <Label className="text-[12px] text-zoru-ink-muted">
+            <Label className="text-[12px] text-[var(--st-text-secondary)]">
               Module
             </Label>
             <Select
@@ -360,17 +360,17 @@ export default function PermissionsPage() {
       bulkBar={
         selected.size > 0 ? (
           <div className="flex flex-wrap items-center gap-2 text-[13px]">
-            <span className="font-medium text-zoru-ink">
+            <span className="font-medium text-[var(--st-text)]">
               {selected.size} selected
             </span>
-            <span className="text-zoru-ink-muted">·</span>
+            <span className="text-[var(--st-text-secondary)]">·</span>
             <Button
               variant="ghost"
               size="sm"
               disabled={bulkDeleting}
               onClick={() => setBulkDeleteOpen(true)}
             >
-              <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+              <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
               Delete
             </Button>
             <Button
@@ -444,19 +444,19 @@ export default function PermissionsPage() {
                       aria-label="Select all on page"
                     />
                   </ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
                     Name
                   </ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
                     Slug
                   </ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
                     Module
                   </ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
                     Type
                   </ZoruTableHead>
-                  <ZoruTableHead className="w-[140px] text-right text-zoru-ink-muted">
+                  <ZoruTableHead className="w-[140px] text-right text-[var(--st-text-secondary)]">
                     Actions
                   </ZoruTableHead>
                 </ZoruTableRow>
@@ -466,7 +466,7 @@ export default function PermissionsPage() {
                   <ZoruTableRow>
                     <ZoruTableCell
                       colSpan={6}
-                      className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                      className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                     >
                       <LoaderCircle className="mx-auto h-4 w-4 animate-spin" />
                     </ZoruTableCell>
@@ -475,7 +475,7 @@ export default function PermissionsPage() {
                   <ZoruTableRow>
                     <ZoruTableCell
                       colSpan={6}
-                      className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                      className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                     >
                       No permissions match the current filters.
                     </ZoruTableCell>
@@ -490,7 +490,7 @@ export default function PermissionsPage() {
                           aria-label={`Select ${p.name}`}
                         />
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-zoru-ink">
+                      <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                         <RowDrawer
                           label={p.display_name || p.name}
                           subtitle={p.description || undefined}
@@ -499,25 +499,25 @@ export default function PermissionsPage() {
                         >
                           <div className="space-y-3 text-sm">
                             <div>
-                              <div className="text-zoru-ink-muted text-xs">
+                              <div className="text-[var(--st-text-secondary)] text-xs">
                                 Slug
                               </div>
                               <div className="font-mono">{p.name}</div>
                             </div>
                             <div>
-                              <div className="text-zoru-ink-muted text-xs">
+                              <div className="text-[var(--st-text-secondary)] text-xs">
                                 Module
                               </div>
                               <div>{p.module_name}</div>
                             </div>
                             <div>
-                              <div className="text-zoru-ink-muted text-xs">
+                              <div className="text-[var(--st-text-secondary)] text-xs">
                                 Description
                               </div>
                               <div>{p.description || '—'}</div>
                             </div>
                             <div>
-                              <div className="text-zoru-ink-muted text-xs">
+                              <div className="text-[var(--st-text-secondary)] text-xs">
                                 Kind
                               </div>
                               <div>{p.is_custom ? 'Custom' : 'Built-in'}</div>
@@ -538,10 +538,10 @@ export default function PermissionsPage() {
                           </div>
                         </RowDrawer>
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-[12px] text-zoru-ink-muted">
+                      <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
                         <code>{p.name}</code>
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-[12px] text-zoru-ink-muted">
+                      <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
                         {p.module_name}
                       </ZoruTableCell>
                       <ZoruTableCell>
@@ -568,7 +568,7 @@ export default function PermissionsPage() {
                             onClick={() => setDeletingId(p._id)}
                             aria-label="Delete"
                           >
-                            <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                            <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                           </Button>
                         </div>
                       </ZoruTableCell>
@@ -611,7 +611,7 @@ export default function PermissionsPage() {
             ) : null}
             <div>
               <Label htmlFor="display_name">
-                Display name <span className="text-zoru-danger-ink">*</span>
+                Display name <span className="text-[var(--st-danger)]">*</span>
               </Label>
               <Input
                 id="display_name"
@@ -635,7 +635,7 @@ export default function PermissionsPage() {
                 id="module_id"
                 name="module_id"
                 defaultValue={editing?.module_id ? String(editing.module_id) : ''}
-                className="h-10 w-full rounded-lg border border-zoru-line bg-zoru-bg px-3 text-[13px] text-zoru-ink"
+                className="h-10 w-full rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] px-3 text-[13px] text-[var(--st-text)]"
               >
                 <option value="">— None —</option>
                 {modules.map((m) => (
@@ -661,9 +661,9 @@ export default function PermissionsPage() {
                 name="is_custom"
                 value="true"
                 defaultChecked={!!editing?.is_custom}
-                className="h-4 w-4 accent-zoru-ink"
+                className="h-4 w-4 accent-[var(--st-text)]"
               />
-              <Label htmlFor="is_custom" className="text-[13px] text-zoru-ink">
+              <Label htmlFor="is_custom" className="text-[13px] text-[var(--st-text)]">
                 Custom (user-defined)
               </Label>
             </div>

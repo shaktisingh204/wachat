@@ -15,9 +15,9 @@ export default function ErrorBoundary({
     }, [error]);
 
     return (
-        <div className="flex h-[400px] w-full flex-col items-center justify-center gap-4 rounded-[var(--zoru-radius)] border border-dashed border-zoru-line p-8 text-center bg-zoru-surface-1">
-            <h2 className="text-xl font-semibold text-zoru-ink">Failed to load activity</h2>
-            <p className="text-sm text-zoru-ink-muted">
+        <div className="flex h-[400px] w-full flex-col items-center justify-center gap-4 rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] p-8 text-center bg-[var(--st-bg-secondary)]">
+            <h2 className="text-xl font-semibold text-[var(--st-text)]">Failed to load activity</h2>
+            <p className="text-sm text-[var(--st-text-secondary)]">
                 {error.message || 'An unexpected error occurred while loading the warehouse activity.'}
             </p>
             <Button onClick={() => reset()} variant="outline">

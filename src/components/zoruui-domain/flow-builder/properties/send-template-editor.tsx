@@ -171,7 +171,7 @@ export function SendTemplateEditor({ node, onUpdate }: EditorProps) {
                                 Pick from SabFiles
                             </SabFileToFileButton>
                             {node.data.headerMedia?.base64 && (
-                                <p className="text-xs text-zoru-ink truncate">Media uploaded</p>
+                                <p className="text-xs text-[var(--st-text)] truncate">Media uploaded</p>
                             )}
                         </div>
                     )}
@@ -183,7 +183,7 @@ export function SendTemplateEditor({ node, onUpdate }: EditorProps) {
                     <Label>Template Variables</Label>
                     {variables.map(varNum => (
                         <div key={varNum} className="space-y-1">
-                            <Label htmlFor={`var-${varNum}`} className="text-xs text-zoru-ink-muted">Variable {'{{'}{varNum}{'}}'}</Label>
+                            <Label htmlFor={`var-${varNum}`} className="text-xs text-[var(--st-text-secondary)]">Variable {'{{'}{varNum}{'}}'}</Label>
                             <Input
                                 id={`var-${varNum}`}
                                 placeholder="Enter value or a variable like {{name}}"

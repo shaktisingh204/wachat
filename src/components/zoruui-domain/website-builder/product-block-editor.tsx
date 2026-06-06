@@ -51,7 +51,7 @@ export function ProductBlockEditor({ settings, onUpdate, blockType }: { settings
                     </div>
                 );
             case 'productAddToCart':
-                return <p className="text-sm text-zoru-ink-muted">This block has no specific settings.</p>
+                return <p className="text-sm text-[var(--st-text-secondary)]">This block has no specific settings.</p>
             default:
                 return null;
         }

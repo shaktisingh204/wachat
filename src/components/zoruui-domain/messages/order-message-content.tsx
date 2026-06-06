@@ -19,7 +19,7 @@ interface OrderMessageContentProps {
 
 export function OrderMessageContent({ order }: OrderMessageContentProps) {
   if (!order || !order.product_items) {
-    return <p className="text-sm italic text-zoru-ink-muted">[Error: Invalid order data]</p>;
+    return <p className="text-sm italic text-[var(--st-text-secondary)]">[Error: Invalid order data]</p>;
   }
   
   const totalAmount = order.product_items.reduce((sum, item) => sum + (parseFloat(item.item_price) * parseInt(item.quantity)), 0);
@@ -29,7 +29,7 @@ export function OrderMessageContent({ order }: OrderMessageContentProps) {
       <Card className="shadow-none border-0 bg-transparent">
         <ZoruCardHeader className="p-2">
             <div className="flex items-center gap-2">
-                 <IndianRupee className="h-5 w-5 text-zoru-ink"/>
+                 <IndianRupee className="h-5 w-5 text-[var(--st-text)]"/>
                 <ZoruCardTitle className="text-base">Order Details</ZoruCardTitle>
             </div>
         </ZoruCardHeader>
@@ -38,7 +38,7 @@ export function OrderMessageContent({ order }: OrderMessageContentProps) {
             <div key={item.product_retailer_id} className="flex justify-between items-center">
               <div>
                 <p className="font-medium">{item.product_retailer_id}</p>
-                <p className="text-zoru-ink-muted">Qty: {item.quantity}</p>
+                <p className="text-[var(--st-text-secondary)]">Qty: {item.quantity}</p>
               </div>
               <span className="font-mono">{item.currency} {(parseFloat(item.item_price) * parseInt(item.quantity)).toFixed(2)}</span>
             </div>
@@ -50,7 +50,7 @@ export function OrderMessageContent({ order }: OrderMessageContentProps) {
           </div>
         </ZoruCardContent>
          {order.text && (
-             <ZoruCardFooter className="p-2 text-xs text-zoru-ink-muted border-t mt-2 pt-2">
+             <ZoruCardFooter className="p-2 text-xs text-[var(--st-text-secondary)] border-t mt-2 pt-2">
                 <p>{order.text}</p>
              </ZoruCardFooter>
          )}

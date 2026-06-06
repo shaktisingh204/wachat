@@ -23,9 +23,9 @@ const STATUS_TONES: Record<string, 'neutral' | 'green' | 'amber' | 'red'> = {
 };
 
 function formatDate(value: unknown): React.ReactNode {
-  if (!value) return <span className="text-zoru-ink-muted">—</span>;
+  if (!value) return <span className="text-[var(--st-text-secondary)]">—</span>;
   const d = new Date(value as any);
-  if (isNaN(d.getTime())) return <span className="text-zoru-ink-muted">—</span>;
+  if (isNaN(d.getTime())) return <span className="text-[var(--st-text-secondary)]">—</span>;
   return d.toISOString().slice(0, 10);
 }
 

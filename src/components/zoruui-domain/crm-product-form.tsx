@@ -136,12 +136,12 @@ export function CrmProductForm({ product }: CrmProductFormProps) {
                                 <div className="flex items-center space-x-2"><Switch id="batchTracking" name="batchTracking" defaultChecked={product?.batchTracking || false}/><Label htmlFor="batchTracking">Track inventory in batches</Label></div>
                                 <div className="space-y-3">
                                     {batches.map((batch, index) => (
-                                        <div key={batch.id} className="grid grid-cols-[1fr,1fr,auto,auto,auto] items-end gap-2 p-2 border border-zoru-line rounded-md">
+                                        <div key={batch.id} className="grid grid-cols-[1fr,1fr,auto,auto,auto] items-end gap-2 p-2 border border-[var(--st-border)] rounded-md">
                                             <div className="space-y-1"><Label className="text-xs">Batch No.</Label><Input value={batch.batchNumber} onChange={e => handleBatchChange(batch.id, 'batchNumber', e.target.value)} /></div>
                                             <div className="space-y-1"><Label className="text-xs">Quantity</Label><Input type="number" value={batch.stock} onChange={e => handleBatchChange(batch.id, 'stock', Number(e.target.value))} /></div>
                                             <div className="space-y-1"><Label className="text-xs">Mfg. Date</Label><DatePicker value={batch.mfgDate ? new Date(batch.mfgDate) : undefined} onChange={(d: any) => handleBatchChange(batch.id, 'mfgDate', d)} /></div>
                                             <div className="space-y-1"><Label className="text-xs">Expiry Date</Label><DatePicker value={batch.expiryDate ? new Date(batch.expiryDate) : undefined} onChange={(d: any) => handleBatchChange(batch.id, 'expiryDate', d)} /></div>
-                                            <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveBatch(batch.id)}><Trash2 className="h-4 w-4 text-zoru-danger-ink"/></Button>
+                                            <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveBatch(batch.id)}><Trash2 className="h-4 w-4 text-[var(--st-danger)]"/></Button>
                                         </div>
                                     ))}
                                 </div>
@@ -185,7 +185,7 @@ export function CrmProductForm({ product }: CrmProductFormProps) {
                                         )}
                                     </div>
                                     {imageUrl && (
-                                        <p className="text-xs text-zoru-ink-muted truncate">
+                                        <p className="text-xs text-[var(--st-text-secondary)] truncate">
                                             <a href={imageUrl} target="_blank" rel="noreferrer" className="underline">{imageName || 'View current image'}</a>
                                         </p>
                                     )}
@@ -193,7 +193,7 @@ export function CrmProductForm({ product }: CrmProductFormProps) {
                                 <Separator />
                                 <div className="space-y-4">
                                     <div className="flex justify-between items-center"><Label>Variants (e.g., Size, Color)</Label><Button type="button" size="sm" variant="outline" onClick={handleAddVariant}><Plus className="mr-2 h-4 w-4"/>Add Variant</Button></div>
-                                    <div className="space-y-3">{variants.map(variant => (<div key={variant.id} className="grid grid-cols-[1fr,2fr,auto] items-center gap-2 p-2 border border-zoru-line rounded-md"><Input placeholder="Name (e.g. Color)" value={variant.name} onChange={e => handleVariantChange(variant.id, 'name', e.target.value)} /><Input placeholder="Options (comma-separated)" value={variant.options} onChange={e => handleVariantChange(variant.id, 'options', e.target.value)} /><Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveVariant(variant.id)}><Trash2 className="h-4 w-4 text-zoru-danger-ink"/></Button></div>))}</div>
+                                    <div className="space-y-3">{variants.map(variant => (<div key={variant.id} className="grid grid-cols-[1fr,2fr,auto] items-center gap-2 p-2 border border-[var(--st-border)] rounded-md"><Input placeholder="Name (e.g. Color)" value={variant.name} onChange={e => handleVariantChange(variant.id, 'name', e.target.value)} /><Input placeholder="Options (comma-separated)" value={variant.options} onChange={e => handleVariantChange(variant.id, 'options', e.target.value)} /><Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveVariant(variant.id)}><Trash2 className="h-4 w-4 text-[var(--st-danger)]"/></Button></div>))}</div>
                                 </div>
                             </ZoruAccordionContent>
                         </ZoruAccordionItem>

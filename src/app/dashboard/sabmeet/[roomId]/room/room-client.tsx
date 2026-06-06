@@ -192,17 +192,17 @@ export function RoomClient({ room }: RoomClientProps) {
   );
 
   return (
-    <div className="flex h-screen flex-col bg-zoru-ink text-white">
+    <div className="flex h-screen flex-col bg-[var(--st-text)] text-white">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2 border-b border-zoru-line">
+      <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--st-border)]">
         <div className="flex items-center gap-3">
           <Badge variant="default">LIVE</Badge>
           <div>
             <div className="text-sm font-medium">{room.name}</div>
-            <div className="text-xs text-zoru-ink-muted">{room.joinCode}</div>
+            <div className="text-xs text-[var(--st-text-secondary)]">{room.joinCode}</div>
           </div>
         </div>
-        <div className="text-xs text-zoru-ink-muted">{allTiles.length} in room</div>
+        <div className="text-xs text-[var(--st-text-secondary)]">{allTiles.length} in room</div>
       </div>
 
       {/* Tiles + side panel */}
@@ -237,7 +237,7 @@ export function RoomClient({ room }: RoomClientProps) {
       </div>
 
       {/* Controls bar */}
-      <div className="flex items-center justify-center gap-2 px-4 py-3 border-t border-zoru-line bg-zoru-ink">
+      <div className="flex items-center justify-center gap-2 px-4 py-3 border-t border-[var(--st-border)] bg-[var(--st-text)]">
         <ControlButton
           active={local.microphoneOn}
           onClick={toggleMic}
@@ -273,7 +273,7 @@ export function RoomClient({ room }: RoomClientProps) {
           <Hand className="h-4 w-4" />
         </ControlButton>
 
-        <div className="mx-2 h-6 w-px bg-zoru-ink" />
+        <div className="mx-2 h-6 w-px bg-[var(--st-text)]" />
 
         <ControlButton
           active={panel === 'participants'}
@@ -304,7 +304,7 @@ export function RoomClient({ room }: RoomClientProps) {
           <HelpCircle className="h-4 w-4" />
         </ControlButton>
 
-        <div className="mx-2 h-6 w-px bg-zoru-ink" />
+        <div className="mx-2 h-6 w-px bg-[var(--st-text)]" />
 
         <Button onClick={leave} variant="destructive" size="sm">
           <PhoneOff className="h-4 w-4 mr-2" /> Leave
@@ -337,10 +337,10 @@ function ControlButton({
       title={label}
       className={`grid h-10 w-10 place-items-center rounded-full border transition ${
         danger
-          ? 'border-zoru-line bg-zoru-ink/20 text-zoru-ink-muted'
+          ? 'border-[var(--st-border)] bg-[var(--st-text)]/20 text-[var(--st-text-secondary)]'
           : active
-            ? 'border-zoru-brand bg-zoru-brand/20 text-white'
-            : 'border-zoru-line bg-zoru-ink text-zoru-ink-muted hover:bg-zoru-ink'
+            ? 'border-[var(--st-accent)] bg-[var(--st-accent)]/20 text-white'
+            : 'border-[var(--st-border)] bg-[var(--st-text)] text-[var(--st-text-secondary)] hover:bg-[var(--st-text)]'
       }`}
     >
       {children}
@@ -362,7 +362,7 @@ function LocalTile({
   videoRef: React.RefObject<HTMLVideoElement | null>;
 }) {
   return (
-    <div className="relative aspect-video rounded-lg overflow-hidden bg-zoru-ink">
+    <div className="relative aspect-video rounded-lg overflow-hidden bg-[var(--st-text)]">
       <video
         ref={videoRef}
         autoPlay
@@ -371,8 +371,8 @@ function LocalTile({
         className={`h-full w-full object-cover ${cameraOn ? '' : 'opacity-0'}`}
       />
       {!cameraOn ? (
-        <div className="absolute inset-0 grid place-items-center text-zoru-ink-muted">
-          <div className="grid h-16 w-16 place-items-center rounded-full bg-zoru-ink text-xl font-medium">
+        <div className="absolute inset-0 grid place-items-center text-[var(--st-text-secondary)]">
+          <div className="grid h-16 w-16 place-items-center rounded-full bg-[var(--st-text)] text-xl font-medium">
             {displayName.charAt(0).toUpperCase()}
           </div>
         </div>
@@ -381,12 +381,12 @@ function LocalTile({
         <div className="rounded bg-black/60 px-2 py-0.5 text-xs">{displayName} (you)</div>
         <div className="flex gap-1">
           {handRaised ? (
-            <div className="rounded bg-zoru-ink/80 p-1">
+            <div className="rounded bg-[var(--st-text)]/80 p-1">
               <Hand className="h-3 w-3 text-black" />
             </div>
           ) : null}
           {!microphoneOn ? (
-            <div className="rounded bg-zoru-ink/80 p-1">
+            <div className="rounded bg-[var(--st-text)]/80 p-1">
               <MicOff className="h-3 w-3 text-white" />
             </div>
           ) : null}
@@ -402,12 +402,12 @@ function RemoteTile({ participant }: { participant: MeetRemoteParticipant }) {
     if (ref.current) ref.current.srcObject = participant.videoStream;
   }, [participant.videoStream]);
   return (
-    <div className="relative aspect-video rounded-lg overflow-hidden bg-zoru-ink">
+    <div className="relative aspect-video rounded-lg overflow-hidden bg-[var(--st-text)]">
       {participant.videoStream && participant.cameraOn ? (
         <video ref={ref} autoPlay playsInline className="h-full w-full object-cover" />
       ) : (
-        <div className="absolute inset-0 grid place-items-center text-zoru-ink-muted">
-          <div className="grid h-16 w-16 place-items-center rounded-full bg-zoru-ink text-xl font-medium">
+        <div className="absolute inset-0 grid place-items-center text-[var(--st-text-secondary)]">
+          <div className="grid h-16 w-16 place-items-center rounded-full bg-[var(--st-text)] text-xl font-medium">
             {participant.displayName.charAt(0).toUpperCase()}
           </div>
         </div>
@@ -418,12 +418,12 @@ function RemoteTile({ participant }: { participant: MeetRemoteParticipant }) {
         </div>
         <div className="flex gap-1">
           {participant.handRaised ? (
-            <div className="rounded bg-zoru-ink/80 p-1">
+            <div className="rounded bg-[var(--st-text)]/80 p-1">
               <Hand className="h-3 w-3 text-black" />
             </div>
           ) : null}
           {!participant.microphoneOn ? (
-            <div className="rounded bg-zoru-ink/80 p-1">
+            <div className="rounded bg-[var(--st-text)]/80 p-1">
               <MicOff className="h-3 w-3 text-white" />
             </div>
           ) : null}
@@ -453,10 +453,10 @@ function SidePanel({
   displayName: string;
 }) {
   return (
-    <aside className="w-80 border-l border-zoru-line bg-zoru-ink flex flex-col">
-      <div className="flex items-center justify-between border-b border-zoru-line px-3 py-2">
+    <aside className="w-80 border-l border-[var(--st-border)] bg-[var(--st-text)] flex flex-col">
+      <div className="flex items-center justify-between border-b border-[var(--st-border)] px-3 py-2">
         <div className="text-sm font-medium capitalize">{panel}</div>
-        <button onClick={onClose} className="text-zoru-ink-muted hover:text-white text-sm">
+        <button onClick={onClose} className="text-[var(--st-text-secondary)] hover:text-white text-sm">
           Close
         </button>
       </div>
@@ -483,14 +483,14 @@ function ParticipantsPanel({
   you: string;
 }) {
   return (
-    <ul className="divide-y divide-zoru-line">
+    <ul className="divide-y divide-[var(--st-border)]">
       <li className="px-3 py-2 text-sm">{you} (you)</li>
       {remotes.map(r => (
         <li key={r.id} className="px-3 py-2 text-sm flex items-center justify-between">
           <span>
             {r.displayName} {r.isHost ? '· Host' : ''}
           </span>
-          {!r.microphoneOn ? <MicOff className="h-3 w-3 text-zoru-ink-muted" /> : null}
+          {!r.microphoneOn ? <MicOff className="h-3 w-3 text-[var(--st-text-secondary)]" /> : null}
         </li>
       ))}
     </ul>
@@ -513,12 +513,12 @@ function ChatPanel({
     <div className="flex h-full flex-col">
       <div className="flex-1 overflow-y-auto px-3 py-2 space-y-2">
         {chat.length === 0 ? (
-          <div className="text-xs text-zoru-ink">No messages yet.</div>
+          <div className="text-xs text-[var(--st-text)]">No messages yet.</div>
         ) : (
           chat.map(m => (
             <div key={m.id} className="text-sm">
               <span className="font-medium text-white">{m.fromName}: </span>
-              <span className="text-zoru-ink-muted">{m.text}</span>
+              <span className="text-[var(--st-text-secondary)]">{m.text}</span>
             </div>
           ))
         )}
@@ -530,13 +530,13 @@ function ChatPanel({
           onSend(text);
           setText('');
         }}
-        className="flex gap-2 border-t border-zoru-line p-2"
+        className="flex gap-2 border-t border-[var(--st-border)] p-2"
       >
         <Input
           value={text}
           onChange={e => setText(e.target.value)}
           placeholder="Message everyone"
-          className="bg-zoru-ink border-zoru-line"
+          className="bg-[var(--st-text)] border-[var(--st-border)]"
         />
         <Button type="submit" size="sm" disabled={!text.trim()}>
           <Send className="h-4 w-4" />
@@ -579,19 +579,19 @@ function PollsPanel({ room, you }: { room: MeetRoom; you: string }) {
   return (
     <div className="p-3 space-y-3">
       {creating ? (
-        <div className="space-y-2 rounded border border-zoru-line p-2">
+        <div className="space-y-2 rounded border border-[var(--st-border)] p-2">
           <Input
             value={question}
             onChange={e => setQuestion(e.target.value)}
             placeholder="Question"
-            className="bg-zoru-ink border-zoru-line"
+            className="bg-[var(--st-text)] border-[var(--st-border)]"
           />
           <Textarea
             value={options}
             onChange={e => setOptions(e.target.value)}
             placeholder="One option per line"
             rows={3}
-            className="bg-zoru-ink border-zoru-line"
+            className="bg-[var(--st-text)] border-[var(--st-border)]"
           />
           <div className="flex justify-end gap-2">
             <Button variant="ghost" size="sm" onClick={() => setCreating(false)}>
@@ -608,12 +608,12 @@ function PollsPanel({ room, you }: { room: MeetRoom; you: string }) {
         </Button>
       )}
       {polls.length === 0 ? (
-        <div className="text-xs text-zoru-ink">No polls yet.</div>
+        <div className="text-xs text-[var(--st-text)]">No polls yet.</div>
       ) : (
         polls.map(p => {
           const total = p.options.reduce((a, b) => a + (b.voteCount ?? 0), 0);
           return (
-            <div key={p._id} className="rounded border border-zoru-line p-2 space-y-2">
+            <div key={p._id} className="rounded border border-[var(--st-border)] p-2 space-y-2">
               <div className="text-sm font-medium">{p.question}</div>
               {p.options.map(o => {
                 const pct = total ? Math.round(((o.voteCount ?? 0) / total) * 100) : 0;
@@ -621,17 +621,17 @@ function PollsPanel({ room, you }: { room: MeetRoom; you: string }) {
                   <button
                     key={o.id}
                     onClick={() => vote(p._id, o.id)}
-                    className="block w-full text-left text-xs rounded bg-zoru-ink hover:bg-zoru-ink p-2"
+                    className="block w-full text-left text-xs rounded bg-[var(--st-text)] hover:bg-[var(--st-text)] p-2"
                   >
                     <div className="flex justify-between">
                       <span>{o.label}</span>
-                      <span className="text-zoru-ink-muted">
+                      <span className="text-[var(--st-text-secondary)]">
                         {o.voteCount ?? 0} ({pct}%)
                       </span>
                     </div>
-                    <div className="mt-1 h-1 rounded bg-zoru-ink overflow-hidden">
+                    <div className="mt-1 h-1 rounded bg-[var(--st-text)] overflow-hidden">
                       <div
-                        className="h-full bg-zoru-brand"
+                        className="h-full bg-[var(--st-accent)]"
                         style={{ width: `${pct}%` }}
                       />
                     </div>
@@ -683,23 +683,23 @@ function QnaPanel({ room, you }: { room: MeetRoom; you: string }) {
           onChange={e => setQuestion(e.target.value)}
           placeholder="Ask a question"
           rows={2}
-          className="bg-zoru-ink border-zoru-line"
+          className="bg-[var(--st-text)] border-[var(--st-border)]"
         />
         <Button size="sm" onClick={ask} className="w-full" disabled={!question.trim()}>
           Submit
         </Button>
       </div>
       {items.length === 0 ? (
-        <div className="text-xs text-zoru-ink">No questions yet.</div>
+        <div className="text-xs text-[var(--st-text)]">No questions yet.</div>
       ) : (
         items.map(q => (
-          <div key={q._id} className="rounded border border-zoru-line p-2 space-y-1">
+          <div key={q._id} className="rounded border border-[var(--st-border)] p-2 space-y-1">
             <div className="text-sm">{q.question}</div>
-            <div className="text-xs text-zoru-ink-muted">
+            <div className="text-xs text-[var(--st-text-secondary)]">
               by {q.askerName ?? 'anonymous'} · {q.upvotes ?? 0} upvotes
             </div>
             {q.answered ? (
-              <div className="text-xs rounded bg-zoru-ink p-2">
+              <div className="text-xs rounded bg-[var(--st-text)] p-2">
                 <span className="font-medium">Answer: </span>
                 {q.answer}
               </div>
@@ -709,7 +709,7 @@ function QnaPanel({ room, you }: { room: MeetRoom; you: string }) {
                   value={answerText}
                   onChange={e => setAnswerText(e.target.value)}
                   rows={2}
-                  className="bg-zoru-ink border-zoru-line"
+                  className="bg-[var(--st-text)] border-[var(--st-border)]"
                 />
                 <div className="flex justify-end gap-2">
                   <Button size="sm" variant="ghost" onClick={() => setAnswering(null)}>

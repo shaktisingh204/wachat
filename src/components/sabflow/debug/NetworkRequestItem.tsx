@@ -16,26 +16,26 @@ type NetTab = 'headers' | 'request' | 'response';
 function methodClass(method: string): string {
   switch (method.toUpperCase()) {
     case 'GET':
-      return 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted';
+      return 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]';
     case 'POST':
-      return 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted';
+      return 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]';
     case 'PUT':
     case 'PATCH':
-      return 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted';
+      return 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]';
     case 'DELETE':
-      return 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted';
+      return 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]';
     default:
       return 'bg-[var(--gray-3)] text-[var(--gray-11)]';
   }
 }
 
 function statusClass(status: number | undefined, error: string | undefined): string {
-  if (error) return 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted';
+  if (error) return 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]';
   if (status === undefined) return 'bg-[var(--gray-3)] text-[var(--gray-10)]';
-  if (status >= 500) return 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted';
-  if (status >= 400) return 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted';
+  if (status >= 500) return 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]';
+  if (status >= 400) return 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]';
   if (status >= 200 && status < 300)
-    return 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted';
+    return 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]';
   return 'bg-[var(--gray-3)] text-[var(--gray-11)]';
 }
 
@@ -189,7 +189,7 @@ function Pane({
         className={
           'mb-1 text-[10px] font-semibold uppercase tracking-wide ' +
           (tone === 'error'
-            ? 'text-zoru-ink dark:text-zoru-ink-muted'
+            ? 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]'
             : 'text-[var(--gray-9)]')
         }
       >
@@ -199,7 +199,7 @@ function Pane({
         className={
           'max-h-[220px] overflow-auto whitespace-pre-wrap break-all rounded bg-[var(--gray-1)] p-2 font-mono text-[11px] leading-snug ' +
           (tone === 'error'
-            ? 'text-zoru-ink dark:text-zoru-ink-muted'
+            ? 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]'
             : 'text-[var(--gray-11)]')
         }
       >

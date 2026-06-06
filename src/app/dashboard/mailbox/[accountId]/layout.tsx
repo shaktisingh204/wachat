@@ -34,7 +34,7 @@ export default async function MailboxAccountLayout({
 
     return (
         <div className="zoruui flex min-h-full flex-col">
-            <header className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-3 border-b border-zoru-line bg-zoru-bg/95 px-4 py-3 backdrop-blur">
+            <header className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-3 border-b border-[var(--st-border)] bg-[var(--st-bg)]/95 px-4 py-3 backdrop-blur">
                 <div className="flex items-center gap-3">
                     <Button asChild variant="ghost" size="sm">
                         <Link href="/dashboard/mailbox">
@@ -42,10 +42,10 @@ export default async function MailboxAccountLayout({
                             Mailbox
                         </Link>
                     </Button>
-                    <span className="text-sm font-medium text-zoru-ink">
+                    <span className="text-sm font-medium text-[var(--st-text)]">
                         {account.displayName ?? email}
                     </span>
-                    <span className="text-xs text-zoru-ink-muted">{email}</span>
+                    <span className="text-xs text-[var(--st-text-secondary)]">{email}</span>
                 </div>
                 <nav className="flex flex-wrap gap-1">
                     {links.map((l) => (

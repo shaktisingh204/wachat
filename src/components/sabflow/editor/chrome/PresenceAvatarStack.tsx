@@ -159,8 +159,8 @@ const AvatarTile = React.memo(function AvatarTile({
 
 	const tileClass = cn(
 		'relative inline-flex h-7 w-7 items-center justify-center rounded-md',
-		'bg-zoru-surface-2 text-[10px] font-semibold uppercase text-zoru-ink',
-		'dark:bg-zoru-ink dark:text-white',
+		'bg-[var(--st-bg-muted)] text-[10px] font-semibold uppercase text-[var(--st-text)]',
+		'dark:bg-[var(--st-text)] dark:text-white',
 		'transition-opacity',
 		isIdle && 'opacity-50',
 		onPeerClick &&
@@ -177,7 +177,7 @@ const AvatarTile = React.memo(function AvatarTile({
 	const dotClass = cn(
 		'absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full ring-2',
 		'ring-background',
-		isIdle ? 'bg-zoru-surface-2' : 'bg-zoru-ink',
+		isIdle ? 'bg-[var(--st-bg-muted)]' : 'bg-[var(--st-text)]',
 	);
 
 	const inner = (
@@ -203,7 +203,7 @@ const AvatarTile = React.memo(function AvatarTile({
 	const tooltipBody = (
 		<div className="flex flex-col gap-0.5 text-left">
 			<span className="font-semibold leading-tight">{peer.name}</span>
-			<span className="text-[10px] leading-tight text-zoru-ink-muted">
+			<span className="text-[10px] leading-tight text-[var(--st-text-secondary)]">
 				{isIdle ? `Idle · ${lastActive}` : `Active · ${lastActive}`}
 			</span>
 		</div>
@@ -266,10 +266,10 @@ const OverflowPill = React.memo(function OverflowPill({
 					aria-label={`${count} more ${count === 1 ? 'collaborator' : 'collaborators'}`}
 					className={cn(
 						'relative inline-flex h-7 min-w-7 items-center justify-center rounded-md',
-						'border-2 border-background bg-zoru-surface-2 px-1.5 text-[10px] font-semibold text-zoru-ink',
-						'hover:bg-zoru-surface-2 focus-visible:outline-none focus-visible:ring-2',
+						'border-2 border-background bg-[var(--st-bg-muted)] px-1.5 text-[10px] font-semibold text-[var(--st-text)]',
+						'hover:bg-[var(--st-bg-muted)] focus-visible:outline-none focus-visible:ring-2',
 						'focus-visible:ring-offset-2 focus-visible:ring-offset-zoru-surface',
-						'dark:bg-zoru-ink dark:text-white dark:hover:bg-zoru-ink',
+						'dark:bg-[var(--st-text)] dark:text-white dark:hover:bg-[var(--st-text)]',
 					)}
 					style={{ zIndex: 0 }}
 				>
@@ -284,7 +284,7 @@ const OverflowPill = React.memo(function OverflowPill({
 				// canvas can occlude on small viewports.
 				onCloseAutoFocus={(e) => e.preventDefault()}
 			>
-				<div className="mb-1.5 px-2 text-[11px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+				<div className="mb-1.5 px-2 text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
 					{count} more
 				</div>
 				<ul className="flex flex-col" role="list">
@@ -297,11 +297,11 @@ const OverflowPill = React.memo(function OverflowPill({
 							'flex items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm',
 							'transition-colors',
 							isIdle && 'opacity-60',
-							onPeerClick && 'hover:bg-zoru-surface-2 cursor-pointer',
+							onPeerClick && 'hover:bg-[var(--st-bg-muted)] cursor-pointer',
 						);
 						const tile = (
 							<span
-								className="relative inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-zoru-surface-2 text-[9px] font-semibold uppercase text-zoru-ink dark:bg-zoru-ink dark:text-white"
+								className="relative inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-[var(--st-bg-muted)] text-[9px] font-semibold uppercase text-[var(--st-text)] dark:bg-[var(--st-text)] dark:text-white"
 								style={{ border: `2px solid ${color}` }}
 								aria-hidden="true"
 							>
@@ -322,10 +322,10 @@ const OverflowPill = React.memo(function OverflowPill({
 							<>
 								{tile}
 								<span className="flex min-w-0 flex-col">
-									<span className="truncate font-medium text-zoru-ink">
+									<span className="truncate font-medium text-[var(--st-text)]">
 										{peer.name}
 									</span>
-									<span className="truncate text-[10px] text-zoru-ink-muted">
+									<span className="truncate text-[10px] text-[var(--st-text-secondary)]">
 										{isIdle ? `Idle · ${lastActive}` : `Active · ${lastActive}`}
 									</span>
 								</span>

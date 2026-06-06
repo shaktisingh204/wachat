@@ -67,7 +67,7 @@ export function NewDeckButton() {
                         }}
                     />
                     {error ? (
-                        <p className="text-sm text-zoru-ink">{error}</p>
+                        <p className="text-sm text-[var(--st-text)]">{error}</p>
                     ) : null}
                 </div>
                 <ZoruDialogFooter>

@@ -152,24 +152,24 @@ export function WebhookForm({ open, onOpenChange, webhook, onSaved }: WebhookFor
                   <label
                     key={ev.value}
                     htmlFor={inputId}
-                    className="flex cursor-pointer items-center gap-2 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface px-2 py-1.5 text-xs hover:bg-zoru-surface-2"
+                    className="flex cursor-pointer items-center gap-2 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1.5 text-xs hover:bg-[var(--st-bg-muted)]"
                   >
                     <Checkbox
                       id={inputId}
                       checked={checked}
                       onCheckedChange={() => toggleEvent(ev.value)}
                     />
-                    <span className="font-mono text-zoru-ink">{ev.label}</span>
+                    <span className="font-mono text-[var(--st-text)]">{ev.label}</span>
                   </label>
                 );
               })}
             </div>
           </div>
 
-          <div className="flex items-center justify-between rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface px-3 py-2">
+          <div className="flex items-center justify-between rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2">
             <div>
               <Label htmlFor="hook-active">Active</Label>
-              <p className="text-xs text-zoru-ink-muted">
+              <p className="text-xs text-[var(--st-text-secondary)]">
                 Inactive webhooks receive no deliveries.
               </p>
             </div>
@@ -183,8 +183,8 @@ export function WebhookForm({ open, onOpenChange, webhook, onSaved }: WebhookFor
           {webhook?.signingSecret ? (
             <div className="space-y-1.5">
               <Label>Signing secret</Label>
-              <div className="flex items-center gap-2 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface-2 p-2">
-                <code className="flex-1 truncate text-xs text-zoru-ink">
+              <div className="flex items-center gap-2 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2">
+                <code className="flex-1 truncate text-xs text-[var(--st-text)]">
                   {webhook.signingSecret}
                 </code>
                 <Button
@@ -197,7 +197,7 @@ export function WebhookForm({ open, onOpenChange, webhook, onSaved }: WebhookFor
                   {copied ? 'Copied' : 'Copy'}
                 </Button>
               </div>
-              <p className="text-xs text-zoru-ink-muted">
+              <p className="text-xs text-[var(--st-text-secondary)]">
                 Use this secret to verify the <code>X-SabNode-Signature</code> header.
               </p>
             </div>

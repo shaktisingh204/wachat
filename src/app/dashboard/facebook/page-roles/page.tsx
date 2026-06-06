@@ -103,20 +103,20 @@ function StatTile({
   icon: React.ReactNode;
 }) {
   return (
-    <div className="rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-4">
+    <div className="rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4">
       <div className="flex items-start justify-between">
-        <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink [&_svg]:size-4">
+        <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)] [&_svg]:size-4">
           {icon}
         </span>
       </div>
-      <div className="mt-3 text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+      <div className="mt-3 text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
         {label}
       </div>
-      <div className="mt-1 text-[22px] tracking-[-0.01em] text-zoru-ink leading-none">
+      <div className="mt-1 text-[22px] tracking-[-0.01em] text-[var(--st-text)] leading-none">
         {value}
       </div>
       {hint ? (
-        <div className="mt-1 truncate text-[11px] text-zoru-ink-muted">
+        <div className="mt-1 truncate text-[11px] text-[var(--st-text-secondary)]">
           {hint}
         </div>
       ) : null}
@@ -166,7 +166,7 @@ export default function PageRolesPage() {
         accessorKey: "name",
         header: "Name",
         cell: ({ row }) => (
-          <span className="text-[13px] text-zoru-ink">
+          <span className="text-[13px] text-[var(--st-text)]">
             {row.original.name}
           </span>
         ),
@@ -188,7 +188,7 @@ export default function PageRolesPage() {
         accessorKey: "name",
         header: "Name",
         cell: ({ row }) => (
-          <span className="text-[13px] text-zoru-ink">
+          <span className="text-[13px] text-[var(--st-text)]">
             {row.original.name || row.original.id}
           </span>
         ),
@@ -197,7 +197,7 @@ export default function PageRolesPage() {
         accessorKey: "id",
         header: "Profile ID",
         cell: ({ row }) => (
-          <span className="font-mono text-[11.5px] text-zoru-ink-muted">
+          <span className="font-mono text-[11.5px] text-[var(--st-text-secondary)]">
             {row.original.id}
           </span>
         ),
@@ -247,7 +247,7 @@ export default function PageRolesPage() {
 
       <PageHeader className="mt-5" bordered={false}>
         <ZoruPageHeading>
-          <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-zoru-ink-subtle">
+          <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--st-text-tertiary)]">
             Page access control
           </p>
           <ZoruPageTitle>Page roles &amp; blocked profiles</ZoruPageTitle>
@@ -320,10 +320,10 @@ export default function PageRolesPage() {
             <Card className="p-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-zoru-ink-subtle">
+                  <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--st-text-tertiary)]">
                     Page roles
                   </p>
-                  <p className="mt-1 text-[15px] text-zoru-ink">
+                  <p className="mt-1 text-[15px] text-[var(--st-text)]">
                     {roles.length} role{roles.length !== 1 ? "s" : ""} assigned
                   </p>
                 </div>
@@ -356,10 +356,10 @@ export default function PageRolesPage() {
             <Card className="p-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-zoru-ink-subtle">
+                  <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--st-text-tertiary)]">
                     Blocked profiles
                   </p>
-                  <p className="mt-1 text-[15px] text-zoru-ink">
+                  <p className="mt-1 text-[15px] text-[var(--st-text)]">
                     {blocked.length} profile{blocked.length !== 1 ? "s" : ""}{" "}
                     blocked
                   </p>

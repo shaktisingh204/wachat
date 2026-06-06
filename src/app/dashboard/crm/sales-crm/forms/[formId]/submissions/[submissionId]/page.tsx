@@ -49,18 +49,18 @@ function fmtDateTime(v?: string | Date): string {
 
 
 function GenericFieldRenderer({ type, value }: { type?: string; value: unknown }) {
-    if (value == null || value === '') return <span className="text-zoru-ink-muted">—</span>;
+    if (value == null || value === '') return <span className="text-[var(--st-text-secondary)]">—</span>;
 
     if (type === 'email') {
         return (
-            <a href={`mailto:${value}`} className="text-zoru-primary hover:underline">
+            <a href={`mailto:${value}`} className="text-[var(--st-text)] hover:underline">
                 {String(value)}
             </a>
         );
     }
     if (type === 'url') {
         return (
-            <a href={String(value)} target="_blank" rel="noopener noreferrer" className="text-zoru-primary hover:underline">
+            <a href={String(value)} target="_blank" rel="noopener noreferrer" className="text-[var(--st-text)] hover:underline">
                 {String(value)}
             </a>
         );
@@ -98,10 +98,10 @@ function GenericFieldRenderer({ type, value }: { type?: string; value: unknown }
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
     return (
         <div>
-            <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+            <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                 {label}
             </div>
-            <div className="mt-1 break-words text-[13px] text-zoru-ink">{children}</div>
+            <div className="mt-1 break-words text-[13px] text-[var(--st-text)]">{children}</div>
         </div>
     );
 }
@@ -170,16 +170,16 @@ export default async function SubmissionDetailPage({ params }: PageProps) {
                         <ZoruCardContent>
                             <div className="space-y-2 text-[12.5px]">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-zoru-ink-muted">Current</span>
+                                    <span className="text-[var(--st-text-secondary)]">Current</span>
                                     <Badge variant="outline">{status}</Badge>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <span className="text-zoru-ink-muted">Submitted</span>
+                                    <span className="text-[var(--st-text-secondary)]">Submitted</span>
                                     <span>{fmtDateTime(createdAt)}</span>
                                 </div>
                                 {submission.processedAt ? (
                                     <div className="flex items-center justify-between">
-                                        <span className="text-zoru-ink-muted">Processed</span>
+                                        <span className="text-[var(--st-text-secondary)]">Processed</span>
                                         <span>{fmtDateTime(submission.processedAt)}</span>
                                     </div>
                                 ) : null}
@@ -194,14 +194,14 @@ export default async function SubmissionDetailPage({ params }: PageProps) {
                         <ZoruCardContent>
                             <div className="space-y-3 text-[12.5px]">
                                 <div>
-                                    <div className="text-zoru-ink-muted">Source URL</div>
-                                    <div className="mt-0.5 break-all text-zoru-ink">
+                                    <div className="text-[var(--st-text-secondary)]">Source URL</div>
+                                    <div className="mt-0.5 break-all text-[var(--st-text)]">
                                         {submission.sourceUrl ? (
                                             <a
                                                 href={submission.sourceUrl}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="text-zoru-primary hover:underline"
+                                                className="text-[var(--st-text)] hover:underline"
                                             >
                                                 {submission.sourceUrl}
                                             </a>
@@ -211,20 +211,20 @@ export default async function SubmissionDetailPage({ params }: PageProps) {
                                     </div>
                                 </div>
                                 <div>
-                                    <div className="text-zoru-ink-muted">Referrer</div>
-                                    <div className="mt-0.5 break-all text-zoru-ink">
+                                    <div className="text-[var(--st-text-secondary)]">Referrer</div>
+                                    <div className="mt-0.5 break-all text-[var(--st-text)]">
                                         {submission.referrer || '—'}
                                     </div>
                                 </div>
                                 <div>
-                                    <div className="text-zoru-ink-muted">IP address</div>
-                                    <div className="mt-0.5 text-zoru-ink">
+                                    <div className="text-[var(--st-text-secondary)]">IP address</div>
+                                    <div className="mt-0.5 text-[var(--st-text)]">
                                         {submission.ipAddress || '—'}
                                     </div>
                                 </div>
                                 <div>
-                                    <div className="text-zoru-ink-muted">User agent</div>
-                                    <div className="mt-0.5 break-words text-zoru-ink">
+                                    <div className="text-[var(--st-text-secondary)]">User agent</div>
+                                    <div className="mt-0.5 break-words text-[var(--st-text)]">
                                         {submission.userAgent || '—'}
                                     </div>
                                 </div>
@@ -237,7 +237,7 @@ export default async function SubmissionDetailPage({ params }: PageProps) {
                             <ZoruCardTitle>Submission ID</ZoruCardTitle>
                         </ZoruCardHeader>
                         <ZoruCardContent>
-                            <code className="block break-all rounded bg-zoru-surface-2 px-2 py-1.5 text-[11.5px] text-zoru-ink-muted">
+                            <code className="block break-all rounded bg-[var(--st-bg-muted)] px-2 py-1.5 text-[11.5px] text-[var(--st-text-secondary)]">
                                 {submissionId}
                             </code>
                         </ZoruCardContent>
@@ -251,7 +251,7 @@ export default async function SubmissionDetailPage({ params }: PageProps) {
                 </ZoruCardHeader>
                 <ZoruCardContent>
                     {fieldDefs.length === 0 && extras.length === 0 ? (
-                        <p className="text-[13px] text-zoru-ink-muted">
+                        <p className="text-[13px] text-[var(--st-text-secondary)]">
                             This submission has no recorded fields.
                         </p>
                     ) : (
@@ -280,17 +280,17 @@ export default async function SubmissionDetailPage({ params }: PageProps) {
                         <div className="space-y-2 text-[13px]">
                             {submission.processedAt ? (
                                 <div className="flex items-start gap-2">
-                                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-zoru-success" />
+                                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--st-status-ok)]" />
                                     <div>
-                                        <div className="text-zoru-ink">Marked as processed</div>
-                                        <div className="text-[11.5px] text-zoru-ink-muted">
+                                        <div className="text-[var(--st-text)]">Marked as processed</div>
+                                        <div className="text-[11.5px] text-[var(--st-text-secondary)]">
                                             {fmtDateTime(submission.processedAt)}
                                         </div>
                                     </div>
                                 </div>
                             ) : null}
                             {submission.notes ? (
-                                <p className="whitespace-pre-wrap text-zoru-ink">
+                                <p className="whitespace-pre-wrap text-[var(--st-text)]">
                                     {submission.notes}
                                 </p>
                             ) : null}

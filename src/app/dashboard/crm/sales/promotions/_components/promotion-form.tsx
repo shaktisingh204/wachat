@@ -139,7 +139,7 @@ export function PromotionForm({ initialData }: PromotionFormProps) {
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
                         <Label htmlFor="name">
-                            Name <span className="text-zoru-ink">*</span>
+                            Name <span className="text-[var(--st-text)]">*</span>
                         </Label>
                         <Input
                             id="name"

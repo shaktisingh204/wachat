@@ -272,8 +272,8 @@ function AttachmentRow({
     <ul className="mt-2 flex flex-wrap gap-2" aria-label="Attachments">
       {attachments.map((att) => {
         const chip = (
-          <span className="inline-flex max-w-[14rem] items-center gap-1.5 rounded-md border border-zoru-line bg-zoru-surface-muted px-2 py-1 text-xs text-zoru-ink">
-            <Paperclip className="h-3 w-3 shrink-0 text-zoru-ink-muted" aria-hidden="true" />
+          <span className="inline-flex max-w-[14rem] items-center gap-1.5 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2 py-1 text-xs text-[var(--st-text)]">
+            <Paperclip className="h-3 w-3 shrink-0 text-[var(--st-text-secondary)]" aria-hidden="true" />
             <span className="min-w-0 truncate">{att.name}</span>
           </span>
         );
@@ -331,7 +331,7 @@ function TimelineEntry({
       />
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm">
-          <span className="font-medium text-zoru-ink">{authorName}</span>
+          <span className="font-medium text-[var(--st-text)]">{authorName}</span>
           {!isComment && (
             <Badge
               kind="outline"
@@ -344,20 +344,20 @@ function TimelineEntry({
           <time
             dateTime={isoDateTime}
             title={new Date(createdAtMs).toLocaleString()}
-            className="text-xs text-zoru-ink-muted"
+            className="text-xs text-[var(--st-text-secondary)]"
           >
             {pending ? 'Saving…' : relativeTime(activity.createdAt, nowMs)}
           </time>
         </div>
 
         {!isComment && activity.title ? (
-          <p className="mt-0.5 text-sm font-medium text-zoru-ink">
+          <p className="mt-0.5 text-sm font-medium text-[var(--st-text)]">
             {activity.title}
           </p>
         ) : null}
 
         {activity.body ? (
-          <p className="mt-1 whitespace-pre-wrap break-words text-sm text-zoru-ink-muted">
+          <p className="mt-1 whitespace-pre-wrap break-words text-sm text-[var(--st-text-secondary)]">
             {activity.body}
           </p>
         ) : null}
@@ -410,7 +410,7 @@ function Composer({
   return (
     <Card padding="sm" className="flex flex-col gap-3">
       <div className="flex items-center gap-2">
-          <label htmlFor="activity-type-select" className="text-sm font-medium text-zoru-ink">
+          <label htmlFor="activity-type-select" className="text-sm font-medium text-[var(--st-text)]">
             Activity type
           </label>
           <Select
@@ -446,15 +446,15 @@ function Composer({
           <ul className="flex flex-wrap gap-2" aria-label="Pending attachments">
             {attachments.map((att) => (
               <li key={att.fileId}>
-                <span className="inline-flex max-w-[14rem] items-center gap-1.5 rounded-md border border-zoru-line bg-zoru-surface-muted px-2 py-1 text-xs text-zoru-ink">
-                  <Paperclip className="h-3 w-3 shrink-0 text-zoru-ink-muted" aria-hidden="true" />
+                <span className="inline-flex max-w-[14rem] items-center gap-1.5 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2 py-1 text-xs text-[var(--st-text)]">
+                  <Paperclip className="h-3 w-3 shrink-0 text-[var(--st-text-secondary)]" aria-hidden="true" />
                   <span className="min-w-0 truncate">{att.name}</span>
                   <button
                     type="button"
                     onClick={() => onRemoveAttachment(att.fileId)}
                     disabled={submitting}
                     aria-label={`Remove ${att.name}`}
-                    className="ml-0.5 rounded-sm text-zoru-ink-muted transition-colors hover:text-zoru-ink disabled:opacity-50"
+                    className="ml-0.5 rounded-sm text-[var(--st-text-secondary)] transition-colors hover:text-[var(--st-text)] disabled:opacity-50"
                   >
                     <X className="h-3 w-3" aria-hidden="true" />
                   </button>
@@ -464,7 +464,7 @@ function Composer({
           </ul>
         )}
 
-        <p id="activity-submit-hint" className="text-xs text-zoru-ink-muted">
+        <p id="activity-submit-hint" className="text-xs text-[var(--st-text-secondary)]">
           Tip: Press Ctrl+Enter or Cmd+Enter to submit
         </p>
 
@@ -785,7 +785,7 @@ export function ActivityTimeline({
               {groups.map((group) => (
                 <section key={group.key} aria-label={`Activity from ${group.heading}`}>
                   <h2 className="mb-3 flex items-center gap-3">
-                    <span className="text-xs font-medium uppercase tracking-wide text-zoru-ink-muted">
+                    <span className="text-xs font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                       {group.heading}
                     </span>
                     <Separator className="flex-1" aria-hidden="true" />

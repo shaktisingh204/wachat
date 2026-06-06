@@ -15,11 +15,11 @@ export default function RewardsLayout({
   return (
     <div className="zoruui flex flex-col gap-4 p-4 md:p-6">
       <header className="flex flex-col gap-2">
-        <p className="text-[11px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           CRM · Sales
         </p>
-        <h1 className="text-2xl font-semibold text-zoru-ink">Rewards</h1>
-        <p className="max-w-2xl text-sm text-zoru-ink-muted">
+        <h1 className="text-2xl font-semibold text-[var(--st-text)]">Rewards</h1>
+        <p className="max-w-2xl text-sm text-[var(--st-text-secondary)]">
           Unified loyalty, referral and redemption surface. Programs reuse the
           existing tier engine; catalog images come from SabFiles.
         </p>

@@ -489,8 +489,8 @@ export default function WhatsAppAdsPage(): React.ReactElement {
       <div>
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-[22px] leading-none tracking-tight text-zoru-ink">Campaigns</h2>
-            <p className="mt-1.5 text-[12.5px] text-zoru-ink-muted">
+            <h2 className="text-[22px] leading-none tracking-tight text-[var(--st-text)]">Campaigns</h2>
+            <p className="mt-1.5 text-[12.5px] text-[var(--st-text-secondary)]">
               {dataLoading && campaigns.length === 0
                 ? 'Loading…'
                 : `${campaigns.length} CTW-eligible campaign${campaigns.length === 1 ? '' : 's'} · last 30 days insights`}
@@ -562,7 +562,7 @@ export default function WhatsAppAdsPage(): React.ReactElement {
               />
             </div>
           ) : (
-            <div className="divide-y divide-zoru-line">
+            <div className="divide-y divide-[var(--st-border)]">
               {campaigns.map((c) => (
                 <CampaignRow
                   key={c.id}
@@ -582,10 +582,10 @@ export default function WhatsAppAdsPage(): React.ReactElement {
       {/* Cross-link to full Ad Manager */}
       <Card className="flex flex-wrap items-center justify-between gap-3 p-4">
         <div className="flex items-center gap-3">
-          <ExternalLink className="h-4 w-4 text-zoru-ink-muted" />
+          <ExternalLink className="h-4 w-4 text-[var(--st-text-secondary)]" />
           <div>
-            <div className="text-sm text-zoru-ink">Full Ad Manager</div>
-            <div className="text-[11.5px] text-zoru-ink-muted">
+            <div className="text-sm text-[var(--st-text)]">Full Ad Manager</div>
+            <div className="text-[11.5px] text-[var(--st-text-secondary)]">
               Audiences, creatives, A/B tests, and detailed insights live in the unified Ad Manager.
             </div>
           </div>
@@ -629,11 +629,11 @@ function CampaignRow({
       <div className="min-w-0 flex-1">
         <Link
           href={`/dashboard/ad-manager/campaigns/${campaign.id}`}
-          className="block truncate text-sm font-medium text-zoru-ink hover:underline"
+          className="block truncate text-sm font-medium text-[var(--st-text)] hover:underline"
         >
           {campaign.name}
         </Link>
-        <div className="mt-1 flex flex-wrap items-center gap-2 text-[11.5px] text-zoru-ink-muted">
+        <div className="mt-1 flex flex-wrap items-center gap-2 text-[11.5px] text-[var(--st-text-secondary)]">
           <Badge variant={badgeVariant}>{status}</Badge>
           {campaign.objective && <span>{campaign.objective.replace(/^OUTCOME_/, '')}</span>}
           {campaign.daily_budget !== undefined && campaign.daily_budget !== null && (
@@ -680,8 +680,8 @@ function Metric({
 }): React.ReactElement {
   return (
     <div className={cn('flex flex-col items-end', className)}>
-      <span className="text-[11px] text-zoru-ink-muted">{label}</span>
-      <span className="text-[12.5px] tabular-nums text-zoru-ink">{value}</span>
+      <span className="text-[11px] text-[var(--st-text-secondary)]">{label}</span>
+      <span className="text-[12.5px] tabular-nums text-[var(--st-text)]">{value}</span>
     </div>
   );
 }

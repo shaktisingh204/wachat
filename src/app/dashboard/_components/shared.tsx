@@ -28,16 +28,16 @@ export function BigStatCard({
 }) {
   return (
     <Card className="min-w-[260px] p-4">
-      <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[11px] text-zoru-ink-muted">
+      <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[11px] text-[var(--st-text-secondary)]">
         <span className="inline-flex items-center gap-1">{metaLeft}</span>
-        <span className="text-zoru-ink-subtle">·</span>
+        <span className="text-[var(--st-text-tertiary)]">·</span>
         <span className="inline-flex items-center gap-1">{metaRight}</span>
-        <span className="text-zoru-ink-subtle">·</span>
+        <span className="text-[var(--st-text-tertiary)]">·</span>
         <span className="inline-flex items-center gap-1">
           <span
             className={cn(
               "h-1.5 w-1.5 rounded-full",
-              statusOk ? "bg-zoru-success" : "bg-zoru-ink-muted"
+              statusOk ? "bg-[var(--st-status-ok)]" : "bg-[var(--st-text-secondary)]"
             )}
           />
           {statusLabel}
@@ -45,10 +45,10 @@ export function BigStatCard({
       </div>
 
       <div className="mt-2.5">
-        <h3 className="text-[18px] tracking-[-0.01em] text-zoru-ink leading-[1.1]">
+        <h3 className="text-[18px] tracking-[-0.01em] text-[var(--st-text)] leading-[1.1]">
           {title}
         </h3>
-        <p className="mt-0.5 text-[12px] text-zoru-ink-muted leading-tight">
+        <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)] leading-tight">
           {subtitle}
         </p>
       </div>
@@ -81,8 +81,8 @@ export function NotificationCard({
       className={cn(
         "flex w-full items-center gap-2 rounded-[var(--zoru-radius)] border px-3 py-2.5 text-left transition-colors",
         inverted
-          ? "border-zoru-ink bg-zoru-ink text-zoru-on-primary hover:bg-zoru-ink/90"
-          : "border-zoru-line bg-zoru-bg text-zoru-ink hover:bg-zoru-surface",
+          ? "border-[var(--st-text)] bg-[var(--st-text)] text-[var(--st-text-inverted)] hover:bg-[var(--st-text)]/90"
+          : "border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]",
         "focus-visible:outline-none"
       )}
     >
@@ -90,8 +90,8 @@ export function NotificationCard({
         className={cn(
           "flex h-6 w-6 shrink-0 items-center justify-center rounded-full",
           inverted
-            ? "bg-zoru-on-primary/15 text-zoru-on-primary"
-            : "bg-zoru-surface-2 text-zoru-ink-muted"
+            ? "bg-[var(--st-text-inverted)]/15 text-[var(--st-text-inverted)]"
+            : "bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]"
         )}
       >
         {icon}
@@ -100,7 +100,7 @@ export function NotificationCard({
       <ArrowRight
         className={cn(
           "h-3 w-3 shrink-0",
-          inverted ? "text-zoru-on-primary/70" : "text-zoru-ink-subtle"
+          inverted ? "text-[var(--st-text-inverted)]/70" : "text-[var(--st-text-tertiary)]"
         )}
       />
     </button>
@@ -125,34 +125,34 @@ export function ModuleTile({
   const router = useRouter();
   const dotClass =
     status === "ok"
-      ? "bg-zoru-success"
+      ? "bg-[var(--st-status-ok)]"
       : status === "warn"
-      ? "bg-zoru-warning"
-      : "bg-zoru-ink-subtle";
+      ? "bg-[var(--st-warn)]"
+      : "bg-[var(--st-text-tertiary)]";
 
   return (
     <button
       type="button"
       onClick={() => router.push(href)}
-      className="group flex flex-col gap-3 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-4 text-left transition-shadow hover:shadow-[var(--zoru-shadow-md)] focus-visible:outline-none"
+      className="group flex flex-col gap-3 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4 text-left transition-shadow hover:shadow-[var(--zoru-shadow-md)] focus-visible:outline-none"
     >
       <div className="flex items-center justify-between">
-        <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink [&_svg]:size-4">
+        <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)] [&_svg]:size-4">
           {icon}
         </span>
-        <span className="inline-flex items-center gap-1 text-[10.5px] text-zoru-ink-muted">
+        <span className="inline-flex items-center gap-1 text-[10.5px] text-[var(--st-text-secondary)]">
           <span className={cn("h-1.5 w-1.5 rounded-full", dotClass)} />
           {status === "ok" ? "Live" : status === "warn" ? "Pending" : "Idle"}
         </span>
       </div>
       <div className="flex flex-col gap-0.5">
-        <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+        <p className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
           {name}
         </p>
-        <p className="text-[18px] tracking-tight text-zoru-ink leading-none">
+        <p className="text-[18px] tracking-tight text-[var(--st-text)] leading-none">
           {primary}
         </p>
-        <p className="mt-0.5 truncate text-[11.5px] text-zoru-ink-muted">
+        <p className="mt-0.5 truncate text-[11.5px] text-[var(--st-text-secondary)]">
           {secondary}
         </p>
       </div>
@@ -176,10 +176,10 @@ export function KpiTile({
   icon?: React.ReactNode;
 }) {
   return (
-    <div className="rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-4 transition-shadow hover:shadow-[var(--zoru-shadow-sm)]">
+    <div className="rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4 transition-shadow hover:shadow-[var(--zoru-shadow-sm)]">
       <div className="flex items-start justify-between">
         {icon ? (
-          <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink [&_svg]:size-4">
+          <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)] [&_svg]:size-4">
             {icon}
           </span>
         ) : (
@@ -190,8 +190,8 @@ export function KpiTile({
             className={cn(
               "inline-flex items-center gap-0.5 rounded-full border px-2 py-1 text-[10px] leading-none",
               up
-                ? "border-zoru-success/40 bg-zoru-success/5 text-zoru-success"
-                : "border-zoru-danger/40 bg-zoru-danger/5 text-zoru-danger"
+                ? "border-[var(--st-status-ok)]/40 bg-[var(--st-status-ok)]/5 text-[var(--st-status-ok)]"
+                : "border-[var(--st-danger)]/40 bg-[var(--st-danger)]/5 text-[var(--st-danger)]"
             )}
           >
             {up ? (
@@ -203,14 +203,14 @@ export function KpiTile({
           </span>
         ) : null}
       </div>
-      <div className="mt-3.5 text-[11.5px] text-zoru-ink-muted leading-none">
+      <div className="mt-3.5 text-[11.5px] text-[var(--st-text-secondary)] leading-none">
         {label}
       </div>
-      <div className="mt-1.5 text-[22px] tracking-[-0.01em] text-zoru-ink leading-none">
+      <div className="mt-1.5 text-[22px] tracking-[-0.01em] text-[var(--st-text)] leading-none">
         {value}
       </div>
       {hint ? (
-        <div className="mt-1 truncate text-[11px] text-zoru-ink-muted leading-tight">
+        <div className="mt-1 truncate text-[11px] text-[var(--st-text-secondary)] leading-tight">
           {hint}
         </div>
       ) : null}
@@ -233,13 +233,13 @@ export function InitialsStack({
       {visible.map((s, i) => (
         <span
           key={`${s}-${i}`}
-          className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-zoru-bg bg-zoru-surface-2 text-[10px] text-zoru-ink"
+          className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-[var(--st-bg)] bg-[var(--st-bg-muted)] text-[10px] text-[var(--st-text)]"
         >
           {s}
         </span>
       ))}
       {overflow > 0 && (
-        <span className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-zoru-bg bg-zoru-ink text-[10px] text-zoru-on-primary">
+        <span className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-[var(--st-bg)] bg-[var(--st-text)] text-[10px] text-[var(--st-text-inverted)]">
           +{overflow}
         </span>
       )}

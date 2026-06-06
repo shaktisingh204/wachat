@@ -33,7 +33,7 @@ export default async function SabmonitorChecksPage(): Promise<React.JSX.Element>
     return (
         <div className="flex flex-col gap-4">
             <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-zoru-ink">Checks</h2>
+                <h2 className="text-sm font-semibold text-[var(--st-text)]">Checks</h2>
                 <Button asChild>
                     <Link href="/dashboard/sabmonitor/checks/new">New check</Link>
                 </Button>
@@ -41,11 +41,11 @@ export default async function SabmonitorChecksPage(): Promise<React.JSX.Element>
             <Card className="zoruui">
                 <CardContent className="p-0">
                     {res.items.length === 0 ? (
-                        <p className="p-4 text-sm text-zoru-ink-muted">No checks yet.</p>
+                        <p className="p-4 text-sm text-[var(--st-text-secondary)]">No checks yet.</p>
                     ) : (
                         <table className="w-full text-sm">
-                            <thead className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
-                                <tr className="border-b border-zoru-line">
+                            <thead className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
+                                <tr className="border-b border-[var(--st-border)]">
                                     <th className="p-3 text-left font-medium">Name</th>
                                     <th className="p-3 text-left font-medium">Kind</th>
                                     <th className="p-3 text-left font-medium">Target</th>
@@ -55,23 +55,23 @@ export default async function SabmonitorChecksPage(): Promise<React.JSX.Element>
                             </thead>
                             <tbody>
                                 {res.items.map((c) => (
-                                    <tr key={c._id} className="border-b border-zoru-line">
+                                    <tr key={c._id} className="border-b border-[var(--st-border)]">
                                         <td className="p-3">
                                             <Link
-                                                className="font-medium text-zoru-ink hover:underline"
+                                                className="font-medium text-[var(--st-text)] hover:underline"
                                                 href={`/dashboard/sabmonitor/checks/${c._id}`}
                                             >
                                                 {c.name}
                                             </Link>
                                         </td>
-                                        <td className="p-3 text-zoru-ink-muted">{c.kind}</td>
-                                        <td className="p-3 text-zoru-ink-muted">
+                                        <td className="p-3 text-[var(--st-text-secondary)]">{c.kind}</td>
+                                        <td className="p-3 text-[var(--st-text-secondary)]">
                                             {c.url ?? c.host ?? '—'}
                                         </td>
                                         <td className="p-3">
                                             <StatusBadge status={c.lastStatus ?? 'unknown'} />
                                         </td>
-                                        <td className="p-3 text-zoru-ink-muted">
+                                        <td className="p-3 text-[var(--st-text-secondary)]">
                                             {c._id && uptimeByCheck[c._id] !== undefined
                                                 ? `${uptimeByCheck[c._id].toFixed(2)}%`
                                                 : '—'}

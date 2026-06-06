@@ -30,7 +30,7 @@ export default function ShopManageIndexPage() {
   }, [router, shopId]);
 
   return (
-    <div className="flex items-center gap-3 py-12 text-zoru-ink-muted">
+    <div className="flex items-center gap-3 py-12 text-[var(--st-text-secondary)]">
       <LoaderCircle className="h-5 w-5 animate-spin" />
       <p className="text-[13px]">Redirecting to shop settings…</p>
       <Skeleton className="h-4 w-40" />

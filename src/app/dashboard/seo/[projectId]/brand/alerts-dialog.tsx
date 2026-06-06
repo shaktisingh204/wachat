@@ -73,7 +73,7 @@ export function AlertsDialog({ projectId }: { projectId: string }) {
           <Bell className="mr-2 h-4 w-4" />
           Configure Alerts
           {unreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-zoru-danger text-[10px] text-white">
+            <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--st-danger)] text-[10px] text-white">
               {unreadCount}
             </span>
           )}
@@ -84,15 +84,15 @@ export function AlertsDialog({ projectId }: { projectId: string }) {
           <DialogTitle>Automated Alerts</DialogTitle>
         </DialogHeader>
 
-        <div className="flex gap-4 border-b border-zoru-line pb-2 mb-4">
+        <div className="flex gap-4 border-b border-[var(--st-border)] pb-2 mb-4">
           <button
-            className={`text-sm font-medium ${tab === 'actionable' ? 'text-zoru-primary' : 'text-zoru-ink-muted'}`}
+            className={`text-sm font-medium ${tab === 'actionable' ? 'text-[var(--st-text)]' : 'text-[var(--st-text-secondary)]'}`}
             onClick={() => setTab('actionable')}
           >
             Actionable Alerts {unreadCount > 0 && `(${unreadCount})`}
           </button>
           <button
-            className={`text-sm font-medium ${tab === 'config' ? 'text-zoru-primary' : 'text-zoru-ink-muted'}`}
+            className={`text-sm font-medium ${tab === 'config' ? 'text-[var(--st-text)]' : 'text-[var(--st-text-secondary)]'}`}
             onClick={() => setTab('config')}
           >
             Configuration
@@ -102,20 +102,20 @@ export function AlertsDialog({ projectId }: { projectId: string }) {
         {tab === 'actionable' && (
           <div className="space-y-4 max-h-[60vh] overflow-y-auto">
             {actionable.length === 0 ? (
-              <div className="text-center text-sm text-zoru-ink-muted py-8">No recent alerts.</div>
+              <div className="text-center text-sm text-[var(--st-text-secondary)] py-8">No recent alerts.</div>
             ) : (
               actionable.map((alert: { id: string; message: string; status: string; timestamp: string }) => (
-                <div key={alert.id} className="flex flex-col gap-2 p-3 border border-zoru-line rounded-md bg-zoru-surface-2">
+                <div key={alert.id} className="flex flex-col gap-2 p-3 border border-[var(--st-border)] rounded-md bg-[var(--st-bg-muted)]">
                   <div className="flex justify-between items-start">
                     <div className="flex items-center gap-2">
-                      <AlertCircle className={`h-4 w-4 ${alert.status === 'unread' ? 'text-zoru-danger' : 'text-zoru-ink-muted'}`} />
-                      <span className={`text-sm ${alert.status === 'unread' ? 'font-semibold text-zoru-ink' : 'text-zoru-ink-muted'}`}>
+                      <AlertCircle className={`h-4 w-4 ${alert.status === 'unread' ? 'text-[var(--st-danger)]' : 'text-[var(--st-text-secondary)]'}`} />
+                      <span className={`text-sm ${alert.status === 'unread' ? 'font-semibold text-[var(--st-text)]' : 'text-[var(--st-text-secondary)]'}`}>
                         {alert.message}
                       </span>
                     </div>
                   </div>
                   <div className="flex justify-between items-center mt-2">
-                    <span className="text-xs text-zoru-ink-muted">
+                    <span className="text-xs text-[var(--st-text-secondary)]">
                       {new Date(alert.timestamp).toLocaleString()}
                     </span>
                     {alert.status === 'unread' && (
@@ -139,23 +139,23 @@ export function AlertsDialog({ projectId }: { projectId: string }) {
         {tab === 'config' && (
           <div className="space-y-6">
             <div className="space-y-4">
-              <h4 className="text-sm font-semibold text-zoru-ink">Active Rules</h4>
+              <h4 className="text-sm font-semibold text-[var(--st-text)]">Active Rules</h4>
               {configs.length === 0 ? (
-                <div className="text-xs text-zoru-ink-muted">No rules configured.</div>
+                <div className="text-xs text-[var(--st-text-secondary)]">No rules configured.</div>
               ) : (
                 <div className="space-y-2">
                   {configs.map((config: AlertConfig) => (
-                    <div key={config.id} className="flex items-center justify-between p-2 border border-zoru-line rounded-md">
+                    <div key={config.id} className="flex items-center justify-between p-2 border border-[var(--st-border)] rounded-md">
                       <div>
                         <div className="text-sm font-medium">{config.name}</div>
-                        <div className="text-xs text-zoru-ink-muted font-mono">{config.condition}</div>
+                        <div className="text-xs text-[var(--st-text-secondary)] font-mono">{config.condition}</div>
                       </div>
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => deleteMutation.mutate(config.id)}
                       >
-                        <Trash2 className="h-4 w-4 text-zoru-danger" />
+                        <Trash2 className="h-4 w-4 text-[var(--st-danger)]" />
                       </Button>
                     </div>
                   ))}
@@ -163,8 +163,8 @@ export function AlertsDialog({ projectId }: { projectId: string }) {
               )}
             </div>
 
-            <div className="space-y-3 pt-4 border-t border-zoru-line">
-              <h4 className="text-sm font-semibold text-zoru-ink">Add New Rule</h4>
+            <div className="space-y-3 pt-4 border-t border-[var(--st-border)]">
+              <h4 className="text-sm font-semibold text-[var(--st-text)]">Add New Rule</h4>
               <div className="space-y-2">
                 <Label>Rule Name</Label>
                 <Input

@@ -7,7 +7,7 @@ export default function EditShiftRotationLoading() {
             title="Edit · Loading..."
             subtitle="Update rotation scope, pattern and cycle."
         >
-            <div className="space-y-6 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-6 shadow-sm">
+            <div className="space-y-6 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-6 shadow-sm">
                 <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
                         <Skeleton className="h-4 w-20" />
@@ -35,7 +35,7 @@ export default function EditShiftRotationLoading() {
                     </div>
                 </div>
 
-                <div className="rounded-[var(--zoru-radius)] border border-zoru-line p-4">
+                <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-4">
                     <div className="mb-4 flex items-center justify-between">
                         <div className="space-y-1">
                             <Skeleton className="h-4 w-16" />

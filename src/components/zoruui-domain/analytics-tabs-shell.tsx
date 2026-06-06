@@ -25,7 +25,7 @@ export function AnalyticsTabsShell({ overviewSlot, audienceSlot, settingsSlot }:
     <div className="flex flex-col md:flex-row gap-4">
       <aside className="md:w-52 flex-shrink-0">
         <Card className="p-2 md:sticky md:top-4">
-          <div className="px-2 pt-1 pb-2 text-[11px] uppercase tracking-wider text-zoru-ink-muted/60">
+          <div className="px-2 pt-1 pb-2 text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)]/60">
             Analytics
           </div>
           <nav className="flex md:flex-col gap-1" aria-label="Analytics sections">
@@ -41,8 +41,8 @@ export function AnalyticsTabsShell({ overviewSlot, audienceSlot, settingsSlot }:
                   className={cn(
                     'flex items-center gap-2 px-3 py-2 text-[13px] rounded-md transition-colors text-left flex-1 md:flex-none',
                     isActive
-                      ? 'bg-zoru-surface-2 text-zoru-ink'
-                      : 'text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink',
+                      ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
+                      : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]',
                   )}
                 >
                   <Icon className="h-3.5 w-3.5 flex-shrink-0" />

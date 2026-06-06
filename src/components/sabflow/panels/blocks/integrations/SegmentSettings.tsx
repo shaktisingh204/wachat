@@ -107,7 +107,7 @@ export function SegmentSettings({ block, onBlockChange }: Props) {
               <button
                 type="button"
                 onClick={() => removeProperty(prop.id)}
-                className="shrink-0 flex h-7 w-7 items-center justify-center rounded text-[var(--gray-8)] hover:text-zoru-ink hover:bg-[var(--gray-3)] transition-colors"
+                className="shrink-0 flex h-7 w-7 items-center justify-center rounded text-[var(--gray-8)] hover:text-[var(--st-text)] hover:bg-[var(--gray-3)] transition-colors"
                 aria-label="Remove property"
               >
                 <LuTrash2 className="h-3.5 w-3.5" strokeWidth={1.8} />

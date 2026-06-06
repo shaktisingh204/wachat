@@ -76,7 +76,7 @@ export default async function EmployeeDocumentsSubPage({
     const guard = await requirePermission('crm_document', 'view');
     if (!guard.ok) {
         return (
-            <p className="p-6 text-[13px] text-zoru-ink-muted">{guard.error}</p>
+            <p className="p-6 text-[13px] text-[var(--st-text-secondary)]">{guard.error}</p>
         );
     }
 
@@ -115,7 +115,7 @@ export default async function EmployeeDocumentsSubPage({
             }
         >
 
-            <div className="flex flex-wrap gap-1 border-b border-zoru-line">
+            <div className="flex flex-wrap gap-1 border-b border-[var(--st-border)]">
                 {[
                     { href: BASE, label: 'Overview' },
                     { href: `${BASE}/profile`, label: 'Profile' },
@@ -136,8 +136,8 @@ export default async function EmployeeDocumentsSubPage({
                         href={tab.href}
                         className={`-mb-px border-b-2 px-3 py-2 text-[12.5px] transition-colors ${
                             tab.active
-                                ? 'border-zoru-ink text-zoru-ink'
-                                : 'border-transparent text-zoru-ink-muted hover:text-zoru-ink'
+                                ? 'border-[var(--st-text)] text-[var(--st-text)]'
+                                : 'border-transparent text-[var(--st-text-secondary)] hover:text-[var(--st-text)]'
                         }`}
                     >
                         {tab.label}
@@ -147,17 +147,17 @@ export default async function EmployeeDocumentsSubPage({
 
             {items.length === 0 ? (
                 <Card className="flex flex-col items-start gap-3 p-8">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)]">
                         <FileText
-                            className="h-5 w-5 text-zoru-ink-muted"
+                            className="h-5 w-5 text-[var(--st-text-secondary)]"
                             strokeWidth={1.75}
                         />
                     </div>
                     <div>
-                        <h3 className="text-[15px] text-zoru-ink">
+                        <h3 className="text-[15px] text-[var(--st-text)]">
                             No documents yet
                         </h3>
-                        <p className="mt-1 text-[13px] text-zoru-ink-muted">
+                        <p className="mt-1 text-[13px] text-[var(--st-text-secondary)]">
                             Upload identity proofs, contracts, qualifications and
                             other HR documents for {fullName}.
                         </p>
@@ -181,11 +181,11 @@ export default async function EmployeeDocumentsSubPage({
                                     <div className="min-w-0 flex-1">
                                         <Link
                                             href={`/dashboard/hrm/hr/documents/${doc._id}`}
-                                            className="block text-[14px] font-medium text-zoru-ink hover:underline"
+                                            className="block text-[14px] font-medium text-[var(--st-text)] hover:underline"
                                         >
                                             {doc.name}
                                         </Link>
-                                        <div className="mt-0.5 text-[12px] capitalize text-zoru-ink-muted">
+                                        <div className="mt-0.5 text-[12px] capitalize text-[var(--st-text-secondary)]">
                                             {pretty(doc.category)}
                                         </div>
                                     </div>
@@ -197,14 +197,14 @@ export default async function EmployeeDocumentsSubPage({
 
                                 <dl className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-[12px]">
                                     <div>
-                                        <dt className="text-zoru-ink-muted">Issued</dt>
-                                        <dd className="text-zoru-ink">
+                                        <dt className="text-[var(--st-text-secondary)]">Issued</dt>
+                                        <dd className="text-[var(--st-text)]">
                                             {fmtDate(doc.issueDate)}
                                         </dd>
                                     </div>
                                     <div>
-                                        <dt className="text-zoru-ink-muted">Expires</dt>
-                                        <dd className="flex items-center gap-1 text-zoru-ink">
+                                        <dt className="text-[var(--st-text-secondary)]">Expires</dt>
+                                        <dd className="flex items-center gap-1 text-[var(--st-text)]">
                                             {fmtDate(doc.expiryDate)}
                                             {warn.label && warn.tone ? (
                                                 <StatusPill
@@ -216,35 +216,35 @@ export default async function EmployeeDocumentsSubPage({
                                     </div>
                                     {doc.documentNumber ? (
                                         <div className="col-span-2">
-                                            <dt className="text-zoru-ink-muted">
+                                            <dt className="text-[var(--st-text-secondary)]">
                                                 Number
                                             </dt>
-                                            <dd className="font-mono text-[11.5px] text-zoru-ink">
+                                            <dd className="font-mono text-[11.5px] text-[var(--st-text)]">
                                                 {doc.documentNumber}
                                             </dd>
                                         </div>
                                     ) : null}
                                 </dl>
 
-                                <div className="mt-auto flex items-center justify-between gap-2 border-t border-zoru-line pt-2">
+                                <div className="mt-auto flex items-center justify-between gap-2 border-t border-[var(--st-border)] pt-2">
                                     {doc.fileUrl ? (
                                         <a
                                             href={doc.fileUrl}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="inline-flex items-center gap-1 text-[12px] text-zoru-ink hover:underline"
+                                            className="inline-flex items-center gap-1 text-[12px] text-[var(--st-text)] hover:underline"
                                         >
                                             <ExternalLink className="h-3.5 w-3.5" />
                                             Open file
                                         </a>
                                     ) : (
-                                        <span className="text-[12px] text-zoru-ink-muted">
+                                        <span className="text-[12px] text-[var(--st-text-secondary)]">
                                             No file
                                         </span>
                                     )}
                                     <Link
                                         href={`/dashboard/hrm/hr/documents/${doc._id}/edit`}
-                                        className="text-[12px] text-zoru-ink-muted hover:text-zoru-ink"
+                                        className="text-[12px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                                     >
                                         Edit
                                     </Link>

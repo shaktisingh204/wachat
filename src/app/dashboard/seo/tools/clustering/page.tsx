@@ -187,17 +187,17 @@ export default function KeywordClusteringPage() {
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                        <Layers className="h-8 w-8 text-zoru-ink" />
+                        <Layers className="h-8 w-8 text-[var(--st-text)]" />
                         Keyword Clustering
                     </h1>
-                    <p className="text-zoru-ink-muted mt-1">
+                    <p className="text-[var(--st-text-secondary)] mt-1">
                         Group thousands of keywords into topical semantic clusters using NLP.
                     </p>
                 </div>
                 {results && (
                     <div className="flex items-center gap-2">
                         <Button variant="outline" onClick={handleCopy} className="whitespace-nowrap">
-                            {copied ? <Check className="h-4 w-4 mr-2 text-zoru-ink" /> : <Copy className="h-4 w-4 mr-2" />}
+                            {copied ? <Check className="h-4 w-4 mr-2 text-[var(--st-text)]" /> : <Copy className="h-4 w-4 mr-2" />}
                             {copied ? 'Copied' : 'Copy Text'}
                         </Button>
                         <Button variant="outline" onClick={handleExport} className="whitespace-nowrap">
@@ -208,7 +208,7 @@ export default function KeywordClusteringPage() {
             </div>
 
             {errorMsg && (
-                <div className="p-4 rounded-md bg-zoru-surface-2 text-zoru-ink border border-zoru-line">
+                <div className="p-4 rounded-md bg-[var(--st-bg-muted)] text-[var(--st-text)] border border-[var(--st-border)]">
                     {errorMsg}
                 </div>
             )}
@@ -246,20 +246,20 @@ export default function KeywordClusteringPage() {
                     </ZoruCardHeader>
                     <ZoruCardContent className="flex-1 overflow-y-auto max-h-[500px]">
                         {!results ? (
-                            <div className="h-full flex items-center justify-center text-zoru-ink-muted border-2 border-dashed rounded-md p-6 text-center">
+                            <div className="h-full flex items-center justify-center text-[var(--st-text-secondary)] border-2 border-dashed rounded-md p-6 text-center">
                                 Run clustering to group keywords by semantic meaning.
                             </div>
                         ) : (
                             <div className="space-y-6">
                                 {Object.entries(results).map(([cluster, kws]) => (
                                     <div key={cluster} className="space-y-2">
-                                        <div className="flex items-center gap-2 sticky top-0 bg-zoru-surface py-2 border-b z-10">
+                                        <div className="flex items-center gap-2 sticky top-0 bg-[var(--st-bg-secondary)] py-2 border-b z-10">
                                             <Badge variant="secondary">{kws.length}</Badge>
                                             <h3 className="font-semibold text-sm">{cluster}</h3>
                                         </div>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pl-2">
                                             {kws.map((kw, i) => (
-                                                <div key={i} className="text-xs p-1.5 bg-zoru-surface-2/30 hover:bg-zoru-surface-2 rounded text-zoru-ink-muted border border-transparent hover:border-zoru-line transition-colors">
+                                                <div key={i} className="text-xs p-1.5 bg-[var(--st-bg-muted)]/30 hover:bg-[var(--st-bg-muted)] rounded text-[var(--st-text-secondary)] border border-transparent hover:border-[var(--st-border)] transition-colors">
                                                     {kw}
                                                 </div>
                                             ))}

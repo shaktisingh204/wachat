@@ -118,7 +118,7 @@ export function SabpublishPostsTab({
               <input
                 id="schedule-at"
                 type="datetime-local"
-                className="block w-full rounded-md border bg-zoru-surface px-3 py-2 text-sm"
+                className="block w-full rounded-md border bg-[var(--st-bg-secondary)] px-3 py-2 text-sm"
                 value={scheduleAt}
                 onChange={(e) => setScheduleAt(e.target.value)}
               />
@@ -134,14 +134,14 @@ export function SabpublishPostsTab({
                 Add media from library
               </SabFilePickerButton>
               {mediaFileIds.length > 0 ? (
-                <div className="text-xs text-zoru-ink-muted">
+                <div className="text-xs text-[var(--st-text-secondary)]">
                   {mediaFileIds.length} file(s) attached
                 </div>
               ) : null}
             </div>
           </div>
           {error ? (
-            <p className="text-sm text-zoru-ink">{error}</p>
+            <p className="text-sm text-[var(--st-text)]">{error}</p>
           ) : null}
           <div className="flex gap-2">
             <Button onClick={() => handlePublish(false)} disabled={pending}>
@@ -159,7 +159,7 @@ export function SabpublishPostsTab({
       </Card>
 
       <div>
-        <h3 className="mb-3 text-sm font-semibold uppercase text-zoru-ink-muted">
+        <h3 className="mb-3 text-sm font-semibold uppercase text-[var(--st-text-secondary)]">
           Recent posts
         </h3>
         {posts.length === 0 ? (
@@ -174,7 +174,7 @@ export function SabpublishPostsTab({
                 <CardContent className="space-y-2 p-4">
                   <div className="flex items-center justify-between">
                     <Badge variant="outline">{p.status}</Badge>
-                    <span className="text-xs text-zoru-ink-muted">
+                    <span className="text-xs text-[var(--st-text-secondary)]">
                       {p.scheduleAt
                         ? `Scheduled for ${new Date(p.scheduleAt).toLocaleString()}`
                         : p.publishedAt
@@ -183,7 +183,7 @@ export function SabpublishPostsTab({
                     </span>
                   </div>
                   <p className="text-sm">{p.body}</p>
-                  <div className="text-xs text-zoru-ink-muted">
+                  <div className="text-xs text-[var(--st-text-secondary)]">
                     Providers: {(p.providerIds ?? []).join(', ') || '—'}
                   </div>
                 </CardContent>

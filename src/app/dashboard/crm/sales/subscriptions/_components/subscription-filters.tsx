@@ -59,19 +59,19 @@ export function SubscriptionFilters({
   onRenewalFilter,
 }: SubscriptionFiltersProps) {
   return (
-    <details className="border-b border-zoru-line bg-zoru-surface-2/40" open>
-      <summary className="cursor-pointer list-none px-3 py-2 text-[12px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+    <details className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]/40" open>
+      <summary className="cursor-pointer list-none px-3 py-2 text-[12px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
         Filters
         {filtersActive ? (
           <>
-            <span className="ml-2 text-zoru-ink">·</span>
+            <span className="ml-2 text-[var(--st-text)]">·</span>
             <button
               type="button"
               onClick={(e) => {
                 e.preventDefault();
                 onClearAll();
               }}
-              className="ml-1 text-zoru-primary hover:underline"
+              className="ml-1 text-[var(--st-text)] hover:underline"
             >
               clear all
             </button>

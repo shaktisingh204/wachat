@@ -440,11 +440,11 @@ export function SubscriptionListClient({
         empty={
           filtered.length === 0 && !filtersActive && !query ? (
             <div className="flex flex-col items-center gap-3 p-4">
-              <Repeat className="h-8 w-8 text-zoru-ink-muted" />
-              <h3 className="text-base font-medium text-zoru-ink">
+              <Repeat className="h-8 w-8 text-[var(--st-text-secondary)]" />
+              <h3 className="text-base font-medium text-[var(--st-text)]">
                 No subscriptions yet
               </h3>
-              <p className="max-w-sm text-sm text-zoru-ink-muted">
+              <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                 Create a recurring billing agreement to start collecting MRR.
               </p>
               <Button asChild>
@@ -468,7 +468,7 @@ export function SubscriptionListClient({
           />
 
           {error ? (
-            <div className="rounded border border-zoru-line/40 bg-zoru-ink/10 px-3 py-2 text-[12.5px] text-zoru-ink dark:text-zoru-ink-muted">
+            <div className="rounded border border-[var(--st-border)]/40 bg-[var(--st-text)]/10 px-3 py-2 text-[12.5px] text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
               {error}
             </div>
           ) : null}
@@ -511,7 +511,7 @@ export function SubscriptionListClient({
                   <ZoruTableRow>
                     <ZoruTableCell
                       colSpan={8}
-                      className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                      className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                     >
                       {filtersActive || query
                         ? 'No subscriptions match these filters.'
@@ -543,7 +543,7 @@ export function SubscriptionListClient({
                               id={sub.customerId}
                             />
                           ) : (
-                            <span className="text-[12.5px] text-zoru-ink-muted">
+                            <span className="text-[12.5px] text-[var(--st-text-secondary)]">
                               —
                             </span>
                           )}
@@ -564,10 +564,10 @@ export function SubscriptionListClient({
                             subtitle={frequencyLabel(sub.frequency)}
                           />
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                           {frequencyLabel(sub.frequency)}
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-zoru-ink">
+                        <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-[var(--st-text)]">
                           {fmtMoney(amount, currency)}
                         </ZoruTableCell>
                         <ZoruTableCell>
@@ -576,10 +576,10 @@ export function SubscriptionListClient({
                             tone={statusToTone(sub.status)}
                           />
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                           {fmtDate(sub.nextBillingAt)}
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                           {fmtDate(
                             sub.startedAt ||
                               sub.createdAt ||

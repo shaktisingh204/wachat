@@ -184,8 +184,8 @@ export function AnalyticsToolbar({
         }
       />
 
-      <div className="flex flex-wrap items-center gap-2 rounded-md border border-zoru-line bg-zoru-bg p-2 text-sm">
-        <Label className="text-xs text-zoru-ink-muted">Range</Label>
+      <div className="flex flex-wrap items-center gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] p-2 text-sm">
+        <Label className="text-xs text-[var(--st-text-secondary)]">Range</Label>
         <Select
           value={preset}
           onValueChange={(v) => url.setOne("preset", v)}
@@ -202,7 +202,7 @@ export function AnalyticsToolbar({
           </ZoruSelectContent>
         </Select>
 
-        <Label className="ml-2 text-xs text-zoru-ink-muted">
+        <Label className="ml-2 text-xs text-[var(--st-text-secondary)]">
           Compare
         </Label>
         <Select
@@ -221,7 +221,7 @@ export function AnalyticsToolbar({
           </ZoruSelectContent>
         </Select>
 
-        <Label className="ml-2 text-xs text-zoru-ink-muted">
+        <Label className="ml-2 text-xs text-[var(--st-text-secondary)]">
           Group by
         </Label>
         <Select

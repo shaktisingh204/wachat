@@ -171,25 +171,25 @@ export function PayoutsListPage() {
       key: 'vendorId',
       header: 'Vendor',
       sortable: true,
-      render: (row) => <span className="font-mono text-[12px] text-zoru-ink">{row.vendorId}</span>,
+      render: (row) => <span className="font-mono text-[12px] text-[var(--st-text)]">{row.vendorId}</span>,
     },
     {
       key: 'amount',
       header: 'Amount',
       sortable: true,
-      render: (row) => <span className="text-zoru-ink">{fmtMoney(row.amount, row.currency)}</span>,
+      render: (row) => <span className="text-[var(--st-text)]">{fmtMoney(row.amount, row.currency)}</span>,
     },
     {
       key: 'mode',
       header: 'Method',
       sortable: true,
-      render: (row) => <span className="uppercase text-[12px] text-zoru-ink">{row.mode}</span>,
+      render: (row) => <span className="uppercase text-[12px] text-[var(--st-text)]">{row.mode}</span>,
     },
     {
       key: 'date',
       header: 'Date',
       sortable: true,
-      render: (row) => <span className="text-zoru-ink">{fmtDate(row.date)}</span>,
+      render: (row) => <span className="text-[var(--st-text)]">{fmtDate(row.date)}</span>,
     },
     {
       key: 'status',
@@ -202,7 +202,7 @@ export function PayoutsListPage() {
       },
       editRender: (row, value, onChange) => (
         <select
-          className="bg-zoru-surface-2 border border-zoru-line rounded px-1.5 py-0.5 text-xs text-zoru-ink focus:outline-none"
+          className="bg-[var(--st-bg-muted)] border border-[var(--st-border)] rounded px-1.5 py-0.5 text-xs text-[var(--st-text)] focus:outline-none"
           value={value || 'sent'}
           onChange={(e) => onChange(e.target.value)}
         >
@@ -227,7 +227,7 @@ export function PayoutsListPage() {
             size="icon"
             onClick={() => setPendingDelete(row)}
           >
-            <Trash2 className="h-4 w-4 text-zoru-ink" />
+            <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
           </Button>
         </div>
       ),
@@ -262,10 +262,10 @@ export function PayoutsListPage() {
         bulkBar={
           bulky.selected.size > 0 ? (
             <div className="flex flex-wrap items-center gap-2 text-[13px]">
-              <span className="font-medium text-zoru-ink">
+              <span className="font-medium text-[var(--st-text)]">
                 {bulky.selected.size} selected
               </span>
-              <span className="text-zoru-ink-muted">·</span>
+              <span className="text-[var(--st-text-secondary)]">·</span>
               <Button
                 variant="ghost"
                 size="sm"
@@ -279,7 +279,7 @@ export function PayoutsListPage() {
         }
         loading={isLoading && payouts.length === 0}
       >
-        <div className="overflow-hidden rounded-lg border border-zoru-line bg-zoru-surface">
+        <div className="overflow-hidden rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
           <CrmBulkyGrid<CrmPayoutDoc>
             columns={columns}
             data={filtered}

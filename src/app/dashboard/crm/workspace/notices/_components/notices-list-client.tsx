@@ -420,7 +420,7 @@ export function NoticesListClient({
                 bulkBar={
                     selected.size > 0 ? (
                         <div className="flex flex-wrap items-center justify-between gap-2">
-                            <span className="text-[13px] text-zoru-ink-muted">
+                            <span className="text-[13px] text-[var(--st-text-secondary)]">
                                 {selected.size} selected
                             </span>
                             <div className="flex flex-wrap gap-2">
@@ -452,10 +452,10 @@ export function NoticesListClient({
                 empty={
                     !loading && notices.length === 0 ? (
                         <div className="flex flex-col items-center gap-3 p-4">
-                            <h3 className="text-base font-medium text-zoru-ink">
+                            <h3 className="text-base font-medium text-[var(--st-text)]">
                                 No notices yet
                             </h3>
-                            <p className="max-w-sm text-sm text-zoru-ink-muted">
+                            <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                                 Publish your first company-wide notice to keep everyone informed.
                             </p>
                             <Button asChild>
@@ -494,9 +494,9 @@ export function NoticesListClient({
                     </div>
 
                     {/* Table */}
-                    <div className="overflow-x-auto rounded-[var(--zoru-radius-lg)] border border-zoru-line">
+                    <div className="overflow-x-auto rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)]">
                         <table className="w-full min-w-[900px] text-[13px]">
-                            <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
+                            <thead className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                                 <tr>
                                     <th className="px-3 py-2">
                                         <Checkbox
@@ -524,12 +524,12 @@ export function NoticesListClient({
                                     ))}
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-zoru-line bg-zoru-bg">
+                            <tbody className="divide-y divide-[var(--st-border)] bg-[var(--st-bg)]">
                                 {sorted.length === 0 ? (
                                     <tr>
                                         <td
                                             colSpan={9}
-                                            className="p-6 text-center text-zoru-ink-muted"
+                                            className="p-6 text-center text-[var(--st-text-secondary)]"
                                         >
                                             No notices match the current filters.
                                         </td>
@@ -540,7 +540,7 @@ export function NoticesListClient({
                                     const expired = isExpired(n);
                                     const checked = selected.has(String(n._id));
                                     return (
-                                        <tr key={String(n._id)} className="hover:bg-zoru-surface">
+                                        <tr key={String(n._id)} className="hover:bg-[var(--st-bg-secondary)]">
                                             <td className="px-3 py-2">
                                                 <Checkbox
                                                     aria-label={`Select ${n.heading}`}
@@ -560,13 +560,13 @@ export function NoticesListClient({
                                                 {/* Priority is not in WsNotice schema; render neutral badge */}
                                                 <Badge variant="ghost">—</Badge>
                                             </td>
-                                            <td className="px-3 py-2 text-zoru-ink-muted">
+                                            <td className="px-3 py-2 text-[var(--st-text-secondary)]">
                                                 —
                                             </td>
-                                            <td className="px-3 py-2 text-zoru-ink-muted">
+                                            <td className="px-3 py-2 text-[var(--st-text-secondary)]">
                                                 {fmtDate(n.createdAt)}
                                             </td>
-                                            <td className="px-3 py-2 text-zoru-ink-muted">
+                                            <td className="px-3 py-2 text-[var(--st-text-secondary)]">
                                                 —
                                             </td>
                                             <td className="px-3 py-2">
@@ -587,7 +587,7 @@ export function NoticesListClient({
                                             <td className="px-3 py-2 text-right">
                                                 <div className="flex justify-end gap-1">
                                                     {n.pinned ? (
-                                                        <Pin className="h-3.5 w-3.5 text-zoru-ink-muted" />
+                                                        <Pin className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                                                     ) : null}
                                                     <Button
                                                         variant="ghost"

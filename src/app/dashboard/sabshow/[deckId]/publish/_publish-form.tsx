@@ -73,7 +73,7 @@ export function PublishForm({ deckId, existing }: PublishFormProps) {
                     onChange={(e) => setSlug(e.target.value)}
                     placeholder="q1-board-review"
                 />
-                <p className="text-xs text-zoru-ink-muted">
+                <p className="text-xs text-[var(--st-text-secondary)]">
                     Public URL:{' '}
                     <code>/present/{slug || '<slug>'}</code>
                 </p>
@@ -90,7 +90,7 @@ export function PublishForm({ deckId, existing }: PublishFormProps) {
                 />
             </div>
 
-            {error ? <p className="text-sm text-zoru-ink">{error}</p> : null}
+            {error ? <p className="text-sm text-[var(--st-text)]">{error}</p> : null}
 
             <div className="flex flex-wrap items-center gap-2">
                 <Button onClick={submit} disabled={pending}>
@@ -117,7 +117,7 @@ export function PublishForm({ deckId, existing }: PublishFormProps) {
             </div>
 
             {pub ? (
-                <div className="rounded border bg-zoru-surface-2/40 p-3 text-xs">
+                <div className="rounded border bg-[var(--st-bg-muted)]/40 p-3 text-xs">
                     Status: <strong>{pub.status ?? 'live'}</strong> · pinned to v
                     {pub.publishedVersion}
                 </div>

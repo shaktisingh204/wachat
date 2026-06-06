@@ -210,7 +210,7 @@ export function GdprSection({
                         </div>
                     </div>
                     {filteredRequests.length === 0 ? (
-                        <p className="text-sm text-zoru-fg/60">No GDPR requests found.</p>
+                        <p className="text-sm text-[var(--st-text)]/60">No GDPR requests found.</p>
                     ) : (
                         <Table>
                             <ZoruTableHeader>

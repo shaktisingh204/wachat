@@ -16,16 +16,16 @@ export default function BuilderError({
     }, [error]);
 
     return (
-        <div className="flex h-screen w-screen items-center justify-center bg-zoru-surface p-4">
+        <div className="flex h-screen w-screen items-center justify-center bg-[var(--st-bg-secondary)] p-4">
             <Card className="max-w-md w-full">
                 <CardHeader>
-                    <CardTitle className="text-zoru-ink">Something went wrong!</CardTitle>
+                    <CardTitle className="text-[var(--st-text)]">Something went wrong!</CardTitle>
                     <CardDescription>
                         We encountered an error while trying to load or create your project.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="text-sm text-zoru-ink-muted bg-zoru-surface-2 p-4 rounded-md overflow-auto break-all">
+                    <div className="text-sm text-[var(--st-text-secondary)] bg-[var(--st-bg-muted)] p-4 rounded-md overflow-auto break-all">
                         {error.message || 'Unknown error occurred'}
                     </div>
                 </CardContent>

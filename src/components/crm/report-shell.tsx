@@ -152,7 +152,7 @@ export function ReportShell({
                 <div className="-mt-2">
                     <Link
                         href={back.href}
-                        className="inline-flex items-center gap-1 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
+                        className="inline-flex items-center gap-1 text-[12.5px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                     >
                         <ChevronLeft className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
                         {back.label}
@@ -205,10 +205,10 @@ function resolveKpiIcon(card: ReportKpiCard): React.ElementType | undefined {
 }
 
 const reportKpiToneClass: Record<ReportKpiTone, string> = {
-    default: 'bg-zoru-surface-2 text-zoru-ink',
-    success: 'bg-zoru-success/10 text-zoru-success-ink',
-    warning: 'bg-zoru-warning/15 text-zoru-warning-ink',
-    danger: 'bg-zoru-danger/10 text-zoru-danger-ink',
+    default: 'bg-[var(--st-bg-muted)] text-[var(--st-text)]',
+    success: 'bg-[var(--st-status-ok)]/10 text-[var(--st-status-ok)]',
+    warning: 'bg-[var(--st-warn)]/15 text-[var(--st-warn)]',
+    danger: 'bg-[var(--st-danger)]/10 text-[var(--st-danger)]',
 };
 
 export function ReportKpiStrip({ cards }: { cards: ReportKpiCard[] }): React.JSX.Element {
@@ -220,7 +220,7 @@ export function ReportKpiStrip({ cards }: { cards: ReportKpiCard[] }): React.JSX
                 return (
                     <Card key={card.label} className="h-full p-5">
                         <div className="flex items-start justify-between gap-3">
-                            <p className="text-[12px] font-medium uppercase tracking-wide text-zoru-ink-subtle">
+                            <p className="text-[12px] font-medium uppercase tracking-wide text-[var(--st-text-tertiary)]">
                                 {card.label}
                             </p>
                             {Icon ? (
@@ -231,11 +231,11 @@ export function ReportKpiStrip({ cards }: { cards: ReportKpiCard[] }): React.JSX
                                 </span>
                             ) : null}
                         </div>
-                        <p className="mt-3 text-[24px] font-semibold leading-none tracking-tight text-zoru-ink">
+                        <p className="mt-3 text-[24px] font-semibold leading-none tracking-tight text-[var(--st-text)]">
                             {card.value}
                         </p>
                         {card.hint ? (
-                            <p className="mt-2 text-[12px] text-zoru-ink-muted">{card.hint}</p>
+                            <p className="mt-2 text-[12px] text-[var(--st-text-secondary)]">{card.hint}</p>
                         ) : null}
                     </Card>
                 );

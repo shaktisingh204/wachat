@@ -132,7 +132,7 @@ export function StorefrontForm({ initial, storefrontId }: StorefrontFormProps) {
                 <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                     <div className="flex flex-col gap-1.5">
                         <Label htmlFor="name">
-                            Name <span className="text-zoru-ink">*</span>
+                            Name <span className="text-[var(--st-text)]">*</span>
                         </Label>
                         <Input
                             id="name"
@@ -145,7 +145,7 @@ export function StorefrontForm({ initial, storefrontId }: StorefrontFormProps) {
                     </div>
                     <div className="flex flex-col gap-1.5">
                         <Label htmlFor="slug">
-                            Slug <span className="text-zoru-ink">*</span>
+                            Slug <span className="text-[var(--st-text)]">*</span>
                         </Label>
                         <Input
                             id="slug"
@@ -198,7 +198,7 @@ export function StorefrontForm({ initial, storefrontId }: StorefrontFormProps) {
                             {logoUrl ? 'Replace logo' : 'Pick from SabFiles'}
                         </SabFilePickerButton>
                         {logoUrl ? (
-                            <div className="flex items-center gap-1.5 rounded-full border border-zoru-line bg-zoru-surface px-3 py-0.5 text-[12px] text-zoru-ink">
+                            <div className="flex items-center gap-1.5 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-0.5 text-[12px] text-[var(--st-text)]">
                                 <span className="max-w-[24ch] truncate">
                                     {logoName || logoUrl.split('/').pop() || 'logo'}
                                 </span>
@@ -209,7 +209,7 @@ export function StorefrontForm({ initial, storefrontId }: StorefrontFormProps) {
                                         setLogoName('');
                                     }}
                                     aria-label="Remove logo"
-                                    className="text-zoru-ink-muted hover:text-zoru-ink"
+                                    className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                                 >
                                     <X className="h-3 w-3" />
                                 </button>
@@ -241,7 +241,7 @@ export function StorefrontForm({ initial, storefrontId }: StorefrontFormProps) {
                     <Label htmlFor="homepageBlocks">
                         Homepage blocks
                     </Label>
-                    <p className="text-[12px] text-zoru-ink-muted">
+                    <p className="text-[12px] text-[var(--st-text-secondary)]">
                         Rich block editor coming — paste JSON for now.
                     </p>
                     <Textarea
@@ -255,7 +255,7 @@ export function StorefrontForm({ initial, storefrontId }: StorefrontFormProps) {
                 </div>
 
                 {state.error ? (
-                    <p className="text-[13px] text-zoru-ink">{state.error}</p>
+                    <p className="text-[13px] text-[var(--st-text)]">{state.error}</p>
                 ) : null}
 
                 <div className="flex items-center gap-3">

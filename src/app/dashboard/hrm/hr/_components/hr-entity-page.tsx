@@ -144,14 +144,14 @@ const TONE_TO_VARIANT: Record<
 };
 
 const DOT_CLASS: Record<LegacyTone, string> = {
-  neutral: 'bg-zoru-ink-muted',
-  rose: 'bg-zoru-ink',
-  'rose-soft': 'bg-zoru-ink',
-  obsidian: 'bg-zoru-ink',
-  green: 'bg-zoru-success',
-  amber: 'bg-zoru-warning',
-  red: 'bg-zoru-danger',
-  blue: 'bg-zoru-ink-muted',
+  neutral: 'bg-[var(--st-text-secondary)]',
+  rose: 'bg-[var(--st-text)]',
+  'rose-soft': 'bg-[var(--st-text)]',
+  obsidian: 'bg-[var(--st-text)]',
+  green: 'bg-[var(--st-status-ok)]',
+  amber: 'bg-[var(--st-warn)]',
+  red: 'bg-[var(--st-danger)]',
+  blue: 'bg-[var(--st-text-secondary)]',
 };
 
 export const ClayBadge = React.forwardRef<HTMLSpanElement, ClayBadgeProps>(
@@ -388,7 +388,7 @@ function FieldArray({
       <input type="hidden" name={field.name} value={hiddenValue} />
 
       {rows.length === 0 ? (
-        <p className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-2.5 text-center text-[12px] text-zoru-ink-muted">
+        <p className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2.5 text-center text-[12px] text-[var(--st-text-secondary)]">
           No rows yet — click Add below to start.
         </p>
       ) : (
@@ -396,7 +396,7 @@ function FieldArray({
           {rows.map((row, i) => (
             <div
               key={i}
-              className="flex flex-wrap items-end gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-2"
+              className="flex flex-wrap items-end gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2"
             >
               {subs.map((s) => {
                 const fieldId = `${field.name}-${i}-${s.name}`;
@@ -442,7 +442,7 @@ function FieldArray({
                 variant="ghost"
                 size="sm"
                 onClick={() => removeRow(i)}
-                className="text-zoru-danger-ink"
+                className="text-[var(--st-danger)]"
                 aria-label="Remove row"
               >
                 <Trash2 className="h-3.5 w-3.5" />
@@ -458,18 +458,18 @@ function FieldArray({
       </Button>
 
       {field.help ? (
-        <p className="text-[11.5px] text-zoru-ink-muted">{field.help}</p>
+        <p className="text-[11.5px] text-[var(--st-text-secondary)]">{field.help}</p>
       ) : null}
     </div>
   );
 }
 
 const KPI_TONE_CLASS: Record<NonNullable<HrKpi<any>['tone']>, string> = {
-  neutral: 'text-zoru-ink',
-  green: 'text-zoru-success-ink',
-  amber: 'text-zoru-warning-ink',
-  red: 'text-zoru-danger-ink',
-  blue: 'text-zoru-ink',
+  neutral: 'text-[var(--st-text)]',
+  green: 'text-[var(--st-status-ok)]',
+  amber: 'text-[var(--st-warn)]',
+  red: 'text-[var(--st-danger)]',
+  blue: 'text-[var(--st-text)]',
 };
 
 function HrKpiStrip<T>({ rows, kpis }: { rows: T[]; kpis: HrKpi<T>[] }) {
@@ -481,14 +481,14 @@ function HrKpiStrip<T>({ rows, kpis }: { rows: T[]; kpis: HrKpi<T>[] }) {
         const toneClass = KPI_TONE_CLASS[k.tone || 'neutral'];
         return (
           <Card key={i} className="p-3">
-            <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+            <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
               {k.label}
             </div>
             <div className={cn('mt-1 text-[20px] font-semibold leading-tight', toneClass)}>
               {value === null || value === undefined || value === '' ? '—' : value}
             </div>
             {hint ? (
-              <div className="mt-0.5 text-[11px] text-zoru-ink-muted">{hint}</div>
+              <div className="mt-0.5 text-[11px] text-[var(--st-text-secondary)]">{hint}</div>
             ) : null}
           </Card>
         );
@@ -597,7 +597,7 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
       ) : null}
 
       <Card className="p-6">
-        <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
+        <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
           <Table>
             <ZoruTableHeader>
               <ZoruTableRow>
@@ -622,7 +622,7 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
                 <ZoruTableRow>
                   <ZoruTableCell
                     colSpan={columns.length + 1}
-                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                    className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     {emptyText || `No ${singular.toLowerCase()} yet — click Add to get started.`}
                   </ZoruTableCell>
@@ -642,7 +642,7 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
                           raw
                         );
                       return (
-                        <ZoruTableCell key={c.key} className="text-[13px] text-zoru-ink">
+                        <ZoruTableCell key={c.key} className="text-[13px] text-[var(--st-text)]">
                           {content}
                         </ZoruTableCell>
                       );
@@ -681,7 +681,7 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
                           aria-label="Delete"
                           onClick={() => setDeletingId(row._id)}
                         >
-                          <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                          <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                         </Button>
                       </div>
                     </ZoruTableCell>
@@ -717,7 +717,7 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
                 >
                   <Label htmlFor={field.name}>
                     {field.label}
-                    {field.required ? <span className="text-zoru-danger-ink"> *</span> : null}
+                    {field.required ? <span className="text-[var(--st-danger)]"> *</span> : null}
                   </Label>
                   <div className="mt-1.5">
                     {renderField(

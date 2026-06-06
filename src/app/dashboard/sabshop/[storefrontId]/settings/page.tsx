@@ -64,8 +64,8 @@ export default function SettingsPage() {
                 
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight text-zoru-ink">Settings</h1>
-                        <p className="text-zoru-ink-muted mt-1">Manage your store's configuration and preferences.</p>
+                        <h1 className="text-3xl font-bold tracking-tight text-[var(--st-text)]">Settings</h1>
+                        <p className="text-[var(--st-text-secondary)] mt-1">Manage your store's configuration and preferences.</p>
                     </div>
                     <Button onClick={handleSave} disabled={isSaving} className="gap-2">
                         {isSaving ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
@@ -87,11 +87,11 @@ export default function SettingsPage() {
                                     onClick={() => setActiveTab(tab.id as TabKey)}
                                     className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-medium ${
                                         isActive 
-                                            ? 'bg-zoru-brand/10 text-zoru-brand' 
-                                            : 'text-zoru-ink-muted hover:bg-zoru-background-hover hover:text-zoru-ink'
+                                            ? 'bg-[var(--st-accent)]/10 text-[var(--st-accent)]' 
+                                            : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-hover)] hover:text-[var(--st-text)]'
                                     }`}
                                 >
-                                    <Icon className={`h-4 w-4 ${isActive ? 'text-zoru-brand' : 'text-zoru-ink-muted'}`} />
+                                    <Icon className={`h-4 w-4 ${isActive ? 'text-[var(--st-accent)]' : 'text-[var(--st-text-secondary)]'}`} />
                                     {tab.label}
                                 </button>
                             );
@@ -101,7 +101,7 @@ export default function SettingsPage() {
                     <Separator />
 
                     <div>
-                        <h3 className="px-3 text-xs font-semibold uppercase tracking-wider text-zoru-ink-muted mb-2">Operations</h3>
+                        <h3 className="px-3 text-xs font-semibold uppercase tracking-wider text-[var(--st-text-secondary)] mb-2">Operations</h3>
                         <nav className="flex flex-col space-y-1">
                             {quickLinks.map((link) => {
                                 const Icon = link.icon;
@@ -109,7 +109,7 @@ export default function SettingsPage() {
                                     <Link
                                         key={link.id}
                                         href={link.href}
-                                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-medium text-zoru-ink-muted hover:bg-zoru-background-hover hover:text-zoru-ink"
+                                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-medium text-[var(--st-text-secondary)] hover:bg-[var(--st-hover)] hover:text-[var(--st-text)]"
                                     >
                                         <Icon className="h-4 w-4" />
                                         {link.label}
@@ -208,7 +208,7 @@ export default function SettingsPage() {
                                                 <ZoruSelectItem value="gbp">British Pound (GBP)</ZoruSelectItem>
                                             </ZoruSelectContent>
                                         </Select>
-                                        <p className="text-xs text-zoru-ink-muted mt-1">Changing your store currency can affect the pricing of your products and discounts.</p>
+                                        <p className="text-xs text-[var(--st-text-secondary)] mt-1">Changing your store currency can affect the pricing of your products and discounts.</p>
                                     </div>
                                 </ZoruCardContent>
                             </Card>
@@ -226,27 +226,27 @@ export default function SettingsPage() {
                                     <Badge variant="success">Active</Badge>
                                 </ZoruCardHeader>
                                 <ZoruCardContent className="space-y-4">
-                                    <div className="p-4 border border-zoru-border rounded-lg bg-zoru-background-hover flex items-center justify-between">
+                                    <div className="p-4 border border-[var(--st-border)] rounded-lg bg-[var(--st-hover)] flex items-center justify-between">
                                         <div className="flex items-center gap-4">
                                             <div className="h-10 w-10 bg-[#635BFF] rounded-md flex items-center justify-center">
                                                 <CreditCard className="text-white h-5 w-5" />
                                             </div>
                                             <div>
-                                                <p className="font-medium text-zoru-ink">Stripe</p>
-                                                <p className="text-sm text-zoru-ink-muted">Credit cards, Apple Pay, Google Pay</p>
+                                                <p className="font-medium text-[var(--st-text)]">Stripe</p>
+                                                <p className="text-sm text-[var(--st-text-secondary)]">Credit cards, Apple Pay, Google Pay</p>
                                             </div>
                                         </div>
                                         <Button variant="outline" size="sm">Manage</Button>
                                     </div>
                                     
-                                    <div className="p-4 border border-zoru-border rounded-lg flex items-center justify-between opacity-70">
+                                    <div className="p-4 border border-[var(--st-border)] rounded-lg flex items-center justify-between opacity-70">
                                         <div className="flex items-center gap-4">
                                             <div className="h-10 w-10 bg-[#00457C] rounded-md flex items-center justify-center">
                                                 <CreditCard className="text-white h-5 w-5" />
                                             </div>
                                             <div>
-                                                <p className="font-medium text-zoru-ink">PayPal Express Checkout</p>
-                                                <p className="text-sm text-zoru-ink-muted">Accept PayPal payments</p>
+                                                <p className="font-medium text-[var(--st-text)]">PayPal Express Checkout</p>
+                                                <p className="text-sm text-[var(--st-text-secondary)]">Accept PayPal payments</p>
                                             </div>
                                         </div>
                                         <Button variant="secondary" size="sm">Connect</Button>
@@ -260,17 +260,17 @@ export default function SettingsPage() {
                                     <ZoruCardDescription>Payments that are made outside of your online store.</ZoruCardDescription>
                                 </ZoruCardHeader>
                                 <ZoruCardContent className="space-y-4">
-                                    <div className="flex items-center justify-between p-4 border border-zoru-border rounded-lg">
+                                    <div className="flex items-center justify-between p-4 border border-[var(--st-border)] rounded-lg">
                                         <div className="space-y-1">
-                                            <p className="font-medium text-zoru-ink">Cash on Delivery (COD)</p>
-                                            <p className="text-sm text-zoru-ink-muted">Collect payment when the order is delivered.</p>
+                                            <p className="font-medium text-[var(--st-text)]">Cash on Delivery (COD)</p>
+                                            <p className="text-sm text-[var(--st-text-secondary)]">Collect payment when the order is delivered.</p>
                                         </div>
                                         <Switch defaultChecked />
                                     </div>
-                                    <div className="flex items-center justify-between p-4 border border-zoru-border rounded-lg">
+                                    <div className="flex items-center justify-between p-4 border border-[var(--st-border)] rounded-lg">
                                         <div className="space-y-1">
-                                            <p className="font-medium text-zoru-ink">Bank Deposit</p>
-                                            <p className="text-sm text-zoru-ink-muted">Customers transfer funds directly to your bank account.</p>
+                                            <p className="font-medium text-[var(--st-text)]">Bank Deposit</p>
+                                            <p className="text-sm text-[var(--st-text-secondary)]">Customers transfer funds directly to your bank account.</p>
                                         </div>
                                         <Switch />
                                     </div>
@@ -288,25 +288,25 @@ export default function SettingsPage() {
                                 </ZoruCardHeader>
                                 <ZoruCardContent className="space-y-4">
                                     <div className="space-y-3">
-                                        <label className="flex items-start gap-3 p-3 border border-zoru-border rounded-lg cursor-pointer hover:bg-zoru-background-hover transition-colors">
+                                        <label className="flex items-start gap-3 p-3 border border-[var(--st-border)] rounded-lg cursor-pointer hover:bg-[var(--st-hover)] transition-colors">
                                             <input type="radio" name="accounts" className="mt-1" />
                                             <div>
-                                                <p className="font-medium text-zoru-ink text-sm">Don't use accounts</p>
-                                                <p className="text-xs text-zoru-ink-muted">Customers will only be able to check out as guests.</p>
+                                                <p className="font-medium text-[var(--st-text)] text-sm">Don't use accounts</p>
+                                                <p className="text-xs text-[var(--st-text-secondary)]">Customers will only be able to check out as guests.</p>
                                             </div>
                                         </label>
-                                        <label className="flex items-start gap-3 p-3 border border-zoru-brand bg-zoru-brand/5 rounded-lg cursor-pointer transition-colors">
+                                        <label className="flex items-start gap-3 p-3 border border-[var(--st-accent)] bg-[var(--st-accent)]/5 rounded-lg cursor-pointer transition-colors">
                                             <input type="radio" name="accounts" className="mt-1" defaultChecked />
                                             <div>
-                                                <p className="font-medium text-zoru-ink text-sm">Accounts are optional</p>
-                                                <p className="text-xs text-zoru-ink-muted">Customers can check out with a customer account or as a guest.</p>
+                                                <p className="font-medium text-[var(--st-text)] text-sm">Accounts are optional</p>
+                                                <p className="text-xs text-[var(--st-text-secondary)]">Customers can check out with a customer account or as a guest.</p>
                                             </div>
                                         </label>
-                                        <label className="flex items-start gap-3 p-3 border border-zoru-border rounded-lg cursor-pointer hover:bg-zoru-background-hover transition-colors">
+                                        <label className="flex items-start gap-3 p-3 border border-[var(--st-border)] rounded-lg cursor-pointer hover:bg-[var(--st-hover)] transition-colors">
                                             <input type="radio" name="accounts" className="mt-1" />
                                             <div>
-                                                <p className="font-medium text-zoru-ink text-sm">Accounts are required</p>
-                                                <p className="text-xs text-zoru-ink-muted">Customers must create an account or log in to complete checkout.</p>
+                                                <p className="font-medium text-[var(--st-text)] text-sm">Accounts are required</p>
+                                                <p className="text-xs text-[var(--st-text-secondary)]">Customers must create an account or log in to complete checkout.</p>
                                             </div>
                                         </label>
                                     </div>
@@ -324,7 +324,7 @@ export default function SettingsPage() {
                                             <Switch defaultChecked />
                                             <Label>Phone number or email</Label>
                                         </div>
-                                        <p className="text-sm text-zoru-ink-muted pl-11">Customers can check out using either their phone number or email address.</p>
+                                        <p className="text-sm text-[var(--st-text-secondary)] pl-11">Customers can check out using either their phone number or email address.</p>
                                     </div>
                                 </ZoruCardContent>
                             </Card>
@@ -339,25 +339,25 @@ export default function SettingsPage() {
                                     <ZoruCardDescription>Customize the emails and SMS messages sent to your customers.</ZoruCardDescription>
                                 </ZoruCardHeader>
                                 <ZoruCardContent>
-                                    <div className="divide-y divide-zoru-border border border-zoru-border rounded-lg">
-                                        <div className="flex items-center justify-between p-4 hover:bg-zoru-background-hover transition-colors">
+                                    <div className="divide-y divide-[var(--st-border)] border border-[var(--st-border)] rounded-lg">
+                                        <div className="flex items-center justify-between p-4 hover:bg-[var(--st-hover)] transition-colors">
                                             <div>
-                                                <p className="font-medium text-zoru-ink text-sm">Order Confirmation</p>
-                                                <p className="text-xs text-zoru-ink-muted">Sent automatically to the customer after they place their order.</p>
+                                                <p className="font-medium text-[var(--st-text)] text-sm">Order Confirmation</p>
+                                                <p className="text-xs text-[var(--st-text-secondary)]">Sent automatically to the customer after they place their order.</p>
                                             </div>
                                             <Button variant="outline" size="sm">Edit</Button>
                                         </div>
-                                        <div className="flex items-center justify-between p-4 hover:bg-zoru-background-hover transition-colors">
+                                        <div className="flex items-center justify-between p-4 hover:bg-[var(--st-hover)] transition-colors">
                                             <div>
-                                                <p className="font-medium text-zoru-ink text-sm">Shipping Confirmation</p>
-                                                <p className="text-xs text-zoru-ink-muted">Sent automatically when their order has been shipped.</p>
+                                                <p className="font-medium text-[var(--st-text)] text-sm">Shipping Confirmation</p>
+                                                <p className="text-xs text-[var(--st-text-secondary)]">Sent automatically when their order has been shipped.</p>
                                             </div>
                                             <Button variant="outline" size="sm">Edit</Button>
                                         </div>
-                                        <div className="flex items-center justify-between p-4 hover:bg-zoru-background-hover transition-colors">
+                                        <div className="flex items-center justify-between p-4 hover:bg-[var(--st-hover)] transition-colors">
                                             <div>
-                                                <p className="font-medium text-zoru-ink text-sm">Customer Account Invite</p>
-                                                <p className="text-xs text-zoru-ink-muted">Sent to the customer with account activation instructions.</p>
+                                                <p className="font-medium text-[var(--st-text)] text-sm">Customer Account Invite</p>
+                                                <p className="text-xs text-[var(--st-text-secondary)]">Sent to the customer with account activation instructions.</p>
                                             </div>
                                             <Button variant="outline" size="sm">Edit</Button>
                                         </div>
@@ -378,9 +378,9 @@ export default function SettingsPage() {
                                     <Button size="sm" className="gap-2"><Plus className="h-4 w-4" /> Add Domain</Button>
                                 </ZoruCardHeader>
                                 <ZoruCardContent>
-                                    <div className="border border-zoru-border rounded-lg overflow-hidden">
+                                    <div className="border border-[var(--st-border)] rounded-lg overflow-hidden">
                                         <table className="w-full text-sm text-left">
-                                            <thead className="bg-zoru-background-hover border-b border-zoru-border text-xs uppercase text-zoru-ink-muted">
+                                            <thead className="bg-[var(--st-hover)] border-b border-[var(--st-border)] text-xs uppercase text-[var(--st-text-secondary)]">
                                                 <tr>
                                                     <th className="px-4 py-3 font-medium">Domain</th>
                                                     <th className="px-4 py-3 font-medium">Status</th>
@@ -388,22 +388,22 @@ export default function SettingsPage() {
                                                     <th className="px-4 py-3 text-right font-medium">Actions</th>
                                                 </tr>
                                             </thead>
-                                            <tbody className="divide-y divide-zoru-border">
-                                                <tr className="hover:bg-zoru-background-hover/50">
-                                                    <td className="px-4 py-4 font-medium text-zoru-ink flex items-center gap-2">
+                                            <tbody className="divide-y divide-[var(--st-border)]">
+                                                <tr className="hover:bg-[var(--st-hover)]/50">
+                                                    <td className="px-4 py-4 font-medium text-[var(--st-text)] flex items-center gap-2">
                                                         sabshop-official.vercel.app
                                                         <Badge variant="default" className="text-[10px] px-1 py-0 h-4">Primary</Badge>
                                                     </td>
                                                     <td className="px-4 py-4"><Badge variant="success">Connected</Badge></td>
-                                                    <td className="px-4 py-4 text-zoru-ink-muted">Sabnode Subdomain</td>
+                                                    <td className="px-4 py-4 text-[var(--st-text-secondary)]">Sabnode Subdomain</td>
                                                     <td className="px-4 py-4 text-right"><Button variant="ghost" size="sm">Manage</Button></td>
                                                 </tr>
-                                                <tr className="hover:bg-zoru-background-hover/50">
-                                                    <td className="px-4 py-4 font-medium text-zoru-ink">
+                                                <tr className="hover:bg-[var(--st-hover)]/50">
+                                                    <td className="px-4 py-4 font-medium text-[var(--st-text)]">
                                                         www.sabshop.com
                                                     </td>
                                                     <td className="px-4 py-4"><Badge variant="warning">Pending SSL</Badge></td>
-                                                    <td className="px-4 py-4 text-zoru-ink-muted">Custom Domain</td>
+                                                    <td className="px-4 py-4 text-[var(--st-text-secondary)]">Custom Domain</td>
                                                     <td className="px-4 py-4 text-right"><Button variant="ghost" size="sm">Manage</Button></td>
                                                 </tr>
                                             </tbody>

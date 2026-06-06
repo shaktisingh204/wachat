@@ -49,36 +49,36 @@ interface Props {
 /* ── Badge helpers ──────────────────────────────────────────────────────── */
 
 const CATEGORY_COLOURS: Record<string, string> = {
-  Data: 'bg-zoru-ink/60 text-zoru-ink-muted border-zoru-line/40',
-  Communication: 'bg-zoru-ink/60 text-zoru-ink-muted border-zoru-line/40',
-  DevOps: 'bg-zoru-ink/60 text-zoru-ink-muted border-zoru-line/40',
-  Finance: 'bg-zoru-ink/60 text-zoru-ink-muted border-zoru-line/40',
-  Productivity: 'bg-zoru-ink/60 text-zoru-ink-muted border-zoru-line/40',
+  Data: 'bg-[var(--st-text)]/60 text-[var(--st-text-secondary)] border-[var(--st-border)]/40',
+  Communication: 'bg-[var(--st-text)]/60 text-[var(--st-text-secondary)] border-[var(--st-border)]/40',
+  DevOps: 'bg-[var(--st-text)]/60 text-[var(--st-text-secondary)] border-[var(--st-border)]/40',
+  Finance: 'bg-[var(--st-text)]/60 text-[var(--st-text-secondary)] border-[var(--st-border)]/40',
+  Productivity: 'bg-[var(--st-text)]/60 text-[var(--st-text-secondary)] border-[var(--st-border)]/40',
   // Legacy registry categories
-  Sales: 'bg-zoru-ink/60 text-zoru-ink-muted border-zoru-line/40',
-  Marketing: 'bg-zoru-ink/60 text-zoru-ink-muted border-zoru-line/40',
-  Support: 'bg-zoru-ink/60 text-zoru-ink-muted border-zoru-line/40',
-  Ops: 'bg-zoru-ink/60 text-zoru-ink-muted border-zoru-line/40',
-  AI: 'bg-zoru-ink/60 text-zoru-ink-muted border-zoru-line/40',
-  HR: 'bg-zoru-ink/60 text-zoru-ink-muted border-zoru-line/40',
-  Health: 'bg-zoru-ink/60 text-zoru-ink-muted border-zoru-line/40',
-  WhatsApp: 'bg-zoru-ink/60 text-zoru-ink-muted border-zoru-line/40',
-  CRM: 'bg-zoru-ink/60 text-zoru-ink-muted border-zoru-line/40',
-  'E-commerce': 'bg-zoru-ink/60 text-zoru-ink-muted border-zoru-line/40',
+  Sales: 'bg-[var(--st-text)]/60 text-[var(--st-text-secondary)] border-[var(--st-border)]/40',
+  Marketing: 'bg-[var(--st-text)]/60 text-[var(--st-text-secondary)] border-[var(--st-border)]/40',
+  Support: 'bg-[var(--st-text)]/60 text-[var(--st-text-secondary)] border-[var(--st-border)]/40',
+  Ops: 'bg-[var(--st-text)]/60 text-[var(--st-text-secondary)] border-[var(--st-border)]/40',
+  AI: 'bg-[var(--st-text)]/60 text-[var(--st-text-secondary)] border-[var(--st-border)]/40',
+  HR: 'bg-[var(--st-text)]/60 text-[var(--st-text-secondary)] border-[var(--st-border)]/40',
+  Health: 'bg-[var(--st-text)]/60 text-[var(--st-text-secondary)] border-[var(--st-border)]/40',
+  WhatsApp: 'bg-[var(--st-text)]/60 text-[var(--st-text-secondary)] border-[var(--st-border)]/40',
+  CRM: 'bg-[var(--st-text)]/60 text-[var(--st-text-secondary)] border-[var(--st-border)]/40',
+  'E-commerce': 'bg-[var(--st-text)]/60 text-[var(--st-text-secondary)] border-[var(--st-border)]/40',
 };
 
 const COMPLEXITY_COLOURS: Record<string, string> = {
-  Starter: 'bg-zoru-ink/60 text-zoru-ink-muted border-zoru-line/40',
-  Intermediate: 'bg-zoru-ink/60 text-zoru-ink-muted border-zoru-line/40',
-  Advanced: 'bg-zoru-ink/60 text-zoru-ink-muted border-zoru-line/40',
+  Starter: 'bg-[var(--st-text)]/60 text-[var(--st-text-secondary)] border-[var(--st-border)]/40',
+  Intermediate: 'bg-[var(--st-text)]/60 text-[var(--st-text-secondary)] border-[var(--st-border)]/40',
+  Advanced: 'bg-[var(--st-text)]/60 text-[var(--st-text-secondary)] border-[var(--st-border)]/40',
 };
 
 function categoryColour(cat: string): string {
-  return CATEGORY_COLOURS[cat] ?? 'bg-zoru-ink text-zoru-ink-muted border-zoru-line';
+  return CATEGORY_COLOURS[cat] ?? 'bg-[var(--st-text)] text-[var(--st-text-secondary)] border-[var(--st-border)]';
 }
 
 function complexityColour(cmp: string): string {
-  return COMPLEXITY_COLOURS[cmp] ?? 'bg-zoru-ink text-zoru-ink-muted border-zoru-line';
+  return COMPLEXITY_COLOURS[cmp] ?? 'bg-[var(--st-text)] text-[var(--st-text-secondary)] border-[var(--st-border)]';
 }
 
 function formatCount(n: number): string {
@@ -97,24 +97,24 @@ export function TemplateCard({ template }: Props) {
     <>
       <article
         className={cn(
-          'group relative flex flex-col rounded-xl border border-zoru-line bg-zoru-ink',
-          'shadow-sm hover:shadow-md hover:border-zoru-line',
+          'group relative flex flex-col rounded-xl border border-[var(--st-border)] bg-[var(--st-text)]',
+          'shadow-sm hover:shadow-md hover:border-[var(--st-border)]',
           'transition-all duration-200 overflow-hidden',
         )}
         aria-label={`Template: ${template.name}`}
       >
         {/* ── Thumbnail strip ──────────────────────────────────────────────── */}
-        <div className="relative flex h-[110px] items-center justify-center overflow-hidden border-b border-zoru-line bg-zoru-ink">
+        <div className="relative flex h-[110px] items-center justify-center overflow-hidden border-b border-[var(--st-border)] bg-[var(--st-text)]">
           {/* Dot-grid background */}
           <div className="absolute inset-0 opacity-30 [background-image:radial-gradient(circle,#52525b_1px,transparent_1px)] [background-size:18px_18px]" />
           {/* Abstract flow preview */}
           <div className="relative flex items-center gap-2 opacity-60 group-hover:opacity-90 transition-opacity">
             {[0, 1, 2].map((i) => (
               <React.Fragment key={i}>
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-zoru-line bg-zoru-ink shadow-sm">
-                  <LuWorkflow className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.5} />
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--st-border)] bg-[var(--st-text)] shadow-sm">
+                  <LuWorkflow className="h-4 w-4 text-[var(--st-text-secondary)]" strokeWidth={1.5} />
                 </div>
-                {i < 2 && <div className="h-px w-5 bg-zoru-ink" />}
+                {i < 2 && <div className="h-px w-5 bg-[var(--st-text)]" />}
               </React.Fragment>
             ))}
           </div>
@@ -150,12 +150,12 @@ export function TemplateCard({ template }: Props) {
           </p>
 
           {/* Description — clamped to 2 lines */}
-          <p className="text-[11.5px] leading-relaxed text-zoru-ink-muted line-clamp-2 flex-1">
+          <p className="text-[11.5px] leading-relaxed text-[var(--st-text-secondary)] line-clamp-2 flex-1">
             {template.description}
           </p>
 
           {/* Meta row */}
-          <div className="flex items-center justify-between text-[10.5px] text-zoru-ink mt-auto pt-1 border-t border-zoru-line">
+          <div className="flex items-center justify-between text-[10.5px] text-[var(--st-text)] mt-auto pt-1 border-t border-[var(--st-border)]">
             <span className="flex items-center gap-1">
               <LuUser className="h-3 w-3" />
               <span className="truncate max-w-[100px]">{authorLabel}</span>
@@ -163,7 +163,7 @@ export function TemplateCard({ template }: Props) {
             <div className="flex items-center gap-2.5">
               {template.rating != null && template.rating > 0 && (
                 <span className="flex items-center gap-0.5">
-                  <LuStar className="h-3 w-3 fill-zoru-ink-muted text-zoru-ink-muted" />
+                  <LuStar className="h-3 w-3 fill-[var(--st-text-secondary)] text-[var(--st-text-secondary)]" />
                   {template.rating.toFixed(1)}
                 </span>
               )}
@@ -180,10 +180,10 @@ export function TemplateCard({ template }: Props) {
             onClick={() => setModalOpen(true)}
             className={cn(
               'mt-1 flex w-full items-center justify-center gap-1.5 rounded-lg border',
-              'border-zoru-line bg-zoru-ink py-2 text-[12px] font-medium text-white',
-              'hover:border-zoru-line hover:bg-zoru-ink hover:text-white',
+              'border-[var(--st-border)] bg-[var(--st-text)] py-2 text-[12px] font-medium text-white',
+              'hover:border-[var(--st-border)] hover:bg-[var(--st-text)] hover:text-white',
               'transition-colors duration-150',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-line',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-border)]',
             )}
             aria-label={`Use template ${template.name}`}
           >

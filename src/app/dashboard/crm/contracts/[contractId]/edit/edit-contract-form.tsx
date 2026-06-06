@@ -209,8 +209,8 @@ export function EditContractForm({ initial }: Props) {
         <div className="space-y-6">
           <Card className="p-6">
             <div className="mb-4">
-              <h2 className="text-[14px] font-semibold text-zoru-ink">Overview</h2>
-              <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+              <h2 className="text-[14px] font-semibold text-[var(--st-text)]">Overview</h2>
+              <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">
                 Title, status, and currency.
               </p>
             </div>
@@ -223,27 +223,27 @@ export function EditContractForm({ initial }: Props) {
               <div className="space-y-2 md:col-span-2">
                 <Label
                   htmlFor="title"
-                  className="text-[12.5px] text-zoru-ink-muted"
+                  className="text-[12.5px] text-[var(--st-text-secondary)]"
                 >
-                  Title <span className="text-zoru-danger">*</span>
+                  Title <span className="text-[var(--st-danger)]">*</span>
                 </Label>
                 <Input
                   id="title"
                   name="title"
                   required
                   defaultValue={initial.title}
-                  className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 />
               </div>
               <div className="space-y-2">
                 <Label
                   htmlFor="status"
-                  className="text-[12.5px] text-zoru-ink-muted"
+                  className="text-[12.5px] text-[var(--st-text-secondary)]"
                 >
                   Status
                 </Label>
                 <Select name="status" value={status} onValueChange={(val) => setStatus(val as ContractStatus)}>
-                  <ZoruSelectTrigger className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                  <ZoruSelectTrigger className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
                     <ZoruSelectValue />
                   </ZoruSelectTrigger>
                   <ZoruSelectContent>
@@ -261,7 +261,7 @@ export function EditContractForm({ initial }: Props) {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label className="text-[12.5px] text-zoru-ink-muted">
+                <Label className="text-[12.5px] text-[var(--st-text-secondary)]">
                   Currency
                 </Label>
                 <EntityFormField
@@ -276,15 +276,15 @@ export function EditContractForm({ initial }: Props) {
 
           <Card className="p-6">
             <div className="mb-4">
-              <h2 className="text-[14px] font-semibold text-zoru-ink">Parties</h2>
-              <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+              <h2 className="text-[14px] font-semibold text-[var(--st-text)]">Parties</h2>
+              <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">
                 Counter-party account and signers.
               </p>
             </div>
             <div className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label className="text-[12.5px] text-zoru-ink-muted">
+                  <Label className="text-[12.5px] text-[var(--st-text-secondary)]">
                     Counter-party account
                   </Label>
                   <EntityFormField
@@ -300,7 +300,7 @@ export function EditContractForm({ initial }: Props) {
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label className="text-[12.5px] text-zoru-ink-muted">
+                  <Label className="text-[12.5px] text-[var(--st-text-secondary)]">
                     Signers
                   </Label>
                   <Button
@@ -317,26 +317,26 @@ export function EditContractForm({ initial }: Props) {
                   {signers.map((row, idx) => (
                     <div
                       key={`signer-${idx}`}
-                      className="grid grid-cols-1 gap-2 rounded-lg border border-zoru-line bg-zoru-bg p-3 md:grid-cols-[1fr_1.4fr_1fr_auto]"
+                      className="grid grid-cols-1 gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] p-3 md:grid-cols-[1fr_1.4fr_1fr_auto]"
                     >
                       <Input
                         value={row.name}
                         placeholder="Name"
                         onChange={(e) => updateSigner(idx, { name: e.target.value })}
-                        className="h-9 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                        className="h-9 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                       />
                       <Input
                         type="email"
                         value={row.email}
                         placeholder="Email"
                         onChange={(e) => updateSigner(idx, { email: e.target.value })}
-                        className="h-9 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                        className="h-9 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                       />
                       <Input
                         value={row.role}
                         placeholder="Role (e.g. CFO)"
                         onChange={(e) => updateSigner(idx, { role: e.target.value })}
-                        className="h-9 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                        className="h-9 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                       />
                       <Button
                         type="button"
@@ -356,8 +356,8 @@ export function EditContractForm({ initial }: Props) {
 
           <Card className="p-6">
             <div className="mb-4">
-              <h2 className="text-[14px] font-semibold text-zoru-ink">Terms</h2>
-              <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+              <h2 className="text-[14px] font-semibold text-[var(--st-text)]">Terms</h2>
+              <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">
                 Dates, value, and body.
               </p>
             </div>
@@ -365,7 +365,7 @@ export function EditContractForm({ initial }: Props) {
               <div className="space-y-2">
                 <Label
                   htmlFor="startDate"
-                  className="text-[12.5px] text-zoru-ink-muted"
+                  className="text-[12.5px] text-[var(--st-text-secondary)]"
                 >
                   Start date
                 </Label>
@@ -374,13 +374,13 @@ export function EditContractForm({ initial }: Props) {
                   name="startDate"
                   type="date"
                   defaultValue={initial.startDate}
-                  className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 />
               </div>
               <div className="space-y-2">
                 <Label
                   htmlFor="endDate"
-                  className="text-[12.5px] text-zoru-ink-muted"
+                  className="text-[12.5px] text-[var(--st-text-secondary)]"
                 >
                   End date
                 </Label>
@@ -390,13 +390,13 @@ export function EditContractForm({ initial }: Props) {
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
-                  className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 />
               </div>
               <div className="space-y-2">
                 <Label
                   htmlFor="value"
-                  className="text-[12.5px] text-zoru-ink-muted"
+                  className="text-[12.5px] text-[var(--st-text-secondary)]"
                 >
                   Value
                 </Label>
@@ -406,13 +406,13 @@ export function EditContractForm({ initial }: Props) {
                   type="number"
                   step="0.01"
                   defaultValue={initial.value ?? ''}
-                  className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 />
               </div>
               <div className="space-y-2">
                 <Label
                   htmlFor="esignProvider"
-                  className="text-[12.5px] text-zoru-ink-muted"
+                  className="text-[12.5px] text-[var(--st-text-secondary)]"
                 >
                   E-sign provider
                 </Label>
@@ -420,7 +420,7 @@ export function EditContractForm({ initial }: Props) {
                   name="esignProvider"
                   defaultValue={initial.esignProvider || 'internal'}
                 >
-                  <ZoruSelectTrigger className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                  <ZoruSelectTrigger className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
                     <ZoruSelectValue />
                   </ZoruSelectTrigger>
                   <ZoruSelectContent>
@@ -436,7 +436,7 @@ export function EditContractForm({ initial }: Props) {
                 <div className="flex justify-between items-center">
                   <Label
                     htmlFor="body"
-                    className="text-[12.5px] text-zoru-ink-muted"
+                    className="text-[12.5px] text-[var(--st-text-secondary)]"
                   >
                     Contract body
                   </Label>
@@ -461,7 +461,7 @@ export function EditContractForm({ initial }: Props) {
                   rows={8}
                   value={bodyText}
                   onChange={(e) => setBodyText(e.target.value)}
-                  className="rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 />
               </div>
             </div>
@@ -470,8 +470,8 @@ export function EditContractForm({ initial }: Props) {
           <Card className="p-6">
             <div className="mb-4 flex items-center justify-between">
               <div>
-                <h2 className="text-[14px] font-semibold text-zoru-ink">Documents</h2>
-                <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+                <h2 className="text-[14px] font-semibold text-[var(--st-text)]">Documents</h2>
+                <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">
                   Attach files from SabFiles or upload new ones.
                 </p>
               </div>
@@ -481,17 +481,17 @@ export function EditContractForm({ initial }: Props) {
               </SabFilePickerButton>
             </div>
             {attachments.length === 0 ? (
-              <div className="rounded-lg border border-dashed border-zoru-line bg-zoru-bg px-4 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+              <div className="rounded-lg border border-dashed border-[var(--st-border)] bg-[var(--st-bg)] px-4 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                 No documents attached.
               </div>
             ) : (
-              <ul className="divide-y divide-zoru-line rounded-lg border border-zoru-line bg-zoru-bg">
+              <ul className="divide-y divide-[var(--st-border)] rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)]">
                 {attachments.map((a) => (
                   <li
                     key={a.id}
                     className="flex items-center justify-between px-3 py-2"
                   >
-                    <span className="truncate text-[13px] text-zoru-ink">
+                    <span className="truncate text-[13px] text-[var(--st-text)]">
                       {a.name}
                     </span>
                     <Button
@@ -510,8 +510,8 @@ export function EditContractForm({ initial }: Props) {
 
           <Card className="p-6">
             <div className="mb-4">
-              <h2 className="text-[14px] font-semibold text-zoru-ink">Renewal</h2>
-              <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+              <h2 className="text-[14px] font-semibold text-[var(--st-text)]">Renewal</h2>
+              <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">
                 Auto-renewal cadence and notice window.
               </p>
             </div>
@@ -525,7 +525,7 @@ export function EditContractForm({ initial }: Props) {
                 />
                 <Label
                   htmlFor="autoRenew"
-                  className="cursor-pointer text-[13px] text-zoru-ink"
+                  className="cursor-pointer text-[13px] text-[var(--st-text)]"
                 >
                   Auto-renew this contract
                 </Label>
@@ -533,7 +533,7 @@ export function EditContractForm({ initial }: Props) {
               <div className="space-y-2">
                 <Label
                   htmlFor="renewalNoticeDays"
-                  className="text-[12.5px] text-zoru-ink-muted"
+                  className="text-[12.5px] text-[var(--st-text-secondary)]"
                 >
                   Notice days
                 </Label>
@@ -546,10 +546,10 @@ export function EditContractForm({ initial }: Props) {
                   onChange={(e) =>
                     setRenewalNoticeDays(Number(e.target.value) || 0)
                   }
-                  className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 />
               </div>
-              <div className="md:col-span-2 rounded-lg border border-zoru-line bg-zoru-bg px-4 py-3 text-[12.5px] text-zoru-ink-muted">
+              <div className="md:col-span-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] px-4 py-3 text-[12.5px] text-[var(--st-text-secondary)]">
                 {renewalBanner}
               </div>
             </div>
@@ -557,8 +557,8 @@ export function EditContractForm({ initial }: Props) {
 
           <Card className="p-6">
             <div className="mb-4">
-              <h2 className="text-[14px] font-semibold text-zoru-ink">Notes</h2>
-              <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+              <h2 className="text-[14px] font-semibold text-[var(--st-text)]">Notes</h2>
+              <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">
                 Internal notes — not shown to signers.
               </p>
             </div>
@@ -567,11 +567,11 @@ export function EditContractForm({ initial }: Props) {
               name="notes"
               rows={4}
               defaultValue={initial.notes}
-              className="rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+              className="rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
             />
           </Card>
 
-          <div className="flex justify-end gap-2 border-t border-zoru-line pt-4">
+          <div className="flex justify-end gap-2 border-t border-[var(--st-border)] pt-4">
             <Button
               type="button"
               variant="outline"

@@ -114,13 +114,13 @@ const NavItem = ({ item, depth = 0 }: { item: MenuItem; depth?: number }) => {
                 'group flex items-center gap-2.5 rounded-lg py-2 pr-3 text-sm font-medium transition-colors relative',
                 indent,
                 isActive
-                    ? 'bg-zoru-surface-2 text-zoru-ink'
-                    : 'text-zoru-ink-muted hover:text-zoru-ink hover:bg-zoru-surface-2'
+                    ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
+                    : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]'
             )}
         >
             {/* Left indicator */}
             {isActive && (
-                <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[60%] rounded-r-full bg-zoru-ink" />
+                <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[60%] rounded-r-full bg-[var(--st-text)]" />
             )}
 
             {Icon && (
@@ -130,7 +130,7 @@ const NavItem = ({ item, depth = 0 }: { item: MenuItem; depth?: number }) => {
             <span className="flex-1 truncate">{item.label}</span>
 
             {item.new && (
-                <Badge className="ml-auto text-[10px] h-4 px-1.5 font-semibold bg-zoru-ink text-zoru-surface border-0">
+                <Badge className="ml-auto text-[10px] h-4 px-1.5 font-semibold bg-[var(--st-text)] text-[var(--st-bg-secondary)] border-0">
                     New
                 </Badge>
             )}
@@ -155,11 +155,11 @@ const NavCollapsible = ({ item }: { item: MenuItem }) => {
                 <button
                     className={cn(
                         'group flex w-full items-center gap-2.5 rounded-lg py-2 pl-3 pr-3 text-sm font-medium transition-colors relative',
-                        isOpenPath ? 'bg-zoru-surface-2 text-zoru-ink' : 'text-zoru-ink-muted hover:text-zoru-ink hover:bg-zoru-surface-2'
+                        isOpenPath ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]' : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]'
                     )}
                 >
                     {isOpenPath && (
-                        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[60%] rounded-r-full bg-zoru-ink" />
+                        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[60%] rounded-r-full bg-[var(--st-text)]" />
                     )}
                     {Icon && <Icon className="h-4 w-4 shrink-0" />}
                     <span className="flex-1 text-left truncate">{item.label}</span>
@@ -167,7 +167,7 @@ const NavCollapsible = ({ item }: { item: MenuItem }) => {
                 </button>
             </ZoruCollapsibleTrigger>
             <ZoruCollapsibleContent>
-                <div className="mt-0.5 ml-3 pl-3 flex flex-col gap-0.5 border-l border-zoru-line">
+                <div className="mt-0.5 ml-3 pl-3 flex flex-col gap-0.5 border-l border-[var(--st-border)]">
                     {(item.subItems || item.subSubItems || []).map((sub: any, i: number) =>
                         sub.subItems ? (
                             <NavCollapsible key={sub.label || i} item={sub} />
@@ -185,7 +185,7 @@ const NavCollapsible = ({ item }: { item: MenuItem }) => {
 
 const GroupLabel = ({ title }: { title: string }) => (
     <div className="px-3 pt-5 pb-1.5">
-        <span className="text-xs uppercase tracking-wider text-zoru-ink-muted/70 font-semibold">
+        <span className="text-xs uppercase tracking-wider text-[var(--st-text-secondary)]/70 font-semibold">
             {title}
         </span>
     </div>
@@ -212,18 +212,18 @@ function InlineProjectSwitcher() {
         <div className="px-2 py-2">
             <DropdownMenu>
                 <ZoruDropdownMenuTrigger asChild>
-                    <button className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-zoru-surface-2 group border border-zoru-line bg-zoru-surface">
-                        <div className="w-6 h-6 rounded-md flex items-center justify-center shrink-0 bg-zoru-ink text-zoru-surface text-[10px] font-bold">
+                    <button className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-[var(--st-bg-muted)] group border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+                        <div className="w-6 h-6 rounded-md flex items-center justify-center shrink-0 bg-[var(--st-text)] text-[var(--st-bg-secondary)] text-[10px] font-bold">
                             {(activeProject?.name?.[0] || 'P').toUpperCase()}
                         </div>
-                        <span className="flex-1 text-left truncate text-zoru-ink">
+                        <span className="flex-1 text-left truncate text-[var(--st-text)]">
                             {activeProject?.name || 'Select project'}
                         </span>
-                        <ChevronsUpDown className="h-3.5 w-3.5 shrink-0 text-zoru-ink-muted" />
+                        <ChevronsUpDown className="h-3.5 w-3.5 shrink-0 text-[var(--st-text-secondary)]" />
                     </button>
                 </ZoruDropdownMenuTrigger>
                 <ZoruDropdownMenuContent align="start" className="w-56 rounded-lg p-1.5">
-                    <div className="px-2 py-1 text-xs uppercase tracking-wider font-semibold text-zoru-ink-muted/70 mb-1">
+                    <div className="px-2 py-1 text-xs uppercase tracking-wider font-semibold text-[var(--st-text-secondary)]/70 mb-1">
                         Projects
                     </div>
                     {projects.map((p: any) => {
@@ -236,18 +236,18 @@ function InlineProjectSwitcher() {
                             >
                                 <div className={cn(
                                     'w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-bold shrink-0',
-                                    isSelected ? 'bg-zoru-ink text-zoru-surface' : 'bg-zoru-surface-2 text-zoru-ink-muted'
+                                    isSelected ? 'bg-[var(--st-text)] text-[var(--st-bg-secondary)]' : 'bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]'
                                 )}>
                                     {(p.name?.[0] || 'P').toUpperCase()}
                                 </div>
                                 <span className="flex-1 truncate font-medium">{p.name}</span>
-                                {isSelected && <Check className="h-3.5 w-3.5 shrink-0 text-zoru-ink" />}
+                                {isSelected && <Check className="h-3.5 w-3.5 shrink-0 text-[var(--st-text)]" />}
                             </ZoruDropdownMenuItem>
                         );
                     })}
                     <ZoruDropdownMenuSeparator />
                     <ZoruDropdownMenuItem asChild>
-                        <Link href="/wachat/setup" className="flex items-center gap-2 px-2 py-2 text-xs text-zoru-ink-muted rounded-md">
+                        <Link href="/wachat/setup" className="flex items-center gap-2 px-2 py-2 text-xs text-[var(--st-text-secondary)] rounded-md">
                             + Add project
                         </Link>
                     </ZoruDropdownMenuItem>
@@ -275,7 +275,7 @@ function AppHeader({ activeApp }: { activeApp: string }) {
                     <p className="text-sm font-bold tracking-tight leading-none text-[var(--app-text)]">
                         {meta.label}
                     </p>
-                    <p className="text-[10px] text-zoru-ink-muted mt-0.5">Navigation</p>
+                    <p className="text-[10px] text-[var(--st-text-secondary)] mt-0.5">Navigation</p>
                 </div>
             </div>
         </div>

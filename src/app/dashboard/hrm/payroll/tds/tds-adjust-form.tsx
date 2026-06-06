@@ -34,13 +34,13 @@ export function TdsAdjustForm({
                 </DialogHeader>
                 <div className="py-4 space-y-4">
                     <div className="space-y-2">
-                        <Label className="text-[13px] text-zoru-ink-muted">Employee</Label>
-                        <div className="font-medium text-zoru-ink">
+                        <Label className="text-[13px] text-[var(--st-text-secondary)]">Employee</Label>
+                        <div className="font-medium text-[var(--st-text)]">
                             {editingRow?.employee?.firstName} {editingRow?.employee?.lastName}
                         </div>
                     </div>
                     <div className="space-y-2">
-                        <Label className="text-[13px] text-zoru-ink-muted">New TDS Amount (₹)</Label>
+                        <Label className="text-[13px] text-[var(--st-text-secondary)]">New TDS Amount (₹)</Label>
                         <Input 
                             type="number" 
                             value={newTdsValue} 

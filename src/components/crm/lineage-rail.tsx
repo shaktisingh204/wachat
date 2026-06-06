@@ -159,16 +159,16 @@ export function LineageRail({
     return (
         <aside
             className={cn(
-                'rounded-lg border border-zoru-line bg-zoru-surface-2 p-4',
+                'rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4',
                 className,
             )}
         >
             {!hideTitle && (
                 <div className="mb-3">
-                    <h3 className="text-[13px] font-medium text-zoru-ink">
+                    <h3 className="text-[13px] font-medium text-[var(--st-text)]">
                         Linked Documents
                     </h3>
-                    <p className="mt-0.5 text-[11.5px] text-zoru-ink-muted">
+                    <p className="mt-0.5 text-[11.5px] text-[var(--st-text-secondary)]">
                         Document chain for this {KIND_LABEL[current.kind].toLowerCase()}.
                     </p>
                 </div>
@@ -210,24 +210,24 @@ function LineageRow({ kind, ref_, isCurrent, isFilled, isLast }: LineageRowProps
     const dotClass = cn(
         'relative z-10 mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border',
         isCurrent
-            ? 'border-zoru-primary bg-zoru-primary/15 text-zoru-primary'
+            ? 'border-[var(--st-text)] bg-[var(--st-text)]/15 text-[var(--st-text)]'
             : isFilled
-                ? 'border-zoru-line-strong bg-zoru-surface text-zoru-ink'
-                : 'border-zoru-line bg-zoru-surface-2 text-zoru-ink-muted/60',
+                ? 'border-[var(--st-border-strong)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]'
+                : 'border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]/60',
     );
 
     const labelClass = cn(
         'text-[12.5px] font-medium',
         isCurrent
-            ? 'text-zoru-ink'
+            ? 'text-[var(--st-text)]'
             : isFilled
-                ? 'text-zoru-ink'
-                : 'text-zoru-ink-muted',
+                ? 'text-[var(--st-text)]'
+                : 'text-[var(--st-text-secondary)]',
     );
 
     const rowClass = cn(
         'relative flex items-start gap-3 rounded-md px-2 py-2 transition-colors',
-        isCurrent && 'border-l-2 border-zoru-primary bg-zoru-surface',
+        isCurrent && 'border-l-2 border-[var(--st-text)] bg-[var(--st-bg-secondary)]',
     );
 
     const body = (
@@ -241,12 +241,12 @@ function LineageRow({ kind, ref_, isCurrent, isFilled, isLast }: LineageRowProps
                 )}
             </div>
             {isFilled && ref_ ? (
-                <div className="mt-0.5 truncate text-[11.5px] text-zoru-ink-muted">
+                <div className="mt-0.5 truncate text-[11.5px] text-[var(--st-text-secondary)]">
                     {ref_.no || ref_.id.slice(-6)}
-                    {isCurrent && <span className="ml-1.5 text-zoru-primary">(current)</span>}
+                    {isCurrent && <span className="ml-1.5 text-[var(--st-text)]">(current)</span>}
                 </div>
             ) : (
-                <div className="mt-0.5 text-[11.5px] italic text-zoru-ink-muted/70">
+                <div className="mt-0.5 text-[11.5px] italic text-[var(--st-text-secondary)]/70">
                     Not yet
                 </div>
             )}
@@ -259,7 +259,7 @@ function LineageRow({ kind, ref_, isCurrent, isFilled, isLast }: LineageRowProps
             {!isLast && (
                 <span
                     aria-hidden
-                    className="absolute left-[19px] top-7 z-0 h-[calc(100%-12px)] w-px bg-zoru-line"
+                    className="absolute left-[19px] top-7 z-0 h-[calc(100%-12px)] w-px bg-[var(--st-border)]"
                 />
             )}
             <span className={dotClass} aria-hidden>

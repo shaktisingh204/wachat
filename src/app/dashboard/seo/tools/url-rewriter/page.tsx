@@ -78,7 +78,7 @@ export default function UrlRewriterPage() {
             </div>
           </div>
           
-          <div className="flex flex-wrap items-center gap-6 p-4 bg-zoru-surface-2/40 border rounded-lg">
+          <div className="flex flex-wrap items-center gap-6 p-4 bg-[var(--st-bg-muted)]/40 border rounded-lg">
             <div className="flex items-center gap-2">
               <Switch checked={regex} onCheckedChange={setRegex} id="regex-switch" />
               <Label htmlFor="regex-switch" className="cursor-pointer">Regular Expression</Label>
@@ -100,7 +100,7 @@ export default function UrlRewriterPage() {
         </div>
 
         {error && (
-          <div className="p-3 bg-zoru-ink/10 text-zoru-ink dark:text-zoru-ink-muted border border-zoru-line/20 rounded-md text-sm">
+          <div className="p-3 bg-[var(--st-text)]/10 text-[var(--st-text)] dark:text-[var(--st-text-secondary)] border border-[var(--st-border)]/20 rounded-md text-sm">
             <strong>Regex Error:</strong> {error}
           </div>
         )}
@@ -108,21 +108,21 @@ export default function UrlRewriterPage() {
         <div className="space-y-4">
           <div className="space-y-2">
             <Label>Result Output</Label>
-            <div className="font-mono text-sm bg-zoru-surface-2 p-4 rounded-md break-all min-h-[3rem] border flex items-center">
-              {out || <span className="text-zoru-ink-muted">—</span>}
+            <div className="font-mono text-sm bg-[var(--st-bg-muted)] p-4 rounded-md break-all min-h-[3rem] border flex items-center">
+              {out || <span className="text-[var(--st-text-secondary)]">—</span>}
             </div>
           </div>
 
           {diffResult.length > 0 && (
             <div className="space-y-2">
               <Label>Highlight Changes</Label>
-              <div className="font-mono text-sm bg-zoru-surface-2/30 p-4 rounded-md break-all border leading-relaxed">
+              <div className="font-mono text-sm bg-[var(--st-bg-muted)]/30 p-4 rounded-md break-all border leading-relaxed">
                 {diffResult.map((part, i) => (
                   <span
                     key={i}
                     className={_zoruCn(
-                      part.added && "bg-zoru-ink/30 text-zoru-ink dark:text-white px-0.5 rounded",
-                      part.removed && "bg-zoru-ink/30 text-zoru-ink dark:text-white line-through px-0.5 rounded opacity-70",
+                      part.added && "bg-[var(--st-text)]/30 text-[var(--st-text)] dark:text-white px-0.5 rounded",
+                      part.removed && "bg-[var(--st-text)]/30 text-[var(--st-text)] dark:text-white line-through px-0.5 rounded opacity-70",
                       !part.added && !part.removed && "opacity-80"
                     )}
                   >
@@ -141,12 +141,12 @@ export default function UrlRewriterPage() {
             </h3>
             <div className="grid grid-cols-1 gap-2">
               {history.map((rule, idx) => (
-                <Card key={idx} className="p-3 flex items-center justify-between hover:bg-zoru-surface-2/30 transition-colors">
+                <Card key={idx} className="p-3 flex items-center justify-between hover:bg-[var(--st-bg-muted)]/30 transition-colors">
                   <div className="flex-1 flex flex-col sm:flex-row sm:items-center gap-2 overflow-hidden">
                     <div className="flex items-center gap-2 font-mono text-xs truncate">
-                      <span className="font-semibold text-zoru-ink truncate max-w-[150px]" title={rule.find}>{rule.find}</span>
-                      <span className="text-zoru-ink-muted">→</span>
-                      <span className="font-semibold text-zoru-ink truncate max-w-[150px]" title={rule.replace}>{rule.replace || '""'}</span>
+                      <span className="font-semibold text-[var(--st-text)] truncate max-w-[150px]" title={rule.find}>{rule.find}</span>
+                      <span className="text-[var(--st-text-secondary)]">→</span>
+                      <span className="font-semibold text-[var(--st-text)] truncate max-w-[150px]" title={rule.replace}>{rule.replace || '""'}</span>
                     </div>
                     <div className="flex items-center gap-1.5 mt-2 sm:mt-0 sm:ml-4">
                       {rule.regex && <Badge variant="outline" className="text-[10px] h-5 px-1.5">Regex</Badge>}
@@ -158,7 +158,7 @@ export default function UrlRewriterPage() {
                     <Button size="sm" variant="ghost" className="h-8 text-xs" onClick={() => loadRule(rule)}>
                       Load
                     </Button>
-                    <Button size="icon" variant="ghost" className="h-8 w-8 text-zoru-ink hover:text-zoru-ink hover:bg-zoru-ink/10" onClick={() => removeRule(idx)}>
+                    <Button size="icon" variant="ghost" className="h-8 w-8 text-[var(--st-text)] hover:text-[var(--st-text)] hover:bg-[var(--st-text)]/10" onClick={() => removeRule(idx)}>
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>

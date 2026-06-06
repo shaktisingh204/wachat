@@ -142,7 +142,7 @@ export default function TrainingCoursesClient({ initialCourses }: { initialCours
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">LMS & Training</h1>
-          <p className="text-zoru-ink-muted">Manage corporate training courses, monitor enrollments, and track progress.</p>
+          <p className="text-[var(--st-text-secondary)]">Manage corporate training courses, monitor enrollments, and track progress.</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" onClick={handleExportCSV}>
@@ -160,9 +160,9 @@ export default function TrainingCoursesClient({ initialCourses }: { initialCours
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-zoru-surface p-4 rounded-lg border">
+      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-[var(--st-bg-secondary)] p-4 rounded-lg border">
         <div className="relative w-full sm:max-w-xs">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
           <Input 
             placeholder="Search courses..." 
             className="pl-8 w-full"
@@ -172,7 +172,7 @@ export default function TrainingCoursesClient({ initialCourses }: { initialCours
         </div>
         {selectedIds.size > 0 && (
           <div className="flex items-center gap-2">
-            <span className="text-sm text-zoru-ink-muted">{selectedIds.size} selected</span>
+            <span className="text-sm text-[var(--st-text-secondary)]">{selectedIds.size} selected</span>
             <Button variant="destructive" size="sm" onClick={handleBulkDelete} disabled={isPending}>
               <Trash2 className="w-4 h-4 mr-2" />
               Bulk Delete
@@ -181,9 +181,9 @@ export default function TrainingCoursesClient({ initialCourses }: { initialCours
         )}
       </div>
 
-      <div className="bg-zoru-surface border rounded-lg overflow-hidden">
+      <div className="bg-[var(--st-bg-secondary)] border rounded-lg overflow-hidden">
         {/* Table Header */}
-        <div className="grid grid-cols-[auto_1fr_1fr_auto_auto_auto] gap-4 p-4 border-b bg-zoru-surface-2/50 font-medium text-sm text-zoru-ink-muted">
+        <div className="grid grid-cols-[auto_1fr_1fr_auto_auto_auto] gap-4 p-4 border-b bg-[var(--st-bg-muted)]/50 font-medium text-sm text-[var(--st-text-secondary)]">
           <div className="flex items-center">
             <Checkbox 
               checked={filteredCourses.length > 0 && selectedIds.size === filteredCourses.length}

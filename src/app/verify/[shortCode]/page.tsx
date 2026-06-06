@@ -25,21 +25,21 @@ export default function VerifyLinkPage({ params }: { params: Promise<{ shortCode
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zoru-ink px-4">
+    <div className="flex min-h-screen items-center justify-center bg-[var(--st-text)] px-4">
       <Card className="w-full max-w-sm p-8">
         <div className="flex flex-col items-center gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-ink">
-            <Lock className="h-5 w-5 text-zoru-ink-muted" />
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-text)]">
+            <Lock className="h-5 w-5 text-[var(--st-text-secondary)]" />
           </div>
           <div className="text-center">
-            <h1 className="text-[17px] font-medium text-zoru-ink">This link is protected</h1>
-            <p className="mt-1 text-[13px] text-zoru-ink-muted">Enter password to continue</p>
+            <h1 className="text-[17px] font-medium text-[var(--st-text)]">This link is protected</h1>
+            <p className="mt-1 text-[13px] text-[var(--st-text-secondary)]">Enter password to continue</p>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="password" className="text-[12.5px] text-zoru-ink-muted">
+            <Label htmlFor="password" className="text-[12.5px] text-[var(--st-text-secondary)]">
               Password
             </Label>
             <Input
@@ -52,7 +52,7 @@ export default function VerifyLinkPage({ params }: { params: Promise<{ shortCode
               autoFocus
             />
             {error ? (
-              <p className="text-[12px] text-zoru-danger-ink">{error}</p>
+              <p className="text-[12px] text-[var(--st-danger)]">{error}</p>
             ) : null}
           </div>
           <Button type="submit" className="w-full" disabled={isPending || !password}>

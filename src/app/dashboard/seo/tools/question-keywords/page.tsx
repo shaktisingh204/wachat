@@ -130,13 +130,13 @@ export default function QuestionKeywordsPage() {
                       <TableCell className="text-right">{r.cpc}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <div className="w-16 h-2 bg-zoru-surface-2 rounded-full overflow-hidden">
+                          <div className="w-16 h-2 bg-[var(--st-bg-muted)] rounded-full overflow-hidden">
                             <div 
-                              className="h-full bg-zoru-ink" 
+                              className="h-full bg-[var(--st-text)]" 
                               style={{ width: `${r.competition}%` }} 
                             />
                           </div>
-                          <span className="text-xs w-6 text-zoru-ink-muted">{r.competition}</span>
+                          <span className="text-xs w-6 text-[var(--st-text-secondary)]">{r.competition}</span>
                         </div>
                       </TableCell>
                     </TableRow>

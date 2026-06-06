@@ -111,19 +111,19 @@ function ShopCard({ project }: { project: WithId<Project> }) {
   return (
     <Card className="flex flex-col p-5">
       <div className="flex items-start gap-3">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)]">
           <FacebookGlyph className="h-5 w-5" />
         </span>
         <div className="min-w-0 flex-1">
-          <h3 className="truncate text-[16px] tracking-tight text-zoru-ink leading-tight">
+          <h3 className="truncate text-[16px] tracking-tight text-[var(--st-text)] leading-tight">
             {project.name}
           </h3>
-          <p className="mt-0.5 truncate text-[12px] text-zoru-ink-muted">
+          <p className="mt-0.5 truncate text-[12px] text-[var(--st-text-secondary)]">
             Page ID: {project.facebookPageId ?? "—"}
           </p>
         </div>
       </div>
-      <p className="mt-4 flex-1 text-[13px] text-zoru-ink-muted">
+      <p className="mt-4 flex-1 text-[13px] text-[var(--st-text-secondary)]">
         Manage products, pages, and automation for this Facebook Page.
       </p>
       <div className="mt-4">

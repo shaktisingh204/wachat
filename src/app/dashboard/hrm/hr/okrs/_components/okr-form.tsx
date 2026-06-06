@@ -355,7 +355,7 @@ export function OkrForm({ initialData }: OkrFormProps) {
                         </Button>
                     </div>
                     {keyResults.length === 0 ? (
-                        <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                        <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                             No key results yet. Click &ldquo;Add KR&rdquo; to add one.
                         </div>
                     ) : (
@@ -363,7 +363,7 @@ export function OkrForm({ initialData }: OkrFormProps) {
                             {keyResults.map((kr) => (
                                 <div
                                     key={kr.id}
-                                    className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-3"
+                                    className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3"
                                 >
                                     <div className="mb-2 flex items-start gap-2">
                                         <div className="flex-1 space-y-1.5">
@@ -386,7 +386,7 @@ export function OkrForm({ initialData }: OkrFormProps) {
                                             onClick={() => removeKr(kr.id)}
                                             aria-label="Remove key result"
                                         >
-                                            <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                            <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                         </Button>
                                     </div>
                                     <div className="grid gap-3 sm:grid-cols-4">

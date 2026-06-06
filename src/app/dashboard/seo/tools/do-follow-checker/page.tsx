@@ -107,8 +107,8 @@ export default function DoFollowCheckerPage() {
       </div>
 
       {error && (
-        <Card className="border-zoru-line/50">
-          <ZoruCardContent className="p-4 text-sm text-zoru-ink flex items-center gap-2">
+        <Card className="border-[var(--st-border)]/50">
+          <ZoruCardContent className="p-4 text-sm text-[var(--st-text)] flex items-center gap-2">
             <AlertTriangle className="w-4 h-4" />
             {error}
           </ZoruCardContent>
@@ -135,7 +135,7 @@ export default function DoFollowCheckerPage() {
                   {data.dofollow.map((l, i) => (
                     <div key={i} className="flex flex-col text-xs break-all border-b pb-2 last:border-0 space-y-1" title={l.text}>
                       <span className="font-medium">{l.text || '(no text)'}</span>
-                      <span className="font-mono text-zoru-text-muted">{l.href}</span>
+                      <span className="font-mono text-[var(--st-text-secondary)]">{l.href}</span>
                     </div>
                   ))}
                 </div>
@@ -148,7 +148,7 @@ export default function DoFollowCheckerPage() {
                   {data.nofollow.map((l, i) => (
                     <div key={i} className="flex flex-col text-xs break-all border-b pb-2 last:border-0 space-y-1" title={l.text}>
                       <span className="font-medium">{l.text || '(no text)'}</span>
-                      <span className="font-mono text-zoru-text-muted">{l.href}</span>
+                      <span className="font-mono text-[var(--st-text-secondary)]">{l.href}</span>
                     </div>
                   ))}
                 </div>

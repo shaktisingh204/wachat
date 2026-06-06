@@ -609,14 +609,14 @@ export default function GanttPage() {
         <div className="mb-4 flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2">
             <GanttChart
-              className="h-4 w-4 text-zoru-ink-muted"
+              className="h-4 w-4 text-[var(--st-text-secondary)]"
               strokeWidth={1.75}
             />
             <Select
               value={selectedProjectId}
               onValueChange={(v) => setSelectedProjectId(v)}
             >
-              <ZoruSelectTrigger className="h-9 w-[260px] rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+              <ZoruSelectTrigger className="h-9 w-[260px] rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
                 <ZoruSelectValue placeholder="Select a project" />
               </ZoruSelectTrigger>
               <ZoruSelectContent>
@@ -629,12 +629,12 @@ export default function GanttPage() {
             </Select>
           </div>
 
-          <span className="text-[11.5px] text-zoru-ink-muted">Legend:</span>
+          <span className="text-[11.5px] text-[var(--st-text-secondary)]">Legend:</span>
           <Badge variant="warning">In progress</Badge>
           <Badge variant="success">Done</Badge>
           <Badge variant="ghost">To-do</Badge>
 
-          <span className="ml-auto flex items-center gap-2 text-[11.5px] text-zoru-ink-muted">
+          <span className="ml-auto flex items-center gap-2 text-[11.5px] text-[var(--st-text-secondary)]">
             {saving ? (
               <>
                 <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
@@ -647,27 +647,27 @@ export default function GanttPage() {
         </div>
 
         {!selectedProjectId ? (
-          <div className="rounded-lg border border-dashed border-zoru-line p-12 text-center">
-            <p className="text-[13px] text-zoru-ink-muted">
+          <div className="rounded-lg border border-dashed border-[var(--st-border)] p-12 text-center">
+            <p className="text-[13px] text-[var(--st-text-secondary)]">
               Select a project to view its Gantt chart.
             </p>
           </div>
         ) : tasks.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-zoru-line p-12 text-center">
-            <p className="text-[13px] text-zoru-ink-muted">
+          <div className="rounded-lg border border-dashed border-[var(--st-border)] p-12 text-center">
+            <p className="text-[13px] text-[var(--st-text-secondary)]">
               This project has no tasks yet. Add tasks with start + due dates
               to see them on the timeline.
             </p>
           </div>
         ) : (
-          <div className="flex overflow-hidden rounded-lg border border-zoru-line">
+          <div className="flex overflow-hidden rounded-lg border border-[var(--st-border)]">
             {/* Left column: task labels */}
             <div
-              className="shrink-0 border-r border-zoru-line bg-zoru-surface"
+              className="shrink-0 border-r border-[var(--st-border)] bg-[var(--st-bg-secondary)]"
               style={{ width: GANTT_LABEL_WIDTH }}
             >
               <div
-                className="border-b border-zoru-line bg-zoru-surface-2 px-3 text-[11.5px] font-medium uppercase tracking-wide text-zoru-ink-muted"
+                className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 text-[11.5px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]"
                 style={{
                   height: GANTT_HEADER_HEIGHT,
                   lineHeight: `${GANTT_HEADER_HEIGHT}px`,
@@ -678,7 +678,7 @@ export default function GanttPage() {
               {tasks.map((t) => (
                 <div
                   key={t._id}
-                  className="flex items-center border-b border-zoru-line px-3 text-[12.5px] text-zoru-ink"
+                  className="flex items-center border-b border-[var(--st-border)] px-3 text-[12.5px] text-[var(--st-text)]"
                   style={{ height: GANTT_ROW_HEIGHT }}
                   title={t.heading}
                 >
@@ -794,10 +794,10 @@ export default function GanttPage() {
       >
         <ZoruAlertDialogContent>
           <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle className="text-zoru-ink">
+            <ZoruAlertDialogTitle className="text-[var(--st-text)]">
               Delete dependency?
             </ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription className="text-zoru-ink-muted">
+            <ZoruAlertDialogDescription className="text-[var(--st-text-secondary)]">
               Remove the link between these two tasks? This does not delete the
               tasks themselves.
             </ZoruAlertDialogDescription>

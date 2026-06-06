@@ -67,7 +67,7 @@ export default function NewBudgetPage() {
           {/* Budget Head Type + Head Picker */}
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor="budgetHeadType" className="text-zoru-ink">
+              <Label htmlFor="budgetHeadType" className="text-[var(--st-text)]">
                 Head Type
               </Label>
               <Select
@@ -87,8 +87,8 @@ export default function NewBudgetPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-zoru-ink">
-                Budget Head <span className="text-zoru-danger-ink">*</span>
+              <Label className="text-[var(--st-text)]">
+                Budget Head <span className="text-[var(--st-danger)]">*</span>
               </Label>
               <EntityFormField
                 key={headType}
@@ -98,7 +98,7 @@ export default function NewBudgetPage() {
                 required
                 placeholder="Select head…"
               />
-              <p className="text-[11.5px] text-zoru-ink-muted">
+              <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                 Account, department, or project for this budget.
               </p>
             </div>
@@ -107,7 +107,7 @@ export default function NewBudgetPage() {
           {/* Period */}
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor="period" className="text-zoru-ink">
+              <Label htmlFor="period" className="text-[var(--st-text)]">
                 Period
               </Label>
               <Input
@@ -124,7 +124,7 @@ export default function NewBudgetPage() {
           {/* Scenario + Plan Amount */}
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor="scenario" className="text-zoru-ink">
+              <Label htmlFor="scenario" className="text-[var(--st-text)]">
                 Scenario
               </Label>
               <Select name="scenario" defaultValue="base">
@@ -140,7 +140,7 @@ export default function NewBudgetPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="planAmount" className="text-zoru-ink">
+              <Label htmlFor="planAmount" className="text-[var(--st-text)]">
                 Plan Amount (₹)
               </Label>
               <Input
@@ -158,7 +158,7 @@ export default function NewBudgetPage() {
           {/* Alert At + Owner */}
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor="alertAt" className="text-zoru-ink">
+              <Label htmlFor="alertAt" className="text-[var(--st-text)]">
                 Alert At %
               </Label>
               <Input
@@ -169,13 +169,13 @@ export default function NewBudgetPage() {
                 max={100}
                 placeholder="e.g. 80"
               />
-              <p className="text-[11.5px] text-zoru-ink-muted">
+              <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                 Send an alert when actuals reach this % of the plan.
               </p>
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-zoru-ink">
+              <Label className="text-[var(--st-text)]">
                 Owner
               </Label>
               <EntityFormField
@@ -189,7 +189,7 @@ export default function NewBudgetPage() {
 
           {/* Notes */}
           <div className="space-y-1.5">
-            <Label htmlFor="notes" className="text-zoru-ink">
+            <Label htmlFor="notes" className="text-[var(--st-text)]">
               Notes (Optional)
             </Label>
             <Textarea

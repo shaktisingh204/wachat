@@ -25,13 +25,13 @@ export function VoucherBooksBulkBar({
     pending,
 }: BulkBarProps) {
     return (
-        <div className="flex items-center justify-between gap-2 text-[13px] text-zoru-ink">
+        <div className="flex items-center justify-between gap-2 text-[13px] text-[var(--st-text)]">
             <div>
                 <strong>{selectedCount}</strong> selected
                 <button
                     type="button"
                     onClick={onClear}
-                    className="ml-2 text-zoru-ink-muted underline-offset-2 hover:underline"
+                    className="ml-2 text-[var(--st-text-secondary)] underline-offset-2 hover:underline"
                 >
                     clear
                 </button>

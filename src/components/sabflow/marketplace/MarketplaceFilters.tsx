@@ -55,11 +55,11 @@ const COMPLEXITIES: MarketplaceComplexity[] = ['All', 'Starter', 'Intermediate',
 const COMPLEXITY_COLOURS: Record<MarketplaceComplexity, string> = {
   All: '',
   Starter:
-    'data-[active=true]:border-zoru-line data-[active=true]:bg-zoru-ink/40 data-[active=true]:text-zoru-ink-muted',
+    'data-[active=true]:border-[var(--st-border)] data-[active=true]:bg-[var(--st-text)]/40 data-[active=true]:text-[var(--st-text-secondary)]',
   Intermediate:
-    'data-[active=true]:border-zoru-line data-[active=true]:bg-zoru-ink/40 data-[active=true]:text-zoru-ink-muted',
+    'data-[active=true]:border-[var(--st-border)] data-[active=true]:bg-[var(--st-text)]/40 data-[active=true]:text-[var(--st-text-secondary)]',
   Advanced:
-    'data-[active=true]:border-zoru-line data-[active=true]:bg-zoru-ink/40 data-[active=true]:text-zoru-ink-muted',
+    'data-[active=true]:border-[var(--st-border)] data-[active=true]:bg-[var(--st-text)]/40 data-[active=true]:text-[var(--st-text-secondary)]',
 };
 
 const DEBOUNCE_MS = 300;
@@ -110,7 +110,7 @@ export function MarketplaceFilters({ value, onChange }: Props) {
     <div className="flex flex-col gap-4">
       {/* ── Search ─────────────────────────────────────────────────────────── */}
       <div className="relative">
-        <LuSearch className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink" />
+        <LuSearch className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text)]" />
         <input
           type="search"
           aria-label="Search templates"
@@ -118,10 +118,10 @@ export function MarketplaceFilters({ value, onChange }: Props) {
           value={rawSearch}
           onChange={handleSearchChange}
           className={cn(
-            'w-full rounded-xl border border-zoru-line bg-zoru-ink py-2.5 pl-9 pr-9',
-            'text-[13px] text-white placeholder-zoru-ink',
+            'w-full rounded-xl border border-[var(--st-border)] bg-[var(--st-text)] py-2.5 pl-9 pr-9',
+            'text-[13px] text-white placeholder-[var(--st-text)]',
             'outline-none transition-colors',
-            'focus:border-zoru-line focus:ring-2 focus:ring-zoru-line/30',
+            'focus:border-[var(--st-border)] focus:ring-2 focus:ring-[var(--st-border)]/30',
           )}
         />
         {rawSearch && (
@@ -129,7 +129,7 @@ export function MarketplaceFilters({ value, onChange }: Props) {
             type="button"
             aria-label="Clear search"
             onClick={clearSearch}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-zoru-ink hover:text-zoru-ink-muted transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--st-text)] hover:text-[var(--st-text-secondary)] transition-colors"
           >
             <LuX className="h-3.5 w-3.5" />
           </button>
@@ -148,10 +148,10 @@ export function MarketplaceFilters({ value, onChange }: Props) {
               data-active={isActive}
               className={cn(
                 'inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-medium',
-                'transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-line',
+                'transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-border)]',
                 isActive
-                  ? 'border-zoru-line bg-zoru-ink text-white'
-                  : 'border-zoru-line bg-zoru-ink text-zoru-ink-muted hover:border-zoru-line hover:text-white',
+                  ? 'border-[var(--st-border)] bg-[var(--st-text)] text-white'
+                  : 'border-[var(--st-border)] bg-[var(--st-text)] text-[var(--st-text-secondary)] hover:border-[var(--st-border)] hover:text-white',
               )}
               aria-pressed={isActive}
             >
@@ -163,7 +163,7 @@ export function MarketplaceFilters({ value, onChange }: Props) {
 
       {/* ── Complexity chips ─────────────────────────────────────────────────── */}
       <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="Complexity filter">
-        <span className="text-[11px] font-medium text-zoru-ink mr-1">Complexity:</span>
+        <span className="text-[11px] font-medium text-[var(--st-text)] mr-1">Complexity:</span>
         {COMPLEXITIES.map((cmp) => {
           const isActive = value.complexity === cmp;
           const colourClass = COMPLEXITY_COLOURS[cmp];
@@ -175,10 +175,10 @@ export function MarketplaceFilters({ value, onChange }: Props) {
               data-active={isActive}
               className={cn(
                 'inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-medium',
-                'transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-line',
+                'transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-border)]',
                 isActive
-                  ? cn('border-zoru-line bg-zoru-ink text-white', colourClass)
-                  : 'border-zoru-line bg-zoru-ink text-zoru-ink-muted hover:border-zoru-line hover:text-white',
+                  ? cn('border-[var(--st-border)] bg-[var(--st-text)] text-white', colourClass)
+                  : 'border-[var(--st-border)] bg-[var(--st-text)] text-[var(--st-text-secondary)] hover:border-[var(--st-border)] hover:text-white',
               )}
               aria-pressed={isActive}
             >
@@ -194,7 +194,7 @@ export function MarketplaceFilters({ value, onChange }: Props) {
           <button
             type="button"
             onClick={reset}
-            className="text-[11px] text-zoru-ink-muted underline underline-offset-2 hover:text-white transition-colors"
+            className="text-[11px] text-[var(--st-text-secondary)] underline underline-offset-2 hover:text-white transition-colors"
           >
             Reset filters
           </button>

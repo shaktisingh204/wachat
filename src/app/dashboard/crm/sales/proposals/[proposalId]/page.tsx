@@ -299,7 +299,7 @@ export default function ProposalDetailPage(props: {
     return (
       <Card className="border-dashed p-6">
         <div className="flex flex-col items-center gap-3 py-12 text-center">
-          <p className="text-[13px] text-zoru-ink-muted">Proposal not found.</p>
+          <p className="text-[13px] text-[var(--st-text-secondary)]">Proposal not found.</p>
           <Button variant="outline" asChild>
             <Link href="/dashboard/crm/sales/proposals">Back to Proposals</Link>
           </Button>
@@ -378,41 +378,41 @@ export default function ProposalDetailPage(props: {
         </div>
         <div className="grid gap-4 md:grid-cols-4">
           <div className="flex items-start gap-3">
-            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zoru-surface-2">
-              <UserIcon className="h-4 w-4 text-zoru-ink" strokeWidth={1.75} />
+            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--st-bg-muted)]">
+              <UserIcon className="h-4 w-4 text-[var(--st-text)]" strokeWidth={1.75} />
             </div>
             <div>
-              <p className="text-[11.5px] text-zoru-ink-muted">Client</p>
-              <p className="text-[13px] text-zoru-ink">
+              <p className="text-[11.5px] text-[var(--st-text-secondary)]">Client</p>
+              <p className="text-[13px] text-[var(--st-text)]">
                 {proposal.client_id ? String(proposal.client_id) : '—'}
               </p>
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zoru-surface-2">
-              <Calendar className="h-4 w-4 text-zoru-ink" strokeWidth={1.75} />
+            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--st-bg-muted)]">
+              <Calendar className="h-4 w-4 text-[var(--st-text)]" strokeWidth={1.75} />
             </div>
             <div>
-              <p className="text-[11.5px] text-zoru-ink-muted">Issued</p>
-              <p className="text-[13px] text-zoru-ink">{fmtDate(proposal.issue_date)}</p>
+              <p className="text-[11.5px] text-[var(--st-text-secondary)]">Issued</p>
+              <p className="text-[13px] text-[var(--st-text)]">{fmtDate(proposal.issue_date)}</p>
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zoru-surface-2">
-              <Calendar className="h-4 w-4 text-zoru-ink" strokeWidth={1.75} />
+            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--st-bg-muted)]">
+              <Calendar className="h-4 w-4 text-[var(--st-text)]" strokeWidth={1.75} />
             </div>
             <div>
-              <p className="text-[11.5px] text-zoru-ink-muted">Valid Until</p>
-              <p className="text-[13px] text-zoru-ink">{fmtDate(proposal.valid_until)}</p>
+              <p className="text-[11.5px] text-[var(--st-text-secondary)]">Valid Until</p>
+              <p className="text-[13px] text-[var(--st-text)]">{fmtDate(proposal.valid_until)}</p>
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zoru-surface-2">
-              <DollarSign className="h-4 w-4 text-zoru-ink" strokeWidth={1.75} />
+            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--st-bg-muted)]">
+              <DollarSign className="h-4 w-4 text-[var(--st-text)]" strokeWidth={1.75} />
             </div>
             <div>
-              <p className="text-[11.5px] text-zoru-ink-muted">Total</p>
-              <p className="text-[13px] text-zoru-ink">
+              <p className="text-[11.5px] text-[var(--st-text-secondary)]">Total</p>
+              <p className="text-[13px] text-[var(--st-text)]">
                 {fmtCurrency(proposal.total, proposal.currency)}
               </p>
             </div>
@@ -422,45 +422,45 @@ export default function ProposalDetailPage(props: {
 
       {/* Line items */}
       <Card className="p-6">
-        <h2 className="mb-3 text-[16px] text-zoru-ink">Line Items</h2>
-        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+        <h2 className="mb-3 text-[16px] text-[var(--st-text)]">Line Items</h2>
+        <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <table className="w-full text-[13px]">
-            <thead className="bg-zoru-surface-2">
-              <tr className="border-b border-zoru-line">
-                <th className="p-3 text-left text-zoru-ink">Item</th>
-                <th className="p-3 text-right text-zoru-ink">Qty</th>
-                <th className="p-3 text-right text-zoru-ink">Unit</th>
-                <th className="p-3 text-right text-zoru-ink">Tax</th>
-                <th className="p-3 text-right text-zoru-ink">Total</th>
+            <thead className="bg-[var(--st-bg-muted)]">
+              <tr className="border-b border-[var(--st-border)]">
+                <th className="p-3 text-left text-[var(--st-text)]">Item</th>
+                <th className="p-3 text-right text-[var(--st-text)]">Qty</th>
+                <th className="p-3 text-right text-[var(--st-text)]">Unit</th>
+                <th className="p-3 text-right text-[var(--st-text)]">Tax</th>
+                <th className="p-3 text-right text-[var(--st-text)]">Total</th>
               </tr>
             </thead>
             <tbody>
               {data.items.length === 0 ? (
-                <tr className="border-b border-zoru-line">
+                <tr className="border-b border-[var(--st-border)]">
                   <td
                     colSpan={5}
-                    className="p-6 text-center text-[12.5px] text-zoru-ink-muted"
+                    className="p-6 text-center text-[12.5px] text-[var(--st-text-secondary)]"
                   >
                     No line items.
                   </td>
                 </tr>
               ) : (
                 data.items.map((it) => (
-                  <tr key={it._id} className="border-b border-zoru-line">
-                    <td className="p-3 align-top text-zoru-ink">
+                  <tr key={it._id} className="border-b border-[var(--st-border)]">
+                    <td className="p-3 align-top text-[var(--st-text)]">
                       <div>{it.name}</div>
                       {it.description ? (
-                        <div className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+                        <div className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">
                           {it.description}
                         </div>
                       ) : null}
                     </td>
-                    <td className="p-3 text-right align-top text-zoru-ink">{it.quantity}</td>
-                    <td className="p-3 text-right align-top text-zoru-ink">
+                    <td className="p-3 text-right align-top text-[var(--st-text)]">{it.quantity}</td>
+                    <td className="p-3 text-right align-top text-[var(--st-text)]">
                       {fmtCurrency(it.unit_price, proposal.currency)}
                     </td>
-                    <td className="p-3 text-right align-top text-zoru-ink">{it.tax}%</td>
-                    <td className="p-3 text-right align-top text-zoru-ink">
+                    <td className="p-3 text-right align-top text-[var(--st-text)]">{it.tax}%</td>
+                    <td className="p-3 text-right align-top text-[var(--st-text)]">
                       {fmtCurrency(it.total, proposal.currency)}
                     </td>
                   </tr>
@@ -469,31 +469,31 @@ export default function ProposalDetailPage(props: {
             </tbody>
             <tfoot>
               <tr>
-                <td colSpan={4} className="p-3 text-right text-zoru-ink">Subtotal</td>
-                <td className="p-3 text-right text-zoru-ink">
+                <td colSpan={4} className="p-3 text-right text-[var(--st-text)]">Subtotal</td>
+                <td className="p-3 text-right text-[var(--st-text)]">
                   {fmtCurrency(proposal.subtotal, proposal.currency)}
                 </td>
               </tr>
               <tr>
-                <td colSpan={4} className="p-3 text-right text-zoru-ink">Tax</td>
-                <td className="p-3 text-right text-zoru-ink">
+                <td colSpan={4} className="p-3 text-right text-[var(--st-text)]">Tax</td>
+                <td className="p-3 text-right text-[var(--st-text)]">
                   {fmtCurrency(proposal.tax, proposal.currency)}
                 </td>
               </tr>
               <tr>
-                <td colSpan={4} className="p-3 text-right text-zoru-ink">Discount</td>
-                <td className="p-3 text-right text-zoru-ink">
+                <td colSpan={4} className="p-3 text-right text-[var(--st-text)]">Discount</td>
+                <td className="p-3 text-right text-[var(--st-text)]">
                   −{fmtCurrency(proposal.discount, proposal.currency)}
                 </td>
               </tr>
               <tr>
                 <td
                   colSpan={4}
-                  className="border-t border-zoru-line p-3 text-right text-zoru-ink"
+                  className="border-t border-[var(--st-border)] p-3 text-right text-[var(--st-text)]"
                 >
                   Total
                 </td>
-                <td className="border-t border-zoru-line p-3 text-right text-zoru-ink">
+                <td className="border-t border-[var(--st-border)] p-3 text-right text-[var(--st-text)]">
                   {fmtCurrency(proposal.total, proposal.currency)}
                 </td>
               </tr>
@@ -505,18 +505,18 @@ export default function ProposalDetailPage(props: {
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             {proposal.note ? (
               <div>
-                <p className="mb-1 text-[11.5px] uppercase text-zoru-ink-muted">Notes</p>
-                <div className="rounded-lg border border-zoru-line bg-zoru-surface-2 p-3 text-[13px] text-zoru-ink">
+                <p className="mb-1 text-[11.5px] uppercase text-[var(--st-text-secondary)]">Notes</p>
+                <div className="rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-[13px] text-[var(--st-text)]">
                   <pre className="whitespace-pre-wrap font-sans">{proposal.note}</pre>
                 </div>
               </div>
             ) : null}
             {proposal.terms ? (
               <div>
-                <p className="mb-1 text-[11.5px] uppercase text-zoru-ink-muted">
+                <p className="mb-1 text-[11.5px] uppercase text-[var(--st-text-secondary)]">
                   Terms &amp; Conditions
                 </p>
-                <div className="rounded-lg border border-zoru-line bg-zoru-surface-2 p-3 text-[13px] text-zoru-ink">
+                <div className="rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-[13px] text-[var(--st-text)]">
                   <pre className="whitespace-pre-wrap font-sans">{proposal.terms}</pre>
                 </div>
               </div>
@@ -529,11 +529,11 @@ export default function ProposalDetailPage(props: {
       {isAccepted ? (
         <Card className="p-6">
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="h-5 w-5 text-zoru-ink" />
-            <h2 className="text-[16px] text-zoru-ink">Accepted &amp; Signed</h2>
+            <CheckCircle2 className="h-5 w-5 text-[var(--st-text)]" />
+            <h2 className="text-[16px] text-[var(--st-text)]">Accepted &amp; Signed</h2>
           </div>
           {data.signs.length === 0 ? (
-            <p className="mt-2 text-[13px] text-zoru-ink-muted">
+            <p className="mt-2 text-[13px] text-[var(--st-text-secondary)]">
               No signature records on file.
             </p>
           ) : (
@@ -541,19 +541,19 @@ export default function ProposalDetailPage(props: {
               {data.signs.map((s) => (
                 <div
                   key={s._id}
-                  className="rounded-lg border border-zoru-line bg-zoru-surface-2 p-4"
+                  className="rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4"
                 >
-                  <p className="text-[11.5px] text-zoru-ink-muted">Signed by</p>
-                  <p className="text-[13px] text-zoru-ink">{s.signer_name}</p>
-                  <p className="text-[11.5px] text-zoru-ink-muted">{s.signer_email}</p>
-                  <p className="mt-2 text-[11.5px] text-zoru-ink-muted">Signed at</p>
-                  <p className="text-[13px] text-zoru-ink">{fmtDateTime(s.signed_at)}</p>
+                  <p className="text-[11.5px] text-[var(--st-text-secondary)]">Signed by</p>
+                  <p className="text-[13px] text-[var(--st-text)]">{s.signer_name}</p>
+                  <p className="text-[11.5px] text-[var(--st-text-secondary)]">{s.signer_email}</p>
+                  <p className="mt-2 text-[11.5px] text-[var(--st-text-secondary)]">Signed at</p>
+                  <p className="text-[13px] text-[var(--st-text)]">{fmtDateTime(s.signed_at)}</p>
                   {s.signature_data_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={s.signature_data_url}
                       alt="Signature"
-                      className="mt-2 max-h-24 rounded-lg border border-zoru-line bg-white p-2"
+                      className="mt-2 max-h-24 rounded-lg border border-[var(--st-border)] bg-white p-2"
                     />
                   ) : null}
                 </div>
@@ -564,12 +564,12 @@ export default function ProposalDetailPage(props: {
       ) : proposal.signature_required ? (
         <Card className="p-6">
           <div className="mb-4 flex items-center gap-2">
-            <FileSignature className="h-5 w-5 text-zoru-ink" />
-            <h2 className="text-[16px] text-zoru-ink">Sign this proposal</h2>
+            <FileSignature className="h-5 w-5 text-[var(--st-text)]" />
+            <h2 className="text-[16px] text-[var(--st-text)]">Sign this proposal</h2>
           </div>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <Label className="text-zoru-ink">Full Name</Label>
+              <Label className="text-[var(--st-text)]">Full Name</Label>
               <Input
                 value={signerName}
                 onChange={(e) => setSignerName(e.target.value)}
@@ -578,7 +578,7 @@ export default function ProposalDetailPage(props: {
               />
             </div>
             <div>
-              <Label className="text-zoru-ink">Email</Label>
+              <Label className="text-[var(--st-text)]">Email</Label>
               <Input
                 type="email"
                 value={signerEmail}
@@ -589,8 +589,8 @@ export default function ProposalDetailPage(props: {
             </div>
           </div>
           <div className="mt-4">
-            <Label className="text-zoru-ink">Signature</Label>
-            <div className="mt-1.5 rounded-lg border border-zoru-line bg-white p-2">
+            <Label className="text-[var(--st-text)]">Signature</Label>
+            <div className="mt-1.5 rounded-lg border border-[var(--st-border)] bg-white p-2">
               <canvas
                 ref={canvasRef}
                 className="block w-full touch-none rounded-lg bg-white"
@@ -602,7 +602,7 @@ export default function ProposalDetailPage(props: {
                 onPointerLeave={handlePointerUp}
               />
             </div>
-            <p className="mt-1 text-[11.5px] text-zoru-ink-muted">
+            <p className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">
               Use your mouse, stylus, or finger to draw your signature.
             </p>
           </div>

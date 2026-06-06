@@ -73,11 +73,11 @@ export function LeadFormRenderer({
     <Card className="shadow-md border-foreground/10">
       <ZoruCardContent className="flex flex-col gap-4 p-5">
         <div className="flex items-center justify-between">
-          <h2 className="text-[13px] font-mono uppercase tracking-wider text-zoru-ink flex items-center gap-1.5">
-            <Terminal className="h-4 w-4 text-zoru-ink-muted" />
+          <h2 className="text-[13px] font-mono uppercase tracking-wider text-[var(--st-text)] flex items-center gap-1.5">
+            <Terminal className="h-4 w-4 text-[var(--st-text-secondary)]" />
             Payload parameters
           </h2>
-          <span className="text-[10px] font-mono bg-zoru-surface-2 px-1.5 py-0.5 rounded text-zoru-ink-muted">
+          <span className="text-[10px] font-mono bg-[var(--st-bg-muted)] px-1.5 py-0.5 rounded text-[var(--st-text-secondary)]">
             application/json
           </span>
         </div>

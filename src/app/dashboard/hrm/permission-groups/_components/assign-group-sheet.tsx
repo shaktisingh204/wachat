@@ -140,7 +140,7 @@ export function AssignGroupSheet({
 
           {/* Summary of current assignment */}
           {employeeId ? (
-            <div className="rounded-md border border-zoru-line bg-zoru-surface-2 p-3 text-[13px]">
+            <div className="rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-[13px]">
               {(() => {
                 const emp = employees.find((e) => e._id === employeeId);
                 const current = currentAssignments.find(
@@ -149,12 +149,12 @@ export function AssignGroupSheet({
                 const grp = groups.find((g) => g._id === current?.groupId);
                 return (
                   <>
-                    <p className="font-medium text-zoru-ink">
+                    <p className="font-medium text-[var(--st-text)]">
                       {emp?.name ?? employeeId}
                     </p>
-                    <p className="mt-0.5 text-zoru-ink-muted">
+                    <p className="mt-0.5 text-[var(--st-text-secondary)]">
                       Current group:{' '}
-                      <span className="font-medium text-zoru-ink">
+                      <span className="font-medium text-[var(--st-text)]">
                         {grp?.name ?? 'None'}
                       </span>
                     </p>

@@ -64,7 +64,7 @@ export default function TwoFactorSetupPage() {
     <div className="mx-auto max-w-3xl space-y-6 p-6">
       <header>
         <h1 className="text-2xl font-semibold">Two-factor authentication</h1>
-        <p className="mt-1 text-sm text-zoru-ink-muted">
+        <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
           Add an extra step to your sign-in to keep your account safe.
         </p>
       </header>
@@ -73,15 +73,15 @@ export default function TwoFactorSetupPage() {
         <ZoruCardContent className="flex items-start justify-between gap-4 p-4">
           <div className="flex items-start gap-3">
             {isEnabled ? (
-              <ShieldCheck className="mt-0.5 h-5 w-5 text-zoru-ink" />
+              <ShieldCheck className="mt-0.5 h-5 w-5 text-[var(--st-text)]" />
             ) : (
-              <ShieldOff className="mt-0.5 h-5 w-5 text-zoru-ink" />
+              <ShieldOff className="mt-0.5 h-5 w-5 text-[var(--st-text)]" />
             )}
             <div>
               <p className="text-sm font-medium">
                 {isEnabled ? '2FA is enabled' : '2FA is not enabled'}
               </p>
-              <p className="mt-0.5 text-xs text-zoru-ink-muted">
+              <p className="mt-0.5 text-xs text-[var(--st-text-secondary)]">
                 {isEnabled
                   ? `Method: ${enabledMethod === 'totp' ? 'Authenticator app' : 'Email'}`
                   : 'Pick a method below and follow the steps.'}
@@ -96,12 +96,12 @@ export default function TwoFactorSetupPage() {
         </ZoruCardContent>
       </Card>
 
-      <div className="inline-flex rounded-md border border-zoru-line bg-zoru-bg p-1">
+      <div className="inline-flex rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] p-1">
         <button
           type="button"
           onClick={() => setTab('email')}
           className={`inline-flex items-center gap-2 rounded px-3 py-1.5 text-sm transition ${
-            tab === 'email' ? 'bg-zoru-surface text-zoru-ink shadow' : 'text-zoru-ink-muted'
+            tab === 'email' ? 'bg-[var(--st-bg-secondary)] text-[var(--st-text)] shadow' : 'text-[var(--st-text-secondary)]'
           }`}
         >
           <Mail className="h-4 w-4" /> Email
@@ -110,7 +110,7 @@ export default function TwoFactorSetupPage() {
           type="button"
           onClick={() => setTab('totp')}
           className={`inline-flex items-center gap-2 rounded px-3 py-1.5 text-sm transition ${
-            tab === 'totp' ? 'bg-zoru-surface text-zoru-ink shadow' : 'text-zoru-ink-muted'
+            tab === 'totp' ? 'bg-[var(--st-bg-secondary)] text-[var(--st-text)] shadow' : 'text-[var(--st-text-secondary)]'
           }`}
         >
           <Smartphone className="h-4 w-4" /> Authenticator app
@@ -132,11 +132,11 @@ export default function TwoFactorSetupPage() {
         </ZoruCardHeader>
         <ZoruCardContent>
           {loginAttempts.length === 0 ? (
-            <p className="text-sm text-zoru-ink-muted">No recent login attempts found.</p>
+            <p className="text-sm text-[var(--st-text-secondary)]">No recent login attempts found.</p>
           ) : (
             <div className="space-y-4">
               {loginAttempts.map((attempt) => (
-                <div key={attempt._id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-zoru-line pb-4 last:border-0 last:pb-0">
+                <div key={attempt._id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[var(--st-border)] pb-4 last:border-0 last:pb-0">
                   <div>
                     <p className="text-sm font-medium flex items-center gap-2">
                       {attempt.ip}
@@ -144,11 +144,11 @@ export default function TwoFactorSetupPage() {
                         {attempt.status === 'success' ? 'Success' : attempt.status === 'pending_2fa' ? '2FA Pending' : 'Failed'}
                       </Badge>
                     </p>
-                    <p className="text-xs text-zoru-ink-muted truncate max-w-sm mt-1" title={attempt.userAgent}>
+                    <p className="text-xs text-[var(--st-text-secondary)] truncate max-w-sm mt-1" title={attempt.userAgent}>
                       {attempt.userAgent}
                     </p>
                   </div>
-                  <div className="text-xs text-zoru-ink-muted sm:text-right whitespace-nowrap">
+                  <div className="text-xs text-[var(--st-text-secondary)] sm:text-right whitespace-nowrap">
                     {fmtDate(attempt.createdAt)}
                   </div>
                 </div>
@@ -222,13 +222,13 @@ function EmailPanel({
         <ZoruCardTitle className="text-base">Email-based 2FA</ZoruCardTitle>
       </ZoruCardHeader>
       <ZoruCardContent className="space-y-4">
-        <p className="text-sm text-zoru-ink-muted">
+        <p className="text-sm text-[var(--st-text-secondary)]">
           A 6-digit code is sent to <strong>{status?.email ?? 'your email'}</strong> every
           time you sign in.
         </p>
 
         {isMine ? (
-          <div className="flex items-center justify-between rounded-md border border-zoru-line bg-zoru-surface-2/50 p-3">
+          <div className="flex items-center justify-between rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)]/50 p-3">
             <p className="text-sm">Email 2FA is currently active.</p>
             <Button variant="outline" onClick={onDisable} disabled={pending}>
               {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
@@ -265,8 +265,8 @@ function EmailPanel({
           </>
         )}
 
-        {msg ? <p className="text-xs text-zoru-ink">{msg}</p> : null}
-        {err ? <p className="text-xs text-zoru-ink">{err}</p> : null}
+        {msg ? <p className="text-xs text-[var(--st-text)]">{msg}</p> : null}
+        {err ? <p className="text-xs text-[var(--st-text)]">{err}</p> : null}
       </ZoruCardContent>
     </Card>
   );
@@ -319,13 +319,13 @@ function TotpPanel({
         <ZoruCardTitle className="text-base">Authenticator app</ZoruCardTitle>
       </ZoruCardHeader>
       <ZoruCardContent className="space-y-4">
-        <p className="text-sm text-zoru-ink-muted">
+        <p className="text-sm text-[var(--st-text-secondary)]">
           Use any TOTP app (Google Authenticator, 1Password, Authy) to generate a
           rotating 6-digit code.
         </p>
 
         {isMine ? (
-          <p className="rounded-md border border-zoru-line bg-zoru-surface-2/50 p-3 text-sm">
+          <p className="rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)]/50 p-3 text-sm">
             Authenticator 2FA is currently active. Use the disable button at the top
             to remove it (requires password).
           </p>
@@ -343,13 +343,13 @@ function TotpPanel({
                 alt="Scan this QR with your authenticator app"
                 width={200}
                 height={200}
-                className="rounded border border-zoru-line bg-white p-2"
+                className="rounded border border-[var(--st-border)] bg-white p-2"
               />
               <div className="space-y-2">
                 <p className="text-sm">
                   Scan the QR or enter this code manually in your authenticator app:
                 </p>
-                <code className="block rounded bg-zoru-bg px-3 py-2 text-sm font-mono">
+                <code className="block rounded bg-[var(--st-bg)] px-3 py-2 text-sm font-mono">
                   {setup.secret}
                 </code>
               </div>
@@ -377,13 +377,13 @@ function TotpPanel({
 
             <div>
               <p className="text-sm font-medium">Backup codes</p>
-              <p className="text-xs text-zoru-ink-muted">
+              <p className="text-xs text-[var(--st-text-secondary)]">
                 Save these somewhere safe — each one works once if you lose access to
                 your authenticator app.
               </p>
               <div className="mt-2 grid grid-cols-2 gap-2 font-mono text-sm">
                 {setup.backupCodes.map((c) => (
-                  <code key={c} className="rounded bg-zoru-bg px-2 py-1">
+                  <code key={c} className="rounded bg-[var(--st-bg)] px-2 py-1">
                     {c}
                   </code>
                 ))}
@@ -392,8 +392,8 @@ function TotpPanel({
           </div>
         )}
 
-        {msg ? <p className="text-xs text-zoru-ink">{msg}</p> : null}
-        {err ? <p className="text-xs text-zoru-ink">{err}</p> : null}
+        {msg ? <p className="text-xs text-[var(--st-text)]">{msg}</p> : null}
+        {err ? <p className="text-xs text-[var(--st-text)]">{err}</p> : null}
       </ZoruCardContent>
     </Card>
   );
@@ -422,7 +422,7 @@ function BackupCodesPanel({ status }: { status: TwoFactorStatus | null }) {
         <ZoruCardTitle className="text-base">Backup codes</ZoruCardTitle>
       </ZoruCardHeader>
       <ZoruCardContent className="space-y-3">
-        <p className="text-sm text-zoru-ink-muted">
+        <p className="text-sm text-[var(--st-text-secondary)]">
           You have <strong>{remaining}</strong> unused backup code{remaining === 1 ? '' : 's'}.
           Regenerating will invalidate any existing codes.
         </p>
@@ -433,13 +433,13 @@ function BackupCodesPanel({ status }: { status: TwoFactorStatus | null }) {
         {codes ? (
           <div className="grid grid-cols-2 gap-2 font-mono text-sm">
             {codes.map((c) => (
-              <code key={c} className="rounded bg-zoru-bg px-2 py-1">
+              <code key={c} className="rounded bg-[var(--st-bg)] px-2 py-1">
                 {c}
               </code>
             ))}
           </div>
         ) : null}
-        {err ? <p className="text-xs text-zoru-ink">{err}</p> : null}
+        {err ? <p className="text-xs text-[var(--st-text)]">{err}</p> : null}
       </ZoruCardContent>
     </Card>
   );
@@ -488,7 +488,7 @@ function DisableButton({ onDone }: { onDone: () => void }) {
       <Button variant="ghost" onClick={() => { setOpen(false); setErr(null); }}>
         Cancel
       </Button>
-      {err ? <span className="text-xs text-zoru-ink">{err}</span> : null}
+      {err ? <span className="text-xs text-[var(--st-text)]">{err}</span> : null}
     </div>
   );
 }

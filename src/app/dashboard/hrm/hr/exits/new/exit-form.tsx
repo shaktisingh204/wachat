@@ -34,7 +34,7 @@ export function ExitForm({ exit }: { exit?: Record<string, any> }) {
                     {exit?._id ? <input type="hidden" name="exitId" value={String(exit._id)} /> : null}
                     <div>
                         <Label htmlFor="employeeId">
-                            Employee <span className="text-zoru-danger-ink">*</span>
+                            Employee <span className="text-[var(--st-danger)]">*</span>
                         </Label>
                         <EntityFormField
                             entity="employee"
@@ -61,7 +61,7 @@ export function ExitForm({ exit }: { exit?: Record<string, any> }) {
                     </div>
                     <div className="md:col-span-2 flex items-center justify-between gap-3">
                         <div className="text-sm">
-                            {state?.error ? <span className="text-zoru-danger-ink">{state.error}</span> : state?.message ? <span className="text-zoru-success-ink">{state.message}</span> : null}
+                            {state?.error ? <span className="text-[var(--st-danger)]">{state.error}</span> : state?.message ? <span className="text-[var(--st-status-ok)]">{state.message}</span> : null}
                         </div>
                         <SubmitButton />
                     </div>
@@ -75,7 +75,7 @@ function Field({ name, label, defaultValue, required, type = 'text' }: { name: s
     return (
         <div>
             <Label htmlFor={name}>
-                {label} {required ? <span className="text-zoru-danger-ink">*</span> : null}
+                {label} {required ? <span className="text-[var(--st-danger)]">*</span> : null}
             </Label>
             <Input
                 id={name}

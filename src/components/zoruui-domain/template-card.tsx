@@ -70,8 +70,8 @@ export const TemplateCard = React.memo(function TemplateCard({ template, gradien
           {component.buttons.map((button: any, index: number) => (
             <li key={index}>
               <strong>{button.text}</strong> ({button.type.replace(/_/g, ' ')})
-              {button.url && <span className="block text-xs text-zoru-ink-muted">{button.url}</span>}
-              {button.phone_number && <span className="block text-xs text-zoru-ink-muted">Call: {button.phone_number}</span>}
+              {button.url && <span className="block text-xs text-[var(--st-text-secondary)]">{button.url}</span>}
+              {button.phone_number && <span className="block text-xs text-[var(--st-text-secondary)]">Call: {button.phone_number}</span>}
             </li>
           ))}
         </ul>
@@ -112,7 +112,7 @@ export const TemplateCard = React.memo(function TemplateCard({ template, gradien
               )}
             </div>
             {(template as any).rejectedReason && (template.status?.toUpperCase() === 'REJECTED' || template.status?.toUpperCase() === 'DISABLED') && (
-              <p className="text-xs text-zoru-ink mt-1">Reason: {(template as any).rejectedReason}</p>
+              <p className="text-xs text-[var(--st-text)] mt-1">Reason: {(template as any).rejectedReason}</p>
             )}
           </div>
           <ZoruCardDescription className="flex items-center pt-2 text-xs">
@@ -128,7 +128,7 @@ export const TemplateCard = React.memo(function TemplateCard({ template, gradien
           </ZoruCardDescription>
         </ZoruCardHeader>
         <ZoruCardContent className="flex-grow">
-          <p className="text-sm text-zoru-ink/80 line-clamp-4">{template.body || template.components?.find(c => c.type === 'BODY')?.text}</p>
+          <p className="text-sm text-[var(--st-text)]/80 line-clamp-4">{template.body || template.components?.find(c => c.type === 'BODY')?.text}</p>
         </ZoruCardContent>
         <ZoruCardFooter className="flex justify-end gap-2 mt-auto">
           <Button variant="ghost" onClick={() => setIsViewOpen(true)}>View</Button>
@@ -153,7 +153,7 @@ export const TemplateCard = React.memo(function TemplateCard({ template, gradien
                 <> | Quality: <span className="capitalize">{template.qualityScore.toLowerCase()}</span></>
               )}
               {(template as any).rejectedReason && (
-                <><br /><span className="text-zoru-ink">Rejection reason: {(template as any).rejectedReason}</span></>
+                <><br /><span className="text-[var(--st-text)]">Rejection reason: {(template as any).rejectedReason}</span></>
               )}
             </ZoruDialogDescription>
           </ZoruDialogHeader>
@@ -161,16 +161,16 @@ export const TemplateCard = React.memo(function TemplateCard({ template, gradien
             {(Array.isArray(template.components) && template.components.length > 0) ? (
               template.components.map((component, index) => (
                 <div key={index} className="space-y-2">
-                  <h4 className="font-semibold text-zoru-ink">{component.type}</h4>
-                  <div className="p-4 rounded-md bg-zoru-surface-2/50 text-sm whitespace-pre-wrap font-mono">
+                  <h4 className="font-semibold text-[var(--st-text)]">{component.type}</h4>
+                  <div className="p-4 rounded-md bg-[var(--st-bg-muted)]/50 text-sm whitespace-pre-wrap font-mono">
                     {renderComponentContent(component)}
                   </div>
                 </div>
               ))
             ) : (
               <div className="space-y-2">
-                <h4 className="font-semibold text-zoru-ink">BODY</h4>
-                <div className="p-4 rounded-md bg-zoru-surface-2/50 text-sm whitespace-pre-wrap font-mono">
+                <h4 className="font-semibold text-[var(--st-text)]">BODY</h4>
+                <div className="p-4 rounded-md bg-[var(--st-bg-muted)]/50 text-sm whitespace-pre-wrap font-mono">
                   {template.body}
                 </div>
               </div>

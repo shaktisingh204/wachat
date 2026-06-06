@@ -108,7 +108,7 @@ function TagsFilter({
             <ZoruCommandEmpty>No tags found.</ZoruCommandEmpty>
             <ZoruCommandGroup>
               {tags.length === 0 ? (
-                <div className="px-2 py-6 text-center text-[12px] text-zoru-ink-muted">
+                <div className="px-2 py-6 text-center text-[12px] text-[var(--st-text-secondary)]">
                   No tags defined on this project yet.
                 </div>
               ) : (
@@ -124,13 +124,13 @@ function TagsFilter({
                         className={cn(
                           'flex h-4 w-4 shrink-0 items-center justify-center rounded-[4px] border',
                           isSelected
-                            ? 'border-zoru-ink bg-zoru-ink text-zoru-on-primary'
-                            : 'border-zoru-line',
+                            ? 'border-[var(--st-text)] bg-[var(--st-text)] text-[var(--st-text-inverted)]'
+                            : 'border-[var(--st-border)]',
                         )}
                       >
                         {isSelected && <Check className="h-3 w-3" strokeWidth={3} />}
                       </span>
-                      <span className="flex-1 truncate text-[13px] text-zoru-ink">
+                      <span className="flex-1 truncate text-[13px] text-[var(--st-text)]">
                         {tag.name}
                       </span>
                     </ZoruCommandItem>
@@ -178,7 +178,7 @@ function DeleteContactButton({
           variant="ghost"
           size="icon-sm"
           aria-label="Delete contact"
-          className="text-zoru-danger hover:bg-zoru-danger/10"
+          className="text-[var(--st-danger)] hover:bg-[var(--st-danger)]/10"
         >
           <Trash2 className="h-4 w-4" />
         </Button>
@@ -290,28 +290,28 @@ export default function ContactsPage() {
       header: 'Name',
       cell: (c: WithId<Contact>) => (
         <div className="flex items-center gap-3">
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-zoru-surface-2 text-[11px] text-zoru-ink">
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[11px] text-[var(--st-text)]">
             {(c.name || '?').slice(0, 2).toUpperCase()}
           </span>
-          <span className="text-zoru-ink">{c.name}</span>
+          <span className="text-[var(--st-text)]">{c.name}</span>
         </div>
       ),
     },
     {
       header: 'WhatsApp ID',
-      cell: (c: WithId<Contact>) => <span className="font-mono text-[12px] text-zoru-ink-muted tabular-nums">{c.waId}</span>,
+      cell: (c: WithId<Contact>) => <span className="font-mono text-[12px] text-[var(--st-text-secondary)] tabular-nums">{c.waId}</span>,
     },
     {
       header: 'Email',
-      cell: (c: WithId<Contact>) => <span className="text-[12px] text-zoru-ink-muted">{(c as any).email || '—'}</span>,
+      cell: (c: WithId<Contact>) => <span className="text-[12px] text-[var(--st-text-secondary)]">{(c as any).email || '—'}</span>,
     },
     {
       header: 'Opt-in',
       cell: (c: WithId<Contact>) => (
         (c as any).isOptedOut ? (
-          <Badge variant="danger"><span className="mr-1 h-1.5 w-1.5 rounded-full bg-zoru-danger" /> Opted-out</Badge>
+          <Badge variant="danger"><span className="mr-1 h-1.5 w-1.5 rounded-full bg-[var(--st-danger)]" /> Opted-out</Badge>
         ) : (
-          <Badge variant="success"><span className="mr-1 h-1.5 w-1.5 rounded-full bg-zoru-success" /> Opted-in</Badge>
+          <Badge variant="success"><span className="mr-1 h-1.5 w-1.5 rounded-full bg-[var(--st-status-ok)]" /> Opted-in</Badge>
         )
       ),
     },
@@ -323,7 +323,7 @@ export default function ContactsPage() {
             const tag = activeProject?.tags?.find((t) => t._id === tagId.toString());
             return tag ? (
               <Badge key={tagId.toString()} variant="secondary">
-                <span className="mr-1 h-1.5 w-1.5 rounded-full bg-zoru-ink-muted" /> {tag.name}
+                <span className="mr-1 h-1.5 w-1.5 rounded-full bg-[var(--st-text-secondary)]" /> {tag.name}
               </Badge>
             ) : null;
           })}
@@ -332,7 +332,7 @@ export default function ContactsPage() {
     },
     {
       header: 'Last activity',
-      cell: (c: WithId<Contact>) => <span className="text-[12px] text-zoru-ink-muted">{c.lastMessageTimestamp ? new Date(c.lastMessageTimestamp).toLocaleString() : '—'}</span>,
+      cell: (c: WithId<Contact>) => <span className="text-[12px] text-[var(--st-text-secondary)]">{c.lastMessageTimestamp ? new Date(c.lastMessageTimestamp).toLocaleString() : '—'}</span>,
     },
     {
       header: 'Actions',

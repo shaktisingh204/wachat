@@ -127,7 +127,7 @@ export function SubscriptionForm({ initial }: SubscriptionFormProps) {
     <div className="grid gap-4 md:grid-cols-2">
       <div>
         <Label>
-          Customer <span className="text-zoru-danger-ink">*</span>
+          Customer <span className="text-[var(--st-danger)]">*</span>
         </Label>
         <div className="mt-1.5">
           <EntityFormField
@@ -139,7 +139,7 @@ export function SubscriptionForm({ initial }: SubscriptionFormProps) {
           />
         </div>
         {editing ? (
-          <p className="mt-1 text-[11.5px] text-zoru-ink-muted">
+          <p className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">
             Customer cannot change once the subscription exists.
           </p>
         ) : null}
@@ -151,7 +151,7 @@ export function SubscriptionForm({ initial }: SubscriptionFormProps) {
     <div className="grid gap-4 md:grid-cols-2">
       <div>
         <Label>
-          Plan / item <span className="text-zoru-danger-ink">*</span>
+          Plan / item <span className="text-[var(--st-danger)]">*</span>
         </Label>
         <div className="mt-1.5">
           <EntityFormField
@@ -204,7 +204,7 @@ export function SubscriptionForm({ initial }: SubscriptionFormProps) {
     <div className="grid gap-4 md:grid-cols-2">
       <div>
         <Label>
-          Billing cycle <span className="text-zoru-danger-ink">*</span>
+          Billing cycle <span className="text-[var(--st-danger)]">*</span>
         </Label>
         <div className="mt-1.5">
           <EnumFormField
@@ -217,7 +217,7 @@ export function SubscriptionForm({ initial }: SubscriptionFormProps) {
       </div>
       <div>
         <Label htmlFor="startedAt">
-          Start date <span className="text-zoru-danger-ink">*</span>
+          Start date <span className="text-[var(--st-danger)]">*</span>
         </Label>
         <Input
           id="startedAt"
@@ -229,7 +229,7 @@ export function SubscriptionForm({ initial }: SubscriptionFormProps) {
           disabled={editing}
         />
         {editing ? (
-          <p className="mt-1 text-[11.5px] text-zoru-ink-muted">
+          <p className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">
             Start date is fixed once the subscription exists.
           </p>
         ) : null}
@@ -261,7 +261,7 @@ export function SubscriptionForm({ initial }: SubscriptionFormProps) {
     <div className="grid gap-4 md:grid-cols-2">
       <div>
         <Label>
-          Renewal mode <span className="text-zoru-danger-ink">*</span>
+          Renewal mode <span className="text-[var(--st-danger)]">*</span>
         </Label>
         <div className="mt-1.5">
           <EnumFormField
@@ -292,13 +292,13 @@ export function SubscriptionForm({ initial }: SubscriptionFormProps) {
           />
         </div>
         {!editing ? (
-          <p className="mt-1 text-[11.5px] text-zoru-ink-muted">
+          <p className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">
             Status is set automatically on create — adjust it after.
           </p>
         ) : null}
       </div>
       <div className="flex items-end md:col-span-2">
-        <label className="flex items-center gap-2 text-[13px] text-zoru-ink">
+        <label className="flex items-center gap-2 text-[13px] text-[var(--st-text)]">
           <Checkbox
             name="prorationEnabled"
             defaultChecked={Boolean(initial?.prorationEnabled)}
@@ -310,7 +310,7 @@ export function SubscriptionForm({ initial }: SubscriptionFormProps) {
   );
 
   const dunningSection = (
-    <div className="grid gap-2 text-[12.5px] text-zoru-ink-muted">
+    <div className="grid gap-2 text-[12.5px] text-[var(--st-text-secondary)]">
       <p>
         Past-due subscriptions run the tenant's default dunning cadence
         once a day via the <code>subscriptions-daily</code> cron — email

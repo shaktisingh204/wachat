@@ -32,8 +32,8 @@ export async function RfqVendorBidsCard({ rfqId }: RfqVendorBidsCardProps) {
 
   return (
     <Card className="overflow-hidden p-0">
-      <div className="flex items-center justify-between border-b border-zoru-line p-3">
-        <h2 className="text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+      <div className="flex items-center justify-between border-b border-[var(--st-border)] p-3">
+        <h2 className="text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Vendor bids received
         </h2>
         <div className="flex gap-2">
@@ -49,19 +49,19 @@ export async function RfqVendorBidsCard({ rfqId }: RfqVendorBidsCardProps) {
       </div>
 
       {error ? (
-        <div className="border-b border-zoru-line/40 bg-zoru-ink/10 px-3 py-2 text-[12.5px] text-zoru-ink dark:text-zoru-ink-muted">
+        <div className="border-b border-[var(--st-border)]/40 bg-[var(--st-text)]/10 px-3 py-2 text-[12.5px] text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
           {error}
         </div>
       ) : null}
 
       {bids.length === 0 ? (
-        <div className="px-3 py-6 text-center text-[13px] text-zoru-ink-muted">
+        <div className="px-3 py-6 text-center text-[13px] text-[var(--st-text-secondary)]">
           No bids submitted against this RFQ yet.
         </div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-[12.5px]">
-            <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
+            <thead className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
               <tr>
                 <th className="p-2 text-left">Vendor</th>
                 <th className="p-2 text-left">Submitted</th>
@@ -80,26 +80,26 @@ export async function RfqVendorBidsCard({ rfqId }: RfqVendorBidsCardProps) {
                 return (
                   <tr
                     key={id}
-                    className={`border-t border-zoru-line ${
-                      isAwarded ? 'bg-zoru-ink/5' : 'hover:bg-zoru-surface-2/60'
+                    className={`border-t border-[var(--st-border)] ${
+                      isAwarded ? 'bg-[var(--st-text)]/5' : 'hover:bg-[var(--st-bg-muted)]/60'
                     }`}
                   >
                     <td className="p-2 align-middle">
                       {b.vendorId ? (
                         <EntityPickerChip entity="vendor" id={b.vendorId} />
                       ) : (
-                        <span className="text-zoru-ink-muted">
+                        <span className="text-[var(--st-text-secondary)]">
                           {b.vendorName || '—'}
                         </span>
                       )}
                     </td>
-                    <td className="p-2 align-middle text-zoru-ink-muted">
+                    <td className="p-2 align-middle text-[var(--st-text-secondary)]">
                       {fmtDate(b.submittedAt || b.createdAt)}
                     </td>
-                    <td className="p-2 align-middle text-zoru-ink-muted">
+                    <td className="p-2 align-middle text-[var(--st-text-secondary)]">
                       {b.currency || 'INR'}
                     </td>
-                    <td className="p-2 text-right align-middle font-mono tabular-nums text-zoru-ink">
+                    <td className="p-2 text-right align-middle font-mono tabular-nums text-[var(--st-text)]">
                       {fmtINR(b.totals?.total, b.currency)}
                     </td>
                     <td className="p-2 align-middle">

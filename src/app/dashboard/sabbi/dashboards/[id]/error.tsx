@@ -21,13 +21,13 @@ export default function DashboardError({
             <Card className="w-full max-w-md shadow-sm border-zoru-danger-border/30">
                 <ZoruCardContent className="flex flex-col items-center p-8 text-center space-y-4">
                     <div className="rounded-full bg-zoru-danger-surface p-3">
-                        <AlertCircle className="h-6 w-6 text-zoru-danger-ink" />
+                        <AlertCircle className="h-6 w-6 text-[var(--st-danger)]" />
                     </div>
                     <div className="space-y-2">
-                        <h2 className="text-lg font-semibold tracking-tight text-zoru-ink">
+                        <h2 className="text-lg font-semibold tracking-tight text-[var(--st-text)]">
                             Dashboard Error
                         </h2>
-                        <p className="text-sm text-zoru-ink-muted">
+                        <p className="text-sm text-[var(--st-text-secondary)]">
                             {error.message || 'We encountered a problem loading this dashboard.'}
                         </p>
                     </div>

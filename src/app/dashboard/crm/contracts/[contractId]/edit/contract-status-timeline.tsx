@@ -105,19 +105,19 @@ export function ContractStatusTimeline({ status }: { status: ContractStatus }) {
     <div ref={containerRef} className="w-full py-6 relative">
       <div className="relative flex items-center justify-between w-full mb-2">
         {/* Background Track */}
-        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-zoru-line rounded-full z-0"></div>
+        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-[var(--st-border)] rounded-full z-0"></div>
         
         {/* Progress Fill */}
-        <div className="progress-fill absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-zoru-primary rounded-full z-0 w-0"></div>
+        <div className="progress-fill absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-[var(--st-text)] rounded-full z-0 w-0"></div>
         
         {NORMAL_FLOW.map((step, i) => {
           const Icon = ICONS[step];
           return (
             <div key={step} className="relative z-10 flex flex-col items-center gap-2 group">
-              <div className="step-node flex items-center justify-center w-8 h-8 rounded-full border-2 border-zoru-line bg-white text-zoru-ink-muted transition-colors">
+              <div className="step-node flex items-center justify-center w-8 h-8 rounded-full border-2 border-[var(--st-border)] bg-white text-[var(--st-text-secondary)] transition-colors">
                 <Icon className="w-4 h-4" />
               </div>
-              <span className="absolute top-10 text-[11px] font-medium text-zoru-ink whitespace-nowrap opacity-80 group-hover:opacity-100 transition-opacity">
+              <span className="absolute top-10 text-[11px] font-medium text-[var(--st-text)] whitespace-nowrap opacity-80 group-hover:opacity-100 transition-opacity">
                 {LABELS[step]}
               </span>
             </div>
@@ -131,10 +131,10 @@ export function ContractStatusTimeline({ status }: { status: ContractStatus }) {
         )}>
           {isTerminal && (
             <>
-              <div className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-zoru-danger bg-zoru-danger text-white">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-[var(--st-danger)] bg-[var(--st-danger)] text-white">
                 {status === 'terminated' || status === 'voided' ? <X className="w-4 h-4" /> : <Clock className="w-4 h-4" />}
               </div>
-              <span className="absolute top-10 text-[11px] font-bold text-zoru-danger whitespace-nowrap">
+              <span className="absolute top-10 text-[11px] font-bold text-[var(--st-danger)] whitespace-nowrap">
                 {LABELS[status as keyof typeof LABELS]}
               </span>
             </>

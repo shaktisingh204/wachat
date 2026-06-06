@@ -97,70 +97,70 @@ export default async function ProfessionalTaxDetailPage({
 
             <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
-                    <div className="text-[14px] font-medium text-zoru-ink">
+                    <div className="text-[14px] font-medium text-[var(--st-text)]">
                         Overview
                     </div>
                     <StatusPill label={status} tone={tone} />
                 </div>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
                     <div>
-                        <div className="text-zoru-ink-muted">Employee</div>
-                        <div className="text-zoru-ink">{employeeName}</div>
+                        <div className="text-[var(--st-text-secondary)]">Employee</div>
+                        <div className="text-[var(--st-text)]">{employeeName}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Employee ID</div>
-                        <div className="font-mono text-[12px] text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Employee ID</div>
+                        <div className="font-mono text-[12px] text-[var(--st-text)]">
                             {(row.employeeId as string | undefined) ?? '—'}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">State</div>
-                        <div className="text-zoru-ink">{state}</div>
+                        <div className="text-[var(--st-text-secondary)]">State</div>
+                        <div className="text-[var(--st-text)]">{state}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Month</div>
-                        <div className="font-mono text-zoru-ink">{month}</div>
+                        <div className="text-[var(--st-text-secondary)]">Month</div>
+                        <div className="font-mono text-[var(--st-text)]">{month}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Gross salary</div>
-                        <div className="font-mono text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Gross salary</div>
+                        <div className="font-mono text-[var(--st-text)]">
                             {inr(row.grossSalary)}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">PT amount</div>
-                        <div className="font-mono text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">PT amount</div>
+                        <div className="font-mono text-[var(--st-text)]">
                             {inr(row.ptAmount)}
                         </div>
                     </div>
-                    <div className="sm:col-span-2 rounded-md bg-zoru-surface-2 p-3 border border-zoru-line flex gap-3 items-start">
-                        <Info className="h-4 w-4 text-zoru-ink-muted mt-0.5 shrink-0" />
+                    <div className="sm:col-span-2 rounded-md bg-[var(--st-bg-muted)] p-3 border border-[var(--st-border)] flex gap-3 items-start">
+                        <Info className="h-4 w-4 text-[var(--st-text-secondary)] mt-0.5 shrink-0" />
                         <div>
-                            <div className="text-zoru-ink-muted mb-1 text-[12px] font-medium uppercase tracking-wider">
+                            <div className="text-[var(--st-text-secondary)] mb-1 text-[12px] font-medium uppercase tracking-wider">
                                 Exact Slab Applied at Calculation Time
                             </div>
-                            <div className="font-mono text-[13px] text-zoru-ink bg-zoru-bg px-2 py-1 rounded inline-block border border-zoru-line-light">
+                            <div className="font-mono text-[13px] text-[var(--st-text)] bg-[var(--st-bg)] px-2 py-1 rounded inline-block border border-zoru-line-light">
                                 {(row.slabApplied as string | undefined) ?? '—'}
                             </div>
-                            <div className="text-[12px] text-zoru-ink-muted mt-1.5">
+                            <div className="text-[12px] text-[var(--st-text-secondary)] mt-1.5">
                                 This value is stamped on the record permanently, ensuring the history remains accurate even if the state&apos;s PT slabs change in later years.
                             </div>
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Challan number</div>
-                        <div className="font-mono text-[12px] text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Challan number</div>
+                        <div className="font-mono text-[12px] text-[var(--st-text)]">
                             {(row.challanNumber as string | undefined) ?? '—'}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Deposit date</div>
-                        <div className="text-zoru-ink">{fmtDate(row.depositDate)}</div>
+                        <div className="text-[var(--st-text-secondary)]">Deposit date</div>
+                        <div className="text-[var(--st-text)]">{fmtDate(row.depositDate)}</div>
                     </div>
                     {row.notes ? (
                         <div className="sm:col-span-2">
-                            <div className="text-zoru-ink-muted">Notes</div>
-                            <div className="whitespace-pre-wrap text-zoru-ink">
+                            <div className="text-[var(--st-text-secondary)]">Notes</div>
+                            <div className="whitespace-pre-wrap text-[var(--st-text)]">
                                 {row.notes as string}
                             </div>
                         </div>

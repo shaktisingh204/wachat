@@ -208,7 +208,7 @@ export default function KeywordNegativePage() {
                 placeholder="Enter custom negatives (comma or newline separated)…"
                 className="min-h-[120px]"
               />
-              <p className="text-xs text-zoru-ink-muted">
+              <p className="text-xs text-[var(--st-text-secondary)]">
                 Add specific words or phrases to exclude. These will be checked along with the built-in lists selected above, and saved automatically.
               </p>
             </ZoruCardContent>
@@ -230,7 +230,7 @@ export default function KeywordNegativePage() {
               readOnly 
               value={cleanedKeywords.join('\n')}
               placeholder="Cleaned keywords will appear here..."
-              className="min-h-[200px] bg-zoru-surface-2/50"
+              className="min-h-[200px] bg-[var(--st-bg-muted)]/50"
             />
           </ZoruCardContent>
         </Card>
@@ -240,9 +240,9 @@ export default function KeywordNegativePage() {
             <ZoruCardContent className="p-4">
               <div className="font-semibold text-sm mb-3">Detected Negatives</div>
               {detectedNegatives.length === 0 ? (
-                <span className="text-sm text-zoru-ink-muted">
+                <span className="text-sm text-[var(--st-text-secondary)]">
                   {kw.trim().length > 0 ? (
-                    <span className="text-zoru-ink">Looks good! No negative keywords detected in your list.</span>
+                    <span className="text-[var(--st-text)]">Looks good! No negative keywords detected in your list.</span>
                   ) : (
                     "Enter some keywords to see if they contain any negatives."
                   )}
@@ -250,14 +250,14 @@ export default function KeywordNegativePage() {
               ) : (
                 <div className="flex flex-wrap gap-2">
                   {detectedNegatives.map((n) => (
-                    <span key={n} className="px-2 py-1 text-sm rounded-md border bg-zoru-surface-2 border-zoru-line text-zoru-ink">
+                    <span key={n} className="px-2 py-1 text-sm rounded-md border bg-[var(--st-bg-muted)] border-[var(--st-border)] text-[var(--st-text)]">
                       -{n}
                     </span>
                   ))}
                 </div>
               )}
               {detectedNegatives.length > 0 && (
-                <div className="mt-4 text-sm font-medium text-zoru-ink">
+                <div className="mt-4 text-sm font-medium text-[var(--st-text)]">
                   {detectedNegatives.length} negative word(s) detected.
                 </div>
               )}
@@ -269,7 +269,7 @@ export default function KeywordNegativePage() {
               <div className="font-semibold text-sm mb-3">Currently Active Negatives ({activeNegatives.length})</div>
               <div className="flex flex-wrap gap-1.5 max-h-[120px] overflow-y-auto pr-2 pb-2">
                 {activeNegatives.length === 0 && (
-                  <span className="text-sm text-zoru-ink-muted">No negative lists selected.</span>
+                  <span className="text-sm text-[var(--st-text-secondary)]">No negative lists selected.</span>
                 )}
                 {activeNegatives.map((n) => {
                   const isDetected = detectedNegatives.includes(n);
@@ -278,8 +278,8 @@ export default function KeywordNegativePage() {
                       key={n} 
                       className={`px-2 py-0.5 text-xs rounded border ${
                         isDetected 
-                          ? 'bg-zoru-surface-2 border-zoru-line text-zoru-ink font-medium' 
-                          : 'bg-zoru-surface-2 border-zoru-line text-zoru-ink-muted'
+                          ? 'bg-[var(--st-bg-muted)] border-[var(--st-border)] text-[var(--st-text)] font-medium' 
+                          : 'bg-[var(--st-bg-muted)] border-[var(--st-border)] text-[var(--st-text-secondary)]'
                       }`}
                     >
                       {n}

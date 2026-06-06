@@ -193,11 +193,11 @@ function StepIndicator({
                 className={cn(
                   'flex h-7 w-7 items-center justify-center rounded-full border text-xs font-semibold transition-colors',
                   done &&
-                    'border-zoru-ink bg-zoru-ink text-zoru-bg',
+                    'border-[var(--st-text)] bg-[var(--st-text)] text-[var(--st-bg)]',
                   active &&
-                    'border-zoru-ink bg-zoru-bg text-zoru-ink',
+                    'border-[var(--st-text)] bg-[var(--st-bg)] text-[var(--st-text)]',
                   !done && !active &&
-                    'border-zoru-line bg-zoru-surface text-zoru-ink-muted',
+                    'border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]',
                 )}
                 aria-current={active ? 'step' : undefined}
               >
@@ -206,7 +206,7 @@ function StepIndicator({
               <span
                 className={cn(
                   'hidden text-[10px] leading-none sm:block',
-                  active ? 'font-medium text-zoru-ink' : 'text-zoru-ink-muted',
+                  active ? 'font-medium text-[var(--st-text)]' : 'text-[var(--st-text-secondary)]',
                 )}
               >
                 {step.label}
@@ -216,7 +216,7 @@ function StepIndicator({
               <div
                 className={cn(
                   'mb-4 h-px flex-1 transition-colors',
-                  idx < currentIndex ? 'bg-zoru-ink' : 'bg-zoru-line',
+                  idx < currentIndex ? 'bg-[var(--st-text)]' : 'bg-[var(--st-border)]',
                 )}
                 aria-hidden
               />
@@ -314,17 +314,17 @@ function UploadStep({ onParsed }: UploadStepProps): React.ReactElement {
     <div className="flex flex-col items-center gap-6 py-4">
       <div
         className={cn(
-          'flex w-full flex-col items-center gap-4 rounded-[var(--zoru-radius-lg)] border border-dashed border-zoru-line bg-zoru-surface/40 p-8 text-center',
+          'flex w-full flex-col items-center gap-4 rounded-[var(--zoru-radius-lg)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40 p-8 text-center',
         )}
       >
-        <div className="flex h-12 w-12 items-center justify-center rounded-full border border-zoru-line bg-zoru-bg">
-          <FileSpreadsheet className="h-5 w-5 text-zoru-ink-muted" />
+        <div className="flex h-12 w-12 items-center justify-center rounded-full border border-[var(--st-border)] bg-[var(--st-bg)]">
+          <FileSpreadsheet className="h-5 w-5 text-[var(--st-text-secondary)]" />
         </div>
         <div className="flex flex-col gap-1">
-          <p className="text-sm font-medium text-zoru-ink">
+          <p className="text-sm font-medium text-[var(--st-text)]">
             {fileName ? fileName : 'Pick a CSV file from SabFiles'}
           </p>
-          <p className="text-xs text-zoru-ink-muted">
+          <p className="text-xs text-[var(--st-text-secondary)]">
             CSV format · up to 5,000 rows per import
           </p>
         </div>
@@ -344,8 +344,8 @@ function UploadStep({ onParsed }: UploadStepProps): React.ReactElement {
         </SabFileToFileButton>
       </div>
 
-      <div className="w-full rounded-[var(--zoru-radius-md)] border border-zoru-line bg-zoru-surface/40 p-4 text-xs text-zoru-ink-muted">
-        <p className="font-medium text-zoru-ink">Tips</p>
+      <div className="w-full rounded-[var(--zoru-radius-md)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40 p-4 text-xs text-[var(--st-text-secondary)]">
+        <p className="font-medium text-[var(--st-text)]">Tips</p>
         <ul className="mt-2 list-disc space-y-1 pl-4">
           <li>The first row must be a header row.</li>
           <li>
@@ -404,18 +404,18 @@ function MappingStep({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between text-sm text-zoru-ink-muted">
+      <div className="flex items-center justify-between text-sm text-[var(--st-text-secondary)]">
         <span>
-          <strong className="text-zoru-ink">{csvHeaders.length}</strong> columns
-          detected · <strong className="text-zoru-ink">{rowCount}</strong> data rows
+          <strong className="text-[var(--st-text)]">{csvHeaders.length}</strong> columns
+          detected · <strong className="text-[var(--st-text)]">{rowCount}</strong> data rows
         </span>
       </div>
 
       {topIssues.length > 0 && (
-        <div className="rounded-[var(--zoru-radius-md)] border border-zoru-line bg-zoru-surface/40 p-3 text-xs text-zoru-ink-muted">
+        <div className="rounded-[var(--zoru-radius-md)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40 p-3 text-xs text-[var(--st-text-secondary)]">
           {topIssues.map((issue, idx) => (
             <p key={idx} className="flex items-start gap-2">
-              <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-zoru-danger" />
+              <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--st-danger)]" />
               {issue.message}
             </p>
           ))}
@@ -423,7 +423,7 @@ function MappingStep({
       )}
 
       {/* Table header */}
-      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-x-3 pb-1 text-xs font-medium uppercase tracking-wide text-zoru-ink-muted">
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-x-3 pb-1 text-xs font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
         <span>CSV column</span>
         <span className="w-4" />
         <span>CRM field</span>
@@ -455,14 +455,14 @@ function MappingStep({
                 <SelectTrigger
                   className={cn(
                     'h-8 text-xs',
-                    hasIssue && 'border-zoru-danger focus:ring-zoru-danger',
+                    hasIssue && 'border-[var(--st-danger)] focus:ring-[var(--st-danger)]',
                   )}
                 >
                   <SelectValue placeholder="Not mapped" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="__none__">
-                    <span className="italic text-zoru-ink-muted">Not mapped</span>
+                    <span className="italic text-[var(--st-text-secondary)]">Not mapped</span>
                   </SelectItem>
                   {csvHeaders.map((h) => (
                     <SelectItem key={h} value={h}>
@@ -473,16 +473,16 @@ function MappingStep({
               </Select>
 
               {/* Arrow */}
-              <ArrowRight className="h-3.5 w-3.5 text-zoru-ink-muted" />
+              <ArrowRight className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
 
               {/* Field descriptor */}
               <div className="flex flex-col gap-0.5">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-xs font-medium text-zoru-ink">
+                  <span className="text-xs font-medium text-[var(--st-text)]">
                     {field.label}
                   </span>
                   {field.required && (
-                    <span className="text-[10px] text-zoru-danger" aria-label="required">
+                    <span className="text-[10px] text-[var(--st-danger)]" aria-label="required">
                       *
                     </span>
                   )}
@@ -494,7 +494,7 @@ function MappingStep({
                   </Badge>
                 </div>
                 {hasIssue && (
-                  <p className="text-[10px] text-zoru-danger">
+                  <p className="text-[10px] text-[var(--st-danger)]">
                     {fieldIssues[0].message}
                   </p>
                 )}
@@ -504,8 +504,8 @@ function MappingStep({
         })}
       </div>
 
-      <p className="text-xs text-zoru-ink-muted">
-        Fields marked <span className="text-zoru-danger">*</span> are required.
+      <p className="text-xs text-[var(--st-text-secondary)]">
+        Fields marked <span className="text-[var(--st-danger)]">*</span> are required.
         Unmapped required fields with no default value will cause row errors.
       </p>
     </div>
@@ -543,8 +543,8 @@ function PreviewStep({
   if (mappedFieldKeys.length === 0) {
     return (
       <div className="flex flex-col items-center gap-3 py-8 text-center">
-        <AlertCircle className="h-8 w-8 text-zoru-ink-muted" />
-        <p className="text-sm text-zoru-ink-muted">
+        <AlertCircle className="h-8 w-8 text-[var(--st-text-secondary)]" />
+        <p className="text-sm text-[var(--st-text-secondary)]">
           No columns are mapped yet. Go back and map at least one column to see
           a preview.
         </p>
@@ -554,27 +554,27 @@ function PreviewStep({
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-xs text-zoru-ink-muted">
+      <p className="text-xs text-[var(--st-text-secondary)]">
         Showing the first{' '}
-        <strong className="text-zoru-ink">
+        <strong className="text-[var(--st-text)]">
           {Math.min(preview.length, MAX_PREVIEW_ROWS)}
         </strong>{' '}
-        of <strong className="text-zoru-ink">{rows.length}</strong> rows after
+        of <strong className="text-[var(--st-text)]">{rows.length}</strong> rows after
         mapping.
       </p>
 
       {/* Scrollable preview table */}
-      <div className="overflow-auto rounded-[var(--zoru-radius-md)] border border-zoru-line">
+      <div className="overflow-auto rounded-[var(--zoru-radius-md)] border border-[var(--st-border)]">
         <table className="w-full text-xs">
           <thead>
-            <tr className="border-b border-zoru-line bg-zoru-surface/60">
-              <th className="px-2 py-2 text-left font-medium text-zoru-ink-muted">
+            <tr className="border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)]/60">
+              <th className="px-2 py-2 text-left font-medium text-[var(--st-text-secondary)]">
                 #
               </th>
               {mappedFieldKeys.map((key) => (
                 <th
                   key={key}
-                  className="whitespace-nowrap px-3 py-2 text-left font-medium text-zoru-ink-muted"
+                  className="whitespace-nowrap px-3 py-2 text-left font-medium text-[var(--st-text-secondary)]"
                 >
                   {fieldByKey.get(key)?.label ?? key}
                 </th>
@@ -585,9 +585,9 @@ function PreviewStep({
             {preview.map((row, rowIdx) => (
               <tr
                 key={rowIdx}
-                className="border-b border-zoru-line/50 last:border-0 hover:bg-zoru-surface/40"
+                className="border-b border-[var(--st-border)]/50 last:border-0 hover:bg-[var(--st-bg-secondary)]/40"
               >
-                <td className="px-2 py-1.5 text-zoru-ink-muted">
+                <td className="px-2 py-1.5 text-[var(--st-text-secondary)]">
                   {rowIdx + 1}
                 </td>
                 {mappedFieldKeys.map((key) => {
@@ -596,11 +596,11 @@ function PreviewStep({
                   return (
                     <td
                       key={key}
-                      className="max-w-[180px] truncate px-3 py-1.5 text-zoru-ink"
+                      className="max-w-[180px] truncate px-3 py-1.5 text-[var(--st-text)]"
                       title={raw}
                     >
                       {raw || (
-                        <span className="text-zoru-ink-muted">(empty)</span>
+                        <span className="text-[var(--st-text-secondary)]">(empty)</span>
                       )}
                     </td>
                   );
@@ -612,7 +612,7 @@ function PreviewStep({
       </div>
 
       {rows.length > MAX_PREVIEW_ROWS && (
-        <p className="text-xs text-zoru-ink-muted">
+        <p className="text-xs text-[var(--st-text-secondary)]">
           … and {rows.length - MAX_PREVIEW_ROWS} more rows not shown.
         </p>
       )}
@@ -623,8 +623,8 @@ function PreviewStep({
         const unmapped = csvHeaders.filter((h) => !mappedCsvHeaders.has(h));
         if (unmapped.length === 0) return null;
         return (
-          <p className="text-xs text-zoru-ink-muted">
-            <strong className="text-zoru-ink">{unmapped.length}</strong> CSV
+          <p className="text-xs text-[var(--st-text-secondary)]">
+            <strong className="text-[var(--st-text)]">{unmapped.length}</strong> CSV
             column{unmapped.length !== 1 ? 's' : ''} not mapped and will be
             ignored: {unmapped.map((h) => `"${h}"`).join(', ')}.
           </p>
@@ -647,8 +647,8 @@ function ImportStep({ result, busy }: ImportStepProps): React.ReactElement {
   if (busy) {
     return (
       <div className="flex flex-col items-center gap-4 py-8">
-        <Loader2 className="h-8 w-8 animate-spin text-zoru-ink-muted" />
-        <p className="text-sm text-zoru-ink-muted">Importing records…</p>
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--st-text-secondary)]" />
+        <p className="text-sm text-[var(--st-text-secondary)]">Importing records…</p>
       </div>
     );
   }
@@ -656,7 +656,7 @@ function ImportStep({ result, busy }: ImportStepProps): React.ReactElement {
   if (!result) {
     return (
       <div className="flex flex-col items-center gap-4 py-8">
-        <p className="text-sm text-zoru-ink-muted">Ready to import.</p>
+        <p className="text-sm text-[var(--st-text-secondary)]">Ready to import.</p>
       </div>
     );
   }
@@ -676,25 +676,25 @@ function ImportStep({ result, busy }: ImportStepProps): React.ReactElement {
     <div className="flex flex-col gap-4">
       {/* Summary cards */}
       <div className="grid grid-cols-3 gap-3">
-        <div className="flex flex-col items-center gap-1 rounded-[var(--zoru-radius-md)] border border-zoru-line p-3">
-          <span className="text-2xl font-bold text-zoru-ink">{result.total}</span>
-          <span className="text-xs text-zoru-ink-muted">Total</span>
+        <div className="flex flex-col items-center gap-1 rounded-[var(--zoru-radius-md)] border border-[var(--st-border)] p-3">
+          <span className="text-2xl font-bold text-[var(--st-text)]">{result.total}</span>
+          <span className="text-xs text-[var(--st-text-secondary)]">Total</span>
         </div>
-        <div className="flex flex-col items-center gap-1 rounded-[var(--zoru-radius-md)] border border-zoru-line p-3">
-          <span className="flex items-center gap-1 text-2xl font-bold text-zoru-ink">
-            <CheckCircle2 className="h-5 w-5 text-zoru-success" />
+        <div className="flex flex-col items-center gap-1 rounded-[var(--zoru-radius-md)] border border-[var(--st-border)] p-3">
+          <span className="flex items-center gap-1 text-2xl font-bold text-[var(--st-text)]">
+            <CheckCircle2 className="h-5 w-5 text-[var(--st-status-ok)]" />
             {result.succeeded}
           </span>
-          <span className="text-xs text-zoru-ink-muted">Imported</span>
+          <span className="text-xs text-[var(--st-text-secondary)]">Imported</span>
         </div>
-        <div className="flex flex-col items-center gap-1 rounded-[var(--zoru-radius-md)] border border-zoru-line p-3">
-          <span className="flex items-center gap-1 text-2xl font-bold text-zoru-ink">
+        <div className="flex flex-col items-center gap-1 rounded-[var(--zoru-radius-md)] border border-[var(--st-border)] p-3">
+          <span className="flex items-center gap-1 text-2xl font-bold text-[var(--st-text)]">
             {result.failed > 0 && (
-              <XCircle className="h-5 w-5 text-zoru-danger" />
+              <XCircle className="h-5 w-5 text-[var(--st-danger)]" />
             )}
             {result.failed}
           </span>
-          <span className="text-xs text-zoru-ink-muted">Failed</span>
+          <span className="text-xs text-[var(--st-text-secondary)]">Failed</span>
         </div>
       </div>
 
@@ -703,26 +703,26 @@ function ImportStep({ result, busy }: ImportStepProps): React.ReactElement {
       {/* Failed row list (capped at 20 for UI sanity) */}
       {failedRows.length > 0 && (
         <div className="flex flex-col gap-2">
-          <p className="text-xs font-medium text-zoru-ink">
+          <p className="text-xs font-medium text-[var(--st-text)]">
             Failed rows ({failedRows.length})
           </p>
           <div
-            className="overflow-y-auto rounded-[var(--zoru-radius-md)] border border-zoru-line"
+            className="overflow-y-auto rounded-[var(--zoru-radius-md)] border border-[var(--st-border)]"
             style={{ maxHeight: '180px' }}
           >
             {failedRows.slice(0, 20).map(({ index, errors }) => (
               <div
                 key={index}
-                className="flex gap-2 border-b border-zoru-line/50 px-3 py-2 text-xs last:border-0"
+                className="flex gap-2 border-b border-[var(--st-border)]/50 px-3 py-2 text-xs last:border-0"
               >
-                <span className="shrink-0 font-medium text-zoru-ink-muted">
+                <span className="shrink-0 font-medium text-[var(--st-text-secondary)]">
                   Row {index}
                 </span>
-                <span className="text-zoru-danger">{errors[0]}</span>
+                <span className="text-[var(--st-danger)]">{errors[0]}</span>
               </div>
             ))}
             {failedRows.length > 20 && (
-              <p className="px-3 py-2 text-xs text-zoru-ink-muted">
+              <p className="px-3 py-2 text-xs text-[var(--st-text-secondary)]">
                 … and {failedRows.length - 20} more.
               </p>
             )}
@@ -731,8 +731,8 @@ function ImportStep({ result, busy }: ImportStepProps): React.ReactElement {
       )}
 
       {result.succeeded === result.total && result.total > 0 && (
-        <div className="flex items-center gap-2 rounded-[var(--zoru-radius-md)] border border-zoru-line bg-zoru-surface/40 px-3 py-2 text-xs text-zoru-ink">
-          <CheckCircle2 className="h-4 w-4 text-zoru-success" />
+        <div className="flex items-center gap-2 rounded-[var(--zoru-radius-md)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40 px-3 py-2 text-xs text-[var(--st-text)]">
+          <CheckCircle2 className="h-4 w-4 text-[var(--st-status-ok)]" />
           All {result.total} records imported successfully.
         </div>
       )}
@@ -942,7 +942,7 @@ export function ImportDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="flex max-h-[90vh] max-w-2xl flex-col gap-0 overflow-hidden p-0">
         {/* Header */}
-        <DialogHeader className="border-b border-zoru-line p-5">
+        <DialogHeader className="border-b border-[var(--st-border)] p-5">
           <DialogTitle>
             Import {object.labelPlural.toLowerCase()}
           </DialogTitle>
@@ -952,10 +952,10 @@ export function ImportDialog({
         </DialogHeader>
 
         {/* Step indicator */}
-        <div className="border-b border-zoru-line px-5 py-4">
+        <div className="border-b border-[var(--st-border)] px-5 py-4">
           <StepIndicator steps={STEPS} current={step} />
           {suggestBusy && (
-            <p className="mt-2 flex items-center gap-1.5 text-xs text-zoru-ink-muted">
+            <p className="mt-2 flex items-center gap-1.5 text-xs text-[var(--st-text-secondary)]">
               <Loader2 className="h-3 w-3 animate-spin" />
               Auto-detecting column mapping…
             </p>
@@ -992,7 +992,7 @@ export function ImportDialog({
         </div>
 
         {/* Footer */}
-        <DialogFooter className="border-t border-zoru-line bg-zoru-surface/40 p-4">
+        <DialogFooter className="border-t border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40 p-4">
           {isDone ? (
             <Button onClick={() => onOpenChange(false)}>Close</Button>
           ) : (

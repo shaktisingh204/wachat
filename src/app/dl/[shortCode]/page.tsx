@@ -46,7 +46,7 @@ export default async function DeepLinkPage({ params }: Props) {
     const isAndroid = /Android/.test(ua);
 
     return (
-        <main className="min-h-screen bg-zoru-surface text-zoru-ink font-sans antialiased">
+        <main className="min-h-screen bg-[var(--st-bg-secondary)] text-[var(--st-text)] font-sans antialiased">
             <RedirectScript originalUrl={originalUrl} isIos={isIos} isAndroid={isAndroid} />
         </main>
     );

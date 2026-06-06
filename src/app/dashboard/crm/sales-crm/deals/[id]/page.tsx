@@ -154,14 +154,14 @@ export default async function DealDetailPage({ params, searchParams }: PageProps
   if (printMode) {
     return (
       <div className="mx-auto w-full max-w-3xl space-y-6 p-6 print:p-0">
-        <header className="border-b border-zoru-line pb-4">
-          <h1 className="text-2xl font-semibold text-zoru-ink">{deal.name || 'Untitled deal'}</h1>
-          <p className="mt-1 text-[13px] text-zoru-ink-muted">
+        <header className="border-b border-[var(--st-border)] pb-4">
+          <h1 className="text-2xl font-semibold text-[var(--st-text)]">{deal.name || 'Untitled deal'}</h1>
+          <p className="mt-1 text-[13px] text-[var(--st-text-secondary)]">
             {fmtMoney(amount, dealCurrency)} · {deal.stage ?? 'Untriaged'}
           </p>
         </header>
         <section>
-          <h2 className="mb-2 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          <h2 className="mb-2 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
             Overview
           </h2>
           <dl className="grid grid-cols-2 gap-3 text-[13px]">
@@ -176,7 +176,7 @@ export default async function DealDetailPage({ params, searchParams }: PageProps
           </dl>
         </section>
         <section>
-          <h2 className="mb-2 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          <h2 className="mb-2 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
             Money breakdown
           </h2>
           <dl className="grid grid-cols-3 gap-3 text-[13px]">
@@ -193,7 +193,7 @@ export default async function DealDetailPage({ params, searchParams }: PageProps
         </section>
         {Array.isArray(deal.products) && deal.products.length > 0 ? (
           <section>
-            <h2 className="mb-2 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+            <h2 className="mb-2 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
               Products
             </h2>
             <table className="w-full text-[12.5px]">
@@ -222,7 +222,7 @@ export default async function DealDetailPage({ params, searchParams }: PageProps
         ) : null}
         {deal.description ? (
           <section>
-            <h2 className="mb-2 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+            <h2 className="mb-2 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
               Notes
             </h2>
             <p className="whitespace-pre-wrap text-[13px]">{deal.description}</p>
@@ -230,12 +230,12 @@ export default async function DealDetailPage({ params, searchParams }: PageProps
         ) : null}
         {Array.isArray(deal.labels) && deal.labels.length > 0 ? (
           <section>
-            <h2 className="mb-2 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+            <h2 className="mb-2 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
               Tags
             </h2>
             <div className="flex flex-wrap gap-1.5 text-[12.5px]">
               {deal.labels.map((t) => (
-                <span key={t} className="rounded border border-zoru-line px-1.5 py-0.5">
+                <span key={t} className="rounded border border-[var(--st-border)] px-1.5 py-0.5">
                   {t}
                 </span>
               ))}
@@ -271,19 +271,19 @@ export default async function DealDetailPage({ params, searchParams }: PageProps
 function DetailField({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
         {label}
       </div>
-      <div className="mt-1 text-[13px] text-zoru-ink">{children}</div>
+      <div className="mt-1 text-[13px] text-[var(--st-text)]">{children}</div>
     </div>
   );
 }
 
 function Stat({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="rounded-lg border border-zoru-line bg-zoru-surface-2 px-3 py-2">
-      <dt className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">{label}</dt>
-      <dd className="mt-1 font-mono text-[14px] tabular-nums text-zoru-ink">{value}</dd>
+    <div className="rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2">
+      <dt className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">{label}</dt>
+      <dd className="mt-1 font-mono text-[14px] tabular-nums text-[var(--st-text)]">{value}</dd>
     </div>
   );
 }

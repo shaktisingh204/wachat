@@ -8,7 +8,7 @@ export default function EditStockTransferLoading() {
       title="Loading Transfer..."
       back={{ href: '/dashboard/crm/inventory/stock-transfers', label: 'Back to transfers' }}
     >
-      <div className="space-y-6 rounded-lg border border-zoru-line bg-zoru-surface p-6">
+      <div className="space-y-6 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-6">
         <div className="space-y-2">
           <Skeleton className="h-5 w-[150px]" />
           <Skeleton className="h-4 w-[250px]" />
@@ -27,7 +27,7 @@ export default function EditStockTransferLoading() {
             <Skeleton className="h-[200px] w-full" />
           </div>
         </div>
-        <div className="flex justify-end gap-2 pt-4 mt-6 border-t border-zoru-line">
+        <div className="flex justify-end gap-2 pt-4 mt-6 border-t border-[var(--st-border)]">
           <Skeleton className="h-10 w-24" />
           <Skeleton className="h-10 w-32" />
         </div>

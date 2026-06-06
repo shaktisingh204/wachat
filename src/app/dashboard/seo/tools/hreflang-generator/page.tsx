@@ -199,7 +199,7 @@ export default function HreflangGeneratorPage() {
       </div>
 
       <div className="space-y-4">
-        <div className="hidden md:flex gap-4 font-medium text-sm text-zoru-ink px-1">
+        <div className="hidden md:flex gap-4 font-medium text-sm text-[var(--st-text)] px-1">
           <div className="w-64">Language / Region</div>
           <div className="flex-1">URL</div>
           <div className="w-10"></div>
@@ -209,11 +209,11 @@ export default function HreflangGeneratorPage() {
           const urlInvalid = r.url !== '' && !isValidUrl(r.url);
           
           return (
-            <div key={i} className="flex flex-col md:flex-row gap-4 items-start md:items-center p-3 md:p-0 border border-zoru-line md:border-transparent rounded-[var(--zoru-radius)] md:rounded-none bg-zoru-surface-2 md:bg-transparent">
+            <div key={i} className="flex flex-col md:flex-row gap-4 items-start md:items-center p-3 md:p-0 border border-[var(--st-border)] md:border-transparent rounded-[var(--zoru-radius)] md:rounded-none bg-[var(--st-bg-muted)] md:bg-transparent">
               <div className="w-full md:w-64 flex flex-col gap-1">
-                <div className="md:hidden text-xs font-medium text-zoru-ink-muted px-1">Language / Region</div>
+                <div className="md:hidden text-xs font-medium text-[var(--st-text-secondary)] px-1">Language / Region</div>
                 <ZoruDynamicSelector
-                  className={cn(langInvalid && "border-zoru-danger")}
+                  className={cn(langInvalid && "border-[var(--st-danger)]")}
                   value={r.lang}
                   onChange={(id) => update(i, 'lang', id)}
                   fetchOptions={fetchOptions}
@@ -224,14 +224,14 @@ export default function HreflangGeneratorPage() {
                   }}
                 />
                 {langInvalid && (
-                  <div className="flex items-center text-zoru-danger text-xs mt-1 px-1">
+                  <div className="flex items-center text-[var(--st-danger)] text-xs mt-1 px-1">
                     <AlertCircle className="w-3 h-3 mr-1" />
                     Invalid language code format
                   </div>
                 )}
               </div>
               <div className="flex-1 w-full flex flex-col gap-1">
-                <div className="md:hidden text-xs font-medium text-zoru-ink-muted px-1">URL</div>
+                <div className="md:hidden text-xs font-medium text-[var(--st-text-secondary)] px-1">URL</div>
                 <div className="flex gap-2">
                   <Input 
                     className="flex-1" 
@@ -240,10 +240,10 @@ export default function HreflangGeneratorPage() {
                     onChange={(e) => update(i, 'url', e.target.value)} 
                     placeholder="https://example.com/en" 
                   />
-                  <Button variant="ghost" onClick={() => remove(i)} className="md:hidden self-start text-zoru-danger">Remove</Button>
+                  <Button variant="ghost" onClick={() => remove(i)} className="md:hidden self-start text-[var(--st-danger)]">Remove</Button>
                 </div>
                 {urlInvalid && (
-                  <div className="flex items-center text-zoru-danger text-xs mt-1 px-1">
+                  <div className="flex items-center text-[var(--st-danger)] text-xs mt-1 px-1">
                     <AlertCircle className="w-3 h-3 mr-1" />
                     Invalid URL (must include http:// or https://)
                   </div>
@@ -257,7 +257,7 @@ export default function HreflangGeneratorPage() {
       </div>
 
       <div className="mt-8">
-        <h3 className="text-sm font-medium text-zoru-ink mb-2">Generated Output</h3>
+        <h3 className="text-sm font-medium text-[var(--st-text)] mb-2">Generated Output</h3>
         <Textarea 
           readOnly 
           value={out} 

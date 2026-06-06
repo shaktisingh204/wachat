@@ -143,10 +143,10 @@ export default async function ProjectStatusReportPage(props: PageProps) {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
         <Card className="p-6">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-[16px] font-semibold text-zoru-ink">
+            <h2 className="text-[16px] font-semibold text-[var(--st-text)]">
               Projects by RAG status
             </h2>
-            <span className="text-[12px] text-zoru-ink-muted">
+            <span className="text-[12px] text-[var(--st-text-secondary)]">
               {fmtNumber(totals.totalActive)} active
             </span>
           </div>
@@ -155,10 +155,10 @@ export default async function ProjectStatusReportPage(props: PageProps) {
 
         <Card className="p-6">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-[16px] font-semibold text-zoru-ink">
+            <h2 className="text-[16px] font-semibold text-[var(--st-text)]">
               Delivery velocity
             </h2>
-            <span className="text-[12px] text-zoru-ink-muted">
+            <span className="text-[12px] text-[var(--st-text-secondary)]">
               tasks completed / month
             </span>
           </div>
@@ -173,58 +173,58 @@ export default async function ProjectStatusReportPage(props: PageProps) {
       </div>
 
       <Card className="p-0">
-        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+        <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <Table>
             <ZoruTableHeader>
-              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                <ZoruTableHead className="text-zoru-ink-muted">Project</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">RAG</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Owner</ZoruTableHead>
-                <ZoruTableHead className="text-right text-zoru-ink-muted">Completion</ZoruTableHead>
-                <ZoruTableHead className="text-right text-zoru-ink-muted">Tasks</ZoruTableHead>
-                <ZoruTableHead className="text-right text-zoru-ink-muted">Overdue</ZoruTableHead>
-                <ZoruTableHead className="text-right text-zoru-ink-muted">Deadline</ZoruTableHead>
+              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Project</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">RAG</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Owner</ZoruTableHead>
+                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Completion</ZoruTableHead>
+                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Tasks</ZoruTableHead>
+                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Overdue</ZoruTableHead>
+                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Deadline</ZoruTableHead>
               </ZoruTableRow>
             </ZoruTableHeader>
             <ZoruTableBody>
               {pageRows.length === 0 ? (
-                <ZoruTableRow className="border-zoru-line">
+                <ZoruTableRow className="border-[var(--st-border)]">
                   <ZoruTableCell
                     colSpan={8}
-                    className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                    className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     No active projects.
                   </ZoruTableCell>
                 </ZoruTableRow>
               ) : (
                 pageRows.map((r) => (
-                  <ZoruTableRow key={r._id} className="border-zoru-line">
+                  <ZoruTableRow key={r._id} className="border-[var(--st-border)]">
                     <ZoruTableCell>
                       <EntityRowLink
                         href={`/dashboard/crm/projects/${r._id}`}
                         label={r.name}
                       />
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-zoru-ink">
+                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                       {r.status}
                     </ZoruTableCell>
                     <ZoruTableCell>
                       <Badge variant={ragVariant(r.rag)}>{r.rag}</Badge>
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-zoru-ink">
+                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                       {r.ownerName}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] font-medium text-zoru-ink">
+                    <ZoruTableCell className="text-right text-[13px] font-medium text-[var(--st-text)]">
                       {r.completionPercent}%
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
+                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
                       {fmtNumber(r.tasksCount)}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
+                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
                       {fmtNumber(r.overdueTasks)}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-zoru-ink-muted">
+                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text-secondary)]">
                       {r.deadline ? r.deadline.slice(0, 10) : '—'}
                       {r.daysToDeadline != null ? (
                         <span className="ml-1 text-[11px]">

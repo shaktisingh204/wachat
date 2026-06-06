@@ -49,7 +49,7 @@ export default function ProjectLabelsPage() {
           label: 'Name',
           render: (r) => (
             <span
-              className="inline-flex px-2 py-0.5 text-xs font-medium rounded-md border border-zoru-line"
+              className="inline-flex px-2 py-0.5 text-xs font-medium rounded-md border border-[var(--st-border)]"
               style={{
                 backgroundColor: r.color || 'transparent',
                 color: r.color ? getContrastYIQ(r.color) : 'inherit',
@@ -66,7 +66,7 @@ export default function ProjectLabelsPage() {
             r.color ? (
               <span className="inline-flex items-center gap-2">
                 <span
-                  className="h-3 w-3 rounded-full border border-zoru-line"
+                  className="h-3 w-3 rounded-full border border-[var(--st-border)]"
                   style={{ backgroundColor: r.color }}
                 />
                 {r.color}

@@ -69,8 +69,8 @@ export function NewFormWizard() {
     return (
         <div className="w-full p-6 mt-10">
             <div className="mb-8">
-                <h1 className="text-3xl font-bold text-zoru-ink">Create New Form</h1>
-                <p className="text-zoru-ink-muted mt-2">
+                <h1 className="text-3xl font-bold text-[var(--st-text)]">Create New Form</h1>
+                <p className="text-[var(--st-text-secondary)] mt-2">
                     {step === 1 ? 'Choose a template to get started quickly.' : 'Give your form a memorable name.'}
                 </p>
             </div>
@@ -87,11 +87,11 @@ export function NewFormWizard() {
                                 onClick={() => setSelectedTemplate(t)}
                             >
                                 <CardHeader>
-                                    <Icon className="w-8 h-8 mb-2 text-zoru-ink" />
+                                    <Icon className="w-8 h-8 mb-2 text-[var(--st-text)]" />
                                     <CardTitle className="text-lg">{t.name}</CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <p className="text-sm text-zoru-ink-muted">{t.description}</p>
+                                    <p className="text-sm text-[var(--st-text-secondary)]">{t.description}</p>
                                 </CardContent>
                             </Card>
                         );

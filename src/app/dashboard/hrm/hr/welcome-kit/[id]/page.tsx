@@ -64,37 +64,37 @@ export default async function WelcomeKitDetailPage({
 
             <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
-                    <div className="text-[14px] font-medium text-zoru-ink">Overview</div>
+                    <div className="text-[14px] font-medium text-[var(--st-text)]">Overview</div>
                     <StatusPill label={status} tone={tone} />
                 </div>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
                     <div>
-                        <div className="text-zoru-ink-muted">Employee</div>
-                        <div className="text-zoru-ink">{kit.employee_name || '—'}</div>
-                        <div className="font-mono text-[11.5px] text-zoru-ink-muted">
+                        <div className="text-[var(--st-text-secondary)]">Employee</div>
+                        <div className="text-[var(--st-text)]">{kit.employee_name || '—'}</div>
+                        <div className="font-mono text-[11.5px] text-[var(--st-text-secondary)]">
                             {kit.employee_id}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Tracking</div>
-                        <div className="font-mono text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Tracking</div>
+                        <div className="font-mono text-[var(--st-text)]">
                             {kit.tracking_number ?? '—'}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Items delivered</div>
-                        <div className="font-mono text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Items delivered</div>
+                        <div className="font-mono text-[var(--st-text)]">
                             {deliveredCount} / {items.length}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Created</div>
-                        <div className="text-zoru-ink">{fmtDate(kit.createdAt)}</div>
+                        <div className="text-[var(--st-text-secondary)]">Created</div>
+                        <div className="text-[var(--st-text)]">{fmtDate(kit.createdAt)}</div>
                     </div>
                     {kit.shipping_address ? (
                         <div className="sm:col-span-2">
-                            <div className="text-zoru-ink-muted">Shipping address</div>
-                            <div className="whitespace-pre-wrap text-zoru-ink">
+                            <div className="text-[var(--st-text-secondary)]">Shipping address</div>
+                            <div className="whitespace-pre-wrap text-[var(--st-text)]">
                                 {kit.shipping_address}
                             </div>
                         </div>
@@ -103,11 +103,11 @@ export default async function WelcomeKitDetailPage({
             </Card>
 
             <Card className="p-6">
-                <div className="mb-3 text-[15px] font-medium text-zoru-ink">
+                <div className="mb-3 text-[15px] font-medium text-[var(--st-text)]">
                     Items ({items.length})
                 </div>
                 {items.length === 0 ? (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No items have been added to this kit.
                     </div>
                 ) : (
@@ -115,19 +115,19 @@ export default async function WelcomeKitDetailPage({
                         {items.map((it, idx) => (
                             <li
                                 key={idx}
-                                className="flex items-center justify-between rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 py-2"
+                                className="flex items-center justify-between rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2"
                             >
                                 <div className="min-w-0 flex-1">
-                                    <div className="truncate text-[13px] text-zoru-ink">
+                                    <div className="truncate text-[13px] text-[var(--st-text)]">
                                         {it.name}
                                     </div>
                                     {it.sku ? (
-                                        <div className="truncate font-mono text-[11px] text-zoru-ink-muted">
+                                        <div className="truncate font-mono text-[11px] text-[var(--st-text-secondary)]">
                                             {it.sku}
                                         </div>
                                     ) : null}
                                 </div>
-                                <div className="flex shrink-0 items-center gap-3 text-[12px] text-zoru-ink-muted">
+                                <div className="flex shrink-0 items-center gap-3 text-[12px] text-[var(--st-text-secondary)]">
                                     {it.delivered_at ? (
                                         <span>{fmtDate(it.delivered_at)}</span>
                                     ) : null}

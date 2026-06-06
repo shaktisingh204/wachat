@@ -70,7 +70,7 @@ async function ClientProjectDetailPageContent({
         <div className="flex flex-col gap-4">
             <Link
                 href="/portal/client/projects"
-                className="self-start text-sm text-zoru-ink-muted hover:underline"
+                className="self-start text-sm text-[var(--st-text-secondary)] hover:underline"
             >
                 ← Back to projects
             </Link>
@@ -80,7 +80,7 @@ async function ClientProjectDetailPageContent({
                     <div>
                         <ZoruCardTitle>{project.name}</ZoruCardTitle>
                         {project.description ? (
-                            <p className="mt-1 max-w-2xl text-sm text-zoru-ink-muted">
+                            <p className="mt-1 max-w-2xl text-sm text-[var(--st-text-secondary)]">
                                 {project.description}
                             </p>
                         ) : null}
@@ -90,26 +90,26 @@ async function ClientProjectDetailPageContent({
                 <ZoruCardContent>
                     <dl className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
                         <div>
-                            <dt className="text-xs text-zoru-ink-muted">Start</dt>
-                            <dd className="text-zoru-ink">{fmtDate(project.startDate)}</dd>
+                            <dt className="text-xs text-[var(--st-text-secondary)]">Start</dt>
+                            <dd className="text-[var(--st-text)]">{fmtDate(project.startDate)}</dd>
                         </div>
                         <div>
-                            <dt className="text-xs text-zoru-ink-muted">Deadline</dt>
-                            <dd className="text-zoru-ink">{fmtDate(project.endDate)}</dd>
+                            <dt className="text-xs text-[var(--st-text-secondary)]">Deadline</dt>
+                            <dd className="text-[var(--st-text)]">{fmtDate(project.endDate)}</dd>
                         </div>
                         <div>
-                            <dt className="text-xs text-zoru-ink-muted">Manager</dt>
-                            <dd className="text-zoru-ink">{project.managerName ?? '—'}</dd>
+                            <dt className="text-xs text-[var(--st-text-secondary)]">Manager</dt>
+                            <dd className="text-[var(--st-text)]">{project.managerName ?? '—'}</dd>
                         </div>
                         <div>
-                            <dt className="text-xs text-zoru-ink-muted">Budget</dt>
-                            <dd className="text-zoru-ink">{fmtINR(project.budget, project.currency)}</dd>
+                            <dt className="text-xs text-[var(--st-text-secondary)]">Budget</dt>
+                            <dd className="text-[var(--st-text)]">{fmtINR(project.budget, project.currency)}</dd>
                         </div>
                         <div className="col-span-2 sm:col-span-4">
-                            <dt className="text-xs text-zoru-ink-muted">Progress</dt>
+                            <dt className="text-xs text-[var(--st-text-secondary)]">Progress</dt>
                             <dd className="mt-1 flex items-center gap-3">
                                 <Progress value={project.progress} className="max-w-md flex-1" />
-                                <span className="text-xs text-zoru-ink-muted">{project.progress}%</span>
+                                <span className="text-xs text-[var(--st-text-secondary)]">{project.progress}%</span>
                             </dd>
                         </div>
                     </dl>
@@ -117,7 +117,7 @@ async function ClientProjectDetailPageContent({
             </Card>
 
             {/* Button-group tabs (NOT ZoruTabs) */}
-            <div className="flex flex-wrap gap-1 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-1">
+            <div className="flex flex-wrap gap-1 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1">
                 {TABS.map((t) => {
                     const active = t.key === tab;
                     return (
@@ -127,8 +127,8 @@ async function ClientProjectDetailPageContent({
                             className={cn(
                                 'rounded-[var(--zoru-radius-sm)] px-3 py-1.5 text-sm transition-colors',
                                 active
-                                    ? 'bg-zoru-surface-2 text-zoru-ink'
-                                    : 'text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink',
+                                    ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
+                                    : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]',
                             )}
                         >
                             {t.label}
@@ -139,7 +139,7 @@ async function ClientProjectDetailPageContent({
 
             {tab === 'overview' && (
                 <Card>
-                    <ZoruCardContent className="text-sm text-zoru-ink-muted">
+                    <ZoruCardContent className="text-sm text-[var(--st-text-secondary)]">
                         {project.description ?? 'No additional details available.'}
                     </ZoruCardContent>
                 </Card>
@@ -149,7 +149,7 @@ async function ClientProjectDetailPageContent({
                 <Card>
                     <ZoruCardContent className="p-0">
                         {tasks.length === 0 ? (
-                            <div className="p-6 text-center text-sm text-zoru-ink-muted">
+                            <div className="p-6 text-center text-sm text-[var(--st-text-secondary)]">
                                 No tasks yet.
                             </div>
                         ) : (
@@ -184,7 +184,7 @@ async function ClientProjectDetailPageContent({
 
             {tab === 'milestones' && (
                 <Card>
-                    <ZoruCardContent className="text-sm text-zoru-ink-muted">
+                    <ZoruCardContent className="text-sm text-[var(--st-text-secondary)]">
                         No milestones available for this project yet.
                     </ZoruCardContent>
                 </Card>
@@ -192,7 +192,7 @@ async function ClientProjectDetailPageContent({
 
             {tab === 'files' && (
                 <Card>
-                    <ZoruCardContent className="text-sm text-zoru-ink-muted">
+                    <ZoruCardContent className="text-sm text-[var(--st-text-secondary)]">
                         Project files will appear here. Use the download link on each
                         file to save it locally.
                     </ZoruCardContent>
@@ -203,7 +203,7 @@ async function ClientProjectDetailPageContent({
                 <Card>
                     <ZoruCardContent className="p-0">
                         {invoices.length === 0 ? (
-                            <div className="p-6 text-center text-sm text-zoru-ink-muted">
+                            <div className="p-6 text-center text-sm text-[var(--st-text-secondary)]">
                                 No invoices for this project.
                             </div>
                         ) : (
@@ -222,7 +222,7 @@ async function ClientProjectDetailPageContent({
                                             <ZoruTableCell>
                                                 <Link
                                                     href={`/portal/client/invoices/${inv._id}`}
-                                                    className="font-medium text-zoru-ink hover:underline"
+                                                    className="font-medium text-[var(--st-text)] hover:underline"
                                                 >
                                                     {inv.invoiceNumber}
                                                 </Link>
@@ -243,7 +243,7 @@ async function ClientProjectDetailPageContent({
 
             {tab === 'rating' && (
                 <Card>
-                    <ZoruCardContent className="text-sm text-zoru-ink-muted">
+                    <ZoruCardContent className="text-sm text-[var(--st-text-secondary)]">
                         A rating link will appear here once your project manager
                         sends one. Check your email for the share link.
                     </ZoruCardContent>

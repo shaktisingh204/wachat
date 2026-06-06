@@ -32,7 +32,7 @@ interface DraftShift extends Partial<CrmShiftDoc> {
 
 function FormClosedState({ onOpen }: { onOpen: () => void }) {
     return (
-        <div className="flex items-center justify-center rounded-lg border border-zoru-line border-dashed bg-zoru-bg p-8 text-center text-zoru-ink-muted shadow-sm">
+        <div className="flex items-center justify-center rounded-lg border border-[var(--st-border)] border-dashed bg-[var(--st-bg)] p-8 text-center text-[var(--st-text-secondary)] shadow-sm">
             <div className="max-w-xs">
                 <Workflow className="mx-auto mb-4 h-8 w-8 opacity-50" />
                 <p className="mb-4 text-sm">Form closed. Click "Add Draft" to create another shift.</p>
@@ -229,8 +229,8 @@ export default function NewShiftBulkPage() {
                 <div className="grid gap-6 md:grid-cols-2">
                     {/* LEFT PANEL: Form */}
                     {isFormOpen ? (
-                        <div className="rounded-lg border border-zoru-line bg-zoru-bg p-4 shadow-sm">
-                            <h2 className="mb-4 text-lg font-medium text-zoru-ink">Shift Details</h2>
+                        <div className="rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] p-4 shadow-sm">
+                            <h2 className="mb-4 text-lg font-medium text-[var(--st-text)]">Shift Details</h2>
                             <ShiftForm 
                                 initial={null} 
                                 onSaved={() => {
@@ -260,7 +260,7 @@ export default function NewShiftBulkPage() {
                                 placeholder: 'Filter by name or code...',
                             }}
                             filters={
-                                <label className="flex items-center gap-2 rounded-full border border-zoru-line bg-zoru-bg px-3 py-1.5 text-[12px] font-medium text-zoru-ink">
+                                <label className="flex items-center gap-2 rounded-full border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-1.5 text-[12px] font-medium text-[var(--st-text)]">
                                     <Checkbox
                                         checked={showNightOnly}
                                         onCheckedChange={(v) => setShowNightOnly(Boolean(v))}
@@ -271,14 +271,14 @@ export default function NewShiftBulkPage() {
                             bulkBar={
                                 selectedIds.size > 0 ? (
                                     <div className="flex items-center justify-between">
-                                        <span className="text-sm font-medium text-zoru-ink">
+                                        <span className="text-sm font-medium text-[var(--st-text)]">
                                             {selectedIds.size} selected
                                         </span>
                                         <div className="flex gap-2">
                                             <Button variant="ghost" onClick={() => setSelectedIds(new Set())}>
                                                 Cancel
                                             </Button>
-                                            <Button variant="outline" className="text-zoru-danger-ink border-zoru-danger-ink/20 hover:bg-zoru-danger-ink/10" onClick={handleBulkDelete}>
+                                            <Button variant="outline" className="text-[var(--st-danger)] border-[var(--st-danger)]/20 hover:bg-[var(--st-danger)]/10" onClick={handleBulkDelete}>
                                                 <Trash2 className="mr-1.5 h-4 w-4" /> Delete
                                             </Button>
                                         </div>
@@ -293,11 +293,11 @@ export default function NewShiftBulkPage() {
                         >
                             <div 
                                 ref={tableContainerRef}
-                                className="h-[500px] overflow-auto rounded-lg border border-zoru-line bg-zoru-bg"
+                                className="h-[500px] overflow-auto rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)]"
                             >
                                 <Table>
-                                    <ZoruTableHeader className="sticky top-0 z-10 bg-zoru-bg shadow-sm">
-                                        <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                                    <ZoruTableHeader className="sticky top-0 z-10 bg-[var(--st-bg)] shadow-sm">
+                                        <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                                             <ZoruTableHead className="w-[40px]">
                                                 <Checkbox 
                                                     role="checkbox"
@@ -306,15 +306,15 @@ export default function NewShiftBulkPage() {
                                                     aria-label="Select all"
                                                 />
                                             </ZoruTableHead>
-                                            <ZoruTableHead className="text-zoru-ink-muted">Name</ZoruTableHead>
-                                            <ZoruTableHead className="text-zoru-ink-muted">Code</ZoruTableHead>
-                                            <ZoruTableHead className="text-zoru-ink-muted">Window</ZoruTableHead>
+                                            <ZoruTableHead className="text-[var(--st-text-secondary)]">Name</ZoruTableHead>
+                                            <ZoruTableHead className="text-[var(--st-text-secondary)]">Code</ZoruTableHead>
+                                            <ZoruTableHead className="text-[var(--st-text-secondary)]">Window</ZoruTableHead>
                                         </ZoruTableRow>
                                     </ZoruTableHeader>
                                     <ZoruTableBody>
                                         {filteredDrafts.length === 0 ? (
-                                            <ZoruTableRow className="border-zoru-line">
-                                                <ZoruTableCell colSpan={4} className="h-24 text-center text-zoru-ink-muted">
+                                            <ZoruTableRow className="border-[var(--st-border)]">
+                                                <ZoruTableCell colSpan={4} className="h-24 text-center text-[var(--st-text-secondary)]">
                                                     No drafts match this filter.
                                                 </ZoruTableCell>
                                             </ZoruTableRow>
@@ -331,7 +331,7 @@ export default function NewShiftBulkPage() {
                                                     return (
                                                         <ZoruTableRow 
                                                             key={d.id} 
-                                                            className="border-zoru-line"
+                                                            className="border-[var(--st-border)]"
                                                             data-state={isSelected ? 'selected' : undefined}
                                                         >
                                                             <ZoruTableCell>
@@ -342,13 +342,13 @@ export default function NewShiftBulkPage() {
                                                                     aria-label={`Select ${d.name}`}
                                                                 />
                                                             </ZoruTableCell>
-                                                            <ZoruTableCell className="font-medium text-zoru-ink">
+                                                            <ZoruTableCell className="font-medium text-[var(--st-text)]">
                                                                 {d.name}
                                                             </ZoruTableCell>
-                                                            <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
+                                                            <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
                                                                 {d.code || '—'}
                                                             </ZoruTableCell>
-                                                            <ZoruTableCell className="text-zoru-ink">
+                                                            <ZoruTableCell className="text-[var(--st-text)]">
                                                                 {/* Hydration safe client-rendered string formatting */}
                                                                 {String(d.startTime || '').padStart(5, '0')} – {String(d.endTime || '').padStart(5, '0')}
                                                             </ZoruTableCell>

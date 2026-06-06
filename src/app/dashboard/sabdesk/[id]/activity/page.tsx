@@ -49,7 +49,7 @@ export default async function TicketActivityPage({
     if (error) {
       return (
         <div className="flex w-full flex-col gap-4 p-6">
-          <p className="text-[14px] text-zoru-ink">{error}</p>
+          <p className="text-[14px] text-[var(--st-text)]">{error}</p>
         </div>
       );
     }
@@ -127,8 +127,8 @@ export default async function TicketActivityPage({
       <Card className="p-4">
         {entries.length === 0 ? (
           <div className="flex flex-col items-center gap-2 py-10 text-center">
-            <LifeBuoy className="h-6 w-6 text-zoru-ink-muted" />
-            <p className="text-[13px] text-zoru-ink-muted">
+            <LifeBuoy className="h-6 w-6 text-[var(--st-text-secondary)]" />
+            <p className="text-[13px] text-[var(--st-text-secondary)]">
               No activity recorded yet.
             </p>
           </div>
@@ -137,13 +137,13 @@ export default async function TicketActivityPage({
             {entries.map((e) => (
               <li
                 key={e.id}
-                className="flex gap-3 rounded-md border border-zoru-line bg-zoru-surface-2/40 p-3"
+                className="flex gap-3 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)]/40 p-3"
               >
                 <div className="shrink-0">
                   <Badge variant={e.tone ?? "ghost"}>{e.label}</Badge>
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 text-[11.5px] text-zoru-ink-muted">
+                  <div className="flex items-center gap-2 text-[11.5px] text-[var(--st-text-secondary)]">
                     <span>{fmt(e.ts)}</span>
                     {e.actorId ? (
                       <>
@@ -153,7 +153,7 @@ export default async function TicketActivityPage({
                     ) : null}
                   </div>
                   {e.body ? (
-                    <p className="mt-1 whitespace-pre-wrap text-[13px] text-zoru-ink">
+                    <p className="mt-1 whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
                       {e.body}
                     </p>
                   ) : null}

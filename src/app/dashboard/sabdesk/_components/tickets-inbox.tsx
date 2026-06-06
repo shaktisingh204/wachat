@@ -28,7 +28,7 @@ export function TicketsInbox({ tickets }: TicketsInboxProps) {
 
   if (tickets.length === 0) {
     return (
-      <Card className="p-6 text-center text-[13px] text-zoru-ink-muted">
+      <Card className="p-6 text-center text-[13px] text-[var(--st-text-secondary)]">
         No tickets found for your inbox.
       </Card>
     );
@@ -37,10 +37,10 @@ export function TicketsInbox({ tickets }: TicketsInboxProps) {
   return (
     <Card className="flex h-[calc(100vh-200px)] min-h-[600px] flex-row overflow-hidden p-0">
       {/* Left rail - Ticket list */}
-      <div className="flex w-80 flex-col border-r border-zoru-line bg-zoru-surface-2/30">
-        <div className="border-b border-zoru-line p-3">
+      <div className="flex w-80 flex-col border-r border-[var(--st-border)] bg-[var(--st-bg-muted)]/30">
+        <div className="border-b border-[var(--st-border)] p-3">
           <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-zoru-ink-muted" />
+            <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
             <Input
               placeholder="Filter inbox..."
               className="h-8 w-full pl-8 text-xs"
@@ -50,7 +50,7 @@ export function TicketsInbox({ tickets }: TicketsInboxProps) {
           </div>
         </div>
         <div className="flex-1 overflow-y-auto">
-          <ul className="flex flex-col divide-y divide-zoru-line">
+          <ul className="flex flex-col divide-y divide-[var(--st-border)]">
             {filtered.map((t) => {
               const id = String(t._id);
               const isActive = selectedTicketId === id;
@@ -62,12 +62,12 @@ export function TicketsInbox({ tickets }: TicketsInboxProps) {
                     className={[
                       "flex w-full flex-col gap-1 p-3 text-left transition-colors",
                       isActive
-                        ? "bg-zoru-surface shadow-sm"
-                        : "hover:bg-zoru-surface/50",
+                        ? "bg-[var(--st-bg-secondary)] shadow-sm"
+                        : "hover:bg-[var(--st-bg-secondary)]/50",
                     ].join(" ")}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="truncate text-[13px] font-medium text-zoru-ink">
+                      <span className="truncate text-[13px] font-medium text-[var(--st-text)]">
                         {t.subject || "Untitled"}
                       </span>
                       {t.status ? (
@@ -79,7 +79,7 @@ export function TicketsInbox({ tickets }: TicketsInboxProps) {
                         </Badge>
                       ) : null}
                     </div>
-                    <div className="flex items-center justify-between text-[11px] text-zoru-ink-muted">
+                    <div className="flex items-center justify-between text-[11px] text-[var(--st-text-secondary)]">
                       <span className="truncate">
                         {t.requesterId
                           ? `Requester: ${t.requesterId.slice(-6)}`
@@ -96,7 +96,7 @@ export function TicketsInbox({ tickets }: TicketsInboxProps) {
               );
             })}
             {filtered.length === 0 && (
-              <li className="p-4 text-center text-xs text-zoru-ink-muted">
+              <li className="p-4 text-center text-xs text-[var(--st-text-secondary)]">
                 No matches.
               </li>
             )}
@@ -105,11 +105,11 @@ export function TicketsInbox({ tickets }: TicketsInboxProps) {
       </div>
 
       {/* Main pane - Ticket detail */}
-      <div className="flex-1 overflow-y-auto bg-zoru-surface p-6">
+      <div className="flex-1 overflow-y-auto bg-[var(--st-bg-secondary)] p-6">
         {selectedTicket ? (
           <div className="w-full space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-zoru-ink">
+              <h2 className="text-xl font-semibold text-[var(--st-text)]">
                 {selectedTicket.subject}
               </h2>
               {selectedTicket.priority && (
@@ -120,7 +120,7 @@ export function TicketsInbox({ tickets }: TicketsInboxProps) {
             <TicketDetailClient ticket={selectedTicket} />
           </div>
         ) : (
-          <div className="flex h-full items-center justify-center text-sm text-zoru-ink-muted">
+          <div className="flex h-full items-center justify-center text-sm text-[var(--st-text-secondary)]">
             Select a ticket to view details
           </div>
         )}

@@ -76,7 +76,7 @@ export function DefaultsSection({
                         rows={2}
                         placeholder="— Acme Support"
                     />
-                    <p className="text-xs text-zoru-fg/60">
+                    <p className="text-xs text-[var(--st-text)]/60">
                         Appended as a suffix to broadcasts and auto-replies.
                     </p>
                 </div>
@@ -285,7 +285,7 @@ export function BusinessHoursSection({
                     ))}
                 </div>
 
-                <div className="space-y-3 rounded border border-zoru-line bg-zoru-bg p-3">
+                <div className="space-y-3 rounded border border-[var(--st-border)] bg-[var(--st-bg)] p-3">
                     <div className="text-sm font-semibold">Out-of-hours reply</div>
                     <div className="grid gap-3 md:grid-cols-3">
                         <div className="space-y-1">
@@ -351,7 +351,7 @@ export function BusinessHoursSection({
                     </div>
                 </div>
 
-                <div className="space-y-2 rounded border border-zoru-line bg-zoru-bg p-3">
+                <div className="space-y-2 rounded border border-[var(--st-border)] bg-[var(--st-bg)] p-3">
                     <div className="text-sm font-semibold">Test business hours</div>
                     <div className="flex flex-wrap items-end gap-2">
                         <div className="space-y-1">
@@ -429,7 +429,7 @@ export function NotificationsSection({
                         placeholder="https://hooks.slack.com/services/..."
                     />
                     {!slackOk ? (
-                        <p className="text-xs text-zoru-ink">Must be a hooks.slack.com URL.</p>
+                        <p className="text-xs text-[var(--st-text)]">Must be a hooks.slack.com URL.</p>
                     ) : null}
                 </div>
                 <div className="md:col-span-2">
@@ -483,7 +483,7 @@ export function SecuritySection({
                             )
                         }
                     />
-                    <p className="text-xs text-zoru-fg/60">0 = never auto-rotate.</p>
+                    <p className="text-xs text-[var(--st-text)]/60">0 = never auto-rotate.</p>
                 </div>
                 <SwitchRow
                     label="Require bot admin"

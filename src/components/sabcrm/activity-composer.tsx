@@ -383,7 +383,7 @@ export function ActivityComposer({
   return (
     <div
       className={cn(
-        "rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-3 shadow-[var(--zoru-shadow-sm)]",
+        "rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 shadow-[var(--zoru-shadow-sm)]",
         className,
       )}
     >
@@ -422,7 +422,7 @@ export function ActivityComposer({
           {mentionOpen && mentionResults.length > 0 ? (
             <div
               role="listbox"
-              className="absolute left-0 right-0 top-full z-20 mt-1 max-h-56 overflow-auto rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-1 shadow-[var(--zoru-shadow-lg)]"
+              className="absolute left-0 right-0 top-full z-20 mt-1 max-h-56 overflow-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1 shadow-[var(--zoru-shadow-lg)]"
             >
               {mentionResults.map((m) => (
                 <button
@@ -431,15 +431,15 @@ export function ActivityComposer({
                   role="option"
                   aria-selected={false}
                   onClick={() => addMention(m)}
-                  className="flex w-full items-center gap-2 rounded-[var(--zoru-radius-sm)] px-2 py-1.5 text-left text-sm text-zoru-ink hover:bg-zoru-surface-2"
+                  className="flex w-full items-center gap-2 rounded-[var(--zoru-radius-sm)] px-2 py-1.5 text-left text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
                 >
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-zoru-surface-2 text-[10px] font-medium text-zoru-ink">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[10px] font-medium text-[var(--st-text)]">
                     {initials(m.name)}
                   </span>
                   <span className="flex min-w-0 flex-col">
                     <span className="truncate">{m.name}</span>
                     {m.email ? (
-                      <span className="truncate text-xs text-zoru-ink-muted">{m.email}</span>
+                      <span className="truncate text-xs text-[var(--st-text-secondary)]">{m.email}</span>
                     ) : null}
                   </span>
                 </button>
@@ -487,11 +487,11 @@ export function ActivityComposer({
               {attachments.map((a) => (
                 <li
                   key={a.fileId}
-                  className="flex items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-2 py-1 text-sm"
+                  className="flex items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-1 text-sm"
                 >
                   <span className="flex min-w-0 items-center gap-2">
-                    <Paperclip className="h-3.5 w-3.5 shrink-0 text-zoru-ink-muted" />
-                    <span className="truncate text-zoru-ink">{a.name}</span>
+                    <Paperclip className="h-3.5 w-3.5 shrink-0 text-[var(--st-text-secondary)]" />
+                    <span className="truncate text-[var(--st-text)]">{a.name}</span>
                   </span>
                   <IconButton
                     label={`Remove ${a.name}`}
@@ -507,7 +507,7 @@ export function ActivityComposer({
 
         {mentionedMembers.length > 0 ? (
           <div className="flex flex-wrap items-center gap-1.5">
-            <AtSign className="h-3.5 w-3.5 text-zoru-ink-muted" />
+            <AtSign className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
             {mentionedMembers.map((m) => (
               <Badge key={m.id} kind="outline">
                 {m.name}
@@ -515,7 +515,7 @@ export function ActivityComposer({
                   type="button"
                   aria-label={`Remove mention ${m.name}`}
                   onClick={() => removeMention(m.id)}
-                  className="ml-0.5 text-zoru-ink-muted hover:text-zoru-ink"
+                  className="ml-0.5 text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                 >
                   <X className="h-3 w-3" />
                 </button>
@@ -539,7 +539,7 @@ export function ActivityComposer({
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="hidden text-xs text-zoru-ink-muted sm:inline">
+            <span className="hidden text-xs text-[var(--st-text-secondary)] sm:inline">
               {"⌘⏎ to send"}
             </span>
             <Button

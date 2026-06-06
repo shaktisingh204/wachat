@@ -43,10 +43,10 @@ type Kpis = {
 };
 
 const STATUS_COLOR: Record<Agent['status'], string> = {
-  available: 'text-zoru-ink',
-  busy: 'text-zoru-ink',
-  away: 'text-zoru-ink',
-  offline: 'text-zoru-ink-muted',
+  available: 'text-[var(--st-text)]',
+  busy: 'text-[var(--st-text)]',
+  away: 'text-[var(--st-text)]',
+  offline: 'text-[var(--st-text-secondary)]',
 };
 
 export default function VoiceAgentDashboardPage() {
@@ -88,17 +88,17 @@ export default function VoiceAgentDashboardPage() {
           <StatCard
             label="Available"
             value={kpis.agentsAvailable}
-            icon={<Circle className="h-4 w-4 fill-zoru-ink text-zoru-ink" />}
+            icon={<Circle className="h-4 w-4 fill-[var(--st-text)] text-[var(--st-text)]" />}
           />
           <StatCard
             label="On Call"
             value={kpis.agentsBusy}
-            icon={<PhoneCall className="h-4 w-4 text-zoru-ink" />}
+            icon={<PhoneCall className="h-4 w-4 text-[var(--st-text)]" />}
           />
           <StatCard
             label="Active Calls"
             value={kpis.activeCalls}
-            icon={<Activity className="h-4 w-4 text-zoru-brand" />}
+            icon={<Activity className="h-4 w-4 text-[var(--st-accent)]" />}
           />
           <StatCard
             label="Calls Today"
@@ -114,12 +114,12 @@ export default function VoiceAgentDashboardPage() {
             <StatCard
               label="Away"
               value={kpis.agentsAway}
-              icon={<Circle className="h-4 w-4 fill-zoru-ink text-zoru-ink" />}
+              icon={<Circle className="h-4 w-4 fill-[var(--st-text)] text-[var(--st-text)]" />}
             />
             <StatCard
               label="Offline"
               value={kpis.agentsOffline}
-              icon={<Circle className="h-4 w-4 fill-zoru-ink-muted text-zoru-ink-muted" />}
+              icon={<Circle className="h-4 w-4 fill-[var(--st-text-secondary)] text-[var(--st-text-secondary)]" />}
             />
             <StatCard
               label="Active Queues"
@@ -132,14 +132,14 @@ export default function VoiceAgentDashboardPage() {
 
       <Card className="p-4">
         <div className="flex items-center gap-2 mb-3">
-          <Users className="h-4 w-4 text-zoru-brand" />
+          <Users className="h-4 w-4 text-[var(--st-accent)]" />
           <span className="font-medium">Agents</span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {agents.map((a) => (
             <div
               key={a.agentUserId}
-              className="border border-zoru-line rounded-lg p-3 flex items-center gap-3"
+              className="border border-[var(--st-border)] rounded-lg p-3 flex items-center gap-3"
             >
               <Avatar>
                 <AvatarFallback>
@@ -162,7 +162,7 @@ export default function VoiceAgentDashboardPage() {
                   )}
                 </div>
                 {a.queueIds && a.queueIds.length > 0 && (
-                  <div className="text-[10px] text-zoru-ink-muted">
+                  <div className="text-[10px] text-[var(--st-text-secondary)]">
                     {a.queueIds.length} queue(s)
                   </div>
                 )}
@@ -170,7 +170,7 @@ export default function VoiceAgentDashboardPage() {
             </div>
           ))}
           {agents.length === 0 && (
-            <div className="col-span-full text-center text-zoru-ink-muted py-6">
+            <div className="col-span-full text-center text-[var(--st-text-secondary)] py-6">
               No agent presence data yet. Agents will appear as they log in.
             </div>
           )}

@@ -114,14 +114,14 @@ export default function CustomFieldGroupsPage() {
             >
               <div className="space-y-3 text-sm">
                 <div>
-                  <div className="text-zoru-ink-muted text-xs">Group name</div>
+                  <div className="text-[var(--st-text-secondary)] text-xs">Group name</div>
                   <div>{row.name}</div>
                 </div>
                 <div>
-                  <div className="text-zoru-ink-muted text-xs">Applies to</div>
+                  <div className="text-[var(--st-text-secondary)] text-xs">Applies to</div>
                   <div>{String(row.belongs_to || '—')}</div>
                 </div>
-                <p className="text-zoru-ink-muted text-xs">
+                <p className="text-[var(--st-text-secondary)] text-xs">
                   Edit and delete are available from the row actions.
                 </p>
               </div>

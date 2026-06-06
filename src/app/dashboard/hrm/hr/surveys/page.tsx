@@ -111,12 +111,12 @@ export default function SurveysPage() {
         {
           key: 'type',
           label: 'Type',
-          render: (r) => (r.type ? <HrChip>{r.type}</HrChip> : <span className="text-zoru-ink-muted">—</span>),
+          render: (r) => (r.type ? <HrChip>{r.type}</HrChip> : <span className="text-[var(--st-text-secondary)]">—</span>),
         },
         {
           key: 'audience',
           label: 'Audience',
-          render: (r) => (r.target ? <HrChip>{r.target}</HrChip> : <span className="text-zoru-ink-muted">—</span>),
+          render: (r) => (r.target ? <HrChip>{r.target}</HrChip> : <span className="text-[var(--st-text-secondary)]">—</span>),
         },
         {
           key: 'questions',
@@ -133,11 +133,11 @@ export default function SurveysPage() {
             const target = Number(r.targetCount) || 0;
             const pct = target ? Math.round((got / target) * 100) : null;
             return (
-              <span className="tabular-nums text-zoru-ink">
+              <span className="tabular-nums text-[var(--st-text)]">
                 {got}
-                {target ? <span className="text-zoru-ink-muted"> / {target}</span> : null}
+                {target ? <span className="text-[var(--st-text-secondary)]"> / {target}</span> : null}
                 {pct !== null ? (
-                  <span className="ml-1 text-[11px] text-zoru-ink-muted">({pct}%)</span>
+                  <span className="ml-1 text-[11px] text-[var(--st-text-secondary)]">({pct}%)</span>
                 ) : null}
               </span>
             );

@@ -18,10 +18,10 @@ export default function ScheduleError({
 
     return (
         <EntityListShell title="Shift Schedule">
-            <div className="flex h-64 flex-col items-center justify-center gap-4 rounded-lg border border-zoru-line bg-zoru-surface p-6 text-center">
-                <AlertCircle className="h-10 w-10 text-zoru-ink" />
-                <h2 className="text-lg font-semibold text-zoru-ink">Something went wrong</h2>
-                <p className="text-sm text-zoru-ink-muted">
+            <div className="flex h-64 flex-col items-center justify-center gap-4 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-6 text-center">
+                <AlertCircle className="h-10 w-10 text-[var(--st-text)]" />
+                <h2 className="text-lg font-semibold text-[var(--st-text)]">Something went wrong</h2>
+                <p className="text-sm text-[var(--st-text-secondary)]">
                     {error.message || 'Failed to load shift schedule data.'}
                 </p>
                 <Button onClick={() => reset()} variant="default">

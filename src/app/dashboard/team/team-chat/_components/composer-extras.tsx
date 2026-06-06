@@ -75,10 +75,10 @@ export function ComposerExtras({
                             const before = value.slice(0, trigger.triggerIndex);
                             onPick(`${before}${c.name} `);
                         }}
-                        className="flex w-full items-center justify-between gap-3 rounded-md px-2 py-1.5 text-left text-[12px] hover:bg-zoru-surface-2"
+                        className="flex w-full items-center justify-between gap-3 rounded-md px-2 py-1.5 text-left text-[12px] hover:bg-[var(--st-bg-muted)]"
                     >
-                        <span className="font-medium text-zoru-ink">{c.name}</span>
-                        <span className="truncate text-zoru-ink-muted">{c.description}</span>
+                        <span className="font-medium text-[var(--st-text)]">{c.name}</span>
+                        <span className="truncate text-[var(--st-text-secondary)]">{c.description}</span>
                     </button>
                 ))}
             </PopoverList>
@@ -105,10 +105,10 @@ export function ComposerExtras({
                         const before = value.slice(0, trigger.triggerIndex);
                         onPick(`${before}@${u.name} `);
                     }}
-                    className="flex w-full items-center justify-between gap-3 rounded-md px-2 py-1.5 text-left text-[12px] hover:bg-zoru-surface-2"
+                    className="flex w-full items-center justify-between gap-3 rounded-md px-2 py-1.5 text-left text-[12px] hover:bg-[var(--st-bg-muted)]"
                 >
-                    <span className="text-zoru-ink">@{u.name}</span>
-                    <span className="truncate text-zoru-ink-muted">{u.email}</span>
+                    <span className="text-[var(--st-text)]">@{u.name}</span>
+                    <span className="truncate text-[var(--st-text-secondary)]">{u.email}</span>
                 </button>
             ))}
         </PopoverList>
@@ -117,7 +117,7 @@ export function ComposerExtras({
 
 function PopoverList({ children }: { children: React.ReactNode }) {
     return (
-        <div className="mb-2 max-h-[200px] overflow-auto rounded-md border border-zoru-line bg-zoru-bg p-1 shadow-md">
+        <div className="mb-2 max-h-[200px] overflow-auto rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] p-1 shadow-md">
             {children}
         </div>
     );

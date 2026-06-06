@@ -103,7 +103,7 @@ export function SetsGrid({ sets, onOpen }: { sets: SetRow[]; onOpen: (s: SetRow)
         <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="relative max-w-sm flex-1">
-                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
                     <Input
                         placeholder="Search packs..."
                         className="pl-9"
@@ -141,7 +141,7 @@ export function SetsGrid({ sets, onOpen }: { sets: SetRow[]; onOpen: (s: SetRow)
 
             {filteredAndSorted.length === 0 ? (
                 <EmptyState
-                    icon={<Search className="h-6 w-6 text-zoru-ink-muted" />}
+                    icon={<Search className="h-6 w-6 text-[var(--st-text-secondary)]" />}
                     title="No matches found"
                     description="Try adjusting your filters or search term."
                 />
@@ -153,11 +153,11 @@ export function SetsGrid({ sets, onOpen }: { sets: SetRow[]; onOpen: (s: SetRow)
                             type="button"
                             onClick={() => onOpen(s)}
                             className={cn(
-                                'group flex flex-col items-stretch gap-2 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-3 text-left transition-colors hover:border-zoru-ink/40',
+                                'group flex flex-col items-stretch gap-2 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 text-left transition-colors hover:border-[var(--st-text)]/40',
                                 s.archived && 'opacity-60',
                             )}
                         >
-                            <div className="flex h-32 w-full items-center justify-center overflow-hidden rounded-[var(--zoru-radius)] bg-zoru-surface">
+                            <div className="flex h-32 w-full items-center justify-center overflow-hidden rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)]">
                                 {s.thumbnailUrl ? (
                                     // eslint-disable-next-line @next/next/no-img-element
                                     <img
@@ -167,15 +167,15 @@ export function SetsGrid({ sets, onOpen }: { sets: SetRow[]; onOpen: (s: SetRow)
                                         loading="lazy"
                                     />
                                 ) : (
-                                    <StickerIcon className="h-10 w-10 text-zoru-ink-muted" />
+                                    <StickerIcon className="h-10 w-10 text-[var(--st-text-secondary)]" />
                                 )}
                             </div>
                             <div className="flex items-center justify-between gap-2">
                                 <div className="min-w-0 flex-1">
-                                    <div className="truncate text-[14px] font-medium text-zoru-ink">
+                                    <div className="truncate text-[14px] font-medium text-[var(--st-text)]">
                                         {s.title || s.name}
                                     </div>
-                                    <div className="truncate text-[11.5px] text-zoru-ink-muted">
+                                    <div className="truncate text-[11.5px] text-[var(--st-text-secondary)]">
                                         {s.name}
                                     </div>
                                 </div>
@@ -183,11 +183,11 @@ export function SetsGrid({ sets, onOpen }: { sets: SetRow[]; onOpen: (s: SetRow)
                                     {s.stickerType.replace('_', ' ')}
                                 </Badge>
                             </div>
-                            <div className="flex items-center justify-between text-[12px] text-zoru-ink-muted">
+                            <div className="flex items-center justify-between text-[12px] text-[var(--st-text-secondary)]">
                                 <span>
                                     {s.stickerCount} {s.stickerCount === 1 ? 'sticker' : 'stickers'}
                                 </span>
-                                {s.archived && <span className="text-zoru-ink">Archived</span>}
+                                {s.archived && <span className="text-[var(--st-text)]">Archived</span>}
                             </div>
                         </button>
                     ))}

@@ -280,13 +280,13 @@ export function SalesOrdersForm({ initial, seed }: SalesOrdersFormProps) {
 
       {/* Header */}
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Header
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <Label htmlFor="soNo">
-              Order # <span className="text-zoru-danger-ink">*</span>
+              Order # <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <Input
               id="soNo"
@@ -300,7 +300,7 @@ export function SalesOrdersForm({ initial, seed }: SalesOrdersFormProps) {
           </div>
           <div>
             <Label>
-              Customer <span className="text-zoru-danger-ink">*</span>
+              Customer <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <div className="mt-1.5">
               <EntityFormField
@@ -315,7 +315,7 @@ export function SalesOrdersForm({ initial, seed }: SalesOrdersFormProps) {
           </div>
           <div>
             <Label htmlFor="date">
-              Order date <span className="text-zoru-danger-ink">*</span>
+              Order date <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <Input
               id="date"
@@ -451,7 +451,7 @@ export function SalesOrdersForm({ initial, seed }: SalesOrdersFormProps) {
 
       {/* Workflow & notes */}
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Workflow & notes
         </h3>
         <div className="grid gap-4 md:grid-cols-2">

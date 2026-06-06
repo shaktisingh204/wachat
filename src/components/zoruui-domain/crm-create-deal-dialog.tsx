@@ -164,22 +164,22 @@ export function CreateDealDialog({
         <form action={handleFormAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
           <input type="hidden" name="closeDate" value={closeDate?.toISOString()} />
           <ZoruDialogHeader className="px-6 pt-6 pb-2">
-            <ZoruDialogTitle className="text-zoru-ink">Create New Deal</ZoruDialogTitle>
-            <ZoruDialogDescription className="text-zoru-ink-muted">Track a new sales opportunity.</ZoruDialogDescription>
+            <ZoruDialogTitle className="text-[var(--st-text)]">Create New Deal</ZoruDialogTitle>
+            <ZoruDialogDescription className="text-[var(--st-text-secondary)]">Track a new sales opportunity.</ZoruDialogDescription>
           </ZoruDialogHeader>
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="grid gap-4">
-              <div className="space-y-2"><Label htmlFor="name" className="text-zoru-ink">Deal Name</Label><Input id="name" name="name" required placeholder="e.g. Website Redesign for Acme Corp" /></div>
+              <div className="space-y-2"><Label htmlFor="name" className="text-[var(--st-text)]">Deal Name</Label><Input id="name" name="name" required placeholder="e.g. Website Redesign for Acme Corp" /></div>
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2"><Label htmlFor="value" className="text-zoru-ink">Value</Label><Input id="value" name="value" type="number" step="0.01" required placeholder="10000" /></div>
+                <div className="space-y-2"><Label htmlFor="value" className="text-[var(--st-text)]">Value</Label><Input id="value" name="value" type="number" step="0.01" required placeholder="10000" /></div>
                 <div className="space-y-2">
-                  <Label htmlFor="currency" className="text-zoru-ink">Currency</Label>
+                  <Label htmlFor="currency" className="text-[var(--st-text)]">Currency</Label>
                   <EntityFormField entity="currency" name="currency" initialId="USD" required />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="stage" className="text-zoru-ink">Stage</Label>
+                  <Label htmlFor="stage" className="text-[var(--st-text)]">Stage</Label>
                   <Select name="stage" defaultValue={dealStages[0]} required>
                     <ZoruSelectTrigger id="stage"><ZoruSelectValue /></ZoruSelectTrigger>
                     <ZoruSelectContent>
@@ -189,11 +189,11 @@ export function CreateDealDialog({
                     </ZoruSelectContent>
                   </Select>
                 </div>
-                <div className="space-y-2"><Label className="text-zoru-ink">Expected Close Date</Label><DatePicker value={closeDate} onChange={setCloseDate} /></div>
+                <div className="space-y-2"><Label className="text-[var(--st-text)]">Expected Close Date</Label><DatePicker value={closeDate} onChange={setCloseDate} /></div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="accountId" className="text-zoru-ink">Account</Label>
+                  <Label htmlFor="accountId" className="text-[var(--st-text)]">Account</Label>
                   <EntityFormField
                     entity="client"
                     name="accountId"
@@ -203,7 +203,7 @@ export function CreateDealDialog({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="contactId" className="text-zoru-ink">Primary Contact</Label>
+                  <Label htmlFor="contactId" className="text-[var(--st-text)]">Primary Contact</Label>
                   <EntityFormField
                     entity="contact"
                     name="contactId"
@@ -215,13 +215,13 @@ export function CreateDealDialog({
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="probability" className="text-zoru-ink">Probability %</Label>
-                  <Input id="probability" name="probability" type="number" min={0} max={100} placeholder="e.g. 60" className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
+                  <Label htmlFor="probability" className="text-[var(--st-text)]">Probability %</Label>
+                  <Input id="probability" name="probability" type="number" min={0} max={100} placeholder="e.g. 60" className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="priority" className="text-zoru-ink">Priority</Label>
+                  <Label htmlFor="priority" className="text-[var(--st-text)]">Priority</Label>
                   <Select name="priority" defaultValue="medium">
-                    <ZoruSelectTrigger id="priority" className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"><ZoruSelectValue /></ZoruSelectTrigger>
+                    <ZoruSelectTrigger id="priority" className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"><ZoruSelectValue /></ZoruSelectTrigger>
                     <ZoruSelectContent>
                       <ZoruSelectItem value="low">Low</ZoruSelectItem>
                       <ZoruSelectItem value="medium">Medium</ZoruSelectItem>
@@ -233,27 +233,27 @@ export function CreateDealDialog({
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="leadSource" className="text-zoru-ink">Lead Source</Label>
+                  <Label htmlFor="leadSource" className="text-[var(--st-text)]">Lead Source</Label>
                   <EntityFormField entity="leadSource" name="leadSource" initialId="Other" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="campaign" className="text-zoru-ink">Campaign</Label>
-                  <Input id="campaign" name="campaign" placeholder="e.g. Q1 Launch" className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
+                  <Label htmlFor="campaign" className="text-[var(--st-text)]">Campaign</Label>
+                  <Input id="campaign" name="campaign" placeholder="e.g. Q1 Launch" className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="nextStep" className="text-zoru-ink">Next Step</Label>
-                  <Input id="nextStep" name="nextStep" placeholder="e.g. Send proposal" className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
+                  <Label htmlFor="nextStep" className="text-[var(--st-text)]">Next Step</Label>
+                  <Input id="nextStep" name="nextStep" placeholder="e.g. Send proposal" className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="lossReason" className="text-zoru-ink">Loss Reason (if lost)</Label>
-                  <Input id="lossReason" name="lossReason" placeholder="Optional" className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
+                  <Label htmlFor="lossReason" className="text-[var(--st-text)]">Loss Reason (if lost)</Label>
+                  <Input id="lossReason" name="lossReason" placeholder="Optional" className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]" />
                 </div>
               </div>
               {customFields.length > 0 ? (
-                <div className="space-y-3 border-t border-zoru-line pt-4">
-                  <div className="text-[11px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                <div className="space-y-3 border-t border-[var(--st-border)] pt-4">
+                  <div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                     Custom Fields
                   </div>
                   <div className="grid grid-cols-2 gap-4">

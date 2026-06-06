@@ -120,7 +120,7 @@ function ExecutionsPage() {
           const id = (row.original.id || row.original._id) as string;
           return (
             <div className="flex items-center gap-2">
-              <span className="font-mono text-xs text-zoru-ink bg-zoru-surface-2 px-2 py-1 rounded-[var(--zoru-radius-sm)] border border-zoru-line">
+              <span className="font-mono text-xs text-[var(--st-text)] bg-[var(--st-bg-muted)] px-2 py-1 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)]">
                 {id.slice(-8)}
               </span>
             </div>
@@ -133,7 +133,7 @@ function ExecutionsPage() {
         cell: ({ row }) => {
           const flowId = row.getValue("flowId") as string;
           return (
-            <span className="font-semibold text-zoru-ink">{flowId}</span>
+            <span className="font-semibold text-[var(--st-text)]">{flowId}</span>
           );
         },
       },
@@ -159,8 +159,8 @@ function ExecutionsPage() {
         cell: ({ row }) => {
           const trigger = row.getValue("triggerMode") as string;
           return (
-            <div className="flex items-center gap-2 text-zoru-ink-muted">
-              <div className="flex h-6 w-6 items-center justify-center rounded-md bg-zoru-surface border border-zoru-line">
+            <div className="flex items-center gap-2 text-[var(--st-text-secondary)]">
+              <div className="flex h-6 w-6 items-center justify-center rounded-md bg-[var(--st-bg-secondary)] border border-[var(--st-border)]">
                 {getTriggerIcon(trigger)}
               </div>
               <span className="capitalize font-medium text-sm">{trigger?.replace('_', ' ') || 'Unknown'}</span>
@@ -173,12 +173,12 @@ function ExecutionsPage() {
         header: "Duration",
         cell: ({ row }) => {
           const ms = row.getValue("executionTimeMs") as number | undefined;
-          if (ms === undefined) return <span className="text-zoru-ink-muted">-</span>;
+          if (ms === undefined) return <span className="text-[var(--st-text-secondary)]">-</span>;
           
           let display = `${ms}ms`;
           if (ms > 1000) display = `${(ms / 1000).toFixed(2)}s`;
 
-          return <span className="font-medium text-zoru-ink">{display}</span>;
+          return <span className="font-medium text-[var(--st-text)]">{display}</span>;
         },
       },
       {
@@ -186,7 +186,7 @@ function ExecutionsPage() {
         header: "Steps",
         cell: ({ row }) => {
           const val = row.getValue("nodeCount") as number;
-          return <span className="text-zoru-ink">{val || 0}</span>;
+          return <span className="text-[var(--st-text)]">{val || 0}</span>;
         },
       },
       {
@@ -195,7 +195,7 @@ function ExecutionsPage() {
         cell: ({ row }) => {
           const date = new Date(row.getValue("startedAt") as string);
           return (
-            <div className="flex flex-col text-xs text-zoru-ink-muted font-medium">
+            <div className="flex flex-col text-xs text-[var(--st-text-secondary)] font-medium">
               <span>{fmtDate(date)}</span>
               <span>{formatUTC(date, true).split(", ")[1]}</span>
             </div>
@@ -209,7 +209,7 @@ function ExecutionsPage() {
           return (
             <DropdownMenu>
               <ZoruDropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0 border-none shadow-none text-zoru-ink-muted hover:text-zoru-ink hover:bg-zoru-surface-2">
+                <Button variant="ghost" className="h-8 w-8 p-0 border-none shadow-none text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]">
                   <span className="sr-only">Open menu</span>
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
@@ -221,15 +221,15 @@ function ExecutionsPage() {
                 </ZoruDropdownMenuItem>
                 <ZoruDropdownMenuSeparator />
                 <ZoruDropdownMenuItem>
-                  <Eye className="h-4 w-4 mr-2 text-zoru-ink-muted" />
+                  <Eye className="h-4 w-4 mr-2 text-[var(--st-text-secondary)]" />
                   View Details
                 </ZoruDropdownMenuItem>
                 <ZoruDropdownMenuItem>
-                  <RefreshCw className="h-4 w-4 mr-2 text-zoru-ink-muted" />
+                  <RefreshCw className="h-4 w-4 mr-2 text-[var(--st-text-secondary)]" />
                   Replay Execution
                 </ZoruDropdownMenuItem>
                 <ZoruDropdownMenuSeparator />
-                <ZoruDropdownMenuItem className="text-zoru-danger-ink">
+                <ZoruDropdownMenuItem className="text-[var(--st-danger)]">
                   <Trash2 className="h-4 w-4 mr-2" />
                   Delete Record
                 </ZoruDropdownMenuItem>
@@ -266,26 +266,26 @@ function ExecutionsPage() {
   });
 
   return (
-    <div className="flex flex-col min-h-screen bg-zoru-surface/30">
+    <div className="flex flex-col min-h-screen bg-[var(--st-bg-secondary)]/30">
       {/* Header Area */}
-      <div className="relative border-b border-zoru-line bg-zoru-bg overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-zoru-primary/5 to-transparent pointer-events-none" />
+      <div className="relative border-b border-[var(--st-border)] bg-[var(--st-bg)] overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-[var(--st-text)]/5 to-transparent pointer-events-none" />
         
         <div className="relative mx-auto w-full max-w-[1600px] px-6 py-8 md:py-12">
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <div className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius-lg)] bg-zoru-primary/10 text-zoru-primary ring-1 ring-zoru-primary/20">
+                <div className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius-lg)] bg-[var(--st-text)]/10 text-[var(--st-text)] ring-1 ring-[var(--st-text)]/20">
                   <Activity className="h-5 w-5" />
                 </div>
-                <h1 className="text-3xl font-semibold tracking-tight text-zoru-ink">Flow Executions</h1>
+                <h1 className="text-3xl font-semibold tracking-tight text-[var(--st-text)]">Flow Executions</h1>
               </div>
-              <p className="max-w-2xl text-zoru-ink-muted text-lg mt-3">
+              <p className="max-w-2xl text-[var(--st-text-secondary)] text-lg mt-3">
                 Review execution history for your automated workflows. Monitor performance, debug failures, and replay executions.
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <Button variant="outline" className="h-10 bg-zoru-bg" onClick={() => refetch()} disabled={isFetching}>
+              <Button variant="outline" className="h-10 bg-[var(--st-bg)]" onClick={() => refetch()} disabled={isFetching}>
                 <RefreshCw className={`mr-2 h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
                 {isFetching ? 'Refreshing...' : 'Refresh'}
               </Button>
@@ -294,57 +294,57 @@ function ExecutionsPage() {
 
           {/* Quick Stats Banner */}
           <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Card className="bg-zoru-bg/50 backdrop-blur-sm border-zoru-line shadow-[var(--zoru-shadow-sm)]">
+            <Card className="bg-[var(--st-bg)]/50 backdrop-blur-sm border-[var(--st-border)] shadow-[var(--zoru-shadow-sm)]">
               <ZoruCardContent className="p-4 flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-zoru-ink-muted">Total Executions</p>
-                  <p className="text-2xl font-bold mt-1 text-zoru-ink">{executions.length}</p>
+                  <p className="text-sm font-medium text-[var(--st-text-secondary)]">Total Executions</p>
+                  <p className="text-2xl font-bold mt-1 text-[var(--st-text)]">{executions.length}</p>
                 </div>
-                <div className="h-10 w-10 rounded-full bg-zoru-surface flex items-center justify-center border border-zoru-line">
-                  <Activity className="h-5 w-5 text-zoru-ink-muted" />
+                <div className="h-10 w-10 rounded-full bg-[var(--st-bg-secondary)] flex items-center justify-center border border-[var(--st-border)]">
+                  <Activity className="h-5 w-5 text-[var(--st-text-secondary)]" />
                 </div>
               </ZoruCardContent>
             </Card>
-            <Card className="bg-zoru-bg/50 backdrop-blur-sm border-zoru-line shadow-[var(--zoru-shadow-sm)]">
+            <Card className="bg-[var(--st-bg)]/50 backdrop-blur-sm border-[var(--st-border)] shadow-[var(--zoru-shadow-sm)]">
               <ZoruCardContent className="p-4 flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-zoru-ink-muted">Success Rate</p>
-                  <p className="text-2xl font-bold mt-1 text-zoru-success-ink">
+                  <p className="text-sm font-medium text-[var(--st-text-secondary)]">Success Rate</p>
+                  <p className="text-2xl font-bold mt-1 text-[var(--st-status-ok)]">
                     {executions.length > 0 
                       ? Math.round((executions.filter(e => e.status === 'completed').length / executions.length) * 100) 
                       : 0}%
                   </p>
                 </div>
-                <div className="h-10 w-10 rounded-full bg-zoru-success/10 flex items-center justify-center border border-zoru-success/20">
-                  <CheckCircle2 className="h-5 w-5 text-zoru-success-ink" />
+                <div className="h-10 w-10 rounded-full bg-[var(--st-status-ok)]/10 flex items-center justify-center border border-[var(--st-status-ok)]/20">
+                  <CheckCircle2 className="h-5 w-5 text-[var(--st-status-ok)]" />
                 </div>
               </ZoruCardContent>
             </Card>
-            <Card className="bg-zoru-bg/50 backdrop-blur-sm border-zoru-line shadow-[var(--zoru-shadow-sm)]">
+            <Card className="bg-[var(--st-bg)]/50 backdrop-blur-sm border-[var(--st-border)] shadow-[var(--zoru-shadow-sm)]">
               <ZoruCardContent className="p-4 flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-zoru-ink-muted">Failed</p>
-                  <p className="text-2xl font-bold mt-1 text-zoru-danger-ink">
+                  <p className="text-sm font-medium text-[var(--st-text-secondary)]">Failed</p>
+                  <p className="text-2xl font-bold mt-1 text-[var(--st-danger)]">
                     {executions.filter(e => e.status === 'failed').length}
                   </p>
                 </div>
-                <div className="h-10 w-10 rounded-full bg-zoru-danger/10 flex items-center justify-center border border-zoru-danger/20">
-                  <AlertCircle className="h-5 w-5 text-zoru-danger-ink" />
+                <div className="h-10 w-10 rounded-full bg-[var(--st-danger)]/10 flex items-center justify-center border border-[var(--st-danger)]/20">
+                  <AlertCircle className="h-5 w-5 text-[var(--st-danger)]" />
                 </div>
               </ZoruCardContent>
             </Card>
-            <Card className="bg-zoru-bg/50 backdrop-blur-sm border-zoru-line shadow-[var(--zoru-shadow-sm)]">
+            <Card className="bg-[var(--st-bg)]/50 backdrop-blur-sm border-[var(--st-border)] shadow-[var(--zoru-shadow-sm)]">
               <ZoruCardContent className="p-4 flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-zoru-ink-muted">Avg Duration</p>
-                  <p className="text-2xl font-bold mt-1 text-zoru-ink">
+                  <p className="text-sm font-medium text-[var(--st-text-secondary)]">Avg Duration</p>
+                  <p className="text-2xl font-bold mt-1 text-[var(--st-text)]">
                     {executions.length > 0 
                       ? Math.round(executions.reduce((acc, curr) => acc + (curr.executionTimeMs || 0), 0) / executions.length) 
                       : 0}ms
                   </p>
                 </div>
-                <div className="h-10 w-10 rounded-full bg-zoru-surface flex items-center justify-center border border-zoru-line">
-                  <Clock className="h-5 w-5 text-zoru-ink-muted" />
+                <div className="h-10 w-10 rounded-full bg-[var(--st-bg-secondary)] flex items-center justify-center border border-[var(--st-border)]">
+                  <Clock className="h-5 w-5 text-[var(--st-text-secondary)]" />
                 </div>
               </ZoruCardContent>
             </Card>
@@ -357,15 +357,15 @@ function ExecutionsPage() {
         <div className="flex flex-col space-y-4">
           
           {/* Advanced Filters Toolbar */}
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-4 bg-zoru-bg rounded-[var(--zoru-radius-lg)] border border-zoru-line shadow-[var(--zoru-shadow-md)]">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-4 bg-[var(--st-bg)] rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] shadow-[var(--zoru-shadow-md)]">
             <div className="flex flex-1 items-center gap-3 w-full">
               <div className="relative max-w-sm w-full">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
                 <Input
                   placeholder="Filter by Flow ID..."
                   value={(table.getColumn("flowId")?.getFilterValue() as string) ?? ""}
                   onChange={(event) => table.getColumn("flowId")?.setFilterValue(event.target.value)}
-                  className="pl-9 bg-zoru-surface/50 border-zoru-line-strong h-10 w-full"
+                  className="pl-9 bg-[var(--st-bg-secondary)]/50 border-[var(--st-border-strong)] h-10 w-full"
                 />
               </div>
 
@@ -376,7 +376,7 @@ function ExecutionsPage() {
                   else table.getColumn("status")?.setFilterValue([val]);
                 }}
               >
-                <ZoruSelectTrigger className="w-[160px] h-10 border-zoru-line-strong bg-zoru-surface/50">
+                <ZoruSelectTrigger className="w-[160px] h-10 border-[var(--st-border-strong)] bg-[var(--st-bg-secondary)]/50">
                   <div className="flex items-center gap-2">
                     <Filter className="h-4 w-4" />
                     <span><ZoruSelectValue placeholder="Status" /></span>
@@ -394,14 +394,14 @@ function ExecutionsPage() {
           </div>
 
           {/* Table Container */}
-          <div className="rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg shadow-[var(--zoru-shadow-lg)] overflow-hidden">
+          <div className="rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] shadow-[var(--zoru-shadow-lg)] overflow-hidden">
             <Table className="border-0 shadow-none">
-              <ZoruTableHeader className="bg-zoru-surface/60 border-b border-zoru-line">
+              <ZoruTableHeader className="bg-[var(--st-bg-secondary)]/60 border-b border-[var(--st-border)]">
                 {table.getHeaderGroups().map((headerGroup) => (
                   <ZoruTableRow key={headerGroup.id} className="hover:bg-transparent border-0">
                     {headerGroup.headers.map((header) => {
                       return (
-                        <ZoruTableHead key={header.id} className="h-12 px-4 whitespace-nowrap text-xs font-semibold text-zoru-ink-muted uppercase tracking-wider bg-transparent">
+                        <ZoruTableHead key={header.id} className="h-12 px-4 whitespace-nowrap text-xs font-semibold text-[var(--st-text-secondary)] uppercase tracking-wider bg-transparent">
                           {header.isPlaceholder
                             ? null
                             : flexRender(
@@ -418,7 +418,7 @@ function ExecutionsPage() {
                 {isLoading ? (
                   <ZoruTableRow>
                     <ZoruTableCell colSpan={columns.length} className="h-32 text-center">
-                      <div className="flex flex-col items-center justify-center text-zoru-ink-muted">
+                      <div className="flex flex-col items-center justify-center text-[var(--st-text-secondary)]">
                         <RefreshCw className="h-8 w-8 mb-2 animate-spin opacity-50" />
                         <p>Loading executions...</p>
                       </div>
@@ -429,7 +429,7 @@ function ExecutionsPage() {
                     <ZoruTableRow
                       key={row.id}
                       data-state={row.getIsSelected() && "selected"}
-                      className="group hover:bg-zoru-surface/50 transition-colors duration-150"
+                      className="group hover:bg-[var(--st-bg-secondary)]/50 transition-colors duration-150"
                     >
                       {row.getVisibleCells().map((cell) => (
                         <ZoruTableCell key={cell.id} className="py-3 px-4">
@@ -441,7 +441,7 @@ function ExecutionsPage() {
                 ) : (
                   <ZoruTableRow>
                     <ZoruTableCell colSpan={columns.length} className="h-32 text-center">
-                      <div className="flex flex-col items-center justify-center text-zoru-ink-muted">
+                      <div className="flex flex-col items-center justify-center text-[var(--st-text-secondary)]">
                         <Activity className="h-8 w-8 mb-2 opacity-20" />
                         <p>No executions found.</p>
                       </div>
@@ -454,13 +454,13 @@ function ExecutionsPage() {
 
           {/* Pagination Component */}
           <div className="flex items-center justify-between px-2 pt-4">
-            <div className="flex-1 text-sm font-medium text-zoru-ink-muted">
+            <div className="flex-1 text-sm font-medium text-[var(--st-text-secondary)]">
               {table.getFilteredSelectedRowModel().rows.length} of{" "}
               {table.getFilteredRowModel().rows.length} row(s) selected.
             </div>
             <div className="flex items-center gap-6 lg:gap-8">
               <div className="flex items-center gap-2">
-                <p className="text-sm font-medium text-zoru-ink-muted">Rows per page</p>
+                <p className="text-sm font-medium text-[var(--st-text-secondary)]">Rows per page</p>
                 <Select
                   value={`${table.getState().pagination.pageSize}`}
                   onValueChange={(value) => {
@@ -479,7 +479,7 @@ function ExecutionsPage() {
                   </ZoruSelectContent>
                 </Select>
               </div>
-              <div className="flex w-[100px] items-center justify-center text-sm font-medium text-zoru-ink-muted">
+              <div className="flex w-[100px] items-center justify-center text-sm font-medium text-[var(--st-text-secondary)]">
                 Page {table.getState().pagination.pageIndex + 1} of{" "}
                 {table.getPageCount() || 1}
               </div>

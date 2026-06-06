@@ -76,7 +76,7 @@ function daysUntil(dateStr: string | Date | undefined): number | null {
 
 function DaysRemaining({ toDate }: { toDate: Date | undefined }) {
   const days = daysUntil(toDate);
-  if (days === null) return <span className="text-zoru-ink-muted">—</span>;
+  if (days === null) return <span className="text-[var(--st-text-secondary)]">—</span>;
   if (days < 0)
     return <Badge variant="destructive">Expired {Math.abs(days)}d ago</Badge>;
   if (days <= 30) return <Badge variant="warning">{days}d left</Badge>;
@@ -99,17 +99,17 @@ function KpiCard({
 }) {
   const bg =
     highlight === 'danger'
-      ? 'border-destructive/30 bg-zoru-ink/5'
+      ? 'border-destructive/30 bg-[var(--st-text)]/5'
       : highlight === 'warn'
-        ? 'border-zoru-line/40 bg-zoru-surface-2/40 dark:bg-zoru-ink/10'
-        : 'border-zoru-line bg-zoru-surface';
+        ? 'border-[var(--st-border)]/40 bg-[var(--st-bg-muted)]/40 dark:bg-[var(--st-text)]/10'
+        : 'border-[var(--st-border)] bg-[var(--st-bg-secondary)]';
   return (
     <div className={`kpi-card flex flex-col gap-1 rounded-lg border p-3 ${bg}`}>
-      <div className="flex items-center gap-1.5 text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
+      <div className="flex items-center gap-1.5 text-[11.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
         {icon}
         {label}
       </div>
-      <span className="text-xl font-semibold text-zoru-ink">{value}</span>
+      <span className="text-xl font-semibold text-[var(--st-text)]">{value}</span>
     </div>
   );
 }
@@ -330,7 +330,7 @@ export default function ContractRenewalsPage() {
         filters={
           <div className="flex flex-wrap items-end gap-3">
             <div className="space-y-1">
-              <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+              <Label className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Renewal date — from
               </Label>
               <Input
@@ -341,7 +341,7 @@ export default function ContractRenewalsPage() {
               />
             </div>
             <div className="space-y-1">
-              <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+              <Label className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Renewal date — to
               </Label>
               <Input
@@ -455,7 +455,7 @@ export default function ContractRenewalsPage() {
           <div className="overflow-x-auto">
             <Table>
               <ZoruTableHeader>
-                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                   <ZoruTableHead className="w-10 pl-3">
                     <Checkbox
                       checked={allSelectedOnPage}
@@ -474,7 +474,7 @@ export default function ContractRenewalsPage() {
               <ZoruTableBody>
                 {isLoading && rows.length === 0 ? (
                   [...Array(4)].map((_, i) => (
-                    <ZoruTableRow key={i} className="border-zoru-line">
+                    <ZoruTableRow key={i} className="border-[var(--st-border)]">
                       <ZoruTableCell colSpan={7}>
                         <Skeleton className="h-8 w-full" />
                       </ZoruTableCell>
@@ -484,7 +484,7 @@ export default function ContractRenewalsPage() {
                   <ZoruTableRow>
                     <ZoruTableCell
                       colSpan={7}
-                      className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                      className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                     >
                       {filtersActive
                         ? 'No renewals match the current filters.'
@@ -493,7 +493,7 @@ export default function ContractRenewalsPage() {
                   </ZoruTableRow>
                 ) : (
                   filtered.map((r) => (
-                    <ZoruTableRow key={r._id} className="table-row-animate border-zoru-line">
+                    <ZoruTableRow key={r._id} className="table-row-animate border-[var(--st-border)]">
                       <ZoruTableCell className="pl-3">
                         <Checkbox
                           checked={selected.has(r._id)}
@@ -507,13 +507,13 @@ export default function ContractRenewalsPage() {
                           label={r.contract_id}
                         />
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                      <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                         {r.from_date ? new Date(r.from_date).toLocaleDateString() : '—'}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                      <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                         {r.to_date ? new Date(r.to_date).toLocaleDateString() : '—'}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-[13px] font-medium text-zoru-ink">
+                      <ZoruTableCell className="text-right text-[13px] font-medium text-[var(--st-text)]">
                         {r.new_value != null ? r.new_value.toLocaleString() : '—'}
                       </ZoruTableCell>
                       <ZoruTableCell>
@@ -542,7 +542,7 @@ export default function ContractRenewalsPage() {
                             onClick={() => setDeletingId(r._id)}
                             aria-label="Delete renewal"
                           >
-                            <Trash2 className="h-3.5 w-3.5 text-zoru-ink" />
+                            <Trash2 className="h-3.5 w-3.5 text-[var(--st-text)]" />
                           </Button>
                         </div>
                       </ZoruTableCell>

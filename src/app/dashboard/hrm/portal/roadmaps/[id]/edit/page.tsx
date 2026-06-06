@@ -20,18 +20,18 @@ export default async function EditRoadmapPage({
     <div className="mx-auto max-w-4xl p-6">
       <Link
         href={`/dashboard/hrm/portal/roadmaps/${id}`}
-        className="mb-4 inline-flex items-center gap-1.5 text-sm text-zoru-ink-muted hover:text-zoru-ink"
+        className="mb-4 inline-flex items-center gap-1.5 text-sm text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to Roadmap
       </Link>
 
-      <h1 className="mb-6 text-xl font-semibold text-zoru-ink">Edit Roadmap</h1>
+      <h1 className="mb-6 text-xl font-semibold text-[var(--st-text)]">Edit Roadmap</h1>
 
       <Suspense
         fallback={
           <div className="flex h-64 items-center justify-center">
-            <LoaderCircle className="h-8 w-8 animate-spin text-zoru-ink-muted" />
+            <LoaderCircle className="h-8 w-8 animate-spin text-[var(--st-text-secondary)]" />
           </div>
         }
       >

@@ -47,9 +47,9 @@ export function ClientPortalSidebar() {
     const pathname = usePathname();
 
     return (
-        <aside className="hidden h-full w-60 shrink-0 flex-col border-r border-zoru-line bg-zoru-surface md:flex">
+        <aside className="hidden h-full w-60 shrink-0 flex-col border-r border-[var(--st-border)] bg-[var(--st-bg-secondary)] md:flex">
             <div className="px-4 py-4">
-                <div className="text-[11px] font-medium uppercase tracking-wider text-zoru-ink-muted">
+                <div className="text-[11px] font-medium uppercase tracking-wider text-[var(--st-text-secondary)]">
                     Client Portal
                 </div>
             </div>
@@ -67,8 +67,8 @@ export function ClientPortalSidebar() {
                                     className={cn(
                                         'flex items-center gap-2 rounded-[var(--zoru-radius-sm)] px-3 py-2 text-sm transition-colors',
                                         active
-                                            ? 'bg-zoru-surface-2 text-zoru-ink'
-                                            : 'text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink',
+                                            ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
+                                            : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]',
                                     )}
                                 >
                                     <Icon className="h-4 w-4" />

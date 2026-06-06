@@ -126,7 +126,7 @@ export default async function BankAccountDetailPage({
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 {/* Bank details */}
                 <Card className="p-5">
-                    <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-zoru-ink-muted">
+                    <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-[var(--st-text-secondary)]">
                         Bank details
                     </p>
                     <dl className="space-y-1">
@@ -150,7 +150,7 @@ export default async function BankAccountDetailPage({
 
                 {/* Meta */}
                 <Card className="p-5">
-                    <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-zoru-ink-muted">
+                    <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-[var(--st-text-secondary)]">
                         Account
                     </p>
                     <dl className="space-y-1">
@@ -171,7 +171,7 @@ export default async function BankAccountDetailPage({
                                 account.isDefault ? (
                                     <StatusPill label="Default" tone="blue" />
                                 ) : (
-                                    <span className="text-sm text-zoru-ink-muted">No</span>
+                                    <span className="text-sm text-[var(--st-text-secondary)]">No</span>
                                 )
                             }
                         />
@@ -180,14 +180,14 @@ export default async function BankAccountDetailPage({
             </div>
 
             <Card className="p-5">
-                <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-zoru-ink-muted">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-[var(--st-text-secondary)]">
                     Linked ledger
                 </p>
-                <p className="text-sm text-zoru-ink-muted">
+                <p className="text-sm text-[var(--st-text-secondary)]">
                     Posted vouchers flow into the chart-of-account ledger.{' '}
                     <Link
                         href={`/dashboard/crm/accounting/day-book?accountId=${accountId}`}
-                        className="inline-flex items-center gap-1 font-medium text-zoru-ink hover:underline"
+                        className="inline-flex items-center gap-1 font-medium text-[var(--st-text)] hover:underline"
                     >
                         <FileText className="h-4 w-4" /> View ledger
                     </Link>
@@ -209,12 +209,12 @@ function BalanceCell({
     return (
         <div
             className={[
-                'rounded-[var(--zoru-radius)] border border-zoru-line p-4',
-                accent ? 'bg-zoru-surface-2' : 'bg-zoru-surface',
+                'rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-4',
+                accent ? 'bg-[var(--st-bg-muted)]' : 'bg-[var(--st-bg-secondary)]',
             ].join(' ')}
         >
-            <p className="text-xs font-medium text-zoru-ink-muted">{label}</p>
-            <p className="mt-1 text-lg font-semibold text-zoru-ink">{value}</p>
+            <p className="text-xs font-medium text-[var(--st-text-secondary)]">{label}</p>
+            <p className="mt-1 text-lg font-semibold text-[var(--st-text)]">{value}</p>
         </div>
     );
 }
@@ -232,10 +232,10 @@ function Row({
 }) {
     return (
         <div className="flex justify-between gap-4 py-1">
-            <dt className="text-sm text-zoru-ink-muted">{label}</dt>
+            <dt className="text-sm text-[var(--st-text-secondary)]">{label}</dt>
             <dd
                 className={[
-                    'text-right text-sm font-medium text-zoru-ink',
+                    'text-right text-sm font-medium text-[var(--st-text)]',
                     mono ? 'font-mono' : '',
                     capitalize ? 'capitalize' : '',
                 ]

@@ -942,13 +942,13 @@ export default function TelegramCommandsPage() {
                     <Terminal className="h-6 w-6 text-white" strokeWidth={1.75} />
                 </div>
                 <div className="flex-1">
-                    <p className="text-[11px] uppercase tracking-[0.14em] text-zoru-ink-subtle">
+                    <p className="text-[11px] uppercase tracking-[0.14em] text-[var(--st-text-tertiary)]">
                         Telegram
                     </p>
-                    <h1 className="mt-0.5 text-[22px] leading-tight text-zoru-ink">
+                    <h1 className="mt-0.5 text-[22px] leading-tight text-[var(--st-text)]">
                         Telegram Commands
                     </h1>
-                    <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-zoru-ink-muted">
+                    <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-[var(--st-text-secondary)]">
                         Define a project-wide command registry with scope, language, and handler
                         payload. Push to one or many bots — pull live snapshots to diff against
                         Telegram.
@@ -976,7 +976,7 @@ export default function TelegramCommandsPage() {
 
             {!projectId ? (
                 <Card className="p-6">
-                    <div className="flex items-center gap-2 text-zoru-ink-muted">
+                    <div className="flex items-center gap-2 text-[var(--st-text-secondary)]">
                         <AlertCircle className="h-4 w-4" />
                         <span className="text-sm">Select a project to view commands.</span>
                     </div>
@@ -1019,7 +1019,7 @@ export default function TelegramCommandsPage() {
             <Card className="p-3">
                 <div className="flex flex-wrap items-center gap-3">
                     <div className="relative flex-1 min-w-[220px]">
-                        <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zoru-ink-subtle" />
+                        <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--st-text-tertiary)]" />
                         <Input
                             placeholder="Search command or description"
                             value={search}
@@ -1096,7 +1096,7 @@ export default function TelegramCommandsPage() {
                         ))}
                     </div>
                 ) : data?.error ? (
-                    <div className="flex items-center gap-2 p-6 text-sm text-zoru-danger-ink">
+                    <div className="flex items-center gap-2 p-6 text-sm text-[var(--st-danger)]">
                         <AlertCircle className="h-4 w-4" />
                         {data.error}
                     </div>
@@ -1115,7 +1115,7 @@ export default function TelegramCommandsPage() {
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm">
-                            <thead className="border-b border-zoru-line bg-zoru-surface-2 text-left text-[12px] uppercase tracking-wide text-zoru-ink-subtle">
+                            <thead className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)] text-left text-[12px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                                 <tr>
                                     <th className="w-10 p-3">
                                         <Checkbox
@@ -1149,7 +1149,7 @@ export default function TelegramCommandsPage() {
                                     return (
                                         <tr
                                             key={row._id}
-                                            className="group border-b border-zoru-line/60 last:border-b-0 hover:bg-zoru-surface-2/40"
+                                            className="group border-b border-[var(--st-border)]/60 last:border-b-0 hover:bg-[var(--st-bg-muted)]/40"
                                         >
                                             <td className="p-3">
                                                 <Checkbox
@@ -1166,22 +1166,22 @@ export default function TelegramCommandsPage() {
                                             </td>
                                             <td className="p-3">
                                                 <button
-                                                    className="font-mono text-[13px] text-zoru-ink hover:underline"
+                                                    className="font-mono text-[13px] text-[var(--st-text)] hover:underline"
                                                     onClick={() => openDetail(row)}
                                                 >
                                                     /{row.command}
                                                 </button>
                                             </td>
-                                            <td className="p-3 max-w-[260px] truncate text-zoru-ink-muted">
+                                            <td className="p-3 max-w-[260px] truncate text-[var(--st-text-secondary)]">
                                                 {row.description || '—'}
                                             </td>
-                                            <td className="p-3 text-[12.5px] text-zoru-ink-muted">
+                                            <td className="p-3 text-[12.5px] text-[var(--st-text-secondary)]">
                                                 {botLabel}
                                             </td>
-                                            <td className="p-3 text-[12.5px] text-zoru-ink-muted">
+                                            <td className="p-3 text-[12.5px] text-[var(--st-text-secondary)]">
                                                 {scopeLabel(row.scope)}
                                             </td>
-                                            <td className="p-3 text-[12.5px] text-zoru-ink-muted">
+                                            <td className="p-3 text-[12.5px] text-[var(--st-text-secondary)]">
                                                 {row.languageCode ?? '—'}
                                             </td>
                                             <td className="p-3">
@@ -1253,7 +1253,7 @@ export default function TelegramCommandsPage() {
                     </div>
                 )}
                 {data && rows.length > 0 ? (
-                    <div className="flex items-center justify-between border-t border-zoru-line p-3 text-[12px] text-zoru-ink-muted">
+                    <div className="flex items-center justify-between border-t border-[var(--st-border)] p-3 text-[12px] text-[var(--st-text-secondary)]">
                         <span>
                             {(page - 1) * PAGE_SIZE + 1}–{(page - 1) * PAGE_SIZE + rows.length} of{' '}
                             {data.total}
@@ -1437,7 +1437,7 @@ export default function TelegramCommandsPage() {
                                         setEditorForm((f) => ({ ...f, hidden: v }))
                                     }
                                 />
-                                <span className="text-[12.5px] text-zoru-ink-muted">
+                                <span className="text-[12.5px] text-[var(--st-text-secondary)]">
                                     {editorForm.hidden ? 'Excluded from setMyCommands' : 'Included'}
                                 </span>
                             </div>
@@ -1574,8 +1574,8 @@ export default function TelegramCommandsPage() {
                                 <Field label="File">
                                     <div className="flex flex-col gap-2">
                                         {editorForm.mediaUrl ? (
-                                            <div className="flex items-center justify-between gap-2 rounded-md border border-zoru-line bg-zoru-surface-2 p-2 text-[12.5px]">
-                                                <span className="truncate text-zoru-ink-muted">
+                                            <div className="flex items-center justify-between gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2 text-[12.5px]">
+                                                <span className="truncate text-[var(--st-text-secondary)]">
                                                     {editorForm.mediaUrl.split('/').pop() ??
                                                         editorForm.mediaUrl}
                                                 </span>
@@ -1717,7 +1717,7 @@ export default function TelegramCommandsPage() {
                             </>
                         )}
                         {editorError ? (
-                            <p className="sm:col-span-2 text-[12.5px] text-zoru-danger-ink">
+                            <p className="sm:col-span-2 text-[12.5px] text-[var(--st-danger)]">
                                 {editorError}
                             </p>
                         ) : null}
@@ -2051,13 +2051,13 @@ function KpiCard({
     return (
         <Card>
             <ZoruCardContent className="flex flex-col gap-1 pt-5">
-                <p className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-subtle">
+                <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-tertiary)]">
                     {label}
                 </p>
                 {loading ? (
                     <Skeleton className="h-7 w-24" />
                 ) : (
-                    <p className="text-2xl font-semibold tracking-tight text-zoru-ink">{value}</p>
+                    <p className="text-2xl font-semibold tracking-tight text-[var(--st-text)]">{value}</p>
                 )}
             </ZoruCardContent>
         </Card>
@@ -2073,7 +2073,7 @@ function Field({
 }) {
     return (
         <label className="flex flex-col gap-1.5">
-            <span className="text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
+            <span className="text-[11.5px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
                 {label}
             </span>
             {children}
@@ -2088,9 +2088,9 @@ function DiffView({ diff }: { diff: PullResp }) {
     for (const c of diff.live) liveMap.set(c.command, c);
     const all = Array.from(new Set([...localMap.keys(), ...liveMap.keys()])).sort();
     return (
-        <div className="rounded-md border border-zoru-line">
+        <div className="rounded-md border border-[var(--st-border)]">
             <table className="w-full text-[12.5px]">
-                <thead className="border-b border-zoru-line bg-zoru-surface-2 text-left text-zoru-ink-subtle">
+                <thead className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)] text-left text-[var(--st-text-tertiary)]">
                     <tr>
                         <th className="p-2">Command</th>
                         <th className="p-2">Local</th>
@@ -2100,7 +2100,7 @@ function DiffView({ diff }: { diff: PullResp }) {
                 <tbody>
                     {all.length === 0 ? (
                         <tr>
-                            <td className="p-2 text-zoru-ink-muted" colSpan={3}>
+                            <td className="p-2 text-[var(--st-text-secondary)]" colSpan={3}>
                                 No commands either side.
                             </td>
                         </tr>
@@ -2110,7 +2110,7 @@ function DiffView({ diff }: { diff: PullResp }) {
                             const r = liveMap.get(cmd);
                             const same = l && r && l.description === r.description;
                             return (
-                                <tr key={cmd} className="border-b border-zoru-line/60 last:border-b-0">
+                                <tr key={cmd} className="border-b border-[var(--st-border)]/60 last:border-b-0">
                                     <td className="p-2 font-mono">/{cmd}</td>
                                     <td className="p-2">
                                         {l ? (
@@ -2118,7 +2118,7 @@ function DiffView({ diff }: { diff: PullResp }) {
                                                 {l.description}
                                             </span>
                                         ) : (
-                                            <span className="text-zoru-danger-ink">—</span>
+                                            <span className="text-[var(--st-danger)]">—</span>
                                         )}
                                     </td>
                                     <td className="p-2">
@@ -2127,7 +2127,7 @@ function DiffView({ diff }: { diff: PullResp }) {
                                                 {r.description}
                                             </span>
                                         ) : (
-                                            <span className="text-zoru-danger-ink">—</span>
+                                            <span className="text-[var(--st-danger)]">—</span>
                                         )}
                                     </td>
                                 </tr>
@@ -2172,10 +2172,10 @@ function DetailOverview({ row, bots }: { row: CommandRow; bots: BotOption[] }) {
             <Row label="Updated">{fmtDate(row.updatedAt)}</Row>
             {row.handler.payload ? (
                 <div>
-                    <p className="mb-1 text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
+                    <p className="mb-1 text-[11.5px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
                         Payload
                     </p>
-                    <pre className="overflow-x-auto rounded-md border border-zoru-line bg-zoru-surface-2 p-2 text-[11.5px]">
+                    <pre className="overflow-x-auto rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2 text-[11.5px]">
                         {JSON.stringify(row.handler.payload, null, 2)}
                     </pre>
                 </div>
@@ -2196,13 +2196,13 @@ function DetailRuns({ runs, loading }: { runs: RunRow[]; loading: boolean }) {
     }
     if (runs.length === 0) {
         return (
-            <p className="text-[13px] text-zoru-ink-muted">No invocations recorded yet.</p>
+            <p className="text-[13px] text-[var(--st-text-secondary)]">No invocations recorded yet.</p>
         );
     }
     return (
-        <div className="rounded-md border border-zoru-line">
+        <div className="rounded-md border border-[var(--st-border)]">
             <table className="w-full text-[12.5px]">
-                <thead className="border-b border-zoru-line bg-zoru-surface-2 text-left text-zoru-ink-subtle">
+                <thead className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)] text-left text-[var(--st-text-tertiary)]">
                     <tr>
                         <th className="p-2">When</th>
                         <th className="p-2">Chat</th>
@@ -2213,7 +2213,7 @@ function DetailRuns({ runs, loading }: { runs: RunRow[]; loading: boolean }) {
                 </thead>
                 <tbody>
                     {runs.map((r) => (
-                        <tr key={r._id} className="border-b border-zoru-line/60 last:border-b-0">
+                        <tr key={r._id} className="border-b border-[var(--st-border)]/60 last:border-b-0">
                             <td className="p-2">{fmtDate(r.createdAt)}</td>
                             <td className="p-2 font-mono">{r.chatId ?? '—'}</td>
                             <td className="p-2 font-mono">{r.userId ?? '—'}</td>
@@ -2224,7 +2224,7 @@ function DetailRuns({ runs, loading }: { runs: RunRow[]; loading: boolean }) {
                                     <Badge variant="warning">failed</Badge>
                                 )}
                             </td>
-                            <td className="p-2 text-zoru-danger-ink">{r.errorMessage ?? '—'}</td>
+                            <td className="p-2 text-[var(--st-danger)]">{r.errorMessage ?? '—'}</td>
                         </tr>
                     ))}
                 </tbody>
@@ -2244,7 +2244,7 @@ function DetailDiff({
 }) {
     if (!botBound) {
         return (
-            <p className="text-[13px] text-zoru-ink-muted">
+            <p className="text-[13px] text-[var(--st-text-secondary)]">
                 Diff is only available when the command is bound to a specific bot.
             </p>
         );
@@ -2257,12 +2257,12 @@ function DetailDiff({
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
     return (
-        <div className="flex items-center justify-between gap-3 border-b border-zoru-line/60 py-1.5 last:border-b-0">
+        <div className="flex items-center justify-between gap-3 border-b border-[var(--st-border)]/60 py-1.5 last:border-b-0">
             <TelegramProjectGate />
-            <span className="text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
+            <span className="text-[11.5px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
                 {label}
             </span>
-            <span className="text-right text-zoru-ink">{children}</span>
+            <span className="text-right text-[var(--st-text)]">{children}</span>
         </div>
     );
 }

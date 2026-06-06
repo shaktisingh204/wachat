@@ -159,30 +159,30 @@ export default function AssetAssignmentsListPage() {
                     }
                     loading={isLoading && rows.length === 0}
                 >
-                    <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                    <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                         <Table>
                             <ZoruTableHeader>
-                                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                    <ZoruTableHead className="text-zoru-ink-muted">Asset</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Employee</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Assigned</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Returned</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted text-right">Actions</ZoruTableHead>
+                                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Asset</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Employee</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Assigned</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Returned</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Actions</ZoruTableHead>
                                 </ZoruTableRow>
                             </ZoruTableHeader>
                             <ZoruTableBody>
                                 {isLoading ? (
-                                    <ZoruTableRow className="border-zoru-line">
+                                    <ZoruTableRow className="border-[var(--st-border)]">
                                         <ZoruTableCell colSpan={6} className="h-24 text-center">
-                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
+                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 ) : rows.length === 0 ? (
-                                    <ZoruTableRow className="border-zoru-line">
+                                    <ZoruTableRow className="border-[var(--st-border)]">
                                         <ZoruTableCell
                                             colSpan={6}
-                                            className="h-24 text-center text-zoru-ink-muted"
+                                            className="h-24 text-center text-[var(--st-text-secondary)]"
                                         >
                                             No assignments match this filter.
                                         </ZoruTableCell>
@@ -192,8 +192,8 @@ export default function AssetAssignmentsListPage() {
                                         const status = (r.status ?? 'assigned') as CrmAssetAssignmentStatus;
                                         const tone = STATUS_TONE[status] ?? 'neutral';
                                         return (
-                                            <ZoruTableRow key={r._id} className="border-zoru-line">
-                                                <ZoruTableCell className="font-medium text-zoru-ink">
+                                            <ZoruTableRow key={r._id} className="border-[var(--st-border)]">
+                                                <ZoruTableCell className="font-medium text-[var(--st-text)]">
                                                     <Link
                                                         href={`${BASE}/${r._id}`}
                                                         className="hover:underline"
@@ -201,13 +201,13 @@ export default function AssetAssignmentsListPage() {
                                                         {r.asset_name || r.asset_id}
                                                     </Link>
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {r.employee_name || r.employee_id}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {fmtDate(r.assigned_at)}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {fmtDate(r.returned_at)}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
@@ -224,7 +224,7 @@ export default function AssetAssignmentsListPage() {
                                                         size="icon"
                                                         onClick={() => setPendingDelete(r)}
                                                     >
-                                                        <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                                        <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                                     </Button>
                                                 </ZoruTableCell>
                                             </ZoruTableRow>

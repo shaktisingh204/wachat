@@ -121,15 +121,15 @@ async function ProfitLossContainer({
 
       <Card className="p-6">
         <div className="mb-3">
-          <h2 className="text-[16px] font-semibold text-zoru-ink">
+          <h2 className="text-[16px] font-semibold text-[var(--st-text)]">
             {isQuarterly ? 'Quarterly' : 'Monthly'} stacked
           </h2>
-          <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+          <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">
             Revenue vs COGS + expenses; profit as a separate bar.
           </p>
         </div>
         {monthly.length === 0 ? (
-          <div className="py-8 text-center text-[13px] text-zoru-ink-muted">
+          <div className="py-8 text-center text-[13px] text-[var(--st-text-secondary)]">
             No P&L data for this FY.
           </div>
         ) : (
@@ -138,33 +138,33 @@ async function ProfitLossContainer({
       </Card>
 
       <Card className="p-0">
-        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+        <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <Table>
             <ZoruTableHeader>
-              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                <ZoruTableHead className="text-zoru-ink-muted">
+              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                   Period
                 </ZoruTableHead>
-                <ZoruTableHead className="text-right text-zoru-ink-muted">
+                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                   Revenue
                 </ZoruTableHead>
-                <ZoruTableHead className="text-right text-zoru-ink-muted">
+                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                   COGS
                 </ZoruTableHead>
-                <ZoruTableHead className="text-right text-zoru-ink-muted">
+                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                   Expense
                 </ZoruTableHead>
-                <ZoruTableHead className="text-right text-zoru-ink-muted">
+                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                   Profit
                 </ZoruTableHead>
               </ZoruTableRow>
             </ZoruTableHeader>
             <ZoruTableBody>
               {pageRows.length === 0 ? (
-                <ZoruTableRow className="border-zoru-line">
+                <ZoruTableRow className="border-[var(--st-border)]">
                   <ZoruTableCell
                     colSpan={5}
-                    className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                    className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     No data.
                   </ZoruTableCell>
@@ -173,24 +173,24 @@ async function ProfitLossContainer({
                 pageRows.map((r) => {
                   const periodHref = `/dashboard/sabbi/reports/income?from=${r.period.length === 7 ? `${r.period}-01` : `${r.period.split('-')[0]}-${String((Number(r.period.split('Q')[1]) - 1) * 3 + 1).padStart(2, '0')}-01`}`;
                   return (
-                    <ZoruTableRow key={r.period} className="border-zoru-line">
-                      <ZoruTableCell className="font-medium text-zoru-ink">
+                    <ZoruTableRow key={r.period} className="border-[var(--st-border)]">
+                      <ZoruTableCell className="font-medium text-[var(--st-text)]">
                         <EntityRowLink
                           href={periodHref}
                           label={r.period}
                         />
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-[13px] text-zoru-success-ink">
+                      <ZoruTableCell className="text-right text-[13px] text-[var(--st-status-ok)]">
                         {fmtMoney(r.revenue)}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-[13px] text-zoru-ink-muted">
+                      <ZoruTableCell className="text-right text-[13px] text-[var(--st-text-secondary)]">
                         <details className="group">
-                          <summary className="cursor-pointer font-medium hover:text-zoru-ink transition-colors">
+                          <summary className="cursor-pointer font-medium hover:text-[var(--st-text)] transition-colors">
                             {fmtMoney(r.cogs)}
                           </summary>
-                          <div className="mt-2 text-left text-xs bg-zoru-surface rounded p-2 border border-zoru-line space-y-1">
+                          <div className="mt-2 text-left text-xs bg-[var(--st-bg-secondary)] rounded p-2 border border-[var(--st-border)] space-y-1">
                             {Object.keys(r.cogsDetails || {}).length === 0 ? (
-                              <div className="text-zoru-ink-muted">No details</div>
+                              <div className="text-[var(--st-text-secondary)]">No details</div>
                             ) : (
                               Object.entries(r.cogsDetails || {}).map(([k, v]) => (
                                 <div key={k} className="flex justify-between">
@@ -202,14 +202,14 @@ async function ProfitLossContainer({
                           </div>
                         </details>
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-[13px] text-zoru-danger-ink">
+                      <ZoruTableCell className="text-right text-[13px] text-[var(--st-danger)]">
                         <details className="group">
-                          <summary className="cursor-pointer font-medium hover:text-zoru-ink transition-colors">
+                          <summary className="cursor-pointer font-medium hover:text-[var(--st-text)] transition-colors">
                             {fmtMoney(r.expense)}
                           </summary>
-                          <div className="mt-2 text-left text-xs bg-zoru-surface rounded p-2 border border-zoru-line space-y-1 text-zoru-ink-muted">
+                          <div className="mt-2 text-left text-xs bg-[var(--st-bg-secondary)] rounded p-2 border border-[var(--st-border)] space-y-1 text-[var(--st-text-secondary)]">
                             {Object.keys(r.expenseDetails || {}).length === 0 ? (
-                              <div className="text-zoru-ink-muted">No details</div>
+                              <div className="text-[var(--st-text-secondary)]">No details</div>
                             ) : (
                               Object.entries(r.expenseDetails || {}).map(([k, v]) => (
                                 <div key={k} className="flex justify-between">
@@ -224,8 +224,8 @@ async function ProfitLossContainer({
                       <ZoruTableCell
                         className={`text-right text-[13px] font-medium ${
                           r.profit >= 0
-                            ? 'text-zoru-success-ink'
-                            : 'text-zoru-danger-ink'
+                            ? 'text-[var(--st-status-ok)]'
+                            : 'text-[var(--st-danger)]'
                         }`}
                       >
                         {fmtMoney(r.profit)}

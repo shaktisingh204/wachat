@@ -11,7 +11,7 @@ export default function NewItemLoading() {
     >
       <Card>
         <ZoruCardContent className="p-12 flex justify-center items-center">
-          <Loader2 className="h-6 w-6 animate-spin text-zoru-ink" />
+          <Loader2 className="h-6 w-6 animate-spin text-[var(--st-text)]" />
         </ZoruCardContent>
       </Card>
     </EntityDetailShell>

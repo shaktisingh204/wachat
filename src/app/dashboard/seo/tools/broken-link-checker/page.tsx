@@ -150,8 +150,8 @@ export default function BrokenLinkCheckerPage() {
       </div>
 
       {error && (
-        <Card className="border-zoru-line/50">
-          <ZoruCardContent className="p-4 text-sm text-zoru-ink">{error}</ZoruCardContent>
+        <Card className="border-[var(--st-border)]/50">
+          <ZoruCardContent className="p-4 text-sm text-[var(--st-text)]">{error}</ZoruCardContent>
         </Card>
       )}
 
@@ -159,7 +159,7 @@ export default function BrokenLinkCheckerPage() {
         <Card>
           <ZoruCardContent className="p-4 space-y-3">
             <div className="flex items-center justify-between">
-              <div className="text-sm text-zoru-ink-muted">{rows.length} links</div>
+              <div className="text-sm text-[var(--st-text-secondary)]">{rows.length} links</div>
               <div className="flex gap-2">
                 <Button size="sm" variant="ghost" onClick={copyToClipboard} title="Copy to clipboard">
                   <Copy className="w-4 h-4" />
@@ -177,7 +177,7 @@ export default function BrokenLinkCheckerPage() {
                 <div key={i} className="flex items-start gap-3 text-sm border-b pb-2">
                   <div className="flex-1 min-w-0">
                     <div className="font-mono text-xs break-all">{row.href}</div>
-                    {row.text && <div className="text-zoru-ink-muted truncate">{row.text}</div>}
+                    {row.text && <div className="text-[var(--st-text-secondary)] truncate">{row.text}</div>}
                   </div>
                   <StatusBadge row={row} />
                   <Button size="sm" variant="ghost" onClick={() => checkOne(i)}>
@@ -197,6 +197,6 @@ function StatusBadge({ row }: { row: LinkRow }) {
   if (row.state === 'idle') return <Badge variant="secondary">Pending</Badge>;
   if (row.state === 'checking') return <Badge variant="secondary">Checking…</Badge>;
   if (row.state === 'ok')
-    return <Badge className="bg-zoru-ink hover:bg-zoru-ink">OK {row.status}</Badge>;
+    return <Badge className="bg-[var(--st-text)] hover:bg-[var(--st-text)]">OK {row.status}</Badge>;
   return <Badge variant="destructive">Broken {row.status ?? ''}</Badge>;
 }

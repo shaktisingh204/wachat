@@ -50,7 +50,7 @@ export function PermissionErrorDialog({
       <ZoruDialogContent className="sm:max-w-md">
         <ZoruDialogHeader>
           <ZoruDialogTitle className="flex items-center gap-2">
-            <AlertCircle className="h-5 w-5 text-zoru-danger" />
+            <AlertCircle className="h-5 w-5 text-[var(--st-danger)]" />
             Permissions required
           </ZoruDialogTitle>
           <ZoruDialogDescription>
@@ -67,7 +67,7 @@ export function PermissionErrorDialog({
             </Alert>
           ) : null}
 
-          <p className="text-[12.5px] text-zoru-ink-muted leading-relaxed">
+          <p className="text-[12.5px] text-[var(--st-text-secondary)] leading-relaxed">
             Please reconnect your Facebook account and ensure every requested
             permission is granted. Your existing settings will be preserved.
           </p>

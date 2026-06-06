@@ -130,10 +130,10 @@ export function ImportWizardShell({
         <>
             <div className="flex items-center justify-between gap-2">
                 <div>
-                    <h2 className="text-sm font-semibold text-zoru-ink">
+                    <h2 className="text-sm font-semibold text-[var(--st-text)]">
                         Generic import wizard
                     </h2>
-                    <p className="text-[12.5px] text-zoru-ink-muted">
+                    <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                         Import employees, clients, leads, deals, products, expenses,
                         or attendance from a CSV or Excel file.
                     </p>
@@ -162,7 +162,7 @@ export function ImportWizardShell({
             </div>
 
             <Card className="overflow-hidden">
-                <div className="border-b border-zoru-line bg-zoru-surface-2 px-4 py-2 text-[12.5px] font-medium text-zoru-ink">
+                <div className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-2 text-[12.5px] font-medium text-[var(--st-text)]">
                     Recent imports
                 </div>
                 {jobs.length === 0 ? (
@@ -206,10 +206,10 @@ export function ImportWizardShell({
                                         job.status === 'failed';
                                     return (
                                         <ZoruTableRow key={job._id}>
-                                            <ZoruTableCell className="max-w-[220px] truncate text-[12.5px] text-zoru-ink">
+                                            <ZoruTableCell className="max-w-[220px] truncate text-[12.5px] text-[var(--st-text)]">
                                                 {job.filename}
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                                            <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                                                 {schema?.label ?? job.entityType}
                                             </ZoruTableCell>
                                             <ZoruTableCell>
@@ -219,18 +219,18 @@ export function ImportWizardShell({
                                                     {job.status}
                                                 </Badge>
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                                            <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                                                 {job.processed}/{total} ({pct}%)
                                                 {job.failed > 0 && (
-                                                    <span className="ml-1 text-zoru-danger">
+                                                    <span className="ml-1 text-[var(--st-danger)]">
                                                         · {job.failed} failed
                                                     </span>
                                                 )}
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted" suppressHydrationWarning>
+                                            <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]" suppressHydrationWarning>
                                                 {formatDateTime(job.createdAt)}
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted" suppressHydrationWarning>
+                                            <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]" suppressHydrationWarning>
                                                 {formatDateTime(job.finishedAt)}
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-right">
@@ -271,8 +271,8 @@ export function ImportWizardShell({
                     </div>
                 )}
                 {jobs.length > pageSize && (
-                    <div className="flex items-center justify-between border-t border-zoru-line px-4 py-3">
-                        <div className="text-[12.5px] text-zoru-ink-muted">
+                    <div className="flex items-center justify-between border-t border-[var(--st-border)] px-4 py-3">
+                        <div className="text-[12.5px] text-[var(--st-text-secondary)]">
                             Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, jobs.length)} of {jobs.length} imports
                         </div>
                         <div className="flex items-center gap-1">

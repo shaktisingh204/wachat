@@ -101,13 +101,13 @@ export function KbArticleForm({
       ) : null}
 
       <Card className="p-6">
-        <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">
+        <h2 className="mb-4 text-[14px] font-medium text-[var(--st-text)]">
           Article details
         </h2>
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <div className="space-y-1.5 sm:col-span-2">
             <Label htmlFor="title">
-              Title <span className="text-zoru-danger-ink">*</span>
+              Title <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <Input
               id="title"
@@ -149,10 +149,10 @@ export function KbArticleForm({
       </Card>
 
       <Card className="p-6">
-        <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">Content</h2>
+        <h2 className="mb-4 text-[14px] font-medium text-[var(--st-text)]">Content</h2>
         <div className="space-y-1.5">
           <Label htmlFor="body">
-            Body (Markdown) <span className="text-zoru-danger-ink">*</span>
+            Body (Markdown) <span className="text-[var(--st-danger)]">*</span>
           </Label>
           <Textarea
             id="body"
@@ -166,7 +166,7 @@ export function KbArticleForm({
       </Card>
 
       <Card className="p-6">
-        <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">
+        <h2 className="mb-4 text-[14px] font-medium text-[var(--st-text)]">
           SEO & links
         </h2>
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
@@ -193,7 +193,7 @@ export function KbArticleForm({
       </Card>
 
       <Card className="p-6">
-        <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">
+        <h2 className="mb-4 text-[14px] font-medium text-[var(--st-text)]">
           Visibility & status
         </h2>
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">

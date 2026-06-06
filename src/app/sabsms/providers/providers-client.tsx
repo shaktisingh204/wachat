@@ -44,34 +44,34 @@ function RealConnectionStatuses({ rows, isPinging }: { rows: ProviderRow[], isPi
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
       {rows.map(r => {
-        let borderColor = "border-zoru-line";
-        let bgColor = "bg-zoru-surface-2/30";
-        let icon = <CheckCircle2 className="h-5 w-5 text-zoru-ink" />;
-        let iconBg = "bg-zoru-surface-2";
+        let borderColor = "border-[var(--st-border)]";
+        let bgColor = "bg-[var(--st-bg-muted)]/30";
+        let icon = <CheckCircle2 className="h-5 w-5 text-[var(--st-text)]" />;
+        let iconBg = "bg-[var(--st-bg-muted)]";
         let statusBadge = "Unknown";
-        let badgeColor = "bg-zoru-surface-2 text-zoru-ink border-zoru-line";
+        let badgeColor = "bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]";
 
         if (r.status === "active") {
-          borderColor = "border-zoru-line";
-          bgColor = "bg-zoru-surface-2/30";
-          icon = <CheckCircle2 className="h-5 w-5 text-zoru-ink" />;
-          iconBg = "bg-zoru-surface-2";
+          borderColor = "border-[var(--st-border)]";
+          bgColor = "bg-[var(--st-bg-muted)]/30";
+          icon = <CheckCircle2 className="h-5 w-5 text-[var(--st-text)]" />;
+          iconBg = "bg-[var(--st-bg-muted)]";
           statusBadge = "Operational";
-          badgeColor = "bg-zoru-surface-2 text-zoru-ink border-zoru-line";
+          badgeColor = "bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]";
         } else if (r.status === "degraded") {
-          borderColor = "border-zoru-line";
-          bgColor = "bg-zoru-surface-2/30";
-          icon = <AlertCircle className="h-5 w-5 text-zoru-ink" />;
-          iconBg = "bg-zoru-surface-2";
+          borderColor = "border-[var(--st-border)]";
+          bgColor = "bg-[var(--st-bg-muted)]/30";
+          icon = <AlertCircle className="h-5 w-5 text-[var(--st-text)]" />;
+          iconBg = "bg-[var(--st-bg-muted)]";
           statusBadge = "Degraded";
-          badgeColor = "bg-zoru-surface-2 text-zoru-ink border-zoru-line";
+          badgeColor = "bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]";
         } else if (r.status === "outage") {
-          borderColor = "border-zoru-line";
-          bgColor = "bg-zoru-surface-2/30";
-          icon = <XCircle className="h-5 w-5 text-zoru-ink" />;
-          iconBg = "bg-zoru-surface-2";
+          borderColor = "border-[var(--st-border)]";
+          bgColor = "bg-[var(--st-bg-muted)]/30";
+          icon = <XCircle className="h-5 w-5 text-[var(--st-text)]" />;
+          iconBg = "bg-[var(--st-bg-muted)]";
           statusBadge = "Outage";
-          badgeColor = "bg-zoru-surface-2 text-zoru-ink border-zoru-line";
+          badgeColor = "bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]";
         }
 
         return (
@@ -81,8 +81,8 @@ function RealConnectionStatuses({ rows, isPinging }: { rows: ProviderRow[], isPi
                 {icon}
               </div>
               <div>
-                <div className="text-sm font-medium text-zoru-ink">{r.provider}</div>
-                <div className="text-xs text-zoru-ink">
+                <div className="text-sm font-medium text-[var(--st-text)]">{r.provider}</div>
+                <div className="text-xs text-[var(--st-text)]">
                   {r.status === "active" ? "Latency: <50ms" : r.lastError || "Connection Issues"}
                 </div>
               </div>
@@ -99,65 +99,65 @@ function RealConnectionStatuses({ rows, isPinging }: { rows: ProviderRow[], isPi
 
 function FeatureGrid() {
   return (
-    <Card className="overflow-hidden mt-6 border-zoru-line shadow-sm">
-      <div className="p-6 bg-gradient-to-r from-zoru-ink to-zoru-ink text-white">
+    <Card className="overflow-hidden mt-6 border-[var(--st-border)] shadow-sm">
+      <div className="p-6 bg-gradient-to-r from-[var(--st-text)] to-[var(--st-text)] text-white">
         <h3 className="text-lg font-semibold flex items-center gap-2">
-          <Zap className="h-5 w-5 text-zoru-ink-muted" />
+          <Zap className="h-5 w-5 text-[var(--st-text-secondary)]" />
           Provider Capabilities Matrix
         </h3>
-        <p className="text-sm text-zoru-ink-muted mt-1">Detailed comparison of feature support across primary SMS gateways.</p>
+        <p className="text-sm text-[var(--st-text-secondary)] mt-1">Detailed comparison of feature support across primary SMS gateways.</p>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-sm text-left border-collapse min-w-[600px]">
-          <thead className="bg-zoru-surface-2 border-b border-zoru-line">
+          <thead className="bg-[var(--st-bg-muted)] border-b border-[var(--st-border)]">
             <tr>
-              <th className="p-4 font-semibold text-zoru-ink border-r border-zoru-line w-1/3">Capability</th>
-              <th className="p-4 font-semibold text-zoru-ink border-r border-zoru-line w-1/3">Twilio</th>
-              <th className="p-4 font-semibold text-zoru-ink w-1/3">Nexmo (Vonage)</th>
+              <th className="p-4 font-semibold text-[var(--st-text)] border-r border-[var(--st-border)] w-1/3">Capability</th>
+              <th className="p-4 font-semibold text-[var(--st-text)] border-r border-[var(--st-border)] w-1/3">Twilio</th>
+              <th className="p-4 font-semibold text-[var(--st-text)] w-1/3">Nexmo (Vonage)</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-zoru-line">
-            <tr className="hover:bg-zoru-surface-2 transition-colors">
-              <td className="p-4 border-r border-zoru-line font-medium flex items-center gap-2">
-                <Globe className="h-4 w-4 text-zoru-ink-muted" /> Global SMS
+          <tbody className="divide-y divide-[var(--st-border)]">
+            <tr className="hover:bg-[var(--st-bg-muted)] transition-colors">
+              <td className="p-4 border-r border-[var(--st-border)] font-medium flex items-center gap-2">
+                <Globe className="h-4 w-4 text-[var(--st-text-secondary)]" /> Global SMS
               </td>
-              <td className="p-4 border-r border-zoru-line"><Badge className="bg-zoru-surface-2 text-zoru-ink hover:bg-zoru-surface-2 border-zoru-line">Supported</Badge></td>
-              <td className="p-4"><Badge className="bg-zoru-surface-2 text-zoru-ink hover:bg-zoru-surface-2 border-zoru-line">Supported</Badge></td>
+              <td className="p-4 border-r border-[var(--st-border)]"><Badge className="bg-[var(--st-bg-muted)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] border-[var(--st-border)]">Supported</Badge></td>
+              <td className="p-4"><Badge className="bg-[var(--st-bg-muted)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] border-[var(--st-border)]">Supported</Badge></td>
             </tr>
-            <tr className="hover:bg-zoru-surface-2 transition-colors">
-              <td className="p-4 border-r border-zoru-line font-medium flex items-center gap-2">
-                <ActivitySquare className="h-4 w-4 text-zoru-ink-muted" /> WhatsApp Business
+            <tr className="hover:bg-[var(--st-bg-muted)] transition-colors">
+              <td className="p-4 border-r border-[var(--st-border)] font-medium flex items-center gap-2">
+                <ActivitySquare className="h-4 w-4 text-[var(--st-text-secondary)]" /> WhatsApp Business
               </td>
-              <td className="p-4 border-r border-zoru-line"><Badge className="bg-zoru-surface-2 text-zoru-ink hover:bg-zoru-surface-2 border-zoru-line">Supported</Badge></td>
-              <td className="p-4"><Badge className="bg-zoru-surface-2 text-zoru-ink hover:bg-zoru-surface-2 border-zoru-line">Supported</Badge></td>
+              <td className="p-4 border-r border-[var(--st-border)]"><Badge className="bg-[var(--st-bg-muted)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] border-[var(--st-border)]">Supported</Badge></td>
+              <td className="p-4"><Badge className="bg-[var(--st-bg-muted)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] border-[var(--st-border)]">Supported</Badge></td>
             </tr>
-            <tr className="hover:bg-zoru-surface-2 transition-colors">
-              <td className="p-4 border-r border-zoru-line font-medium flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-zoru-ink-muted" /> 10DLC Registration
+            <tr className="hover:bg-[var(--st-bg-muted)] transition-colors">
+              <td className="p-4 border-r border-[var(--st-border)] font-medium flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 text-[var(--st-text-secondary)]" /> 10DLC Registration
               </td>
-              <td className="p-4 border-r border-zoru-line"><Badge className="bg-zoru-surface-2 text-zoru-ink hover:bg-zoru-surface-2 border-zoru-line">Native API</Badge></td>
-              <td className="p-4"><Badge className="bg-zoru-surface-2 text-zoru-ink hover:bg-zoru-surface-2 border-zoru-line">Manual Process</Badge></td>
+              <td className="p-4 border-r border-[var(--st-border)]"><Badge className="bg-[var(--st-bg-muted)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] border-[var(--st-border)]">Native API</Badge></td>
+              <td className="p-4"><Badge className="bg-[var(--st-bg-muted)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] border-[var(--st-border)]">Manual Process</Badge></td>
             </tr>
-            <tr className="hover:bg-zoru-surface-2 transition-colors">
-              <td className="p-4 border-r border-zoru-line font-medium flex items-center gap-2">
-                <ServerCog className="h-4 w-4 text-zoru-ink-muted" /> Alphanumeric Sender ID
+            <tr className="hover:bg-[var(--st-bg-muted)] transition-colors">
+              <td className="p-4 border-r border-[var(--st-border)] font-medium flex items-center gap-2">
+                <ServerCog className="h-4 w-4 text-[var(--st-text-secondary)]" /> Alphanumeric Sender ID
               </td>
-              <td className="p-4 border-r border-zoru-line"><Badge className="bg-zoru-surface-2 text-zoru-ink hover:bg-zoru-surface-2 border-zoru-line">Supported</Badge></td>
-              <td className="p-4"><Badge className="bg-zoru-surface-2 text-zoru-ink hover:bg-zoru-surface-2 border-zoru-line">Supported</Badge></td>
+              <td className="p-4 border-r border-[var(--st-border)]"><Badge className="bg-[var(--st-bg-muted)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] border-[var(--st-border)]">Supported</Badge></td>
+              <td className="p-4"><Badge className="bg-[var(--st-bg-muted)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] border-[var(--st-border)]">Supported</Badge></td>
             </tr>
-            <tr className="hover:bg-zoru-surface-2 transition-colors">
-              <td className="p-4 border-r border-zoru-line font-medium flex items-center gap-2">
-                <Activity className="h-4 w-4 text-zoru-ink-muted" /> Delivery Receipts
+            <tr className="hover:bg-[var(--st-bg-muted)] transition-colors">
+              <td className="p-4 border-r border-[var(--st-border)] font-medium flex items-center gap-2">
+                <Activity className="h-4 w-4 text-[var(--st-text-secondary)]" /> Delivery Receipts
               </td>
-              <td className="p-4 border-r border-zoru-line"><Badge className="bg-zoru-surface-2 text-zoru-ink hover:bg-zoru-surface-2 border-zoru-line">Real-time Webhooks</Badge></td>
-              <td className="p-4"><Badge className="bg-zoru-surface-2 text-zoru-ink hover:bg-zoru-surface-2 border-zoru-line">Real-time Webhooks</Badge></td>
+              <td className="p-4 border-r border-[var(--st-border)]"><Badge className="bg-[var(--st-bg-muted)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] border-[var(--st-border)]">Real-time Webhooks</Badge></td>
+              <td className="p-4"><Badge className="bg-[var(--st-bg-muted)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] border-[var(--st-border)]">Real-time Webhooks</Badge></td>
             </tr>
-            <tr className="hover:bg-zoru-surface-2 transition-colors">
-              <td className="p-4 border-r border-zoru-line font-medium flex items-center gap-2">
-                <Zap className="h-4 w-4 text-zoru-ink-muted" /> Omnichannel Routing
+            <tr className="hover:bg-[var(--st-bg-muted)] transition-colors">
+              <td className="p-4 border-r border-[var(--st-border)] font-medium flex items-center gap-2">
+                <Zap className="h-4 w-4 text-[var(--st-text-secondary)]" /> Omnichannel Routing
               </td>
-              <td className="p-4 border-r border-zoru-line"><Badge className="bg-zoru-surface-2 text-zoru-ink hover:bg-zoru-surface-2 border-zoru-line">Conversations API</Badge></td>
-              <td className="p-4"><Badge className="bg-zoru-surface-2 text-zoru-ink hover:bg-zoru-surface-2 border-zoru-line">Messages API</Badge></td>
+              <td className="p-4 border-r border-[var(--st-border)]"><Badge className="bg-[var(--st-bg-muted)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] border-[var(--st-border)]">Conversations API</Badge></td>
+              <td className="p-4"><Badge className="bg-[var(--st-bg-muted)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] border-[var(--st-border)]">Messages API</Badge></td>
             </tr>
           </tbody>
         </table>
@@ -283,11 +283,11 @@ export function ProvidersClient({
     >
        <RealConnectionStatuses rows={rows} isPinging={isPinging} />
 
-       <Card className="p-4 flex flex-col gap-4 border-zoru-line shadow-sm mb-6">
+       <Card className="p-4 flex flex-col gap-4 border-[var(--st-border)] shadow-sm mb-6">
          <div className="flex items-center justify-between px-2">
            <div>
-             <h2 className="text-lg font-semibold text-zoru-ink">Configured Accounts</h2>
-             <p className="text-sm text-zoru-ink">Active and disabled SMS gateway connections.</p>
+             <h2 className="text-lg font-semibold text-[var(--st-text)]">Configured Accounts</h2>
+             <p className="text-sm text-[var(--st-text)]">Active and disabled SMS gateway connections.</p>
            </div>
          </div>
          <SabsmsFilterBar
@@ -301,7 +301,7 @@ export function ProvidersClient({
                 rowKey={r => r.id}
                 rowActions={rowActions}
                 onRowClick={(r) => { setSelectedProvider(r); setDrawerOpen(true); }}
-                emptyIcon={<ServerCog className="h-10 w-10 text-zoru-ink-muted" />}
+                emptyIcon={<ServerCog className="h-10 w-10 text-[var(--st-text-secondary)]" />}
                 emptyTitle="No providers configured"
                 emptyDescription="Add a provider account to start sending messages."
                 emptyAction={{ label: "Add Provider", onClick: () => setAddDialogOpen(true) }}
@@ -309,27 +309,27 @@ export function ProvidersClient({
          </div>
        </Card>
 
-       <Card className="p-4 flex flex-col gap-4 border-zoru-line shadow-sm">
+       <Card className="p-4 flex flex-col gap-4 border-[var(--st-border)] shadow-sm">
          <div className="flex items-center justify-between px-2 mb-2">
            <div>
-             <h2 className="text-lg font-semibold text-zoru-ink flex items-center gap-2">
-               <ShoppingBag className="h-5 w-5 text-zoru-ink" />
+             <h2 className="text-lg font-semibold text-[var(--st-text)] flex items-center gap-2">
+               <ShoppingBag className="h-5 w-5 text-[var(--st-text)]" />
                Aggregator Marketplace
              </h2>
-             <p className="text-sm text-zoru-ink">Discover and configure new SMS and communication providers for your workspace.</p>
+             <p className="text-sm text-[var(--st-text)]">Discover and configure new SMS and communication providers for your workspace.</p>
            </div>
          </div>
          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 px-2">
            {catalog.map(p => (
-              <div key={p.id} className="border border-zoru-line rounded-md p-4 flex flex-col justify-between hover:border-zoru-line transition-colors bg-white">
+              <div key={p.id} className="border border-[var(--st-border)] rounded-md p-4 flex flex-col justify-between hover:border-[var(--st-border)] transition-colors bg-white">
                  <div>
                    <div className="flex justify-between items-start mb-2">
-                     <div className="font-semibold text-zoru-ink">{p.name}</div>
+                     <div className="font-semibold text-[var(--st-text)]">{p.name}</div>
                      <Badge variant={p.available ? "default" : "secondary"}>
                        {p.available ? "Available" : "Coming Soon"}
                      </Badge>
                    </div>
-                   <div className="text-xs text-zoru-ink mb-6 flex items-center gap-1">
+                   <div className="text-xs text-[var(--st-text)] mb-6 flex items-center gap-1">
                      <Globe className="h-3 w-3" /> {p.region}
                    </div>
                  </div>
@@ -353,30 +353,30 @@ export function ProvidersClient({
             <div className="space-y-6">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <div className="font-medium text-zoru-ink mb-1">Status</div>
+                  <div className="font-medium text-[var(--st-text)] mb-1">Status</div>
                   <Badge variant={selectedProvider.status === "active" ? "default" : (selectedProvider.status === "degraded" ? "secondary" : "destructive")}>
                      {selectedProvider.status}
                   </Badge>
                 </div>
                 <div>
-                  <div className="font-medium text-zoru-ink mb-1">Pricing Tier</div>
+                  <div className="font-medium text-[var(--st-text)] mb-1">Pricing Tier</div>
                   <div>{selectedProvider.pricingTier || "Standard"}</div>
                 </div>
                 <div>
-                  <div className="font-medium text-zoru-ink mb-1">Last Error</div>
-                  <div className={selectedProvider.lastError ? "text-zoru-ink" : ""}>{selectedProvider.lastError || "None"}</div>
+                  <div className="font-medium text-[var(--st-text)] mb-1">Last Error</div>
+                  <div className={selectedProvider.lastError ? "text-[var(--st-text)]" : ""}>{selectedProvider.lastError || "None"}</div>
                 </div>
                 <div>
-                  <div className="font-medium text-zoru-ink mb-1">Webhook URL</div>
+                  <div className="font-medium text-[var(--st-text)] mb-1">Webhook URL</div>
                   <div className="font-mono text-xs">{selectedProvider.webhookUrl || `https://api.sabsms.io/webhooks/${selectedProvider.provider}`}</div>
                 </div>
               </div>
-              <div className="border border-zoru-line rounded-md p-4">
+              <div className="border border-[var(--st-border)] rounded-md p-4">
                  <div className="font-medium mb-4 flex items-center justify-between">
                    Cost vs Margin
-                   <Activity className="h-4 w-4 text-zoru-ink-muted" />
+                   <Activity className="h-4 w-4 text-[var(--st-text-secondary)]" />
                  </div>
-                 <div className="h-32 bg-zoru-surface-2 rounded border border-zoru-line flex items-center justify-center text-zoru-ink-muted text-sm">
+                 <div className="h-32 bg-[var(--st-bg-muted)] rounded border border-[var(--st-border)] flex items-center justify-center text-[var(--st-text-secondary)] text-sm">
                     Chart placeholder (S16)
                  </div>
               </div>
@@ -406,14 +406,14 @@ export function ProvidersClient({
            </ZoruDialogHeader>
            <div className="grid grid-cols-2 gap-3 max-h-[60vh] overflow-y-auto p-1">
              {catalog.map(p => (
-                <div key={p.id} className="border border-zoru-line rounded-md p-3 flex flex-col justify-between hover:border-zoru-line transition-colors">
+                <div key={p.id} className="border border-[var(--st-border)] rounded-md p-3 flex flex-col justify-between hover:border-[var(--st-border)] transition-colors">
                    <div className="flex justify-between items-start mb-2">
                      <div className="font-medium">{p.name}</div>
                      <Badge variant={p.available ? "default" : "secondary"}>
                        {p.available ? "Available" : "Phase 7"}
                      </Badge>
                    </div>
-                   <div className="text-xs text-zoru-ink mb-4">{p.region}</div>
+                   <div className="text-xs text-[var(--st-text)] mb-4">{p.region}</div>
                    <Button disabled={!p.available} size="sm" className="w-full" onClick={() => alert(`Add ${p.name}`)}>
                      Configure
                    </Button>

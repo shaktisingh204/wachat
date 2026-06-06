@@ -188,24 +188,24 @@ export function TemplatesSheet({ open, onClose, onCreated }: Props) {
         aria-label="Browse templates"
         className={cn(
           'absolute right-0 top-0 h-full w-full max-w-[640px]',
-          'bg-zoru-ink border-l border-zoru-line shadow-2xl',
+          'bg-[var(--st-text)] border-l border-[var(--st-border)] shadow-2xl',
           'flex flex-col',
         )}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-zoru-line shrink-0">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--st-border)] shrink-0">
           <div className="flex items-center gap-2">
-            <LuSparkles className="w-4 h-4 text-zoru-ink-muted" />
+            <LuSparkles className="w-4 h-4 text-[var(--st-text-secondary)]" />
             <span className="text-sm font-semibold text-white">
               Browse templates
             </span>
-            <span className="text-xs text-zoru-ink">
+            <span className="text-xs text-[var(--st-text)]">
               {filtered.length} of {CHATBOT_TEMPLATES.length}
             </span>
           </div>
           <button
             onClick={onClose}
-            className="text-zoru-ink hover:text-white transition-colors"
+            className="text-[var(--st-text)] hover:text-white transition-colors"
           >
             <LuX className="w-4 h-4" />
           </button>
@@ -214,13 +214,13 @@ export function TemplatesSheet({ open, onClose, onCreated }: Props) {
         {/* Toolbar */}
         <div className="px-6 pt-4 pb-3 space-y-3 shrink-0">
           <div className="relative">
-            <LuSearch className="w-3.5 h-3.5 text-zoru-ink absolute left-3 top-1/2 -translate-y-1/2" />
+            <LuSearch className="w-3.5 h-3.5 text-[var(--st-text)] absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search templates (e.g. lead, support, quiz)…"
-              className="w-full bg-zoru-ink border border-zoru-line/60 rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder:text-zoru-ink focus:outline-none focus:border-zoru-line"
+              className="w-full bg-[var(--st-text)] border border-[var(--st-border)]/60 rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder:text-[var(--st-text)] focus:outline-none focus:border-[var(--st-border)]"
               autoFocus
             />
           </div>
@@ -233,8 +233,8 @@ export function TemplatesSheet({ open, onClose, onCreated }: Props) {
                 className={cn(
                   'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium border transition-colors',
                   filter === cat
-                    ? 'bg-zoru-surface-2 text-zoru-ink border-zoru-line'
-                    : 'bg-zoru-ink/60 text-zoru-ink-muted border-zoru-line/60 hover:bg-zoru-ink/60',
+                    ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]'
+                    : 'bg-[var(--st-text)]/60 text-[var(--st-text-secondary)] border-[var(--st-border)]/60 hover:bg-[var(--st-text)]/60',
                 )}
               >
                 {cat}
@@ -242,8 +242,8 @@ export function TemplatesSheet({ open, onClose, onCreated }: Props) {
                   className={cn(
                     'inline-flex h-4 min-w-[1rem] items-center justify-center rounded-full px-1 text-[10px]',
                     filter === cat
-                      ? 'bg-zoru-ink/15 text-zoru-ink'
-                      : 'bg-zoru-ink text-zoru-ink',
+                      ? 'bg-[var(--st-text)]/15 text-[var(--st-text)]'
+                      : 'bg-[var(--st-text)] text-[var(--st-text)]',
                   )}
                 >
                   {counts[cat] ?? 0}
@@ -255,7 +255,7 @@ export function TemplatesSheet({ open, onClose, onCreated }: Props) {
 
         {/* Error */}
         {error && (
-          <div className="mx-6 mb-2 px-3 py-2 rounded-lg border border-zoru-line/40 bg-zoru-ink/10 text-xs text-zoru-ink-muted">
+          <div className="mx-6 mb-2 px-3 py-2 rounded-lg border border-[var(--st-border)]/40 bg-[var(--st-text)]/10 text-xs text-[var(--st-text-secondary)]">
             {error}
           </div>
         )}
@@ -275,7 +275,7 @@ export function TemplatesSheet({ open, onClose, onCreated }: Props) {
         {/* List */}
         <div className="flex-1 min-h-0 overflow-y-auto px-6 pb-6">
           {filtered.length === 0 ? (
-            <p className="text-sm text-zoru-ink py-10 text-center">
+            <p className="text-sm text-[var(--st-text)] py-10 text-center">
               No templates match your filter.
             </p>
           ) : (
@@ -292,17 +292,17 @@ export function TemplatesSheet({ open, onClose, onCreated }: Props) {
                     onClick={() => handleSelect(tpl)}
                     className={cn(
                       'group relative flex flex-col gap-2 rounded-xl border p-4 text-left transition-colors',
-                      'border-zoru-line bg-zoru-ink/50 hover:bg-zoru-ink hover:border-zoru-line',
-                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-line/40',
+                      'border-[var(--st-border)] bg-[var(--st-text)]/50 hover:bg-[var(--st-text)] hover:border-[var(--st-border)]',
+                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-border)]/40',
                       disabled && !busy && 'opacity-50 cursor-not-allowed',
                     )}
                   >
                     <div className="flex items-center gap-2">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-zoru-line/60 bg-zoru-ink">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--st-border)]/60 bg-[var(--st-text)]">
                         {busy ? (
-                          <LuLoader className="h-4 w-4 animate-spin text-zoru-ink-muted" />
+                          <LuLoader className="h-4 w-4 animate-spin text-[var(--st-text-secondary)]" />
                         ) : (
-                          <Icon className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
+                          <Icon className="h-4 w-4 text-[var(--st-text-secondary)]" strokeWidth={1.75} />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -312,13 +312,13 @@ export function TemplatesSheet({ open, onClose, onCreated }: Props) {
                           </span>
                           {tpl.name}
                         </p>
-                        <p className="text-[10.5px] uppercase tracking-wider text-zoru-ink mt-0.5">
+                        <p className="text-[10.5px] uppercase tracking-wider text-[var(--st-text)] mt-0.5">
                           {tpl.category}
                         </p>
                       </div>
-                      <LuChevronRight className="h-4 w-4 text-zoru-ink group-hover:text-zoru-ink-muted transition-colors" />
+                      <LuChevronRight className="h-4 w-4 text-[var(--st-text)] group-hover:text-[var(--st-text-secondary)] transition-colors" />
                     </div>
-                    <p className="text-[11.5px] text-zoru-ink-muted leading-snug">
+                    <p className="text-[11.5px] text-[var(--st-text-secondary)] leading-snug">
                       {tpl.description}
                     </p>
                   </button>
@@ -353,8 +353,8 @@ function FeaturedRow({
   if (templates.length === 0) return null;
   return (
     <div className="px-6 pb-3 shrink-0">
-      <div className="mb-2 flex items-center gap-1.5 text-[10.5px] uppercase tracking-wide text-zoru-ink">
-        <LuSparkles className="h-3 w-3 text-zoru-ink-muted" />
+      <div className="mb-2 flex items-center gap-1.5 text-[10.5px] uppercase tracking-wide text-[var(--st-text)]">
+        <LuSparkles className="h-3 w-3 text-[var(--st-text-secondary)]" />
         Featured
       </div>
       <div className="flex gap-3 overflow-x-auto pb-1 -mx-1 px-1">
@@ -368,13 +368,13 @@ function FeaturedRow({
               disabled={disabled}
               onClick={() => onSelect(tpl)}
               className={cn(
-                'group shrink-0 w-[220px] rounded-xl border border-zoru-line/30 bg-gradient-to-br from-zoru-ink/10 to-zoru-ink/60 p-3 text-left transition-colors',
-                'hover:border-zoru-line/60 hover:from-zoru-ink/15',
+                'group shrink-0 w-[220px] rounded-xl border border-[var(--st-border)]/30 bg-gradient-to-br from-[var(--st-text)]/10 to-[var(--st-text)]/60 p-3 text-left transition-colors',
+                'hover:border-[var(--st-border)]/60 hover:from-[var(--st-text)]/15',
                 disabled && !busy && 'opacity-50 cursor-not-allowed',
               )}
             >
               <div className="flex items-center gap-2 mb-1.5">
-                <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-zoru-line/30 bg-zoru-ink text-zoru-ink-muted">
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-[var(--st-border)]/30 bg-[var(--st-text)] text-[var(--st-text-secondary)]">
                   {busy ? <LuLoader className="h-3.5 w-3.5 animate-spin" /> : <Icon className="h-3.5 w-3.5" strokeWidth={1.75} />}
                 </div>
                 <p className="flex-1 truncate text-[12.5px] font-semibold text-white">
@@ -382,7 +382,7 @@ function FeaturedRow({
                   {tpl.name}
                 </p>
               </div>
-              <p className="text-[10.5px] text-zoru-ink-muted leading-snug line-clamp-2">
+              <p className="text-[10.5px] text-[var(--st-text-secondary)] leading-snug line-clamp-2">
                 {tpl.description}
               </p>
             </button>

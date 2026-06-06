@@ -236,16 +236,16 @@ function KpiCard({
   sub?: string;
 }) {
   return (
-    <Card className="border-zoru-line bg-zoru-ink shadow-none">
+    <Card className="border-[var(--st-border)] bg-[var(--st-text)] shadow-none">
       <CardContent className="p-5 space-y-2">
-        <div className="flex items-center gap-2 text-xs uppercase tracking-[0.14em] text-zoru-ink-muted">
-          <Icon className="h-3.5 w-3.5 text-zoru-ink-muted/80" />
+        <div className="flex items-center gap-2 text-xs uppercase tracking-[0.14em] text-[var(--st-text-secondary)]">
+          <Icon className="h-3.5 w-3.5 text-[var(--st-text-secondary)]/80" />
           {label}
         </div>
         <div className="text-3xl font-semibold text-white tabular-nums">
           {value.toLocaleString()}
         </div>
-        {sub && <div className="text-xs text-zoru-ink">{sub}</div>}
+        {sub && <div className="text-xs text-[var(--st-text)]">{sub}</div>}
       </CardContent>
     </Card>
   );
@@ -277,21 +277,21 @@ export default async function MarketplaceAnalyticsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zoru-ink text-white">
+    <div className="min-h-screen bg-[var(--st-text)] text-white">
       <div className="mx-auto max-w-7xl space-y-8 p-6 md:p-8 lg:p-10">
 
         {/* Header */}
         <header className="space-y-3">
-          <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-zoru-ink-muted/80">
+          <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-[var(--st-text-secondary)]/80">
             <ShieldCheck className="h-3.5 w-3.5" />
             Admin · SabFlow · Phase C.10.10
           </div>
           <h1 className="text-3xl font-semibold text-white">
             Marketplace Analytics
           </h1>
-          <p className="max-w-3xl text-sm text-zoru-ink-muted">
+          <p className="max-w-3xl text-sm text-[var(--st-text-secondary)]">
             Telemetry from{' '}
-            <code className="text-zoru-ink-muted">sabflow_marketplace_events</code> —
+            <code className="text-[var(--st-text-secondary)]">sabflow_marketplace_events</code> —
             views, installs, and search queries recorded by the marketplace
             telemetry layer. Data is near-real-time (events are written
             fire-and-forget during user sessions).
@@ -300,15 +300,15 @@ export default async function MarketplaceAnalyticsPage() {
 
         {/* Data-fetch error banner */}
         {fetchError && (
-          <div className="rounded-xl border border-zoru-line/30 bg-zoru-ink/10 p-4 text-xs text-white">
-            <span className="font-semibold text-zoru-ink-muted">Data fetch error: </span>
+          <div className="rounded-xl border border-[var(--st-border)]/30 bg-[var(--st-text)]/10 p-4 text-xs text-white">
+            <span className="font-semibold text-[var(--st-text-secondary)]">Data fetch error: </span>
             {fetchError}
           </div>
         )}
 
         {/* KPI row */}
         <section>
-          <h2 className="mb-4 text-xs uppercase tracking-[0.16em] text-zoru-ink">
+          <h2 className="mb-4 text-xs uppercase tracking-[0.16em] text-[var(--st-text)]">
             Overview
           </h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -340,12 +340,12 @@ export default async function MarketplaceAnalyticsPage() {
         {/* Top 10 templates table */}
         <section>
           <div className="flex items-center gap-2 mb-4">
-            <BarChart3 className="h-4 w-4 text-zoru-ink-muted/80" />
-            <h2 className="text-xs uppercase tracking-[0.16em] text-zoru-ink">
+            <BarChart3 className="h-4 w-4 text-[var(--st-text-secondary)]/80" />
+            <h2 className="text-xs uppercase tracking-[0.16em] text-[var(--st-text)]">
               Top 10 Templates by Installs
             </h2>
           </div>
-          <Card className="overflow-hidden border-zoru-line bg-zoru-ink shadow-none">
+          <Card className="overflow-hidden border-[var(--st-border)] bg-[var(--st-text)] shadow-none">
             <TopTemplatesChart data={data.topTemplates} />
           </Card>
         </section>
@@ -353,12 +353,12 @@ export default async function MarketplaceAnalyticsPage() {
         {/* Install Trends */}
         <section>
           <div className="flex items-center gap-2 mb-4">
-            <BarChart3 className="h-4 w-4 text-zoru-ink-muted/80" />
-            <h2 className="text-xs uppercase tracking-[0.16em] text-zoru-ink">
+            <BarChart3 className="h-4 w-4 text-[var(--st-text-secondary)]/80" />
+            <h2 className="text-xs uppercase tracking-[0.16em] text-[var(--st-text)]">
               Install Trends (Last 30 Days)
             </h2>
           </div>
-          <Card className="overflow-hidden border-zoru-line bg-zoru-ink shadow-none">
+          <Card className="overflow-hidden border-[var(--st-border)] bg-[var(--st-text)] shadow-none">
             <InstallTrendsChart data={data.installTrends} />
           </Card>
         </section>
@@ -366,45 +366,45 @@ export default async function MarketplaceAnalyticsPage() {
         {/* Recent search queries table */}
         <section>
           <div className="flex items-center gap-2 mb-4">
-            <Search className="h-4 w-4 text-zoru-ink-muted/80" />
-            <h2 className="text-xs uppercase tracking-[0.16em] text-zoru-ink">
+            <Search className="h-4 w-4 text-[var(--st-text-secondary)]/80" />
+            <h2 className="text-xs uppercase tracking-[0.16em] text-[var(--st-text)]">
               Recent Search Queries (last 20)
             </h2>
           </div>
-          <Card className="overflow-hidden border-zoru-line bg-zoru-ink shadow-none">
+          <Card className="overflow-hidden border-[var(--st-border)] bg-[var(--st-text)] shadow-none">
             {data.recentSearches.length === 0 ? (
-              <div className="py-16 text-center text-sm text-zoru-ink">
+              <div className="py-16 text-center text-sm text-[var(--st-text)]">
                 No search events recorded yet.
               </div>
             ) : (
               <Table className="w-full text-sm">
                 <TableHeader>
-                  <TableRow className="border-b border-zoru-line hover:bg-transparent">
+                  <TableRow className="border-b border-[var(--st-border)] hover:bg-transparent">
                     {['Query', 'Results', 'Time'].map((h, i) => (
                       <TableHead
                         key={i}
-                        className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-zoru-ink"
+                        className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[var(--st-text)]"
                       >
                         {h}
                       </TableHead>
                     ))}
                   </TableRow>
                 </TableHeader>
-                <TableBody className="divide-y divide-zoru-line">
+                <TableBody className="divide-y divide-[var(--st-border)]">
                   {data.recentSearches.map((s, i) => (
                     <TableRow
                       key={i}
-                      className="border-zoru-line transition-colors hover:bg-zoru-ink/50"
+                      className="border-[var(--st-border)] transition-colors hover:bg-[var(--st-text)]/50"
                     >
                       <TableCell className="px-5 py-3 text-white">
                         {s.query || (
-                          <span className="italic text-zoru-ink">(empty)</span>
+                          <span className="italic text-[var(--st-text)]">(empty)</span>
                         )}
                       </TableCell>
-                      <TableCell className="px-5 py-3 tabular-nums text-zoru-ink-muted">
+                      <TableCell className="px-5 py-3 tabular-nums text-[var(--st-text-secondary)]">
                         {s.resultCount}
                       </TableCell>
-                      <TableCell className="px-5 py-3 text-xs text-zoru-ink tabular-nums">
+                      <TableCell className="px-5 py-3 text-xs text-[var(--st-text)] tabular-nums">
                         {s.ts
                           ? new Date(s.ts).toLocaleString('en-GB', {
                               dateStyle: 'short',

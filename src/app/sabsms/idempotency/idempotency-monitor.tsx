@@ -129,13 +129,13 @@ export function IdempotencyMonitor() {
     {
       id: "apiKey",
       header: "API Key",
-      render: (r) => <span className="text-zoru-ink">{r.apiKey}</span>,
+      render: (r) => <span className="text-[var(--st-text)]">{r.apiKey}</span>,
     },
     {
       id: "firstSeen",
       header: "First / Last Seen",
       render: (r) => (
-        <div className="flex flex-col text-xs text-zoru-ink">
+        <div className="flex flex-col text-xs text-[var(--st-text)]">
           <span>First: {new Date(r.firstSeen).toLocaleTimeString()}</span>
           <span>Last: {new Date(r.lastSeen).toLocaleTimeString()}</span>
         </div>
@@ -145,7 +145,7 @@ export function IdempotencyMonitor() {
       id: "hash",
       header: "Request Hash",
       render: (r) => (
-        <span className="font-mono text-xs text-zoru-ink max-w-[120px] truncate block" title={r.hash}>
+        <span className="font-mono text-xs text-[var(--st-text)] max-w-[120px] truncate block" title={r.hash}>
           {r.hash}
         </span>
       ),
@@ -154,7 +154,7 @@ export function IdempotencyMonitor() {
       id: "cached",
       header: "Cached",
       render: (r) => (
-        r.cached ? <Badge variant="default" className="bg-zoru-ink">Hit</Badge> : <Badge variant="secondary">Miss</Badge>
+        r.cached ? <Badge variant="default" className="bg-[var(--st-text)]">Hit</Badge> : <Badge variant="secondary">Miss</Badge>
       ),
     },
     {
@@ -172,7 +172,7 @@ export function IdempotencyMonitor() {
             {r.failures}
           </Badge>
         ) : (
-          <span className="text-zoru-ink-muted">-</span>
+          <span className="text-[var(--st-text-secondary)]">-</span>
         )
       ),
     },
@@ -221,7 +221,7 @@ export function IdempotencyMonitor() {
       <div className="grid gap-4 md:grid-cols-2 mb-6">
         <Card>
           <ZoruCardHeader>
-            <ZoruCardTitle className="flex items-center gap-2"><Database className="h-4 w-4 text-zoru-ink" /> Per-API-key Usage</ZoruCardTitle>
+            <ZoruCardTitle className="flex items-center gap-2"><Database className="h-4 w-4 text-[var(--st-text)]" /> Per-API-key Usage</ZoruCardTitle>
             <ZoruCardDescription>Top API keys by idempotency requests</ZoruCardDescription>
           </ZoruCardHeader>
           <ZoruCardContent>
@@ -240,7 +240,7 @@ export function IdempotencyMonitor() {
 
         <Card>
           <ZoruCardHeader>
-            <ZoruCardTitle className="flex items-center gap-2"><BarChart3 className="h-4 w-4 text-zoru-ink" /> Per-endpoint Usage</ZoruCardTitle>
+            <ZoruCardTitle className="flex items-center gap-2"><BarChart3 className="h-4 w-4 text-[var(--st-text)]" /> Per-endpoint Usage</ZoruCardTitle>
             <ZoruCardDescription>Top routes by idempotency requests</ZoruCardDescription>
           </ZoruCardHeader>
           <ZoruCardContent>

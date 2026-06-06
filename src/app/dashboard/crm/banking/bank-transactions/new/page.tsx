@@ -32,7 +32,7 @@ async function BankTransactionFormWrapper() {
 
 function FormSkeleton() {
     return (
-        <div className="space-y-6 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-6 shadow-sm">
+        <div className="space-y-6 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-6 shadow-sm">
             <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div className="space-y-2">
@@ -59,7 +59,7 @@ function FormSkeleton() {
                 </div>
             </div>
             
-            <div className="flex justify-end gap-2 pt-4 border-t border-zoru-line mt-6">
+            <div className="flex justify-end gap-2 pt-4 border-t border-[var(--st-border)] mt-6">
                 <Skeleton className="h-9 w-20" />
                 <Skeleton className="h-9 w-32" />
             </div>

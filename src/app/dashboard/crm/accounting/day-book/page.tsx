@@ -231,13 +231,13 @@ export default function DayBookPage(): React.JSX.Element {
 
     const chart = (
         <div>
-            <h2 className="text-[15px] font-semibold text-zoru-ink">Entries by voucher type</h2>
-            <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+            <h2 className="text-[15px] font-semibold text-[var(--st-text)]">Entries by voucher type</h2>
+            <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">
                 Distribution of {transactions.length} entries in the selected range.
             </p>
             <div className="mt-4 h-64 w-full">
                 {chartData.length === 0 ? (
-                    <div className="flex h-full items-center justify-center text-[13px] text-zoru-ink-muted">
+                    <div className="flex h-full items-center justify-center text-[13px] text-[var(--st-text-secondary)]">
                         No entries in this range.
                     </div>
                 ) : (
@@ -258,35 +258,35 @@ export default function DayBookPage(): React.JSX.Element {
     const table = (
         <Table>
             <ZoruTableHeader>
-                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                    <ZoruTableHead className="text-zoru-ink-muted">Date</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Type</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Number</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Party</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted text-right">Amount</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
+                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Date</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Type</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Number</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Party</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Amount</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
                 </ZoruTableRow>
             </ZoruTableHeader>
             <ZoruTableBody>
                 {pageRows.length === 0 ? (
-                    <ZoruTableRow className="border-zoru-line">
-                        <ZoruTableCell colSpan={6} className="h-24 text-center text-zoru-ink-muted">
+                    <ZoruTableRow className="border-[var(--st-border)]">
+                        <ZoruTableCell colSpan={6} className="h-24 text-center text-[var(--st-text-secondary)]">
                             No transactions in this range.
                         </ZoruTableCell>
                     </ZoruTableRow>
                 ) : (
                     pageRows.map((t) => (
-                        <ZoruTableRow key={t.id} className="border-zoru-line">
-                            <ZoruTableCell className="text-zoru-ink">
+                        <ZoruTableRow key={t.id} className="border-[var(--st-border)]">
+                            <ZoruTableCell className="text-[var(--st-text)]">
                                 {new Date(t.date).toLocaleDateString('en-IN')}
                             </ZoruTableCell>
-                            <ZoruTableCell className="text-zoru-ink">{t.type}</ZoruTableCell>
+                            <ZoruTableCell className="text-[var(--st-text)]">{t.type}</ZoruTableCell>
                             <ZoruTableCell>
                                 <EntityRowLink href={vendorPathFor(t.type, t.id)} label={t.number} />
                             </ZoruTableCell>
-                            <ZoruTableCell className="text-zoru-ink">{t.partyName}</ZoruTableCell>
+                            <ZoruTableCell className="text-[var(--st-text)]">{t.partyName}</ZoruTableCell>
                             <ZoruTableCell
-                                className={`text-right font-mono ${t.flow === 'In' ? 'text-zoru-ink' : 'text-zoru-ink'}`}
+                                className={`text-right font-mono ${t.flow === 'In' ? 'text-[var(--st-text)]' : 'text-[var(--st-text)]'}`}
                             >
                                 {t.flow === 'In' ? '+' : '-'}
                                 {fmtMoney(t.amount)}
@@ -315,7 +315,7 @@ export default function DayBookPage(): React.JSX.Element {
             filters={filters}
             kpis={<ReportKpiStrip cards={kpis} />}
             chart={chart}
-            table={<div className="overflow-x-auto">{isMounted ? table : <div className="h-64 flex items-center justify-center text-zoru-ink-muted">Loading...</div>}</div>}
+            table={<div className="overflow-x-auto">{isMounted ? table : <div className="h-64 flex items-center justify-center text-[var(--st-text-secondary)]">Loading...</div>}</div>}
             pagination={
                 <PaginationBar
                     page={page}

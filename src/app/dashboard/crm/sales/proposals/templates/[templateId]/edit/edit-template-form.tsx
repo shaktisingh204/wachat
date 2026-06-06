@@ -244,55 +244,55 @@ export function EditTemplateForm({ initial }: Props) {
         <div className="space-y-6">
           <Card className="p-6">
             <div className="mb-4">
-              <h2 className="text-[14px] font-semibold text-zoru-ink">
+              <h2 className="text-[14px] font-semibold text-[var(--st-text)]">
                 Template basics
               </h2>
-              <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+              <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">
                 Name and default proposal title.
               </p>
             </div>
             <div className="grid gap-4 md:grid-cols-3">
               <div className="space-y-2">
-                <Label className="text-[12.5px] text-zoru-ink-muted">
-                  Template name <span className="text-zoru-danger">*</span>
+                <Label className="text-[12.5px] text-[var(--st-text-secondary)]">
+                  Template name <span className="text-[var(--st-danger)]">*</span>
                 </Label>
                 <Input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Standard SaaS Proposal"
-                  className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-[12.5px] text-zoru-ink-muted">
+                <Label className="text-[12.5px] text-[var(--st-text-secondary)]">
                   Default proposal title
                 </Label>
                 <Input
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Proposal for {{client.name}}"
-                  className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-[12.5px] text-zoru-ink-muted">
+                <Label className="text-[12.5px] text-[var(--st-text-secondary)]">
                   Currency
                 </Label>
                 <Input
                   value={currency}
                   onChange={(e) => setCurrency(e.target.value.toUpperCase())}
-                  className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-[12.5px] text-zoru-ink-muted">
+                <Label className="text-[12.5px] text-[var(--st-text-secondary)]">
                   Default discount
                 </Label>
                 <Input
                   type="number"
                   value={discount}
                   onChange={(e) => setDiscount(Number(e.target.value) || 0)}
-                  className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 />
               </div>
               <div className="flex items-end gap-2">
@@ -303,7 +303,7 @@ export function EditTemplateForm({ initial }: Props) {
                 />
                 <Label
                   htmlFor="signatureRequired"
-                  className="cursor-pointer pb-2 text-[13px] text-zoru-ink"
+                  className="cursor-pointer pb-2 text-[13px] text-[var(--st-text)]"
                 >
                   Require e-signature
                 </Label>
@@ -314,8 +314,8 @@ export function EditTemplateForm({ initial }: Props) {
           <Card className="p-6">
             <div className="mb-4 flex items-center justify-between">
               <div>
-                <h2 className="text-[14px] font-semibold text-zoru-ink">Sections</h2>
-                <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+                <h2 className="text-[14px] font-semibold text-[var(--st-text)]">Sections</h2>
+                <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">
                   Each section maps to one proposal line item.
                 </p>
               </div>
@@ -333,10 +333,10 @@ export function EditTemplateForm({ initial }: Props) {
               {sections.map((section, idx) => (
                 <div
                   key={section.id}
-                  className={`rounded-lg border bg-zoru-bg p-4 transition-colors ${
+                  className={`rounded-lg border bg-[var(--st-bg)] p-4 transition-colors ${
                     activeSectionId === section.id
-                      ? 'border-zoru-ink/40'
-                      : 'border-zoru-line'
+                      ? 'border-[var(--st-text)]/40'
+                      : 'border-[var(--st-border)]'
                   }`}
                   onClick={() => setActiveSectionId(section.id)}
                 >
@@ -347,7 +347,7 @@ export function EditTemplateForm({ initial }: Props) {
                         updateSection(section.id, { title: e.target.value })
                       }
                       placeholder="Section title"
-                      className="h-9 flex-1 rounded-lg border-zoru-line bg-zoru-bg text-[13px] font-medium"
+                      className="h-9 flex-1 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px] font-medium"
                     />
                     <div className="flex shrink-0 gap-1">
                       <Button
@@ -399,11 +399,11 @@ export function EditTemplateForm({ initial }: Props) {
                     onFocus={() => setActiveSectionId(section.id)}
                     placeholder="Body — supports tokens like {{client.name}}."
                     rows={5}
-                    className="rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                    className="rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                   />
                   <div className="mt-3 grid grid-cols-3 gap-2">
                     <div className="space-y-1">
-                      <Label className="text-[11px] text-zoru-ink-muted">
+                      <Label className="text-[11px] text-[var(--st-text-secondary)]">
                         Quantity
                       </Label>
                       <Input
@@ -414,11 +414,11 @@ export function EditTemplateForm({ initial }: Props) {
                             quantity: Number(e.target.value) || 0,
                           })
                         }
-                        className="h-9 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                        className="h-9 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                       />
                     </div>
                     <div className="space-y-1">
-                      <Label className="text-[11px] text-zoru-ink-muted">
+                      <Label className="text-[11px] text-[var(--st-text-secondary)]">
                         Unit price
                       </Label>
                       <Input
@@ -429,11 +429,11 @@ export function EditTemplateForm({ initial }: Props) {
                             unitPrice: Number(e.target.value) || 0,
                           })
                         }
-                        className="h-9 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                        className="h-9 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                       />
                     </div>
                     <div className="space-y-1">
-                      <Label className="text-[11px] text-zoru-ink-muted">
+                      <Label className="text-[11px] text-[var(--st-text-secondary)]">
                         Tax %
                       </Label>
                       <Input
@@ -444,7 +444,7 @@ export function EditTemplateForm({ initial }: Props) {
                             tax: Number(e.target.value) || 0,
                           })
                         }
-                        className="h-9 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                        className="h-9 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                       />
                     </div>
                   </div>
@@ -455,34 +455,34 @@ export function EditTemplateForm({ initial }: Props) {
 
           <Card className="p-6">
             <div className="mb-4">
-              <h2 className="text-[14px] font-semibold text-zoru-ink">
+              <h2 className="text-[14px] font-semibold text-[var(--st-text)]">
                 Note &amp; terms
               </h2>
-              <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+              <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">
                 Boilerplate text printed at the end of every proposal.
               </p>
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label className="text-[12.5px] text-zoru-ink-muted">
+                <Label className="text-[12.5px] text-[var(--st-text-secondary)]">
                   Note
                 </Label>
                 <Textarea
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
                   rows={4}
-                  className="rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-[12.5px] text-zoru-ink-muted">
+                <Label className="text-[12.5px] text-[var(--st-text-secondary)]">
                   Terms
                 </Label>
                 <Textarea
                   value={terms}
                   onChange={(e) => setTerms(e.target.value)}
                   rows={4}
-                  className="rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 />
               </div>
             </div>
@@ -490,34 +490,34 @@ export function EditTemplateForm({ initial }: Props) {
 
           <Card className="p-6">
             <div className="mb-4">
-              <h2 className="text-[14px] font-semibold text-zoru-ink">
+              <h2 className="text-[14px] font-semibold text-[var(--st-text)]">
                 Live preview
               </h2>
-              <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+              <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">
                 Tokens rendered with sample values.
               </p>
             </div>
-            <div className="space-y-4 rounded-lg border border-zoru-line bg-zoru-bg p-5">
+            <div className="space-y-4 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] p-5">
               <div>
-                <p className="text-[18px] font-semibold text-zoru-ink">
+                <p className="text-[18px] font-semibold text-[var(--st-text)]">
                   {applySample(title || name) || 'Untitled proposal'}
                 </p>
               </div>
               {sections.map((section) => (
                 <div key={`preview-${section.id}`} className="space-y-1">
-                  <p className="text-[14px] font-semibold text-zoru-ink">
+                  <p className="text-[14px] font-semibold text-[var(--st-text)]">
                     {applySample(section.title) || 'Section'}
                   </p>
-                  <p className="whitespace-pre-wrap text-[13px] text-zoru-ink-muted">
+                  <p className="whitespace-pre-wrap text-[13px] text-[var(--st-text-secondary)]">
                     {applySample(section.content) || '—'}
                   </p>
-                  <p className="text-[12px] text-zoru-ink-muted">
+                  <p className="text-[12px] text-[var(--st-text-secondary)]">
                     {section.quantity} × {section.unitPrice.toLocaleString()}{' '}
                     {currency} · tax {section.tax}%
                   </p>
                 </div>
               ))}
-              <div className="border-t border-zoru-line pt-3 text-[13px] text-zoru-ink">
+              <div className="border-t border-[var(--st-border)] pt-3 text-[13px] text-[var(--st-text)]">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
                   <span>
@@ -544,19 +544,19 @@ export function EditTemplateForm({ initial }: Props) {
                 </div>
               </div>
               {note && (
-                <p className="whitespace-pre-wrap text-[12.5px] text-zoru-ink-muted">
+                <p className="whitespace-pre-wrap text-[12.5px] text-[var(--st-text-secondary)]">
                   {applySample(note)}
                 </p>
               )}
               {terms && (
-                <p className="whitespace-pre-wrap text-[11.5px] text-zoru-ink-muted">
+                <p className="whitespace-pre-wrap text-[11.5px] text-[var(--st-text-secondary)]">
                   {applySample(terms)}
                 </p>
               )}
             </div>
           </Card>
 
-          <div className="flex justify-end gap-2 border-t border-zoru-line pt-4">
+          <div className="flex justify-end gap-2 border-t border-[var(--st-border)] pt-4">
             <Button
               type="button"
               variant="outline"
@@ -589,10 +589,10 @@ export function EditTemplateForm({ initial }: Props) {
         <aside className="lg:sticky lg:top-6 lg:self-start">
           <Card className="p-5">
             <div className="mb-3">
-              <h2 className="text-[13px] font-semibold text-zoru-ink">
+              <h2 className="text-[13px] font-semibold text-[var(--st-text)]">
                 Variables
               </h2>
-              <p className="mt-0.5 text-[11.5px] text-zoru-ink-muted">
+              <p className="mt-0.5 text-[11.5px] text-[var(--st-text-secondary)]">
                 Click to insert into the active section.
               </p>
             </div>
@@ -602,12 +602,12 @@ export function EditTemplateForm({ initial }: Props) {
                   <button
                     type="button"
                     onClick={() => insertToken(v.token)}
-                    className="w-full rounded-md border border-zoru-line bg-zoru-bg px-2.5 py-1.5 text-left transition-colors hover:border-zoru-ink/40"
+                    className="w-full rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-2.5 py-1.5 text-left transition-colors hover:border-[var(--st-text)]/40"
                   >
-                    <div className="text-[12.5px] font-medium text-zoru-ink">
+                    <div className="text-[12.5px] font-medium text-[var(--st-text)]">
                       {v.label}
                     </div>
-                    <div className="font-mono text-[11px] text-zoru-ink-muted">
+                    <div className="font-mono text-[11px] text-[var(--st-text-secondary)]">
                       {v.token}
                     </div>
                   </button>

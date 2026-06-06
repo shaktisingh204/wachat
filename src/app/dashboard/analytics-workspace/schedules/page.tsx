@@ -36,8 +36,8 @@ export default async function SchedulesPage() {
     <div className="zoruui flex flex-col gap-6 p-6">
       <header className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-zoru-ink">Scheduled reports</h1>
-          <p className="text-sm text-zoru-ink-muted">
+          <h1 className="text-2xl font-semibold text-[var(--st-text)]">Scheduled reports</h1>
+          <p className="text-sm text-[var(--st-text-secondary)]">
             Email a workbook on a cron schedule. PDF / CSV / inline body.
           </p>
         </div>
@@ -60,7 +60,7 @@ export default async function SchedulesPage() {
         </CardHeader>
         <CardContent>
           {schedules.length === 0 ? (
-            <p className="text-sm text-zoru-ink-muted">No scheduled reports.</p>
+            <p className="text-sm text-[var(--st-text-secondary)]">No scheduled reports.</p>
           ) : (
             <Table>
               <TableHeader>
@@ -75,9 +75,9 @@ export default async function SchedulesPage() {
               </TableHeader>
               <TableBody>
                 {schedules.map((s) => (
-                  <tr key={s._id} className="border-t border-zoru-line">
+                  <tr key={s._id} className="border-t border-[var(--st-border)]">
                     <td className="py-2">{s.name}</td>
-                    <td className="py-2 text-zoru-ink-muted">{s.workbookId}</td>
+                    <td className="py-2 text-[var(--st-text-secondary)]">{s.workbookId}</td>
                     <td className="py-2 font-mono text-xs">{s.cron}</td>
                     <td className="py-2">
                       <Badge variant="outline">{s.format}</Badge>
@@ -85,7 +85,7 @@ export default async function SchedulesPage() {
                     <td className="py-2">
                       <Badge variant="outline">{s.status}</Badge>
                     </td>
-                    <td className="py-2 text-zoru-ink-muted">{s.lastRunAt ?? '—'}</td>
+                    <td className="py-2 text-[var(--st-text-secondary)]">{s.lastRunAt ?? '—'}</td>
                   </tr>
                 ))}
               </TableBody>

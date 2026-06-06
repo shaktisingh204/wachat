@@ -87,63 +87,63 @@ export function StructureFormDialog({ isOpen, onOpenChange, onSave, structure }:
         return (
             <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                    <h4 className="text-[13px] font-medium text-zoru-ink capitalize">{type}s</h4>
+                    <h4 className="text-[13px] font-medium text-[var(--st-text)] capitalize">{type}s</h4>
                     <Button type="button" variant="outline" size="sm" onClick={() => addComponent(type)}>
                         <Plus className="h-3.5 w-3.5" />
                         Add {type}
                     </Button>
                 </div>
                 {filtered.length === 0 && (
-                    <p className="rounded-lg border border-dashed border-zoru-line p-3 text-center text-[12.5px] text-zoru-ink-muted">
+                    <p className="rounded-lg border border-dashed border-[var(--st-border)] p-3 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No {type}s defined yet.
                     </p>
                 )}
                 {filtered.map(comp => (
-                    <div key={comp._uiId} className="grid grid-cols-[1fr_auto_auto_auto_auto] items-end gap-2 rounded-lg border border-zoru-line bg-zoru-surface-2 p-3">
+                    <div key={comp._uiId} className="grid grid-cols-[1fr_auto_auto_auto_auto] items-end gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3">
                         <div className="space-y-1">
-                            <Label className="text-[11.5px] text-zoru-ink-muted">Component Name</Label>
+                            <Label className="text-[11.5px] text-[var(--st-text-secondary)]">Component Name</Label>
                             <Input
                                 placeholder={type === 'earning' ? 'e.g. Basic Pay' : 'e.g. Prof. Tax'}
                                 value={comp.name}
                                 onChange={e => updateComponent(comp._uiId, 'name', e.target.value)}
-                                className="h-9 rounded-lg border-zoru-line bg-zoru-surface text-[13px]"
+                                className="h-9 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px]"
                             />
                         </div>
                         <div className="space-y-1">
-                            <Label className="text-[11.5px] text-zoru-ink-muted">Calc. Type</Label>
+                            <Label className="text-[11.5px] text-[var(--st-text-secondary)]">Calc. Type</Label>
                             <RadioGroup
                                 value={comp.calculationType}
                                 onValueChange={val => updateComponent(comp._uiId, 'calculationType', val)}
                                 className="flex h-9 items-center gap-3"
                             >
-                                <label className="flex items-center gap-1 cursor-pointer text-[12.5px] text-zoru-ink">
+                                <label className="flex items-center gap-1 cursor-pointer text-[12.5px] text-[var(--st-text)]">
                                     <ZoruRadioGroupItem value="fixed" /> Fixed
                                 </label>
-                                <label className="flex items-center gap-1 cursor-pointer text-[12.5px] text-zoru-ink">
+                                <label className="flex items-center gap-1 cursor-pointer text-[12.5px] text-[var(--st-text)]">
                                     <ZoruRadioGroupItem value="percentage" /> %
                                 </label>
                             </RadioGroup>
                         </div>
                         <div className="space-y-1">
-                            <Label className="text-[11.5px] text-zoru-ink-muted">
+                            <Label className="text-[11.5px] text-[var(--st-text-secondary)]">
                                 {comp.calculationType === 'percentage' ? 'Rate (%)' : 'Amount (₹)'}
                             </Label>
                             <Input
                                 type="number"
                                 value={comp.value}
                                 onChange={e => updateComponent(comp._uiId, 'value', Number(e.target.value))}
-                                className="h-9 w-24 rounded-lg border-zoru-line bg-zoru-surface text-[13px]"
+                                className="h-9 w-24 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px]"
                             />
                         </div>
                         <div className="space-y-1">
-                            <Label className="text-[11.5px] text-zoru-ink-muted">Taxable</Label>
+                            <Label className="text-[11.5px] text-[var(--st-text-secondary)]">Taxable</Label>
                             <button
                                 type="button"
                                 onClick={() => updateComponent(comp._uiId, 'taxable', !comp.taxable)}
-                                className="flex h-9 items-center text-zoru-ink-muted hover:text-zoru-ink transition-colors"
+                                className="flex h-9 items-center text-[var(--st-text-secondary)] hover:text-[var(--st-text)] transition-colors"
                             >
                                 {comp.taxable
-                                    ? <CheckSquare className="h-4 w-4 text-zoru-primary" />
+                                    ? <CheckSquare className="h-4 w-4 text-[var(--st-text)]" />
                                     : <Square className="h-4 w-4" />
                                 }
                             </button>
@@ -153,7 +153,7 @@ export function StructureFormDialog({ isOpen, onOpenChange, onSave, structure }:
                             variant="ghost"
                             size="icon"
                             onClick={() => removeComponent(comp._uiId)}
-                            className="text-zoru-danger-ink hover:text-zoru-danger-ink"
+                            className="text-[var(--st-danger)] hover:text-[var(--st-danger)]"
                         >
                             <Trash2 className="h-4 w-4" />
                         </Button>
@@ -165,7 +165,7 @@ export function StructureFormDialog({ isOpen, onOpenChange, onSave, structure }:
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <ZoruDialogContent className="max-w-2xl bg-zoru-bg border-zoru-line">
+            <ZoruDialogContent className="max-w-2xl bg-[var(--st-bg)] border-[var(--st-border)]">
                 <form action={formAction}>
                     {isEditing && <input type="hidden" name="id" value={structure?._id.toString()} />}
                     <input type="hidden" name="components" value={JSON.stringify(components)} />
@@ -175,18 +175,18 @@ export function StructureFormDialog({ isOpen, onOpenChange, onSave, structure }:
                     <div className="max-h-[70vh] space-y-4 overflow-y-auto py-4 pr-2">
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label>Structure Name <span className="text-zoru-danger-ink">*</span></Label>
-                                <Input name="name" defaultValue={structure?.name} required className="h-10 rounded-lg border-zoru-line bg-zoru-surface text-[13px]" />
+                                <Label>Structure Name <span className="text-[var(--st-danger)]">*</span></Label>
+                                <Input name="name" defaultValue={structure?.name} required className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px]" />
                             </div>
                             <div className="space-y-2">
                                 <Label>Description</Label>
-                                <Input name="description" defaultValue={structure?.description} className="h-10 rounded-lg border-zoru-line bg-zoru-surface text-[13px]" />
+                                <Input name="description" defaultValue={structure?.description} className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px]" />
                             </div>
                         </div>
-                        <div className="rounded-lg border border-zoru-line bg-zoru-surface p-4 space-y-4">
+                        <div className="rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4 space-y-4">
                             {renderComponents('earning')}
                         </div>
-                        <div className="rounded-lg border border-zoru-line bg-zoru-surface p-4 space-y-4">
+                        <div className="rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4 space-y-4">
                             {renderComponents('deduction')}
                         </div>
                     </div>

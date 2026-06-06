@@ -163,14 +163,14 @@ function targetTypeMeta(type: SabwaScheduledTargetType): {
       return {
         label: "Group",
         badge: "secondary",
-        className: "border border-zoru-line bg-zoru-surface text-zoru-ink",
+        className: "border border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]",
         Icon: Users,
       };
     case "broadcast":
       return {
         label: "Broadcast",
         badge: "secondary",
-        className: "border border-zoru-line bg-zoru-surface text-zoru-ink",
+        className: "border border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]",
         Icon: Megaphone,
       };
     case "individual":
@@ -178,7 +178,7 @@ function targetTypeMeta(type: SabwaScheduledTargetType): {
       return {
         label: "Chat",
         badge: "default",
-        className: "border border-zoru-line bg-zoru-surface text-zoru-ink",
+        className: "border border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]",
         Icon: MessageSquare,
       };
   }
@@ -610,7 +610,7 @@ export function ScheduleDialog({
             <div
               role="group"
               aria-label="Recipient type"
-              className="grid w-full grid-cols-3 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-0.5"
+              className="grid w-full grid-cols-3 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-0.5"
             >
               {TARGET_KINDS.map(({ value, label, Icon }) => (
                 <Button
@@ -629,7 +629,7 @@ export function ScheduleDialog({
             </div>
 
             {/* Searchable picker — live chats list */}
-            <div className="mt-3 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-bg">
+            <div className="mt-3 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)]">
               <ZoruCommand
                 shouldFilter={false}
                 className="rounded-[var(--zoru-radius-sm)]"
@@ -647,7 +647,7 @@ export function ScheduleDialog({
                 />
                 <ZoruCommandList className="max-h-[200px]">
                   {chatsLoading && (
-                    <div className="px-3 py-2 text-xs text-zoru-ink-muted">
+                    <div className="px-3 py-2 text-xs text-[var(--st-text-secondary)]">
                       Loading chats…
                     </div>
                   )}
@@ -690,19 +690,19 @@ export function ScheduleDialog({
                             }}
                             disabled={alreadyPicked}
                           >
-                            <Icon className="h-4 w-4 shrink-0 text-zoru-ink-muted" />
+                            <Icon className="h-4 w-4 shrink-0 text-[var(--st-text-secondary)]" />
                             <div className="flex min-w-0 flex-col">
-                              <span className="truncate text-[13px] text-zoru-ink">
+                              <span className="truncate text-[13px] text-[var(--st-text)]">
                                 {name}
                               </span>
                               {phone !== name && (
-                                <span className="truncate text-[11px] text-zoru-ink-subtle">
+                                <span className="truncate text-[11px] text-[var(--st-text-tertiary)]">
                                   {phone}
                                 </span>
                               )}
                             </div>
                             {alreadyPicked && (
-                              <span className="ml-auto text-[10px] uppercase tracking-wide text-zoru-ink-subtle">
+                              <span className="ml-auto text-[10px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                                 Picked
                               </span>
                             )}
@@ -745,16 +745,16 @@ export function ScheduleDialog({
                   Add
                 </Button>
               </div>
-              <p className="text-[11px] text-zoru-ink-muted">
+              <p className="text-[11px] text-[var(--st-text-secondary)]">
                 Search and pick chats below, or paste a JID.
               </p>
               {jidInput.trim() && (
-                <p className="text-[11px] text-zoru-ink-subtle">
+                <p className="text-[11px] text-[var(--st-text-tertiary)]">
                   Will be added as{' '}
-                  <span className="font-medium text-zoru-ink">
+                  <span className="font-medium text-[var(--st-text)]">
                     {resolveJid(jidInput.trim())}
                   </span>{' '}
-                  <span className="font-mono text-zoru-ink-muted">
+                  <span className="font-mono text-[var(--st-text-secondary)]">
                     ({formatJid(jidInput.trim())})
                   </span>
                 </p>
@@ -785,7 +785,7 @@ export function ScheduleDialog({
                         type="button"
                         aria-label={`Remove ${resolvedName}`}
                         onClick={() => removeTarget(t.jid)}
-                        className="ml-0.5 rounded-full p-0.5 hover:bg-zoru-surface-2"
+                        className="ml-0.5 rounded-full p-0.5 hover:bg-[var(--st-bg-muted)]"
                       >
                         <X className="h-3 w-3" />
                       </button>
@@ -822,7 +822,7 @@ export function ScheduleDialog({
                 {mediaId ? "Replace attachment" : "Add attachment"}
               </SabFilePickerButton>
               {mediaId && (
-                <div className="flex items-center gap-1.5 rounded-full border border-zoru-line bg-zoru-surface px-2 py-0.5 text-xs text-zoru-ink">
+                <div className="flex items-center gap-1.5 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-0.5 text-xs text-[var(--st-text)]">
                   <span className="max-w-[16ch] truncate">
                     {mediaName ?? "Attachment"}
                   </span>
@@ -833,7 +833,7 @@ export function ScheduleDialog({
                       setMediaId(undefined);
                       setMediaName(undefined);
                     }}
-                    className="rounded-full p-0.5 hover:bg-zoru-surface-2"
+                    className="rounded-full p-0.5 hover:bg-[var(--st-bg-muted)]"
                   >
                     <X className="h-3 w-3" />
                   </button>
@@ -856,7 +856,7 @@ export function ScheduleDialog({
                     variant="outline"
                     className={cn(
                       "w-full justify-start text-left font-normal",
-                      !dateStr && "text-zoru-ink-muted",
+                      !dateStr && "text-[var(--st-text-secondary)]",
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
@@ -885,7 +885,7 @@ export function ScheduleDialog({
                 Time
               </Label>
               <div className="relative">
-                <Clock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+                <Clock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
                 <Input
                   id="schedule-time"
                   type="time"
@@ -936,9 +936,9 @@ export function ScheduleDialog({
                   key={opt}
                   htmlFor={`rec-${opt}`}
                   className={cn(
-                    "flex cursor-pointer items-center gap-2 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-bg px-2.5 py-1.5 text-xs capitalize text-zoru-ink",
+                    "flex cursor-pointer items-center gap-2 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2.5 py-1.5 text-xs capitalize text-[var(--st-text)]",
                     recurrence === opt &&
-                      "border-zoru-line-strong bg-zoru-surface",
+                      "border-[var(--st-border-strong)] bg-[var(--st-bg-secondary)]",
                   )}
                 >
                   <ZoruRadioGroupItem id={`rec-${opt}`} value={opt} />
@@ -954,7 +954,7 @@ export function ScheduleDialog({
                 className="font-mono text-xs"
               />
             )}
-            <p className="text-[11px] text-zoru-ink-muted">{cronPreview}</p>
+            <p className="text-[11px] text-[var(--st-text-secondary)]">{cronPreview}</p>
           </section>
 
           {/* ─── End condition ──────────────────────────────────────── */}
@@ -968,14 +968,14 @@ export function ScheduleDialog({
               >
                 <Label
                   htmlFor="end-never"
-                  className="flex cursor-pointer items-center gap-2 text-sm text-zoru-ink"
+                  className="flex cursor-pointer items-center gap-2 text-sm text-[var(--st-text)]"
                 >
                   <ZoruRadioGroupItem id="end-never" value="never" />
                   Never
                 </Label>
                 <Label
                   htmlFor="end-count"
-                  className="flex cursor-pointer items-center gap-2 text-sm text-zoru-ink"
+                  className="flex cursor-pointer items-center gap-2 text-sm text-[var(--st-text)]"
                 >
                   <ZoruRadioGroupItem id="end-count" value="count" />
                   After
@@ -993,7 +993,7 @@ export function ScheduleDialog({
                 </Label>
                 <Label
                   htmlFor="end-date"
-                  className="flex cursor-pointer items-center gap-2 text-sm text-zoru-ink"
+                  className="flex cursor-pointer items-center gap-2 text-sm text-[var(--st-text)]"
                 >
                   <ZoruRadioGroupItem id="end-date" value="date" />
                   On
@@ -1011,8 +1011,8 @@ export function ScheduleDialog({
 
           {/* ─── Errors ─────────────────────────────────────────────── */}
           {errors.length > 0 && (
-            <div className="rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-2.5">
-              <ul className="space-y-0.5 text-xs text-zoru-ink-muted">
+            <div className="rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2.5">
+              <ul className="space-y-0.5 text-xs text-[var(--st-text-secondary)]">
                 {errors.map((e) => (
                   <li key={e}>• {e}</li>
                 ))}

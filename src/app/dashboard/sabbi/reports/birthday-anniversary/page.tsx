@@ -138,8 +138,8 @@ export default async function BirthdayAnniversaryPage(props: PageProps) {
       {today.length > 0 ? (
         <Card className="p-6">
           <div className="mb-3 flex items-center gap-2">
-            <Cake className="h-4 w-4 text-zoru-ink" />
-            <h2 className="text-[16px] font-semibold text-zoru-ink">
+            <Cake className="h-4 w-4 text-[var(--st-text)]" />
+            <h2 className="text-[16px] font-semibold text-[var(--st-text)]">
               Today
             </h2>
             <Badge variant="info">{today.length}</Badge>
@@ -148,7 +148,7 @@ export default async function BirthdayAnniversaryPage(props: PageProps) {
             {today.map((r) => (
               <div
                 key={`${r.employeeId}-${r.kind}-today`}
-                className="flex items-center justify-between rounded-lg border border-zoru-line bg-zoru-surface px-3 py-2"
+                className="flex items-center justify-between rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
               >
                 <EntityRowLink
                   href={`/dashboard/crm/hr-payroll/employees/${r.employeeId}`}
@@ -167,18 +167,18 @@ export default async function BirthdayAnniversaryPage(props: PageProps) {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Card className="p-6">
           <div className="mb-3 flex items-center gap-2">
-            <Cake className="h-4 w-4 text-zoru-ink" />
-            <h2 className="text-[16px] font-semibold text-zoru-ink">
+            <Cake className="h-4 w-4 text-[var(--st-text)]" />
+            <h2 className="text-[16px] font-semibold text-[var(--st-text)]">
               Upcoming birthdays
             </h2>
             <Badge variant="outline">{birthdays.length}</Badge>
           </div>
           {birthdays.length === 0 ? (
-            <div className="py-8 text-center text-[13px] text-zoru-ink-muted">
+            <div className="py-8 text-center text-[13px] text-[var(--st-text-secondary)]">
               None in this window.
             </div>
           ) : (
-            <ul className="flex flex-col divide-y divide-zoru-line">
+            <ul className="flex flex-col divide-y divide-[var(--st-border)]">
               {birthdays.slice(0, 10).map((r) => (
                 <li
                   key={`${r.employeeId}-b`}
@@ -205,18 +205,18 @@ export default async function BirthdayAnniversaryPage(props: PageProps) {
 
         <Card className="p-6">
           <div className="mb-3 flex items-center gap-2">
-            <Gift className="h-4 w-4 text-zoru-ink" />
-            <h2 className="text-[16px] font-semibold text-zoru-ink">
+            <Gift className="h-4 w-4 text-[var(--st-text)]" />
+            <h2 className="text-[16px] font-semibold text-[var(--st-text)]">
               Upcoming anniversaries
             </h2>
             <Badge variant="outline">{anniversaries.length}</Badge>
           </div>
           {anniversaries.length === 0 ? (
-            <div className="py-8 text-center text-[13px] text-zoru-ink-muted">
+            <div className="py-8 text-center text-[13px] text-[var(--st-text-secondary)]">
               None in this window.
             </div>
           ) : (
-            <ul className="flex flex-col divide-y divide-zoru-line">
+            <ul className="flex flex-col divide-y divide-[var(--st-border)]">
               {anniversaries.slice(0, 10).map((r) => (
                 <li
                   key={`${r.employeeId}-a`}
@@ -243,23 +243,23 @@ export default async function BirthdayAnniversaryPage(props: PageProps) {
       </div>
 
       <Card className="p-0">
-        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+        <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <Table>
             <ZoruTableHeader>
-              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                <ZoruTableHead className="text-zoru-ink-muted">Employee</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Department</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Kind</ZoruTableHead>
-                <ZoruTableHead className="text-right text-zoru-ink-muted">Date</ZoruTableHead>
-                <ZoruTableHead className="text-right text-zoru-ink-muted">Years</ZoruTableHead>
+              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Employee</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Department</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Kind</ZoruTableHead>
+                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Date</ZoruTableHead>
+                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Years</ZoruTableHead>
               </ZoruTableRow>
             </ZoruTableHeader>
             <ZoruTableBody>
               {pageRows.length === 0 ? (
-                <ZoruTableRow className="border-zoru-line">
+                <ZoruTableRow className="border-[var(--st-border)]">
                   <ZoruTableCell
                     colSpan={5}
-                    className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                    className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     No upcoming events.
                   </ZoruTableCell>
@@ -268,7 +268,7 @@ export default async function BirthdayAnniversaryPage(props: PageProps) {
                 pageRows.map((r, i) => (
                   <ZoruTableRow
                     key={`${r.employeeId}-${r.kind}-${i}`}
-                    className="border-zoru-line"
+                    className="border-[var(--st-border)]"
                   >
                     <ZoruTableCell>
                       <EntityRowLink
@@ -276,7 +276,7 @@ export default async function BirthdayAnniversaryPage(props: PageProps) {
                         label={r.employeeName}
                       />
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-zoru-ink">
+                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                       <Badge variant="outline">{r.department}</Badge>
                     </ZoruTableCell>
                     <ZoruTableCell>
@@ -284,7 +284,7 @@ export default async function BirthdayAnniversaryPage(props: PageProps) {
                         {r.kind}
                       </Badge>
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
+                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
                       <div className="flex items-center justify-end gap-2">
                         <span>{safeFormatDate(r.date)}</span>
                         <Button variant="ghost" size="icon" className="h-6 w-6" title="Send Email Greeting">
@@ -292,7 +292,7 @@ export default async function BirthdayAnniversaryPage(props: PageProps) {
                         </Button>
                       </div>
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-zoru-ink-muted">
+                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text-secondary)]">
                       {r.years ?? '—'}
                     </ZoruTableCell>
                   </ZoruTableRow>

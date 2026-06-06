@@ -196,47 +196,47 @@ export default function SabChatAnalyticsPage() {
             <StatCard
               label="Total Conversations"
               value={data.totalChats.toLocaleString()}
-              icon={<MessageSquare className="h-4 w-4 text-zoru-ink-muted" />}
+              icon={<MessageSquare className="h-4 w-4 text-[var(--st-text-secondary)]" />}
               trend={{ value: 12, isPositive: true }}
             />
             <StatCard
               label="First Response Time"
               value={`${data.avgResponseTime}s`}
-              icon={<Clock className="h-4 w-4 text-zoru-ink-muted" />}
+              icon={<Clock className="h-4 w-4 text-[var(--st-text-secondary)]" />}
               trend={{ value: 5, isPositive: true }}
             />
             <StatCard
               label="Resolution Time"
               value="4m 20s" // mock new feature
-              icon={<Timer className="h-4 w-4 text-zoru-ink-muted" />}
+              icon={<Timer className="h-4 w-4 text-[var(--st-text-secondary)]" />}
               trend={{ value: 2, isPositive: false }}
             />
             <StatCard
               label="Customer Satisfaction"
               value={`${data.satisfaction}%`}
-              icon={<Smile className="h-4 w-4 text-zoru-ink-muted" />}
+              icon={<Smile className="h-4 w-4 text-[var(--st-text-secondary)]" />}
               trend={{ value: 1.5, isPositive: true }}
             />
             <StatCard
               label="Open Chats"
               value={data.openChats.toLocaleString()}
-              icon={<Inbox className="h-4 w-4 text-zoru-ink-muted" />}
+              icon={<Inbox className="h-4 w-4 text-[var(--st-text-secondary)]" />}
             />
             <StatCard
               label="Closed Chats"
               value={data.closedChats.toLocaleString()}
-              icon={<CheckCircle className="h-4 w-4 text-zoru-ink-muted" />}
+              icon={<CheckCircle className="h-4 w-4 text-[var(--st-text-secondary)]" />}
             />
             <StatCard
               label="Abandoned Chats"
               value="14" // mock new feature
-              icon={<ZapOff className="h-4 w-4 text-zoru-ink-muted" />}
+              icon={<ZapOff className="h-4 w-4 text-[var(--st-text-secondary)]" />}
               trend={{ value: 8, isPositive: false }}
             />
             <StatCard
               label="AI Resolution Rate"
               value="34%" // mock new feature
-              icon={<Monitor className="h-4 w-4 text-zoru-ink-muted" />}
+              icon={<Monitor className="h-4 w-4 text-[var(--st-text-secondary)]" />}
               trend={{ value: 14, isPositive: true }}
             />
           </div>
@@ -276,9 +276,9 @@ export default function SabChatAnalyticsPage() {
                   </ZoruChart.PieChart>
                 </ZoruChartContainer>
                 <div className="flex gap-4 mt-4 w-full justify-center">
-                  <div className="flex items-center gap-1.5"><Smile className="h-4 w-4 text-zoru-success" /><span className="text-sm font-medium">75%</span></div>
-                  <div className="flex items-center gap-1.5"><Meh className="h-4 w-4 text-zoru-warning" /><span className="text-sm font-medium">15%</span></div>
-                  <div className="flex items-center gap-1.5"><Frown className="h-4 w-4 text-zoru-destructive" /><span className="text-sm font-medium">10%</span></div>
+                  <div className="flex items-center gap-1.5"><Smile className="h-4 w-4 text-[var(--st-status-ok)]" /><span className="text-sm font-medium">75%</span></div>
+                  <div className="flex items-center gap-1.5"><Meh className="h-4 w-4 text-[var(--st-warn)]" /><span className="text-sm font-medium">15%</span></div>
+                  <div className="flex items-center gap-1.5"><Frown className="h-4 w-4 text-[var(--st-danger)]" /><span className="text-sm font-medium">10%</span></div>
                 </div>
               </ZoruCardContent>
             </Card>
@@ -309,20 +309,20 @@ export default function SabChatAnalyticsPage() {
                 <div className="space-y-6">
                   <div>
                     <div className="flex justify-between text-sm mb-2 font-medium">
-                      <span className="flex items-center gap-2"><Monitor className="h-4 w-4 text-zoru-ink-muted" /> Desktop</span>
+                      <span className="flex items-center gap-2"><Monitor className="h-4 w-4 text-[var(--st-text-secondary)]" /> Desktop</span>
                       <span>65%</span>
                     </div>
-                    <div className="h-3 w-full bg-zoru-surface-2 rounded-full overflow-hidden">
-                      <div className="h-full bg-zoru-ink" style={{ width: '65%' }}></div>
+                    <div className="h-3 w-full bg-[var(--st-bg-muted)] rounded-full overflow-hidden">
+                      <div className="h-full bg-[var(--st-text)]" style={{ width: '65%' }}></div>
                     </div>
                   </div>
                   <div>
                     <div className="flex justify-between text-sm mb-2 font-medium">
-                      <span className="flex items-center gap-2"><Smartphone className="h-4 w-4 text-zoru-ink-muted" /> Mobile</span>
+                      <span className="flex items-center gap-2"><Smartphone className="h-4 w-4 text-[var(--st-text-secondary)]" /> Mobile</span>
                       <span>35%</span>
                     </div>
-                    <div className="h-3 w-full bg-zoru-surface-2 rounded-full overflow-hidden">
-                      <div className="h-full bg-zoru-ink-muted" style={{ width: '35%' }}></div>
+                    <div className="h-3 w-full bg-[var(--st-bg-muted)] rounded-full overflow-hidden">
+                      <div className="h-full bg-[var(--st-text-secondary)]" style={{ width: '35%' }}></div>
                     </div>
                   </div>
                 </div>
@@ -349,14 +349,14 @@ export default function SabChatAnalyticsPage() {
 
           {/* Agent Leaderboard */}
           <Card className="overflow-hidden p-0">
-            <div className="p-5 border-b border-zoru-line flex items-center justify-between">
+            <div className="p-5 border-b border-[var(--st-border)] flex items-center justify-between">
               <div>
                 <ZoruCardTitle>Agent Performance Leaderboard</ZoruCardTitle>
                 <ZoruPageDescription className="mt-1">Resolution metrics broken down by individual agent.</ZoruPageDescription>
               </div>
             </div>
             <Table>
-              <ZoruTableHeader className="bg-zoru-surface-2/30">
+              <ZoruTableHeader className="bg-[var(--st-bg-muted)]/30">
                 <ZoruTableRow>
                   <ZoruTableHead>Agent</ZoruTableHead>
                   <ZoruTableHead className="text-right">Chats Resolved</ZoruTableHead>
@@ -373,16 +373,16 @@ export default function SabChatAnalyticsPage() {
                           <ZoruAvatarFallback>{agent.name.charAt(0)}</ZoruAvatarFallback>
                         </Avatar>
                         <div>
-                          <div className="font-medium text-zoru-ink">{agent.name}</div>
-                          <div className="text-xs text-zoru-ink-muted">{agent.email}</div>
+                          <div className="font-medium text-[var(--st-text)]">{agent.name}</div>
+                          <div className="text-xs text-[var(--st-text-secondary)]">{agent.email}</div>
                         </div>
                       </div>
                     </ZoruTableCell>
                     <ZoruTableCell className="text-right font-medium">{agent.chats}</ZoruTableCell>
-                    <ZoruTableCell className="text-right text-zoru-ink-muted">{agent.time}</ZoruTableCell>
+                    <ZoruTableCell className="text-right text-[var(--st-text-secondary)]">{agent.time}</ZoruTableCell>
                     <ZoruTableCell className="text-right">
                       <Badge variant="outline" className={cn(
-                        agent.csat > 90 ? "bg-zoru-surface-2 text-zoru-ink border-zoru-line" : "bg-zoru-surface-2 text-zoru-ink border-zoru-line"
+                        agent.csat > 90 ? "bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]" : "bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]"
                       )}>
                         {agent.csat}%
                       </Badge>

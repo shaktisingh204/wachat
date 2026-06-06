@@ -308,9 +308,9 @@ export default function TeamChatPage() {
         const node = messageNodeRefs.current[messageId];
         if (node) {
             node.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            node.classList.add('ring-2', 'ring-zoru-ink/40');
+            node.classList.add('ring-2', 'ring-[var(--st-text)]/40');
             setTimeout(() => {
-                node.classList.remove('ring-2', 'ring-zoru-ink/40');
+                node.classList.remove('ring-2', 'ring-[var(--st-text)]/40');
             }, 1500);
         }
     }, []);
@@ -405,7 +405,7 @@ export default function TeamChatPage() {
             <div className="flex flex-col gap-6">
                 <Card className="p-10 text-center">
                     <Badge variant="danger">Restricted</Badge>
-                    <p className="mt-3 text-[13px] text-zoru-ink-muted">
+                    <p className="mt-3 text-[13px] text-[var(--st-text-secondary)]">
                         You don&apos;t have permission to view Team Chat.
                     </p>
                 </Card>
@@ -457,8 +457,8 @@ export default function TeamChatPage() {
 
             <Card className="flex h-[640px] overflow-hidden p-0">
                 {/* ─── Sidebar ─────────────────── */}
-                <div className="flex w-[300px] shrink-0 flex-col border-r border-zoru-line bg-zoru-surface-2">
-                    <div className="border-b border-zoru-line p-3">
+                <div className="flex w-[300px] shrink-0 flex-col border-r border-[var(--st-border)] bg-[var(--st-bg-muted)]">
+                    <div className="border-b border-[var(--st-border)] p-3">
                         <Input
                             leadingSlot={<Search className="h-3.5 w-3.5" strokeWidth={2} />}
                             placeholder="Search conversations"
@@ -467,7 +467,7 @@ export default function TeamChatPage() {
                         />
                     </div>
 
-                    <div className="border-b border-zoru-line p-2">
+                    <div className="border-b border-[var(--st-border)] p-2">
                         <Button
                             type="button"
                             variant="outline"
@@ -483,7 +483,7 @@ export default function TeamChatPage() {
                     <div className="flex-1 overflow-auto">
                         <SidebarGroupLabel label="Conversations" />
                         {channelsLoading ? (
-                            <div className="p-3 text-[12px] text-zoru-ink-muted">Loading…</div>
+                            <div className="p-3 text-[12px] text-[var(--st-text-secondary)]">Loading…</div>
                         ) : filteredChannels.length ? (
                             filteredChannels.map((c) => (
                                 <ChannelRow
@@ -495,12 +495,12 @@ export default function TeamChatPage() {
                                 />
                             ))
                         ) : (
-                            <div className="p-3 text-[12px] text-zoru-ink-muted">No conversations yet.</div>
+                            <div className="p-3 text-[12px] text-[var(--st-text-secondary)]">No conversations yet.</div>
                         )}
 
                         <SidebarGroupLabel label="Team members" />
                         {members.length === 0 ? (
-                            <div className="p-3 text-[12px] text-zoru-ink-muted">Invite someone to get started.</div>
+                            <div className="p-3 text-[12px] text-[var(--st-text-secondary)]">Invite someone to get started.</div>
                         ) : (
                             members.slice(0, 12).map((u) => {
                                 const uid = u._id.toString();
@@ -509,7 +509,7 @@ export default function TeamChatPage() {
                                         key={uid}
                                         type="button"
                                         onClick={() => onStartDm(uid)}
-                                        className="flex w-full items-center gap-3 px-3 py-2 text-left text-[12.5px] text-zoru-ink-muted hover:bg-zoru-bg"
+                                        className="flex w-full items-center gap-3 px-3 py-2 text-left text-[12.5px] text-[var(--st-text-secondary)] hover:bg-[var(--st-bg)]"
                                     >
                                         <div className="relative">
                                             <Dot name={u.name || u.email} />
@@ -518,8 +518,8 @@ export default function TeamChatPage() {
                                             </span>
                                         </div>
                                         <div className="flex min-w-0 flex-col">
-                                            <span className="truncate text-zoru-ink">{u.name}</span>
-                                            <span className="truncate text-[11px] text-zoru-ink-muted">{u.email}</span>
+                                            <span className="truncate text-[var(--st-text)]">{u.name}</span>
+                                            <span className="truncate text-[11px] text-[var(--st-text-secondary)]">{u.email}</span>
                                         </div>
                                     </button>
                                 );
@@ -546,9 +546,9 @@ export default function TeamChatPage() {
                                     canEdit={canSend}
                                 />
                             ) : null}
-                            <div className="flex-1 space-y-3 overflow-auto bg-zoru-surface-2/60 px-5 py-4">
+                            <div className="flex-1 space-y-3 overflow-auto bg-[var(--st-bg-muted)]/60 px-5 py-4">
                                 {messagesLoading ? (
-                                    <div className="flex h-full items-center justify-center text-[12.5px] text-zoru-ink-muted">
+                                    <div className="flex h-full items-center justify-center text-[12.5px] text-[var(--st-text-secondary)]">
                                         Loading messages…
                                     </div>
                                 ) : messages.length === 0 ? (
@@ -568,7 +568,7 @@ export default function TeamChatPage() {
                             </div>
 
                             {canSend ? (
-                                <form onSubmit={onSend} className="border-t border-zoru-line bg-zoru-bg p-3">
+                                <form onSubmit={onSend} className="border-t border-[var(--st-border)] bg-[var(--st-bg)] p-3">
                                     <ComposerExtras
                                         value={input}
                                         candidates={mentionCandidates}
@@ -579,7 +579,7 @@ export default function TeamChatPage() {
                                             {attachmentQueue.map((a, i) => (
                                                 <div
                                                     key={i}
-                                                    className="inline-flex items-center gap-1.5 rounded-full border border-zoru-line bg-zoru-surface-2 px-2 h-6 text-[11.5px]"
+                                                    className="inline-flex items-center gap-1.5 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2 h-6 text-[11.5px]"
                                                 >
                                                     <ImageIcon className="h-3 w-3" />
                                                     <span className="max-w-[160px] truncate">{a.filename}</span>
@@ -588,7 +588,7 @@ export default function TeamChatPage() {
                                                         onClick={() =>
                                                             setAttachmentQueue((prev) => prev.filter((_, idx) => idx !== i))
                                                         }
-                                                        className="text-zoru-ink-muted hover:text-zoru-danger-ink"
+                                                        className="text-[var(--st-text-secondary)] hover:text-[var(--st-danger)]"
                                                         aria-label="Remove"
                                                     >
                                                         <X className="h-3 w-3" />
@@ -652,13 +652,13 @@ export default function TeamChatPage() {
                                     </div>
                                 </form>
                             ) : (
-                                <div className="border-t border-zoru-line bg-zoru-bg px-5 py-3 text-[12px] text-zoru-ink-muted">
+                                <div className="border-t border-[var(--st-border)] bg-[var(--st-bg)] px-5 py-3 text-[12px] text-[var(--st-text-secondary)]">
                                     You have view-only access to this chat.
                                 </div>
                             )}
                         </>
                     ) : (
-                        <div className="flex flex-1 flex-col items-center justify-center gap-3 text-zoru-ink-muted">
+                        <div className="flex flex-1 flex-col items-center justify-center gap-3 text-[var(--st-text-secondary)]">
                             <MessageSquare className="h-8 w-8" strokeWidth={1.5} />
                             <p className="text-[13px]">Select a conversation or start a new one.</p>
                         </div>
@@ -694,7 +694,7 @@ export default function TeamChatPage() {
 
 function SidebarGroupLabel({ label }: { label: string }) {
     return (
-        <div className="px-3 py-2 text-[10.5px] uppercase tracking-[0.08em] text-zoru-ink-muted">
+        <div className="px-3 py-2 text-[10.5px] uppercase tracking-[0.08em] text-[var(--st-text-secondary)]">
             {label}
         </div>
     );
@@ -718,12 +718,12 @@ function ChannelRow({
             type="button"
             onClick={onSelect}
             className={
-                'flex w-full items-center gap-3 border-b border-zoru-line px-3 py-2.5 text-left transition-colors ' +
-                (active ? 'bg-zoru-bg' : 'hover:bg-zoru-bg')
+                'flex w-full items-center gap-3 border-b border-[var(--st-border)] px-3 py-2.5 text-left transition-colors ' +
+                (active ? 'bg-[var(--st-bg)]' : 'hover:bg-[var(--st-bg)]')
             }
         >
             {channel.type === 'group' ? (
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                     <Users className="h-4 w-4" strokeWidth={2} />
                 </span>
             ) : (
@@ -731,14 +731,14 @@ function ChannelRow({
             )}
             <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between gap-2">
-                    <div className="truncate text-[13px] text-zoru-ink">{title}</div>
+                    <div className="truncate text-[13px] text-[var(--st-text)]">{title}</div>
                     {channel.lastMessage ? (
-                        <span className="shrink-0 text-[10.5px] text-zoru-ink-muted">
+                        <span className="shrink-0 text-[10.5px] text-[var(--st-text-secondary)]">
                             {formatDistanceToNowStrict(new Date(channel.lastMessage.createdAt), { addSuffix: false })}
                         </span>
                     ) : null}
                 </div>
-                <div className="truncate text-[11.5px] text-zoru-ink-muted">
+                <div className="truncate text-[11.5px] text-[var(--st-text-secondary)]">
                     {channel.lastMessage ? channel.lastMessage.content : 'No messages yet'}
                 </div>
             </div>
@@ -793,9 +793,9 @@ function ChannelHeader({
               ? ''
               : other?.name || '';
     return (
-        <div className="flex items-center gap-3 border-b border-zoru-line bg-zoru-bg px-5 py-3">
+        <div className="flex items-center gap-3 border-b border-[var(--st-border)] bg-[var(--st-bg)] px-5 py-3">
             {channel.type === 'group' ? (
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                     <Users className="h-4 w-4" strokeWidth={2} />
                 </span>
             ) : (
@@ -809,8 +809,8 @@ function ChannelHeader({
                 </div>
             )}
             <div className="flex-1">
-                <div className="text-[14px] text-zoru-ink">{title}</div>
-                <div className="text-[11.5px] text-zoru-ink-muted">{subtitle}</div>
+                <div className="text-[14px] text-[var(--st-text)]">{title}</div>
+                <div className="text-[11.5px] text-[var(--st-text-secondary)]">{subtitle}</div>
             </div>
             <Button
                 type="button"
@@ -828,7 +828,7 @@ function ChannelHeader({
 
 function EmptyConversation({ channel, meId }: { channel: TeamChannelView; meId?: string }) {
     return (
-        <div className="flex h-full flex-col items-center justify-center gap-2 text-zoru-ink-muted">
+        <div className="flex h-full flex-col items-center justify-center gap-2 text-[var(--st-text-secondary)]">
             <MessageSquare className="h-6 w-6" strokeWidth={1.5} />
             <p className="text-[12.5px]">
                 {channel.type === 'group'
@@ -860,10 +860,10 @@ function renderMessagesWithDateDividers(
         const d = new Date(m.createdAt);
         if (!lastDate || !isSameDay(lastDate, d)) {
             out.push(
-                <div key={`d-${m._id.toString()}`} className="flex items-center gap-2 py-1 text-[10.5px] text-zoru-ink-muted">
-                    <div className="h-px flex-1 bg-zoru-line" />
+                <div key={`d-${m._id.toString()}`} className="flex items-center gap-2 py-1 text-[10.5px] text-[var(--st-text-secondary)]">
+                    <div className="h-px flex-1 bg-[var(--st-border)]" />
                     <span>{format(d, 'EEE, MMM d')}</span>
-                    <div className="h-px flex-1 bg-zoru-line" />
+                    <div className="h-px flex-1 bg-[var(--st-border)]" />
                 </div>,
             );
             lastDate = d;
@@ -903,8 +903,8 @@ function MessageRow({
                 className={
                     'relative max-w-[80%] rounded-lg px-3 py-2 text-[13px] shadow-sm ' +
                     (mine
-                        ? 'bg-zoru-ink text-zoru-bg'
-                        : 'border border-zoru-line bg-zoru-bg text-zoru-ink')
+                        ? 'bg-[var(--st-text)] text-[var(--st-bg)]'
+                        : 'border border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)]')
                 }
             >
                 {/* Hover toolbar */}
@@ -912,13 +912,13 @@ function MessageRow({
                     className={
                         'absolute -top-3 ' +
                         (mine ? 'right-2' : 'left-2') +
-                        ' z-10 hidden gap-1 rounded-md border border-zoru-line bg-zoru-bg p-0.5 shadow-sm group-hover/message:flex'
+                        ' z-10 hidden gap-1 rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] p-0.5 shadow-sm group-hover/message:flex'
                     }
                 >
                     <button
                         type="button"
                         onClick={() => callbacks.onOpenThread(id)}
-                        className="rounded-md p-1 text-zoru-ink-muted hover:bg-zoru-surface-2"
+                        className="rounded-md p-1 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)]"
                         aria-label="Reply in thread"
                         title="Reply in thread"
                     >
@@ -927,7 +927,7 @@ function MessageRow({
                     <button
                         type="button"
                         onClick={() => callbacks.onTogglePin(id, isPinned)}
-                        className="rounded-md p-1 text-zoru-ink-muted hover:bg-zoru-surface-2"
+                        className="rounded-md p-1 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)]"
                         aria-label={isPinned ? 'Unpin' : 'Pin'}
                         title={isPinned ? 'Unpin' : 'Pin to channel'}
                     >
@@ -936,7 +936,7 @@ function MessageRow({
                     <button
                         type="button"
                         onClick={() => callbacks.onBookmark(id)}
-                        className="rounded-md p-1 text-zoru-ink-muted hover:bg-zoru-surface-2"
+                        className="rounded-md p-1 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)]"
                         aria-label="Save"
                         title="Save for later"
                     >
@@ -945,7 +945,7 @@ function MessageRow({
                 </div>
 
                 {isPinned ? (
-                    <div className={'mb-1 inline-flex items-center gap-1 text-[10px] ' + (mine ? 'text-zoru-bg/80' : 'text-zoru-ink-muted')}>
+                    <div className={'mb-1 inline-flex items-center gap-1 text-[10px] ' + (mine ? 'text-[var(--st-bg)]/80' : 'text-[var(--st-text-secondary)]')}>
                         <Pin className="h-2.5 w-2.5" /> Pinned
                     </div>
                 ) : null}
@@ -982,21 +982,21 @@ function MessageRow({
                         className={
                             'mt-1.5 inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[11px] ' +
                             (mine
-                                ? 'border-zoru-bg/30 bg-zoru-bg/10 text-zoru-bg hover:bg-zoru-bg/20'
-                                : 'border-zoru-line bg-zoru-surface-2 text-zoru-ink hover:bg-zoru-bg')
+                                ? 'border-[var(--st-bg)]/30 bg-[var(--st-bg)]/10 text-[var(--st-bg)] hover:bg-[var(--st-bg)]/20'
+                                : 'border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)] hover:bg-[var(--st-bg)]')
                         }
                     >
                         <MessageCircleReply className="h-3 w-3" />
                         {replyCount} {replyCount === 1 ? 'reply' : 'replies'}
                         {lastReplyAt ? (
-                            <span className={mine ? 'text-zoru-bg/70' : 'text-zoru-ink-muted'}>
+                            <span className={mine ? 'text-[var(--st-bg)]/70' : 'text-[var(--st-text-secondary)]'}>
                                 · {format(new Date(lastReplyAt), 'p')}
                             </span>
                         ) : null}
                     </button>
                 ) : null}
 
-                <div className={'mt-1 text-[10px] ' + (mine ? 'text-zoru-bg/70' : 'text-zoru-ink-muted')}>
+                <div className={'mt-1 text-[10px] ' + (mine ? 'text-[var(--st-bg)]/70' : 'text-[var(--st-text-secondary)]')}>
                     {format(new Date(message.createdAt), 'p')}
                 </div>
             </div>
@@ -1018,7 +1018,7 @@ function Attachment({
                 <img
                     src={attachment.url}
                     alt={attachment.name}
-                    className="max-h-[240px] rounded-md border border-zoru-line object-contain"
+                    className="max-h-[240px] rounded-md border border-[var(--st-border)] object-contain"
                 />
             </a>
         );
@@ -1031,8 +1031,8 @@ function Attachment({
             className={
                 'inline-flex items-center gap-2 rounded-md border px-2 py-1.5 text-[12px] ' +
                 (mine
-                    ? 'border-zoru-bg/30 bg-zoru-bg/10 text-zoru-bg'
-                    : 'border-zoru-line bg-zoru-surface-2 text-zoru-ink')
+                    ? 'border-[var(--st-bg)]/30 bg-[var(--st-bg)]/10 text-[var(--st-bg)]'
+                    : 'border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)]')
             }
         >
             <Paperclip className="h-3 w-3" />
@@ -1092,7 +1092,7 @@ function NewGroupDialog({
                         <ZoruDialogTitle>New group chat</ZoruDialogTitle>
                     </ZoruDialogHeader>
                     <div>
-                        <label className="text-[11.5px] uppercase tracking-[0.06em] text-zoru-ink-muted">
+                        <label className="text-[11.5px] uppercase tracking-[0.06em] text-[var(--st-text-secondary)]">
                             Group name
                         </label>
                         <Input
@@ -1104,12 +1104,12 @@ function NewGroupDialog({
                         />
                     </div>
                     <div>
-                        <label className="text-[11.5px] uppercase tracking-[0.06em] text-zoru-ink-muted">
+                        <label className="text-[11.5px] uppercase tracking-[0.06em] text-[var(--st-text-secondary)]">
                             Members ({picked.size} selected)
                         </label>
-                        <div className="mt-1.5 max-h-[240px] overflow-auto rounded-lg border border-zoru-line">
+                        <div className="mt-1.5 max-h-[240px] overflow-auto rounded-lg border border-[var(--st-border)]">
                             {members.length === 0 ? (
-                                <div className="p-3 text-[12px] text-zoru-ink-muted">No teammates yet.</div>
+                                <div className="p-3 text-[12px] text-[var(--st-text-secondary)]">No teammates yet.</div>
                             ) : (
                                 members.map((u) => {
                                     const id = u._id.toString();
@@ -1118,8 +1118,8 @@ function NewGroupDialog({
                                         <label
                                             key={id}
                                             className={
-                                                'flex cursor-pointer items-center gap-3 border-b border-zoru-line px-3 py-2 last:border-b-0 text-[12.5px] ' +
-                                                (on ? 'bg-zoru-surface-2/60' : 'hover:bg-zoru-surface-2')
+                                                'flex cursor-pointer items-center gap-3 border-b border-[var(--st-border)] px-3 py-2 last:border-b-0 text-[12.5px] ' +
+                                                (on ? 'bg-[var(--st-bg-muted)]/60' : 'hover:bg-[var(--st-bg-muted)]')
                                             }
                                         >
                                             <input
@@ -1133,12 +1133,12 @@ function NewGroupDialog({
                                                         return next;
                                                     });
                                                 }}
-                                                className="h-4 w-4 rounded border-zoru-line accent-zoru-ink"
+                                                className="h-4 w-4 rounded border-[var(--st-border)] accent-[var(--st-text)]"
                                             />
                                             <Dot name={u.name || u.email} />
                                             <div className="min-w-0">
-                                                <div className="truncate text-zoru-ink">{u.name}</div>
-                                                <div className="truncate text-[11px] text-zoru-ink-muted">{u.email}</div>
+                                                <div className="truncate text-[var(--st-text)]">{u.name}</div>
+                                                <div className="truncate text-[11px] text-[var(--st-text-secondary)]">{u.email}</div>
                                             </div>
                                         </label>
                                     );

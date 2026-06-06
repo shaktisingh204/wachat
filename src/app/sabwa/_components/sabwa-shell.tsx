@@ -42,17 +42,17 @@ export function SabwaShell({ user, plan, children }: SabwaShellProps) {
 
   const caption = React.useMemo(() => {
     if (!current)
-      return <span className="text-zoru-ink-muted">No account active</span>;
+      return <span className="text-[var(--st-text-secondary)]">No account active</span>;
     const statusColor =
       current.status === "connected"
-        ? "bg-zoru-success"
+        ? "bg-[var(--st-status-ok)]"
         : current.status === "pending" ||
             current.status === "pairing" ||
             current.status === "syncing"
-          ? "bg-zoru-warning"
+          ? "bg-[var(--st-warn)]"
           : current.status === "banned" || current.status === "error"
-            ? "bg-zoru-danger"
-            : "bg-zoru-ink-muted";
+            ? "bg-[var(--st-danger)]"
+            : "bg-[var(--st-text-secondary)]";
     const label =
       current.label?.trim() ||
       current.pushName?.trim() ||

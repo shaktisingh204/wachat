@@ -92,8 +92,8 @@ export default function KioskSignPage() {
     return (
       <div className="min-h-screen flex items-center justify-center p-6">
         <Card className="p-6 max-w-md">
-          <h2 className="text-lg font-semibold text-zoru-ink">Cannot open kiosk session</h2>
-          <p className="text-sm text-zoru-ink-muted mt-2">{error}</p>
+          <h2 className="text-lg font-semibold text-[var(--st-text)]">Cannot open kiosk session</h2>
+          <p className="text-sm text-[var(--st-text-secondary)] mt-2">{error}</p>
         </Card>
       </div>
     );
@@ -103,8 +103,8 @@ export default function KioskSignPage() {
     return (
       <div className="min-h-screen flex items-center justify-center p-6">
         <Card className="p-6 max-w-md text-center">
-          <h2 className="text-lg font-semibold text-zoru-ink">Thank you</h2>
-          <p className="text-sm text-zoru-ink-muted mt-2">{done}</p>
+          <h2 className="text-lg font-semibold text-[var(--st-text)]">Thank you</h2>
+          <p className="text-sm text-[var(--st-text-secondary)] mt-2">{done}</p>
         </Card>
       </div>
     );
@@ -112,7 +112,7 @@ export default function KioskSignPage() {
 
   if (!payload) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 text-sm text-zoru-ink-muted">
+      <div className="min-h-screen flex items-center justify-center p-6 text-sm text-[var(--st-text-secondary)]">
         Loading kiosk…
       </div>
     );
@@ -121,9 +121,9 @@ export default function KioskSignPage() {
   const fields = payload.fields.filter((f) => f.recipientRole === payload.signer.role);
 
   return (
-    <div className="min-h-screen bg-zoru-bg p-4">
+    <div className="min-h-screen bg-[var(--st-bg)] p-4">
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-4">
-        <Card className="overflow-hidden border border-zoru-line">
+        <Card className="overflow-hidden border border-[var(--st-border)]">
           {payload.docUrl ? (
             <iframe
               src={payload.docUrl}
@@ -131,17 +131,17 @@ export default function KioskSignPage() {
               className="w-full h-[80vh] block"
             />
           ) : (
-            <div className="p-8 text-sm text-zoru-ink-muted">No document URL.</div>
+            <div className="p-8 text-sm text-[var(--st-text-secondary)]">No document URL.</div>
           )}
         </Card>
         <div className="space-y-3">
-          <Card className="p-4 border border-zoru-line">
-            <h2 className="text-lg font-semibold text-zoru-ink">{payload.name}</h2>
-            <p className="text-sm text-zoru-ink-muted">
+          <Card className="p-4 border border-[var(--st-border)]">
+            <h2 className="text-lg font-semibold text-[var(--st-text)]">{payload.name}</h2>
+            <p className="text-sm text-[var(--st-text-secondary)]">
               Signing as <strong>{payload.signer.name}</strong> ({payload.signer.role})
             </p>
           </Card>
-          <Card className="p-4 border border-zoru-line space-y-2">
+          <Card className="p-4 border border-[var(--st-border)] space-y-2">
             <Label>PIN</Label>
             <Input
               type="password"
@@ -149,12 +149,12 @@ export default function KioskSignPage() {
               value={pin}
               onChange={(e) => setPin(e.target.value)}
             />
-            {error && <p className="text-xs text-zoru-ink">{error}</p>}
+            {error && <p className="text-xs text-[var(--st-text)]">{error}</p>}
           </Card>
-          <Card className="p-4 border border-zoru-line space-y-3">
-            <h3 className="text-sm font-medium text-zoru-ink">Fields</h3>
+          <Card className="p-4 border border-[var(--st-border)] space-y-3">
+            <h3 className="text-sm font-medium text-[var(--st-text)]">Fields</h3>
             {fields.length === 0 ? (
-              <p className="text-xs text-zoru-ink-muted">No additional fields.</p>
+              <p className="text-xs text-[var(--st-text-secondary)]">No additional fields.</p>
             ) : (
               fields.map((f) => (
                 <div key={f.id}>

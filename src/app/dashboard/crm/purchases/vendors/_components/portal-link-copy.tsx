@@ -21,13 +21,13 @@ export function PortalLinkCopy({ vendorId }: { vendorId: string }) {
     };
 
     return (
-        <div className="flex items-center gap-2 mt-4 p-3 rounded-lg border border-zoru-line bg-zoru-surface-2 text-[13px]">
-            <LinkIcon className="h-4 w-4 text-zoru-ink-muted shrink-0" />
-            <span className="truncate text-zoru-ink-muted flex-1">
+        <div className="flex items-center gap-2 mt-4 p-3 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[13px]">
+            <LinkIcon className="h-4 w-4 text-[var(--st-text-secondary)] shrink-0" />
+            <span className="truncate text-[var(--st-text-secondary)] flex-1">
                 {portalLink}
             </span>
             <Button variant="outline" size="sm" onClick={handleCopy} className="shrink-0 h-7 text-xs">
-                {copied ? <Check className="h-3.5 w-3.5 mr-1 text-zoru-ink" /> : <Copy className="h-3.5 w-3.5 mr-1" />}
+                {copied ? <Check className="h-3.5 w-3.5 mr-1 text-[var(--st-text)]" /> : <Copy className="h-3.5 w-3.5 mr-1" />}
                 {copied ? 'Copied' : 'Copy link'}
             </Button>
         </div>

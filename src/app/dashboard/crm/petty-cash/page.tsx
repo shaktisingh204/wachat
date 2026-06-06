@@ -115,7 +115,7 @@ export default function PettyCashPage() {
         </Button>
       }
     >
-      <React.Suspense fallback={<div className="h-64 w-full animate-pulse bg-zoru-surface-2 rounded-md" />}>
+      <React.Suspense fallback={<div className="h-64 w-full animate-pulse bg-[var(--st-bg-muted)] rounded-md" />}>
         <PettyCashContent />
       </React.Suspense>
     </EntityListShell>

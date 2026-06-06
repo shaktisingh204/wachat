@@ -322,7 +322,7 @@ export function AnnouncementsListClient({
                                 <ZoruSelectItem value="role">Role</ZoruSelectItem>
                             </ZoruSelectContent>
                         </Select>
-                        <label className="flex cursor-pointer items-center gap-1.5 text-[13px] text-zoru-ink">
+                        <label className="flex cursor-pointer items-center gap-1.5 text-[13px] text-[var(--st-text)]">
                             <Checkbox
                                 checked={pinnedOnly}
                                 onCheckedChange={(v) => setPinnedOnly(!!v)}
@@ -357,7 +357,7 @@ export function AnnouncementsListClient({
                 bulkBar={
                     selected.size > 0 ? (
                         <div className="flex flex-wrap items-center justify-between gap-2">
-                            <span className="text-[13px] text-zoru-ink-muted">
+                            <span className="text-[13px] text-[var(--st-text-secondary)]">
                                 {selected.size} selected
                             </span>
                             <div className="flex flex-wrap gap-2">
@@ -396,10 +396,10 @@ export function AnnouncementsListClient({
                 empty={
                     !loading && items.length === 0 ? (
                         <div className="flex flex-col items-center gap-3 p-4">
-                            <h3 className="text-base font-medium text-zoru-ink">
+                            <h3 className="text-base font-medium text-[var(--st-text)]">
                                 No announcements yet
                             </h3>
-                            <p className="max-w-sm text-sm text-zoru-ink-muted">
+                            <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                                 Draft and publish your first company announcement.
                             </p>
                             <Button asChild>
@@ -440,15 +440,15 @@ export function AnnouncementsListClient({
                         </div>
 
                         {/* Quick Actions */}
-                        <Card className="flex flex-col p-4 justify-center gap-3 shadow-none border-zoru-line bg-zoru-surface-2/50">
-                            <h3 className="text-[13px] font-medium text-zoru-ink-muted uppercase tracking-wider">Quick Actions</h3>
+                        <Card className="flex flex-col p-4 justify-center gap-3 shadow-none border-[var(--st-border)] bg-[var(--st-bg-muted)]/50">
+                            <h3 className="text-[13px] font-medium text-[var(--st-text-secondary)] uppercase tracking-wider">Quick Actions</h3>
                             <div className="flex flex-col sm:flex-row md:flex-col lg:flex-row gap-2">
-                                <Button variant="outline" size="sm" className="flex-1 justify-start bg-zoru-bg" asChild>
+                                <Button variant="outline" size="sm" className="flex-1 justify-start bg-[var(--st-bg)]" asChild>
                                     <Link href="/dashboard/sabconnect/announcements/new?audience=all">
                                         <Zap className="mr-2 h-3.5 w-3.5" /> Company Update
                                     </Link>
                                 </Button>
-                                <Button variant="outline" size="sm" className="flex-1 justify-start bg-zoru-bg" asChild>
+                                <Button variant="outline" size="sm" className="flex-1 justify-start bg-[var(--st-bg)]" asChild>
                                     <Link href="/dashboard/sabconnect/announcements/new?status=draft">
                                         <PenTool className="mr-2 h-3.5 w-3.5" /> Draft Post
                                     </Link>
@@ -458,9 +458,9 @@ export function AnnouncementsListClient({
                     </div>
 
                     {/* Table */}
-                    <div className="overflow-x-auto rounded-[var(--zoru-radius-lg)] border border-zoru-line">
+                    <div className="overflow-x-auto rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)]">
                         <table className="w-full min-w-[900px] text-[13px]">
-                            <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
+                            <thead className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                                 <tr>
                                     <th className="px-3 py-2">
                                         <Checkbox
@@ -488,12 +488,12 @@ export function AnnouncementsListClient({
                                     ))}
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-zoru-line bg-zoru-bg">
+                            <tbody className="divide-y divide-[var(--st-border)] bg-[var(--st-bg)]">
                                 {visible.length === 0 ? (
                                     <tr>
                                         <td
                                             colSpan={9}
-                                            className="p-6 text-center text-zoru-ink-muted"
+                                            className="p-6 text-center text-[var(--st-text-secondary)]"
                                         >
                                             No announcements match the current filters.
                                         </td>
@@ -505,7 +505,7 @@ export function AnnouncementsListClient({
                                         'neutral';
                                     const checked = selected.has(a._id);
                                     return (
-                                        <tr key={a._id} className="hover:bg-zoru-surface">
+                                        <tr key={a._id} className="hover:bg-[var(--st-bg-secondary)]">
                                             <td className="px-3 py-2">
                                                 <Checkbox
                                                     aria-label={`Select ${a.title}`}
@@ -519,10 +519,10 @@ export function AnnouncementsListClient({
                                                     label={a.title}
                                                 />
                                             </td>
-                                            <td className="px-3 py-2 text-zoru-ink-muted">
+                                            <td className="px-3 py-2 text-[var(--st-text-secondary)]">
                                                 {a.authorName ?? a.authorId ?? '—'}
                                             </td>
-                                            <td className="px-3 py-2 capitalize text-zoru-ink-muted">
+                                            <td className="px-3 py-2 capitalize text-[var(--st-text-secondary)]">
                                                 {a.audience ?? '—'}
                                             </td>
                                             <td className="px-3 py-2">
@@ -531,16 +531,16 @@ export function AnnouncementsListClient({
                                                         <Pin className="h-3 w-3" /> Pinned
                                                     </Badge>
                                                 ) : (
-                                                    <span className="text-zoru-ink-muted">—</span>
+                                                    <span className="text-[var(--st-text-secondary)]">—</span>
                                                 )}
                                             </td>
-                                            <td className="px-3 py-2 text-zoru-ink-muted">
+                                            <td className="px-3 py-2 text-[var(--st-text-secondary)]">
                                                 {fmtDate(a.publishedAt ?? a.publishAt)}
                                             </td>
                                             <td className="px-3 py-2">
                                                 <StatusPill label={a.status} tone={tone} />
                                             </td>
-                                            <td className="px-3 py-2 text-zoru-ink-muted">
+                                            <td className="px-3 py-2 text-[var(--st-text-secondary)]">
                                                 {a.viewCount ?? '—'}
                                             </td>
                                             <td className="px-3 py-2 text-right">

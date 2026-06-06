@@ -60,7 +60,7 @@ export default function UrlToIpPage() {
     return (
       <div className="mt-4 first:mt-0">
         <div className="text-sm font-semibold mb-2">{title}</div>
-        <ul className="font-mono text-xs space-y-1 bg-zoru-surface-2/50 p-3 rounded-md">
+        <ul className="font-mono text-xs space-y-1 bg-[var(--st-bg-muted)]/50 p-3 rounded-md">
           {Array.isArray(data) ? data.map((item, i) => {
             if (type === 'MX' && item.exchange) {
               return <li key={i} className="border-t py-1.5 first:border-0 border-muted/80">{item.priority} {item.exchange}</li>;
@@ -98,8 +98,8 @@ export default function UrlToIpPage() {
       </div>
       
       {error && (
-        <Card className="border-zoru-line mt-4">
-          <ZoruCardContent className="p-4 text-zoru-ink text-sm">
+        <Card className="border-[var(--st-border)] mt-4">
+          <ZoruCardContent className="p-4 text-[var(--st-text)] text-sm">
             {error}
           </ZoruCardContent>
         </Card>
@@ -121,7 +121,7 @@ export default function UrlToIpPage() {
             {renderSection('SOA Record', result.records.SOA, 'SOA')}
             
             {(Array.isArray(result.records.A) && result.records.A.length > 0) && (
-              <div className="text-xs text-zoru-ink-muted pt-4 mt-4 border-t border-muted">
+              <div className="text-xs text-[var(--st-text-secondary)] pt-4 mt-4 border-t border-muted">
                 Note: GeoIP location requires an offline MaxMind database or paid API, which is not included in this local-only mode. The IPs shown above indicate the precise server addresses.
               </div>
             )}

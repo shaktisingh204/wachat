@@ -12,10 +12,10 @@ export function EstimateAction({
     <div className="lg:col-span-2">
       <div className="sticky top-6 flex flex-col gap-5">
         <div className="flex items-center gap-3">
-          <span className="rounded bg-zoru-surface-2 border border-zoru-line px-2 py-0.5 font-mono text-[11px] font-bold text-zoru-ink uppercase">
+          <span className="rounded bg-[var(--st-bg-muted)] border border-[var(--st-border)] px-2 py-0.5 font-mono text-[11px] font-bold text-[var(--st-text)] uppercase">
             POST
           </span>
-          <span className="font-mono text-[13px] text-zoru-ink tracking-tight">
+          <span className="font-mono text-[13px] text-[var(--st-text)] tracking-tight">
             /v1/estimates/{token.slice(0, 8)}.../accept
           </span>
         </div>
@@ -30,20 +30,20 @@ export function EstimateAction({
                 <h3 className="text-[14px] font-bold font-mono uppercase text-success-ink tracking-tight">
                   // ESTIMATE.ACCEPTED
                 </h3>
-                <p className="mt-1 text-[12.5px] text-zoru-ink-muted">
+                <p className="mt-1 text-[12.5px] text-[var(--st-text-secondary)]">
                   Estimate accepted. A support representative will follow up soon.
                 </p>
               </div>
-              <div className="mt-4 w-full rounded border border-zoru-line bg-zoru-surface p-3 text-left font-mono text-[11px] leading-relaxed shadow-inner">
-                <span className="text-zoru-ink-muted">{"{"}</span>
+              <div className="mt-4 w-full rounded border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 text-left font-mono text-[11px] leading-relaxed shadow-inner">
+                <span className="text-[var(--st-text-secondary)]">{"{"}</span>
                 <div className="pl-4">
-                  <span className="text-zoru-ink">&quot;status&quot;</span>: <span className="text-zoru-ink">&quot;accepted&quot;</span>,
+                  <span className="text-[var(--st-text)]">&quot;status&quot;</span>: <span className="text-[var(--st-text)]">&quot;accepted&quot;</span>,
                   <br />
-                  <span className="text-zoru-ink">&quot;code&quot;</span>: <span className="text-zoru-ink">200</span>,
+                  <span className="text-[var(--st-text)]">&quot;code&quot;</span>: <span className="text-[var(--st-text)]">200</span>,
                   <br />
-                  <span className="text-zoru-ink">&quot;message&quot;</span>: <span className="text-zoru-ink">&quot;Transition to quoted successful&quot;</span>
+                  <span className="text-[var(--st-text)]">&quot;message&quot;</span>: <span className="text-[var(--st-text)]">&quot;Transition to quoted successful&quot;</span>
                 </div>
-                <span className="text-zoru-ink-muted">{"}"}</span>
+                <span className="text-[var(--st-text-secondary)]">{"}"}</span>
               </div>
             </ZoruCardContent>
           </Card>

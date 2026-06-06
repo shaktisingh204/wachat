@@ -11,6 +11,8 @@ import {
   Input,
   Textarea,
   Skeleton,
+  Alert,
+  Badge,
   useToast,
 } from '@/components/sabcrm/20ui';
 import {
@@ -21,7 +23,12 @@ import {
 import { Loader2,
   Phone,
   Save,
-  Sparkles } from 'lucide-react';
+  Sparkles,
+  KeyRound,
+  ShieldCheck,
+  UploadCloud,
+  Copy,
+  Check } from 'lucide-react';
 
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import { useProject } from '@/context/project-context';
@@ -29,6 +36,13 @@ import {
   getPhoneNumberProfiles,
   updatePhoneProfile,
   } from '@/app/actions/wachat-features.actions';
+import {
+  handleSetDisplayName,
+  getDisplayNameStatus,
+  handleGenerateFlowsEncryption,
+  handleUploadFlowsEncryption,
+  type DisplayNameStatusResult,
+} from '@/app/actions/whatsapp.actions';
 import { handleGenerateBusinessDescription } from '@/app/actions/ai-actions';
 
 /**
@@ -40,6 +54,26 @@ import * as React from 'react';
 
 function cx(...a: Array<string | false | null | undefined>): string {
   return a.filter(Boolean).join(' ');
+}
+
+/** Map a Meta review-state string to a 20ui Badge tone. */
+function statusTone(
+  status?: string | null,
+): 'success' | 'warning' | 'danger' | 'neutral' {
+  const s = (status || '').toUpperCase();
+  if (s === 'APPROVED' || s === 'AVAILABLE' || s === 'UPLOADED') return 'success';
+  if (s.includes('PENDING') || s === 'NOT_UPLOADED') return 'warning';
+  if (s.includes('DECLINED') || s.includes('REJECT') || s === 'FAILED') return 'danger';
+  return 'neutral';
+}
+
+/** Human-friendly label for a review-state string. */
+function statusLabel(status?: string | null): string {
+  if (!status) return 'Unknown';
+  return status
+    .replace(/_/g, ' ')
+    .toLowerCase()
+    .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 export default function PhoneNumberSettingsPage() {
@@ -57,6 +91,20 @@ export default function PhoneNumberSettingsPage() {
   // Edit-display-name dialog
   const [displayNameOpen, setDisplayNameOpen] = useState(false);
   const [draftDisplayName, setDraftDisplayName] = useState('');
+  const [isSubmittingName, setIsSubmittingName] = useState(false);
+
+  // Live display-name review status (per selected number)
+  const [nameStatus, setNameStatus] = useState<DisplayNameStatusResult | null>(null);
+  const [nameStatusError, setNameStatusError] = useState<string | null>(null);
+  const [isLoadingNameStatus, setIsLoadingNameStatus] = useState(false);
+
+  // Flows encryption
+  const [flowsPublicKey, setFlowsPublicKey] = useState<string | null>(null);
+  const [flowsMetaStatus, setFlowsMetaStatus] = useState<string | null>(null);
+  const [flowsError, setFlowsError] = useState<string | null>(null);
+  const [isGeneratingKeys, setIsGeneratingKeys] = useState(false);
+  const [isUploadingKey, setIsUploadingKey] = useState(false);
+  const [keyCopied, setKeyCopied] = useState(false);
 
   const fetchPhones = useCallback(
     (pid: string) => {
@@ -90,6 +138,25 @@ export default function PhoneNumberSettingsPage() {
     if (projectId) fetchPhones(projectId);
   }, [projectId, fetchPhones]);
 
+  const phoneIdOf = (p: any): string | undefined =>
+    (p?.id || p?._id)?.toString();
+
+  const loadNameStatus = useCallback(
+    async (pid: string, phoneNumberId: string) => {
+      setIsLoadingNameStatus(true);
+      setNameStatusError(null);
+      const res = await getDisplayNameStatus(pid, phoneNumberId);
+      setIsLoadingNameStatus(false);
+      if (res.error) {
+        setNameStatus(null);
+        setNameStatusError(res.error);
+      } else {
+        setNameStatus(res.status);
+      }
+    },
+    [],
+  );
+
   const selectPhone = (idx: number) => {
     setSelectedIdx(idx);
     const p = phones[idx];
@@ -102,7 +169,23 @@ export default function PhoneNumberSettingsPage() {
         websites: Array.isArray(p.websites) ? p.websites.join(', ') : (p.websites || ''),
       });
     }
+    // Reset per-number Wave-E panels so we never show stale state.
+    setNameStatus(null);
+    setNameStatusError(null);
+    setFlowsPublicKey(null);
+    setFlowsMetaStatus(null);
+    setFlowsError(null);
+    setKeyCopied(false);
   };
+
+  // Load the live display-name review status whenever the selected number changes.
+  useEffect(() => {
+    const phone = phones[selectedIdx];
+    const phoneNumberId = phoneIdOf(phone);
+    if (projectId && phoneNumberId) {
+      void loadNameStatus(projectId, phoneNumberId);
+    }
+  }, [projectId, phones, selectedIdx, loadNameStatus]);
 
   const handleSave = async () => {
     const phone = phones[selectedIdx];
@@ -191,6 +274,98 @@ export default function PhoneNumberSettingsPage() {
         title: 'Success',
         description: 'Business description generated successfully.',
         tone: 'success',
+      });
+    }
+  };
+
+  // ── Display name: submit change for review ──
+  const submitDisplayName = async () => {
+    const phone = phones[selectedIdx];
+    const phoneNumberId = phoneIdOf(phone);
+    if (!projectId || !phoneNumberId) return;
+
+    setIsSubmittingName(true);
+    const res = await handleSetDisplayName(projectId, phoneNumberId, draftDisplayName);
+    setIsSubmittingName(false);
+
+    if (!res.success) {
+      toast({
+        title: 'Could not submit',
+        description: res.error || 'Display name change failed.',
+        tone: 'danger',
+      });
+      return;
+    }
+    toast({
+      title: 'Submitted for review',
+      description: res.message || `"${draftDisplayName.trim()}" submitted for review.`,
+      tone: 'success',
+    });
+    setDisplayNameOpen(false);
+    // Refresh the live status so the pending badge appears immediately.
+    void loadNameStatus(projectId, phoneNumberId);
+  };
+
+  // ── Flows encryption: generate keypair ──
+  const generateFlowsKeys = async () => {
+    const phone = phones[selectedIdx];
+    const phoneNumberId = phoneIdOf(phone);
+    if (!projectId || !phoneNumberId) return;
+
+    setIsGeneratingKeys(true);
+    setFlowsError(null);
+    const res = await handleGenerateFlowsEncryption(projectId, phoneNumberId);
+    setIsGeneratingKeys(false);
+
+    if (!res.success) {
+      setFlowsError(res.error || 'Key generation failed.');
+      return;
+    }
+    setFlowsPublicKey(res.publicKey || null);
+    setFlowsMetaStatus(res.metaStatus || 'NOT_UPLOADED');
+    setKeyCopied(false);
+    toast({
+      title: 'Keypair generated',
+      description: res.message || 'Encryption keypair generated.',
+      tone: 'success',
+    });
+  };
+
+  // ── Flows encryption: upload public key to Meta ──
+  const uploadFlowsKey = async () => {
+    const phone = phones[selectedIdx];
+    const phoneNumberId = phoneIdOf(phone);
+    if (!projectId || !phoneNumberId) return;
+
+    setIsUploadingKey(true);
+    setFlowsError(null);
+    const res = await handleUploadFlowsEncryption(projectId, phoneNumberId);
+    setIsUploadingKey(false);
+
+    if (!res.success) {
+      setFlowsError(res.error || 'Upload to Meta failed.');
+      setFlowsMetaStatus('FAILED');
+      return;
+    }
+    setFlowsMetaStatus(res.metaStatus || 'UPLOADED');
+    toast({
+      title: 'Uploaded to Meta',
+      description: res.message || 'Public key uploaded to Meta.',
+      tone: 'success',
+    });
+  };
+
+  const copyPublicKey = async () => {
+    if (!flowsPublicKey) return;
+    try {
+      await navigator.clipboard.writeText(flowsPublicKey);
+      setKeyCopied(true);
+      setTimeout(() => setKeyCopied(false), 2000);
+    } catch {
+      toast({
+        title: 'Copy failed',
+        description: 'Could not copy the public key to the clipboard.',
+        tone: 'danger',
       });
     }
   };

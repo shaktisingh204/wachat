@@ -95,7 +95,7 @@ export function AiSuggestions({ onSuggestionSelect }: AiSuggestionsProps) {
               {suggestions.map((suggestion, index) => (
                 <div
                   key={index}
-                  className="p-3 text-sm border rounded-md cursor-pointer hover:bg-zoru-surface-2 hover:text-zoru-ink"
+                  className="p-3 text-sm border rounded-md cursor-pointer hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
                   onClick={() => handleSuggestionClick(suggestion)}
                 >
                   {suggestion}

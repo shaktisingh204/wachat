@@ -43,7 +43,7 @@ export default function AdsListPage() {
         <Suspense 
           fallback={
             <div className="flex h-[200px] items-center justify-center">
-              <Loader2 className="h-6 w-6 animate-spin text-zoru-ink-muted" />
+              <Loader2 className="h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
             </div>
           }
         >

@@ -287,3 +287,63 @@ pub struct DeleteByIdBody {
 // ---------------------------------------------------------------------------
 
 pub type TemplatesList = Vec<Template>;
+
+// ---------------------------------------------------------------------------
+// `POST /multilang/clone` — create one copy of a source template per
+// target language via Meta.
+// ---------------------------------------------------------------------------
+
+/// Body for `POST /multilang/clone`.
+///
+/// Exactly one of `source_template_id` / `source_template_name` must be
+/// provided to identify the source; `target_languages` lists the Meta
+/// locale codes (`en_US`, `hi`, `pt_BR`, …) to create copies in.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MultiLangCloneBody {
+    pub project_id: String,
+    #[serde(default)]
+    pub source_template_id: Option<String>,
+    #[serde(default)]
+    pub source_template_name: Option<String>,
+    #[serde(default)]
+    pub target_languages: Vec<String>,
+}
+
+/// Per-language clone outcome — `status` is one of `created`, `failed`,
+/// or `skipped`; `error` carries the reason for non-`created` rows.
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CloneOutcome {
+    pub language: String,
+    pub status: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub error: Option<String>,
+    /// Meta-assigned template id on success.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub meta_id: Option<String>,
+}
+
+impl CloneOutcome {
+    /// Build a `failed` outcome with a reason.
+    pub fn failed(language: impl Into<String>, error: impl Into<String>) -> Self {
+        Self {
+            language: language.into(),
+            status: "failed".to_owned(),
+            error: Some(error.into()),
+            meta_id: None,
+        }
+    }
+}
+
+/// Response for `POST /multilang/clone` — the per-language outcome array
+/// plus convenience counts and an echo of the resolved source.
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MultiLangCloneResult {
+    pub source_name: String,
+    pub source_language: String,
+    pub created: usize,
+    pub failed: usize,
+    pub outcomes: Vec<CloneOutcome>,
+}

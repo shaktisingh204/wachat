@@ -51,7 +51,7 @@ export function CohortTile({
         <div className="flex items-center gap-2 text-xs">
           <Link
             href={drilldownHref}
-            className="text-zoru-ink-muted hover:text-zoru-ink"
+            className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
           >
             Open in logs
           </Link>
@@ -64,14 +64,14 @@ export function CohortTile({
       </ZoruCardHeader>
       <ZoruCardContent>
         {rows.size === 0 ? (
-          <p className="py-12 text-center text-sm text-zoru-ink-muted">
+          <p className="py-12 text-center text-sm text-[var(--st-text-secondary)]">
             Not enough data to compute cohorts.
           </p>
         ) : (
           <div className="space-y-1">
             {Array.from(rows.entries()).map(([cohort, list]) => (
               <div key={cohort} className="flex items-center gap-2">
-                <span className="w-20 font-mono text-xs text-zoru-ink-muted">
+                <span className="w-20 font-mono text-xs text-[var(--st-text-secondary)]">
                   {cohort}
                 </span>
                 <div className="flex flex-1 gap-1">
@@ -82,7 +82,7 @@ export function CohortTile({
                       <div
                         key={`${cohort}-${c.weekOffset}`}
                         title={`${cohort} · w+${c.weekOffset}: ${c.retained}`}
-                        className="h-6 flex-1 rounded-sm border border-zoru-line"
+                        className="h-6 flex-1 rounded-sm border border-[var(--st-border)]"
                         style={{
                           backgroundColor: `hsl(var(--zoru-ink) / ${
                             0.08 + intensity * 0.72

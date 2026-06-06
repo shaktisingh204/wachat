@@ -86,13 +86,13 @@ export function EditQuotationClient({
         onChange={handleFormChange}
       >
         {lockWarning && (
-          <div className="rounded border border-zoru-danger bg-zoru-danger-bg p-4 text-sm text-zoru-danger-ink shadow-sm">
+          <div className="rounded border border-[var(--st-danger)] bg-[var(--st-danger-soft)] p-4 text-sm text-[var(--st-danger)] shadow-sm">
             <p className="font-semibold">Concurrent Edit Detected</p>
             <p>{lockWarning}</p>
           </div>
         )}
         
-        <div className="flex items-center justify-between rounded-md bg-zoru-line p-2 text-sm text-zoru-ink-muted">
+        <div className="flex items-center justify-between rounded-md bg-[var(--st-border)] p-2 text-sm text-[var(--st-text-secondary)]">
           <div className="flex items-center gap-2">
             <Save className="h-4 w-4" />
             {draftSavedAt ? (
@@ -128,8 +128,8 @@ export function EditQuotationClient({
         <div className="w-full xl:w-96 flex flex-col gap-6">
           {showPreview && (
             <Card className="flex flex-col overflow-hidden">
-              <div className="bg-zoru-line p-3 border-b border-zoru-line">
-                <h3 className="font-semibold text-sm text-zoru-ink flex items-center gap-2">
+              <div className="bg-[var(--st-border)] p-3 border-b border-[var(--st-border)]">
+                <h3 className="font-semibold text-sm text-[var(--st-text)] flex items-center gap-2">
                   <Eye className="h-4 w-4" />
                   Embedded Preview
                 </h3>
@@ -144,24 +144,24 @@ export function EditQuotationClient({
 
           {showHistory && (
             <Card className="flex flex-col">
-              <div className="bg-zoru-line p-3 border-b border-zoru-line">
-                <h3 className="font-semibold text-sm text-zoru-ink flex items-center gap-2">
+              <div className="bg-[var(--st-border)] p-3 border-b border-[var(--st-border)]">
+                <h3 className="font-semibold text-sm text-[var(--st-text)] flex items-center gap-2">
                   <History className="h-4 w-4" />
                   Revision History
                 </h3>
               </div>
               <div className="p-4 flex flex-col gap-4 text-sm">
-                <div className="border-l-2 border-zoru-primary pl-4 relative">
-                  <div className="absolute w-2.5 h-2.5 bg-zoru-primary rounded-full -left-[6px] top-1.5" />
+                <div className="border-l-2 border-[var(--st-text)] pl-4 relative">
+                  <div className="absolute w-2.5 h-2.5 bg-[var(--st-text)] rounded-full -left-[6px] top-1.5" />
                   <p className="font-medium">Current Version</p>
-                  <p className="text-zoru-ink-muted text-xs">You are editing this version.</p>
+                  <p className="text-[var(--st-text-secondary)] text-xs">You are editing this version.</p>
                 </div>
-                <div className="border-l-2 border-zoru-line pl-4 relative">
-                  <div className="absolute w-2.5 h-2.5 bg-zoru-line rounded-full -left-[6px] top-1.5" />
+                <div className="border-l-2 border-[var(--st-border)] pl-4 relative">
+                  <div className="absolute w-2.5 h-2.5 bg-[var(--st-border)] rounded-full -left-[6px] top-1.5" />
                   <p className="font-medium">Original Version</p>
-                  <p className="text-zoru-ink-muted text-xs">{initial.createdAt ? new Date(initial.createdAt).toLocaleString() : 'Unknown date'}</p>
+                  <p className="text-[var(--st-text-secondary)] text-xs">{initial.createdAt ? new Date(initial.createdAt).toLocaleString() : 'Unknown date'}</p>
                 </div>
-                <p className="text-xs text-zoru-ink-muted mt-2 italic">Note: Granular revision history is not yet available via API.</p>
+                <p className="text-xs text-[var(--st-text-secondary)] mt-2 italic">Note: Granular revision history is not yet available via API.</p>
               </div>
             </Card>
           )}

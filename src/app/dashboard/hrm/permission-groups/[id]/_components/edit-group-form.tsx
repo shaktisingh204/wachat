@@ -34,9 +34,9 @@ export function EditGroupForm({
   if (!group) {
     return (
       <div className="flex flex-col items-center gap-4 p-12 text-center">
-        <ShieldCheck className="h-10 w-10 text-zoru-ink-muted" aria-hidden="true" />
-        <h2 className="text-lg font-semibold text-zoru-ink">Group not found</h2>
-        <p className="text-[13px] text-zoru-ink-muted">
+        <ShieldCheck className="h-10 w-10 text-[var(--st-text-secondary)]" aria-hidden="true" />
+        <h2 className="text-lg font-semibold text-[var(--st-text)]">Group not found</h2>
+        <p className="text-[13px] text-[var(--st-text-secondary)]">
           This permission group may have been deleted.
         </p>
       </div>
@@ -56,7 +56,7 @@ export function EditGroupForm({
 
       <Card className="flex flex-col gap-4 p-5 print:hidden">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-zoru-ink">Module Permissions</h2>
+          <h2 className="text-sm font-semibold text-[var(--st-text)]">Module Permissions</h2>
           <Badge variant="secondary">
             {permissions.filter((p) => p.actions.length > 0).length} modules active
           </Badge>

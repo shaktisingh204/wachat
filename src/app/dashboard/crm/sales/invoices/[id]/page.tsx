@@ -173,15 +173,15 @@ async function RightRailSuspense({
           {invoice.clientId ? (
             <EntityPickerChip entity="client" id={invoice.clientId} />
           ) : (
-            <span className="text-zoru-ink-muted">No customer linked</span>
+            <span className="text-[var(--st-text-secondary)]">No customer linked</span>
           )}
-          <div className="flex items-center justify-between gap-2 border-t border-zoru-line pt-2">
-            <span className="text-zoru-ink-muted">Outstanding</span>
+          <div className="flex items-center justify-between gap-2 border-t border-[var(--st-border)] pt-2">
+            <span className="text-[var(--st-text-secondary)]">Outstanding</span>
             <span
               className={`font-mono tabular-nums ${
                 (invoice.balance ?? totals.total) > 0
-                  ? 'text-zoru-danger-ink'
-                  : 'text-zoru-ink'
+                  ? 'text-[var(--st-danger)]'
+                  : 'text-[var(--st-text)]'
               }`}
             >
               {fmtINR(invoice.balance ?? totals.total, currency)}
@@ -208,31 +208,31 @@ async function RightRailSuspense({
           />
           <div className="mt-3 space-y-1.5 text-[12.5px]">
             <div className="flex items-center justify-between gap-2">
-              <span className="text-zoru-ink-muted">Subtotal</span>
+              <span className="text-[var(--st-text-secondary)]">Subtotal</span>
               <span className="font-mono tabular-nums">
                 {fmtINR(totals.subTotal, currency)}
               </span>
             </div>
             <div className="flex items-center justify-between gap-2">
-              <span className="text-zoru-ink-muted">Total</span>
+              <span className="text-[var(--st-text-secondary)]">Total</span>
               <span className="font-mono tabular-nums">
                 {fmtINR(totals.total, currency)}
               </span>
             </div>
             <div className="flex items-center justify-between gap-2">
-              <span className="text-zoru-ink-muted">Paid</span>
+              <span className="text-[var(--st-text-secondary)]">Paid</span>
               <span className="font-mono tabular-nums">
                 {fmtINR(invoice.amountPaid ?? 0, currency)}
               </span>
             </div>
             <div className="flex items-center justify-between gap-2">
-              <span className="text-zoru-ink-muted">Created</span>
+              <span className="text-[var(--st-text-secondary)]">Created</span>
               <span>
                 {fmtDate(invoice.createdAt ?? invoice.audit?.createdAt)}
               </span>
             </div>
             <div className="flex items-center justify-between gap-2">
-              <span className="text-zoru-ink-muted">Updated</span>
+              <span className="text-[var(--st-text-secondary)]">Updated</span>
               <span>
                 {fmtDate(invoice.updatedAt ?? invoice.audit?.updatedAt)}
               </span>
@@ -251,9 +251,9 @@ async function RightRailSuspense({
             <Link
               key={item.label}
               href={item.href}
-              className="flex items-center justify-between rounded-md px-2 py-1.5 text-[13px] text-zoru-ink hover:bg-zoru-surface-2"
+              className="flex items-center justify-between rounded-md px-2 py-1.5 text-[13px] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
             >
-              <span className="inline-flex items-center gap-2 text-zoru-ink-muted">
+              <span className="inline-flex items-center gap-2 text-[var(--st-text-secondary)]">
                 {item.icon}
                 {item.label}
               </span>
@@ -307,11 +307,11 @@ async function DetailsAndTablesSuspense({
         </ZoruCardHeader>
         <ZoruCardContent>
           {related.receipts === 0 ? (
-            <p className="text-[13px] text-zoru-ink-muted">
+            <p className="text-[13px] text-[var(--st-text-secondary)]">
               No payment receipts applied yet.{' '}
               <Link
                 href={`/dashboard/crm/sales/receipts/new?fromKind=invoice&fromId=${invoiceId}`}
-                className="text-zoru-primary hover:underline"
+                className="text-[var(--st-text)] hover:underline"
               >
                 Record a payment
               </Link>
@@ -319,7 +319,7 @@ async function DetailsAndTablesSuspense({
           ) : (
             <Link
               href={`/dashboard/crm/sales/receipts?invoiceId=${invoiceId}`}
-              className="text-[13px] text-zoru-primary hover:underline"
+              className="text-[13px] text-[var(--st-text)] hover:underline"
             >
               View {related.receipts} receipt
               {related.receipts === 1 ? '' : 's'} applied to this invoice →
@@ -347,19 +347,19 @@ async function DetailsAndTablesSuspense({
           <ZoruCardContent>
             <div className="grid gap-4 md:grid-cols-2 text-[13px]">
               <p>
-                <span className="text-zoru-ink-muted">IRN:</span>{' '}
+                <span className="text-[var(--st-text-secondary)]">IRN:</span>{' '}
                 {invoice.eInvoice.irn || '—'}
               </p>
               <p>
-                <span className="text-zoru-ink-muted">Ack no:</span>{' '}
+                <span className="text-[var(--st-text-secondary)]">Ack no:</span>{' '}
                 {invoice.eInvoice.ackNo || '—'}
               </p>
               <p>
-                <span className="text-zoru-ink-muted">Ack date:</span>{' '}
+                <span className="text-[var(--st-text-secondary)]">Ack date:</span>{' '}
                 {fmtDate(invoice.eInvoice.ackDate)}
               </p>
               <p className="md:col-span-2">
-                <span className="text-zoru-ink-muted">QR string:</span>{' '}
+                <span className="text-[var(--st-text-secondary)]">QR string:</span>{' '}
                 <code className="break-all text-[11px]">
                   {invoice.eInvoice.qrString}
                 </code>
@@ -379,7 +379,7 @@ async function DetailsAndTablesSuspense({
             <div className="grid gap-4 md:grid-cols-2 text-[13px]">
               {invoice.customerNotes ? (
                 <div>
-                  <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+                  <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                     Customer notes
                   </div>
                   <p className="mt-1 whitespace-pre-wrap">
@@ -389,7 +389,7 @@ async function DetailsAndTablesSuspense({
               ) : null}
               {invoice.termsAndConditions ? (
                 <div>
-                  <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+                  <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                     Terms &amp; conditions
                   </div>
                   <p className="mt-1 whitespace-pre-wrap">
@@ -430,10 +430,10 @@ async function DetailsAndTablesSuspense({
             <div className="grid gap-4 md:grid-cols-2">
               {customFields.map((field) => (
                 <div key={String(field._id ?? field.name)}>
-                  <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+                  <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                     {field.label || field.name}
                   </div>
-                  <div className="mt-1 text-[13px] text-zoru-ink">
+                  <div className="mt-1 text-[13px] text-[var(--st-text)]">
                     <CustomFieldDisplay
                       field={field}
                       value={
@@ -496,7 +496,7 @@ export default async function InvoiceDetailPage({
     if (error) {
       return (
         <div className="flex w-full flex-col gap-4 p-6">
-          <p className="text-[14px] text-zoru-ink">
+          <p className="text-[14px] text-[var(--st-text)]">
             Couldn&apos;t load this invoice — {error}
           </p>
           <Button variant="outline" asChild>
@@ -659,9 +659,9 @@ export default async function InvoiceDetailPage({
       rightRail={
         <Suspense fallback={
           <div className="animate-pulse space-y-4">
-            <div className="h-28 bg-zoru-surface-2 rounded-lg dark:bg-zoru-ink/40"></div>
-            <div className="h-44 bg-zoru-surface-2 rounded-lg dark:bg-zoru-ink/40"></div>
-            <div className="h-40 bg-zoru-surface-2 rounded-lg dark:bg-zoru-ink/40"></div>
+            <div className="h-28 bg-[var(--st-bg-muted)] rounded-lg dark:bg-[var(--st-text)]/40"></div>
+            <div className="h-44 bg-[var(--st-bg-muted)] rounded-lg dark:bg-[var(--st-text)]/40"></div>
+            <div className="h-40 bg-[var(--st-bg-muted)] rounded-lg dark:bg-[var(--st-text)]/40"></div>
           </div>
         }>
           <RightRailSuspense
@@ -688,16 +688,16 @@ export default async function InvoiceDetailPage({
       </div>
 
       {/* Subtitle banner */}
-      <p className="text-[12.5px] text-zoru-ink-muted mb-4">
+      <p className="text-[12.5px] text-[var(--st-text-secondary)] mb-4">
         {subtitleParts.join(' · ')}
       </p>
 
       {/* Main Details and Tables section inside Suspense */}
       <Suspense fallback={
         <div className="animate-pulse space-y-6">
-          <div className="h-80 bg-zoru-surface-2 rounded-lg dark:bg-zoru-ink/40"></div>
-          <div className="h-28 bg-zoru-surface-2 rounded-lg dark:bg-zoru-ink/40"></div>
-          <div className="h-24 bg-zoru-surface-2 rounded-lg dark:bg-zoru-ink/40"></div>
+          <div className="h-80 bg-[var(--st-bg-muted)] rounded-lg dark:bg-[var(--st-text)]/40"></div>
+          <div className="h-28 bg-[var(--st-bg-muted)] rounded-lg dark:bg-[var(--st-text)]/40"></div>
+          <div className="h-24 bg-[var(--st-bg-muted)] rounded-lg dark:bg-[var(--st-text)]/40"></div>
         </div>
       }>
         <DetailsAndTablesSuspense
@@ -715,10 +715,10 @@ export default async function InvoiceDetailPage({
       <div className="mt-8">
         <Suspense fallback={
           <div className="animate-pulse space-y-4">
-            <div className="h-6 bg-zoru-surface-2 rounded w-1/4 dark:bg-zoru-ink/40"></div>
+            <div className="h-6 bg-[var(--st-bg-muted)] rounded w-1/4 dark:bg-[var(--st-text)]/40"></div>
             <div className="space-y-3">
-              <div className="h-4 bg-zoru-surface-2 rounded dark:bg-zoru-ink/40"></div>
-              <div className="h-4 bg-zoru-surface-2 rounded w-5/6 dark:bg-zoru-ink/40"></div>
+              <div className="h-4 bg-[var(--st-bg-muted)] rounded dark:bg-[var(--st-text)]/40"></div>
+              <div className="h-4 bg-[var(--st-bg-muted)] rounded w-5/6 dark:bg-[var(--st-text)]/40"></div>
             </div>
           </div>
         }>

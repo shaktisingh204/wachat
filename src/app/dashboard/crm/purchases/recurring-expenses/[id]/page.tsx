@@ -206,42 +206,42 @@ export default function RecurringExpenseDetailPage(props: {
     >
       <div className="grid gap-6 md:grid-cols-4">
         <Card className="p-4">
-          <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+          <div className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
             Runs
           </div>
-          <div className="mt-1 text-[18px] font-semibold text-zoru-ink">
+          <div className="mt-1 text-[18px] font-semibold text-[var(--st-text)]">
             {doc.run_count || 0}
             {doc.stop_at_count ? ` / ${doc.stop_at_count}` : ''}
           </div>
         </Card>
         <Card className="p-4">
-          <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+          <div className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
             Last run
           </div>
-          <div className="mt-1 text-[15px] font-medium text-zoru-ink">
+          <div className="mt-1 text-[15px] font-medium text-[var(--st-text)]">
             {fmtDate(doc.last_run_date)}
           </div>
         </Card>
         <Card className="p-4">
-          <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+          <div className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
             Next run
           </div>
-          <div className="mt-1 text-[15px] font-medium text-zoru-ink">
+          <div className="mt-1 text-[15px] font-medium text-[var(--st-text)]">
             {fmtDate(doc.next_run_date)}
           </div>
         </Card>
         <Card className="p-4">
-          <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+          <div className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
             Amount
           </div>
-          <div className="mt-1 text-[18px] font-semibold text-zoru-ink">
+          <div className="mt-1 text-[18px] font-semibold text-[var(--st-text)]">
             {fmtMoney(doc.amount, doc.currency)}
           </div>
         </Card>
       </div>
 
       <Card className="p-6">
-        <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Schedule
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
@@ -253,10 +253,10 @@ export default function RecurringExpenseDetailPage(props: {
           <Field label="Currency">{doc.currency || '—'}</Field>
           {doc.notes ? (
             <div className="md:col-span-2">
-              <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+              <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Notes
               </div>
-              <p className="mt-1 whitespace-pre-wrap text-[13px] text-zoru-ink">
+              <p className="mt-1 whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
                 {doc.notes}
               </p>
             </div>
@@ -265,11 +265,11 @@ export default function RecurringExpenseDetailPage(props: {
       </Card>
 
       <Card className="p-6">
-        <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Generated expenses ({generated.length})
         </h3>
         {generated.length === 0 ? (
-          <p className="text-[13px] text-zoru-ink-muted">
+          <p className="text-[13px] text-[var(--st-text-secondary)]">
             No expenses generated yet. Click <em>Run now</em> to record one.
           </p>
         ) : (
@@ -278,7 +278,7 @@ export default function RecurringExpenseDetailPage(props: {
               <li key={i}>
                 <Link
                   href={`/dashboard/crm/purchases/expenses/${String(expId)}`}
-                  className="font-mono text-zoru-primary hover:underline"
+                  className="font-mono text-[var(--st-text)] hover:underline"
                 >
                   {String(expId)}
                 </Link>
@@ -310,10 +310,10 @@ function Field({
 }) {
   return (
     <div>
-      <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
         {label}
       </div>
-      <div className="mt-1 text-[13px] text-zoru-ink">{children}</div>
+      <div className="mt-1 text-[13px] text-[var(--st-text)]">{children}</div>
     </div>
   );
 }

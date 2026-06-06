@@ -43,7 +43,7 @@ export default async function ClientPortalLayout({
     const brand = await getClientPortalBrand();
 
     return (
-        <div className="zoruui flex h-screen w-full overflow-hidden bg-zoru-bg text-zoru-ink">
+        <div className="zoruui flex h-screen w-full overflow-hidden bg-[var(--st-bg)] text-[var(--st-text)]">
             <ClientPortalSidebar />
             <div className="relative flex min-w-0 flex-1 flex-col">
                 <ClientPortalTopbar

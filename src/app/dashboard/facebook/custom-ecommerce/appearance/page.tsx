@@ -144,10 +144,10 @@ export default function CustomEcommerceAppearancePage() {
       <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)]">
         {/* ── Editor ── */}
         <Card className="p-5">
-          <h2 className="text-[15px] tracking-tight text-zoru-ink">
+          <h2 className="text-[15px] tracking-tight text-[var(--st-text)]">
             Palette presets
           </h2>
-          <p className="mt-1 text-[12px] text-zoru-ink-muted">
+          <p className="mt-1 text-[12px] text-[var(--st-text-secondary)]">
             Neutral-only — choose how dark the primary surface should be.
           </p>
 
@@ -160,12 +160,12 @@ export default function CustomEcommerceAppearancePage() {
                 className={
                   "flex items-center gap-2 rounded-[var(--zoru-radius)] border px-3 py-2 text-left text-[13px] transition-colors " +
                   (presetId === p.id
-                    ? "border-zoru-ink bg-zoru-surface-2 text-zoru-ink"
-                    : "border-zoru-line bg-zoru-bg text-zoru-ink-muted hover:bg-zoru-surface")
+                    ? "border-[var(--st-text)] bg-[var(--st-bg-muted)] text-[var(--st-text)]"
+                    : "border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)]")
                 }
               >
                 <span
-                  className="h-5 w-5 rounded-full border border-zoru-line"
+                  className="h-5 w-5 rounded-full border border-[var(--st-border)]"
                   style={{ backgroundColor: p.primary }}
                 />
                 {p.label}
@@ -183,7 +183,7 @@ export default function CustomEcommerceAppearancePage() {
               }}
               presets={NEUTRAL_PRESETS}
             />
-            <p className="text-[11.5px] text-zoru-ink-muted">
+            <p className="text-[11.5px] text-[var(--st-text-secondary)]">
               Used for primary buttons, links, and selection states inside
               shop storefronts.
             </p>
@@ -202,15 +202,15 @@ export default function CustomEcommerceAppearancePage() {
 
         {/* ── Preview ── */}
         <Card className="p-5">
-          <div className="flex items-center gap-2 text-[12px] text-zoru-ink-muted">
+          <div className="flex items-center gap-2 text-[12px] text-[var(--st-text-secondary)]">
             <Brush className="h-3.5 w-3.5" />
             Live preview
           </div>
-          <h3 className="mt-2 text-[18px] tracking-tight text-zoru-ink">
+          <h3 className="mt-2 text-[18px] tracking-tight text-[var(--st-text)]">
             Storefront preview
           </h3>
           <div
-            className="mt-4 rounded-[var(--zoru-radius-lg)] border border-zoru-line p-6"
+            className="mt-4 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] p-6"
             style={{
               backgroundColor: "var(--zoru-bg)",
               color: "var(--zoru-ink)",
@@ -232,10 +232,10 @@ export default function CustomEcommerceAppearancePage() {
               {[1, 2, 3].map((i) => (
                 <div
                   key={i}
-                  className="rounded-[var(--zoru-radius)] border border-zoru-line p-3"
+                  className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-3"
                 >
-                  <div className="aspect-square w-full rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2" />
-                  <p className="mt-2 truncate text-[12px] text-zoru-ink">
+                  <div className="aspect-square w-full rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)]" />
+                  <p className="mt-2 truncate text-[12px] text-[var(--st-text)]">
                     Sample product {i}
                   </p>
                   <p
@@ -248,9 +248,9 @@ export default function CustomEcommerceAppearancePage() {
               ))}
             </div>
           </div>
-          <p className="mt-3 text-[11.5px] text-zoru-ink-muted">
+          <p className="mt-3 text-[11.5px] text-[var(--st-text-secondary)]">
             Per-shop appearance lives at
-            <code className="mx-1 rounded bg-zoru-surface-2 px-1 py-0.5 text-[10.5px]">
+            <code className="mx-1 rounded bg-[var(--st-bg-muted)] px-1 py-0.5 text-[10.5px]">
               /manage/[shopId]/appearance
             </code>
             and overrides the default chosen here.

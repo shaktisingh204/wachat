@@ -84,7 +84,7 @@ export default function ShiftChangeRequestsPage() {
     <ErrorBoundary
       fallback={
         <EntityListShell title="Shift Change Requests" subtitle="Review and action employee requests to swap shifts.">
-          <Card className="flex flex-col items-center justify-center p-12 text-zoru-danger-ink">
+          <Card className="flex flex-col items-center justify-center p-12 text-[var(--st-danger)]">
             <AlertCircle className="mb-4 h-8 w-8" />
             <h2 className="text-lg font-medium">Failed to load data</h2>
             <p className="text-sm">Please try refreshing the page.</p>
@@ -95,7 +95,7 @@ export default function ShiftChangeRequestsPage() {
       <Suspense
         fallback={
           <EntityListShell title="Shift Change Requests" subtitle="Review and action employee requests to swap shifts.">
-            <Card className="flex h-64 items-center justify-center p-6 text-[13px] text-zoru-ink-muted">
+            <Card className="flex h-64 items-center justify-center p-6 text-[13px] text-[var(--st-text-secondary)]">
               Loading requests...
             </Card>
           </EntityListShell>
@@ -328,7 +328,7 @@ function ShiftChangeRequestsContent() {
     >
       <Card className="flex flex-col overflow-hidden p-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
-          <h2 className="text-[16px] text-zoru-ink">All Requests</h2>
+          <h2 className="text-[16px] text-[var(--st-text)]">All Requests</h2>
           <div className="flex flex-wrap items-center gap-3">
             {selectedIds.size > 0 && (
               <Button size="sm" variant="outline" onClick={handleBulkApprove}>
@@ -380,9 +380,9 @@ function ShiftChangeRequestsContent() {
           </div>
         </div>
 
-        <div className="rounded-lg border border-zoru-line flex flex-col">
+        <div className="rounded-lg border border-[var(--st-border)] flex flex-col">
           {/* Table Header */}
-          <div className="grid grid-cols-[auto_1fr_1fr_1fr_1fr_1.5fr_auto_auto] items-center gap-4 border-b border-zoru-line bg-zoru-surface-2 px-4 py-2.5 text-[12px] font-medium text-zoru-ink-muted">
+          <div className="grid grid-cols-[auto_1fr_1fr_1fr_1fr_1.5fr_auto_auto] items-center gap-4 border-b border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-2.5 text-[12px] font-medium text-[var(--st-text-secondary)]">
             <div className="w-4">
               <Checkbox 
                 checked={filteredRequests.length > 0 && selectedIds.size === filteredRequests.length}
@@ -401,7 +401,7 @@ function ShiftChangeRequestsContent() {
           {/* Virtualized List Body */}
           <div ref={parentRef} className="h-[500px] overflow-auto">
             {filteredRequests.length === 0 ? (
-              <div className="flex h-24 items-center justify-center text-[13px] text-zoru-ink-muted">
+              <div className="flex h-24 items-center justify-center text-[13px] text-[var(--st-text-secondary)]">
                 No shift change requests found.
               </div>
             ) : (
@@ -430,7 +430,7 @@ function ShiftChangeRequestsContent() {
                         height: `${virtualRow.size}px`,
                         transform: `translateY(${virtualRow.start}px)`,
                       }}
-                      className="grid grid-cols-[auto_1fr_1fr_1fr_1fr_1.5fr_auto_auto] items-center gap-4 border-b border-zoru-line px-4 py-2.5 hover:bg-zoru-surface-2/50"
+                      className="grid grid-cols-[auto_1fr_1fr_1fr_1fr_1.5fr_auto_auto] items-center gap-4 border-b border-[var(--st-border)] px-4 py-2.5 hover:bg-[var(--st-bg-muted)]/50"
                     >
                       <div className="w-4">
                         <Checkbox 
@@ -438,10 +438,10 @@ function ShiftChangeRequestsContent() {
                           onCheckedChange={() => toggleSelection(String(r._id))}
                         />
                       </div>
-                      <div className="truncate text-[13px] text-zoru-ink">
+                      <div className="truncate text-[13px] text-[var(--st-text)]">
                         {emp ? `${emp.firstName} ${emp.lastName}` : String(r.user_id)}
                       </div>
-                      <div className="truncate text-[13px] text-zoru-ink">
+                      <div className="truncate text-[13px] text-[var(--st-text)]">
                         <ClientDate date={r.date} />
                       </div>
                       <div className="truncate">
@@ -450,7 +450,7 @@ function ShiftChangeRequestsContent() {
                       <div className="truncate">
                         <ShiftCell shift={req} />
                       </div>
-                      <div className="truncate text-[12.5px] text-zoru-ink-muted">
+                      <div className="truncate text-[12.5px] text-[var(--st-text-secondary)]">
                         {r.reason || '—'}
                       </div>
                       <div>
@@ -475,7 +475,7 @@ function ShiftChangeRequestsContent() {
                             </Button>
                           </div>
                         ) : (
-                          <span className="text-[11.5px] text-zoru-ink-muted">—</span>
+                          <span className="text-[11.5px] text-[var(--st-text-secondary)]">—</span>
                         )}
                       </div>
                     </div>
@@ -511,12 +511,12 @@ function variant(s: WsShiftChangeStatus): 'warning' | 'success' | 'danger' {
 }
 
 function ShiftCell({ shift }: { shift?: WsEmployeeShift }) {
-  if (!shift) return <span className="text-[12.5px] text-zoru-ink-muted">—</span>;
+  if (!shift) return <span className="text-[12.5px] text-[var(--st-text-secondary)]">—</span>;
   return (
-    <span className="inline-flex items-center gap-2 text-[13px] text-zoru-ink">
+    <span className="inline-flex items-center gap-2 text-[13px] text-[var(--st-text)]">
       <span
         aria-hidden
-        className="inline-block h-3 w-3 rounded-[3px] border border-zoru-line flex-shrink-0"
+        className="inline-block h-3 w-3 rounded-[3px] border border-[var(--st-border)] flex-shrink-0"
         style={{ backgroundColor: shift.color_code || '#EAB308' }}
       />
       <span className="truncate">{shift.name}</span>

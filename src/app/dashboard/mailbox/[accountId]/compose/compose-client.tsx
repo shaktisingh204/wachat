@@ -60,7 +60,7 @@ function ChipInput({ id, label, values, onChange }: ChipInputProps) {
     return (
         <div className="flex flex-col gap-1.5">
             <Label htmlFor={id}>{label}</Label>
-            <div className="flex flex-wrap items-center gap-1 rounded-md border border-zoru-line bg-zoru-bg px-2 py-1.5">
+            <div className="flex flex-wrap items-center gap-1 rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-1.5">
                 {values.map((v) => (
                     <Badge key={v} variant="secondary" className="gap-1">
                         {v}
@@ -68,7 +68,7 @@ function ChipInput({ id, label, values, onChange }: ChipInputProps) {
                             type="button"
                             aria-label={`Remove ${v}`}
                             onClick={() => onChange(values.filter((x) => x !== v))}
-                            className="ml-0.5 hover:text-zoru-ink"
+                            className="ml-0.5 hover:text-[var(--st-text)]"
                         >
                             <X className="h-3 w-3" />
                         </button>
@@ -96,7 +96,7 @@ function ChipInput({ id, label, values, onChange }: ChipInputProps) {
                         }
                     }}
                     onBlur={() => draft.trim() && commit(draft)}
-                    className="min-w-[8rem] flex-1 bg-transparent text-sm outline-none placeholder:text-zoru-ink-muted"
+                    className="min-w-[8rem] flex-1 bg-transparent text-sm outline-none placeholder:text-[var(--st-text-secondary)]"
                     placeholder="email@example.com"
                 />
             </div>
@@ -252,14 +252,14 @@ export function ComposeClient({
                 <ZoruCardHeader>
                     <ZoruCardTitle className="flex items-center justify-between">
                         <span>New message</span>
-                        <span className="text-xs font-normal text-zoru-ink-muted">
+                        <span className="text-xs font-normal text-[var(--st-text-secondary)]">
                             {statusLabel[busy]}
                             {draftId && busy === 'idle' ? ' Draft saved' : ''}
                         </span>
                     </ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent className="flex flex-col gap-3">
-                    <div className="flex flex-wrap items-center gap-2 text-xs text-zoru-ink-muted">
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--st-text-secondary)]">
                         <span>From</span>
                         <Badge variant="secondary">
                             {fromName ? `${fromName} <${fromAddress}>` : fromAddress}
@@ -269,7 +269,7 @@ export function ComposeClient({
                     {!showCc && (
                         <button
                             type="button"
-                            className="self-start text-xs text-zoru-ink-muted hover:text-zoru-ink"
+                            className="self-start text-xs text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                             onClick={() => setShowCc(true)}
                         >
                             + Add Cc
@@ -279,7 +279,7 @@ export function ComposeClient({
                     {!showBcc && (
                         <button
                             type="button"
-                            className="self-start text-xs text-zoru-ink-muted hover:text-zoru-ink"
+                            className="self-start text-xs text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                             onClick={() => setShowBcc(true)}
                         >
                             + Add Bcc
@@ -323,7 +323,7 @@ export function ComposeClient({
                                                 prev.filter((x) => x.id !== a.id),
                                             )
                                         }
-                                        className="ml-0.5 hover:text-zoru-ink"
+                                        className="ml-0.5 hover:text-[var(--st-text)]"
                                     >
                                         <X className="h-3 w-3" />
                                     </button>

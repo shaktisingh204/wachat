@@ -48,8 +48,8 @@ export function ScorecardCreator({ candidateId }: { candidateId: string }) {
               onClick={() => setRating(star)}
               className={`flex h-8 w-8 items-center justify-center rounded-full border text-sm transition-colors ${
                 rating >= star
-                  ? 'border-zoru-ink bg-zoru-ink text-white dark:border-white dark:bg-white dark:text-black'
-                  : 'border-zoru-line text-zoru-ink hover:border-zoru-line dark:border-zoru-line'
+                  ? 'border-[var(--st-text)] bg-[var(--st-text)] text-white dark:border-white dark:bg-white dark:text-black'
+                  : 'border-[var(--st-border)] text-[var(--st-text)] hover:border-[var(--st-border)] dark:border-[var(--st-border)]'
               }`}
             >
               {star}

@@ -127,7 +127,7 @@ export function HeadingBlockEditor({ settings, onUpdate }: { settings: any, onUp
                             </div>
                              <div className="space-y-2">
                                 <Label>Alignment</Label>
-                                <div className="flex gap-2 rounded-md bg-zoru-surface-2 p-1">
+                                <div className="flex gap-2 rounded-md bg-[var(--st-bg-muted)] p-1">
                                     <Button size="sm" variant={settings.textAlign === 'left' ? 'secondary' : 'ghost'} onClick={() => handleUpdate('textAlign', 'left')}>Left</Button>
                                     <Button size="sm" variant={settings.textAlign === 'center' ? 'secondary' : 'ghost'} onClick={() => handleUpdate('textAlign', 'center')}>Center</Button>
                                     <Button size="sm" variant={settings.textAlign === 'right' ? 'secondary' : 'ghost'} onClick={() => handleUpdate('textAlign', 'right')}>Right</Button>
@@ -216,7 +216,7 @@ export function HeadingBlockEditor({ settings, onUpdate }: { settings: any, onUp
                         <ZoruAccordionTrigger>Attributes</ZoruAccordionTrigger>
                          <ZoruAccordionContent className="space-y-4 pt-2">
                              {(settings.customAttributes || []).map((attr: any, index: number) => (
-                                 <div key={attr.id} className="grid grid-cols-[1fr,1fr,auto] gap-2 items-center"><Input placeholder="Key" value={attr.key} onChange={e => handleAttributeChange(index, 'key', e.target.value)} /><Input placeholder="Value" value={attr.value} onChange={e => handleAttributeChange(index, 'value', e.target.value)} /><Button type="button" variant="ghost" size="icon" onClick={() => removeAttribute(index)}><Trash2 className="h-4 w-4 text-zoru-ink"/></Button></div>
+                                 <div key={attr.id} className="grid grid-cols-[1fr,1fr,auto] gap-2 items-center"><Input placeholder="Key" value={attr.key} onChange={e => handleAttributeChange(index, 'key', e.target.value)} /><Input placeholder="Value" value={attr.value} onChange={e => handleAttributeChange(index, 'value', e.target.value)} /><Button type="button" variant="ghost" size="icon" onClick={() => removeAttribute(index)}><Trash2 className="h-4 w-4 text-[var(--st-text)]"/></Button></div>
                              ))}
                              <Button type="button" variant="outline" className="w-full" onClick={addAttribute}><Plus className="mr-2 h-4 w-4"/>Add Attribute</Button>
                          </ZoruAccordionContent>

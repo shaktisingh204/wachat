@@ -137,9 +137,9 @@ export function TicketListClient({
 
   return (
     <Card className="overflow-hidden p-0">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zoru-line p-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--st-border)] p-3">
         <div className="relative max-w-sm flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -150,7 +150,7 @@ export function TicketListClient({
       </div>
 
       {error ? (
-        <div className="flex items-center gap-2 border-b border-zoru-line/40 bg-zoru-ink/10 px-4 py-2.5 text-[13px] text-zoru-ink">
+        <div className="flex items-center gap-2 border-b border-[var(--st-border)]/40 bg-[var(--st-text)]/10 px-4 py-2.5 text-[13px] text-[var(--st-text)]">
           <AlertCircle className="h-4 w-4 shrink-0" />
           {error}
         </div>
@@ -175,7 +175,7 @@ export function TicketListClient({
             <ZoruTableRow>
               <ZoruTableCell
                 colSpan={9}
-                className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
               >
                 {initialQuery
                   ? "No tickets match this search."
@@ -194,12 +194,12 @@ export function TicketListClient({
                   <ZoruTableCell>
                     <Link
                       href={`/dashboard/sabdesk/${id}`}
-                      className="font-medium text-zoru-ink hover:underline"
+                      className="font-medium text-[var(--st-text)] hover:underline"
                     >
                       {ticket.subject || "Untitled"}
                     </Link>
                   </ZoruTableCell>
-                  <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                  <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                     {ticket.requesterId ? (
                       <EntityPickerChip
                         entity="client"
@@ -209,7 +209,7 @@ export function TicketListClient({
                       "—"
                     )}
                   </ZoruTableCell>
-                  <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                  <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                     {ticket.category ? (
                       <EntityPickerChip
                         entity="category"
@@ -225,7 +225,7 @@ export function TicketListClient({
                         {statusLabel(status)}
                       </Badge>
                     ) : (
-                      <span className="text-[12.5px] text-zoru-ink-muted">
+                      <span className="text-[12.5px] text-[var(--st-text-secondary)]">
                         —
                       </span>
                     )}
@@ -234,22 +234,22 @@ export function TicketListClient({
                     {priority ? (
                       <Badge variant={priorityVariant}>{priority}</Badge>
                     ) : (
-                      <span className="text-[12.5px] text-zoru-ink-muted">
+                      <span className="text-[12.5px] text-[var(--st-text-secondary)]">
                         —
                       </span>
                     )}
                   </ZoruTableCell>
-                  <ZoruTableCell className="text-[12.5px] uppercase text-zoru-ink-muted">
+                  <ZoruTableCell className="text-[12.5px] uppercase text-[var(--st-text-secondary)]">
                     {ticket.severity ?? "—"}
                   </ZoruTableCell>
-                  <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                  <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                     {ticket.assigneeId ? (
                       <EntityPickerChip entity="user" id={ticket.assigneeId} />
                     ) : (
                       "—"
                     )}
                   </ZoruTableCell>
-                  <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                  <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                     {fmtDate(ticket.createdAt || ticket.audit?.createdAt)}
                   </ZoruTableCell>
                   <ZoruTableCell className="text-right">
@@ -263,7 +263,7 @@ export function TicketListClient({
                         size="sm"
                         variant="ghost"
                         onClick={() => setPendingDelete(ticket)}
-                        className="text-zoru-danger-ink"
+                        className="text-[var(--st-danger)]"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>
@@ -301,7 +301,7 @@ export function TicketListClient({
                 confirmDelete();
               }}
               disabled={deleting}
-              className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
+              className="bg-[var(--st-danger)] text-white hover:bg-[var(--st-danger)]/90"
             >
               {deleting ? (
                 <LoaderCircle className="h-3.5 w-3.5 animate-spin" />

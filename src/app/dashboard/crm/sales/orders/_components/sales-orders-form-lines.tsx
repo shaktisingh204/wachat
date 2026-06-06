@@ -62,7 +62,7 @@ export function SoLineItemsTable({
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Line items
         </h3>
         <Button type="button" variant="outline" size="sm" onClick={onAdd}>
@@ -70,9 +70,9 @@ export function SoLineItemsTable({
         </Button>
       </div>
 
-      <div className="overflow-x-auto rounded-md border border-zoru-line bg-zoru-surface">
+      <div className="overflow-x-auto rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
         <table className="w-full text-[13px]">
-          <thead className="bg-zoru-surface-2 text-left text-zoru-ink-muted">
+          <thead className="bg-[var(--st-bg-muted)] text-left text-[var(--st-text-secondary)]">
             <tr>
               <th className="p-2.5 font-medium">Item</th>
               <th className="p-2.5 font-medium">Description</th>
@@ -168,7 +168,7 @@ function SoLineItemRow({
 
   return (
     <React.Fragment>
-      <tr className="border-t border-zoru-line align-top">
+      <tr className="border-t border-[var(--st-border)] align-top">
         {/* Item Picker */}
         <td className="min-w-[200px] p-2">
           <EntityFormField
@@ -214,17 +214,17 @@ function SoLineItemRow({
             />
             {row.itemId && row.warehouseId && (
               <div className="flex items-center gap-1 text-[11px] px-1 py-0.5 rounded">
-                <Warehouse className="h-3 w-3 text-zoru-ink-muted shrink-0" />
+                <Warehouse className="h-3 w-3 text-[var(--st-text-secondary)] shrink-0" />
                 {loadingStocks ? (
-                  <span className="text-zoru-ink-muted animate-pulse">Checking stock...</span>
+                  <span className="text-[var(--st-text-secondary)] animate-pulse">Checking stock...</span>
                 ) : (
                   <span
                     className={
                       currentWarehouseStock > 0
                         ? hasSufficientStock
-                          ? 'text-zoru-success-ink font-medium'
-                          : 'text-zoru-ink font-medium'
-                        : 'text-zoru-danger-ink font-medium'
+                          ? 'text-[var(--st-status-ok)] font-medium'
+                          : 'text-[var(--st-text)] font-medium'
+                        : 'text-[var(--st-danger)] font-medium'
                     }
                   >
                     {currentWarehouseStock > 0
@@ -270,7 +270,7 @@ function SoLineItemRow({
         </td>
 
         {/* Line Total */}
-        <td className="p-2 text-right text-[12.5px] tabular-nums text-zoru-ink font-medium">
+        <td className="p-2 text-right text-[12.5px] tabular-nums text-[var(--st-text)] font-medium">
           {fmtMoney(total, currency)}
         </td>
 
@@ -282,7 +282,7 @@ function SoLineItemRow({
             variant="ghost"
             onClick={() => onRemove(row.key)}
             disabled={rowsCount === 1}
-            className="text-zoru-danger-ink"
+            className="text-[var(--st-danger)]"
           >
             <Trash2 className="h-3.5 w-3.5" />
           </Button>
@@ -294,24 +294,24 @@ function SoLineItemRow({
       (row.qtyDelivered != null ||
         row.qtyInvoiced != null ||
         row.qtyPending != null) ? (
-        <tr className="border-t border-zoru-line/60 bg-zoru-surface-2/40 text-[11.5px]">
-          <td className="p-2 text-zoru-ink-muted" colSpan={8}>
+        <tr className="border-t border-[var(--st-border)]/60 bg-[var(--st-bg-muted)]/40 text-[11.5px]">
+          <td className="p-2 text-[var(--st-text-secondary)]" colSpan={8}>
             <div className="flex flex-wrap items-center gap-4">
               <span>
                 Pending:{' '}
-                <span className="tabular-nums text-zoru-ink">
+                <span className="tabular-nums text-[var(--st-text)]">
                   {row.qtyPending ?? row.qty}
                 </span>
               </span>
               <span>
                 Delivered:{' '}
-                <span className="tabular-nums text-zoru-ink">
+                <span className="tabular-nums text-[var(--st-text)]">
                   {row.qtyDelivered ?? 0}
                 </span>
               </span>
               <span>
                 Invoiced:{' '}
-                <span className="tabular-nums text-zoru-ink">
+                <span className="tabular-nums text-[var(--st-text)]">
                   {row.qtyInvoiced ?? 0}
                 </span>
               </span>

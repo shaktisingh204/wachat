@@ -123,30 +123,30 @@ export function SeoProjectsClient({ initialProjects }: { initialProjects: SeoPro
 
             {totalProjects > 0 && (
                 <div className="grid gap-4 md:grid-cols-3 mb-2">
-                    <Card className="p-4 flex items-center gap-4 border-zoru-line/50 bg-zoru-surface/50 backdrop-blur-sm">
-                        <div className="h-10 w-10 rounded-full bg-zoru-ink/10 flex items-center justify-center">
-                            <BarChart className="h-5 w-5 text-zoru-ink" />
+                    <Card className="p-4 flex items-center gap-4 border-[var(--st-border)]/50 bg-[var(--st-bg-secondary)]/50 backdrop-blur-sm">
+                        <div className="h-10 w-10 rounded-full bg-[var(--st-text)]/10 flex items-center justify-center">
+                            <BarChart className="h-5 w-5 text-[var(--st-text)]" />
                         </div>
                         <div>
-                            <p className="text-sm text-zoru-ink-muted">Total Projects</p>
+                            <p className="text-sm text-[var(--st-text-secondary)]">Total Projects</p>
                             <p className="text-2xl font-bold">{totalProjects}</p>
                         </div>
                     </Card>
-                    <Card className="p-4 flex items-center gap-4 border-zoru-line/50 bg-zoru-surface/50 backdrop-blur-sm">
-                        <div className="h-10 w-10 rounded-full bg-zoru-ink/10 flex items-center justify-center">
-                            <Activity className="h-5 w-5 text-zoru-ink" />
+                    <Card className="p-4 flex items-center gap-4 border-[var(--st-border)]/50 bg-[var(--st-bg-secondary)]/50 backdrop-blur-sm">
+                        <div className="h-10 w-10 rounded-full bg-[var(--st-text)]/10 flex items-center justify-center">
+                            <Activity className="h-5 w-5 text-[var(--st-text)]" />
                         </div>
                         <div>
-                            <p className="text-sm text-zoru-ink-muted">Avg Health Score</p>
+                            <p className="text-sm text-[var(--st-text-secondary)]">Avg Health Score</p>
                             <p className="text-2xl font-bold">{avgHealthScore}</p>
                         </div>
                     </Card>
-                    <Card className="p-4 flex items-center gap-4 border-zoru-line/50 bg-zoru-surface/50 backdrop-blur-sm">
-                        <div className="h-10 w-10 rounded-full bg-zoru-ink/10 flex items-center justify-center">
-                            <Star className="h-5 w-5 text-zoru-ink" />
+                    <Card className="p-4 flex items-center gap-4 border-[var(--st-border)]/50 bg-[var(--st-bg-secondary)]/50 backdrop-blur-sm">
+                        <div className="h-10 w-10 rounded-full bg-[var(--st-text)]/10 flex items-center justify-center">
+                            <Star className="h-5 w-5 text-[var(--st-text)]" />
                         </div>
                         <div>
-                            <p className="text-sm text-zoru-ink-muted">Starred Projects</p>
+                            <p className="text-sm text-[var(--st-text-secondary)]">Starred Projects</p>
                             <p className="text-2xl font-bold">{favoriteCount}</p>
                         </div>
                     </Card>
@@ -154,19 +154,19 @@ export function SeoProjectsClient({ initialProjects }: { initialProjects: SeoPro
             )}
 
             {totalProjects > 0 && (
-                <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-zoru-surface-2/20 p-2 rounded-lg border border-zoru-line/50">
+                <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-[var(--st-bg-muted)]/20 p-2 rounded-lg border border-[var(--st-border)]/50">
                     <div className="relative w-full sm:w-96">
-                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
                         <Input
                             placeholder="Search by domain..."
-                            className="pl-9 bg-zoru-surface"
+                            className="pl-9 bg-[var(--st-bg-secondary)]"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
                     </div>
                     <div className="w-full sm:w-48">
                         <Select value={sortBy} onValueChange={setSortBy}>
-                            <SelectTrigger className="bg-zoru-surface">
+                            <SelectTrigger className="bg-[var(--st-bg-secondary)]">
                                 <SelectValue placeholder="Sort by" />
                             </SelectTrigger>
                             <SelectContent>
@@ -183,11 +183,11 @@ export function SeoProjectsClient({ initialProjects }: { initialProjects: SeoPro
             {totalProjects === 0 ? (
                 <Card className="border-dashed p-12">
                     <div className="flex flex-col items-center justify-center text-center">
-                        <div className="h-16 w-16 bg-zoru-surface-2 rounded-full flex items-center justify-center mb-4">
-                            <BarChart className="h-8 w-8 text-zoru-ink-muted" />
+                        <div className="h-16 w-16 bg-[var(--st-bg-muted)] rounded-full flex items-center justify-center mb-4">
+                            <BarChart className="h-8 w-8 text-[var(--st-text-secondary)]" />
                         </div>
                         <h3 className="text-lg mb-2">No projects yet</h3>
-                        <p className="text-zoru-ink-muted mb-6 max-w-md">
+                        <p className="text-[var(--st-text-secondary)] mb-6 max-w-md">
                             Start tracking your website&apos;s SEO performance by creating your first project.
                         </p>
                         <CreateSeoProjectDialog />
@@ -196,9 +196,9 @@ export function SeoProjectsClient({ initialProjects }: { initialProjects: SeoPro
             ) : filteredAndSortedProjects.length === 0 ? (
                 <Card className="border-dashed p-12">
                     <div className="flex flex-col items-center justify-center text-center">
-                        <Search className="h-12 w-12 text-zoru-ink-muted mb-4" />
+                        <Search className="h-12 w-12 text-[var(--st-text-secondary)] mb-4" />
                         <h3 className="text-lg mb-2">No results found</h3>
-                        <p className="text-zoru-ink-muted mb-6">
+                        <p className="text-[var(--st-text-secondary)] mb-6">
                             No projects match your search query &quot;{searchQuery}&quot;.
                         </p>
                         <Button variant="outline" onClick={() => setSearchQuery('')}>
@@ -229,7 +229,7 @@ export function SeoProjectsClient({ initialProjects }: { initialProjects: SeoPro
                                 <ChevronLeft className="h-4 w-4 mr-1" />
                                 Previous
                             </Button>
-                            <span className="text-sm text-zoru-ink-muted px-4">
+                            <span className="text-sm text-[var(--st-text-secondary)] px-4">
                                 Page {page} of {totalPages}
                             </span>
                             <Button

@@ -52,8 +52,8 @@ export default async function SabConnectManualsPage() {
                                             {m.published ? 'Published' : 'Draft'}
                                         </Badge>
                                     </div>
-                                    <p className="line-clamp-3 text-sm text-zoru-muted">{m.body}</p>
-                                    <p className="text-xs text-zoru-muted">v{m.version ?? 1}</p>
+                                    <p className="line-clamp-3 text-sm text-[var(--st-bg-muted)]">{m.body}</p>
+                                    <p className="text-xs text-[var(--st-bg-muted)]">v{m.version ?? 1}</p>
                                 </CardContent>
                             </Card>
                         </li>

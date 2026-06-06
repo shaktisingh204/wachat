@@ -5,9 +5,9 @@ import { Button, Card, Input } from '@/components/sabcrm/20ui/compat';
 
 export default function SigningPortalPage() {
   return (
-    <div className="min-h-screen bg-zoru-background flex flex-col">
-      <header className="h-16 border-b border-zoru-line flex items-center justify-between px-6 bg-zoru-surface">
-        <div className="font-semibold text-lg text-zoru-ink">SabSign</div>
+    <div className="min-h-screen bg-[var(--st-bg)] flex flex-col">
+      <header className="h-16 border-b border-[var(--st-border)] flex items-center justify-between px-6 bg-[var(--st-bg-secondary)]">
+        <div className="font-semibold text-lg text-[var(--st-text)]">SabSign</div>
         <Button>Finish & Sign</Button>
       </header>
       <main className="flex-1 flex items-center justify-center p-6">

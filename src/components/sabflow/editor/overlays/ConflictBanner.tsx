@@ -337,7 +337,7 @@ export function ConflictBanner({
       <div
         role="alert"
         aria-live="assertive"
-        className="fixed left-1/2 top-3 z-40 flex max-w-[640px] -translate-x-1/2 items-center gap-3 rounded-lg border border-zoru-line/40 bg-zoru-surface-2 px-4 py-2.5 text-zoru-ink shadow-md dark:bg-zoru-ink/80 dark:text-white"
+        className="fixed left-1/2 top-3 z-40 flex max-w-[640px] -translate-x-1/2 items-center gap-3 rounded-lg border border-[var(--st-border)]/40 bg-[var(--st-bg-muted)] px-4 py-2.5 text-[var(--st-text)] shadow-md dark:bg-[var(--st-text)]/80 dark:text-white"
       >
         <span className="text-[13px] leading-snug">
           Your change to{' '}
@@ -347,7 +347,7 @@ export function ConflictBanner({
         <button
           type="button"
           onClick={handleView}
-          className="rounded-md border border-zoru-line/30 bg-white/60 px-2 py-1 text-[12px] font-medium text-zoru-ink transition hover:bg-white dark:bg-zoru-ink/40 dark:text-white dark:hover:bg-zoru-ink/60"
+          className="rounded-md border border-[var(--st-border)]/30 bg-white/60 px-2 py-1 text-[12px] font-medium text-[var(--st-text)] transition hover:bg-white dark:bg-[var(--st-text)]/40 dark:text-white dark:hover:bg-[var(--st-text)]/60"
         >
           View diff
         </button>
@@ -355,7 +355,7 @@ export function ConflictBanner({
           type="button"
           aria-label="Dismiss conflict banner"
           onClick={dismiss}
-          className="rounded-md px-1.5 py-0.5 text-zoru-ink/70 hover:bg-zoru-surface-2/60 hover:text-zoru-ink dark:text-white/70 dark:hover:bg-zoru-ink/60"
+          className="rounded-md px-1.5 py-0.5 text-[var(--st-text)]/70 hover:bg-[var(--st-bg-muted)]/60 hover:text-[var(--st-text)] dark:text-white/70 dark:hover:bg-[var(--st-text)]/60"
         >
           {'×'}
         </button>
@@ -413,7 +413,7 @@ export function ConflictBanner({
                 <button
                   type="button"
                   onClick={handleForce}
-                  className="rounded-md border border-zoru-line/40 bg-zoru-surface-2 px-3 py-1.5 text-[12px] font-medium text-zoru-ink transition hover:bg-zoru-surface-2 dark:bg-zoru-ink/40 dark:text-white dark:hover:bg-zoru-ink/60"
+                  className="rounded-md border border-[var(--st-border)]/40 bg-[var(--st-bg-muted)] px-3 py-1.5 text-[12px] font-medium text-[var(--st-text)] transition hover:bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/40 dark:text-white dark:hover:bg-[var(--st-text)]/60"
                 >
                   Force overwrite
                 </button>
@@ -468,8 +468,8 @@ function DiffPane({
                 line.kind === 'same'
                   ? 'px-3'
                   : line.kind === 'add'
-                    ? 'bg-zoru-ink/15 px-3'
-                    : 'bg-zoru-ink/15 px-3'
+                    ? 'bg-[var(--st-text)]/15 px-3'
+                    : 'bg-[var(--st-text)]/15 px-3'
               }
             >
               <span className="select-none pr-2 text-[var(--gray-9)]">

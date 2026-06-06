@@ -138,7 +138,7 @@ export default function OrdersPage() {
         accessorKey: "id",
         header: "Order ID",
         cell: ({ row }) => (
-          <span className="font-mono text-xs text-zoru-ink">{row.original.id}</span>
+          <span className="font-mono text-xs text-[var(--st-text)]">{row.original.id}</span>
         ),
       },
       {
@@ -266,14 +266,14 @@ export default function OrdersPage() {
           {activeOrder ? (
             <div className="mt-4 space-y-4 text-sm">
               <div>
-                <p className="text-xs uppercase tracking-wide text-zoru-ink-subtle">
+                <p className="text-xs uppercase tracking-wide text-[var(--st-text-tertiary)]">
                   Order ID
                 </p>
-                <p className="font-mono text-zoru-ink">{activeOrder.id}</p>
+                <p className="font-mono text-[var(--st-text)]">{activeOrder.id}</p>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <p className="text-xs uppercase tracking-wide text-zoru-ink-subtle">
+                  <p className="text-xs uppercase tracking-wide text-[var(--st-text-tertiary)]">
                     Status
                   </p>
                   <Badge
@@ -286,10 +286,10 @@ export default function OrdersPage() {
                   </Badge>
                 </div>
                 <div>
-                  <p className="text-xs uppercase tracking-wide text-zoru-ink-subtle">
+                  <p className="text-xs uppercase tracking-wide text-[var(--st-text-tertiary)]">
                     Total
                   </p>
-                  <p className="text-zoru-ink">
+                  <p className="text-[var(--st-text)]">
                     {activeOrder.estimated_payment_details?.total_amount
                       ?.formatted_amount || "—"}
                   </p>
@@ -297,20 +297,20 @@ export default function OrdersPage() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <p className="text-xs uppercase tracking-wide text-zoru-ink-subtle">
+                  <p className="text-xs uppercase tracking-wide text-[var(--st-text-tertiary)]">
                     Created
                   </p>
-                  <p className="text-zoru-ink">
+                  <p className="text-[var(--st-text)]">
                     {activeOrder.created
                       ? format(new Date(activeOrder.created), "PP · p")
                       : "—"}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs uppercase tracking-wide text-zoru-ink-subtle">
+                  <p className="text-xs uppercase tracking-wide text-[var(--st-text-tertiary)]">
                     Updated
                   </p>
-                  <p className="text-zoru-ink">
+                  <p className="text-[var(--st-text)]">
                     {activeOrder.updated
                       ? format(new Date(activeOrder.updated), "PP · p")
                       : "—"}
@@ -318,13 +318,13 @@ export default function OrdersPage() {
                 </div>
               </div>
               <div>
-                <p className="text-xs uppercase tracking-wide text-zoru-ink-subtle">
+                <p className="text-xs uppercase tracking-wide text-[var(--st-text-tertiary)]">
                   Buyer
                 </p>
-                <p className="text-zoru-ink">
+                <p className="text-[var(--st-text)]">
                   {activeOrder.buyer_details?.name || "—"}
                 </p>
-                <p className="text-xs text-zoru-ink-muted">
+                <p className="text-xs text-[var(--st-text-secondary)]">
                   {activeOrder.buyer_details?.email || "—"}
                 </p>
               </div>

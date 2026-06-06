@@ -223,12 +223,12 @@ export function AutoLeadsWizard({ initialRules }: AutoLeadsWizardProps): React.J
                 onClick={() => setStep(i)}
                 className={cn(
                   'flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11.5px] transition-colors',
-                  active && 'bg-zoru-primary/10 text-zoru-ink',
-                  !active && 'text-zoru-ink-muted hover:text-zoru-ink',
+                  active && 'bg-[var(--st-text)]/10 text-[var(--st-text)]',
+                  !active && 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
                 )}
               >
                 {done ? (
-                  <Check className="h-3 w-3 text-zoru-success" />
+                  <Check className="h-3 w-3 text-[var(--st-status-ok)]" />
                 ) : (
                   <Icon className="h-3 w-3" />
                 )}
@@ -275,19 +275,19 @@ export function AutoLeadsWizard({ initialRules }: AutoLeadsWizardProps): React.J
       <Card className="p-6">
         <div className="mb-3 flex items-center justify-between">
           <div>
-            <h2 className="text-[15px] font-semibold text-zoru-ink">Active rules</h2>
-            <p className="text-[12px] text-zoru-ink-muted">
+            <h2 className="text-[15px] font-semibold text-[var(--st-text)]">Active rules</h2>
+            <p className="text-[12px] text-[var(--st-text-secondary)]">
               Rules saved on this tenant — incoming events matching these trigger lead creation.
             </p>
           </div>
         </div>
         {rules.length === 0 ? (
-          <p className="text-[13px] text-zoru-ink-muted">
+          <p className="text-[13px] text-[var(--st-text-secondary)]">
             No rules configured yet. Finish the wizard above and click&nbsp;
             <Badge variant="secondary">Activate rule</Badge> to add the first one.
           </p>
         ) : (
-          <ul className="flex flex-col divide-y divide-zoru-line">
+          <ul className="flex flex-col divide-y divide-[var(--st-border)]">
             {rules.map((r) => (
               <li
                 key={r._id}
@@ -295,13 +295,13 @@ export function AutoLeadsWizard({ initialRules }: AutoLeadsWizardProps): React.J
               >
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-[13px] font-medium text-zoru-ink">{r.name}</span>
+                    <span className="text-[13px] font-medium text-[var(--st-text)]">{r.name}</span>
                     <Badge variant="secondary">{r.source}</Badge>
                     <Badge variant="secondary">{r.leadSource}</Badge>
                   </div>
-                  <div className="mt-0.5 text-[12px] text-zoru-ink-muted">
+                  <div className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">
                     Keyword:{' '}
-                    <code className="rounded bg-zoru-surface-2 px-1 py-0.5 font-mono text-[11.5px]">
+                    <code className="rounded bg-[var(--st-bg-muted)] px-1 py-0.5 font-mono text-[11.5px]">
                       {r.keyword}
                     </code>
                   </div>
@@ -310,7 +310,7 @@ export function AutoLeadsWizard({ initialRules }: AutoLeadsWizardProps): React.J
                   variant="ghost"
                   size="sm"
                   onClick={() => handleDelete(r._id)}
-                  className="hover:text-zoru-danger-ink"
+                  className="hover:text-[var(--st-danger)]"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </Button>
@@ -336,7 +336,7 @@ function StepSource({
     <div className="flex flex-col gap-4">
       <div>
         <Label>Source integration</Label>
-        <p className="mb-2 text-[12px] text-zoru-ink-muted">
+        <p className="mb-2 text-[12px] text-[var(--st-text-secondary)]">
           Pick where these leads come from. The runtime listener routes matching events through
           the keyword filter you set in Step 5.
         </p>
@@ -350,15 +350,15 @@ function StepSource({
                 type="button"
                 onClick={() => update('source', s.value)}
                 className={cn(
-                  'flex flex-col items-center gap-1 rounded-xl border bg-zoru-bg p-3 text-[12.5px]',
+                  'flex flex-col items-center gap-1 rounded-xl border bg-[var(--st-bg)] p-3 text-[12.5px]',
                   selected
-                    ? 'border-zoru-primary ring-2 ring-zoru-primary/30'
-                    : 'border-zoru-line hover:border-zoru-ink-muted',
+                    ? 'border-[var(--st-text)] ring-2 ring-[var(--st-text)]/30'
+                    : 'border-[var(--st-border)] hover:border-[var(--st-text-secondary)]',
                 )}
               >
                 <Icon className="h-5 w-5" />
                 {s.label}
-                {selected ? <Check className="h-3 w-3 text-zoru-primary" /> : null}
+                {selected ? <Check className="h-3 w-3 text-[var(--st-text)]" /> : null}
               </button>
             );
           })}
@@ -404,7 +404,7 @@ function StepMapping({
           placeholder="phone"
         />
       </div>
-      <p className="md:col-span-3 text-[12px] text-zoru-ink-muted">
+      <p className="md:col-span-3 text-[12px] text-[var(--st-text-secondary)]">
         Map the incoming payload field names to the lead fields. Defaults work for most webhook
         payloads.
       </p>
@@ -429,7 +429,7 @@ function StepAssignment({
           onChange={(e) => update('defaultOwner', e.target.value)}
           placeholder="auto"
         />
-        <p className="mt-1 text-[11.5px] text-zoru-ink-muted">
+        <p className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">
           Leave empty for round-robin. Hard-code a user id to assign every match.
         </p>
       </div>
@@ -455,7 +455,7 @@ function StepNotifications({
 }): React.JSX.Element {
   return (
     <div className="flex flex-col gap-3">
-      <label className="flex items-center gap-2 text-[13px] text-zoru-ink">
+      <label className="flex items-center gap-2 text-[13px] text-[var(--st-text)]">
         <input
           type="checkbox"
           checked={state.notifyEmail}
@@ -463,7 +463,7 @@ function StepNotifications({
         />
         Email me when a new lead is auto-created
       </label>
-      <label className="flex items-center gap-2 text-[13px] text-zoru-ink">
+      <label className="flex items-center gap-2 text-[13px] text-[var(--st-text)]">
         <input
           type="checkbox"
           checked={state.notifyInApp}
@@ -512,7 +512,7 @@ function StepTest({
   return (
     <div className="grid gap-6 md:grid-cols-2">
       <div className="grid gap-4">
-        <h3 className="text-[14px] font-medium text-zoru-ink">Rule Configuration</h3>
+        <h3 className="text-[14px] font-medium text-[var(--st-text)]">Rule Configuration</h3>
         <div>
           <Label htmlFor="rn">Rule name</Label>
           <Input
@@ -557,13 +557,13 @@ function StepTest({
         </div>
       </div>
       
-      <div className="flex flex-col gap-3 rounded-xl border border-zoru-line bg-zoru-surface-2/50 p-4">
+      <div className="flex flex-col gap-3 rounded-xl border border-[var(--st-border)] bg-[var(--st-bg-muted)]/50 p-4">
         <div>
           <div className="flex items-center gap-2">
-            <Webhook className="h-4 w-4 text-zoru-ink-muted" />
-            <h3 className="text-[14px] font-medium text-zoru-ink">Webhook Tester</h3>
+            <Webhook className="h-4 w-4 text-[var(--st-text-secondary)]" />
+            <h3 className="text-[14px] font-medium text-[var(--st-text)]">Webhook Tester</h3>
           </div>
-          <p className="mt-1 text-[12px] text-zoru-ink-muted">
+          <p className="mt-1 text-[12px] text-[var(--st-text-secondary)]">
             Simulate an incoming payload to verify your keyword matching logic.
           </p>
         </div>
@@ -573,7 +573,7 @@ function StepTest({
             setTestPayload(e.target.value);
             setTestResult('idle');
           }}
-          className="min-h-[120px] w-full resize-none rounded-md border border-zoru-line bg-zoru-bg p-2 font-mono text-[12px] focus:outline-none focus:ring-2 focus:ring-zoru-primary/50"
+          className="min-h-[120px] w-full resize-none rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] p-2 font-mono text-[12px] focus:outline-none focus:ring-2 focus:ring-[var(--st-text)]/50"
           spellCheck={false}
         />
         <div className="flex items-center justify-between">
@@ -581,19 +581,19 @@ function StepTest({
             Run Test
           </Button>
           {testResult === 'success' && (
-            <Badge className="bg-zoru-success/20 text-zoru-success-ink hover:bg-zoru-success/30">
+            <Badge className="bg-[var(--st-status-ok)]/20 text-[var(--st-status-ok)] hover:bg-[var(--st-status-ok)]/30">
               <Check className="mr-1 h-3 w-3" /> Keyword matched
             </Badge>
           )}
           {testResult === 'fail' && (
-            <Badge variant="destructive" className="bg-zoru-danger/10 text-zoru-danger-ink hover:bg-zoru-danger/20">
+            <Badge variant="destructive" className="bg-[var(--st-danger)]/10 text-[var(--st-danger)] hover:bg-[var(--st-danger)]/20">
               No match
             </Badge>
           )}
         </div>
       </div>
 
-      <p className="md:col-span-2 mt-2 text-[12px] text-zoru-ink-muted border-t border-zoru-line pt-4">
+      <p className="md:col-span-2 mt-2 text-[12px] text-[var(--st-text-secondary)] border-t border-[var(--st-border)] pt-4">
         Clicking <Badge variant="secondary">Activate rule</Badge> persists this
         configuration. Matching events will start creating leads as soon as the listener
         consumes them.

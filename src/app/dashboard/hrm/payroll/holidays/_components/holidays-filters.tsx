@@ -67,7 +67,7 @@ export function HolidaysFiltersRow({
   onClear,
 }: HolidaysFiltersRowProps): React.JSX.Element {
   return (
-    <div className="flex flex-col gap-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3">
+    <div className="flex flex-col gap-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
       <div className="flex flex-wrap items-center gap-2">
         <EnumFilterField
           enumName="holidayType"
@@ -113,7 +113,7 @@ export function HolidaysFiltersRow({
 
       <div className="grid gap-3 md:grid-cols-3">
         <div>
-          <Label className="text-[11px] uppercase text-zoru-ink-muted">
+          <Label className="text-[11px] uppercase text-[var(--st-text-secondary)]">
             Location
           </Label>
           <Input
@@ -126,7 +126,7 @@ export function HolidaysFiltersRow({
         <div>
           <Label
             htmlFor="holiday-from"
-            className="text-[11px] uppercase text-zoru-ink-muted"
+            className="text-[11px] uppercase text-[var(--st-text-secondary)]"
           >
             From
           </Label>
@@ -141,7 +141,7 @@ export function HolidaysFiltersRow({
         <div>
           <Label
             htmlFor="holiday-to"
-            className="text-[11px] uppercase text-zoru-ink-muted"
+            className="text-[11px] uppercase text-[var(--st-text-secondary)]"
           >
             To
           </Label>

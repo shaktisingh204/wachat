@@ -121,7 +121,7 @@ export function ProfileForm({
     return (
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
             <div className="flex items-center gap-4">
-                <Avatar className="h-16 w-16 shadow-[var(--zoru-shadow-sm)] border border-zoru-line">
+                <Avatar className="h-16 w-16 shadow-[var(--zoru-shadow-sm)] border border-[var(--st-border)]">
                     <AvatarImage src={avatarUrl} alt={name} />
                     <AvatarFallback>{name.charAt(0)}</AvatarFallback>
                 </Avatar>
@@ -133,7 +133,7 @@ export function ProfileForm({
                         onChange={(e) => setAvatarUrl(e.target.value)}
                         placeholder="https://example.com/avatar.png"
                     />
-                    <p className="text-xs text-zoru-ink-muted">Enter a URL for your profile picture.</p>
+                    <p className="text-xs text-[var(--st-text-secondary)]">Enter a URL for your profile picture.</p>
                 </div>
             </div>
 
@@ -146,13 +146,13 @@ export function ProfileForm({
                     onBlur={() => setNameError(validateName(name))}
                     aria-invalid={!!nameError}
                 />
-                {nameError && <p className="text-xs text-zoru-danger-ink">{nameError}</p>}
+                {nameError && <p className="text-xs text-[var(--st-danger)]">{nameError}</p>}
             </div>
 
             <div className="flex flex-col gap-1.5">
                 <Label htmlFor="pf-email">Email</Label>
                 <Input id="pf-email" value={email} readOnly disabled />
-                <p className="text-xs text-zoru-ink-muted">
+                <p className="text-xs text-[var(--st-text-secondary)]">
                     Contact support to change your sign-in email.
                 </p>
             </div>
@@ -168,7 +168,7 @@ export function ProfileForm({
                     autoComplete="tel"
                     aria-invalid={!!mobileError}
                 />
-                {mobileError && <p className="text-xs text-zoru-danger-ink">{mobileError}</p>}
+                {mobileError && <p className="text-xs text-[var(--st-danger)]">{mobileError}</p>}
             </div>
 
             <div className="flex flex-col gap-1.5">
@@ -183,14 +183,14 @@ export function ProfileForm({
                     autoComplete="new-password"
                     aria-invalid={!!passwordError}
                 />
-                {passwordError && <p className="text-xs text-zoru-danger-ink">{passwordError}</p>}
+                {passwordError && <p className="text-xs text-[var(--st-danger)]">{passwordError}</p>}
             </div>
 
-            <div className="flex flex-col gap-3 py-2 border-t border-b border-zoru-line">
+            <div className="flex flex-col gap-3 py-2 border-t border-b border-[var(--st-border)]">
                 <div className="flex items-center justify-between">
                     <div className="flex flex-col gap-0.5">
                         <Label>Two-Factor Authentication</Label>
-                        <p className="text-xs text-zoru-ink-muted">Require an extra step to sign in.</p>
+                        <p className="text-xs text-[var(--st-text-secondary)]">Require an extra step to sign in.</p>
                     </div>
                     <Switch
                         checked={twoFactorEnabled}
@@ -220,12 +220,12 @@ export function ProfileForm({
             </div>
 
             {error ? (
-                <div className="text-sm text-zoru-danger-ink bg-zoru-danger-bg p-2 rounded border border-zoru-danger-line" role="alert">
+                <div className="text-sm text-[var(--st-danger)] bg-[var(--st-danger-soft)] p-2 rounded border border-zoru-danger-line" role="alert">
                     {error}
                 </div>
             ) : null}
             {message ? (
-                <div className="text-sm text-zoru-success-ink bg-zoru-success-bg p-2 rounded border border-zoru-success-line" role="status">
+                <div className="text-sm text-[var(--st-status-ok)] bg-zoru-success-bg p-2 rounded border border-zoru-success-line" role="status">
                     {message}
                 </div>
             ) : null}

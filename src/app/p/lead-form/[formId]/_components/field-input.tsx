@@ -14,7 +14,7 @@ export function FieldInput({
 }) {
   const labelText = labelize(field.field_name);
   const label = (
-    <Label htmlFor={field._id} className="text-[12px] font-mono uppercase tracking-tight text-zoru-ink-muted">
+    <Label htmlFor={field._id} className="text-[12px] font-mono uppercase tracking-tight text-[var(--st-text-secondary)]">
       {labelText}
       {field.is_required ? (
         <span className="text-danger"> *</span>
@@ -31,7 +31,7 @@ export function FieldInput({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           disabled={disabled}
-          className="flex min-h-[100px] w-full rounded-md border border-zoru-line bg-zoru-surface px-3 py-2 text-[12.5px] font-mono shadow-inner ring-offset-zoru-surface placeholder:text-zoru-ink-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-line focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex min-h-[100px] w-full rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-[12.5px] font-mono shadow-inner ring-offset-zoru-surface placeholder:text-[var(--st-text-secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-border)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           rows={4}
         />
       </div>

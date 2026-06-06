@@ -335,11 +335,11 @@ export default function CrmAccountsPage() {
                 title={t('crm.accounts.list.title')}
                 subtitle={t('crm.accounts.list.subtitle')}
                 viewSwitcher={
-                    <div className="inline-flex rounded-md border border-zoru-line p-0.5">
+                    <div className="inline-flex rounded-md border border-[var(--st-border)] p-0.5">
                         <button
                             type="button"
                             aria-pressed={view === 'table'}
-                            className="inline-flex items-center gap-1 rounded-sm bg-zoru-surface px-2 py-1 text-[12px] text-zoru-ink"
+                            className="inline-flex items-center gap-1 rounded-sm bg-[var(--st-bg-secondary)] px-2 py-1 text-[12px] text-[var(--st-text)]"
                         >
                             <List className="h-3.5 w-3.5" /> {t('crm.accounts.list.view.table')}
                         </button>
@@ -403,11 +403,11 @@ export default function CrmAccountsPage() {
                 empty={
                     !isPending && accounts.length === 0 ? (
                         <div className="flex flex-col items-center gap-3 p-4">
-                            <Building2 className="h-8 w-8 text-zoru-ink-muted" />
-                            <h3 className="text-base font-medium text-zoru-ink">
+                            <Building2 className="h-8 w-8 text-[var(--st-text-secondary)]" />
+                            <h3 className="text-base font-medium text-[var(--st-text)]">
                                 {t('crm.accounts.list.empty.title')}
                             </h3>
-                            <p className="max-w-sm text-sm text-zoru-ink-muted">
+                            <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                                 {t('crm.accounts.list.empty.subtitle')}
                             </p>
                             <Button asChild>

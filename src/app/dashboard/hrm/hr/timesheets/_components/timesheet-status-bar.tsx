@@ -74,7 +74,7 @@ export function TimesheetStatusBar({ id, status }: Props): React.JSX.Element {
         <>
             <Card className="flex flex-wrap items-center justify-between gap-3 p-4">
                 <div className="flex items-center gap-3">
-                    <span className="text-[12px] text-zoru-ink-muted">Status</span>
+                    <span className="text-[12px] text-[var(--st-text-secondary)]">Status</span>
                     <Badge variant={VARIANT_BY_STATUS[status]}>{status}</Badge>
                 </div>
                 <div className="flex flex-wrap gap-2">

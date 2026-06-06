@@ -96,7 +96,7 @@ export function InvoicesTable({
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-[12.5px]">
-        <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
+        <thead className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
           <tr>
             <th className={`${cell} text-left`}>
               <input
@@ -125,7 +125,7 @@ export function InvoicesTable({
             <tr>
               <td
                 colSpan={13}
-                className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
               >
                 {filtersActive
                   ? 'No invoices match the current filters.'
@@ -135,12 +135,12 @@ export function InvoicesTable({
           ) : (
             invoices.map((inv) => {
               const overdue = isOverdue(inv);
-              const overdueClass = overdue ? 'text-zoru-danger-ink' : 'text-zoru-ink-muted';
+              const overdueClass = overdue ? 'text-[var(--st-danger)]' : 'text-[var(--st-text-secondary)]';
               const id = inv._id;
               return (
                 <tr
                   key={id}
-                  className="border-t border-zoru-line hover:bg-zoru-surface-2/60"
+                  className="border-t border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]/60"
                 >
                   <td className={`${cell} align-middle`}>
                     <input
@@ -161,12 +161,12 @@ export function InvoicesTable({
                     {inv.clientId ? (
                       <EntityPickerChip entity="client" id={inv.clientId} />
                     ) : (
-                      <span className="text-zoru-ink-muted">
+                      <span className="text-[var(--st-text-secondary)]">
                         {inv.clientLabel ?? '—'}
                       </span>
                     )}
                   </td>
-                  <td className={`${cell} align-middle text-zoru-ink-muted`}>
+                  <td className={`${cell} align-middle text-[var(--st-text-secondary)]`}>
                     {fmtDate(inv.date)}
                   </td>
                   <td className={`${cell} align-middle ${overdueClass}`}>
@@ -177,24 +177,24 @@ export function InvoicesTable({
                       <span className="ml-1 text-[10px] uppercase">overdue</span>
                     ) : null}
                   </td>
-                  <td className={`${cell} align-middle text-zoru-ink-muted`}>
+                  <td className={`${cell} align-middle text-[var(--st-text-secondary)]`}>
                     {inv.currency || '—'}
                   </td>
                   <td
-                    className={`${cell} text-right align-middle font-mono tabular-nums text-zoru-ink`}
+                    className={`${cell} text-right align-middle font-mono tabular-nums text-[var(--st-text)]`}
                   >
                     {fmtMoney(inv.total, inv.currency)}
                   </td>
                   <td
-                    className={`${cell} text-right align-middle font-mono tabular-nums text-zoru-ink-muted`}
+                    className={`${cell} text-right align-middle font-mono tabular-nums text-[var(--st-text-secondary)]`}
                   >
                     {fmtMoney(inv.paid, inv.currency)}
                   </td>
                   <td
                     className={`${cell} text-right align-middle font-mono tabular-nums ${
                       overdue && inv.balance > 0
-                        ? 'text-zoru-danger-ink'
-                        : 'text-zoru-ink'
+                        ? 'text-[var(--st-danger)]'
+                        : 'text-[var(--st-text)]'
                     }`}
                   >
                     {fmtMoney(inv.balance, inv.currency)}
@@ -213,10 +213,10 @@ export function InvoicesTable({
                     {inv.salesAgentId ? (
                       <EntityPickerChip entity="user" id={inv.salesAgentId} />
                     ) : (
-                      <span className="text-zoru-ink-muted">—</span>
+                      <span className="text-[var(--st-text-secondary)]">—</span>
                     )}
                   </td>
-                  <td className={`${cell} align-middle text-zoru-ink-muted`}>
+                  <td className={`${cell} align-middle text-[var(--st-text-secondary)]`}>
                     {fmtDate(inv.createdAt)}
                   </td>
                   <td className={`${cell} text-right align-middle`}>

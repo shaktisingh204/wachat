@@ -134,7 +134,7 @@ export default function CreditUsagePage() {
 
       {isLoading ? (
         <div className="flex h-32 items-center justify-center">
-          <Loader2 className="h-5 w-5 animate-spin text-zoru-ink-muted" />
+          <Loader2 className="h-5 w-5 animate-spin text-[var(--st-text-secondary)]" />
         </div>
       ) : (
         <>
@@ -143,12 +143,12 @@ export default function CreditUsagePage() {
               const Icon = s.icon;
               return (
                 <Card key={s.label} className="flex items-center gap-4 p-5">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2">
-                    <Icon className="h-5 w-5 text-zoru-ink-muted" />
+                  <span className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)]">
+                    <Icon className="h-5 w-5 text-[var(--st-text-secondary)]" />
                   </span>
                   <div>
-                    <div className="text-xs text-zoru-ink-muted">{s.label}</div>
-                    <div className="text-[22px] leading-tight tabular-nums text-zoru-ink">
+                    <div className="text-xs text-[var(--st-text-secondary)]">{s.label}</div>
+                    <div className="text-[22px] leading-tight tabular-nums text-[var(--st-text)]">
                       {s.value}
                     </div>
                   </div>
@@ -159,7 +159,7 @@ export default function CreditUsagePage() {
 
           {dailyUsage.length > 0 && (
             <Card className="p-5">
-              <h2 className="mb-4 text-[15px] text-zoru-ink">Daily trend</h2>
+              <h2 className="mb-4 text-[15px] text-[var(--st-text)]">Daily trend</h2>
               <div className="mb-5 h-[220px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart
@@ -182,7 +182,7 @@ export default function CreditUsagePage() {
                 </ResponsiveContainer>
               </div>
               <div className="space-y-2">
-                <div className="grid grid-cols-[100px_80px_1fr] gap-2 text-[11.5px] text-zoru-ink-muted">
+                <div className="grid grid-cols-[100px_80px_1fr] gap-2 text-[11.5px] text-[var(--st-text-secondary)]">
                   <span>Date</span>
                   <span className="text-right">Messages</span>
                   <span />
@@ -190,13 +190,13 @@ export default function CreditUsagePage() {
                 {dailyUsage.map((d) => (
                   <div
                     key={d._id}
-                    className="grid grid-cols-[100px_80px_1fr] items-center gap-2 text-sm text-zoru-ink"
+                    className="grid grid-cols-[100px_80px_1fr] items-center gap-2 text-sm text-[var(--st-text)]"
                   >
                     <span>{d._id}</span>
                     <span className="text-right tabular-nums">{d.count}</span>
-                    <div className="h-5 w-full overflow-hidden rounded-full bg-zoru-surface-2">
+                    <div className="h-5 w-full overflow-hidden rounded-full bg-[var(--st-bg-muted)]">
                       <div
-                        className="h-full rounded-full bg-zoru-ink transition-all"
+                        className="h-full rounded-full bg-[var(--st-text)] transition-all"
                         style={{ width: `${(d.count / maxUsed) * 100}%` }}
                       />
                     </div>

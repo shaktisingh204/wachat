@@ -64,23 +64,23 @@ export function CustomReportBuilderClient({ initialData }: CustomReportBuilderCl
     >
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {filteredData.map(item => (
-          <Card key={item.id} className="p-4 flex flex-col justify-between hover:border-zoru-accent transition-colors">
+          <Card key={item.id} className="p-4 flex flex-col justify-between hover:border-[var(--st-accent)] transition-colors">
             <div>
-              <h3 className="font-semibold text-lg text-zoru-ink">{item.name}</h3>
-              <p className="text-sm text-zoru-ink-light mt-1">{item.description}</p>
+              <h3 className="font-semibold text-lg text-[var(--st-text)]">{item.name}</h3>
+              <p className="text-sm text-[var(--st-text-tertiary)] mt-1">{item.description}</p>
               <div className="mt-4">
                 <span className="text-xs font-semibold bg-zoru-neutral-hover px-2 py-1 rounded-md">{item.dataSource}</span>
               </div>
             </div>
             <div className="mt-6 flex justify-end">
               <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)}>
-                <Trash2 className="w-4 h-4 text-zoru-ink" />
+                <Trash2 className="w-4 h-4 text-[var(--st-text)]" />
               </Button>
             </div>
           </Card>
         ))}
         {filteredData.length === 0 && (
-          <div className="col-span-full py-12 text-center text-zoru-ink-light">No reports found.</div>
+          <div className="col-span-full py-12 text-center text-[var(--st-text-tertiary)]">No reports found.</div>
         )}
       </div>
 

@@ -185,7 +185,7 @@ export function ProductForm({
                 <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                     <div className="flex flex-col gap-1.5">
                         <Label>
-                            Storefront <span className="text-zoru-ink">*</span>
+                            Storefront <span className="text-[var(--st-text)]">*</span>
                         </Label>
                         <Input
                             value={storefrontId}
@@ -193,7 +193,7 @@ export function ProductForm({
                             placeholder="Storefront id"
                             required
                         />
-                        <p className="text-[11px] text-zoru-ink-muted">
+                        <p className="text-[11px] text-[var(--st-text-secondary)]">
                             Paste the storefront id (visible in the URL of the
                             storefront detail page).
                         </p>
@@ -220,7 +220,7 @@ export function ProductForm({
                     </div>
                     <div className="flex flex-col gap-1.5">
                         <Label htmlFor="title">
-                            Title <span className="text-zoru-ink">*</span>
+                            Title <span className="text-[var(--st-text)]">*</span>
                         </Label>
                         <Input
                             id="title"
@@ -264,7 +264,7 @@ export function ProductForm({
                         {images.map((url) => (
                             <div
                                 key={url}
-                                className="flex items-center gap-1.5 rounded-full border border-zoru-line bg-zoru-surface px-3 py-0.5 text-[12px] text-zoru-ink"
+                                className="flex items-center gap-1.5 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-0.5 text-[12px] text-[var(--st-text)]"
                             >
                                 <span className="max-w-[22ch] truncate">
                                     {url.split('/').pop()}
@@ -277,7 +277,7 @@ export function ProductForm({
                                             prev.filter((u) => u !== url),
                                         )
                                     }
-                                    className="text-zoru-ink-muted hover:text-zoru-ink"
+                                    className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                                 >
                                     <X className="h-3 w-3" />
                                 </button>
@@ -365,7 +365,7 @@ export function ProductForm({
                             }
                             placeholder="apparel, men, summer"
                         />
-                        <p className="text-[11px] text-zoru-ink-muted">
+                        <p className="text-[11px] text-[var(--st-text-secondary)]">
                             Comma-separated. Multi-picker coming soon.
                         </p>
                     </div>
@@ -378,7 +378,7 @@ export function ProductForm({
                             defaultValue={initialTags}
                             placeholder="featured, new, sale"
                         />
-                        <p className="text-[11px] text-zoru-ink-muted">
+                        <p className="text-[11px] text-[var(--st-text-secondary)]">
                             Comma-separated.
                         </p>
                     </div>
@@ -404,7 +404,7 @@ export function ProductForm({
                 </div>
 
                 {state.error ? (
-                    <p className="text-[13px] text-zoru-ink">{state.error}</p>
+                    <p className="text-[13px] text-[var(--st-text)]">{state.error}</p>
                 ) : null}
 
                 <div className="flex items-center gap-3">

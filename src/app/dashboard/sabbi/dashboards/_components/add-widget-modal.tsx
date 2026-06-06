@@ -148,12 +148,12 @@ export function AddWidgetModal({ open, onOpenChange, onAdd }: AddWidgetModalProp
                                     onClick={() => setKind(k.value)}
                                     className={`rounded-md border p-3 text-left transition ${
                                         selected
-                                            ? 'border-zoru-ink bg-zoru-surface-2'
-                                            : 'border-zoru-line hover:border-zoru-ink/40'
+                                            ? 'border-[var(--st-text)] bg-[var(--st-bg-muted)]'
+                                            : 'border-[var(--st-border)] hover:border-[var(--st-text)]/40'
                                     }`}
                                 >
-                                    <div className="text-[13px] font-medium text-zoru-ink">{k.label}</div>
-                                    <div className="mt-0.5 text-[11.5px] text-zoru-ink-muted">{k.hint}</div>
+                                    <div className="text-[13px] font-medium text-[var(--st-text)]">{k.label}</div>
+                                    <div className="mt-0.5 text-[11.5px] text-[var(--st-text-secondary)]">{k.hint}</div>
                                 </button>
                             );
                         })}
@@ -186,7 +186,7 @@ export function AddWidgetModal({ open, onOpenChange, onAdd }: AddWidgetModalProp
                                     ))}
                                 </ZoruSelectContent>
                             </Select>
-                            <p className="text-[11.5px] text-zoru-ink-muted">
+                            <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                                 {DATA_SOURCE_TYPES.find((d) => d.value === dsType)?.hint}
                             </p>
                         </div>
@@ -213,7 +213,7 @@ export function AddWidgetModal({ open, onOpenChange, onAdd }: AddWidgetModalProp
                                 </datalist>
                             ) : null}
                             {dsType === 'report' ? (
-                                <p className="text-[11.5px] text-zoru-warning-ink">
+                                <p className="text-[11.5px] text-[var(--st-warn)]">
                                     Reports engine not wired yet — widget will render a placeholder.
                                 </p>
                             ) : null}

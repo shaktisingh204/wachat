@@ -190,8 +190,8 @@ export function CatalogClient({
     <div className="zoruui flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-zoru-ink">Catalog</h2>
-          <p className="text-sm text-zoru-ink-muted">
+          <h2 className="text-lg font-semibold text-[var(--st-text)]">Catalog</h2>
+          <p className="text-sm text-[var(--st-text-secondary)]">
             Rewards customers can redeem with their points. Images come from
             SabFiles — no free-text URLs.
           </p>
@@ -205,7 +205,7 @@ export function CatalogClient({
         <div className="overflow-x-auto rounded-lg">
           <Table>
             <ZoruTableHeader>
-              <ZoruTableRow className="border-zoru-line">
+              <ZoruTableRow className="border-[var(--st-border)]">
                 <ZoruTableHead>Reward</ZoruTableHead>
                 <ZoruTableHead>Program</ZoruTableHead>
                 <ZoruTableHead>Points</ZoruTableHead>
@@ -226,26 +226,26 @@ export function CatalogClient({
                 </ZoruTableRow>
               ) : (
                 items.map((item) => (
-                  <ZoruTableRow key={item._id} className="border-zoru-line">
-                    <ZoruTableCell className="text-zoru-ink">
+                  <ZoruTableRow key={item._id} className="border-[var(--st-border)]">
+                    <ZoruTableCell className="text-[var(--st-text)]">
                       <div className="flex flex-col">
                         <span className="font-medium">{item.name}</span>
                         {item.description ? (
-                          <span className="text-[12px] text-zoru-ink-muted">
+                          <span className="text-[12px] text-[var(--st-text-secondary)]">
                             {item.description}
                           </span>
                         ) : null}
                       </div>
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-zoru-ink">
+                    <ZoruTableCell className="text-[var(--st-text)]">
                       {item.programId
                         ? programNameById.get(item.programId) ?? '—'
                         : '—'}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-zoru-ink">
+                    <ZoruTableCell className="text-[var(--st-text)]">
                       {item.pointsCost.toLocaleString()}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-zoru-ink">
+                    <ZoruTableCell className="text-[var(--st-text)]">
                       {item.stock == null ? '∞' : item.stock.toLocaleString()}
                     </ZoruTableCell>
                     <ZoruTableCell>
@@ -262,7 +262,7 @@ export function CatalogClient({
                         size="icon"
                         onClick={() => handleDelete(item._id)}
                       >
-                        <Trash2 className="h-4 w-4 text-zoru-ink" />
+                        <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                       </Button>
                     </ZoruTableCell>
                   </ZoruTableRow>
@@ -360,14 +360,14 @@ export function CatalogClient({
                   <img
                     src={form.imagePreviewUrl}
                     alt="Reward preview"
-                    className="h-12 w-12 rounded-md border border-zoru-line object-cover"
+                    className="h-12 w-12 rounded-md border border-[var(--st-border)] object-cover"
                   />
                 ) : form.imageFileId ? (
-                  <div className="flex h-12 w-12 items-center justify-center rounded-md border border-zoru-line text-[10px] text-zoru-ink-muted">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-md border border-[var(--st-border)] text-[10px] text-[var(--st-text-secondary)]">
                     Set
                   </div>
                 ) : (
-                  <div className="flex h-12 w-12 items-center justify-center rounded-md border border-dashed border-zoru-line text-[10px] text-zoru-ink-muted">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-md border border-dashed border-[var(--st-border)] text-[10px] text-[var(--st-text-secondary)]">
                     None
                   </div>
                 )}

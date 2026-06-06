@@ -156,7 +156,7 @@ export function GroupNode({
         'transition-[border-color,box-shadow]',
         'hover:shadow-md',
         isFocused || isConnecting
-          ? 'border-2 border-zoru-line'
+          ? 'border-2 border-[var(--st-border)]'
           : 'border border-[var(--gray-5)]',
         isMouseDown ? 'cursor-grabbing shadow-lg z-10' : 'cursor-grab',
         isDraggingGraph ? 'pointer-events-none' : 'pointer-events-auto',
@@ -205,7 +205,7 @@ export function GroupNode({
                 onGroupUpdate?.(group.id, { title });
               }
             }}
-            className="prevent-group-drag flex-1 text-[13px] font-semibold bg-transparent border-b border-zoru-line outline-none text-[var(--gray-12)]"
+            className="prevent-group-drag flex-1 text-[13px] font-semibold bg-transparent border-b border-[var(--st-border)] outline-none text-[var(--gray-12)]"
             onClick={(e) => e.stopPropagation()}
           />
         ) : (
@@ -253,8 +253,8 @@ export function GroupNode({
           className={cn(
             'h-3 w-3 rounded-full border-2 bg-[var(--gray-1)] transition-colors',
             isConnecting
-              ? 'border-zoru-line bg-zoru-ink'
-              : 'border-[var(--gray-7)] hover:border-zoru-line',
+              ? 'border-[var(--st-border)] bg-[var(--st-text)]'
+              : 'border-[var(--gray-7)] hover:border-[var(--st-border)]',
           )}
         />
       </div>

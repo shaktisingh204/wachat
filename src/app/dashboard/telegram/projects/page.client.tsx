@@ -86,14 +86,14 @@ function ProjectCard({
                         </div>
                         <div className="min-w-0">
                             <div className="flex items-center gap-2">
-                                <p className="truncate text-[13.5px] text-zoru-ink">
+                                <p className="truncate text-[13.5px] text-[var(--st-text)]">
                                     {project.name}
                                 </p>
                                 {isActive ? (
                                     <Badge variant="info">Active</Badge>
                                 ) : null}
                             </div>
-                            <p className="mt-0.5 text-[11.5px] text-zoru-ink-muted">
+                            <p className="mt-0.5 text-[11.5px] text-[var(--st-text-secondary)]">
                                 {countsLoading
                                     ? 'Counting bots…'
                                     : botCount === 0
@@ -111,7 +111,7 @@ function ProjectCard({
                         ) : (
                             <Badge variant="ghost">Not set up</Badge>
                         )}
-                        <ArrowRight className="h-3.5 w-3.5 text-zoru-ink-muted" />
+                        <ArrowRight className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                     </div>
                 </Card>
             </button>
@@ -172,7 +172,7 @@ function CreateTelegramProjectDialog({
 
                 <div className="flex flex-col gap-3">
                     <label className="flex flex-col gap-1.5">
-                        <span className="text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
+                        <span className="text-[11.5px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
                             Project name
                         </span>
                         <Input
@@ -189,7 +189,7 @@ function CreateTelegramProjectDialog({
                         />
                     </label>
                     {createErr ? (
-                        <div className="rounded-md border border-zoru-danger-line bg-zoru-danger-surface px-3 py-2 text-[12.5px] text-zoru-danger-ink">
+                        <div className="rounded-md border border-zoru-danger-line bg-zoru-danger-surface px-3 py-2 text-[12.5px] text-[var(--st-danger)]">
                             {createErr}
                         </div>
                     ) : null}
@@ -457,10 +457,10 @@ export default function TelegramProjectPickerPage() {
                     <Plug className="h-6 w-6 text-white" strokeWidth={1.75} />
                 </div>
                 <div className="flex-1">
-                    <h1 className="text-[22px] leading-tight text-zoru-ink">
+                    <h1 className="text-[22px] leading-tight text-[var(--st-text)]">
                         Pick a Telegram workspace
                     </h1>
-                    <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-zoru-ink-muted">
+                    <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-[var(--st-text-secondary)]">
                         Telegram bots, chats, and broadcasts belong to a project.
                         Choose one to start in — projects with a green badge already
                         have at least one bot connected.
@@ -489,7 +489,7 @@ export default function TelegramProjectPickerPage() {
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex flex-1 items-center gap-3">
                     <div className="relative w-full sm:max-w-md">
-                        <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zoru-ink-muted" />
+                        <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--st-text-secondary)]" />
                         <Input
                             value={q}
                             onChange={(e) => {
@@ -565,7 +565,7 @@ export default function TelegramProjectPickerPage() {
             )}
 
             {totalPages > 1 ? (
-                <div className="flex items-center justify-between text-[12px] text-zoru-ink-muted">
+                <div className="flex items-center justify-between text-[12px] text-[var(--st-text-secondary)]">
                     <span>
                         Page {page} of {totalPages} · {filteredAndSorted.length} project
                         {filteredAndSorted.length === 1 ? '' : 's'}

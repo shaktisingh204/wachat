@@ -272,7 +272,7 @@ export function RecordFormDialog({
        *   • Escape to close
        */}
       <DialogContent className="flex max-h-[88vh] max-w-2xl flex-col gap-0 overflow-hidden p-0">
-        <DialogHeader className="border-b border-zoru-line p-5">
+        <DialogHeader className="border-b border-[var(--st-border)] p-5">
           <DialogTitle>
             {isEditing
               ? `Edit ${object.labelSingular.toLowerCase()}`
@@ -310,9 +310,9 @@ export function RecordFormDialog({
                 aria-live="assertive"
                 aria-atomic="true"
                 className={cn(
-                  'flex flex-col gap-2 rounded-[var(--zoru-radius)] border border-zoru-danger/40',
-                  'bg-zoru-danger/5 p-3 text-sm text-zoru-danger',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-danger/40',
+                  'flex flex-col gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-danger)]/40',
+                  'bg-[var(--st-danger)]/5 p-3 text-sm text-[var(--st-danger)]',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-danger)]/40',
                 )}
               >
                 <p className="flex items-center gap-1.5 font-medium">
@@ -329,7 +329,7 @@ export function RecordFormDialog({
                         {/* Clicking the link focuses the invalid control. */}
                         <a
                           href={`#sabcrm-field-${f.key}`}
-                          className="underline underline-offset-2 hover:opacity-80 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zoru-danger"
+                          className="underline underline-offset-2 hover:opacity-80 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--st-danger)]"
                           onClick={(e) => {
                             e.preventDefault();
                             document
@@ -377,7 +377,7 @@ export function RecordFormDialog({
                       // it through to the native element when `field.required`
                       // is set — graceful degradation otherwise).
                       <span
-                        className="text-zoru-danger"
+                        className="text-[var(--st-danger)]"
                         aria-hidden="true"
                         title="Required"
                       >
@@ -389,7 +389,7 @@ export function RecordFormDialog({
                   {field.description && (
                     <p
                       id={descId}
-                      className="text-xs text-zoru-ink-muted"
+                      className="text-xs text-[var(--st-text-secondary)]"
                     >
                       {field.description}
                     </p>
@@ -425,7 +425,7 @@ export function RecordFormDialog({
                       id={errId}
                       role="alert"
                       aria-live="polite"
-                      className="text-xs text-zoru-danger"
+                      className="text-xs text-[var(--st-danger)]"
                     >
                       {errors[field.key]}
                     </p>
@@ -435,14 +435,14 @@ export function RecordFormDialog({
             })}
 
             {editableFields.length === 0 && (
-              <p className="text-sm text-zoru-ink-muted">
+              <p className="text-sm text-[var(--st-text-secondary)]">
                 This object has no editable fields.
               </p>
             )}
           </div>
 
           {/* ── Footer ──────────────────────────────────────────────────── */}
-          <DialogFooter className="border-t border-zoru-line bg-zoru-surface/40 p-4">
+          <DialogFooter className="border-t border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40 p-4">
             <Button
               type="button"
               variant="ghost"

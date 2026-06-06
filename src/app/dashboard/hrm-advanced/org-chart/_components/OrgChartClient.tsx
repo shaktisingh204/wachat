@@ -157,22 +157,22 @@ export function OrgChartClient({ initialData }: OrgChartClientProps) {
       <div className="flex flex-col gap-4 items-center">
         {nodes.map(node => (
           <div key={node._id} className="flex flex-col items-center">
-            <div className="rounded-xl border border-zoru-line bg-zoru-surface p-4 shadow-sm min-w-[200px] text-center relative group">
-              <div className="font-semibold text-zoru-ink">{node.name}</div>
-              <div className="text-xs text-zoru-ink-muted">{node.role}</div>
-              <div className="text-xs text-zoru-brand mt-1">{node.department}</div>
+            <div className="rounded-xl border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4 shadow-sm min-w-[200px] text-center relative group">
+              <div className="font-semibold text-[var(--st-text)]">{node.name}</div>
+              <div className="text-xs text-[var(--st-text-secondary)]">{node.role}</div>
+              <div className="text-xs text-[var(--st-accent)] mt-1">{node.department}</div>
               <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-                <Button variant="ghost" size="icon" className="h-6 w-6 text-zoru-ink-muted" onClick={() => { setEditingItem(node); setIsDialogOpen(true); }}>
+                <Button variant="ghost" size="icon" className="h-6 w-6 text-[var(--st-text-secondary)]" onClick={() => { setEditingItem(node); setIsDialogOpen(true); }}>
                   <Edit className="h-3 w-3" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-6 w-6 text-zoru-ink" onClick={() => handleDelete(node._id)}>
+                <Button variant="ghost" size="icon" className="h-6 w-6 text-[var(--st-text)]" onClick={() => handleDelete(node._id)}>
                   <Trash className="h-3 w-3" />
                 </Button>
               </div>
             </div>
             {node.children && node.children.length > 0 && (
-              <div className="flex flex-col items-center mt-4 border-t border-l border-r border-zoru-line rounded-t-lg pt-4 relative">
-                <div className="absolute -top-4 w-px h-4 bg-zoru-line" />
+              <div className="flex flex-col items-center mt-4 border-t border-l border-r border-[var(--st-border)] rounded-t-lg pt-4 relative">
+                <div className="absolute -top-4 w-px h-4 bg-[var(--st-border)]" />
                 <div className="flex gap-4">
                   {renderTree(node.children)}
                 </div>
@@ -189,18 +189,18 @@ export function OrgChartClient({ initialData }: OrgChartClientProps) {
     const row = filteredData[index];
     if (!row) return null;
     return (
-      <div style={style} className="flex items-center px-4 border-b border-zoru-line hover:bg-zoru-surface-hover">
+      <div style={style} className="flex items-center px-4 border-b border-[var(--st-border)] hover:bg-[var(--st-hover)]">
         <div className="w-12">
           <Checkbox checked={selectedIds.has(row._id!)} onCheckedChange={() => toggleSelection(row._id!)} />
         </div>
         <div className="flex-1 font-medium">{row.name}</div>
-        <div className="flex-1 text-zoru-ink-muted">{row.role}</div>
-        <div className="flex-1 text-zoru-ink-muted">{row.department}</div>
+        <div className="flex-1 text-[var(--st-text-secondary)]">{row.role}</div>
+        <div className="flex-1 text-[var(--st-text-secondary)]">{row.department}</div>
         <div className="w-24 flex justify-end gap-2">
           <Button size="icon" variant="ghost" onClick={() => { setEditingItem(row); setIsDialogOpen(true); }}>
             <Edit className="h-4 w-4" />
           </Button>
-          <Button size="icon" variant="ghost" className="text-zoru-ink" onClick={() => handleDelete(row._id!)}>
+          <Button size="icon" variant="ghost" className="text-[var(--st-text)]" onClick={() => handleDelete(row._id!)}>
             <Trash className="h-4 w-4" />
           </Button>
         </div>
@@ -225,7 +225,7 @@ export function OrgChartClient({ initialData }: OrgChartClientProps) {
               ))}
             </SelectContent>
           </Select>
-          <div className="flex rounded-md border border-zoru-line bg-zoru-surface-hover p-1">
+          <div className="flex rounded-md border border-[var(--st-border)] bg-[var(--st-hover)] p-1">
             <Button variant={view === 'tree' ? 'default' : 'ghost'} size="sm" onClick={() => setView('tree')}>Tree</Button>
             <Button variant={view === 'list' ? 'default' : 'ghost'} size="sm" onClick={() => setView('list')}>List</Button>
           </div>
@@ -263,14 +263,14 @@ export function OrgChartClient({ initialData }: OrgChartClientProps) {
       }
     >
       {filteredData.length > 0 && view === 'tree' && (
-        <div className="p-8 overflow-auto border border-zoru-line rounded-md bg-zoru-background/50 flex justify-center min-h-[500px]">
-          {treeData.length > 0 ? renderTree(treeData) : <div className="text-zoru-ink-muted">No root nodes found for current filters</div>}
+        <div className="p-8 overflow-auto border border-[var(--st-border)] rounded-md bg-[var(--st-bg)]/50 flex justify-center min-h-[500px]">
+          {treeData.length > 0 ? renderTree(treeData) : <div className="text-[var(--st-text-secondary)]">No root nodes found for current filters</div>}
         </div>
       )}
 
       {filteredData.length > 0 && view === 'list' && (
-        <div className="border border-zoru-line rounded-md bg-zoru-surface">
-          <div className="flex items-center px-4 py-3 border-b border-zoru-line bg-zoru-surface-hover font-semibold text-sm">
+        <div className="border border-[var(--st-border)] rounded-md bg-[var(--st-bg-secondary)]">
+          <div className="flex items-center px-4 py-3 border-b border-[var(--st-border)] bg-[var(--st-hover)] font-semibold text-sm">
             <div className="w-12">
               <Checkbox 
                 checked={selectedIds.size === filteredData.length && filteredData.length > 0} 

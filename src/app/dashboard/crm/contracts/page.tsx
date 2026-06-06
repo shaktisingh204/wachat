@@ -319,7 +319,7 @@ export default function ContractsPage() {
 
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative max-w-sm flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -377,9 +377,9 @@ export default function ContractsPage() {
       </div>
 
       {selected.size > 0 ? (
-        <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-3 py-2 shadow-[var(--zoru-shadow-sm)]">
-          <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink">
-            <ListChecks className="h-4 w-4 text-zoru-primary" />
+        <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 shadow-[var(--zoru-shadow-sm)]">
+          <div className="flex items-center gap-2 text-[12.5px] text-[var(--st-text)]">
+            <ListChecks className="h-4 w-4 text-[var(--st-text)]" />
             {selected.size} selected
           </div>
           <div className="flex items-center gap-1">
@@ -406,10 +406,10 @@ export default function ContractsPage() {
       ) : null}
 
       <Card>
-        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+        <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <Table>
             <ZoruTableHeader>
-              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                 <ZoruTableHead className="w-8">
                   <Checkbox
                     checked={headChecked}
@@ -417,13 +417,13 @@ export default function ContractsPage() {
                     aria-label="Select all"
                   />
                 </ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Title</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Client</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Value</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Start</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">End</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                <ZoruTableHead className="w-[200px] text-right text-zoru-ink-muted">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Title</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Client</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Value</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Start</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">End</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
+                <ZoruTableHead className="w-[200px] text-right text-[var(--st-text-secondary)]">
                   Actions
                 </ZoruTableHead>
               </ZoruTableRow>
@@ -431,17 +431,17 @@ export default function ContractsPage() {
             <ZoruTableBody>
               {isLoading && rows.length === 0 ? (
                 [...Array(3)].map((_, i) => (
-                  <ZoruTableRow key={i} className="border-zoru-line">
+                  <ZoruTableRow key={i} className="border-[var(--st-border)]">
                     <ZoruTableCell colSpan={8}>
                       <Skeleton className="h-8 w-full" />
                     </ZoruTableCell>
                   </ZoruTableRow>
                 ))
               ) : filtered.length === 0 ? (
-                <ZoruTableRow className="border-zoru-line">
+                <ZoruTableRow className="border-[var(--st-border)]">
                   <ZoruTableCell
                     colSpan={8}
-                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                    className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     {rows.length === 0
                       ? 'No contracts yet — click Add Contract to get started.'
@@ -450,7 +450,7 @@ export default function ContractsPage() {
                 </ZoruTableRow>
               ) : (
                 filtered.map((row) => (
-                  <ZoruTableRow key={row._id} className="border-zoru-line contract-row">
+                  <ZoruTableRow key={row._id} className="border-[var(--st-border)] contract-row">
                     <ZoruTableCell>
                       <Checkbox
                         checked={selected.has(row._id)}
@@ -458,17 +458,17 @@ export default function ContractsPage() {
                         aria-label={`Select ${row.title}`}
                       />
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] font-medium text-zoru-ink">
+                    <ZoruTableCell className="text-[13px] font-medium text-[var(--st-text)]">
                       <EntityRowLink
                         href={`/dashboard/crm/contracts/${row._id}`}
                         label={row.title}
                         subtitle={row.clientName || undefined}
                       />
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-zoru-ink">
+                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                       {row.clientName || '—'}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-zoru-ink">
+                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                       {row.value != null
                         ? new Intl.NumberFormat('en-IN', {
                             style: 'currency',
@@ -476,10 +476,10 @@ export default function ContractsPage() {
                           }).format(row.value)
                         : '—'}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-zoru-ink">
+                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                       {fmtDate(row.startDate)}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-zoru-ink">
+                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                       {fmtDate(row.endDate)}
                     </ZoruTableCell>
                     <ZoruTableCell>
@@ -510,7 +510,7 @@ export default function ContractsPage() {
                           size="sm"
                           onClick={() => setDeletingId(row._id)}
                         >
-                          <Trash2 className="h-3.5 w-3.5 text-zoru-ink" />
+                          <Trash2 className="h-3.5 w-3.5 text-[var(--st-text)]" />
                         </Button>
                       </div>
                     </ZoruTableCell>
@@ -563,10 +563,10 @@ export default function ContractsPage() {
       >
         <ZoruAlertDialogContent>
           <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle className="text-zoru-ink">
+            <ZoruAlertDialogTitle className="text-[var(--st-text)]">
               Delete contract?
             </ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription className="text-zoru-ink-muted">
+            <ZoruAlertDialogDescription className="text-[var(--st-text-secondary)]">
               This action cannot be undone.
             </ZoruAlertDialogDescription>
           </ZoruAlertDialogHeader>

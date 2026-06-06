@@ -150,7 +150,7 @@ export function ImportClient() {
   return (
     <div className="flex flex-col h-full">
       <div className="flex flex-wrap items-center gap-3 border-b border-[var(--gray-4)] px-4 sm:px-6 py-4 shrink-0">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
           <LuUpload className="h-4 w-4" strokeWidth={2} />
         </div>
         <div className="flex flex-col leading-tight min-w-0">
@@ -175,7 +175,7 @@ export function ImportClient() {
           className={cn(
             'flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-6 py-10 text-center transition-colors',
             dragging
-              ? 'border-zoru-line bg-zoru-surface-2/40 dark:bg-zoru-ink/20'
+              ? 'border-[var(--st-border)] bg-[var(--st-bg-muted)]/40 dark:bg-[var(--st-text)]/20'
               : 'border-[var(--gray-5)] bg-[var(--gray-2)]',
           )}
         >
@@ -209,7 +209,7 @@ export function ImportClient() {
             placeholder='{"nodes": [...], "connections": {...}}  or  {"groups": [...]}'
             spellCheck={false}
             rows={10}
-            className="w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 font-mono text-[11.5px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-zoru-line resize-y"
+            className="w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 font-mono text-[11.5px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[var(--st-border)] resize-y"
           />
           <p className="mt-1 text-[10.5px] text-[var(--gray-9)] tabular-nums">
             {raw.length.toLocaleString()} chars
@@ -226,7 +226,7 @@ export function ImportClient() {
               'inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-[12.5px] font-semibold text-white transition-colors',
               busy || !raw.trim()
                 ? 'bg-[var(--gray-6)] cursor-not-allowed'
-                : 'bg-zoru-ink hover:bg-zoru-ink',
+                : 'bg-[var(--st-text)] hover:bg-[var(--st-text)]',
             )}
           >
             {busy ? (
@@ -245,7 +245,7 @@ export function ImportClient() {
 
         {/* Error */}
         {error && (
-          <div className="mt-4 flex items-start gap-2 rounded-lg border border-zoru-line bg-zoru-surface-2 px-3 py-2 text-[12px] text-zoru-ink">
+          <div className="mt-4 flex items-start gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-[12px] text-[var(--st-text)]">
             <LuTriangleAlert className="h-4 w-4 shrink-0 mt-0.5" />
             <span>{error}</span>
           </div>
@@ -253,14 +253,14 @@ export function ImportClient() {
 
         {/* Success */}
         {success && (
-          <div className="mt-4 flex flex-col gap-2 rounded-lg border border-zoru-line bg-zoru-surface-2 px-4 py-3 dark:border-zoru-line/50 dark:bg-zoru-ink/30">
+          <div className="mt-4 flex flex-col gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-3 dark:border-[var(--st-border)]/50 dark:bg-[var(--st-text)]/30">
             <div className="flex items-center gap-2">
-              <LuCircleCheck className="h-4 w-4 text-zoru-ink dark:text-zoru-ink-muted" />
-              <span className="text-[13px] font-semibold text-zoru-ink dark:text-zoru-ink-muted">
+              <LuCircleCheck className="h-4 w-4 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]" />
+              <span className="text-[13px] font-semibold text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
                 Imported from {success.format === 'n8n' ? 'workflow JSON' : 'Typebot'}
               </span>
             </div>
-            <ul className="text-[11.5px] text-zoru-ink dark:text-zoru-ink-muted ml-6 list-disc space-y-0.5">
+            <ul className="text-[11.5px] text-[var(--st-text)] dark:text-[var(--st-text-secondary)] ml-6 list-disc space-y-0.5">
               <li>
                 Name:{' '}
                 <strong className="font-semibold">
@@ -295,7 +295,7 @@ export function ImportClient() {
             <button
               type="button"
               onClick={openFlow}
-              className="mt-1 self-start inline-flex items-center gap-1.5 rounded-md bg-zoru-ink px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-zoru-ink"
+              className="mt-1 self-start inline-flex items-center gap-1.5 rounded-md bg-[var(--st-text)] px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-[var(--st-text)]"
             >
               Open flow
               <LuArrowRight className="h-3.5 w-3.5" />

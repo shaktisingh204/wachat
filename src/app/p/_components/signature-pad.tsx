@@ -120,7 +120,7 @@ export const SignaturePad = forwardRef<SignaturePadHandle, SignaturePadProps>(
     );
 
     return (
-      <div className="rounded-lg border border-zoru-line bg-white p-2">
+      <div className="rounded-lg border border-[var(--st-border)] bg-white p-2">
         <canvas
           ref={canvasRef}
           className="block w-full touch-none rounded-lg bg-white"

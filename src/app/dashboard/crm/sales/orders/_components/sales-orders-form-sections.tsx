@@ -40,7 +40,7 @@ export interface ShippingAddressCardProps {
 export function ShippingAddressCard({ ship, setShip }: ShippingAddressCardProps) {
   return (
     <Card className="p-6">
-      <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+      <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
         Shipping address
       </h3>
       <div className="grid gap-4 md:grid-cols-2">
@@ -138,7 +138,7 @@ export function TotalsCard({
 }: TotalsCardProps) {
   return (
     <Card className="p-6">
-      <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+      <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
         Totals
       </h3>
       <div className="grid gap-6 md:grid-cols-2">
@@ -182,25 +182,25 @@ export function TotalsCard({
             />
           </div>
         </div>
-        <div className="flex flex-col justify-end gap-2 rounded-md border border-zoru-line bg-zoru-surface-2 p-4 text-[13px]">
-          <div className="flex justify-between text-zoru-ink-muted">
+        <div className="flex flex-col justify-end gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 text-[13px]">
+          <div className="flex justify-between text-[var(--st-text-secondary)]">
             <span>Sub-total</span>
-            <span className="tabular-nums text-zoru-ink">
+            <span className="tabular-nums text-[var(--st-text)]">
               {fmtMoney(subTotal, currency)}
             </span>
           </div>
-          <div className="flex justify-between text-zoru-ink-muted">
+          <div className="flex justify-between text-[var(--st-text-secondary)]">
             <span>Lines incl. tax</span>
-            <span className="tabular-nums text-zoru-ink">
+            <span className="tabular-nums text-[var(--st-text)]">
               {fmtMoney(lineTotals, currency)}
             </span>
           </div>
           <Separator />
-          <div className="flex justify-between text-[14px] font-semibold text-zoru-ink">
+          <div className="flex justify-between text-[14px] font-semibold text-[var(--st-text)]">
             <span>Total ({currency})</span>
             <span className="tabular-nums">{fmtMoney(total, currency)}</span>
           </div>
-          <p className="text-[11px] text-zoru-ink-muted">
+          <p className="text-[11px] text-[var(--st-text-secondary)]">
             Server recomputes authoritatively on save.
           </p>
         </div>

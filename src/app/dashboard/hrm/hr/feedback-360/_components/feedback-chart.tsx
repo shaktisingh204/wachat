@@ -33,8 +33,8 @@ export function FeedbackChart({
       <ResponsiveContainer width="100%" height="100%">
         <RadarChart cx="50%" cy="50%" outerRadius="80%" data={data}>
           <PolarGrid />
-          <PolarAngleAxis dataKey="subject" className="text-xs fill-zoru-ink-muted" />
-          <PolarRadiusAxis angle={30} domain={[0, 10]} className="text-xs fill-zoru-ink-muted" />
+          <PolarAngleAxis dataKey="subject" className="text-xs fill-[var(--st-text-secondary)]" />
+          <PolarRadiusAxis angle={30} domain={[0, 10]} className="text-xs fill-[var(--st-text-secondary)]" />
           <Radar
             name="Rating"
             dataKey="A"

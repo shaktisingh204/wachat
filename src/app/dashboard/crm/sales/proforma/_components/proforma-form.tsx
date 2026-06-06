@@ -363,7 +363,7 @@ export function ProformaForm({ initialData }: ProformaFormProps) {
                                             p.length === 1 ? [''] : p.filter((_, idx) => idx !== i),
                                         )
                                     }
-                                    className="text-zoru-danger-ink"
+                                    className="text-[var(--st-danger)]"
                                 >
                                     <Trash2 className="h-3.5 w-3.5" />
                                 </Button>

@@ -11,7 +11,7 @@ const NodePreview = ({ data, type }: { data: any; type: string }) => {
     switch (type) {
         case 'text':
         case 'input':
-            return <p className="whitespace-pre-wrap text-[10px] line-clamp-3 text-zoru-ink-muted">{data.text || 'Enter message...'}</p>;
+            return <p className="whitespace-pre-wrap text-[10px] line-clamp-3 text-[var(--st-text-secondary)]">{data.text || 'Enter message...'}</p>;
         case 'image':
         case 'video':
         case 'audio':
@@ -19,38 +19,38 @@ const NodePreview = ({ data, type }: { data: any; type: string }) => {
         case 'sticker':
             return (
                 <div className="space-y-1">
-                    <div className="h-8 bg-zoru-surface-2/50 rounded flex items-center justify-center text-[9px] text-zoru-ink-muted uppercase">{type}</div>
-                    {data.caption && <p className="text-[10px] truncate text-zoru-ink-muted">{data.caption}</p>}
+                    <div className="h-8 bg-[var(--st-bg-muted)]/50 rounded flex items-center justify-center text-[9px] text-[var(--st-text-secondary)] uppercase">{type}</div>
+                    {data.caption && <p className="text-[10px] truncate text-[var(--st-text-secondary)]">{data.caption}</p>}
                 </div>
             );
         case 'buttons':
             return (
                 <div className="space-y-1">
-                    <p className="text-[10px] line-clamp-1 text-zoru-ink-muted">{data.text || 'Question text...'}</p>
+                    <p className="text-[10px] line-clamp-1 text-[var(--st-text-secondary)]">{data.text || 'Question text...'}</p>
                     {((data.buttons as any[]) || []).slice(0, 3).map((btn: any, i: number) => (
-                        <div key={i} className="text-[9px] text-center bg-zoru-surface-2/50 rounded px-1 py-0.5 truncate">{btn.text || `Button ${i + 1}`}</div>
+                        <div key={i} className="text-[9px] text-center bg-[var(--st-bg-muted)]/50 rounded px-1 py-0.5 truncate">{btn.text || `Button ${i + 1}`}</div>
                     ))}
                 </div>
             );
         case 'listMessage':
-            return <p className="text-[10px] text-zoru-ink-muted">{data.buttonText || 'View Options'}</p>;
+            return <p className="text-[10px] text-[var(--st-text-secondary)]">{data.buttonText || 'View Options'}</p>;
         case 'condition':
-            return <p className="text-[10px] text-zoru-ink-muted">{data.variable || 'Set condition...'} {data.operator || '='} {data.value || '?'}</p>;
+            return <p className="text-[10px] text-[var(--st-text-secondary)]">{data.variable || 'Set condition...'} {data.operator || '='} {data.value || '?'}</p>;
         case 'delay':
-            return <p className="text-[10px] text-zoru-ink-muted">{data.duration || '5'} {data.unit || 'seconds'}</p>;
+            return <p className="text-[10px] text-[var(--st-text-secondary)]">{data.duration || '5'} {data.unit || 'seconds'}</p>;
         case 'setVariable':
-            return <p className="text-[10px] text-zoru-ink-muted font-mono">{data.variableName || 'var'} = {data.variableValue || '...'}</p>;
+            return <p className="text-[10px] text-[var(--st-text-secondary)] font-mono">{data.variableName || 'var'} = {data.variableValue || '...'}</p>;
         case 'sendTemplate':
-            return <p className="text-[10px] text-zoru-ink-muted">{data.templateName || 'Select template...'}</p>;
+            return <p className="text-[10px] text-[var(--st-text-secondary)]">{data.templateName || 'Select template...'}</p>;
         case 'sendLocation':
-            return <p className="text-[10px] text-zoru-ink-muted">{data.name || 'Location'}</p>;
+            return <p className="text-[10px] text-[var(--st-text-secondary)]">{data.name || 'Location'}</p>;
         case 'assignAgent':
-            return <p className="text-[10px] text-zoru-ink-muted">{data.agentName || 'Select agent...'}</p>;
+            return <p className="text-[10px] text-[var(--st-text-secondary)]">{data.agentName || 'Select agent...'}</p>;
         case 'addTag':
-            return <p className="text-[10px] text-zoru-ink-muted">{data.tagName || 'Select tag...'}</p>;
+            return <p className="text-[10px] text-[var(--st-text-secondary)]">{data.tagName || 'Select tag...'}</p>;
         case 'api':
         case 'webhook':
-            return <p className="text-[10px] text-zoru-ink-muted font-mono truncate">{data.url || 'https://...'}</p>;
+            return <p className="text-[10px] text-[var(--st-text-secondary)] font-mono truncate">{data.url || 'https://...'}</p>;
         default:
             return null;
     }
@@ -66,12 +66,12 @@ const CustomNode = ({ data, type, selected }: NodeProps) => {
 
     // Node color based on category
     const getColor = () => {
-        if (type === 'start') return 'border-zoru-line/50 bg-zoru-ink/5';
-        if (type === 'condition') return 'border-zoru-line/50 bg-zoru-ink/5';
-        if (['delay', 'input', 'setVariable', 'triggerFlow'].includes(type)) return 'border-zoru-line/50 bg-zoru-ink/5';
-        if (['api', 'webhook', 'sendSms', 'sendEmail'].includes(type)) return 'border-zoru-line/50 bg-zoru-ink/5';
-        if (['createCrmLead', 'assignAgent', 'addTag', 'sendOrder', 'notification'].includes(type)) return 'border-zoru-line/50 bg-zoru-ink/5';
-        return 'border-zoru-line bg-zoru-surface';
+        if (type === 'start') return 'border-[var(--st-border)]/50 bg-[var(--st-text)]/5';
+        if (type === 'condition') return 'border-[var(--st-border)]/50 bg-[var(--st-text)]/5';
+        if (['delay', 'input', 'setVariable', 'triggerFlow'].includes(type)) return 'border-[var(--st-border)]/50 bg-[var(--st-text)]/5';
+        if (['api', 'webhook', 'sendSms', 'sendEmail'].includes(type)) return 'border-[var(--st-border)]/50 bg-[var(--st-text)]/5';
+        if (['createCrmLead', 'assignAgent', 'addTag', 'sendOrder', 'notification'].includes(type)) return 'border-[var(--st-border)]/50 bg-[var(--st-text)]/5';
+        return 'border-[var(--st-border)] bg-[var(--st-bg-secondary)]';
     };
 
     return (
@@ -85,11 +85,11 @@ const CustomNode = ({ data, type, selected }: NodeProps) => {
                 <div className="flex items-center gap-2.5 px-3 py-2.5">
                     <div className={cn(
                         'flex h-7 w-7 shrink-0 items-center justify-center rounded-lg',
-                        type === 'start' ? 'bg-zoru-ink/10 text-zoru-ink' : 'bg-zoru-surface-2 text-zoru-ink-muted',
+                        type === 'start' ? 'bg-[var(--st-text)]/10 text-[var(--st-text)]' : 'bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]',
                     )}>
                         <Icon className="h-3.5 w-3.5" />
                     </div>
-                    <span className="text-[12px] font-semibold text-zoru-ink truncate leading-tight">{label}</span>
+                    <span className="text-[12px] font-semibold text-[var(--st-text)] truncate leading-tight">{label}</span>
                 </div>
 
                 {/* Preview */}
@@ -106,7 +106,7 @@ const CustomNode = ({ data, type, selected }: NodeProps) => {
                     <Handle
                         type="target"
                         position={Position.Left}
-                        className="!w-2.5 !h-2.5 !bg-zoru-surface-2-foreground !border-2 !border-white"
+                        className="!w-2.5 !h-2.5 !bg-[var(--st-text)] !border-2 !border-white"
                     />
                 )}
 
@@ -114,27 +114,27 @@ const CustomNode = ({ data, type, selected }: NodeProps) => {
                     <div className="absolute -right-2.5 top-1/2 -translate-y-1/2 flex flex-col gap-4">
                         <div className="relative">
                             <Handle type="source" position={Position.Right} id="output-yes"
-                                className="!w-2.5 !h-2.5 !bg-zoru-ink !border-2 !border-white !right-0 !relative !transform-none" />
-                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[8px] font-bold text-zoru-ink bg-white px-1 rounded shadow-sm border">YES</span>
+                                className="!w-2.5 !h-2.5 !bg-[var(--st-text)] !border-2 !border-white !right-0 !relative !transform-none" />
+                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[8px] font-bold text-[var(--st-text)] bg-white px-1 rounded shadow-sm border">YES</span>
                         </div>
                         <div className="relative">
                             <Handle type="source" position={Position.Right} id="output-no"
-                                className="!w-2.5 !h-2.5 !bg-zoru-ink !border-2 !border-white !right-0 !relative !transform-none" />
-                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[8px] font-bold text-zoru-ink bg-white px-1 rounded shadow-sm border">NO</span>
+                                className="!w-2.5 !h-2.5 !bg-[var(--st-text)] !border-2 !border-white !right-0 !relative !transform-none" />
+                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[8px] font-bold text-[var(--st-text)] bg-white px-1 rounded shadow-sm border">NO</span>
                         </div>
                     </div>
                 ) : type === 'buttons' || type === 'listMessage' ? (
                     <div className="absolute -right-2.5 top-10 flex flex-col gap-1.5">
                         {((data.buttons as any[]) || []).slice(0, 5).map((_: any, i: number) => (
                             <Handle key={i} type="source" position={Position.Right} id={`btn-${i}`}
-                                className="!w-2.5 !h-2.5 !bg-zoru-ink !border-2 !border-white !right-0 !relative !transform-none" />
+                                className="!w-2.5 !h-2.5 !bg-[var(--st-text)] !border-2 !border-white !right-0 !relative !transform-none" />
                         ))}
                         <Handle type="source" position={Position.Right} id="output-main"
-                            className="!w-2.5 !h-2.5 !bg-zoru-surface-2-foreground !border-2 !border-white !right-0 !relative !transform-none" />
+                            className="!w-2.5 !h-2.5 !bg-[var(--st-text)] !border-2 !border-white !right-0 !relative !transform-none" />
                     </div>
                 ) : (
                     <Handle type="source" position={Position.Right} id="output-main"
-                        className="!w-2.5 !h-2.5 !bg-zoru-surface-2-foreground !border-2 !border-white" />
+                        className="!w-2.5 !h-2.5 !bg-[var(--st-text)] !border-2 !border-white" />
                 )}
             </div>
         </div>

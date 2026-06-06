@@ -47,12 +47,12 @@ export default function VouchersPage() {
       <div className="animate-fade flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Voucher Entry</h1>
-          <p className="text-zoru-ink-muted mt-1">
+          <p className="text-[var(--st-text-secondary)] mt-1">
             Fast, keyboard-first data entry. Use Tab and Shift+Tab to navigate. Cmd+S to save.
           </p>
         </div>
         <div className="flex items-center gap-4">
-          <div className="text-sm text-zoru-ink-muted font-medium">Active Editors:</div>
+          <div className="text-sm text-[var(--st-text-secondary)] font-medium">Active Editors:</div>
           <div className="flex -space-x-3">
             <Avatar className="w-8 h-8 border-2 border-background">
               <AvatarImage src="https://i.pravatar.cc/100?img=1" />
@@ -62,17 +62,17 @@ export default function VouchersPage() {
               <AvatarImage src="https://i.pravatar.cc/100?img=2" />
               <AvatarFallback>B</AvatarFallback>
             </Avatar>
-            <Avatar className="w-8 h-8 border-2 border-background flex items-center justify-center bg-zoru-surface-2 text-xs">
+            <Avatar className="w-8 h-8 border-2 border-background flex items-center justify-center bg-[var(--st-bg-muted)] text-xs">
               +2
             </Avatar>
           </div>
         </div>
       </div>
 
-      <div className="animate-fade max-w-4xl border-2 border-dashed border-primary/20 bg-zoru-ink/5 hover:bg-zoru-ink/10 transition-colors rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer">
-        <UploadCloud className="w-10 h-10 text-zoru-ink mb-2" />
+      <div className="animate-fade max-w-4xl border-2 border-dashed border-primary/20 bg-[var(--st-text)]/5 hover:bg-[var(--st-text)]/10 transition-colors rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer">
+        <UploadCloud className="w-10 h-10 text-[var(--st-text)] mb-2" />
         <h3 className="font-semibold">AI Zero-Data Entry (OCR)</h3>
-        <p className="text-sm text-zoru-ink-muted">Drag and drop a receipt or invoice here, and AI will auto-fill the voucher below.</p>
+        <p className="text-sm text-[var(--st-text-secondary)]">Drag and drop a receipt or invoice here, and AI will auto-fill the voucher below.</p>
       </div>
 
       <Card className="animate-fade max-w-4xl">
@@ -168,9 +168,9 @@ export default function VouchersPage() {
           </div>
 
           <div className="flex justify-between items-center pt-4 border-t">
-            <div className="text-sm text-zoru-ink-muted flex items-center space-x-4">
-              <span>Total Debit: <strong className="text-zoru-ink">₹0.00</strong></span>
-              <span>Total Credit: <strong className="text-zoru-ink">₹0.00</strong></span>
+            <div className="text-sm text-[var(--st-text-secondary)] flex items-center space-x-4">
+              <span>Total Debit: <strong className="text-[var(--st-text)]">₹0.00</strong></span>
+              <span>Total Credit: <strong className="text-[var(--st-text)]">₹0.00</strong></span>
             </div>
             <div className="flex gap-2">
               <Button variant="outline">Clear (Esc)</Button>

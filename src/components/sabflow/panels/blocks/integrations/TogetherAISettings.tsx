@@ -67,7 +67,7 @@ export function TogetherAISettings({ block, onBlockChange, variables = [] }: Pro
         />
         <p className="text-[10.5px] text-[var(--gray-8)] mt-1">
           Enter the full Together AI model slug (e.g.{' '}
-          <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-zoru-ink">
+          <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-[var(--st-text)]">
             mistralai/Mixtral-8x7B-Instruct-v0.1
           </code>
           ).
@@ -108,7 +108,7 @@ export function TogetherAISettings({ block, onBlockChange, variables = [] }: Pro
             step={0.1}
             value={temperature}
             onChange={(e) => update({ temperature: parseFloat(e.target.value) })}
-            className="flex-1 accent-zoru-ink"
+            className="flex-1 accent-[var(--st-text)]"
           />
           <span className="text-[11px] text-[var(--gray-8)] w-5 shrink-0 text-right">1</span>
         </div>

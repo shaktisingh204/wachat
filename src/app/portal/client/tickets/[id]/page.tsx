@@ -37,7 +37,7 @@ async function ClientTicketDetailPageContent({
 
     return (
         <div className="flex flex-col gap-4">
-            <Link href="/portal/client/tickets" className="self-start text-sm text-zoru-ink-muted hover:underline">
+            <Link href="/portal/client/tickets" className="self-start text-sm text-[var(--st-text-secondary)] hover:underline">
                 ← Back to tickets
             </Link>
 
@@ -45,7 +45,7 @@ async function ClientTicketDetailPageContent({
                 <ZoruCardHeader className="flex flex-row items-start justify-between gap-3">
                     <div>
                         <ZoruCardTitle>{ticket.subject}</ZoruCardTitle>
-                        <p className="mt-1 text-xs text-zoru-ink-muted">
+                        <p className="mt-1 text-xs text-[var(--st-text-secondary)]">
                             #{ticket.number ?? ticket._id.slice(-6).toUpperCase()} · Opened {fmtDateTime(ticket.createdAt)}
                         </p>
                     </div>
@@ -56,7 +56,7 @@ async function ClientTicketDetailPageContent({
                 </ZoruCardHeader>
                 {ticket.description ? (
                     <ZoruCardContent>
-                        <p className="whitespace-pre-wrap text-sm text-zoru-ink">{ticket.description}</p>
+                        <p className="whitespace-pre-wrap text-sm text-[var(--st-text)]">{ticket.description}</p>
                     </ZoruCardContent>
                 ) : null}
             </Card>
@@ -67,7 +67,7 @@ async function ClientTicketDetailPageContent({
                 </ZoruCardHeader>
                 <ZoruCardContent className="flex flex-col gap-3">
                     {replies.length === 0 ? (
-                        <p className="text-sm text-zoru-ink-muted">No replies yet.</p>
+                        <p className="text-sm text-[var(--st-text-secondary)]">No replies yet.</p>
                     ) : (
                         replies.map((r) => (
                             <div
@@ -75,15 +75,15 @@ async function ClientTicketDetailPageContent({
                                 className={cn(
                                     'rounded-[var(--zoru-radius-sm)] border p-3',
                                     r.isStaff
-                                        ? 'border-zoru-line bg-zoru-surface'
-                                        : 'border-zoru-primary/20 bg-zoru-surface-2',
+                                        ? 'border-[var(--st-border)] bg-[var(--st-bg-secondary)]'
+                                        : 'border-[var(--st-text)]/20 bg-[var(--st-bg-muted)]',
                                 )}
                             >
-                                <div className="mb-1 flex items-center justify-between text-xs text-zoru-ink-muted">
-                                    <span className="font-medium text-zoru-ink">{r.authorName}</span>
+                                <div className="mb-1 flex items-center justify-between text-xs text-[var(--st-text-secondary)]">
+                                    <span className="font-medium text-[var(--st-text)]">{r.authorName}</span>
                                     <span>{fmtDateTime(r.createdAt)}</span>
                                 </div>
-                                <p className="whitespace-pre-wrap text-sm text-zoru-ink">{r.message}</p>
+                                <p className="whitespace-pre-wrap text-sm text-[var(--st-text)]">{r.message}</p>
                             </div>
                         ))
                     )}
@@ -101,7 +101,7 @@ async function ClientTicketDetailPageContent({
                 </Card>
             ) : (
                 <Card>
-                    <ZoruCardContent className="text-sm text-zoru-ink-muted">
+                    <ZoruCardContent className="text-sm text-[var(--st-text-secondary)]">
                         This ticket is closed. Open a new ticket if you need further help.
                     </ZoruCardContent>
                 </Card>

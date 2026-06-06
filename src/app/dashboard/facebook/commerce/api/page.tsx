@@ -219,7 +219,7 @@ export default function CommerceApiPage() {
                 <Copy />
               </Button>
             </div>
-            <p className="text-[11.5px] text-zoru-ink-muted">
+            <p className="text-[11.5px] text-[var(--st-text-secondary)]">
               Treat this value as a secret. Rotate it if it has ever been
               shared, committed or leaked.
             </p>
@@ -247,12 +247,12 @@ export default function CommerceApiPage() {
             />
           </div>
 
-          <div className="flex items-center justify-between rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface-2 px-4 py-3">
+          <div className="flex items-center justify-between rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-3">
             <div>
-              <p className="text-sm font-medium text-zoru-ink">
+              <p className="text-sm font-medium text-[var(--st-text)]">
                 Auto-sync catalog
               </p>
-              <p className="text-[11.5px] text-zoru-ink-muted">
+              <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                 Pull catalog changes from Meta every 30 minutes.
               </p>
             </div>
@@ -296,10 +296,10 @@ export default function CommerceApiPage() {
 
       {/* ── API reference cards ── */}
       <section className="mt-8">
-        <h2 className="text-[15px] font-medium text-zoru-ink">
+        <h2 className="text-[15px] font-medium text-[var(--st-text)]">
           Meta API reference
         </h2>
-        <p className="mt-1 text-sm text-zoru-ink-muted">
+        <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
           The Meta APIs that power the Commerce builder. Click through to
           official docs on the link below.
         </p>
@@ -310,7 +310,7 @@ export default function CommerceApiPage() {
               <Card key={area.title} className="flex h-full flex-col">
                 <ZoruCardHeader>
                   <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface-2 text-zoru-ink">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                       <Icon className="h-4 w-4" />
                     </div>
                     <ZoruCardTitle className="text-base">
@@ -330,13 +330,13 @@ export default function CommerceApiPage() {
             );
           })}
         </div>
-        <p className="mt-6 text-center text-sm text-zoru-ink-muted">
+        <p className="mt-6 text-center text-sm text-[var(--st-text-secondary)]">
           For detailed documentation, see the{" "}
           <Link
             href="https://developers.facebook.com/docs/commerce-platform"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-zoru-ink underline-offset-2 hover:underline"
+            className="text-[var(--st-text)] underline-offset-2 hover:underline"
           >
             Meta Commerce Platform docs
           </Link>

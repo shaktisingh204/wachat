@@ -18986,6 +18986,8 @@ dependencies = [
  "chrono",
  "futures",
  "mongodb",
+ "rand 0.8.6",
+ "rsa",
  "sabnode-auth",
  "sabnode-common",
  "sabnode-db",

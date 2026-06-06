@@ -27,12 +27,12 @@ import type { SabfilesNode } from '@/lib/rust-client/sabfiles';
 type Mode = 'recent' | 'starred' | 'shared' | 'trash';
 
 function fileIconFor(node: SabfilesNode): React.ReactElement {
-    if (node.type === 'folder') return <Folder className="text-zoru-ink" />;
+    if (node.type === 'folder') return <Folder className="text-[var(--st-text)]" />;
     const mime = node.mime || '';
-    if (mime.startsWith('image/')) return <FileImage className="text-zoru-ink" />;
-    if (mime.startsWith('video/')) return <FileVideo className="text-zoru-ink" />;
-    if (mime.includes('text') || mime.includes('pdf')) return <FileText className="text-zoru-ink" />;
-    return <FileIcon className="text-zoru-ink-muted" />;
+    if (mime.startsWith('image/')) return <FileImage className="text-[var(--st-text)]" />;
+    if (mime.startsWith('video/')) return <FileVideo className="text-[var(--st-text)]" />;
+    if (mime.includes('text') || mime.includes('pdf')) return <FileText className="text-[var(--st-text)]" />;
+    return <FileIcon className="text-[var(--st-text-secondary)]" />;
 }
 
 function fmtSize(bytes?: number | null): string {
@@ -138,7 +138,7 @@ export function SimpleList({
     return (
         <div className="flex flex-col gap-4">
             <div className="flex items-center justify-between">
-                <h1 className="text-xl font-semibold text-zoru-ink">{title}</h1>
+                <h1 className="text-xl font-semibold text-[var(--st-text)]">{title}</h1>
                 {mode === 'trash' && nodes.length > 0 && (
                     <Button variant="destructive" onClick={onEmptyTrash}>
                         <Trash2 /> Empty trash
@@ -147,13 +147,13 @@ export function SimpleList({
             </div>
 
             {nodes.length === 0 ? (
-                <Card className="p-12 text-center text-sm text-zoru-ink-muted">
+                <Card className="p-12 text-center text-sm text-[var(--st-text-secondary)]">
                     {emptyHint}
                 </Card>
             ) : (
                 <Card>
                     <ZoruCardContent className="p-0">
-                        <ul className="divide-y divide-zoru-line">
+                        <ul className="divide-y divide-[var(--st-border)]">
                             {nodes.map((n) => {
                                 const href =
                                     n.type === 'folder'
@@ -165,7 +165,7 @@ export function SimpleList({
                                     <li
                                         key={n.id}
                                         className={cn(
-                                            'flex items-center gap-3 px-3 py-2 hover:bg-zoru-surface',
+                                            'flex items-center gap-3 px-3 py-2 hover:bg-[var(--st-bg-secondary)]',
                                             busyId === n.id && 'opacity-60',
                                         )}
                                     >
@@ -174,14 +174,14 @@ export function SimpleList({
                                         </span>
                                         <Link
                                             href={href}
-                                            className="flex-1 truncate text-sm text-zoru-ink hover:underline"
+                                            className="flex-1 truncate text-sm text-[var(--st-text)] hover:underline"
                                         >
                                             {n.name}
                                         </Link>
-                                        <span className="hidden w-24 text-right text-xs text-zoru-ink-muted sm:inline">
+                                        <span className="hidden w-24 text-right text-xs text-[var(--st-text-secondary)] sm:inline">
                                             {n.type === 'folder' ? '—' : fmtSize(n.size)}
                                         </span>
-                                        <span className="hidden w-32 text-right text-xs text-zoru-ink-muted md:inline">
+                                        <span className="hidden w-32 text-right text-xs text-[var(--st-text-secondary)] md:inline">
                                             {mode === 'trash'
                                                 ? fmtDate(n.trashedAt) || fmtDate(n.updatedAt)
                                                 : fmtDate(n.updatedAt)}
@@ -216,7 +216,7 @@ export function SimpleList({
                                                 >
                                                     <Star
                                                         className={cn(
-                                                            n.starred && 'fill-zoru-ink-muted text-zoru-ink-muted',
+                                                            n.starred && 'fill-[var(--st-text-secondary)] text-[var(--st-text-secondary)]',
                                                         )}
                                                     />
                                                 </Button>

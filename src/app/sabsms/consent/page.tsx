@@ -105,7 +105,7 @@ export default async function SabsmsConsentPage({
       description={
         <>
           Every opt-in and opt-out — audit-ready, hash-only, signed
-          exports. <span className="text-zoru-ink">
+          exports. <span className="text-[var(--st-text)]">
             · {total.toLocaleString()} events
           </span>
         </>

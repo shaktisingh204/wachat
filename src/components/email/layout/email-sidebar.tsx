@@ -53,14 +53,14 @@ export function EmailSidebar({ items, accountId }: EmailSidebarProps) {
               variant={isActive ? 'secondary' : 'ghost'}
               className={cn(
                 'justify-start w-full gap-2',
-                isActive && 'bg-zoru-surface-2 font-medium text-zoru-ink',
+                isActive && 'bg-[var(--st-bg-muted)] font-medium text-[var(--st-text)]',
               )}
             >
               <Link href={buildHref(item.href)}>
                 <Icon className="h-4 w-4" />
                 <span className="flex-1 text-left">{item.label}</span>
                 {item.badge !== undefined && (
-                  <span className="ml-auto text-xs bg-zoru-ink/10 text-zoru-ink px-2 py-0.5 rounded-full">
+                  <span className="ml-auto text-xs bg-[var(--st-text)]/10 text-[var(--st-text)] px-2 py-0.5 rounded-full">
                     {item.badge}
                   </span>
                 )}
@@ -68,7 +68,7 @@ export function EmailSidebar({ items, accountId }: EmailSidebarProps) {
             </Button>
 
             {isActive && item.children && item.children.length > 0 && (
-              <div className="ml-4 mt-0.5 mb-1 flex flex-col gap-0.5 border-l border-zoru-line pl-2">
+              <div className="ml-4 mt-0.5 mb-1 flex flex-col gap-0.5 border-l border-[var(--st-border)] pl-2">
                 {item.children.map((child) => {
                   const isChildExact = child.href === item.href;
                   const isChildActive = isChildExact
@@ -84,15 +84,15 @@ export function EmailSidebar({ items, accountId }: EmailSidebarProps) {
                       size="sm"
                       className={cn(
                         'justify-start w-full gap-2 h-8 text-sm font-normal',
-                        isChildActive && 'bg-zoru-surface-2 font-medium text-zoru-ink',
-                        !isChildActive && 'text-zoru-ink-muted',
+                        isChildActive && 'bg-[var(--st-bg-muted)] font-medium text-[var(--st-text)]',
+                        !isChildActive && 'text-[var(--st-text-secondary)]',
                       )}
                     >
                       <Link href={buildHref(child.href)}>
                         {ChildIcon && <ChildIcon className="h-3.5 w-3.5 shrink-0" />}
                         <span className="flex-1 text-left">{child.label}</span>
                         {child.badge !== undefined && (
-                          <span className="ml-auto text-xs bg-zoru-ink/10 text-zoru-ink px-2 py-0.5 rounded-full">
+                          <span className="ml-auto text-xs bg-[var(--st-text)]/10 text-[var(--st-text)] px-2 py-0.5 rounded-full">
                             {child.badge}
                           </span>
                         )}

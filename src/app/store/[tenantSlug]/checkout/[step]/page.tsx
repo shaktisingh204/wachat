@@ -93,7 +93,7 @@ export default function CheckoutStepPage(): React.JSX.Element {
             <h1 className="mb-3 text-2xl font-semibold">Checkout</h1>
             <StepIndicator active={step} />
 
-            {error && <p className="mb-3 text-sm text-zoru-ink">{error}</p>}
+            {error && <p className="mb-3 text-sm text-[var(--st-text)]">{error}</p>}
 
             {step === 'address' && (
                 <div className="space-y-3">

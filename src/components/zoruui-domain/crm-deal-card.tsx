@@ -32,15 +32,15 @@ export function CrmDealCard({ deal, contact, account, taskCount = 0, index }: Cr
             <Link href={`/dashboard/crm/deals/${deal._id.toString()}`}>
                 <Card className="cursor-pointer block hover:shadow-md transition-shadow p-0">
                     <div className="p-3">
-                        <h3 className="text-sm font-semibold text-zoru-ink">{deal.name}</h3>
+                        <h3 className="text-sm font-semibold text-[var(--st-text)]">{deal.name}</h3>
                     </div>
                     <div className="p-3 pt-0 text-sm space-y-2">
-                        <p className="font-bold text-zoru-ink">{new Intl.NumberFormat('en-US', { style: 'currency', currency: deal.currency || 'USD' }).format(deal.value)}</p>
-                        {account && <div className="flex items-center gap-2 text-xs text-zoru-ink-muted"><Building className="h-3 w-3" /><span>{account.name}</span></div>}
-                        {contact && <div className="flex items-center gap-2 text-xs text-zoru-ink-muted"><User className="h-3 w-3" /><span>{contact.name}</span></div>}
+                        <p className="font-bold text-[var(--st-text)]">{new Intl.NumberFormat('en-US', { style: 'currency', currency: deal.currency || 'USD' }).format(deal.value)}</p>
+                        {account && <div className="flex items-center gap-2 text-xs text-[var(--st-text-secondary)]"><Building className="h-3 w-3" /><span>{account.name}</span></div>}
+                        {contact && <div className="flex items-center gap-2 text-xs text-[var(--st-text-secondary)]"><User className="h-3 w-3" /><span>{contact.name}</span></div>}
                     </div>
-                    <div className="p-3 flex justify-between items-center border-t border-zoru-line">
-                         <div className="flex items-center gap-1 text-xs text-zoru-ink-muted">
+                    <div className="p-3 flex justify-between items-center border-t border-[var(--st-border)]">
+                         <div className="flex items-center gap-1 text-xs text-[var(--st-text-secondary)]">
                             <FolderKanban className="h-3 w-3" />
                             <span>{taskCount}</span>
                         </div>

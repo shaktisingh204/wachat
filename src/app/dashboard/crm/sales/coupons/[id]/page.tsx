@@ -70,10 +70,10 @@ function Field({
 }) {
     return (
         <div className={fullWidth ? 'sm:col-span-2' : undefined}>
-            <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+            <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                 {label}
             </div>
-            <div className="mt-1 text-[13px] text-zoru-ink">{children}</div>
+            <div className="mt-1 text-[13px] text-[var(--st-text)]">{children}</div>
         </div>
     );
 }
@@ -118,7 +118,7 @@ export default async function CouponDetailPage({
             audit={<EntityAuditTimeline entityKind="coupon" entityId={id} />}
         >
             <Card className="p-6">
-                <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                     Coupon details
                 </h2>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
@@ -140,7 +140,7 @@ export default async function CouponDetailPage({
                         <Field label="Applicable Categories" fullWidth>
                             <div className="flex flex-wrap gap-2">
                                 {coupon.applicableCategories.map((cat: string) => (
-                                    <span key={cat} className="inline-flex items-center rounded-full bg-zoru-surface px-2 py-0.5 text-[12px] font-medium text-zoru-ink border border-zoru-line">
+                                    <span key={cat} className="inline-flex items-center rounded-full bg-[var(--st-bg-secondary)] px-2 py-0.5 text-[12px] font-medium text-[var(--st-text)] border border-[var(--st-border)]">
                                         {cat}
                                     </span>
                                 ))}

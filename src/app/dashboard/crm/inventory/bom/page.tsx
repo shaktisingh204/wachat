@@ -25,7 +25,7 @@ export default async function BomPage() {
   }));
 
   return (
-    <React.Suspense fallback={<div className="p-8 text-center text-sm text-zoru-ink-muted">Loading BOM list...</div>}>
+    <React.Suspense fallback={<div className="p-8 text-center text-sm text-[var(--st-text-secondary)]">Loading BOM list...</div>}>
       <BomListClient initialBoms={boms} initialKpis={kpis} />
     </React.Suspense>
   );

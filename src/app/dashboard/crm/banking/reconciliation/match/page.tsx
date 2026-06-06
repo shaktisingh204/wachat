@@ -347,8 +347,8 @@ export default function BankReconciliationMatchPage() {
                 </div>
 
                 {csvColumns.length > 0 && (
-                    <div className="mt-6 border border-zoru-line p-5 rounded-[var(--zoru-radius-lg)] bg-zoru-surface-1">
-                        <h4 className="mb-4 text-sm font-semibold text-zoru-ink">Map CSV Columns</h4>
+                    <div className="mt-6 border border-[var(--st-border)] p-5 rounded-[var(--zoru-radius-lg)] bg-[var(--st-bg-secondary)]">
+                        <h4 className="mb-4 text-sm font-semibold text-[var(--st-text)]">Map CSV Columns</h4>
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                             <div>
                                 <Label>Date Column</Label>
@@ -417,7 +417,7 @@ export default function BankReconciliationMatchPage() {
                             <Download className="mr-2 h-4 w-4" /> Load Draft
                         </Button>
                     </div>
-                    <p className="text-[12px] text-zoru-ink-muted">
+                    <p className="text-[12px] text-[var(--st-text-secondary)]">
                         Auto-save and draft support enabled.
                     </p>
                 </div>
@@ -437,8 +437,8 @@ export default function BankReconciliationMatchPage() {
                         />
                         <Card className="flex flex-col justify-between h-full p-0 overflow-hidden">
                             <div className="p-6 pb-2">
-                                <p className="text-xs font-medium uppercase tracking-wide text-zoru-ink-subtle">Difference</p>
-                                <p className={`text-2xl font-semibold tracking-tight ${difference !== 0 ? 'text-zoru-danger' : 'text-zoru-ink'}`}>
+                                <p className="text-xs font-medium uppercase tracking-wide text-[var(--st-text-tertiary)]">Difference</p>
+                                <p className={`text-2xl font-semibold tracking-tight ${difference !== 0 ? 'text-[var(--st-danger)]' : 'text-[var(--st-text)]'}`}>
                                     ₹{difference.toLocaleString('en-IN')}
                                 </p>
                             </div>
@@ -496,18 +496,18 @@ const TransactionTable = ({
     isBankStatement?: boolean;
 }) => (
     <Card>
-        <h3 className="mb-4 text-[15px] font-semibold text-zoru-ink">{title}</h3>
-        <div className="max-h-96 overflow-x-auto overflow-y-auto rounded-[var(--zoru-radius)] border border-zoru-line">
+        <h3 className="mb-4 text-[15px] font-semibold text-[var(--st-text)]">{title}</h3>
+        <div className="max-h-96 overflow-x-auto overflow-y-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
             <Table>
-                <TableHeader className="sticky top-0 bg-zoru-surface-1 z-10">
-                    <TableRow className="border-zoru-line hover:bg-transparent">
-                        <TableHead className="w-10 text-zoru-ink-muted">
+                <TableHeader className="sticky top-0 bg-[var(--st-bg-secondary)] z-10">
+                    <TableRow className="border-[var(--st-border)] hover:bg-transparent">
+                        <TableHead className="w-10 text-[var(--st-text-secondary)]">
                             <Check className="h-4 w-4" />
                         </TableHead>
-                        <TableHead className="text-zoru-ink-muted">Date</TableHead>
-                        <TableHead className="text-zoru-ink-muted">Description</TableHead>
-                        <TableHead className="text-right text-zoru-ink-muted">Debit</TableHead>
-                        <TableHead className="text-right text-zoru-ink-muted">Credit</TableHead>
+                        <TableHead className="text-[var(--st-text-secondary)]">Date</TableHead>
+                        <TableHead className="text-[var(--st-text-secondary)]">Description</TableHead>
+                        <TableHead className="text-right text-[var(--st-text-secondary)]">Debit</TableHead>
+                        <TableHead className="text-right text-[var(--st-text-secondary)]">Credit</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -529,7 +529,7 @@ const TransactionTable = ({
                         return (
                             <TableRow
                                 key={e._id}
-                                className="border-zoru-line"
+                                className="border-[var(--st-border)]"
                                 data-state={matchedIds.has(e._id) ? 'selected' : ''}
                             >
                                 <TableCell>
@@ -538,16 +538,16 @@ const TransactionTable = ({
                                         onCheckedChange={() => onMatchToggle(e._id)}
                                     />
                                 </TableCell>
-                                <TableCell className="text-xs text-zoru-ink">
+                                <TableCell className="text-xs text-[var(--st-text)]">
                                     {e.date ? format(new Date(e.date), 'dd MMM') : ''}
                                 </TableCell>
-                                <TableCell className="text-xs text-zoru-ink">
+                                <TableCell className="text-xs text-[var(--st-text)]">
                                     {e.description}
                                 </TableCell>
-                                <TableCell className="text-right font-mono text-xs text-zoru-ink">
+                                <TableCell className="text-right font-mono text-xs text-[var(--st-text)]">
                                     {debit > 0 ? debit.toFixed(2) : ''}
                                 </TableCell>
-                                <TableCell className="text-right font-mono text-xs text-zoru-ink">
+                                <TableCell className="text-right font-mono text-xs text-[var(--st-text)]">
                                     {credit > 0 ? credit.toFixed(2) : ''}
                                 </TableCell>
                             </TableRow>
@@ -556,7 +556,7 @@ const TransactionTable = ({
                 </TableBody>
             </Table>
         </div>
-        <div className="mt-4 flex justify-end gap-6 border-t border-zoru-line pt-4 text-[13px] font-semibold text-zoru-ink">
+        <div className="mt-4 flex justify-end gap-6 border-t border-[var(--st-border)] pt-4 text-[13px] font-semibold text-[var(--st-text)]">
             <div className="text-right">
                 Debit: <span className="font-mono">₹{totalDebit.toFixed(2)}</span>
             </div>

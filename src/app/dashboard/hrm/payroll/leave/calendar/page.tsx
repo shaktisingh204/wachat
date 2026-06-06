@@ -38,7 +38,7 @@ export default function LeaveCalendarPage() {
           title="Leave Calendar"
           subtitle="Loading leave calendar..."
         >
-          <div className="text-center py-8 text-zoru-ink-muted">Loading…</div>
+          <div className="text-center py-8 text-[var(--st-text-secondary)]">Loading…</div>
         </EntityListShell>
       }
     >

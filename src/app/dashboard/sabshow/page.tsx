@@ -25,7 +25,7 @@ export default async function SabshowIndexPage() {
             <header className="flex items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-semibold tracking-tight">SabShow</h1>
-                    <p className="text-sm text-zoru-ink-muted">
+                    <p className="text-sm text-[var(--st-text-secondary)]">
                         Collaborative presentations — slides, themes, comments, publish.
                     </p>
                 </div>
@@ -61,7 +61,7 @@ export default async function SabshowIndexPage() {
                                         </Badge>
                                     ) : null}
                                 </div>
-                                <div className="text-xs text-zoru-ink-muted">
+                                <div className="text-xs text-[var(--st-text-secondary)]">
                                     v{deck.version ?? 1}
                                     {deck.updatedAt
                                         ? ` · updated ${new Date(deck.updatedAt).toLocaleDateString()}`

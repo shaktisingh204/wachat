@@ -16,17 +16,17 @@ export default function PublicDashboardError({
     }, [error]);
 
     return (
-        <div className="flex h-screen w-full flex-col items-center justify-center space-y-4 text-center bg-zoru-surface-1 p-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-danger-surface text-zoru-danger-ink">
+        <div className="flex h-screen w-full flex-col items-center justify-center space-y-4 text-center bg-[var(--st-bg-secondary)] p-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-danger-surface text-[var(--st-danger)]">
                 <AlertCircle className="h-6 w-6" />
             </div>
             <div className="space-y-2">
-                <h2 className="text-lg font-semibold tracking-tight text-zoru-ink">Dashboard Error</h2>
-                <p className="text-sm text-zoru-ink-muted">
+                <h2 className="text-lg font-semibold tracking-tight text-[var(--st-text)]">Dashboard Error</h2>
+                <p className="text-sm text-[var(--st-text-secondary)]">
                     An error occurred while loading this public dashboard.
                 </p>
                 {error?.message && (
-                    <p className="text-xs text-zoru-ink-muted bg-zoru-surface-2 p-2 rounded-md max-w-md mx-auto truncate border border-zoru-line">
+                    <p className="text-xs text-[var(--st-text-secondary)] bg-[var(--st-bg-muted)] p-2 rounded-md max-w-md mx-auto truncate border border-[var(--st-border)]">
                         {error.message}
                     </p>
                 )}

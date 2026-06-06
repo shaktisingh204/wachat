@@ -268,7 +268,7 @@ export function SectionBlockEditor({ settings, onUpdate }: { settings: any, onUp
                                  <div key={attr.id} className="grid grid-cols-[1fr,1fr,auto] gap-2 items-center">
                                      <Input placeholder="Key" value={attr.key} onChange={e => handleAttributeChange(index, 'key', e.target.value)} />
                                      <Input placeholder="Value" value={attr.value} onChange={e => handleAttributeChange(index, 'value', e.target.value)} />
-                                     <Button type="button" variant="ghost" size="icon" onClick={() => removeAttribute(index)}><Trash2 className="h-4 w-4 text-zoru-ink"/></Button>
+                                     <Button type="button" variant="ghost" size="icon" onClick={() => removeAttribute(index)}><Trash2 className="h-4 w-4 text-[var(--st-text)]"/></Button>
                                  </div>
                              ))}
                              <Button type="button" variant="outline" className="w-full" onClick={addAttribute}><Plus className="mr-2 h-4 w-4"/>Add Attribute</Button>

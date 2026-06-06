@@ -23,12 +23,12 @@ interface AttendanceCalendarByEmployeeProps {
 }
 
 const STATUS_TO_COLOR: Record<string, string> = {
-  present: 'bg-zoru-ink/30 text-zoru-ink dark:text-white',
-  wfh: 'bg-zoru-ink/20 text-zoru-ink dark:text-white',
-  absent: 'bg-zoru-ink/30 text-zoru-ink dark:text-white',
-  half_day: 'bg-zoru-ink/30 text-zoru-ink dark:text-white',
-  leave: 'bg-zoru-ink/30 text-zoru-ink dark:text-white',
-  holiday: 'bg-zoru-surface-2 text-zoru-ink-muted',
+  present: 'bg-[var(--st-text)]/30 text-[var(--st-text)] dark:text-white',
+  wfh: 'bg-[var(--st-text)]/20 text-[var(--st-text)] dark:text-white',
+  absent: 'bg-[var(--st-text)]/30 text-[var(--st-text)] dark:text-white',
+  half_day: 'bg-[var(--st-text)]/30 text-[var(--st-text)] dark:text-white',
+  leave: 'bg-[var(--st-text)]/30 text-[var(--st-text)] dark:text-white',
+  holiday: 'bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]',
 };
 
 function startOfMonth(d: Date): Date {
@@ -90,7 +90,7 @@ export function AttendanceCalendarByEmployee({
   return (
     <div className="flex w-full flex-col gap-3 p-3">
       <div className="flex items-center justify-between gap-2">
-        <h3 className="text-[14px] font-medium text-zoru-ink">{monthLabel}</h3>
+        <h3 className="text-[14px] font-medium text-[var(--st-text)]">{monthLabel}</h3>
         <div className="flex items-center gap-1">
           <Button
             type="button"
@@ -121,17 +121,17 @@ export function AttendanceCalendarByEmployee({
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-zoru-line">
+      <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
         <table className="w-full text-[11px]">
           <thead>
-            <tr className="bg-zoru-surface-2">
-              <th className="min-w-[160px] p-2 text-left text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+            <tr className="bg-[var(--st-bg-muted)]">
+              <th className="min-w-[160px] p-2 text-left text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Employee
               </th>
               {dayKeys.map((k, i) => (
                 <th
                   key={k}
-                  className="w-7 p-1 text-center font-normal text-zoru-ink-muted"
+                  className="w-7 p-1 text-center font-normal text-[var(--st-text-secondary)]"
                   title={k}
                 >
                   {i + 1}
@@ -144,7 +144,7 @@ export function AttendanceCalendarByEmployee({
               <tr>
                 <td
                   colSpan={1 + dayKeys.length}
-                  className="h-20 text-center text-[12.5px] text-zoru-ink-muted"
+                  className="h-20 text-center text-[12.5px] text-[var(--st-text-secondary)]"
                 >
                   No attendance entries for this month.
                 </td>
@@ -153,7 +153,7 @@ export function AttendanceCalendarByEmployee({
               employees.map((empId) => {
                 const inner = byEmployeeDay.get(empId)!;
                 return (
-                  <tr key={empId} className="border-t border-zoru-line">
+                  <tr key={empId} className="border-t border-[var(--st-border)]">
                     <td className="p-2 align-middle">
                       <EntityPickerChip entity="employee" id={empId} />
                     </td>
@@ -163,16 +163,16 @@ export function AttendanceCalendarByEmployee({
                         return (
                           <td
                             key={k}
-                            className="h-7 w-7 border-l border-zoru-line/40"
+                            className="h-7 w-7 border-l border-[var(--st-border)]/40"
                           />
                         );
                       }
                       const first = items[0];
-                      const color = STATUS_TO_COLOR[first.status] ?? 'bg-zoru-surface-2';
+                      const color = STATUS_TO_COLOR[first.status] ?? 'bg-[var(--st-bg-muted)]';
                       return (
                         <td
                           key={k}
-                          className="h-7 w-7 border-l border-zoru-line/40 p-0"
+                          className="h-7 w-7 border-l border-[var(--st-border)]/40 p-0"
                           title={`${first.status.replace(/_/g, ' ')} · ${k}`}
                         >
                           <Link
@@ -194,12 +194,12 @@ export function AttendanceCalendarByEmployee({
         </table>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3 text-[11px] text-zoru-ink-muted">
-        <Legend className="bg-zoru-ink/30" label="Present / WFH" />
-        <Legend className="bg-zoru-ink/30" label="Absent" />
-        <Legend className="bg-zoru-ink/30" label="Half day" />
-        <Legend className="bg-zoru-ink/30" label="Leave" />
-        <Legend className="bg-zoru-surface-2" label="Holiday" />
+      <div className="flex flex-wrap items-center gap-3 text-[11px] text-[var(--st-text-secondary)]">
+        <Legend className="bg-[var(--st-text)]/30" label="Present / WFH" />
+        <Legend className="bg-[var(--st-text)]/30" label="Absent" />
+        <Legend className="bg-[var(--st-text)]/30" label="Half day" />
+        <Legend className="bg-[var(--st-text)]/30" label="Leave" />
+        <Legend className="bg-[var(--st-bg-muted)]" label="Holiday" />
       </div>
     </div>
   );

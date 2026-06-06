@@ -176,13 +176,13 @@ export function NotificationsClient({
     const empty =
         filtered.length === 0 ? (
             <div className="flex flex-col items-center gap-3 p-8 text-center">
-                <Inbox className="h-10 w-10 text-zoru-ink-muted" />
-                <h3 className="text-base font-medium text-zoru-ink">
+                <Inbox className="h-10 w-10 text-[var(--st-text-secondary)]" />
+                <h3 className="text-base font-medium text-[var(--st-text)]">
                     {rows.length === 0
                         ? "You're all caught up!"
                         : 'No notifications match the filters'}
                 </h3>
-                <p className="max-w-sm text-sm text-zoru-ink-muted">
+                <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                     {rows.length === 0
                         ? 'When teammates assign you work, @-mention you, or SLA timers fire, you’ll see them here.'
                         : 'Try the chips above to widen your view.'}
@@ -250,7 +250,7 @@ export function NotificationsClient({
                             </Button>
                         ))}
                     </div>
-                    <span className="h-4 w-px bg-zoru-line" aria-hidden />
+                    <span className="h-4 w-px bg-[var(--st-border)]" aria-hidden />
                     <div className="flex flex-wrap items-center gap-1">
                         {STATUS_CHIPS.map((chip) => (
                             <Button
@@ -298,9 +298,9 @@ export function NotificationsClient({
                             
                             return Object.entries(groups).filter(([_, items]) => items.length > 0).map(([label, items]) => (
                                 <div key={label}>
-                                    <h4 className="text-sm font-medium text-zoru-ink-muted mb-2 px-2">{label}</h4>
+                                    <h4 className="text-sm font-medium text-[var(--st-text-secondary)] mb-2 px-2">{label}</h4>
                                     <Card className="p-0">
-                                        <ul className="divide-y divide-zoru-line">
+                                        <ul className="divide-y divide-[var(--st-border)]">
                                             {items.map((row) => {
                                 const Icon = KIND_ICON[row.kind] ?? Bell;
                                 return (
@@ -312,7 +312,7 @@ export function NotificationsClient({
                                         )}
                                     >
                                         <div className="flex min-w-0 flex-1 items-start gap-3">
-                                            <Icon className="mt-1 h-4 w-4 shrink-0 text-zoru-ink-muted" />
+                                            <Icon className="mt-1 h-4 w-4 shrink-0 text-[var(--st-text-secondary)]" />
                                             <div className="min-w-0">
                                                 <div className="flex flex-wrap items-center gap-2">
                                                     <Badge variant="secondary">
@@ -321,7 +321,7 @@ export function NotificationsClient({
                                                     <Badge variant="secondary">
                                                         {row.kind}
                                                     </Badge>
-                                                    <p className="text-[13px] text-zoru-ink">
+                                                    <p className="text-[13px] text-[var(--st-text)]">
                                                         <span className="font-medium">
                                                             {actorLabel(row.actorId, row.actorIsYou)}
                                                         </span>{' '}
@@ -332,11 +332,11 @@ export function NotificationsClient({
                                                     </p>
                                                 </div>
                                                 {row.reason ? (
-                                                    <p className="mt-1 text-[12.5px] text-zoru-ink-muted">
+                                                    <p className="mt-1 text-[12.5px] text-[var(--st-text-secondary)]">
                                                         {row.reason}
                                                     </p>
                                                 ) : null}
-                                                <p className="mt-1 text-[11.5px] text-zoru-ink-muted">
+                                                <p className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">
                                                     {relative(row.ts)}
                                                 </p>
                                             </div>

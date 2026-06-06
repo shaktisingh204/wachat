@@ -29,7 +29,7 @@ export function FacebookChatWindow({ project, conversation, messages, isLoading,
 
     return (
         <div className="flex flex-col h-full bg-transparent">
-            <div className="flex items-center justify-between gap-3 p-3 border-b bg-zoru-surface h-[73px] flex-shrink-0">
+            <div className="flex items-center justify-between gap-3 p-3 border-b bg-[var(--st-bg-secondary)] h-[73px] flex-shrink-0">
                 <div className="flex items-center gap-3">
                     <Button variant="ghost" size="icon" className="md:hidden" onClick={onBack}>
                         <ArrowLeft className="h-4 w-4" />
@@ -40,7 +40,7 @@ export function FacebookChatWindow({ project, conversation, messages, isLoading,
                     </Avatar>
                     <div>
                         <p className="font-semibold">{participant?.name}</p>
-                        <p className="text-sm text-zoru-ink-muted">online</p>
+                        <p className="text-sm text-[var(--st-text-secondary)]">online</p>
                     </div>
                 </div>
                  <div className="flex items-center gap-1">
@@ -54,7 +54,7 @@ export function FacebookChatWindow({ project, conversation, messages, isLoading,
                 <div className="p-4 space-y-4">
                     {isLoading ? (
                         <div className="flex items-center justify-center h-full">
-                            <LoaderCircle className="h-6 w-6 animate-spin text-zoru-ink-muted" />
+                            <LoaderCircle className="h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
                         </div>
                     ) : (
                         messages.map((msg) => (
@@ -65,7 +65,7 @@ export function FacebookChatWindow({ project, conversation, messages, isLoading,
                 </div>
             </ScrollArea>
             
-            <div className="flex items-center p-3 border-t bg-zoru-surface flex-shrink-0">
+            <div className="flex items-center p-3 border-t bg-[var(--st-bg-secondary)] flex-shrink-0">
                 {participant && project.facebookPageId && (
                     <FacebookMessageInput
                         projectId={project._id.toString()}

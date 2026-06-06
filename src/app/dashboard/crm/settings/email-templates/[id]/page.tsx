@@ -70,7 +70,7 @@ export default async function EmailTemplateDetailPage({
             {/* Summary card */}
             <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
-                    <div className="text-[14px] font-medium text-zoru-ink">
+                    <div className="text-[14px] font-medium text-[var(--st-text)]">
                         Overview
                     </div>
                     <StatusPill label={status} tone={tone} />
@@ -87,12 +87,12 @@ export default async function EmailTemplateDetailPage({
                 </div>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
                     <div>
-                        <div className="text-zoru-ink-muted">Subject</div>
-                        <div className="text-zoru-ink">{template.subject}</div>
+                        <div className="text-[var(--st-text-secondary)]">Subject</div>
+                        <div className="text-[var(--st-text)]">{template.subject}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Last updated</div>
-                        <div className="text-zoru-ink">{fmtDate(template.updatedAt)}</div>
+                        <div className="text-[var(--st-text-secondary)]">Last updated</div>
+                        <div className="text-[var(--st-text)]">{fmtDate(template.updatedAt)}</div>
                     </div>
                 </div>
             </Card>
@@ -100,7 +100,7 @@ export default async function EmailTemplateDetailPage({
             {/* Variables */}
             {variables.length > 0 ? (
                 <Card className="p-4">
-                    <div className="mb-2 text-[13px] font-medium text-zoru-ink">
+                    <div className="mb-2 text-[13px] font-medium text-[var(--st-text)]">
                         Merge variables
                     </div>
                     <div className="flex flex-wrap gap-2">
@@ -115,10 +115,10 @@ export default async function EmailTemplateDetailPage({
 
             {/* HTML body preview */}
             <Card className="p-6">
-                <div className="mb-3 text-[15px] font-medium text-zoru-ink">
+                <div className="mb-3 text-[15px] font-medium text-[var(--st-text)]">
                     Body (HTML source)
                 </div>
-                <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-4 font-mono text-[12.5px] text-zoru-ink">
+                <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 font-mono text-[12.5px] text-[var(--st-text)]">
                     {template.body}
                 </pre>
             </Card>
@@ -126,10 +126,10 @@ export default async function EmailTemplateDetailPage({
             {/* Plain text fallback */}
             {template.textBody ? (
                 <Card className="p-6">
-                    <div className="mb-3 text-[15px] font-medium text-zoru-ink">
+                    <div className="mb-3 text-[15px] font-medium text-[var(--st-text)]">
                         Plain-text fallback
                     </div>
-                    <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-4 text-[12.5px] text-zoru-ink">
+                    <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 text-[12.5px] text-[var(--st-text)]">
                         {template.textBody}
                     </pre>
                 </Card>

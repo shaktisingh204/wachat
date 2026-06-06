@@ -124,7 +124,7 @@ export function CreateCustomAppDialog() {
                         </SabFilePickerButton>
                     </div>
                     {error ? (
-                        <p role="alert" className="text-sm text-zoru-danger">
+                        <p role="alert" className="text-sm text-[var(--st-danger)]">
                             {error}
                         </p>
                     ) : null}

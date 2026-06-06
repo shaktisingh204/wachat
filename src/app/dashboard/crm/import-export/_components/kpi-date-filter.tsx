@@ -32,13 +32,13 @@ export function KpiDateFilter() {
 
     return (
         <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-zoru-ink">Filter KPI:</span>
+            <span className="text-sm font-medium text-[var(--st-text)]">Filter KPI:</span>
             <DatePicker 
                 date={start}
                 onSelect={handleStartChange}
                 placeholder="Start Date"
             />
-            <span className="text-sm text-zoru-ink-muted">to</span>
+            <span className="text-sm text-[var(--st-text-secondary)]">to</span>
             <DatePicker 
                 date={end}
                 onSelect={handleEndChange}

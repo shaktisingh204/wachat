@@ -61,14 +61,14 @@ export type PresenceSidebarProps = {
 // ---------------------------------------------------------------------------
 
 const AVATAR_PALETTE = [
-  'bg-zoru-ink',
-  'bg-zoru-ink',
-  'bg-zoru-ink',
-  'bg-zoru-ink',
-  'bg-zoru-ink',
-  'bg-zoru-ink',
-  'bg-zoru-ink',
-  'bg-zoru-ink',
+  'bg-[var(--st-text)]',
+  'bg-[var(--st-text)]',
+  'bg-[var(--st-text)]',
+  'bg-[var(--st-text)]',
+  'bg-[var(--st-text)]',
+  'bg-[var(--st-text)]',
+  'bg-[var(--st-text)]',
+  'bg-[var(--st-text)]',
 ];
 
 function colourFor(userId: string): string {
@@ -99,9 +99,9 @@ const STATUS_LABEL: Record<PresencePeerStatus, string> = {
 };
 
 const STATUS_DOT: Record<PresencePeerStatus, string> = {
-  active: 'bg-zoru-ink',
-  idle: 'bg-zoru-ink',
-  away: 'bg-zoru-surface-2',
+  active: 'bg-[var(--st-text)]',
+  idle: 'bg-[var(--st-text)]',
+  away: 'bg-[var(--st-bg-muted)]',
 };
 
 function formatRelative(lastSeen: number, nowMs: number): string {

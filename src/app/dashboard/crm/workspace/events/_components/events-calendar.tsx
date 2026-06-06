@@ -83,7 +83,7 @@ export function EventsCalendar({ events }: EventsCalendarProps): React.JSX.Eleme
         return (
             <Card>
                 <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                    <h3 className="flex items-center gap-2 text-[14px] font-semibold text-zoru-ink">
+                    <h3 className="flex items-center gap-2 text-[14px] font-semibold text-[var(--st-text)]">
                         <CalendarDays className="h-4 w-4" />
                         Loading calendar...
                     </h3>
@@ -92,7 +92,7 @@ export function EventsCalendar({ events }: EventsCalendarProps): React.JSX.Eleme
                     {DAYS.map((d) => (
                         <div
                             key={d}
-                            className="py-2 text-center text-[11.5px] font-semibold uppercase tracking-wide text-zoru-ink-muted"
+                            className="py-2 text-center text-[11.5px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]"
                         >
                             {d}
                         </div>
@@ -100,7 +100,7 @@ export function EventsCalendar({ events }: EventsCalendarProps): React.JSX.Eleme
                     {Array.from({ length: 35 }).map((_, i) => (
                         <div
                             key={i}
-                            className="min-h-[88px] rounded-md border border-zoru-line bg-zoru-bg p-1.5"
+                            className="min-h-[88px] rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] p-1.5"
                         />
                     ))}
                 </div>
@@ -111,7 +111,7 @@ export function EventsCalendar({ events }: EventsCalendarProps): React.JSX.Eleme
     return (
         <Card>
             <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                <h3 className="flex items-center gap-2 text-[14px] font-semibold text-zoru-ink">
+                <h3 className="flex items-center gap-2 text-[14px] font-semibold text-[var(--st-text)]">
                     <CalendarDays className="h-4 w-4" />
                     {month.toLocaleDateString(undefined, { year: 'numeric', month: 'long' })}
                 </h3>
@@ -131,7 +131,7 @@ export function EventsCalendar({ events }: EventsCalendarProps): React.JSX.Eleme
                 {DAYS.map((d) => (
                     <div
                         key={d}
-                        className="py-2 text-center text-[11.5px] font-semibold uppercase tracking-wide text-zoru-ink-muted"
+                        className="py-2 text-center text-[11.5px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]"
                     >
                         {d}
                     </div>
@@ -150,18 +150,18 @@ export function EventsCalendar({ events }: EventsCalendarProps): React.JSX.Eleme
                             className={[
                                 'min-h-[88px] rounded-md border p-1.5 text-[12px]',
                                 d
-                                    ? 'bg-zoru-bg border-zoru-line hover:bg-zoru-surface'
-                                    : 'bg-zoru-surface-2 border-transparent',
-                                isToday ? 'ring-1 ring-zoru-primary' : '',
+                                    ? 'bg-[var(--st-bg)] border-[var(--st-border)] hover:bg-[var(--st-bg-secondary)]'
+                                    : 'bg-[var(--st-bg-muted)] border-transparent',
+                                isToday ? 'ring-1 ring-[var(--st-text)]' : '',
                             ].join(' ')}
                         >
                             {d ? (
                                 <>
                                     <div className="mb-1 flex items-center justify-between">
-                                        <span className="text-[11px] font-semibold text-zoru-ink-muted">{d}</span>
+                                        <span className="text-[11px] font-semibold text-[var(--st-text-secondary)]">{d}</span>
                                         <Link
                                             href={newHref}
-                                            className="text-[10.5px] text-zoru-ink-muted hover:underline"
+                                            className="text-[10.5px] text-[var(--st-text-secondary)] hover:underline"
                                             aria-label={`Create event on ${year}-${monthIdx + 1}-${d}`}
                                         >
                                             +
@@ -180,7 +180,7 @@ export function EventsCalendar({ events }: EventsCalendarProps): React.JSX.Eleme
                                             </Link>
                                         ))}
                                         {dayEvents.length > 3 ? (
-                                            <span className="text-[10.5px] text-zoru-ink-muted">
+                                            <span className="text-[10.5px] text-[var(--st-text-secondary)]">
                                                 +{dayEvents.length - 3} more
                                             </span>
                                         ) : null}

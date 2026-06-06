@@ -88,7 +88,7 @@ export function ConversationHeader({
   return (
     <div
       className={cn(
-        'flex h-14 shrink-0 items-center gap-2 border-b border-zoru-line bg-zoru-bg/95 px-2 backdrop-blur md:px-3',
+        'flex h-14 shrink-0 items-center gap-2 border-b border-[var(--st-border)] bg-[var(--st-bg)]/95 px-2 backdrop-blur md:px-3',
         className,
       )}
     >
@@ -110,7 +110,7 @@ export function ConversationHeader({
         onClick={onTogglePanel}
         role="button"
         aria-label={panelOpen ? 'Close contact panel' : 'Open contact panel'}
-        className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-[var(--zoru-radius)] px-1 py-1 text-left hover:bg-zoru-surface-2"
+        className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-[var(--zoru-radius)] px-1 py-1 text-left hover:bg-[var(--st-bg-muted)]"
       >
         <Avatar className="h-9 w-9 shrink-0">
           {chat.profilePicUrl ? (
@@ -121,9 +121,9 @@ export function ConversationHeader({
           </ZoruAvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium text-zoru-ink">{name}</p>
+          <p className="truncate text-sm font-medium text-[var(--st-text)]">{name}</p>
           <p
-            className="truncate text-xs text-zoru-ink-muted"
+            className="truncate text-xs text-[var(--st-text-secondary)]"
             aria-label="Open contact panel"
           >
             {subtitle}
@@ -191,7 +191,7 @@ export function ConversationHeader({
             <ZoruDropdownMenuSeparator />
             <ZoruDropdownMenuItem
               onSelect={() => onClearMessages?.()}
-              className="text-zoru-danger"
+              className="text-[var(--st-danger)]"
             >
               Clear messages
             </ZoruDropdownMenuItem>

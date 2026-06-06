@@ -42,7 +42,7 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
   render() {
     if (this.state.hasError) {
       return (
-        <div className="p-6 text-zoru-ink flex flex-col items-center justify-center bg-zoru-surface-2 rounded-lg border border-zoru-line">
+        <div className="p-6 text-[var(--st-text)] flex flex-col items-center justify-center bg-[var(--st-bg-muted)] rounded-lg border border-[var(--st-border)]">
           <h2 className="font-semibold text-lg">Failed to load roadmaps</h2>
           <p className="text-sm mt-1">{this.state.error?.message}</p>
           <Button onClick={() => this.setState({ hasError: false, error: null })} className="mt-4" variant="outline">
@@ -130,19 +130,19 @@ function FilterBar({
   return (
     <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
       <div className="relative flex-1 w-full sm:w-64">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zoru-ink-muted" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--st-text-secondary)]" />
         <input
           type="text"
           placeholder="Search roadmaps..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-9 pr-3 py-2 text-sm border border-zoru-line rounded-[var(--zoru-radius)] bg-zoru-surface focus:outline-none focus:ring-2 focus:ring-zoru-primary transition-all"
+          className="w-full pl-9 pr-3 py-2 text-sm border border-[var(--st-border)] rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--st-text)] transition-all"
         />
       </div>
       <select
         value={statusFilter}
         onChange={(e) => setStatusFilter(e.target.value)}
-        className="px-3 py-2 text-sm border border-zoru-line rounded-[var(--zoru-radius)] bg-zoru-surface focus:outline-none focus:ring-2 focus:ring-zoru-primary w-full sm:w-auto transition-all"
+        className="px-3 py-2 text-sm border border-[var(--st-border)] rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--st-text)] w-full sm:w-auto transition-all"
       >
         <option value="all">All Statuses</option>
         <option value="draft">Draft</option>
@@ -168,9 +168,9 @@ function BulkActionsBar({
   onExportPdf: () => void;
 }) {
   return (
-    <div className="flex flex-wrap items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-4 py-2 animate-in fade-in slide-in-from-top-2">
-      <span className="text-sm font-medium text-zoru-ink-muted">{selectedCount} selected</span>
-      <div className="h-4 w-[1px] bg-zoru-line mx-2 hidden sm:block" />
+    <div className="flex flex-wrap items-center gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-2 animate-in fade-in slide-in-from-top-2">
+      <span className="text-sm font-medium text-[var(--st-text-secondary)]">{selectedCount} selected</span>
+      <div className="h-4 w-[1px] bg-[var(--st-border)] mx-2 hidden sm:block" />
       <Button variant="ghost" size="sm" onClick={onArchive}>
         <Archive className="w-4 h-4 mr-2" />
         Archive
@@ -314,19 +314,19 @@ function RoadmapsClient() {
     return (
       <div
         style={style}
-        className="flex items-center border-b border-zoru-line/60 transition-colors hover:bg-zoru-surface px-4 text-sm"
+        className="flex items-center border-b border-[var(--st-border)]/60 transition-colors hover:bg-[var(--st-bg-secondary)] px-4 text-sm"
       >
         <div className="w-8 shrink-0">
           <input
             type="checkbox"
             checked={selected.has(row._id)}
             onChange={() => toggleSelect(row._id)}
-            className="accent-zoru-primary"
+            className="accent-[var(--st-text)]"
           />
         </div>
         <div className="flex-1 min-w-[150px] truncate pr-2">
           <button
-            className="font-medium text-zoru-ink hover:text-zoru-primary hover:underline text-left truncate w-full"
+            className="font-medium text-[var(--st-text)] hover:text-[var(--st-text)] hover:underline text-left truncate w-full"
             onClick={() => router.push(`/dashboard/hrm/portal/roadmaps/${row._id}`)}
           >
             {row.title}
@@ -335,21 +335,21 @@ function RoadmapsClient() {
         <div className="w-[100px] shrink-0">
           <Badge variant={STATUS_VARIANT[row.status]}>{row.status}</Badge>
         </div>
-        <div className="w-[80px] shrink-0 tabular-nums text-zoru-ink-muted">
+        <div className="w-[80px] shrink-0 tabular-nums text-[var(--st-text-secondary)]">
           {phaseCount}
         </div>
-        <div className="w-[80px] shrink-0 tabular-nums text-zoru-ink-muted">
+        <div className="w-[80px] shrink-0 tabular-nums text-[var(--st-text-secondary)]">
           {totalTasks}
         </div>
-        <div className="w-[80px] shrink-0 tabular-nums text-zoru-ink-muted">
+        <div className="w-[80px] shrink-0 tabular-nums text-[var(--st-text-secondary)]">
           {doneTasks}
         </div>
-        <div className="w-[100px] shrink-0 text-zoru-ink-muted text-xs">
+        <div className="w-[100px] shrink-0 text-[var(--st-text-secondary)] text-xs">
           <ClientDate dateString={row.createdAt} />
         </div>
         <div className="w-[120px] shrink-0 flex items-center gap-2 pr-2">
           <Progress value={pct || 0} className="flex-1" />
-          <span className="w-8 text-right text-xs tabular-nums text-zoru-ink-muted">{pct}%</span>
+          <span className="w-8 text-right text-xs tabular-nums text-[var(--st-text-secondary)]">{pct}%</span>
         </div>
         <div className="w-[80px] shrink-0 flex justify-end gap-1">
           <Button variant="ghost" size="icon-sm" onClick={() => router.push(`/dashboard/hrm/portal/roadmaps/${row._id}`)}>
@@ -374,7 +374,7 @@ function RoadmapsClient() {
               });
             }}
           >
-            <Trash2 className="w-4 h-4 text-zoru-danger" />
+            <Trash2 className="w-4 h-4 text-[var(--st-danger)]" />
           </Button>
         </div>
       </div>
@@ -386,8 +386,8 @@ function RoadmapsClient() {
       {/* Header */}
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-semibold text-zoru-ink">Roadmaps</h1>
-          <p className="text-sm text-zoru-ink-muted">Plan and track team initiatives phase by phase.</p>
+          <h1 className="text-xl font-semibold text-[var(--st-text)]">Roadmaps</h1>
+          <p className="text-sm text-[var(--st-text-secondary)]">Plan and track team initiatives phase by phase.</p>
         </div>
         <Button size="md" onClick={() => router.push('/dashboard/hrm/portal/roadmaps/new')}>
           <Plus className="w-4 h-4 mr-2" />
@@ -426,11 +426,11 @@ function RoadmapsClient() {
       <Card>
         <ZoruCardContent className="p-0">
           {isInitialLoad ? (
-            <div className="flex h-48 items-center justify-center text-sm text-zoru-ink-muted animate-pulse">
+            <div className="flex h-48 items-center justify-center text-sm text-[var(--st-text-secondary)] animate-pulse">
               Loading roadmaps...
             </div>
           ) : filteredRows.length === 0 ? (
-            <div className="flex h-48 flex-col items-center justify-center gap-3 text-sm text-zoru-ink-muted">
+            <div className="flex h-48 flex-col items-center justify-center gap-3 text-sm text-[var(--st-text-secondary)]">
               <Map className="h-8 w-8 opacity-40" />
               <span>{rows.length === 0 ? 'No roadmaps yet. Create your first one.' : 'No roadmaps match your filters.'}</span>
               {rows.length === 0 && (
@@ -444,13 +444,13 @@ function RoadmapsClient() {
             <div className="overflow-x-auto w-full">
               <div className="min-w-[900px]">
                 {/* Header Row */}
-                <div className="flex items-center text-left text-xs uppercase tracking-wide text-zoru-ink-subtle px-4 py-3 border-b border-zoru-line">
+                <div className="flex items-center text-left text-xs uppercase tracking-wide text-[var(--st-text-tertiary)] px-4 py-3 border-b border-[var(--st-border)]">
                   <div className="w-8 shrink-0">
                     <input
                       type="checkbox"
                       checked={selected.size === filteredRows.length && filteredRows.length > 0}
                       onChange={toggleAll}
-                      className="accent-zoru-primary"
+                      className="accent-[var(--st-text)]"
                     />
                   </div>
                   <div className="flex-1 min-w-[150px]">Title</div>

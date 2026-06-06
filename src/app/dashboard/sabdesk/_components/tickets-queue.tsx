@@ -57,7 +57,7 @@ export function TicketsQueue({ tickets }: TicketsQueueProps) {
 
   if (tickets.length === 0) {
     return (
-      <Card className="p-6 text-center text-[13px] text-zoru-ink-muted">
+      <Card className="p-6 text-center text-[13px] text-[var(--st-text-secondary)]">
         No tickets match the current filters.
       </Card>
     );
@@ -74,7 +74,7 @@ export function TicketsQueue({ tickets }: TicketsQueueProps) {
             <div className="mb-3 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 {unassigned ? (
-                  <span className="text-[13px] font-semibold text-zoru-ink">
+                  <span className="text-[13px] font-semibold text-[var(--st-text)]">
                     Unassigned
                   </span>
                 ) : (
@@ -89,11 +89,11 @@ export function TicketsQueue({ tickets }: TicketsQueueProps) {
                   <Badge variant="danger">{overdue} overdue</Badge>
                 ) : null}
               </div>
-              <p className="text-[11.5px] text-zoru-ink-muted">
+              <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                 {items.length} total
               </p>
             </div>
-            <ul className="flex flex-col divide-y divide-zoru-line">
+            <ul className="flex flex-col divide-y divide-[var(--st-border)]">
               {items.map((t) => {
                 const id = String(t._id);
                 const overdueRow = isOverdue(t);
@@ -104,7 +104,7 @@ export function TicketsQueue({ tickets }: TicketsQueueProps) {
                   >
                     <Link
                       href={`/dashboard/sabdesk/${id}`}
-                      className="min-w-0 flex-1 truncate text-[13px] text-zoru-ink hover:underline"
+                      className="min-w-0 flex-1 truncate text-[13px] text-[var(--st-text)] hover:underline"
                     >
                       {t.subject || "Untitled"}
                     </Link>
@@ -120,8 +120,8 @@ export function TicketsQueue({ tickets }: TicketsQueueProps) {
                           className={[
                             "inline-flex items-center gap-1 text-[11.5px]",
                             overdueRow
-                              ? "text-zoru-danger-ink"
-                              : "text-zoru-ink-muted",
+                              ? "text-[var(--st-danger)]"
+                              : "text-[var(--st-text-secondary)]",
                           ].join(" ")}
                         >
                           {overdueRow ? (

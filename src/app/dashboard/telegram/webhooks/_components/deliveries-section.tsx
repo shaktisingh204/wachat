@@ -118,7 +118,7 @@ export function DeliveriesSection(props: {
             </ZoruSelectContent>
           </Select>
           <div className="relative">
-            <Search className="absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zoru-ink-muted" />
+            <Search className="absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--st-text-secondary)]" />
             <Input
               className="pl-8"
               placeholder="chatId or userId"
@@ -150,10 +150,10 @@ export function DeliveriesSection(props: {
           <ZoruCardContent className="p-0">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead className="border-b bg-zoru-surface-2/30 text-xs uppercase text-zoru-ink-muted">
+                <thead className="border-b bg-[var(--st-bg-muted)]/30 text-xs uppercase text-[var(--st-text-secondary)]">
                   <tr>
                     <th
-                      className="px-3 py-2 text-left cursor-pointer hover:bg-zoru-surface-2/50"
+                      className="px-3 py-2 text-left cursor-pointer hover:bg-[var(--st-bg-muted)]/50"
                       onClick={() => handleSort("receivedAt")}
                     >
                       <div className="flex items-center gap-1">
@@ -165,7 +165,7 @@ export function DeliveriesSection(props: {
                     <th className="px-3 py-2 text-left">From user</th>
                     <th className="px-3 py-2 text-left">Status</th>
                     <th
-                      className="px-3 py-2 text-right cursor-pointer hover:bg-zoru-surface-2/50"
+                      className="px-3 py-2 text-right cursor-pointer hover:bg-[var(--st-bg-muted)]/50"
                       onClick={() => handleSort("processingDurationMs")}
                     >
                       <div className="flex items-center justify-end gap-1">
@@ -179,7 +179,7 @@ export function DeliveriesSection(props: {
                   {sortedDeliveries.map((d) => (
                     <tr
                       key={d._id}
-                      className="border-b last:border-0 hover:bg-zoru-surface-2/20"
+                      className="border-b last:border-0 hover:bg-[var(--st-bg-muted)]/20"
                     >
                       <td className="whitespace-nowrap px-3 py-2">
                         {fmtDate(d.receivedAt)}

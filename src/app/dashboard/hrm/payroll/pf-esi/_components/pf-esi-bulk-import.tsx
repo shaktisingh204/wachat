@@ -48,8 +48,8 @@ export function PfEsiBulkImport() {
 
     return (
         <Card className="p-6 mb-6">
-            <h2 className="text-lg font-medium text-zoru-ink mb-2">Bulk Generate from Payroll</h2>
-            <p className="text-sm text-zoru-ink/70 mb-4">
+            <h2 className="text-lg font-medium text-[var(--st-text)] mb-2">Bulk Generate from Payroll</h2>
+            <p className="text-sm text-[var(--st-text)]/70 mb-4">
                 Automatically generate PF/ESI draft records for all employees based on this month's payslips.
             </p>
             <div className="flex flex-col sm:flex-row items-end gap-4 max-w-md">

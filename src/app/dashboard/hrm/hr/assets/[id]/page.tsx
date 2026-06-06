@@ -107,7 +107,7 @@ export default async function AssetDetailPage({
 
             <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
-                    <div className="text-[14px] font-medium text-zoru-ink">Overview</div>
+                    <div className="text-[14px] font-medium text-[var(--st-text)]">Overview</div>
                     <StatusPill label={pretty(status)} tone={tone} />
                     {tags.map((t) => (
                         <Badge key={t} variant="ghost">
@@ -117,70 +117,70 @@ export default async function AssetDetailPage({
                 </div>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
                     <div>
-                        <div className="text-zoru-ink-muted mb-2">Asset tag</div>
+                        <div className="text-[var(--st-text-secondary)] mb-2">Asset tag</div>
                         <div className="flex items-start gap-4">
-                            <div className="font-mono text-zoru-ink">{asset.assetTag}</div>
+                            <div className="font-mono text-[var(--st-text)]">{asset.assetTag}</div>
                             {asset.assetTag && (
-                                <div className="rounded-md border border-zoru-line p-1 bg-white">
+                                <div className="rounded-md border border-[var(--st-border)] p-1 bg-white">
                                     <QRCode value={asset.assetTag} size={48} />
                                 </div>
                             )}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Category</div>
-                        <div className="capitalize text-zoru-ink">{pretty(asset.category as string | undefined)}</div>
+                        <div className="text-[var(--st-text-secondary)]">Category</div>
+                        <div className="capitalize text-[var(--st-text)]">{pretty(asset.category as string | undefined)}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Brand</div>
-                        <div className="text-zoru-ink">{asset.brand || '—'}</div>
+                        <div className="text-[var(--st-text-secondary)]">Brand</div>
+                        <div className="text-[var(--st-text)]">{asset.brand || '—'}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Model</div>
-                        <div className="text-zoru-ink">{asset.model || '—'}</div>
+                        <div className="text-[var(--st-text-secondary)]">Model</div>
+                        <div className="text-[var(--st-text)]">{asset.model || '—'}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Serial number</div>
-                        <div className="font-mono text-zoru-ink">{asset.serialNumber || '—'}</div>
+                        <div className="text-[var(--st-text-secondary)]">Serial number</div>
+                        <div className="font-mono text-[var(--st-text)]">{asset.serialNumber || '—'}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Condition</div>
-                        <div className="capitalize text-zoru-ink">{pretty(asset.condition as string | undefined)}</div>
+                        <div className="text-[var(--st-text-secondary)]">Condition</div>
+                        <div className="capitalize text-[var(--st-text)]">{pretty(asset.condition as string | undefined)}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Purchase date</div>
-                        <div className="text-zoru-ink">{fmtDate(asset.purchaseDate)}</div>
+                        <div className="text-[var(--st-text-secondary)]">Purchase date</div>
+                        <div className="text-[var(--st-text)]">{fmtDate(asset.purchaseDate)}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Purchase price</div>
-                        <div className="text-zoru-ink">{fmtINR(asset.purchasePrice, asset.currency)}</div>
+                        <div className="text-[var(--st-text-secondary)]">Purchase price</div>
+                        <div className="text-[var(--st-text)]">{fmtINR(asset.purchasePrice, asset.currency)}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Depreciated value (3yr SL)</div>
-                        <div className="text-zoru-ink">{calculateDepreciation(asset.purchasePrice, asset.purchaseDate, asset.currency)}</div>
+                        <div className="text-[var(--st-text-secondary)]">Depreciated value (3yr SL)</div>
+                        <div className="text-[var(--st-text)]">{calculateDepreciation(asset.purchasePrice, asset.purchaseDate, asset.currency)}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Warranty expiry</div>
-                        <div className="text-zoru-ink">{fmtDate(asset.warrantyExpiry)}</div>
+                        <div className="text-[var(--st-text-secondary)]">Warranty expiry</div>
+                        <div className="text-[var(--st-text)]">{fmtDate(asset.warrantyExpiry)}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Location</div>
-                        <div className="text-zoru-ink">{asset.location || '—'}</div>
+                        <div className="text-[var(--st-text-secondary)]">Location</div>
+                        <div className="text-[var(--st-text)]">{asset.location || '—'}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Current assignee</div>
-                        <div className="text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Current assignee</div>
+                        <div className="text-[var(--st-text)]">
                             {asset.currentAssigneeName || asset.currentAssigneeId || '—'}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Branch</div>
-                        <div className="text-zoru-ink">{asset.branchId || '—'}</div>
+                        <div className="text-[var(--st-text-secondary)]">Branch</div>
+                        <div className="text-[var(--st-text)]">{asset.branchId || '—'}</div>
                     </div>
                     {asset.notes ? (
                         <div className="sm:col-span-2">
-                            <div className="text-zoru-ink-muted">Notes</div>
-                            <div className="whitespace-pre-wrap text-zoru-ink">{asset.notes}</div>
+                            <div className="text-[var(--st-text-secondary)]">Notes</div>
+                            <div className="whitespace-pre-wrap text-[var(--st-text)]">{asset.notes}</div>
                         </div>
                     ) : null}
                 </div>

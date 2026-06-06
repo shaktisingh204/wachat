@@ -258,11 +258,11 @@ export function NotificationsBrowser({
       empty={
         filtered.length === 0 ? (
           <div className="flex flex-col items-center gap-3 p-4">
-            <Inbox className="h-8 w-8 text-zoru-ink-muted" />
-            <h3 className="text-base font-medium text-zoru-ink">
+            <Inbox className="h-8 w-8 text-[var(--st-text-secondary)]" />
+            <h3 className="text-base font-medium text-[var(--st-text)]">
               {rows.length === 0 ? 'Your inbox is empty' : 'No notifications match the filters'}
             </h3>
-            <p className="max-w-sm text-sm text-zoru-ink-muted">
+            <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
               {rows.length === 0
                 ? 'When teammates @-mention you, assign work, or an automation fires, you’ll see it here.'
                 : 'Try clearing the filters above.'}
@@ -325,14 +325,14 @@ function Section({
 }): React.JSX.Element {
   return (
     <Card className="p-0">
-      <div className="border-b border-zoru-line p-4">
+      <div className="border-b border-[var(--st-border)] p-4">
         <div className="flex items-center gap-2">
-          <Bell className="h-4 w-4 text-zoru-ink-muted" />
-          <h2 className="text-[14px] font-semibold text-zoru-ink">{title}</h2>
+          <Bell className="h-4 w-4 text-[var(--st-text-secondary)]" />
+          <h2 className="text-[14px] font-semibold text-[var(--st-text)]">{title}</h2>
           <Badge variant={tone === 'amber' ? 'warning' : 'secondary'}>{count}</Badge>
         </div>
       </div>
-      <ul className="divide-y divide-zoru-line">
+      <ul className="divide-y divide-[var(--st-border)]">
         {rows.map((n) => {
           const href = entityHref(n.resource_type, n.resource_id);
           return (
@@ -345,16 +345,16 @@ function Section({
             >
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <p className="text-[13px] font-medium text-zoru-ink">{n.title}</p>
+                  <p className="text-[13px] font-medium text-[var(--st-text)]">{n.title}</p>
                   <Badge variant="secondary">{n.type}</Badge>
                   {n.resource_type ? (
                     <Badge variant="secondary">{n.resource_type}</Badge>
                   ) : null}
                 </div>
                 {n.body ? (
-                  <p className="mt-1 text-[12.5px] text-zoru-ink-muted">{n.body}</p>
+                  <p className="mt-1 text-[12.5px] text-[var(--st-text-secondary)]">{n.body}</p>
                 ) : null}
-                <p className="mt-1 text-[11.5px] text-zoru-ink-muted">
+                <p className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">
                   {formatRelative(n.createdAt)}
                 </p>
               </div>

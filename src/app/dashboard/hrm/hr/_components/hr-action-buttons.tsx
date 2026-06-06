@@ -163,7 +163,7 @@ export function HrActionButtons({
               type="button"
               disabled={busy || a.disabled || isPending}
               className={
-                variant === 'destructive' ? 'text-zoru-danger-ink' : undefined
+                variant === 'destructive' ? 'text-[var(--st-danger)]' : undefined
               }
               onClick={() => {
                 if (a.disabled) return;
@@ -303,7 +303,7 @@ function PromptDialog({ action, open, onOpenChange }: PromptDialogProps) {
             <div key={f.name} className="flex flex-col gap-1.5">
               <Label htmlFor={`hr-prompt-${f.name}`}>
                 {f.label}
-                {f.required ? <span className="ml-0.5 text-zoru-danger-ink">*</span> : null}
+                {f.required ? <span className="ml-0.5 text-[var(--st-danger)]">*</span> : null}
               </Label>
               {f.type === 'textarea' ? (
                 <Textarea

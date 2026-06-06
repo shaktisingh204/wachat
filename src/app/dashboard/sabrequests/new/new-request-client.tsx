@@ -90,7 +90,7 @@ export function NewRequestClient({ blueprints, preselectedId }: Props) {
         return (
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
                 {blueprints.length === 0 ? (
-                    <Card className="col-span-full p-8 text-center text-sm text-zoru-ink-muted">
+                    <Card className="col-span-full p-8 text-center text-sm text-[var(--st-text-secondary)]">
                         No published blueprints yet. Admins can create one under
                         Manage blueprints.
                     </Card>
@@ -98,15 +98,15 @@ export function NewRequestClient({ blueprints, preselectedId }: Props) {
                     blueprints.map((b) => (
                         <Card
                             key={b._id}
-                            className="cursor-pointer p-4 transition hover:bg-zoru-surface-2/40"
+                            className="cursor-pointer p-4 transition hover:bg-[var(--st-bg-muted)]/40"
                             onClick={() => setSelectedId(b._id)}
                         >
                             <div className="text-2xl">{b.icon ?? 'Form'}</div>
                             <div className="mt-2 font-medium">{b.name}</div>
-                            <div className="text-xs text-zoru-ink-muted">
+                            <div className="text-xs text-[var(--st-text-secondary)]">
                                 {b.description ?? b.category ?? '—'}
                             </div>
-                            <div className="mt-3 text-xs text-zoru-ink-muted">
+                            <div className="mt-3 text-xs text-[var(--st-text-secondary)]">
                                 {b.stages?.length ?? 0} stages ·{' '}
                                 {b.slaMins ? `${b.slaMins} min SLA` : 'no SLA'}
                             </div>
@@ -122,7 +122,7 @@ export function NewRequestClient({ blueprints, preselectedId }: Props) {
             <div className="flex items-center justify-between">
                 <div>
                     <div className="text-lg font-medium">{selected.name}</div>
-                    <div className="text-xs text-zoru-ink-muted">
+                    <div className="text-xs text-[var(--st-text-secondary)]">
                         {selected.description ?? selected.category ?? ''}
                     </div>
                 </div>
@@ -221,7 +221,7 @@ export function NewRequestClient({ blueprints, preselectedId }: Props) {
                         ])
                     }
                 />
-                <ul className="text-xs text-zoru-ink-muted">
+                <ul className="text-xs text-[var(--st-text-secondary)]">
                     {attachments.map((a, i) => (
                         <li key={i}>
                             {(a as { name?: string }).name ?? 'file'}
@@ -231,7 +231,7 @@ export function NewRequestClient({ blueprints, preselectedId }: Props) {
             </div>
 
             {error ? (
-                <div className="text-sm text-zoru-ink">{error}</div>
+                <div className="text-sm text-[var(--st-text)]">{error}</div>
             ) : null}
 
             <div className="flex justify-end gap-2">

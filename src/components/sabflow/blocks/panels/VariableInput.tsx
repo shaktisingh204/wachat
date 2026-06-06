@@ -102,7 +102,7 @@ export function VariableInput({
   const sharedInputClass = cn(
     'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)]',
     'px-3 py-2 text-[13px] text-[var(--gray-12)]',
-    'outline-none focus:border-zoru-line',
+    'outline-none focus:border-[var(--st-border)]',
     'placeholder:text-[var(--gray-8)]',
     'transition-colors',
     className,

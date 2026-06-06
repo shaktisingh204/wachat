@@ -52,7 +52,7 @@ const STATUS_TONE: Record<CrmShiftStatus, StatusTone> = {
 function dayBadges(days: string[] | undefined): React.ReactNode {
     const list = days ?? [];
     if (list.length === 0) {
-        return <span className="text-[12.5px] text-zoru-ink-muted">—</span>;
+        return <span className="text-[12.5px] text-[var(--st-text-secondary)]">—</span>;
     }
     if (list.length === 7) {
         return <Badge variant="info">All days</Badge>;
@@ -264,7 +264,7 @@ export default function ShiftsClient({ initialShifts }: { initialShifts: CrmShif
                                 onChange={(v) => setStatusFilter(v as any)}
                             />
                         </div>
-                        <div className="flex items-center gap-2 text-sm text-zoru-ink">
+                        <div className="flex items-center gap-2 text-sm text-[var(--st-text)]">
                             <Checkbox 
                                 id="nightFilter"
                                 checked={isNightFilter === true}
@@ -291,12 +291,12 @@ export default function ShiftsClient({ initialShifts }: { initialShifts: CrmShif
                     </div>
 
                     <div 
-                        className="rounded-md border border-zoru-line bg-zoru-surface overflow-auto" 
+                        className="rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] overflow-auto" 
                         style={{ height: '600px' }}
                         ref={parentRef}
                     >
                         <Table>
-                            <ZoruTableHeader className="sticky top-0 bg-zoru-surface z-10 shadow-sm">
+                            <ZoruTableHeader className="sticky top-0 bg-[var(--st-bg-secondary)] z-10 shadow-sm">
                                 <ZoruTableRow>
                                     <ZoruTableHead className="w-10 text-center">
                                         <Checkbox 
@@ -304,20 +304,20 @@ export default function ShiftsClient({ initialShifts }: { initialShifts: CrmShif
                                             onCheckedChange={(c) => toggleSelectAll(!!c)}
                                         />
                                     </ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Name</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Code</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Window</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Break / Grace</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Days</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                                    <ZoruTableHead className="text-right text-zoru-ink-muted">Actions</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Name</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Code</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Window</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Break / Grace</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Days</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
+                                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Actions</ZoruTableHead>
                                 </ZoruTableRow>
                             </ZoruTableHeader>
                             
                             <ZoruTableBody>
                                 {filteredShifts.length === 0 ? (
-                                    <ZoruTableRow className="border-zoru-line">
-                                        <ZoruTableCell colSpan={8} className="h-24 text-center text-zoru-ink-muted">
+                                    <ZoruTableRow className="border-[var(--st-border)]">
+                                        <ZoruTableCell colSpan={8} className="h-24 text-center text-[var(--st-text-secondary)]">
                                             No shifts match this filter.
                                         </ZoruTableCell>
                                     </ZoruTableRow>
@@ -336,18 +336,18 @@ export default function ShiftsClient({ initialShifts }: { initialShifts: CrmShif
                                             const tone = STATUS_TONE[status] ?? 'neutral';
                                             
                                             return (
-                                                <ZoruTableRow key={s._id} className="border-zoru-line">
+                                                <ZoruTableRow key={s._id} className="border-[var(--st-border)]">
                                                     <ZoruTableCell className="text-center">
                                                         <Checkbox 
                                                             checked={selectedIds.has(s._id)}
                                                             onCheckedChange={(c) => toggleSelect(s._id, !!c)}
                                                         />
                                                     </ZoruTableCell>
-                                                    <ZoruTableCell className="font-medium text-zoru-ink">
+                                                    <ZoruTableCell className="font-medium text-[var(--st-text)]">
                                                         <div className="flex items-center gap-2">
                                                             <span
                                                                 aria-hidden
-                                                                className="inline-block h-4 w-4 rounded-[4px] border border-zoru-line"
+                                                                className="inline-block h-4 w-4 rounded-[4px] border border-[var(--st-border)]"
                                                                 style={{ backgroundColor: s.color || '#EAB308' }}
                                                             />
                                                             <span>{s.name}</span>
@@ -355,13 +355,13 @@ export default function ShiftsClient({ initialShifts }: { initialShifts: CrmShif
                                                             {s.isNightShift && <Badge variant="secondary">night</Badge>}
                                                         </div>
                                                     </ZoruTableCell>
-                                                    <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
+                                                    <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
                                                         {s.code || '—'}
                                                     </ZoruTableCell>
-                                                    <ZoruTableCell className="text-zoru-ink">
+                                                    <ZoruTableCell className="text-[var(--st-text)]">
                                                         {s.startTime} – {s.endTime}
                                                     </ZoruTableCell>
-                                                    <ZoruTableCell className="text-zoru-ink">
+                                                    <ZoruTableCell className="text-[var(--st-text)]">
                                                         {(s.breakMinutes ?? 0)}m break · {(s.graceMinutes ?? 0)}m grace
                                                     </ZoruTableCell>
                                                     <ZoruTableCell>{dayBadges(s.workingDays)}</ZoruTableCell>
@@ -373,7 +373,7 @@ export default function ShiftsClient({ initialShifts }: { initialShifts: CrmShif
                                                             <Edit className="h-4 w-4" />
                                                         </Button>
                                                         <Button variant="ghost" size="icon" onClick={() => setPendingDelete(s)} aria-label="Delete shift">
-                                                            <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                                            <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                                         </Button>
                                                     </ZoruTableCell>
                                                 </ZoruTableRow>

@@ -212,9 +212,9 @@ export function ContactDetailBody({
                             {contact.notes.map((n, i) => (
                                 <li
                                     key={i}
-                                    className="rounded-md border border-zoru-line p-3"
+                                    className="rounded-md border border-[var(--st-border)] p-3"
                                 >
-                                    <p className="text-[12.5px] text-zoru-ink-muted">
+                                    <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                                         {n.author} ·{' '}
                                         {n.createdAt
                                             ? new Date(
@@ -222,18 +222,18 @@ export function ContactDetailBody({
                                               ).toLocaleString()
                                             : ''}
                                     </p>
-                                    <p className="mt-1 whitespace-pre-line text-sm text-zoru-ink">
+                                    <p className="mt-1 whitespace-pre-line text-sm text-[var(--st-text)]">
                                         {n.content}
                                     </p>
                                 </li>
                             ))}
                         </ol>
                     ) : extraNotes ? (
-                        <p className="whitespace-pre-line text-sm text-zoru-ink">
+                        <p className="whitespace-pre-line text-sm text-[var(--st-text)]">
                             {extraNotes}
                         </p>
                     ) : (
-                        <p className="text-sm text-zoru-ink-muted">
+                        <p className="text-sm text-[var(--st-text-secondary)]">
                             No notes yet. Use{' '}
                             <Link
                                 className="underline"
@@ -256,7 +256,7 @@ export function ContactDetailBody({
                     <ZoruCardTitle>Attachments</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent>
-                    <p className="text-sm text-zoru-ink-muted">
+                    <p className="text-sm text-[var(--st-text-secondary)]">
                         No attachments yet.
                     </p>
                     {/* TODO 1D.2: inline SabFile picker + per-attachment preview deferred —
@@ -281,7 +281,7 @@ export function ContactDetailBody({
                             ))}
                         </div>
                     ) : (
-                        <p className="text-sm text-zoru-ink-muted">
+                        <p className="text-sm text-[var(--st-text-secondary)]">
                             No tags yet.
                         </p>
                     )}
@@ -294,7 +294,7 @@ export function ContactDetailBody({
                     <ZoruCardTitle>Custom fields</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent>
-                    <p className="text-sm text-zoru-ink-muted">
+                    <p className="text-sm text-[var(--st-text-secondary)]">
                         No custom fields configured for contacts.
                     </p>
                     {/* TODO 1D.2: render per-tenant custom fields from
@@ -315,10 +315,10 @@ function Field({
 }) {
     return (
         <div className="space-y-0.5">
-            <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+            <p className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                 {label}
             </p>
-            <div className="text-sm text-zoru-ink">{value}</div>
+            <div className="text-sm text-[var(--st-text)]">{value}</div>
         </div>
     );
 }

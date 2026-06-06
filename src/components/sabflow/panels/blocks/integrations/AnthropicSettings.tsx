@@ -136,7 +136,7 @@ export function AnthropicSettings({ block, onBlockChange, variables = [] }: Prop
             step={0.1}
             value={temperature}
             onChange={(e) => update({ temperature: parseFloat(e.target.value) })}
-            className="flex-1 accent-zoru-ink"
+            className="flex-1 accent-[var(--st-text)]"
           />
           <span className="text-[11px] text-[var(--gray-8)] w-5 shrink-0 text-right">1</span>
         </div>

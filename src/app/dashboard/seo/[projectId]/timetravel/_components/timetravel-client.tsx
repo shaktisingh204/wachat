@@ -87,19 +87,19 @@ export function TimeTravelClient({ projectId }: { projectId: string }) {
         const h1Diff = diffLines(snapshotData.previousH1 || '', snapshotData.h1 || '');
 
         return (
-            <div className="flex-1 overflow-auto rounded border border-zoru-line bg-zoru-surface-2/50 p-4 font-mono text-sm space-y-6">
+            <div className="flex-1 overflow-auto rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)]/50 p-4 font-mono text-sm space-y-6">
                 <div>
-                    <div className="text-zoru-ink-muted mb-2">{"<!-- Title Changes -->"}</div>
+                    <div className="text-[var(--st-text-secondary)] mb-2">{"<!-- Title Changes -->"}</div>
                     {titleDiff.map((part, index) => (
-                        <div key={index} className={part.added ? 'bg-zoru-success/10 text-zoru-success' : part.removed ? 'bg-zoru-danger/10 text-zoru-danger-ink line-through' : 'text-zoru-ink'}>
+                        <div key={index} className={part.added ? 'bg-[var(--st-status-ok)]/10 text-[var(--st-status-ok)]' : part.removed ? 'bg-[var(--st-danger)]/10 text-[var(--st-danger)] line-through' : 'text-[var(--st-text)]'}>
                             {part.added ? '+ ' : part.removed ? '- ' : '  '}{part.value}
                         </div>
                     ))}
                 </div>
                 <div>
-                    <div className="text-zoru-ink-muted mb-2">{"<!-- H1 Changes -->"}</div>
+                    <div className="text-[var(--st-text-secondary)] mb-2">{"<!-- H1 Changes -->"}</div>
                     {h1Diff.map((part, index) => (
-                        <div key={index} className={part.added ? 'bg-zoru-success/10 text-zoru-success' : part.removed ? 'bg-zoru-danger/10 text-zoru-danger-ink line-through' : 'text-zoru-ink'}>
+                        <div key={index} className={part.added ? 'bg-[var(--st-status-ok)]/10 text-[var(--st-status-ok)]' : part.removed ? 'bg-[var(--st-danger)]/10 text-[var(--st-danger)] line-through' : 'text-[var(--st-text)]'}>
                             {part.added ? '+ ' : part.removed ? '- ' : '  '}{part.value}
                         </div>
                     ))}
@@ -110,9 +110,9 @@ export function TimeTravelClient({ projectId }: { projectId: string }) {
 
     const renderFullDiff = () => {
         return (
-            <div className="flex-1 overflow-auto rounded border border-zoru-line bg-zoru-surface-2/50 p-4 font-mono text-xs whitespace-pre-wrap">
+            <div className="flex-1 overflow-auto rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)]/50 p-4 font-mono text-xs whitespace-pre-wrap">
                 {fullDiff.map((part, index) => {
-                    const bgClass = part.added ? 'bg-zoru-success/20 text-zoru-success' : part.removed ? 'bg-zoru-danger/20 text-zoru-danger-ink' : 'text-zoru-ink/70';
+                    const bgClass = part.added ? 'bg-[var(--st-status-ok)]/20 text-[var(--st-status-ok)]' : part.removed ? 'bg-[var(--st-danger)]/20 text-[var(--st-danger)]' : 'text-[var(--st-text)]/70';
                     const prefix = part.added ? '+ ' : part.removed ? '- ' : '  ';
                     
                     // Add prefix to each line in this chunk
@@ -136,11 +136,11 @@ export function TimeTravelClient({ projectId }: { projectId: string }) {
         <div className="flex flex-col gap-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl text-zoru-ink flex items-center gap-3">
-                        <History className="h-8 w-8 text-zoru-ink" />
+                    <h1 className="text-3xl text-[var(--st-text)] flex items-center gap-3">
+                        <History className="h-8 w-8 text-[var(--st-text)]" />
                         SERP Time Travel
                     </h1>
-                    <p className="text-zoru-ink-muted mt-1">Automated tracking of competitor page title changes and historical DOM snapshots.</p>
+                    <p className="text-[var(--st-text-secondary)] mt-1">Automated tracking of competitor page title changes and historical DOM snapshots.</p>
                 </div>
             </div>
 
@@ -167,12 +167,12 @@ export function TimeTravelClient({ projectId }: { projectId: string }) {
                                     onClick={() => setSelectedCompetitor(comp)}
                                     className={`cursor-pointer rounded border p-3 transition-colors ${
                                         selectedCompetitor?.id === comp.id 
-                                        ? 'border-zoru-brand bg-zoru-surface-2' 
-                                        : 'border-zoru-line bg-zoru-surface-2/50 hover:bg-zoru-surface-2'
+                                        ? 'border-[var(--st-accent)] bg-[var(--st-bg-muted)]' 
+                                        : 'border-[var(--st-border)] bg-[var(--st-bg-muted)]/50 hover:bg-[var(--st-bg-muted)]'
                                     }`}
                                 >
-                                    <h4 className="text-zoru-ink truncate" title={comp.url}>{comp.url.replace(/^https?:\/\//, '')}</h4>
-                                    <p className="text-xs text-zoru-ink-muted mt-1">Last checked: {comp.lastChanged}</p>
+                                    <h4 className="text-[var(--st-text)] truncate" title={comp.url}>{comp.url.replace(/^https?:\/\//, '')}</h4>
+                                    <p className="text-xs text-[var(--st-text-secondary)] mt-1">Last checked: {comp.lastChanged}</p>
                                 </div>
                             ))}
                         </div>
@@ -188,24 +188,24 @@ export function TimeTravelClient({ projectId }: { projectId: string }) {
                     <ZoruCardContent className="h-[700px] flex flex-col gap-4">
                         {loading ? (
                             <div className="flex-1 flex items-center justify-center">
-                                <Loader2 className="w-8 h-8 animate-spin text-zoru-brand" />
+                                <Loader2 className="w-8 h-8 animate-spin text-[var(--st-accent)]" />
                             </div>
                         ) : snapshotData?.error ? (
-                            <div className="flex-1 flex items-center justify-center text-zoru-danger-ink">
+                            <div className="flex-1 flex items-center justify-center text-[var(--st-danger)]">
                                 <p>Error: {snapshotData.error}</p>
                             </div>
                         ) : snapshotData ? (
                                 <>
                                 <div className="grid gap-4 md:grid-cols-2 mb-4 shrink-0">
-                                    <div className="rounded border border-zoru-line bg-zoru-surface-2 p-3">
-                                        <h3 className="text-xs font-semibold text-zoru-ink-muted uppercase mb-1">Previous Snapshot ({snapshotData.lastChanged})</h3>
-                                        <p className={`font-medium ${snapshotData.title !== snapshotData.previousTitle ? 'text-zoru-danger-ink line-through' : 'text-zoru-ink'}`}>
+                                    <div className="rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3">
+                                        <h3 className="text-xs font-semibold text-[var(--st-text-secondary)] uppercase mb-1">Previous Snapshot ({snapshotData.lastChanged})</h3>
+                                        <p className={`font-medium ${snapshotData.title !== snapshotData.previousTitle ? 'text-[var(--st-danger)] line-through' : 'text-[var(--st-text)]'}`}>
                                             {snapshotData.previousTitle}
                                         </p>
                                     </div>
-                                    <div className="rounded border border-zoru-line bg-zoru-surface-2 p-3">
-                                        <h3 className="text-xs font-semibold text-zoru-ink-muted uppercase mb-1">Current Snapshot</h3>
-                                        <p className={`font-medium ${snapshotData.title !== snapshotData.previousTitle ? 'text-zoru-success' : 'text-zoru-ink'}`}>
+                                    <div className="rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3">
+                                        <h3 className="text-xs font-semibold text-[var(--st-text-secondary)] uppercase mb-1">Current Snapshot</h3>
+                                        <p className={`font-medium ${snapshotData.title !== snapshotData.previousTitle ? 'text-[var(--st-status-ok)]' : 'text-[var(--st-text)]'}`}>
                                             {snapshotData.title}
                                         </p>
                                     </div>
@@ -222,7 +222,7 @@ export function TimeTravelClient({ projectId }: { projectId: string }) {
                                 )}
                             </>
                         ) : (
-                            <div className="flex-1 flex items-center justify-center text-zoru-ink-muted">
+                            <div className="flex-1 flex items-center justify-center text-[var(--st-text-secondary)]">
                                 <p>Select a competitor to view diffs</p>
                             </div>
                         )}

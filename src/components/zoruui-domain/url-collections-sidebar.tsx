@@ -62,9 +62,9 @@ export function UrlCollectionsSidebar({ selectedCollectionId, onSelect, linkCoun
     };
 
     return (
-        <div className="w-52 flex-shrink-0 border-r border-zoru-border flex flex-col py-3 gap-1">
+        <div className="w-52 flex-shrink-0 border-r border-[var(--st-border)] flex flex-col py-3 gap-1">
             <div className="flex items-center justify-between px-3 pb-1">
-                <span className="text-[11px] font-medium uppercase tracking-wider text-zoru-ink-muted/60">Collections</span>
+                <span className="text-[11px] font-medium uppercase tracking-wider text-[var(--st-text-secondary)]/60">Collections</span>
                 <Button
                     variant="ghost" size="icon-sm"
                     onClick={() => setAdding((v) => !v)}
@@ -79,8 +79,8 @@ export function UrlCollectionsSidebar({ selectedCollectionId, onSelect, linkCoun
                 className={cn(
                     'flex items-center gap-2 px-3 py-1.5 text-[12.5px] rounded-md mx-2 transition-colors',
                     selectedCollectionId === null
-                        ? 'bg-zoru-ink text-zoru-ink'
-                        : 'text-zoru-ink-muted hover:bg-zoru-ink hover:text-zoru-ink'
+                        ? 'bg-[var(--st-text)] text-[var(--st-text)]'
+                        : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-text)] hover:text-[var(--st-text)]'
                 )}
             >
                 <Folder className="h-3.5 w-3.5 flex-shrink-0" />
@@ -88,7 +88,7 @@ export function UrlCollectionsSidebar({ selectedCollectionId, onSelect, linkCoun
             </button>
 
             {adding && (
-                <div className="mx-2 p-2 rounded-md border border-zoru-border bg-zoru-ink space-y-2">
+                <div className="mx-2 p-2 rounded-md border border-[var(--st-border)] bg-[var(--st-text)] space-y-2">
                     <Input
                         value={newName}
                         onChange={(e) => setNewName(e.target.value)}
@@ -127,8 +127,8 @@ export function UrlCollectionsSidebar({ selectedCollectionId, onSelect, linkCoun
                     className={cn(
                         'group flex items-center gap-2 px-3 py-1.5 text-[12.5px] rounded-md mx-2 transition-colors',
                         selectedCollectionId === col._id
-                            ? 'bg-zoru-ink text-zoru-ink'
-                            : 'text-zoru-ink-muted hover:bg-zoru-ink hover:text-zoru-ink'
+                            ? 'bg-[var(--st-text)] text-[var(--st-text)]'
+                            : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-text)] hover:text-[var(--st-text)]'
                     )}
                 >
                     <span
@@ -137,13 +137,13 @@ export function UrlCollectionsSidebar({ selectedCollectionId, onSelect, linkCoun
                     />
                     <span className="truncate flex-1 text-left">{col.name}</span>
                     {linkCount && (
-                        <span className="text-[10px] text-zoru-ink-muted/60 flex-shrink-0">
+                        <span className="text-[10px] text-[var(--st-text-secondary)]/60 flex-shrink-0">
                             {linkCount(col._id)}
                         </span>
                     )}
                     <span
                         onClick={(e) => handleDelete(col._id, e)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity text-zoru-danger-ink hover:text-zoru-danger p-0.5 rounded"
+                        className="opacity-0 group-hover:opacity-100 transition-opacity text-[var(--st-danger)] hover:text-[var(--st-danger)] p-0.5 rounded"
                         role="button"
                         title="Delete collection"
                     >
@@ -154,8 +154,8 @@ export function UrlCollectionsSidebar({ selectedCollectionId, onSelect, linkCoun
 
             {collections.length === 0 && !adding && (
                 <div className="px-3 py-4 text-center">
-                    <FolderX className="h-5 w-5 mx-auto text-zoru-ink-muted/40 mb-1" />
-                    <p className="text-[11px] text-zoru-ink-muted/60">No collections yet</p>
+                    <FolderX className="h-5 w-5 mx-auto text-[var(--st-text-secondary)]/40 mb-1" />
+                    <p className="text-[11px] text-[var(--st-text-secondary)]/60">No collections yet</p>
                 </div>
             )}
         </div>

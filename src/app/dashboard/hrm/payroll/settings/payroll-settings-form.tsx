@@ -60,8 +60,8 @@ export function PayrollSettingsForm({ settings }: { settings: PayrollSettings })
       <AttendanceOvertimeSection settings={settings} />
       <ApprovalsNotificationsSection settings={settings} />
       
-      <div className="flex items-center justify-between sticky bottom-4 z-10 p-4 bg-zoru-surface/80 backdrop-blur-md rounded-lg border border-zoru-line shadow-sm">
-        <div className="text-sm text-zoru-ink-muted">
+      <div className="flex items-center justify-between sticky bottom-4 z-10 p-4 bg-[var(--st-bg-secondary)]/80 backdrop-blur-md rounded-lg border border-[var(--st-border)] shadow-sm">
+        <div className="text-sm text-[var(--st-text-secondary)]">
           {optimisticState.isSaving ? 'Updating configuration...' : 'Make sure to save your changes.'}
         </div>
         <SaveButton isOptimistic={optimisticState.isSaving} />

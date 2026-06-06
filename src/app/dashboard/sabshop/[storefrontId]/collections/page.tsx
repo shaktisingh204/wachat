@@ -121,9 +121,9 @@ export default function CollectionsPage() {
 
       <Card>
         <CardContent className="p-0">
-          <div className="flex items-center justify-between p-4 border-b border-zoru-line">
+          <div className="flex items-center justify-between p-4 border-b border-[var(--st-border)]">
             <div className="relative w-full max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zoru-ink-subtle" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--st-text-tertiary)]" />
               <Input
                 placeholder="Search collections..."
                 className="pl-9 w-full"
@@ -133,7 +133,7 @@ export default function CollectionsPage() {
             </div>
             <div className="flex items-center gap-2">
                <Button variant="ghost" size="icon">
-                 <LayoutGrid className="h-4 w-4 text-zoru-ink-muted" />
+                 <LayoutGrid className="h-4 w-4 text-[var(--st-text-secondary)]" />
                </Button>
             </div>
           </div>
@@ -154,7 +154,7 @@ export default function CollectionsPage() {
               <TableBody>
                 {filteredCollections.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center h-32 text-zoru-ink-muted">
+                    <TableCell colSpan={7} className="text-center h-32 text-[var(--st-text-secondary)]">
                       No collections found.
                     </TableCell>
                   </TableRow>
@@ -165,15 +165,15 @@ export default function CollectionsPage() {
                         <img 
                           src={collection.image} 
                           alt={collection.title}
-                          className="w-12 h-12 rounded-md object-cover border border-zoru-line"
+                          className="w-12 h-12 rounded-md object-cover border border-[var(--st-border)]"
                         />
                       </TableCell>
                       <TableCell>
-                        <div className="font-medium text-zoru-ink">{collection.title}</div>
-                        <div className="text-xs text-zoru-ink-subtle">{collection.id}</div>
+                        <div className="font-medium text-[var(--st-text)]">{collection.title}</div>
+                        <div className="text-xs text-[var(--st-text-tertiary)]">{collection.id}</div>
                       </TableCell>
                       <TableCell>
-                        <span className="text-zoru-ink">{collection.productCount}</span>
+                        <span className="text-[var(--st-text)]">{collection.productCount}</span>
                       </TableCell>
                       <TableCell>
                         <Badge variant="secondary" className="font-normal text-[11px]">
@@ -181,7 +181,7 @@ export default function CollectionsPage() {
                         </Badge>
                       </TableCell>
                       <TableCell>{getStatusBadge(collection.status)}</TableCell>
-                      <TableCell className="text-zoru-ink-muted text-sm">{collection.updatedAt}</TableCell>
+                      <TableCell className="text-[var(--st-text-secondary)] text-sm">{collection.updatedAt}</TableCell>
                       <TableCell>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>

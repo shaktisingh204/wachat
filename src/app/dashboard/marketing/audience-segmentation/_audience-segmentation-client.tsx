@@ -138,11 +138,11 @@ export function AudienceSegmentClient({ initialData }: { initialData: any[] }) {
       }
     >
       {filteredData.length === 0 ? (
-        <div className="flex h-[400px] items-center justify-center rounded-md border border-dashed text-sm text-zoru-ink-muted">
+        <div className="flex h-[400px] items-center justify-center rounded-md border border-dashed text-sm text-[var(--st-text-secondary)]">
           No records found.
         </div>
       ) : (
-        <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface overflow-hidden">
+        <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] overflow-hidden">
           <Table>
             <ZoruTableHeader>
               <ZoruTableRow>
@@ -160,10 +160,10 @@ export function AudienceSegmentClient({ initialData }: { initialData: any[] }) {
                   
                   <ZoruTableCell className="text-right space-x-2">
                     <Button variant="ghost" size="icon" onClick={() => openEdit(item)}>
-                      <Edit2 className="h-4 w-4 text-zoru-ink" />
+                      <Edit2 className="h-4 w-4 text-[var(--st-text)]" />
                     </Button>
                     <Button variant="ghost" size="icon" onClick={() => handleDelete(item._id)}>
-                      <Trash2 className="h-4 w-4 text-zoru-ink" />
+                      <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                     </Button>
                   </ZoruTableCell>
                 </ZoruTableRow>

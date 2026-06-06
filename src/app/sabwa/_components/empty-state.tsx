@@ -75,15 +75,15 @@ export function EmptyState({
       {iconNode ? (
         <div
           aria-hidden
-          className="flex h-12 w-12 items-center justify-center rounded-[var(--zoru-radius-lg)] bg-zoru-surface text-zoru-ink-muted"
+          className="flex h-12 w-12 items-center justify-center rounded-[var(--zoru-radius-lg)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]"
         >
           {iconNode}
         </div>
       ) : null}
       <div className="space-y-1">
-        <h3 className="text-base font-semibold tracking-tight text-zoru-ink">{title}</h3>
+        <h3 className="text-base font-semibold tracking-tight text-[var(--st-text)]">{title}</h3>
         {description ? (
-          <p className="mx-auto max-w-sm text-sm text-zoru-ink-muted">
+          <p className="mx-auto max-w-sm text-sm text-[var(--st-text-secondary)]">
             {description}
           </p>
         ) : null}

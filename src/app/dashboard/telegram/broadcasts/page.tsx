@@ -969,13 +969,13 @@ export default function TelegramBroadcastsPage() {
             <Card>
                 <ZoruCardContent className="p-0">
                     {error ? (
-                        <div className="flex items-center gap-2 p-6 text-sm text-zoru-ink">
+                        <div className="flex items-center gap-2 p-6 text-sm text-[var(--st-text)]">
                             <AlertCircle className="size-4" /> {error}
                         </div>
                     ) : null}
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm">
-                            <thead className="border-b text-left text-xs uppercase tracking-wide text-zoru-ink-muted">
+                            <thead className="border-b text-left text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
                                 <tr>
                                     <th className="w-10 px-3 py-2">
                                         <Checkbox
@@ -1030,7 +1030,7 @@ export default function TelegramBroadcastsPage() {
                                         return (
                                             <tr
                                                 key={row._id}
-                                                className="border-b hover:bg-zoru-bg-zoru-surface-2/40"
+                                                className="border-b hover:bg-zoru-bg-[var(--st-bg-muted)]/40"
                                             >
                                                 <td className="px-3 py-2">
                                                     <Checkbox
@@ -1050,10 +1050,10 @@ export default function TelegramBroadcastsPage() {
                                                         {row.name || 'Untitled broadcast'}
                                                     </button>
                                                 </td>
-                                                <td className="px-3 py-2 text-zoru-ink-muted">
+                                                <td className="px-3 py-2 text-[var(--st-text-secondary)]">
                                                     {botName(row.botId)}
                                                 </td>
-                                                <td className="px-3 py-2 text-zoru-ink-muted">
+                                                <td className="px-3 py-2 text-[var(--st-text-secondary)]">
                                                     {audienceLabel(row.audience)}
                                                 </td>
                                                 <td className="px-3 py-2">
@@ -1063,13 +1063,13 @@ export default function TelegramBroadcastsPage() {
                                                         {row.status}
                                                     </Badge>
                                                 </td>
-                                                <td className="px-3 py-2 text-zoru-ink-muted">
+                                                <td className="px-3 py-2 text-[var(--st-text-secondary)]">
                                                     {fmtDateTime(row.scheduledAt)}
                                                 </td>
-                                                <td className="px-3 py-2 text-zoru-ink-muted">
+                                                <td className="px-3 py-2 text-[var(--st-text-secondary)]">
                                                     {fmtNumber(sent)} / {fmtNumber(failed)}
                                                 </td>
-                                                <td className="px-3 py-2 text-zoru-ink-muted">
+                                                <td className="px-3 py-2 text-[var(--st-text-secondary)]">
                                                     {fmtDateTime(row.createdAt)}
                                                 </td>
                                                 <td className="px-3 py-2 text-right">
@@ -1126,7 +1126,7 @@ export default function TelegramBroadcastsPage() {
                                                             onClick={() => setDeleteRow(row)}
                                                             aria-label="Delete"
                                                         >
-                                                            <Trash2 className="size-4 text-zoru-ink" />
+                                                            <Trash2 className="size-4 text-[var(--st-text)]" />
                                                         </Button>
                                                     </div>
                                                 </td>
@@ -1140,7 +1140,7 @@ export default function TelegramBroadcastsPage() {
 
                     {/* Pagination */}
                     <div className="flex items-center justify-between border-t p-3">
-                        <span className="text-xs text-zoru-ink-muted">
+                        <span className="text-xs text-[var(--st-text-secondary)]">
                             Page {pageIdx + 1}
                         </span>
                         <div className="flex gap-2">
@@ -1384,7 +1384,7 @@ function Composer(props: ComposerProps) {
 
                 <div className="flex flex-col gap-6 overflow-y-auto px-4 pb-4 md:px-6">
                     {error ? (
-                        <div className="flex items-center gap-2 rounded-md border border-zoru-line/40 bg-zoru-ink/5 p-3 text-sm text-zoru-ink">
+                        <div className="flex items-center gap-2 rounded-md border border-[var(--st-border)]/40 bg-[var(--st-text)]/5 p-3 text-sm text-[var(--st-text)]">
                             <AlertCircle className="size-4" /> {error}
                         </div>
                     ) : null}
@@ -1411,7 +1411,7 @@ function Composer(props: ComposerProps) {
                                     </ZoruSelectTrigger>
                                     <ZoruSelectContent>
                                         {bots.length === 0 ? (
-                                            <div className="px-2 py-1.5 text-sm text-zoru-ink-muted">
+                                            <div className="px-2 py-1.5 text-sm text-[var(--st-text-secondary)]">
                                                 No bots yet — connect one from
                                                 /dashboard/telegram/bots
                                             </div>
@@ -1439,7 +1439,7 @@ function Composer(props: ComposerProps) {
                                     className={`rounded-md border px-3 py-2 text-left text-sm transition ${
                                         composer.audienceKind === k.value
                                             ? 'border-[var(--zoru-ink)] bg-[var(--zoru-ink)]/10'
-                                            : 'border-zoru-border hover:bg-zoru-bg-zoru-surface-2'
+                                            : 'border-[var(--st-border)] hover:bg-zoru-bg-[var(--st-bg-muted)]'
                                     }`}
                                 >
                                     {k.label}
@@ -1467,7 +1467,7 @@ function Composer(props: ComposerProps) {
                                     placeholder="1234567890, 9876543210"
                                     rows={3}
                                 />
-                                <p className="text-xs text-zoru-ink-muted">
+                                <p className="text-xs text-[var(--st-text-secondary)]">
                                     Comma or whitespace separated. The bot must already
                                     have a chat opened with each id.
                                 </p>
@@ -1503,7 +1503,7 @@ function Composer(props: ComposerProps) {
                     {/* ── 2. Message ────────────────────────────────── */}
                     <Section title="2 · Message">
                         <div className="flex items-center gap-2">
-                            <span className="text-sm text-zoru-ink-muted">Format:</span>
+                            <span className="text-sm text-[var(--st-text-secondary)]">Format:</span>
                             <RadioGroup
                                 value={composer.parseMode}
                                 onValueChange={(v) =>
@@ -1574,7 +1574,7 @@ function Composer(props: ComposerProps) {
                         </div>
 
                         {composer.media.length === 0 ? (
-                            <p className="text-xs text-zoru-ink-muted">
+                            <p className="text-xs text-[var(--st-text-secondary)]">
                                 No media attached. All files come from your SabFiles
                                 library.
                             </p>
@@ -1621,7 +1621,7 @@ function Composer(props: ComposerProps) {
                                                         onClick={() => onRemoveMedia(idx)}
                                                         aria-label="Remove"
                                                     >
-                                                        <X className="size-4 text-zoru-ink" />
+                                                        <X className="size-4 text-[var(--st-text)]" />
                                                     </Button>
                                                 </div>
                                             </div>
@@ -1642,7 +1642,7 @@ function Composer(props: ComposerProps) {
                     {/* ── 3. Inline keyboard ────────────────────────── */}
                     <Section title="3 · Inline keyboard">
                         {composer.inlineKeyboard.length === 0 ? (
-                            <p className="text-xs text-zoru-ink-muted">
+                            <p className="text-xs text-[var(--st-text-secondary)]">
                                 No inline buttons. Add a row to start.
                             </p>
                         ) : (
@@ -1653,7 +1653,7 @@ function Composer(props: ComposerProps) {
                                         className="rounded-md border p-2"
                                     >
                                         <div className="flex items-center justify-between pb-2">
-                                            <span className="text-xs uppercase tracking-wide text-zoru-ink-muted">
+                                            <span className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
                                                 Row {rowIdx + 1}
                                             </span>
                                             <div className="flex gap-1">
@@ -1676,7 +1676,7 @@ function Composer(props: ComposerProps) {
                                                     }
                                                     aria-label="Remove row"
                                                 >
-                                                    <Trash2 className="size-4 text-zoru-ink" />
+                                                    <Trash2 className="size-4 text-[var(--st-text)]" />
                                                 </Button>
                                             </div>
                                         </div>
@@ -1738,7 +1738,7 @@ function Composer(props: ComposerProps) {
                                                         }
                                                         aria-label="Remove button"
                                                     >
-                                                        <X className="size-4 text-zoru-ink" />
+                                                        <X className="size-4 text-[var(--st-text)]" />
                                                     </Button>
                                                 </li>
                                             ))}
@@ -1791,15 +1791,15 @@ function Composer(props: ComposerProps) {
 
                     {/* ── 5. Preview ───────────────────────────────── */}
                     <Section title="5 · Preview">
-                        <div className="rounded-lg border bg-zoru-bg-zoru-surface-2/30 p-4">
-                            <div className="text-xs uppercase tracking-wide text-zoru-ink-muted">
+                        <div className="rounded-lg border bg-zoru-bg-[var(--st-bg-muted)]/30 p-4">
+                            <div className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
                                 Preview · {composer.parseMode}
                             </div>
                             <pre className="mt-2 whitespace-pre-wrap break-words text-sm">
                                 {composer.text || '(empty)'}
                             </pre>
                             {composer.media.length > 0 ? (
-                                <p className="mt-2 text-xs text-zoru-ink-muted">
+                                <p className="mt-2 text-xs text-[var(--st-text-secondary)]">
                                     + {composer.media.length} media attachment
                                     {composer.media.length === 1 ? '' : 's'}
                                 </p>
@@ -1835,7 +1835,7 @@ function Composer(props: ComposerProps) {
                             </Button>
                         </div>
                         {!composer.broadcastId ? (
-                            <p className="text-right text-xs text-zoru-ink-muted">
+                            <p className="text-right text-xs text-[var(--st-text-secondary)]">
                                 Save the draft first to enable test sends.
                             </p>
                         ) : null}
@@ -1885,7 +1885,7 @@ function Composer(props: ComposerProps) {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
     return (
         <section className="flex flex-col gap-3 rounded-lg border p-3 md:p-4">
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-zoru-ink-muted">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                 {title}
             </h3>
             {children}
@@ -1979,17 +1979,17 @@ function DetailDrawer(props: DetailDrawerProps) {
                     <div className="flex flex-wrap items-center gap-2">
                         <Badge variant={STATUS_VARIANT[row.status]}>{row.status}</Badge>
                         {row.scheduledAt ? (
-                            <span className="text-xs text-zoru-ink-muted">
+                            <span className="text-xs text-[var(--st-text-secondary)]">
                                 Scheduled: {fmtDateTime(row.scheduledAt)}
                             </span>
                         ) : null}
                         {row.startedAt ? (
-                            <span className="text-xs text-zoru-ink-muted">
+                            <span className="text-xs text-[var(--st-text-secondary)]">
                                 Started: {fmtDateTime(row.startedAt)}
                             </span>
                         ) : null}
                         {row.completedAt ? (
-                            <span className="text-xs text-zoru-ink-muted">
+                            <span className="text-xs text-[var(--st-text-secondary)]">
                                 Completed: {fmtDateTime(row.completedAt)}
                             </span>
                         ) : null}
@@ -2004,7 +2004,7 @@ function DetailDrawer(props: DetailDrawerProps) {
                     </div>
 
                     {row.errorSummary ? (
-                        <div className="flex items-start gap-2 rounded-md border border-zoru-line/40 bg-zoru-ink/5 p-3 text-sm text-zoru-ink">
+                        <div className="flex items-start gap-2 rounded-md border border-[var(--st-border)]/40 bg-[var(--st-text)]/5 p-3 text-sm text-[var(--st-text)]">
                             <AlertCircle className="size-4 shrink-0" />
                             <div>
                                 <div className="font-medium">Error</div>
@@ -2017,7 +2017,7 @@ function DetailDrawer(props: DetailDrawerProps) {
 
                     {/* Deliveries */}
                     <div className="flex items-center justify-between">
-                        <h3 className="text-sm font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                        <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                             Deliveries
                         </h3>
                         <Button
@@ -2038,7 +2038,7 @@ function DetailDrawer(props: DetailDrawerProps) {
 
                     <div className="overflow-x-auto rounded-md border">
                         <table className="w-full text-sm">
-                            <thead className="border-b text-left text-xs uppercase tracking-wide text-zoru-ink-muted">
+                            <thead className="border-b text-left text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
                                 <tr>
                                     <th className="px-3 py-2">Chat id</th>
                                     <th className="px-3 py-2">Status</th>
@@ -2051,7 +2051,7 @@ function DetailDrawer(props: DetailDrawerProps) {
                                     <tr>
                                         <td
                                             colSpan={4}
-                                            className="px-3 py-6 text-center text-sm text-zoru-ink-muted"
+                                            className="px-3 py-6 text-center text-sm text-[var(--st-text-secondary)]"
                                         >
                                             {deliveriesLoading
                                                 ? 'Loading…'
@@ -2077,10 +2077,10 @@ function DetailDrawer(props: DetailDrawerProps) {
                                                     {d.status}
                                                 </Badge>
                                             </td>
-                                            <td className="px-3 py-2 text-xs text-zoru-ink-muted">
+                                            <td className="px-3 py-2 text-xs text-[var(--st-text-secondary)]">
                                                 {d.errorMessage ?? ''}
                                             </td>
-                                            <td className="px-3 py-2 text-xs text-zoru-ink-muted">
+                                            <td className="px-3 py-2 text-xs text-[var(--st-text-secondary)]">
                                                 {fmtDateTime(d.sentAt)}
                                             </td>
                                         </tr>

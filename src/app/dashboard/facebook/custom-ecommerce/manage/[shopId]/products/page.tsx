@@ -108,10 +108,10 @@ export default function ProductsPage() {
       <div className="flex flex-col gap-8">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h2 className="text-[20px] tracking-tight text-zoru-ink">
+            <h2 className="text-[20px] tracking-tight text-[var(--st-text)]">
               Products
             </h2>
-            <p className="text-[13px] text-zoru-ink-muted">
+            <p className="text-[13px] text-[var(--st-text-secondary)]">
               Manage products for your custom shop.
             </p>
           </div>

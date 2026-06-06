@@ -107,7 +107,7 @@ export function SabsmsDebugSendForm({ engineHealthy = true }: { engineHealthy?: 
           value={body}
           onChange={(e) => setBody(e.target.value)}
         />
-        <p className="text-xs text-zoru-ink-muted">
+        <p className="text-xs text-[var(--st-text-secondary)]">
           {body.length} chars · GSM-7 splits at 160/153, UCS-2 at 70/67.
         </p>
       </div>
@@ -134,22 +134,22 @@ export function SabsmsDebugSendForm({ engineHealthy = true }: { engineHealthy?: 
           <Badge variant={statusVariant(status)}>{status}</Badge>
         )}
         {messageId && (
-          <code className="rounded bg-zoru-surface px-2 py-1 text-xs">
+          <code className="rounded bg-[var(--st-bg-secondary)] px-2 py-1 text-xs">
             {messageId}
           </code>
         )}
       </div>
 
       {error && (
-        <p className="rounded border border-zoru-line bg-zoru-surface-2 p-3 text-sm text-zoru-ink">
+        <p className="rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-sm text-[var(--st-text)]">
           {error}
         </p>
       )}
 
       {message && (
-        <div className="rounded border border-zoru-line bg-zoru-surface p-3 text-xs">
-          <div className="mb-2 font-semibold text-zoru-ink">Message doc</div>
-          <pre className="overflow-x-auto text-[11px] leading-relaxed text-zoru-ink">
+        <div className="rounded border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 text-xs">
+          <div className="mb-2 font-semibold text-[var(--st-text)]">Message doc</div>
+          <pre className="overflow-x-auto text-[11px] leading-relaxed text-[var(--st-text)]">
 {JSON.stringify(message, null, 2)}
           </pre>
         </div>

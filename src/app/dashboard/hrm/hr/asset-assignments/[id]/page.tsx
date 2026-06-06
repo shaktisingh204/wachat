@@ -64,48 +64,48 @@ export default async function AssetAssignmentDetailPage({
         >
             <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
-                    <div className="text-[14px] font-medium text-zoru-ink">Overview</div>
+                    <div className="text-[14px] font-medium text-[var(--st-text)]">Overview</div>
                     <StatusPill label={pretty(status)} tone={tone} />
                 </div>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
                     <div>
-                        <div className="text-zoru-ink-muted">Asset</div>
-                        <div className="text-zoru-ink">{assignment.asset_name || '—'}</div>
-                        <div className="font-mono text-[11.5px] text-zoru-ink-muted">
+                        <div className="text-[var(--st-text-secondary)]">Asset</div>
+                        <div className="text-[var(--st-text)]">{assignment.asset_name || '—'}</div>
+                        <div className="font-mono text-[11.5px] text-[var(--st-text-secondary)]">
                             {assignment.asset_id}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Employee</div>
-                        <div className="text-zoru-ink">{assignment.employee_name || '—'}</div>
-                        <div className="font-mono text-[11.5px] text-zoru-ink-muted">
+                        <div className="text-[var(--st-text-secondary)]">Employee</div>
+                        <div className="text-[var(--st-text)]">{assignment.employee_name || '—'}</div>
+                        <div className="font-mono text-[11.5px] text-[var(--st-text-secondary)]">
                             {assignment.employee_id}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Assigned at</div>
-                        <div className="text-zoru-ink">{fmtDate(assignment.assigned_at)}</div>
+                        <div className="text-[var(--st-text-secondary)]">Assigned at</div>
+                        <div className="text-[var(--st-text)]">{fmtDate(assignment.assigned_at)}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Returned at</div>
-                        <div className="text-zoru-ink">{fmtDate(assignment.returned_at)}</div>
+                        <div className="text-[var(--st-text-secondary)]">Returned at</div>
+                        <div className="text-[var(--st-text)]">{fmtDate(assignment.returned_at)}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Condition at assign</div>
-                        <div className="capitalize text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Condition at assign</div>
+                        <div className="capitalize text-[var(--st-text)]">
                             {pretty(assignment.condition_at_assign as string | undefined)}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Condition at return</div>
-                        <div className="capitalize text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Condition at return</div>
+                        <div className="capitalize text-[var(--st-text)]">
                             {pretty(assignment.condition_at_return as string | undefined)}
                         </div>
                     </div>
                     {assignment.notes ? (
                         <div className="sm:col-span-2">
-                            <div className="text-zoru-ink-muted">Notes</div>
-                            <div className="whitespace-pre-wrap text-zoru-ink">{assignment.notes}</div>
+                            <div className="text-[var(--st-text-secondary)]">Notes</div>
+                            <div className="whitespace-pre-wrap text-[var(--st-text)]">{assignment.notes}</div>
                         </div>
                     ) : null}
                 </div>
@@ -115,24 +115,24 @@ export default async function AssetAssignmentDetailPage({
 
             {history.length > 0 && (
                 <Card className="p-6 mt-6">
-                    <div className="mb-4 text-[14px] font-medium text-zoru-ink">Assignment History</div>
+                    <div className="mb-4 text-[14px] font-medium text-[var(--st-text)]">Assignment History</div>
                     <div className="grid gap-4">
                         {history.map((h) => {
                             const hStatus = (h.status ?? 'assigned') as CrmAssetAssignmentStatus;
                             const hTone = STATUS_TONE[hStatus] ?? 'neutral';
                             return (
-                                <div key={h._id} className="border border-zoru-line rounded-lg p-4 flex flex-col sm:flex-row justify-between gap-4">
+                                <div key={h._id} className="border border-[var(--st-border)] rounded-lg p-4 flex flex-col sm:flex-row justify-between gap-4">
                                     <div>
-                                        <div className="text-[13px] font-medium text-zoru-ink mb-1">
+                                        <div className="text-[13px] font-medium text-[var(--st-text)] mb-1">
                                             {h.employee_name || h.employee_id}
                                         </div>
-                                        <div className="text-[12px] text-zoru-ink-muted">
+                                        <div className="text-[12px] text-[var(--st-text-secondary)]">
                                             Assigned: {fmtDate(h.assigned_at)}
                                             {h.returned_at ? ` • Returned: ${fmtDate(h.returned_at)}` : ''}
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-4">
-                                        <div className="text-[12px] text-zoru-ink-muted text-right">
+                                        <div className="text-[12px] text-[var(--st-text-secondary)] text-right">
                                             <div>Cond: {pretty(h.condition_at_assign as string)}</div>
                                             {h.condition_at_return && <div>Ret: {pretty(h.condition_at_return as string)}</div>}
                                         </div>

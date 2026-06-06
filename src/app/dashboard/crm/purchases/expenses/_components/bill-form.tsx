@@ -124,15 +124,15 @@ function EntryModeToggle({
     <Card className="p-3">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h3 className="text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          <h3 className="text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
             Entry mode
           </h3>
-          <p className="text-[12px] text-zoru-ink-muted">
+          <p className="text-[12px] text-[var(--st-text-secondary)]">
             Inventory items roll up to GST tax; expense lines map straight
             to ledger accounts.
           </p>
         </div>
-        <div className="flex items-center rounded border border-zoru-line bg-zoru-surface p-0.5">
+        <div className="flex items-center rounded border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-0.5">
           <Button
             type="button"
             size="sm"
@@ -279,7 +279,7 @@ export function BillForm({ initial, customFields, redirectTo }: BillFormProps) {
 
       {customFields.length > 0 ? (
         <Card className="p-6">
-          <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
             Custom fields
           </h3>
           <div className="grid gap-4 md:grid-cols-2">
@@ -295,7 +295,7 @@ export function BillForm({ initial, customFields, redirectTo }: BillFormProps) {
         </Card>
       ) : null}
 
-      <div className="sticky bottom-0 z-10 -mx-2 flex flex-wrap items-center justify-end gap-2 border-t border-zoru-line bg-zoru-bg px-2 py-3">
+      <div className="sticky bottom-0 z-10 -mx-2 flex flex-wrap items-center justify-end gap-2 border-t border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-3">
         <Button variant="outline" asChild>
           <Link
             href={

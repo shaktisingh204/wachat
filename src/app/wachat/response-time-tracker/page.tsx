@@ -27,6 +27,7 @@ import {
   Input,
   Switch,
   Select,
+  Spinner,
   type BadgeTone,
 } from '@/components/sabcrm/20ui';
 import {
@@ -43,6 +44,7 @@ import {
   Users,
   Download,
   Mail,
+  Trash2,
   } from 'lucide-react';
 import {
   BarChart,
@@ -59,10 +61,16 @@ import {
   getAgentPerformance,
   getAgentHourly,
 } from '@/app/actions/wachat-analytics.actions';
+import {
+  getScheduledReports,
+  createScheduledReport,
+  deleteScheduledReport,
+} from '@/app/actions/wachat-features.actions';
 import type {
   AgentPerformanceRow,
   AgentHourlyBucket,
 } from '@/lib/rust-client/wachat-analytics';
+import type { ScheduledReport } from '@/lib/rust-client/wachat-features';
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
 
 /**
@@ -115,6 +123,85 @@ export default function ResponseTimeTrackerPage() {
   const [isScheduleOpen, setIsScheduleOpen] = useState(false);
   const [scheduleEmail, setScheduleEmail] = useState('');
   const [scheduleFreq, setScheduleFreq] = useState('weekly');
+
+  // Persisted scheduled-report subscriptions (loaded when the modal opens).
+  const [subs, setSubs] = useState<ScheduledReport[]>([]);
+  const [subsLoading, setSubsLoading] = useState(false);
+  const [subsError, setSubsError] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const projectId = activeProject?._id ? String(activeProject._id) : null;
+
+  const loadSubs = useCallback(() => {
+    if (!projectId) return;
+    setSubsLoading(true);
+    setSubsError(null);
+    getScheduledReports(projectId)
+      .then((res) => {
+        if ('error' in res) {
+          setSubsError(res.error);
+          setSubs([]);
+        } else {
+          setSubs(res.reports ?? []);
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to load scheduled reports:', err);
+        setSubsError('Failed to load scheduled reports.');
+      })
+      .finally(() => setSubsLoading(false));
+  }, [projectId]);
+
+  // Load existing subscriptions whenever the modal is opened.
+  useEffect(() => {
+    if (isScheduleOpen) loadSubs();
+  }, [isScheduleOpen, loadSubs]);
+
+  const handleCreateSub = useCallback(async () => {
+    if (!projectId) return;
+    setCreating(true);
+    try {
+      const res = await createScheduledReport(projectId, scheduleEmail, scheduleFreq);
+      if ('error' in res) {
+        toast({ title: 'Error', description: res.error, tone: 'danger' });
+        return;
+      }
+      toast({ title: res.message ?? 'Scheduled report created.', tone: 'success' });
+      setScheduleEmail('');
+      loadSubs();
+    } catch (err) {
+      console.error('Failed to create scheduled report:', err);
+      toast({ title: 'Error', description: 'Failed to schedule report.', tone: 'danger' });
+    } finally {
+      setCreating(false);
+    }
+  }, [projectId, scheduleEmail, scheduleFreq, toast, loadSubs]);
+
+  const handleDeleteSub = useCallback(
+    async (reportId: string) => {
+      setDeletingId(reportId);
+      try {
+        const res = await deleteScheduledReport(reportId);
+        if (res.success) {
+          setSubs((prev) => prev.filter((s) => s._id !== reportId));
+          toast({ title: 'Subscription removed.', tone: 'success' });
+        } else {
+          toast({
+            title: 'Error',
+            description: ('error' in res && res.error) || 'Failed to remove subscription.',
+            tone: 'danger',
+          });
+        }
+      } catch (err) {
+        console.error('Failed to delete scheduled report:', err);
+        toast({ title: 'Error', description: 'Failed to remove subscription.', tone: 'danger' });
+      } finally {
+        setDeletingId(null);
+      }
+    },
+    [toast],
+  );
 
   const load = useCallback(() => {
     if (!activeProject?._id) return;
@@ -420,41 +507,104 @@ export default function ResponseTimeTrackerPage() {
         footer={
           <>
             <Button variant="outline" onClick={() => setIsScheduleOpen(false)}>
-              Cancel
+              Close
             </Button>
             <Button
               variant="primary"
-              onClick={() => {
-                toast({ title: 'Report scheduled successfully!', tone: 'success' });
-                setIsScheduleOpen(false);
-              }}
+              iconLeft={Mail}
+              loading={creating}
+              disabled={creating || !scheduleEmail.trim()}
+              onClick={handleCreateSub}
             >
-              Schedule
+              Add Subscription
             </Button>
           </>
         }
       >
-        <div className="space-y-4">
-          <Field label="Email Address">
-            <Input
-              type="email"
-              placeholder="manager@example.com"
-              value={scheduleEmail}
-              onChange={(e) => setScheduleEmail(e.target.value)}
-            />
-          </Field>
-          <Field label="Frequency">
-            <Select
-              value={scheduleFreq}
-              onChange={(v) => setScheduleFreq(v ?? 'weekly')}
-              placeholder="Select frequency"
-              options={[
-                { value: 'daily', label: 'Daily' },
-                { value: 'weekly', label: 'Weekly' },
-                { value: 'monthly', label: 'Monthly' },
-              ]}
-            />
-          </Field>
+        <div className="space-y-5">
+          <div className="space-y-4">
+            <Field label="Email Address">
+              <Input
+                type="email"
+                placeholder="manager@example.com"
+                value={scheduleEmail}
+                onChange={(e) => setScheduleEmail(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && scheduleEmail.trim() && !creating) {
+                    e.preventDefault();
+                    void handleCreateSub();
+                  }
+                }}
+              />
+            </Field>
+            <Field label="Frequency">
+              <Select
+                value={scheduleFreq}
+                onChange={(v) => setScheduleFreq(v ?? 'weekly')}
+                placeholder="Select frequency"
+                options={[
+                  { value: 'daily', label: 'Daily' },
+                  { value: 'weekly', label: 'Weekly' },
+                  { value: 'monthly', label: 'Monthly' },
+                ]}
+              />
+            </Field>
+          </div>
+
+          <div className="border-t border-[var(--st-border)] pt-4">
+            <h4 className="text-sm font-medium mb-3 text-[var(--st-text)]">
+              Active Subscriptions
+            </h4>
+            {subsLoading ? (
+              <div className="flex items-center justify-center py-6 text-[var(--st-text-muted)]">
+                <Spinner size={20} />
+              </div>
+            ) : subsError ? (
+              <EmptyState
+                icon={TriangleAlert}
+                title="Couldn't load subscriptions"
+                description={subsError}
+                action={
+                  <Button variant="outline" size="sm" onClick={loadSubs}>
+                    Retry
+                  </Button>
+                }
+              />
+            ) : subs.length === 0 ? (
+              <EmptyState
+                icon={Mail}
+                title="No subscriptions yet"
+                description="Add an email above to start receiving scheduled reports."
+              />
+            ) : (
+              <ul className="space-y-2">
+                {subs.map((s) => (
+                  <li
+                    key={s._id}
+                    className="flex items-center justify-between gap-3 rounded-[var(--st-radius-md)] border border-[var(--st-border)] px-3 py-2"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium text-[var(--st-text)]">
+                        {s.recipient}
+                      </p>
+                      <p className="text-xs text-[var(--st-text-muted)]">
+                        <Badge tone="neutral">{s.frequency}</Badge>
+                      </p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      iconLeft={Trash2}
+                      aria-label={`Remove subscription for ${s.recipient}`}
+                      loading={deletingId === s._id}
+                      disabled={deletingId === s._id}
+                      onClick={() => handleDeleteSub(s._id)}
+                    />
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
       </Modal>
     </WachatPage>

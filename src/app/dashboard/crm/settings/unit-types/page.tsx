@@ -95,14 +95,14 @@ export default function UnitTypesPage() {
             >
               <div className="space-y-3 text-sm">
                 <div>
-                  <div className="text-zoru-ink-muted text-xs">Unit name</div>
+                  <div className="text-[var(--st-text-secondary)] text-xs">Unit name</div>
                   <div>{row.unit_name}</div>
                 </div>
                 <div>
-                  <div className="text-zoru-ink-muted text-xs">Short name</div>
+                  <div className="text-[var(--st-text-secondary)] text-xs">Short name</div>
                   <div className="font-mono">{row.short_name || '—'}</div>
                 </div>
-                <p className="text-zoru-ink-muted text-xs">
+                <p className="text-[var(--st-text-secondary)] text-xs">
                   Edit and delete are available from the row actions.
                 </p>
               </div>

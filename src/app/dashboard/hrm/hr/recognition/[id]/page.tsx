@@ -28,7 +28,7 @@ export default async function RecognitionDetailPage({
   const list = (await getRecognitions()) as Row[];
   const row = list.find((r) => String(r._id) === id) ?? null;
 
-  if (!row) return <div className="text-sm text-zoru-ink-muted">Recognition not found.</div>;
+  if (!row) return <div className="text-sm text-[var(--st-text-secondary)]">Recognition not found.</div>;
 
   return (
     <HrDetailPage
@@ -45,19 +45,19 @@ export default async function RecognitionDetailPage({
       entityId={id}
       rightRail={
         <Card className="p-4">
-          <div className="flex items-center gap-2 text-zoru-ink">
-            <Award className="h-5 w-5 text-zoru-warning-ink" />
+          <div className="flex items-center gap-2 text-[var(--st-text)]">
+            <Award className="h-5 w-5 text-[var(--st-warn)]" />
             <span className="text-sm font-medium">Celebration card</span>
           </div>
-          <div className="mt-3 rounded-lg bg-gradient-to-br from-zoru-surface-2 to-zoru-surface-2 p-4 text-center">
-            <p className="text-xs uppercase tracking-wide text-zoru-ink">
+          <div className="mt-3 rounded-lg bg-gradient-to-br from-[var(--st-bg-muted)] to-[var(--st-bg-muted)] p-4 text-center">
+            <p className="text-xs uppercase tracking-wide text-[var(--st-text)]">
               {row.type}
             </p>
-            <p className="mt-1 text-lg font-semibold text-zoru-ink">
+            <p className="mt-1 text-lg font-semibold text-[var(--st-text)]">
               {row.points ? `${row.points} pts` : '—'}
             </p>
             {row.monetaryReward != null ? (
-              <p className="mt-0.5 text-xs text-zoru-ink">
+              <p className="mt-0.5 text-xs text-[var(--st-text)]">
                 {fmtINR(row.monetaryReward, row.currency)}
               </p>
             ) : null}

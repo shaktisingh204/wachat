@@ -51,7 +51,7 @@ export function AssignmentForm({
               <ZoruSelectItem key={e._id} value={e._id}>
                 {e.name}
                 {e.email ? (
-                  <span className="ml-1 text-zoru-ink-muted text-xs">
+                  <span className="ml-1 text-[var(--st-text-secondary)] text-xs">
                     ({e.email})
                   </span>
                 ) : null}
@@ -75,7 +75,7 @@ export function AssignmentForm({
             ))}
           </ZoruSelectContent>
         </Select>
-        <p className="text-[11px] text-zoru-ink-muted">
+        <p className="text-[11px] text-[var(--st-text-secondary)]">
           Leave blank to remove the employee&apos;s current group.
         </p>
       </div>

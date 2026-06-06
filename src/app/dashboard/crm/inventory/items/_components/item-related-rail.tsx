@@ -51,27 +51,27 @@ export function ItemRelatedRail({
   return (
     <div className="space-y-4">
       <Card className="p-4">
-        <h3 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Stock summary
         </h3>
         <div className="space-y-2 text-[12.5px]">
           <div className="flex items-center justify-between">
-            <span className="text-zoru-ink-muted">Total on hand</span>
-            <span className="font-mono tabular-nums text-zoru-ink">
+            <span className="text-[var(--st-text-secondary)]">Total on hand</span>
+            <span className="font-mono tabular-nums text-[var(--st-text)]">
               {totalStock}
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-zoru-ink-muted">Last movement</span>
-            <span className="text-zoru-ink-muted">{fmtDate(lastUpdated)}</span>
+            <span className="text-[var(--st-text-secondary)]">Last movement</span>
+            <span className="text-[var(--st-text-secondary)]">{fmtDate(lastUpdated)}</span>
           </div>
           <div
             className={`flex items-center gap-1.5 rounded border px-2 py-1.5 text-[11.5px] ${
               tone === 'danger'
-                ? 'border-zoru-danger/40 bg-zoru-danger/5 text-zoru-danger-ink'
+                ? 'border-[var(--st-danger)]/40 bg-[var(--st-danger)]/5 text-[var(--st-danger)]'
                 : tone === 'warning'
-                  ? 'border-zoru-warning/40 bg-zoru-warning/5 text-zoru-warning-ink'
-                  : 'border-zoru-success/40 bg-zoru-success/5 text-zoru-success-ink'
+                  ? 'border-[var(--st-warn)]/40 bg-[var(--st-warn)]/5 text-[var(--st-warn)]'
+                  : 'border-[var(--st-status-ok)]/40 bg-[var(--st-status-ok)]/5 text-[var(--st-status-ok)]'
             }`}
           >
             {tone === 'success' ? (
@@ -85,7 +85,7 @@ export function ItemRelatedRail({
       </Card>
 
       <Card className="p-4">
-        <h3 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Quick actions
         </h3>
         <div className="flex flex-col gap-2">
@@ -114,7 +114,7 @@ export function ItemRelatedRail({
       </Card>
 
       <Card className="p-4">
-        <h3 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Related
         </h3>
         <ul className="space-y-1.5 text-[12.5px]">
@@ -162,10 +162,10 @@ function RelatedLink({
     <li>
       <Link
         href={href}
-        className="flex items-center justify-between gap-2 rounded px-1.5 py-1 text-zoru-ink hover:bg-zoru-surface-2"
+        className="flex items-center justify-between gap-2 rounded px-1.5 py-1 text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
       >
-        <span className="inline-flex items-center gap-1.5 text-zoru-ink">
-          <span className="text-zoru-ink-muted">{icon}</span>
+        <span className="inline-flex items-center gap-1.5 text-[var(--st-text)]">
+          <span className="text-[var(--st-text-secondary)]">{icon}</span>
           {label}
         </span>
       </Link>

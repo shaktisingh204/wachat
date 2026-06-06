@@ -104,7 +104,7 @@ export function SabbackstageCheckInTab({
     <div className="space-y-4">
       <form
         onSubmit={handleSubmit}
-        className="flex flex-wrap items-end gap-2 rounded-md border border-zoru-line p-3"
+        className="flex flex-wrap items-end gap-2 rounded-md border border-[var(--st-border)] p-3"
       >
         <div className="flex-1 min-w-[220px]">
           <Label htmlFor="ci-qr">Scan ticket QR</Label>
@@ -141,25 +141,25 @@ export function SabbackstageCheckInTab({
       </form>
 
       <section>
-        <h4 className="mb-2 text-[13px] font-semibold text-zoru-ink">
+        <h4 className="mb-2 text-[13px] font-semibold text-[var(--st-text)]">
           Latest check-ins
         </h4>
         {recent.length === 0 ? (
-          <p className="text-[12.5px] text-zoru-ink-muted">
+          <p className="text-[12.5px] text-[var(--st-text-secondary)]">
             No check-ins recorded yet.
           </p>
         ) : (
-          <ul className="divide-y divide-zoru-line">
+          <ul className="divide-y divide-[var(--st-border)]">
             {recent.map((row, idx) => (
               <li
                 key={`${row.ticket._id}-${idx}`}
                 className="flex items-center justify-between py-2"
               >
                 <div>
-                  <div className="text-[13px] text-zoru-ink">
+                  <div className="text-[13px] text-[var(--st-text)]">
                     {row.ticket.attendeeName}
                   </div>
-                  <div className="text-[12px] text-zoru-ink-muted">
+                  <div className="text-[12px] text-[var(--st-text-secondary)]">
                     {row.ticket.attendeeEmail} ·{' '}
                     {new Date(row.at).toLocaleTimeString()}
                   </div>

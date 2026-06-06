@@ -119,7 +119,7 @@ export default function TextComparePage() {
           <Switch id="ignore-ws" checked={ignoreWhitespace} onCheckedChange={setIgnoreWhitespace} />
           <Label htmlFor="ignore-ws">Ignore whitespace differences</Label>
         </div>
-        <div className="text-sm text-zoru-ink-muted">{diffs} differing line(s)</div>
+        <div className="text-sm text-[var(--st-text-secondary)]">{diffs} differing line(s)</div>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
@@ -145,25 +145,25 @@ export default function TextComparePage() {
         <ZoruCardContent className="p-0 overflow-auto max-h-[600px]">
           <div className="font-mono text-xs min-w-[600px]">
             {rows.map((r, i) => (
-              <div key={i} className={`flex w-full border-b ${r.equal ? '' : 'bg-zoru-surface-2 dark:bg-zoru-ink/20'}`}>
+              <div key={i} className={`flex w-full border-b ${r.equal ? '' : 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/20'}`}>
                 <div className="flex-1 w-1/2 px-2 py-1 border-r break-all whitespace-pre-wrap">
                   {r.left ? r.left.map((chunk, j) => (
                     <span key={j} className={
-                      chunk.type === 'delete' ? 'bg-zoru-surface-2 dark:bg-zoru-ink/60' : ''
+                      chunk.type === 'delete' ? 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/60' : ''
                     }>{chunk.text}</span>
-                  )) : <span className="text-zoru-ink-muted select-none">—</span>}
+                  )) : <span className="text-[var(--st-text-secondary)] select-none">—</span>}
                 </div>
                 <div className="flex-1 w-1/2 px-2 py-1 break-all whitespace-pre-wrap">
                   {r.right ? r.right.map((chunk, j) => (
                     <span key={j} className={
-                      chunk.type === 'insert' ? 'bg-zoru-surface-2 dark:bg-zoru-ink/60' : ''
+                      chunk.type === 'insert' ? 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/60' : ''
                     }>{chunk.text}</span>
-                  )) : <span className="text-zoru-ink-muted select-none">—</span>}
+                  )) : <span className="text-[var(--st-text-secondary)] select-none">—</span>}
                 </div>
               </div>
             ))}
             {rows.length === 0 && (
-              <div className="p-4 text-center text-zoru-ink-muted text-sm">No text to compare</div>
+              <div className="p-4 text-center text-[var(--st-text-secondary)] text-sm">No text to compare</div>
             )}
           </div>
         </ZoruCardContent>

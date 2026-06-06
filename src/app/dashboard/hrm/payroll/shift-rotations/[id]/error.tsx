@@ -22,9 +22,9 @@ export default function ErrorBoundary({
       subtitle="There was a problem fetching the shift rotation details."
     >
       <Card className="p-8 text-center flex flex-col items-center gap-4">
-        <AlertCircle className="h-10 w-10 text-zoru-danger-ink" />
-        <h2 className="text-[16px] text-zoru-ink">Failed to load data</h2>
-        <p className="text-[13px] text-zoru-ink-muted">
+        <AlertCircle className="h-10 w-10 text-[var(--st-danger)]" />
+        <h2 className="text-[16px] text-[var(--st-text)]">Failed to load data</h2>
+        <p className="text-[13px] text-[var(--st-text-secondary)]">
           {error.message || 'An unexpected error occurred.'}
         </p>
         <Button onClick={() => reset()} variant="outline">

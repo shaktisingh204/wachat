@@ -116,7 +116,7 @@ function uniq<T>(arr: T[]): T[] {
 
 const labelClass = 'block text-[11.5px] text-[var(--gray-11)] mb-1';
 const inputBase =
-  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-zoru-line transition-colors';
+  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[var(--st-border)] transition-colors';
 const textareaClass = `${inputBase} font-mono text-[12px] leading-snug resize-y`;
 
 /* ── Component ────────────────────────────────────────────────────────────── */
@@ -190,7 +190,7 @@ export function NodeSettings({ nodeType, values, onChange, onChangeBlockType }: 
 
   if (error || !descriptor) {
     return (
-      <div className="flex items-start gap-2 rounded-lg border border-zoru-line bg-zoru-surface-2 px-3 py-2 text-[11.5px] text-zoru-ink">
+      <div className="flex items-start gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-[11.5px] text-[var(--st-text)]">
         <LuTriangleAlert className="h-3.5 w-3.5 mt-0.5 shrink-0" strokeWidth={1.8} />
         <span>{error ?? 'Failed to load node descriptor.'}</span>
       </div>
@@ -228,11 +228,11 @@ export function NodeSettings({ nodeType, values, onChange, onChangeBlockType }: 
               type="checkbox"
               checked={Boolean(current)}
               onChange={(e) => setField(prop.name, e.target.checked)}
-              className="h-3.5 w-3.5 rounded border-[var(--gray-5)] text-zoru-ink focus:ring-zoru-line"
+              className="h-3.5 w-3.5 rounded border-[var(--gray-5)] text-[var(--st-text)] focus:ring-[var(--st-border)]"
             />
             <label htmlFor={id} className="text-[11.5px] text-[var(--gray-11)] cursor-pointer">
               {prop.displayName}
-              {prop.required && <span className="text-zoru-ink ml-0.5">*</span>}
+              {prop.required && <span className="text-[var(--st-text)] ml-0.5">*</span>}
             </label>
           </div>
         );
@@ -242,7 +242,7 @@ export function NodeSettings({ nodeType, values, onChange, onChangeBlockType }: 
           <div key={prop.name}>
             <label htmlFor={id} className={labelClass}>
               {prop.displayName}
-              {prop.required && <span className="text-zoru-ink ml-0.5">*</span>}
+              {prop.required && <span className="text-[var(--st-text)] ml-0.5">*</span>}
             </label>
             <input
               id={id}
@@ -263,7 +263,7 @@ export function NodeSettings({ nodeType, values, onChange, onChangeBlockType }: 
           <div key={prop.name}>
             <label htmlFor={id} className={labelClass}>
               {prop.displayName}
-              {prop.required && <span className="text-zoru-ink ml-0.5">*</span>}
+              {prop.required && <span className="text-[var(--st-text)] ml-0.5">*</span>}
             </label>
             <input
               id={id}
@@ -287,7 +287,7 @@ export function NodeSettings({ nodeType, values, onChange, onChangeBlockType }: 
           <div key={prop.name}>
             <label htmlFor={id} className={labelClass}>
               {prop.displayName}
-              {prop.required && <span className="text-zoru-ink ml-0.5">*</span>}
+              {prop.required && <span className="text-[var(--st-text)] ml-0.5">*</span>}
             </label>
             <select
               id={id}
@@ -314,7 +314,7 @@ export function NodeSettings({ nodeType, values, onChange, onChangeBlockType }: 
           <div key={prop.name}>
             <label htmlFor={id} className={labelClass}>
               {prop.displayName}
-              {prop.required && <span className="text-zoru-ink ml-0.5">*</span>}
+              {prop.required && <span className="text-[var(--st-text)] ml-0.5">*</span>}
             </label>
             <select
               id={id}
@@ -346,7 +346,7 @@ export function NodeSettings({ nodeType, values, onChange, onChangeBlockType }: 
           <div key={prop.name}>
             <label htmlFor={id} className={labelClass}>
               {prop.displayName}
-              {prop.required && <span className="text-zoru-ink ml-0.5">*</span>}
+              {prop.required && <span className="text-[var(--st-text)] ml-0.5">*</span>}
             </label>
             <textarea
               id={id}
@@ -376,7 +376,7 @@ export function NodeSettings({ nodeType, values, onChange, onChangeBlockType }: 
           <div key={prop.name}>
             <label className={labelClass}>
               {prop.displayName}
-              {prop.required && <span className="text-zoru-ink ml-0.5">*</span>}
+              {prop.required && <span className="text-[var(--st-text)] ml-0.5">*</span>}
             </label>
             <CredentialSelect
               credentialType={credentialType}
@@ -392,7 +392,7 @@ export function NodeSettings({ nodeType, values, onChange, onChangeBlockType }: 
           <div key={prop.name}>
             <label htmlFor={id} className={labelClass}>
               {prop.displayName}
-              {prop.required && <span className="text-zoru-ink ml-0.5">*</span>}
+              {prop.required && <span className="text-[var(--st-text)] ml-0.5">*</span>}
             </label>
             <input
               id={id}
@@ -412,7 +412,7 @@ export function NodeSettings({ nodeType, values, onChange, onChangeBlockType }: 
           <div key={prop.name}>
             <label htmlFor={id} className={labelClass}>
               {prop.displayName}
-              {prop.required && <span className="text-zoru-ink ml-0.5">*</span>}
+              {prop.required && <span className="text-[var(--st-text)] ml-0.5">*</span>}
             </label>
             <input
               id={id}
@@ -466,20 +466,20 @@ export function NodeSettings({ nodeType, values, onChange, onChangeBlockType }: 
         const fallback = getStubFallback(descriptor.name);
         if (fallback && onChangeBlockType) {
           return (
-            <div className="rounded-lg border border-zoru-line bg-zoru-surface-2 px-3 py-2.5 text-[11.5px] dark:border-zoru-line/50 dark:bg-zoru-ink/30">
+            <div className="rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2.5 text-[11.5px] dark:border-[var(--st-border)]/50 dark:bg-[var(--st-text)]/30">
               <div className="flex items-start gap-2">
                 <LuSparkles
-                  className="h-3.5 w-3.5 mt-0.5 shrink-0 text-zoru-ink dark:text-zoru-ink-muted"
+                  className="h-3.5 w-3.5 mt-0.5 shrink-0 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]"
                   strokeWidth={2}
                 />
                 <div className="flex-1 min-w-0">
-                  <p className="text-[12px] font-semibold text-zoru-ink dark:text-white">
+                  <p className="text-[12px] font-semibold text-[var(--st-text)] dark:text-white">
                     Upgrade available — use{' '}
                     <span className="underline decoration-dotted underline-offset-2">
                       {fallback.label}
                     </span>
                   </p>
-                  <p className="mt-0.5 text-[10.5px] leading-snug text-zoru-ink/85 dark:text-white/80">
+                  <p className="mt-0.5 text-[10.5px] leading-snug text-[var(--st-text)]/85 dark:text-white/80">
                     {fallback.rationale}
                   </p>
                 </div>
@@ -488,7 +488,7 @@ export function NodeSettings({ nodeType, values, onChange, onChangeBlockType }: 
                 <button
                   type="button"
                   onClick={() => onChangeBlockType(fallback.forgeType)}
-                  className="inline-flex items-center gap-1 rounded-md bg-zoru-ink text-white px-2.5 py-1 text-[11px] font-semibold hover:bg-zoru-ink transition-colors"
+                  className="inline-flex items-center gap-1 rounded-md bg-[var(--st-text)] text-white px-2.5 py-1 text-[11px] font-semibold hover:bg-[var(--st-text)] transition-colors"
                 >
                   Switch to {fallback.label}
                   <LuArrowRight className="h-3 w-3" strokeWidth={2.5} />
@@ -498,7 +498,7 @@ export function NodeSettings({ nodeType, values, onChange, onChangeBlockType }: 
           );
         }
         return (
-          <div className="rounded-lg border border-zoru-line bg-zoru-surface-2 px-3 py-2 text-[11.5px] text-zoru-ink dark:border-zoru-line/50 dark:bg-zoru-ink/30 dark:text-zoru-ink-muted">
+          <div className="rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-[11.5px] text-[var(--st-text)] dark:border-[var(--st-border)]/50 dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]">
             <div className="flex items-start gap-2">
               <LuTriangleAlert className="h-3.5 w-3.5 mt-0.5 shrink-0" strokeWidth={1.8} />
               <span>

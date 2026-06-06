@@ -123,10 +123,10 @@ export function TasksTable({
     const now = Date.now();
 
     return (
-        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+        <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
             <Table>
                 <ZoruTableHeader>
-                    <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                    <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                         <ZoruTableHead className="w-[36px]">
                             <Checkbox
                                 aria-label="Select all tasks"
@@ -148,17 +148,17 @@ export function TasksTable({
                 <ZoruTableBody>
                     {loading ? (
                         Array.from({ length: 6 }).map((_, i) => (
-                            <ZoruTableRow key={i} className="border-zoru-line">
+                            <ZoruTableRow key={i} className="border-[var(--st-border)]">
                                 <ZoruTableCell colSpan={10}>
                                     <Skeleton className="h-10 w-full" />
                                 </ZoruTableCell>
                             </ZoruTableRow>
                         ))
                     ) : tasks.length === 0 ? (
-                        <ZoruTableRow className="border-zoru-line">
+                        <ZoruTableRow className="border-[var(--st-border)]">
                             <ZoruTableCell
                                 colSpan={10}
-                                className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                                className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                             >
                                 No tasks match the current filters.
                             </ZoruTableCell>
@@ -186,9 +186,9 @@ export function TasksTable({
                                 <ZoruTableRow
                                     key={id}
                                     className={[
-                                        'border-zoru-line transition-colors',
+                                        'border-[var(--st-border)] transition-colors',
                                         isOverdue ? 'border-l-2 border-l-zoru-danger' : '',
-                                        isSel ? 'bg-zoru-surface-2/70' : '',
+                                        isSel ? 'bg-[var(--st-bg-muted)]/70' : '',
                                         status === 'Completed' ? 'opacity-70' : '',
                                     ].join(' ')}
                                 >
@@ -204,7 +204,7 @@ export function TasksTable({
                                             href={`/dashboard/crm/sales-crm/tasks/${id}`}
                                             label={
                                                 <span className="flex items-center gap-2">
-                                                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
+                                                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                                                         <CheckSquare className="h-3.5 w-3.5" />
                                                     </span>
                                                     <span className="block truncate text-[13px]">
@@ -215,7 +215,7 @@ export function TasksTable({
                                             subtitle={task.description || undefined}
                                         />
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                                         <Badge variant="secondary">
                                             {(task.type as string) || 'Follow-up'}
                                         </Badge>
@@ -242,7 +242,7 @@ export function TasksTable({
                                                 />
                                             )
                                         ) : (
-                                            <span className="text-[12px] text-zoru-ink-muted">—</span>
+                                            <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
                                         )}
                                     </ZoruTableCell>
                                     <ZoruTableCell>
@@ -253,7 +253,7 @@ export function TasksTable({
                                                 fallback="Unassigned"
                                             />
                                         ) : (
-                                            <span className="text-[12px] text-zoru-ink-muted">
+                                            <span className="text-[12px] text-[var(--st-text-secondary)]">
                                                 Unassigned
                                             </span>
                                         )}
@@ -270,7 +270,7 @@ export function TasksTable({
                                     <ZoruTableCell
                                         className={[
                                             'text-[12.5px]',
-                                            isOverdue ? 'text-zoru-danger' : 'text-zoru-ink',
+                                            isOverdue ? 'text-[var(--st-danger)]' : 'text-[var(--st-text)]',
                                         ].join(' ')}
                                         title={due ? due.toLocaleString() : ''}
                                     >
@@ -282,11 +282,11 @@ export function TasksTable({
                                                 {due.toLocaleDateString()}
                                             </span>
                                         ) : (
-                                            <span className="text-zoru-ink-muted">—</span>
+                                            <span className="text-[var(--st-text-secondary)]">—</span>
                                         )}
                                     </ZoruTableCell>
                                     <ZoruTableCell
-                                        className="text-[12.5px] text-zoru-ink-muted"
+                                        className="text-[12.5px] text-[var(--st-text-secondary)]"
                                         title={task.createdAt ? new Date(task.createdAt).toLocaleString() : ''}
                                     >
                                         {task.createdAt
@@ -301,7 +301,7 @@ export function TasksTable({
                                                 <button
                                                     type="button"
                                                     aria-label={`Actions for ${task.title}`}
-                                                    className="inline-flex h-8 w-8 items-center justify-center rounded-md text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
+                                                    className="inline-flex h-8 w-8 items-center justify-center rounded-md text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
                                                 >
                                                     <MoreHorizontal className="h-4 w-4" />
                                                 </button>
@@ -338,14 +338,14 @@ export function TasksTable({
                                                 <ZoruDropdownMenuItem asChild>
                                                     <Link
                                                         href={`/dashboard/crm/sales-crm/tasks/${id}/edit`}
-                                                        className="text-zoru-ink-muted"
+                                                        className="text-[var(--st-text-secondary)]"
                                                     >
                                                         <UserPlus className="mr-1.5 h-3.5 w-3.5" /> Reassign
                                                     </Link>
                                                 </ZoruDropdownMenuItem>
                                                 <ZoruDropdownMenuItem
                                                     onClick={() => onDelete(id)}
-                                                    className="text-zoru-danger"
+                                                    className="text-[var(--st-danger)]"
                                                 >
                                                     <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Delete
                                                 </ZoruDropdownMenuItem>

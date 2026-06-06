@@ -21,7 +21,7 @@ export default function ProjectDashboardLoading() {
         <Skeleton className="h-32 w-full" />
       </div>
 
-      <div className="flex items-center gap-2 border-b border-zoru-line">
+      <div className="flex items-center gap-2 border-b border-[var(--st-border)]">
         <Skeleton className="h-8 w-20" />
         <Skeleton className="h-8 w-20" />
         <Skeleton className="h-8 w-24" />

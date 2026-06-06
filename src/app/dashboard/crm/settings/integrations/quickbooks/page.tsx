@@ -232,21 +232,21 @@ function QuickBooksIntegrationInner() {
     >
       <div className="space-y-6">
         {/* ─── Connection panel ───────────────────────────────────────── */}
-        <section className="rounded-lg border border-zoru-line bg-white p-4 dark:border-zoru-line dark:bg-zoru-ink">
+        <section className="rounded-lg border border-[var(--st-border)] bg-white p-4 dark:border-[var(--st-border)] dark:bg-[var(--st-text)]">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
                 <h2 className="text-base font-semibold">Connection</h2>
                 <StatusPill connected={connected} />
               </div>
-              <p className="text-sm text-zoru-ink">
+              <p className="text-sm text-[var(--st-text)]">
                 {connected
                   ? `Realm ${status?.realmId ?? '—'} · environment: ${status?.environment ?? '—'}`
                   : hasCredentials
                     ? 'Credentials saved. Click Connect to start the OAuth flow.'
                     : 'Save your QuickBooks app credentials below to enable the OAuth flow.'}
               </p>
-              <p className="text-xs text-zoru-ink">
+              <p className="text-xs text-[var(--st-text)]">
                 Last sync: {formatDate(status?.lastSync)}
               </p>
             </div>
@@ -281,10 +281,10 @@ function QuickBooksIntegrationInner() {
         </section>
 
         {/* ─── Credentials form ───────────────────────────────────────── */}
-        <section className="rounded-lg border border-zoru-line bg-white p-4 dark:border-zoru-line dark:bg-zoru-ink">
+        <section className="rounded-lg border border-[var(--st-border)] bg-white p-4 dark:border-[var(--st-border)] dark:bg-[var(--st-text)]">
           <header className="mb-4">
             <h2 className="text-base font-semibold">App credentials</h2>
-            <p className="text-sm text-zoru-ink">
+            <p className="text-sm text-[var(--st-text)]">
               Create an app at{' '}
               <a
                 href="https://developer.intuit.com/app/developer/myapps"
@@ -343,7 +343,7 @@ function QuickBooksIntegrationInner() {
 
             <div className="md:col-span-2">
               <Label htmlFor="qbo-redirect">Redirect URI</Label>
-              <p className="mt-1 text-xs text-zoru-ink">
+              <p className="mt-1 text-xs text-[var(--st-text)]">
                 Add this URL to your QuickBooks app&apos;s allowed Redirect URIs
                 in the Intuit developer dashboard.
               </p>
@@ -365,10 +365,10 @@ function QuickBooksIntegrationInner() {
               </div>
             </div>
 
-            <div className="md:col-span-2 flex items-center justify-between rounded-md border border-zoru-line p-3 dark:border-zoru-line">
+            <div className="md:col-span-2 flex items-center justify-between rounded-md border border-[var(--st-border)] p-3 dark:border-[var(--st-border)]">
               <div>
                 <p className="text-sm font-medium">Auto-sync on save</p>
-                <p className="text-xs text-zoru-ink">
+                <p className="text-xs text-[var(--st-text)]">
                   When enabled, new clients and invoices are pushed to
                   QuickBooks automatically as they&apos;re saved.
                 </p>
@@ -392,10 +392,10 @@ function QuickBooksIntegrationInner() {
         </section>
 
         {/* ─── Manual sync ────────────────────────────────────────────── */}
-        <section className="rounded-lg border border-zoru-line bg-white p-4 dark:border-zoru-line dark:bg-zoru-ink">
+        <section className="rounded-lg border border-[var(--st-border)] bg-white p-4 dark:border-[var(--st-border)] dark:bg-[var(--st-text)]">
           <header className="mb-4">
             <h2 className="text-base font-semibold">Sync</h2>
-            <p className="text-sm text-zoru-ink">
+            <p className="text-sm text-[var(--st-text)]">
               Push CRM data to QuickBooks. Only rows that haven&apos;t been
               synced yet are pushed.
             </p>
@@ -433,17 +433,17 @@ function QuickBooksIntegrationInner() {
         </section>
 
         {/* ─── Sync log ───────────────────────────────────────────────── */}
-        <section className="rounded-lg border border-zoru-line bg-white p-4 dark:border-zoru-line dark:bg-zoru-ink">
+        <section className="rounded-lg border border-[var(--st-border)] bg-white p-4 dark:border-[var(--st-border)] dark:bg-[var(--st-text)]">
           <header className="mb-3">
             <h2 className="text-base font-semibold">Recent sync activity</h2>
-            <p className="text-sm text-zoru-ink">Last 20 events.</p>
+            <p className="text-sm text-[var(--st-text)]">Last 20 events.</p>
           </header>
           {log.length === 0 ? (
-            <p className="py-6 text-center text-sm text-zoru-ink">
+            <p className="py-6 text-center text-sm text-[var(--st-text)]">
               No activity yet.
             </p>
           ) : (
-            <ul className="divide-y divide-zoru-line dark:divide-zoru-line">
+            <ul className="divide-y divide-[var(--st-border)] dark:divide-[var(--st-border)]">
               {log.map((row, idx) => (
                 <li
                   key={`${row.timestamp}-${idx}`}
@@ -456,7 +456,7 @@ function QuickBooksIntegrationInner() {
                       {row.quickbooksId ? ` → QBO ${row.quickbooksId}` : ''}
                     </p>
                     {row.error ? (
-                      <p className="mt-0.5 break-words text-xs text-zoru-ink">
+                      <p className="mt-0.5 break-words text-xs text-[var(--st-text)]">
                         {row.error}
                       </p>
                     ) : null}
@@ -467,7 +467,7 @@ function QuickBooksIntegrationInner() {
                     >
                       {row.status}
                     </Badge>
-                    <time className="text-xs text-zoru-ink">
+                    <time className="text-xs text-[var(--st-text)]">
                       {formatDate(row.timestamp)}
                     </time>
                   </div>

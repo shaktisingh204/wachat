@@ -17,7 +17,7 @@ export default function N8NWorkflowError({
 
   return (
     <div className="flex h-screen flex-col items-center justify-center gap-4 text-center bg-[var(--gray-2)]">
-      <div className="rounded-full bg-zoru-surface-2 p-3 text-zoru-ink dark:bg-zoru-ink/20 dark:text-zoru-ink-muted">
+      <div className="rounded-full bg-[var(--st-bg-muted)] p-3 text-[var(--st-text)] dark:bg-[var(--st-text)]/20 dark:text-[var(--st-text-secondary)]">
         <AlertCircle className="h-6 w-6" />
       </div>
       <div className="space-y-1">

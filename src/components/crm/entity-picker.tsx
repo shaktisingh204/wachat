@@ -263,14 +263,14 @@ function ChipRow({
         {avatarUrl ? (
           <ZoruAvatarImage src={avatarUrl} alt={primary} />
         ) : null}
-        <ZoruAvatarFallback className="bg-zoru-surface-2 text-[10px] text-zoru-ink-muted">
+        <ZoruAvatarFallback className="bg-[var(--st-bg-muted)] text-[10px] text-[var(--st-text-secondary)]">
           {initials(primary) || '·'}
         </ZoruAvatarFallback>
       </Avatar>
       <div className="flex min-w-0 flex-col leading-tight">
-        <span className="truncate text-sm text-zoru-ink">{primary}</span>
+        <span className="truncate text-sm text-[var(--st-text)]">{primary}</span>
         {showMeta && (secondary || tertiary) ? (
-          <span className="truncate text-[11px] text-zoru-ink-muted">
+          <span className="truncate text-[11px] text-[var(--st-text-secondary)]">
             {[secondary, tertiary].filter(Boolean).join(' · ')}
           </span>
         ) : null}
@@ -325,7 +325,7 @@ export function EntityPickerChip({
 
   if (!id) {
     return (
-      <span className={cn('text-sm text-zoru-ink-muted', className)}>
+      <span className={cn('text-sm text-[var(--st-text-secondary)]', className)}>
         {fallback ?? '—'}
       </span>
     );
@@ -335,7 +335,7 @@ export function EntityPickerChip({
     return (
       <span
         className={cn(
-          'inline-flex items-center gap-2 text-sm text-zoru-ink-muted',
+          'inline-flex items-center gap-2 text-sm text-[var(--st-text-secondary)]',
           className,
         )}
       >
@@ -349,7 +349,7 @@ export function EntityPickerChip({
     return (
       <span
         className={cn(
-          'inline-flex max-w-full items-center gap-2 rounded-md border border-zoru-line bg-zoru-surface-2 px-2 py-1 text-xs text-zoru-ink-muted',
+          'inline-flex max-w-full items-center gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2 py-1 text-xs text-[var(--st-text-secondary)]',
           className,
         )}
         title={`ID not found: ${id}`}
@@ -362,7 +362,7 @@ export function EntityPickerChip({
   return (
     <span
       className={cn(
-        'inline-flex max-w-full items-center gap-2 rounded-md border border-zoru-line bg-zoru-bg px-2 py-1',
+        'inline-flex max-w-full items-center gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-1',
         className,
       )}
     >
@@ -705,9 +705,9 @@ export function EntityPicker({
   return (
     <div className={cn('w-full', className)}>
       {label ? (
-        <label className="mb-1 block text-xs text-zoru-ink">
+        <label className="mb-1 block text-xs text-[var(--st-text)]">
           {label}
-          {required ? <span className="ml-0.5 text-zoru-danger">*</span> : null}
+          {required ? <span className="ml-0.5 text-[var(--st-danger)]">*</span> : null}
         </label>
       ) : null}
 
@@ -726,23 +726,23 @@ export function EntityPicker({
             // we only stop bubbling so ancestor handlers don't react.
             onClick={(e) => e.stopPropagation()}
             className={cn(
-              'flex h-9 w-full items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 text-left text-sm text-zoru-ink',
-              'transition-colors hover:border-zoru-ink/40',
-              'focus-visible:outline-none focus-visible:border-zoru-ink',
+              'flex h-9 w-full items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 text-left text-sm text-[var(--st-text)]',
+              'transition-colors hover:border-[var(--st-text)]/40',
+              'focus-visible:outline-none focus-visible:border-[var(--st-text)]',
               'disabled:cursor-not-allowed disabled:opacity-50',
               multi && selectedHydrated.length > 0 && 'h-auto min-h-9 py-1.5',
             )}
           >
             <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
               {selectedHydrated.length === 0 ? (
-                <span className="truncate text-zoru-ink-subtle">
+                <span className="truncate text-[var(--st-text-tertiary)]">
                   {triggerPlaceholder}
                 </span>
               ) : multi ? (
                 selectedHydrated.map((it) => (
                   <span
                     key={it.id}
-                    className="inline-flex max-w-full items-center gap-1 rounded-md border border-zoru-line bg-zoru-surface-2 px-1.5 py-0.5 text-xs text-zoru-ink"
+                    className="inline-flex max-w-full items-center gap-1 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-1.5 py-0.5 text-xs text-[var(--st-text)]"
                   >
                     <span className="truncate">{it.chip.primary}</span>
                     {!disabled && (
@@ -762,7 +762,7 @@ export function EntityPicker({
                             removeSelected(it.id);
                           }
                         }}
-                        className="rounded p-0.5 text-zoru-ink-muted hover:text-zoru-ink"
+                        className="rounded p-0.5 text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                       >
                         <X className="h-3 w-3" />
                       </span>
@@ -778,7 +778,7 @@ export function EntityPicker({
                 </span>
               )}
             </div>
-            <ChevronDown className="h-4 w-4 shrink-0 text-zoru-ink-muted" />
+            <ChevronDown className="h-4 w-4 shrink-0 text-[var(--st-text-secondary)]" />
           </button>
         </ZoruPopoverTrigger>
         <ZoruPopoverContent
@@ -796,12 +796,12 @@ export function EntityPicker({
             <ZoruCommandList ref={listRef} onScroll={handleScroll}>
               <ZoruCommandEmpty>
                 {loading ? (
-                  <span className="inline-flex items-center gap-2 text-zoru-ink-muted">
+                  <span className="inline-flex items-center gap-2 text-[var(--st-text-secondary)]">
                     <Loader2 className="h-3 w-3 animate-spin" />
                     Searching…
                   </span>
                 ) : (
-                  <span className="text-zoru-ink-muted">
+                  <span className="text-[var(--st-text-secondary)]">
                     No {ENTITY_LABEL[entity]}s found.
                   </span>
                 )}
@@ -873,12 +873,12 @@ export function EntityPicker({
                           }
                         }
                       }}
-                      className="text-zoru-primary font-medium"
+                      className="text-[var(--st-text)] font-medium"
                     >
                       <Plus className="mr-2 h-4 w-4" />
                       {useInline ? `Use` : `Create new ${ENTITY_LABEL[entity]}`}
                       {typed ? (
-                        <span className="ml-1 truncate text-zoru-ink-muted font-normal">
+                        <span className="ml-1 truncate text-[var(--st-text-secondary)] font-normal">
                           “{typed}”
                         </span>
                       ) : null}
@@ -899,7 +899,7 @@ export function EntityPicker({
                       >
                         <ChipRow item={item} showMeta={showChipMeta} />
                         {selected ? (
-                          <Check className="ml-auto h-4 w-4 text-zoru-ink" />
+                          <Check className="ml-auto h-4 w-4 text-[var(--st-text)]" />
                         ) : null}
                       </ZoruCommandItem>
                     );
@@ -922,13 +922,13 @@ export function EntityPicker({
                     >
                       <ChipRow item={item} showMeta={showChipMeta} />
                       {selected ? (
-                        <Check className="ml-auto h-4 w-4 text-zoru-ink" />
+                        <Check className="ml-auto h-4 w-4 text-[var(--st-text)]" />
                       ) : null}
                     </ZoruCommandItem>
                   );
                 })}
                 {loading && results.length > 0 ? (
-                  <div className="flex items-center justify-center py-2 text-xs text-zoru-ink-muted">
+                  <div className="flex items-center justify-center py-2 text-xs text-[var(--st-text-secondary)]">
                     <Loader2 className="mr-2 h-3 w-3 animate-spin" />
                     Loading…
                   </div>

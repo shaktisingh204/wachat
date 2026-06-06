@@ -48,16 +48,16 @@ export default async function BioPage({ params }: { params: Promise<{ slug: stri
 
   if (!profile) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-zoru-ink px-4">
-        <div className="flex flex-col items-center gap-4 text-center max-w-md p-8 rounded-2xl bg-zoru-ink/50 border border-zoru-line">
-          <Avatar className="h-20 w-20 ring-4 ring-zoru-line">
-            <AvatarFallback className="bg-zoru-ink text-zoru-ink uppercase text-2xl font-bold">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--st-text)] px-4">
+        <div className="flex flex-col items-center gap-4 text-center max-w-md p-8 rounded-2xl bg-[var(--st-text)]/50 border border-[var(--st-border)]">
+          <Avatar className="h-20 w-20 ring-4 ring-[var(--st-border)]">
+            <AvatarFallback className="bg-[var(--st-text)] text-[var(--st-text)] uppercase text-2xl font-bold">
               ?
             </AvatarFallback>
           </Avatar>
           <div>
             <h1 className="text-xl font-semibold text-white">Profile coming soon</h1>
-            <p className="mt-1.5 text-sm text-zoru-ink">@{slug}</p>
+            <p className="mt-1.5 text-sm text-[var(--st-text)]">@{slug}</p>
           </div>
           <Button asChild variant="outline" className="mt-4">
             <a href="/">Go Home</a>

@@ -779,6 +779,124 @@ export async function handleSetTwoStepVerificationPin(
     }
 }
 
+// --- DISPLAY NAME CHANGE (Wave E) ---
+
+/**
+ * Result shapes mirror the Rust `wachat_config::display_name` DTOs
+ * (`DisplayNameOutcome` / `DisplayNameStatus`). Every Graph-sourced field is
+ * optional because the backend skips `None` values when serializing.
+ */
+export interface DisplayNameStatusResult {
+    phoneNumberId: string;
+    verifiedName?: string;
+    nameStatus?: string;
+    newNameStatus?: string;
+    requestedName?: string;
+}
+
+/**
+ * Submit a display-name change to Meta and persist a local `PENDING_REVIEW`
+ * marker. The Rust handler degrades a missing access token into a typed
+ * BadRequest (not a crash), so callers surface the error string as info/warning
+ * rather than treating it as fatal.
+ */
+export async function handleSetDisplayName(
+    projectId: string,
+    phoneNumberId: string,
+    displayName: string,
+): Promise<{ success: boolean; status?: string; requestedName?: string; message?: string; error?: string }> {
+    const trimmed = displayName?.trim();
+    if (!trimmed) {
+        return { success: false, error: 'Display name must not be empty.' };
+    }
+
+    try {
+        const { rustClient } = await import('@/lib/rust-client');
+        const r = await rustClient.wachatConfig.setDisplayName(projectId, phoneNumberId, { displayName: trimmed });
+        const actor = await _wachatActorId();
+        if (actor) {
+            void recordFlowAction('wachat.number.display_name_requested', {
+                userId: actor,
+                target: phoneNumberId,
+                metadata: { projectId, requestedName: r.requestedName },
+            });
+        }
+        return {
+            success: true,
+            status: r.status,
+            requestedName: r.requestedName,
+            message: `"${r.requestedName}" submitted for review.`,
+        };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+/**
+ * Read the live display-name review status from Meta (current + pending review
+ * states). Returns `{ status: null }` on a graceful backend error so the page
+ * can show an info/warning panel instead of crashing.
+ */
+export async function getDisplayNameStatus(
+    projectId: string,
+    phoneNumberId: string,
+): Promise<{ status: DisplayNameStatusResult | null; error?: string }> {
+    try {
+        const { rustClient } = await import('@/lib/rust-client');
+        const r = await rustClient.wachatConfig.getDisplayNameStatus(projectId, phoneNumberId);
+        return { status: r };
+    } catch (e: any) {
+        return { status: null, error: getErrorMessage(e) };
+    }
+}
+
+// --- FLOWS ENCRYPTION KEYS (Wave E) ---
+
+/**
+ * Generate an RSA-2048 keypair for WhatsApp Flows data-exchange encryption.
+ * The private half is stored on the project doc; only the SPKI public-key PEM
+ * is returned. Status starts at `NOT_UPLOADED`.
+ */
+export async function handleGenerateFlowsEncryption(
+    projectId: string,
+    phoneNumberId: string,
+): Promise<{ success: boolean; publicKey?: string; metaStatus?: string; message?: string; error?: string }> {
+    try {
+        const { rustClient } = await import('@/lib/rust-client');
+        const r = await rustClient.wachatConfig.generateFlowsEncryption(projectId, phoneNumberId);
+        return {
+            success: true,
+            publicKey: r.publicKey,
+            metaStatus: r.metaStatus,
+            message: 'Encryption keypair generated.',
+        };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+/**
+ * Upload the previously-generated public key to Meta
+ * (`whatsapp_business_encryption`). Requires `handleGenerateFlowsEncryption`
+ * to have run first; a missing key or absent creds surfaces as a typed error.
+ */
+export async function handleUploadFlowsEncryption(
+    projectId: string,
+    phoneNumberId: string,
+): Promise<{ success: boolean; metaStatus?: string; message?: string; error?: string }> {
+    try {
+        const { rustClient } = await import('@/lib/rust-client');
+        const r = await rustClient.wachatConfig.uploadFlowsEncryption(projectId, phoneNumberId);
+        return {
+            success: true,
+            metaStatus: r.metaStatus,
+            message: 'Public key uploaded to Meta.',
+        };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
 // --- QR CODE MANAGEMENT ---
 
 export async function getQrCodes(

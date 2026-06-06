@@ -149,8 +149,8 @@ export default function TitleTagCheckerPage() {
       </div>
       
       {error && (
-        <Card className="border-zoru-line mt-4">
-          <ZoruCardContent className="p-4 text-zoru-ink text-sm">{error}</ZoruCardContent>
+        <Card className="border-[var(--st-border)] mt-4">
+          <ZoruCardContent className="p-4 text-[var(--st-text)] text-sm">{error}</ZoruCardContent>
         </Card>
       )}
       
@@ -171,41 +171,41 @@ export default function TitleTagCheckerPage() {
                 <div className="space-y-1">
                   <div className="flex items-center justify-between text-xs font-medium">
                     <span>{Math.round(pixelWidth)}px / {DESKTOP_MAX}px</span>
-                    <span className={widthStatus === 'ok' ? 'text-zoru-ink' : widthStatus === 'too-long' ? 'text-zoru-ink' : 'text-zoru-ink'}>
+                    <span className={widthStatus === 'ok' ? 'text-[var(--st-text)]' : widthStatus === 'too-long' ? 'text-[var(--st-text)]' : 'text-[var(--st-text)]'}>
                       {widthStatus === 'ok' ? 'Length OK' : widthStatus === 'too-long' ? 'Too long (> 600px)' : 'Too short'}
                     </span>
                   </div>
-                  <div className="h-2 bg-zoru-surface-2 rounded overflow-hidden">
+                  <div className="h-2 bg-[var(--st-bg-muted)] rounded overflow-hidden">
                     <div 
                       className={cn(
                         "h-full transition-all duration-300",
-                        widthStatus === 'ok' ? 'bg-zoru-ink' : widthStatus === 'too-long' ? 'bg-zoru-ink' : 'bg-zoru-ink'
+                        widthStatus === 'ok' ? 'bg-[var(--st-text)]' : widthStatus === 'too-long' ? 'bg-[var(--st-text)]' : 'bg-[var(--st-text)]'
                       )} 
                       style={{ width: `${Math.min(100, (pixelWidth / DESKTOP_MAX) * 100)}%` }} 
                     />
                   </div>
-                  <p className="text-[11px] text-zoru-ink-muted mt-1">Google typically truncates titles over ~600 pixels on desktop.</p>
+                  <p className="text-[11px] text-[var(--st-text-secondary)] mt-1">Google typically truncates titles over ~600 pixels on desktop.</p>
                 </div>
 
                 <div className="pt-2 space-y-3 border-t">
                   <div className="flex items-start gap-2 text-sm">
-                    {stuffing ? <LuAlertTriangle className="text-zoru-ink mt-0.5" /> : <LuCheckCircle2 className="text-zoru-ink mt-0.5" />}
+                    {stuffing ? <LuAlertTriangle className="text-[var(--st-text)] mt-0.5" /> : <LuCheckCircle2 className="text-[var(--st-text)] mt-0.5" />}
                     <div>
                       <span className="font-medium">Keyword Stuffing: </span>
                       {stuffing ? (
-                        <span className="text-zoru-ink">Possible stuffing detected. Repeated words: {stuffedWords.join(', ')}.</span>
+                        <span className="text-[var(--st-text)]">Possible stuffing detected. Repeated words: {stuffedWords.join(', ')}.</span>
                       ) : (
-                        <span className="text-zoru-ink">No stuffing detected.</span>
+                        <span className="text-[var(--st-text)]">No stuffing detected.</span>
                       )}
                     </div>
                   </div>
                   
                   <div className="flex items-start gap-2 text-sm">
-                    {titleMatchesH1 || titleContainsH1 ? <LuCheckCircle2 className="text-zoru-ink mt-0.5" /> : <LuInfo className="text-zoru-ink mt-0.5" />}
+                    {titleMatchesH1 || titleContainsH1 ? <LuCheckCircle2 className="text-[var(--st-text)] mt-0.5" /> : <LuInfo className="text-[var(--st-text)] mt-0.5" />}
                     <div>
                       <span className="font-medium">H1 Match: </span>
-                      <span className={titleMatchesH1 || titleContainsH1 ? 'text-zoru-ink' : 'text-zoru-ink'}>{h1StatusText}</span>
-                      {h1 && <div className="text-xs text-zoru-ink-muted mt-1">H1: "{h1}"</div>}
+                      <span className={titleMatchesH1 || titleContainsH1 ? 'text-[var(--st-text)]' : 'text-[var(--st-text)]'}>{h1StatusText}</span>
+                      {h1 && <div className="text-xs text-[var(--st-text-secondary)] mt-1">H1: "{h1}"</div>}
                     </div>
                   </div>
                 </div>
@@ -232,7 +232,7 @@ export default function TitleTagCheckerPage() {
                 {aiSuggestions.length > 0 ? (
                   <ul className="space-y-2">
                     {aiSuggestions.map((sug, idx) => (
-                      <li key={idx} className="p-3 bg-zoru-surface-2/50 rounded-md text-sm flex justify-between items-center group">
+                      <li key={idx} className="p-3 bg-[var(--st-bg-muted)]/50 rounded-md text-sm flex justify-between items-center group">
                         <span className="truncate mr-4" title={sug}>{sug}</span>
                         <Button 
                           size="sm" 
@@ -246,7 +246,7 @@ export default function TitleTagCheckerPage() {
                     ))}
                   </ul>
                 ) : (
-                  <div className="text-sm text-zoru-ink-muted text-center py-6 border border-dashed rounded-md">
+                  <div className="text-sm text-[var(--st-text-secondary)] text-center py-6 border border-dashed rounded-md">
                     Click generate to get AI-optimized title suggestions based on your page's H1 and current title.
                   </div>
                 )}

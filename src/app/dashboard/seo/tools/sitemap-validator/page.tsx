@@ -134,7 +134,7 @@ export default function SitemapValidatorPage() {
         <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com/sitemap.xml" />
         <Button onClick={run} disabled={loading}>{loading ? 'Validating…' : 'Validate'}</Button>
       </div>
-      {error && <Card className="border-zoru-line"><ZoruCardContent className="p-4 text-zoru-ink text-sm">{error}</ZoruCardContent></Card>}
+      {error && <Card className="border-[var(--st-border)]"><ZoruCardContent className="p-4 text-[var(--st-text)] text-sm">{error}</ZoruCardContent></Card>}
       {result && (
         <Card>
           <ZoruCardContent className="p-4 space-y-4 text-sm">
@@ -168,13 +168,13 @@ export default function SitemapValidatorPage() {
                         <div className="truncate flex-1" title={u}>{u}</div>
                         <div className="w-24 text-right flex-shrink-0">
                           {statusInfo?.loading ? (
-                            <span className="text-zoru-ink">Checking...</span>
+                            <span className="text-[var(--st-text)]">Checking...</span>
                           ) : statusInfo?.status ? (
-                            <span className={statusInfo.status === 200 ? "text-zoru-ink font-bold" : statusInfo.status >= 400 ? "text-zoru-ink font-bold" : "text-zoru-ink font-bold"}>
+                            <span className={statusInfo.status === 200 ? "text-[var(--st-text)] font-bold" : statusInfo.status >= 400 ? "text-[var(--st-text)] font-bold" : "text-[var(--st-text)] font-bold"}>
                               {statusInfo.status} {statusInfo.status === 200 ? 'OK' : ''}
                             </span>
                           ) : (
-                            <span className="text-zoru-ink-muted">—</span>
+                            <span className="text-[var(--st-text-secondary)]">—</span>
                           )}
                         </div>
                       </div>

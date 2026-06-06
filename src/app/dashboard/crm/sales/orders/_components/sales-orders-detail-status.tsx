@@ -97,7 +97,7 @@ export function SalesOrderInlineStatus({ id, status }: Props) {
       <button
         type="button"
         onClick={() => setEditing(true)}
-        className="inline-flex items-center gap-1 rounded-full outline-none transition hover:opacity-80 focus-visible:ring-2 focus-visible:ring-zoru-primary"
+        className="inline-flex items-center gap-1 rounded-full outline-none transition hover:opacity-80 focus-visible:ring-2 focus-visible:ring-[var(--st-text)]"
         aria-label="Change sales-order status"
       >
         <StatusPill label={optimistic} tone={statusToTone(optimistic)} />
@@ -108,7 +108,7 @@ export function SalesOrderInlineStatus({ id, status }: Props) {
   return (
     <div
       ref={containerRef}
-      className="flex items-center gap-2 rounded-md border border-zoru-line bg-zoru-surface px-2 py-1 shadow-sm"
+      className="flex items-center gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1 shadow-sm"
     >
       <div className="min-w-[180px]">
         <EnumFormField
@@ -122,7 +122,7 @@ export function SalesOrderInlineStatus({ id, status }: Props) {
       <button
         type="button"
         onClick={() => setEditing(false)}
-        className="rounded p-1 text-zoru-ink-muted hover:bg-zoru-surface-2"
+        className="rounded p-1 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)]"
         aria-label="Cancel"
         disabled={pending}
       >

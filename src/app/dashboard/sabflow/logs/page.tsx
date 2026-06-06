@@ -102,7 +102,7 @@ const columns: ColumnDef<SystemLog>[] = [
     cell: ({ row }) => {
       const date = new Date(row.original.timestamp);
       return (
-        <span className="font-mono text-xs text-zoru-ink-muted whitespace-nowrap">
+        <span className="font-mono text-xs text-[var(--st-text-secondary)] whitespace-nowrap">
           {date.toLocaleString("en-US", {
             month: "short",
             day: "numeric",
@@ -138,8 +138,8 @@ const columns: ColumnDef<SystemLog>[] = [
     header: "Node",
     cell: ({ row }) => (
       <div className="flex items-center gap-2">
-        <LuServer className="w-3.5 h-3.5 text-zoru-ink-subtle" />
-        <span className="font-medium text-sm text-zoru-ink">{row.original.node}</span>
+        <LuServer className="w-3.5 h-3.5 text-[var(--st-text-tertiary)]" />
+        <span className="font-medium text-sm text-[var(--st-text)]">{row.original.node}</span>
       </div>
     ),
   },
@@ -148,7 +148,7 @@ const columns: ColumnDef<SystemLog>[] = [
     header: "Message",
     cell: ({ row }) => (
       <div
-        className="max-w-[400px] truncate text-sm text-zoru-ink font-medium"
+        className="max-w-[400px] truncate text-sm text-[var(--st-text)] font-medium"
         title={row.original.message}
       >
         {row.original.message}
@@ -165,9 +165,9 @@ const columns: ColumnDef<SystemLog>[] = [
           {Object.entries(meta).map(([k, v]) => (
             <span
               key={k}
-              className="px-1.5 py-0.5 rounded text-[10px] bg-zoru-surface border border-zoru-line text-zoru-ink-muted font-mono whitespace-nowrap"
+              className="px-1.5 py-0.5 rounded text-[10px] bg-[var(--st-bg-secondary)] border border-[var(--st-border)] text-[var(--st-text-secondary)] font-mono whitespace-nowrap"
             >
-              <span className="opacity-60">{k}:</span> <span className="text-zoru-ink">{v as string}</span>
+              <span className="opacity-60">{k}:</span> <span className="text-[var(--st-text)]">{v as string}</span>
             </span>
           ))}
         </div>
@@ -232,11 +232,11 @@ export default function SystemLogsPage() {
   }, [logs, severityFilter, nodeFilter]);
 
   return (
-    <div className="min-h-screen bg-zoru-bg p-6 md:p-8">
+    <div className="min-h-screen bg-[var(--st-bg)] p-6 md:p-8">
       <div className="mx-auto max-w-7xl">
         <PageHeader className="mb-8">
           <ZoruPageHeading>
-            <ZoruPageEyebrow className="flex items-center gap-1.5 text-zoru-ink">
+            <ZoruPageEyebrow className="flex items-center gap-1.5 text-[var(--st-text)]">
               <LuActivity className="w-3.5 h-3.5" />
               Observability
             </ZoruPageEyebrow>
@@ -265,12 +265,12 @@ export default function SystemLogsPage() {
         </PageHeader>
 
         {/* Count summary — shows real fetched total and how many pass current filters */}
-        <div className="flex items-center gap-4 mb-3 px-1 text-xs text-zoru-ink-muted">
+        <div className="flex items-center gap-4 mb-3 px-1 text-xs text-[var(--st-text-secondary)]">
           <span>
-            Showing <span className="font-semibold text-zoru-ink">{filteredData.length}</span> log
+            Showing <span className="font-semibold text-[var(--st-text)]">{filteredData.length}</span> log
             {filteredData.length !== 1 ? "s" : ""}
             {filteredData.length !== logs.length ? (
-              <> (filtered from <span className="font-semibold text-zoru-ink">{logs.length}</span> total)</>
+              <> (filtered from <span className="font-semibold text-[var(--st-text)]">{logs.length}</span> total)</>
             ) : (
               <> total</>
             )}
@@ -283,7 +283,7 @@ export default function SystemLogsPage() {
           )}
         </div>
 
-        <Card className="p-0 border-zoru-line overflow-hidden shadow-[var(--zoru-shadow-sm)]">
+        <Card className="p-0 border-[var(--st-border)] overflow-hidden shadow-[var(--zoru-shadow-sm)]">
           <DataTable
             className="p-5"
             columns={columns}
@@ -321,7 +321,7 @@ export default function SystemLogsPage() {
                   </ZoruSelectContent>
                 </Select>
 
-                <div className="w-px h-6 bg-zoru-line mx-1" />
+                <div className="w-px h-6 bg-[var(--st-border)] mx-1" />
 
                 <Button variant="outline" size="sm" className="hidden sm:flex">
                   <LuDownload className="mr-2 h-4 w-4" />

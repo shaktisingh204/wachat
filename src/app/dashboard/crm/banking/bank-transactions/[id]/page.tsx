@@ -96,14 +96,14 @@ export default async function BankTransactionDetailPage({
             {/* Summary */}
             <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
-                    <span className="text-[14px] font-medium text-zoru-ink">Overview</span>
+                    <span className="text-[14px] font-medium text-[var(--st-text)]">Overview</span>
                     <StatusPill label={tx.status} tone={tone} />
                     <span
                         className={[
                             'inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11.5px] font-medium',
                             isCredit
-                                ? 'bg-zoru-ink/10 text-zoru-ink'
-                                : 'bg-zoru-ink/10 text-zoru-ink',
+                                ? 'bg-[var(--st-text)]/10 text-[var(--st-text)]'
+                                : 'bg-[var(--st-text)]/10 text-[var(--st-text)]',
                         ].join(' ')}
                     >
                         {isCredit ? (
@@ -116,8 +116,8 @@ export default async function BankTransactionDetailPage({
                 </div>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
                     <div>
-                        <div className="text-zoru-ink-muted">Account</div>
-                        <div className="text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Account</div>
+                        <div className="text-[var(--st-text)]">
                             <Link
                                 href={`/dashboard/crm/banking/all/${tx.accountId}`}
                                 className="hover:underline"
@@ -127,40 +127,40 @@ export default async function BankTransactionDetailPage({
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Date</div>
-                        <div className="text-zoru-ink">{fmtDate(tx.transactionDate)}</div>
+                        <div className="text-[var(--st-text-secondary)]">Date</div>
+                        <div className="text-[var(--st-text)]">{fmtDate(tx.transactionDate)}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Amount</div>
+                        <div className="text-[var(--st-text-secondary)]">Amount</div>
                         <div
                             className={[
                                 'text-[18px] font-semibold',
-                                isCredit ? 'text-zoru-ink' : 'text-zoru-ink',
+                                isCredit ? 'text-[var(--st-text)]' : 'text-[var(--st-text)]',
                             ].join(' ')}
                         >
                             {isCredit ? '+' : '−'} {fmtMoney(tx.amount)}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Balance after</div>
-                        <div className="font-mono text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Balance after</div>
+                        <div className="font-mono text-[var(--st-text)]">
                             {fmtMoney(tx.balanceAfter)}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Reference</div>
-                        <div className="font-mono text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Reference</div>
+                        <div className="font-mono text-[var(--st-text)]">
                             {tx.referenceNumber || '—'}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Category</div>
-                        <div className="capitalize text-zoru-ink">{tx.category || '—'}</div>
+                        <div className="text-[var(--st-text-secondary)]">Category</div>
+                        <div className="capitalize text-[var(--st-text)]">{tx.category || '—'}</div>
                     </div>
                     {tx.description ? (
                         <div className="sm:col-span-2">
-                            <div className="text-zoru-ink-muted">Description</div>
-                            <div className="whitespace-pre-wrap text-zoru-ink">
+                            <div className="text-[var(--st-text-secondary)]">Description</div>
+                            <div className="whitespace-pre-wrap text-[var(--st-text)]">
                                 {tx.description}
                             </div>
                         </div>
@@ -171,13 +171,13 @@ export default async function BankTransactionDetailPage({
             {/* Linked voucher */}
             {tx.voucherEntryId ? (
                 <Card className="flex flex-wrap items-center justify-between gap-2 p-4">
-                    <div className="flex items-center gap-2 text-[13px] text-zoru-ink">
-                        <FileText className="h-4 w-4 text-zoru-ink-muted" />
+                    <div className="flex items-center gap-2 text-[13px] text-[var(--st-text)]">
+                        <FileText className="h-4 w-4 text-[var(--st-text-secondary)]" />
                         Linked voucher entry
                     </div>
                     <Link
                         href={`/dashboard/crm/accounting/vouchers/${tx.voucherEntryId}`}
-                        className="font-mono text-[12.5px] text-zoru-ink underline-offset-2 hover:underline"
+                        className="font-mono text-[12.5px] text-[var(--st-text)] underline-offset-2 hover:underline"
                     >
                         {tx.voucherEntryId}
                     </Link>
@@ -187,15 +187,15 @@ export default async function BankTransactionDetailPage({
             {/* Source statement file (SabFile) */}
             {tx.sourceFileUrl ? (
                 <Card className="flex flex-wrap items-center justify-between gap-2 p-4">
-                    <div className="flex items-center gap-2 text-[13px] text-zoru-ink">
-                        <Paperclip className="h-4 w-4 text-zoru-ink-muted" />
+                    <div className="flex items-center gap-2 text-[13px] text-[var(--st-text)]">
+                        <Paperclip className="h-4 w-4 text-[var(--st-text-secondary)]" />
                         Source statement
                     </div>
                     <a
                         href={tx.sourceFileUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="max-w-[420px] truncate text-[12.5px] text-zoru-ink underline-offset-2 hover:underline"
+                        className="max-w-[420px] truncate text-[12.5px] text-[var(--st-text)] underline-offset-2 hover:underline"
                     >
                         {tx.sourceFileUrl}
                     </a>
@@ -204,11 +204,11 @@ export default async function BankTransactionDetailPage({
 
             {/* Status actions */}
             <Card className="p-4">
-                <div className="mb-2 flex items-center gap-2 text-[13px] text-zoru-ink">
-                    <CheckCircle2 className="h-4 w-4 text-zoru-ink-muted" />
+                <div className="mb-2 flex items-center gap-2 text-[13px] text-[var(--st-text)]">
+                    <CheckCircle2 className="h-4 w-4 text-[var(--st-text-secondary)]" />
                     Status actions
                 </div>
-                <p className="mb-3 text-[12px] text-zoru-ink-muted">
+                <p className="mb-3 text-[12px] text-[var(--st-text-secondary)]">
                     Bank transactions are immutable once posted. You can only move them
                     between pending → cleared → reconciled, or archive a row.
                 </p>
@@ -216,7 +216,7 @@ export default async function BankTransactionDetailPage({
             </Card>
 
             {/* Audit timestamps */}
-            <Card className="p-4 text-[12px] text-zoru-ink-muted">
+            <Card className="p-4 text-[12px] text-[var(--st-text-secondary)]">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                     <span>Created {fmtDate(tx.createdAt)}</span>
                     <span>Updated {fmtDate(tx.updatedAt)}</span>

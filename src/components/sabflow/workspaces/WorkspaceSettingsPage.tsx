@@ -93,7 +93,7 @@ export function WorkspaceSettingsPage({
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 p-6">
       <header className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink dark:text-white">
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)] dark:text-white">
           {workspace.iconUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -106,17 +106,17 @@ export function WorkspaceSettingsPage({
           )}
         </div>
         <div>
-          <h1 className="text-xl font-semibold text-zoru-ink dark:text-white">
+          <h1 className="text-xl font-semibold text-[var(--st-text)] dark:text-white">
             {workspace.name}
           </h1>
-          <p className="text-[13px] text-zoru-ink">Workspace settings</p>
+          <p className="text-[13px] text-[var(--st-text)]">Workspace settings</p>
         </div>
       </header>
 
       <nav
         role="tablist"
         aria-label="Workspace settings"
-        className="flex gap-1 border-b border-zoru-line dark:border-zoru-line"
+        className="flex gap-1 border-b border-[var(--st-border)] dark:border-[var(--st-border)]"
       >
         {tabs.map(({ id, label, icon: Icon }) => {
           const active = tab === id;
@@ -132,8 +132,8 @@ export function WorkspaceSettingsPage({
               className={cn(
                 'inline-flex items-center gap-2 rounded-t-md px-4 py-2.5 text-[13px] font-medium transition-colors',
                 active
-                  ? 'border-b-2 border-[var(--color-primary,#f76808)] text-zoru-ink dark:text-white'
-                  : 'text-zoru-ink hover:text-zoru-ink dark:hover:text-white',
+                  ? 'border-b-2 border-[var(--color-primary,#f76808)] text-[var(--st-text)] dark:text-white'
+                  : 'text-[var(--st-text)] hover:text-[var(--st-text)] dark:hover:text-white',
               )}
             >
               <Icon className="h-4 w-4" aria-hidden="true" />
@@ -267,7 +267,7 @@ function GeneralTab({
             value={name}
             disabled={!canEdit}
             onChange={(e: ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
-            className="w-full rounded-md border border-zoru-line bg-white px-3 py-2 text-sm text-zoru-ink focus:border-[var(--color-primary,#f76808)] focus:outline-none dark:border-zoru-line dark:bg-zoru-ink dark:text-white"
+            className="w-full rounded-md border border-[var(--st-border)] bg-white px-3 py-2 text-sm text-[var(--st-text)] focus:border-[var(--color-primary,#f76808)] focus:outline-none dark:border-[var(--st-border)] dark:bg-[var(--st-text)] dark:text-white"
           />
         </Field>
         <Field
@@ -281,7 +281,7 @@ function GeneralTab({
             value={slug}
             disabled={!canEdit}
             onChange={(e: ChangeEvent<HTMLInputElement>) => setSlug(e.target.value)}
-            className="w-full rounded-md border border-zoru-line bg-white px-3 py-2 font-mono text-sm text-zoru-ink focus:border-[var(--color-primary,#f76808)] focus:outline-none dark:border-zoru-line dark:bg-zoru-ink dark:text-white"
+            className="w-full rounded-md border border-[var(--st-border)] bg-white px-3 py-2 font-mono text-sm text-[var(--st-text)] focus:border-[var(--color-primary,#f76808)] focus:outline-none dark:border-[var(--st-border)] dark:bg-[var(--st-text)] dark:text-white"
           />
         </Field>
         <Field label="Icon URL" htmlFor="ws-icon">
@@ -292,13 +292,13 @@ function GeneralTab({
             disabled={!canEdit}
             onChange={(e: ChangeEvent<HTMLInputElement>) => setIconUrl(e.target.value)}
             placeholder="https://…"
-            className="w-full rounded-md border border-zoru-line bg-white px-3 py-2 text-sm text-zoru-ink focus:border-[var(--color-primary,#f76808)] focus:outline-none dark:border-zoru-line dark:bg-zoru-ink dark:text-white"
+            className="w-full rounded-md border border-[var(--st-border)] bg-white px-3 py-2 text-sm text-[var(--st-text)] focus:border-[var(--color-primary,#f76808)] focus:outline-none dark:border-[var(--st-border)] dark:bg-[var(--st-text)] dark:text-white"
           />
         </Field>
 
         <div className="flex items-center justify-end gap-3">
-          {ok && <span className="text-[13px] text-zoru-ink">{ok}</span>}
-          {error && <span className="text-[13px] text-zoru-ink">{error}</span>}
+          {ok && <span className="text-[13px] text-[var(--st-text)]">{ok}</span>}
+          {error && <span className="text-[13px] text-[var(--st-text)]">{error}</span>}
           <button
             type="submit"
             disabled={!canEdit || !dirty || saving}
@@ -318,7 +318,7 @@ function GeneralTab({
           type="button"
           onClick={handleDelete}
           disabled={!canEdit || deleting}
-          className="inline-flex items-center gap-2 rounded-md border border-zoru-line/40 bg-zoru-ink/10 px-4 py-2 text-[13px] font-medium text-zoru-ink hover:bg-zoru-ink/20 disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-md border border-[var(--st-border)]/40 bg-[var(--st-text)]/10 px-4 py-2 text-[13px] font-medium text-[var(--st-text)] hover:bg-[var(--st-text)]/20 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <LuTrash2 className="h-4 w-4" aria-hidden="true" />
           {deleting ? 'Deleting…' : 'Delete workspace'}
@@ -433,14 +433,14 @@ function MembersTab({
     <div className="flex flex-col gap-4 py-2">
       <Panel title="Members" description={`${members.length} total`}>
         {error && (
-          <div className="rounded-md border border-zoru-line/30 bg-zoru-ink/10 p-3 text-[13px] text-zoru-ink">
+          <div className="rounded-md border border-[var(--st-border)]/30 bg-[var(--st-text)]/10 p-3 text-[13px] text-[var(--st-text)]">
             {error}
           </div>
         )}
         {loading ? (
           <div className="flex flex-col gap-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="flex items-center gap-3 border-b border-zoru-line dark:border-zoru-line pb-3">
+              <div key={i} className="flex items-center gap-3 border-b border-[var(--st-border)] dark:border-[var(--st-border)] pb-3">
                 <Skeleton className="h-8 w-8 rounded-full" />
                 <div className="flex-1 space-y-2">
                   <Skeleton className="h-4 w-1/3" />
@@ -451,11 +451,11 @@ function MembersTab({
             ))}
           </div>
         ) : members.length === 0 ? (
-          <div className="text-[13px] text-zoru-ink">No members yet.</div>
+          <div className="text-[13px] text-[var(--st-text)]">No members yet.</div>
         ) : (
-          <div className="overflow-hidden rounded-md border border-zoru-line dark:border-zoru-line">
+          <div className="overflow-hidden rounded-md border border-[var(--st-border)] dark:border-[var(--st-border)]">
             <table className="w-full table-fixed text-left text-[13px]">
-              <thead className="bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
+              <thead className="bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
                 <tr>
                   <th className="px-3 py-2 font-medium">Member</th>
                   <th className="w-40 px-3 py-2 font-medium">Role</th>
@@ -476,25 +476,25 @@ function MembersTab({
                   return (
                     <tr
                       key={m.id}
-                      className="border-t border-zoru-line dark:border-zoru-line"
+                      className="border-t border-[var(--st-border)] dark:border-[var(--st-border)]"
                     >
                       <td className="px-3 py-3">
                         <div className="flex items-center gap-2">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-zoru-surface-2 text-[12px] font-semibold uppercase text-zoru-ink dark:bg-zoru-ink dark:text-zoru-ink-muted">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[12px] font-semibold uppercase text-[var(--st-text)] dark:bg-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
                             {display.slice(0, 2)}
                           </div>
                           <div className="min-w-0">
-                            <div className="truncate font-medium text-zoru-ink dark:text-white">
+                            <div className="truncate font-medium text-[var(--st-text)] dark:text-white">
                               {m.name || m.email || 'Unknown'}
                             </div>
                             {m.email && (
-                              <div className="truncate text-[12px] text-zoru-ink">
+                              <div className="truncate text-[12px] text-[var(--st-text)]">
                                 {m.email}
                               </div>
                             )}
                           </div>
                           {m.role === 'owner' && (
-                            <span className="ml-1 inline-flex items-center gap-1 rounded-full bg-zoru-surface-2 px-2 py-0.5 text-[11px] font-medium text-zoru-ink dark:bg-zoru-ink/20 dark:text-zoru-ink-muted">
+                            <span className="ml-1 inline-flex items-center gap-1 rounded-full bg-[var(--st-bg-muted)] px-2 py-0.5 text-[11px] font-medium text-[var(--st-text)] dark:bg-[var(--st-text)]/20 dark:text-[var(--st-text-secondary)]">
                               <LuCrown className="h-3 w-3" aria-hidden="true" />
                               Owner
                             </span>
@@ -508,7 +508,7 @@ function MembersTab({
                           onChange={(e) =>
                             handleRoleChange(m.id, e.target.value as WorkspaceRole)
                           }
-                          className="w-full rounded-md border border-zoru-line bg-white px-2 py-1.5 text-[13px] disabled:cursor-not-allowed disabled:opacity-60 dark:border-zoru-line dark:bg-zoru-ink"
+                          className="w-full rounded-md border border-[var(--st-border)] bg-white px-2 py-1.5 text-[13px] disabled:cursor-not-allowed disabled:opacity-60 dark:border-[var(--st-border)] dark:bg-[var(--st-text)]"
                         >
                           {ROLE_OPTIONS.filter(
                             (o) => o.value !== 'owner' || isOwner,
@@ -519,7 +519,7 @@ function MembersTab({
                           ))}
                         </select>
                       </td>
-                      <td className="px-3 py-3 text-zoru-ink">
+                      <td className="px-3 py-3 text-[var(--st-text)]">
                         {new Date(m.joinedAt).toLocaleDateString()}
                       </td>
                       <td className="px-3 py-3 text-right">
@@ -528,12 +528,12 @@ function MembersTab({
                             type="button"
                             onClick={() => handleRemove(m.id, display)}
                             aria-label={`Remove ${display}`}
-                            className="inline-flex items-center rounded-md p-1.5 text-zoru-ink hover:bg-zoru-ink/10 hover:text-zoru-ink"
+                            className="inline-flex items-center rounded-md p-1.5 text-[var(--st-text)] hover:bg-[var(--st-text)]/10 hover:text-[var(--st-text)]"
                           >
                             <LuTrash2 className="h-4 w-4" aria-hidden="true" />
                           </button>
                         ) : (
-                          <span className="text-zoru-ink-muted">—</span>
+                          <span className="text-[var(--st-text-secondary)]">—</span>
                         )}
                       </td>
                     </tr>
@@ -664,7 +664,7 @@ function InvitesTab({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="teammate@example.com"
-                className="w-full rounded-md border border-zoru-line bg-white px-3 py-2 text-sm focus:border-[var(--color-primary,#f76808)] focus:outline-none dark:border-zoru-line dark:bg-zoru-ink dark:text-white"
+                className="w-full rounded-md border border-[var(--st-border)] bg-white px-3 py-2 text-sm focus:border-[var(--color-primary,#f76808)] focus:outline-none dark:border-[var(--st-border)] dark:bg-[var(--st-text)] dark:text-white"
               />
             </Field>
             <Field label="Role" htmlFor="invite-role" className="w-40">
@@ -672,7 +672,7 @@ function InvitesTab({
                 id="invite-role"
                 value={role}
                 onChange={(e) => setRole(e.target.value as WorkspaceRole)}
-                className="w-full rounded-md border border-zoru-line bg-white px-3 py-2 text-sm dark:border-zoru-line dark:bg-zoru-ink dark:text-white"
+                className="w-full rounded-md border border-[var(--st-border)] bg-white px-3 py-2 text-sm dark:border-[var(--st-border)] dark:bg-[var(--st-text)] dark:text-white"
               >
                 {INVITE_ROLE_OPTIONS.map((o) => (
                   <option key={o.value} value={o.value}>
@@ -692,11 +692,11 @@ function InvitesTab({
           </form>
 
           {lastInviteUrl && (
-            <div className="mt-3 rounded-md border border-zoru-line/30 bg-zoru-ink/10 p-3 text-[12px]">
-              <div className="font-medium text-zoru-ink dark:text-zoru-ink-muted">
+            <div className="mt-3 rounded-md border border-[var(--st-border)]/30 bg-[var(--st-text)]/10 p-3 text-[12px]">
+              <div className="font-medium text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
                 Invite created. Share this link:
               </div>
-              <code className="mt-1 block break-all text-zoru-ink dark:text-white">
+              <code className="mt-1 block break-all text-[var(--st-text)] dark:text-white">
                 {lastInviteUrl}
               </code>
             </div>
@@ -706,14 +706,14 @@ function InvitesTab({
 
       <Panel title="Pending invites">
         {error && (
-          <div className="rounded-md border border-zoru-line/30 bg-zoru-ink/10 p-3 text-[13px] text-zoru-ink">
+          <div className="rounded-md border border-[var(--st-border)]/30 bg-[var(--st-text)]/10 p-3 text-[13px] text-[var(--st-text)]">
             {error}
           </div>
         )}
         {loading ? (
           <div className="flex flex-col gap-3">
             {[1, 2].map((i) => (
-              <div key={i} className="flex items-center justify-between gap-3 border-b border-zoru-line dark:border-zoru-line pb-3">
+              <div key={i} className="flex items-center justify-between gap-3 border-b border-[var(--st-border)] dark:border-[var(--st-border)] pb-3">
                 <div className="flex items-center gap-3">
                   <Skeleton className="h-4 w-4" />
                   <Skeleton className="h-4 w-32" />
@@ -724,9 +724,9 @@ function InvitesTab({
             ))}
           </div>
         ) : invites.length === 0 ? (
-          <div className="text-[13px] text-zoru-ink">No pending invites.</div>
+          <div className="text-[13px] text-[var(--st-text)]">No pending invites.</div>
         ) : (
-          <ul className="divide-y divide-zoru-line dark:divide-zoru-line">
+          <ul className="divide-y divide-[var(--st-border)] dark:divide-[var(--st-border)]">
             {invites.map((inv) => (
               <li
                 key={inv.id}
@@ -735,17 +735,17 @@ function InvitesTab({
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <LuMail
-                      className="h-4 w-4 text-zoru-ink-muted"
+                      className="h-4 w-4 text-[var(--st-text-secondary)]"
                       aria-hidden="true"
                     />
-                    <span className="truncate font-medium text-zoru-ink dark:text-white">
+                    <span className="truncate font-medium text-[var(--st-text)] dark:text-white">
                       {inv.email}
                     </span>
-                    <span className="rounded-full bg-zoru-surface-2 px-2 py-0.5 text-[11px] font-medium text-zoru-ink dark:bg-zoru-ink dark:text-zoru-ink-muted">
+                    <span className="rounded-full bg-[var(--st-bg-muted)] px-2 py-0.5 text-[11px] font-medium text-[var(--st-text)] dark:bg-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
                       {inv.role}
                     </span>
                   </div>
-                  <div className="text-[12px] text-zoru-ink">
+                  <div className="text-[12px] text-[var(--st-text)]">
                     Expires {new Date(inv.expiresAt).toLocaleDateString()}
                   </div>
                 </div>
@@ -754,7 +754,7 @@ function InvitesTab({
                     type="button"
                     onClick={() => handleRevoke(inv.id)}
                     aria-label={`Revoke invite for ${inv.email}`}
-                    className="inline-flex items-center rounded-md p-1.5 text-zoru-ink hover:bg-zoru-ink/10 hover:text-zoru-ink"
+                    className="inline-flex items-center rounded-md p-1.5 text-[var(--st-text)] hover:bg-[var(--st-text)]/10 hover:text-[var(--st-text)]"
                   >
                     <LuTrash2 className="h-4 w-4" aria-hidden="true" />
                   </button>
@@ -779,14 +779,14 @@ function BillingTab({ workspace }: { workspace: Workspace }) {
       <Panel title="Current plan">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/20 dark:text-zoru-ink-muted">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/20 dark:text-[var(--st-text-secondary)]">
               <LuShieldCheck className="h-5 w-5" aria-hidden="true" />
             </div>
             <div>
-              <div className="font-semibold capitalize text-zoru-ink dark:text-white">
+              <div className="font-semibold capitalize text-[var(--st-text)] dark:text-white">
                 {plan} plan
               </div>
-              <div className="text-[13px] text-zoru-ink">
+              <div className="text-[13px] text-[var(--st-text)]">
                 {plan === 'free'
                   ? 'Basic features with usage limits.'
                   : 'Thanks for supporting SabFlow!'}
@@ -856,7 +856,7 @@ function AuditTab({
     return (
       <div className="flex flex-col gap-4 py-2">
         <Panel title="Audit Log">
-          <div className="text-[13px] text-zoru-ink">
+          <div className="text-[13px] text-[var(--st-text)]">
             You do not have permission to view audit logs for this workspace.
           </div>
         </Panel>
@@ -868,14 +868,14 @@ function AuditTab({
     <div className="flex flex-col gap-4 py-2">
       <Panel title="Audit Log" description="Recent workspace activity.">
         {error && (
-          <div className="rounded-md border border-zoru-line/30 bg-zoru-ink/10 p-3 text-[13px] text-zoru-ink">
+          <div className="rounded-md border border-[var(--st-border)]/30 bg-[var(--st-text)]/10 p-3 text-[13px] text-[var(--st-text)]">
             {error}
           </div>
         )}
         {loading ? (
           <div className="flex flex-col gap-3">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="flex items-center gap-4 border-b border-zoru-line dark:border-zoru-line pb-3">
+              <div key={i} className="flex items-center gap-4 border-b border-[var(--st-border)] dark:border-[var(--st-border)] pb-3">
                 <Skeleton className="h-4 w-24" />
                 <Skeleton className="h-4 w-32" />
                 <Skeleton className="h-4 w-48" />
@@ -884,11 +884,11 @@ function AuditTab({
             ))}
           </div>
         ) : entries.length === 0 ? (
-          <div className="text-[13px] text-zoru-ink">No activity found.</div>
+          <div className="text-[13px] text-[var(--st-text)]">No activity found.</div>
         ) : (
-          <div className="overflow-x-auto rounded-md border border-zoru-line dark:border-zoru-line">
+          <div className="overflow-x-auto rounded-md border border-[var(--st-border)] dark:border-[var(--st-border)]">
             <table className="w-full text-left text-[13px]">
-              <thead className="bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
+              <thead className="bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
                 <tr>
                   <th className="px-3 py-2 font-medium">Action</th>
                   <th className="px-3 py-2 font-medium">User</th>
@@ -896,19 +896,19 @@ function AuditTab({
                   <th className="px-3 py-2 font-medium">Time</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zoru-line dark:divide-zoru-line">
+              <tbody className="divide-y divide-[var(--st-border)] dark:divide-[var(--st-border)]">
                 {entries.map((entry) => (
                   <tr key={entry.id}>
-                    <td className="px-3 py-2.5 font-medium text-zoru-ink dark:text-white">
+                    <td className="px-3 py-2.5 font-medium text-[var(--st-text)] dark:text-white">
                       {entry.action}
                     </td>
-                    <td className="px-3 py-2.5 text-zoru-ink dark:text-zoru-ink-muted font-mono text-[12px]">
+                    <td className="px-3 py-2.5 text-[var(--st-text)] dark:text-[var(--st-text-secondary)] font-mono text-[12px]">
                       {entry.userId}
                     </td>
-                    <td className="px-3 py-2.5 text-zoru-ink dark:text-zoru-ink-muted">
+                    <td className="px-3 py-2.5 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
                       {entry.target || '—'}
                     </td>
-                    <td className="px-3 py-2.5 text-zoru-ink whitespace-nowrap">
+                    <td className="px-3 py-2.5 text-[var(--st-text)] whitespace-nowrap">
                       {new Date(entry.createdAt).toLocaleString()}
                     </td>
                   </tr>
@@ -942,19 +942,19 @@ function Panel({
       className={cn(
         'flex flex-col gap-4 rounded-lg border p-5',
         tone === 'danger'
-          ? 'border-zoru-line/30 bg-zoru-ink/5'
-          : 'border-zoru-line bg-white dark:border-zoru-line dark:bg-zoru-ink/40',
+          ? 'border-[var(--st-border)]/30 bg-[var(--st-text)]/5'
+          : 'border-[var(--st-border)] bg-white dark:border-[var(--st-border)] dark:bg-[var(--st-text)]/40',
       )}
     >
       {(title || description) && (
         <header className="flex flex-col gap-0.5">
           {title && (
-            <h2 className="text-[15px] font-semibold text-zoru-ink dark:text-white">
+            <h2 className="text-[15px] font-semibold text-[var(--st-text)] dark:text-white">
               {title}
             </h2>
           )}
           {description && (
-            <p className="text-[13px] text-zoru-ink">{description}</p>
+            <p className="text-[13px] text-[var(--st-text)]">{description}</p>
           )}
         </header>
       )}
@@ -980,12 +980,12 @@ function Field({
     <div className={cn('flex flex-col gap-1.5', className)}>
       <label
         htmlFor={htmlFor}
-        className="text-[12px] font-medium text-zoru-ink dark:text-zoru-ink-muted"
+        className="text-[12px] font-medium text-[var(--st-text)] dark:text-[var(--st-text-secondary)]"
       >
         {label}
       </label>
       {children}
-      {hint && <span className="text-[11px] text-zoru-ink">{hint}</span>}
+      {hint && <span className="text-[11px] text-[var(--st-text)]">{hint}</span>}
     </div>
   );
 }

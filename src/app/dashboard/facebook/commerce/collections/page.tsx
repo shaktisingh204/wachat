@@ -150,7 +150,7 @@ export default function CommerceCollectionsPage() {
         accessorKey: "name",
         header: "Collection",
         cell: ({ row }) => (
-          <span className="font-medium text-zoru-ink">{row.original.name}</span>
+          <span className="font-medium text-[var(--st-text)]">{row.original.name}</span>
         ),
       },
       {
@@ -159,7 +159,7 @@ export default function CommerceCollectionsPage() {
         cell: ({ row }) => (
           <Link
             href={`/dashboard/facebook/commerce/products/${row.original.catalogId}`}
-            className="text-zoru-ink underline-offset-2 hover:underline"
+            className="text-[var(--st-text)] underline-offset-2 hover:underline"
           >
             {row.original.catalogName}
           </Link>

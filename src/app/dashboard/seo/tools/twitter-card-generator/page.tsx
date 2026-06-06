@@ -80,7 +80,7 @@ export default function TwitterCardGeneratorPage() {
               <div className="space-y-1">
                 <Label>Card Type</Label>
                 <select 
-                  className="flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-zoru-line bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-zoru-surface placeholder:text-zoru-ink-muted focus:outline-none focus:ring-1 focus:ring-zoru-line disabled:cursor-not-allowed disabled:opacity-50" 
+                  className="flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-[var(--st-border)] bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-zoru-surface placeholder:text-[var(--st-text-secondary)] focus:outline-none focus:ring-1 focus:ring-[var(--st-border)] disabled:cursor-not-allowed disabled:opacity-50" 
                   value={f.card} 
                   onChange={(e) => update('card', e.target.value as CardType)}
                 >
@@ -163,7 +163,7 @@ export default function TwitterCardGeneratorPage() {
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {/* iPhone */}
-                  <div className="space-y-3 p-3 bg-zoru-surface-2/30 rounded-lg">
+                  <div className="space-y-3 p-3 bg-[var(--st-bg-muted)]/30 rounded-lg">
                     <h5 className="text-xs font-semibold uppercase">iPhone App</h5>
                     <div className="space-y-1">
                       <Label className="text-xs">Name</Label>
@@ -180,7 +180,7 @@ export default function TwitterCardGeneratorPage() {
                   </div>
 
                   {/* iPad */}
-                  <div className="space-y-3 p-3 bg-zoru-surface-2/30 rounded-lg">
+                  <div className="space-y-3 p-3 bg-[var(--st-bg-muted)]/30 rounded-lg">
                     <h5 className="text-xs font-semibold uppercase">iPad App</h5>
                     <div className="space-y-1">
                       <Label className="text-xs">Name</Label>
@@ -197,7 +197,7 @@ export default function TwitterCardGeneratorPage() {
                   </div>
 
                   {/* Google Play */}
-                  <div className="space-y-3 p-3 bg-zoru-surface-2/30 rounded-lg">
+                  <div className="space-y-3 p-3 bg-[var(--st-bg-muted)]/30 rounded-lg">
                     <h5 className="text-xs font-semibold uppercase">Google Play App</h5>
                     <div className="space-y-1">
                       <Label className="text-xs">Name</Label>
@@ -221,10 +221,10 @@ export default function TwitterCardGeneratorPage() {
         <div className="space-y-6">
           <Card className="p-4 space-y-4">
             <h3 className="font-semibold text-lg">Visual Preview</h3>
-            <div className="border border-zoru-line dark:border-zoru-line rounded-xl overflow-hidden bg-white dark:bg-black w-full max-w-sm mx-auto shadow-sm">
+            <div className="border border-[var(--st-border)] dark:border-[var(--st-border)] rounded-xl overflow-hidden bg-white dark:bg-black w-full max-w-sm mx-auto shadow-sm">
               <TwitterCardPreview state={f} />
             </div>
-            <p className="text-xs text-zoru-ink-muted text-center">
+            <p className="text-xs text-[var(--st-text-secondary)] text-center">
               Note: This is an approximation. Twitter may render cards slightly differently on various devices and platforms.
             </p>
           </Card>
@@ -241,7 +241,7 @@ export default function TwitterCardGeneratorPage() {
               <Textarea 
                 readOnly 
                 value={out} 
-                className="min-h-[250px] font-mono text-xs bg-zoru-surface-2/50 resize-none" 
+                className="min-h-[250px] font-mono text-xs bg-[var(--st-bg-muted)]/50 resize-none" 
               />
             </div>
           </Card>
@@ -257,19 +257,19 @@ function TwitterCardPreview({ state }: { state: any }) {
   if (state.card === 'summary') {
     return (
       <div className="flex flex-row p-0">
-        <div className="w-[125px] h-[125px] shrink-0 bg-zoru-surface-2 border-r border-zoru-line dark:border-zoru-line overflow-hidden relative">
+        <div className="w-[125px] h-[125px] shrink-0 bg-[var(--st-bg-muted)] border-r border-[var(--st-border)] dark:border-[var(--st-border)] overflow-hidden relative">
           {state.image ? (
             /* eslint-disable-next-line @next/next/no-img-element */
             <img src={state.image} alt={state.imageAlt || ''} className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-zoru-ink-muted text-xs">Image</div>
+            <div className="w-full h-full flex items-center justify-center text-[var(--st-text-secondary)] text-xs">Image</div>
           )}
         </div>
         <div className="p-3 flex flex-col justify-center flex-1 min-w-0">
           <div className="text-sm font-bold truncate text-black dark:text-white leading-tight mb-1">{state.title || 'Page Title'}</div>
-          <div className="text-xs text-zoru-ink dark:text-zoru-ink-muted line-clamp-2 leading-snug mb-1">{state.description || 'Page description will appear here...'}</div>
-          <div className="text-xs text-zoru-ink dark:text-zoru-ink-muted flex items-center gap-1 mt-auto">
-            <span className="w-3 h-3 rounded-full bg-zoru-surface-2 dark:bg-zoru-ink flex-shrink-0"></span>
+          <div className="text-xs text-[var(--st-text)] dark:text-[var(--st-text-secondary)] line-clamp-2 leading-snug mb-1">{state.description || 'Page description will appear here...'}</div>
+          <div className="text-xs text-[var(--st-text)] dark:text-[var(--st-text-secondary)] flex items-center gap-1 mt-auto">
+            <span className="w-3 h-3 rounded-full bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] flex-shrink-0"></span>
             {domain}
           </div>
         </div>
@@ -280,12 +280,12 @@ function TwitterCardPreview({ state }: { state: any }) {
   if (state.card === 'summary_large_image' || state.card === 'player') {
     return (
       <div className="flex flex-col p-0">
-        <div className="w-full aspect-[1.91/1] bg-zoru-surface-2 border-b border-zoru-line dark:border-zoru-line overflow-hidden relative">
+        <div className="w-full aspect-[1.91/1] bg-[var(--st-bg-muted)] border-b border-[var(--st-border)] dark:border-[var(--st-border)] overflow-hidden relative">
           {state.image ? (
             /* eslint-disable-next-line @next/next/no-img-element */
             <img src={state.image} alt={state.imageAlt || ''} className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-zoru-ink-muted text-xs">Hero Image</div>
+            <div className="w-full h-full flex items-center justify-center text-[var(--st-text-secondary)] text-xs">Hero Image</div>
           )}
           {state.card === 'player' && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/20">
@@ -297,9 +297,9 @@ function TwitterCardPreview({ state }: { state: any }) {
         </div>
         <div className="p-3 flex flex-col">
           <div className="text-sm font-bold truncate text-black dark:text-white leading-tight mb-1">{state.title || 'Page Title'}</div>
-          <div className="text-xs text-zoru-ink dark:text-zoru-ink-muted line-clamp-2 leading-snug mb-1">{state.description || 'Page description will appear here...'}</div>
-          <div className="text-xs text-zoru-ink dark:text-zoru-ink-muted flex items-center gap-1 mt-1">
-            <span className="w-3 h-3 rounded-full bg-zoru-surface-2 dark:bg-zoru-ink flex-shrink-0"></span>
+          <div className="text-xs text-[var(--st-text)] dark:text-[var(--st-text-secondary)] line-clamp-2 leading-snug mb-1">{state.description || 'Page description will appear here...'}</div>
+          <div className="text-xs text-[var(--st-text)] dark:text-[var(--st-text-secondary)] flex items-center gap-1 mt-1">
+            <span className="w-3 h-3 rounded-full bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] flex-shrink-0"></span>
             {domain}
           </div>
         </div>
@@ -310,26 +310,26 @@ function TwitterCardPreview({ state }: { state: any }) {
   if (state.card === 'app') {
     return (
       <div className="flex flex-col p-0">
-        <div className="p-4 border-b border-zoru-line dark:border-zoru-line flex items-center gap-3">
-          <div className="w-16 h-16 bg-zoru-surface-2 rounded-xl flex-shrink-0 overflow-hidden">
+        <div className="p-4 border-b border-[var(--st-border)] dark:border-[var(--st-border)] flex items-center gap-3">
+          <div className="w-16 h-16 bg-[var(--st-bg-muted)] rounded-xl flex-shrink-0 overflow-hidden">
             {state.image ? (
               /* eslint-disable-next-line @next/next/no-img-element */
               <img src={state.image} alt="" className="w-full h-full object-cover" />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-zoru-ink-muted text-[10px]">App Icon</div>
+              <div className="w-full h-full flex items-center justify-center text-[var(--st-text-secondary)] text-[10px]">App Icon</div>
             )}
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-base font-bold truncate text-black dark:text-white leading-tight mb-1">
               {state.appIphoneName || state.appIpadName || state.appGoogleplayName || 'App Name'}
             </div>
-            <div className="text-xs text-zoru-ink dark:text-zoru-ink-muted line-clamp-2 leading-snug">
+            <div className="text-xs text-[var(--st-text)] dark:text-[var(--st-text-secondary)] line-clamp-2 leading-snug">
               {state.description || 'App description will appear here...'}
             </div>
           </div>
         </div>
-        <div className="p-3 flex justify-between items-center bg-zoru-surface-2 dark:bg-zoru-ink">
-          <div className="text-xs text-zoru-ink dark:text-zoru-ink-muted font-medium">Get the app</div>
+        <div className="p-3 flex justify-between items-center bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]">
+          <div className="text-xs text-[var(--st-text)] dark:text-[var(--st-text-secondary)] font-medium">Get the app</div>
           <div className="px-4 py-1.5 bg-black dark:bg-white text-white dark:text-black rounded-full text-xs font-bold">
             View
           </div>

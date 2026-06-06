@@ -18,7 +18,7 @@ export default async function BlueprintsListPage() {
             <header className="flex items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-semibold">Blueprints</h1>
-                    <p className="text-sm text-zoru-ink-muted">
+                    <p className="text-sm text-[var(--st-text-secondary)]">
                         Templates that drive form-based approval workflows.
                     </p>
                 </div>
@@ -28,9 +28,9 @@ export default async function BlueprintsListPage() {
                     </Link>
                 </Button>
             </header>
-            <Card className="divide-y divide-zoru-line p-0">
+            <Card className="divide-y divide-[var(--st-border)] p-0">
                 {rows.length === 0 ? (
-                    <div className="p-8 text-center text-sm text-zoru-ink-muted">
+                    <div className="p-8 text-center text-sm text-[var(--st-text-secondary)]">
                         No blueprints yet.
                     </div>
                 ) : (
@@ -38,7 +38,7 @@ export default async function BlueprintsListPage() {
                         <Link
                             key={b._id}
                             href={`/dashboard/requests/blueprints/${b._id}`}
-                            className="flex items-center justify-between gap-4 p-4 transition hover:bg-zoru-surface-2/40"
+                            className="flex items-center justify-between gap-4 p-4 transition hover:bg-[var(--st-bg-muted)]/40"
                         >
                             <div>
                                 <div className="flex items-center gap-2">
@@ -49,12 +49,12 @@ export default async function BlueprintsListPage() {
                                         <Badge variant="secondary">Draft</Badge>
                                     )}
                                 </div>
-                                <div className="text-xs text-zoru-ink-muted">
+                                <div className="text-xs text-[var(--st-text-secondary)]">
                                     {b.category ?? '—'} · {b.stages?.length ?? 0}{' '}
                                     stages
                                 </div>
                             </div>
-                            <div className="text-right text-xs text-zoru-ink-muted">
+                            <div className="text-right text-xs text-[var(--st-text-secondary)]">
                                 {b.slaMins ? `${b.slaMins} min SLA` : 'no SLA'}
                             </div>
                         </Link>

@@ -293,7 +293,7 @@ export function StockTransfersListClient() {
         filters={
           <div className="flex flex-wrap items-end gap-3">
             <div className="w-40 space-y-1">
-              <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+              <Label className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Status
               </Label>
               <EnumFilterField
@@ -307,7 +307,7 @@ export function StockTransfersListClient() {
               />
             </div>
             <div className="w-56 space-y-1">
-              <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+              <Label className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                 From
               </Label>
               <EntityFormField
@@ -322,7 +322,7 @@ export function StockTransfersListClient() {
               />
             </div>
             <div className="w-56 space-y-1">
-              <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+              <Label className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                 To
               </Label>
               <EntityFormField
@@ -345,9 +345,9 @@ export function StockTransfersListClient() {
         }
         bulkBar={
           selected.size > 0 ? (
-            <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-3 py-2 shadow-sm">
-              <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink">
-                <ListChecks className="h-4 w-4 text-zoru-primary" />
+            <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 shadow-sm">
+              <div className="flex items-center gap-2 text-[12.5px] text-[var(--st-text)]">
+                <ListChecks className="h-4 w-4 text-[var(--st-text)]" />
                 {selected.size} selected
               </div>
               <div className="flex flex-wrap items-center gap-1">
@@ -385,11 +385,11 @@ export function StockTransfersListClient() {
         empty={
           !isPending && rows.length === 0 ? (
             <div className="flex flex-col items-center gap-3 p-4">
-              <ArrowRightLeft className="h-8 w-8 text-zoru-ink-muted" />
-              <h3 className="text-base font-medium text-zoru-ink">
+              <ArrowRightLeft className="h-8 w-8 text-[var(--st-text-secondary)]" />
+              <h3 className="text-base font-medium text-[var(--st-text)]">
                 No stock transfers yet
               </h3>
-              <p className="max-w-sm text-sm text-zoru-ink-muted">
+              <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                 Move stock between warehouses with a clear audit trail.
               </p>
               <Button asChild>
@@ -451,7 +451,7 @@ export function StockTransfersListClient() {
           ) : null}
 
           {/* Table */}
-          <div className="overflow-x-auto rounded-md border border-zoru-line">
+          <div className="overflow-x-auto rounded-md border border-[var(--st-border)]">
             <Table>
               <ZoruTableHeader>
                 <ZoruTableRow>
@@ -553,7 +553,7 @@ export function StockTransfersListClient() {
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem
-                                  className="text-zoru-ink focus:text-zoru-ink"
+                                  className="text-[var(--st-text)] focus:text-[var(--st-text)]"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     setDeleteTargetId(id);

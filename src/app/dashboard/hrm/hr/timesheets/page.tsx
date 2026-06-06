@@ -144,29 +144,29 @@ export default function TimesheetsListPage(): React.JSX.Element {
                     }
                     loading={isLoading && timesheets.length === 0}
                 >
-                    <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                    <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                         <Table>
                             <ZoruTableHeader>
-                                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                    <ZoruTableHead className="text-zoru-ink-muted">Employee</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Week</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Total Hrs</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted text-right">Actions</ZoruTableHead>
+                                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Employee</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Week</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Total Hrs</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Actions</ZoruTableHead>
                                 </ZoruTableRow>
                             </ZoruTableHeader>
                             <ZoruTableBody>
                                 {isLoading ? (
-                                    <ZoruTableRow className="border-zoru-line">
+                                    <ZoruTableRow className="border-[var(--st-border)]">
                                         <ZoruTableCell colSpan={5} className="h-24 text-center">
-                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
+                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 ) : timesheets.length === 0 ? (
-                                    <ZoruTableRow className="border-zoru-line">
+                                    <ZoruTableRow className="border-[var(--st-border)]">
                                         <ZoruTableCell
                                             colSpan={5}
-                                            className="h-24 text-center text-zoru-ink-muted"
+                                            className="h-24 text-center text-[var(--st-text-secondary)]"
                                         >
                                             No timesheets match this filter.
                                         </ZoruTableCell>
@@ -175,8 +175,8 @@ export default function TimesheetsListPage(): React.JSX.Element {
                                     timesheets.map((t) => {
                                         const tone = STATUS_TONE[t.status] ?? 'neutral';
                                         return (
-                                            <ZoruTableRow key={t._id} className="border-zoru-line">
-                                                <ZoruTableCell className="font-medium text-zoru-ink">
+                                            <ZoruTableRow key={t._id} className="border-[var(--st-border)]">
+                                                <ZoruTableCell className="font-medium text-[var(--st-text)]">
                                                     <Link
                                                         href={`${BASE}/${t._id}`}
                                                         className="hover:underline"
@@ -184,10 +184,10 @@ export default function TimesheetsListPage(): React.JSX.Element {
                                                         {t.employeeName || t.employeeId}
                                                     </Link>
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {fmtDate(t.weekStartDate)} → {fmtDate(t.weekEndDate)}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
+                                                <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
                                                     {t.totalHours.toFixed(2)}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
@@ -204,7 +204,7 @@ export default function TimesheetsListPage(): React.JSX.Element {
                                                         size="icon"
                                                         onClick={() => setPendingDelete(t)}
                                                     >
-                                                        <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                                        <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                                     </Button>
                                                 </ZoruTableCell>
                                             </ZoruTableRow>

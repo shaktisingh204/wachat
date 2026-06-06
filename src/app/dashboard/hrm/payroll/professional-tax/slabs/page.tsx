@@ -174,9 +174,9 @@ function SlabFormDialog({ onSave, slab }: { onSave: () => void; slab?: WithId<Cr
                     </ZoruDialogHeader>
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
-                            <Label>State <span className="text-zoru-danger-ink">*</span></Label>
+                            <Label>State <span className="text-[var(--st-danger)]">*</span></Label>
                             <Select name="state" required defaultValue={slab?.state}>
-                                <ZoruSelectTrigger className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                                <ZoruSelectTrigger className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
                                     <ZoruSelectValue placeholder="Select a state..." />
                                 </ZoruSelectTrigger>
                                 <ZoruSelectContent className="max-h-60">
@@ -186,20 +186,20 @@ function SlabFormDialog({ onSave, slab }: { onSave: () => void; slab?: WithId<Cr
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label>Min. Monthly Salary (₹) <span className="text-zoru-danger-ink">*</span></Label>
+                                <Label>Min. Monthly Salary (₹) <span className="text-[var(--st-danger)]">*</span></Label>
                                 <Input type="number" name="minSalary" defaultValue={slab?.minSalary} required
-                                    className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
+                                    className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]" />
                             </div>
                             <div className="space-y-2">
-                                <Label>Max. Monthly Salary (₹) <span className="text-zoru-danger-ink">*</span></Label>
+                                <Label>Max. Monthly Salary (₹) <span className="text-[var(--st-danger)]">*</span></Label>
                                 <Input type="number" name="maxSalary" defaultValue={slab?.maxSalary} required
-                                    className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
+                                    className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]" />
                             </div>
                         </div>
                         <div className="space-y-2">
-                            <Label>Monthly Tax Amount (₹) <span className="text-zoru-danger-ink">*</span></Label>
+                            <Label>Monthly Tax Amount (₹) <span className="text-[var(--st-danger)]">*</span></Label>
                             <Input type="number" name="taxAmount" defaultValue={slab?.taxAmount} required
-                                className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
+                                className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]" />
                         </div>
                     </div>
                     <ZoruDialogFooter>
@@ -231,7 +231,7 @@ function DeleteSlabButton({ slabId, onDeleted }: { slabId: string; onDeleted: ()
     return (
         <ZoruAlertDialog>
             <ZoruAlertDialogTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-zoru-danger-ink hover:text-zoru-danger-ink">
+                <Button variant="ghost" size="icon" className="text-[var(--st-danger)] hover:text-[var(--st-danger)]">
                     <Trash2 className="h-4 w-4" />
                 </Button>
             </ZoruAlertDialogTrigger>
@@ -273,8 +273,8 @@ export default function ProfessionalTaxSlabsPage() {
             <Card className="p-6">
                 <div className="mb-4 flex items-center justify-between">
                     <div>
-                        <h2 className="text-[16px] text-zoru-ink">Tax Slabs Configuration</h2>
-                        <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">State-wise salary bands</p>
+                        <h2 className="text-[16px] text-[var(--st-text)]">Tax Slabs Configuration</h2>
+                        <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">State-wise salary bands</p>
                     </div>
                     <div className="flex gap-2">
                         <ImportTemplatesDropdown onImported={fetchData} />
@@ -284,21 +284,21 @@ export default function ProfessionalTaxSlabsPage() {
 
                 {isLoading ? (
                     <div className="flex h-24 items-center justify-center">
-                        <LoaderCircle className="h-6 w-6 animate-spin text-zoru-ink-muted" />
+                        <LoaderCircle className="h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
                     </div>
                 ) : slabs.length > 0 ? (
                     <div className="space-y-2">
                         {slabs.map(slab => (
-                            <div key={slab._id.toString()} className="flex items-start justify-between rounded-lg border border-zoru-line bg-zoru-surface-2 p-3">
+                            <div key={slab._id.toString()} className="flex items-start justify-between rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3">
                                 <div className="min-w-0 flex-1">
                                     <div className="flex items-center gap-2">
                                         <Badge variant="secondary">{slab.state}</Badge>
                                     </div>
-                                    <p className="mt-1.5 text-[12px] text-zoru-ink-muted">
+                                    <p className="mt-1.5 text-[12px] text-[var(--st-text-secondary)]">
                                         ₹{slab.minSalary.toLocaleString('en-IN')} – ₹{slab.maxSalary.toLocaleString('en-IN')}
                                     </p>
-                                    <p className="text-[13px] text-zoru-ink">
-                                        ₹{slab.taxAmount.toLocaleString('en-IN')}<span className="text-[11.5px] font-normal text-zoru-ink-muted">/month</span>
+                                    <p className="text-[13px] text-[var(--st-text)]">
+                                        ₹{slab.taxAmount.toLocaleString('en-IN')}<span className="text-[11.5px] font-normal text-[var(--st-text-secondary)]">/month</span>
                                     </p>
                                 </div>
                                 <div className="flex items-center gap-0.5">
@@ -309,7 +309,7 @@ export default function ProfessionalTaxSlabsPage() {
                         ))}
                     </div>
                 ) : (
-                    <div className="rounded-lg border border-dashed border-zoru-line p-6 text-center text-[12.5px] text-zoru-ink-muted">
+                    <div className="rounded-lg border border-dashed border-[var(--st-border)] p-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No slabs configured. Click &ldquo;Add New Slab&rdquo; to start or import templates.
                     </div>
                 )}

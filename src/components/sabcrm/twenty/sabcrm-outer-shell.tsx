@@ -63,7 +63,7 @@ export function SabcrmOuterShell({ user, children }: SabcrmOuterShellProps) {
 
   return (
     <CommandPaletteProvider>
-      <div className="zoruui flex h-[100dvh] w-full overflow-hidden bg-zoru-bg text-zoru-ink">
+      <div className="zoruui flex h-[100dvh] w-full overflow-hidden bg-[var(--st-bg)] text-[var(--st-text)]">
         {/* 20ui AppRail, scoped to its own design-system root + synced to the
             app theme so dark/light always matches the surrounding chrome. */}
         <div className={`ui20 ${appDark ? 'dark' : 'light'}`} style={{ display: 'flex' }}>
@@ -81,10 +81,10 @@ export function SabcrmOuterShell({ user, children }: SabcrmOuterShellProps) {
                   aria-label="SabNode home"
                   className="inline-flex items-center gap-2"
                 >
-                  <span className="flex h-7 w-7 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-ink text-xs text-zoru-on-primary">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-text)] text-xs text-[var(--st-text-inverted)]">
                     S
                   </span>
-                  <span className="hidden text-sm text-zoru-ink sm:inline">
+                  <span className="hidden text-sm text-[var(--st-text)] sm:inline">
                     SabNode
                   </span>
                 </a>

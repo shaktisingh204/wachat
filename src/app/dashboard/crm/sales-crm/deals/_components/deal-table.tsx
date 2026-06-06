@@ -76,7 +76,7 @@ export function DealTable({
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-[12.5px]">
-        <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
+        <thead className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
           <tr>
             <th className={`${cell} text-left`}>
               <input
@@ -101,7 +101,7 @@ export function DealTable({
         <tbody>
           {deals.length === 0 ? (
             <tr>
-              <td colSpan={11} className="h-24 text-center text-[13px] text-zoru-ink-muted">
+              <td colSpan={11} className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]">
                 {filtersActive
                   ? 'No deals match the current filters.'
                   : 'No deals yet — click "New deal" to add the first one.'}
@@ -109,7 +109,7 @@ export function DealTable({
             </tr>
           ) : (
             deals.map((d) => (
-              <tr key={d._id} className="border-t border-zoru-line hover:bg-zoru-surface-2/60">
+              <tr key={d._id} className="border-t border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]/60">
                 <td className={`${cell} align-middle`}>
                   <input
                     type="checkbox"
@@ -131,10 +131,10 @@ export function DealTable({
                   ) : d.contactId ? (
                     <EntityPickerChip entity="contact" id={d.contactId} />
                   ) : (
-                    <span className="text-zoru-ink-muted">{d.clientLabel ?? '—'}</span>
+                    <span className="text-[var(--st-text-secondary)]">{d.clientLabel ?? '—'}</span>
                   )}
                 </td>
-                <td className={`${cell} text-right align-middle font-mono tabular-nums text-zoru-ink`}>
+                <td className={`${cell} text-right align-middle font-mono tabular-nums text-[var(--st-text)]`}>
                   {fmtMoney(d.amount, d.currency ?? defaultCurrency)}
                 </td>
                 <td className={`${cell} align-middle`}>
@@ -146,11 +146,11 @@ export function DealTable({
                 <td className={`${cell} align-middle`}>
                   {d.ownerId ? <EntityPickerChip entity="user" id={d.ownerId} /> : '—'}
                 </td>
-                <td className={`${cell} text-right align-middle text-zoru-ink`}>
+                <td className={`${cell} text-right align-middle text-[var(--st-text)]`}>
                   {typeof d.probability === 'number' ? `${d.probability}%` : '—'}
                 </td>
-                <td className={`${cell} align-middle text-zoru-ink-muted`}>{fmtDate(d.expectedClose)}</td>
-                <td className={`${cell} align-middle text-zoru-ink-muted`}>{fmtDate(d.createdAt)}</td>
+                <td className={`${cell} align-middle text-[var(--st-text-secondary)]`}>{fmtDate(d.expectedClose)}</td>
+                <td className={`${cell} align-middle text-[var(--st-text-secondary)]`}>{fmtDate(d.createdAt)}</td>
                 <td className={`${cell} text-right align-middle`}>
                   <DropdownMenu>
                     <ZoruDropdownMenuTrigger asChild>

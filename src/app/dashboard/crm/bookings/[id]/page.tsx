@@ -75,10 +75,10 @@ function Field({
 }) {
   return (
     <div>
-      <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
         {label}
       </div>
-      <div className="mt-1 text-[13px] text-zoru-ink">{children}</div>
+      <div className="mt-1 text-[13px] text-[var(--st-text)]">{children}</div>
     </div>
   );
 }
@@ -95,7 +95,7 @@ export default async function BookingDetailPage({
     if (error) {
       return (
         <div className="flex w-full flex-col gap-4 p-6">
-          <p className="text-[14px] text-zoru-ink">
+          <p className="text-[14px] text-[var(--st-text)]">
             Couldn&apos;t load this booking — {error}
           </p>
           <Button variant="outline" asChild>
@@ -136,18 +136,18 @@ export default async function BookingDetailPage({
             <ZoruCardContent>
               <div className="space-y-2 text-[12.5px]">
                 <div className="flex items-center justify-between">
-                  <span className="text-zoru-ink-muted">Booking</span>
+                  <span className="text-[var(--st-text-secondary)]">Booking</span>
                   <Badge variant="outline">{status}</Badge>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-zoru-ink-muted">Payment</span>
+                  <span className="text-[var(--st-text-secondary)]">Payment</span>
                   <Badge variant="outline">
                     {booking.paymentStatus ?? 'unpaid'}
                   </Badge>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-zoru-ink-muted">No-show</span>
-                  <span className="text-zoru-ink">
+                  <span className="text-[var(--st-text-secondary)]">No-show</span>
+                  <span className="text-[var(--st-text)]">
                     {booking.noShow ? 'Yes' : 'No'}
                   </span>
                 </div>
@@ -163,7 +163,7 @@ export default async function BookingDetailPage({
               {booking.resourceId ? (
                 <EntityPickerChip entity="user" id={booking.resourceId} fallback="Deleted resource" />
               ) : (
-                <span className="text-[12.5px] text-zoru-ink-muted">
+                <span className="text-[12.5px] text-[var(--st-text-secondary)]">
                   No resource
                 </span>
               )}
@@ -178,7 +178,7 @@ export default async function BookingDetailPage({
               {booking.customerId ? (
                 <EntityPickerChip entity="client" id={booking.customerId} fallback="Deleted customer" />
               ) : (
-                <span className="text-[12.5px] text-zoru-ink-muted">
+                <span className="text-[12.5px] text-[var(--st-text-secondary)]">
                   No customer
                 </span>
               )}
@@ -192,15 +192,15 @@ export default async function BookingDetailPage({
             <ZoruCardContent>
               <div className="space-y-1.5 text-[12.5px]">
                 <div className="flex justify-between">
-                  <span className="text-zoru-ink-muted">Start</span>
+                  <span className="text-[var(--st-text-secondary)]">Start</span>
                   <span>{fmtDateTime(booking.slotStart)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-zoru-ink-muted">End</span>
+                  <span className="text-[var(--st-text-secondary)]">End</span>
                   <span>{fmtDateTime(booking.slotEnd)}</span>
                 </div>
-                <div className="flex justify-between border-t border-zoru-line pt-1.5">
-                  <span className="text-zoru-ink-muted">Duration</span>
+                <div className="flex justify-between border-t border-[var(--st-border)] pt-1.5">
+                  <span className="text-[var(--st-text-secondary)]">Duration</span>
                   <span>
                     {computeDuration(booking.slotStart, booking.slotEnd)}
                   </span>
@@ -217,25 +217,25 @@ export default async function BookingDetailPage({
               <div className="flex flex-col gap-2 text-[12.5px]">
                 <Link
                   href={`/dashboard/crm/bookings/${id}/portal`}
-                  className="text-zoru-primary hover:underline"
+                  className="text-[var(--st-text)] hover:underline"
                 >
                   Self-service portal →
                 </Link>
                 {booking.recurringRule ? (
                   <Link
                     href={`/dashboard/crm/bookings?recurringFrom=${id}`}
-                    className="text-zoru-primary hover:underline"
+                    className="text-[var(--st-text)] hover:underline"
                   >
                     Recurring series →
                   </Link>
                 ) : (
-                  <span className="text-zoru-ink-muted">
+                  <span className="text-[var(--st-text-secondary)]">
                     No recurring series
                   </span>
                 )}
                 <Link
                   href={`/dashboard/crm/sales/receipts?bookingId=${id}`}
-                  className="text-zoru-primary hover:underline"
+                  className="text-[var(--st-text)] hover:underline"
                 >
                   Payments →
                 </Link>
@@ -314,9 +314,9 @@ export default async function BookingDetailPage({
             <ZoruCardTitle>Reminders</ZoruCardTitle>
           </ZoruCardHeader>
           <ZoruCardContent>
-            <div className="space-y-2 text-[12.5px] text-zoru-ink">
+            <div className="space-y-2 text-[12.5px] text-[var(--st-text)]">
               {booking.reminders.map((r, i) => (
-                <div key={i} className="flex items-center justify-between border-b border-zoru-line pb-1 last:border-0 last:pb-0">
+                <div key={i} className="flex items-center justify-between border-b border-[var(--st-border)] pb-1 last:border-0 last:pb-0">
                   <span>{new Date(r.at).toLocaleString()} via <span className="capitalize font-medium">{r.channel}</span></span>
                   <Badge variant={r.sent ? 'default' : 'outline'}>{r.sent ? 'Sent' : 'Scheduled'}</Badge>
                 </div>
@@ -330,7 +330,7 @@ export default async function BookingDetailPage({
             <ZoruCardTitle>Reminders</ZoruCardTitle>
           </ZoruCardHeader>
           <ZoruCardContent>
-            <p className="text-[12.5px] text-zoru-ink-muted">No automated reminders configured.</p>
+            <p className="text-[12.5px] text-[var(--st-text-secondary)]">No automated reminders configured.</p>
           </ZoruCardContent>
         </Card>
       )}
@@ -341,14 +341,14 @@ export default async function BookingDetailPage({
             <ZoruCardTitle>Notes</ZoruCardTitle>
           </ZoruCardHeader>
           <ZoruCardContent>
-            <p className="whitespace-pre-wrap text-[13px] text-zoru-ink">
+            <p className="whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
               {booking.notes}
             </p>
           </ZoruCardContent>
         </Card>
       ) : null}
 
-      <p className="text-[11px] text-zoru-ink-muted">
+      <p className="text-[11px] text-[var(--st-text-secondary)]">
         Created {fmtDate(booking.createdAt)} · Updated{' '}
         {fmtDate(booking.updatedAt)}
       </p>

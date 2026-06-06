@@ -86,7 +86,7 @@ function BotBubble({
       return (
         <div className="flex items-center gap-2 text-[12px] text-[var(--gray-9)] italic px-1">
           <LuChevronRight className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
-          <span>Redirect to <a href={url} target="_blank" rel="noopener noreferrer" className="underline hover:text-zoru-ink">{url}</a></span>
+          <span>Redirect to <a href={url} target="_blank" rel="noopener noreferrer" className="underline hover:text-[var(--st-text)]">{url}</a></span>
         </div>
       );
     }
@@ -342,11 +342,11 @@ export function SabFlowChat({
     >
       {/* Error banner */}
       {initError && (
-        <div className="mx-3 mt-3 flex items-center gap-2.5 rounded-xl border border-zoru-line bg-zoru-surface-2 px-3 py-2.5 text-[12.5px] text-zoru-ink dark:border-zoru-line dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
+        <div className="mx-3 mt-3 flex items-center gap-2.5 rounded-xl border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2.5 text-[12.5px] text-[var(--st-text)] dark:border-[var(--st-border)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
           <span className="flex-1">{initError}</span>
           <button
             onClick={initSession}
-            className="flex items-center gap-1 rounded-lg border border-zoru-line px-2 py-1 text-[11.5px] font-medium hover:bg-zoru-surface-2 transition-colors dark:border-zoru-line dark:hover:bg-zoru-ink/40"
+            className="flex items-center gap-1 rounded-lg border border-[var(--st-border)] px-2 py-1 text-[11.5px] font-medium hover:bg-[var(--st-bg-muted)] transition-colors dark:border-[var(--st-border)] dark:hover:bg-[var(--st-text)]/40"
           >
             <LuRotateCcw className="h-3 w-3" strokeWidth={2} /> Retry
           </button>
@@ -375,7 +375,7 @@ export function SabFlowChat({
           }
           // error
           return (
-            <div key={i} className="text-center text-[11.5px] text-zoru-ink italic px-2">
+            <div key={i} className="text-center text-[11.5px] text-[var(--st-text)] italic px-2">
               {msg.text}
             </div>
           );
@@ -430,7 +430,7 @@ export function SabFlowChat({
             className={cn(
               'flex h-8 w-8 shrink-0 items-center justify-center rounded-xl transition-colors',
               textValue.trim()
-                ? 'bg-zoru-ink text-white hover:bg-zoru-ink'
+                ? 'bg-[var(--st-text)] text-white hover:bg-[var(--st-text)]'
                 : 'bg-[var(--gray-4)] text-[var(--gray-8)] cursor-not-allowed',
             )}
           >

@@ -52,8 +52,8 @@ export function PlanPermissionSelector({
         <Card className="rounded-2xl border-white/10 bg-white/5 backdrop-blur-xl shadow-lg overflow-hidden">
             <ZoruCardHeader className="border-b border-white/10 bg-gradient-to-r from-primary/10 via-transparent to-transparent">
                 <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-xl bg-zoru-ink/15 border border-primary/30 flex items-center justify-center">
-                        <ShieldCheck className="h-5 w-5 text-zoru-ink" />
+                    <div className="h-10 w-10 rounded-xl bg-[var(--st-text)]/15 border border-primary/30 flex items-center justify-center">
+                        <ShieldCheck className="h-5 w-5 text-[var(--st-text)]" />
                     </div>
                     <div>
                         <ZoruCardTitle className="text-lg">Master Permission Control</ZoruCardTitle>

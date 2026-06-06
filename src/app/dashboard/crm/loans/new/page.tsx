@@ -107,7 +107,7 @@ function LoanFormInner() {
       {/* Borrower */}
       <div className="flex flex-col gap-1.5">
         <Label>
-          Borrower <span className="text-zoru-ink">*</span>
+          Borrower <span className="text-[var(--st-text)]">*</span>
         </Label>
         <EntityFormField
           entity={borrowerEntityForType(loanType)}
@@ -122,7 +122,7 @@ function LoanFormInner() {
       {/* Principal Amount */}
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="principal">
-          Principal Amount (₹) <span className="text-zoru-ink">*</span>
+          Principal Amount (₹) <span className="text-[var(--st-text)]">*</span>
         </Label>
         <Input
           id="principal"
@@ -172,24 +172,24 @@ function LoanFormInner() {
 
       {/* Calculator Preview */}
       {principal && tenureMonths ? (
-        <div className="max-w-xs rounded-md border border-zoru-line bg-zoru-surface/50 p-4">
-          <h4 className="mb-2 text-[13px] font-medium text-zoru-ink">Repayment Preview</h4>
+        <div className="max-w-xs rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 p-4">
+          <h4 className="mb-2 text-[13px] font-medium text-[var(--st-text)]">Repayment Preview</h4>
           <div className="flex flex-col gap-1 text-[12.5px]">
             <div className="flex justify-between">
-              <span className="text-zoru-ink-muted">Monthly EMI:</span>
+              <span className="text-[var(--st-text-secondary)]">Monthly EMI:</span>
               <span className="font-mono font-medium">
                 {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(previewEmi)}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-zoru-ink-muted">Total Payment:</span>
+              <span className="text-[var(--st-text-secondary)]">Total Payment:</span>
               <span className="font-mono">
                 {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(totalPayment)}
               </span>
             </div>
-            <div className="flex justify-between border-t border-zoru-line pt-1 mt-1">
-              <span className="text-zoru-ink-muted">Total Interest:</span>
-              <span className="font-mono text-zoru-danger-ink">
+            <div className="flex justify-between border-t border-[var(--st-border)] pt-1 mt-1">
+              <span className="text-[var(--st-text-secondary)]">Total Interest:</span>
+              <span className="font-mono text-[var(--st-danger)]">
                 {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(totalPayment - Number(principal))}
               </span>
             </div>
@@ -228,7 +228,7 @@ function LoanFormInner() {
       </div>
 
       {state.error && (
-        <p className="text-[13px] text-zoru-ink">{state.error}</p>
+        <p className="text-[13px] text-[var(--st-text)]">{state.error}</p>
       )}
 
       <div className="flex items-center gap-3">
@@ -251,7 +251,7 @@ export default function NewLoanPage() {
       <Card className="p-6">
         <Suspense fallback={
           <div className="flex h-64 items-center justify-center">
-            <LoaderCircle className="h-6 w-6 animate-spin text-zoru-ink-muted" />
+            <LoaderCircle className="h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
           </div>
         }>
           <LoanFormInner />

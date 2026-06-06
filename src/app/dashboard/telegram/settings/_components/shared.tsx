@@ -33,16 +33,16 @@ export function ChipInput({ label, values, onChange, placeholder, validate }: Ch
     return (
         <div className="space-y-2">
             {label ? <Label>{label}</Label> : null}
-            <div className="flex flex-wrap items-center gap-1 rounded border border-zoru-line bg-zoru-bg px-2 py-1.5">
+            <div className="flex flex-wrap items-center gap-1 rounded border border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-1.5">
                 {values.map((v, i) => (
                     <span
                         key={`${v}-${i}`}
-                        className="inline-flex items-center gap-1 rounded bg-zoru-fg/10 px-2 py-0.5 text-xs"
+                        className="inline-flex items-center gap-1 rounded bg-[var(--st-text)]/10 px-2 py-0.5 text-xs"
                     >
                         {v}
                         <button
                             type="button"
-                            className="text-zoru-fg/60 hover:text-zoru-fg"
+                            className="text-[var(--st-text)]/60 hover:text-[var(--st-text)]"
                             onClick={() => onChange(values.filter((_, j) => j !== i))}
                             aria-label={`Remove ${v}`}
                         >
@@ -82,11 +82,11 @@ export function SwitchRow({
     description?: string;
 }) {
     return (
-        <div className="flex items-center justify-between gap-3 rounded border border-zoru-line bg-zoru-bg px-3 py-2 text-sm">
+        <div className="flex items-center justify-between gap-3 rounded border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-sm">
             <div>
                 <div className="font-medium">{label}</div>
                 {description ? (
-                    <div className="text-xs text-zoru-fg/60">{description}</div>
+                    <div className="text-xs text-[var(--st-text)]/60">{description}</div>
                 ) : null}
             </div>
             <Switch checked={value} onCheckedChange={onChange} />
@@ -154,7 +154,7 @@ export function SectionCard({
                         <div>
                             <h2 className="text-base font-semibold">{title}</h2>
                             {description ? (
-                                <p className="text-sm text-zoru-fg/60">{description}</p>
+                                <p className="text-sm text-[var(--st-text)]/60">{description}</p>
                             ) : null}
                         </div>
                     </div>

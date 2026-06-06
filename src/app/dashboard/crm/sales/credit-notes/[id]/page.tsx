@@ -52,10 +52,10 @@ function fmtDate(v?: string): string {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
     return (
         <div>
-            <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+            <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                 {label}
             </div>
-            <div className="mt-1 text-[13px] text-zoru-ink">{children}</div>
+            <div className="mt-1 text-[13px] text-[var(--st-text)]">{children}</div>
         </div>
     );
 }
@@ -72,7 +72,7 @@ export default async function CreditNoteDetailPage({
         if (error) {
             return (
                 <div className="flex w-full flex-col gap-4 p-6">
-                    <p className="text-[14px] text-zoru-ink">
+                    <p className="text-[14px] text-[var(--st-text)]">
                         Couldn&apos;t load this credit note — {error}
                     </p>
                     <Button variant="outline" asChild>
@@ -121,7 +121,7 @@ export default async function CreditNoteDetailPage({
             <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
                 <div className="flex flex-col gap-6">
                     <Card className="p-6">
-                        <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                        <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                             Header
                         </h3>
                         <div className="grid gap-4 md:grid-cols-2">
@@ -137,7 +137,7 @@ export default async function CreditNoteDetailPage({
                             <Field label="Linked invoice">
                                 {creditNote.linkedInvoiceId ? (
                                     <Link
-                                        className="text-zoru-primary hover:underline"
+                                        className="text-[var(--st-text)] hover:underline"
                                         href={`/dashboard/crm/sales/invoices/${creditNote.linkedInvoiceId}`}
                                     >
                                         {creditNote.linkedInvoiceId.slice(-8)}
@@ -154,8 +154,8 @@ export default async function CreditNoteDetailPage({
                     </Card>
 
                     <Card className="overflow-hidden p-0">
-                        <div className="border-b border-zoru-line p-4">
-                            <h3 className="text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                        <div className="border-b border-[var(--st-border)] p-4">
+                            <h3 className="text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                                 Line items
                             </h3>
                         </div>
@@ -177,7 +177,7 @@ export default async function CreditNoteDetailPage({
                                     <ZoruTableRow>
                                         <ZoruTableCell
                                             colSpan={8}
-                                            className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                                            className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                                         >
                                             No line items.
                                         </ZoruTableCell>
@@ -185,16 +185,16 @@ export default async function CreditNoteDetailPage({
                                 ) : (
                                     (creditNote.items ?? []).map((item, idx) => (
                                         <ZoruTableRow key={idx}>
-                                            <ZoruTableCell className="text-[12.5px] text-zoru-ink">
+                                            <ZoruTableCell className="text-[12.5px] text-[var(--st-text)]">
                                                 {item.description || '—'}
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                                            <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                                                 {item.hsnSac || '—'}
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-right tabular-nums text-[12.5px]">
                                                 {item.qty}
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                                            <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                                                 {item.unit || '—'}
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-right tabular-nums text-[12.5px]">
@@ -217,7 +217,7 @@ export default async function CreditNoteDetailPage({
                     </Card>
 
                     <Card className="p-6">
-                        <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                        <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                             Refund & notes
                         </h3>
                         <div className="grid gap-4 md:grid-cols-2">
@@ -230,17 +230,17 @@ export default async function CreditNoteDetailPage({
                         </div>
                         {creditNote.notes ? (
                             <div className="mt-4">
-                                <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+                                <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                                     Notes
                                 </div>
-                                <div className="mt-1 whitespace-pre-wrap text-[13px] text-zoru-ink">
+                                <div className="mt-1 whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
                                     {creditNote.notes}
                                 </div>
                             </div>
                         ) : null}
                     </Card>
 
-                    <div className="text-[11px] text-zoru-ink-muted">
+                    <div className="text-[11px] text-[var(--st-text-secondary)]">
                         Created {fmtDate(creditNote.createdAt || creditNote.audit?.createdAt)} ·
                         Updated {fmtDate(creditNote.updatedAt || creditNote.audit?.updatedAt)}
                     </div>
@@ -248,33 +248,33 @@ export default async function CreditNoteDetailPage({
 
                 <div className="flex flex-col gap-4">
                     <Card className="p-6">
-                        <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                        <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                             Money summary
                         </h3>
                         <div className="flex flex-col gap-3 text-[13px] tabular-nums">
-                            <div className="flex items-center justify-between text-zoru-ink-muted">
+                            <div className="flex items-center justify-between text-[var(--st-text-secondary)]">
                                 <span>Subtotal</span>
-                                <span className="text-zoru-ink">
+                                <span className="text-[var(--st-text)]">
                                     {fmtMoney(creditNote.totals?.subTotal, currency)}
                                 </span>
                             </div>
-                            <div className="flex items-center justify-between text-zoru-ink-muted">
+                            <div className="flex items-center justify-between text-[var(--st-text-secondary)]">
                                 <span>Overall discount</span>
                                 <span>{fmtMoney(creditNote.totals?.discountOverall, currency)}</span>
                             </div>
-                            <div className="flex items-center justify-between text-zoru-ink-muted">
+                            <div className="flex items-center justify-between text-[var(--st-text-secondary)]">
                                 <span>Shipping</span>
                                 <span>{fmtMoney(creditNote.totals?.shippingCharge, currency)}</span>
                             </div>
-                            <div className="flex items-center justify-between text-zoru-ink-muted">
+                            <div className="flex items-center justify-between text-[var(--st-text-secondary)]">
                                 <span>Adjustment</span>
                                 <span>{fmtMoney(creditNote.totals?.adjustment, currency)}</span>
                             </div>
-                            <div className="flex items-center justify-between text-zoru-ink-muted">
+                            <div className="flex items-center justify-between text-[var(--st-text-secondary)]">
                                 <span>Round off</span>
                                 <span>{fmtMoney(creditNote.totals?.roundOff, currency)}</span>
                             </div>
-                            <div className="flex items-center justify-between border-t border-zoru-line pt-3 text-[14px] font-semibold text-zoru-ink">
+                            <div className="flex items-center justify-between border-t border-[var(--st-border)] pt-3 text-[14px] font-semibold text-[var(--st-text)]">
                                 <span>Total</span>
                                 <span>{fmtMoney(creditNote.totals?.total, currency)}</span>
                             </div>

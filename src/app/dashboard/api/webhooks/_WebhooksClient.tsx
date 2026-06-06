@@ -114,7 +114,7 @@ export function WebhooksClient({ initialSubs, initialDeliveries }: Props): JSX.E
             <p className="font-semibold text-sm">Save this signing secret — shown once.</p>
             <p className="text-xs">Use it to verify the <code className="font-mono">X-SabNode-Signature</code> header on every delivery.</p>
             <div className="flex items-center gap-2">
-              <code className="flex-1 text-xs font-mono bg-zoru-surface border border-zoru-line rounded px-3 py-2 text-zoru-ink overflow-x-auto">
+              <code className="flex-1 text-xs font-mono bg-[var(--st-bg-secondary)] border border-[var(--st-border)] rounded px-3 py-2 text-[var(--st-text)] overflow-x-auto">
                 {secret}
               </code>
               <Button size="sm" variant="outline" onClick={() => navigator.clipboard.writeText(secret)}>
@@ -129,7 +129,7 @@ export function WebhooksClient({ initialSubs, initialDeliveries }: Props): JSX.E
       ) : null}
 
       <section className="space-y-4">
-        <h2 className="text-base font-semibold text-zoru-ink">Subscriptions</h2>
+        <h2 className="text-base font-semibold text-[var(--st-text)]">Subscriptions</h2>
 
         <Card>
           <ZoruCardHeader>
@@ -177,13 +177,13 @@ export function WebhooksClient({ initialSubs, initialDeliveries }: Props): JSX.E
             {subs.map((s) => (
               <Card
                 key={s._id}
-                className={selectedSubId === s._id ? 'border-zoru-line-strong ring-1 ring-zoru-line-strong' : ''}
+                className={selectedSubId === s._id ? 'border-[var(--st-border-strong)] ring-1 ring-[var(--st-border-strong)]' : ''}
               >
                 <ZoruCardContent className="pt-4">
                   <div className="flex items-center justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="text-sm font-mono text-zoru-ink truncate">{s.url}</p>
-                      <p className="text-xs text-zoru-ink-muted mt-0.5 truncate">
+                      <p className="text-sm font-mono text-[var(--st-text)] truncate">{s.url}</p>
+                      <p className="text-xs text-[var(--st-text-secondary)] mt-0.5 truncate">
                         Events: <span className="font-mono">{s.events.join(' ') || '(none)'}</span>
                       </p>
                     </div>
@@ -219,7 +219,7 @@ export function WebhooksClient({ initialSubs, initialDeliveries }: Props): JSX.E
                         size="sm"
                         onClick={() => handleDelete(s._id)}
                         disabled={busy}
-                        className="text-zoru-danger hover:text-zoru-danger"
+                        className="text-[var(--st-danger)] hover:text-[var(--st-danger)]"
                       >
                         Delete
                       </Button>
@@ -234,7 +234,7 @@ export function WebhooksClient({ initialSubs, initialDeliveries }: Props): JSX.E
 
       <section className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-semibold text-zoru-ink">Recent deliveries</h2>
+          <h2 className="text-base font-semibold text-[var(--st-text)]">Recent deliveries</h2>
           <Button variant="ghost" size="sm" onClick={reloadDeliveries} disabled={busy}>
             <RefreshCw className="h-4 w-4 mr-1" /> Refresh
           </Button>
@@ -255,30 +255,30 @@ export function WebhooksClient({ initialSubs, initialDeliveries }: Props): JSX.E
             <ZoruTableBody>
               {deliveries.length === 0 ? (
                 <ZoruTableRow>
-                  <ZoruTableCell colSpan={6} className="text-center text-zoru-ink-muted py-6 text-xs">
+                  <ZoruTableCell colSpan={6} className="text-center text-[var(--st-text-secondary)] py-6 text-xs">
                     No deliveries yet. Click <em>Test</em> on a subscription to fire a synthetic event.
                   </ZoruTableCell>
                 </ZoruTableRow>
               ) : null}
               {deliveries.map((d) => (
                 <ZoruTableRow key={d._id}>
-                  <ZoruTableCell className="font-mono text-zoru-ink text-xs">{d.event}</ZoruTableCell>
+                  <ZoruTableCell className="font-mono text-[var(--st-text)] text-xs">{d.event}</ZoruTableCell>
                   <ZoruTableCell>
                     <span
                       className={
                         d.status === 'success'
-                          ? 'text-zoru-success text-xs'
+                          ? 'text-[var(--st-status-ok)] text-xs'
                           : d.status === 'failed'
-                            ? 'text-zoru-danger text-xs'
-                            : 'text-zoru-ink-muted text-xs'
+                            ? 'text-[var(--st-danger)] text-xs'
+                            : 'text-[var(--st-text-secondary)] text-xs'
                       }
                     >
                       {d.status}
                     </span>
                   </ZoruTableCell>
-                  <ZoruTableCell className="text-xs text-zoru-ink-muted">{d.attempts}</ZoruTableCell>
-                  <ZoruTableCell className="text-xs text-zoru-ink-muted">{d.responseStatus ?? '—'}</ZoruTableCell>
-                  <ZoruTableCell className="text-xs text-zoru-ink-muted">
+                  <ZoruTableCell className="text-xs text-[var(--st-text-secondary)]">{d.attempts}</ZoruTableCell>
+                  <ZoruTableCell className="text-xs text-[var(--st-text-secondary)]">{d.responseStatus ?? '—'}</ZoruTableCell>
+                  <ZoruTableCell className="text-xs text-[var(--st-text-secondary)]">
                     {mounted ? new Date(d.createdAt).toLocaleString() : '—'}
                   </ZoruTableCell>
                   <ZoruTableCell className="text-right">

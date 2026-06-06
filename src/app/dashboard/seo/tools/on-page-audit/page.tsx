@@ -96,12 +96,12 @@ export default function OnPageAuditPage() {
           {loading ? 'Auditing…' : 'Audit'}
         </Button>
       </div>
-      {error && <Card className="border-zoru-line"><ZoruCardContent className="p-4 text-zoru-ink text-sm">{error}</ZoruCardContent></Card>}
+      {error && <Card className="border-[var(--st-border)]"><ZoruCardContent className="p-4 text-[var(--st-text)] text-sm">{error}</ZoruCardContent></Card>}
       
       {loading && (
         <Card className="mt-4 border-dashed">
-          <ZoruCardContent className="p-8 text-center text-zoru-ink-muted flex flex-col items-center gap-4">
-            <Globe className="h-8 w-8 animate-pulse text-zoru-ink" />
+          <ZoruCardContent className="p-8 text-center text-[var(--st-text-secondary)] flex flex-col items-center gap-4">
+            <Globe className="h-8 w-8 animate-pulse text-[var(--st-text)]" />
             <p>Launching headless browser & executing JS...</p>
             <p className="text-xs">This may take up to 10-15 seconds depending on the site.</p>
           </ZoruCardContent>
@@ -116,10 +116,10 @@ export default function OnPageAuditPage() {
               {checks.map((c, i) => (
                 <div key={i} className="flex items-center justify-between text-sm border-b last:border-0 py-2">
                   <div className="flex items-center gap-3">
-                    {c.pass ? <Check className="h-5 w-5 text-zoru-ink flex-shrink-0" /> : <X className="h-5 w-5 text-zoru-ink flex-shrink-0" />}
-                    <span className={c.pass ? 'text-zoru-ink' : 'text-zoru-ink font-medium'}>{c.label}</span>
+                    {c.pass ? <Check className="h-5 w-5 text-[var(--st-text)] flex-shrink-0" /> : <X className="h-5 w-5 text-[var(--st-text)] flex-shrink-0" />}
+                    <span className={c.pass ? 'text-[var(--st-text)]' : 'text-[var(--st-text)] font-medium'}>{c.label}</span>
                   </div>
-                  {c.note && <span className="text-xs text-zoru-ink-muted whitespace-nowrap ml-4">{c.note}</span>}
+                  {c.note && <span className="text-xs text-[var(--st-text-secondary)] whitespace-nowrap ml-4">{c.note}</span>}
                 </div>
               ))}
             </div>

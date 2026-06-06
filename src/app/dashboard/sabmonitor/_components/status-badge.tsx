@@ -15,12 +15,12 @@ export function StatusBadge({
 }): React.JSX.Element {
     const tone =
         status === 'up' || status === 'resolved' || status === 'active' || status === 'live'
-            ? 'bg-zoru-ink/15 text-zoru-ink border-zoru-line/30'
+            ? 'bg-[var(--st-text)]/15 text-[var(--st-text)] border-[var(--st-border)]/30'
             : status === 'warning'
-              ? 'bg-zoru-ink/15 text-zoru-ink border-zoru-line/30'
+              ? 'bg-[var(--st-text)]/15 text-[var(--st-text)] border-[var(--st-border)]/30'
               : status === 'down' || status === 'ongoing'
-                ? 'bg-zoru-ink/15 text-zoru-ink border-zoru-line/30'
-                : 'bg-zoru-surface-muted text-zoru-ink-muted border-zoru-line';
+                ? 'bg-[var(--st-text)]/15 text-[var(--st-text)] border-[var(--st-border)]/30'
+                : 'bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] border-[var(--st-border)]';
     return (
         <span
             className={cn(

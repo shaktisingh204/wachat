@@ -108,11 +108,11 @@ function KpiTile({
     return (
         <Card>
             <div className="flex items-center justify-between">
-                <p className="text-[12.5px] font-medium text-zoru-ink-muted">{label}</p>
-                <Icon className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
+                <p className="text-[12.5px] font-medium text-[var(--st-text-secondary)]">{label}</p>
+                <Icon className="h-4 w-4 text-[var(--st-text-secondary)]" strokeWidth={1.75} />
             </div>
-            <p className="mt-2 truncate text-[22px] font-semibold text-zoru-ink">{value}</p>
-            {sub ? <p className="mt-0.5 truncate text-[11.5px] text-zoru-ink-muted">{sub}</p> : null}
+            <p className="mt-2 truncate text-[22px] font-semibold text-[var(--st-text)]">{value}</p>
+            {sub ? <p className="mt-0.5 truncate text-[11.5px] text-[var(--st-text-secondary)]">{sub}</p> : null}
         </Card>
     );
 }
@@ -311,8 +311,8 @@ function AllTransactionsDeepContent(): React.JSX.Element {
 
             <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
                 <Card>
-                    <h2 className="text-[16px] font-semibold text-zoru-ink">Monthly volume</h2>
-                    <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+                    <h2 className="text-[16px] font-semibold text-[var(--st-text)]">Monthly volume</h2>
+                    <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">
                         Transaction count and gross value across the last six months.
                     </p>
                     <div className="mt-4 h-[260px] w-full">
@@ -337,8 +337,8 @@ function AllTransactionsDeepContent(): React.JSX.Element {
                 </Card>
                 
                 <Card>
-                    <h2 className="text-[16px] font-semibold text-zoru-ink">Transaction Breakdown</h2>
-                    <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+                    <h2 className="text-[16px] font-semibold text-[var(--st-text)]">Transaction Breakdown</h2>
+                    <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">
                         Distribution of transaction types over the selected period.
                     </p>
                     <div className="mt-4 h-[260px] w-full flex items-center justify-center">
@@ -370,38 +370,38 @@ function AllTransactionsDeepContent(): React.JSX.Element {
             </div>
 
             <Card className="mt-4">
-                <h2 className="text-[16px] font-semibold text-zoru-ink">Transaction log</h2>
-                <div className="mt-4 overflow-x-auto rounded-lg border border-zoru-line">
+                <h2 className="text-[16px] font-semibold text-[var(--st-text)]">Transaction log</h2>
+                <div className="mt-4 overflow-x-auto rounded-lg border border-[var(--st-border)]">
                     <Table>
                         <ZoruTableHeader>
-                            <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                <ZoruTableHead className="text-zoru-ink-muted">Date</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Item</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Type</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Quantity</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Party</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Reference</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Warehouse</ZoruTableHead>
+                            <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Date</ZoruTableHead>
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Item</ZoruTableHead>
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Type</ZoruTableHead>
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Quantity</ZoruTableHead>
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Party</ZoruTableHead>
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Reference</ZoruTableHead>
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Warehouse</ZoruTableHead>
                                 <ZoruTableHead className="w-[50px]"></ZoruTableHead>
                             </ZoruTableRow>
                         </ZoruTableHeader>
                         <ZoruTableBody>
                             {isLoading ? (
-                                <ZoruTableRow className="border-zoru-line">
+                                <ZoruTableRow className="border-[var(--st-border)]">
                                     <ZoruTableCell colSpan={8} className="h-48 text-center">
-                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-zoru-ink-muted" />
+                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-[var(--st-text-secondary)]" />
                                     </ZoruTableCell>
                                 </ZoruTableRow>
                             ) : reportData.length > 0 ? (
                                 reportData.map((row, index) => (
                                     <ZoruTableRow
                                         key={`${row.reference}-${index}`}
-                                        className="border-zoru-line"
+                                        className="border-[var(--st-border)]"
                                     >
-                                        <ZoruTableCell className="text-[11.5px] text-zoru-ink">
+                                        <ZoruTableCell className="text-[11.5px] text-[var(--st-text)]">
                                             {fmtDate(row.date)}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="font-medium text-zoru-ink">
+                                        <ZoruTableCell className="font-medium text-[var(--st-text)]">
                                             {row.itemName}
                                         </ZoruTableCell>
                                         <ZoruTableCell>
@@ -411,18 +411,18 @@ function AllTransactionsDeepContent(): React.JSX.Element {
                                         </ZoruTableCell>
                                         <ZoruTableCell
                                             className={`font-semibold ${
-                                                row.quantity < 0 ? 'text-zoru-ink' : 'text-zoru-ink'
+                                                row.quantity < 0 ? 'text-[var(--st-text)]' : 'text-[var(--st-text)]'
                                             }`}
                                         >
                                             {row.quantity}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-zoru-ink">
+                                        <ZoruTableCell className="text-[var(--st-text)]">
                                             {row.partyName || 'N/A'}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="font-mono text-[11.5px] text-zoru-ink">
+                                        <ZoruTableCell className="font-mono text-[11.5px] text-[var(--st-text)]">
                                             {row.reference}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-zoru-ink">
+                                        <ZoruTableCell className="text-[var(--st-text)]">
                                             {row.warehouseName || 'Default'}
                                         </ZoruTableCell>
                                         <ZoruTableCell>
@@ -449,10 +449,10 @@ function AllTransactionsDeepContent(): React.JSX.Element {
                                     </ZoruTableRow>
                                 ))
                             ) : (
-                                <ZoruTableRow className="border-zoru-line">
-                                    <ZoruTableCell colSpan={8} className="h-48 text-center text-zoru-ink-muted">
+                                <ZoruTableRow className="border-[var(--st-border)]">
+                                    <ZoruTableCell colSpan={8} className="h-48 text-center text-[var(--st-text-secondary)]">
                                         <div className="flex flex-col items-center gap-2">
-                                            <TrendingDown className="h-6 w-6 text-zoru-ink-muted" />
+                                            <TrendingDown className="h-6 w-6 text-[var(--st-text-secondary)]" />
                                             <Boxes className="hidden h-6 w-6" />
                                             <p>No transactions match the current filters.</p>
                                         </div>

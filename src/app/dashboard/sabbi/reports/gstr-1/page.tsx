@@ -152,7 +152,7 @@ export default async function Gstr1Page(props: {
             primaryAction={<MonthPicker />}
         >
             {gstr1Res.error ? (
-                <div className="rounded-lg border border-zoru-line/30 bg-zoru-ink/5 px-3 py-2 text-[13px] text-zoru-ink dark:text-zoru-ink-muted">
+                <div className="rounded-lg border border-[var(--st-border)]/30 bg-[var(--st-text)]/5 px-3 py-2 text-[13px] text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
                     {gstr1Res.error}
                 </div>
             ) : null}

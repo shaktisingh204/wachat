@@ -62,10 +62,10 @@ export function BurndownChart({ sprint, samples, totalPoints }: Props) {
   return (
     <Card className="flex flex-col gap-3 p-4">
       <div>
-        <h2 className="text-sm font-semibold text-zoru-ink">
+        <h2 className="text-sm font-semibold text-[var(--st-text)]">
           {sprint.name} burndown
         </h2>
-        <p className="text-xs text-zoru-ink-muted">
+        <p className="text-xs text-[var(--st-text-secondary)]">
           Ideal vs actual remaining story points across {days} days.
         </p>
       </div>

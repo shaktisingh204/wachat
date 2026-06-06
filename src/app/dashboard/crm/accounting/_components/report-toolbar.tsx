@@ -116,17 +116,17 @@ export function ReportToolbar({
     <div className="flex flex-wrap items-end gap-3">
       {mode === 'asOf' ? (
         <div className="flex flex-col gap-1.5">
-          <Label className="text-[11.5px] text-zoru-ink-muted">As of</Label>
+          <Label className="text-[11.5px] text-[var(--st-text-secondary)]">As of</Label>
           <DatePicker value={asOf} onChange={setAsOf} className="w-[180px]" />
         </div>
       ) : (
         <>
           <div className="flex flex-col gap-1.5">
-            <Label className="text-[11.5px] text-zoru-ink-muted">From</Label>
+            <Label className="text-[11.5px] text-[var(--st-text-secondary)]">From</Label>
             <DatePicker value={from} onChange={setFrom} className="w-[180px]" />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label className="text-[11.5px] text-zoru-ink-muted">To</Label>
+            <Label className="text-[11.5px] text-[var(--st-text-secondary)]">To</Label>
             <DatePicker value={to} onChange={setTo} className="w-[180px]" />
           </div>
         </>

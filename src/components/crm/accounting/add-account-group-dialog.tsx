@@ -68,18 +68,18 @@ export function AddAccountGroupDialog({ open, onOpenChange, onGroupAdded, defaul
         <Dialog open={open} onOpenChange={onOpenChange}>
             <ZoruDialogContent className="sm:max-w-[425px]">
                 <ZoruDialogHeader>
-                    <ZoruDialogTitle className="text-zoru-ink">Add Account Group</ZoruDialogTitle>
-                    <ZoruDialogDescription className="text-zoru-ink-muted">
+                    <ZoruDialogTitle className="text-[var(--st-text)]">Add Account Group</ZoruDialogTitle>
+                    <ZoruDialogDescription className="text-[var(--st-text-secondary)]">
                         Create a new group for your Chart of Accounts.
                     </ZoruDialogDescription>
                 </ZoruDialogHeader>
                 <form ref={formRef} action={formAction} className="grid gap-4 py-4">
                     <div className="grid gap-2">
-                        <Label htmlFor="name" className="text-zoru-ink">Group Name</Label>
+                        <Label htmlFor="name" className="text-[var(--st-text)]">Group Name</Label>
                         <Input id="name" name="name" required defaultValue={defaultName} />
                     </div>
                     <div className="grid gap-2">
-                        <Label htmlFor="type" className="text-zoru-ink">Type</Label>
+                        <Label htmlFor="type" className="text-[var(--st-text)]">Type</Label>
                         <EnumFormField
                             name="type"
                             enumName="accountNature"
@@ -89,7 +89,7 @@ export function AddAccountGroupDialog({ open, onOpenChange, onGroupAdded, defaul
                         />
                     </div>
                     <div className="grid gap-2">
-                        <Label htmlFor="category" className="text-zoru-ink">Category</Label>
+                        <Label htmlFor="category" className="text-[var(--st-text)]">Category</Label>
                         <Select name="category" required>
                             <ZoruSelectTrigger><ZoruSelectValue placeholder="Select Category" /></ZoruSelectTrigger>
                             <ZoruSelectContent>

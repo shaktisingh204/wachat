@@ -151,7 +151,7 @@ function AssigneeAvatar({ member, size, loading }: AssigneeAvatarProps) {
     return (
       <span
         className={cn(
-          'inline-flex shrink-0 animate-pulse rounded-full bg-zoru-surface-2',
+          'inline-flex shrink-0 animate-pulse rounded-full bg-[var(--st-bg-muted)]',
           dims,
         )}
         aria-hidden
@@ -162,7 +162,7 @@ function AssigneeAvatar({ member, size, loading }: AssigneeAvatarProps) {
     return (
       <span
         className={cn(
-          'inline-flex shrink-0 items-center justify-center rounded-full border border-dashed border-zoru-line text-zoru-ink-muted',
+          'inline-flex shrink-0 items-center justify-center rounded-full border border-dashed border-[var(--st-border)] text-[var(--st-text-secondary)]',
           dims,
         )}
         aria-hidden
@@ -302,7 +302,7 @@ export function AssignmentControl({
           loading={pending && !current}
         />
         {showName ? (
-          <span className="max-w-[8rem] truncate text-xs text-zoru-ink">
+          <span className="max-w-[8rem] truncate text-xs text-[var(--st-text)]">
             {triggerLabel}
           </span>
         ) : null}
@@ -324,7 +324,7 @@ export function AssignmentControl({
             loading={pending && !current}
           />
           <span
-            className={cn('truncate', !currentKnown && 'text-zoru-ink-muted')}
+            className={cn('truncate', !currentKnown && 'text-[var(--st-text-secondary)]')}
           >
             {triggerLabel}
           </span>
@@ -359,11 +359,11 @@ export function AssignmentControl({
                   >
                     <AssigneeAvatar member={member} size="sm" />
                     <span className="flex min-w-0 flex-col">
-                      <span className="truncate text-sm text-zoru-ink">
+                      <span className="truncate text-sm text-[var(--st-text)]">
                         {memberLabel(member)}
                       </span>
                       {member.name && member.email ? (
-                        <span className="truncate text-xs text-zoru-ink-muted">
+                        <span className="truncate text-xs text-[var(--st-text-secondary)]">
                           {member.email}
                         </span>
                       ) : null}
@@ -385,7 +385,7 @@ export function AssignmentControl({
                   <ZoruCommandItem
                     value="__unassign__"
                     onSelect={() => assign(null)}
-                    className="gap-2 text-zoru-danger"
+                    className="gap-2 text-[var(--st-danger)]"
                   >
                     <UserMinus className="h-4 w-4 shrink-0" />
                     Clear assignment

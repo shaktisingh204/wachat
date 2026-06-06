@@ -178,7 +178,7 @@ export function PricingRuleForm({
                 <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                     <div className="flex flex-col gap-1.5">
                         <Label>
-                            Storefront <span className="text-zoru-ink">*</span>
+                            Storefront <span className="text-[var(--st-text)]">*</span>
                         </Label>
                         <Input
                             value={storefrontId}
@@ -189,7 +189,7 @@ export function PricingRuleForm({
                     </div>
                     <div className="flex flex-col gap-1.5">
                         <Label htmlFor="name">
-                            Name <span className="text-zoru-ink">*</span>
+                            Name <span className="text-[var(--st-text)]">*</span>
                         </Label>
                         <Input
                             id="name"
@@ -243,7 +243,7 @@ export function PricingRuleForm({
                                 (initial?.priority as number | undefined) ?? 0
                             }
                         />
-                        <p className="text-[11px] text-zoru-ink-muted">
+                        <p className="text-[11px] text-[var(--st-text-secondary)]">
                             Higher priority runs first.
                         </p>
                     </div>
@@ -319,7 +319,7 @@ export function PricingRuleForm({
                                 }
                                 placeholder="id1, id2, id3"
                             />
-                            <p className="text-[11px] text-zoru-ink-muted">
+                            <p className="text-[11px] text-[var(--st-text-secondary)]">
                                 Comma-separated.
                             </p>
                         </div>
@@ -328,7 +328,7 @@ export function PricingRuleForm({
 
                 <div className="flex flex-col gap-1.5">
                     <Label htmlFor="conditions">Conditions (JSON)</Label>
-                    <p className="text-[11px] text-zoru-ink-muted">
+                    <p className="text-[11px] text-[var(--st-text-secondary)]">
                         Each: <code>{`{ "field":"subtotal","op":"gte","value":500 }`}</code>
                         . Rich editor coming.
                     </p>
@@ -342,7 +342,7 @@ export function PricingRuleForm({
                 </div>
 
                 {state.error ? (
-                    <p className="text-[13px] text-zoru-ink">{state.error}</p>
+                    <p className="text-[13px] text-[var(--st-text)]">{state.error}</p>
                 ) : null}
 
                 <div className="flex items-center gap-3">

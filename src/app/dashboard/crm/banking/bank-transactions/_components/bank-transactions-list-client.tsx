@@ -173,17 +173,17 @@ function KpiStrip({
       <StatCard
         label="Total credits"
         value={fmtMoney(kpis.creditSum)}
-        icon={<ArrowDownLeft className="h-4 w-4 text-zoru-ink" />}
+        icon={<ArrowDownLeft className="h-4 w-4 text-[var(--st-text)]" />}
       />
       <StatCard
         label="Total debits"
         value={fmtMoney(kpis.debitSum)}
-        icon={<ArrowUpRight className="h-4 w-4 text-zoru-ink" />}
+        icon={<ArrowUpRight className="h-4 w-4 text-[var(--st-text)]" />}
       />
       <StatCard
         label="Unreconciled"
         value={kpis.unreconciled.toLocaleString()}
-        icon={<CheckCircle2 className="h-4 w-4 text-zoru-ink" />}
+        icon={<CheckCircle2 className="h-4 w-4 text-[var(--st-text)]" />}
       />
     </div>
   );
@@ -438,9 +438,9 @@ export function BankTransactionsListClient({
 
         {/* Bulk bar */}
         {selection.size > 0 ? (
-          <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-3 py-2 shadow-[var(--zoru-shadow-sm)]">
-            <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink">
-              <ListChecks className="h-4 w-4 text-zoru-primary" />
+          <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 shadow-[var(--zoru-shadow-sm)]">
+            <div className="flex items-center gap-2 text-[12.5px] text-[var(--st-text)]">
+              <ListChecks className="h-4 w-4 text-[var(--st-text)]" />
               {selection.size} selected
             </div>
             <div className="flex items-center gap-1">
@@ -458,7 +458,7 @@ export function BankTransactionsListClient({
                 onClick={() => setConfirmBulk('delete')}
                 disabled={isPending}
               >
-                <Trash2 className="h-3.5 w-3.5 text-zoru-ink" /> Delete
+                <Trash2 className="h-3.5 w-3.5 text-[var(--st-text)]" /> Delete
               </Button>
               <Button
                 size="sm"
@@ -476,12 +476,12 @@ export function BankTransactionsListClient({
         <Card className="overflow-hidden p-0">
           {isPending && rows.length === 0 ? (
             <div className="flex justify-center py-10">
-              <LoaderCircle className="h-5 w-5 animate-spin text-zoru-ink-muted" />
+              <LoaderCircle className="h-5 w-5 animate-spin text-[var(--st-text-secondary)]" />
             </div>
           ) : rows.length === 0 ? (
             <div className="flex flex-col items-center gap-3 p-10 text-center">
-              <FileUp className="h-8 w-8 text-zoru-ink-muted" />
-              <p className="text-[13px] text-zoru-ink-muted">
+              <FileUp className="h-8 w-8 text-[var(--st-text-secondary)]" />
+              <p className="text-[13px] text-[var(--st-text-secondary)]">
                 No transactions found. Try adjusting filters or import a bank
                 statement.
               </p>
@@ -490,8 +490,8 @@ export function BankTransactionsListClient({
             <div className="overflow-x-auto">
               <Table>
                 <ZoruTableHeader>
-                  <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                    <ZoruTableHead className="w-10 text-zoru-ink-muted">
+                  <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                    <ZoruTableHead className="w-10 text-[var(--st-text-secondary)]">
                       <Checkbox
                         checked={allSelected}
                         data-indeterminate={someSelected ? 'true' : undefined}
@@ -499,15 +499,15 @@ export function BankTransactionsListClient({
                         aria-label="Select all rows"
                       />
                     </ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Date</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Account</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Description</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Reference</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Category</ZoruTableHead>
-                    <ZoruTableHead className="text-right text-zoru-ink-muted">Amount</ZoruTableHead>
-                    <ZoruTableHead className="text-right text-zoru-ink-muted">Balance</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                    <ZoruTableHead className="text-right text-zoru-ink-muted">
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Date</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Account</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Description</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Reference</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Category</ZoruTableHead>
+                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Amount</ZoruTableHead>
+                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Balance</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
+                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                       &nbsp;
                     </ZoruTableHead>
                   </ZoruTableRow>
@@ -518,7 +518,7 @@ export function BankTransactionsListClient({
                     return (
                       <ZoruTableRow
                         key={r._id}
-                        className="border-zoru-line"
+                        className="border-[var(--st-border)]"
                         data-state={checked ? 'selected' : undefined}
                       >
                         <ZoruTableCell>
@@ -528,35 +528,35 @@ export function BankTransactionsListClient({
                             aria-label={`Select ${r.description ?? r._id}`}
                           />
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                           {fmtDate(r.transactionDate)}
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-zoru-ink">
+                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text)]">
                           {r.accountName ?? '—'}
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-zoru-ink">
+                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text)]">
                           <EntityRowLink
                             href={`/dashboard/crm/banking/bank-transactions/${r._id}`}
                             label={r.description ?? '—'}
                           />
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[12px] text-zoru-ink-muted">
+                        <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
                           {r.referenceNumber ?? '—'}
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[12px] text-zoru-ink-muted">
+                        <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
                           {r.category ?? '—'}
                         </ZoruTableCell>
                         <ZoruTableCell
                           className={[
                             'text-right text-[12.5px] font-semibold tabular-nums',
                             r.type === 'credit'
-                              ? 'text-zoru-ink dark:text-zoru-ink-muted'
-                              : 'text-zoru-ink dark:text-zoru-ink-muted',
+                              ? 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]'
+                              : 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',
                           ].join(' ')}
                         >
                           {r.type === 'credit' ? '+' : '-'}{fmtMoney(r.amount)}
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-zoru-ink-muted">
+                        <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-[var(--st-text-secondary)]">
                           {r.balanceAfter != null ? fmtMoney(r.balanceAfter) : '—'}
                         </ZoruTableCell>
                         <ZoruTableCell>
@@ -583,7 +583,7 @@ export function BankTransactionsListClient({
           )}
         </Card>
 
-        <p className="text-right text-[12px] text-zoru-ink-muted">
+        <p className="text-right text-[12px] text-[var(--st-text-secondary)]">
           {total} transaction{total !== 1 ? 's' : ''}
         </p>
       </div>

@@ -90,8 +90,8 @@ export default function GenerativeAIDrafterClientPage({
       search={{ value: query, onChange: setQuery, placeholder: 'Search drafts...' }}
       pagination={
         totalPages > 1 ? (
-          <div className="flex items-center justify-between border-t border-zoru-line pt-4 mt-4">
-            <span className="text-sm text-zoru-ink-light">
+          <div className="flex items-center justify-between border-t border-[var(--st-border)] pt-4 mt-4">
+            <span className="text-sm text-[var(--st-text-tertiary)]">
               Showing {Math.min((currentPage - 1) * limit + 1, total)} to {Math.min(currentPage * limit, total)} of {total} entries
             </span>
             <div className="flex items-center gap-2">
@@ -119,45 +119,45 @@ export default function GenerativeAIDrafterClientPage({
     >
       <div className="grid gap-6">
         {filteredData.map(item => (
-          <Card key={item.id} className="p-6 flex flex-col md:flex-row gap-6 border-zoru-line">
+          <Card key={item.id} className="p-6 flex flex-col md:flex-row gap-6 border-[var(--st-border)]">
             <div className="flex-1">
               <div className="flex items-center space-x-2 mb-3">
-                <Bot className="w-5 h-5 text-zoru-accent" />
-                <span className="font-semibold text-zoru-ink uppercase text-sm tracking-wider">{item.entityType}</span>
-                <span className={`px-2 py-0.5 text-xs rounded-full ${item.status === 'approved' ? 'bg-zoru-surface-2 text-zoru-ink' : item.status === 'rejected' ? 'bg-zoru-surface-2 text-zoru-ink' : 'bg-zoru-surface-2 text-zoru-ink'}`}>
+                <Bot className="w-5 h-5 text-[var(--st-accent)]" />
+                <span className="font-semibold text-[var(--st-text)] uppercase text-sm tracking-wider">{item.entityType}</span>
+                <span className={`px-2 py-0.5 text-xs rounded-full ${item.status === 'approved' ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]' : item.status === 'rejected' ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]' : 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'}`}>
                   {item.status}
                 </span>
                 {item.aiModel && (
-                  <span className="px-2 py-0.5 text-xs rounded-full bg-zoru-surface-2 text-zoru-ink ml-2 inline-flex items-center gap-1">
+                  <span className="px-2 py-0.5 text-xs rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)] ml-2 inline-flex items-center gap-1">
                     <Cpu className="w-3 h-3" />
                     {item.aiModel === 'gpt-4' ? 'GPT-4' : 'Claude'}
                   </span>
                 )}
               </div>
-              <p className="text-sm font-medium text-zoru-ink mb-2">Prompt: <span className="text-zoru-ink-light italic">"{item.prompt}"</span></p>
-              <div className="bg-zoru-neutral-hover p-4 rounded-md text-sm text-zoru-ink mt-4 whitespace-pre-wrap font-mono">
+              <p className="text-sm font-medium text-[var(--st-text)] mb-2">Prompt: <span className="text-[var(--st-text-tertiary)] italic">"{item.prompt}"</span></p>
+              <div className="bg-zoru-neutral-hover p-4 rounded-md text-sm text-[var(--st-text)] mt-4 whitespace-pre-wrap font-mono">
                 {item.content}
               </div>
             </div>
-            <div className="flex flex-row md:flex-col items-center justify-end gap-2 md:w-32 border-t md:border-t-0 md:border-l border-zoru-line pt-4 md:pt-0 md:pl-4">
+            <div className="flex flex-row md:flex-col items-center justify-end gap-2 md:w-32 border-t md:border-t-0 md:border-l border-[var(--st-border)] pt-4 md:pt-0 md:pl-4">
               {item.status === 'draft' && (
                 <>
-                  <Button variant="outline" className="w-full justify-start text-zoru-ink hover:text-zoru-ink hover:bg-zoru-surface-2" onClick={() => handleStatus(item.id, 'approved')}>
+                  <Button variant="outline" className="w-full justify-start text-[var(--st-text)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]" onClick={() => handleStatus(item.id, 'approved')}>
                     <CheckCircle className="w-4 h-4 mr-2" /> Approve
                   </Button>
-                  <Button variant="outline" className="w-full justify-start text-zoru-ink hover:text-zoru-ink hover:bg-zoru-surface-2" onClick={() => handleStatus(item.id, 'rejected')}>
+                  <Button variant="outline" className="w-full justify-start text-[var(--st-text)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]" onClick={() => handleStatus(item.id, 'rejected')}>
                     <XCircle className="w-4 h-4 mr-2" /> Reject
                   </Button>
                 </>
               )}
-              <Button variant="ghost" className="w-full justify-start text-zoru-ink-light hover:text-zoru-ink" onClick={() => handleDelete(item.id)}>
+              <Button variant="ghost" className="w-full justify-start text-[var(--st-text-tertiary)] hover:text-[var(--st-text)]" onClick={() => handleDelete(item.id)}>
                 <Trash2 className="w-4 h-4 mr-2" /> Delete
               </Button>
             </div>
           </Card>
         ))}
         {filteredData.length === 0 && (
-          <div className="py-12 text-center text-zoru-ink-light">No drafts found.</div>
+          <div className="py-12 text-center text-[var(--st-text-tertiary)]">No drafts found.</div>
         )}
       </div>
 

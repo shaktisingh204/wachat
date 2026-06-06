@@ -314,20 +314,20 @@ export default function SabWaMediaPage() {
       <div className="flex flex-wrap items-start gap-3">
         <div
           aria-hidden
-          className="rounded-[var(--zoru-radius)] bg-zoru-surface p-3 text-zoru-ink"
+          className="rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] p-3 text-[var(--st-text)]"
         >
           <TabIcon className="h-6 w-6" />
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <h1 className="text-[24px] tracking-[-0.015em] text-zoru-ink leading-[1.2]">
+            <h1 className="text-[24px] tracking-[-0.015em] text-[var(--st-text)] leading-[1.2]">
               Media Library
             </h1>
             <Badge variant="ghost">
               {items.length} {TAB_LABELS[tab].toLowerCase()}
             </Badge>
           </div>
-          <p className="mt-1 text-[13px] text-zoru-ink-muted">
+          <p className="mt-1 text-[13px] text-[var(--st-text-secondary)]">
             Everything sent and received across this session, in one place.
           </p>
         </div>
@@ -427,7 +427,7 @@ export default function SabWaMediaPage() {
       <div
         role="group"
         aria-label="Media type"
-        className="inline-flex flex-wrap gap-1 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-1"
+        className="inline-flex flex-wrap gap-1 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1"
       >
         {(Object.keys(MEDIA_TYPE_MAP) as MediaTab[]).map((t) => {
           const Icon = tabIcon(t);
@@ -451,7 +451,7 @@ export default function SabWaMediaPage() {
 
       {/* Bulk action bar */}
       {bulkMode && selected.size > 0 && (
-        <div className="sticky top-14 z-20 flex flex-wrap items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg/95 px-3 py-2 shadow-[var(--zoru-shadow-sm)] backdrop-blur">
+        <div className="sticky top-14 z-20 flex flex-wrap items-center gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)]/95 px-3 py-2 shadow-[var(--zoru-shadow-sm)] backdrop-blur">
           <Badge variant="ghost">{selected.size} selected</Badge>
           <Button
             type="button"
@@ -499,8 +499,8 @@ export default function SabWaMediaPage() {
         {!mediaLoading && mediaError && (
           <Card>
             <ZoruCardContent className="flex items-start gap-2 p-4 text-sm">
-              <CircleSlash className="h-4 w-4 text-zoru-danger" />
-              <span className="text-zoru-ink-muted">{mediaError}</span>
+              <CircleSlash className="h-4 w-4 text-[var(--st-danger)]" />
+              <span className="text-[var(--st-text-secondary)]">{mediaError}</span>
             </ZoruCardContent>
           </Card>
         )}
@@ -508,9 +508,9 @@ export default function SabWaMediaPage() {
         {!mediaLoading && !mediaError && items.length === 0 && (
           <Card className="border-dashed">
             <ZoruCardContent className="flex flex-col items-center gap-2 p-10 text-center">
-              <Folder className="h-7 w-7 text-zoru-ink-muted" />
-              <h3 className="text-sm font-semibold text-zoru-ink">No media yet</h3>
-              <p className="max-w-sm text-[11.5px] text-zoru-ink-muted">
+              <Folder className="h-7 w-7 text-[var(--st-text-secondary)]" />
+              <h3 className="text-sm font-semibold text-[var(--st-text)]">No media yet</h3>
+              <p className="max-w-sm text-[11.5px] text-[var(--st-text-secondary)]">
                 Once your session is connected and chats sync, every photo,
                 video, voice note and document will land here.
               </p>
@@ -540,11 +540,11 @@ export default function SabWaMediaPage() {
                     else setLightboxIndex(index);
                   }}
                   className={cn(
-                    "mb-3 block w-full break-inside-avoid overflow-hidden rounded-[var(--zoru-radius)] border border-zoru-line text-left transition hover:shadow-[var(--zoru-shadow-md)]",
+                    "mb-3 block w-full break-inside-avoid overflow-hidden rounded-[var(--zoru-radius)] border border-[var(--st-border)] text-left transition hover:shadow-[var(--zoru-shadow-md)]",
                   )}
                   aria-label={`Open ${fileNameFromMessage(it.message)}`}
                 >
-                  <div className="relative bg-zoru-surface">
+                  <div className="relative bg-[var(--st-bg-secondary)]">
                     {isImage && it.message.mediaUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
@@ -554,13 +554,13 @@ export default function SabWaMediaPage() {
                         loading="lazy"
                       />
                     ) : isVideo ? (
-                      <div className="flex aspect-video items-center justify-center bg-zoru-surface-2">
-                        <FileVideo className="h-8 w-8 text-zoru-ink-muted" />
+                      <div className="flex aspect-video items-center justify-center bg-[var(--st-bg-muted)]">
+                        <FileVideo className="h-8 w-8 text-[var(--st-text-secondary)]" />
                       </div>
                     ) : (
-                      <div className="flex aspect-square items-center justify-center bg-zoru-surface-2">
+                      <div className="flex aspect-square items-center justify-center bg-[var(--st-bg-muted)]">
                         {React.createElement(tabIcon(tab), {
-                          className: "h-8 w-8 text-zoru-ink-muted",
+                          className: "h-8 w-8 text-[var(--st-text-secondary)]",
                         })}
                       </div>
                     )}
@@ -571,13 +571,13 @@ export default function SabWaMediaPage() {
                     )}
                   </div>
                   <div className="space-y-0.5 p-2 text-[11.5px]">
-                    <div className="truncate font-medium text-zoru-ink">
+                    <div className="truncate font-medium text-[var(--st-text)]">
                       {fileNameFromMessage(it.message)}
                     </div>
-                    <div className="truncate text-zoru-ink-muted">
+                    <div className="truncate text-[var(--st-text-secondary)]">
                       {it.chatName ?? it.chatJid}
                     </div>
-                    <div className="text-zoru-ink-muted">
+                    <div className="text-[var(--st-text-secondary)]">
                       {formatTs(it.message.ts)}
                     </div>
                   </div>
@@ -613,7 +613,7 @@ export default function SabWaMediaPage() {
 
           {lightboxItem && (
             <div className="space-y-3">
-              <div className="flex max-h-[60vh] items-center justify-center overflow-hidden rounded-[var(--zoru-radius)] bg-zoru-surface">
+              <div className="flex max-h-[60vh] items-center justify-center overflow-hidden rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)]">
                 {(lightboxItem.message.type === "image" ||
                   lightboxItem.message.type === "sticker") &&
                 lightboxItem.message.mediaUrl ? (
@@ -640,7 +640,7 @@ export default function SabWaMediaPage() {
                     className="w-full"
                   />
                 ) : (
-                  <div className="p-8 text-center text-[13px] text-zoru-ink-muted">
+                  <div className="p-8 text-center text-[13px] text-[var(--st-text-secondary)]">
                     Preview unavailable — download to view.
                   </div>
                 )}

@@ -125,7 +125,7 @@ export default async function StockTransferDetailPage({ params }: PageProps) {
                         </ZoruCardHeader>
                         <ZoruCardContent className="space-y-3 text-sm">
                             <div>
-                                <p className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                                <p className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                                     From
                                 </p>
                                 <EntityPickerChip
@@ -137,7 +137,7 @@ export default async function StockTransferDetailPage({ params }: PageProps) {
                                 />
                             </div>
                             <div>
-                                <p className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                                <p className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                                     To
                                 </p>
                                 <EntityPickerChip
@@ -158,7 +158,7 @@ export default async function StockTransferDetailPage({ params }: PageProps) {
                         <ZoruCardContent>
                             <dl className="grid grid-cols-1 gap-y-2 text-sm">
                                 <div className="flex items-center justify-between">
-                                    <dt className="text-xs text-zoru-ink">
+                                    <dt className="text-xs text-[var(--st-text)]">
                                         Line items
                                     </dt>
                                     <dd className="font-mono">
@@ -166,13 +166,13 @@ export default async function StockTransferDetailPage({ params }: PageProps) {
                                     </dd>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <dt className="text-xs text-zoru-ink">
+                                    <dt className="text-xs text-[var(--st-text)]">
                                         Total quantity
                                     </dt>
                                     <dd className="font-mono">{totalQty}</dd>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <dt className="text-xs text-zoru-ink">
+                                    <dt className="text-xs text-[var(--st-text)]">
                                         Attachments
                                     </dt>
                                     <dd className="font-mono">
@@ -180,11 +180,11 @@ export default async function StockTransferDetailPage({ params }: PageProps) {
                                     </dd>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <dt className="text-xs text-zoru-ink">Created</dt>
+                                    <dt className="text-xs text-[var(--st-text)]">Created</dt>
                                     <dd>{fmtDate(transfer.createdAt)}</dd>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <dt className="text-xs text-zoru-ink">Updated</dt>
+                                    <dt className="text-xs text-[var(--st-text)]">Updated</dt>
                                     <dd>{fmtDate(transfer.updatedAt)}</dd>
                                 </div>
                             </dl>
@@ -209,19 +209,19 @@ export default async function StockTransferDetailPage({ params }: PageProps) {
                             <ZoruCardContent>
                     <dl className="grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-3">
                         <div>
-                            <dt className="text-xs text-zoru-ink">Transfer #</dt>
-                            <dd className="font-mono text-zoru-ink dark:text-white">
+                            <dt className="text-xs text-[var(--st-text)]">Transfer #</dt>
+                            <dd className="font-mono text-[var(--st-text)] dark:text-white">
                                 {number}
                             </dd>
                         </div>
                         <div>
-                            <dt className="text-xs text-zoru-ink">Date</dt>
-                            <dd className="text-zoru-ink dark:text-white">
+                            <dt className="text-xs text-[var(--st-text)]">Date</dt>
+                            <dd className="text-[var(--st-text)] dark:text-white">
                                 {fmtDate(transfer.transferDate)}
                             </dd>
                         </div>
                         <div>
-                            <dt className="text-xs text-zoru-ink">Status</dt>
+                            <dt className="text-xs text-[var(--st-text)]">Status</dt>
                             <dd>
                                 <Badge
                                     variant={
@@ -252,7 +252,7 @@ export default async function StockTransferDetailPage({ params }: PageProps) {
                 <ZoruCardContent className="p-0">
                     <div className="overflow-x-auto">
                         <Table className="w-full text-[12.5px]">
-                            <ZoruTableHeader className="bg-zoru-surface-2 text-zoru-ink-muted">
+                            <ZoruTableHeader className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                                 <ZoruTableRow>
                                     <ZoruTableHead className="px-3 py-2 text-left font-medium">
                                         Item
@@ -270,7 +270,7 @@ export default async function StockTransferDetailPage({ params }: PageProps) {
                                     lineItems.map((l, idx) => (
                                         <ZoruTableRow
                                             key={idx}
-                                            className="border-t border-zoru-line"
+                                            className="border-t border-[var(--st-border)]"
                                         >
                                             <ZoruTableCell className="px-3 py-2">
                                                 <EntityPickerChip
@@ -288,10 +288,10 @@ export default async function StockTransferDetailPage({ params }: PageProps) {
                                         </ZoruTableRow>
                                     ))
                                 ) : (
-                                    <ZoruTableRow className="border-t border-zoru-line">
+                                    <ZoruTableRow className="border-t border-[var(--st-border)]">
                                         <ZoruTableCell
                                             colSpan={3}
-                                            className="px-3 py-4 text-center text-zoru-ink-muted"
+                                            className="px-3 py-4 text-center text-[var(--st-text-secondary)]"
                                         >
                                             No line items
                                         </ZoruTableCell>
@@ -311,7 +311,7 @@ export default async function StockTransferDetailPage({ params }: PageProps) {
                         <ZoruCardTitle>Notes</ZoruCardTitle>
                     </ZoruCardHeader>
                     <ZoruCardContent>
-                        <p className="whitespace-pre-wrap text-sm text-zoru-ink dark:text-white">
+                        <p className="whitespace-pre-wrap text-sm text-[var(--st-text)] dark:text-white">
                             {transfer.notes}
                         </p>
                     </ZoruCardContent>
@@ -328,7 +328,7 @@ export default async function StockTransferDetailPage({ params }: PageProps) {
                             {attachments.map((a) => (
                                 <li
                                     key={a.id}
-                                    className="flex items-center justify-between gap-2 rounded-md border border-zoru-line px-2.5 py-1.5 text-[12.5px]"
+                                    className="flex items-center justify-between gap-2 rounded-md border border-[var(--st-border)] px-2.5 py-1.5 text-[12.5px]"
                                 >
                                     <a
                                         href={a.url}
@@ -338,7 +338,7 @@ export default async function StockTransferDetailPage({ params }: PageProps) {
                                     >
                                         {a.name}
                                     </a>
-                                    <span className="text-zoru-ink-muted">
+                                    <span className="text-[var(--st-text-secondary)]">
                                         {fmtSize(a.size)}
                                     </span>
                                 </li>
@@ -348,7 +348,7 @@ export default async function StockTransferDetailPage({ params }: PageProps) {
                 </Card>
             ) : null}
             {!transfer.notes && attachments.length === 0 && (
-                <div className="text-center text-sm text-zoru-ink-muted py-8 border rounded-lg">No notes or attachments</div>
+                <div className="text-center text-sm text-[var(--st-text-secondary)] py-8 border rounded-lg">No notes or attachments</div>
             )}
                         </div>
                     )

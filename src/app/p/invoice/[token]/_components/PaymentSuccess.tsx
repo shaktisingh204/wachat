@@ -11,20 +11,20 @@ export function PaymentSuccess() {
           <h3 className="text-[14px] font-bold font-mono uppercase text-success-ink tracking-tight">
             // LEDGER.BALANCED
           </h3>
-          <p className="mt-1 text-[12.5px] text-zoru-ink-muted font-sans">
+          <p className="mt-1 text-[12.5px] text-[var(--st-text-secondary)] font-sans">
             This invoice has been fully settled and paid. Thank you!
           </p>
         </div>
-        <div className="mt-4 w-full rounded border border-zoru-line bg-zoru-surface p-3 text-left font-mono text-[11px] leading-relaxed shadow-inner">
-          <span className="text-zoru-ink-muted">{"{"}</span>
+        <div className="mt-4 w-full rounded border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 text-left font-mono text-[11px] leading-relaxed shadow-inner">
+          <span className="text-[var(--st-text-secondary)]">{"{"}</span>
           <div className="pl-4">
-            <span className="text-zoru-ink">&quot;status&quot;</span>: <span className="text-zoru-ink">&quot;paid&quot;</span>,
+            <span className="text-[var(--st-text)]">&quot;status&quot;</span>: <span className="text-[var(--st-text)]">&quot;paid&quot;</span>,
             <br />
-            <span className="text-zoru-ink">&quot;balance_due&quot;</span>: <span className="text-zoru-ink">0.00</span>,
+            <span className="text-[var(--st-text)]">&quot;balance_due&quot;</span>: <span className="text-[var(--st-text)]">0.00</span>,
             <br />
-            <span className="text-zoru-ink">&quot;success&quot;</span>: <span className="text-zoru-ink">true</span>
+            <span className="text-[var(--st-text)]">&quot;success&quot;</span>: <span className="text-[var(--st-text)]">true</span>
           </div>
-          <span className="text-zoru-ink-muted">{"}"}</span>
+          <span className="text-[var(--st-text-secondary)]">{"}"}</span>
         </div>
       </ZoruCardContent>
     </Card>

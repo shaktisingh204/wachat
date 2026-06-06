@@ -95,7 +95,7 @@ function PictureChoiceCard({ choice, index, onChange, onDelete }: PictureChoiceC
           type="button"
           onClick={onDelete}
           title="Remove card"
-          className="flex h-5 w-5 items-center justify-center rounded text-[var(--gray-7)] hover:text-zoru-ink hover:bg-zoru-ink/10 transition-colors"
+          className="flex h-5 w-5 items-center justify-center rounded text-[var(--gray-7)] hover:text-[var(--st-text)] hover:bg-[var(--st-text)]/10 transition-colors"
         >
           <LuX className="h-3 w-3" strokeWidth={2.5} />
         </button>
@@ -243,7 +243,7 @@ export function PictureChoiceSettings({ block, onBlockChange, variables = [] }: 
           onClick={() => updateDynamicItems({ isEnabled: false })}
           className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-left transition-colors ${
             !isDynamic
-              ? 'bg-zoru-ink text-zoru-ink'
+              ? 'bg-[var(--st-text)] text-[var(--st-text)]'
               : 'text-[var(--gray-9)] hover:bg-[var(--gray-3)]'
           }`}
         >
@@ -255,7 +255,7 @@ export function PictureChoiceSettings({ block, onBlockChange, variables = [] }: 
           onClick={() => updateDynamicItems({ isEnabled: true })}
           className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-left transition-colors ${
             isDynamic
-              ? 'bg-zoru-ink text-zoru-ink'
+              ? 'bg-[var(--st-text)] text-[var(--st-text)]'
               : 'text-[var(--gray-9)] hover:bg-[var(--gray-3)]'
           }`}
         >
@@ -304,7 +304,7 @@ export function PictureChoiceSettings({ block, onBlockChange, variables = [] }: 
           <button
             type="button"
             onClick={addCard}
-            className="w-full flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-[var(--gray-5)] py-2 text-[12px] font-medium text-[var(--gray-8)] hover:border-zoru-line hover:text-zoru-ink hover:bg-zoru-ink transition-colors"
+            className="w-full flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-[var(--gray-5)] py-2 text-[12px] font-medium text-[var(--gray-8)] hover:border-[var(--st-border)] hover:text-[var(--st-text)] hover:bg-[var(--st-text)] transition-colors"
           >
             <LuPlus className="h-3.5 w-3.5" strokeWidth={2.5} />
             Add card
@@ -316,7 +316,7 @@ export function PictureChoiceSettings({ block, onBlockChange, variables = [] }: 
       {isDynamic && (
         <div className="space-y-3">
           <div className="rounded-lg border border-[var(--gray-4)] bg-[var(--gray-2)] px-3 py-2.5 flex items-start gap-2">
-            <LuZap className="h-3.5 w-3.5 shrink-0 mt-0.5 text-zoru-ink" strokeWidth={2} />
+            <LuZap className="h-3.5 w-3.5 shrink-0 mt-0.5 text-[var(--st-text)]" strokeWidth={2} />
             <p className="text-[11.5px] text-[var(--gray-9)] leading-relaxed">
               Each variable should hold a <strong>JSON array of strings</strong> with the same
               number of items.

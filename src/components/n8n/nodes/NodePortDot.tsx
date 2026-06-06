@@ -79,9 +79,9 @@ export function NodePortDot({
         className={cn(
           'flex h-3.5 w-3.5 items-center justify-center rounded-full border transition-all duration-150',
           isDropTarget
-            ? 'scale-125 border-zoru-line bg-zoru-ink/15 shadow-[0_0_0_3px_rgba(247,104,8,0.25)]'
+            ? 'scale-125 border-[var(--st-border)] bg-[var(--st-text)]/15 shadow-[0_0_0_3px_rgba(247,104,8,0.25)]'
             : isOutput
-              ? 'border-[var(--gray-6)] bg-[var(--gray-1)] hover:border-zoru-line hover:bg-zoru-ink/10'
+              ? 'border-[var(--gray-6)] bg-[var(--gray-1)] hover:border-[var(--st-border)] hover:bg-[var(--st-text)]/10'
               : 'border-[var(--gray-6)] bg-[var(--gray-1)]',
         )}
       >
@@ -90,9 +90,9 @@ export function NodePortDot({
           className={cn(
             'h-2 w-2 rounded-full transition-colors duration-150',
             isDropTarget
-              ? 'bg-zoru-ink'
+              ? 'bg-[var(--st-text)]'
               : isOutput
-                ? 'bg-zoru-surface-2 group-hover:bg-zoru-ink'
+                ? 'bg-[var(--st-bg-muted)] group-hover:bg-[var(--st-text)]'
                 : 'bg-[var(--gray-7)]',
           )}
         />

@@ -125,7 +125,7 @@ export function LoanRecordPaymentDialog({
               id="lp-mode"
               value={mode}
               onChange={(e) => setMode(e.target.value)}
-              className="mt-1.5 h-10 w-full rounded-lg border border-zoru-line bg-zoru-surface px-3 text-[13px] text-zoru-ink"
+              className="mt-1.5 h-10 w-full rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 text-[13px] text-[var(--st-text)]"
             >
               {PAYMENT_MODES.map((m) => (
                 <option key={m} value={m}>

@@ -20,9 +20,9 @@ export default async function EditStatusPagePage({
     return (
         <div className="flex flex-col gap-4">
             <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-zoru-ink">{page.title}</h2>
+                <h2 className="text-sm font-semibold text-[var(--st-text)]">{page.title}</h2>
                 <Link
-                    className="text-[12px] text-zoru-brand hover:underline"
+                    className="text-[12px] text-[var(--st-accent)] hover:underline"
                     href={`/uptime/${page.slug}`}
                     target="_blank"
                     rel="noreferrer"

@@ -22,15 +22,15 @@ export default function BudgetDetailError({
       title="Failed to load budget"
       back={{ href: '/dashboard/crm/budgets', label: 'Back to budgets' }}
     >
-      <div className="flex h-[50vh] flex-col items-center justify-center gap-4 text-center rounded-lg border border-zoru-line bg-zoru-surface">
-        <div className="rounded-full bg-zoru-surface-2 p-3 text-zoru-ink dark:bg-zoru-ink/20 dark:text-zoru-ink-muted">
+      <div className="flex h-[50vh] flex-col items-center justify-center gap-4 text-center rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+        <div className="rounded-full bg-[var(--st-bg-muted)] p-3 text-[var(--st-text)] dark:bg-[var(--st-text)]/20 dark:text-[var(--st-text-secondary)]">
           <AlertCircle className="h-6 w-6" />
         </div>
         <div className="space-y-1">
-          <h2 className="text-lg font-medium text-zoru-ink">
+          <h2 className="text-lg font-medium text-[var(--st-text)]">
             Something went wrong!
           </h2>
-          <p className="text-[13px] text-zoru-ink-muted">
+          <p className="text-[13px] text-[var(--st-text-secondary)]">
             {error.message || 'An unexpected error occurred while loading this budget.'}
           </p>
         </div>

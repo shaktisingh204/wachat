@@ -97,41 +97,41 @@ export default function CustomerPortalPage() {
         }}
         loading={loading}
         empty={!loading && filteredData.length === 0 ? (
-          <div className="flex flex-col items-center justify-center p-12 text-center border rounded-xl border-dashed border-zoru-line">
-            <div className="w-12 h-12 bg-zoru-surface rounded-full flex items-center justify-center mb-4">
-              <Search className="h-6 w-6 text-zoru-ink-muted" />
+          <div className="flex flex-col items-center justify-center p-12 text-center border rounded-xl border-dashed border-[var(--st-border)]">
+            <div className="w-12 h-12 bg-[var(--st-bg-secondary)] rounded-full flex items-center justify-center mb-4">
+              <Search className="h-6 w-6 text-[var(--st-text-secondary)]" />
             </div>
-            <h3 className="text-lg font-medium text-zoru-ink">No records found</h3>
-            <p className="text-sm text-zoru-ink-muted mt-1">Get started by creating a new record.</p>
+            <h3 className="text-lg font-medium text-[var(--st-text)]">No records found</h3>
+            <p className="text-sm text-[var(--st-text-secondary)] mt-1">Get started by creating a new record.</p>
             <Button className="mt-4" onClick={handleOpenCreate}>Create Record</Button>
           </div>
         ) : null}
       >
         {filteredData.length > 0 && (
-          <Card className="overflow-hidden border border-zoru-line rounded-xl">
+          <Card className="overflow-hidden border border-[var(--st-border)] rounded-xl">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
-                <thead className="bg-zoru-surface-2">
+                <thead className="bg-[var(--st-bg-muted)]">
                   <tr>
-              <th className="px-4 py-2 text-left text-sm font-medium text-zoru-ink-muted capitalize">customer Id</th>
-              <th className="px-4 py-2 text-left text-sm font-medium text-zoru-ink-muted capitalize">portal Url</th>
-              <th className="px-4 py-2 text-left text-sm font-medium text-zoru-ink-muted capitalize">status</th>
-                    <th className="px-4 py-2 text-right text-sm font-medium text-zoru-ink-muted">Actions</th>
+              <th className="px-4 py-2 text-left text-sm font-medium text-[var(--st-text-secondary)] capitalize">customer Id</th>
+              <th className="px-4 py-2 text-left text-sm font-medium text-[var(--st-text-secondary)] capitalize">portal Url</th>
+              <th className="px-4 py-2 text-left text-sm font-medium text-[var(--st-text-secondary)] capitalize">status</th>
+                    <th className="px-4 py-2 text-right text-sm font-medium text-[var(--st-text-secondary)]">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredData.map(item => (
-                    <tr key={item._id} className="hover:bg-zoru-surface transition-colors">
-                <td className="px-4 py-2 border-t border-zoru-line text-sm text-zoru-ink">{item.customerId}</td>
-                <td className="px-4 py-2 border-t border-zoru-line text-sm text-zoru-ink">{item.portalUrl}</td>
-                <td className="px-4 py-2 border-t border-zoru-line text-sm">
+                    <tr key={item._id} className="hover:bg-[var(--st-bg-secondary)] transition-colors">
+                <td className="px-4 py-2 border-t border-[var(--st-border)] text-sm text-[var(--st-text)]">{item.customerId}</td>
+                <td className="px-4 py-2 border-t border-[var(--st-border)] text-sm text-[var(--st-text)]">{item.portalUrl}</td>
+                <td className="px-4 py-2 border-t border-[var(--st-border)] text-sm">
                   <Badge variant="outline">{item.status}</Badge>
                 </td>
-                      <td className="px-4 py-2 border-t border-zoru-line text-right space-x-2">
+                      <td className="px-4 py-2 border-t border-[var(--st-border)] text-right space-x-2">
                         <Button variant="ghost" size="sm" onClick={() => handleOpenEdit(item)}>
                           <Edit2 className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="text-zoru-ink hover:text-zoru-ink hover:bg-zoru-ink/10" onClick={() => handleDelete(item._id)}>
+                        <Button variant="ghost" size="sm" className="text-[var(--st-text)] hover:text-[var(--st-text)] hover:bg-[var(--st-text)]/10" onClick={() => handleDelete(item._id)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </td>
@@ -174,7 +174,7 @@ export default function CustomerPortalPage() {
               <select
                 name="status"
                 defaultValue={editingItem ? editingItem.status : 'active'}
-                className="w-full flex h-10 rounded-md border border-zoru-line bg-zoru-bg px-3 py-2 text-sm text-zoru-ink outline-none focus-visible:ring-2 focus-visible:ring-zoru-brand"
+                className="w-full flex h-10 rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-sm text-[var(--st-text)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent)]"
               >
                 <option value="active">active</option>
                 <option value="suspended">suspended</option>

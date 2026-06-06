@@ -151,31 +151,31 @@ export default function AssetsListPage() {
                     }
                     loading={isLoading && assets.length === 0}
                 >
-                    <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                    <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                         <Table>
                             <ZoruTableHeader>
-                                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                    <ZoruTableHead className="text-zoru-ink-muted">Tag</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Name</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Category</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Assignee</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Condition</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted text-right">Actions</ZoruTableHead>
+                                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Tag</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Name</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Category</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Assignee</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Condition</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Actions</ZoruTableHead>
                                 </ZoruTableRow>
                             </ZoruTableHeader>
                             <ZoruTableBody>
                                 {isLoading ? (
-                                    <ZoruTableRow className="border-zoru-line">
+                                    <ZoruTableRow className="border-[var(--st-border)]">
                                         <ZoruTableCell colSpan={7} className="h-24 text-center">
-                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
+                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 ) : assets.length === 0 ? (
-                                    <ZoruTableRow className="border-zoru-line">
+                                    <ZoruTableRow className="border-[var(--st-border)]">
                                         <ZoruTableCell
                                             colSpan={7}
-                                            className="h-24 text-center text-zoru-ink-muted"
+                                            className="h-24 text-center text-[var(--st-text-secondary)]"
                                         >
                                             No assets match this filter.
                                         </ZoruTableCell>
@@ -185,8 +185,8 @@ export default function AssetsListPage() {
                                         const status = (a.status ?? 'available') as CrmAssetStatus;
                                         const tone = STATUS_TONE[status] ?? 'neutral';
                                         return (
-                                            <ZoruTableRow key={a._id} className="border-zoru-line">
-                                                <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
+                                            <ZoruTableRow key={a._id} className="border-[var(--st-border)]">
+                                                <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
                                                     <Link
                                                         href={`${BASE}/${a._id}`}
                                                         className="hover:underline"
@@ -194,16 +194,16 @@ export default function AssetsListPage() {
                                                         {a.assetTag}
                                                     </Link>
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="font-medium text-zoru-ink">
+                                                <ZoruTableCell className="font-medium text-[var(--st-text)]">
                                                     {a.name}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="capitalize text-zoru-ink">
+                                                <ZoruTableCell className="capitalize text-[var(--st-text)]">
                                                     {a.category ?? '—'}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {a.currentAssigneeName ?? a.currentAssigneeId ?? '—'}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="capitalize text-zoru-ink">
+                                                <ZoruTableCell className="capitalize text-[var(--st-text)]">
                                                     {a.condition ?? '—'}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
@@ -223,7 +223,7 @@ export default function AssetsListPage() {
                                                         size="icon"
                                                         onClick={() => setPendingDelete(a)}
                                                     >
-                                                        <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                                        <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                                     </Button>
                                                 </ZoruTableCell>
                                             </ZoruTableRow>

@@ -81,8 +81,8 @@ export default function CustomEcommerceSettingsPage(): React.JSX.Element {
       </Breadcrumb>
 
       <header>
-        <h1 className="text-2xl text-zoru-ink">Custom Shops settings</h1>
-        <p className="mt-1 text-sm text-zoru-ink-muted">
+        <h1 className="text-2xl text-[var(--st-text)]">Custom Shops settings</h1>
+        <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
           Pick a shop to edit its basics, payment, abandoned-cart settings,
           persistent menu, and custom domain.
         </p>
@@ -108,9 +108,9 @@ export default function CustomEcommerceSettingsPage(): React.JSX.Element {
               <Card key={id} className="flex flex-col gap-3 p-5">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="line-clamp-1 text-base text-zoru-ink">{s.name}</p>
+                    <p className="line-clamp-1 text-base text-[var(--st-text)]">{s.name}</p>
                     {slug ? (
-                      <p className="font-mono text-[11px] text-zoru-ink-muted">/{slug}</p>
+                      <p className="font-mono text-[11px] text-[var(--st-text-secondary)]">/{slug}</p>
                     ) : null}
                   </div>
                   <Badge variant="ghost">
@@ -119,7 +119,7 @@ export default function CustomEcommerceSettingsPage(): React.JSX.Element {
                       : 'draft'}
                   </Badge>
                 </div>
-                <footer className="flex justify-end border-t border-zoru-line pt-3">
+                <footer className="flex justify-end border-t border-[var(--st-border)] pt-3">
                   <Button asChild size="sm">
                     <Link
                       href={`/dashboard/facebook/custom-ecommerce/manage/${id}/settings`}

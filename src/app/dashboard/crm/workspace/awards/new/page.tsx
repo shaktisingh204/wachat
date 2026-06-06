@@ -42,21 +42,21 @@ export default function NewAwardPage() {
                     <Card>
                         <ZoruCardHeader>
                             <ZoruCardTitle className="flex items-center gap-2">
-                                <Lightbulb className="h-4 w-4 text-zoru-brand" />
+                                <Lightbulb className="h-4 w-4 text-[var(--st-accent)]" />
                                 Quick Tips
                             </ZoruCardTitle>
                             <ZoruCardDescription>Best practices for awards</ZoruCardDescription>
                         </ZoruCardHeader>
                         <ZoruCardContent>
-                            <ul className="flex flex-col gap-3 text-sm text-zoru-ink-muted">
+                            <ul className="flex flex-col gap-3 text-sm text-[var(--st-text-secondary)]">
                                 <li>
-                                    <strong className="text-zoru-ink font-medium">Be specific:</strong> Define clear criteria to avoid ambiguity in nominations.
+                                    <strong className="text-[var(--st-text)] font-medium">Be specific:</strong> Define clear criteria to avoid ambiguity in nominations.
                                 </li>
                                 <li>
-                                    <strong className="text-zoru-ink font-medium">Meaningful prizes:</strong> Choose rewards that genuinely motivate your team.
+                                    <strong className="text-[var(--st-text)] font-medium">Meaningful prizes:</strong> Choose rewards that genuinely motivate your team.
                                 </li>
                                 <li>
-                                    <strong className="text-zoru-ink font-medium">Right frequency:</strong> Balance between making it achievable and maintaining exclusivity.
+                                    <strong className="text-[var(--st-text)] font-medium">Right frequency:</strong> Balance between making it achievable and maintaining exclusivity.
                                 </li>
                             </ul>
                         </ZoruCardContent>

@@ -363,14 +363,14 @@ function StatsRow(props: {
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {stats.map((s) => (
                 <Card key={s.label} className="flex items-center gap-3 p-4">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                         {s.icon}
                     </span>
                     <div>
-                        <div className="text-[11px] uppercase tracking-[0.06em] text-zoru-ink-muted">
+                        <div className="text-[11px] uppercase tracking-[0.06em] text-[var(--st-text-secondary)]">
                             {s.label}
                         </div>
-                        <div className="text-[20px] tracking-[-0.01em] text-zoru-ink">
+                        <div className="text-[20px] tracking-[-0.01em] text-[var(--st-text)]">
                             {s.value}
                         </div>
                     </div>
@@ -394,7 +394,7 @@ function TabSwitcher({
     pending: number;
 }) {
     return (
-        <div className="inline-flex rounded-full border border-zoru-line bg-zoru-surface-2 p-1">
+        <div className="inline-flex rounded-full border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-1">
             {([
                 { key: 'members', label: 'Members', count: members },
                 { key: 'invites', label: 'Pending', count: pending },
@@ -408,8 +408,8 @@ function TabSwitcher({
                         className={cn(
                             'inline-flex items-center gap-2 rounded-full px-4 h-8 text-[12.5px] transition-colors',
                             active
-                                ? 'bg-zoru-bg text-zoru-ink shadow-sm'
-                                : 'text-zoru-ink-muted hover:text-zoru-ink',
+                                ? 'bg-[var(--st-bg)] text-[var(--st-text)] shadow-sm'
+                                : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
                         )}
                     >
                         {t.label}
@@ -417,8 +417,8 @@ function TabSwitcher({
                             className={cn(
                                 'flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10.5px]',
                                 active
-                                    ? 'bg-zoru-ink text-zoru-bg'
-                                    : 'bg-zoru-bg text-zoru-ink-muted',
+                                    ? 'bg-[var(--st-text)] text-[var(--st-bg)]'
+                                    : 'bg-[var(--st-bg)] text-[var(--st-text-secondary)]',
                             )}
                         >
                             {t.count}
@@ -489,12 +489,12 @@ function InviteDialog({
                 <ZoruDialogHeader>
                     <ZoruDialogTitle>Invite a teammate</ZoruDialogTitle>
                 </ZoruDialogHeader>
-                <p className="-mt-2 text-[12.5px] text-zoru-ink-muted">
+                <p className="-mt-2 text-[12.5px] text-[var(--st-text-secondary)]">
                     They&apos;ll receive a branded email with a one-click accept link valid for 7 days.
                 </p>
                 <form ref={formRef} onSubmit={onSubmit} className="mt-2 flex flex-col gap-4">
                     <div className="flex flex-col gap-1.5">
-                        <label className="text-[11.5px] uppercase tracking-[0.06em] text-zoru-ink-muted">
+                        <label className="text-[11.5px] uppercase tracking-[0.06em] text-[var(--st-text-secondary)]">
                             Email
                         </label>
                         <Input
@@ -507,7 +507,7 @@ function InviteDialog({
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-[11.5px] uppercase tracking-[0.06em] text-zoru-ink-muted">
+                            <label className="text-[11.5px] uppercase tracking-[0.06em] text-[var(--st-text-secondary)]">
                                 Role
                             </label>
                             <Select value={role} onValueChange={setRole}>
@@ -526,7 +526,7 @@ function InviteDialog({
                             </Select>
                         </div>
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-[11.5px] uppercase tracking-[0.06em] text-zoru-ink-muted">
+                            <label className="text-[11.5px] uppercase tracking-[0.06em] text-[var(--st-text-secondary)]">
                                 Project
                             </label>
                             <Select
@@ -617,7 +617,7 @@ function MembersTable({
     }
     return (
         <Card className="overflow-hidden p-0">
-            <div className={'grid items-center gap-4 border-b border-zoru-line bg-zoru-surface-2 px-5 py-3 text-[11px] uppercase tracking-[0.06em] text-zoru-ink-muted ' + (canSelect ? 'grid-cols-[28px_1fr_auto] sm:grid-cols-[28px_1fr_220px_160px_120px]' : 'grid-cols-[1fr_auto] sm:grid-cols-[1fr_220px_160px_120px]')}>
+            <div className={'grid items-center gap-4 border-b border-[var(--st-border)] bg-[var(--st-bg-muted)] px-5 py-3 text-[11px] uppercase tracking-[0.06em] text-[var(--st-text-secondary)] ' + (canSelect ? 'grid-cols-[28px_1fr_auto] sm:grid-cols-[28px_1fr_220px_160px_120px]' : 'grid-cols-[1fr_auto] sm:grid-cols-[1fr_220px_160px_120px]')}>
                 {canSelect ? (
                     <SelectCheckbox
                         aria-label="Select all members"
@@ -631,7 +631,7 @@ function MembersTable({
                 <span className="hidden sm:block">Joined on</span>
                 <span className="text-right">Actions</span>
             </div>
-            <div className="divide-y divide-zoru-line">
+            <div className="divide-y divide-[var(--st-border)]">
                 {members.map((m) => (
                     <MemberRow
                         key={m._id.toString()}
@@ -698,7 +698,7 @@ function MemberRow({
     };
 
     return (
-        <div className={'grid items-center gap-4 px-5 py-4 ' + (canSelect ? 'grid-cols-[28px_1fr_auto] sm:grid-cols-[28px_1fr_220px_160px_120px]' : 'grid-cols-[1fr_auto] sm:grid-cols-[1fr_220px_160px_120px]') + (selected ? ' bg-zoru-surface-2/40' : '')}>
+        <div className={'grid items-center gap-4 px-5 py-4 ' + (canSelect ? 'grid-cols-[28px_1fr_auto] sm:grid-cols-[28px_1fr_220px_160px_120px]' : 'grid-cols-[1fr_auto] sm:grid-cols-[1fr_220px_160px_120px]') + (selected ? ' bg-[var(--st-bg-muted)]/40' : '')}>
             {canSelect ? (
                 <SelectCheckbox
                     aria-label={`Select ${member.name || member.email}`}
@@ -709,10 +709,10 @@ function MemberRow({
             <div className="flex items-center gap-3 min-w-0">
                 <Avatar name={member.name || member.email} seed={member.email} />
                 <div className="min-w-0">
-                    <div className="truncate text-[13.5px] text-zoru-ink">
+                    <div className="truncate text-[13.5px] text-[var(--st-text)]">
                         {member.name || 'Unnamed member'}
                     </div>
-                    <div className="truncate text-[12px] text-zoru-ink-muted">{member.email}</div>
+                    <div className="truncate text-[12px] text-[var(--st-text-secondary)]">{member.email}</div>
                 </div>
             </div>
 
@@ -743,7 +743,7 @@ function MemberRow({
                 ) : null}
             </div>
 
-            <div className="hidden text-[12px] text-zoru-ink-muted sm:block">
+            <div className="hidden text-[12px] text-[var(--st-text-secondary)] sm:block">
                 {(member as any).createdAt
                     ? new Date((member as any).createdAt).toLocaleDateString(undefined, {
                           year: 'numeric',
@@ -761,7 +761,7 @@ function MemberRow({
                                 variant="ghost"
                                 size="icon"
                                 disabled={removing}
-                                className="text-zoru-danger-ink hover:bg-zoru-danger/10"
+                                className="text-[var(--st-danger)] hover:bg-[var(--st-danger)]/10"
                                 aria-label="Remove member"
                             >
                                 {removing ? (
@@ -843,9 +843,9 @@ function ChangeRoleBadge({
 
     if (!canEdit) {
         return (
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-zoru-line bg-zoru-surface-2 px-2.5 h-6 text-[11.5px] text-zoru-ink">
-                <span className="text-zoru-ink-muted">{projectName}</span>
-                <span className="text-zoru-ink-muted">·</span>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2.5 h-6 text-[11.5px] text-[var(--st-text)]">
+                <span className="text-[var(--st-text-secondary)]">{projectName}</span>
+                <span className="text-[var(--st-text-secondary)]">·</span>
                 <span>{roleLabel(role)}</span>
             </span>
         );
@@ -855,10 +855,10 @@ function ChangeRoleBadge({
             <ZoruDialogTrigger asChild>
                 <button
                     type="button"
-                    className="inline-flex items-center gap-1.5 rounded-full border border-zoru-line bg-zoru-surface-2 px-2.5 h-6 text-[11.5px] text-zoru-ink hover:bg-zoru-bg"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2.5 h-6 text-[11.5px] text-[var(--st-text)] hover:bg-[var(--st-bg)]"
                 >
-                    <span className="text-zoru-ink-muted">{projectName}</span>
-                    <span className="text-zoru-ink-muted">·</span>
+                    <span className="text-[var(--st-text-secondary)]">{projectName}</span>
+                    <span className="text-[var(--st-text-secondary)]">·</span>
                     <span>{roleLabel(role)}</span>
                 </button>
             </ZoruDialogTrigger>
@@ -874,13 +874,13 @@ function ChangeRoleBadge({
                             disabled={saving}
                             onClick={() => saveRole(r.value)}
                             className={cn(
-                                'flex items-center justify-between rounded-lg border border-zoru-line px-3 py-2.5 text-left text-[13px] transition-colors hover:bg-zoru-surface-2',
-                                r.value === role && 'bg-zoru-surface-2/60 border-zoru-line-strong',
+                                'flex items-center justify-between rounded-lg border border-[var(--st-border)] px-3 py-2.5 text-left text-[13px] transition-colors hover:bg-[var(--st-bg-muted)]',
+                                r.value === role && 'bg-[var(--st-bg-muted)]/60 border-[var(--st-border-strong)]',
                             )}
                         >
                             <span>{r.label}</span>
                             {r.value === role ? (
-                                <Check className="h-4 w-4 text-zoru-ink" strokeWidth={2.25} />
+                                <Check className="h-4 w-4 text-[var(--st-text)]" strokeWidth={2.25} />
                             ) : null}
                         </button>
                     ))}
@@ -917,14 +917,14 @@ function InvitesTable({
     }
     return (
         <Card className="overflow-hidden p-0">
-            <div className="grid grid-cols-[1fr_auto] items-center gap-4 border-b border-zoru-line bg-zoru-surface-2 px-5 py-3 text-[11px] uppercase tracking-[0.06em] text-zoru-ink-muted sm:grid-cols-[1.2fr_160px_140px_140px_140px]">
+            <div className="grid grid-cols-[1fr_auto] items-center gap-4 border-b border-[var(--st-border)] bg-[var(--st-bg-muted)] px-5 py-3 text-[11px] uppercase tracking-[0.06em] text-[var(--st-text-secondary)] sm:grid-cols-[1.2fr_160px_140px_140px_140px]">
                 <span>Invitee</span>
                 <span className="hidden sm:block">Project</span>
                 <span className="hidden sm:block">Role</span>
                 <span className="hidden sm:block">Expires</span>
                 <span className="text-right">Actions</span>
             </div>
-            <div className="divide-y divide-zoru-line">
+            <div className="divide-y divide-[var(--st-border)]">
                 {invites.map((inv) => (
                     <InviteRow
                         key={inv._id}
@@ -1002,17 +1002,17 @@ function InviteRow({
             <div className="flex min-w-0 items-center gap-3">
                 <Avatar name={invite.inviteeEmail} seed={invite.inviteeEmail} />
                 <div className="min-w-0">
-                    <div className="truncate text-[13.5px] text-zoru-ink">
+                    <div className="truncate text-[13.5px] text-[var(--st-text)]">
                         {invite.inviteeEmail}
                     </div>
-                    <div className="truncate text-[12px] text-zoru-ink-muted">
+                    <div className="truncate text-[12px] text-[var(--st-text-secondary)]">
                         Invited by {invite.inviterName || invite.inviterEmail || 'you'}
                     </div>
                 </div>
             </div>
 
-            <div className="hidden text-[12.5px] text-zoru-ink sm:block">
-                {invite.projectName || <span className="text-zoru-ink-muted">All my projects</span>}
+            <div className="hidden text-[12.5px] text-[var(--st-text)] sm:block">
+                {invite.projectName || <span className="text-[var(--st-text-secondary)]">All my projects</span>}
             </div>
 
             <div className="hidden sm:block">
@@ -1037,7 +1037,7 @@ function InviteRow({
                     disabled={!!busy}
                 >
                     {busy === 'copy' ? (
-                        <Check className="h-4 w-4 text-zoru-success-ink" strokeWidth={2.25} />
+                        <Check className="h-4 w-4 text-[var(--st-status-ok)]" strokeWidth={2.25} />
                     ) : (
                         <ArrowRight className="h-4 w-4" strokeWidth={1.75} />
                     )}
@@ -1063,7 +1063,7 @@ function InviteRow({
                     aria-label="Revoke"
                     title="Revoke invitation"
                     disabled={!!busy}
-                    className="text-zoru-danger-ink hover:bg-zoru-danger/10"
+                    className="text-[var(--st-danger)] hover:bg-[var(--st-danger)]/10"
                 >
                     {busy === 'revoke' ? (
                         <Loader className="h-4 w-4 animate-spin" />
@@ -1088,7 +1088,7 @@ function Avatar({ name, seed }: { name: string; seed: string }) {
         .toUpperCase();
     return (
         <div
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-zoru-line text-[12px]"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--st-border)] text-[12px]"
             style={{ background: `hsl(${hue} 60% 90%)`, color: `hsl(${hue} 45% 28%)` }}
             aria-hidden
         >
@@ -1106,15 +1106,15 @@ function hashHue(input: string) {
 function SkeletonRows() {
     return (
         <Card className="p-0">
-            <div className="divide-y divide-zoru-line">
+            <div className="divide-y divide-[var(--st-border)]">
                 {[0, 1, 2, 3].map((i) => (
                     <div key={i} className="flex items-center gap-3 px-5 py-4">
-                        <div className="h-9 w-9 animate-pulse rounded-full bg-zoru-surface-2" />
+                        <div className="h-9 w-9 animate-pulse rounded-full bg-[var(--st-bg-muted)]" />
                         <div className="flex flex-1 flex-col gap-1.5">
-                            <div className="h-3 w-32 animate-pulse rounded-full bg-zoru-surface-2" />
-                            <div className="h-2.5 w-48 animate-pulse rounded-full bg-zoru-surface-2" />
+                            <div className="h-3 w-32 animate-pulse rounded-full bg-[var(--st-bg-muted)]" />
+                            <div className="h-2.5 w-48 animate-pulse rounded-full bg-[var(--st-bg-muted)]" />
                         </div>
-                        <div className="h-6 w-24 animate-pulse rounded-full bg-zoru-surface-2" />
+                        <div className="h-6 w-24 animate-pulse rounded-full bg-[var(--st-bg-muted)]" />
                     </div>
                 ))}
             </div>
@@ -1133,11 +1133,11 @@ function EmptyState({
 }) {
     return (
         <Card className="flex flex-col items-center gap-3 p-12 text-center">
-            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
+            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                 {icon}
             </span>
-            <div className="text-[16px] text-zoru-ink">{title}</div>
-            <div className="max-w-[360px] text-[12.5px] text-zoru-ink-muted">{body}</div>
+            <div className="text-[16px] text-[var(--st-text)]">{title}</div>
+            <div className="max-w-[360px] text-[12.5px] text-[var(--st-text-secondary)]">{body}</div>
         </Card>
     );
 }
@@ -1162,7 +1162,7 @@ function SelectCheckbox({
             type="checkbox"
             checked={checked}
             onChange={(e) => onChange(e.currentTarget.checked)}
-            className="h-4 w-4 shrink-0 cursor-pointer rounded border-zoru-line accent-zoru-ink"
+            className="h-4 w-4 shrink-0 cursor-pointer rounded border-[var(--st-border)] accent-[var(--st-text)]"
             {...rest}
         />
     );
@@ -1188,13 +1188,13 @@ function BulkBar({
     onRemove: () => void;
 }) {
     return (
-        <Card className="flex flex-col gap-3 border-zoru-line-strong bg-zoru-surface-2/40 p-3 sm:flex-row sm:items-center sm:justify-between">
+        <Card className="flex flex-col gap-3 border-[var(--st-border-strong)] bg-[var(--st-bg-muted)]/40 p-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
                 <Badge variant="default">{count} selected</Badge>
                 <button
                     type="button"
                     onClick={onClear}
-                    className="text-[12px] text-zoru-ink underline-offset-2 hover:underline"
+                    className="text-[12px] text-[var(--st-text)] underline-offset-2 hover:underline"
                 >
                     Clear selection
                 </button>

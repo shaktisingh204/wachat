@@ -41,8 +41,8 @@ export function BioLinksForm({ state, update }: Props) {
     <>
       <Card className="p-5 space-y-3">
         <div className="flex items-center justify-between">
-          <Label className="text-[13px] text-zoru-ink">
-            Links <span className="text-zoru-ink-muted">({state.links.length}/20)</span>
+          <Label className="text-[13px] text-[var(--st-text)]">
+            Links <span className="text-[var(--st-text-secondary)]">({state.links.length}/20)</span>
           </Label>
           <Button
             type="button"
@@ -57,17 +57,17 @@ export function BioLinksForm({ state, update }: Props) {
         </div>
 
         {state.links.length === 0 ? (
-          <p className="py-4 text-center text-[12.5px] text-zoru-ink-muted">
+          <p className="py-4 text-center text-[12.5px] text-[var(--st-text-secondary)]">
             No links yet. Click "Add Link" to get started.
           </p>
         ) : (
           <ul className="space-y-4">
             {state.links.map((link) => (
-              <li key={link.id} className="border border-zoru-line rounded-lg p-3 bg-zoru-ink/30">
+              <li key={link.id} className="border border-[var(--st-border)] rounded-lg p-3 bg-[var(--st-text)]/30">
                 <div className="flex items-start gap-2">
                   <button
                     type="button"
-                    className="mt-2.5 cursor-grab text-zoru-ink-muted/40 hover:text-zoru-ink-muted"
+                    className="mt-2.5 cursor-grab text-[var(--st-text-secondary)]/40 hover:text-[var(--st-text-secondary)]"
                     aria-label="Drag to reorder"
                   >
                     <GripVertical className="h-4 w-4" />
@@ -97,7 +97,7 @@ export function BioLinksForm({ state, update }: Props) {
                       type="button"
                       variant="ghost"
                       size="sm"
-                      className="h-7 px-2 text-xs text-zoru-ink-muted hover:text-white"
+                      className="h-7 px-2 text-xs text-[var(--st-text-secondary)] hover:text-white"
                       onClick={() => toggleSettings(link.id)}
                     >
                       <Settings2 className="h-3.5 w-3.5 mr-1" />
@@ -107,7 +107,7 @@ export function BioLinksForm({ state, update }: Props) {
                       type="button"
                       variant="ghost"
                       size="sm"
-                      className="h-7 px-2 text-xs text-zoru-ink-muted hover:text-white"
+                      className="h-7 px-2 text-xs text-[var(--st-text-secondary)] hover:text-white"
                       onClick={() => setActiveAnalyticsLink(link)}
                     >
                       <BarChart2 className="h-3.5 w-3.5 mr-1" />
@@ -117,7 +117,7 @@ export function BioLinksForm({ state, update }: Props) {
                       type="button"
                       variant="ghost"
                       size="sm"
-                      className="h-7 px-2 text-xs text-zoru-ink-muted hover:text-white"
+                      className="h-7 px-2 text-xs text-[var(--st-text-secondary)] hover:text-white"
                       onClick={() => setActiveQRLink(link)}
                     >
                       <QrCode className="h-3.5 w-3.5 mr-1" />
@@ -128,7 +128,7 @@ export function BioLinksForm({ state, update }: Props) {
                   <button
                     type="button"
                     onClick={() => removeLink(link.id)}
-                    className="rounded p-1 text-zoru-ink-muted hover:bg-zoru-danger/10 hover:text-zoru-danger-ink"
+                    className="rounded p-1 text-[var(--st-text-secondary)] hover:bg-[var(--st-danger)]/10 hover:text-[var(--st-danger)]"
                     aria-label="Remove link"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
@@ -137,18 +137,18 @@ export function BioLinksForm({ state, update }: Props) {
 
                 {/* Expanded Settings */}
                 {expandedSettings[link.id] && (
-                  <div className="mt-3 ml-6 p-3 rounded-md bg-zoru-ink border border-zoru-line space-y-3">
+                  <div className="mt-3 ml-6 p-3 rounded-md bg-[var(--st-text)] border border-[var(--st-border)] space-y-3">
                     <div className="flex items-center justify-between">
-                      <Label className="text-xs text-zoru-ink-muted">Enable A/B Testing</Label>
+                      <Label className="text-xs text-[var(--st-text-secondary)]">Enable A/B Testing</Label>
                       <Switch
                         checked={link.enableABTesting || false}
                         onCheckedChange={(checked) => updateLink(link.id, { enableABTesting: checked })}
                       />
                     </div>
                     {link.enableABTesting && (
-                      <div className="space-y-2 pt-2 border-t border-zoru-line">
+                      <div className="space-y-2 pt-2 border-t border-[var(--st-border)]">
                         <div className="flex flex-col gap-1.5">
-                          <Label className="text-xs text-zoru-ink-muted">Variant B URL</Label>
+                          <Label className="text-xs text-[var(--st-text-secondary)]">Variant B URL</Label>
                           <Input
                             placeholder="https:// variant B..."
                             value={link.urlB || ''}
@@ -157,7 +157,7 @@ export function BioLinksForm({ state, update }: Props) {
                           />
                         </div>
                         <div className="flex items-center justify-between gap-4">
-                          <Label className="text-xs text-zoru-ink-muted whitespace-nowrap">Traffic Split (A/B)</Label>
+                          <Label className="text-xs text-[var(--st-text-secondary)] whitespace-nowrap">Traffic Split (A/B)</Label>
                           <div className="flex items-center gap-2 flex-1">
                             <input
                               type="range"
@@ -167,12 +167,12 @@ export function BioLinksForm({ state, update }: Props) {
                               onChange={(e) => updateLink(link.id, { splitRatio: parseInt(e.target.value, 10) })}
                               className="flex-1 w-full"
                             />
-                            <span className="text-xs font-mono text-zoru-ink w-10 text-right">
+                            <span className="text-xs font-mono text-[var(--st-text)] w-10 text-right">
                               {link.splitRatio ?? 50}%
                             </span>
                           </div>
                         </div>
-                        <p className="text-[10px] text-zoru-ink">
+                        <p className="text-[10px] text-[var(--st-text)]">
                           {link.splitRatio ?? 50}% of traffic goes to Variant A, {100 - (link.splitRatio ?? 50)}% to Variant B.
                         </p>
                       </div>

@@ -95,11 +95,11 @@ export function PaginationBar({
   return (
     <div
       className={
-        'flex flex-wrap items-center justify-between gap-3 border-t border-zoru-line px-3 py-2.5 ' +
+        'flex flex-wrap items-center justify-between gap-3 border-t border-[var(--st-border)] px-3 py-2.5 ' +
         (className ?? '')
       }
     >
-      <div className="flex items-center gap-2 text-[12px] text-zoru-ink-muted">
+      <div className="flex items-center gap-2 text-[12px] text-[var(--st-text-secondary)]">
         <span>Rows per page</span>
         <Select
           value={String(limit)}
@@ -118,7 +118,7 @@ export function PaginationBar({
         </Select>
       </div>
 
-      <div className="flex items-center gap-3 text-[12px] text-zoru-ink-muted">
+      <div className="flex items-center gap-3 text-[12px] text-[var(--st-text-secondary)]">
         <span>{rangeText}</span>
         <div className="flex items-center gap-1">
           <Button

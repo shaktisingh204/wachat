@@ -124,12 +124,12 @@ function KpiCard({ label, value, active, onClick }: KpiCardProps) {
       className={[
         'flex flex-col items-start rounded-[var(--zoru-radius)] border px-4 py-3 text-left transition-colors',
         active
-          ? 'border-zoru-accent bg-zoru-accent/10'
-          : 'border-zoru-line bg-zoru-surface hover:bg-zoru-surface-hover',
+          ? 'border-[var(--st-accent)] bg-[var(--st-accent)]/10'
+          : 'border-[var(--st-border)] bg-[var(--st-bg-secondary)] hover:bg-[var(--st-hover)]',
       ].join(' ')}
     >
-      <span className="text-lg font-semibold tabular-nums text-zoru-ink">{value}</span>
-      <span className="text-[11.5px] text-zoru-ink-muted">{label}</span>
+      <span className="text-lg font-semibold tabular-nums text-[var(--st-text)]">{value}</span>
+      <span className="text-[11.5px] text-[var(--st-text-secondary)]">{label}</span>
     </button>
   );
 }
@@ -360,14 +360,14 @@ export function ProformaListClient({
       render: (row) => row.accountId ? (
         <EntityPickerChip entity="client" id={row.accountId} />
       ) : (
-        <span className="text-zoru-ink-muted">—</span>
+        <span className="text-[var(--st-text-secondary)]">—</span>
       ),
     },
     {
       key: 'proformaDate',
       header: 'Date',
       sortable: true,
-      render: (row) => <span className="text-zoru-ink-muted">{fmtDate(row.proformaDate)}</span>,
+      render: (row) => <span className="text-[var(--st-text-secondary)]">{fmtDate(row.proformaDate)}</span>,
       editRender: (row, value, onChange) => (
         <Input
           type="date"
@@ -382,7 +382,7 @@ export function ProformaListClient({
       key: 'validTillDate',
       header: 'Valid until',
       sortable: true,
-      render: (row) => <span className="text-zoru-ink-muted">{fmtDate(row.validTillDate)}</span>,
+      render: (row) => <span className="text-[var(--st-text-secondary)]">{fmtDate(row.validTillDate)}</span>,
       editRender: (row, value, onChange) => (
         <Input
           type="date"
@@ -396,7 +396,7 @@ export function ProformaListClient({
     {
       key: 'currency',
       header: 'Currency',
-      render: (row) => <span className="text-zoru-ink-muted">{row.currency || 'INR'}</span>,
+      render: (row) => <span className="text-[var(--st-text-secondary)]">{row.currency || 'INR'}</span>,
       editRender: (row, value, onChange) => (
         <Input
           size="sm"
@@ -411,7 +411,7 @@ export function ProformaListClient({
       header: 'Amount',
       sortable: true,
       render: (row) => (
-        <span className="font-mono tabular-nums text-zoru-ink font-semibold">
+        <span className="font-mono tabular-nums text-[var(--st-text)] font-semibold">
           {fmtMoney(row.total, row.currency)}
         </span>
       ),
@@ -435,13 +435,13 @@ export function ProformaListClient({
           tone={statusToTone(row.status.toLowerCase())}
         />
       ) : (
-        <span className="text-zoru-ink-muted">—</span>
+        <span className="text-[var(--st-text-secondary)]">—</span>
       ),
       editRender: (row, value, onChange) => {
         const options = ['Draft', 'Issued', 'Converted', 'Expired', 'Cancelled'];
         return (
           <select
-            className="h-8 w-28 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg text-zoru-ink text-[12.5px] p-1 outline-none"
+            className="h-8 w-28 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)] text-[12.5px] p-1 outline-none"
             value={value !== undefined ? String(value) : 'Draft'}
             onChange={(e) => onChange(e.target.value)}
           >
@@ -476,7 +476,7 @@ export function ProformaListClient({
         bulkBar={
           bulky.selected.size > 0 ? (
             <div className="flex flex-wrap items-center gap-2 text-[13px]">
-              <span className="font-medium text-zoru-ink">{bulky.selected.size} selected</span>
+              <span className="font-medium text-[var(--st-text)]">{bulky.selected.size} selected</span>
               <Button size="sm" variant="outline" onClick={bulkArchive} disabled={bulky.isPending}>
                 Archive
               </Button>
@@ -489,7 +489,7 @@ export function ProformaListClient({
               <Button
                 size="sm"
                 variant="ghost"
-                className="text-zoru-danger-ink"
+                className="text-[var(--st-danger)]"
                 onClick={() => setPendingBulkDelete(true)}
                 disabled={bulky.isPending}
               >
@@ -504,9 +504,9 @@ export function ProformaListClient({
         empty={
           bulky.data.length === 0 && !filtersActive && !query ? (
             <div className="flex flex-col items-center gap-3 p-4">
-              <FileText className="h-8 w-8 text-zoru-ink-muted" />
-              <h3 className="text-base font-medium text-zoru-ink">No proforma invoices yet</h3>
-              <p className="max-w-sm text-sm text-zoru-ink-muted">
+              <FileText className="h-8 w-8 text-[var(--st-text-secondary)]" />
+              <h3 className="text-base font-medium text-[var(--st-text)]">No proforma invoices yet</h3>
+              <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                 Create a proforma invoice to share a cost estimate before issuing a formal invoice.
               </p>
               <Button asChild>
@@ -530,22 +530,22 @@ export function ProformaListClient({
           </div>
 
           {error ? (
-            <div className="rounded border border-zoru-line/40 bg-zoru-ink/10 px-3 py-2 text-[12.5px] text-zoru-ink dark:text-zoru-ink-muted">
+            <div className="rounded border border-[var(--st-border)]/40 bg-[var(--st-text)]/10 px-3 py-2 text-[12.5px] text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
               {error}
             </div>
           ) : null}
 
           <div className="flex flex-col gap-3">
             {/* Filter bar */}
-            <div className="flex flex-wrap items-center gap-2 px-3 py-2 bg-zoru-surface border border-zoru-line rounded-lg">
+            <div className="flex flex-wrap items-center gap-2 px-3 py-2 bg-[var(--st-bg-secondary)] border border-[var(--st-border)] rounded-lg">
               <div className="relative max-w-xs flex-1">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
                 <input
                   type="search"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Search proformas…"
-                  className="h-9 w-full rounded-md border border-zoru-line bg-transparent pl-9 pr-3 text-[13px] text-zoru-ink placeholder:text-zoru-ink-muted focus:outline-none focus:ring-1 focus:ring-zoru-accent"
+                  className="h-9 w-full rounded-md border border-[var(--st-border)] bg-transparent pl-9 pr-3 text-[13px] text-[var(--st-text)] placeholder:text-[var(--st-text-secondary)] focus:outline-none focus:ring-1 focus:ring-[var(--st-accent)]"
                 />
               </div>
               <div className="w-44">
@@ -563,25 +563,25 @@ export function ProformaListClient({
                     <CalendarRange className="h-3.5 w-3.5" /> Date range
                   </Button>
                 </summary>
-                <div className="absolute left-0 z-20 mt-2 grid w-[260px] gap-2 rounded-md border border-zoru-line bg-zoru-surface p-3 shadow-md">
-                  <label className="text-[11px] text-zoru-ink-muted">From</label>
+                <div className="absolute left-0 z-20 mt-2 grid w-[260px] gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 shadow-md">
+                  <label className="text-[11px] text-[var(--st-text-secondary)]">From</label>
                   <input
                     type="date"
                     defaultValue={initialDateFrom}
                     onChange={(e) => pushParams({ dateFrom: e.target.value || undefined, page: '1' })}
-                    className="h-8 w-full rounded-md border border-zoru-line bg-transparent px-2 text-[12.5px] text-zoru-ink focus:outline-none focus:ring-1 focus:ring-zoru-accent"
+                    className="h-8 w-full rounded-md border border-[var(--st-border)] bg-transparent px-2 text-[12.5px] text-[var(--st-text)] focus:outline-none focus:ring-1 focus:ring-[var(--st-accent)]"
                   />
-                  <label className="text-[11px] text-zoru-ink-muted">To</label>
+                  <label className="text-[11px] text-[var(--st-text-secondary)]">To</label>
                   <input
                     type="date"
                     defaultValue={initialDateTo}
                     onChange={(e) => pushParams({ dateTo: e.target.value || undefined, page: '1' })}
-                    className="h-8 w-full rounded-md border border-zoru-line bg-transparent px-2 text-[12.5px] text-zoru-ink focus:outline-none focus:ring-1 focus:ring-zoru-accent"
+                    className="h-8 w-full rounded-md border border-[var(--st-border)] bg-transparent px-2 text-[12.5px] text-[var(--st-text)] focus:outline-none focus:ring-1 focus:ring-[var(--st-accent)]"
                   />
                 </div>
               </details>
               {/* Density toggle buttons */}
-              <div className="flex items-center border border-zoru-line rounded-md p-0.5 ml-auto bg-zoru-surface-2/40">
+              <div className="flex items-center border border-[var(--st-border)] rounded-md p-0.5 ml-auto bg-[var(--st-bg-muted)]/40">
                 <Button
                   size="sm"
                   variant={density === 'comfortable' ? 'outline' : 'ghost'}
@@ -615,7 +615,7 @@ export function ProformaListClient({
                     applyStatusFilter(ALL);
                     pushParams({ dateFrom: undefined, dateTo: undefined, page: '1' });
                   }}
-                  className="text-[12px] text-zoru-ink-muted"
+                  className="text-[12px] text-[var(--st-text-secondary)]"
                 >
                   <X className="h-3.5 w-3.5" /> Clear filters
                 </Button>

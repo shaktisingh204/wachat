@@ -20,7 +20,7 @@ function NumField({
 }) {
     return (
         <label className="flex flex-col gap-0.5">
-            <span className="text-[10px] uppercase tracking-[0.1em] text-zoru-ink-muted">
+            <span className="text-[10px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
                 {label}
             </span>
             <Input
@@ -49,7 +49,7 @@ export function AreaEditor({
         });
     }
     return (
-        <div className="rounded-md border border-zoru-line p-3">
+        <div className="rounded-md border border-[var(--st-border)] p-3">
             <div className="mb-2 flex items-center justify-between gap-2">
                 <Select
                     value={area.type || 'suggested_reaction'}

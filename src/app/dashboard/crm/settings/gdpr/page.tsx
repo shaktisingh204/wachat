@@ -138,7 +138,7 @@ export default function GdprSettingsPage() {
             ) : null}
 
             <section className="space-y-4">
-              <h2 className="text-[14px] text-zoru-ink">Core controls</h2>
+              <h2 className="text-[14px] text-[var(--st-text)]">Core controls</h2>
               <div className="grid gap-4 md:grid-cols-2">
                 {BOOL_FIELDS.map((f) => (
                   <div key={String(f.key)}>
@@ -158,7 +158,7 @@ export default function GdprSettingsPage() {
                       </Select>
                     </div>
                     {f.hint ? (
-                      <p className="mt-1 text-[11.5px] text-zoru-ink-muted">
+                      <p className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">
                         {f.hint}
                       </p>
                     ) : null}
@@ -168,7 +168,7 @@ export default function GdprSettingsPage() {
             </section>
 
             <section className="space-y-4">
-              <h2 className="text-[14px] text-zoru-ink">Cookie banner</h2>
+              <h2 className="text-[14px] text-[var(--st-text)]">Cookie banner</h2>
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="md:col-span-2">
                   <Label htmlFor="cookie_message">Cookie message</Label>
@@ -222,7 +222,7 @@ export default function GdprSettingsPage() {
             </section>
 
             <section className="space-y-4">
-              <h2 className="text-[14px] text-zoru-ink">Data controller</h2>
+              <h2 className="text-[14px] text-[var(--st-text)]">Data controller</h2>
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
                   <Label htmlFor="data_controller_name">Controller name</Label>

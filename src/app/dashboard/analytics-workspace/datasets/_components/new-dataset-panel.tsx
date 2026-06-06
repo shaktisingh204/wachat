@@ -162,7 +162,7 @@ export function NewDatasetPanel() {
           </div>
         </div>
 
-        {error && <p className="mt-3 text-sm text-zoru-danger">{error}</p>}
+        {error && <p className="mt-3 text-sm text-[var(--st-danger)]">{error}</p>}
 
         <div className="mt-4 flex justify-end">
           <Button onClick={submit} disabled={pending}>

@@ -58,12 +58,12 @@ function initials(name: string) {
 
 // Stable avatar color per employee based on first letter
 const AVATAR_COLORS = [
-  'bg-zoru-surface-2 text-zoru-ink',
-  'bg-zoru-surface-2 text-zoru-ink',
-  'bg-zoru-surface-2 text-zoru-ink',
-  'bg-zoru-surface-2 text-zoru-ink',
-  'bg-zoru-surface-2 text-zoru-ink',
-  'bg-zoru-surface-2 text-zoru-ink',
+  'bg-[var(--st-bg-muted)] text-[var(--st-text)]',
+  'bg-[var(--st-bg-muted)] text-[var(--st-text)]',
+  'bg-[var(--st-bg-muted)] text-[var(--st-text)]',
+  'bg-[var(--st-bg-muted)] text-[var(--st-text)]',
+  'bg-[var(--st-bg-muted)] text-[var(--st-text)]',
+  'bg-[var(--st-bg-muted)] text-[var(--st-text)]',
 ];
 
 function avatarColor(name: string) {
@@ -166,8 +166,8 @@ export default function DirectoryPage() {
       ) : empty || failed ? (
         <Card>
           <div className="flex flex-col items-start gap-3 p-8">
-            <h3 className="text-[15px] text-zoru-ink">No employees found</h3>
-            <p className="max-w-xl text-[13px] text-zoru-ink-muted">
+            <h3 className="text-[15px] text-[var(--st-text)]">No employees found</h3>
+            <p className="max-w-xl text-[13px] text-[var(--st-text-secondary)]">
               {q
                 ? `No results match "${search}". Try a different search term.`
                 : 'Employee data will appear here once added via HR-Payroll → Employees.'}
@@ -210,25 +210,25 @@ export default function DirectoryPage() {
 
                   {/* Name + title */}
                   <div>
-                    <div className="text-[14px] text-zoru-ink leading-snug">
+                    <div className="text-[14px] text-[var(--st-text)] leading-snug">
                       {name}
                     </div>
-                    <div className="mt-0.5 text-[12px] text-zoru-ink-muted">
+                    <div className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">
                       {e.designationName || '—'}
                     </div>
                     {e.departmentName && (
-                      <div className="mt-0.5 text-[11px] text-zoru-ink-muted">
+                      <div className="mt-0.5 text-[11px] text-[var(--st-text-secondary)]">
                         {e.departmentName}
                       </div>
                     )}
                   </div>
 
                   {/* Contact + meta */}
-                  <div className="flex flex-col gap-1 pt-1 border-t border-zoru-line">
+                  <div className="flex flex-col gap-1 pt-1 border-t border-[var(--st-border)]">
                     {e.email && (
                       <a
                         href={`mailto:${e.email}`}
-                        className="inline-flex items-center gap-1.5 text-[12px] text-zoru-ink-muted hover:text-zoru-ink truncate"
+                        className="inline-flex items-center gap-1.5 text-[12px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)] truncate"
                       >
                         <Mail className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} />
                         <span className="truncate">{e.email}</span>
@@ -237,20 +237,20 @@ export default function DirectoryPage() {
                     {e.phone && (
                       <a
                         href={`tel:${e.phone}`}
-                        className="inline-flex items-center gap-1.5 text-[12px] text-zoru-ink-muted hover:text-zoru-ink"
+                        className="inline-flex items-center gap-1.5 text-[12px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                       >
                         <Phone className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} />
                         {e.phone}
                       </a>
                     )}
                     {e.workLocation && (
-                      <div className="inline-flex items-center gap-1.5 text-[12px] text-zoru-ink-muted">
+                      <div className="inline-flex items-center gap-1.5 text-[12px] text-[var(--st-text-secondary)]">
                         <MapPin className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} />
                         {e.workLocation}
                       </div>
                     )}
                     {e.joiningDate && (
-                      <div className="inline-flex items-center gap-1.5 text-[12px] text-zoru-ink-muted">
+                      <div className="inline-flex items-center gap-1.5 text-[12px] text-[var(--st-text-secondary)]">
                         <Calendar className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} />
                         Joined {fmtDate(e.joiningDate)}
                       </div>
@@ -267,12 +267,12 @@ export default function DirectoryPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-[13px]">
               <thead>
-                <tr className="border-b border-zoru-line">
+                <tr className="border-b border-[var(--st-border)]">
                   {['Employee', 'Designation', 'Department', 'Email', 'Phone', 'Location', 'Joined', 'Status'].map(
                     (h) => (
                       <th
                         key={h}
-                        className="px-4 py-3 text-[11px] uppercase tracking-wide text-zoru-ink-muted whitespace-nowrap"
+                        className="px-4 py-3 text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)] whitespace-nowrap"
                       >
                         {h}
                       </th>
@@ -280,7 +280,7 @@ export default function DirectoryPage() {
                   )}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zoru-line">
+              <tbody className="divide-y divide-[var(--st-border)]">
                 {rows.map((e) => {
                   const name =
                     [e.firstName, e.lastName].filter(Boolean).join(' ') ||
@@ -289,7 +289,7 @@ export default function DirectoryPage() {
                   const color = avatarColor(name);
                   const variant = STATUS_VARIANTS[(e.status || '').toLowerCase()] || 'ghost';
                   return (
-                    <tr key={e._id} className="transition-colors hover:bg-zoru-surface-2">
+                    <tr key={e._id} className="transition-colors hover:bg-[var(--st-bg-muted)]">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2.5">
                           <div
@@ -298,27 +298,27 @@ export default function DirectoryPage() {
                             {initials(name)}
                           </div>
                           <div>
-                            <div className="text-zoru-ink">{name}</div>
+                            <div className="text-[var(--st-text)]">{name}</div>
                             {e.employeeId && (
-                              <div className="text-[11px] text-zoru-ink-muted">{e.employeeId}</div>
+                              <div className="text-[11px] text-[var(--st-text-secondary)]">{e.employeeId}</div>
                             )}
                           </div>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-zoru-ink">{e.designationName || '—'}</td>
-                      <td className="px-4 py-3 text-zoru-ink">{e.departmentName || '—'}</td>
-                      <td className="px-4 py-3 text-zoru-ink-muted">
+                      <td className="px-4 py-3 text-[var(--st-text)]">{e.designationName || '—'}</td>
+                      <td className="px-4 py-3 text-[var(--st-text)]">{e.departmentName || '—'}</td>
+                      <td className="px-4 py-3 text-[var(--st-text-secondary)]">
                         {e.email ? (
-                          <a href={`mailto:${e.email}`} className="hover:text-zoru-ink truncate max-w-[160px] block">
+                          <a href={`mailto:${e.email}`} className="hover:text-[var(--st-text)] truncate max-w-[160px] block">
                             {e.email}
                           </a>
                         ) : (
                           '—'
                         )}
                       </td>
-                      <td className="px-4 py-3 text-zoru-ink-muted">{e.phone || '—'}</td>
-                      <td className="px-4 py-3 text-zoru-ink-muted">{e.workLocation || '—'}</td>
-                      <td className="px-4 py-3 text-zoru-ink-muted whitespace-nowrap">
+                      <td className="px-4 py-3 text-[var(--st-text-secondary)]">{e.phone || '—'}</td>
+                      <td className="px-4 py-3 text-[var(--st-text-secondary)]">{e.workLocation || '—'}</td>
+                      <td className="px-4 py-3 text-[var(--st-text-secondary)] whitespace-nowrap">
                         {fmtDate(e.joiningDate) || '—'}
                       </td>
                       <td className="px-4 py-3">
@@ -341,7 +341,7 @@ export default function DirectoryPage() {
 
       {/* Result count */}
       {!isLoading && allRows.length > 0 && (
-        <p className="text-[12px] text-zoru-ink-muted">
+        <p className="text-[12px] text-[var(--st-text-secondary)]">
           Showing {rows.length} of {allRows.length} employee{allRows.length !== 1 ? 's' : ''}
           {q ? ` matching "${search}"` : ''}
         </p>

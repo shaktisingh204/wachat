@@ -54,6 +54,16 @@ pub struct PromoteWinnerBody {
     pub winner_variant: String,
 }
 
+/// Body for `POST /{id}/variants/{variant}/broadcast` — associate the
+/// broadcast that was launched for a variant. Once set, the variant's
+/// metrics are computed live from that broadcast's `broadcast_contacts`.
+#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct AttachBroadcastBody {
+    /// Hex `ObjectId` of the launched broadcast (a `broadcasts._id`).
+    pub broadcast_id: String,
+}
+
 /// Response for `GET /` — the caller's tests, each enriched with its
 /// `status` and a light summary of result metrics.
 #[derive(Debug, Clone, Serialize, ToSchema)]
@@ -74,15 +84,33 @@ pub struct TestDetailResponse {
 }
 
 /// Computed per-variant metrics for the detail view.
+///
+/// `sent`/`delivered`/`read`/`failed` are aggregated **live** from the
+/// `broadcast_contacts` rows of the broadcast attached to this variant
+/// (via `POST /{id}/variants/{variant}/broadcast`). When no broadcast is
+/// attached yet every count is `0` — never fabricated.
 #[derive(Debug, Clone, Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct VariantResult {
     /// `"A"` or `"B"`.
     pub variant: String,
+    /// The `broadcasts._id` (hex) feeding this variant's metrics, if attached.
+    pub broadcast_id: Option<String>,
+    /// Rows that reached SENT, DELIVERED or READ (successfully handed to Meta).
     pub sent: i64,
+    /// Rows that reached DELIVERED or READ.
+    pub delivered: i64,
+    /// Rows that reached READ (the "opened" signal for templates).
+    pub read: i64,
+    /// Rows that terminated in FAILED.
+    pub failed: i64,
+    /// Alias of `read` kept for the existing page contract (opened == read).
     pub opened: i64,
+    /// Best-effort inbound replies attributed to this broadcast's recipients
+    /// (distinct contacts who messaged in after launch). `0` when no inbound
+    /// signal can be resolved — never fabricated.
     pub replied: i64,
-    /// `opened / sent`, in `0.0..=1.0` (0 when `sent == 0`).
+    /// `read / sent`, in `0.0..=1.0` (0 when `sent == 0`).
     pub open_rate: f64,
     /// `replied / sent`, in `0.0..=1.0` (0 when `sent == 0`).
     pub reply_rate: f64,

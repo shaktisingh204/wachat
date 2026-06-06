@@ -91,7 +91,7 @@ export default async function EmployeeProfileSubPage({
     const guard = await requirePermission('crm_employee', 'view');
     if (!guard.ok) {
         return (
-            <p className="p-6 text-[13px] text-zoru-ink-muted">{guard.error}</p>
+            <p className="p-6 text-[13px] text-[var(--st-text-secondary)]">{guard.error}</p>
         );
     }
 
@@ -100,7 +100,7 @@ export default async function EmployeeProfileSubPage({
         if (error) {
             return (
                 <div className="flex w-full flex-col gap-4 p-6">
-                    <p className="text-[14px] text-zoru-ink">
+                    <p className="text-[14px] text-[var(--st-text)]">
                         Couldn&apos;t load this employee — {error}
                     </p>
                 </div>
@@ -142,7 +142,7 @@ export default async function EmployeeProfileSubPage({
         >
 
             {/* Sub-tab navigation strip */}
-            <div className="flex flex-wrap gap-1 border-b border-zoru-line">
+            <div className="flex flex-wrap gap-1 border-b border-[var(--st-border)]">
                 {[
                     { href: BASE, label: 'Overview' },
                     { href: `${BASE}/profile`, label: 'Profile', active: true },
@@ -159,8 +159,8 @@ export default async function EmployeeProfileSubPage({
                         href={tab.href}
                         className={`-mb-px border-b-2 px-3 py-2 text-[12.5px] transition-colors ${
                             tab.active
-                                ? 'border-zoru-ink text-zoru-ink'
-                                : 'border-transparent text-zoru-ink-muted hover:text-zoru-ink'
+                                ? 'border-[var(--st-text)] text-[var(--st-text)]'
+                                : 'border-transparent text-[var(--st-text-secondary)] hover:text-[var(--st-text)]'
                         }`}
                     >
                         {tab.label}
@@ -172,8 +172,8 @@ export default async function EmployeeProfileSubPage({
                 {/* Personal info card */}
                 <Card className="p-6">
                     <div className="mb-4 flex items-center gap-2">
-                        <User className="h-4 w-4 text-zoru-ink-muted" />
-                        <h2 className="text-[14px] font-medium text-zoru-ink">
+                        <User className="h-4 w-4 text-[var(--st-text-secondary)]" />
+                        <h2 className="text-[14px] font-medium text-[var(--st-text)]">
                             Personal info
                         </h2>
                     </div>
@@ -222,38 +222,38 @@ export default async function EmployeeProfileSubPage({
                     </dl>
 
                     {/* Emergency contact summary */}
-                    <div className="mt-6 border-t border-zoru-line pt-4">
+                    <div className="mt-6 border-t border-[var(--st-border)] pt-4">
                         <div className="mb-2 flex items-center justify-between gap-2">
                             <div className="flex items-center gap-2">
-                                <PhoneCall className="h-4 w-4 text-zoru-ink-muted" />
-                                <h3 className="text-[13px] font-medium text-zoru-ink">
+                                <PhoneCall className="h-4 w-4 text-[var(--st-text-secondary)]" />
+                                <h3 className="text-[13px] font-medium text-[var(--st-text)]">
                                     Emergency contact
                                 </h3>
                             </div>
                             <Link
                                 href={`${BASE}/emergency-contacts`}
-                                className="text-[12px] text-zoru-ink-muted hover:text-zoru-ink"
+                                className="text-[12px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                             >
                                 Manage →
                             </Link>
                         </div>
                         {primary ? (
-                            <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-3 text-[12.5px]">
-                                <div className="text-zoru-ink">
+                            <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-[12.5px]">
+                                <div className="text-[var(--st-text)]">
                                     {primary.name}
                                     {primary.relationship ? (
-                                        <span className="text-zoru-ink-muted">
+                                        <span className="text-[var(--st-text-secondary)]">
                                             {' · '}
                                             {primary.relationship}
                                         </span>
                                     ) : null}
                                 </div>
-                                <div className="mt-0.5 text-zoru-ink-muted">
+                                <div className="mt-0.5 text-[var(--st-text-secondary)]">
                                     {primary.phone || primary.email || '—'}
                                 </div>
                             </div>
                         ) : (
-                            <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-4 text-center text-[12px] text-zoru-ink-muted">
+                            <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-4 text-center text-[12px] text-[var(--st-text-secondary)]">
                                 No emergency contact on file.
                             </div>
                         )}
@@ -263,8 +263,8 @@ export default async function EmployeeProfileSubPage({
                 {/* Employment info card */}
                 <Card className="p-6">
                     <div className="mb-4 flex items-center gap-2">
-                        <Briefcase className="h-4 w-4 text-zoru-ink-muted" />
-                        <h2 className="text-[14px] font-medium text-zoru-ink">
+                        <Briefcase className="h-4 w-4 text-[var(--st-text-secondary)]" />
+                        <h2 className="text-[14px] font-medium text-[var(--st-text)]">
                             Employment
                         </h2>
                     </div>
@@ -275,7 +275,7 @@ export default async function EmployeeProfileSubPage({
                             mono
                         />
                         <div>
-                            <dt className="text-[12px] text-zoru-ink-muted">
+                            <dt className="text-[12px] text-[var(--st-text-secondary)]">
                                 Status
                             </dt>
                             <dd className="mt-1">
@@ -300,10 +300,10 @@ export default async function EmployeeProfileSubPage({
                             value={employee.workLocation || '—'}
                         />
                         <div>
-                            <dt className="text-[12px] text-zoru-ink-muted">
+                            <dt className="text-[12px] text-[var(--st-text-secondary)]">
                                 Department
                             </dt>
-                            <dd className="mt-1 text-zoru-ink">
+                            <dd className="mt-1 text-[var(--st-text)]">
                                 {employee.departmentId ? (
                                     <EntityPickerChip
                                         entity="department"
@@ -315,10 +315,10 @@ export default async function EmployeeProfileSubPage({
                             </dd>
                         </div>
                         <div>
-                            <dt className="text-[12px] text-zoru-ink-muted">
+                            <dt className="text-[12px] text-[var(--st-text-secondary)]">
                                 Designation
                             </dt>
-                            <dd className="mt-1 text-zoru-ink">
+                            <dd className="mt-1 text-[var(--st-text)]">
                                 {employee.designationId ? (
                                     <EntityPickerChip
                                         entity="designation"
@@ -330,10 +330,10 @@ export default async function EmployeeProfileSubPage({
                             </dd>
                         </div>
                         <div>
-                            <dt className="text-[12px] text-zoru-ink-muted">
+                            <dt className="text-[12px] text-[var(--st-text-secondary)]">
                                 Reporting manager
                             </dt>
-                            <dd className="mt-1 text-zoru-ink">
+                            <dd className="mt-1 text-[var(--st-text)]">
                                 {employee.reportingManagerId ? (
                                     <EntityPickerChip
                                         entity="employee"
@@ -382,9 +382,9 @@ function Detail({
 }) {
     return (
         <div className={fullWidth ? 'sm:col-span-2' : ''}>
-            <dt className="text-[12px] text-zoru-ink-muted">{label}</dt>
+            <dt className="text-[12px] text-[var(--st-text-secondary)]">{label}</dt>
             <dd
-                className={`mt-1 text-zoru-ink ${
+                className={`mt-1 text-[var(--st-text)] ${
                     mono ? 'font-mono text-[12px]' : ''
                 } ${capitalize ? 'capitalize' : ''}`}
             >

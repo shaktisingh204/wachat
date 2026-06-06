@@ -293,10 +293,10 @@ export function AppModulesGrid({ data, derived }: { data: any, derived: any }) {
     <section className="mt-10">
       <div className="flex items-end justify-between">
         <div>
-          <h2 className="text-[22px] tracking-tight text-zoru-ink leading-none">
+          <h2 className="text-[22px] tracking-tight text-[var(--st-text)] leading-none">
             All Apps
           </h2>
-          <p className="mt-1.5 text-[12.5px] text-zoru-ink-muted">
+          <p className="mt-1.5 text-[12.5px] text-[var(--st-text-secondary)]">
             Live counts across every SabNode module ·{" "}
             {compact(stats.totalActivityLogs7d)} actions this week
           </p>

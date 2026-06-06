@@ -118,8 +118,8 @@ export function MembersClient({
     <div className="zoruui flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-zoru-ink">Members</h2>
-          <p className="text-sm text-zoru-ink-muted">
+          <h2 className="text-lg font-semibold text-[var(--st-text)]">Members</h2>
+          <p className="text-sm text-[var(--st-text-secondary)]">
             Each customer who has joined a rewards program. Adjust balances or
             promote tiers manually here.
           </p>
@@ -145,7 +145,7 @@ export function MembersClient({
         <div className="overflow-x-auto rounded-lg">
           <Table>
             <ZoruTableHeader>
-              <ZoruTableRow className="border-zoru-line">
+              <ZoruTableRow className="border-[var(--st-border)]">
                 <ZoruTableHead>Customer</ZoruTableHead>
                 <ZoruTableHead>Program</ZoruTableHead>
                 <ZoruTableHead>Tier</ZoruTableHead>
@@ -167,11 +167,11 @@ export function MembersClient({
                 </ZoruTableRow>
               ) : (
                 filtered.map((m) => (
-                  <ZoruTableRow key={m._id} className="border-zoru-line">
-                    <ZoruTableCell className="text-zoru-ink">
+                  <ZoruTableRow key={m._id} className="border-[var(--st-border)]">
+                    <ZoruTableCell className="text-[var(--st-text)]">
                       Customer {m.customerId.slice(-6)}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-zoru-ink">
+                    <ZoruTableCell className="text-[var(--st-text)]">
                       {programNameById.get(m.programId) ?? '—'}
                     </ZoruTableCell>
                     <ZoruTableCell>
@@ -179,13 +179,13 @@ export function MembersClient({
                         {m.currentTier ?? 'Base'}
                       </Badge>
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-zoru-ink">
+                    <ZoruTableCell className="text-[var(--st-text)]">
                       {(m.currentPoints ?? 0).toLocaleString()}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-zoru-ink">
+                    <ZoruTableCell className="text-[var(--st-text)]">
                       {(m.lifetimePoints ?? 0).toLocaleString()}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-zoru-ink">
+                    <ZoruTableCell className="text-[var(--st-text)]">
                       {m.joinedAt ? new Date(m.joinedAt).toLocaleDateString() : '—'}
                     </ZoruTableCell>
                     <ZoruTableCell className="text-right">
@@ -215,7 +215,7 @@ export function MembersClient({
                 value={delta}
                 onChange={(e) => setDelta(Number(e.target.value))}
               />
-              <p className="text-[12px] text-zoru-ink-muted">
+              <p className="text-[12px] text-[var(--st-text-secondary)]">
                 Positive deltas also bump lifetime points; negative deltas do not.
               </p>
             </div>

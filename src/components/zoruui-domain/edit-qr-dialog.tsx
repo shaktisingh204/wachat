@@ -50,7 +50,7 @@ export function EditQrDialog({ qrCode, onComplete }: EditQrDialogProps) {
                     </ZoruDialogHeader>
                     <div className="space-y-4 py-2">
                         <div className="space-y-1.5">
-                            <Label className="text-[12.5px] text-zoru-ink-muted">Name</Label>
+                            <Label className="text-[12.5px] text-[var(--st-text-secondary)]">Name</Label>
                             <Input
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
@@ -59,13 +59,13 @@ export function EditQrDialog({ qrCode, onComplete }: EditQrDialogProps) {
                         </div>
                         <div className="grid grid-cols-2 gap-3">
                             <div className="space-y-1.5">
-                                <Label className="text-[12.5px] text-zoru-ink-muted">Foreground</Label>
+                                <Label className="text-[12.5px] text-[var(--st-text-secondary)]">Foreground</Label>
                                 <div className="flex items-center gap-2">
                                     <input
                                         type="color"
                                         value={color}
                                         onChange={(e) => setColor(e.target.value)}
-                                        className="h-8 w-10 cursor-pointer rounded border border-zoru-border bg-transparent p-0.5"
+                                        className="h-8 w-10 cursor-pointer rounded border border-[var(--st-border)] bg-transparent p-0.5"
                                     />
                                     <Input
                                         value={color}
@@ -76,13 +76,13 @@ export function EditQrDialog({ qrCode, onComplete }: EditQrDialogProps) {
                                 </div>
                             </div>
                             <div className="space-y-1.5">
-                                <Label className="text-[12.5px] text-zoru-ink-muted">Background</Label>
+                                <Label className="text-[12.5px] text-[var(--st-text-secondary)]">Background</Label>
                                 <div className="flex items-center gap-2">
                                     <input
                                         type="color"
                                         value={bgColor}
                                         onChange={(e) => setBgColor(e.target.value)}
-                                        className="h-8 w-10 cursor-pointer rounded border border-zoru-border bg-transparent p-0.5"
+                                        className="h-8 w-10 cursor-pointer rounded border border-[var(--st-border)] bg-transparent p-0.5"
                                     />
                                     <Input
                                         value={bgColor}

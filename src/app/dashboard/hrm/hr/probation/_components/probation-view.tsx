@@ -158,7 +158,7 @@ export function ProbationView({ initial }: { initial: Probation[] }) {
         r.employeeId ? (
           <Link
             href={`/dashboard/hrm/hr/directory/${r.employeeId}`}
-            className="text-zoru-ink hover:underline"
+            className="text-[var(--st-text)] hover:underline"
           >
             {shorten(r.employeeId)}
           </Link>

@@ -161,8 +161,8 @@ export default function InstagramReelsPage(): React.JSX.Element {
 
       <header className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl text-zoru-ink">Reels</h1>
-          <p className="mt-1 text-sm text-zoru-ink-muted">
+          <h1 className="text-2xl text-[var(--st-text)]">Reels</h1>
+          <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
             Recent reels published from the connected Instagram Business account.
           </p>
         </div>
@@ -203,7 +203,7 @@ export default function InstagramReelsPage(): React.JSX.Element {
                 className="flex cursor-pointer flex-col p-0"
                 onClick={() => openReel(r)}
               >
-                <div className="relative aspect-[9/16] w-full overflow-hidden rounded-t-[var(--zoru-radius-lg)] bg-zoru-surface-2">
+                <div className="relative aspect-[9/16] w-full overflow-hidden rounded-t-[var(--zoru-radius-lg)] bg-[var(--st-bg-muted)]">
                   {src ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={src} alt={r.caption ?? ''} className="h-full w-full object-cover" />
@@ -217,10 +217,10 @@ export default function InstagramReelsPage(): React.JSX.Element {
                   </div>
                 </div>
                 <div className="flex flex-col gap-1 p-3">
-                  <p className="line-clamp-2 text-xs text-zoru-ink">
+                  <p className="line-clamp-2 text-xs text-[var(--st-text)]">
                     {r.caption ?? '(no caption)'}
                   </p>
-                  <div className="mt-1 flex items-center gap-3 text-[11px] text-zoru-ink-muted">
+                  <div className="mt-1 flex items-center gap-3 text-[11px] text-[var(--st-text-secondary)]">
                     <span className="flex items-center gap-1">
                       <Heart className="h-3 w-3" /> {r.like_count ?? 0}
                     </span>
@@ -246,7 +246,7 @@ export default function InstagramReelsPage(): React.JSX.Element {
 
           {activeReel ? (
             <div className="flex flex-col gap-4">
-              <div className="relative aspect-[9/16] w-full overflow-hidden rounded-[var(--zoru-radius)] bg-zoru-surface-2">
+              <div className="relative aspect-[9/16] w-full overflow-hidden rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)]">
                 {activeReel.thumbnail_url || activeReel.media_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -258,7 +258,7 @@ export default function InstagramReelsPage(): React.JSX.Element {
               </div>
 
               <div>
-                <p className="text-sm text-zoru-ink whitespace-pre-line">
+                <p className="text-sm text-[var(--st-text)] whitespace-pre-line">
                   {activeReel.caption ?? '(no caption)'}
                 </p>
                 <div className="mt-2 flex flex-wrap gap-2">
@@ -275,7 +275,7 @@ export default function InstagramReelsPage(): React.JSX.Element {
               </div>
 
               <div>
-                <p className="text-sm text-zoru-ink">Insights</p>
+                <p className="text-sm text-[var(--st-text)]">Insights</p>
                 {insightsError ? (
                   <Alert variant="warning" className="mt-2">
                     <AlertCircle />
@@ -294,10 +294,10 @@ export default function InstagramReelsPage(): React.JSX.Element {
                     {INSIGHT_LABELS.map((m) => (
                       <div
                         key={m.key}
-                        className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-2"
+                        className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2"
                       >
-                        <p className="text-[11px] text-zoru-ink-muted">{m.label}</p>
-                        <p className="mt-0.5 text-sm text-zoru-ink">
+                        <p className="text-[11px] text-[var(--st-text-secondary)]">{m.label}</p>
+                        <p className="mt-0.5 text-sm text-[var(--st-text)]">
                           {typeof insights[m.key] === 'number'
                             ? insights[m.key].toLocaleString()
                             : '—'}

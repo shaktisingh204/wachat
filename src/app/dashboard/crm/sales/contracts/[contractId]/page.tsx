@@ -61,10 +61,10 @@ function Field({
 }) {
   return (
     <div className={fullWidth ? 'sm:col-span-2' : undefined}>
-      <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
         {label}
       </div>
-      <div className="mt-1 text-[13px] text-zoru-ink">{children}</div>
+      <div className="mt-1 text-[13px] text-[var(--st-text)]">{children}</div>
     </div>
   );
 }
@@ -83,7 +83,7 @@ export default async function ContractDetailPage({
     if (error) {
       return (
         <div className="flex w-full flex-col gap-4 p-6">
-          <p className="text-[14px] text-zoru-ink">
+          <p className="text-[14px] text-[var(--st-text)]">
             Could not load this contract — {error}
           </p>
           <Button variant="outline" asChild>
@@ -123,7 +123,7 @@ export default async function ContractDetailPage({
     >
       {/* Main details card */}
       <Card className="p-6">
-        <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Contract details
         </h3>
         <div className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
@@ -183,18 +183,18 @@ export default async function ContractDetailPage({
       {/* Attachments */}
       {Array.isArray(contract.attachments) && contract.attachments.length > 0 ? (
         <Card className="p-6">
-          <h3 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          <h3 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
             Attachments
           </h3>
           <ul className="flex flex-col gap-1.5">
             {contract.attachments.map((url, i) => (
               <li key={url} className="flex items-center gap-2">
-                <FileSignature className="h-4 w-4 shrink-0 text-zoru-ink-muted" />
+                <FileSignature className="h-4 w-4 shrink-0 text-[var(--st-text-secondary)]" />
                 <a
                   href={url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[12.5px] text-zoru-ink underline-offset-2 hover:underline"
+                  className="text-[12.5px] text-[var(--st-text)] underline-offset-2 hover:underline"
                 >
                   Attachment {i + 1}
                 </a>
@@ -205,7 +205,7 @@ export default async function ContractDetailPage({
       ) : null}
 
       {/* Meta footer */}
-      <p className="text-[11px] text-zoru-ink-muted">
+      <p className="text-[11px] text-[var(--st-text-secondary)]">
         Created {fmtDate(contract.createdAt)} · Updated {fmtDate(contract.updatedAt)}
       </p>
     </EntityDetailShell>

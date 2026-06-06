@@ -107,14 +107,14 @@ export default function WebhooksPage() {
         <StatCard
           label="Active Endpoints"
           value="3"
-          icon={<Webhook className="text-zoru-ink-muted" />}
+          icon={<Webhook className="text-[var(--st-text-secondary)]" />}
           delta={1}
           period="added this month"
         />
         <StatCard
           label="Events Processed (24h)"
           value="1,248"
-          icon={<Activity className="text-zoru-success" />}
+          icon={<Activity className="text-[var(--st-status-ok)]" />}
           delta={12.5}
           period="vs previous day"
         />
@@ -131,16 +131,16 @@ export default function WebhooksPage() {
       <div className="flex flex-col gap-6 px-1 mt-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold tracking-tight text-zoru-ink">Configured Endpoints</h2>
-            <p className="text-sm text-zoru-ink-muted">Manage webhook subscriptions for this storefront.</p>
+            <h2 className="text-lg font-semibold tracking-tight text-[var(--st-text)]">Configured Endpoints</h2>
+            <p className="text-sm text-[var(--st-text-secondary)]">Manage webhook subscriptions for this storefront.</p>
           </div>
         </div>
 
-        <Card className="border-0 shadow-none bg-transparent sm:bg-zoru-bg sm:border sm:shadow-sm overflow-hidden">
-          <div className="rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg overflow-x-auto">
+        <Card className="border-0 shadow-none bg-transparent sm:bg-[var(--st-bg)] sm:border sm:shadow-sm overflow-hidden">
+          <div className="rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="bg-zoru-surface-2/50 hover:bg-zoru-surface-2/50">
+                <TableRow className="bg-[var(--st-bg-muted)]/50 hover:bg-[var(--st-bg-muted)]/50">
                   <TableHead className="w-[300px]">Endpoint</TableHead>
                   <TableHead>Topics</TableHead>
                   <TableHead>Status</TableHead>
@@ -154,15 +154,15 @@ export default function WebhooksPage() {
                     <TableCell>
                       <div className="flex flex-col gap-1.5">
                         <div className="flex items-center gap-2">
-                          <Link className="h-4 w-4 text-zoru-ink-muted shrink-0" />
-                          <span className="font-medium text-sm text-zoru-ink truncate max-w-[200px] sm:max-w-[300px]" title={webhook.url}>
+                          <Link className="h-4 w-4 text-[var(--st-text-secondary)] shrink-0" />
+                          <span className="font-medium text-sm text-[var(--st-text)] truncate max-w-[200px] sm:max-w-[300px]" title={webhook.url}>
                             {webhook.url}
                           </span>
                         </div>
-                        <div className="text-xs text-zoru-ink-subtle ml-6 flex items-center gap-2">
+                        <div className="text-xs text-[var(--st-text-tertiary)] ml-6 flex items-center gap-2">
                           <span>Last delivery: {webhook.lastDelivery}</span>
                           {webhook.failures > 0 && (
-                            <span className="text-zoru-danger flex items-center gap-1">
+                            <span className="text-[var(--st-danger)] flex items-center gap-1">
                               <AlertTriangle className="h-3 w-3" />
                               {webhook.failures} failures
                             </span>
@@ -174,7 +174,7 @@ export default function WebhooksPage() {
                       <div className="flex flex-wrap gap-1.5 max-w-[250px]">
                         {webhook.topics.map((topic, i) => (
                           i < 2 ? (
-                            <Badge key={topic} variant="outline" className="text-[10px] py-0 font-mono bg-zoru-surface-2/50">
+                            <Badge key={topic} variant="outline" className="text-[10px] py-0 font-mono bg-[var(--st-bg-muted)]/50">
                               {topic}
                             </Badge>
                           ) : null
@@ -197,7 +197,7 @@ export default function WebhooksPage() {
                       </div>
                     </TableCell>
                     <TableCell className="hidden lg:table-cell">
-                      <div className="flex items-center gap-1.5 font-mono text-xs text-zoru-ink-muted bg-zoru-surface-2 px-2 py-1 rounded w-fit">
+                      <div className="flex items-center gap-1.5 font-mono text-xs text-[var(--st-text-secondary)] bg-[var(--st-bg-muted)] px-2 py-1 rounded w-fit">
                         <ShieldCheck className="h-3.5 w-3.5" />
                         {webhook.secretPrefix}
                       </div>
@@ -220,7 +220,7 @@ export default function WebhooksPage() {
                             <TerminalSquare className="mr-2 h-4 w-4" /> View Delivery Logs
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-zoru-danger focus:text-zoru-danger">
+                          <DropdownMenuItem className="text-[var(--st-danger)] focus:text-[var(--st-danger)]">
                             <Trash2 className="mr-2 h-4 w-4" /> Delete
                           </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -237,16 +237,16 @@ export default function WebhooksPage() {
       <div className="flex flex-col gap-6 px-1 mt-8">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold tracking-tight text-zoru-ink">Recent Deliveries</h2>
-            <p className="text-sm text-zoru-ink-muted">View recent webhook attempts across all endpoints.</p>
+            <h2 className="text-lg font-semibold tracking-tight text-[var(--st-text)]">Recent Deliveries</h2>
+            <p className="text-sm text-[var(--st-text-secondary)]">View recent webhook attempts across all endpoints.</p>
           </div>
           <Button variant="outline" size="sm">View All Logs</Button>
         </div>
 
-        <div className="rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg overflow-x-auto">
+        <div className="rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow className="bg-zoru-surface-2/50 hover:bg-zoru-surface-2/50">
+              <TableRow className="bg-[var(--st-bg-muted)]/50 hover:bg-[var(--st-bg-muted)]/50">
                 <TableHead>Topic</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="hidden md:table-cell">Time</TableHead>
@@ -256,7 +256,7 @@ export default function WebhooksPage() {
             <TableBody>
               {mockLogs.map((log) => (
                 <TableRow key={log.id}>
-                  <TableCell className="font-mono text-xs text-zoru-ink">
+                  <TableCell className="font-mono text-xs text-[var(--st-text)]">
                     {log.topic}
                   </TableCell>
                   <TableCell>
@@ -266,7 +266,7 @@ export default function WebhooksPage() {
                       <Badge variant="danger" className="font-mono text-[10px] py-0">{log.status} ERR</Badge>
                     )}
                   </TableCell>
-                  <TableCell className="hidden md:table-cell text-sm text-zoru-ink-muted">
+                  <TableCell className="hidden md:table-cell text-sm text-[var(--st-text-secondary)]">
                     {log.time}
                   </TableCell>
                   <TableCell className="text-right">

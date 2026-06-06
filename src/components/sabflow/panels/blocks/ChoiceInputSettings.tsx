@@ -147,7 +147,7 @@ function ChoiceRow({
           title={showValue ? 'Hide saved value' : 'Set saved value (optional)'}
           className={`shrink-0 flex h-5 w-5 items-center justify-center rounded transition-colors ${
             showValue
-              ? 'text-zoru-ink bg-zoru-ink'
+              ? 'text-[var(--st-text)] bg-[var(--st-text)]'
               : 'text-[var(--gray-7)] hover:text-[var(--gray-10)] hover:bg-[var(--gray-3)]'
           }`}
         >
@@ -159,7 +159,7 @@ function ChoiceRow({
           type="button"
           onClick={onDelete}
           title="Remove choice"
-          className="shrink-0 flex h-5 w-5 items-center justify-center rounded text-[var(--gray-7)] hover:text-zoru-ink hover:bg-zoru-ink/10 transition-colors"
+          className="shrink-0 flex h-5 w-5 items-center justify-center rounded text-[var(--gray-7)] hover:text-[var(--st-text)] hover:bg-[var(--st-text)]/10 transition-colors"
         >
           <LuX className="h-3 w-3" strokeWidth={2.5} />
         </button>
@@ -175,7 +175,7 @@ function ChoiceRow({
               value={choice.value ?? ''}
               onChange={(e) => onChange({ value: e.target.value })}
               placeholder="Saved value (defaults to label)"
-              className="flex-1 min-w-0 rounded-md border border-[var(--gray-4)] bg-[var(--gray-1)] px-2 py-1 text-[11.5px] text-[var(--gray-11)] placeholder:text-[var(--gray-7)] outline-none focus:border-zoru-line transition-colors"
+              className="flex-1 min-w-0 rounded-md border border-[var(--gray-4)] bg-[var(--gray-1)] px-2 py-1 text-[11.5px] text-[var(--gray-11)] placeholder:text-[var(--gray-7)] outline-none focus:border-[var(--st-border)] transition-colors"
             />
           </div>
         </div>
@@ -277,7 +277,7 @@ export function ChoiceInputSettings({ block, onBlockChange, variables = [] }: Pr
           onClick={() => updateOptions({ isDynamic: false })}
           className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-left transition-colors ${
             !isDynamic
-              ? 'bg-zoru-ink text-zoru-ink'
+              ? 'bg-[var(--st-text)] text-[var(--st-text)]'
               : 'text-[var(--gray-9)] hover:bg-[var(--gray-3)]'
           }`}
         >
@@ -289,7 +289,7 @@ export function ChoiceInputSettings({ block, onBlockChange, variables = [] }: Pr
           onClick={() => updateOptions({ isDynamic: true })}
           className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-left transition-colors ${
             isDynamic
-              ? 'bg-zoru-ink text-zoru-ink'
+              ? 'bg-[var(--st-text)] text-[var(--st-text)]'
               : 'text-[var(--gray-9)] hover:bg-[var(--gray-3)]'
           }`}
         >
@@ -343,7 +343,7 @@ export function ChoiceInputSettings({ block, onBlockChange, variables = [] }: Pr
           <button
             type="button"
             onClick={addChoice}
-            className="w-full flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-[var(--gray-5)] py-2 text-[12px] font-medium text-[var(--gray-8)] hover:border-zoru-line hover:text-zoru-ink hover:bg-zoru-ink transition-colors"
+            className="w-full flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-[var(--gray-5)] py-2 text-[12px] font-medium text-[var(--gray-8)] hover:border-[var(--st-border)] hover:text-[var(--st-text)] hover:bg-[var(--st-text)] transition-colors"
           >
             <LuPlus className="h-3.5 w-3.5" strokeWidth={2.5} />
             Add choice
@@ -356,7 +356,7 @@ export function ChoiceInputSettings({ block, onBlockChange, variables = [] }: Pr
         <div className="space-y-3">
           <div className="rounded-lg border border-[var(--gray-4)] bg-[var(--gray-2)] px-3 py-2.5 flex items-start gap-2">
             <LuZap
-              className="h-3.5 w-3.5 shrink-0 mt-0.5 text-zoru-ink"
+              className="h-3.5 w-3.5 shrink-0 mt-0.5 text-[var(--st-text)]"
               strokeWidth={2}
             />
             <p className="text-[11.5px] text-[var(--gray-9)] leading-relaxed">

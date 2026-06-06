@@ -118,7 +118,7 @@ export function TicketDetailClient({
             <ZoruDropdownMenuTrigger asChild>
               <button
                 type="button"
-                className="inline-flex items-center gap-1 outline-none focus-visible:ring-2 focus-visible:ring-zoru-primary"
+                className="inline-flex items-center gap-1 outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]"
                 aria-label="Change status"
                 disabled={pending}
               >
@@ -130,7 +130,7 @@ export function TicketDetailClient({
                 ) : (
                   <StatusPill label="Set status" />
                 )}
-                <ChevronDown className="h-3 w-3 text-zoru-ink-muted" />
+                <ChevronDown className="h-3 w-3 text-[var(--st-text-secondary)]" />
               </button>
             </ZoruDropdownMenuTrigger>
             <ZoruDropdownMenuContent align="start">

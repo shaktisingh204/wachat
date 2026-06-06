@@ -97,8 +97,8 @@ export default function BillingHistoryPage() {
                 <ZoruButton variant="ghost" asChild className="mb-4 -ml-4">
                     <Link href="/dashboard/user/billing"><ChevronLeft className="mr-2 h-4 w-4" />Back to Billing</Link>
                 </ZoruButton>
-                <h1 className="text-3xl font-bold font-headline text-zoru-ink">Billing History</h1>
-                <p className="text-zoru-ink-muted">A record of all your plan upgrades and credit purchases.</p>
+                <h1 className="text-3xl font-bold font-headline text-[var(--st-text)]">Billing History</h1>
+                <p className="text-[var(--st-text-secondary)]">A record of all your plan upgrades and credit purchases.</p>
             </div>
 
             {error && (
@@ -112,9 +112,9 @@ export default function BillingHistoryPage() {
             {isInitialLoad ? (
                 <TransactionSkeleton />
             ) : (
-                <ZoruCard className="border border-zoru-line bg-zoru-surface/50 shadow-[var(--zoru-shadow-sm)]">
+                <ZoruCard className="border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 shadow-[var(--zoru-shadow-sm)]">
                     <ZoruCardHeader className="pb-4">
-                        <ZoruCardTitle className="text-zoru-ink mb-4">Your Transactions</ZoruCardTitle>
+                        <ZoruCardTitle className="text-[var(--st-text)] mb-4">Your Transactions</ZoruCardTitle>
                         <TransactionFilters 
                             searchQuery={searchQuery}
                             setSearchQuery={setSearchQuery}

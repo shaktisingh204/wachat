@@ -47,11 +47,11 @@ export function LogsClient({ projectId, initialData }: { projectId: string, init
         <div className="flex flex-col gap-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl text-zoru-ink flex items-center gap-3">
-                        <FileText className="h-8 w-8 text-zoru-ink" />
+                    <h1 className="text-3xl text-[var(--st-text)] flex items-center gap-3">
+                        <FileText className="h-8 w-8 text-[var(--st-text)]" />
                         Log Forensics
                     </h1>
-                    <p className="text-zoru-ink-muted mt-1">Identify bot traffic and crawl budget waste.</p>
+                    <p className="text-[var(--st-text-secondary)] mt-1">Identify bot traffic and crawl budget waste.</p>
                 </div>
             </div>
 
@@ -71,7 +71,7 @@ export function LogsClient({ projectId, initialData }: { projectId: string, init
                     </ZoruCardHeader>
                     <ZoruCardContent className="h-[300px]">
                         {loading ? (
-                            <div className="flex h-full items-center justify-center text-zoru-ink-muted">Loading...</div>
+                            <div className="flex h-full items-center justify-center text-[var(--st-text-secondary)]">Loading...</div>
                         ) : (
                             <>
                                 <ResponsiveContainer width="100%" height="100%">
@@ -94,7 +94,7 @@ export function LogsClient({ projectId, initialData }: { projectId: string, init
                                 </ResponsiveContainer>
                                 <div className="mt-4 flex justify-center gap-4 text-xs">
                                     {chartData.map((d: any) => (
-                                        <div key={d.name} className="flex items-center gap-1 text-zoru-ink">
+                                        <div key={d.name} className="flex items-center gap-1 text-[var(--st-text)]">
                                             <div className="h-3 w-3 rounded-full" style={{ background: d.color }}></div>
                                             {d.name}
                                         </div>
@@ -109,16 +109,16 @@ export function LogsClient({ projectId, initialData }: { projectId: string, init
             <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle className="flex items-center gap-2">
-                        <Activity className="h-5 w-5 text-zoru-danger-ink" />
+                        <Activity className="h-5 w-5 text-[var(--st-danger)]" />
                         Identify Crawl Waste
                     </ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent>
                     <div className="space-y-4">
-                        <div className="flex items-center justify-between border-b border-zoru-line pb-4">
+                        <div className="flex items-center justify-between border-b border-[var(--st-border)] pb-4">
                             <div>
-                                <h4 className="text-zoru-danger-ink">404 Errors (Googlebot)</h4>
-                                <p className="text-sm text-zoru-ink-muted">
+                                <h4 className="text-[var(--st-danger)]">404 Errors (Googlebot)</h4>
+                                <p className="text-sm text-[var(--st-text-secondary)]">
                                     {bot404s > 0 
                                         ? `Bots encountered ${bot404s} dead links.` 
                                         : 'No dead links hit by bots!'}
@@ -128,10 +128,10 @@ export function LogsClient({ projectId, initialData }: { projectId: string, init
                                 Fix Issues
                             </Button>
                         </div>
-                        <div className="flex items-center justify-between border-b border-zoru-line pb-4">
+                        <div className="flex items-center justify-between border-b border-[var(--st-border)] pb-4">
                             <div>
-                                <h4 className="text-zoru-warning">Slow Responses (&gt;2s)</h4>
-                                <p className="text-sm text-zoru-ink-muted">
+                                <h4 className="text-[var(--st-warn)]">Slow Responses (&gt;2s)</h4>
+                                <p className="text-sm text-[var(--st-text-secondary)]">
                                     {slowResponses > 0 
                                         ? `${slowResponses} URLs took >2s to respond to crawlers.` 
                                         : 'All responses to crawlers were fast!'}

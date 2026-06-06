@@ -290,10 +290,10 @@ export function ProposalForm({ initialData }: ProposalFormProps) {
                         {sections.map((s, idx) => (
                             <div
                                 key={idx}
-                                className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-3"
+                                className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3"
                             >
                                 <div className="mb-2 flex items-center gap-2">
-                                    <GripVertical className="h-4 w-4 text-zoru-ink-muted" />
+                                    <GripVertical className="h-4 w-4 text-[var(--st-text-secondary)]" />
                                     <Input
                                         placeholder={`Section ${idx + 1} heading`}
                                         value={s.heading}
@@ -311,7 +311,7 @@ export function ProposalForm({ initialData }: ProposalFormProps) {
                                         disabled={sections.length === 1}
                                         title="Remove section"
                                     >
-                                        <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                        <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                     </Button>
                                 </div>
                                 <Textarea
@@ -343,7 +343,7 @@ export function ProposalForm({ initialData }: ProposalFormProps) {
                         </SabFilePickerButton>
                     </div>
                     {attachments.length === 0 ? (
-                        <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-4 text-center text-[12.5px] text-zoru-ink-muted">
+                        <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-4 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                             No attachments yet. Use &ldquo;Add from SabFiles&rdquo;.
                         </div>
                     ) : (
@@ -351,14 +351,14 @@ export function ProposalForm({ initialData }: ProposalFormProps) {
                             {attachments.map((a, idx) => (
                                 <li
                                     key={`${a.url}-${idx}`}
-                                    className="flex items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 px-3 py-2"
+                                    className="flex items-center gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2"
                                 >
-                                    <Paperclip className="h-3.5 w-3.5 text-zoru-ink-muted" />
+                                    <Paperclip className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                                     <a
                                         href={a.url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="min-w-0 flex-1 truncate text-[12.5px] text-zoru-ink hover:underline"
+                                        className="min-w-0 flex-1 truncate text-[12.5px] text-[var(--st-text)] hover:underline"
                                     >
                                         {a.name || a.url}
                                     </a>

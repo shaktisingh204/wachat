@@ -59,7 +59,7 @@ export function CrmPageHeader({
       {hasBreadcrumbs ? (
         <nav
           aria-label="Breadcrumb"
-          className="flex flex-wrap items-center gap-1.5 text-[12px] text-zoru-ink-muted"
+          className="flex flex-wrap items-center gap-1.5 text-[12px] text-[var(--st-text-secondary)]"
         >
           <ol className="flex flex-wrap items-center gap-1.5">
             {breadcrumbs!.map((crumb, i) => {
@@ -70,20 +70,20 @@ export function CrmPageHeader({
                   {isLink ? (
                     <Link
                       href={crumb.href!}
-                      className="hover:text-zoru-ink transition-colors"
+                      className="hover:text-[var(--st-text)] transition-colors"
                     >
                       {crumb.label}
                     </Link>
                   ) : (
                     <span
-                      className={cn(isLast && 'text-zoru-ink font-medium')}
+                      className={cn(isLast && 'text-[var(--st-text)] font-medium')}
                       aria-current={isLast ? 'page' : undefined}
                     >
                       {crumb.label}
                     </span>
                   )}
                   {!isLast && (
-                    <span aria-hidden className="text-zoru-ink-muted/60">
+                    <span aria-hidden className="text-[var(--st-text-secondary)]/60">
                       /
                     </span>
                   )}
@@ -96,14 +96,14 @@ export function CrmPageHeader({
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex items-start gap-3">
           {Icon ? (
-            <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2">
-              <Icon className="h-5 w-5 text-zoru-ink" strokeWidth={1.75} />
+            <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)]">
+              <Icon className="h-5 w-5 text-[var(--st-text)]" strokeWidth={1.75} />
             </div>
           ) : null}
           <div className="min-w-0">
-            <h1 className="text-[26px] leading-tight text-zoru-ink">{title}</h1>
+            <h1 className="text-[26px] leading-tight text-[var(--st-text)]">{title}</h1>
             {subtitle ? (
-              <p className="mt-1 text-[13px] text-zoru-ink-muted">{subtitle}</p>
+              <p className="mt-1 text-[13px] text-[var(--st-text-secondary)]">{subtitle}</p>
             ) : null}
           </div>
         </div>

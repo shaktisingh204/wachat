@@ -225,7 +225,7 @@ function NewGroupDialog({
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="new-group-participants">Participants</Label>
-            <ZoruCommand className="rounded-[var(--zoru-radius)] border border-zoru-line">
+            <ZoruCommand className="rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
               <ZoruCommandInput
                 placeholder="Type a phone number (E.164) and press Enter"
                 value={phoneInput}
@@ -259,7 +259,7 @@ function NewGroupDialog({
                     onClick={() => removeParticipant(p)}
                   >
                     {p}
-                    <span className="ml-1 text-zoru-ink-muted">×</span>
+                    <span className="ml-1 text-[var(--st-text-secondary)]">×</span>
                   </Badge>
                 ))}
               </div>
@@ -341,7 +341,7 @@ const GroupCard = React.memo(function GroupCard({
         onTouchEnd={handleTouchEnd}
         onTouchCancel={handleTouchEnd}
       >
-        <Card className="cursor-pointer transition hover:shadow-[var(--zoru-shadow-md)] focus-within:ring-2 focus-within:ring-zoru-ink">
+        <Card className="cursor-pointer transition hover:shadow-[var(--zoru-shadow-md)] focus-within:ring-2 focus-within:ring-[var(--st-text)]">
           <ZoruCardContent className="p-4">
             <div className="flex items-start gap-3">
               <Avatar className="h-12 w-12 shrink-0">
@@ -354,7 +354,7 @@ const GroupCard = React.memo(function GroupCard({
                 <div className="flex items-start justify-between gap-2">
                   <button
                     type="button"
-                    className="min-w-0 truncate text-left text-base font-semibold text-zoru-ink hover:underline"
+                    className="min-w-0 truncate text-left text-base font-semibold text-[var(--st-text)] hover:underline"
                     onClick={onOpenChat}
                     title={displayName}
                   >
@@ -371,7 +371,7 @@ const GroupCard = React.memo(function GroupCard({
                     </Button>
                   </ZoruDropdownMenuTrigger>
                 </div>
-                <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-zoru-ink-muted">
+                <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-[var(--st-text-secondary)]">
                   <span className="inline-flex items-center gap-1">
                     <Users className="h-3 w-3" />
                     {group.participantCount}
@@ -433,7 +433,7 @@ const GroupCard = React.memo(function GroupCard({
         </ZoruDropdownMenuItem>
         <ZoruDropdownMenuSeparator />
         <ZoruDropdownMenuItem
-          className="text-zoru-danger focus:text-zoru-danger"
+          className="text-[var(--st-danger)] focus:text-[var(--st-danger)]"
           onSelect={() => onContextAction('leave', group.jid)}
         >
           <LogOut className="mr-2 h-4 w-4" />
@@ -485,9 +485,9 @@ function CategoryPill({
       className={cn(
         'inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition',
         active
-          ? 'border-zoru-ink bg-zoru-ink text-zoru-on-primary'
-          : 'border-zoru-line bg-zoru-bg text-zoru-ink hover:border-zoru-line-strong hover:bg-zoru-surface',
-        isOver && 'ring-2 ring-zoru-ink ring-offset-2',
+          ? 'border-[var(--st-text)] bg-[var(--st-text)] text-[var(--st-text-inverted)]'
+          : 'border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)] hover:border-[var(--st-border-strong)] hover:bg-[var(--st-bg-secondary)]',
+        isOver && 'ring-2 ring-[var(--st-text)] ring-offset-2',
       )}
     >
       {color ? (
@@ -503,8 +503,8 @@ function CategoryPill({
           className={cn(
             'rounded-full px-1.5 text-[10px]',
             active
-              ? 'bg-zoru-on-primary/20 text-zoru-on-primary'
-              : 'bg-zoru-surface text-zoru-ink-muted',
+              ? 'bg-[var(--st-text-inverted)]/20 text-[var(--st-text-inverted)]'
+              : 'bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]',
           )}
         >
           {count}
@@ -675,14 +675,14 @@ export function GroupsPageClient() {
 
       <div className="mt-5 flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-3">
-          <div className="rounded-[var(--zoru-radius)] bg-zoru-surface p-3 text-zoru-ink">
+          <div className="rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] p-3 text-[var(--st-text)]">
             <Users className="h-6 w-6" />
           </div>
           <div>
-            <h1 className="text-[26px] font-semibold leading-[1.15] tracking-[-0.015em] text-zoru-ink">
+            <h1 className="text-[26px] font-semibold leading-[1.15] tracking-[-0.015em] text-[var(--st-text)]">
               Groups
             </h1>
-            <p className="mt-0.5 text-[13px] text-zoru-ink-muted">
+            <p className="mt-0.5 text-[13px] text-[var(--st-text-secondary)]">
               All WhatsApp groups linked to this session.
             </p>
           </div>
@@ -758,8 +758,8 @@ export function GroupsPageClient() {
       {!sessionId ? (
         <Card className="mt-4">
           <ZoruCardContent className="flex flex-col items-center justify-center gap-2 py-12 text-center">
-            <Users className="h-8 w-8 text-zoru-ink-muted" />
-            <p className="text-sm text-zoru-ink-muted">
+            <Users className="h-8 w-8 text-[var(--st-text-secondary)]" />
+            <p className="text-sm text-[var(--st-text-secondary)]">
               Connect a WhatsApp device to see your groups.
             </p>
             <Button asChild>
@@ -776,8 +776,8 @@ export function GroupsPageClient() {
       ) : filteredGroups.length === 0 ? (
         <Card className="mt-4">
           <ZoruCardContent className="flex flex-col items-center justify-center gap-2 py-12 text-center">
-            <Users className="h-8 w-8 text-zoru-ink-muted" />
-            <p className="text-sm text-zoru-ink-muted">
+            <Users className="h-8 w-8 text-[var(--st-text-secondary)]" />
+            <p className="text-sm text-[var(--st-text-secondary)]">
               {search ? 'No groups match your search.' : 'No groups yet.'}
             </p>
           </ZoruCardContent>

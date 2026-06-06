@@ -81,15 +81,15 @@ export function AdminTemplateCategoryManager() {
                             : categories.length > 0 ? categories.map(cat => (
                                 <ZoruTableRow key={cat._id.toString()}>
                                     <ZoruTableCell className="font-medium">{cat.name}</ZoruTableCell>
-                                    <ZoruTableCell className="text-zoru-ink-muted">{cat.description}</ZoruTableCell>
+                                    <ZoruTableCell className="text-[var(--st-text-secondary)]">{cat.description}</ZoruTableCell>
                                     <ZoruTableCell className="text-right w-16">
                                         <Button variant="ghost" size="icon" disabled>
-                                            <Trash2 className="h-4 w-4 text-zoru-ink"/>
+                                            <Trash2 className="h-4 w-4 text-[var(--st-text)]"/>
                                         </Button>
                                     </ZoruTableCell>
                                 </ZoruTableRow>
                             ))
-                            : <ZoruTableRow><ZoruTableCell className="text-center text-zoru-ink-muted">No custom categories created yet.</ZoruTableCell></ZoruTableRow>}
+                            : <ZoruTableRow><ZoruTableCell className="text-center text-[var(--st-text-secondary)]">No custom categories created yet.</ZoruTableCell></ZoruTableRow>}
                         </ZoruTableBody>
                     </Table>
                 </div>

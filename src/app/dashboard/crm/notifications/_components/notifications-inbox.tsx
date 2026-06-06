@@ -87,11 +87,11 @@ export function NotificationsInbox({ initialNotifications }: NotificationsInboxP
 
       {rows.length === 0 ? (
         <Card className="flex items-center justify-center py-12">
-          <p className="text-[13px] text-zoru-ink-muted">Your inbox is empty.</p>
+          <p className="text-[13px] text-[var(--st-text-secondary)]">Your inbox is empty.</p>
         </Card>
       ) : (
         <Card className="p-0">
-          <ul className="divide-y divide-zoru-line">
+          <ul className="divide-y divide-[var(--st-border)]">
             {rows.map((n) => {
               const read = Boolean(n.read_at);
               return (
@@ -99,25 +99,25 @@ export function NotificationsInbox({ initialNotifications }: NotificationsInboxP
                   key={n._id}
                   className={
                     'flex items-start gap-3 px-4 py-3 ' +
-                    (read ? '' : 'bg-zoru-surface-2/40')
+                    (read ? '' : 'bg-[var(--st-bg-muted)]/40')
                   }
                 >
-                  <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zoru-surface-2">
-                    <Bell className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
+                  <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--st-bg-muted)]">
+                    <Bell className="h-4 w-4 text-[var(--st-text-secondary)]" strokeWidth={1.75} />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-[13px] font-medium text-zoru-ink">
+                      <span className="text-[13px] font-medium text-[var(--st-text)]">
                         {n.title}
                       </span>
                       <Badge variant="ghost">{n.type}</Badge>
                       {!read ? <Badge variant="danger">New</Badge> : null}
-                      <span className="ml-auto text-[11.5px] text-zoru-ink-muted">
+                      <span className="ml-auto text-[11.5px] text-[var(--st-text-secondary)]">
                         {formatStamp(n.createdAt)}
                       </span>
                     </div>
                     {n.body ? (
-                      <p className="mt-1 whitespace-pre-wrap text-[13px] text-zoru-ink">
+                      <p className="mt-1 whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
                         {n.body}
                       </p>
                     ) : null}

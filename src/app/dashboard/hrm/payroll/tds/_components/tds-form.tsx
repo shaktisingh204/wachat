@@ -168,12 +168,12 @@ export function TdsForm({ initialData }: TdsFormProps) {
 
                 <div className="flex items-center justify-between pb-4 border-b">
                     <div className="flex items-center gap-2 text-sm">
-                        <div className={`h-2 w-2 rounded-full ${wsConnected ? 'bg-zoru-ink' : 'bg-zoru-surface-2'}`}></div>
-                        <span className="text-zoru-ink-muted">
+                        <div className={`h-2 w-2 rounded-full ${wsConnected ? 'bg-[var(--st-text)]' : 'bg-[var(--st-bg-muted)]'}`}></div>
+                        <span className="text-[var(--st-text-secondary)]">
                             {wsConnected ? 'Connected (Collaborative Editing)' : 'Connecting...'}
                         </span>
                         {wsConnected && (
-                            <span className="flex items-center gap-1 ml-2 text-zoru-ink bg-zoru-surface-2 px-2 py-0.5 rounded-full text-xs">
+                            <span className="flex items-center gap-1 ml-2 text-[var(--st-text)] bg-[var(--st-bg-muted)] px-2 py-0.5 rounded-full text-xs">
                                 <Users className="h-3 w-3" />
                                 1 active
                             </span>

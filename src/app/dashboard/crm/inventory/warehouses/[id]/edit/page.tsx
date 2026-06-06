@@ -39,7 +39,7 @@ export default async function EditWarehousePage({ params }: PageProps) {
 
     const initialData = JSON.parse(JSON.stringify(warehouse));
     return (
-        <Suspense fallback={<div className="p-8 flex justify-center"><div className="animate-spin h-8 w-8 border-4 border-zoru-primary border-t-transparent rounded-full"></div></div>}>
+        <Suspense fallback={<div className="p-8 flex justify-center"><div className="animate-spin h-8 w-8 border-4 border-[var(--st-text)] border-t-transparent rounded-full"></div></div>}>
             <WarehouseForm initialData={initialData} />
         </Suspense>
     );

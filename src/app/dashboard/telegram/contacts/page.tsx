@@ -853,13 +853,13 @@ export default function TelegramContactsPage() {
                     <Users className="h-6 w-6 text-white" strokeWidth={1.75} />
                 </div>
                 <div className="flex-1">
-                    <p className="text-[11px] uppercase tracking-[0.14em] text-zoru-ink-subtle">
+                    <p className="text-[11px] uppercase tracking-[0.14em] text-[var(--st-text-tertiary)]">
                         Telegram
                     </p>
-                    <h1 className="mt-0.5 text-[22px] leading-tight text-zoru-ink">
+                    <h1 className="mt-0.5 text-[22px] leading-tight text-[var(--st-text)]">
                         Telegram Contacts
                     </h1>
-                    <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-zoru-ink-muted">
+                    <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-[var(--st-text-secondary)]">
                         A unified directory of every Telegram user across your bots — enrich with tags, custom
                         fields, assignees, and segment them for targeted broadcasts.
                     </p>
@@ -886,7 +886,7 @@ export default function TelegramContactsPage() {
 
             {!projectId ? (
                 <Card className="p-6">
-                    <div className="flex items-center gap-2 text-zoru-ink-muted">
+                    <div className="flex items-center gap-2 text-[var(--st-text-secondary)]">
                         <AlertCircle className="h-4 w-4" />
                         <span className="text-sm">Select a project to view Telegram contacts.</span>
                     </div>
@@ -923,7 +923,7 @@ export default function TelegramContactsPage() {
                     <Card className="p-3">
                         <div className="flex flex-wrap items-center gap-3">
                             <div className="relative min-w-[220px] flex-1">
-                                <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zoru-ink-subtle" />
+                                <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--st-text-tertiary)]" />
                                 <Input
                                     placeholder="Search name, username, phone, notes"
                                     value={search}
@@ -982,11 +982,11 @@ export default function TelegramContactsPage() {
                                     onChange={(r) => setRange({ from: r?.from, to: r?.to })}
                                 />
                             </div>
-                            <label className="flex items-center gap-2 text-[12.5px] text-zoru-ink-muted">
+                            <label className="flex items-center gap-2 text-[12.5px] text-[var(--st-text-secondary)]">
                                 <Switch checked={hasPhone} onCheckedChange={setHasPhone} />
                                 Has phone
                             </label>
-                            <label className="flex items-center gap-2 text-[12.5px] text-zoru-ink-muted">
+                            <label className="flex items-center gap-2 text-[12.5px] text-[var(--st-text-secondary)]">
                                 <Switch checked={blockedFilter} onCheckedChange={setBlockedFilter} />
                                 Blocked only
                             </label>
@@ -1031,7 +1031,7 @@ export default function TelegramContactsPage() {
                                 ))}
                             </div>
                         ) : data?.error ? (
-                            <div className="flex items-center gap-2 p-6 text-sm text-zoru-danger-ink">
+                            <div className="flex items-center gap-2 p-6 text-sm text-[var(--st-danger)]">
                                 <AlertCircle className="h-4 w-4" />
                                 {data.error}
                             </div>
@@ -1056,7 +1056,7 @@ export default function TelegramContactsPage() {
                         ) : (
                             <div className="overflow-x-auto">
                                 <table className="w-full text-sm">
-                                    <thead className="border-b border-zoru-line bg-zoru-surface-2 text-left text-[12px] uppercase tracking-wide text-zoru-ink-subtle">
+                                    <thead className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)] text-left text-[12px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                                         <tr>
                                             <th className="w-10 p-3">
                                                 <Checkbox
@@ -1080,7 +1080,7 @@ export default function TelegramContactsPage() {
                                             return (
                                                 <tr
                                                     key={row._id}
-                                                    className="group border-b border-zoru-line/60 last:border-b-0 hover:bg-zoru-surface-2/40 cursor-pointer"
+                                                    className="group border-b border-[var(--st-border)]/60 last:border-b-0 hover:bg-[var(--st-bg-muted)]/40 cursor-pointer"
                                                     onClick={(e) => {
                                                         if ((e.target as HTMLElement).closest('[data-stop]')) return;
                                                         openView(row);
@@ -1105,10 +1105,10 @@ export default function TelegramContactsPage() {
                                                                 <ZoruAvatarFallback>{initials(row)}</ZoruAvatarFallback>
                                                             </Avatar>
                                                             <div className="min-w-0">
-                                                                <div className="truncate text-zoru-ink">
+                                                                <div className="truncate text-[var(--st-text)]">
                                                                     {displayName(row)}
                                                                 </div>
-                                                                <div className="flex items-center gap-1.5 text-[11.5px] text-zoru-ink-subtle">
+                                                                <div className="flex items-center gap-1.5 text-[11.5px] text-[var(--st-text-tertiary)]">
                                                                     {row.blocked ? (
                                                                         <Badge variant="warning">Blocked</Badge>
                                                                     ) : null}
@@ -1128,15 +1128,15 @@ export default function TelegramContactsPage() {
                                                                 href={`https://t.me/${row.username}`}
                                                                 target="_blank"
                                                                 rel="noreferrer"
-                                                                className="text-[13px] text-zoru-ink hover:underline"
+                                                                className="text-[13px] text-[var(--st-text)] hover:underline"
                                                             >
                                                                 @{row.username}
                                                             </a>
                                                         ) : (
-                                                            <span className="text-zoru-ink-subtle">—</span>
+                                                            <span className="text-[var(--st-text-tertiary)]">—</span>
                                                         )}
                                                     </td>
-                                                    <td className="p-3 font-mono text-[12px] text-zoru-ink-muted">
+                                                    <td className="p-3 font-mono text-[12px] text-[var(--st-text-secondary)]">
                                                         {row.phoneNumber ? truncate(row.phoneNumber, 16) : '—'}
                                                     </td>
                                                     <td className="p-3">
@@ -1147,19 +1147,19 @@ export default function TelegramContactsPage() {
                                                                 </Badge>
                                                             ))}
                                                             {row.tags && row.tags.length > 3 ? (
-                                                                <span className="text-[11px] text-zoru-ink-subtle">
+                                                                <span className="text-[11px] text-[var(--st-text-tertiary)]">
                                                                     +{row.tags.length - 3}
                                                                 </span>
                                                             ) : null}
                                                         </div>
                                                     </td>
-                                                    <td className="p-3 text-[12px] text-zoru-ink-muted">
+                                                    <td className="p-3 text-[12px] text-[var(--st-text-secondary)]">
                                                         {row.languageCode ?? '—'}
                                                     </td>
-                                                    <td className="p-3 text-[12px] text-zoru-ink-muted">
+                                                    <td className="p-3 text-[12px] text-[var(--st-text-secondary)]">
                                                         {fmtRelative(row.lastInteractionAt)}
                                                     </td>
-                                                    <td className="p-3 text-[12px] text-zoru-ink-muted">
+                                                    <td className="p-3 text-[12px] text-[var(--st-text-secondary)]">
                                                         {row.assignedAgentId
                                                             ? truncate(row.assignedAgentId, 10)
                                                             : '—'}
@@ -1221,7 +1221,7 @@ export default function TelegramContactsPage() {
                         )}
 
                         {data && rows.length > 0 ? (
-                            <div className="flex items-center justify-between border-t border-zoru-line p-3 text-[12px] text-zoru-ink-muted">
+                            <div className="flex items-center justify-between border-t border-[var(--st-border)] p-3 text-[12px] text-[var(--st-text-secondary)]">
                                 <span>
                                     {(page - 1) * PAGE_SIZE + 1}–{(page - 1) * PAGE_SIZE + rows.length} of{' '}
                                     {data.total}
@@ -1257,7 +1257,7 @@ export default function TelegramContactsPage() {
                 {/* Segments panel */}
                 <Card className="p-3">
                     <div className="mb-2 flex items-center justify-between">
-                        <h3 className="text-[13.5px] font-medium text-zoru-ink">Segments</h3>
+                        <h3 className="text-[13.5px] font-medium text-[var(--st-text)]">Segments</h3>
                         <Button
                             size="sm"
                             variant="ghost"
@@ -1274,7 +1274,7 @@ export default function TelegramContactsPage() {
                             <Skeleton className="h-10 w-full" />
                         </div>
                     ) : segments.length === 0 ? (
-                        <p className="text-[12.5px] text-zoru-ink-muted">
+                        <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                             Save the current filter as a segment to reuse later.
                         </p>
                     ) : (
@@ -1282,15 +1282,15 @@ export default function TelegramContactsPage() {
                             {segments.map((seg) => (
                                 <li
                                     key={seg._id}
-                                    className="group flex items-center justify-between gap-2 rounded-md border border-transparent px-2 py-1.5 hover:border-zoru-line hover:bg-zoru-surface-2/60"
+                                    className="group flex items-center justify-between gap-2 rounded-md border border-transparent px-2 py-1.5 hover:border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]/60"
                                 >
                                     <button
                                         type="button"
                                         onClick={() => applySegment(seg)}
                                         className="flex min-w-0 flex-1 flex-col items-start gap-0.5 text-left"
                                     >
-                                        <span className="truncate text-[13px] text-zoru-ink">{seg.name}</span>
-                                        <span className="text-[11px] text-zoru-ink-subtle">
+                                        <span className="truncate text-[13px] text-[var(--st-text)]">{seg.name}</span>
+                                        <span className="text-[11px] text-[var(--st-text-tertiary)]">
                                             {seg.memberCount.toLocaleString()} member
                                             {seg.memberCount === 1 ? '' : 's'}
                                         </span>
@@ -1329,7 +1329,7 @@ export default function TelegramContactsPage() {
 
                     {/* Segmented tabs */}
                     <div className="px-6 pb-2">
-                        <div className="flex flex-wrap gap-1 rounded-md border border-zoru-line p-1">
+                        <div className="flex flex-wrap gap-1 rounded-md border border-[var(--st-border)] p-1">
                             {(
                                 [
                                     { v: 'overview', label: 'Overview' },
@@ -1344,8 +1344,8 @@ export default function TelegramContactsPage() {
                                     type="button"
                                     onClick={() => setEditorTab(t.v)}
                                     className={`flex-1 rounded-sm px-3 py-1.5 text-[12px] transition-colors ${editorTab === t.v
-                                        ? 'bg-zoru-surface-2 text-zoru-ink'
-                                        : 'text-zoru-ink-muted hover:text-zoru-ink'
+                                        ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
+                                        : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]'
                                         }`}
                                 >
                                     {t.label}
@@ -1426,7 +1426,7 @@ export default function TelegramContactsPage() {
                                     />
                                 </Field>
                                 <div className="sm:col-span-2 flex flex-wrap gap-4">
-                                    <label className="flex items-center gap-2 text-[12.5px] text-zoru-ink-muted">
+                                    <label className="flex items-center gap-2 text-[12.5px] text-[var(--st-text-secondary)]">
                                         <Switch
                                             checked={editorForm.blocked}
                                             onCheckedChange={(v) =>
@@ -1436,7 +1436,7 @@ export default function TelegramContactsPage() {
                                         />
                                         Blocked
                                     </label>
-                                    <label className="flex items-center gap-2 text-[12.5px] text-zoru-ink-muted">
+                                    <label className="flex items-center gap-2 text-[12.5px] text-[var(--st-text-secondary)]">
                                         <Switch
                                             checked={editorForm.isPremium}
                                             onCheckedChange={(v) =>
@@ -1446,7 +1446,7 @@ export default function TelegramContactsPage() {
                                         />
                                         Premium
                                     </label>
-                                    <label className="flex items-center gap-2 text-[12.5px] text-zoru-ink-muted">
+                                    <label className="flex items-center gap-2 text-[12.5px] text-[var(--st-text-secondary)]">
                                         <Switch
                                             checked={editorForm.isVerified}
                                             onCheckedChange={(v) =>
@@ -1464,7 +1464,7 @@ export default function TelegramContactsPage() {
                             <div className="grid gap-2">
                                 <div className="flex flex-wrap gap-1">
                                     {editorForm.tags.length === 0 ? (
-                                        <span className="text-[12px] text-zoru-ink-muted">No tags yet.</span>
+                                        <span className="text-[12px] text-[var(--st-text-secondary)]">No tags yet.</span>
                                     ) : null}
                                     {editorForm.tags.map((t) => (
                                         <Badge key={t} variant="secondary" className="gap-1">
@@ -1473,7 +1473,7 @@ export default function TelegramContactsPage() {
                                                 <button
                                                     type="button"
                                                     onClick={() => removeTagFromEditor(t)}
-                                                    className="ml-1 text-zoru-ink-muted hover:text-zoru-ink"
+                                                    className="ml-1 text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                                                     aria-label={`Remove ${t}`}
                                                 >
                                                     <X className="h-3 w-3" />
@@ -1508,7 +1508,7 @@ export default function TelegramContactsPage() {
                         {editorTab === 'fields' ? (
                             <div className="grid gap-2">
                                 {editorForm.customFields.length === 0 ? (
-                                    <p className="text-[12px] text-zoru-ink-muted">No custom fields yet.</p>
+                                    <p className="text-[12px] text-[var(--st-text-secondary)]">No custom fields yet.</p>
                                 ) : null}
                                 {editorForm.customFields.map((cf, i) => (
                                     <div key={i} className="grid grid-cols-[1fr_1fr_auto] gap-2">
@@ -1559,28 +1559,28 @@ export default function TelegramContactsPage() {
                         ) : null}
 
                         {editorTab === 'activity' ? (
-                            <div className="grid gap-2 text-[13px] text-zoru-ink-muted">
+                            <div className="grid gap-2 text-[13px] text-[var(--st-text-secondary)]">
                                 <p>
                                     Last interaction:{' '}
-                                    <span className="text-zoru-ink">
+                                    <span className="text-[var(--st-text)]">
                                         {fmtRelative(activeRow?.lastInteractionAt)}
                                     </span>
                                 </p>
                                 <p>
                                     Created:{' '}
-                                    <span className="text-zoru-ink">
+                                    <span className="text-[var(--st-text)]">
                                         {activeRow ? fmtDate(activeRow.createdAt) : '—'}
                                     </span>
                                 </p>
                                 <p>
                                     Source:{' '}
-                                    <span className="text-zoru-ink">
+                                    <span className="text-[var(--st-text)]">
                                         {activeRow?.source ?? '—'}
                                     </span>
                                 </p>
                                 <p>
                                     Bot:{' '}
-                                    <span className="text-zoru-ink">
+                                    <span className="text-[var(--st-text)]">
                                         {activeRow?.botId
                                             ? bots.find((b) => b.id === activeRow.botId)?.username ??
                                               activeRow.botId
@@ -1595,7 +1595,7 @@ export default function TelegramContactsPage() {
                         ) : null}
 
                         {editorErr ? (
-                            <p className="text-[12.5px] text-zoru-danger-ink">{editorErr}</p>
+                            <p className="text-[12.5px] text-[var(--st-danger)]">{editorErr}</p>
                         ) : null}
                     </div>
 
@@ -1635,9 +1635,9 @@ export default function TelegramContactsPage() {
                         </ZoruDialogDescription>
                     </ZoruDialogHeader>
                     <div className="grid gap-3">
-                        <div className="text-[12px] text-zoru-ink-muted">
+                        <div className="text-[12px] text-[var(--st-text-secondary)]">
                             Sample:
-                            <pre className="mt-1 overflow-x-auto rounded-md border border-zoru-line bg-zoru-surface-2 p-2 font-mono text-[11.5px]">
+                            <pre className="mt-1 overflow-x-auto rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2 font-mono text-[11.5px]">
 {`chatId,firstName,lastName,username,phoneNumber,languageCode,tags,notes
 123456,Ada,Lovelace,ada,+15555550100,en,vip;newsletter,Met at conf 2026`}
                             </pre>
@@ -1832,9 +1832,9 @@ export default function TelegramContactsPage() {
                                 rows={3}
                             />
                         </Field>
-                        <details className="text-[12px] text-zoru-ink-muted">
+                        <details className="text-[12px] text-[var(--st-text-secondary)]">
                             <summary className="cursor-pointer select-none">Preview filter</summary>
-                            <pre className="mt-1 overflow-x-auto rounded-md border border-zoru-line bg-zoru-surface-2 p-2 font-mono text-[11.5px]">
+                            <pre className="mt-1 overflow-x-auto rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2 font-mono text-[11.5px]">
                                 {JSON.stringify(currentFilter, null, 2)}
                             </pre>
                         </details>
@@ -1868,13 +1868,13 @@ function KpiCard({
     return (
         <Card>
             <ZoruCardContent className="flex flex-col gap-1 pt-5">
-                <p className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-subtle">
+                <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-tertiary)]">
                     {label}
                 </p>
                 {loading ? (
                     <Skeleton className="h-7 w-24" />
                 ) : (
-                    <p className="text-2xl font-semibold tracking-tight text-zoru-ink">{value}</p>
+                    <p className="text-2xl font-semibold tracking-tight text-[var(--st-text)]">{value}</p>
                 )}
             </ZoruCardContent>
         </Card>
@@ -1885,7 +1885,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
     return (
         <label className="flex flex-col gap-1.5">
             <TelegramProjectGate />
-            <span className="text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
+            <span className="text-[11.5px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
                 {label}
             </span>
             {children}

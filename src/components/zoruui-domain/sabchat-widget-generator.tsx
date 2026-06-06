@@ -94,7 +94,7 @@ export function SabChatWidgetGenerator({ user }: { user: WithId<User> }) {
                     <div className="grid lg:grid-cols-2 gap-8 items-start">
                         {/* Customization Panel */}
                         <div className="space-y-4">
-                            <div className="flex items-center space-x-2 border p-4 rounded-lg bg-zoru-surface-2">
+                            <div className="flex items-center space-x-2 border p-4 rounded-lg bg-[var(--st-bg-muted)]">
                                 <Switch
                                     id="widget-enabled"
                                     checked={settings.enabled}
@@ -102,7 +102,7 @@ export function SabChatWidgetGenerator({ user }: { user: WithId<User> }) {
                                 />
                                 <div className="grid gap-1.5 leading-none">
                                     <Label htmlFor="widget-enabled">Enable Chat Widget</Label>
-                                    <p className="text-sm text-zoru-ink-muted">
+                                    <p className="text-sm text-[var(--st-text-secondary)]">
                                         {settings.enabled ? 'Widget is active and visible on your site.' : 'Widget is disabled and hidden from your site.'}
                                     </p>
                                 </div>
@@ -132,7 +132,7 @@ export function SabChatWidgetGenerator({ user }: { user: WithId<User> }) {
                         {/* Preview and Code Panel */}
                         <div className="space-y-4">
                             <Label>Live Preview</Label>
-                            <div className="relative h-[400px] bg-zoru-surface-2 rounded-lg overflow-hidden flex items-end p-4 justify-end">
+                            <div className="relative h-[400px] bg-[var(--st-bg-muted)] rounded-lg overflow-hidden flex items-end p-4 justify-end">
                                 <div className="static">
                                     <Button style={{ backgroundColor: settings.widgetColor }} onClick={() => setShowWidget(!showWidget)} className="relative h-16 w-16 rounded-full">
                                         <MessageSquare className="h-8 w-8" />
@@ -148,7 +148,7 @@ export function SabChatWidgetGenerator({ user }: { user: WithId<User> }) {
                                                     <h4 className="font-bold">{settings.teamName}</h4>
                                                 </div>
                                             </div>
-                                            <div className="flex-1 p-4 bg-zoru-surface-2">
+                                            <div className="flex-1 p-4 bg-[var(--st-bg-muted)]">
                                                 <div className="p-3 bg-white rounded-lg shadow-sm text-sm">
                                                     {settings.welcomeMessage}
                                                 </div>
@@ -159,7 +159,7 @@ export function SabChatWidgetGenerator({ user }: { user: WithId<User> }) {
                             </div>
                             <div className="space-y-2">
                                 <Label>Embed Code</Label>
-                                <p className="text-xs text-zoru-ink-muted">Copy and paste this code before the closing `&lt;/body&gt;` tag on your website.</p>
+                                <p className="text-xs text-[var(--st-text-secondary)]">Copy and paste this code before the closing `&lt;/body&gt;` tag on your website.</p>
                                 <CodeBlock code={embedCode} />
                             </div>
                         </div>

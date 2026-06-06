@@ -422,7 +422,7 @@ export function BroadcastForm({
                     value={template._id.toString()}
                   >
                     {template.name}
-                    <span className="ml-2 text-[11px] capitalize text-zoru-ink-muted">
+                    <span className="ml-2 text-[11px] capitalize text-[var(--st-text-secondary)]">
                       {template.status
                         ? template.status.replace(/_/g, ' ').toLowerCase()
                         : 'n/a'}
@@ -430,7 +430,7 @@ export function BroadcastForm({
                   </ZoruSelectItem>
                 ))
               ) : (
-                <div className="px-2 py-4 text-center text-[12px] text-zoru-ink-muted">
+                <div className="px-2 py-4 text-center text-[12px] text-[var(--st-text-secondary)]">
                   No approved templates found. Sync with Meta or create a new
                   one.
                 </div>
@@ -457,7 +457,7 @@ export function BroadcastForm({
                   </ZoruSelectItem>
                 ))
               ) : (
-                <div className="px-2 py-4 text-center text-[12px] text-zoru-ink-muted">
+                <div className="px-2 py-4 text-center text-[12px] text-[var(--st-text-secondary)]">
                   No flows found. Sync with Meta or create a new one.
                 </div>
               )}
@@ -468,12 +468,12 @@ export function BroadcastForm({
 
       {/* ── Flow-only fields ── */}
       {broadcastType === 'flow' && (
-        <div className="grid gap-4 rounded-[14px] border border-zoru-line bg-zoru-surface-2 p-5 md:grid-cols-2">
+        <div className="grid gap-4 rounded-[14px] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-5 md:grid-cols-2">
           <div className="md:col-span-2">
-            <Label className="text-[11.5px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+            <Label className="text-[11.5px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
               Flow entry message
             </Label>
-            <p className="mt-0.5 text-[11.5px] text-zoru-ink-muted">
+            <p className="mt-0.5 text-[11.5px] text-[var(--st-text-secondary)]">
               Define how the flow entry message looks to the user.
             </p>
           </div>
@@ -544,13 +544,13 @@ export function BroadcastForm({
         {audienceType === 'file' ? (
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between">
-              <Label className="text-[11.5px] font-semibold text-zoru-ink-muted">
-                Contact file <span className="ml-1 text-zoru-ink">*</span>
+              <Label className="text-[11.5px] font-semibold text-[var(--st-text-secondary)]">
+                Contact file <span className="ml-1 text-[var(--st-text)]">*</span>
               </Label>
               <button
                 type="button"
                 onClick={handleDownloadSample}
-                className="inline-flex items-center gap-1 text-[11px] font-medium text-zoru-ink-muted transition-colors hover:text-zoru-ink"
+                className="inline-flex items-center gap-1 text-[11px] font-medium text-[var(--st-text-secondary)] transition-colors hover:text-[var(--st-text)]"
               >
                 <LuDownload className="h-3 w-3" strokeWidth={2} />
                 Sample CSV
@@ -560,22 +560,22 @@ export function BroadcastForm({
               className={cn(
                 'group flex cursor-pointer flex-col items-center justify-center gap-2 rounded-[12px] border-2 border-dashed px-4 py-6 text-center transition-colors',
                 selectedFile
-                  ? 'border-primary bg-zoru-surface-2/60'
-                  : 'border-zoru-line bg-zoru-surface-2 hover:bg-zoru-surface-2',
+                  ? 'border-primary bg-[var(--st-bg-muted)]/60'
+                  : 'border-[var(--st-border)] bg-[var(--st-bg-muted)] hover:bg-[var(--st-bg-muted)]',
               )}
             >
               <LuUpload
                 className={cn(
                   'h-5 w-5 transition-colors',
-                  selectedFile ? 'text-zoru-ink' : 'text-zoru-ink-muted',
+                  selectedFile ? 'text-[var(--st-text)]' : 'text-[var(--st-text-secondary)]',
                 )}
                 strokeWidth={1.75}
               />
               <div className="flex flex-col gap-0.5">
-                <span className="text-[13px] font-medium text-zoru-ink">
+                <span className="text-[13px] font-medium text-[var(--st-text)]">
                   {selectedFile?.name || 'Click to choose a file'}
                 </span>
-                <span className="text-[11px] text-zoru-ink-muted">
+                <span className="text-[11px] text-[var(--st-text-secondary)]">
                   {selectedFile ? 'Click to replace' : 'CSV or XLSX'}
                 </span>
               </div>
@@ -590,28 +590,28 @@ export function BroadcastForm({
                 className="sr-only"
               />
             </label>
-            <div className="mt-0.5 text-[11px] text-zoru-ink-muted">
+            <div className="mt-0.5 text-[11px] text-[var(--st-text-secondary)]">
               For variables, use column names that match your template (e.g.{' '}
-              <code className="rounded-[3px] bg-zoru-surface-2 px-1 font-mono text-[10px] text-zoru-ink">
+              <code className="rounded-[3px] bg-[var(--st-bg-muted)] px-1 font-mono text-[10px] text-[var(--st-text)]">
                 variable1
               </code>
               ).
             </div>
 
             {isValidating ? (
-              <p className="mt-1 inline-flex items-center gap-1.5 text-[11.5px] text-zoru-ink">
+              <p className="mt-1 inline-flex items-center gap-1.5 text-[11.5px] text-[var(--st-text)]">
                 <LuLoader className="h-3 w-3 animate-spin" />
                 Validating file…
               </p>
             ) : null}
 
             {validationErrors.length > 0 && (
-              <div className="mt-2 rounded-[12px] border border-destructive/40 bg-zoru-surface-2 p-3">
-                <div className="flex items-center gap-2 text-[12px] font-semibold text-zoru-ink">
+              <div className="mt-2 rounded-[12px] border border-destructive/40 bg-[var(--st-bg-muted)] p-3">
+                <div className="flex items-center gap-2 text-[12px] font-semibold text-[var(--st-text)]">
                   <LuCircleAlert className="h-3.5 w-3.5" strokeWidth={2} />
                   File error
                 </div>
-                <ul className="mt-1.5 list-disc space-y-0.5 pl-5 text-[11.5px] text-zoru-ink/90">
+                <ul className="mt-1.5 list-disc space-y-0.5 pl-5 text-[11.5px] text-[var(--st-text)]/90">
                   {validationErrors.slice(0, 5).map((err, i) => (
                     <li key={i}>{err}</li>
                   ))}
@@ -624,7 +624,7 @@ export function BroadcastForm({
           </div>
         ) : (
           <div className="flex flex-col gap-1.5">
-            <Label className="text-[11.5px] font-semibold text-zoru-ink-muted">
+            <Label className="text-[11.5px] font-semibold text-[var(--st-text-secondary)]">
               Contact tags
             </Label>
             <Popover>
@@ -633,8 +633,8 @@ export function BroadcastForm({
                   type="button"
                   role="combobox"
                   className={cn(
-                    'inline-flex h-10 w-full items-center justify-between gap-2 rounded-[10px] border border-zoru-line bg-zoru-surface px-3 text-[13px] font-medium transition-colors hover:border-zoru-line',
-                    selectedTagIds.length === 0 && 'text-zoru-ink-muted',
+                    'inline-flex h-10 w-full items-center justify-between gap-2 rounded-[10px] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 text-[13px] font-medium transition-colors hover:border-[var(--st-border)]',
+                    selectedTagIds.length === 0 && 'text-[var(--st-text-secondary)]',
                   )}
                 >
                   <span className="inline-flex items-center gap-1.5 truncate">
@@ -672,8 +672,8 @@ export function BroadcastForm({
                               className={cn(
                                 'mr-2 flex h-4 w-4 items-center justify-center rounded-[4px] border',
                                 isSelected
-                                  ? 'border-primary bg-zoru-ink text-white'
-                                  : 'border-zoru-line',
+                                  ? 'border-primary bg-[var(--st-text)] text-white'
+                                  : 'border-[var(--st-border)]',
                               )}
                             >
                               {isSelected ? (
@@ -696,7 +696,7 @@ export function BroadcastForm({
                 </ZoruCommand>
               </ZoruPopoverContent>
             </Popover>
-            <div className="mt-0.5 text-[11px] text-zoru-ink-muted">
+            <div className="mt-0.5 text-[11px] text-[var(--st-text-secondary)]">
               Send this broadcast to every contact matching one or more of
               these tags.
             </div>
@@ -708,7 +708,7 @@ export function BroadcastForm({
       {broadcastType === 'template' && selectedTemplate && (
         <div className="flex flex-col gap-3">
           <StepLabel step={5} label="Template variables" />
-          <div className="rounded-[14px] border border-zoru-line bg-zoru-surface-2 p-5">
+          <div className="rounded-[14px] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-5">
             <TemplateInputRenderer
               template={selectedTemplate}
               variableOptions={variableOptions}
@@ -718,17 +718,17 @@ export function BroadcastForm({
       )}
 
       {/* ── Options ── */}
-      <div className="flex items-center gap-3 rounded-[14px] border border-zoru-line bg-zoru-surface-2 px-5 py-3">
+      <div className="flex items-center gap-3 rounded-[14px] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-5 py-3">
         <label className="flex items-center gap-2.5 cursor-pointer select-none">
           <input
             type="checkbox"
             checked={createContacts}
             onChange={(e) => setCreateContacts(e.target.checked)}
-            className="h-4 w-4 rounded border-zoru-line text-accent focus:ring-accent"
+            className="h-4 w-4 rounded border-[var(--st-border)] text-accent focus:ring-accent"
           />
-          <span className="text-[12px] text-zoru-ink font-medium">Create contacts in CRM</span>
+          <span className="text-[12px] text-[var(--st-text)] font-medium">Create contacts in CRM</span>
         </label>
-        <span className="text-[10px] text-zoru-ink-muted">
+        <span className="text-[10px] text-[var(--st-text-secondary)]">
           {createContacts
             ? 'New contacts will be added for each recipient not already in your CRM.'
             : 'Off — only existing contacts will be updated. No new contacts created.'}
@@ -736,28 +736,28 @@ export function BroadcastForm({
       </div>
 
       {/* ── Submit ── */}
-      <div className="flex flex-col items-stretch gap-3 border-t border-zoru-line pt-5 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-2 text-[11.5px] text-zoru-ink-muted">
+      <div className="flex flex-col items-stretch gap-3 border-t border-[var(--st-border)] pt-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2 text-[11.5px] text-[var(--st-text-secondary)]">
           <LuFileText className="h-3.5 w-3.5" strokeWidth={2} />
           {selectedFile ? (
             <span>
               Ready:{' '}
-              <span className="font-medium text-zoru-ink">
+              <span className="font-medium text-[var(--st-text)]">
                 {selectedFile.name}
               </span>{' '}
               {validationErrors.length > 0 ? (
-                <span className="text-zoru-ink">
+                <span className="text-[var(--st-text)]">
                   · {validationErrors.length} issue
                   {validationErrors.length === 1 ? '' : 's'}
                 </span>
               ) : (
-                <span className="text-zoru-ink">· validated</span>
+                <span className="text-[var(--st-text)]">· validated</span>
               )}
             </span>
           ) : audienceType === 'tags' && selectedTagIds.length > 0 ? (
             <span>
               Audience:{' '}
-              <span className="font-medium text-zoru-ink">
+              <span className="font-medium text-[var(--st-text)]">
                 {selectedTagIds.length} tag
                 {selectedTagIds.length === 1 ? '' : 's'}
               </span>
@@ -789,8 +789,8 @@ export function BroadcastForm({
 
 function StepLabel({ step, label }: { step: number; label: string }) {
   return (
-    <span className="inline-flex items-center gap-2 text-[12.5px] font-semibold text-zoru-ink">
-      <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-zoru-surface-2 text-[10px] font-semibold tabular-nums text-zoru-ink">
+    <span className="inline-flex items-center gap-2 text-[12.5px] font-semibold text-[var(--st-text)]">
+      <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[10px] font-semibold tabular-nums text-[var(--st-text)]">
         {step}
       </span>
       {label}
@@ -817,16 +817,16 @@ function TypeOption({
       className={cn(
         'flex flex-1 cursor-pointer items-start gap-2.5 rounded-[12px] border px-3 py-2.5 transition-colors',
         active
-          ? 'border-primary bg-zoru-surface-2/50'
-          : 'border-zoru-line bg-zoru-surface hover:bg-zoru-surface-2',
+          ? 'border-primary bg-[var(--st-bg-muted)]/50'
+          : 'border-[var(--st-border)] bg-[var(--st-bg-secondary)] hover:bg-[var(--st-bg-muted)]',
       )}
     >
       <ZoruRadioGroupItem value={value} id={id} className="mt-0.5" />
       <div className="flex flex-col">
-        <span className="text-[13px] font-medium leading-tight text-zoru-ink">
+        <span className="text-[13px] font-medium leading-tight text-[var(--st-text)]">
           {label}
         </span>
-        <span className="mt-0.5 text-[11px] leading-tight text-zoru-ink-muted">
+        <span className="mt-0.5 text-[11px] leading-tight text-[var(--st-text-secondary)]">
           {description}
         </span>
       </div>
@@ -851,12 +851,12 @@ function Field({
     <div className="flex flex-col gap-1.5">
       <Label
         htmlFor={htmlFor}
-        className="text-[11.5px] font-semibold text-zoru-ink-muted"
+        className="text-[11.5px] font-semibold text-[var(--st-text-secondary)]"
       >
         {label}
-        {required ? <span className="ml-1 text-zoru-ink">*</span> : null}
+        {required ? <span className="ml-1 text-[var(--st-text)]">*</span> : null}
         {optional ? (
-          <span className="ml-1 font-normal text-zoru-ink-muted/70">
+          <span className="ml-1 font-normal text-[var(--st-text-secondary)]/70">
             (optional)
           </span>
         ) : null}

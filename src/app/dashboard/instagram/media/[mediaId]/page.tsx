@@ -130,12 +130,12 @@ export default function MediaDetailsPage() {
               <ZoruCardFooter className="p-0 flex flex-col items-start gap-4">
                 <div className="flex gap-6 text-lg">
                   <div className="flex items-center gap-2">
-                    <ThumbsUp className="h-5 w-5 text-zoru-ink-muted" />
-                    <span className="text-zoru-ink">{media.like_count}</span>
+                    <ThumbsUp className="h-5 w-5 text-[var(--st-text-secondary)]" />
+                    <span className="text-[var(--st-text)]">{media.like_count}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <MessageSquare className="h-5 w-5 text-zoru-ink-muted" />
-                    <span className="text-zoru-ink">{media.comments_count}</span>
+                    <MessageSquare className="h-5 w-5 text-[var(--st-text-secondary)]" />
+                    <span className="text-[var(--st-text)]">{media.comments_count}</span>
                   </div>
                 </div>
                 <div className="flex gap-2">

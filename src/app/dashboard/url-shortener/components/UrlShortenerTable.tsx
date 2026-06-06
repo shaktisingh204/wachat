@@ -58,7 +58,7 @@ function DeleteButton({ urlId, onDeleted }: { urlId: string; onDeleted: () => vo
       <ZoruAlertDialogTrigger asChild>
         <button
           type="button"
-          className="rounded p-1.5 text-zoru-ink-muted hover:bg-zoru-danger/10 hover:text-zoru-danger-ink"
+          className="rounded p-1.5 text-[var(--st-text-secondary)] hover:bg-[var(--st-danger)]/10 hover:text-[var(--st-danger)]"
           aria-label="Delete"
         >
           <Trash2 className="h-3.5 w-3.5" />
@@ -153,8 +153,8 @@ export function UrlShortenerTable({
   return (
     <Card className="p-0">
       {selectedIds.size > 0 ? (
-        <div className="flex items-center justify-between gap-3 border-b border-zoru-line bg-zoru-surface-2 px-5 py-2.5 text-[12.5px]">
-          <span className="text-zoru-ink">
+        <div className="flex items-center justify-between gap-3 border-b border-[var(--st-border)] bg-[var(--st-bg-muted)] px-5 py-2.5 text-[12.5px]">
+          <span className="text-[var(--st-text)]">
             <strong>{selectedIds.size}</strong> selected
           </span>
           <div className="flex items-center gap-2">
@@ -198,14 +198,14 @@ export function UrlShortenerTable({
       <div className="overflow-x-auto">
         <table className="w-full text-[13px]">
           <thead>
-            <tr className="border-b border-zoru-line text-left text-[12px] text-zoru-ink-muted">
+            <tr className="border-b border-[var(--st-border)] text-left text-[12px] text-[var(--st-text-secondary)]">
               <th className="w-10 px-5 py-3">
                 <input
                   type="checkbox"
                   checked={allPageSelected}
                   onChange={toggleSelectPage}
                   aria-label="Select all on page"
-                  className="h-3.5 w-3.5 rounded border-zoru-line"
+                  className="h-3.5 w-3.5 rounded border-[var(--st-border)]"
                 />
               </th>
               <th className="px-2 py-3">Short URL</th>
@@ -233,8 +233,8 @@ export function UrlShortenerTable({
                   <tr
                     key={id}
                     className={cn(
-                      'border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2',
-                      selected && 'bg-zoru-surface-2',
+                      'border-b border-[var(--st-border)] last:border-0 hover:bg-[var(--st-bg-muted)]',
+                      selected && 'bg-[var(--st-bg-muted)]',
                     )}
                   >
                     <td className="w-10 px-5 py-3">
@@ -243,7 +243,7 @@ export function UrlShortenerTable({
                         checked={selected}
                         onChange={() => toggleSelect(id)}
                         aria-label="Select link"
-                        className="h-3.5 w-3.5 rounded border-zoru-line"
+                        className="h-3.5 w-3.5 rounded border-[var(--st-border)]"
                       />
                     </td>
                     <td className="px-2 py-3 font-mono">
@@ -251,7 +251,7 @@ export function UrlShortenerTable({
                         href={shortUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-zoru-ink hover:underline flex items-center gap-1"
+                        className="text-[var(--st-text)] hover:underline flex items-center gap-1"
                       >
                         {shortUrl.replace(/^https?:\/\//, '')}
                         <button
@@ -260,18 +260,18 @@ export function UrlShortenerTable({
                             e.preventDefault();
                             handleCopy(id, shortUrl);
                           }}
-                          className="ml-1 rounded p-0.5 text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
+                          className="ml-1 rounded p-0.5 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
                           aria-label="Copy link"
                         >
                           {copiedId === id ? (
-                            <Check className="h-3 w-3 text-zoru-success-ink" />
+                            <Check className="h-3 w-3 text-[var(--st-status-ok)]" />
                           ) : (
                             <Copy className="h-3 w-3" />
                           )}
                         </button>
                       </a>
                     </td>
-                    <td className="px-5 py-3 text-zoru-ink-muted truncate max-w-[240px]">
+                    <td className="px-5 py-3 text-[var(--st-text-secondary)] truncate max-w-[240px]">
                       {url.originalUrl}
                     </td>
                     <td className="px-5 py-3">
@@ -279,19 +279,19 @@ export function UrlShortenerTable({
                         className={cn(
                           'inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10.5px]',
                           status === 'active' &&
-                            'border-zoru-success/40 bg-zoru-success/10 text-zoru-success-ink',
+                            'border-[var(--st-status-ok)]/40 bg-[var(--st-status-ok)]/10 text-[var(--st-status-ok)]',
                           status === 'expiring-soon' &&
-                            'border-zoru-warning/40 bg-zoru-warning/10 text-zoru-warning-ink',
+                            'border-[var(--st-warn)]/40 bg-[var(--st-warn)]/10 text-[var(--st-warn)]',
                           status === 'expired' &&
-                            'border-zoru-danger/40 bg-zoru-danger/10 text-zoru-danger-ink',
+                            'border-[var(--st-danger)]/40 bg-[var(--st-danger)]/10 text-[var(--st-danger)]',
                         )}
                       >
                         <span
                           className={cn(
                             'inline-block h-1.5 w-1.5 rounded-full',
-                            status === 'active' && 'bg-zoru-success',
-                            status === 'expiring-soon' && 'bg-zoru-warning',
-                            status === 'expired' && 'bg-zoru-danger',
+                            status === 'active' && 'bg-[var(--st-status-ok)]',
+                            status === 'expiring-soon' && 'bg-[var(--st-warn)]',
+                            status === 'expired' && 'bg-[var(--st-danger)]',
                           )}
                         />
                         {status === 'expiring-soon'
@@ -299,7 +299,7 @@ export function UrlShortenerTable({
                           : status[0].toUpperCase() + status.slice(1)}
                       </span>
                       {url.expiresAt ? (
-                        <div className="mt-0.5 text-[10.5px] text-zoru-ink-muted">
+                        <div className="mt-0.5 text-[10.5px] text-[var(--st-text-secondary)]">
                           {new Date(url.expiresAt).toLocaleDateString()}
                         </div>
                       ) : null}
@@ -310,26 +310,26 @@ export function UrlShortenerTable({
                           className={cn(
                             'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10.5px]',
                             url.healthStatus === 'ok' &&
-                              'border-zoru-success/40 bg-zoru-success/10 text-zoru-success-ink',
+                              'border-[var(--st-status-ok)]/40 bg-[var(--st-status-ok)]/10 text-[var(--st-status-ok)]',
                             url.healthStatus === 'dead' &&
-                              'border-zoru-danger/40 bg-zoru-danger/10 text-zoru-danger-ink',
+                              'border-[var(--st-danger)]/40 bg-[var(--st-danger)]/10 text-[var(--st-danger)]',
                             url.healthStatus === 'unknown' &&
-                              'border-zoru-line bg-zoru-surface-2 text-zoru-ink-muted',
+                              'border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]',
                           )}
                         >
                           <Activity className="h-2.5 w-2.5" />
                           {url.healthStatus === 'ok' ? 'Up' : url.healthStatus === 'dead' ? 'Down' : 'Unknown'}
                         </span>
                       ) : (
-                        <span className="text-[11px] text-zoru-ink-muted/50">—</span>
+                        <span className="text-[11px] text-[var(--st-text-secondary)]/50">—</span>
                       )}
                     </td>
-                    <td className="px-5 py-3 text-zoru-ink">{url.clickCount || 0}</td>
+                    <td className="px-5 py-3 text-[var(--st-text)]">{url.clickCount || 0}</td>
                     <td className="px-5 py-3 text-right">
                       <div className="inline-flex items-center gap-1">
                         <Link
                           href={`/dashboard/url-shortener/${id}`}
-                          className="rounded p-1.5 text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
+                          className="rounded p-1.5 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
                           aria-label="Analytics"
                         >
                           <BarChart className="h-3.5 w-3.5" />
@@ -337,7 +337,7 @@ export function UrlShortenerTable({
                         <button
                           type="button"
                           onClick={() => setSelectedUrlForQr(shortUrl)}
-                          className="rounded p-1.5 text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
+                          className="rounded p-1.5 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
                           aria-label="QR Code"
                         >
                           <QrCode className="h-3.5 w-3.5" />
@@ -345,7 +345,7 @@ export function UrlShortenerTable({
                         <button
                           type="button"
                           onClick={() => setNotesPanel({ id })}
-                          className="rounded p-1.5 text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
+                          className="rounded p-1.5 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
                           aria-label="Notes & Comments"
                         >
                           <MessageSquare className="h-3.5 w-3.5" />
@@ -358,7 +358,7 @@ export function UrlShortenerTable({
               })
             ) : (
               <tr>
-                <td colSpan={7} className="px-5 py-12 text-center text-zoru-ink-muted">
+                <td colSpan={7} className="px-5 py-12 text-center text-[var(--st-text-secondary)]">
                   {urls.length === 0
                     ? 'No links created yet.'
                     : 'No links match your filters.'}
@@ -371,13 +371,13 @@ export function UrlShortenerTable({
 
       {/* Pagination */}
       {filteredUrls.length > 0 ? (
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-zoru-line px-5 py-3 text-[12px] text-zoru-ink-muted">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--st-border)] px-5 py-3 text-[12px] text-[var(--st-text-secondary)]">
           <div className="flex items-center gap-2">
             <span>Rows per page</span>
             <select
               value={pageSize}
               onChange={(e) => setPageSize(Number(e.target.value))}
-              className="h-7 rounded border border-zoru-line bg-zoru-bg px-2 text-[12px] text-zoru-ink"
+              className="h-7 rounded border border-[var(--st-border)] bg-[var(--st-bg)] px-2 text-[12px] text-[var(--st-text)]"
             >
               {PAGE_SIZES.map((s) => (
                 <option key={s} value={s}>
@@ -396,7 +396,7 @@ export function UrlShortenerTable({
                 type="button"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage <= 1}
-                className="rounded p-1 text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink disabled:opacity-40 disabled:pointer-events-none"
+                className="rounded p-1 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] disabled:opacity-40 disabled:pointer-events-none"
                 aria-label="Previous page"
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -408,7 +408,7 @@ export function UrlShortenerTable({
                 type="button"
                 onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
                 disabled={currentPage >= pageCount}
-                className="rounded p-1 text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink disabled:opacity-40 disabled:pointer-events-none"
+                className="rounded p-1 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] disabled:opacity-40 disabled:pointer-events-none"
                 aria-label="Next page"
               >
                 <ChevronRight className="h-4 w-4" />

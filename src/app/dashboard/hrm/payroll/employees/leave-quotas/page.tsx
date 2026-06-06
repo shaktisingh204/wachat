@@ -148,9 +148,9 @@ export default function EmployeeLeaveQuotasPage() {
 
       <Card className="p-6">
         <div className="mb-4 flex flex-wrap items-center gap-3">
-          <Label className="text-[12px] text-zoru-ink-muted">Filter by Employee</Label>
+          <Label className="text-[12px] text-[var(--st-text-secondary)]">Filter by Employee</Label>
           <Select value={filterEmp} onValueChange={setFilterEmp}>
-            <ZoruSelectTrigger className="h-9 w-[220px] rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+            <ZoruSelectTrigger className="h-9 w-[220px] rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
               <ZoruSelectValue />
             </ZoruSelectTrigger>
             <ZoruSelectContent>
@@ -158,34 +158,34 @@ export default function EmployeeLeaveQuotasPage() {
               {employees.map((e) => <ZoruSelectItem key={e._id} value={e._id}>{e.name}</ZoruSelectItem>)}
             </ZoruSelectContent>
           </Select>
-          <span className="text-[12px] text-zoru-ink-muted">{filtered.length} quota{filtered.length !== 1 ? 's' : ''}</span>
+          <span className="text-[12px] text-[var(--st-text-secondary)]">{filtered.length} quota{filtered.length !== 1 ? 's' : ''}</span>
         </div>
 
         {isLoading ? (
           <div className="flex h-32 items-center justify-center">
-            <LoaderCircle className="h-6 w-6 animate-spin text-zoru-ink-muted" />
+            <LoaderCircle className="h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-lg border border-zoru-line">
+          <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
             <table className="w-full text-[13px]">
               <thead>
-                <tr className="border-b border-zoru-line bg-zoru-surface-2">
-                  <th className="px-4 py-2.5 text-left text-[12px] text-zoru-ink-muted">Employee</th>
-                  <th className="px-4 py-2.5 text-left text-[12px] text-zoru-ink-muted">Leave Type</th>
-                  <th className="px-4 py-2.5 text-left text-[12px] text-zoru-ink-muted">Quota (days)</th>
-                  <th className="px-4 py-2.5 text-right text-[12px] text-zoru-ink-muted">Actions</th>
+                <tr className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]">
+                  <th className="px-4 py-2.5 text-left text-[12px] text-[var(--st-text-secondary)]">Employee</th>
+                  <th className="px-4 py-2.5 text-left text-[12px] text-[var(--st-text-secondary)]">Leave Type</th>
+                  <th className="px-4 py-2.5 text-left text-[12px] text-[var(--st-text-secondary)]">Quota (days)</th>
+                  <th className="px-4 py-2.5 text-right text-[12px] text-[var(--st-text-secondary)]">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.length === 0 ? (
-                  <tr><td colSpan={4} className="py-10 text-center text-[13px] text-zoru-ink-muted">No leave quotas found.</td></tr>
+                  <tr><td colSpan={4} className="py-10 text-center text-[13px] text-[var(--st-text-secondary)]">No leave quotas found.</td></tr>
                 ) : (
                   filtered.map((q) => (
-                    <tr key={String(q._id)} className="border-t border-zoru-line hover:bg-zoru-surface-2/50">
-                      <td className="px-4 py-2.5 text-zoru-ink">{empMap.get(String(q.user_id)) || q.user_id}</td>
-                      <td className="px-4 py-2.5 text-zoru-ink">{ltMap.get(String(q.leave_type_id)) || q.leave_type_id}</td>
+                    <tr key={String(q._id)} className="border-t border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]/50">
+                      <td className="px-4 py-2.5 text-[var(--st-text)]">{empMap.get(String(q.user_id)) || q.user_id}</td>
+                      <td className="px-4 py-2.5 text-[var(--st-text)]">{ltMap.get(String(q.leave_type_id)) || q.leave_type_id}</td>
                       <td className="px-4 py-2.5">
-                        <span className="inline-flex h-6 min-w-[2rem] items-center justify-center rounded-md bg-zoru-surface-2 px-2 text-[13px] text-zoru-ink">
+                        <span className="inline-flex h-6 min-w-[2rem] items-center justify-center rounded-md bg-[var(--st-bg-muted)] px-2 text-[13px] text-[var(--st-text)]">
                           {q.no_of_leaves}
                         </span>
                       </td>
@@ -195,7 +195,7 @@ export default function EmployeeLeaveQuotasPage() {
                             <Pencil className="h-3.5 w-3.5" />
                           </Button>
                           <Button variant="ghost" size="sm" onClick={() => handleDelete(String(q._id))}>
-                            <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                            <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                           </Button>
                         </div>
                       </td>
@@ -209,15 +209,15 @@ export default function EmployeeLeaveQuotasPage() {
       </Card>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <ZoruDialogContent className="max-w-md border-zoru-line bg-zoru-bg">
+        <ZoruDialogContent className="max-w-md border-[var(--st-border)] bg-[var(--st-bg)]">
           <ZoruDialogHeader>
-            <ZoruDialogTitle className="text-zoru-ink">{form._id ? 'Edit Leave Quota' : 'Add Leave Quota'}</ZoruDialogTitle>
+            <ZoruDialogTitle className="text-[var(--st-text)]">{form._id ? 'Edit Leave Quota' : 'Add Leave Quota'}</ZoruDialogTitle>
           </ZoruDialogHeader>
           <div className="grid gap-4 py-2">
             <div>
-              <Label className="text-[12px] text-zoru-ink-muted">Employee <span className="text-zoru-danger-ink">*</span></Label>
+              <Label className="text-[12px] text-[var(--st-text-secondary)]">Employee <span className="text-[var(--st-danger)]">*</span></Label>
               <Select value={form.user_id || '__none__'} onValueChange={(v) => set('user_id', v === '__none__' ? '' : v)}>
-                <ZoruSelectTrigger className="mt-1.5 h-10 w-full rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                <ZoruSelectTrigger className="mt-1.5 h-10 w-full rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
                   <ZoruSelectValue placeholder="Select employee…" />
                 </ZoruSelectTrigger>
                 <ZoruSelectContent>
@@ -227,9 +227,9 @@ export default function EmployeeLeaveQuotasPage() {
               </Select>
             </div>
             <div>
-              <Label className="text-[12px] text-zoru-ink-muted">Leave Type <span className="text-zoru-danger-ink">*</span></Label>
+              <Label className="text-[12px] text-[var(--st-text-secondary)]">Leave Type <span className="text-[var(--st-danger)]">*</span></Label>
               <Select value={form.leave_type_id || '__none__'} onValueChange={(v) => set('leave_type_id', v === '__none__' ? '' : v)}>
-                <ZoruSelectTrigger className="mt-1.5 h-10 w-full rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                <ZoruSelectTrigger className="mt-1.5 h-10 w-full rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
                   <ZoruSelectValue placeholder="Select leave type…" />
                 </ZoruSelectTrigger>
                 <ZoruSelectContent>
@@ -239,8 +239,8 @@ export default function EmployeeLeaveQuotasPage() {
               </Select>
             </div>
             <div>
-              <Label className="text-[12px] text-zoru-ink-muted">Number of Leaves <span className="text-zoru-danger-ink">*</span></Label>
-              <Input type="number" min="0" value={form.no_of_leaves} onChange={(e) => set('no_of_leaves', e.target.value)} className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
+              <Label className="text-[12px] text-[var(--st-text-secondary)]">Number of Leaves <span className="text-[var(--st-danger)]">*</span></Label>
+              <Input type="number" min="0" value={form.no_of_leaves} onChange={(e) => set('no_of_leaves', e.target.value)} className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]" />
             </div>
           </div>
           <ZoruDialogFooter className="gap-2">

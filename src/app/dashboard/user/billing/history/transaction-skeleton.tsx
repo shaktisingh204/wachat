@@ -14,9 +14,9 @@ import {
 
 export function TransactionSkeleton() {
     return (
-        <ZoruCard className="border border-zoru-line bg-zoru-surface/50 shadow-[var(--zoru-shadow-sm)]">
+        <ZoruCard className="border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 shadow-[var(--zoru-shadow-sm)]">
             <ZoruCardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <ZoruCardTitle className="text-zoru-ink whitespace-nowrap">
+                <ZoruCardTitle className="text-[var(--st-text)] whitespace-nowrap">
                     <ZoruSkeleton className="h-7 w-[200px]" />
                 </ZoruCardTitle>
                 <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
@@ -28,7 +28,7 @@ export function TransactionSkeleton() {
                 </div>
             </ZoruCardHeader>
             <ZoruCardContent>
-                <div className="border border-zoru-line rounded-md bg-zoru-surface/50 overflow-hidden shadow-[var(--zoru-shadow-sm)]">
+                <div className="border border-[var(--st-border)] rounded-md bg-[var(--st-bg-secondary)]/50 overflow-hidden shadow-[var(--zoru-shadow-sm)]">
                     <ZoruTable>
                         <ZoruTableHeader>
                             <ZoruTableRow>

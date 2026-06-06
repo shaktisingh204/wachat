@@ -255,7 +255,7 @@ function ConditionGroupCard({
             type="button"
             onClick={onDeleteGroup}
             title="Delete group"
-            className="flex h-5 w-5 items-center justify-center rounded text-[var(--gray-8)] hover:bg-[var(--gray-5)] hover:text-zoru-ink transition-colors"
+            className="flex h-5 w-5 items-center justify-center rounded text-[var(--gray-8)] hover:bg-[var(--gray-5)] hover:text-[var(--st-text)] transition-colors"
           >
             <LuX className="h-3 w-3" strokeWidth={2.2} />
           </button>
@@ -347,7 +347,7 @@ function ComparisonRow({
             type="button"
             onClick={onDelete}
             title="Remove comparison"
-            className="shrink-0 flex h-7 w-7 items-center justify-center rounded text-[var(--gray-7)] hover:bg-[var(--gray-4)] hover:text-zoru-ink transition-colors"
+            className="shrink-0 flex h-7 w-7 items-center justify-center rounded text-[var(--gray-7)] hover:bg-[var(--gray-4)] hover:text-[var(--st-text)] transition-colors"
           >
             <LuX className="h-3.5 w-3.5" strokeWidth={2.2} />
           </button>
@@ -414,7 +414,7 @@ function LogicPill({ value, onChange, size }: LogicPillProps) {
           className={cn(
             btnBase,
             value === op
-              ? 'bg-zoru-ink text-white shadow-sm'
+              ? 'bg-[var(--st-text)] text-white shadow-sm'
               : 'text-[var(--gray-9)] hover:text-[var(--gray-12)]',
           )}
         >

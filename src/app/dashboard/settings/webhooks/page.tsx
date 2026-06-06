@@ -105,17 +105,17 @@ export default function WebhooksPage() {
 
             {rows.length === 0 ? (
                 <Card className="p-6 py-10 text-center">
-                    <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
+                    <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                         <Webhook className="h-5 w-5" />
                     </div>
-                    <p className="text-sm text-zoru-ink">{t('settings.webhooks.empty.title')}</p>
-                    <p className="mt-1 text-xs text-zoru-ink-muted">
+                    <p className="text-sm text-[var(--st-text)]">{t('settings.webhooks.empty.title')}</p>
+                    <p className="mt-1 text-xs text-[var(--st-text-secondary)]">
                         {t('settings.webhooks.empty.description')}
                     </p>
                 </Card>
             ) : (
                 <Card className="p-0">
-                    <ul className="divide-y divide-zoru-line">
+                    <ul className="divide-y divide-[var(--st-border)]">
                         {rows.map((w) => (
                             <WebhookRowItem
                                 key={w.id}
@@ -130,14 +130,14 @@ export default function WebhooksPage() {
 
             <Card className="p-6">
                 <div className="flex items-start gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                         <CircleAlert className="h-4 w-4" />
                     </div>
                     <div>
-                        <p className="text-sm text-zoru-ink">{t('settings.webhooks.verify.title')}</p>
-                        <p className="mt-1 text-xs text-zoru-ink-muted">
+                        <p className="text-sm text-[var(--st-text)]">{t('settings.webhooks.verify.title')}</p>
+                        <p className="mt-1 text-xs text-[var(--st-text-secondary)]">
                             {t('settings.webhooks.verify.before')}
-                            <code className="mx-1 rounded bg-zoru-surface-2 px-1">X-SabNode-Signature</code>
+                            <code className="mx-1 rounded bg-[var(--st-bg-muted)] px-1">X-SabNode-Signature</code>
                             {t('settings.webhooks.verify.after')}
                         </p>
                     </div>
@@ -219,8 +219,8 @@ function AddWebhookDialog({ onAdd }: { onAdd: (row: WebhookRow) => void }) {
                                         }}
                                         className={`rounded-full border px-3 py-1 text-xs transition-colors ${
                                             on
-                                                ? 'border-zoru-ink bg-zoru-ink text-zoru-bg'
-                                                : 'border-zoru-line bg-zoru-bg text-zoru-ink-muted hover:text-zoru-ink'
+                                                ? 'border-[var(--st-text)] bg-[var(--st-text)] text-[var(--st-bg)]'
+                                                : 'border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text-secondary)] hover:text-[var(--st-text)]'
                                         }`}
                                     >
                                         {ev}
@@ -266,16 +266,16 @@ function WebhookRowItem({
         <li className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
             <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                    <p className="truncate text-sm text-zoru-ink">{row.url}</p>
+                    <p className="truncate text-sm text-[var(--st-text)]">{row.url}</p>
                     {row.active ? (
                         <Badge variant="success">{t('settings.webhooks.status.active')}</Badge>
                     ) : (
                         <Badge variant="ghost">{t('settings.webhooks.status.paused')}</Badge>
                     )}
                 </div>
-                <p className="mt-1 truncate text-xs text-zoru-ink-muted">
+                <p className="mt-1 truncate text-xs text-[var(--st-text-secondary)]">
                     {row.events.join(', ')} · {t('settings.webhooks.row.secret')}{' '}
-                    <code className="rounded bg-zoru-surface-2 px-1">{row.secret.slice(0, 8)}…</code>
+                    <code className="rounded bg-[var(--st-bg-muted)] px-1">{row.secret.slice(0, 8)}…</code>
                 </p>
             </div>
             <div className="flex gap-2">

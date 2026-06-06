@@ -72,13 +72,13 @@ export default async function ImportExportEntityPage({
                     </ZoruBreadcrumbItem>
                 </ZoruBreadcrumbList>
             </Breadcrumb>
-            <h1 className="text-lg font-semibold text-zoru-ink">
+            <h1 className="text-lg font-semibold text-[var(--st-text)]">
                 Import / Export — {entityKind}
             </h1>
             <ImportExportClient entityKind={entityKind} canImport={canImport} canExport={canView} />
             
             <div className="mt-6 flex flex-col gap-2">
-                <h2 className="text-sm font-semibold text-zoru-ink">Recent Exports</h2>
+                <h2 className="text-sm font-semibold text-[var(--st-text)]">Recent Exports</h2>
                 <Suspense fallback={<ExportHistorySkeleton />}>
                     <ExportHistoryList entityKind={entityKind} />
                 </Suspense>
@@ -93,7 +93,7 @@ async function ExportHistoryList({ entityKind }: { entityKind: string }) {
     return (
         <Card className="overflow-hidden">
             {history.length === 0 ? (
-                <div className="p-4 text-sm text-zoru-ink-muted">No recent exports found.</div>
+                <div className="p-4 text-sm text-[var(--st-text-secondary)]">No recent exports found.</div>
             ) : (
                 <Table>
                     <ZoruTableHeader>
@@ -105,10 +105,10 @@ async function ExportHistoryList({ entityKind }: { entityKind: string }) {
                     <ZoruTableBody>
                         {history.map(h => (
                             <ZoruTableRow key={h.id}>
-                                <ZoruTableCell className="text-[12.5px] text-zoru-ink">
+                                <ZoruTableCell className="text-[12.5px] text-[var(--st-text)]">
                                     {format(new Date(h.createdAt), 'PPpp')}
                                 </ZoruTableCell>
-                                <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                                <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                                     {h.rowCount.toLocaleString()}
                                 </ZoruTableCell>
                             </ZoruTableRow>
@@ -124,9 +124,9 @@ function ExportHistorySkeleton() {
     return (
         <Card className="overflow-hidden p-4">
             <div className="space-y-3">
-                <div className="h-4 w-1/4 rounded bg-zoru-border animate-pulse" />
-                <div className="h-4 w-full rounded bg-zoru-border/50 animate-pulse" />
-                <div className="h-4 w-full rounded bg-zoru-border/50 animate-pulse" />
+                <div className="h-4 w-1/4 rounded bg-[var(--st-border)] animate-pulse" />
+                <div className="h-4 w-full rounded bg-[var(--st-border)]/50 animate-pulse" />
+                <div className="h-4 w-full rounded bg-[var(--st-border)]/50 animate-pulse" />
             </div>
         </Card>
     );

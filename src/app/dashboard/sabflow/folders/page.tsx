@@ -123,7 +123,7 @@ export default function FoldersPage() {
       const hasChildren = node.children && node.children.length > 0;
       
       rows.push(
-        <TableRow key={node.id} className="group hover:bg-zoru-surface-2/50 transition-colors">
+        <TableRow key={node.id} className="group hover:bg-[var(--st-bg-muted)]/50 transition-colors">
           <TableCell className="w-[300px]">
             <div 
               className="flex items-center gap-2"
@@ -131,7 +131,7 @@ export default function FoldersPage() {
             >
               <button 
                 className={cn(
-                  "p-0.5 rounded-md hover:bg-zoru-surface-2 text-zoru-ink-muted",
+                  "p-0.5 rounded-md hover:bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]",
                   !hasChildren && "invisible"
                 )}
                 onClick={() => toggleExpand(node.id)}
@@ -155,11 +155,11 @@ export default function FoldersPage() {
               {node.flowsCount} {node.flowsCount === 1 ? 'flow' : 'flows'}
             </Badge>
           </TableCell>
-          <TableCell className="text-zoru-ink-muted text-[13px]">
+          <TableCell className="text-[var(--st-text-secondary)] text-[13px]">
             {node.lastUpdated}
           </TableCell>
           <TableCell className="text-right">
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-zoru-ink-muted">
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-[var(--st-text-secondary)]">
               <LuSettings className="h-4 w-4" />
             </Button>
           </TableCell>
@@ -180,8 +180,8 @@ export default function FoldersPage() {
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-zoru-ink">Folders & Organization</h1>
-          <p className="text-zoru-ink-muted text-sm mt-1">
+          <h1 className="text-3xl font-bold tracking-tight text-[var(--st-text)]">Folders & Organization</h1>
+          <p className="text-[var(--st-text-secondary)] text-sm mt-1">
             Manage your SabFlow automations with nested folders and tags.
           </p>
         </div>
@@ -199,69 +199,69 @@ export default function FoldersPage() {
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card variant="interactive" className="bg-zoru-surface">
+        <Card variant="interactive" className="bg-[var(--st-bg-secondary)]">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-zoru-ink-muted">Total Folders</CardTitle>
-            <div className="h-8 w-8 rounded-full bg-zoru-ink/10 flex items-center justify-center text-zoru-ink">
+            <CardTitle className="text-sm font-medium text-[var(--st-text-secondary)]">Total Folders</CardTitle>
+            <div className="h-8 w-8 rounded-full bg-[var(--st-text)]/10 flex items-center justify-center text-[var(--st-text)]">
               <LuFolder className="h-4 w-4" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">14</div>
-            <p className="text-xs text-zoru-ink-muted mt-1">+2 from last month</p>
+            <p className="text-xs text-[var(--st-text-secondary)] mt-1">+2 from last month</p>
           </CardContent>
         </Card>
 
-        <Card variant="interactive" className="bg-zoru-surface">
+        <Card variant="interactive" className="bg-[var(--st-bg-secondary)]">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-zoru-ink-muted">Active Flows</CardTitle>
-            <div className="h-8 w-8 rounded-full bg-zoru-ink/10 flex items-center justify-center text-zoru-ink">
+            <CardTitle className="text-sm font-medium text-[var(--st-text-secondary)]">Active Flows</CardTitle>
+            <div className="h-8 w-8 rounded-full bg-[var(--st-text)]/10 flex items-center justify-center text-[var(--st-text)]">
               <LuActivity className="h-4 w-4" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">51</div>
-            <p className="text-xs text-zoru-ink-muted mt-1">Spread across 4 root folders</p>
+            <p className="text-xs text-[var(--st-text-secondary)] mt-1">Spread across 4 root folders</p>
           </CardContent>
         </Card>
 
-        <Card variant="interactive" className="bg-zoru-surface">
+        <Card variant="interactive" className="bg-[var(--st-bg-secondary)]">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-zoru-ink-muted">Storage Used</CardTitle>
-            <div className="h-8 w-8 rounded-full bg-zoru-ink/10 flex items-center justify-center text-zoru-ink">
+            <CardTitle className="text-sm font-medium text-[var(--st-text-secondary)]">Storage Used</CardTitle>
+            <div className="h-8 w-8 rounded-full bg-[var(--st-text)]/10 flex items-center justify-center text-[var(--st-text)]">
               <LuHardDrive className="h-4 w-4" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">1.2 GB</div>
-            <p className="text-xs text-zoru-ink-muted mt-1">Of 10 GB limit</p>
+            <p className="text-xs text-[var(--st-text-secondary)] mt-1">Of 10 GB limit</p>
           </CardContent>
         </Card>
 
-        <Card variant="interactive" className="bg-zoru-surface">
+        <Card variant="interactive" className="bg-[var(--st-bg-secondary)]">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-zoru-ink-muted">Recent Activity</CardTitle>
-            <div className="h-8 w-8 rounded-full bg-zoru-ink/10 flex items-center justify-center text-zoru-ink">
+            <CardTitle className="text-sm font-medium text-[var(--st-text-secondary)]">Recent Activity</CardTitle>
+            <div className="h-8 w-8 rounded-full bg-[var(--st-text)]/10 flex items-center justify-center text-[var(--st-text)]">
               <LuClock className="h-4 w-4" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">12 mins</div>
-            <p className="text-xs text-zoru-ink-muted mt-1">Last flow update</p>
+            <p className="text-xs text-[var(--st-text-secondary)] mt-1">Last flow update</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Main Data Section */}
-      <Card className="flex flex-col shadow-md border-zoru-line/40">
-        <div className="p-4 border-b border-zoru-line/40 flex flex-col sm:flex-row justify-between items-center gap-4 bg-zoru-surface-2/20">
+      <Card className="flex flex-col shadow-md border-[var(--st-border)]/40">
+        <div className="p-4 border-b border-[var(--st-border)]/40 flex flex-col sm:flex-row justify-between items-center gap-4 bg-[var(--st-bg-muted)]/20">
           <div className="relative w-full sm:w-72">
-            <LuSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zoru-ink-muted" />
+            <LuSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--st-text-secondary)]" />
             <Input 
               placeholder="Search folders..." 
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-9 bg-zoru-surface"
+              className="pl-9 bg-[var(--st-bg-secondary)]"
             />
           </div>
           <div className="flex items-center gap-2">

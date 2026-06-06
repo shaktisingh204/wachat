@@ -90,9 +90,9 @@ function downloadCsv(filename: string, rows: string[][]) {
 function StatCard({ label, value, hint }: { label: string; value: React.ReactNode; hint?: string }) {
   return (
     <Card className="p-4">
-      <div className="text-[11px] uppercase tracking-wider text-zoru-ink-muted">{label}</div>
-      <div className="mt-1.5 text-[22px] text-zoru-ink leading-tight">{value}</div>
-      {hint ? <div className="mt-0.5 text-[11px] text-zoru-ink-muted">{hint}</div> : null}
+      <div className="text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)]">{label}</div>
+      <div className="mt-1.5 text-[22px] text-[var(--st-text)] leading-tight">{value}</div>
+      {hint ? <div className="mt-0.5 text-[11px] text-[var(--st-text-secondary)]">{hint}</div> : null}
     </Card>
   );
 }
@@ -327,9 +327,9 @@ export default function QrCodeMakerPage() {
       <div className="flex min-h-full flex-col gap-6">
         {breadcrumbs}
         <Card className="p-10 text-center">
-          <AlertCircle className="mx-auto h-10 w-10 text-zoru-ink-muted/40 mb-4" />
-          <h3 className="text-sm text-zoru-ink mb-1">Authentication required</h3>
-          <p className="text-xs text-zoru-ink-muted">You must be logged in to access this page.</p>
+          <AlertCircle className="mx-auto h-10 w-10 text-[var(--st-text-secondary)]/40 mb-4" />
+          <h3 className="text-sm text-[var(--st-text)] mb-1">Authentication required</h3>
+          <p className="text-xs text-[var(--st-text-secondary)]">You must be logged in to access this page.</p>
         </Card>
       </div>
     );
@@ -433,16 +433,16 @@ export default function QrCodeMakerPage() {
           />
           <div className="flex-1 min-w-0">
         <Card className="p-0">
-          <div className="flex items-center justify-between border-b border-zoru-line px-5 py-4">
-            <h2 className="text-[15px] text-zoru-ink">Your Saved QR Codes</h2>
-            <div className="text-[11.5px] text-zoru-ink-muted">
+          <div className="flex items-center justify-between border-b border-[var(--st-border)] px-5 py-4">
+            <h2 className="text-[15px] text-[var(--st-text)]">Your Saved QR Codes</h2>
+            <div className="text-[11.5px] text-[var(--st-text-secondary)]">
               {filtered.length} of {qrCodes.length}
             </div>
           </div>
 
           {selectedIds.size > 0 ? (
-            <div className="flex flex-wrap items-center gap-3 border-b border-zoru-line bg-zoru-surface-2 px-5 py-2.5 text-[12.5px]">
-              <span className="text-zoru-ink">
+            <div className="flex flex-wrap items-center gap-3 border-b border-[var(--st-border)] bg-[var(--st-bg-muted)] px-5 py-2.5 text-[12.5px]">
+              <span className="text-[var(--st-text)]">
                 <strong>{selectedIds.size}</strong> selected
               </span>
               <div className="flex items-center gap-2">
@@ -483,14 +483,14 @@ export default function QrCodeMakerPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-[13px]">
               <thead>
-                <tr className="border-b border-zoru-line text-left text-[12px] text-zoru-ink-muted">
+                <tr className="border-b border-[var(--st-border)] text-left text-[12px] text-[var(--st-text-secondary)]">
                   <th className="w-10 px-5 py-3">
                     <input
                       type="checkbox"
                       checked={allPageSelected}
                       onChange={toggleSelectPage}
                       aria-label="Select all on page"
-                      className="h-3.5 w-3.5 rounded border-zoru-line"
+                      className="h-3.5 w-3.5 rounded border-[var(--st-border)]"
                     />
                   </th>
                   <th className="px-2 py-3">Name</th>
@@ -523,8 +523,8 @@ export default function QrCodeMakerPage() {
                       <tr
                         key={id}
                         className={cn(
-                          'border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2',
-                          selected && 'bg-zoru-surface-2',
+                          'border-b border-[var(--st-border)] last:border-0 hover:bg-[var(--st-bg-muted)]',
+                          selected && 'bg-[var(--st-bg-muted)]',
                         )}
                       >
                         <td className="w-10 px-5 py-3">
@@ -533,14 +533,14 @@ export default function QrCodeMakerPage() {
                             checked={selected}
                             onChange={() => toggleSelect(id)}
                             aria-label="Select QR code"
-                            className="h-3.5 w-3.5 rounded border-zoru-line"
+                            className="h-3.5 w-3.5 rounded border-[var(--st-border)]"
                           />
                         </td>
                         <td className="px-2 py-3">
-                          <div className="flex items-center gap-2 text-zoru-ink">
+                          <div className="flex items-center gap-2 text-[var(--st-text)]">
                             {code.name || '(untitled)'}
                             {isNew ? (
-                              <span className="rounded-full border border-zoru-success/40 bg-zoru-success/10 px-1.5 py-0 text-[10px] text-zoru-success-ink">
+                              <span className="rounded-full border border-[var(--st-status-ok)]/40 bg-[var(--st-status-ok)]/10 px-1.5 py-0 text-[10px] text-[var(--st-status-ok)]">
                                 New
                               </span>
                             ) : null}
@@ -548,33 +548,33 @@ export default function QrCodeMakerPage() {
                         </td>
                         <td className="px-5 py-3">
                           <div className="flex items-center gap-1.5">
-                            <span className="rounded-full border border-zoru-line bg-zoru-surface-2 px-1.5 py-0.5 text-[10.5px] capitalize text-zoru-ink">
+                            <span className="rounded-full border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-1.5 py-0.5 text-[10.5px] capitalize text-[var(--st-text)]">
                               {code.dataType}
                             </span>
                             {isDynamic ? (
-                              <span className="rounded-full border border-zoru-line bg-zoru-surface-2 px-1.5 py-0.5 text-[10.5px] text-zoru-ink">
+                              <span className="rounded-full border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-1.5 py-0.5 text-[10.5px] text-[var(--st-text)]">
                                 Dynamic
                               </span>
                             ) : null}
                           </div>
                         </td>
-                        <td className="px-5 py-3 font-mono text-[11.5px] text-zoru-ink-muted max-w-[260px]">
+                        <td className="px-5 py-3 font-mono text-[11.5px] text-[var(--st-text-secondary)] max-w-[260px]">
                           {isDynamic ? (
                             <div className="flex items-center gap-1.5">
                               <Link
                                 href={`/dashboard/url-shortener/${code.shortUrl._id}`}
-                                className="truncate text-zoru-ink hover:underline"
+                                className="truncate text-[var(--st-text)] hover:underline"
                               >
                                 {shortUrlStr.replace(/^https?:\/\//, '')}
                               </Link>
                               <button
                                 type="button"
                                 onClick={() => handleCopy(id, shortUrlStr)}
-                                className="rounded p-0.5 text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
+                                className="rounded p-0.5 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
                                 aria-label="Copy short URL"
                               >
                                 {copiedId === id ? (
-                                  <Check className="h-3 w-3 text-zoru-success-ink" />
+                                  <Check className="h-3 w-3 text-[var(--st-status-ok)]" />
                                 ) : (
                                   <Copy className="h-3 w-3" />
                                 )}
@@ -587,11 +587,11 @@ export default function QrCodeMakerPage() {
                                 <button
                                   type="button"
                                   onClick={() => handleCopy(id, staticPreview)}
-                                  className="rounded p-0.5 text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
+                                  className="rounded p-0.5 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
                                   aria-label="Copy data"
                                 >
                                   {copiedId === id ? (
-                                    <Check className="h-3 w-3 text-zoru-success-ink" />
+                                    <Check className="h-3 w-3 text-[var(--st-status-ok)]" />
                                   ) : (
                                     <Copy className="h-3 w-3" />
                                   )}
@@ -600,16 +600,16 @@ export default function QrCodeMakerPage() {
                             </div>
                           )}
                         </td>
-                        <td className="px-5 py-3 text-zoru-ink">
+                        <td className="px-5 py-3 text-[var(--st-text)]">
                           {isDynamic ? (
                             <span className="text-[13px]">
                               {(code.shortUrl?.clickCount || 0).toLocaleString()}
                             </span>
                           ) : (
-                            <span className="text-[11px] text-zoru-ink-muted/50">—</span>
+                            <span className="text-[11px] text-[var(--st-text-secondary)]/50">—</span>
                           )}
                         </td>
-                        <td className="px-5 py-3 text-zoru-ink">
+                        <td className="px-5 py-3 text-[var(--st-text)]">
                           {code.createdAt ? new Date(code.createdAt).toLocaleDateString() : '—'}
                         </td>
                         <td className="min-w-[108px] px-5 py-3 text-right">
@@ -617,7 +617,7 @@ export default function QrCodeMakerPage() {
                             <button
                               type="button"
                               onClick={() => handleView(code)}
-                              className="rounded p-1.5 text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
+                              className="rounded p-1.5 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
                               aria-label="View QR"
                             >
                               <Eye className="h-3.5 w-3.5" />
@@ -625,7 +625,7 @@ export default function QrCodeMakerPage() {
                             <button
                               type="button"
                               onClick={() => setNotesPanel({ id })}
-                              className="rounded p-1.5 text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
+                              className="rounded p-1.5 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
                               aria-label="Notes & Comments"
                             >
                               <MessageSquare className="h-3.5 w-3.5" />
@@ -659,7 +659,7 @@ export default function QrCodeMakerPage() {
                               <ZoruAlertDialogTrigger asChild>
                                 <button
                                   type="button"
-                                  className="rounded p-1.5 text-zoru-ink-muted hover:bg-zoru-danger/10 hover:text-zoru-danger-ink"
+                                  className="rounded p-1.5 text-[var(--st-text-secondary)] hover:bg-[var(--st-danger)]/10 hover:text-[var(--st-danger)]"
                                   aria-label="Delete"
                                 >
                                   <Trash2 className="h-3.5 w-3.5" />
@@ -685,7 +685,7 @@ export default function QrCodeMakerPage() {
                   })
                 ) : (
                   <tr>
-                    <td colSpan={7} className="px-5 py-12 text-center text-zoru-ink-muted">
+                    <td colSpan={7} className="px-5 py-12 text-center text-[var(--st-text-secondary)]">
                       {qrCodes.length === 0
                         ? 'No QR codes saved yet. Use the generator above to create one.'
                         : 'No QR codes match your filters.'}
@@ -697,13 +697,13 @@ export default function QrCodeMakerPage() {
           </div>
 
           {filtered.length > 0 ? (
-            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-zoru-line px-5 py-3 text-[12px] text-zoru-ink-muted">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--st-border)] px-5 py-3 text-[12px] text-[var(--st-text-secondary)]">
               <div className="flex items-center gap-2">
                 <span>Rows per page</span>
                 <select
                   value={pageSize}
                   onChange={(e) => setPageSize(Number(e.target.value))}
-                  className="h-7 rounded border border-zoru-line bg-zoru-bg px-2 text-[12px] text-zoru-ink"
+                  className="h-7 rounded border border-[var(--st-border)] bg-[var(--st-bg)] px-2 text-[12px] text-[var(--st-text)]"
                 >
                   {PAGE_SIZES.map((s) => (
                     <option key={s} value={s}>
@@ -722,7 +722,7 @@ export default function QrCodeMakerPage() {
                     type="button"
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                     disabled={currentPage <= 1}
-                    className="rounded p-1 text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink disabled:opacity-40 disabled:pointer-events-none"
+                    className="rounded p-1 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] disabled:opacity-40 disabled:pointer-events-none"
                     aria-label="Previous page"
                   >
                     <ChevronLeft className="h-4 w-4" />
@@ -734,7 +734,7 @@ export default function QrCodeMakerPage() {
                     type="button"
                     onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
                     disabled={currentPage >= pageCount}
-                    className="rounded p-1 text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink disabled:opacity-40 disabled:pointer-events-none"
+                    className="rounded p-1 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] disabled:opacity-40 disabled:pointer-events-none"
                     aria-label="Next page"
                   >
                     <ChevronRight className="h-4 w-4" />

@@ -151,15 +151,15 @@ function KpiStrip({ rows, loading }: KpiStripProps) {
       {tiles.map((t) => (
         <Card key={t.label}>
           <ZoruCardHeader className="pb-1 pt-4">
-            <ZoruCardTitle className="text-[12px] font-medium text-zoru-ink-muted">
+            <ZoruCardTitle className="text-[12px] font-medium text-[var(--st-text-secondary)]">
               {t.label}
             </ZoruCardTitle>
           </ZoruCardHeader>
           <ZoruCardContent className="pb-4">
             {loading ? (
-              <div className="h-6 w-12 animate-pulse rounded bg-zoru-surface-2" />
+              <div className="h-6 w-12 animate-pulse rounded bg-[var(--st-bg-muted)]" />
             ) : (
-              <p className="text-xl font-semibold text-zoru-ink">{t.value}</p>
+              <p className="text-xl font-semibold text-[var(--st-text)]">{t.value}</p>
             )}
           </ZoruCardContent>
         </Card>
@@ -189,7 +189,7 @@ function BulkBar({
 }: BulkBarProps) {
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <span className="text-sm font-medium text-zoru-ink">
+      <span className="text-sm font-medium text-[var(--st-text)]">
         {selectedIds.length} selected
       </span>
       <Button
@@ -526,10 +526,10 @@ export default function ContractRenewalsPage() {
       <Card>
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2 px-4 pt-4">
           <div>
-            <p className="text-[15px] font-medium text-zoru-ink">
+            <p className="text-[15px] font-medium text-[var(--st-text)]">
               Renewal queue
             </p>
-            <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+            <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">
               Click a contract title to open and renew, extend or archive.
             </p>
           </div>
@@ -553,10 +553,10 @@ export default function ContractRenewalsPage() {
           </div>
         </div>
 
-        <div className="overflow-x-auto rounded-b-lg border-t border-zoru-line">
+        <div className="overflow-x-auto rounded-b-lg border-t border-[var(--st-border)]">
           <Table>
             <TableHeader>
-              <TableRow className="border-zoru-line hover:bg-transparent">
+              <TableRow className="border-[var(--st-border)] hover:bg-transparent">
                 <TableHead className="w-10">
                   <Checkbox
                     checked={
@@ -566,53 +566,53 @@ export default function ContractRenewalsPage() {
                     aria-label="Select all visible"
                   />
                 </TableHead>
-                <TableHead className="text-zoru-ink-muted">
+                <TableHead className="text-[var(--st-text-secondary)]">
                   Title
                 </TableHead>
-                <TableHead className="text-zoru-ink-muted">
+                <TableHead className="text-[var(--st-text-secondary)]">
                   Counterparty
                 </TableHead>
-                <TableHead className="text-zoru-ink-muted">
+                <TableHead className="text-[var(--st-text-secondary)]">
                   Type
                 </TableHead>
-                <TableHead className="text-zoru-ink-muted">
+                <TableHead className="text-[var(--st-text-secondary)]">
                   Expiry
                 </TableHead>
-                <TableHead className="text-zoru-ink-muted">
+                <TableHead className="text-[var(--st-text-secondary)]">
                   Days left
                 </TableHead>
-                <TableHead className="text-zoru-ink-muted">
+                <TableHead className="text-[var(--st-text-secondary)]">
                   Auto-renew
                 </TableHead>
-                <TableHead className="text-zoru-ink-muted text-right">
+                <TableHead className="text-[var(--st-text-secondary)] text-right">
                   Open
                 </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
-                <TableRow className="border-zoru-line">
+                <TableRow className="border-[var(--st-border)]">
                   <TableCell
                     colSpan={8}
-                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                    className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     Loading renewals…
                   </TableCell>
                 </TableRow>
               ) : loadError ? (
-                <TableRow className="border-zoru-line">
+                <TableRow className="border-[var(--st-border)]">
                   <TableCell
                     colSpan={8}
-                    className="h-24 text-center text-[13px] text-zoru-ink"
+                    className="h-24 text-center text-[13px] text-[var(--st-text)]"
                   >
                     {loadError}
                   </TableCell>
                 </TableRow>
               ) : filtered.length === 0 ? (
-                <TableRow className="border-zoru-line">
+                <TableRow className="border-[var(--st-border)]">
                   <TableCell
                     colSpan={8}
-                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                    className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     {rows.length === 0
                       ? `Nothing expiring in the next ${RENEWAL_WINDOW_DAYS} days.`
@@ -633,7 +633,7 @@ export default function ContractRenewalsPage() {
                   return (
                     <TableRow
                       key={c._id}
-                      className="border-zoru-line"
+                      className="border-[var(--st-border)]"
                     >
                       <TableCell>
                         <Checkbox
@@ -642,19 +642,19 @@ export default function ContractRenewalsPage() {
                           aria-label={`Select ${c.title ?? c._id}`}
                         />
                       </TableCell>
-                      <TableCell className="font-medium text-zoru-ink">
+                      <TableCell className="font-medium text-[var(--st-text)]">
                         <EntityRowLink
                           href={`${CONTRACTS_BASE}/${c._id}`}
                           label={c.title ?? 'Untitled contract'}
                         />
                       </TableCell>
-                      <TableCell className="text-zoru-ink">
+                      <TableCell className="text-[var(--st-text)]">
                         {counterparty}
                       </TableCell>
-                      <TableCell className="text-zoru-ink">
+                      <TableCell className="text-[var(--st-text)]">
                         {c.contractType ?? '—'}
                       </TableCell>
-                      <TableCell className="text-zoru-ink">
+                      <TableCell className="text-[var(--st-text)]">
                         {fmtDate(c.expiryDate)}
                       </TableCell>
                       <TableCell>
@@ -702,20 +702,20 @@ export default function ContractRenewalsPage() {
           <div className="grid gap-4 py-4">
             <div className="flex items-center gap-3">
               <Checkbox id="enableAuto" defaultChecked={true} />
-              <label htmlFor="enableAuto" className="text-sm font-medium leading-none text-zoru-ink">
+              <label htmlFor="enableAuto" className="text-sm font-medium leading-none text-[var(--st-text)]">
                 Enable automated email reminders
               </label>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-zoru-ink">Default notice period</label>
+              <label className="text-sm font-medium text-[var(--st-text)]">Default notice period</label>
               <div className="flex items-center gap-2">
                 <Input type="number" defaultValue="30" className="w-24 h-9" />
-                <span className="text-sm text-zoru-ink-muted">days before expiry</span>
+                <span className="text-sm text-[var(--st-text-secondary)]">days before expiry</span>
               </div>
             </div>
             <div className="flex items-center gap-3 mt-2">
               <Checkbox id="notifyOwner" defaultChecked={true} />
-              <label htmlFor="notifyOwner" className="text-sm font-medium leading-none text-zoru-ink">
+              <label htmlFor="notifyOwner" className="text-sm font-medium leading-none text-[var(--st-text)]">
                 Send a copy to the contract owner
               </label>
             </div>

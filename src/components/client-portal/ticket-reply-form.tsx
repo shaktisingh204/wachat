@@ -43,7 +43,7 @@ export function TicketReplyForm({ ticketId }: { ticketId: string }) {
                 required
             />
             {error ? (
-                <div className="text-sm text-zoru-danger-ink" role="alert">
+                <div className="text-sm text-[var(--st-danger)]" role="alert">
                     {error}
                 </div>
             ) : null}

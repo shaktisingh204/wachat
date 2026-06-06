@@ -35,10 +35,10 @@ export function InlineTdsForm({
     };
 
     return (
-        <tr className="bg-zoru-surface-2/30">
+        <tr className="bg-[var(--st-bg-muted)]/30">
             <td className="px-4 py-2">
             </td>
-            <td className="px-4 py-2 text-[13px] font-mono text-zoru-ink">
+            <td className="px-4 py-2 text-[13px] font-mono text-[var(--st-text)]">
                 {record.quarter || '—'}
             </td>
             <td className="px-4 py-2">

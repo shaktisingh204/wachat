@@ -29,9 +29,9 @@ export const jobApplicationTemplate: TemplateDefinition = {
   name: 'Job Application',
   description: 'Collect candidate info including name, email, and resume.',
   emoji: '💼',
-  color: 'text-zoru-ink',
+  color: 'text-[var(--st-text)]',
   bgColor:
-    'bg-zoru-surface-2 dark:bg-zoru-ink/30 border-zoru-line dark:border-zoru-line',
+    'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 border-[var(--st-border)] dark:border-[var(--st-border)]',
   icon: LuBriefcase,
   category: 'HR',
   build: () => {
@@ -129,9 +129,9 @@ export const eventRsvpTemplate: TemplateDefinition = {
   name: 'Event RSVP',
   description: 'Event confirmation with attendance count and dietary needs.',
   emoji: '📅',
-  color: 'text-zoru-ink',
+  color: 'text-[var(--st-text)]',
   bgColor:
-    'bg-zoru-surface-2 dark:bg-zoru-ink/30 border-zoru-line dark:border-zoru-line',
+    'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 border-[var(--st-border)] dark:border-[var(--st-border)]',
   icon: LuCalendarCheck,
   category: 'Marketing',
   build: () => {
@@ -225,9 +225,9 @@ export const bookingAppointmentTemplate: TemplateDefinition = {
   name: 'Booking / Appointment',
   description: 'Collects date, time, and service selection for an appointment.',
   emoji: '🗓️',
-  color: 'text-zoru-ink',
+  color: 'text-[var(--st-text)]',
   bgColor:
-    'bg-zoru-surface-2 dark:bg-zoru-ink/30 border-zoru-line dark:border-zoru-line',
+    'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 border-[var(--st-border)] dark:border-[var(--st-border)]',
   icon: LuCalendarClock,
   category: 'Sales',
   build: () => {
@@ -318,9 +318,9 @@ export const fitnessCoachTemplate: TemplateDefinition = {
   name: 'Fitness Coach Intake',
   description: 'Collects fitness goals, current level, and training schedule.',
   emoji: '💪',
-  color: 'text-zoru-ink',
+  color: 'text-[var(--st-text)]',
   bgColor:
-    'bg-zoru-surface-2 dark:bg-zoru-ink/30 border-zoru-line dark:border-zoru-line',
+    'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 border-[var(--st-border)] dark:border-[var(--st-border)]',
   icon: LuDumbbell,
   category: 'Health',
   build: () => {
@@ -418,9 +418,9 @@ export const legalIntakeTemplate: TemplateDefinition = {
   name: 'Legal Intake',
   description: 'Gathers case details for a law firm consultation.',
   emoji: '⚖️',
-  color: 'text-zoru-ink',
+  color: 'text-[var(--st-text)]',
   bgColor:
-    'bg-zoru-surface-2 dark:bg-zoru-ink/30 border-zoru-line dark:border-zoru-line',
+    'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 border-[var(--st-border)] dark:border-[var(--st-border)]',
   icon: LuScale,
   category: 'Support',
   build: () => {
@@ -525,9 +525,9 @@ export const mentalHealthCheckinTemplate: TemplateDefinition = {
   name: 'Mental Health Check-in',
   description: 'Daily mood tracker with rating input and supportive messaging.',
   emoji: '🧘',
-  color: 'text-zoru-ink',
+  color: 'text-[var(--st-text)]',
   bgColor:
-    'bg-zoru-surface-2 dark:bg-zoru-ink/30 border-zoru-line dark:border-zoru-line',
+    'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 border-[var(--st-border)] dark:border-[var(--st-border)]',
   icon: LuHeartPulse,
   category: 'Health',
   build: () => {

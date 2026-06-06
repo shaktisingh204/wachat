@@ -134,26 +134,26 @@ export function RequeueBroadcastDialog({
         <button
           type="button"
           aria-label="Requeue broadcast"
-          className="flex h-7 w-7 items-center justify-center rounded-md text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink transition-colors"
+          className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] transition-colors"
         >
           <LuRotateCw className="h-3.5 w-3.5" strokeWidth={1.75} />
         </button>
       </ZoruDialogTrigger>
-      <ZoruDialogContent className="max-w-[540px] rounded-[18px] border border-zoru-line bg-zoru-surface p-0 shadow-lg">
+      <ZoruDialogContent className="max-w-[540px] rounded-[18px] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-0 shadow-lg">
         <form ref={formRef} action={formAction}>
           <input type="hidden" name="broadcastId" value={broadcastId} />
           <input type="hidden" name="templateId" value={selectedTemplateId} />
           <input type="hidden" name="requeueScope" value={requeueScope} />
 
-          <ZoruDialogHeader className="flex flex-row items-start gap-3 border-b border-zoru-line px-6 py-5">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-zoru-surface-2 text-zoru-ink">
+          <ZoruDialogHeader className="flex flex-row items-start gap-3 border-b border-[var(--st-border)] px-6 py-5">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
               <LuRotateCw className="h-5 w-5" strokeWidth={2} />
             </span>
             <div className="min-w-0 flex-1">
-              <ZoruDialogTitle className="text-[16px] font-semibold text-zoru-ink leading-tight">
+              <ZoruDialogTitle className="text-[16px] font-semibold text-[var(--st-text)] leading-tight">
                 Requeue broadcast
               </ZoruDialogTitle>
-              <ZoruDialogDescription className="mt-0.5 text-[12px] text-zoru-ink-muted leading-snug">
+              <ZoruDialogDescription className="mt-0.5 text-[12px] text-[var(--st-text-secondary)] leading-snug">
                 Send this campaign again to the same audience — all contacts
                 or only the ones that failed the first time.
               </ZoruDialogDescription>
@@ -163,8 +163,8 @@ export function RequeueBroadcastDialog({
           <div className="flex flex-col gap-5 px-6 py-5">
             {/* Template select */}
             <div className="flex flex-col gap-1.5">
-              <Label className="text-[11.5px] font-semibold text-zoru-ink-muted">
-                Message template <span className="ml-1 text-zoru-ink">*</span>
+              <Label className="text-[11.5px] font-semibold text-[var(--st-text-secondary)]">
+                Message template <span className="ml-1 text-[var(--st-text)]">*</span>
               </Label>
               <Select
                 value={selectedTemplateId}
@@ -181,7 +181,7 @@ export function RequeueBroadcastDialog({
                         value={template._id.toString()}
                       >
                         {template.name}
-                        <span className="ml-2 text-[11px] capitalize text-zoru-ink-muted">
+                        <span className="ml-2 text-[11px] capitalize text-[var(--st-text-secondary)]">
                           {template.status
                             ? template.status.replace(/_/g, ' ').toLowerCase()
                             : 'n/a'}
@@ -189,7 +189,7 @@ export function RequeueBroadcastDialog({
                       </ZoruSelectItem>
                     ))
                   ) : (
-                    <div className="px-2 py-4 text-center text-[12px] text-zoru-ink-muted">
+                    <div className="px-2 py-4 text-center text-[12px] text-[var(--st-text-secondary)]">
                       No approved templates found.
                     </div>
                   )}
@@ -202,10 +202,10 @@ export function RequeueBroadcastDialog({
               <div className="flex flex-col gap-1.5">
                 <Label
                   htmlFor="headerImageUrl"
-                  className="text-[11.5px] font-semibold text-zoru-ink-muted"
+                  className="text-[11.5px] font-semibold text-[var(--st-text-secondary)]"
                 >
                   Header media URL
-                  <span className="ml-1 text-zoru-ink-muted/70 font-normal">
+                  <span className="ml-1 text-[var(--st-text-secondary)]/70 font-normal">
                     (optional)
                   </span>
                 </Label>
@@ -215,7 +215,7 @@ export function RequeueBroadcastDialog({
                   type="url"
                   placeholder="https://example.com/image.jpg"
                 />
-                <div className="text-[11px] text-zoru-ink-muted">
+                <div className="text-[11px] text-[var(--st-text-secondary)]">
                   Provide a new public media URL to override the template&apos;s
                   header image.
                 </div>
@@ -224,7 +224,7 @@ export function RequeueBroadcastDialog({
 
             {/* Scope radio group */}
             <div className="flex flex-col gap-2">
-              <Label className="text-[11.5px] font-semibold text-zoru-ink-muted">
+              <Label className="text-[11.5px] font-semibold text-[var(--st-text-secondary)]">
                 Target contacts
               </Label>
               <RadioGroup
@@ -252,7 +252,7 @@ export function RequeueBroadcastDialog({
             </div>
           </div>
 
-          <ZoruDialogFooter className="border-t border-zoru-line px-6 py-4 sm:justify-end gap-2">
+          <ZoruDialogFooter className="border-t border-[var(--st-border)] px-6 py-4 sm:justify-end gap-2">
             <Button
               type="button"
               variant="pill"
@@ -290,14 +290,14 @@ function ScopeOption({
       className={cn(
         'flex cursor-pointer items-center gap-2.5 rounded-[12px] border px-3 py-2.5 transition-colors',
         active
-          ? 'border-primary bg-zoru-surface-2/50'
-          : 'border-zoru-line bg-zoru-surface hover:bg-zoru-surface-2',
+          ? 'border-primary bg-[var(--st-bg-muted)]/50'
+          : 'border-[var(--st-border)] bg-[var(--st-bg-secondary)] hover:bg-[var(--st-bg-muted)]',
       )}
     >
       <ZoruRadioGroupItem value={value} id={id} />
       <div className="flex flex-col">
-        <span className="text-[13px] font-medium text-zoru-ink">{title}</span>
-        <span className="text-[11px] text-zoru-ink-muted">{description}</span>
+        <span className="text-[13px] font-medium text-[var(--st-text)]">{title}</span>
+        <span className="text-[11px] text-[var(--st-text-secondary)]">{description}</span>
       </div>
     </label>
   );

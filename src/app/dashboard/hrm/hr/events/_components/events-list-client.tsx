@@ -228,48 +228,48 @@ export function EventsListClient({
                 }
                 loading={isLoading && events.length === 0}
             >
-                <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                     <Table>
                         <ZoruTableHeader>
-                            <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                <ZoruTableHead className="text-zoru-ink-muted">
+                            <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                     Name
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                     Type
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                     Starts at
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                     Location
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                     Organizer
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                     Status
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted text-right">
+                                <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">
                                     Attendees
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted text-right">
+                                <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">
                                     Actions
                                 </ZoruTableHead>
                             </ZoruTableRow>
                         </ZoruTableHeader>
                         <ZoruTableBody>
                             {isLoading && events.length === 0 ? (
-                                <ZoruTableRow className="border-zoru-line">
+                                <ZoruTableRow className="border-[var(--st-border)]">
                                     <ZoruTableCell colSpan={8} className="h-24 text-center">
-                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
+                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
                                     </ZoruTableCell>
                                 </ZoruTableRow>
                             ) : events.length === 0 ? (
-                                <ZoruTableRow className="border-zoru-line">
+                                <ZoruTableRow className="border-[var(--st-border)]">
                                     <ZoruTableCell
                                         colSpan={8}
-                                        className="h-24 text-center text-zoru-ink-muted"
+                                        className="h-24 text-center text-[var(--st-text-secondary)]"
                                     >
                                         No events match these filters.
                                     </ZoruTableCell>
@@ -283,9 +283,9 @@ export function EventsListClient({
                                     return (
                                         <ZoruTableRow
                                             key={ev._id}
-                                            className="border-zoru-line"
+                                            className="border-[var(--st-border)]"
                                         >
-                                            <ZoruTableCell className="font-medium text-zoru-ink">
+                                            <ZoruTableCell className="font-medium text-[var(--st-text)]">
                                                 <Link
                                                     href={`/dashboard/hrm/hr/events/${ev._id}`}
                                                     className="hover:underline"
@@ -293,19 +293,19 @@ export function EventsListClient({
                                                     {ev.name}
                                                 </Link>
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="text-zoru-ink">
+                                            <ZoruTableCell className="text-[var(--st-text)]">
                                                 {titleCase(String(ev.eventType ?? 'other'))}
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="text-zoru-ink">
+                                            <ZoruTableCell className="text-[var(--st-text)]">
                                                 {fmtDateTime(ev.startsAt)}
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="text-zoru-ink">
+                                            <ZoruTableCell className="text-[var(--st-text)]">
                                                 <LocationCell
                                                     isOnline={Boolean(ev.isOnline)}
                                                     location={ev.location}
                                                 />
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="text-zoru-ink">
+                                            <ZoruTableCell className="text-[var(--st-text)]">
                                                 {ev.organizerName || '—'}
                                             </ZoruTableCell>
                                             <ZoruTableCell>
@@ -314,7 +314,7 @@ export function EventsListClient({
                                                     tone={STATUS_TONE[evStatus] ?? 'neutral'}
                                                 />
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="text-right font-mono text-zoru-ink">
+                                            <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
                                                 {attendees}
                                                 {typeof ev.maxAttendees === 'number'
                                                     ? ` / ${ev.maxAttendees}`
@@ -335,7 +335,7 @@ export function EventsListClient({
                                                     aria-label={`Delete ${ev.name}`}
                                                     onClick={() => setPendingDelete(ev)}
                                                 >
-                                                    <Trash2 className="h-4 w-4 text-zoru-danger-ink" />
+                                                    <Trash2 className="h-4 w-4 text-[var(--st-danger)]" />
                                                 </Button>
                                             </ZoruTableCell>
                                         </ZoruTableRow>
@@ -395,13 +395,13 @@ function LocationCell({
 }) {
     if (isOnline) {
         return (
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-zoru-line bg-zoru-surface px-2 py-0.5 text-xs text-zoru-ink">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-0.5 text-xs text-[var(--st-text)]">
                 <Video className="h-3 w-3" aria-hidden="true" />
                 {location || 'Online'}
             </span>
         );
     }
     if (location) return <span>{location}</span>;
-    return <span className="text-zoru-ink-muted">—</span>;
+    return <span className="text-[var(--st-text-secondary)]">—</span>;
 }
 

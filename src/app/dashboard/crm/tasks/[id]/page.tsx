@@ -60,9 +60,9 @@ function Field({
     value: React.ReactNode;
 }) {
     return (
-        <div className="grid grid-cols-3 gap-3 border-b border-zoru-line/60 py-2 last:border-0">
-            <dt className="col-span-1 text-[12.5px] text-zoru-ink-muted">{label}</dt>
-            <dd className="col-span-2 text-[13px] text-zoru-ink">{value ?? '—'}</dd>
+        <div className="grid grid-cols-3 gap-3 border-b border-[var(--st-border)]/60 py-2 last:border-0">
+            <dt className="col-span-1 text-[12.5px] text-[var(--st-text-secondary)]">{label}</dt>
+            <dd className="col-span-2 text-[13px] text-[var(--st-text)]">{value ?? '—'}</dd>
         </div>
     );
 }
@@ -158,7 +158,7 @@ export default async function TaskDetailPage({ params }: PageProps) {
                         <ZoruCardTitle>Description</ZoruCardTitle>
                     </ZoruCardHeader>
                     <ZoruCardContent>
-                        <p className="whitespace-pre-wrap text-[13px] text-zoru-ink">
+                        <p className="whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
                             {task.description}
                         </p>
                     </ZoruCardContent>
@@ -171,7 +171,7 @@ export default async function TaskDetailPage({ params }: PageProps) {
                 </ZoruCardHeader>
                 <ZoruCardContent>
                     {checklist.length === 0 ? (
-                        <p className="text-[13px] text-zoru-ink-muted">
+                        <p className="text-[13px] text-[var(--st-text-secondary)]">
                             No checklist items.
                         </p>
                     ) : (
@@ -181,15 +181,15 @@ export default async function TaskDetailPage({ params }: PageProps) {
                                     <CheckCircle2
                                         className={`mt-0.5 h-4 w-4 ${
                                             item.done
-                                                ? 'text-zoru-ink'
-                                                : 'text-zoru-ink-muted'
+                                                ? 'text-[var(--st-text)]'
+                                                : 'text-[var(--st-text-secondary)]'
                                         }`}
                                     />
                                     <span
                                         className={
                                             item.done
-                                                ? 'text-zoru-ink-muted line-through'
-                                                : 'text-zoru-ink'
+                                                ? 'text-[var(--st-text-secondary)] line-through'
+                                                : 'text-[var(--st-text)]'
                                         }
                                     >
                                         {item.text}
@@ -213,12 +213,12 @@ export default async function TaskDetailPage({ params }: PageProps) {
                                     key={`${url}-${idx}`}
                                     className="flex items-center gap-2 text-[13px]"
                                 >
-                                    <Paperclip className="h-3.5 w-3.5 text-zoru-ink-muted" />
+                                    <Paperclip className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                                     <a
                                         href={url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="max-w-full truncate text-zoru-ink underline-offset-2 hover:underline"
+                                        className="max-w-full truncate text-[var(--st-text)] underline-offset-2 hover:underline"
                                     >
                                         {extractName(url)}
                                     </a>

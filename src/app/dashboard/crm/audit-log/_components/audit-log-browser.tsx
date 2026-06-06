@@ -414,9 +414,9 @@ export function AuditLogBrowser({
         empty={
           entries.length === 0 ? (
             <div className="flex flex-col items-center gap-3 p-4">
-              <Search className="h-8 w-8 text-zoru-ink-muted" />
-              <h3 className="text-base font-medium text-zoru-ink">No audit entries</h3>
-              <p className="max-w-sm text-sm text-zoru-ink-muted">
+              <Search className="h-8 w-8 text-[var(--st-text-secondary)]" />
+              <h3 className="text-base font-medium text-[var(--st-text)]">No audit entries</h3>
+              <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                 {hasActiveFilters
                   ? 'No entries match the current filters. Try clearing them.'
                   : 'No mutations have been recorded yet. Audit rows are written on every create/update/delete.'}
@@ -436,15 +436,15 @@ export function AuditLogBrowser({
             <div className="overflow-x-auto">
               <Table>
                 <ZoruTableHeader>
-                  <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                    <ZoruTableHead className="text-zoru-ink-muted">When</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Actor</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Action</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Entity</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Entity id</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Reason</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Diff</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">IP</ZoruTableHead>
+                  <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">When</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Actor</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Action</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Entity</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Entity id</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Reason</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Diff</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">IP</ZoruTableHead>
                   </ZoruTableRow>
                 </ZoruTableHeader>
                 <ZoruTableBody>
@@ -452,14 +452,14 @@ export function AuditLogBrowser({
                     const tone = ACTION_TONE[String(row.action)] ?? 'neutral';
                     const href = entityHref(row.entityKind, row.entityId);
                     return (
-                      <ZoruTableRow key={row._id} className="border-zoru-line">
+                      <ZoruTableRow key={row._id} className="border-[var(--st-border)]">
                         <ZoruTableCell
-                          className="whitespace-nowrap text-[13px] text-zoru-ink"
+                          className="whitespace-nowrap text-[13px] text-[var(--st-text)]"
                           title={mounted ? formatAbsolute(row.createdAt) : undefined}
                         >
                           {mounted ? formatRelative(row.createdAt) : '—'}
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-zoru-ink">
+                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                           {row.actorName || row.actorId || '—'}
                         </ZoruTableCell>
                         <ZoruTableCell>
@@ -468,7 +468,7 @@ export function AuditLogBrowser({
                         <ZoruTableCell>
                           <Badge variant="secondary">{row.entityKind || '—'}</Badge>
                         </ZoruTableCell>
-                        <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
+                        <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
                           {href ? (
                             <Link href={href} className="hover:underline">
                               {row.entityId}
@@ -477,7 +477,7 @@ export function AuditLogBrowser({
                             row.entityId || '—'
                           )}
                         </ZoruTableCell>
-                        <ZoruTableCell className="max-w-[260px] truncate text-[12.5px] text-zoru-ink-muted">
+                        <ZoruTableCell className="max-w-[260px] truncate text-[12.5px] text-[var(--st-text-secondary)]">
                           {row.reason || '—'}
                         </ZoruTableCell>
                         <ZoruTableCell>
@@ -491,10 +491,10 @@ export function AuditLogBrowser({
                               View
                             </Button>
                           ) : (
-                            <span className="text-[12px] text-zoru-ink-muted">—</span>
+                            <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
                           )}
                         </ZoruTableCell>
-                        <ZoruTableCell className="font-mono text-[12px] text-zoru-ink-muted">
+                        <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text-secondary)]">
                           {row.ip || '—'}
                         </ZoruTableCell>
                       </ZoruTableRow>
@@ -508,7 +508,7 @@ export function AuditLogBrowser({
           {/* Pagination bar */}
           {totalPages > 1 && (
             <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
-              <span className="text-[12.5px] text-zoru-ink-muted">
+              <span className="text-[12.5px] text-[var(--st-text-secondary)]">
                 Page {initialPage} of {totalPages} &middot; {total.toLocaleString()} events
               </span>
               <div className="flex items-center gap-1">
@@ -703,7 +703,7 @@ function DiffView({
   const entries = Object.entries(diff);
   if (entries.length === 0) {
     return (
-      <p className="mt-4 text-[13px] text-zoru-ink-muted">No structured diff recorded.</p>
+      <p className="mt-4 text-[13px] text-[var(--st-text-secondary)]">No structured diff recorded.</p>
     );
   }
   return (
@@ -711,20 +711,20 @@ function DiffView({
       {entries.map(([field, { before, after }]) => (
         <div
           key={field}
-          className="rounded-[var(--zoru-radius)] border border-zoru-line p-3"
+          className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-3"
         >
-          <div className="mb-2 text-[12px] font-medium text-zoru-ink">{field}</div>
+          <div className="mb-2 text-[12px] font-medium text-[var(--st-text)]">{field}</div>
           <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-            <div className="rounded bg-zoru-danger-bg/30 p-2 text-[12px] text-zoru-ink">
-              <div className="mb-1 text-[10px] uppercase tracking-wide text-zoru-ink-muted">
+            <div className="rounded bg-[var(--st-danger-soft)]/30 p-2 text-[12px] text-[var(--st-text)]">
+              <div className="mb-1 text-[10px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Before
               </div>
               <pre className="overflow-x-auto whitespace-pre-wrap break-words font-mono">
                 {JSON.stringify(before, null, 2)}
               </pre>
             </div>
-            <div className="rounded bg-zoru-success-bg/30 p-2 text-[12px] text-zoru-ink">
-              <div className="mb-1 text-[10px] uppercase tracking-wide text-zoru-ink-muted">
+            <div className="rounded bg-zoru-success-bg/30 p-2 text-[12px] text-[var(--st-text)]">
+              <div className="mb-1 text-[10px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                 After
               </div>
               <pre className="overflow-x-auto whitespace-pre-wrap break-words font-mono">

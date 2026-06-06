@@ -30,10 +30,10 @@ function Field({
 }) {
   return (
     <div>
-      <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
         {label}
       </div>
-      <div className="mt-1 text-[13px] text-zoru-ink">{children}</div>
+      <div className="mt-1 text-[13px] text-[var(--st-text)]">{children}</div>
     </div>
   );
 }
@@ -50,7 +50,7 @@ export default async function DesignationDetailPage({
     if (error) {
       return (
         <div className="flex w-full flex-col gap-4 p-6">
-          <p className="text-[14px] text-zoru-ink">
+          <p className="text-[14px] text-[var(--st-text)]">
             Couldn&apos;t load this designation — {error}
           </p>
           <Button variant="outline" asChild>
@@ -91,13 +91,13 @@ export default async function DesignationDetailPage({
       audit={<EntityAuditTimeline entityKind="designation" entityId={id} />}
       rightRail={
         <Card className="p-4">
-          <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
             Holders
           </h3>
-          <div className="text-[24px] font-semibold tabular-nums text-zoru-ink">
+          <div className="text-[24px] font-semibold tabular-nums text-[var(--st-text)]">
             {employees.length}
           </div>
-          <p className="mt-1 text-[12px] text-zoru-ink-muted">
+          <p className="mt-1 text-[12px] text-[var(--st-text-secondary)]">
             Employee{employees.length === 1 ? '' : 's'} currently in this role.
           </p>
         </Card>

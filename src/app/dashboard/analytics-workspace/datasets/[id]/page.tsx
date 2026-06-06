@@ -61,14 +61,14 @@ export default async function DatasetDetailPage({
     <div className="zoruui flex flex-col gap-6 p-6">
       <header className="flex items-end justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-wide text-zoru-ink-muted">
+          <p className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
             <Link href="/dashboard/analytics-workspace/datasets" className="hover:underline">
               Datasets
             </Link>
           </p>
-          <h1 className="text-2xl font-semibold text-zoru-ink">{dataset.name}</h1>
+          <h1 className="text-2xl font-semibold text-[var(--st-text)]">{dataset.name}</h1>
           {dataset.description && (
-            <p className="text-sm text-zoru-ink-muted">{dataset.description}</p>
+            <p className="text-sm text-[var(--st-text-secondary)]">{dataset.description}</p>
           )}
         </div>
         <div className="flex items-center gap-2">
@@ -83,7 +83,7 @@ export default async function DatasetDetailPage({
             <CardTitle>Rows</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-semibold text-zoru-ink">
+            <p className="text-2xl font-semibold text-[var(--st-text)]">
               {preview.rowCount ?? dataset.rowCount ?? 0}
             </p>
           </CardContent>
@@ -93,7 +93,7 @@ export default async function DatasetDetailPage({
             <CardTitle>Last refresh</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-zoru-ink-muted">
+            <p className="text-sm text-[var(--st-text-secondary)]">
               {dataset.lastRefreshAt ?? '—'}
             </p>
           </CardContent>
@@ -103,7 +103,7 @@ export default async function DatasetDetailPage({
             <CardTitle>Columns</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-semibold text-zoru-ink">{columns.length}</p>
+            <p className="text-2xl font-semibold text-[var(--st-text)]">{columns.length}</p>
           </CardContent>
         </Card>
       </div>
@@ -118,7 +118,7 @@ export default async function DatasetDetailPage({
         </CardHeader>
         <CardContent>
           {preview.rows.length === 0 ? (
-            <p className="text-sm text-zoru-ink-muted">No preview rows available.</p>
+            <p className="text-sm text-[var(--st-text-secondary)]">No preview rows available.</p>
           ) : (
             <Table>
               <TableHeader>
@@ -132,7 +132,7 @@ export default async function DatasetDetailPage({
               </TableHeader>
               <TableBody>
                 {preview.rows.map((row, i) => (
-                  <tr key={i} className="border-t border-zoru-line">
+                  <tr key={i} className="border-t border-[var(--st-border)]">
                     {columns.map((c) => (
                       <td key={c} className="py-1.5 text-sm">
                         {String((row as Record<string, unknown>)[c] ?? '')}

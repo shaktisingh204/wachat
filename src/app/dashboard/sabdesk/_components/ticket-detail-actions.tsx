@@ -115,7 +115,7 @@ export function TicketDetailActions({
           </Button>
         </ZoruPopoverTrigger>
         <ZoruPopoverContent align="end" className="w-72 space-y-2">
-          <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+          <p className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
             Assign agent
           </p>
           <EntityFormField
@@ -127,7 +127,7 @@ export function TicketDetailActions({
           />
           <button
             type="button"
-            className="text-[12px] text-zoru-ink-muted hover:underline"
+            className="text-[12px] text-[var(--st-text-secondary)] hover:underline"
             onClick={() => runAssign(null)}
           >
             Unassign

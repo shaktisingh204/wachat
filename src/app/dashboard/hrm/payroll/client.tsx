@@ -171,7 +171,7 @@ export default function PayrollRunClient({
             primaryAction={
                 <>
                     <Select value={String(month)} onValueChange={val => setMonth(Number(val))}>
-                        <ZoruSelectTrigger className="w-36 h-9 rounded-full border-zoru-line bg-zoru-bg text-[13px]">
+                        <ZoruSelectTrigger className="w-36 h-9 rounded-full border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
                             <ZoruSelectValue />
                         </ZoruSelectTrigger>
                         <ZoruSelectContent>
@@ -179,7 +179,7 @@ export default function PayrollRunClient({
                         </ZoruSelectContent>
                     </Select>
                     <Select value={String(year)} onValueChange={val => setYear(Number(val))}>
-                        <ZoruSelectTrigger className="w-28 h-9 rounded-full border-zoru-line bg-zoru-bg text-[13px]">
+                        <ZoruSelectTrigger className="w-28 h-9 rounded-full border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
                             <ZoruSelectValue />
                         </ZoruSelectTrigger>
                         <ZoruSelectContent>
@@ -195,7 +195,7 @@ export default function PayrollRunClient({
         >
             {isProcessing && (
                 <div className="mb-4 space-y-2">
-                    <div className="flex items-center justify-between text-[13px] text-zoru-ink-muted">
+                    <div className="flex items-center justify-between text-[13px] text-[var(--st-text-secondary)]">
                         <span>Processing payroll...</span>
                         <span>{progressValue}%</span>
                     </div>
@@ -205,27 +205,27 @@ export default function PayrollRunClient({
 
             <div className="grid gap-4 md:grid-cols-3">
                 <Card className="p-6">
-                    <p className="text-[12.5px] font-medium text-zoru-ink-muted">{t('hrm.payroll.run.stat.gross')}</p>
-                    <div className="mt-2 text-2xl text-zoru-ink">{fmtINR(totalGross)}</div>
-                    <p className="mt-1 text-[11.5px] text-zoru-ink-muted">{t('hrm.payroll.run.stat.employees', { count: payslips.length })}</p>
+                    <p className="text-[12.5px] font-medium text-[var(--st-text-secondary)]">{t('hrm.payroll.run.stat.gross')}</p>
+                    <div className="mt-2 text-2xl text-[var(--st-text)]">{fmtINR(totalGross)}</div>
+                    <p className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">{t('hrm.payroll.run.stat.employees', { count: payslips.length })}</p>
                 </Card>
                 <Card className="p-6">
-                    <p className="text-[12.5px] font-medium text-zoru-ink-muted">{t('hrm.payroll.run.stat.deductions')}</p>
-                    <div className="mt-2 text-2xl text-zoru-ink">{fmtINR(totalDeductions)}</div>
-                    <p className="mt-1 text-[11.5px] text-zoru-ink-muted">{t('hrm.payroll.run.stat.deductionsSummary')}</p>
+                    <p className="text-[12.5px] font-medium text-[var(--st-text-secondary)]">{t('hrm.payroll.run.stat.deductions')}</p>
+                    <div className="mt-2 text-2xl text-[var(--st-text)]">{fmtINR(totalDeductions)}</div>
+                    <p className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">{t('hrm.payroll.run.stat.deductionsSummary')}</p>
                 </Card>
                 <Card className="p-6">
-                    <p className="text-[12.5px] font-medium text-zoru-ink-muted">{t('hrm.payroll.run.stat.netPay')}</p>
-                    <div className="mt-2 text-2xl text-zoru-ink">{fmtINR(totalNet)}</div>
-                    <p className="mt-1 text-[11.5px] text-zoru-ink-muted">{t('hrm.payroll.run.stat.netPaySummary')}</p>
+                    <p className="text-[12.5px] font-medium text-[var(--st-text-secondary)]">{t('hrm.payroll.run.stat.netPay')}</p>
+                    <div className="mt-2 text-2xl text-[var(--st-text)]">{fmtINR(totalNet)}</div>
+                    <p className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">{t('hrm.payroll.run.stat.netPaySummary')}</p>
                 </Card>
             </div>
 
             <Card className="p-6">
                 <div className="mb-4 flex items-center justify-between">
                     <div>
-                        <h2 className="text-[16px] text-zoru-ink">{t('hrm.payroll.run.register.title', { period: periodLabel })}</h2>
-                        <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">{t('hrm.payroll.run.register.subtitle')}</p>
+                        <h2 className="text-[16px] text-[var(--st-text)]">{t('hrm.payroll.run.register.title', { period: periodLabel })}</h2>
+                        <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">{t('hrm.payroll.run.register.subtitle')}</p>
                     </div>
                     <div className="flex items-center gap-2">
                         {payslips.length > 0 && payslips.every(p => p.status === 'paid') ? (
@@ -241,24 +241,24 @@ export default function PayrollRunClient({
                         )}
                     </div>
                 </div>
-                <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                     <table className="w-full text-left text-[13px]">
                         <thead>
-                            <tr className="border-b border-zoru-line bg-zoru-surface-2">
-                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">{t('hrm.payroll.run.col.employee')}</th>
-                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">{t('hrm.payroll.run.col.designation')}</th>
-                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">{t('hrm.payroll.run.col.basic')}</th>
-                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">{t('hrm.payroll.run.col.allowances')}</th>
-                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">{t('hrm.payroll.run.col.deductions')}</th>
-                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">{t('hrm.payroll.run.col.net')}</th>
-                                <th className="px-4 py-3 text-center text-[12px] uppercase text-zoru-ink-muted">{t('hrm.payroll.run.col.status')}</th>
+                            <tr className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]">
+                                <th className="px-4 py-3 text-[12px] uppercase text-[var(--st-text-secondary)]">{t('hrm.payroll.run.col.employee')}</th>
+                                <th className="px-4 py-3 text-[12px] uppercase text-[var(--st-text-secondary)]">{t('hrm.payroll.run.col.designation')}</th>
+                                <th className="px-4 py-3 text-right text-[12px] uppercase text-[var(--st-text-secondary)]">{t('hrm.payroll.run.col.basic')}</th>
+                                <th className="px-4 py-3 text-right text-[12px] uppercase text-[var(--st-text-secondary)]">{t('hrm.payroll.run.col.allowances')}</th>
+                                <th className="px-4 py-3 text-right text-[12px] uppercase text-[var(--st-text-secondary)]">{t('hrm.payroll.run.col.deductions')}</th>
+                                <th className="px-4 py-3 text-right text-[12px] uppercase text-[var(--st-text-secondary)]">{t('hrm.payroll.run.col.net')}</th>
+                                <th className="px-4 py-3 text-center text-[12px] uppercase text-[var(--st-text-secondary)]">{t('hrm.payroll.run.col.status')}</th>
                             </tr>
                         </thead>
                         <tbody>
                             {isLoading ? (
                                 <tr>
                                     <td colSpan={7} className="h-48 text-center">
-                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-zoru-ink-muted" />
+                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-[var(--st-text-secondary)]" />
                                     </td>
                                 </tr>
                             ) : payslips.length > 0 ? (
@@ -266,25 +266,25 @@ export default function PayrollRunClient({
                                     const basic = p.earnings?.find((e: any) => e.name?.toLowerCase().includes('basic'))?.amount ?? 0;
                                     const allowances = (p.grossSalary ?? 0) - basic;
                                     return (
-                                        <tr key={p._id?.toString() ?? idx} className="border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2/50 transition-colors">
+                                        <tr key={p._id?.toString() ?? idx} className="border-b border-[var(--st-border)] last:border-0 hover:bg-[var(--st-bg-muted)]/50 transition-colors">
                                             <td className="px-4 py-3">
-                                                <div className="font-medium text-zoru-ink">
+                                                <div className="font-medium text-[var(--st-text)]">
                                                     {p.employee?.firstName} {p.employee?.lastName}
                                                 </div>
-                                                <div className="text-[11.5px] text-zoru-ink-muted">{p.employee?.employeeId ?? '—'}</div>
+                                                <div className="text-[11.5px] text-[var(--st-text-secondary)]">{p.employee?.employeeId ?? '—'}</div>
                                             </td>
-                                            <td className="px-4 py-3 text-zoru-ink">{p.employee?.designationName ?? '—'}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmtINR(basic)}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmtINR(allowances)}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-zoru-danger-ink">{fmtINR(p.totalDeductions ?? 0)}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmtINR(p.netPay ?? 0)}</td>
+                                            <td className="px-4 py-3 text-[var(--st-text)]">{p.employee?.designationName ?? '—'}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]">{fmtINR(basic)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]">{fmtINR(allowances)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-[var(--st-danger)]">{fmtINR(p.totalDeductions ?? 0)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]">{fmtINR(p.netPay ?? 0)}</td>
                                             <td className="px-4 py-3 text-center">{statusBadge(p.status)}</td>
                                         </tr>
                                     );
                                 })
                             ) : (
                                 <tr>
-                                    <td colSpan={7} className="h-24 text-center text-zoru-ink-muted">
+                                    <td colSpan={7} className="h-24 text-center text-[var(--st-text-secondary)]">
                                         {t('hrm.payroll.run.empty', { period: periodLabel })}
                                     </td>
                                 </tr>
@@ -292,16 +292,16 @@ export default function PayrollRunClient({
                         </tbody>
                         {payslips.length > 0 && (
                             <tfoot>
-                                <tr className="border-t-2 border-zoru-line bg-zoru-surface-2">
-                                    <td colSpan={2} className="px-4 py-3 text-[12.5px] text-zoru-ink">{t('hrm.payroll.run.totals')}</td>
-                                    <td className="px-4 py-3 text-right font-mono text-[12.5px] text-zoru-ink">
+                                <tr className="border-t-2 border-[var(--st-border)] bg-[var(--st-bg-muted)]">
+                                    <td colSpan={2} className="px-4 py-3 text-[12.5px] text-[var(--st-text)]">{t('hrm.payroll.run.totals')}</td>
+                                    <td className="px-4 py-3 text-right font-mono text-[12.5px] text-[var(--st-text)]">
                                         {fmtINR(payslips.reduce((s, p) => s + (p.earnings?.find((e: any) => e.name?.toLowerCase().includes('basic'))?.amount ?? 0), 0))}
                                     </td>
-                                    <td className="px-4 py-3 text-right font-mono text-[12.5px] text-zoru-ink">
+                                    <td className="px-4 py-3 text-right font-mono text-[12.5px] text-[var(--st-text)]">
                                         {fmtINR(payslips.reduce((s, p) => { const basic = p.earnings?.find((e: any) => e.name?.toLowerCase().includes('basic'))?.amount ?? 0; return s + ((p.grossSalary ?? 0) - basic); }, 0))}
                                     </td>
-                                    <td className="px-4 py-3 text-right font-mono text-[12.5px] text-zoru-danger-ink">{fmtINR(totalDeductions)}</td>
-                                    <td className="px-4 py-3 text-right font-mono text-[12.5px] text-zoru-ink">{fmtINR(totalNet)}</td>
+                                    <td className="px-4 py-3 text-right font-mono text-[12.5px] text-[var(--st-danger)]">{fmtINR(totalDeductions)}</td>
+                                    <td className="px-4 py-3 text-right font-mono text-[12.5px] text-[var(--st-text)]">{fmtINR(totalNet)}</td>
                                     <td />
                                 </tr>
                             </tfoot>

@@ -212,7 +212,7 @@ export default function TaskDetailPage() {
         return (
             <div className="flex w-full flex-col gap-4">
                 <h1 className="text-xl font-semibold">Task not found</h1>
-                <p className="text-sm text-zoru-ink-muted">
+                <p className="text-sm text-[var(--st-text-secondary)]">
                     The task you&apos;re looking for has been removed or you don&apos;t
                     have access.
                 </p>
@@ -307,7 +307,7 @@ export default function TaskDetailPage() {
                                     <span
                                         className={[
                                             'inline-flex items-center gap-1',
-                                            isOverdue ? 'text-zoru-danger' : 'text-zoru-ink',
+                                            isOverdue ? 'text-[var(--st-danger)]' : 'text-[var(--st-text)]',
                                         ].join(' ')}
                                     >
                                         {due.toLocaleString()}
@@ -362,10 +362,10 @@ export default function TaskDetailPage() {
                         />
                         {task.description ? (
                             <div className="space-y-1 sm:col-span-2">
-                                <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                                <p className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                                     Description
                                 </p>
-                                <p className="whitespace-pre-line text-sm text-zoru-ink">
+                                <p className="whitespace-pre-line text-sm text-[var(--st-text)]">
                                     {task.description}
                                 </p>
                             </div>
@@ -391,7 +391,7 @@ export default function TaskDetailPage() {
                     <ZoruCardContent>
                         {/* TODO 1D.2: SabFile picker integration deferred — wire SabFilePickerButton with onPick → updateCrmTask. */}
                         {attachments.length === 0 ? (
-                            <p className="text-sm text-zoru-ink-muted">
+                            <p className="text-sm text-[var(--st-text-secondary)]">
                                 No attachments yet. Inline SabFile picker is coming next —
                                 edit the task to attach a file in the meantime.
                             </p>
@@ -403,7 +403,7 @@ export default function TaskDetailPage() {
                                             href={a.url ?? '#'}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="inline-flex items-center gap-1.5 text-sm text-zoru-primary hover:underline"
+                                            className="inline-flex items-center gap-1.5 text-sm text-[var(--st-text)] hover:underline"
                                         >
                                             <CheckSquare className="h-3.5 w-3.5" />
                                             {a.name ?? a.url ?? `Attachment ${i + 1}`}
@@ -422,7 +422,7 @@ export default function TaskDetailPage() {
                     </ZoruCardHeader>
                     <ZoruCardContent>
                         {reminders.length === 0 ? (
-                            <p className="text-sm text-zoru-ink-muted">
+                            <p className="text-sm text-[var(--st-text-secondary)]">
                                 No reminders set. Edit the task to schedule one.
                             </p>
                         ) : (
@@ -432,7 +432,7 @@ export default function TaskDetailPage() {
                                     return (
                                         <li
                                             key={i}
-                                            className="rounded-md border border-zoru-line bg-zoru-bg px-2 py-1.5 text-sm text-zoru-ink"
+                                            className="rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-1.5 text-sm text-[var(--st-text)]"
                                         >
                                             {Number.isNaN(d.getTime())
                                                 ? String(r)
@@ -455,7 +455,7 @@ export default function TaskDetailPage() {
                             crm-notes' record-kind enum does not include 'task' yet.
                             For now task.description carries the note content; edit the
                             task to amend. */}
-                        <p className="text-sm text-zoru-ink-muted">
+                        <p className="text-sm text-[var(--st-text-secondary)]">
                             Inline note composer for tasks is queued. Until then, use{' '}
                             <Link
                                 className="underline"
@@ -501,10 +501,10 @@ export default function TaskDetailPage() {
 function Field({ label, value }: { label: string; value: React.ReactNode }) {
     return (
         <div className="space-y-0.5">
-            <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+            <p className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                 {label}
             </p>
-            <div className="text-sm text-zoru-ink">{value}</div>
+            <div className="text-sm text-[var(--st-text)]">{value}</div>
         </div>
     );
 }

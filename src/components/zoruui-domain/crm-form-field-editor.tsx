@@ -90,7 +90,7 @@ export function CrmFormFieldEditor({ field, onUpdate, onRemove, otherFields = []
             <div className="space-y-2">
                 <Label htmlFor="field-id">Field ID</Label>
                 <Input id="field-id" value={field.fieldId || ''} onChange={(e) => handleUpdate('fieldId', e.target.value)} placeholder="e.g., user_name"/>
-                <p className="text-xs text-zoru-ink-muted">A unique ID used for the form data (no spaces).</p>
+                <p className="text-xs text-[var(--st-text-secondary)]">A unique ID used for the form data (no spaces).</p>
             </div>
             {field.type !== 'html' && field.type !== 'hidden' && (
                 <div className="space-y-2">
@@ -192,7 +192,7 @@ export function CrmFormFieldEditor({ field, onUpdate, onRemove, otherFields = []
                                 </div>
                             </>
                         )}
-                        <div className="space-y-2 pt-2 border-t border-zoru-line">
+                        <div className="space-y-2 pt-2 border-t border-[var(--st-border)]">
                             <Label>Require only if (cross-field)</Label>
                             <Select
                                 value={validation.requireIf?.fieldId || '__none__'}

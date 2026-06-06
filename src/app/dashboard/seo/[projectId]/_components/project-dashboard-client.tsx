@@ -23,15 +23,15 @@ function StatCard({ title, value, icon: Icon, desc }: { title: string, value: st
     return (
         <Card className="p-4">
             <div className="flex items-start justify-between">
-                <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink">
+                <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                     <Icon className="h-4 w-4" />
                 </span>
             </div>
-            <div className="mt-3.5 text-[11.5px] leading-none text-zoru-ink-muted">{title}</div>
-            <div className="mt-1.5 text-[22px] tracking-[-0.01em] leading-none text-zoru-ink">
+            <div className="mt-3.5 text-[11.5px] leading-none text-[var(--st-text-secondary)]">{title}</div>
+            <div className="mt-1.5 text-[22px] tracking-[-0.01em] leading-none text-[var(--st-text)]">
                 {typeof value === 'number' ? value.toLocaleString() : value}
             </div>
-            {desc && <p className="mt-1 text-[11px] leading-tight text-zoru-ink-muted">{desc}</p>}
+            {desc && <p className="mt-1 text-[11px] leading-tight text-[var(--st-text-secondary)]">{desc}</p>}
         </Card>
     );
 }
@@ -90,8 +90,8 @@ function KeywordsTab({ projectId, project }: { projectId: string, project: any }
         <Card className="p-6">
             <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <div className="text-sm text-zoru-ink font-medium">Top Performing Keywords</div>
-                    <p className="text-zoru-ink-muted text-[12.5px] mt-1">Track your keyword rankings over time.</p>
+                    <div className="text-sm text-[var(--st-text)] font-medium">Top Performing Keywords</div>
+                    <p className="text-[var(--st-text-secondary)] text-[12.5px] mt-1">Track your keyword rankings over time.</p>
                 </div>
                 <form onSubmit={handleAdd} className="flex gap-2">
                     <Input 
@@ -107,13 +107,13 @@ function KeywordsTab({ projectId, project }: { projectId: string, project: any }
                 </form>
             </div>
             {keywords.length === 0 ? (
-                <div className="text-center py-8 text-zoru-ink-muted text-[13px]">
+                <div className="text-center py-8 text-[var(--st-text-secondary)] text-[13px]">
                     No keywords added yet. Add some to start tracking rankings.
                 </div>
             ) : (
-                <div className="border border-zoru-line rounded-[var(--zoru-radius)] overflow-hidden">
+                <div className="border border-[var(--st-border)] rounded-[var(--zoru-radius)] overflow-hidden">
                     <Table>
-                        <TableHeader className="bg-zoru-surface-2">
+                        <TableHeader className="bg-[var(--st-bg-muted)]">
                             <TableRow>
                                 <TableHead>Keyword</TableHead>
                                 <TableHead>Location</TableHead>
@@ -129,16 +129,16 @@ function KeywordsTab({ projectId, project }: { projectId: string, project: any }
                                     <TableCell>{kw.location === '2840' ? 'US' : kw.location}</TableCell>
                                     <TableCell className="text-right">
                                         {kw.currentRank ? (
-                                            <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-zoru-ink text-zoru-surface text-[11px] font-semibold">
+                                            <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-[var(--st-text)] text-[var(--st-bg-secondary)] text-[11px] font-semibold">
                                                 {kw.currentRank}
                                             </span>
                                         ) : (
-                                            <span className="text-zoru-ink-muted">-</span>
+                                            <span className="text-[var(--st-text-secondary)]">-</span>
                                         )}
                                     </TableCell>
                                     <TableCell className="text-right">{kw.currentVolume?.toLocaleString() || '-'}</TableCell>
                                     <TableCell className="text-right">
-                                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-zoru-ink hover:text-zoru-ink hover:bg-zoru-surface-2" onClick={() => handleDeleteKw(kw._id)}>
+                                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-[var(--st-text)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]" onClick={() => handleDeleteKw(kw._id)}>
                                             <Trash2 className="h-3 w-3" />
                                         </Button>
                                     </TableCell>
@@ -168,16 +168,16 @@ function CompetitorMetrics({ domain }: { domain: string }) {
     return (
         <div className="grid grid-cols-3 gap-4 mt-3">
             <div>
-                <div className="text-[11px] text-zoru-ink-muted">DA</div>
-                <div className="text-sm font-semibold text-zoru-ink">{metrics?.domainAuthority || '-'}</div>
+                <div className="text-[11px] text-[var(--st-text-secondary)]">DA</div>
+                <div className="text-sm font-semibold text-[var(--st-text)]">{metrics?.domainAuthority || '-'}</div>
             </div>
             <div>
-                <div className="text-[11px] text-zoru-ink-muted">Backlinks</div>
-                <div className="text-sm font-semibold text-zoru-ink">{metrics?.totalBacklinks?.toLocaleString() || '-'}</div>
+                <div className="text-[11px] text-[var(--st-text-secondary)]">Backlinks</div>
+                <div className="text-sm font-semibold text-[var(--st-text)]">{metrics?.totalBacklinks?.toLocaleString() || '-'}</div>
             </div>
             <div>
-                <div className="text-[11px] text-zoru-ink-muted">Ref. Domains</div>
-                <div className="text-sm font-semibold text-zoru-ink">{metrics?.linkingDomains?.toLocaleString() || '-'}</div>
+                <div className="text-[11px] text-[var(--st-text-secondary)]">Ref. Domains</div>
+                <div className="text-sm font-semibold text-[var(--st-text)]">{metrics?.linkingDomains?.toLocaleString() || '-'}</div>
             </div>
         </div>
     );
@@ -187,15 +187,15 @@ function CompetitorsTab({ project }: { project: any }) {
     return (
         <Card className="p-6">
             <div className="mb-6">
-                <div className="text-sm text-zoru-ink font-medium">Competitor Analysis</div>
-                <p className="text-zoru-ink-muted text-[12.5px] mt-1">Compare your metrics against tracked competitors.</p>
+                <div className="text-sm text-[var(--st-text)] font-medium">Competitor Analysis</div>
+                <p className="text-[var(--st-text-secondary)] text-[12.5px] mt-1">Compare your metrics against tracked competitors.</p>
             </div>
             <div className="grid gap-4 md:grid-cols-2">
                 {project.competitors?.map((comp: string) => (
-                    <div key={comp} className="flex flex-col p-4 border border-zoru-line rounded-[var(--zoru-radius)] bg-zoru-surface">
-                        <div className="flex justify-between items-center pb-3 border-b border-zoru-line border-dashed">
-                            <span className="text-sm font-medium text-zoru-ink flex items-center gap-2">
-                                <Globe className="h-4 w-4 text-zoru-ink-muted" />
+                    <div key={comp} className="flex flex-col p-4 border border-[var(--st-border)] rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)]">
+                        <div className="flex justify-between items-center pb-3 border-b border-[var(--st-border)] border-dashed">
+                            <span className="text-sm font-medium text-[var(--st-text)] flex items-center gap-2">
+                                <Globe className="h-4 w-4 text-[var(--st-text-secondary)]" />
                                 {comp}
                             </span>
                             <Button size="sm" variant="ghost" className="h-7 text-[11px]">View Report</Button>
@@ -204,9 +204,9 @@ function CompetitorsTab({ project }: { project: any }) {
                     </div>
                 ))}
                 {(!project.competitors || project.competitors.length === 0) && (
-                    <div className="col-span-full py-8 text-center border border-zoru-line border-dashed rounded-[var(--zoru-radius)]">
-                        <p className="text-zoru-ink-muted text-[13px]">No competitors added.</p>
-                        <p className="text-[11px] text-zoru-ink-muted mt-1">Go to Settings to add competitors.</p>
+                    <div className="col-span-full py-8 text-center border border-[var(--st-border)] border-dashed rounded-[var(--zoru-radius)]">
+                        <p className="text-[var(--st-text-secondary)] text-[13px]">No competitors added.</p>
+                        <p className="text-[11px] text-[var(--st-text-secondary)] mt-1">Go to Settings to add competitors.</p>
                     </div>
                 )}
             </div>
@@ -255,8 +255,8 @@ function SettingsTab({ project, onUpdate }: { project: any, onUpdate: () => void
     return (
         <Card className="p-6 max-w-2xl">
             <div className="mb-6">
-                <div className="text-sm text-zoru-ink font-medium">Project Settings</div>
-                <p className="text-zoru-ink-muted text-[12.5px] mt-1">Update your SEO project settings or delete the project.</p>
+                <div className="text-sm text-[var(--st-text)] font-medium">Project Settings</div>
+                <p className="text-[var(--st-text-secondary)] text-[12.5px] mt-1">Update your SEO project settings or delete the project.</p>
             </div>
             
             <form onSubmit={handleSave} className="flex flex-col gap-6">
@@ -268,7 +268,7 @@ function SettingsTab({ project, onUpdate }: { project: any, onUpdate: () => void
                         onChange={(e) => setCompetitors(e.target.value)} 
                         placeholder="example1.com, example2.com" 
                     />
-                    <p className="text-[11px] text-zoru-ink-muted">Comma separated list of competitor domains.</p>
+                    <p className="text-[11px] text-[var(--st-text-secondary)]">Comma separated list of competitor domains.</p>
                 </div>
                 
                 <div className="space-y-2">
@@ -279,7 +279,7 @@ function SettingsTab({ project, onUpdate }: { project: any, onUpdate: () => void
                         onChange={(e) => setLocation(e.target.value)} 
                         placeholder="US, UK, IN" 
                     />
-                    <p className="text-[11px] text-zoru-ink-muted">Country code for rank tracking.</p>
+                    <p className="text-[11px] text-[var(--st-text-secondary)]">Country code for rank tracking.</p>
                 </div>
 
                 <div className="flex gap-3">
@@ -294,10 +294,10 @@ function SettingsTab({ project, onUpdate }: { project: any, onUpdate: () => void
                 </div>
             </form>
 
-            <div className="mt-10 pt-6 border-t border-zoru-line border-dashed">
+            <div className="mt-10 pt-6 border-t border-[var(--st-border)] border-dashed">
                 <div className="mb-4">
-                    <h3 className="text-sm font-medium text-zoru-ink">Danger Zone</h3>
-                    <p className="text-[12.5px] text-zoru-ink-muted mt-1">Deleting this project will permanently remove all associated audits, keywords, and history.</p>
+                    <h3 className="text-sm font-medium text-[var(--st-text)]">Danger Zone</h3>
+                    <p className="text-[12.5px] text-[var(--st-text-secondary)] mt-1">Deleting this project will permanently remove all associated audits, keywords, and history.</p>
                 </div>
                 <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
                     <Trash2 className="h-4 w-4 mr-2" />
@@ -342,11 +342,11 @@ export function ProjectDashboardClient({
         <div className="flex flex-col gap-6">
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-[28px] leading-none text-zoru-ink flex items-center gap-3">
-                        <Globe className="h-7 w-7 text-zoru-ink" />
+                    <h1 className="text-[28px] leading-none text-[var(--st-text)] flex items-center gap-3">
+                        <Globe className="h-7 w-7 text-[var(--st-text)]" />
                         {project.domain}
                     </h1>
-                    <p className="text-zoru-ink-muted mt-2 text-[12.5px]">
+                    <p className="text-[var(--st-text-secondary)] mt-2 text-[12.5px]">
                         Tracking {project.settings?.locations?.[0] || 'US'} · {project.crawledAt ? 'Last Crawl: ' + fmtDate(project.crawledAt) : 'No crawls yet'}
                     </p>
                 </div>
@@ -390,7 +390,7 @@ export function ProjectDashboardClient({
                 />
             </div>
 
-            <div className="flex items-center gap-2 border-b border-zoru-line">
+            <div className="flex items-center gap-2 border-b border-[var(--st-border)]">
                 {(['overview', 'keywords', 'competitors', 'settings'] as TabKey[]).map(key => (
                     <button
                         key={key}
@@ -398,8 +398,8 @@ export function ProjectDashboardClient({
                         onClick={() => setTab(key)}
                         className={`-mb-px border-b-2 px-3 py-2 text-[13px] capitalize transition-colors ${
                             tab === key
-                                ? 'border-zoru-ink text-zoru-ink'
-                                : 'border-transparent text-zoru-ink-muted hover:text-zoru-ink'
+                                ? 'border-[var(--st-text)] text-[var(--st-text)]'
+                                : 'border-transparent text-[var(--st-text-secondary)] hover:text-[var(--st-text)]'
                         }`}
                     >
                         {key}
@@ -410,8 +410,8 @@ export function ProjectDashboardClient({
             {tab === 'overview' && (
                 <Card className="p-6">
                     <div className="mb-4">
-                        <div className="text-sm text-zoru-ink font-medium">Estimated Traffic Trend</div>
-                        <div className="mt-1 text-[11.5px] text-zoru-ink-muted">
+                        <div className="text-sm text-[var(--st-text)] font-medium">Estimated Traffic Trend</div>
+                        <div className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">
                             Organic vs Social traffic over the last 6 months (Simulated)
                         </div>
                     </div>

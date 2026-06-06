@@ -91,7 +91,7 @@ function ExpressionPreviewInner({
       <div
         role="alert"
         className={cn(
-          'flex items-start gap-1.5 text-[11px] text-zoru-ink-muted leading-snug',
+          'flex items-start gap-1.5 text-[11px] text-[var(--st-text-secondary)] leading-snug',
           className,
         )}
       >
@@ -129,7 +129,7 @@ function ExpressionPreviewInner({
         <button
           type="button"
           onClick={() => setExpanded((prev) => !prev)}
-          className="text-[10.5px] text-zoru-ink hover:underline"
+          className="text-[10.5px] text-[var(--st-text)] hover:underline"
         >
           {expanded ? 'collapse' : 'show full'}
         </button>

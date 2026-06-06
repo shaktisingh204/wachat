@@ -7,7 +7,7 @@ import type { WithId } from 'mongodb';
 
 function Marker({ text }: { text: string }) {
   return (
-    <div className="bg-zoru-surface border border-zoru-line text-zoru-ink text-xs px-2 py-1 rounded shadow-sm flex items-center justify-center translate-x-[-50%] translate-y-[-100%] whitespace-nowrap">
+    <div className="bg-[var(--st-bg-secondary)] border border-[var(--st-border)] text-[var(--st-text)] text-xs px-2 py-1 rounded shadow-sm flex items-center justify-center translate-x-[-50%] translate-y-[-100%] whitespace-nowrap">
       {text}
     </div>
   );

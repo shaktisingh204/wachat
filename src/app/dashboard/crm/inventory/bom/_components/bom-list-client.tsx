@@ -374,9 +374,9 @@ export function BomListClient({ initialBoms, initialKpis }: BomListClientProps) 
                 empty={
                     filtered.length === 0 ? (
                         <div className="flex flex-col items-center gap-3 p-4">
-                            <Layers className="h-8 w-8 text-zoru-ink-muted" />
-                            <h3 className="text-base font-medium text-zoru-ink">No BOMs yet</h3>
-                            <p className="max-w-sm text-sm text-zoru-ink-muted">
+                            <Layers className="h-8 w-8 text-[var(--st-text-secondary)]" />
+                            <h3 className="text-base font-medium text-[var(--st-text)]">No BOMs yet</h3>
+                            <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                                 Define a Bill of Materials to start manufacturing planned outputs from
                                 raw components.
                             </p>

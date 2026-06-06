@@ -150,23 +150,23 @@ export default function BillingPage() {
       className="flex flex-col gap-10 w-full"
     >
       {/* Hero Header Area */}
-      <motion.div variants={itemVariants} className="relative overflow-hidden rounded-2xl bg-zoru-surface-2 p-8 md:p-10 border border-zoru-line shadow-sm">
-        <div className="absolute top-0 right-0 -mr-20 -mt-20 h-64 w-64 rounded-full bg-zoru-primary/5 blur-[80px] pointer-events-none" />
-        <div className="absolute bottom-0 left-0 -ml-20 -mb-20 h-64 w-64 rounded-full bg-zoru-info/10 blur-[80px] pointer-events-none" />
+      <motion.div variants={itemVariants} className="relative overflow-hidden rounded-2xl bg-[var(--st-bg-muted)] p-8 md:p-10 border border-[var(--st-border)] shadow-sm">
+        <div className="absolute top-0 right-0 -mr-20 -mt-20 h-64 w-64 rounded-full bg-[var(--st-text)]/5 blur-[80px] pointer-events-none" />
+        <div className="absolute bottom-0 left-0 -ml-20 -mb-20 h-64 w-64 rounded-full bg-[var(--st-text-secondary)]/10 blur-[80px] pointer-events-none" />
         
         <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-zoru-bg px-3 py-1 text-xs font-semibold text-zoru-primary border border-zoru-line shadow-sm mb-4">
+            <div className="inline-flex items-center gap-2 rounded-full bg-[var(--st-bg)] px-3 py-1 text-xs font-semibold text-[var(--st-text)] border border-[var(--st-border)] shadow-sm mb-4">
               <Zap className="h-3 w-3" /> Workspace Billing
             </div>
-            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-zoru-ink mb-3">
+            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-[var(--st-text)] mb-3">
               Billing & Plans
             </h1>
-            <p className="text-lg text-zoru-ink-muted max-w-xl">
+            <p className="text-lg text-[var(--st-text-secondary)] max-w-xl">
               Manage your subscription, top up your wallet credits, and view your billing history in one place.
             </p>
           </div>
-          <ZoruButton asChild variant="outline" className="bg-zoru-bg shadow-sm">
+          <ZoruButton asChild variant="outline" className="bg-[var(--st-bg)] shadow-sm">
             <Link href="/dashboard/user/billing/history">
               <History className="mr-2 h-4 w-4" />
               View Billing History
@@ -179,9 +179,9 @@ export default function BillingPage() {
       <AnimatePresence>
         {paymentStatus === 'success' && (
           <motion.div variants={itemVariants} initial="hidden" animate="show" exit="hidden">
-            <ZoruAlert className="bg-zoru-success/10 border-zoru-success/20 text-zoru-success-ink">
-              <CheckCircle2 className="h-5 w-5 text-zoru-success" />
-              <ZoruAlertTitle className="text-zoru-success-ink font-bold">Payment successful</ZoruAlertTitle>
+            <ZoruAlert className="bg-[var(--st-status-ok)]/10 border-[var(--st-status-ok)]/20 text-[var(--st-status-ok)]">
+              <CheckCircle2 className="h-5 w-5 text-[var(--st-status-ok)]" />
+              <ZoruAlertTitle className="text-[var(--st-status-ok)] font-bold">Payment successful</ZoruAlertTitle>
               <ZoruAlertDescription>
                 Your payment has been processed successfully. Transaction ID: <span className="font-mono bg-white/50 px-1 rounded">{paymentTxn}</span>
               </ZoruAlertDescription>
@@ -190,9 +190,9 @@ export default function BillingPage() {
         )}
         {paymentStatus === 'failed' && (
           <motion.div variants={itemVariants} initial="hidden" animate="show" exit="hidden">
-            <ZoruAlert variant="destructive" className="bg-zoru-danger/10 border-zoru-danger/20 text-zoru-danger-ink">
-              <AlertCircle className="h-5 w-5 text-zoru-danger" />
-              <ZoruAlertTitle className="text-zoru-danger-ink font-bold">Payment failed</ZoruAlertTitle>
+            <ZoruAlert variant="destructive" className="bg-[var(--st-danger)]/10 border-[var(--st-danger)]/20 text-[var(--st-danger)]">
+              <AlertCircle className="h-5 w-5 text-[var(--st-danger)]" />
+              <ZoruAlertTitle className="text-[var(--st-danger)] font-bold">Payment failed</ZoruAlertTitle>
               <ZoruAlertDescription>
                 We couldn't process your payment. No funds were deducted. Please try again or contact support.
               </ZoruAlertDescription>
@@ -201,9 +201,9 @@ export default function BillingPage() {
         )}
         {fetchError && (
           <motion.div variants={itemVariants} initial="hidden" animate="show" exit="hidden">
-            <ZoruAlert variant="destructive" className="bg-zoru-danger/10 border-zoru-danger/20 text-zoru-danger-ink">
-              <AlertCircle className="h-5 w-5 text-zoru-danger" />
-              <ZoruAlertTitle className="text-zoru-danger-ink font-bold">Failed to load</ZoruAlertTitle>
+            <ZoruAlert variant="destructive" className="bg-[var(--st-danger)]/10 border-[var(--st-danger)]/20 text-[var(--st-danger)]">
+              <AlertCircle className="h-5 w-5 text-[var(--st-danger)]" />
+              <ZoruAlertTitle className="text-[var(--st-danger)] font-bold">Failed to load</ZoruAlertTitle>
               <ZoruAlertDescription>{fetchError}</ZoruAlertDescription>
             </ZoruAlert>
           </motion.div>
@@ -213,30 +213,30 @@ export default function BillingPage() {
       {/* Current Plan & Wallet Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
         <motion.div variants={itemVariants} className="lg:col-span-8 flex flex-col">
-          <ZoruCard className="flex-1 shadow-md border-zoru-line overflow-hidden flex flex-col">
-            <div className="bg-zoru-surface-2 border-b border-zoru-line p-6">
+          <ZoruCard className="flex-1 shadow-md border-[var(--st-border)] overflow-hidden flex flex-col">
+            <div className="bg-[var(--st-bg-muted)] border-b border-[var(--st-border)] p-6">
               <h3 className="text-xl font-bold flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-zoru-primary" />
-                Your Current Plan: <span className="text-zoru-primary">{sessionUser?.plan?.name || 'Free'}</span>
+                <Sparkles className="h-5 w-5 text-[var(--st-text)]" />
+                Your Current Plan: <span className="text-[var(--st-text)]">{sessionUser?.plan?.name || 'Free'}</span>
               </h3>
-              <p className="text-sm text-zoru-ink-muted mt-1">Here is what is included in your active workspace subscription.</p>
+              <p className="text-sm text-[var(--st-text-secondary)] mt-1">Here is what is included in your active workspace subscription.</p>
             </div>
-            <div className="p-6 bg-zoru-bg flex-1">
+            <div className="p-6 bg-[var(--st-bg)] flex-1">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
                 {planFeatureMap.map((feature) => {
                   const isAllowed = sessionUser?.plan?.features?.[feature.id as keyof typeof sessionUser.plan.features] ?? true;
                   return (
                     <div key={feature.id} className="flex items-start gap-3">
                       {isAllowed ? (
-                        <div className="mt-0.5 rounded-full bg-zoru-success/10 p-1">
-                          <Check className="h-3.5 w-3.5 text-zoru-success flex-shrink-0" />
+                        <div className="mt-0.5 rounded-full bg-[var(--st-status-ok)]/10 p-1">
+                          <Check className="h-3.5 w-3.5 text-[var(--st-status-ok)] flex-shrink-0" />
                         </div>
                       ) : (
-                        <div className="mt-0.5 rounded-full bg-zoru-surface-3 p-1">
-                          <X className="h-3.5 w-3.5 text-zoru-ink-muted flex-shrink-0" />
+                        <div className="mt-0.5 rounded-full bg-[var(--st-bg-muted)] p-1">
+                          <X className="h-3.5 w-3.5 text-[var(--st-text-secondary)] flex-shrink-0" />
                         </div>
                       )}
-                      <span className={cn("text-sm font-medium", !isAllowed && "text-zoru-ink-subtle line-through decoration-zoru-line-strong")}>
+                      <span className={cn("text-sm font-medium", !isAllowed && "text-[var(--st-text-tertiary)] line-through decoration-[var(--st-border-strong)]")}>
                         {feature.name}
                       </span>
                     </div>
@@ -263,11 +263,11 @@ export default function BillingPage() {
         <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-10">
           <div className="max-w-xl">
             <h2 className="text-3xl font-extrabold tracking-tight mb-4">Upgrade Your Workspace</h2>
-            <p className="text-zoru-ink-muted">Find the perfect plan for your business needs. Scale seamlessly as you grow.</p>
+            <p className="text-[var(--st-text-secondary)]">Find the perfect plan for your business needs. Scale seamlessly as you grow.</p>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zoru-ink-muted" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--st-text-secondary)]" />
               <ZoruInput
                 placeholder="Search plans..."
                 value={searchQuery}
@@ -290,7 +290,7 @@ export default function BillingPage() {
         </div>
 
         {Object.entries(categorizedPlans).every(([_, plans]) => plans.length === 0) ? (
-          <div className="py-12 text-center text-zoru-ink-muted">
+          <div className="py-12 text-center text-[var(--st-text-secondary)]">
             <p>No plans found matching your search.</p>
           </div>
         ) : (

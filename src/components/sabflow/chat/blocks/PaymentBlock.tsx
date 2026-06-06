@@ -486,7 +486,7 @@ export function PaymentBlock({
         <div ref={elementsContainerRef} className="rounded-lg bg-white p-2 dark:bg-white/5" />
 
         {errorMessage && (
-          <p className="text-[11.5px] text-zoru-ink">{errorMessage}</p>
+          <p className="text-[11.5px] text-[var(--st-text)]">{errorMessage}</p>
         )}
 
         <button

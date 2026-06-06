@@ -408,7 +408,7 @@ export default function ProjectDetailPage(props: {
     return (
       <Card className="border-dashed p-6">
         <div className="flex flex-col items-center gap-3 py-12 text-center">
-          <p className="text-[13px] text-zoru-ink-muted">Project not found.</p>
+          <p className="text-[13px] text-[var(--st-text-secondary)]">Project not found.</p>
           <Link href="/dashboard/crm/projects">
             <Button variant="outline" size="sm">
               <ArrowLeft className="h-4 w-4" />
@@ -482,19 +482,19 @@ export default function ProjectDetailPage(props: {
 
         <div className="mt-6 grid gap-4 md:grid-cols-3">
           <div className="flex flex-col">
-            <p className="text-[11.5px] text-zoru-ink-muted">Status</p>
+            <p className="text-[11.5px] text-[var(--st-text-secondary)]">Status</p>
             <Badge variant="success">{project.status}</Badge>
           </div>
           <div className="flex flex-col">
-            <p className="text-[11.5px] text-zoru-ink-muted">Category</p>
-            <p className="text-[13px] font-medium text-zoru-ink">
+            <p className="text-[11.5px] text-[var(--st-text-secondary)]">Category</p>
+            <p className="text-[13px] font-medium text-[var(--st-text)]">
               {project.categoryName || '—'}
               {project.subCategoryName ? ` · ${project.subCategoryName}` : ''}
             </p>
           </div>
           <div className="flex flex-col">
-            <p className="text-[11.5px] text-zoru-ink-muted">Department</p>
-            <p className="text-[13px] font-medium text-zoru-ink">
+            <p className="text-[11.5px] text-[var(--st-text-secondary)]">Department</p>
+            <p className="text-[13px] font-medium text-[var(--st-text)]">
               {project.departmentName || '—'}
             </p>
           </div>
@@ -502,14 +502,14 @@ export default function ProjectDetailPage(props: {
 
         <div className="mt-6">
           <div className="flex items-center justify-between">
-            <p className="text-[12.5px] font-medium text-zoru-ink">
+            <p className="text-[12.5px] font-medium text-[var(--st-text)]">
               Progress ({doneCount}/{tasks.length} tasks done)
             </p>
             <Badge variant="success">{computedProgress}%</Badge>
           </div>
-          <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-zoru-surface-2">
+          <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-[var(--st-bg-muted)]">
             <div
-              className="h-full bg-zoru-ink transition-all"
+              className="h-full bg-[var(--st-text)] transition-all"
               style={{
                 width: `${Math.max(0, Math.min(100, computedProgress))}%`,
               }}
@@ -563,7 +563,7 @@ export default function ProjectDetailPage(props: {
 
       {/* Tabs */}
       <Card className="p-6">
-        <div className="mb-4 flex flex-wrap gap-1 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-1">
+        <div className="mb-4 flex flex-wrap gap-1 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1">
           {TABS.map((t) => (
             <button
               key={t.id}
@@ -572,8 +572,8 @@ export default function ProjectDetailPage(props: {
               className={cn(
                 'flex-1 rounded-[var(--zoru-radius-sm)] px-3 py-1.5 text-sm transition-colors',
                 activeTab === t.id
-                  ? 'bg-zoru-bg text-zoru-ink shadow-[var(--zoru-shadow-sm)]'
-                  : 'text-zoru-ink-muted hover:text-zoru-ink',
+                  ? 'bg-[var(--st-bg)] text-[var(--st-text)] shadow-[var(--zoru-shadow-sm)]'
+                  : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
               )}
             >
               {t.label}
@@ -585,34 +585,34 @@ export default function ProjectDetailPage(props: {
         {activeTab === 'overview' && (
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
+              <p className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Description
               </p>
-              <p className="mt-1 whitespace-pre-wrap text-[13px] text-zoru-ink">
+              <p className="mt-1 whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
                 {project.description || project.projectSummary || '—'}
               </p>
             </div>
             <div>
-              <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
+              <p className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Notes
               </p>
-              <p className="mt-1 whitespace-pre-wrap text-[13px] text-zoru-ink">
+              <p className="mt-1 whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
                 {project.notes || '—'}
               </p>
             </div>
             <div>
-              <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
+              <p className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Hours Allocated
               </p>
-              <p className="mt-1 text-[13px] text-zoru-ink">
+              <p className="mt-1 text-[13px] text-[var(--st-text)]">
                 {project.hoursAllocated ?? '—'}
               </p>
             </div>
             <div>
-              <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
+              <p className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Short Code
               </p>
-              <p className="mt-1 text-[13px] text-zoru-ink">
+              <p className="mt-1 text-[13px] text-[var(--st-text)]">
                 {project.projectShortCode || '—'}
               </p>
             </div>
@@ -633,37 +633,37 @@ export default function ProjectDetailPage(props: {
                 Add Task
               </Button>
             </div>
-            <div className="overflow-x-auto rounded-lg border border-zoru-line">
+            <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
               <Table>
                 <ZoruTableHeader>
-                  <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                    <ZoruTableHead className="text-zoru-ink-muted">Title</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Assignee</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Priority</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Due</ZoruTableHead>
-                    <ZoruTableHead className="w-[120px] text-right text-zoru-ink-muted">
+                  <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Title</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Assignee</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Priority</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Due</ZoruTableHead>
+                    <ZoruTableHead className="w-[120px] text-right text-[var(--st-text-secondary)]">
                       Actions
                     </ZoruTableHead>
                   </ZoruTableRow>
                 </ZoruTableHeader>
                 <ZoruTableBody>
                   {tasks.length === 0 ? (
-                    <ZoruTableRow className="border-zoru-line">
+                    <ZoruTableRow className="border-[var(--st-border)]">
                       <ZoruTableCell
                         colSpan={6}
-                        className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                        className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                       >
                         No tasks yet — click Add Task to get started.
                       </ZoruTableCell>
                     </ZoruTableRow>
                   ) : (
                     tasks.map((t) => (
-                      <ZoruTableRow key={t._id} className="border-zoru-line">
-                        <ZoruTableCell className="text-[13px] font-medium text-zoru-ink">
+                      <ZoruTableRow key={t._id} className="border-[var(--st-border)]">
+                        <ZoruTableCell className="text-[13px] font-medium text-[var(--st-text)]">
                           {t.heading}
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-zoru-ink">
+                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                           {t.assigneeName || '—'}
                         </ZoruTableCell>
                         <ZoruTableCell>
@@ -688,7 +688,7 @@ export default function ProjectDetailPage(props: {
                             '—'
                           )}
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-zoru-ink">
+                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                           {fmtDate(t.dueDate)}
                         </ZoruTableCell>
                         <ZoruTableCell className="text-right">
@@ -713,7 +713,7 @@ export default function ProjectDetailPage(props: {
                               size="sm"
                               onClick={() => setDeletingTaskId(t._id)}
                             >
-                              <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                              <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                             </Button>
                           </div>
                         </ZoruTableCell>
@@ -742,13 +742,13 @@ export default function ProjectDetailPage(props: {
                 {milestones.map((m) => (
                   <li
                     key={m._id}
-                    className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-zoru-line p-3"
+                    className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[var(--st-border)] p-3"
                   >
                     <div>
-                      <p className="text-[13px] font-medium text-zoru-ink">
+                      <p className="text-[13px] font-medium text-[var(--st-text)]">
                         {m.milestoneTitle}
                       </p>
-                      <p className="text-[11.5px] text-zoru-ink-muted">
+                      <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                         {fmtDate(m.startDate)} – {fmtDate(m.endDate)}
                         {m.cost ? ` · ${m.currency || 'INR'} ${m.cost}` : ''}
                       </p>
@@ -764,7 +764,7 @@ export default function ProjectDetailPage(props: {
                         size="sm"
                         onClick={() => handleDeleteMilestone(m._id)}
                       >
-                        <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                        <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                       </Button>
                     </div>
                   </li>
@@ -778,19 +778,19 @@ export default function ProjectDetailPage(props: {
                 {activeTab === 'members' && (
           <div>
             <div className="mb-6 grid gap-4 md:grid-cols-3">
-              <div className="rounded-lg border border-zoru-line p-4">
-                <p className="text-[11.5px] text-zoru-ink-muted">Total Members</p>
-                <p className="mt-1 text-2xl font-semibold text-zoru-ink">{members.length}</p>
+              <div className="rounded-lg border border-[var(--st-border)] p-4">
+                <p className="text-[11.5px] text-[var(--st-text-secondary)]">Total Members</p>
+                <p className="mt-1 text-2xl font-semibold text-[var(--st-text)]">{members.length}</p>
               </div>
-              <div className="rounded-lg border border-zoru-line p-4">
-                <p className="text-[11.5px] text-zoru-ink-muted">Avg Hourly Rate</p>
-                <p className="mt-1 text-2xl font-semibold text-zoru-ink">
+              <div className="rounded-lg border border-[var(--st-border)] p-4">
+                <p className="text-[11.5px] text-[var(--st-text-secondary)]">Avg Hourly Rate</p>
+                <p className="mt-1 text-2xl font-semibold text-[var(--st-text)]">
                   ₹{members.length > 0 ? Math.round(members.reduce((acc, m) => acc + (m.hourlyRate || 0), 0) / members.length) : 0}/hr
                 </p>
               </div>
-              <div className="rounded-lg border border-zoru-line p-4">
-                <p className="text-[11.5px] text-zoru-ink-muted">Total Hourly Burn</p>
-                <p className="mt-1 text-2xl font-semibold text-zoru-ink">
+              <div className="rounded-lg border border-[var(--st-border)] p-4">
+                <p className="text-[11.5px] text-[var(--st-text-secondary)]">Total Hourly Burn</p>
+                <p className="mt-1 text-2xl font-semibold text-[var(--st-text)]">
                   ₹{members.reduce((acc, m) => acc + (m.hourlyRate || 0), 0)}/hr
                 </p>
               </div>
@@ -808,13 +808,13 @@ export default function ProjectDetailPage(props: {
                 {members.map((m) => (
                   <li
                     key={m._id}
-                    className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-zoru-line p-3"
+                    className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[var(--st-border)] p-3"
                   >
                     <div>
-                      <p className="text-[13px] font-medium text-zoru-ink">
+                      <p className="text-[13px] font-medium text-[var(--st-text)]">
                         {m.memberName || String(m.memberUserId)}
                       </p>
-                      <p className="text-[11.5px] text-zoru-ink-muted">
+                      <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                         {m.memberEmail || m.role || '—'}
                       </p>
                     </div>
@@ -827,7 +827,7 @@ export default function ProjectDetailPage(props: {
                         size="sm"
                         onClick={() => handleDeleteMember(m._id)}
                       >
-                        <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                        <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                       </Button>
                     </div>
                   </li>
@@ -853,13 +853,13 @@ export default function ProjectDetailPage(props: {
                 {files.map((f) => (
                   <li
                     key={f._id}
-                    className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-zoru-line p-3"
+                    className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[var(--st-border)] p-3"
                   >
                     <div>
-                      <p className="text-[13px] font-medium text-zoru-ink">
+                      <p className="text-[13px] font-medium text-[var(--st-text)]">
                         {f.filename}
                       </p>
-                      <p className="text-[11.5px] text-zoru-ink-muted">
+                      <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                         {f.description || f.externalLinkName || '—'}
                       </p>
                       {f.url || f.externalLink ? (
@@ -867,7 +867,7 @@ export default function ProjectDetailPage(props: {
                           href={f.url || f.externalLink}
                           target="_blank"
                           rel="noreferrer noopener"
-                          className="mt-0.5 inline-block text-[11.5px] text-zoru-ink hover:underline"
+                          className="mt-0.5 inline-block text-[11.5px] text-[var(--st-text)] hover:underline"
                         >
                           Open link
                         </a>
@@ -878,7 +878,7 @@ export default function ProjectDetailPage(props: {
                       size="sm"
                       onClick={() => handleDeleteFile(f._id)}
                     >
-                      <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                      <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                     </Button>
                   </li>
                 ))}
@@ -901,9 +901,9 @@ export default function ProjectDetailPage(props: {
             ) : (
               <ul className="space-y-2">
                 {notes.map((n) => (
-                  <li key={n._id} className="rounded-lg border border-zoru-line p-3">
+                  <li key={n._id} className="rounded-lg border border-[var(--st-border)] p-3">
                     <div className="flex items-start justify-between gap-2">
-                      <p className="text-[13px] font-medium text-zoru-ink">
+                      <p className="text-[13px] font-medium text-[var(--st-text)]">
                         {n.title}
                       </p>
                       <Button
@@ -911,10 +911,10 @@ export default function ProjectDetailPage(props: {
                         size="sm"
                         onClick={() => handleDeleteNote(n._id)}
                       >
-                        <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                        <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                       </Button>
                     </div>
-                    <p className="mt-1 whitespace-pre-wrap text-[12.5px] text-zoru-ink-muted">
+                    <p className="mt-1 whitespace-pre-wrap text-[12.5px] text-[var(--st-text-secondary)]">
                       {n.details || '—'}
                     </p>
                   </li>
@@ -934,15 +934,15 @@ export default function ProjectDetailPage(props: {
                 {activity.map((a) => (
                   <li
                     key={a._id}
-                    className="flex items-start gap-3 rounded-lg border border-zoru-line p-3"
+                    className="flex items-start gap-3 rounded-lg border border-[var(--st-border)] p-3"
                   >
                     <ActivityIcon
-                      className="mt-0.5 h-4 w-4 text-zoru-ink-muted"
+                      className="mt-0.5 h-4 w-4 text-[var(--st-text-secondary)]"
                       strokeWidth={1.75}
                     />
                     <div>
-                      <p className="text-[13px] text-zoru-ink">{a.activity}</p>
-                      <p className="text-[11px] text-zoru-ink-muted">
+                      <p className="text-[13px] text-[var(--st-text)]">{a.activity}</p>
+                      <p className="text-[11px] text-[var(--st-text-secondary)]">
                         {a.actorName ? `${a.actorName} · ` : ''}
                         {fmtDate(a.createdAt)}
                       </p>
@@ -967,8 +967,8 @@ export default function ProjectDetailPage(props: {
         {activeTab === 'gantt' && (
           <div>
             <div className="mb-3 flex items-center gap-2">
-              <GanttChart className="h-4 w-4 text-zoru-ink-muted" />
-              <p className="text-[12.5px] text-zoru-ink-muted">
+              <GanttChart className="h-4 w-4 text-[var(--st-text-secondary)]" />
+              <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                 {tasks.length} tasks · {ganttLinks.length} dependencies ·{' '}
                 {milestones.length} milestones
               </p>
@@ -976,14 +976,14 @@ export default function ProjectDetailPage(props: {
             {tasks.length === 0 ? (
               <EmptyRow text="No tasks to chart." />
             ) : (
-              <div className="overflow-x-auto rounded-lg border border-zoru-line">
+              <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                 <Table>
                   <ZoruTableHeader>
-                    <ZoruTableRow className="border-zoru-line">
-                      <ZoruTableHead className="text-zoru-ink-muted">Task</ZoruTableHead>
-                      <ZoruTableHead className="text-zoru-ink-muted">Start</ZoruTableHead>
-                      <ZoruTableHead className="text-zoru-ink-muted">Due</ZoruTableHead>
-                      <ZoruTableHead className="text-zoru-ink-muted">Deps</ZoruTableHead>
+                    <ZoruTableRow className="border-[var(--st-border)]">
+                      <ZoruTableHead className="text-[var(--st-text-secondary)]">Task</ZoruTableHead>
+                      <ZoruTableHead className="text-[var(--st-text-secondary)]">Start</ZoruTableHead>
+                      <ZoruTableHead className="text-[var(--st-text-secondary)]">Due</ZoruTableHead>
+                      <ZoruTableHead className="text-[var(--st-text-secondary)]">Deps</ZoruTableHead>
                     </ZoruTableRow>
                   </ZoruTableHeader>
                   <ZoruTableBody>
@@ -992,17 +992,17 @@ export default function ProjectDetailPage(props: {
                         (g) => String(g.target) === t._id,
                       ).length;
                       return (
-                        <ZoruTableRow key={t._id} className="border-zoru-line">
-                          <ZoruTableCell className="text-[13px] font-medium text-zoru-ink">
+                        <ZoruTableRow key={t._id} className="border-[var(--st-border)]">
+                          <ZoruTableCell className="text-[13px] font-medium text-[var(--st-text)]">
                             {t.heading}
                           </ZoruTableCell>
-                          <ZoruTableCell className="text-[13px] text-zoru-ink">
+                          <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                             {fmtDate(t.startDate)}
                           </ZoruTableCell>
-                          <ZoruTableCell className="text-[13px] text-zoru-ink">
+                          <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                             {fmtDate(t.dueDate)}
                           </ZoruTableCell>
-                          <ZoruTableCell className="text-[13px] text-zoru-ink">
+                          <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                             {deps}
                           </ZoruTableCell>
                         </ZoruTableRow>
@@ -1020,10 +1020,10 @@ export default function ProjectDetailPage(props: {
       <Dialog open={taskDialogOpen} onOpenChange={setTaskDialogOpen}>
         <ZoruDialogContent className="max-w-2xl">
           <ZoruDialogHeader>
-            <ZoruDialogTitle className="text-zoru-ink">
+            <ZoruDialogTitle className="text-[var(--st-text)]">
               {editingTask ? 'Edit Task' : 'Add Task'}
             </ZoruDialogTitle>
-            <ZoruDialogDescription className="text-zoru-ink-muted">
+            <ZoruDialogDescription className="text-[var(--st-text-secondary)]">
               Fill in the task details below.
             </ZoruDialogDescription>
           </ZoruDialogHeader>
@@ -1034,18 +1034,18 @@ export default function ProjectDetailPage(props: {
             <input type="hidden" name="projectId" value={projectId} />
             <div className="grid gap-4 md:grid-cols-2">
               <div className="md:col-span-2">
-                <Label className="text-zoru-ink">
-                  Title <span className="text-zoru-danger-ink">*</span>
+                <Label className="text-[var(--st-text)]">
+                  Title <span className="text-[var(--st-danger)]">*</span>
                 </Label>
                 <Input
                   name="heading"
                   required
                   defaultValue={editingTask?.heading || ''}
-                  className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 />
               </div>
               <div>
-                <Label className="text-zoru-ink">Assignee</Label>
+                <Label className="text-[var(--st-text)]">Assignee</Label>
                 <div className="mt-1.5">
                   <EntityFormField
                     entity="employee"
@@ -1057,12 +1057,12 @@ export default function ProjectDetailPage(props: {
                 </div>
               </div>
               <div>
-                <Label className="text-zoru-ink">Status</Label>
+                <Label className="text-[var(--st-text)]">Status</Label>
                 <Select
                   name="status"
                   defaultValue={editingTask?.status || 'incomplete'}
                 >
-                  <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                  <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
                     <ZoruSelectValue />
                   </ZoruSelectTrigger>
                   <ZoruSelectContent>
@@ -1075,12 +1075,12 @@ export default function ProjectDetailPage(props: {
                 </Select>
               </div>
               <div>
-                <Label className="text-zoru-ink">Priority</Label>
+                <Label className="text-[var(--st-text)]">Priority</Label>
                 <Select
                   name="priority"
                   defaultValue={editingTask?.priority || 'medium'}
                 >
-                  <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                  <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
                     <ZoruSelectValue />
                   </ZoruSelectTrigger>
                   <ZoruSelectContent>
@@ -1092,7 +1092,7 @@ export default function ProjectDetailPage(props: {
                 </Select>
               </div>
               <div>
-                <Label className="text-zoru-ink">Start Date</Label>
+                <Label className="text-[var(--st-text)]">Start Date</Label>
                 <Input
                   type="date"
                   name="startDate"
@@ -1103,11 +1103,11 @@ export default function ProjectDetailPage(props: {
                           .slice(0, 10)
                       : ''
                   }
-                  className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 />
               </div>
               <div>
-                <Label className="text-zoru-ink">Due Date</Label>
+                <Label className="text-[var(--st-text)]">Due Date</Label>
                 <Input
                   type="date"
                   name="dueDate"
@@ -1118,34 +1118,34 @@ export default function ProjectDetailPage(props: {
                           .slice(0, 10)
                       : ''
                   }
-                  className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 />
               </div>
               <div>
-                <Label className="text-zoru-ink">Estimate Hours</Label>
+                <Label className="text-[var(--st-text)]">Estimate Hours</Label>
                 <Input
                   type="number"
                   name="estimatedHours"
                   defaultValue={editingTask?.estimatedHours ?? ''}
-                  className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 />
               </div>
               <div>
-                <Label className="text-zoru-ink">Actual Hours</Label>
+                <Label className="text-[var(--st-text)]">Actual Hours</Label>
                 <Input
                   type="number"
                   name="actualHours"
                   defaultValue={editingTask?.actualHours ?? ''}
-                  className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 />
               </div>
               <div className="md:col-span-2">
-                <Label className="text-zoru-ink">Description</Label>
+                <Label className="text-[var(--st-text)]">Description</Label>
                 <Textarea
                   name="description"
                   rows={3}
                   defaultValue={editingTask?.description || ''}
-                  className="mt-1.5 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="mt-1.5 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 />
               </div>
             </div>
@@ -1177,10 +1177,10 @@ export default function ProjectDetailPage(props: {
       >
         <ZoruAlertDialogContent>
           <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle className="text-zoru-ink">
+            <ZoruAlertDialogTitle className="text-[var(--st-text)]">
               Delete task?
             </ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription className="text-zoru-ink-muted">
+            <ZoruAlertDialogDescription className="text-[var(--st-text-secondary)]">
               This action cannot be undone.
             </ZoruAlertDialogDescription>
           </ZoruAlertDialogHeader>
@@ -1207,7 +1207,7 @@ export default function ProjectDetailPage(props: {
         <FormInput label="Role" name="role" />
         <FormInput label="Hourly Rate" name="hourlyRate" type="number" />
         <div>
-          <Label className="text-zoru-ink">
+          <Label className="text-[var(--st-text)]">
             Linked User (optional)
           </Label>
           <div className="mt-1.5">
@@ -1292,12 +1292,12 @@ function SummaryTile({
 }) {
   return (
     <div className="flex items-start gap-3">
-      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zoru-surface-2">
-        <Icon className="h-4 w-4 text-zoru-ink" strokeWidth={1.75} />
+      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--st-bg-muted)]">
+        <Icon className="h-4 w-4 text-[var(--st-text)]" strokeWidth={1.75} />
       </div>
       <div>
-        <p className="text-[11.5px] text-zoru-ink-muted">{label}</p>
-        <p className="text-[13px] font-medium text-zoru-ink">{value}</p>
+        <p className="text-[11.5px] text-[var(--st-text-secondary)]">{label}</p>
+        <p className="text-[13px] font-medium text-[var(--st-text)]">{value}</p>
       </div>
     </div>
   );
@@ -1305,7 +1305,7 @@ function SummaryTile({
 
 function EmptyRow({ text }: { text: string }) {
   return (
-    <div className="rounded-lg border border-dashed border-zoru-line p-8 text-center text-[13px] text-zoru-ink-muted">
+    <div className="rounded-lg border border-dashed border-[var(--st-border)] p-8 text-center text-[13px] text-[var(--st-text-secondary)]">
       {text}
     </div>
   );
@@ -1330,7 +1330,7 @@ function SimpleFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="max-w-lg">
         <ZoruDialogHeader>
-          <ZoruDialogTitle className="text-zoru-ink">{title}</ZoruDialogTitle>
+          <ZoruDialogTitle className="text-[var(--st-text)]">{title}</ZoruDialogTitle>
         </ZoruDialogHeader>
         <form action={action} className="space-y-3">
           {children}
@@ -1375,9 +1375,9 @@ function FormInput({
 }) {
   return (
     <div>
-      <Label className="text-zoru-ink">
+      <Label className="text-[var(--st-text)]">
         {label}
-        {required ? <span className="text-zoru-danger-ink"> *</span> : null}
+        {required ? <span className="text-[var(--st-danger)]"> *</span> : null}
       </Label>
       {type === 'textarea' ? (
         <Textarea
@@ -1385,7 +1385,7 @@ function FormInput({
           required={required}
           placeholder={placeholder}
           defaultValue={defaultValue}
-          className="mt-1.5 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+          className="mt-1.5 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
         />
       ) : (
         <Input
@@ -1394,7 +1394,7 @@ function FormInput({
           required={required}
           placeholder={placeholder}
           defaultValue={defaultValue}
-          className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+          className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
         />
       )}
     </div>
@@ -1414,9 +1414,9 @@ function FormSelect({
 }) {
   return (
     <div>
-      <Label className="text-zoru-ink">{label}</Label>
+      <Label className="text-[var(--st-text)]">{label}</Label>
       <Select name={name} defaultValue={defaultValue}>
-        <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+        <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
           <ZoruSelectValue />
         </ZoruSelectTrigger>
         <ZoruSelectContent>

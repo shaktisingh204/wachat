@@ -274,7 +274,7 @@ export function DocumentsListClient({
             <div className="flex flex-col gap-6">
                 {/* Folder Browser */}
                 <div>
-                    <h3 className="mb-3 text-[14px] font-semibold text-zoru-ink">Folders</h3>
+                    <h3 className="mb-3 text-[14px] font-semibold text-[var(--st-text)]">Folders</h3>
                     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                         {CATEGORIES.map((cat) => {
                             const isActive = activeCategory === cat.value;
@@ -287,19 +287,19 @@ export function DocumentsListClient({
                                     className={[
                                         'flex flex-col items-start rounded-xl border p-4 text-left transition-all duration-200',
                                         isActive
-                                            ? 'bg-zoru-surface border-zoru-primary shadow-sm'
-                                            : 'bg-zoru-bg border-zoru-line hover:border-zoru-ink-muted',
+                                            ? 'bg-[var(--st-bg-secondary)] border-[var(--st-text)] shadow-sm'
+                                            : 'bg-[var(--st-bg)] border-[var(--st-border)] hover:border-[var(--st-text-secondary)]',
                                     ].join(' ')}
                                 >
-                                    <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-surface-2 text-zoru-primary">
+                                    <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                                         {isActive ? (
                                             <FolderOpen className="h-5 w-5" />
                                         ) : (
                                             <Folder className="h-5 w-5" />
                                         )}
                                     </div>
-                                    <span className="text-[13px] font-semibold text-zoru-ink">{cat.label}</span>
-                                    <span className="text-[11.5px] text-zoru-ink-muted">{count} files</span>
+                                    <span className="text-[13px] font-semibold text-[var(--st-text)]">{cat.label}</span>
+                                    <span className="text-[11.5px] text-[var(--st-text-secondary)]">{count} files</span>
                                 </button>
                             );
                         })}
@@ -308,29 +308,29 @@ export function DocumentsListClient({
 
                 {/* Documents list table */}
                 <Card className="p-0">
-                    <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                    <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                         <Table>
                             <ZoruTableHeader>
-                                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                    <ZoruTableHead className="text-zoru-ink-muted">Name</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Category</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Linked Employee</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Doc Number</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Size</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted text-right">Actions</ZoruTableHead>
+                                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Name</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Category</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Linked Employee</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Doc Number</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Size</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Actions</ZoruTableHead>
                                 </ZoruTableRow>
                             </ZoruTableHeader>
                             <ZoruTableBody>
                                 {isLoading ? (
-                                    <ZoruTableRow className="border-zoru-line">
+                                    <ZoruTableRow className="border-[var(--st-border)]">
                                         <ZoruTableCell colSpan={7} className="h-24 text-center">
-                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
+                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 ) : documents.length === 0 ? (
-                                    <ZoruTableRow className="border-zoru-line">
-                                        <ZoruTableCell colSpan={7} className="h-24 text-center text-zoru-ink-muted">
+                                    <ZoruTableRow className="border-[var(--st-border)]">
+                                        <ZoruTableCell colSpan={7} className="h-24 text-center text-[var(--st-text-secondary)]">
                                             No documents found in this folder.
                                         </ZoruTableCell>
                                     </ZoruTableRow>
@@ -339,23 +339,23 @@ export function DocumentsListClient({
                                         const docStatus = (d.status ?? 'pending') as CrmDocumentStatus;
                                         const tone = STATUS_TONE[docStatus] ?? 'neutral';
                                         return (
-                                            <ZoruTableRow key={d._id} className="border-zoru-line">
-                                                <ZoruTableCell className="font-semibold text-zoru-ink">
+                                            <ZoruTableRow key={d._id} className="border-[var(--st-border)]">
+                                                <ZoruTableCell className="font-semibold text-[var(--st-text)]">
                                                     <div className="flex items-center gap-2">
-                                                        <FileText className="h-4 w-4 text-zoru-ink-muted" />
+                                                        <FileText className="h-4 w-4 text-[var(--st-text-secondary)]" />
                                                         {d.name}
                                                     </div>
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="capitalize text-zoru-ink">
+                                                <ZoruTableCell className="capitalize text-[var(--st-text)]">
                                                     {(d.category ?? 'other').replace(/_/g, ' ')}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {d.employeeName ?? '—'}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="font-mono text-[11.5px] text-zoru-ink">
+                                                <ZoruTableCell className="font-mono text-[11.5px] text-[var(--st-text)]">
                                                     {d.documentNumber ?? '—'}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink-muted">
+                                                <ZoruTableCell className="text-[var(--st-text-secondary)]">
                                                     {formatBytes(d.fileSize)}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
@@ -374,7 +374,7 @@ export function DocumentsListClient({
                                                             <FileText className="h-4 w-4" />
                                                         </Button>
                                                         <Button variant="ghost" size="icon" onClick={() => handleDelete(d._id)} disabled={isMutating}>
-                                                            <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                                            <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                                         </Button>
                                                     </div>
                                                 </ZoruTableCell>
@@ -393,7 +393,7 @@ export function DocumentsListClient({
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
                     <Card className="w-full max-w-xl p-6 max-h-[90vh] overflow-y-auto">
                         <div className="mb-4 flex items-center justify-between">
-                            <h2 className="text-[16px] font-bold text-zoru-ink">
+                            <h2 className="text-[16px] font-bold text-[var(--st-text)]">
                                 {editingDoc ? 'Edit Document' : 'Upload Document'}
                             </h2>
                             <Button variant="outline" size="sm" onClick={() => setIsDialogOpen(false)}>
@@ -464,7 +464,7 @@ export function DocumentsListClient({
                                     </SabFilePickerButton>
                                     {fileUrl ? (
                                         <>
-                                            <span className="max-w-[200px] truncate text-[12px] text-zoru-ink font-mono">
+                                            <span className="max-w-[200px] truncate text-[12px] text-[var(--st-text)] font-mono">
                                                 {fileName || fileUrl}
                                             </span>
                                             <Button type="button" variant="ghost" size="sm" onClick={clearFile}>
@@ -472,7 +472,7 @@ export function DocumentsListClient({
                                             </Button>
                                         </>
                                     ) : (
-                                        <span className="text-[12px] text-zoru-ink-muted">No file attached.</span>
+                                        <span className="text-[12px] text-[var(--st-text-secondary)]">No file attached.</span>
                                     )}
                                 </div>
                             </div>

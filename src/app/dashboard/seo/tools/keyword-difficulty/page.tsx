@@ -37,16 +37,16 @@ interface KDResult {
 type Tone = "green" | "amber" | "red" | "obsidian";
 
 function label(score: number): { text: string; color: string; tone: Tone } {
-  if (score < 30) return { text: 'Easy', color: 'text-zoru-ink', tone: 'green' };
-  if (score < 55) return { text: 'Moderate', color: 'text-zoru-ink', tone: 'amber' };
-  if (score < 80) return { text: 'Hard', color: 'text-zoru-ink', tone: 'red' };
-  return { text: 'Very Hard', color: 'text-zoru-ink', tone: 'red' };
+  if (score < 30) return { text: 'Easy', color: 'text-[var(--st-text)]', tone: 'green' };
+  if (score < 55) return { text: 'Moderate', color: 'text-[var(--st-text)]', tone: 'amber' };
+  if (score < 80) return { text: 'Hard', color: 'text-[var(--st-text)]', tone: 'red' };
+  return { text: 'Very Hard', color: 'text-[var(--st-text)]', tone: 'red' };
 }
 
 function getBarColor(score: number): string {
-  if (score < 30) return 'bg-zoru-success';
-  if (score < 55) return 'bg-zoru-warning';
-  return 'bg-zoru-danger';
+  if (score < 30) return 'bg-[var(--st-status-ok)]';
+  if (score < 55) return 'bg-[var(--st-warn)]';
+  return 'bg-[var(--st-danger)]';
 }
 
 export default function KeywordDifficultyPage() {
@@ -133,8 +133,8 @@ export default function KeywordDifficultyPage() {
             <ZoruCardContent className="p-6">
               <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-4">
                 <div>
-                  <h3 className="text-lg font-semibold text-zoru-ink">Keyword Difficulty</h3>
-                  <p className="text-sm text-zoru-ink-muted mt-1">
+                  <h3 className="text-lg font-semibold text-[var(--st-text)]">Keyword Difficulty</h3>
+                  <p className="text-sm text-[var(--st-text-secondary)] mt-1">
                     Based on the average Domain Authority of the top 10 ranking pages.
                   </p>
                 </div>
@@ -143,7 +143,7 @@ export default function KeywordDifficultyPage() {
                   <div className="flex flex-col items-end">
                     <div className="flex items-baseline gap-2">
                       <span className="text-4xl font-bold">{result.score}</span>
-                      <span className="text-sm text-zoru-ink-muted">/ 100</span>
+                      <span className="text-sm text-[var(--st-text-secondary)]">/ 100</span>
                     </div>
                   </div>
                   <Badge tone={l.tone} className="text-sm px-3 py-1">
@@ -152,7 +152,7 @@ export default function KeywordDifficultyPage() {
                 </div>
               </div>
               
-              <div className="w-full h-3 bg-zoru-surface-2 rounded-full overflow-hidden mt-6 relative">
+              <div className="w-full h-3 bg-[var(--st-bg-muted)] rounded-full overflow-hidden mt-6 relative">
                 <div 
                   className={`h-full transition-all duration-1000 ease-out absolute top-0 left-0 ${getBarColor(result.score)}`}
                   style={{ width: `${result.score}%` }} 
@@ -164,8 +164,8 @@ export default function KeywordDifficultyPage() {
           <Card>
             <ZoruCardContent className="p-0">
               <div className="p-6 pb-2">
-                <h3 className="text-lg font-semibold text-zoru-ink">Top 10 Search Results</h3>
-                <p className="text-sm text-zoru-ink-muted mt-1">
+                <h3 className="text-lg font-semibold text-[var(--st-text)]">Top 10 Search Results</h3>
+                <p className="text-sm text-[var(--st-text-secondary)] mt-1">
                   Simulated SERP analysis for "{kw.trim()}"
                 </p>
               </div>
@@ -181,16 +181,16 @@ export default function KeywordDifficultyPage() {
                 <TableBody>
                   {result.results.map((item, index) => (
                     <TableRow key={index}>
-                      <TableCell className="text-center font-medium text-zoru-ink-muted">
+                      <TableCell className="text-center font-medium text-[var(--st-text-secondary)]">
                         {index + 1}
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-col gap-1">
-                          <span className="font-medium text-zoru-ink line-clamp-1">{item.title}</span>
+                          <span className="font-medium text-[var(--st-text)] line-clamp-1">{item.title}</span>
                           <a 
                             href="#" 
                             onClick={(e) => e.preventDefault()}
-                            className="text-xs text-zoru-ink-muted hover:text-zoru-ink hover:underline flex items-center gap-1 line-clamp-1"
+                            className="text-xs text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:underline flex items-center gap-1 line-clamp-1"
                           >
                             {item.url}
                             <ExternalLink className="h-3 w-3 inline-block opacity-50" />

@@ -270,7 +270,7 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
             label="Total"
             value={kpis.total.toLocaleString()}
             icon={<Users className="h-4 w-4" />}
-            className={cn(statusFilter === 'all' && 'ring-1 ring-zoru-primary rounded-[var(--zoru-radius-lg)]')}
+            className={cn(statusFilter === 'all' && 'ring-1 ring-[var(--st-text)] rounded-[var(--zoru-radius-lg)]')}
           />
         </button>
         <button type="button" className="text-left" onClick={() => setStatusFilter('pending')}>
@@ -278,7 +278,7 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
             label="Pending"
             value={kpis.pending.toLocaleString()}
             icon={<Clock className="h-4 w-4" />}
-            className={cn(statusFilter === 'pending' && 'ring-1 ring-zoru-primary rounded-[var(--zoru-radius-lg)]')}
+            className={cn(statusFilter === 'pending' && 'ring-1 ring-[var(--st-text)] rounded-[var(--zoru-radius-lg)]')}
           />
         </button>
         <button type="button" className="text-left" onClick={() => setStatusFilter('accepted')}>
@@ -286,7 +286,7 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
             label="Accepted"
             value={kpis.accepted.toLocaleString()}
             icon={<CheckCircle2 className="h-4 w-4" />}
-            className={cn(statusFilter === 'accepted' && 'ring-1 ring-zoru-primary rounded-[var(--zoru-radius-lg)]')}
+            className={cn(statusFilter === 'accepted' && 'ring-1 ring-[var(--st-text)] rounded-[var(--zoru-radius-lg)]')}
           />
         </button>
         <StatCard
@@ -304,7 +304,7 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
           aria-label="Send invitation"
         >
           <div>
-            <Label className="text-[11.5px] text-zoru-ink-muted" htmlFor="inv-email">
+            <Label className="text-[11.5px] text-[var(--st-text-secondary)]" htmlFor="inv-email">
               Email
             </Label>
             <Input
@@ -318,7 +318,7 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
             />
           </div>
           <div>
-            <Label className="text-[11.5px] text-zoru-ink-muted" htmlFor="inv-role">
+            <Label className="text-[11.5px] text-[var(--st-text-secondary)]" htmlFor="inv-role">
               Role id (optional)
             </Label>
             <Input
@@ -359,9 +359,9 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
 
       {/* Bulk bar */}
       {selected.size > 0 ? (
-        <div className="flex flex-wrap items-center gap-2 rounded-lg border border-zoru-line bg-zoru-surface px-3 py-2 text-[13px]">
-          <span className="font-medium text-zoru-ink">{selected.size} selected</span>
-          <span className="text-zoru-ink-muted">·</span>
+        <div className="flex flex-wrap items-center gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-[13px]">
+          <span className="font-medium text-[var(--st-text)]">{selected.size} selected</span>
+          <span className="text-[var(--st-text-secondary)]">·</span>
           <Button
             variant="ghost"
             size="sm"
@@ -377,7 +377,7 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
             disabled={bulkPending}
             onClick={handleBulkRevoke}
           >
-            <Ban className="mr-1 h-3.5 w-3.5 text-zoru-danger-ink" />
+            <Ban className="mr-1 h-3.5 w-3.5 text-[var(--st-danger)]" />
             Revoke
           </Button>
           <Button variant="ghost" size="sm" onClick={handleExportCsv}>
@@ -411,7 +411,7 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
       {/* Table */}
       {filtered.length === 0 ? (
         <Card className="flex items-center justify-center py-12">
-          <p className="text-[13px] text-zoru-ink-muted">No invitations match this filter.</p>
+          <p className="text-[13px] text-[var(--st-text-secondary)]">No invitations match this filter.</p>
         </Card>
       ) : (
         <Card className="p-0 overflow-x-auto">
@@ -425,19 +425,19 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
                     aria-label="Select all on page"
                   />
                 </ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Email</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Role</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Sent</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Expires</ZoruTableHead>
-                <ZoruTableHead className="text-right text-zoru-ink-muted">Actions</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Email</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Role</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Sent</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Expires</ZoruTableHead>
+                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Actions</ZoruTableHead>
               </ZoruTableRow>
             </ZoruTableHeader>
             <ZoruTableBody>
               {filtered.map((inv) => (
                 <ZoruTableRow
                   key={inv._id}
-                  className={cn(selected.has(inv._id) && 'bg-zoru-surface')}
+                  className={cn(selected.has(inv._id) && 'bg-[var(--st-bg-secondary)]')}
                 >
                   <ZoruTableCell>
                     <Checkbox
@@ -446,10 +446,10 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
                       aria-label={`Select ${inv.email}`}
                     />
                   </ZoruTableCell>
-                  <ZoruTableCell className="text-[13px] font-medium text-zoru-ink">
+                  <ZoruTableCell className="text-[13px] font-medium text-[var(--st-text)]">
                     {inv.email}
                   </ZoruTableCell>
-                  <ZoruTableCell className="text-[12px] text-zoru-ink-muted">
+                  <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
                     {inv.role_id || '—'}
                   </ZoruTableCell>
                   <ZoruTableCell>
@@ -457,10 +457,10 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
                       {inv.status}
                     </Badge>
                   </ZoruTableCell>
-                  <ZoruTableCell className="text-[12px] text-zoru-ink-muted">
+                  <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
                     {formatStamp(inv.createdAt)}
                   </ZoruTableCell>
-                  <ZoruTableCell className="text-[12px] text-zoru-ink-muted">
+                  <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
                     {inv.expires_at ? formatStamp(inv.expires_at) : '—'}
                   </ZoruTableCell>
                   <ZoruTableCell className="text-right">
@@ -489,7 +489,7 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
                         onClick={() => handleDelete(inv._id)}
                         aria-label="Delete"
                       >
-                        <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                        <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                       </Button>
                     </div>
                   </ZoruTableCell>

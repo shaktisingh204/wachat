@@ -128,25 +128,25 @@ export function SendCatalogDialog({ isOpen, onOpenChange, contact, project }: Se
                                     ) : products.length > 0 ? (
                                         <div className="space-y-2">
                                             {products.map(product => (
-                                                <div key={product.id} className="flex items-center gap-3 p-2 rounded-md hover:bg-zoru-surface-2">
+                                                <div key={product.id} className="flex items-center gap-3 p-2 rounded-md hover:bg-[var(--st-bg-muted)]">
                                                     <Checkbox
                                                         id={`product-${product.id}`}
                                                         checked={selectedProducts.includes(product.retailer_id)}
                                                         onCheckedChange={(checked) => handleProductSelect(product.retailer_id, !!checked)}
                                                         disabled={selectedProducts.length >= 30 && !selectedProducts.includes(product.retailer_id)}
                                                     />
-                                                    <div className="w-12 h-12 bg-zoru-surface-2 rounded-md flex items-center justify-center">
-                                                        {product.image_url ? <Image src={product.image_url} alt={product.name} width={48} height={48} className="object-cover rounded-md" /> : <ShoppingBag className="h-6 w-6 text-zoru-ink-muted" />}
+                                                    <div className="w-12 h-12 bg-[var(--st-bg-muted)] rounded-md flex items-center justify-center">
+                                                        {product.image_url ? <Image src={product.image_url} alt={product.name} width={48} height={48} className="object-cover rounded-md" /> : <ShoppingBag className="h-6 w-6 text-[var(--st-text-secondary)]" />}
                                                     </div>
                                                     <Label htmlFor={`product-${product.id}`} className="flex-1 cursor-pointer">
                                                         <p className="font-medium">{product.name}</p>
-                                                        <p className="text-xs text-zoru-ink-muted font-mono">{product.retailer_id}</p>
+                                                        <p className="text-xs text-[var(--st-text-secondary)] font-mono">{product.retailer_id}</p>
                                                     </Label>
                                                 </div>
                                             ))}
                                         </div>
                                     ) : (
-                                        <div className="text-center p-8 text-zoru-ink-muted">No products found in this catalog.</div>
+                                        <div className="text-center p-8 text-[var(--st-text-secondary)]">No products found in this catalog.</div>
                                     )}
                                 </ScrollArea>
                             </div>

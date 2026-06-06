@@ -235,16 +235,16 @@ export function RecurringInvoiceForm({ initialData }: RecurringInvoiceFormProps)
 
                 {/* Frequency Visualizer */}
                 {projectedDates.length > 0 && (
-                    <div className="space-y-3 rounded-md border p-4 bg-zoru-surface-2/20">
+                    <div className="space-y-3 rounded-md border p-4 bg-[var(--st-bg-muted)]/20">
                         <div className="flex items-center gap-2">
-                            <CalendarDays className="h-4 w-4 text-zoru-ink-muted" />
+                            <CalendarDays className="h-4 w-4 text-[var(--st-text-secondary)]" />
                             <h4 className="text-sm font-medium">Projected Schedule</h4>
                         </div>
                         <div className="flex flex-wrap gap-2">
                             {projectedDates.map((d, i) => (
-                                <div key={i} className="flex items-center gap-1.5 rounded-full bg-zoru-surface px-3 py-1 text-xs border shadow-sm">
-                                    <span className="text-zoru-ink-muted font-mono opacity-60">#{i + 1}</span>
-                                    <span className="font-medium text-zoru-ink">
+                                <div key={i} className="flex items-center gap-1.5 rounded-full bg-[var(--st-bg-secondary)] px-3 py-1 text-xs border shadow-sm">
+                                    <span className="text-[var(--st-text-secondary)] font-mono opacity-60">#{i + 1}</span>
+                                    <span className="font-medium text-[var(--st-text)]">
                                         {d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' })}
                                     </span>
                                 </div>

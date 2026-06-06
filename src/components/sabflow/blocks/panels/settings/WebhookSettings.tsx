@@ -21,7 +21,7 @@ function makeKV(): KVPair {
 }
 
 const inputClass =
-  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-zoru-line transition-colors';
+  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[var(--st-border)] transition-colors';
 
 export function WebhookSettings({ block, onUpdate, variables = [] }: Props) {
   const options = block.options ?? {};
@@ -117,7 +117,7 @@ export function WebhookSettings({ block, onUpdate, variables = [] }: Props) {
                   />
                   <button
                     onClick={() => removeHeader(h.id)}
-                    className="shrink-0 flex h-7 w-7 items-center justify-center rounded text-[var(--gray-8)] hover:text-zoru-ink hover:bg-[var(--gray-3)] transition-colors"
+                    className="shrink-0 flex h-7 w-7 items-center justify-center rounded text-[var(--gray-8)] hover:text-[var(--st-text)] hover:bg-[var(--gray-3)] transition-colors"
                   >
                     <LuTrash2 className="h-3.5 w-3.5" strokeWidth={1.8} />
                   </button>
@@ -204,11 +204,11 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 function methodColor(method: HttpMethod): string {
   const map: Record<HttpMethod, string> = {
-    GET: 'border-zoru-line/40 bg-zoru-ink/10 text-zoru-ink-muted',
-    POST: 'border-zoru-line/40 bg-zoru-ink/10 text-zoru-ink-muted',
-    PUT: 'border-zoru-line/40 bg-zoru-ink/10 text-zoru-ink-muted',
-    PATCH: 'border-zoru-line/40 bg-zoru-ink/10 text-zoru-ink-muted',
-    DELETE: 'border-zoru-line/40 bg-zoru-ink/10 text-zoru-ink-muted',
+    GET: 'border-[var(--st-border)]/40 bg-[var(--st-text)]/10 text-[var(--st-text-secondary)]',
+    POST: 'border-[var(--st-border)]/40 bg-[var(--st-text)]/10 text-[var(--st-text-secondary)]',
+    PUT: 'border-[var(--st-border)]/40 bg-[var(--st-text)]/10 text-[var(--st-text-secondary)]',
+    PATCH: 'border-[var(--st-border)]/40 bg-[var(--st-text)]/10 text-[var(--st-text-secondary)]',
+    DELETE: 'border-[var(--st-border)]/40 bg-[var(--st-text)]/10 text-[var(--st-text-secondary)]',
   };
   return map[method];
 }

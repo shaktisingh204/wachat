@@ -38,19 +38,19 @@ function StatusStep({ status, current }: StatusStepProps) {
     <li
       className={`flex items-center gap-2 rounded px-2 py-1 text-[12.5px] ${
         isCurrent
-          ? 'bg-zoru-surface-2 font-medium text-zoru-ink'
-          : 'text-zoru-ink-muted'
+          ? 'bg-[var(--st-bg-muted)] font-medium text-[var(--st-text)]'
+          : 'text-[var(--st-text-secondary)]'
       }`}
     >
       <span
         className={`inline-block h-2 w-2 rounded-full ${
-          isCurrent ? 'bg-zoru-primary' : 'bg-zoru-line'
+          isCurrent ? 'bg-[var(--st-text)]' : 'bg-[var(--st-border)]'
         }`}
         aria-hidden
       />
       {status}
       {isCurrent ? (
-        <span className="ml-auto text-[10.5px] uppercase text-zoru-primary">
+        <span className="ml-auto text-[10.5px] uppercase text-[var(--st-text)]">
           current
         </span>
       ) : null}
@@ -67,10 +67,10 @@ function DetailField({
 }) {
   return (
     <div>
-      <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
         {label}
       </div>
-      <div className="mt-1 text-[13px] text-zoru-ink">{children}</div>
+      <div className="mt-1 text-[13px] text-[var(--st-text)]">{children}</div>
     </div>
   );
 }
@@ -86,7 +86,7 @@ export default async function RfqDetailPage({ params }: PageProps) {
     if (error) {
       return (
         <div className="flex w-full flex-col gap-4 p-6">
-          <p className="text-[14px] text-zoru-ink">
+          <p className="text-[14px] text-[var(--st-text)]">
             Couldn&apos;t load this RFQ — {error}
           </p>
           <Button variant="outline" asChild>
@@ -151,19 +151,19 @@ export default async function RfqDetailPage({ params }: PageProps) {
               <RfqQuickEdits rfqId={rfqId} ownerId={ownerId} status={status} />
               <div className="mt-3 space-y-1.5 text-[12.5px]">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-zoru-ink-muted">Required by</span>
+                  <span className="text-[var(--st-text-secondary)]">Required by</span>
                   <span>{fmtDate(rfq.requiredBy)}</span>
                 </div>
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-zoru-ink-muted">Deadline</span>
+                  <span className="text-[var(--st-text-secondary)]">Deadline</span>
                   <span>{fmtDate(rfq.deadline)}</span>
                 </div>
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-zoru-ink-muted">Created</span>
+                  <span className="text-[var(--st-text-secondary)]">Created</span>
                   <span>{fmtDate(rfq.createdAt || rfq.audit?.createdAt)}</span>
                 </div>
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-zoru-ink-muted">Updated</span>
+                  <span className="text-[var(--st-text-secondary)]">Updated</span>
                   <span>{fmtDate(rfq.updatedAt || rfq.audit?.updatedAt)}</span>
                 </div>
               </div>
@@ -194,7 +194,7 @@ export default async function RfqDetailPage({ params }: PageProps) {
         </Suspense>
       }
     >
-      <p className="text-[12.5px] text-zoru-ink-muted">{subtitle}</p>
+      <p className="text-[12.5px] text-[var(--st-text-secondary)]">{subtitle}</p>
 
       {/* Overview */}
       <Card>
@@ -220,7 +220,7 @@ export default async function RfqDetailPage({ params }: PageProps) {
         </ZoruCardHeader>
         <ZoruCardContent>
           {vendors.length === 0 ? (
-            <p className="text-[13px] text-zoru-ink-muted">
+            <p className="text-[13px] text-[var(--st-text-secondary)]">
               No vendors invited yet.
             </p>
           ) : (
@@ -240,11 +240,11 @@ export default async function RfqDetailPage({ params }: PageProps) {
         </ZoruCardHeader>
         <ZoruCardContent>
           {items.length === 0 ? (
-            <p className="text-[13px] text-zoru-ink-muted">No line items.</p>
+            <p className="text-[13px] text-[var(--st-text-secondary)]">No line items.</p>
           ) : (
-            <div className="overflow-x-auto rounded border border-zoru-line">
+            <div className="overflow-x-auto rounded border border-[var(--st-border)]">
               <table className="w-full text-[12.5px]">
-                <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
+                <thead className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                   <tr>
                     <th className="p-2 text-left">Item</th>
                     <th className="p-2 text-left">Description</th>
@@ -257,25 +257,25 @@ export default async function RfqDetailPage({ params }: PageProps) {
                   {items.map((li, idx) => (
                     <tr
                       key={`${li.itemId ?? 'row'}-${idx}`}
-                      className="border-t border-zoru-line"
+                      className="border-t border-[var(--st-border)]"
                     >
                       <td className="p-2">
                         {li.itemId ? (
                           <EntityPickerChip entity="item" id={li.itemId} />
                         ) : (
-                          <span className="text-zoru-ink">—</span>
+                          <span className="text-[var(--st-text)]">—</span>
                         )}
                       </td>
-                      <td className="p-2 text-zoru-ink">
+                      <td className="p-2 text-[var(--st-text)]">
                         {li.description || '—'}
                       </td>
-                      <td className="p-2 text-right font-mono tabular-nums text-zoru-ink">
+                      <td className="p-2 text-right font-mono tabular-nums text-[var(--st-text)]">
                         {li.qty ?? '—'}
                       </td>
-                      <td className="p-2 text-zoru-ink-muted">
+                      <td className="p-2 text-[var(--st-text-secondary)]">
                         {li.unit || '—'}
                       </td>
-                      <td className="p-2 text-zoru-ink-muted">
+                      <td className="p-2 text-[var(--st-text-secondary)]">
                         {li.specs || '—'}
                       </td>
                     </tr>
@@ -299,7 +299,7 @@ export default async function RfqDetailPage({ params }: PageProps) {
             <ZoruCardTitle>Terms</ZoruCardTitle>
           </ZoruCardHeader>
           <ZoruCardContent>
-            <p className="whitespace-pre-wrap text-[13px] text-zoru-ink">
+            <p className="whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
               {rfq.terms}
             </p>
           </ZoruCardContent>
@@ -317,9 +317,9 @@ export default async function RfqDetailPage({ params }: PageProps) {
               {attachments.map((a, idx) => (
                 <li
                   key={`${a.fileId ?? 'att'}-${idx}`}
-                  className="flex items-center justify-between gap-2 rounded-lg border border-zoru-line px-3 py-2 text-[12.5px]"
+                  className="flex items-center justify-between gap-2 rounded-lg border border-[var(--st-border)] px-3 py-2 text-[12.5px]"
                 >
-                  <span className="truncate text-zoru-ink">
+                  <span className="truncate text-[var(--st-text)]">
                     {a.name || a.fileId || 'Attachment'}
                   </span>
                   {a.url ? (
@@ -327,7 +327,7 @@ export default async function RfqDetailPage({ params }: PageProps) {
                       href={a.url}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-[12px] text-zoru-ink-muted hover:underline"
+                      className="text-[12px] text-[var(--st-text-secondary)] hover:underline"
                     >
                       Open
                     </Link>

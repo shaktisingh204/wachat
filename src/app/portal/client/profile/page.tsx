@@ -25,8 +25,8 @@ async function ClientProfilePageContent() {
     return (
         <div className="flex flex-col gap-4">
             <div>
-                <h1 className="text-2xl font-semibold text-zoru-ink">Profile</h1>
-                <p className="text-sm text-zoru-ink-muted">
+                <h1 className="text-2xl font-semibold text-[var(--st-text)]">Profile</h1>
+                <p className="text-sm text-[var(--st-text-secondary)]">
                     Manage your account details.
                 </p>
             </div>
@@ -56,24 +56,24 @@ async function ClientProfilePageContent() {
                         {profile.company ? (
                             <dl className="grid grid-cols-1 gap-3 text-sm">
                                 <div>
-                                    <dt className="text-xs text-zoru-ink-muted">Company name</dt>
-                                    <dd className="text-zoru-ink">{profile.company.companyName ?? '—'}</dd>
+                                    <dt className="text-xs text-[var(--st-text-secondary)]">Company name</dt>
+                                    <dd className="text-[var(--st-text)]">{profile.company.companyName ?? '—'}</dd>
                                 </div>
                                 <div>
-                                    <dt className="text-xs text-zoru-ink-muted">Contact name</dt>
-                                    <dd className="text-zoru-ink">{profile.company.contactName ?? '—'}</dd>
+                                    <dt className="text-xs text-[var(--st-text-secondary)]">Contact name</dt>
+                                    <dd className="text-[var(--st-text)]">{profile.company.contactName ?? '—'}</dd>
                                 </div>
                                 <div>
-                                    <dt className="text-xs text-zoru-ink-muted">Country</dt>
-                                    <dd className="text-zoru-ink">{profile.company.country ?? '—'}</dd>
+                                    <dt className="text-xs text-[var(--st-text-secondary)]">Country</dt>
+                                    <dd className="text-[var(--st-text)]">{profile.company.country ?? '—'}</dd>
                                 </div>
                                 <div>
-                                    <dt className="text-xs text-zoru-ink-muted">Website</dt>
-                                    <dd className="break-all text-zoru-ink">{profile.company.website ?? '—'}</dd>
+                                    <dt className="text-xs text-[var(--st-text-secondary)]">Website</dt>
+                                    <dd className="break-all text-[var(--st-text)]">{profile.company.website ?? '—'}</dd>
                                 </div>
                             </dl>
                         ) : (
-                            <p className="text-sm text-zoru-ink-muted">
+                            <p className="text-sm text-[var(--st-text-secondary)]">
                                 No company profile on file. Contact support to update your
                                 company details.
                             </p>

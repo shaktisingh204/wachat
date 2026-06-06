@@ -227,7 +227,7 @@ export function PurchaseOrderListClient({ initialItems }: { initialItems: Purcha
 
       <div className="mb-6 flex items-center gap-2">
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
           <Input 
             placeholder="Search records..." 
             className="pl-8"
@@ -265,12 +265,12 @@ export function PurchaseOrderListClient({ initialItems }: { initialItems: Purcha
                   </ZoruTableCell>
                   <ZoruTableCell className="text-right flex items-center justify-end gap-1">
                     {item.status !== 'approved' && (
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-zoru-ink" onClick={() => handleApprove(item._id as string)} title="Approve">
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-[var(--st-text)]" onClick={() => handleApprove(item._id as string)} title="Approve">
                         <CheckCircle className="h-4 w-4" />
                       </Button>
                     )}
                     {item.status !== 'rejected' && (
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-zoru-ink" onClick={() => handleReject(item._id as string)} title="Reject">
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-[var(--st-text)]" onClick={() => handleReject(item._id as string)} title="Reject">
                         <XCircle className="h-4 w-4" />
                       </Button>
                     )}
@@ -284,7 +284,7 @@ export function PurchaseOrderListClient({ initialItems }: { initialItems: Purcha
                         <ZoruDropdownMenuItem onClick={() => openEdit(item._id as string)}>
                           <Pencil className="mr-2 h-4 w-4" /> Edit
                         </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuItem className="text-zoru-ink focus:bg-zoru-surface-2" onClick={() => handleDelete(item._id as string)}>
+                        <ZoruDropdownMenuItem className="text-[var(--st-text)] focus:bg-[var(--st-bg-muted)]" onClick={() => handleDelete(item._id as string)}>
                           <Trash className="mr-2 h-4 w-4" /> Delete
                         </ZoruDropdownMenuItem>
                       </ZoruDropdownMenuContent>
@@ -305,7 +305,7 @@ export function PurchaseOrderListClient({ initialItems }: { initialItems: Purcha
           <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
             {viewingItem && Object.entries(viewingItem).filter(([k]) => k !== '__v').map(([key, value]) => (
               <div key={key} className="grid grid-cols-3 gap-4 border-b pb-2">
-                <div className="font-medium text-sm text-zoru-ink-muted capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</div>
+                <div className="font-medium text-sm text-[var(--st-text-secondary)] capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</div>
                 <div className="col-span-2 text-sm">{String(value)}</div>
               </div>
             ))}

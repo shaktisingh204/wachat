@@ -224,7 +224,7 @@ export function DomainsClient({ initialDomains }: DomainsClientProps) {
                                     </ZoruCardDescription>
                                 </ZoruCardHeader>
                                 <ZoruCardContent className="flex flex-col gap-3">
-                                    <pre className="max-h-48 overflow-auto rounded-md border border-zoru-line bg-zoru-surface-2 p-3 text-xs text-zoru-ink-muted">
+                                    <pre className="max-h-48 overflow-auto rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-xs text-[var(--st-text-secondary)]">
                                         {dnsRecordsFor(d)}
                                     </pre>
                                     <Separator />

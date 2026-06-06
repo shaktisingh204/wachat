@@ -95,44 +95,44 @@ export default async function FormDetailPage({
             {/* Summary card */}
             <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
-                    <div className="text-[14px] font-medium text-zoru-ink">Overview</div>
+                    <div className="text-[14px] font-medium text-[var(--st-text)]">Overview</div>
                     <StatusPill label={status} tone={tone} />
                 </div>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
                     <div>
-                        <div className="text-zoru-ink-muted">Slug</div>
-                        <div className="font-mono text-zoru-ink">{form.slug ?? '—'}</div>
+                        <div className="text-[var(--st-text-secondary)]">Slug</div>
+                        <div className="font-mono text-[var(--st-text)]">{form.slug ?? '—'}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Submissions</div>
-                        <div className="font-mono text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Submissions</div>
+                        <div className="font-mono text-[var(--st-text)]">
                             {form.submissionCount ?? 0}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Created</div>
-                        <div className="text-zoru-ink">{fmtDate(form.createdAt)}</div>
+                        <div className="text-[var(--st-text-secondary)]">Created</div>
+                        <div className="text-[var(--st-text)]">{fmtDate(form.createdAt)}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Updated</div>
-                        <div className="text-zoru-ink">{fmtDate(form.updatedAt)}</div>
+                        <div className="text-[var(--st-text-secondary)]">Updated</div>
+                        <div className="text-[var(--st-text)]">{fmtDate(form.updatedAt)}</div>
                     </div>
                     {typeof settings.successMessage === 'string' ? (
                         <div className="sm:col-span-2">
-                            <div className="text-zoru-ink-muted">Success message</div>
-                            <div className="text-zoru-ink">
+                            <div className="text-[var(--st-text-secondary)]">Success message</div>
+                            <div className="text-[var(--st-text)]">
                                 {settings.successMessage as string}
                             </div>
                         </div>
                     ) : null}
                     {typeof settings.redirectUrl === 'string' ? (
                         <div className="sm:col-span-2">
-                            <div className="text-zoru-ink-muted">Redirect URL</div>
+                            <div className="text-[var(--st-text-secondary)]">Redirect URL</div>
                             <a
                                 href={settings.redirectUrl as string}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="truncate text-zoru-ink underline-offset-2 hover:underline"
+                                className="truncate text-[var(--st-text)] underline-offset-2 hover:underline"
                             >
                                 {settings.redirectUrl as string}
                             </a>
@@ -144,13 +144,13 @@ export default async function FormDetailPage({
             {/* Fields */}
             <Card className="p-6">
                 <div className="mb-3 flex items-center justify-between">
-                    <div className="text-[15px] font-medium text-zoru-ink">Fields</div>
-                    <div className="text-[12px] text-zoru-ink-muted">
+                    <div className="text-[15px] font-medium text-[var(--st-text)]">Fields</div>
+                    <div className="text-[12px] text-[var(--st-text-secondary)]">
                         {fields.length} field{fields.length === 1 ? '' : 's'}
                     </div>
                 </div>
                 {fields.length === 0 ? (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No fields defined.
                     </div>
                 ) : (
@@ -158,15 +158,15 @@ export default async function FormDetailPage({
                         {fields.map((f, i) => (
                             <li
                                 key={`${f.name}-${i}`}
-                                className="grid grid-cols-1 gap-1 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-3 sm:grid-cols-[auto_1fr_1fr_140px_auto]"
+                                className="grid grid-cols-1 gap-1 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 sm:grid-cols-[auto_1fr_1fr_140px_auto]"
                             >
-                                <span className="font-mono text-[11px] text-zoru-ink-muted self-center">
+                                <span className="font-mono text-[11px] text-[var(--st-text-secondary)] self-center">
                                     #{i + 1}
                                 </span>
-                                <span className="font-mono text-[12.5px] text-zoru-ink self-center">
+                                <span className="font-mono text-[12.5px] text-[var(--st-text)] self-center">
                                     {f.name}
                                 </span>
-                                <span className="text-[13px] text-zoru-ink self-center">
+                                <span className="text-[13px] text-[var(--st-text)] self-center">
                                     {f.label ?? f.name}
                                 </span>
                                 <Badge variant="ghost" className="self-center">
@@ -177,7 +177,7 @@ export default async function FormDetailPage({
                                         Required
                                     </Badge>
                                 ) : (
-                                    <span className="self-center text-[11.5px] text-zoru-ink-muted">
+                                    <span className="self-center text-[11.5px] text-[var(--st-text-secondary)]">
                                         Optional
                                     </span>
                                 )}
@@ -191,25 +191,25 @@ export default async function FormDetailPage({
                 {/* Analytics card */}
                 <Card className="p-6">
                     <div className="mb-4">
-                        <div className="text-[15px] font-medium text-zoru-ink">Performance Analytics</div>
-                        <div className="text-[13px] text-zoru-ink-muted">Estimated conversions and drop-offs</div>
+                        <div className="text-[15px] font-medium text-[var(--st-text)]">Performance Analytics</div>
+                        <div className="text-[13px] text-[var(--st-text-secondary)]">Estimated conversions and drop-offs</div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
-                        <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-4">
-                            <div className="text-[12px] font-medium text-zoru-ink-muted">Views</div>
-                            <div className="mt-1 text-2xl font-semibold text-zoru-ink">{mockViews}</div>
+                        <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4">
+                            <div className="text-[12px] font-medium text-[var(--st-text-secondary)]">Views</div>
+                            <div className="mt-1 text-2xl font-semibold text-[var(--st-text)]">{mockViews}</div>
                         </div>
-                        <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-4">
-                            <div className="text-[12px] font-medium text-zoru-ink-muted">Conversion Rate</div>
-                            <div className="mt-1 text-2xl font-semibold text-zoru-ink">{conversionRate}%</div>
+                        <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4">
+                            <div className="text-[12px] font-medium text-[var(--st-text-secondary)]">Conversion Rate</div>
+                            <div className="mt-1 text-2xl font-semibold text-[var(--st-text)]">{conversionRate}%</div>
                         </div>
-                        <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-4">
-                            <div className="text-[12px] font-medium text-zoru-ink-muted">Submissions</div>
-                            <div className="mt-1 text-2xl font-semibold text-zoru-ink">{submissions}</div>
+                        <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4">
+                            <div className="text-[12px] font-medium text-[var(--st-text-secondary)]">Submissions</div>
+                            <div className="mt-1 text-2xl font-semibold text-[var(--st-text)]">{submissions}</div>
                         </div>
-                        <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-4">
-                            <div className="text-[12px] font-medium text-zoru-ink-muted">Drop-offs</div>
-                            <div className="mt-1 text-2xl font-semibold text-zoru-ink">{dropOffs}</div>
+                        <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4">
+                            <div className="text-[12px] font-medium text-[var(--st-text-secondary)]">Drop-offs</div>
+                            <div className="mt-1 text-2xl font-semibold text-[var(--st-text)]">{dropOffs}</div>
                         </div>
                     </div>
                 </Card>
@@ -217,8 +217,8 @@ export default async function FormDetailPage({
                 {/* Integration card */}
                 <Card className="p-6">
                     <div className="mb-4">
-                        <div className="text-[15px] font-medium text-zoru-ink">Integration</div>
-                        <div className="text-[13px] text-zoru-ink-muted">Share or embed this form</div>
+                        <div className="text-[15px] font-medium text-[var(--st-text)]">Integration</div>
+                        <div className="text-[13px] text-[var(--st-text-secondary)]">Share or embed this form</div>
                     </div>
                     <div className="space-y-4">
                         <CopySnippet label="Public URL" text={publicUrl} />

@@ -44,21 +44,21 @@ export default async function PortalEditPage({ params }: PageProps) {
                         <ZoruCardContent>
                             <div className="space-y-1.5 text-[12.5px]">
                                 <div>
-                                    <div className="text-zoru-ink-muted">Email</div>
-                                    <div className="break-words text-zoru-ink">
+                                    <div className="text-[var(--st-text-secondary)]">Email</div>
+                                    <div className="break-words text-[var(--st-text)]">
                                         {user.email || '—'}
                                     </div>
                                 </div>
-                                <div className="border-t border-zoru-line pt-2">
-                                    <div className="text-zoru-ink-muted">Portal type</div>
-                                    <div className="capitalize text-zoru-ink">
+                                <div className="border-t border-[var(--st-border)] pt-2">
+                                    <div className="text-[var(--st-text-secondary)]">Portal type</div>
+                                    <div className="capitalize text-[var(--st-text)]">
                                         {user.portalType || 'customer'}
                                     </div>
                                 </div>
                                 {user.linkedEntityName ? (
-                                    <div className="border-t border-zoru-line pt-2">
-                                        <div className="text-zoru-ink-muted">Linked to</div>
-                                        <div className="text-zoru-ink">
+                                    <div className="border-t border-[var(--st-border)] pt-2">
+                                        <div className="text-[var(--st-text-secondary)]">Linked to</div>
+                                        <div className="text-[var(--st-text)]">
                                             {user.linkedEntityName}
                                         </div>
                                     </div>
@@ -73,20 +73,20 @@ export default async function PortalEditPage({ params }: PageProps) {
                         <ZoruCardContent>
                             <div className="space-y-1.5 text-[12.5px]">
                                 <div>
-                                    <div className="text-zoru-ink-muted">Role</div>
-                                    <div className="capitalize text-zoru-ink">
+                                    <div className="text-[var(--st-text-secondary)]">Role</div>
+                                    <div className="capitalize text-[var(--st-text)]">
                                         {user.role || 'viewer'}
                                     </div>
                                 </div>
-                                <div className="border-t border-zoru-line pt-2">
-                                    <div className="text-zoru-ink-muted">Last IP address</div>
-                                    <div className="text-zoru-ink">
+                                <div className="border-t border-[var(--st-border)] pt-2">
+                                    <div className="text-[var(--st-text-secondary)]">Last IP address</div>
+                                    <div className="text-[var(--st-text)]">
                                         {user.lastIp || 'Unknown'}
                                     </div>
                                 </div>
-                                <div className="border-t border-zoru-line pt-2">
-                                    <div className="text-zoru-ink-muted">Capabilities</div>
-                                    <div className="text-zoru-ink">
+                                <div className="border-t border-[var(--st-border)] pt-2">
+                                    <div className="text-[var(--st-text-secondary)]">Capabilities</div>
+                                    <div className="text-[var(--st-text)]">
                                         {Array.isArray(user.capabilities)
                                             ? user.capabilities.length
                                             : 0}{' '}
@@ -99,7 +99,7 @@ export default async function PortalEditPage({ params }: PageProps) {
                 </>
             }
             audit={
-                <React.Suspense fallback={<div className="h-64 w-full animate-pulse bg-zoru-surface-2 rounded-md" />}>
+                <React.Suspense fallback={<div className="h-64 w-full animate-pulse bg-[var(--st-bg-muted)] rounded-md" />}>
                     <EntityAuditTimeline entityKind="portal_user" entityId={id} />
                 </React.Suspense>
             }

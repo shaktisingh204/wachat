@@ -54,8 +54,8 @@ export default function SeoCallbackPage() {
     return (
         <div className="h-screen w-full flex items-center justify-center">
             <Card className="p-8 flex flex-col items-center gap-4">
-                <Loader2 className="h-8 w-8 animate-spin text-zoru-ink" />
-                <p className="text-zoru-ink-muted">{status}</p>
+                <Loader2 className="h-8 w-8 animate-spin text-[var(--st-text)]" />
+                <p className="text-[var(--st-text-secondary)]">{status}</p>
             </Card>
         </div>
     );

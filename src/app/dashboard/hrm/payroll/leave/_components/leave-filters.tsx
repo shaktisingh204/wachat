@@ -86,7 +86,7 @@ export function LeaveFiltersRow({
   leaveTypes,
 }: LeaveFiltersRowProps): React.JSX.Element {
   return (
-    <div className="flex flex-col gap-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3">
+    <div className="flex flex-col gap-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
       <div className="flex flex-wrap items-center gap-2">
         <Select
           value={preset}
@@ -135,7 +135,7 @@ export function LeaveFiltersRow({
             {leaveTypes.map((lt) => (
               <ZoruSelectItem key={lt._id} value={lt._id}>
                 {lt.code ? (
-                  <span className="font-mono text-[11.5px] text-zoru-ink-muted">
+                  <span className="font-mono text-[11.5px] text-[var(--st-text-secondary)]">
                     {lt.code}
                   </span>
                 ) : null}
@@ -160,7 +160,7 @@ export function LeaveFiltersRow({
 
       <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
         <div>
-          <Label className="text-[11px] uppercase text-zoru-ink-muted">
+          <Label className="text-[11px] uppercase text-[var(--st-text-secondary)]">
             Employee
           </Label>
           <div className="mt-1">
@@ -174,7 +174,7 @@ export function LeaveFiltersRow({
           </div>
         </div>
         <div>
-          <Label className="text-[11px] uppercase text-zoru-ink-muted">
+          <Label className="text-[11px] uppercase text-[var(--st-text-secondary)]">
             Department
           </Label>
           <div className="mt-1">
@@ -188,7 +188,7 @@ export function LeaveFiltersRow({
           </div>
         </div>
         <div>
-          <Label className="text-[11px] uppercase text-zoru-ink-muted">
+          <Label className="text-[11px] uppercase text-[var(--st-text-secondary)]">
             Approver
           </Label>
           <div className="mt-1">
@@ -205,7 +205,7 @@ export function LeaveFiltersRow({
           <div className="flex-1">
             <Label
               htmlFor="leave-from"
-              className="text-[11px] uppercase text-zoru-ink-muted"
+              className="text-[11px] uppercase text-[var(--st-text-secondary)]"
             >
               From
             </Label>
@@ -220,7 +220,7 @@ export function LeaveFiltersRow({
           <div className="flex-1">
             <Label
               htmlFor="leave-to"
-              className="text-[11px] uppercase text-zoru-ink-muted"
+              className="text-[11px] uppercase text-[var(--st-text-secondary)]"
             >
               To
             </Label>

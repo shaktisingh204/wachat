@@ -56,12 +56,12 @@ export function EmailListTable({ lists, onEdit, onArchive }: EmailListTableProps
               <ZoruTableCell>
                 <Link
                   href={`/dashboard/email/audience/lists/${list._id}`}
-                  className="font-medium text-zoru-ink hover:underline"
+                  className="font-medium text-[var(--st-text)] hover:underline"
                 >
                   {list.name}
                 </Link>
                 {list.description ? (
-                  <p className="text-xs text-zoru-ink-muted truncate max-w-md">
+                  <p className="text-xs text-[var(--st-text-secondary)] truncate max-w-md">
                     {list.description}
                   </p>
                 ) : null}
@@ -69,10 +69,10 @@ export function EmailListTable({ lists, onEdit, onArchive }: EmailListTableProps
               <ZoruTableCell>
                 <Badge variant="outline">{list.subscriberCount ?? 0}</Badge>
               </ZoruTableCell>
-              <ZoruTableCell className="text-zoru-ink-muted text-sm">
+              <ZoruTableCell className="text-[var(--st-text-secondary)] text-sm">
                 {list.defaultFromEmail ?? '—'}
               </ZoruTableCell>
-              <ZoruTableCell className="text-zoru-ink-muted text-sm">
+              <ZoruTableCell className="text-[var(--st-text-secondary)] text-sm">
                 {list.createdAt
                   ? formatDistanceToNow(new Date(list.createdAt), { addSuffix: true })
                   : '—'}
@@ -90,7 +90,7 @@ export function EmailListTable({ lists, onEdit, onArchive }: EmailListTableProps
                     </ZoruDropdownMenuItem>
                     <ZoruDropdownMenuItem
                       onSelect={() => onArchive(list)}
-                      className="text-zoru-ink"
+                      className="text-[var(--st-text)]"
                     >
                       <Archive className="h-4 w-4" /> Archive
                     </ZoruDropdownMenuItem>

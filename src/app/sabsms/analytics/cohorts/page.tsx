@@ -37,7 +37,7 @@ async function SabsmsCohortsPageContent({
         breadcrumbs={[{ label: "Analytics", href: "/sabsms/analytics" }, { label: "Cohorts" }]}
         description="View your workspace's cohort retention."
       >
-        <p className="text-sm text-zoru-ink-muted">No session.</p>
+        <p className="text-sm text-[var(--st-text-secondary)]">No session.</p>
       </SabsmsPageShell>
     );
   }

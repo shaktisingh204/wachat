@@ -120,7 +120,7 @@ async function DocumentTemplateDetailPageContainer({ params }: PageProps) {
 
             {placeholders.length > 0 ? (
                 <Card className="p-6">
-                    <div className="mb-3 text-[15px] font-medium text-zoru-ink">
+                    <div className="mb-3 text-[15px] font-medium text-[var(--st-text)]">
                         Merge tokens
                     </div>
                     <div className="flex flex-wrap gap-1.5">
@@ -128,17 +128,17 @@ async function DocumentTemplateDetailPageContainer({ params }: PageProps) {
                             <Badge key={i} variant="ghost">{`{{${p}}}`}</Badge>
                         ))}
                     </div>
-                    <p className="mt-3 text-[11.5px] text-zoru-ink-muted">
+                    <p className="mt-3 text-[11.5px] text-[var(--st-text-secondary)]">
                         Use {`{{token}}`} syntax inside the template body. Tokens are replaced when the template is used.
                     </p>
                 </Card>
             ) : null}
 
             <Card className="p-6">
-                <div className="mb-3 text-[15px] font-medium text-zoru-ink">Body</div>
-                <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-4 text-[13px] text-zoru-ink font-sans">
+                <div className="mb-3 text-[15px] font-medium text-[var(--st-text)]">Body</div>
+                <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 text-[13px] text-[var(--st-text)] font-sans">
                     {body || (
-                        <span className="text-zoru-ink-muted">No body content.</span>
+                        <span className="text-[var(--st-text-secondary)]">No body content.</span>
                     )}
                 </pre>
             </Card>

@@ -265,7 +265,7 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
         <ZoruCardContent className="flex flex-col gap-4">
           <div>
             <Label htmlFor="title">
-              Title <span className="text-zoru-danger-ink">*</span>
+              Title <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <Input
               id="title"
@@ -349,7 +349,7 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
                 id="severity"
                 name="severity"
                 defaultValue={initial?.severity ?? 'minor'}
-                className="mt-1.5 h-10 w-full rounded-md border border-zoru-line bg-zoru-bg px-3 text-[13px] text-zoru-ink"
+                className="mt-1.5 h-10 w-full rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-3 text-[13px] text-[var(--st-text)]"
               >
                 {SEVERITY_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -365,7 +365,7 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
                 name="issueType"
                 value={issueType}
                 onChange={(e) => applyTemplate(e.target.value)}
-                className="mt-1.5 h-10 w-full rounded-md border border-zoru-line bg-zoru-bg px-3 text-[13px] text-zoru-ink"
+                className="mt-1.5 h-10 w-full rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-3 text-[13px] text-[var(--st-text)]"
               >
                 {TYPE_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -426,7 +426,7 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
         <ZoruCardHeader className="flex flex-row items-center justify-between gap-2">
           <div>
             <ZoruCardTitle>Subtasks</ZoruCardTitle>
-            <p className="text-[12px] text-zoru-ink-muted">
+            <p className="text-[12px] text-[var(--st-text-secondary)]">
               Break this issue into smaller pieces. Use arrows to reorder.
             </p>
           </div>
@@ -441,7 +441,7 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
         </ZoruCardHeader>
         <ZoruCardContent>
           {subtasks.length === 0 ? (
-            <p className="rounded-md border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-3 text-center text-[12px] text-zoru-ink-muted">
+            <p className="rounded-md border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-3 text-center text-[12px] text-[var(--st-text-secondary)]">
               No subtasks yet — click Add subtask to start.
             </p>
           ) : (
@@ -449,7 +449,7 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
               {subtasks.map((row, idx) => (
                 <li
                   key={row.id}
-                  className="rounded-md border border-zoru-line bg-zoru-surface-2 p-2.5"
+                  className="rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2.5"
                 >
                   <div className="grid items-end gap-2 sm:grid-cols-[1fr_180px_140px_120px_auto]">
                     <Input
@@ -480,7 +480,7 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
                       onChange={(e) =>
                         updateSubtask(row.id, 'status', e.target.value)
                       }
-                      className="h-9 w-full rounded-md border border-zoru-line bg-zoru-bg px-2 text-[13px] text-zoru-ink"
+                      className="h-9 w-full rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-2 text-[13px] text-[var(--st-text)]"
                     >
                       {SUBTASK_STATUS_OPTIONS.map((opt) => (
                         <option key={opt.value} value={opt.value}>
@@ -524,7 +524,7 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
                         aria-label="Remove subtask"
                         onClick={() => removeSubtask(row.id)}
                       >
-                        <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                        <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                       </Button>
                     </div>
                   </div>
@@ -540,7 +540,7 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
         <ZoruCardHeader className="flex flex-row items-center justify-between gap-2">
           <div>
             <ZoruCardTitle>Attachments</ZoruCardTitle>
-            <p className="text-[12px] text-zoru-ink-muted">
+            <p className="text-[12px] text-[var(--st-text-secondary)]">
               Screenshots, logs, repro files — picked from your SabFiles library.
             </p>
           </div>
@@ -567,7 +567,7 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
         </ZoruCardHeader>
         <ZoruCardContent>
           {attachments.length === 0 ? (
-            <p className="rounded-md border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-3 text-center text-[12px] text-zoru-ink-muted">
+            <p className="rounded-md border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-3 text-center text-[12px] text-[var(--st-text-secondary)]">
               No attachments — add files from SabFiles to share context.
             </p>
           ) : (
@@ -575,9 +575,9 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
               {attachments.map((a) => (
                 <li
                   key={a.id}
-                  className="flex items-center justify-between gap-2 rounded-md border border-zoru-line px-2.5 py-1.5 text-[12.5px]"
+                  className="flex items-center justify-between gap-2 rounded-md border border-[var(--st-border)] px-2.5 py-1.5 text-[12.5px]"
                 >
-                  <span className="truncate text-zoru-ink">{a.name}</span>
+                  <span className="truncate text-[var(--st-text)]">{a.name}</span>
                   <Button
                     type="button"
                     variant="ghost"
@@ -597,14 +597,14 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
       {state?.error ? (
         <p
           role="alert"
-          className="flex items-center gap-2 text-[13px] text-zoru-danger-ink"
+          className="flex items-center gap-2 text-[13px] text-[var(--st-danger)]"
         >
           <AlertTriangle className="h-4 w-4" /> {state.error}
         </p>
       ) : null}
 
       {/* ── Sticky footer ────────────────────────────────────────── */}
-      <div className="sticky bottom-0 -mx-4 -mb-4 mt-1 flex flex-wrap items-center justify-between gap-2 border-t border-zoru-line bg-zoru-bg px-4 py-3 md:-mx-6 md:px-6">
+      <div className="sticky bottom-0 -mx-4 -mb-4 mt-1 flex flex-wrap items-center justify-between gap-2 border-t border-[var(--st-border)] bg-[var(--st-bg)] px-4 py-3 md:-mx-6 md:px-6">
         <Button variant="ghost" asChild>
           <Link
             href={initial?._id ? `${BASE}/${initial._id}` : BASE}

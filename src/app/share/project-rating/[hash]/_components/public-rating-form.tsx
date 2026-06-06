@@ -117,7 +117,7 @@ export function PublicRatingForm({
 
     return (
       <div className="space-y-4">
-        <div className="rounded-md border border-zoru-line bg-zoru-surface-2 p-4 text-sm text-zoru-ink">
+        <div className="rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 text-sm text-[var(--st-text)]">
           <p className="font-semibold">Thank you!</p>
           <p className="mt-1">
             {alreadyRated 
@@ -127,14 +127,14 @@ export function PublicRatingForm({
         </div>
 
         {hasSyndication && (
-          <div className="rounded-md border border-zoru-line bg-white p-4 shadow-sm">
-            <h3 className="font-semibold text-zoru-ink">Share your experience</h3>
-            <p className="mt-1 text-sm text-zoru-ink">
+          <div className="rounded-md border border-[var(--st-border)] bg-white p-4 shadow-sm">
+            <h3 className="font-semibold text-[var(--st-text)]">Share your experience</h3>
+            <p className="mt-1 text-sm text-[var(--st-text)]">
               We appreciate your positive feedback! It would mean the world to us if you could share it on these platforms:
             </p>
             
             {finalComment.trim().length > 0 && (
-              <div className="mt-4 rounded bg-zoru-surface-2 p-3 text-sm text-zoru-ink relative group border border-zoru-line">
+              <div className="mt-4 rounded bg-[var(--st-bg-muted)] p-3 text-sm text-[var(--st-text)] relative group border border-[var(--st-border)]">
                 <p className="whitespace-pre-wrap pr-20">{finalComment}</p>
                 <Button 
                   variant="outline" 
@@ -144,7 +144,7 @@ export function PublicRatingForm({
                   onClick={handleCopy}
                 >
                   {copied ? (
-                    <CheckCircle2 className="mr-1.5 h-3.5 w-3.5 text-zoru-ink" />
+                    <CheckCircle2 className="mr-1.5 h-3.5 w-3.5 text-[var(--st-text)]" />
                   ) : (
                     <Copy className="mr-1.5 h-3.5 w-3.5" />
                   )}
@@ -158,7 +158,7 @@ export function PublicRatingForm({
                 <Button key={link.url} variant="outline" asChild>
                   <a href={link.url} target="_blank" rel="noopener noreferrer">
                     {link.platform}
-                    <ExternalLink className="ml-2 h-4 w-4 text-zoru-ink-muted" />
+                    <ExternalLink className="ml-2 h-4 w-4 text-[var(--st-text-secondary)]" />
                   </a>
                 </Button>
               ))}
@@ -172,10 +172,10 @@ export function PublicRatingForm({
   return (
     <form className="space-y-5" onSubmit={handleSubmit} noValidate>
       <section>
-        <Label className="text-sm font-semibold text-zoru-ink">
+        <Label className="text-sm font-semibold text-[var(--st-text)]">
           Overall experience
         </Label>
-        <p className="mt-0.5 text-xs text-zoru-ink">
+        <p className="mt-0.5 text-xs text-[var(--st-text)]">
           How would you rate this project overall?
         </p>
         <div className="mt-2">
@@ -188,13 +188,13 @@ export function PublicRatingForm({
         </div>
       </section>
 
-      <section className="space-y-3 rounded-md border border-zoru-line p-3">
+      <section className="space-y-3 rounded-md border border-[var(--st-border)] p-3">
         {CATEGORIES.map((c) => (
           <div
             key={c.key}
             className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between"
           >
-            <Label className="text-sm text-zoru-ink">{c.label}</Label>
+            <Label className="text-sm text-[var(--st-text)]">{c.label}</Label>
             <StarRow
               name={`cat-${c.key}`}
               value={categories[c.key]}
@@ -207,7 +207,7 @@ export function PublicRatingForm({
 
       <section className="grid gap-3 sm:grid-cols-2">
         <div>
-          <Label className="text-sm text-zoru-ink">
+          <Label className="text-sm text-[var(--st-text)]">
             Your name (optional)
           </Label>
           <Input
@@ -220,7 +220,7 @@ export function PublicRatingForm({
           />
         </div>
         <div>
-          <Label className="text-sm text-zoru-ink">
+          <Label className="text-sm text-[var(--st-text)]">
             Email (optional)
           </Label>
           <Input
@@ -235,7 +235,7 @@ export function PublicRatingForm({
       </section>
 
       <section>
-        <Label className="text-sm text-zoru-ink">
+        <Label className="text-sm text-[var(--st-text)]">
           Comments (optional)
         </Label>
         <Textarea
@@ -249,7 +249,7 @@ export function PublicRatingForm({
       </section>
 
       {error ? (
-        <div className="rounded-md border border-zoru-line bg-zoru-surface-2 p-3 text-sm text-zoru-ink">
+        <div className="rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-sm text-[var(--st-text)]">
           {error}
         </div>
       ) : null}
@@ -295,7 +295,7 @@ function StarRow({
             onFocus={() => setHover(n)}
             onClick={() => onChange(n)}
             className={cn(
-              'rounded p-0.5 transition-colors hover:bg-zoru-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-line',
+              'rounded p-0.5 transition-colors hover:bg-[var(--st-bg-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-border)]',
             )}
           >
             <Star
@@ -303,7 +303,7 @@ function StarRow({
               height={size}
               strokeWidth={1.5}
               className={cn(
-                filled ? 'text-zoru-ink' : 'text-zoru-ink-muted',
+                filled ? 'text-[var(--st-text)]' : 'text-[var(--st-text-secondary)]',
                 'transition-colors',
               )}
               fill={filled ? 'currentColor' : 'none'}

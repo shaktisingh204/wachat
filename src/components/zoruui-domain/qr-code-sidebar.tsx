@@ -80,7 +80,7 @@ export function QrCodeSidebar({
 
       {/* Type */}
       <div className="space-y-1.5">
-        <div className="px-3 text-[11px] uppercase tracking-wider text-zoru-ink-muted/60">
+        <div className="px-3 text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)]/60">
           Content Type
         </div>
         <nav className="flex flex-col gap-0.5">
@@ -94,8 +94,8 @@ export function QrCodeSidebar({
                 className={cn(
                   'flex items-center gap-2 px-3 py-1.5 text-[12.5px] rounded-md mx-2 transition-colors text-left',
                   active
-                    ? 'bg-zoru-surface-2 text-zoru-ink'
-                    : 'text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink',
+                    ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
+                    : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]',
                 )}
               >
                 {opt.label}
@@ -109,7 +109,7 @@ export function QrCodeSidebar({
 
       {/* Dynamic / Static */}
       <div className="space-y-1.5">
-        <div className="px-3 text-[11px] uppercase tracking-wider text-zoru-ink-muted/60">
+        <div className="px-3 text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)]/60">
           Tracking
         </div>
         <nav className="flex flex-col gap-0.5">
@@ -123,8 +123,8 @@ export function QrCodeSidebar({
                 className={cn(
                   'flex items-center gap-2 px-3 py-1.5 text-[12.5px] rounded-md mx-2 transition-colors text-left',
                   active
-                    ? 'bg-zoru-surface-2 text-zoru-ink'
-                    : 'text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink',
+                    ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
+                    : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]',
                 )}
               >
                 {opt.label}
@@ -138,7 +138,7 @@ export function QrCodeSidebar({
 
       {/* Sort */}
       <div className="space-y-1.5">
-        <div className="px-3 text-[11px] uppercase tracking-wider text-zoru-ink-muted/60">
+        <div className="px-3 text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)]/60">
           Sort by
         </div>
         <nav className="flex flex-col gap-0.5">
@@ -152,8 +152,8 @@ export function QrCodeSidebar({
                 className={cn(
                   'flex items-center gap-2 px-3 py-1.5 text-[12.5px] rounded-md mx-2 transition-colors text-left',
                   active
-                    ? 'bg-zoru-surface-2 text-zoru-ink'
-                    : 'text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink',
+                    ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
+                    : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]',
                 )}
               >
                 {opt.label}

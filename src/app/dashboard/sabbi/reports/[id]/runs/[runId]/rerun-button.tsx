@@ -33,7 +33,7 @@ export function RerunButton({ definitionId }: { definitionId: string }) {
     return (
         <div className="flex items-center gap-2">
             {error && (
-                <span className="text-xs text-zoru-ink" role="alert">
+                <span className="text-xs text-[var(--st-text)]" role="alert">
                     {error}
                 </span>
             )}

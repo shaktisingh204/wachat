@@ -70,8 +70,8 @@ export default function NewDashboardPage() {
         <form action={formAction} className="space-y-6">
           {/* Name + Description */}
           <div className="space-y-1.5">
-            <Label htmlFor="name" className="text-zoru-ink">
-              Dashboard Name <span className="text-zoru-danger-ink">*</span>
+            <Label htmlFor="name" className="text-[var(--st-text)]">
+              Dashboard Name <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <Input
               id="name"
@@ -83,7 +83,7 @@ export default function NewDashboardPage() {
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="description" className="text-zoru-ink">
+            <Label htmlFor="description" className="text-[var(--st-text)]">
               Description (Optional)
             </Label>
             <Textarea
@@ -97,7 +97,7 @@ export default function NewDashboardPage() {
           {/* Layout + Visibility */}
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor="layout" className="text-zoru-ink">
+              <Label htmlFor="layout" className="text-[var(--st-text)]">
                 Layout
               </Label>
               <Select name="layout" defaultValue="2col">
@@ -114,7 +114,7 @@ export default function NewDashboardPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="sharedWith" className="text-zoru-ink">
+              <Label htmlFor="sharedWith" className="text-[var(--st-text)]">
                 Visibility
               </Label>
               <Select name="sharedWith" defaultValue="private">
@@ -132,7 +132,7 @@ export default function NewDashboardPage() {
 
           {/* Owner */}
           <div className="space-y-1.5">
-            <Label className="text-zoru-ink">Owner</Label>
+            <Label className="text-[var(--st-text)]">Owner</Label>
             <EntityFormField
               entity="user"
               name="ownerId"
@@ -142,7 +142,7 @@ export default function NewDashboardPage() {
 
           {/* Auto-refresh */}
           <div className="space-y-1.5">
-            <Label htmlFor="refreshInterval" className="text-zoru-ink">
+            <Label htmlFor="refreshInterval" className="text-[var(--st-text)]">
               Auto-refresh every (Optional)
             </Label>
             <div className="flex items-center gap-2">
@@ -155,9 +155,9 @@ export default function NewDashboardPage() {
                 placeholder="e.g. 60"
                 className="w-40"
               />
-              <span className="text-sm text-zoru-ink-muted">seconds</span>
+              <span className="text-sm text-[var(--st-text-secondary)]">seconds</span>
             </div>
-            <p className="text-[11.5px] text-zoru-ink-muted">
+            <p className="text-[11.5px] text-[var(--st-text-secondary)]">
               Leave blank or set to 0 for manual refresh only.
             </p>
           </div>
@@ -168,7 +168,7 @@ export default function NewDashboardPage() {
               id="isDefault"
               name="isDefault"
             />
-            <Label htmlFor="isDefault" className="cursor-pointer text-zoru-ink">
+            <Label htmlFor="isDefault" className="cursor-pointer text-[var(--st-text)]">
               Set as default dashboard
             </Label>
           </div>

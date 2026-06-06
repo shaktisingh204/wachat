@@ -29,7 +29,7 @@ async function PublicLeadFormContainer({ formId }: { formId: string }) {
         <ZoruCardHeader>
           <ZoruCardTitle>{form.title}</ZoruCardTitle>
           {form.description ? (
-            <p className="text-sm text-zoru-ink">{form.description}</p>
+            <p className="text-sm text-[var(--st-text)]">{form.description}</p>
           ) : null}
         </ZoruCardHeader>
         <ZoruCardContent>

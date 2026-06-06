@@ -70,36 +70,36 @@ export default async function AutomationDetailPage({
             {/* Summary card */}
             <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
-                    <div className="text-[14px] font-medium text-zoru-ink">
+                    <div className="text-[14px] font-medium text-[var(--st-text)]">
                         Overview
                     </div>
                     <StatusPill label={status} tone={tone} />
                 </div>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
                     <div>
-                        <div className="text-zoru-ink-muted">Trigger</div>
-                        <div className="text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Trigger</div>
+                        <div className="text-[var(--st-text)]">
                             {triggerNode
                                 ? triggerNode.type.replace(/^trigger_/, '').replace(/_/g, ' ')
                                 : 'Manual'}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Nodes</div>
-                        <div className="font-mono text-zoru-ink">{actionNodes.length}</div>
+                        <div className="text-[var(--st-text-secondary)]">Nodes</div>
+                        <div className="font-mono text-[var(--st-text)]">{actionNodes.length}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Updated</div>
-                        <div className="text-zoru-ink">{fmtDate(automation.updatedAt)}</div>
+                        <div className="text-[var(--st-text-secondary)]">Updated</div>
+                        <div className="text-[var(--st-text)]">{fmtDate(automation.updatedAt)}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Created</div>
-                        <div className="text-zoru-ink">{fmtDate(automation.createdAt)}</div>
+                        <div className="text-[var(--st-text-secondary)]">Created</div>
+                        <div className="text-[var(--st-text)]">{fmtDate(automation.createdAt)}</div>
                     </div>
                     {automation.description ? (
                         <div className="sm:col-span-2">
-                            <div className="text-zoru-ink-muted">Description</div>
-                            <div className="whitespace-pre-wrap text-zoru-ink">
+                            <div className="text-[var(--st-text-secondary)]">Description</div>
+                            <div className="whitespace-pre-wrap text-[var(--st-text)]">
                                 {automation.description}
                             </div>
                         </div>
@@ -110,14 +110,14 @@ export default async function AutomationDetailPage({
             {/* Nodes timeline */}
             <Card className="p-6">
                 <div className="mb-3 flex items-center justify-between">
-                    <div className="text-[15px] font-medium text-zoru-ink">Nodes</div>
-                    <div className="text-[12px] text-zoru-ink-muted">
+                    <div className="text-[15px] font-medium text-[var(--st-text)]">Nodes</div>
+                    <div className="text-[12px] text-[var(--st-text-secondary)]">
                         {actionNodes.length} node
                         {actionNodes.length === 1 ? '' : 's'}
                     </div>
                 </div>
                 {actionNodes.length === 0 ? (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No action nodes configured.
                     </div>
                 ) : (
@@ -131,15 +131,15 @@ export default async function AutomationDetailPage({
                             return (
                                 <li
                                     key={n.id}
-                                    className="flex flex-col gap-1 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-3 sm:flex-row sm:items-center sm:gap-4"
+                                    className="flex flex-col gap-1 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 sm:flex-row sm:items-center sm:gap-4"
                                 >
-                                    <span className="font-mono text-[11px] text-zoru-ink-muted">
+                                    <span className="font-mono text-[11px] text-[var(--st-text-secondary)]">
                                         #{i + 1}
                                     </span>
                                     <Badge variant="ghost">
                                         {n.type.replace(/^action_/, '').replace(/_/g, ' ')}
                                     </Badge>
-                                    <span className="text-[13px] font-medium text-zoru-ink">
+                                    <span className="text-[13px] font-medium text-[var(--st-text)]">
                                         {label}
                                     </span>
                                 </li>
@@ -152,31 +152,31 @@ export default async function AutomationDetailPage({
             {/* Execution History */}
             <Card className="p-6">
                 <div className="mb-3 flex items-center justify-between">
-                    <div className="text-[15px] font-medium text-zoru-ink">Execution History</div>
-                    <div className="text-[12px] text-zoru-ink-muted">Last 10 runs</div>
+                    <div className="text-[15px] font-medium text-[var(--st-text)]">Execution History</div>
+                    <div className="text-[12px] text-[var(--st-text-secondary)]">Last 10 runs</div>
                 </div>
                 {runs.length === 0 ? (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No executions recorded yet.
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="w-full text-left text-[13px]">
                             <thead>
-                                <tr className="border-b border-zoru-line text-zoru-ink-muted">
+                                <tr className="border-b border-[var(--st-border)] text-[var(--st-text-secondary)]">
                                     <th className="pb-2 font-medium">Status</th>
                                     <th className="pb-2 font-medium">Started At</th>
                                     <th className="pb-2 font-medium">Completed At</th>
                                     <th className="pb-2 font-medium">Feedback</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-zoru-line">
+                            <tbody className="divide-y divide-[var(--st-border)]">
                                 {runs.map((run: any) => {
                                     const runStatus = run.status || 'unknown';
                                     const tone = runStatus === 'success' ? 'green' : runStatus === 'failed' ? 'red' : 'amber';
                                     
                                     return (
-                                        <tr key={run._id} className="text-zoru-ink">
+                                        <tr key={run._id} className="text-[var(--st-text)]">
                                             <td className="py-3 pr-4">
                                                 <StatusPill label={runStatus} tone={tone} />
                                             </td>
@@ -184,11 +184,11 @@ export default async function AutomationDetailPage({
                                             <td className="py-3 pr-4">{fmtDate(run.completedAt)}</td>
                                             <td className="py-3 max-w-[200px] truncate" title={run.error || run.message || '—'}>
                                                 {run.error ? (
-                                                    <span className="text-zoru-ink">{run.error}</span>
+                                                    <span className="text-[var(--st-text)]">{run.error}</span>
                                                 ) : run.message ? (
-                                                    <span className="text-zoru-ink-muted">{run.message}</span>
+                                                    <span className="text-[var(--st-text-secondary)]">{run.message}</span>
                                                 ) : (
-                                                    <span className="text-zoru-ink-muted">—</span>
+                                                    <span className="text-[var(--st-text-secondary)]">—</span>
                                                 )}
                                             </td>
                                         </tr>

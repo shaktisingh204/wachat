@@ -23,7 +23,7 @@ export default async function NewRequestPage({
         <div className="zoruui flex flex-col gap-6 p-6">
             <header>
                 <h1 className="text-2xl font-semibold">New request</h1>
-                <p className="text-sm text-zoru-ink-muted">
+                <p className="text-sm text-[var(--st-text-secondary)]">
                     Pick a blueprint, fill in the form, and submit for approval.
                 </p>
             </header>

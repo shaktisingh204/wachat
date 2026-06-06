@@ -128,7 +128,7 @@ export default function GoalSettingPage() {
           label: 'Cycle',
           render: (r) => {
             const cycle = (r as unknown as { cycle?: string }).cycle;
-            return cycle ? <HrChip>{cycle}</HrChip> : <span className="text-zoru-ink-muted">—</span>;
+            return cycle ? <HrChip>{cycle}</HrChip> : <span className="text-[var(--st-text-secondary)]">—</span>;
           },
         },
         {

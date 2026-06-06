@@ -39,10 +39,10 @@ function Comment({ comment }: { comment: any }) {
                 <AvatarFallback>{comment.username.charAt(0)}</AvatarFallback>
             </Avatar>
             <div className="flex-1">
-                <div className="bg-zoru-surface-2 p-3 rounded-lg">
+                <div className="bg-[var(--st-bg-muted)] p-3 rounded-lg">
                     <div className="flex justify-between items-center">
                         <p className="font-semibold text-sm">{comment.username}</p>
-                        <p className="text-xs text-zoru-ink-muted">{formatDistanceToNow(new Date(comment.timestamp), { addSuffix: true })}</p>
+                        <p className="text-xs text-[var(--st-text-secondary)]">{formatDistanceToNow(new Date(comment.timestamp), { addSuffix: true })}</p>
                     </div>
                     <p className="text-sm mt-1">{comment.text}</p>
                 </div>
@@ -90,7 +90,7 @@ export function InstagramViewCommentsDialog({ isOpen, onOpenChange, media, proje
                         <Comment key={comment.id} comment={comment} />
                     ))
                 ) : (
-                    <p className="text-center text-sm text-zoru-ink-muted py-8">No comments yet.</p>
+                    <p className="text-center text-sm text-[var(--st-text-secondary)] py-8">No comments yet.</p>
                 ))}
             </div>
         </ScrollArea>

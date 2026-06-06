@@ -90,8 +90,8 @@ export default function PageStructurePage() {
       </div>
 
       {error && (
-        <Card className="border-zoru-line bg-zoru-surface-2/50">
-          <ZoruCardContent className="p-4 text-zoru-ink text-sm flex items-center gap-2">
+        <Card className="border-[var(--st-border)] bg-[var(--st-bg-muted)]/50">
+          <ZoruCardContent className="p-4 text-[var(--st-text)] text-sm flex items-center gap-2">
             <AlertTriangle className="w-4 h-4" />
             {error}
           </ZoruCardContent>
@@ -101,15 +101,15 @@ export default function PageStructurePage() {
       {p && orderedHeadings && (
         <div className="space-y-6">
           {warnings.length > 0 && (
-            <Card className="border-zoru-line bg-zoru-surface-2/30">
+            <Card className="border-[var(--st-border)] bg-[var(--st-bg-muted)]/30">
               <ZoruCardContent className="p-4">
-                <h3 className="text-sm font-bold text-zoru-ink flex items-center gap-2 mb-2">
+                <h3 className="text-sm font-bold text-[var(--st-text)] flex items-center gap-2 mb-2">
                   <AlertTriangle className="w-4 h-4" />
                   Structure Warnings ({warnings.length})
                 </h3>
                 <ul className="list-disc pl-5 space-y-1">
                   {warnings.map((w, i) => (
-                    <li key={i} className="text-xs text-zoru-ink">{w}</li>
+                    <li key={i} className="text-xs text-[var(--st-text)]">{w}</li>
                   ))}
                 </ul>
               </ZoruCardContent>
@@ -118,15 +118,15 @@ export default function PageStructurePage() {
 
           <Card>
             <ZoruCardContent className="p-0">
-              <div className="p-4 border-b bg-zoru-surface-2/20">
+              <div className="p-4 border-b bg-[var(--st-bg-muted)]/20">
                 <h3 className="text-sm font-semibold">Heading Tree</h3>
-                <p className="text-xs text-zoru-ink-muted mt-1">
+                <p className="text-xs text-[var(--st-text-secondary)] mt-1">
                   Total headings: {orderedHeadings.length}
                 </p>
               </div>
               <div className="p-4 overflow-x-auto">
                 {orderedHeadings.length === 0 ? (
-                  <p className="text-sm text-zoru-ink-muted italic">No headings found on this page.</p>
+                  <p className="text-sm text-[var(--st-text-secondary)] italic">No headings found on this page.</p>
                 ) : (
                   <div className="space-y-1 min-w-[300px]">
                     {orderedHeadings.map((h, i) => {
@@ -140,16 +140,16 @@ export default function PageStructurePage() {
                           <span
                             className={cn(
                               "font-mono text-[10px] px-1.5 py-0.5 rounded shrink-0 mt-0.5",
-                              h.level === 1 && "bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted",
-                              h.level === 2 && "bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted",
-                              h.level === 3 && "bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted",
-                              h.level === 4 && "bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted",
-                              h.level >= 5 && "bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink dark:text-zoru-ink-muted"
+                              h.level === 1 && "bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]",
+                              h.level === 2 && "bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]",
+                              h.level === 3 && "bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]",
+                              h.level === 4 && "bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]",
+                              h.level >= 5 && "bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)] dark:text-[var(--st-text-secondary)]"
                             )}
                           >
                             H{h.level}
                           </span>
-                          <span className="text-zoru-ink leading-tight py-0.5 whitespace-pre-wrap break-words">{h.text}</span>
+                          <span className="text-[var(--st-text)] leading-tight py-0.5 whitespace-pre-wrap break-words">{h.text}</span>
                         </div>
                       );
                     })}

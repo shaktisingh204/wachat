@@ -16,8 +16,8 @@ export default function Loading() {
       </div>
 
       {/* Section 1 Skeleton */}
-      <div className="rounded-xl border border-zoru-line bg-zoru-surface shadow-sm">
-        <div className="border-b border-zoru-line px-6 py-4">
+      <div className="rounded-xl border border-[var(--st-border)] bg-[var(--st-bg-secondary)] shadow-sm">
+        <div className="border-b border-[var(--st-border)] px-6 py-4">
           <Skeleton className="h-6 w-32 mb-1" />
           <Skeleton className="h-4 w-64" />
         </div>
@@ -36,8 +36,8 @@ export default function Loading() {
       </div>
 
       {/* Section 2 Skeleton */}
-      <div className="rounded-xl border border-zoru-line bg-zoru-surface shadow-sm">
-        <div className="flex items-center justify-between border-b border-zoru-line px-6 py-4">
+      <div className="rounded-xl border border-[var(--st-border)] bg-[var(--st-bg-secondary)] shadow-sm">
+        <div className="flex items-center justify-between border-b border-[var(--st-border)] px-6 py-4">
           <div>
             <Skeleton className="h-6 w-32 mb-1" />
             <Skeleton className="h-4 w-72" />
@@ -50,8 +50,8 @@ export default function Loading() {
       </div>
       
       {/* Section 3 Skeleton */}
-      <div className="rounded-xl border border-zoru-line bg-zoru-surface shadow-sm mb-16">
-        <div className="border-b border-zoru-line px-6 py-4">
+      <div className="rounded-xl border border-[var(--st-border)] bg-[var(--st-bg-secondary)] shadow-sm mb-16">
+        <div className="border-b border-[var(--st-border)] px-6 py-4">
           <Skeleton className="h-6 w-32 mb-1" />
           <Skeleton className="h-4 w-64" />
         </div>

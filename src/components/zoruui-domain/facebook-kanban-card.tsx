@@ -44,7 +44,7 @@ export function FacebookKanbanCard({ conversation, index }: FacebookKanbanCardPr
     return (
         <div ref={setNodeRef} style={style} {...listeners} {...attributes}>
             <Card
-                className="cursor-grab active:cursor-grabbing bg-zoru-surface"
+                className="cursor-grab active:cursor-grabbing bg-[var(--st-bg-secondary)]"
             >
                 <ZoruCardHeader className="flex-row items-center gap-3 p-3">
                     <Avatar>
@@ -57,7 +57,7 @@ export function FacebookKanbanCard({ conversation, index }: FacebookKanbanCardPr
                     </div>
                 </ZoruCardHeader>
                 <ZoruCardContent className="px-3 pb-3">
-                    <p className="text-xs text-zoru-ink-muted line-clamp-2">
+                    <p className="text-xs text-[var(--st-text-secondary)] line-clamp-2">
                         {conversation.snippet || 'No recent messages.'}
                     </p>
                 </ZoruCardContent>

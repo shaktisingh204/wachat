@@ -222,8 +222,8 @@ export default function KnowledgeBasePage(): React.JSX.Element {
 
       <header className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl text-zoru-ink">Knowledge Base</h1>
-          <p className="mt-1 text-sm text-zoru-ink-muted">
+          <h1 className="text-2xl text-[var(--st-text)]">Knowledge Base</h1>
+          <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
             Documents and answer sources used by Messenger agents and
             automation flows.
           </p>
@@ -275,14 +275,14 @@ export default function KnowledgeBasePage(): React.JSX.Element {
             return (
               <li key={id || d.title}>
                 <Card className="flex items-center gap-3 p-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-zoru-surface-2 text-zoru-ink-muted">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                     <FileText className="h-5 w-5" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="line-clamp-1 text-base text-zoru-ink">
+                    <p className="line-clamp-1 text-base text-[var(--st-text)]">
                       {d.title ?? '(untitled)'}
                     </p>
-                    <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-zoru-ink-muted">
+                    <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-[var(--st-text-secondary)]">
                       {d.fileType ? <span>{d.fileType}</span> : null}
                       <span>{fmtSize(d.sizeKb)}</span>
                       {d.createdAt ? <span>{safeWhen(d.createdAt)}</span> : null}
@@ -328,13 +328,13 @@ export default function KnowledgeBasePage(): React.JSX.Element {
           </ZoruDialogHeader>
           {pendingFile ? (
             <div className="space-y-3">
-              <div className="flex items-center gap-3 rounded-md border border-zoru-line bg-zoru-surface p-3">
-                <FileText className="h-5 w-5 text-zoru-ink-muted" />
+              <div className="flex items-center gap-3 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+                <FileText className="h-5 w-5 text-[var(--st-text-secondary)]" />
                 <div className="min-w-0 flex-1">
-                  <p className="line-clamp-1 text-sm text-zoru-ink">
+                  <p className="line-clamp-1 text-sm text-[var(--st-text)]">
                     {pendingFile.name}
                   </p>
-                  <p className="text-xs text-zoru-ink-muted">
+                  <p className="text-xs text-[var(--st-text-secondary)]">
                     {pendingFile.mime ?? 'file'}
                   </p>
                 </div>

@@ -178,19 +178,19 @@ const syntaxHighlight = (jsonStr: string) => {
     const obj = typeof jsonStr === 'string' ? JSON.parse(jsonStr) : jsonStr;
     const formatted = JSON.stringify(obj, null, 2);
     return formatted.replace(/("(\\\\u[a-zA-Z0-9]{4}|\\\\[^u]|[^\\\\"])*"(\\s*:)?|\\b(true|false|null)\\b|-?\\d+(?:\\.\\d*)?(?:[eE][+\\-]?\\d+)?)/g, function (match) {
-      let cls = 'text-zoru-ink-muted';
+      let cls = 'text-[var(--st-text-secondary)]';
       if (/^"/.test(match)) {
         if (/:$/.test(match)) {
-          cls = 'text-zoru-ink-muted'; // Key
+          cls = 'text-[var(--st-text-secondary)]'; // Key
         } else {
-          cls = 'text-zoru-ink-muted'; // String
+          cls = 'text-[var(--st-text-secondary)]'; // String
         }
       } else if (/true|false/.test(match)) {
-        cls = 'text-zoru-ink-muted'; // Boolean
+        cls = 'text-[var(--st-text-secondary)]'; // Boolean
       } else if (/null/.test(match)) {
-        cls = 'text-zoru-ink-muted'; // Null
+        cls = 'text-[var(--st-text-secondary)]'; // Null
       } else {
-        cls = 'text-zoru-ink-muted'; // Number
+        cls = 'text-[var(--st-text-secondary)]'; // Number
       }
       return '<span class="' + cls + '">' + match + '</span>';
     });
@@ -283,7 +283,7 @@ export default function WebhookLogClient() {
       id: "httpStatus",
       header: "HTTP",
       render: (r) => (
-        <span className={`font-mono text-xs ${r.httpStatus >= 400 ? "text-zoru-ink" : "text-zoru-ink"}`}>
+        <span className={`font-mono text-xs ${r.httpStatus >= 400 ? "text-[var(--st-text)]" : "text-[var(--st-text)]"}`}>
           {r.httpStatus}
         </span>
       ),
@@ -292,14 +292,14 @@ export default function WebhookLogClient() {
     {
       id: "latency",
       header: "Latency",
-      render: (r) => <span className="text-xs text-zoru-ink">{r.latencyMs} ms</span>,
+      render: (r) => <span className="text-xs text-[var(--st-text)]">{r.latencyMs} ms</span>,
       align: "right",
     },
     {
       id: "createdAt",
       header: "Timestamp",
       render: (r) => (
-        <span className="text-xs text-zoru-ink">
+        <span className="text-xs text-[var(--st-text)]">
           {formatUTC(r.createdAt, true)}
         </span>
       ),
@@ -383,60 +383,60 @@ export default function WebhookLogClient() {
       }
     >
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-         <Card className="border-zoru-line/60 shadow-sm">
+         <Card className="border-[var(--st-border)]/60 shadow-sm">
             <ZoruCardHeader className="pb-2">
-              <ZoruCardTitle className="text-sm font-medium text-zoru-ink flex items-center gap-2">
-                <Clock className="w-4 h-4 text-zoru-ink"/> HTTP Status Codes
+              <ZoruCardTitle className="text-sm font-medium text-[var(--st-text)] flex items-center gap-2">
+                <Clock className="w-4 h-4 text-[var(--st-text)]"/> HTTP Status Codes
               </ZoruCardTitle>
             </ZoruCardHeader>
             <ZoruCardContent className="flex items-end gap-2 h-20">
-               <div className="bg-zoru-ink w-1/3 rounded-t-sm transition-all hover:opacity-80" style={{ height: "80%" }} title="2xx: 80%" />
-               <div className="bg-zoru-ink w-1/3 rounded-t-sm transition-all hover:opacity-80" style={{ height: "10%" }} title="4xx: 10%" />
-               <div className="bg-zoru-ink w-1/3 rounded-t-sm transition-all hover:opacity-80" style={{ height: "30%" }} title="5xx: 30%" />
+               <div className="bg-[var(--st-text)] w-1/3 rounded-t-sm transition-all hover:opacity-80" style={{ height: "80%" }} title="2xx: 80%" />
+               <div className="bg-[var(--st-text)] w-1/3 rounded-t-sm transition-all hover:opacity-80" style={{ height: "10%" }} title="4xx: 10%" />
+               <div className="bg-[var(--st-text)] w-1/3 rounded-t-sm transition-all hover:opacity-80" style={{ height: "30%" }} title="5xx: 30%" />
             </ZoruCardContent>
          </Card>
-         <Card className="border-zoru-line/60 shadow-sm">
+         <Card className="border-[var(--st-border)]/60 shadow-sm">
             <ZoruCardHeader className="pb-2">
-              <ZoruCardTitle className="text-sm font-medium text-zoru-ink flex items-center gap-2">
-                <Activity className="w-4 h-4 text-zoru-ink"/> Latency Overview (ms)
+              <ZoruCardTitle className="text-sm font-medium text-[var(--st-text)] flex items-center gap-2">
+                <Activity className="w-4 h-4 text-[var(--st-text)]"/> Latency Overview (ms)
               </ZoruCardTitle>
             </ZoruCardHeader>
             <ZoruCardContent className="flex items-center gap-6 h-20">
                <div className="flex flex-col">
-                 <span className="text-3xl font-bold font-mono tracking-tight text-zoru-ink">145</span>
-                 <span className="text-xs text-zoru-ink font-medium">P50</span>
+                 <span className="text-3xl font-bold font-mono tracking-tight text-[var(--st-text)]">145</span>
+                 <span className="text-xs text-[var(--st-text)] font-medium">P50</span>
                </div>
                <div className="flex flex-col">
-                 <span className="text-3xl font-bold font-mono tracking-tight text-zoru-ink">420</span>
-                 <span className="text-xs text-zoru-ink font-medium">P95</span>
+                 <span className="text-3xl font-bold font-mono tracking-tight text-[var(--st-text)]">420</span>
+                 <span className="text-xs text-[var(--st-text)] font-medium">P95</span>
                </div>
                <div className="flex flex-col">
-                 <span className="text-3xl font-bold font-mono tracking-tight text-zoru-ink">3k</span>
-                 <span className="text-xs text-zoru-ink font-medium">Max</span>
+                 <span className="text-3xl font-bold font-mono tracking-tight text-[var(--st-text)]">3k</span>
+                 <span className="text-xs text-[var(--st-text)] font-medium">Max</span>
                </div>
             </ZoruCardContent>
          </Card>
-         <Card className="bg-zoru-ink text-white border-zoru-line shadow-md">
+         <Card className="bg-[var(--st-text)] text-white border-[var(--st-border)] shadow-md">
             <ZoruCardHeader className="pb-2">
-              <ZoruCardTitle className="text-sm font-medium text-zoru-ink-muted flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 text-zoru-ink-muted"/> Webhook Health
+              <ZoruCardTitle className="text-sm font-medium text-[var(--st-text-secondary)] flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-[var(--st-text-secondary)]"/> Webhook Health
               </ZoruCardTitle>
             </ZoruCardHeader>
             <ZoruCardContent className="flex flex-col justify-center h-20">
                <div className="flex items-baseline gap-2">
-                 <span className="text-4xl font-bold text-zoru-ink-muted tracking-tighter">98.4%</span>
-                 <span className="text-sm text-zoru-ink-muted font-medium">Success Rate</span>
+                 <span className="text-4xl font-bold text-[var(--st-text-secondary)] tracking-tighter">98.4%</span>
+                 <span className="text-sm text-[var(--st-text-secondary)] font-medium">Success Rate</span>
                </div>
-               <div className="text-xs text-zoru-ink mt-1">Last 24 hours • 1.2M deliveries</div>
+               <div className="text-xs text-[var(--st-text)] mt-1">Last 24 hours • 1.2M deliveries</div>
             </ZoruCardContent>
          </Card>
       </div>
 
       <div className="space-y-4">
-        <Alert className="bg-zoru-surface-2 border-zoru-line text-zoru-ink">
-          <AlertTriangle className="h-4 w-4 !text-zoru-ink" />
-          <ZoruAlertTitle className="text-zoru-ink">Aggressive Retention Policy Active</ZoruAlertTitle>
-          <ZoruAlertDescription className="text-zoru-ink">
+        <Alert className="bg-[var(--st-bg-muted)] border-[var(--st-border)] text-[var(--st-text)]">
+          <AlertTriangle className="h-4 w-4 !text-[var(--st-text)]" />
+          <ZoruAlertTitle className="text-[var(--st-text)]">Aggressive Retention Policy Active</ZoruAlertTitle>
+          <ZoruAlertDescription className="text-[var(--st-text)]">
             Due to high volume, webhook logs are automatically purged after 7 days. Older logs are permanently deleted and cannot be recovered or replayed.
           </ZoruAlertDescription>
         </Alert>
@@ -446,8 +446,8 @@ export default function WebhookLogClient() {
           searchPlaceholder="Search logs..."
           facets={FACETS}
           trailing={
-            <div className="flex items-center gap-2 mr-4 border-r pr-4 border-zoru-line">
-               <span className="text-sm font-medium text-zoru-ink">Msg ID:</span>
+            <div className="flex items-center gap-2 mr-4 border-r pr-4 border-[var(--st-border)]">
+               <span className="text-sm font-medium text-[var(--st-text)]">Msg ID:</span>
                <Input 
                  value={msgIdInput} 
                  onChange={(e) => setMsgIdInput(e.target.value)} 
@@ -483,7 +483,7 @@ export default function WebhookLogClient() {
 
             <ZoruResizableHandle withHandle />
 
-            <ZoruResizablePanel defaultSize={45} minSize={25} className="h-full bg-zoru-surface-2 flex flex-col border-l">
+            <ZoruResizablePanel defaultSize={45} minSize={25} className="h-full bg-[var(--st-bg-muted)] flex flex-col border-l">
               {selectedRow ? (
                 <ScrollArea className="flex-1">
                   <div className="p-6 space-y-8">
@@ -493,10 +493,10 @@ export default function WebhookLogClient() {
                         <Badge variant={selectedRow.status === "delivered" ? "default" : selectedRow.status === "failed" ? "destructive" : "secondary"} className="text-sm px-3 py-1 font-medium shadow-sm">
                           {selectedRow.status.toUpperCase()}
                         </Badge>
-                        <span className="text-sm font-mono text-zoru-ink bg-zoru-surface-2/50 px-2 py-1 rounded-md">{formatUTC(selectedRow.createdAt, true)}</span>
+                        <span className="text-sm font-mono text-[var(--st-text)] bg-[var(--st-bg-muted)]/50 px-2 py-1 rounded-md">{formatUTC(selectedRow.createdAt, true)}</span>
                       </div>
-                      <h2 className="text-2xl font-bold font-mono tracking-tight mb-2 text-zoru-ink">{selectedRow.event}</h2>
-                      <p className="text-sm text-zoru-ink font-mono break-all flex items-center gap-2">
+                      <h2 className="text-2xl font-bold font-mono tracking-tight mb-2 text-[var(--st-text)]">{selectedRow.event}</h2>
+                      <p className="text-sm text-[var(--st-text)] font-mono break-all flex items-center gap-2">
                          <TerminalSquare className="w-4 h-4" /> {selectedRow.id}
                       </p>
                     </div>
@@ -504,30 +504,30 @@ export default function WebhookLogClient() {
                     {/* Grid Stats */}
                     <div className="grid grid-cols-2 gap-4">
                       <div className="bg-white p-4 rounded-xl border shadow-sm">
-                        <p className="text-xs text-zoru-ink font-bold mb-1 uppercase tracking-wider">HTTP Status</p>
+                        <p className="text-xs text-[var(--st-text)] font-bold mb-1 uppercase tracking-wider">HTTP Status</p>
                         <div className="flex items-baseline gap-2">
-                          <span className={`text-3xl font-bold font-mono ${selectedRow.httpStatus >= 400 ? 'text-zoru-ink' : 'text-zoru-ink'}`}>{selectedRow.httpStatus}</span>
-                          <span className="text-sm text-zoru-ink font-medium">{selectedRow.httpStatus >= 400 ? 'Error' : 'OK'}</span>
+                          <span className={`text-3xl font-bold font-mono ${selectedRow.httpStatus >= 400 ? 'text-[var(--st-text)]' : 'text-[var(--st-text)]'}`}>{selectedRow.httpStatus}</span>
+                          <span className="text-sm text-[var(--st-text)] font-medium">{selectedRow.httpStatus >= 400 ? 'Error' : 'OK'}</span>
                         </div>
                       </div>
                       <div className="bg-white p-4 rounded-xl border shadow-sm">
-                        <p className="text-xs text-zoru-ink font-bold mb-1 uppercase tracking-wider">Latency</p>
+                        <p className="text-xs text-[var(--st-text)] font-bold mb-1 uppercase tracking-wider">Latency</p>
                         <div className="flex items-baseline gap-2">
-                          <span className="text-3xl font-bold font-mono text-zoru-ink">{selectedRow.latencyMs}</span>
-                          <span className="text-sm text-zoru-ink font-medium">ms</span>
+                          <span className="text-3xl font-bold font-mono text-[var(--st-text)]">{selectedRow.latencyMs}</span>
+                          <span className="text-sm text-[var(--st-text)] font-medium">ms</span>
                         </div>
                       </div>
                       <div className="bg-white p-4 rounded-xl border shadow-sm col-span-2">
-                        <p className="text-xs text-zoru-ink font-bold mb-1 uppercase tracking-wider">Endpoint</p>
-                        <span className="text-sm font-mono break-all text-zoru-ink">{selectedRow.endpoint}</span>
+                        <p className="text-xs text-[var(--st-text)] font-bold mb-1 uppercase tracking-wider">Endpoint</p>
+                        <span className="text-sm font-mono break-all text-[var(--st-text)]">{selectedRow.endpoint}</span>
                       </div>
                     </div>
 
                     {/* Raw Request JSON */}
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <h3 className="text-sm font-bold uppercase tracking-wider text-zoru-ink flex items-center gap-2">
-                          <Code2 className="w-4 h-4 text-zoru-ink" /> Request Payload
+                        <h3 className="text-sm font-bold uppercase tracking-wider text-[var(--st-text)] flex items-center gap-2">
+                          <Code2 className="w-4 h-4 text-[var(--st-text)]" /> Request Payload
                         </h3>
                         <Button variant="outline" size="sm" onClick={() => {
                           navigator.clipboard.writeText(selectedRow.payload);
@@ -536,14 +536,14 @@ export default function WebhookLogClient() {
                           <Copy className="h-3 w-3 mr-2" /> Copy JSON
                         </Button>
                       </div>
-                      <div className="bg-zoru-ink rounded-xl border border-zoru-line overflow-hidden shadow-xl">
-                        <div className="flex items-center px-4 py-2.5 bg-zoru-ink border-b border-zoru-line">
+                      <div className="bg-[var(--st-text)] rounded-xl border border-[var(--st-border)] overflow-hidden shadow-xl">
+                        <div className="flex items-center px-4 py-2.5 bg-[var(--st-text)] border-b border-[var(--st-border)]">
                            <div className="flex gap-1.5">
-                             <div className="w-3 h-3 rounded-full bg-zoru-ink/80"></div>
-                             <div className="w-3 h-3 rounded-full bg-zoru-ink/80"></div>
-                             <div className="w-3 h-3 rounded-full bg-zoru-ink/80"></div>
+                             <div className="w-3 h-3 rounded-full bg-[var(--st-text)]/80"></div>
+                             <div className="w-3 h-3 rounded-full bg-[var(--st-text)]/80"></div>
+                             <div className="w-3 h-3 rounded-full bg-[var(--st-text)]/80"></div>
                            </div>
-                           <span className="ml-4 text-xs font-mono text-zoru-ink-muted">payload.json</span>
+                           <span className="ml-4 text-xs font-mono text-[var(--st-text-secondary)]">payload.json</span>
                         </div>
                         <div className="p-4 overflow-x-auto">
                           <pre className="text-[13px] font-mono leading-relaxed">
@@ -555,28 +555,28 @@ export default function WebhookLogClient() {
 
                     {/* Signature */}
                     <div className="space-y-3">
-                      <h3 className="text-sm font-bold uppercase tracking-wider text-zoru-ink flex items-center gap-2">
-                        <ShieldCheck className="w-4 h-4 text-zoru-ink" /> Signature
+                      <h3 className="text-sm font-bold uppercase tracking-wider text-[var(--st-text)] flex items-center gap-2">
+                        <ShieldCheck className="w-4 h-4 text-[var(--st-text)]" /> Signature
                       </h3>
                       <div className="bg-white rounded-xl border shadow-sm overflow-hidden p-4 flex items-center justify-between">
-                         <ZoruKbd className="text-xs bg-zoru-surface-2">{selectedRow.signature}</ZoruKbd>
-                         <Button variant="ghost" size="sm" className="text-zoru-ink" onClick={() => toast({ title: "Signature verified", description: "Matches workspace secret."})}>Verify</Button>
+                         <ZoruKbd className="text-xs bg-[var(--st-bg-muted)]">{selectedRow.signature}</ZoruKbd>
+                         <Button variant="ghost" size="sm" className="text-[var(--st-text)]" onClick={() => toast({ title: "Signature verified", description: "Matches workspace secret."})}>Verify</Button>
                       </div>
                     </div>
 
                     {/* Response Details */}
                     <div className="space-y-3">
-                      <h3 className="text-sm font-bold uppercase tracking-wider text-zoru-ink flex items-center gap-2">
-                        <ServerCrash className="w-4 h-4 text-zoru-ink" /> Response Data
+                      <h3 className="text-sm font-bold uppercase tracking-wider text-[var(--st-text)] flex items-center gap-2">
+                        <ServerCrash className="w-4 h-4 text-[var(--st-text)]" /> Response Data
                       </h3>
                       <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
-                        <div className="p-4 border-b bg-zoru-surface-2/50">
-                          <p className="text-xs font-bold text-zoru-ink mb-2 uppercase tracking-wider">Headers</p>
-                          <pre className="text-xs font-mono text-zoru-ink whitespace-pre-wrap leading-relaxed">{selectedRow.headers}</pre>
+                        <div className="p-4 border-b bg-[var(--st-bg-muted)]/50">
+                          <p className="text-xs font-bold text-[var(--st-text)] mb-2 uppercase tracking-wider">Headers</p>
+                          <pre className="text-xs font-mono text-[var(--st-text)] whitespace-pre-wrap leading-relaxed">{selectedRow.headers}</pre>
                         </div>
                         <div className="p-4">
-                          <p className="text-xs font-bold text-zoru-ink mb-2 uppercase tracking-wider">Body</p>
-                          <pre className="text-xs font-mono text-zoru-ink bg-zoru-surface-2/50 p-3 rounded-md border whitespace-pre-wrap break-all leading-relaxed">{selectedRow.responseBody}</pre>
+                          <p className="text-xs font-bold text-[var(--st-text)] mb-2 uppercase tracking-wider">Body</p>
+                          <pre className="text-xs font-mono text-[var(--st-text)] bg-[var(--st-bg-muted)]/50 p-3 rounded-md border whitespace-pre-wrap break-all leading-relaxed">{selectedRow.responseBody}</pre>
                         </div>
                       </div>
                     </div>
@@ -587,7 +587,7 @@ export default function WebhookLogClient() {
                          size="lg" 
                          onClick={() => handleReplay(selectedRow)} 
                          disabled={selectedRow.status === "delivered"}
-                         className="bg-zoru-ink hover:bg-zoru-ink text-white font-medium shadow-md shadow-zoru-line disabled:opacity-50 disabled:cursor-not-allowed"
+                         className="bg-[var(--st-text)] hover:bg-[var(--st-text)] text-white font-medium shadow-md shadow-zoru-line disabled:opacity-50 disabled:cursor-not-allowed"
                        >
                          <RefreshCw className="w-4 h-4 mr-2" />
                          Replay Delivery Attempt
@@ -597,11 +597,11 @@ export default function WebhookLogClient() {
                   </div>
                 </ScrollArea>
               ) : (
-                <div className="flex-1 flex flex-col items-center justify-center text-zoru-ink-muted p-6 text-center">
+                <div className="flex-1 flex flex-col items-center justify-center text-[var(--st-text-secondary)] p-6 text-center">
                   <div className="bg-white p-6 rounded-2xl shadow-sm border mb-4 flex items-center justify-center">
-                    <ServerCrash className="w-12 h-12 text-zoru-ink-muted" />
+                    <ServerCrash className="w-12 h-12 text-[var(--st-text-secondary)]" />
                   </div>
-                  <h3 className="text-lg font-medium text-zoru-ink">No Webhook Selected</h3>
+                  <h3 className="text-lg font-medium text-[var(--st-text)]">No Webhook Selected</h3>
                   <p className="text-sm mt-2 max-w-[250px] leading-relaxed">Select a delivery attempt from the table to view its raw request payload, headers, and response data.</p>
                 </div>
               )}

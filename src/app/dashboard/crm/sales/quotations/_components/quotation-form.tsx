@@ -470,7 +470,7 @@ export function QuotationForm({ initial, customFields }: QuotationFormProps) {
       {customFields.length > 0 ? (
         <Card className="space-y-4 p-6">
           <div>
-            <h2 className="text-[15px] font-semibold text-zoru-ink">Custom fields</h2>
+            <h2 className="text-[15px] font-semibold text-[var(--st-text)]">Custom fields</h2>
           </div>
           <div className="grid gap-4 md:grid-cols-2">
             {customFields.map((f) => (
@@ -487,13 +487,13 @@ export function QuotationForm({ initial, customFields }: QuotationFormProps) {
 
       {/* Inline error */}
       {state?.error ? (
-        <p role="alert" className="text-sm text-zoru-danger-ink">
+        <p role="alert" className="text-sm text-[var(--st-danger)]">
           {state.error}
         </p>
       ) : null}
 
       {/* Sticky action bar */}
-      <div className="sticky bottom-0 z-10 border-t border-zoru-line bg-zoru-bg py-3">
+      <div className="sticky bottom-0 z-10 border-t border-[var(--st-border)] bg-[var(--st-bg)] py-3">
         <div className="flex flex-wrap items-center justify-end gap-2">
           <Button variant="ghost" asChild>
             <Link

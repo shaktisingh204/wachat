@@ -34,8 +34,8 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   render() {
     if (this.state.hasError) {
       return (
-        <Card className="border-zoru-line/50 mt-4">
-          <ZoruCardContent className="p-4 text-sm text-zoru-ink flex flex-col gap-2">
+        <Card className="border-[var(--st-border)]/50 mt-4">
+          <ZoruCardContent className="p-4 text-sm text-[var(--st-text)] flex flex-col gap-2">
             <div className="flex items-center gap-2 font-semibold">
               <AlertCircle className="w-4 h-4" />
               Something went wrong rendering the results
@@ -125,8 +125,8 @@ export default function AnchorTextAnalyzerPage() {
       </div>
 
       {error && (
-        <Card className="border-zoru-line/50">
-          <ZoruCardContent className="p-4 text-sm text-zoru-ink flex items-center gap-2">
+        <Card className="border-[var(--st-border)]/50">
+          <ZoruCardContent className="p-4 text-sm text-[var(--st-text)] flex items-center gap-2">
             <AlertCircle className="w-4 h-4" />
             {error}
           </ZoruCardContent>

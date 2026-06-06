@@ -51,7 +51,7 @@ type CommonProps = {
 };
 
 const baseClass =
-  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 pr-9 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-zoru-line transition-colors';
+  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 pr-9 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[var(--st-border)] transition-colors';
 
 export function DataPickerInput(props: CommonProps) {
   const {
@@ -171,7 +171,7 @@ export function DataPickerInput(props: CommonProps) {
         className={cn(
           'absolute right-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-md border transition-colors',
           open
-            ? 'border-zoru-line bg-zoru-ink/10 text-zoru-ink'
+            ? 'border-[var(--st-border)] bg-[var(--st-text)]/10 text-[var(--st-text)]'
             : 'border-transparent text-[var(--gray-9)] hover:border-[var(--gray-5)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
         )}
       >

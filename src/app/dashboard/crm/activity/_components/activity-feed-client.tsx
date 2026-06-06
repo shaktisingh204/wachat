@@ -308,9 +308,9 @@ export function ActivityFeedClient({
             empty={
                 isEmpty ? (
                     <div className="flex flex-col items-center gap-3 p-8">
-                        <Activity className="h-8 w-8 text-zoru-ink-muted" />
-                        <h3 className="text-base font-medium text-zoru-ink">No activity</h3>
-                        <p className="max-w-sm text-center text-sm text-zoru-ink-muted">
+                        <Activity className="h-8 w-8 text-[var(--st-text-secondary)]" />
+                        <h3 className="text-base font-medium text-[var(--st-text)]">No activity</h3>
+                        <p className="max-w-sm text-center text-sm text-[var(--st-text-secondary)]">
                             {initialFeed.error
                                 ? initialFeed.error
                                 : hasFilters
@@ -369,11 +369,11 @@ export function ActivityFeedClient({
                             {loadingMore ? 'Loading…' : 'Load more'}
                         </Button>
                         {loadMoreError ? (
-                            <p className="text-xs text-zoru-danger-ink">{loadMoreError}</p>
+                            <p className="text-xs text-[var(--st-danger)]">{loadMoreError}</p>
                         ) : null}
                     </div>
                 ) : rows.length > 0 ? (
-                    <p className="py-3 text-center text-xs text-zoru-ink-muted">
+                    <p className="py-3 text-center text-xs text-[var(--st-text-secondary)]">
                         End of feed.
                     </p>
                 ) : null}
@@ -393,11 +393,11 @@ interface BucketCardProps {
 function BucketCard({ title, rows, currentUserId }: BucketCardProps): React.JSX.Element {
     return (
         <Card className="p-0">
-            <div className="flex items-center gap-2 border-b border-zoru-line p-4">
-                <h2 className="text-[14px] font-semibold text-zoru-ink">{title}</h2>
+            <div className="flex items-center gap-2 border-b border-[var(--st-border)] p-4">
+                <h2 className="text-[14px] font-semibold text-[var(--st-text)]">{title}</h2>
                 <Badge variant="secondary">{rows.length}</Badge>
             </div>
-            <ul className="divide-y divide-zoru-line">
+            <ul className="divide-y divide-[var(--st-border)]">
                 {rows.map((entry) => (
                     <ActivityRow
                         key={entry._id}

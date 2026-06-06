@@ -58,7 +58,7 @@ export function DeleteButton({ id, action, resourceName = "Item", disabled = fal
     return (
         <AlertDialog open={open} onOpenChange={setOpen}>
             <AlertDialogTrigger asChild>
-                <Button variant="ghost" size="sm" className="text-zoru-danger hover:text-zoru-danger hover:bg-zoru-surface-2" disabled={disabled}>
+                <Button variant="ghost" size="sm" className="text-[var(--st-danger)] hover:text-[var(--st-danger)] hover:bg-[var(--st-bg-muted)]" disabled={disabled}>
                     <Trash2 className="h-4 w-4" />
                 </Button>
             </AlertDialogTrigger>
@@ -76,7 +76,7 @@ export function DeleteButton({ id, action, resourceName = "Item", disabled = fal
                             e.preventDefault();
                             handleDelete();
                         }}
-                        className="bg-zoru-danger text-zoru-danger-ink hover:opacity-90"
+                        className="bg-[var(--st-danger)] text-[var(--st-danger)] hover:opacity-90"
                         disabled={isPending}
                     >
                         {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

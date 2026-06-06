@@ -10,7 +10,7 @@ export default async function KbActivityPage({
     const { id } = await params;
     return (
         <div className="p-4 md:p-6">
-            <h1 className="mb-4 text-xl font-semibold text-zoru-ink">Article activity</h1>
+            <h1 className="mb-4 text-xl font-semibold text-[var(--st-text)]">Article activity</h1>
             <EntityAuditTimeline entityKind="knowledge_base" entityId={id} />
         </div>
     );

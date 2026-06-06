@@ -12,6 +12,8 @@ import {
   Select,
   Skeleton,
   Callout,
+  Badge,
+  Spinner,
   useToast,
 } from '@/components/sabcrm/20ui';
 import {
@@ -40,7 +42,11 @@ import {
 } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
-import { handleCreateTemplate } from '@/app/actions/template.actions';
+import {
+  handleCreateTemplate,
+  handleCloneTemplateMultilang,
+  type CloneTemplateOutcome,
+} from '@/app/actions/template.actions';
 import { useTemplateStore } from '../template-store';
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
 
@@ -275,6 +281,12 @@ function CreateTemplateContent() {
   const [cloneLanguages, setCloneLanguages] = useState<string[]>([]);
   const [showPreview, setShowPreview] = useState(true);
 
+  // Multi-language clone results (shown after the primary template is created).
+  const [cloneModalOpen, setCloneModalOpen] = useState(false);
+  const [cloneBusy, setCloneBusy] = useState(false);
+  const [cloneError, setCloneError] = useState<string | null>(null);
+  const [cloneOutcomes, setCloneOutcomes] = useState<CloneTemplateOutcome[]>([]);
+
   const templateToAction = useTemplateStore((s) => s.templateToAction);
 
   useEffect(() => {
@@ -319,16 +331,15 @@ function CreateTemplateContent() {
       return;
     }
 
+    const sanitizedName = name
+      .toLowerCase()
+      .replace(/\s+/g, '_')
+      .replace(/[^a-z0-9_]/g, '');
+
     startTransition(async () => {
       const formData = new FormData();
       formData.set('projectId', activeProject._id.toString());
-      formData.set(
-        'name',
-        name
-          .toLowerCase()
-          .replace(/\s+/g, '_')
-          .replace(/[^a-z0-9_]/g, ''),
-      );
+      formData.set('name', sanitizedName);
       formData.set(
         'category',
         templateType === 'AUTH' ? 'AUTHENTICATION' : category,
@@ -397,15 +408,50 @@ function CreateTemplateContent() {
           description: result.error,
           tone: 'danger',
         });
-      } else {
-        toast({
-          title: 'Success',
-          description: result.message || 'Template submitted for approval.',
-          tone: 'success',
-        });
+        return;
+      }
+
+      toast({
+        title: 'Success',
+        description: result.message || 'Template submitted for approval.',
+        tone: 'success',
+      });
+
+      // Optional Wave-E step: also create the template in other languages.
+      // Only runs when the user picked clone languages; the primary create
+      // flow above is unchanged when none are selected.
+      const targets = cloneLanguages.filter((l) => l !== language);
+      if (targets.length === 0) {
         router.push('/wachat/templates');
+        return;
+      }
+
+      setCloneModalOpen(true);
+      setCloneBusy(true);
+      setCloneError(null);
+      setCloneOutcomes([]);
+
+      const cloneResult = await handleCloneTemplateMultilang({
+        projectId: activeProject._id.toString(),
+        sourceTemplateName: sanitizedName,
+        targetLanguages: targets,
+      });
+
+      setCloneBusy(false);
+      if (cloneResult.error) {
+        setCloneError(cloneResult.error);
+      } else {
+        setCloneOutcomes(cloneResult.outcomes ?? []);
       }
     });
+  };
+
+  const langLabel = (code: string) =>
+    LANGUAGES.find((l) => l.code === code)?.name ?? code;
+
+  const closeCloneModal = () => {
+    setCloneModalOpen(false);
+    router.push('/wachat/templates');
   };
 
   const breadcrumb = [
@@ -788,6 +834,82 @@ function CreateTemplateContent() {
           </>
         }
       />
+
+      {/* Multi-language clone results */}
+      <Modal
+        open={cloneModalOpen}
+        onClose={cloneBusy ? () => {} : closeCloneModal}
+        title="Cloning to other languages"
+        description="The primary template was submitted. We are creating a copy in each selected language."
+        footer={
+          <Button
+            variant="primary"
+            onClick={closeCloneModal}
+            disabled={cloneBusy}
+          >
+            {cloneBusy ? 'Working...' : 'Done'}
+          </Button>
+        }
+      >
+        {cloneBusy ? (
+          <div className="flex items-center gap-2 py-4 text-[13px] text-[var(--st-text-secondary)]">
+            <Spinner size="sm" label="Cloning to other languages" />
+            <span>
+              Creating {cloneLanguages.filter((l) => l !== language).length}{' '}
+              language clone(s)...
+            </span>
+          </div>
+        ) : cloneError ? (
+          <Callout tone="danger" title="Multi-language clone failed">
+            {cloneError} The primary template was still submitted for approval.
+          </Callout>
+        ) : cloneOutcomes.length === 0 ? (
+          <EmptyState
+            icon={Globe}
+            title="No languages cloned"
+            description="No additional language clones were attempted."
+          />
+        ) : (
+          <div className="space-y-3">
+            {cloneOutcomes.some((o) => o.status === 'failed') && (
+              <Callout tone="warning" title="Some clones could not be created">
+                Languages marked failed may be missing Meta credentials or were
+                rejected. You can retry them from the templates list.
+              </Callout>
+            )}
+            <ul className="space-y-2">
+              {cloneOutcomes.map((o) => (
+                <li
+                  key={o.language}
+                  className="flex items-start justify-between gap-3 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
+                >
+                  <div className="min-w-0">
+                    <p className="text-[13px] font-medium text-[var(--st-text)]">
+                      {langLabel(o.language)}
+                    </p>
+                    {o.error && (
+                      <p className="mt-0.5 text-[11px] text-[var(--st-text-secondary)]">
+                        {o.error}
+                      </p>
+                    )}
+                  </div>
+                  <Badge
+                    tone={
+                      o.status === 'created'
+                        ? 'success'
+                        : o.status === 'skipped'
+                        ? 'neutral'
+                        : 'danger'
+                    }
+                  >
+                    {o.status}
+                  </Badge>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </Modal>
     </WachatPage>
   );
 }

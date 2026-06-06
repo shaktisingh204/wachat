@@ -137,16 +137,16 @@ function SectionCard({
         <div>
           <div className="flex items-center gap-2">
             {open ? (
-              <ChevronDown className="h-4 w-4 text-zoru-ink-muted" />
+              <ChevronDown className="h-4 w-4 text-[var(--st-text-secondary)]" />
             ) : (
-              <ChevronRight className="h-4 w-4 text-zoru-ink-muted" />
+              <ChevronRight className="h-4 w-4 text-[var(--st-text-secondary)]" />
             )}
-            <h3 className="text-[15px] font-semibold text-zoru-ink">{title}</h3>
-            <span className="rounded-full bg-zoru-surface-2 px-2 py-0.5 text-[11px] text-zoru-ink-muted">
+            <h3 className="text-[15px] font-semibold text-[var(--st-text)]">{title}</h3>
+            <span className="rounded-full bg-[var(--st-bg-muted)] px-2 py-0.5 text-[11px] text-[var(--st-text-secondary)]">
               {rowCount} rows
             </span>
           </div>
-          <p className="ml-6 mt-0.5 text-[12px] text-zoru-ink-muted">
+          <p className="ml-6 mt-0.5 text-[12px] text-[var(--st-text-secondary)]">
             {subtitle}
           </p>
         </div>
@@ -154,17 +154,17 @@ function SectionCard({
           <div className="flex items-center gap-4">
             {totals.map((t) => (
               <div key={t.label} className="text-right">
-                <p className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                <p className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                   {t.label}
                 </p>
-                <p className="font-mono text-[13px] text-zoru-ink">{t.value}</p>
+                <p className="font-mono text-[13px] text-[var(--st-text)]">{t.value}</p>
               </div>
             ))}
           </div>
         ) : null}
       </button>
       {open ? (
-        <div className="mt-4 border-t border-zoru-line pt-4">{children}</div>
+        <div className="mt-4 border-t border-[var(--st-border)] pt-4">{children}</div>
       ) : null}
     </Card>
   );
@@ -231,7 +231,7 @@ function KpiStrip({ kpis }: { kpis: Gstr1Kpis }) {
       <StatCard
         label="Period status"
         value="Pending"
-        icon={<FileCheck2 className="h-4 w-4 text-zoru-ink" />}
+        icon={<FileCheck2 className="h-4 w-4 text-[var(--st-text)]" />}
       />
     </div>
   );
@@ -299,7 +299,7 @@ function B2bTable({ rows }: { rows: Gstr1Return['b2b'] }) {
 
   if (rows.length === 0) {
     return (
-      <p className="py-6 text-center text-[13px] text-zoru-ink-muted">
+      <p className="py-6 text-center text-[13px] text-[var(--st-text-secondary)]">
         No B2B invoices in this period.
       </p>
     );
@@ -309,7 +309,7 @@ function B2bTable({ rows }: { rows: Gstr1Return['b2b'] }) {
     <div className="flex flex-col gap-3">
       {selected.size > 0 ? (
         <div className="flex items-center gap-2">
-          <span className="text-[12.5px] text-zoru-ink">{selected.size} selected</span>
+          <span className="text-[12.5px] text-[var(--st-text)]">{selected.size} selected</span>
           <Button size="sm" variant="outline" onClick={handleExportCsv}>
             <Download className="h-3.5 w-3.5" /> CSV
           </Button>
@@ -318,10 +318,10 @@ function B2bTable({ rows }: { rows: Gstr1Return['b2b'] }) {
           </Button>
         </div>
       ) : null}
-      <div className="overflow-x-auto rounded-lg border border-zoru-line">
+      <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
         <Table>
           <ZoruTableHeader>
-            <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+            <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
               <ZoruTableHead className="w-10">
                 <Checkbox
                   checked={allChecked}
@@ -329,16 +329,16 @@ function B2bTable({ rows }: { rows: Gstr1Return['b2b'] }) {
                   aria-label="Select all B2B rows"
                 />
               </ZoruTableHead>
-              <ZoruTableHead className="text-zoru-ink-muted">Buyer GSTIN</ZoruTableHead>
-              <ZoruTableHead className="text-zoru-ink-muted">Invoice no</ZoruTableHead>
-              <ZoruTableHead className="text-zoru-ink-muted">Date</ZoruTableHead>
-              <ZoruTableHead className="text-right text-zoru-ink-muted">
+              <ZoruTableHead className="text-[var(--st-text-secondary)]">Buyer GSTIN</ZoruTableHead>
+              <ZoruTableHead className="text-[var(--st-text-secondary)]">Invoice no</ZoruTableHead>
+              <ZoruTableHead className="text-[var(--st-text-secondary)]">Date</ZoruTableHead>
+              <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                 Taxable
               </ZoruTableHead>
-              <ZoruTableHead className="text-right text-zoru-ink-muted">IGST</ZoruTableHead>
-              <ZoruTableHead className="text-right text-zoru-ink-muted">CGST</ZoruTableHead>
-              <ZoruTableHead className="text-right text-zoru-ink-muted">SGST</ZoruTableHead>
-              <ZoruTableHead className="text-right text-zoru-ink-muted">
+              <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">IGST</ZoruTableHead>
+              <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">CGST</ZoruTableHead>
+              <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">SGST</ZoruTableHead>
+              <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                 Invoice value
               </ZoruTableHead>
             </ZoruTableRow>
@@ -347,7 +347,7 @@ function B2bTable({ rows }: { rows: Gstr1Return['b2b'] }) {
             {rows.map((r, i) => (
               <ZoruTableRow
                 key={i}
-                className="border-zoru-line"
+                className="border-[var(--st-border)]"
                 data-state={selected.has(i) ? 'selected' : undefined}
               >
                 <ZoruTableCell>
@@ -357,7 +357,7 @@ function B2bTable({ rows }: { rows: Gstr1Return['b2b'] }) {
                     aria-label={`Select invoice ${r.invoiceNumber ?? i}`}
                   />
                 </ZoruTableCell>
-                <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
+                <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
                   {r.buyerGstin ?? '—'}
                 </ZoruTableCell>
                 <ZoruTableCell>
@@ -366,22 +366,22 @@ function B2bTable({ rows }: { rows: Gstr1Return['b2b'] }) {
                     label={r.invoiceNumber ?? '—'}
                   />
                 </ZoruTableCell>
-                <ZoruTableCell className="text-[12px] text-zoru-ink-muted">
+                <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
                   {r.invoiceDate ?? '—'}
                 </ZoruTableCell>
-                <ZoruTableCell className="text-right font-mono text-[12px] text-zoru-ink">
+                <ZoruTableCell className="text-right font-mono text-[12px] text-[var(--st-text)]">
                   {fmtInr(r.taxableValue)}
                 </ZoruTableCell>
-                <ZoruTableCell className="text-right font-mono text-[12px] text-zoru-ink">
+                <ZoruTableCell className="text-right font-mono text-[12px] text-[var(--st-text)]">
                   {fmtInr(r.igst)}
                 </ZoruTableCell>
-                <ZoruTableCell className="text-right font-mono text-[12px] text-zoru-ink">
+                <ZoruTableCell className="text-right font-mono text-[12px] text-[var(--st-text)]">
                   {fmtInr(r.cgst)}
                 </ZoruTableCell>
-                <ZoruTableCell className="text-right font-mono text-[12px] text-zoru-ink">
+                <ZoruTableCell className="text-right font-mono text-[12px] text-[var(--st-text)]">
                   {fmtInr(r.sgst)}
                 </ZoruTableCell>
-                <ZoruTableCell className="text-right font-mono text-[12px] font-semibold text-zoru-ink">
+                <ZoruTableCell className="text-right font-mono text-[12px] font-semibold text-[var(--st-text)]">
                   {fmtInr(r.invoiceValue)}
                 </ZoruTableCell>
               </ZoruTableRow>
@@ -475,7 +475,7 @@ export function Gstr1Client() {
       <Card>
         <div className="flex flex-wrap items-end gap-3">
           <div>
-            <label className="mb-1 block text-[12px] text-zoru-ink-muted">
+            <label className="mb-1 block text-[12px] text-[var(--st-text-secondary)]">
               Month
             </label>
             <Select
@@ -497,7 +497,7 @@ export function Gstr1Client() {
             </Select>
           </div>
           <div>
-            <label className="mb-1 block text-[12px] text-zoru-ink-muted">
+            <label className="mb-1 block text-[12px] text-[var(--st-text-secondary)]">
               Year
             </label>
             <Input
@@ -538,7 +538,7 @@ export function Gstr1Client() {
 
       {!raw && !loading ? (
         <Card>
-          <p className="text-[13px] text-zoru-ink-muted">
+          <p className="text-[13px] text-[var(--st-text-secondary)]">
             Pick a period and click Generate to build this month&apos;s GSTR-1.
           </p>
         </Card>
@@ -552,8 +552,8 @@ export function Gstr1Client() {
           {/* Summary box */}
           {summary ? (
             <Card>
-              <h2 className="text-[15px] font-semibold text-zoru-ink">Summary</h2>
-              <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+              <h2 className="text-[15px] font-semibold text-[var(--st-text)]">Summary</h2>
+              <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">
                 Period: {String(period.month).padStart(2, '0')}/{period.year}
               </p>
               <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4">
@@ -568,12 +568,12 @@ export function Gstr1Client() {
                 ].map(({ label, key }) => (
                   <div
                     key={key}
-                    className="rounded-lg border border-zoru-line bg-zoru-surface-2 p-4"
+                    className="rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4"
                   >
-                    <p className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                    <p className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                       {label}
                     </p>
-                    <p className="mt-1 font-mono text-[16px] text-zoru-ink">
+                    <p className="mt-1 font-mono text-[16px] text-[var(--st-text)]">
                       {fmtInr(Number(summary[key]))}
                     </p>
                   </div>
@@ -608,7 +608,7 @@ export function Gstr1Client() {
               },
             ]}
           >
-            <pre className="overflow-x-auto rounded bg-zoru-surface-2 p-3 text-[11px] text-zoru-ink-muted">
+            <pre className="overflow-x-auto rounded bg-[var(--st-bg-muted)] p-3 text-[11px] text-[var(--st-text-secondary)]">
               {JSON.stringify(raw.b2cl, null, 2)}
             </pre>
           </SectionCard>
@@ -624,7 +624,7 @@ export function Gstr1Client() {
               },
             ]}
           >
-            <pre className="overflow-x-auto rounded bg-zoru-surface-2 p-3 text-[11px] text-zoru-ink-muted">
+            <pre className="overflow-x-auto rounded bg-[var(--st-bg-muted)] p-3 text-[11px] text-[var(--st-text-secondary)]">
               {JSON.stringify(raw.b2cs, null, 2)}
             </pre>
           </SectionCard>
@@ -640,7 +640,7 @@ export function Gstr1Client() {
               },
             ]}
           >
-            <pre className="overflow-x-auto rounded bg-zoru-surface-2 p-3 text-[11px] text-zoru-ink-muted">
+            <pre className="overflow-x-auto rounded bg-[var(--st-bg-muted)] p-3 text-[11px] text-[var(--st-text-secondary)]">
               {JSON.stringify(raw.cdnr, null, 2)}
             </pre>
           </SectionCard>
@@ -656,7 +656,7 @@ export function Gstr1Client() {
               },
             ]}
           >
-            <pre className="overflow-x-auto rounded bg-zoru-surface-2 p-3 text-[11px] text-zoru-ink-muted">
+            <pre className="overflow-x-auto rounded bg-[var(--st-bg-muted)] p-3 text-[11px] text-[var(--st-text-secondary)]">
               {JSON.stringify(raw.hsn, null, 2)}
             </pre>
           </SectionCard>
@@ -666,7 +666,7 @@ export function Gstr1Client() {
             subtitle="Number-series counts for invoices and credit notes."
             rowCount={raw.docIssue.length}
           >
-            <pre className="overflow-x-auto rounded bg-zoru-surface-2 p-3 text-[11px] text-zoru-ink-muted">
+            <pre className="overflow-x-auto rounded bg-[var(--st-bg-muted)] p-3 text-[11px] text-[var(--st-text-secondary)]">
               {JSON.stringify(raw.docIssue, null, 2)}
             </pre>
           </SectionCard>

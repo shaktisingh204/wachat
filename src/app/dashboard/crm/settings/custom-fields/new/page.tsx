@@ -11,7 +11,7 @@ export default function NewCustomFieldPage() {
     >
       <Suspense
         fallback={
-          <div className="text-[13px] text-zoru-ink-muted">Loading…</div>
+          <div className="text-[13px] text-[var(--st-text-secondary)]">Loading…</div>
         }
       >
         <NewCustomFieldForm />

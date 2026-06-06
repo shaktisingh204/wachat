@@ -130,13 +130,13 @@ export function PaymentReceiptForm({ initial }: PaymentReceiptFormProps) {
       {editing ? <input type="hidden" name="status" value={status} /> : null}
 
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Header
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <Label htmlFor="receiptNo">
-              Receipt # <span className="text-zoru-danger-ink">*</span>
+              Receipt # <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <Input
               id="receiptNo"
@@ -149,7 +149,7 @@ export function PaymentReceiptForm({ initial }: PaymentReceiptFormProps) {
           </div>
           <div>
             <Label htmlFor="date">
-              Date <span className="text-zoru-danger-ink">*</span>
+              Date <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <Input
               id="date"
@@ -162,7 +162,7 @@ export function PaymentReceiptForm({ initial }: PaymentReceiptFormProps) {
           </div>
           <div>
             <Label>
-              Customer <span className="text-zoru-danger-ink">*</span>
+              Customer <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <div className="mt-1.5">
               <EntityFormField
@@ -174,14 +174,14 @@ export function PaymentReceiptForm({ initial }: PaymentReceiptFormProps) {
               />
             </div>
             {editing ? (
-              <p className="mt-1 text-[11px] text-zoru-ink-muted">
+              <p className="mt-1 text-[11px] text-[var(--st-text-secondary)]">
                 Customer cannot be changed after creation.
               </p>
             ) : null}
           </div>
           <div>
             <Label>
-              Payment method <span className="text-zoru-danger-ink">*</span>
+              Payment method <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <div className="mt-1.5">
               <EnumFormField
@@ -193,14 +193,14 @@ export function PaymentReceiptForm({ initial }: PaymentReceiptFormProps) {
               />
             </div>
             {editing ? (
-              <p className="mt-1 text-[11px] text-zoru-ink-muted">
+              <p className="mt-1 text-[11px] text-[var(--st-text-secondary)]">
                 Payment method cannot be changed after creation.
               </p>
             ) : null}
           </div>
           <div>
             <Label>
-              Bank account <span className="text-zoru-danger-ink">*</span>
+              Bank account <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <div className="mt-1.5">
               <EntityFormField
@@ -228,13 +228,13 @@ export function PaymentReceiptForm({ initial }: PaymentReceiptFormProps) {
       </Card>
 
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Amount
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <Label htmlFor="amount">
-              Amount <span className="text-zoru-danger-ink">*</span>
+              Amount <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <Input
               id="amount"
@@ -248,7 +248,7 @@ export function PaymentReceiptForm({ initial }: PaymentReceiptFormProps) {
               disabled={editing}
             />
             {editing ? (
-              <p className="mt-1 text-[11px] text-zoru-ink-muted">
+              <p className="mt-1 text-[11px] text-[var(--st-text-secondary)]">
                 Amount cannot be edited; void and recreate to change.
               </p>
             ) : null}
@@ -329,10 +329,10 @@ export function PaymentReceiptForm({ initial }: PaymentReceiptFormProps) {
       </Card>
 
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Allocation
         </h3>
-        <p className="mb-3 text-[12px] text-zoru-ink-muted">
+        <p className="mb-3 text-[12px] text-[var(--st-text-secondary)]">
           Optional reference to an invoice this receipt applies to. Enter
           the invoice id or number for now — multi-invoice allocation
           lives on the invoice's payment ledger.
@@ -352,7 +352,7 @@ export function PaymentReceiptForm({ initial }: PaymentReceiptFormProps) {
       </Card>
 
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Notes
         </h3>
         <Textarea

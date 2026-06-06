@@ -269,7 +269,7 @@ export function SabcrmCommand({
           <ZoruCommandGroup heading="Records">
             <ZoruCommandItem value={`${RECORD_VALUE_PREFIX} ${query}`} disabled>
               <FileText />
-              <span className="truncate text-zoru-ink-muted">
+              <span className="truncate text-[var(--st-text-secondary)]">
                 Searching records…
               </span>
             </ZoruCommandItem>

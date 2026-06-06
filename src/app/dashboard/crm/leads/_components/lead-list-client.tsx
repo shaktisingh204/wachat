@@ -442,7 +442,7 @@ export function LeadListClient({
       key: 'firstName',
       header: 'First Name',
       sortable: true,
-      render: (row) => <span className="text-[13px] text-zoru-ink">{row.firstName}</span>,
+      render: (row) => <span className="text-[13px] text-[var(--st-text)]">{row.firstName}</span>,
       editRender: (row, value, onChange) => (
         <Input
           size="sm"
@@ -456,7 +456,7 @@ export function LeadListClient({
       key: 'lastName',
       header: 'Last Name',
       sortable: true,
-      render: (row) => <span className="text-[13px] text-zoru-ink">{row.lastName}</span>,
+      render: (row) => <span className="text-[13px] text-[var(--st-text)]">{row.lastName}</span>,
       editRender: (row, value, onChange) => (
         <Input
           size="sm"
@@ -472,9 +472,9 @@ export function LeadListClient({
       sortable: true,
       render: (row) =>
         row.email ? (
-          <span className="text-[12.5px] text-zoru-ink">{row.email}</span>
+          <span className="text-[12.5px] text-[var(--st-text)]">{row.email}</span>
         ) : (
-          <span className="text-zoru-ink-muted">—</span>
+          <span className="text-[var(--st-text-secondary)]">—</span>
         ),
       editRender: (row, value, onChange) => (
         <Input
@@ -491,9 +491,9 @@ export function LeadListClient({
       header: 'Phone',
       render: (row) =>
         row.phone ? (
-          <span className="text-[12.5px] text-zoru-ink">{row.phone}</span>
+          <span className="text-[12.5px] text-[var(--st-text)]">{row.phone}</span>
         ) : (
-          <span className="text-zoru-ink-muted">—</span>
+          <span className="text-[var(--st-text-secondary)]">—</span>
         ),
       editRender: (row, value, onChange) => (
         <Input
@@ -508,7 +508,7 @@ export function LeadListClient({
       key: 'company',
       header: 'Company',
       sortable: true,
-      render: (row) => <span className="text-[13px] text-zoru-ink">{row.company || '—'}</span>,
+      render: (row) => <span className="text-[13px] text-[var(--st-text)]">{row.company || '—'}</span>,
       editRender: (row, value, onChange) => (
         <Input
           size="sm"
@@ -541,7 +541,7 @@ export function LeadListClient({
         <select
           value={value?.name || value || 'new'}
           onChange={(e) => onChange({ name: e.target.value })}
-          className="h-8 rounded border border-zoru-line bg-zoru-bg px-2 py-0.5 text-[12.5px] text-zoru-ink outline-none"
+          className="h-8 rounded border border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-0.5 text-[12.5px] text-[var(--st-text)] outline-none"
         >
           {LEAD_STATUS_OPTIONS.map((st) => (
             <option key={st} value={st}>
@@ -556,7 +556,7 @@ export function LeadListClient({
       header: 'Est. Value',
       sortable: true,
       render: (row) => (
-        <span className="text-[12.5px] tabular-nums font-medium text-zoru-ink">
+        <span className="text-[12.5px] tabular-nums font-medium text-[var(--st-text)]">
           {fmtMoney(row.estimatedValue, row.currency, locale)}
         </span>
       ),
@@ -631,7 +631,7 @@ export function LeadListClient({
       render: () => (
         <div className="space-y-4">
           <div className="space-y-1">
-            <Label className="text-[12px] font-medium text-zoru-ink-muted">First name *</Label>
+            <Label className="text-[12px] font-medium text-[var(--st-text-secondary)]">First name *</Label>
             <Input
               value={formLead.firstName || ''}
               onChange={(e) => handleUpdateFormField('firstName', e.target.value)}
@@ -641,7 +641,7 @@ export function LeadListClient({
             />
           </div>
           <div className="space-y-1">
-            <Label className="text-[12px] font-medium text-zoru-ink-muted">Last name *</Label>
+            <Label className="text-[12px] font-medium text-[var(--st-text-secondary)]">Last name *</Label>
             <Input
               value={formLead.lastName || ''}
               onChange={(e) => handleUpdateFormField('lastName', e.target.value)}
@@ -651,7 +651,7 @@ export function LeadListClient({
             />
           </div>
           <div className="space-y-1">
-            <Label className="text-[12px] font-medium text-zoru-ink-muted">Company</Label>
+            <Label className="text-[12px] font-medium text-[var(--st-text-secondary)]">Company</Label>
             <Input
               value={formLead.company || ''}
               onChange={(e) => handleUpdateFormField('company', e.target.value)}
@@ -660,7 +660,7 @@ export function LeadListClient({
             />
           </div>
           <div className="space-y-1">
-            <Label className="text-[12px] font-medium text-zoru-ink-muted">Job title</Label>
+            <Label className="text-[12px] font-medium text-[var(--st-text-secondary)]">Job title</Label>
             <div className="mt-1">
               <EntityFormField
                 entity="jobTitle"
@@ -671,7 +671,7 @@ export function LeadListClient({
             </div>
           </div>
           <div className="space-y-1">
-            <Label className="text-[12px] font-medium text-zoru-ink-muted">Industry</Label>
+            <Label className="text-[12px] font-medium text-[var(--st-text-secondary)]">Industry</Label>
             <div className="mt-1">
               <EntityFormField
                 entity="industry"
@@ -690,7 +690,7 @@ export function LeadListClient({
       render: () => (
         <div className="space-y-4">
           <div className="space-y-1">
-            <Label className="text-[12px] font-medium text-zoru-ink-muted">Email address</Label>
+            <Label className="text-[12px] font-medium text-[var(--st-text-secondary)]">Email address</Label>
             <Input
               type="email"
               value={formLead.email || ''}
@@ -700,7 +700,7 @@ export function LeadListClient({
             />
           </div>
           <div className="space-y-1">
-            <Label className="text-[12px] font-medium text-zoru-ink-muted">Phone number</Label>
+            <Label className="text-[12px] font-medium text-[var(--st-text-secondary)]">Phone number</Label>
             <Input
               type="tel"
               value={formLead.phone || ''}
@@ -718,7 +718,7 @@ export function LeadListClient({
       render: () => (
         <div className="space-y-4">
           <div className="space-y-1">
-            <Label className="text-[12px] font-medium text-zoru-ink-muted">Estimated value</Label>
+            <Label className="text-[12px] font-medium text-[var(--st-text-secondary)]">Estimated value</Label>
             <Input
               type="number"
               value={formLead.estimatedValue !== undefined ? String(formLead.estimatedValue) : ''}
@@ -733,7 +733,7 @@ export function LeadListClient({
             />
           </div>
           <div className="space-y-1">
-            <Label className="text-[12px] font-medium text-zoru-ink-muted">Currency</Label>
+            <Label className="text-[12px] font-medium text-[var(--st-text-secondary)]">Currency</Label>
             <div className="mt-1">
               <EntityFormField
                 entity="currency"
@@ -744,7 +744,7 @@ export function LeadListClient({
             </div>
           </div>
           <div className="space-y-1">
-            <Label className="text-[12px] font-medium text-zoru-ink-muted">Probability %</Label>
+            <Label className="text-[12px] font-medium text-[var(--st-text-secondary)]">Probability %</Label>
             <Input
               type="number"
               value={formLead.probabilityPct !== undefined ? String(formLead.probabilityPct) : ''}
@@ -761,7 +761,7 @@ export function LeadListClient({
             />
           </div>
           <div className="space-y-1">
-            <Label className="text-[12px] font-medium text-zoru-ink-muted">Expected close date</Label>
+            <Label className="text-[12px] font-medium text-[var(--st-text-secondary)]">Expected close date</Label>
             <input
               type="date"
               value={
@@ -770,7 +770,7 @@ export function LeadListClient({
                   : ''
               }
               onChange={(e) => handleUpdateFormField('expectedClose', e.target.value)}
-              className="flex h-10 w-full rounded-md border border-zoru-line bg-zoru-bg px-3 py-1.5 text-[13px] text-zoru-ink shadow-sm"
+              className="flex h-10 w-full rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-1.5 text-[13px] text-[var(--st-text)] shadow-sm"
             />
           </div>
         </div>
@@ -782,7 +782,7 @@ export function LeadListClient({
       render: () => (
         <div className="space-y-4">
           <div className="space-y-1">
-            <Label className="text-[12px] font-medium text-zoru-ink-muted">Status</Label>
+            <Label className="text-[12px] font-medium text-[var(--st-text-secondary)]">Status</Label>
             <div className="mt-1">
               <EnumFormField
                 enumName="leadStatus"
@@ -797,7 +797,7 @@ export function LeadListClient({
             </div>
           </div>
           <div className="space-y-1">
-            <Label className="text-[12px] font-medium text-zoru-ink-muted">Lead score (0–100)</Label>
+            <Label className="text-[12px] font-medium text-[var(--st-text-secondary)]">Lead score (0–100)</Label>
             <Input
               type="number"
               value={formLead.leadScore !== undefined ? String(formLead.leadScore) : ''}
@@ -813,7 +813,7 @@ export function LeadListClient({
             />
           </div>
           <div className="space-y-1">
-            <Label className="text-[12px] font-medium text-zoru-ink-muted">Source</Label>
+            <Label className="text-[12px] font-medium text-[var(--st-text-secondary)]">Source</Label>
             <div className="mt-1">
               <EntityFormField
                 entity="leadSource"
@@ -824,7 +824,7 @@ export function LeadListClient({
             </div>
           </div>
           <div className="space-y-1">
-            <Label className="text-[12px] font-medium text-zoru-ink-muted">Sub-source</Label>
+            <Label className="text-[12px] font-medium text-[var(--st-text-secondary)]">Sub-source</Label>
             <Input
               value={formLead.subSource || ''}
               onChange={(e) => handleUpdateFormField('subSource', e.target.value)}
@@ -833,7 +833,7 @@ export function LeadListClient({
             />
           </div>
           <div className="space-y-1">
-            <Label className="text-[12px] font-medium text-zoru-ink-muted">Owner (SDR)</Label>
+            <Label className="text-[12px] font-medium text-[var(--st-text-secondary)]">Owner (SDR)</Label>
             <div className="mt-1">
               <EntityFormField
                 entity="user"
@@ -844,7 +844,7 @@ export function LeadListClient({
             </div>
           </div>
           <div className="space-y-1">
-            <Label className="text-[12px] font-medium text-zoru-ink-muted">Assigned to (AE)</Label>
+            <Label className="text-[12px] font-medium text-[var(--st-text-secondary)]">Assigned to (AE)</Label>
             <div className="mt-1">
               <EntityFormField
                 entity="user"
@@ -923,7 +923,7 @@ export function LeadListClient({
       </div>
 
       {/* Control Surface Filtering Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 w-full bg-zoru-surface-2/15 border border-zoru-line/50 p-2.5 rounded-lg">
+      <div className="flex flex-wrap items-center justify-between gap-3 w-full bg-[var(--st-bg-muted)]/15 border border-[var(--st-border)]/50 p-2.5 rounded-lg">
         <div className="flex flex-wrap items-center gap-2">
           {/* Omni Search */}
           <div className="relative max-w-xs">
@@ -948,7 +948,7 @@ export function LeadListClient({
               variant="ghost"
               size="sm"
               onClick={clearFilters}
-              className="text-zoru-ink-muted hover:text-zoru-ink gap-1"
+              className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)] gap-1"
             >
               Reset filters
             </Button>
@@ -957,8 +957,8 @@ export function LeadListClient({
 
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5">
-            <span className="text-[12px] text-zoru-ink-muted font-medium">Grid Density:</span>
-            <div className="flex items-center rounded-md border border-zoru-line p-0.5 bg-zoru-surface">
+            <span className="text-[12px] text-[var(--st-text-secondary)] font-medium">Grid Density:</span>
+            <div className="flex items-center rounded-md border border-[var(--st-border)] p-0.5 bg-[var(--st-bg-secondary)]">
               {(['comfortable', 'compact', 'dense'] as const).map((den) => (
                 <Button
                   key={den}
@@ -982,13 +982,13 @@ export function LeadListClient({
 
       {/* Sticky Mass Operations Bar */}
       {selected.size > 0 ? (
-        <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-3 py-2 shadow-[var(--zoru-shadow-sm)]">
-          <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink">
+        <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 shadow-[var(--zoru-shadow-sm)]">
+          <div className="flex items-center gap-2 text-[12.5px] text-[var(--st-text)]">
             <Badge variant="info">{selected.size} selected</Badge>
             <button
               type="button"
               onClick={clearSelection}
-              className="text-zoru-ink-muted hover:text-zoru-ink"
+              className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
             >
               Clear
             </button>
@@ -1003,7 +1003,7 @@ export function LeadListClient({
             <Button
               size="sm"
               variant="destructive"
-              className="h-8 text-[12px] bg-zoru-danger text-white hover:bg-zoru-danger/90"
+              className="h-8 text-[12px] bg-[var(--st-danger)] text-white hover:bg-[var(--st-danger)]/90"
               onClick={() => setBulkConfirmOpen(true)}
               disabled={bulkDeleting}
             >
@@ -1037,8 +1037,8 @@ export function LeadListClient({
         />
 
         {leads.length > 0 && (
-          <div className="absolute right-3 top-14 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1.5 bg-zoru-surface border border-zoru-line px-2 py-1 rounded-md shadow-sm pointer-events-auto">
-            <span className="text-[10px] font-semibold text-zoru-ink-muted uppercase">
+          <div className="absolute right-3 top-14 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1.5 bg-[var(--st-bg-secondary)] border border-[var(--st-border)] px-2 py-1 rounded-md shadow-sm pointer-events-auto">
+            <span className="text-[10px] font-semibold text-[var(--st-text-secondary)] uppercase">
               Power-Grid Enabled
             </span>
           </div>
@@ -1094,7 +1094,7 @@ export function LeadListClient({
                 void runSingleDelete();
               }}
               disabled={isDeleting}
-              className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
+              className="bg-[var(--st-danger)] text-white hover:bg-[var(--st-danger)]/90"
             >
               {isDeleting ? 'Deleting...' : 'Delete Permanently'}
             </ZoruAlertDialogAction>
@@ -1125,7 +1125,7 @@ export function LeadListClient({
                 runBulkDelete();
               }}
               disabled={bulkDeleting}
-              className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
+              className="bg-[var(--st-danger)] text-white hover:bg-[var(--st-danger)]/90"
             >
               {bulkDeleting ? 'Deleting Selected...' : 'Delete Selected'}
             </ZoruAlertDialogAction>

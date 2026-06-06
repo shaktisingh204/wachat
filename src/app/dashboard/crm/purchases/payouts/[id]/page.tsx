@@ -85,10 +85,10 @@ function Field({
 }) {
   return (
     <div>
-      <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
         {label}
       </div>
-      <div className="mt-1 text-[13px] text-zoru-ink">{children}</div>
+      <div className="mt-1 text-[13px] text-[var(--st-text)]">{children}</div>
     </div>
   );
 }
@@ -105,7 +105,7 @@ export default async function PayoutDetailPage({
     if (error) {
       return (
         <div className="flex w-full flex-col gap-4 p-6">
-          <p className="text-[14px] text-zoru-ink">
+          <p className="text-[14px] text-[var(--st-text)]">
             Couldn&apos;t load this payout — {error}
           </p>
           <Button variant="outline" asChild>
@@ -180,21 +180,21 @@ export default async function PayoutDetailPage({
             </ZoruCardHeader>
             <ZoruCardContent>
               <div className="flex flex-col gap-3 text-[13px] tabular-nums">
-                <div className="flex items-center justify-between text-zoru-ink-muted">
+                <div className="flex items-center justify-between text-[var(--st-text-secondary)]">
                   <span>Paid</span>
-                  <span className="text-zoru-ink">
+                  <span className="text-[var(--st-text)]">
                     {fmtMoney(payout.amount, currency)}
                   </span>
                 </div>
-                <div className="flex items-center justify-between text-zoru-ink-muted">
+                <div className="flex items-center justify-between text-[var(--st-text-secondary)]">
                   <span>Settled</span>
                   <span>{fmtMoney(totalSettled, currency)}</span>
                 </div>
-                <div className="flex items-center justify-between text-zoru-ink-muted">
+                <div className="flex items-center justify-between text-[var(--st-text-secondary)]">
                   <span>TDS</span>
                   <span>{fmtMoney(payout.tdsDeducted, currency)}</span>
                 </div>
-                <div className="flex items-center justify-between border-t border-zoru-line pt-3 text-[14px] font-semibold text-zoru-ink">
+                <div className="flex items-center justify-between border-t border-[var(--st-border)] pt-3 text-[14px] font-semibold text-[var(--st-text)]">
                   <span>Advance</span>
                   <span>{fmtMoney(advance, currency)}</span>
                 </div>
@@ -260,22 +260,22 @@ export default async function PayoutDetailPage({
               {payout.applyTo.map((row, idx) => (
                 <li
                   key={`${row.billId}-${idx}`}
-                  className="flex items-center justify-between rounded-md border border-zoru-line bg-zoru-surface-2 px-3 py-2"
+                  className="flex items-center justify-between rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2"
                 >
                   <Link
                     href={`/dashboard/crm/purchases/expenses/${row.billId}`}
-                    className="text-[13px] font-medium text-zoru-ink hover:underline"
+                    className="text-[13px] font-medium text-[var(--st-text)] hover:underline"
                   >
                     {row.billId.slice(-8)}
                   </Link>
-                  <span className="text-[13px] tabular-nums text-zoru-ink">
+                  <span className="text-[13px] tabular-nums text-[var(--st-text)]">
                     {fmtMoney(row.amount, currency)}
                   </span>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-[12.5px] text-zoru-ink-muted">
+            <p className="text-[12.5px] text-[var(--st-text-secondary)]">
               No bills applied — this payout records an advance.
             </p>
           )}
@@ -304,10 +304,10 @@ export default async function PayoutDetailPage({
           </div>
           {payout.notes ? (
             <div className="mt-4">
-              <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+              <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Notes
               </div>
-              <div className="mt-1 whitespace-pre-wrap text-[13px] text-zoru-ink">
+              <div className="mt-1 whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
                 {payout.notes}
               </div>
             </div>
@@ -315,7 +315,7 @@ export default async function PayoutDetailPage({
         </ZoruCardContent>
       </Card>
 
-      <div className="text-[11px] text-zoru-ink-muted">
+      <div className="text-[11px] text-[var(--st-text-secondary)]">
         Created {fmtDate(payout.createdAt || payout.audit?.createdAt)} ·
         Updated {fmtDate(payout.updatedAt || payout.audit?.updatedAt)}
       </div>

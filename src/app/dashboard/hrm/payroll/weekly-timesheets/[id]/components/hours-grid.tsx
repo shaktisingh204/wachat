@@ -59,10 +59,10 @@ export function HoursGrid({
   return (
     <Card className="p-6">
       <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-[16px] text-zoru-ink">Hours Grid</h2>
+        <h2 className="text-[16px] text-[var(--st-text)]">Hours Grid</h2>
         <div className="flex items-center gap-2">
           <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
             <Input
               placeholder="Filter tasks..."
               value={searchQuery}
@@ -85,10 +85,10 @@ export function HoursGrid({
         </div>
       </div>
 
-      <div ref={parentRef} className="overflow-x-auto overflow-y-auto max-h-[500px] rounded-lg border border-zoru-line">
+      <div ref={parentRef} className="overflow-x-auto overflow-y-auto max-h-[500px] rounded-lg border border-[var(--st-border)]">
         <table className="w-full min-w-[900px] text-[13px] border-collapse relative">
-          <thead className="sticky top-0 z-10 bg-zoru-surface-2 shadow-sm">
-            <tr className="border-b border-zoru-line">
+          <thead className="sticky top-0 z-10 bg-[var(--st-bg-muted)] shadow-sm">
+            <tr className="border-b border-[var(--st-border)]">
               <th className="px-3 py-2 text-center w-[40px]">
                 <Checkbox
                   checked={selectedTasks.size === filteredTasks.length && filteredTasks.length > 0}
@@ -96,19 +96,19 @@ export function HoursGrid({
                   disabled={!canEdit}
                 />
               </th>
-              <th className="px-3 py-2 text-left text-[12px] font-medium text-zoru-ink-muted min-w-[200px]">
+              <th className="px-3 py-2 text-left text-[12px] font-medium text-[var(--st-text-secondary)] min-w-[200px]">
                 Task / Description
               </th>
               {weekDays.map((d) => (
                 <th
                   key={d.toISOString()}
-                  className="border-l border-zoru-line px-3 py-2 text-center text-[12px] font-medium text-zoru-ink"
+                  className="border-l border-[var(--st-border)] px-3 py-2 text-center text-[12px] font-medium text-[var(--st-text)]"
                 >
                   <div>{format(d, 'EEE')}</div>
-                  <div className="text-[11px] text-zoru-ink-muted">{format(d, 'MMM d')}</div>
+                  <div className="text-[11px] text-[var(--st-text-secondary)]">{format(d, 'MMM d')}</div>
                 </th>
               ))}
-              <th className="border-l border-zoru-line px-3 py-2 text-center text-[12px] font-medium text-zoru-ink-muted">
+              <th className="border-l border-[var(--st-border)] px-3 py-2 text-center text-[12px] font-medium text-[var(--st-text-secondary)]">
                 Total
               </th>
             </tr>
@@ -122,7 +122,7 @@ export function HoursGrid({
               const rowTotal = weekDays.reduce((sum, d) => sum + (rowHours[wsToISODate(d)] || 0), 0);
 
               return (
-                <tr key={taskId} className="border-b border-zoru-line last:border-b-0 hover:bg-zoru-surface/50">
+                <tr key={taskId} className="border-b border-[var(--st-border)] last:border-b-0 hover:bg-[var(--st-bg-secondary)]/50">
                   <td className="px-3 py-2 text-center">
                     <Checkbox
                       checked={selectedTasks.has(taskId)}
@@ -130,13 +130,13 @@ export function HoursGrid({
                       disabled={!canEdit}
                     />
                   </td>
-                  <td className="px-3 py-2 text-[13px] text-zoru-ink font-medium">
+                  <td className="px-3 py-2 text-[13px] text-[var(--st-text)] font-medium">
                     {taskId === 'default' ? 'Hours logged (General)' : taskId}
                   </td>
                   {weekDays.map((d) => {
                     const key = wsToISODate(d);
                     return (
-                      <td key={d.toISOString()} className="border-l border-zoru-line px-2 py-1.5 text-center">
+                      <td key={d.toISOString()} className="border-l border-[var(--st-border)] px-2 py-1.5 text-center">
                         <Input
                           type="number"
                           min={0}
@@ -150,7 +150,7 @@ export function HoursGrid({
                       </td>
                     );
                   })}
-                  <td className="border-l border-zoru-line px-3 py-2 text-center font-semibold text-zoru-ink">
+                  <td className="border-l border-[var(--st-border)] px-3 py-2 text-center font-semibold text-[var(--st-text)]">
                     {rowTotal.toFixed(1)}h
                   </td>
                 </tr>
@@ -159,20 +159,20 @@ export function HoursGrid({
 
             {paddingBottom > 0 && <tr><td colSpan={10} style={{ height: `${paddingBottom}px` }} /></tr>}
           </tbody>
-          <tfoot className="sticky bottom-0 z-10 bg-zoru-surface-2 shadow-[0_-1px_0_0_rgba(0,0,0,0.1)]">
-            <tr className="border-t border-zoru-line">
-              <td colSpan={2} className="px-3 py-3 text-[12px] font-medium text-zoru-ink-muted text-right">
+          <tfoot className="sticky bottom-0 z-10 bg-[var(--st-bg-muted)] shadow-[0_-1px_0_0_rgba(0,0,0,0.1)]">
+            <tr className="border-t border-[var(--st-border)]">
+              <td colSpan={2} className="px-3 py-3 text-[12px] font-medium text-[var(--st-text-secondary)] text-right">
                 Daily Total
               </td>
               {columnTotals.map((h, i) => (
                 <td
                   key={i}
-                  className="border-l border-zoru-line px-3 py-3 text-center text-[13px] font-semibold text-zoru-ink"
+                  className="border-l border-[var(--st-border)] px-3 py-3 text-center text-[13px] font-semibold text-[var(--st-text)]"
                 >
                   {h.toFixed(1)}h
                 </td>
               ))}
-              <td className="border-l border-zoru-line px-3 py-3 text-center text-[13px] font-bold text-zoru-ink">
+              <td className="border-l border-[var(--st-border)] px-3 py-3 text-center text-[13px] font-bold text-[var(--st-text)]">
                 {grandTotal.toFixed(1)}h
               </td>
             </tr>
@@ -180,7 +180,7 @@ export function HoursGrid({
         </table>
       </div>
       {!canEdit && (
-        <p className="mt-3 text-[12px] text-zoru-ink-muted">
+        <p className="mt-3 text-[12px] text-[var(--st-text-secondary)]">
           Timesheet is {status} — editing is disabled.
         </p>
       )}

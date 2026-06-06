@@ -242,7 +242,7 @@ export function PettyCashVoucherDialog({
               id="pv-category"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="mt-1.5 h-10 w-full rounded-lg border border-zoru-line bg-zoru-surface px-3 text-[13px] text-zoru-ink"
+              className="mt-1.5 h-10 w-full rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 text-[13px] text-[var(--st-text)]"
             >
               {VOUCHER_CATEGORIES.map((c) => (
                 <option key={c} value={c}>
@@ -263,7 +263,7 @@ export function PettyCashVoucherDialog({
                 className="mt-1.5"
                 placeholder="0.00"
               />
-              {isOcrLoading && <LoaderCircle className="h-5 w-5 mt-3 animate-spin text-zoru-primary" />}
+              {isOcrLoading && <LoaderCircle className="h-5 w-5 mt-3 animate-spin text-[var(--st-text)]" />}
             </div>
           </div>
           <div>

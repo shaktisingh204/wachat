@@ -104,8 +104,8 @@ export default function BudgetsPage() {
     >
       <Suspense
         fallback={
-          <div className="flex h-32 w-full items-center justify-center rounded-lg border border-zoru-line border-dashed bg-zoru-surface/50">
-            <LoaderCircle className="h-6 w-6 animate-spin text-zoru-ink-muted" />
+          <div className="flex h-32 w-full items-center justify-center rounded-lg border border-[var(--st-border)] border-dashed bg-[var(--st-bg-secondary)]/50">
+            <LoaderCircle className="h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
           </div>
         }
       >

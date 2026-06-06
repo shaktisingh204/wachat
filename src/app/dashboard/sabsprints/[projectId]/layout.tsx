@@ -21,10 +21,10 @@ export default async function AgileLayout({
     <div className="zoruui flex flex-col gap-6 p-6">
       <PageHeader bordered={false}>
         <div className="flex flex-col gap-0.5">
-          <p className="text-xs uppercase tracking-wider text-zoru-ink-subtle">
+          <p className="text-xs uppercase tracking-wider text-[var(--st-text-tertiary)]">
             Project &bull; Agile
           </p>
-          <h1 className="text-2xl font-semibold text-zoru-ink">
+          <h1 className="text-2xl font-semibold text-[var(--st-text)]">
             Scrum workspace
           </h1>
         </div>

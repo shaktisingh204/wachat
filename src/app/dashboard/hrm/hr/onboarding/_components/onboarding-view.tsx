@@ -210,7 +210,7 @@ export function OnboardingView({ initial }: { initial: Onboarding[] }) {
       render: (r) => (
         <Link
           href={`/dashboard/hrm/hr/onboarding/${r._id}`}
-          className="font-medium text-zoru-ink hover:underline"
+          className="font-medium text-[var(--st-text)] hover:underline"
         >
           {r.task_name || '—'}
         </Link>

@@ -243,9 +243,9 @@ export function VendorBidForm({ initial }: VendorBidFormProps) {
 
   if (isLocked) {
     return (
-      <div className="rounded-md border border-zoru-line bg-zoru-surface-2 p-6 text-center">
-        <h3 className="text-[14px] font-semibold text-zoru-ink">Bid is Locked</h3>
-        <p className="mt-2 text-[13px] text-zoru-ink-muted">
+      <div className="rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-6 text-center">
+        <h3 className="text-[14px] font-semibold text-[var(--st-text)]">Bid is Locked</h3>
+        <p className="mt-2 text-[13px] text-[var(--st-text-secondary)]">
           This bid is currently <strong>{initial.status}</strong> and cannot be edited. Please withdraw or change its status first.
         </p>
         <Button variant="outline" asChild className="mt-4">
@@ -269,13 +269,13 @@ export function VendorBidForm({ initial }: VendorBidFormProps) {
 
       {/* ─── Header ─────────────────────────────────────────────── */}
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Header
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <Label>
-              Vendor <span className="text-zoru-danger-ink">*</span>
+              Vendor <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <div className="mt-1.5">
               <EntityFormField
@@ -286,14 +286,14 @@ export function VendorBidForm({ initial }: VendorBidFormProps) {
                 required
               />
             </div>
-            <p className="mt-1 text-[11px] text-zoru-ink-muted">
+            <p className="mt-1 text-[11px] text-[var(--st-text-secondary)]">
               The vendor's display name is mirrored as the bid's back-link
               label.
             </p>
           </div>
           <div>
             <Label>
-              Related RFQ <span className="text-zoru-danger-ink">*</span>
+              Related RFQ <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <div className="mt-1.5">
               {editing ? (
@@ -317,7 +317,7 @@ export function VendorBidForm({ initial }: VendorBidFormProps) {
               )}
             </div>
             {editing ? (
-              <p className="mt-1 text-[11px] text-zoru-ink-muted">
+              <p className="mt-1 text-[11px] text-[var(--st-text-secondary)]">
                 The RFQ parent is immutable — withdraw + resubmit instead.
               </p>
             ) : null}
@@ -342,7 +342,7 @@ export function VendorBidForm({ initial }: VendorBidFormProps) {
               defaultValue={toDateInputValue(initial?.submittedAt)}
               className="mt-1.5"
             />
-            <p className="mt-1 text-[11px] text-zoru-ink-muted">
+            <p className="mt-1 text-[11px] text-[var(--st-text-secondary)]">
               Captured as a free-form date for now — pricing-validity
               cascades land with the RFQ surface.
             </p>
@@ -353,8 +353,8 @@ export function VendorBidForm({ initial }: VendorBidFormProps) {
       {/* ─── Line Items ─────────────────────────────────────────── */}
       <Card className="p-6">
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-            Line items <span className="text-zoru-danger-ink">*</span>
+          <h3 className="text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
+            Line items <span className="text-[var(--st-danger)]">*</span>
           </h3>
           <Button type="button" size="sm" variant="outline" onClick={addLine}>
             <Plus className="h-3.5 w-3.5" />
@@ -365,7 +365,7 @@ export function VendorBidForm({ initial }: VendorBidFormProps) {
         <div className="overflow-x-auto">
           <table className="w-full text-[12.5px]">
             <thead>
-              <tr className="border-b border-zoru-line text-left text-zoru-ink-muted">
+              <tr className="border-b border-[var(--st-border)] text-left text-[var(--st-text-secondary)]">
                 <th className="py-2 pr-3 font-medium">Item</th>
                 <th className="py-2 pr-3 font-medium">Qty</th>
                 <th className="py-2 pr-3 font-medium">Unit price</th>
@@ -379,7 +379,7 @@ export function VendorBidForm({ initial }: VendorBidFormProps) {
               {lines.map((line, idx) => (
                 <tr
                   key={line.key}
-                  className="border-b border-zoru-line/60 align-top"
+                  className="border-b border-[var(--st-border)]/60 align-top"
                 >
                   <td className="py-2 pr-2 min-w-[220px]">
                     <EntityPicker
@@ -452,7 +452,7 @@ export function VendorBidForm({ initial }: VendorBidFormProps) {
                       className="h-8 text-[12.5px]"
                     />
                   </td>
-                  <td className="py-2 pr-2 text-right tabular-nums text-zoru-ink">
+                  <td className="py-2 pr-2 text-right tabular-nums text-[var(--st-text)]">
                     {fmtMoney(lineTotals[idx] || 0, currency)}
                   </td>
                   <td className="py-2 pl-1">
@@ -462,7 +462,7 @@ export function VendorBidForm({ initial }: VendorBidFormProps) {
                       variant="ghost"
                       disabled={lines.length === 1}
                       onClick={() => removeLine(line.key)}
-                      className="text-zoru-danger-ink"
+                      className="text-[var(--st-danger)]"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>
@@ -476,24 +476,24 @@ export function VendorBidForm({ initial }: VendorBidFormProps) {
 
       {/* ─── Totals ─────────────────────────────────────────────── */}
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Totals
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
-          <div className="text-[12.5px] text-zoru-ink-muted">
+          <div className="text-[12.5px] text-[var(--st-text-secondary)]">
             Vendor bids carry a flat <code>qty × rate</code> total. Document-
             level discount, taxes, and adjustment cascades land with the
             invoice surface — capture vendor caveats in the Terms field
             below.
           </div>
-          <div className="flex flex-col justify-end gap-2 rounded-md border border-zoru-line bg-zoru-surface-2 p-4 text-[13px]">
-            <div className="flex justify-between text-zoru-ink-muted">
+          <div className="flex flex-col justify-end gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 text-[13px]">
+            <div className="flex justify-between text-[var(--st-text-secondary)]">
               <span>Sub-total</span>
-              <span className="tabular-nums text-zoru-ink">
+              <span className="tabular-nums text-[var(--st-text)]">
                 {fmtMoney(subTotal, currency)}
               </span>
             </div>
-            <div className="mt-2 flex justify-between border-t border-zoru-line pt-2 text-[14px] font-semibold text-zoru-ink">
+            <div className="mt-2 flex justify-between border-t border-[var(--st-border)] pt-2 text-[14px] font-semibold text-[var(--st-text)]">
               <span>Grand total</span>
               <span className="tabular-nums">
                 {fmtMoney(grandTotal, currency)}
@@ -505,7 +505,7 @@ export function VendorBidForm({ initial }: VendorBidFormProps) {
 
       {/* ─── Status + terms ─────────────────────────────────────── */}
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Workflow
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
@@ -520,7 +520,7 @@ export function VendorBidForm({ initial }: VendorBidFormProps) {
                 onChange={(id) => setStatus(id ?? '')}
               />
             </div>
-            <p className="mt-1 text-[11px] text-zoru-ink-muted">
+            <p className="mt-1 text-[11px] text-[var(--st-text-secondary)]">
               Flipping to <strong>Awarded</strong> cascades the parent RFQ
               to <code>awarded</code> automatically.
             </p>

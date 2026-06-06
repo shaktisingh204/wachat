@@ -65,11 +65,11 @@ export default function TextRepeaterPage() {
         <Button
           variant="outline"
           size="icon"
-          className="absolute top-2 right-2 z-10 h-8 w-8 bg-zoru-surface/80 backdrop-blur"
+          className="absolute top-2 right-2 z-10 h-8 w-8 bg-[var(--st-bg-secondary)]/80 backdrop-blur"
           onClick={handleCopy}
           title="Copy output"
         >
-          {isCopied ? <Check className="h-4 w-4 text-zoru-success" /> : <Copy className="h-4 w-4" />}
+          {isCopied ? <Check className="h-4 w-4 text-[var(--st-status-ok)]" /> : <Copy className="h-4 w-4" />}
         </Button>
         <Textarea readOnly value={output} className="min-h-[220px] font-mono text-xs pr-12" placeholder="Output will appear here..." />
       </div>

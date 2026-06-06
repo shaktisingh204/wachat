@@ -47,7 +47,7 @@ export default async function EditWeeklyTimesheetPage(props: PageProps) {
     >
       <Suspense
         fallback={
-          <div className="py-12 text-center text-[13px] text-zoru-ink-muted bg-zoru-surface-1 rounded-lg border border-zoru-line animate-pulse">
+          <div className="py-12 text-center text-[13px] text-[var(--st-text-secondary)] bg-[var(--st-bg-secondary)] rounded-lg border border-[var(--st-border)] animate-pulse">
             Loading timesheet details…
           </div>
         }

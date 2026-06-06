@@ -172,10 +172,10 @@ export function PoForm({ initial }: PoFormProps) {
 
             <header className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                 <div>
-                    <h1 className="text-2xl font-semibold text-zoru-ink">
+                    <h1 className="text-2xl font-semibold text-[var(--st-text)]">
                         {editing ? 'Edit Production Order' : 'New Production Order'}
                     </h1>
-                    <p className="mt-1 text-sm text-zoru-ink-muted">
+                    <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
                         {editing
                             ? 'Update job-card details, schedule and notes.'
                             : 'Create a manufacturing job card. Pick a BOM to auto-populate components.'}
@@ -341,11 +341,11 @@ export function PoForm({ initial }: PoFormProps) {
                         rows={3}
                     />
                     {components.length > 0 ? (
-                        <div className="rounded border border-zoru-line p-3 text-[12.5px]">
-                            <div className="mb-1 font-medium text-zoru-ink">
+                        <div className="rounded border border-[var(--st-border)] p-3 text-[12.5px]">
+                            <div className="mb-1 font-medium text-[var(--st-text)]">
                                 Components from BOM ({components.length})
                             </div>
-                            <ul className="grid grid-cols-1 gap-y-1 text-zoru-ink-muted md:grid-cols-2">
+                            <ul className="grid grid-cols-1 gap-y-1 text-[var(--st-text-secondary)] md:grid-cols-2">
                                 {components.map((c, i) => (
                                     <li key={`${c.itemName}-${i}`} className="truncate">
                                         {c.itemName} — {c.qty} {c.unit ?? ''}
@@ -357,7 +357,7 @@ export function PoForm({ initial }: PoFormProps) {
                     <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                         <div>
                             <Label>Material cost</Label>
-                            <div className="font-mono text-[13px] text-zoru-ink">
+                            <div className="font-mono text-[13px] text-[var(--st-text)]">
                                 {materialCost.toLocaleString('en-IN', {
                                     style: 'currency',
                                     currency: 'INR',
@@ -389,7 +389,7 @@ export function PoForm({ initial }: PoFormProps) {
                         </div>
                         <div>
                             <Label>Total cost</Label>
-                            <div className="font-mono text-[13px] font-semibold text-zoru-ink">
+                            <div className="font-mono text-[13px] font-semibold text-[var(--st-text)]">
                                 {totalCost.toLocaleString('en-IN', {
                                     style: 'currency',
                                     currency: 'INR',
@@ -401,7 +401,7 @@ export function PoForm({ initial }: PoFormProps) {
                 </ZoruCardContent>
             </Card>
 
-            <div className="sticky bottom-0 flex justify-end gap-2 border-t border-zoru-line bg-zoru-bg py-3">
+            <div className="sticky bottom-0 flex justify-end gap-2 border-t border-[var(--st-border)] bg-[var(--st-bg)] py-3">
                 <Button variant="ghost" asChild>
                     <Link
                         href={

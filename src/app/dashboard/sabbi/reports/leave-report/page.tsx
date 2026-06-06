@@ -130,10 +130,10 @@ export default async function LeaveReportPage(props: PageProps) {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Card className="p-6">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-[16px] font-semibold text-zoru-ink">
+            <h2 className="text-[16px] font-semibold text-[var(--st-text)]">
               Leave days by type
             </h2>
-            <span className="text-[12px] text-zoru-ink-muted">
+            <span className="text-[12px] text-[var(--st-text-secondary)]">
               {byType.length} type{byType.length === 1 ? '' : 's'}
             </span>
           </div>
@@ -142,35 +142,35 @@ export default async function LeaveReportPage(props: PageProps) {
 
         <Card className="p-6">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-[16px] font-semibold text-zoru-ink">
+            <h2 className="text-[16px] font-semibold text-[var(--st-text)]">
               Monthly leave trend
             </h2>
-            <span className="text-[12px] text-zoru-ink-muted">days</span>
+            <span className="text-[12px] text-[var(--st-text-secondary)]">days</span>
           </div>
           <MonthlyTrendChart data={byMonth} label="Days" />
         </Card>
       </div>
 
       <Card className="p-0">
-        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+        <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <Table>
             <ZoruTableHeader>
-              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                <ZoruTableHead className="text-zoru-ink-muted">Employee</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Department</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Leave Type</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Reason</ZoruTableHead>
-                <ZoruTableHead className="text-right text-zoru-ink-muted">Days</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                <ZoruTableHead className="text-right text-zoru-ink-muted">Date</ZoruTableHead>
+              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Employee</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Department</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Leave Type</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Reason</ZoruTableHead>
+                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Days</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
+                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Date</ZoruTableHead>
               </ZoruTableRow>
             </ZoruTableHeader>
             <ZoruTableBody>
               {pageRows.length === 0 ? (
-                <ZoruTableRow className="border-zoru-line">
+                <ZoruTableRow className="border-[var(--st-border)]">
                   <ZoruTableCell
                     colSpan={7}
-                    className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                    className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     No leaves in this range.
                   </ZoruTableCell>
@@ -179,7 +179,7 @@ export default async function LeaveReportPage(props: PageProps) {
                 pageRows.map((r, i) => (
                   <ZoruTableRow
                     key={`${r.employeeId}-${i}`}
-                    className="border-zoru-line"
+                    className="border-[var(--st-border)]"
                   >
                     <ZoruTableCell>
                       <EntityRowLink
@@ -187,16 +187,16 @@ export default async function LeaveReportPage(props: PageProps) {
                         label={r.employeeName}
                       />
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-zoru-ink">
+                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                       <Badge variant="outline">{r.department}</Badge>
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-zoru-ink">
+                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                       {r.leaveTypeName}
                     </ZoruTableCell>
-                    <ZoruTableCell className="max-w-[240px] truncate text-[13px] text-zoru-ink-muted">
+                    <ZoruTableCell className="max-w-[240px] truncate text-[13px] text-[var(--st-text-secondary)]">
                       {r.reason}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
+                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
                       {r.days}
                     </ZoruTableCell>
                     <ZoruTableCell>
@@ -204,7 +204,7 @@ export default async function LeaveReportPage(props: PageProps) {
                         {r.status}
                       </Badge>
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-zoru-ink-muted">
+                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text-secondary)]">
                       {r.leaveDate ? r.leaveDate.slice(0, 10) : '—'}
                     </ZoruTableCell>
                   </ZoruTableRow>

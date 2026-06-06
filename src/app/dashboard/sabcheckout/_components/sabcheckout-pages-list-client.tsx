@@ -38,10 +38,10 @@ export function SabcheckoutPagesListClient({
 
   return (
     <Card className="flex flex-col overflow-hidden">
-      <div className="flex items-center justify-between border-b border-zoru-line bg-zoru-surface p-4">
+      <div className="flex items-center justify-between border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4">
         <div className="flex items-center gap-2">
           <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
             <Input
               type="search"
               placeholder="Search pages..."
@@ -60,28 +60,28 @@ export function SabcheckoutPagesListClient({
       </div>
       
       <ZoruCardContent className="p-0">
-        <ul className="divide-y divide-zoru-line">
+        <ul className="divide-y divide-[var(--st-border)]">
           {filteredItems.map((p) => (
             <li
               key={p._id}
-              className="group flex items-center justify-between gap-4 px-6 py-4 hover:bg-zoru-surface-hover/50 transition-colors"
+              className="group flex items-center justify-between gap-4 px-6 py-4 hover:bg-[var(--st-hover)]/50 transition-colors"
             >
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-3">
-                  <span className="truncate text-[15px] font-medium text-zoru-ink">
+                  <span className="truncate text-[15px] font-medium text-[var(--st-text)]">
                     {p.displayName}
                   </span>
                   <Badge variant={p.status === 'live' ? 'default' : 'secondary'} className="text-[11px] h-5">
                     {p.status}
                   </Badge>
-                  <Badge variant="outline" className="text-[11px] h-5 capitalize bg-zoru-bg">{p.mode}</Badge>
+                  <Badge variant="outline" className="text-[11px] h-5 capitalize bg-[var(--st-bg)]">{p.mode}</Badge>
                 </div>
-                <div className="mt-1 flex items-center gap-4 text-[13px] text-zoru-ink-subtle">
+                <div className="mt-1 flex items-center gap-4 text-[13px] text-[var(--st-text-tertiary)]">
                   <span className="flex items-center gap-1 font-mono text-xs">
                     /pay/{p.slug}
                   </span>
                   <span className="flex items-center gap-1">
-                    Currency: <span className="uppercase font-medium text-zoru-ink-muted">{p.currency}</span>
+                    Currency: <span className="uppercase font-medium text-[var(--st-text-secondary)]">{p.currency}</span>
                   </span>
                 </div>
               </div>
@@ -92,7 +92,7 @@ export function SabcheckoutPagesListClient({
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-zoru-ink-subtle hover:text-zoru-ink">
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-[var(--st-text-tertiary)] hover:text-[var(--st-text)]">
                     <ExternalLink className="h-4 w-4" />
                   </Button>
                 </Link>
@@ -124,7 +124,7 @@ export function SabcheckoutPagesListClient({
                       <Archive className="mr-2 h-4 w-4" />
                       Archive Page
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="text-zoru-danger focus:text-zoru-danger">
+                    <DropdownMenuItem className="text-[var(--st-danger)] focus:text-[var(--st-danger)]">
                       <Trash className="mr-2 h-4 w-4" />
                       Delete
                     </DropdownMenuItem>
@@ -134,7 +134,7 @@ export function SabcheckoutPagesListClient({
             </li>
           ))}
           {filteredItems.length === 0 && (
-            <li className="px-6 py-12 text-center text-sm text-zoru-ink-muted">
+            <li className="px-6 py-12 text-center text-sm text-[var(--st-text-secondary)]">
               No pages found matching "{search}".
             </li>
           )}

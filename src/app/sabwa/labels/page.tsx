@@ -183,20 +183,20 @@ export default function SabWaLabelsPage() {
         <div className="flex items-start gap-3">
           <div
             aria-hidden
-            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface text-zoru-ink"
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
           >
             <TagIcon className="h-6 w-6" />
           </div>
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-[24px] tracking-[-0.015em] text-zoru-ink leading-[1.2]">
+              <h1 className="text-[24px] tracking-[-0.015em] text-[var(--st-text)] leading-[1.2]">
                 Labels
               </h1>
               <Badge variant="ghost" className="text-[10.5px]">
                 {labels.length} total
               </Badge>
             </div>
-            <p className="mt-1 text-[13px] text-zoru-ink-muted">
+            <p className="mt-1 text-[13px] text-[var(--st-text-secondary)]">
               Group chats with named, colour-coded labels. Bulk-apply from
               the Chats screen, or filter the inbox.
             </p>
@@ -263,7 +263,7 @@ export default function SabWaLabelsPage() {
           <ZoruAlertDialogFooter>
             <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
             <ZoruAlertDialogAction
-              className="bg-zoru-danger text-zoru-danger-foreground hover:bg-zoru-danger/90"
+              className="bg-[var(--st-danger)] text-zoru-danger-foreground hover:bg-[var(--st-danger)]/90"
               onClick={() => deleting && handleDelete(deleting)}
             >
               Delete label
@@ -290,12 +290,12 @@ function LabelCard({ label, onEdit, onDelete }: LabelCardProps) {
       <ZoruCardContent className="flex items-start gap-3 p-4">
         <span
           aria-hidden
-          className="mt-0.5 h-8 w-8 shrink-0 rounded-[var(--zoru-radius)] border border-zoru-line"
+          className="mt-0.5 h-8 w-8 shrink-0 rounded-[var(--zoru-radius)] border border-[var(--st-border)]"
           style={{ backgroundColor: label.color }}
         />
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold text-zoru-ink">{label.name}</p>
-          <p className="mt-0.5 text-[11.5px] text-zoru-ink-muted">
+          <p className="truncate text-sm font-semibold text-[var(--st-text)]">{label.name}</p>
+          <p className="mt-0.5 text-[11.5px] text-[var(--st-text-secondary)]">
             {count} chat{count === 1 ? "" : "s"}
           </p>
         </div>
@@ -317,7 +317,7 @@ function LabelCard({ label, onEdit, onDelete }: LabelCardProps) {
             </ZoruDropdownMenuItem>
             <ZoruDropdownMenuItem
               onSelect={onDelete}
-              className="text-zoru-danger focus:text-zoru-danger"
+              className="text-[var(--st-danger)] focus:text-[var(--st-danger)]"
             >
               <Trash2 className="mr-2 h-4 w-4" /> Delete
             </ZoruDropdownMenuItem>
@@ -441,7 +441,7 @@ function LabelEditorDialog({
                     className={cn(
                       "relative flex h-8 w-8 items-center justify-center rounded-full border-2 transition-transform",
                       active
-                        ? "scale-110 border-zoru-ink"
+                        ? "scale-110 border-[var(--st-text)]"
                         : "border-transparent hover:scale-105",
                     )}
                     style={{ backgroundColor: c }}
@@ -508,12 +508,12 @@ function LabelsEmptyState({
       <ZoruCardContent className="flex flex-col items-center gap-3 py-12 text-center">
         <div
           aria-hidden
-          className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface text-zoru-ink"
+          className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
         >
           <TagIcon className="h-6 w-6" />
         </div>
-        <h2 className="text-base font-semibold text-zoru-ink">No labels yet</h2>
-        <p className="max-w-sm text-[13px] text-zoru-ink-muted">
+        <h2 className="text-base font-semibold text-[var(--st-text)]">No labels yet</h2>
+        <p className="max-w-sm text-[13px] text-[var(--st-text-secondary)]">
           Create your first label to start grouping chats — pick a name and a
           colour swatch.
         </p>

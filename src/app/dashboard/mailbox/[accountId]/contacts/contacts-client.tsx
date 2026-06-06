@@ -140,7 +140,7 @@ export function ContactsClient({
             </Card>
 
             <div className="flex items-center gap-2">
-                <Search className="h-4 w-4 text-zoru-ink-muted" />
+                <Search className="h-4 w-4 text-[var(--st-text-secondary)]" />
                 <Input
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
@@ -174,7 +174,7 @@ export function ContactsClient({
                                             ))}
                                         </div>
                                         {(c.sendCount ?? 0) + (c.receiveCount ?? 0) > 0 ? (
-                                            <div className="pt-1 text-xs text-zoru-ink-muted">
+                                            <div className="pt-1 text-xs text-[var(--st-text-secondary)]">
                                                 Sent {c.sendCount ?? 0} · Received {c.receiveCount ?? 0}
                                             </div>
                                         ) : null}

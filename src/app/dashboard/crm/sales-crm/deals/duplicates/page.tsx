@@ -71,9 +71,9 @@ function fmtDate(v?: string | null): string {
 function StatCard({ title, value, accent }: { title: string; value: number; accent?: string }) {
     return (
         <Card>
-            <p className="text-[13px] font-medium text-zoru-ink-muted">{title}</p>
-            <p className="mt-1 text-[28px] font-semibold text-zoru-ink">{value.toLocaleString()}</p>
-            {accent ? <p className="mt-1 text-[11.5px] text-zoru-ink-muted">{accent}</p> : null}
+            <p className="text-[13px] font-medium text-[var(--st-text-secondary)]">{title}</p>
+            <p className="mt-1 text-[28px] font-semibold text-[var(--st-text)]">{value.toLocaleString()}</p>
+            {accent ? <p className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">{accent}</p> : null}
         </Card>
     );
 }
@@ -120,22 +120,22 @@ function MergePanel({ group, onMerged }: MergePanelProps) {
     };
 
     return (
-        <div className="space-y-3 border-t border-zoru-line p-3">
-            <p className="text-[12px] font-medium text-zoru-ink">Pick the survivor</p>
+        <div className="space-y-3 border-t border-[var(--st-border)] p-3">
+            <p className="text-[12px] font-medium text-[var(--st-text)]">Pick the survivor</p>
             <RadioGroup value={survivor} onValueChange={setSurvivor} className="space-y-2">
                 {group.members.map((m) => (
                     <label
                         key={m._id}
                         htmlFor={`survivor-${group.signature}-${m._id}`}
-                        className="flex cursor-pointer items-start gap-3 rounded-md border border-zoru-line bg-zoru-surface-2/40 p-2.5 hover:border-primary"
+                        className="flex cursor-pointer items-start gap-3 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)]/40 p-2.5 hover:border-primary"
                     >
                         <ZoruRadioGroupItem id={`survivor-${group.signature}-${m._id}`} value={m._id} />
                         <div className="min-w-0 flex-1">
-                            <p className="text-[13px] font-medium text-zoru-ink">{m.name}</p>
-                            <p className="truncate text-[11.5px] text-zoru-ink-muted">
+                            <p className="text-[13px] font-medium text-[var(--st-text)]">{m.name}</p>
+                            <p className="truncate text-[11.5px] text-[var(--st-text-secondary)]">
                                 {m.stage ?? '—'} · close {fmtDate(m.expectedClose)}
                             </p>
-                            <p className="mt-1 font-mono text-[11.5px] text-zoru-ink-muted">
+                            <p className="mt-1 font-mono text-[11.5px] text-[var(--st-text-secondary)]">
                                 {fmtMoney(m.value, m.currency ?? 'INR')}
                             </p>
                         </div>
@@ -268,9 +268,9 @@ export default function DealDuplicatesPage() {
             empty={
                 !isPending && loaded && annotated.length === 0 ? (
                     <div className="flex flex-col items-center gap-3 p-4">
-                        <Copy className="h-8 w-8 text-zoru-ink-muted" />
-                        <h3 className="text-base font-medium text-zoru-ink">No duplicate clusters</h3>
-                        <p className="max-w-sm text-sm text-zoru-ink-muted">
+                        <Copy className="h-8 w-8 text-[var(--st-text-secondary)]" />
+                        <h3 className="text-base font-medium text-[var(--st-text)]">No duplicate clusters</h3>
+                        <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                             Deals are matched when they share a client, have an amount within ±5%,
                             and expected-close dates within ±7 days.
                         </p>
@@ -289,7 +289,7 @@ export default function DealDuplicatesPage() {
             <Card>
                 <div className="flex flex-wrap items-end gap-3">
                     <div className="min-w-[200px]">
-                        <p className="mb-1 text-[12px] font-medium text-zoru-ink">Status</p>
+                        <p className="mb-1 text-[12px] font-medium text-[var(--st-text)]">Status</p>
                         <Select
                             value={statusFilter}
                             onValueChange={(v) => setStatusFilter(v as StatusFilter)}
@@ -305,7 +305,7 @@ export default function DealDuplicatesPage() {
                             </ZoruSelectContent>
                         </Select>
                     </div>
-                    <p className="text-[12px] text-zoru-ink-muted">
+                    <p className="text-[12px] text-[var(--st-text-secondary)]">
                         Showing {visibleGroups.length} of {annotated.length}
                     </p>
                 </div>
@@ -317,8 +317,8 @@ export default function DealDuplicatesPage() {
                     const isIgnored = group.status === 'ignored';
                     return (
                         <Card key={group.signature} className="overflow-hidden p-0">
-                            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zoru-line p-3">
-                                <h3 className="text-[13px] font-medium text-zoru-ink">
+                            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--st-border)] p-3">
+                                <h3 className="text-[13px] font-medium text-[var(--st-text)]">
                                     {group.members[0]?.clientLabel || 'Cluster'}
                                 </h3>
                                 <div className="flex items-center gap-2">
@@ -352,28 +352,28 @@ export default function DealDuplicatesPage() {
                                             key={m._id}
                                             className={`flex flex-col gap-1 rounded-md border p-2.5 ${
                                                 isSurvivor
-                                                    ? 'border-zoru-success/40 bg-zoru-success/5'
+                                                    ? 'border-[var(--st-status-ok)]/40 bg-[var(--st-status-ok)]/5'
                                                     : wasMerged
-                                                      ? 'border-zoru-line bg-zoru-surface-2/40 opacity-60'
-                                                      : 'border-zoru-line bg-zoru-bg'
+                                                      ? 'border-[var(--st-border)] bg-[var(--st-bg-muted)]/40 opacity-60'
+                                                      : 'border-[var(--st-border)] bg-[var(--st-bg)]'
                                             }`}
                                         >
                                             <Link
                                                 href={`/dashboard/crm/sales-crm/deals/${m._id}`}
-                                                className="text-[13px] font-medium text-zoru-ink hover:underline"
+                                                className="text-[13px] font-medium text-[var(--st-text)] hover:underline"
                                             >
                                                 {m.name}
                                             </Link>
-                                            <p className="font-mono text-[11.5px] text-zoru-ink-muted">
+                                            <p className="font-mono text-[11.5px] text-[var(--st-text-secondary)]">
                                                 {fmtMoney(m.value, m.currency ?? 'INR')}
                                             </p>
-                                            <p className="text-[11.5px] text-zoru-ink-muted">
+                                            <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                                                 Stage: {m.stage ?? '—'}
                                             </p>
-                                            <p className="text-[11.5px] text-zoru-ink-muted">
+                                            <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                                                 Close: {fmtDate(m.expectedClose)}
                                             </p>
-                                            <p className="text-[11.5px] text-zoru-ink-muted">
+                                            <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                                                 Created: {fmtDate(m.createdAt)}
                                             </p>
                                             {isSurvivor ? (

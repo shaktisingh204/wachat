@@ -163,8 +163,8 @@ export default function CalendarPage() {
               aria-hidden
               className={
                 p.kind === "scheduled"
-                  ? "h-1.5 w-1.5 rounded-full bg-zoru-warning"
-                  : "h-1.5 w-1.5 rounded-full bg-zoru-success"
+                  ? "h-1.5 w-1.5 rounded-full bg-[var(--st-warn)]"
+                  : "h-1.5 w-1.5 rounded-full bg-[var(--st-status-ok)]"
               }
             />
             <span className="truncate">
@@ -173,7 +173,7 @@ export default function CalendarPage() {
           </span>
         ),
         meta: (
-          <span className="text-[10.5px] text-zoru-ink-subtle">
+          <span className="text-[10.5px] text-[var(--st-text-tertiary)]">
             {format(p.date, "p")}
           </span>
         ),

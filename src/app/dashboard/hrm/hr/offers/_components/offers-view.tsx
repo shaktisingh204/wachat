@@ -169,7 +169,7 @@ export function OffersView({ initial }: { initial: Offer[] }) {
         r.candidateId ? (
           <Link
             href={`/dashboard/hrm/hr/candidates/${r.candidateId}`}
-            className="text-zoru-ink hover:underline"
+            className="text-[var(--st-text)] hover:underline"
           >
             {shorten(r.candidateId)}
           </Link>

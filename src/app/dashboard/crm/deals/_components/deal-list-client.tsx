@@ -208,9 +208,9 @@ export function DealListClient({ deals: initialDeals, page, limit, total, hasMor
 
   return (
     <Card className="overflow-hidden p-0" ref={containerRef}>
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zoru-line p-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--st-border)] p-3">
         <div className="relative max-w-sm flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -239,7 +239,7 @@ export function DealListClient({ deals: initialDeals, page, limit, total, hasMor
       </div>
 
       {error ? (
-        <div className="flex items-center gap-2 border-b border-zoru-line/40 bg-zoru-ink/10 px-4 py-2.5 text-[13px] text-zoru-ink">
+        <div className="flex items-center gap-2 border-b border-[var(--st-border)]/40 bg-[var(--st-text)]/10 px-4 py-2.5 text-[13px] text-[var(--st-text)]">
           <AlertCircle className="h-4 w-4 shrink-0" /> {error}
         </div>
       ) : null}
@@ -261,7 +261,7 @@ export function DealListClient({ deals: initialDeals, page, limit, total, hasMor
             <ZoruTableBody>
               {deals.length === 0 ? (
                 <ZoruTableRow>
-                  <ZoruTableCell colSpan={7} className="h-24 text-center text-[13px] text-zoru-ink-muted">
+                  <ZoruTableCell colSpan={7} className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]">
                     {initialQuery ? 'No deals match this search.' : 'No deals yet — click "New deal" to add one.'}
                   </ZoruTableCell>
                 </ZoruTableRow>
@@ -272,7 +272,7 @@ export function DealListClient({ deals: initialDeals, page, limit, total, hasMor
                   return (
                     <ZoruTableRow key={id}>
                       <ZoruTableCell>
-                        <Link href={`/dashboard/crm/deals/${id}`} className="font-medium text-zoru-ink hover:underline">
+                        <Link href={`/dashboard/crm/deals/${id}`} className="font-medium text-[var(--st-text)] hover:underline">
                           {deal.title}
                         </Link>
                       </ZoruTableCell>
@@ -280,7 +280,7 @@ export function DealListClient({ deals: initialDeals, page, limit, total, hasMor
                         {deal.party?.id ? (
                           <EntityPickerChip entity={partyEntity} id={deal.party.id} />
                         ) : (
-                          <span className="text-[12.5px] text-zoru-ink-muted">—</span>
+                          <span className="text-[12.5px] text-[var(--st-text-secondary)]">—</span>
                         )}
                       </ZoruTableCell>
                       <ZoruTableCell>
@@ -289,10 +289,10 @@ export function DealListClient({ deals: initialDeals, page, limit, total, hasMor
                       <ZoruTableCell>
                         <Badge variant="outline">{deal.stageId || 'Unknown'}</Badge>
                       </ZoruTableCell>
-                      <ZoruTableCell className="tabular-nums text-[12.5px] text-zoru-ink">
+                      <ZoruTableCell className="tabular-nums text-[12.5px] text-[var(--st-text)]">
                         {fmtMoney(deal.amount, deal.currency)}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                      <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                         {fmtDate(deal.expectedClose)}
                       </ZoruTableCell>
                       <ZoruTableCell className="text-right">
@@ -306,7 +306,7 @@ export function DealListClient({ deals: initialDeals, page, limit, total, hasMor
                             size="sm"
                             variant="ghost"
                             onClick={() => setPendingDelete(deal)}
-                            className="text-zoru-danger-ink"
+                            className="text-[var(--st-danger)]"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </Button>
@@ -322,20 +322,20 @@ export function DealListClient({ deals: initialDeals, page, limit, total, hasMor
           <PaginationBar page={page} limit={limit} hasMore={hasMore} total={total} />
         </>
       ) : (
-        <div className="flex flex-1 gap-4 overflow-x-auto p-4 min-h-[500px] bg-zoru-surface">
+        <div className="flex flex-1 gap-4 overflow-x-auto p-4 min-h-[500px] bg-[var(--st-bg-secondary)]">
           {stages.length === 0 && (
-            <div className="w-full text-center text-zoru-ink-muted p-4">No stages defined for Kanban view.</div>
+            <div className="w-full text-center text-[var(--st-text-secondary)] p-4">No stages defined for Kanban view.</div>
           )}
           {stages.map((stage) => {
             const columnDeals = deals.filter(d => d.stageId === stage || (!d.stageId && stage === stages[0]));
             return (
               <div 
                 key={stage} 
-                className="flex-shrink-0 w-80 bg-zoru-background rounded-lg border border-zoru-line flex flex-col"
+                className="flex-shrink-0 w-80 bg-[var(--st-bg)] rounded-lg border border-[var(--st-border)] flex flex-col"
                 onDragOver={handleDragOver}
                 onDrop={(e) => handleDrop(e, stage)}
               >
-                <div className="p-3 border-b border-zoru-line bg-zoru-surface font-semibold text-zoru-ink text-sm flex justify-between items-center rounded-t-lg">
+                <div className="p-3 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] font-semibold text-[var(--st-text)] text-sm flex justify-between items-center rounded-t-lg">
                   <span>{stage}</span>
                   <Badge variant="outline" className="text-xs font-normal">{columnDeals.length}</Badge>
                 </div>
@@ -348,15 +348,15 @@ export function DealListClient({ deals: initialDeals, page, limit, total, hasMor
                         key={id}
                         draggable
                         onDragStart={(e) => handleDragStart(e, id)}
-                        className="kanban-card group cursor-grab active:cursor-grabbing bg-zoru-surface border border-zoru-line rounded-md p-3 shadow-sm hover:shadow-md transition-shadow relative"
+                        className="kanban-card group cursor-grab active:cursor-grabbing bg-[var(--st-bg-secondary)] border border-[var(--st-border)] rounded-md p-3 shadow-sm hover:shadow-md transition-shadow relative"
                       >
                         <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <GripVertical className="h-4 w-4 text-zoru-ink-muted" />
+                          <GripVertical className="h-4 w-4 text-[var(--st-text-secondary)]" />
                         </div>
-                        <Link href={`/dashboard/crm/deals/${id}`} className="font-medium text-zoru-ink hover:underline block mb-1">
+                        <Link href={`/dashboard/crm/deals/${id}`} className="font-medium text-[var(--st-text)] hover:underline block mb-1">
                           {deal.title}
                         </Link>
-                        <div className="text-xs text-zoru-ink-muted mb-2">
+                        <div className="text-xs text-[var(--st-text-secondary)] mb-2">
                           {deal.party?.id ? (
                             <EntityPickerChip entity={deal.party.kind === 'lead' ? 'lead' : 'client'} id={deal.party.id} />
                           ) : (
@@ -364,10 +364,10 @@ export function DealListClient({ deals: initialDeals, page, limit, total, hasMor
                           )}
                         </div>
                         <div className="flex justify-between items-end mt-3">
-                          <span className="tabular-nums font-semibold text-sm text-zoru-ink">
+                          <span className="tabular-nums font-semibold text-sm text-[var(--st-text)]">
                             {fmtMoney(deal.amount, deal.currency)}
                           </span>
-                          <span className="text-[11px] text-zoru-ink-muted">
+                          <span className="text-[11px] text-[var(--st-text-secondary)]">
                             {fmtDate(deal.expectedClose)}
                           </span>
                         </div>
@@ -398,7 +398,7 @@ export function DealListClient({ deals: initialDeals, page, limit, total, hasMor
                 confirmDelete();
               }}
               disabled={deleting}
-              className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
+              className="bg-[var(--st-danger)] text-white hover:bg-[var(--st-danger)]/90"
             >
               {deleting ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : null}
               Delete permanently

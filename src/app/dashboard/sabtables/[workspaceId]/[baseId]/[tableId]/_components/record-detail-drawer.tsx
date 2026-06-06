@@ -97,11 +97,11 @@ export function RecordDetailDrawer({
           <div className="font-medium">Comments</div>
           <div className="space-y-2">
             {comments.length === 0 ? (
-              <div className="text-sm text-zoru-ink-muted">No comments yet.</div>
+              <div className="text-sm text-[var(--st-text-secondary)]">No comments yet.</div>
             ) : (
               comments.map((c) => (
                 <div key={c._id} className="text-sm">
-                  <div className="font-medium text-xs text-zoru-ink-muted">
+                  <div className="font-medium text-xs text-[var(--st-text-secondary)]">
                     {new Date(c.createdAt ?? '').toLocaleString()}
                   </div>
                   <div>{c.body}</div>
@@ -135,7 +135,7 @@ function FieldRow({
 }) {
   return (
     <div className="space-y-1">
-      <Label className="text-xs uppercase tracking-wide text-zoru-ink-muted">
+      <Label className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
         {field.name}
       </Label>
       <FieldEditor field={field} value={value} onChange={onChange} />
@@ -232,7 +232,7 @@ function FieldEditor({
     case 'updated_by':
     case 'updated_at':
       return (
-        <div className="text-sm text-zoru-ink-muted">
+        <div className="text-sm text-[var(--st-text-secondary)]">
           {value == null ? '—' : String(value)}
         </div>
       );

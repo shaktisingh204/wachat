@@ -278,8 +278,8 @@ function ViewSwitcher({
           className={cn(
             'px-2.5 py-1.5 text-sm inline-flex items-center gap-1 border-r last:border-r-0',
             kind === k
-              ? 'bg-zoru-ink text-white'
-              : 'bg-zoru-surface text-zoru-ink-muted hover:text-zoru-ink',
+              ? 'bg-[var(--st-text)] text-white'
+              : 'bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
           )}
         >
           <Icon className="w-3.5 h-3.5" />
@@ -313,9 +313,9 @@ function GridView({
 }: GridProps) {
   return (
     <table className="min-w-full text-sm border-separate border-spacing-0">
-      <thead className="sticky top-0 bg-zoru-surface-2/50 z-10">
+      <thead className="sticky top-0 bg-[var(--st-bg-muted)]/50 z-10">
         <tr>
-          <th className="w-8 px-2 py-2 border-b border-r text-left text-zoru-ink-muted">
+          <th className="w-8 px-2 py-2 border-b border-r text-left text-[var(--st-text-secondary)]">
             #
           </th>
           {table.fields.map((f) => (
@@ -327,21 +327,21 @@ function GridView({
                 <span>
                   {f.name}
                   {f.id === primaryFieldId ? (
-                    <span className="ml-1 text-xs text-zoru-ink-muted">(primary)</span>
+                    <span className="ml-1 text-xs text-[var(--st-text-secondary)]">(primary)</span>
                   ) : null}
                 </span>
                 {f.id !== primaryFieldId ? (
                   <button
                     type="button"
                     onClick={() => onDeleteField(f.id)}
-                    className="opacity-0 group-hover:opacity-100 text-zoru-ink-muted hover:text-zoru-ink"
+                    className="opacity-0 group-hover:opacity-100 text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                     aria-label={`Delete field ${f.name}`}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 ) : null}
               </div>
-              <div className="text-[10px] uppercase tracking-wider text-zoru-ink-muted">
+              <div className="text-[10px] uppercase tracking-wider text-[var(--st-text-secondary)]">
                 {f.fieldType}
               </div>
             </th>
@@ -355,8 +355,8 @@ function GridView({
       </thead>
       <tbody>
         {records.map((r, idx) => (
-          <tr key={r._id} className="hover:bg-zoru-surface-2/30 group">
-            <td className="w-8 px-2 py-1 border-b border-r text-zoru-ink-muted text-xs">
+          <tr key={r._id} className="hover:bg-[var(--st-bg-muted)]/30 group">
+            <td className="w-8 px-2 py-1 border-b border-r text-[var(--st-text-secondary)] text-xs">
               <button
                 type="button"
                 onClick={() => onOpenRecord(r._id)}
@@ -379,7 +379,7 @@ function GridView({
               <button
                 type="button"
                 onClick={() => onDeleteRecord(r._id)}
-                className="opacity-0 group-hover:opacity-100 text-zoru-ink-muted hover:text-zoru-ink"
+                className="opacity-0 group-hover:opacity-100 text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                 aria-label="Delete record"
               >
                 <Trash2 className="w-4 h-4" />
@@ -457,7 +457,7 @@ function Cell({ field, value, onChange }: CellProps) {
       // Attachment cells delegate to SabFiles via the record drawer. In
       // the inline grid we just show a placeholder.
       return (
-        <span className="text-xs text-zoru-ink-muted">
+        <span className="text-xs text-[var(--st-text-secondary)]">
           {Array.isArray(value) ? `${(value as unknown[]).length} file(s)` : 'No files'}
         </span>
       );
@@ -471,7 +471,7 @@ function Cell({ field, value, onChange }: CellProps) {
     case 'updated_at':
       // Computed / system fields are read-only.
       return (
-        <span className="text-zoru-ink-muted">
+        <span className="text-[var(--st-text-secondary)]">
           {value == null ? '—' : String(value)}
         </span>
       );
@@ -511,14 +511,14 @@ function KanbanPlaceholder({
   return (
     <div className="p-4 grid grid-flow-col auto-cols-[280px] gap-3 overflow-x-auto">
       {Object.entries(groups).map(([k, rs]) => (
-        <div key={k} className="border rounded-md bg-zoru-surface-2/30 flex flex-col">
+        <div key={k} className="border rounded-md bg-[var(--st-bg-muted)]/30 flex flex-col">
           <div className="px-3 py-2 text-sm font-medium border-b">{k}</div>
           <div className="p-2 space-y-2 flex-1 min-h-[100px]">
             {rs.map((r) => (
-              <div key={r._id} className="rounded-md bg-zoru-surface border p-2 text-sm">
+              <div key={r._id} className="rounded-md bg-[var(--st-bg-secondary)] border p-2 text-sm">
                 {fields.slice(0, 3).map((f) => (
                   <div key={f.id} className="truncate">
-                    <span className="text-zoru-ink-muted text-xs">{f.name}: </span>
+                    <span className="text-[var(--st-text-secondary)] text-xs">{f.name}: </span>
                     {String(r.fieldsJson[f.id] ?? '—')}
                   </div>
                 ))}
@@ -543,11 +543,11 @@ function GalleryView({
   return (
     <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
       {records.map((r) => (
-        <div key={r._id} className="border rounded-md p-3 bg-zoru-surface">
+        <div key={r._id} className="border rounded-md p-3 bg-[var(--st-bg-secondary)]">
           <div className="font-medium truncate">
             {primary ? String(r.fieldsJson[primary.id] ?? '(untitled)') : '(untitled)'}
           </div>
-          <div className="mt-2 space-y-1 text-sm text-zoru-ink-muted">
+          <div className="mt-2 space-y-1 text-sm text-[var(--st-text-secondary)]">
             {fields.slice(1, 4).map((f) => (
               <div key={f.id} className="truncate">
                 <span className="text-xs">{f.name}: </span>
@@ -563,7 +563,7 @@ function GalleryView({
 
 function CalendarPlaceholder() {
   return (
-    <div className="p-10 text-center text-zoru-ink-muted">
+    <div className="p-10 text-center text-[var(--st-text-secondary)]">
       Calendar view — pick a date field in the view configurator to enable.
     </div>
   );
@@ -578,7 +578,7 @@ function FormViewBuilder({
 }) {
   return (
     <div className="p-6 max-w-2xl mx-auto space-y-4">
-      <div className="text-sm text-zoru-ink-muted">
+      <div className="text-sm text-[var(--st-text-secondary)]">
         Form views generate a public share URL at <code>/sabtables/form/[formToken]</code>.
         Create one from the view configurator; this preview shows the fields that would
         be collected (table id <code>{tableId}</code>).
@@ -587,7 +587,7 @@ function FormViewBuilder({
         {fields.map((f) => (
           <div key={f.id} className="p-3">
             <div className="font-medium">{f.name}</div>
-            <div className="text-xs text-zoru-ink-muted">{f.fieldType}</div>
+            <div className="text-xs text-[var(--st-text-secondary)]">{f.fieldType}</div>
           </div>
         ))}
       </div>

@@ -26,10 +26,10 @@ const COLUMNS: { id: string; label: string; statuses: string[] }[] = [
 ];
 
 const PRIORITY_DOT: Record<string, string> = {
-  low: "bg-zoru-ink-subtle",
-  medium: "bg-zoru-success",
-  high: "bg-zoru-warning",
-  critical: "bg-zoru-danger",
+  low: "bg-[var(--st-text-tertiary)]",
+  medium: "bg-[var(--st-status-ok)]",
+  high: "bg-[var(--st-warn)]",
+  critical: "bg-[var(--st-danger)]",
 };
 
 interface TicketsKanbanProps {
@@ -63,17 +63,17 @@ export function TicketsKanban({ tickets }: TicketsKanbanProps) {
         return (
           <div
             key={col.id}
-            className="flex flex-col gap-2 rounded-lg border border-zoru-line bg-zoru-surface-2/30 p-3"
+            className="flex flex-col gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)]/30 p-3"
           >
             <div className="flex items-center justify-between">
-              <h3 className="text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+              <h3 className="text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                 {col.label}
               </h3>
               <Badge variant="ghost">{items.length}</Badge>
             </div>
             <div className="flex flex-col gap-2">
               {items.length === 0 ? (
-                <p className="rounded-md border border-dashed border-zoru-line p-3 text-center text-[12px] text-zoru-ink-muted">
+                <p className="rounded-md border border-dashed border-[var(--st-border)] p-3 text-center text-[12px] text-[var(--st-text-secondary)]">
                   No tickets
                 </p>
               ) : (
@@ -88,18 +88,18 @@ export function TicketsKanban({ tickets }: TicketsKanbanProps) {
                         className="flex flex-col gap-1.5"
                       >
                         <div className="flex items-start justify-between gap-2">
-                          <p className="text-[13px] font-medium text-zoru-ink hover:underline">
+                          <p className="text-[13px] font-medium text-[var(--st-text)] hover:underline">
                             {t.subject || "Untitled"}
                           </p>
                           <span
                             className={[
                               "mt-1 h-2 w-2 shrink-0 rounded-full",
-                              PRIORITY_DOT[priority] ?? "bg-zoru-ink-subtle",
+                              PRIORITY_DOT[priority] ?? "bg-[var(--st-text-tertiary)]",
                             ].join(" ")}
                             title={`Priority: ${priority || "none"}`}
                           />
                         </div>
-                        <div className="flex items-center gap-1.5 text-[11.5px] text-zoru-ink-muted">
+                        <div className="flex items-center gap-1.5 text-[11.5px] text-[var(--st-text-secondary)]">
                           {t.assigneeId ? (
                             <EntityPickerChip
                               entity="user"
@@ -115,8 +115,8 @@ export function TicketsKanban({ tickets }: TicketsKanbanProps) {
                             className={[
                               "inline-flex items-center gap-1 text-[11.5px]",
                               overdue
-                                ? "text-zoru-danger-ink"
-                                : "text-zoru-ink-muted",
+                                ? "text-[var(--st-danger)]"
+                                : "text-[var(--st-text-secondary)]",
                             ].join(" ")}
                           >
                             {overdue ? (

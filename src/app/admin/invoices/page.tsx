@@ -11,8 +11,8 @@ export default function InvoicesPage() {
     <div className="space-y-8 p-4 md:p-8">
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-zoru-ink">Invoice Generator</h1>
-          <p className="text-sm text-zoru-ink-muted mt-1">
+          <h1 className="text-2xl font-bold text-[var(--st-text)]">Invoice Generator</h1>
+          <p className="text-sm text-[var(--st-text-secondary)] mt-1">
             Create, preview, and download professional invoices as PDF.
           </p>
         </div>

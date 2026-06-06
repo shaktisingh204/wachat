@@ -82,7 +82,7 @@ export function SettingsEntityDialog<T extends { _id: string; [k: string]: any }
                                 <Label htmlFor={field.name}>
                                     {field.label}
                                     {field.required ? (
-                                        <span className="text-zoru-danger-ink"> *</span>
+                                        <span className="text-[var(--st-danger)]"> *</span>
                                     ) : null}
                                 </Label>
                                 <div className="mt-1.5">
@@ -101,7 +101,7 @@ export function SettingsEntityDialog<T extends { _id: string; [k: string]: any }
                                     />
                                 </div>
                                 {field.help ? (
-                                    <p className="mt-1 text-[11.5px] text-zoru-ink-muted">
+                                    <p className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">
                                         {field.help}
                                     </p>
                                 ) : null}

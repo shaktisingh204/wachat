@@ -77,20 +77,20 @@ function SiteCard({ site }: { site: WithId<Website> }) {
                     <div>
                         <ZoruCardTitle className="text-xl">{site.name}</ZoruCardTitle>
                         <ZoruCardDescription className="mt-1">
-                            Slug: <span className="font-mono bg-zoru-surface-2 px-1 py-0.5 rounded text-xs">{site.slug}</span>
+                            Slug: <span className="font-mono bg-[var(--st-bg-muted)] px-1 py-0.5 rounded text-xs">{site.slug}</span>
                         </ZoruCardDescription>
                     </div>
                     <Button variant="ghost" size="icon" onClick={handleViewLive} title="View Live Site">
-                        <ExternalLink className="h-4 w-4 text-zoru-ink-muted" />
+                        <ExternalLink className="h-4 w-4 text-[var(--st-text-secondary)]" />
                     </Button>
                 </div>
             </ZoruCardHeader>
             <ZoruCardContent className="flex-grow">
                 <div className="flex flex-col gap-2">
-                    <p className="text-sm text-zoru-ink-muted flex items-center gap-2">
+                    <p className="text-sm text-[var(--st-text-secondary)] flex items-center gap-2">
                         Created: <time dateTime={new Date(site.createdAt).toISOString()} suppressHydrationWarning>{format(new Date(site.createdAt), 'MMM dd, yyyy')}</time>
                     </p>
-                    <p className="text-sm text-zoru-ink-muted flex items-center gap-2">
+                    <p className="text-sm text-[var(--st-text-secondary)] flex items-center gap-2">
                         Last Updated: <time dateTime={new Date(site.updatedAt).toISOString()} suppressHydrationWarning>{format(new Date(site.updatedAt), 'MMM dd, yyyy')}</time>
                     </p>
                 </div>
@@ -181,10 +181,10 @@ export default function WebsiteBuilderDashboard() {
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                        <Globe className="h-8 w-8 text-zoru-ink" />
+                        <Globe className="h-8 w-8 text-[var(--st-text)]" />
                         Website Builder
                     </h1>
-                    <p className="text-zoru-ink-muted mt-2">
+                    <p className="text-[var(--st-text-secondary)] mt-2">
                         Create, manage, and publish your public-facing websites.
                     </p>
                 </div>
@@ -205,19 +205,19 @@ export default function WebsiteBuilderDashboard() {
             )}
 
             {(sites.length > 0 || searchQuery) && (
-                <div className="flex flex-col sm:flex-row gap-4 items-center bg-zoru-surface p-4 rounded-lg border shadow-sm">
+                <div className="flex flex-col sm:flex-row gap-4 items-center bg-[var(--st-bg-secondary)] p-4 rounded-lg border shadow-sm">
                     <div className="relative flex-grow w-full sm:w-auto">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zoru-ink-muted" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--st-text-secondary)]" />
                         <Input
                             placeholder="Search by name or slug..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pl-9 w-full bg-zoru-surface"
+                            className="pl-9 w-full bg-[var(--st-bg-secondary)]"
                         />
                     </div>
                     <div className="w-full sm:w-48 shrink-0">
                         <Select value={sortBy} onValueChange={(val: any) => setSortBy(val)}>
-                            <ZoruSelectTrigger className="bg-zoru-surface">
+                            <ZoruSelectTrigger className="bg-[var(--st-bg-secondary)]">
                                 <ZoruSelectValue placeholder="Sort by" />
                             </ZoruSelectTrigger>
                             <ZoruSelectContent>
@@ -232,9 +232,9 @@ export default function WebsiteBuilderDashboard() {
             )}
 
             {!isFetching && sites.length === 0 && !error ? (
-                <div className="text-center py-16 text-zoru-ink-muted border-2 border-dashed rounded-lg bg-zoru-surface/50">
-                    <Globe className="mx-auto h-12 w-12 text-zoru-ink-subtle" />
-                    <h3 className="mt-4 text-lg font-semibold text-zoru-ink">No Websites Created</h3>
+                <div className="text-center py-16 text-[var(--st-text-secondary)] border-2 border-dashed rounded-lg bg-[var(--st-bg-secondary)]/50">
+                    <Globe className="mx-auto h-12 w-12 text-[var(--st-text-tertiary)]" />
+                    <h3 className="mt-4 text-lg font-semibold text-[var(--st-text)]">No Websites Created</h3>
                     <p className="mt-2 text-sm max-w-sm mx-auto">You haven't built any websites yet. Click "Create New Site" to start building your online presence.</p>
                     <div className="mt-6">
                         <CreatePortfolioDialog onSuccess={() => fetchData()} />
@@ -247,9 +247,9 @@ export default function WebsiteBuilderDashboard() {
                     ))}
                 </div>
             ) : (sites.length > 0 && filteredAndSortedSites.length === 0) ? (
-                 <div className="text-center py-12 text-zoru-ink-muted bg-zoru-surface rounded-lg border">
-                    <Search className="mx-auto h-12 w-12 text-zoru-ink-subtle" />
-                    <h3 className="mt-4 text-lg font-medium text-zoru-ink">No results found</h3>
+                 <div className="text-center py-12 text-[var(--st-text-secondary)] bg-[var(--st-bg-secondary)] rounded-lg border">
+                    <Search className="mx-auto h-12 w-12 text-[var(--st-text-tertiary)]" />
+                    <h3 className="mt-4 text-lg font-medium text-[var(--st-text)]">No results found</h3>
                     <p className="mt-1 text-sm">No websites match your current search.</p>
                     <Button variant="link" onClick={() => setSearchQuery('')} className="mt-4">
                         Clear search

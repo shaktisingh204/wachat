@@ -544,7 +544,7 @@ export function ReportBuilder({
           {metricNeedsField(draft.metric) && (
             <FieldRow label="Numeric field" htmlFor="rb-metric-field">
               {numFields.length === 0 ? (
-                <p className="text-xs text-zoru-ink-muted py-2">
+                <p className="text-xs text-[var(--st-text-secondary)] py-2">
                   {draft.object
                     ? 'No numeric fields on this object.'
                     : 'Select an object first.'}
@@ -574,7 +574,7 @@ export function ReportBuilder({
           {/* Group by */}
           <FieldRow label="Group by" htmlFor="rb-group-by">
             {groupFields.length === 0 && draft.object ? (
-              <p className="text-xs text-zoru-ink-muted py-2">
+              <p className="text-xs text-[var(--st-text-secondary)] py-2">
                 No groupable fields (SELECT, BOOLEAN, DATE) on this object.
               </p>
             ) : (
@@ -645,23 +645,23 @@ export function ReportBuilder({
           <div className="space-y-2">
             <Label htmlFor="rb-filters">
               Filters{' '}
-              <span className="font-normal text-zoru-ink-muted">(JSON, optional)</span>
+              <span className="font-normal text-[var(--st-text-secondary)]">(JSON, optional)</span>
             </Label>
             <textarea
               id="rb-filters"
               className={cn(
-                'flex min-h-[80px] w-full resize-y rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-3 py-2 font-mono text-xs',
-                'text-zoru-ink placeholder:text-zoru-ink-subtle',
-                'focus:outline-none focus:ring-2 focus:ring-zoru-ring focus:ring-offset-1',
+                'flex min-h-[80px] w-full resize-y rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 font-mono text-xs',
+                'text-[var(--st-text)] placeholder:text-[var(--st-text-tertiary)]',
+                'focus:outline-none focus:ring-2 focus:ring-[var(--st-accent)] focus:ring-offset-1',
               )}
               placeholder={'{\n  "stage": "open"\n}'}
               value={draft.filters}
               onChange={(e) => patch({ filters: e.target.value })}
               spellCheck={false}
             />
-            <p className="text-xs text-zoru-ink-muted">
+            <p className="text-xs text-[var(--st-text-secondary)]">
               Flat object: field key → exact value. E.g.{' '}
-              <code className="rounded bg-zoru-surface-2 px-1 py-0.5 font-mono text-[10px]">
+              <code className="rounded bg-[var(--st-bg-muted)] px-1 py-0.5 font-mono text-[10px]">
                 {'{"stage":"open"}'}
               </code>
             </p>
@@ -778,8 +778,8 @@ function ChartTypeButton({ type, active, onClick }: ChartTypeButtonProps): React
       className={cn(
         'flex items-center gap-1.5 rounded-[var(--zoru-radius-sm)] border px-3 py-1.5 text-xs font-medium transition-colors',
         active
-          ? 'border-zoru-ink bg-zoru-ink text-zoru-bg'
-          : 'border-zoru-line bg-zoru-surface text-zoru-ink-muted hover:border-zoru-line-strong hover:text-zoru-ink',
+          ? 'border-[var(--st-text)] bg-[var(--st-text)] text-[var(--st-bg)]'
+          : 'border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)] hover:border-[var(--st-border-strong)] hover:text-[var(--st-text)]',
       )}
     >
       {CHART_TYPE_ICONS[type]}
@@ -821,15 +821,15 @@ function PreviewPane({
   if (error) {
     return (
       <div className="flex flex-col items-center gap-3 py-8 text-center">
-        <AlertCircle className="h-8 w-8 text-zoru-ink-muted" />
-        <p className="text-sm text-zoru-ink-muted">{error}</p>
+        <AlertCircle className="h-8 w-8 text-[var(--st-text-secondary)]" />
+        <p className="text-sm text-[var(--st-text-secondary)]">{error}</p>
       </div>
     );
   }
 
   if (!series) {
     return (
-      <div className="flex flex-col items-center gap-3 py-8 text-center text-zoru-ink-muted">
+      <div className="flex flex-col items-center gap-3 py-8 text-center text-[var(--st-text-secondary)]">
         <TrendingUp className="h-10 w-10 opacity-40" />
         <p className="text-sm">
           Select an object and metric to see a preview.
@@ -848,10 +848,10 @@ function PreviewPane({
     const value = row ? formatValue(row.value, metric) : '—';
     return (
       <div className="flex flex-col items-start gap-1 py-4">
-        <p className="text-xs font-medium uppercase tracking-wide text-zoru-ink-subtle">
+        <p className="text-xs font-medium uppercase tracking-wide text-[var(--st-text-tertiary)]">
           {objectLabel ? `${objectLabel} — ${valueLabel}` : valueLabel}
         </p>
-        <p className="text-5xl font-semibold tracking-tight text-zoru-ink">{value}</p>
+        <p className="text-5xl font-semibold tracking-tight text-[var(--st-text)]">{value}</p>
       </div>
     );
   }
@@ -974,7 +974,7 @@ function PreviewPane({
 
   // Fallback (exhaustive guard)
   return (
-    <p className="py-4 text-sm text-zoru-ink-muted">Unknown chart type.</p>
+    <p className="py-4 text-sm text-[var(--st-text-secondary)]">Unknown chart type.</p>
   );
 }
 
@@ -988,7 +988,7 @@ interface TablePreviewProps {
 function TablePreview({ rows, metric }: TablePreviewProps): React.ReactElement {
   if (rows.length === 0) {
     return (
-      <p className="py-4 text-sm text-center text-zoru-ink-muted">No data.</p>
+      <p className="py-4 text-sm text-center text-[var(--st-text-secondary)]">No data.</p>
     );
   }
 
@@ -996,11 +996,11 @@ function TablePreview({ rows, metric }: TablePreviewProps): React.ReactElement {
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-zoru-line">
-            <th className="py-2 pr-4 text-left text-xs font-medium uppercase tracking-wide text-zoru-ink-subtle">
+          <tr className="border-b border-[var(--st-border)]">
+            <th className="py-2 pr-4 text-left text-xs font-medium uppercase tracking-wide text-[var(--st-text-tertiary)]">
               Group
             </th>
-            <th className="py-2 text-right text-xs font-medium uppercase tracking-wide text-zoru-ink-subtle">
+            <th className="py-2 text-right text-xs font-medium uppercase tracking-wide text-[var(--st-text-tertiary)]">
               {METRIC_LABELS[metric]}
             </th>
           </tr>
@@ -1009,9 +1009,9 @@ function TablePreview({ rows, metric }: TablePreviewProps): React.ReactElement {
           {rows.map((row) => (
             <tr
               key={row.key}
-              className="border-b border-zoru-line/60 last:border-0 hover:bg-zoru-surface-2/50 transition-colors"
+              className="border-b border-[var(--st-border)]/60 last:border-0 hover:bg-[var(--st-bg-muted)]/50 transition-colors"
             >
-              <td className="py-2 pr-4 text-zoru-ink">
+              <td className="py-2 pr-4 text-[var(--st-text)]">
                 <span className="flex items-center gap-2">
                   {row.color && (
                     <span
@@ -1023,7 +1023,7 @@ function TablePreview({ rows, metric }: TablePreviewProps): React.ReactElement {
                   {row.label || '(empty)'}
                 </span>
               </td>
-              <td className="py-2 text-right font-medium tabular-nums text-zoru-ink">
+              <td className="py-2 text-right font-medium tabular-nums text-[var(--st-text)]">
                 {formatValue(row.value, metric)}
               </td>
             </tr>
@@ -1054,9 +1054,9 @@ function MetadataStrip({ series }: MetadataStripProps): React.ReactElement {
   }, [series.computedAt]);
 
   return (
-    <div className="flex items-center justify-between rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface px-4 py-2.5 text-xs text-zoru-ink-muted">
+    <div className="flex items-center justify-between rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-2.5 text-xs text-[var(--st-text-secondary)]">
       <span>
-        <span className="font-medium text-zoru-ink">
+        <span className="font-medium text-[var(--st-text)]">
           {series.recordCount.toLocaleString()}
         </span>{' '}
         source record{series.recordCount !== 1 ? 's' : ''} matched

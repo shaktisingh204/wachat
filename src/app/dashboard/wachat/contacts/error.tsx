@@ -26,12 +26,12 @@ export default function ContactsError({
         { label: 'Contacts' },
       ]}
     >
-      <div className="flex h-[400px] flex-col items-center justify-center rounded-xl border border-zoru-border bg-zoru-surface p-8 text-center">
-        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-zoru-danger/10 text-zoru-danger">
+      <div className="flex h-[400px] flex-col items-center justify-center rounded-xl border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-8 text-center">
+        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-danger)]/10 text-[var(--st-danger)]">
           <AlertCircle className="h-6 w-6" />
         </div>
-        <h2 className="mb-2 text-lg font-medium text-zoru-ink">Something went wrong!</h2>
-        <p className="mb-6 max-w-md text-sm text-zoru-ink-muted">
+        <h2 className="mb-2 text-lg font-medium text-[var(--st-text)]">Something went wrong!</h2>
+        <p className="mb-6 max-w-md text-sm text-[var(--st-text-secondary)]">
           We encountered an error loading your contacts. Please try again or check your project selection.
         </p>
         <Button onClick={() => reset()} variant="default">

@@ -33,16 +33,16 @@ export default async function InvitePage({
             <InviteShell>
                 <Card className="w-full max-w-[420px] p-7">
                     <div className="flex flex-col items-center gap-4 text-center">
-                        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-danger/10 text-zoru-danger-ink">
+                        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-danger)]/10 text-[var(--st-danger)]">
                             <LuMailX className="h-5 w-5" strokeWidth={2} />
                         </span>
                         <Badge tone="red">
                             Invitation not found
                         </Badge>
-                        <h1 className="text-[22px] font-semibold tracking-[-0.01em] text-zoru-ink">
+                        <h1 className="text-[22px] font-semibold tracking-[-0.01em] text-[var(--st-text)]">
                             This invite link isn't valid
                         </h1>
-                        <p className="text-[13px] text-zoru-ink-muted">
+                        <p className="text-[13px] text-[var(--st-text-secondary)]">
                             The link may have been mistyped or the invitation was revoked.
                             Ask the sender to send a fresh invitation.
                         </p>
@@ -87,21 +87,21 @@ export default async function InvitePage({
 function InviteShell({ children }: { children: React.ReactNode }) {
     return (
         <div
-            className="zoruui relative flex min-h-screen flex-col items-center justify-center bg-zoru-bg text-zoru-ink px-4 py-10"
+            className="zoruui relative flex min-h-screen flex-col items-center justify-center bg-[var(--st-bg)] text-[var(--st-text)] px-4 py-10"
             style={{ fontFamily: 'var(--font-sab-sans), system-ui, sans-serif' }}
         >
             <div className="flex w-full flex-col items-center gap-8">
                 <Link
                     href="/"
-                    className="inline-flex items-center gap-2 text-zoru-ink hover:opacity-80 transition-opacity"
+                    className="inline-flex items-center gap-2 text-[var(--st-text)] hover:opacity-80 transition-opacity"
                 >
                     <SabNodeLogo className="h-8 w-8" />
                     <span className="text-[14px] font-semibold tracking-[-0.01em]">SabNode</span>
                 </Link>
                 {children}
-                <p className="text-[11px] text-zoru-ink-muted">
+                <p className="text-[11px] text-[var(--st-text-secondary)]">
                     Didn't expect this email?{' '}
-                    <Link href="/" className="text-zoru-ink underline-offset-2 hover:underline">
+                    <Link href="/" className="text-[var(--st-text)] underline-offset-2 hover:underline">
                         Report it
                     </Link>
                 </p>

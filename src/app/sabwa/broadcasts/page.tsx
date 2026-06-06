@@ -192,8 +192,8 @@ function BroadcastListPane({
 }: BroadcastListPaneProps) {
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="flex items-center justify-between gap-2 border-b border-zoru-line px-3 py-2">
-        <h2 className="text-sm font-semibold text-zoru-ink">Broadcast lists</h2>
+      <div className="flex items-center justify-between gap-2 border-b border-[var(--st-border)] px-3 py-2">
+        <h2 className="text-sm font-semibold text-[var(--st-text)]">Broadcast lists</h2>
         <Button size="sm" onClick={onNew} className="gap-1">
           <Plus className="h-4 w-4" />
           New
@@ -215,7 +215,7 @@ function BroadcastListPane({
             />
           </div>
         ) : (
-          <ul className="divide-y divide-zoru-line">
+          <ul className="divide-y divide-[var(--st-border)]">
             {broadcasts.map((b) => {
               const isActive = b.id === selectedId;
               return (
@@ -224,26 +224,26 @@ function BroadcastListPane({
                     type="button"
                     onClick={() => onSelect(b.id)}
                     className={cn(
-                      'group flex w-full items-center gap-3 px-3 py-3 text-left transition hover:bg-zoru-surface',
-                      isActive && 'bg-zoru-surface',
+                      'group flex w-full items-center gap-3 px-3 py-3 text-left transition hover:bg-[var(--st-bg-secondary)]',
+                      isActive && 'bg-[var(--st-bg-secondary)]',
                     )}
                   >
                     <div
                       aria-hidden
-                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink"
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)] text-[var(--st-text)]"
                     >
                       <Users className="h-4 w-4" />
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-2">
-                        <p className="truncate text-sm font-medium text-zoru-ink">
+                        <p className="truncate text-sm font-medium text-[var(--st-text)]">
                           {b.name}
                         </p>
-                        <span className="shrink-0 text-[11px] text-zoru-ink-muted">
+                        <span className="shrink-0 text-[11px] text-[var(--st-text-secondary)]">
                           {fmtTimeAgo(b.lastSentAt)}
                         </span>
                       </div>
-                      <p className="truncate text-xs text-zoru-ink-muted">
+                      <p className="truncate text-xs text-[var(--st-text-secondary)]">
                         {b.recipients.length} recipient
                         {b.recipients.length === 1 ? '' : 's'}
                       </p>
@@ -255,11 +255,11 @@ function BroadcastListPane({
                         e.stopPropagation();
                         onDelete(b.id);
                       }}
-                      className="rounded-[var(--zoru-radius)] p-1 text-zoru-ink-muted opacity-0 transition group-hover:opacity-100 hover:bg-zoru-danger/10 hover:text-zoru-danger"
+                      className="rounded-[var(--zoru-radius)] p-1 text-[var(--st-text-secondary)] opacity-0 transition group-hover:opacity-100 hover:bg-[var(--st-danger)]/10 hover:text-[var(--st-danger)]"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
-                    <ChevronRight className="h-4 w-4 shrink-0 text-zoru-ink-muted md:hidden" />
+                    <ChevronRight className="h-4 w-4 shrink-0 text-[var(--st-text-secondary)] md:hidden" />
                   </button>
                 </li>
               );
@@ -360,7 +360,7 @@ function BroadcastDetailPane({
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="flex items-center gap-2 border-b border-zoru-line px-3 py-2 md:px-4">
+      <div className="flex items-center gap-2 border-b border-[var(--st-border)] px-3 py-2 md:px-4">
         <Button
           variant="ghost"
           size="icon-sm"
@@ -396,7 +396,7 @@ function BroadcastDetailPane({
           <button
             type="button"
             onClick={() => setEditingName(true)}
-            className="flex-1 truncate text-left text-base font-semibold text-zoru-ink hover:underline"
+            className="flex-1 truncate text-left text-base font-semibold text-[var(--st-text)] hover:underline"
             title="Click to rename"
           >
             {broadcast.name}
@@ -422,7 +422,7 @@ function BroadcastDetailPane({
                 <Button
                   variant="outline"
                   size="sm"
-                  className="gap-1 text-zoru-danger"
+                  className="gap-1 text-[var(--st-danger)]"
                   onClick={() => {
                     onRemoveRecipients(broadcast.id, Array.from(selected));
                     setSelected(new Set());
@@ -445,7 +445,7 @@ function BroadcastDetailPane({
           </ZoruCardHeader>
           <ZoruCardContent className="px-0">
             {broadcast.recipients.length === 0 ? (
-              <div className="px-4 py-6 text-center text-sm text-zoru-ink-muted">
+              <div className="px-4 py-6 text-center text-sm text-[var(--st-text-secondary)]">
                 No recipients yet. Add at least one to enable sending.
               </div>
             ) : (
@@ -476,10 +476,10 @@ function BroadcastDetailPane({
                             onCheckedChange={() => toggleOne(r.jid)}
                           />
                         </ZoruTableCell>
-                        <ZoruTableCell className="font-medium text-zoru-ink">
+                        <ZoruTableCell className="font-medium text-[var(--st-text)]">
                           {resolvedName}
                         </ZoruTableCell>
-                        <ZoruTableCell className="font-mono text-xs text-zoru-ink-muted">
+                        <ZoruTableCell className="font-mono text-xs text-[var(--st-text-secondary)]">
                           {formatJid(r.jid)}
                         </ZoruTableCell>
                         <ZoruTableCell>
@@ -489,7 +489,7 @@ function BroadcastDetailPane({
                             onClick={() =>
                               onRemoveRecipients(broadcast.id, [r.jid])
                             }
-                            className="rounded-[var(--zoru-radius)] p-1 text-zoru-ink-muted hover:bg-zoru-danger/10 hover:text-zoru-danger"
+                            className="rounded-[var(--zoru-radius)] p-1 text-[var(--st-text-secondary)] hover:bg-[var(--st-danger)]/10 hover:text-[var(--st-danger)]"
                           >
                             <X className="h-3.5 w-3.5" />
                           </button>
@@ -531,13 +531,13 @@ function BroadcastDetailPane({
                   {media ? 'Replace media' : 'Attach media'}
                 </SabFilePickerButton>
                 {media && (
-                  <div className="flex items-center gap-1 rounded-[var(--zoru-radius)] bg-zoru-surface px-2 py-1 text-xs text-zoru-ink">
+                  <div className="flex items-center gap-1 rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] px-2 py-1 text-xs text-[var(--st-text)]">
                     <span className="max-w-[180px] truncate">{media.name}</span>
                     <button
                       type="button"
                       onClick={() => setMedia(null)}
                       aria-label="Remove attachment"
-                      className="rounded p-0.5 hover:bg-zoru-bg"
+                      className="rounded p-0.5 hover:bg-[var(--st-bg)]"
                     >
                       <X className="h-3 w-3" />
                     </button>
@@ -575,7 +575,7 @@ function BroadcastDetailPane({
           </ZoruCardHeader>
           <ZoruCardContent className="px-0">
             {broadcast.history.length === 0 ? (
-              <div className="px-4 py-6 text-center text-sm text-zoru-ink-muted">
+              <div className="px-4 py-6 text-center text-sm text-[var(--st-text-secondary)]">
                 No sends yet.
               </div>
             ) : (
@@ -595,7 +595,7 @@ function BroadcastDetailPane({
                 <ZoruTableBody>
                   {broadcast.history.map((h) => (
                     <ZoruTableRow key={h.id}>
-                      <ZoruTableCell className="whitespace-nowrap text-xs text-zoru-ink-muted">
+                      <ZoruTableCell className="whitespace-nowrap text-xs text-[var(--st-text-secondary)]">
                         {h.sentAt.toLocaleString()}
                       </ZoruTableCell>
                       <ZoruTableCell className="max-w-[280px] truncate text-xs">
@@ -604,7 +604,7 @@ function BroadcastDetailPane({
                       <ZoruTableCell className="text-right text-xs">
                         {h.sentCount}/{h.totalCount}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-xs text-zoru-danger">
+                      <ZoruTableCell className="text-right text-xs text-[var(--st-danger)]">
                         {h.failedCount}
                       </ZoruTableCell>
                     </ZoruTableRow>
@@ -887,9 +887,9 @@ export default function BroadcastsPage() {
   };
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)] min-h-0 flex-col bg-zoru-bg">
+    <div className="flex h-[calc(100vh-3.5rem)] min-h-0 flex-col bg-[var(--st-bg)]">
       {/* Breadcrumb + heading */}
-      <div className="border-b border-zoru-line p-3 md:p-4">
+      <div className="border-b border-[var(--st-border)] p-3 md:p-4">
         <Breadcrumb>
           <ZoruBreadcrumbList>
             <ZoruBreadcrumbItem>
@@ -908,14 +908,14 @@ export default function BroadcastsPage() {
 
         <div className="mt-3 flex items-start justify-between gap-3">
           <div className="flex items-start gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface text-zoru-ink">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
               <Send className="h-5 w-5" />
             </div>
             <div className="min-w-0">
-              <h1 className="text-[20px] tracking-[-0.015em] text-zoru-ink leading-[1.2]">
+              <h1 className="text-[20px] tracking-[-0.015em] text-[var(--st-text)] leading-[1.2]">
                 Broadcasts
               </h1>
-              <p className="mt-0.5 text-xs text-zoru-ink-muted">
+              <p className="mt-0.5 text-xs text-[var(--st-text-secondary)]">
                 Native WhatsApp broadcast lists — recipients receive as 1:1, no
                 cross-visibility.
               </p>
@@ -932,7 +932,7 @@ export default function BroadcastsPage() {
       {loadError && (
         <div
           role="alert"
-          className="border-b border-zoru-danger/30 bg-zoru-danger/5 px-3 py-2 text-xs text-zoru-danger md:px-4"
+          className="border-b border-[var(--st-danger)]/30 bg-[var(--st-danger)]/5 px-3 py-2 text-xs text-[var(--st-danger)] md:px-4"
         >
           Couldn&apos;t load broadcasts: {loadError}
         </div>
@@ -940,7 +940,7 @@ export default function BroadcastsPage() {
 
       <div className="min-h-0 flex-1">
         {loading ? (
-          <div className="grid h-full md:grid-cols-[320px_1fr] md:divide-x md:divide-zoru-line">
+          <div className="grid h-full md:grid-cols-[320px_1fr] md:divide-x md:divide-[var(--st-border)]">
             <div className="space-y-2 p-3">
               <Skeleton className="h-8 w-full" />
               <Skeleton className="h-14 w-full" />
@@ -956,7 +956,7 @@ export default function BroadcastsPage() {
         ) : (
           <>
             {/* md+: two-pane */}
-            <div className="hidden h-full md:grid md:grid-cols-[320px_1fr] md:divide-x md:divide-zoru-line">
+            <div className="hidden h-full md:grid md:grid-cols-[320px_1fr] md:divide-x md:divide-[var(--st-border)]">
               <BroadcastListPane
                 broadcasts={broadcasts}
                 selectedId={selectedId}
@@ -977,11 +977,11 @@ export default function BroadcastsPage() {
               ) : (
                 <div className="flex h-full items-center justify-center p-6">
                   <div className="max-w-sm text-center">
-                    <Users className="mx-auto h-8 w-8 text-zoru-ink-muted" />
-                    <p className="mt-3 text-sm font-medium text-zoru-ink">
+                    <Users className="mx-auto h-8 w-8 text-[var(--st-text-secondary)]" />
+                    <p className="mt-3 text-sm font-medium text-[var(--st-text)]">
                       Select or create a broadcast list
                     </p>
-                    <p className="mt-1 text-xs text-zoru-ink-muted">
+                    <p className="mt-1 text-xs text-[var(--st-text-secondary)]">
                       Broadcast lists let you fan out a message to many contacts,
                       while keeping each thread 1:1.
                     </p>

@@ -152,11 +152,11 @@ function CommentAutomationForm({
       <Card className="p-5">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-1">
-            <div className="flex items-center gap-2 text-zoru-ink">
+            <div className="flex items-center gap-2 text-[var(--st-text)]">
               <MessageSquareReply className="h-4 w-4" />
               <h2 className="text-[14px]">Comment automation</h2>
             </div>
-            <p className="text-[12.5px] text-zoru-ink-muted">
+            <p className="text-[12.5px] text-[var(--st-text-secondary)]">
               Master switch for comment replies and AI moderation. Same payload
               as the legacy automation form — only the UI changed.
             </p>
@@ -219,7 +219,7 @@ function CommentAutomationForm({
                       defaultValue={settings?.aiReplyPrompt ?? ""}
                       className="min-h-32"
                     />
-                    <p className="text-[12px] text-zoru-ink-muted">
+                    <p className="text-[12px] text-[var(--st-text-secondary)]">
                       Provide instructions for the AI on how to generate
                       replies.
                     </p>
@@ -242,7 +242,7 @@ function CommentAutomationForm({
                     <Label htmlFor="moderationEnabled">
                       Enable AI moderation
                     </Label>
-                    <p className="text-[12.5px] text-zoru-ink-muted">
+                    <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                       Automatically delete comments that violate your rules.
                     </p>
                   </div>
@@ -263,7 +263,7 @@ function CommentAutomationForm({
                     defaultValue={settings?.moderationPrompt ?? ""}
                     className="min-h-32"
                   />
-                  <p className="text-[12px] text-zoru-ink-muted">
+                  <p className="text-[12px] text-[var(--st-text-secondary)]">
                     Define the rules for the AI to follow. If the AI determines
                     a comment violates these rules, it will be deleted.
                   </p>
@@ -357,11 +357,11 @@ function MessengerWelcomeForm({
       <Card className="p-5">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-1">
-            <div className="flex items-center gap-2 text-zoru-ink">
+            <div className="flex items-center gap-2 text-[var(--st-text)]">
               <MessageSquareHeart className="h-4 w-4" />
               <h2 className="text-[14px]">Messenger welcome message</h2>
             </div>
-            <p className="text-[12.5px] text-zoru-ink-muted">
+            <p className="text-[12.5px] text-[var(--st-text-secondary)]">
               Automatically sent the first time a user messages your page.
             </p>
           </div>
@@ -391,7 +391,7 @@ function MessengerWelcomeForm({
 
           <div className="space-y-2">
             <Label>Quick replies (optional)</Label>
-            <p className="text-[12px] text-zoru-ink-muted">
+            <p className="text-[12px] text-[var(--st-text-secondary)]">
               Add up to 13 buttons to guide users after the welcome message.
             </p>
             <div className="space-y-3 pt-1">

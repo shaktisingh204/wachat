@@ -7,7 +7,7 @@ export default function DripCampaignsLoading() {
       title="Drip Campaigns"
       subtitle="Manage your Drip Campaigns seamlessly."
     >
-      <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-4">
+      <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4">
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <Skeleton className="h-10 w-[250px]" />

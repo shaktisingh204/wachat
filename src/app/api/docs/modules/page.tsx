@@ -9,11 +9,11 @@ const total = 11834;
 
 export default function Page() {
   return (
-    <div className="zoruui min-h-screen bg-zoru-bg text-zoru-ink">
+    <div className="zoruui min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
       <div className="max-w-5xl mx-auto px-6 py-8">
         <header className="mb-8">
-          <h1 className="text-3xl font-semibold tracking-tight text-zoru-ink">API Reference</h1>
-          <p className="text-sm text-zoru-ink-muted mt-2">
+          <h1 className="text-3xl font-semibold tracking-tight text-[var(--st-text)]">API Reference</h1>
+          <p className="text-sm text-[var(--st-text-secondary)] mt-2">
             {total.toLocaleString()} endpoints across {modules.length} module group{modules.length === 1 ? '' : 's'}.
             Each endpoint has its own page with code samples in 15+ languages and a live test runner.
           </p>
@@ -23,10 +23,10 @@ export default function Page() {
             <a
               key={m.name}
               href={'/api/docs/modules/' + m.name}
-              className="block p-4 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface text-zoru-ink shadow-[var(--zoru-shadow-sm)] transition-[border-color,box-shadow,background-color] hover:bg-zoru-surface-2 hover:border-zoru-line-strong hover:shadow-[var(--zoru-shadow-md)]"
+              className="block p-4 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text)] shadow-[var(--zoru-shadow-sm)] transition-[border-color,box-shadow,background-color] hover:bg-[var(--st-bg-muted)] hover:border-[var(--st-border-strong)] hover:shadow-[var(--zoru-shadow-md)]"
             >
-              <div className="text-[14px] font-medium capitalize text-zoru-ink">{m.name}</div>
-              <div className="text-[12.5px] text-zoru-ink-muted mt-1">{m.count.toLocaleString()} endpoint{m.count === 1 ? '' : 's'}</div>
+              <div className="text-[14px] font-medium capitalize text-[var(--st-text)]">{m.name}</div>
+              <div className="text-[12.5px] text-[var(--st-text-secondary)] mt-1">{m.count.toLocaleString()} endpoint{m.count === 1 ? '' : 's'}</div>
             </a>
           ))}
         </div>

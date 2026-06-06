@@ -89,7 +89,7 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${plusJakartaSans.variable} ${geistSans.variable} ${geistMono.variable} ${hankenGrotesk.variable} ${onest.variable}`}
     >
-      <body className="antialiased font-sans min-h-screen bg-zoru-surface text-zoru-ink">
+      <body className="antialiased font-sans min-h-screen bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
         {/* Theme bootstrap — resolve the saved light/dark preference and stamp
             an explicit class on <html> BEFORE first paint, so the app rail,
             header, and every ZoruUI / 20ui surface render in the chosen theme

@@ -21,10 +21,10 @@ function FyForm({ fy }: { fy: string }) {
     return (
         <form
             method="get"
-            className="flex flex-wrap items-end gap-2 rounded-lg border border-zoru-line bg-zoru-surface px-3 py-2"
+            className="flex flex-wrap items-end gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
         >
             <label className="flex flex-col gap-1">
-                <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                     Financial Year (YYYY-YY)
                 </span>
                 <input
@@ -33,12 +33,12 @@ function FyForm({ fy }: { fy: string }) {
                     defaultValue={fy}
                     pattern="\d{4}-\d{2}"
                     placeholder="2026-27"
-                    className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
+                    className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
                 />
             </label>
             <button
                 type="submit"
-                className="h-9 rounded-lg bg-zoru-ink px-3 text-[13px] font-medium text-white hover:opacity-90"
+                className="h-9 rounded-lg bg-[var(--st-text)] px-3 text-[13px] font-medium text-white hover:opacity-90"
             >
                 Apply
             </button>
@@ -72,17 +72,17 @@ export default async function Tds194qPage(props: {
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-start gap-3">
                         {applicable ? (
-                            <CheckCircle2 className="mt-0.5 h-5 w-5 text-zoru-ink" />
+                            <CheckCircle2 className="mt-0.5 h-5 w-5 text-[var(--st-text)]" />
                         ) : (
-                            <AlertTriangle className="mt-0.5 h-5 w-5 text-zoru-ink-muted" />
+                            <AlertTriangle className="mt-0.5 h-5 w-5 text-[var(--st-text-secondary)]" />
                         )}
                         <div>
-                            <h2 className="text-[15px] font-semibold text-zoru-ink">
+                            <h2 className="text-[15px] font-semibold text-[var(--st-text)]">
                                 {applicable
                                     ? `§194Q applies for FY ${fy}`
                                     : `§194Q does not apply for FY ${fy}`}
                             </h2>
-                            <p className="mt-1 max-w-2xl text-[13px] text-zoru-ink-muted">
+                            <p className="mt-1 max-w-2xl text-[13px] text-[var(--st-text-secondary)]">
                                 {statusRes.ok
                                     ? statusRes.data.reason
                                     : statusRes.error}
@@ -92,18 +92,18 @@ export default async function Tds194qPage(props: {
                     {status ? (
                         <div className="grid grid-cols-2 gap-3 text-right">
                             <div>
-                                <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                                <div className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                                     Prior FY turnover
                                 </div>
-                                <div className="text-[15px] font-semibold text-zoru-ink">
+                                <div className="text-[15px] font-semibold text-[var(--st-text)]">
                                     {fmtMoney(status.priorYearTurnover)}
                                 </div>
                             </div>
                             <div>
-                                <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                                <div className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                                     Threshold
                                 </div>
-                                <div className="text-[15px] font-semibold text-zoru-ink">
+                                <div className="text-[15px] font-semibold text-[var(--st-text)]">
                                     {fmtMoney(status.threshold)}
                                 </div>
                             </div>
@@ -115,10 +115,10 @@ export default async function Tds194qPage(props: {
             {/* Vendor tracker — client shell for selection, export, bulk deduction */}
             <Card>
                 <div className="mb-3">
-                    <h2 className="text-[15px] font-semibold text-zoru-ink">
+                    <h2 className="text-[15px] font-semibold text-[var(--st-text)]">
                         Vendor tracker
                     </h2>
-                    <p className="text-[12px] text-zoru-ink-muted">
+                    <p className="text-[12px] text-[var(--st-text-secondary)]">
                         YTD purchases per vendor against the ₹50 lakh per-seller threshold.
                     </p>
                 </div>
@@ -128,7 +128,7 @@ export default async function Tds194qPage(props: {
                     applicable={applicable}
                 />
                 {!trackerRes.ok && (
-                    <p className="mt-3 text-[12.5px] text-zoru-ink">{trackerRes.error}</p>
+                    <p className="mt-3 text-[12.5px] text-[var(--st-text)]">{trackerRes.error}</p>
                 )}
             </Card>
         </EntityListShell>

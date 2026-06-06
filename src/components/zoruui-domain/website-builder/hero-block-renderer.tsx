@@ -88,7 +88,7 @@ export function HeroBlock({ settings }: { settings: any }) {
             <div className={cn("relative w-full flex", responsiveClasses)} style={offsetBoxStyles}>
                 {backgroundImageUrl && <Image src={backgroundImageUrl} alt={title || 'Banner'} layout="fill" objectFit="cover" className="opacity-90" data-ai-hint="hero banner" />}
                 <div className="relative z-10 h-full flex items-center max-w-7xl mx-auto px-4 w-full">
-                    <div className={cn("max-w-md bg-zoru-surface/80 backdrop-blur-sm p-8 rounded-lg", animationClasses)}>
+                    <div className={cn("max-w-md bg-[var(--st-bg-secondary)]/80 backdrop-blur-sm p-8 rounded-lg", animationClasses)}>
                         <h1 className="text-4xl md:text-5xl font-extrabold" style={{color: textColor || '#11182c'}}>{title}</h1>
                         <p className="mt-4 text-lg md:text-xl" style={{color: textColor || '#11182c'}}>{subtitle}</p>
                         {buttonText && <Button asChild size="lg" className="mt-6" style={{backgroundColor: buttonColor, color: buttonTextColor}}><Link href={buttonLink || '#'}>{buttonText}</Link></Button>}

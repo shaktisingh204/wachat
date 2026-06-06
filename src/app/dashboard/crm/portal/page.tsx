@@ -95,7 +95,7 @@ async function PortalListContainer() {
   return (
     <>
       {loadError ? (
-        <div className="rounded-md border border-zoru-line/40 bg-zoru-ink/10 px-4 py-2.5 text-[13px] text-zoru-ink mb-4 animate-in fade-in-50">
+        <div className="rounded-md border border-[var(--st-border)]/40 bg-[var(--st-text)]/10 px-4 py-2.5 text-[13px] text-[var(--st-text)] mb-4 animate-in fade-in-50">
           Could not load portal users. Please try again.
         </div>
       ) : null}
@@ -122,7 +122,7 @@ function PortalListSkeleton() {
         <Skeleton className="h-9 w-36 rounded-lg animate-pulse" />
       </div>
       {/* Table Skeleton */}
-      <div className="rounded-xl border border-zoru-line bg-zoru-surface p-4">
+      <div className="rounded-xl border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4">
         <div className="space-y-3">
           <Skeleton className="h-8 w-full animate-pulse" />
           <Skeleton className="h-12 w-full animate-pulse" />

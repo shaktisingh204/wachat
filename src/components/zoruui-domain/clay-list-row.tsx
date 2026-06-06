@@ -16,8 +16,8 @@ export interface ClayListRowProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 /**
- * ClayListRow — composed from shadcn-friendly tokens (`bg-zoru-surface`,
- * `bg-zoru-surface-2`, etc.) without depending on a single primitive.
+ * ClayListRow — composed from shadcn-friendly tokens (`bg-[var(--st-bg-secondary)]`,
+ * `bg-[var(--st-bg-muted)]`, etc.) without depending on a single primitive.
  * The structure mirrors the original: numbered circle + title/meta +
  * trailing slot + optional expanded children area.
  */
@@ -34,7 +34,7 @@ export function ClayListRow({
   return (
     <div
       className={cn(
-        'flex flex-col rounded-xl bg-zoru-surface-2',
+        'flex flex-col rounded-xl bg-[var(--st-bg-muted)]',
         className,
       )}
       {...props}
@@ -43,17 +43,17 @@ export function ClayListRow({
         <div
           className={cn(
             'flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[12px] font-semibold',
-            'bg-zoru-surface-2 text-zoru-ink-muted',
+            'bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]',
           )}
         >
           {index}
         </div>
         <div className="min-w-0 flex-1 pt-[3px]">
-          <div className="text-sm font-medium text-zoru-ink leading-tight">
+          <div className="text-sm font-medium text-[var(--st-text)] leading-tight">
             {title}
           </div>
           {meta ? (
-            <div className="mt-1 text-xs text-zoru-ink-muted leading-tight">
+            <div className="mt-1 text-xs text-[var(--st-text-secondary)] leading-tight">
               {meta}
             </div>
           ) : null}
@@ -65,7 +65,7 @@ export function ClayListRow({
         ) : null}
       </div>
       {expanded && children ? (
-        <div className="px-4 py-4 border-t border-zoru-line/50">{children}</div>
+        <div className="px-4 py-4 border-t border-[var(--st-border)]/50">{children}</div>
       ) : null}
     </div>
   );

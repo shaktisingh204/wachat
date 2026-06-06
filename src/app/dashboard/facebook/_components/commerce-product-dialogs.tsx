@@ -526,7 +526,7 @@ export function ViewTaggedMediaDialog({
                   href={item.permalink || "#"}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group relative block aspect-square overflow-hidden rounded-[var(--zoru-radius-sm)] border border-zoru-line"
+                  className="group relative block aspect-square overflow-hidden rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)]"
                 >
                   <Image
                     src={
@@ -539,8 +539,8 @@ export function ViewTaggedMediaDialog({
                     sizes="(max-width: 768px) 50vw, 25vw"
                     className="object-cover"
                   />
-                  <div className="absolute inset-0 flex items-center justify-center bg-zoru-ink/60 opacity-0 transition-opacity group-hover:opacity-100">
-                    <span className="p-1 text-center text-xs text-zoru-bg">
+                  <div className="absolute inset-0 flex items-center justify-center bg-[var(--st-text)]/60 opacity-0 transition-opacity group-hover:opacity-100">
+                    <span className="p-1 text-center text-xs text-[var(--st-bg)]">
                       View post
                     </span>
                   </div>
@@ -548,9 +548,9 @@ export function ViewTaggedMediaDialog({
               ))}
             </div>
           ) : (
-            <div className="rounded-[var(--zoru-radius-sm)] border border-dashed border-zoru-line py-16 text-center text-zoru-ink-muted">
+            <div className="rounded-[var(--zoru-radius-sm)] border border-dashed border-[var(--st-border)] py-16 text-center text-[var(--st-text-secondary)]">
               <ImageIcon className="mx-auto h-10 w-10" />
-              <h3 className="mt-3 text-sm font-medium text-zoru-ink">
+              <h3 className="mt-3 text-sm font-medium text-[var(--st-text)]">
                 No tagged media yet
               </h3>
               <p className="mt-1 text-xs">
@@ -665,7 +665,7 @@ export function BulkUploadProductsDialog({
               onChange={(e) => setFile(e.target.files?.[0] || null)}
             />
             {file && (
-              <p className="text-xs text-zoru-ink-muted">Selected: {file.name}</p>
+              <p className="text-xs text-[var(--st-text-secondary)]">Selected: {file.name}</p>
             )}
           </div>
         </div>

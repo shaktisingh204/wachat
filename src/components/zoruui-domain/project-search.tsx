@@ -25,7 +25,7 @@ export function ProjectSearch({ placeholder, className }: { placeholder: string;
 
   return (
     <div className="relative w-full">
-      <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zoru-ink-muted" />
+      <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--st-text-secondary)]" />
       <Input
         type="search"
         placeholder={placeholder}

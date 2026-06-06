@@ -21,7 +21,7 @@ export default async function LinksPage() {
   const session = await getSession();
   if (!session?.user) {
     return (
-      <div className="p-8 text-[13px] text-zoru-ink-muted">
+      <div className="p-8 text-[13px] text-[var(--st-text-secondary)]">
         {t('sabflow.links.signInRequired')}
       </div>
     );
@@ -35,7 +35,7 @@ export default async function LinksPage() {
   return (
     <div className="flex flex-col h-full">
       <div className="flex flex-wrap items-center gap-3 border-b border-[var(--gray-4)] px-4 sm:px-6 py-3 sm:py-4 shrink-0">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted shrink-0">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)] shrink-0">
           <LuWorkflow className="h-4 w-4" strokeWidth={2} />
         </div>
         <div className="flex flex-col leading-tight min-w-0">
@@ -135,20 +135,20 @@ function EdgesSection({
               >
                 <Link
                   href={`/dashboard/sabflow/flow-builder/${e.from}`}
-                  className="font-medium text-[var(--gray-12)] hover:text-zoru-ink truncate min-w-0 max-w-[45%] sm:max-w-none"
+                  className="font-medium text-[var(--gray-12)] hover:text-[var(--st-text)] truncate min-w-0 max-w-[45%] sm:max-w-none"
                 >
                   {fromNode?.name ?? e.from}
                 </Link>
                 <LuArrowRight className="h-3 w-3 shrink-0 text-[var(--gray-9)]" />
                 {e.isDangling ? (
-                  <span className="inline-flex items-center gap-1 text-zoru-ink dark:text-zoru-ink-muted min-w-0 truncate max-w-[45%] sm:max-w-none">
+                  <span className="inline-flex items-center gap-1 text-[var(--st-text)] dark:text-[var(--st-text-secondary)] min-w-0 truncate max-w-[45%] sm:max-w-none">
                     <LuTriangleAlert className="h-3 w-3 shrink-0" />
                     {t('sabflow.links.dangling', { id: e.to.slice(0, 12) })}
                   </span>
                 ) : (
                   <Link
                     href={`/dashboard/sabflow/flow-builder/${e.to}`}
-                    className="font-medium text-[var(--gray-12)] hover:text-zoru-ink truncate min-w-0 max-w-[45%] sm:max-w-none"
+                    className="font-medium text-[var(--gray-12)] hover:text-[var(--st-text)] truncate min-w-0 max-w-[45%] sm:max-w-none"
                   >
                     {toNode?.name ?? e.to}
                   </Link>
@@ -176,8 +176,8 @@ function DegreeBadge({
 }) {
   const palette =
     tone === 'in'
-      ? 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted'
-      : 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted';
+      ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]'
+      : 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]';
   return (
     <span className={cn('inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 font-medium', palette)}>
       {label}: <span className="tabular-nums">{count}</span>
@@ -188,10 +188,10 @@ function DegreeBadge({
 function StatusPill({ status }: { status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED' }) {
   const tone =
     status === 'PUBLISHED'
-      ? 'bg-zoru-ink/10 text-zoru-ink dark:text-zoru-ink-muted'
+      ? 'bg-[var(--st-text)]/10 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]'
       : status === 'DRAFT'
-      ? 'bg-zoru-ink/10 text-zoru-ink dark:text-zoru-ink-muted'
-      : 'bg-zoru-ink/10 text-zoru-ink dark:text-zoru-ink-muted';
+      ? 'bg-[var(--st-text)]/10 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]'
+      : 'bg-[var(--st-text)]/10 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]';
   return (
     <span
       className={cn(

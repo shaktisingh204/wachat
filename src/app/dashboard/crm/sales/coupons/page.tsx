@@ -352,7 +352,7 @@ export default function SalesCouponsPage(): React.JSX.Element {
         }
         bulkBar={
           selected.size > 0 ? (
-            <div className="flex flex-wrap items-center gap-2 text-sm text-zoru-ink">
+            <div className="flex flex-wrap items-center gap-2 text-sm text-[var(--st-text)]">
               <span className="font-medium">{selected.size} selected</span>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -403,9 +403,9 @@ export default function SalesCouponsPage(): React.JSX.Element {
         empty={
           !isPending && rows.length === 0 ? (
             <div className="flex flex-col items-center gap-3 p-4">
-              <Tag className="h-8 w-8 text-zoru-ink-muted" />
-              <h3 className="text-base font-medium text-zoru-ink">No coupons yet</h3>
-              <p className="max-w-sm text-sm text-zoru-ink-muted">
+              <Tag className="h-8 w-8 text-[var(--st-text-secondary)]" />
+              <h3 className="text-base font-medium text-[var(--st-text)]">No coupons yet</h3>
+              <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                 Create your first promo code to start running campaigns.
               </p>
               <Button asChild>
@@ -454,7 +454,7 @@ export default function SalesCouponsPage(): React.JSX.Element {
             <div className="overflow-x-auto rounded-lg">
               <Table>
                 <TableHeader>
-                  <TableRow className="border-zoru-line hover:bg-transparent">
+                  <TableRow className="border-[var(--st-border)] hover:bg-transparent">
                     <TableHead className="w-10">
                       <input
                         type="checkbox"
@@ -463,22 +463,22 @@ export default function SalesCouponsPage(): React.JSX.Element {
                         onChange={(e) => handleToggleAll(e.target.checked)}
                       />
                     </TableHead>
-                    <TableHead className="text-zoru-ink-muted">Code</TableHead>
-                    <TableHead className="text-zoru-ink-muted">Type</TableHead>
-                    <TableHead className="text-zoru-ink-muted">Value</TableHead>
-                    <TableHead className="text-zoru-ink-muted">Min cart</TableHead>
-                    <TableHead className="text-zoru-ink-muted">Max uses</TableHead>
-                    <TableHead className="text-zoru-ink-muted">Used</TableHead>
-                    <TableHead className="text-zoru-ink-muted">Validity</TableHead>
-                    <TableHead className="text-zoru-ink-muted">Status</TableHead>
+                    <TableHead className="text-[var(--st-text-secondary)]">Code</TableHead>
+                    <TableHead className="text-[var(--st-text-secondary)]">Type</TableHead>
+                    <TableHead className="text-[var(--st-text-secondary)]">Value</TableHead>
+                    <TableHead className="text-[var(--st-text-secondary)]">Min cart</TableHead>
+                    <TableHead className="text-[var(--st-text-secondary)]">Max uses</TableHead>
+                    <TableHead className="text-[var(--st-text-secondary)]">Used</TableHead>
+                    <TableHead className="text-[var(--st-text-secondary)]">Validity</TableHead>
+                    <TableHead className="text-[var(--st-text-secondary)]">Status</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {rows.length === 0 ? (
-                    <TableRow className="border-zoru-line">
+                    <TableRow className="border-[var(--st-border)]">
                       <TableCell
                         colSpan={9}
-                        className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                        className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                       >
                         {isPending ? 'Loading…' : 'No coupons match these filters.'}
                       </TableCell>
@@ -488,7 +488,7 @@ export default function SalesCouponsPage(): React.JSX.Element {
                       const id = getId(c, idx);
                       const checked = selected.has(id);
                       return (
-                        <TableRow key={id} className="border-zoru-line">
+                        <TableRow key={id} className="border-[var(--st-border)]">
                           <TableCell>
                             <input
                               type="checkbox"
@@ -497,28 +497,28 @@ export default function SalesCouponsPage(): React.JSX.Element {
                               onChange={() => handleToggleOne(id)}
                             />
                           </TableCell>
-                          <TableCell className="text-zoru-ink">
+                          <TableCell className="text-[var(--st-text)]">
                             <EntityRowLink
                               href={`/dashboard/crm/sales/coupons/${id}`}
                               label={c.code || 'Untitled coupon'}
                             />
                           </TableCell>
-                          <TableCell className="text-zoru-ink">
+                          <TableCell className="text-[var(--st-text)]">
                             {c.type || '—'}
                           </TableCell>
-                          <TableCell className="text-zoru-ink">
+                          <TableCell className="text-[var(--st-text)]">
                             {formatValue(c.type, c.value)}
                           </TableCell>
-                          <TableCell className="text-zoru-ink">
+                          <TableCell className="text-[var(--st-text)]">
                             {c.minCart?.toLocaleString() || '—'}
                           </TableCell>
-                          <TableCell className="text-zoru-ink">
+                          <TableCell className="text-[var(--st-text)]">
                             {c.maxUses?.toLocaleString() || '—'}
                           </TableCell>
-                          <TableCell className="text-zoru-ink">
+                          <TableCell className="text-[var(--st-text)]">
                             {c.usedCount?.toLocaleString() || '—'}
                           </TableCell>
-                          <TableCell className="text-zoru-ink">
+                          <TableCell className="text-[var(--st-text)]">
                             {formatValidity(c.validFrom, c.validTo)}
                           </TableCell>
                           <TableCell>

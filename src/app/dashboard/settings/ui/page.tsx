@@ -177,7 +177,7 @@ export default function AppearanceSettingsPage() {
                     title={t('settings.appearance.motion.title')}
                     description={t('settings.appearance.motion.description')}
                 />
-                <ul className="divide-y divide-zoru-line">
+                <ul className="divide-y divide-[var(--st-border)]">
                     <Row
                         id="collapsed"
                         label={t('settings.appearance.motion.sidebar.label')}
@@ -209,12 +209,12 @@ function SectionTitle({
 }) {
     return (
         <div className="mb-4 flex items-start gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                 {icon}
             </div>
             <div>
-                <p className="text-sm text-zoru-ink">{title}</p>
-                <p className="text-xs text-zoru-ink-muted">{description}</p>
+                <p className="text-sm text-[var(--st-text)]">{title}</p>
+                <p className="text-xs text-[var(--st-text-secondary)]">{description}</p>
             </div>
         </div>
     );
@@ -238,19 +238,19 @@ function ThemeTile({
             className={cn(
                 'flex items-center gap-3 rounded-xl border p-4 text-left transition-colors',
                 selected
-                    ? 'border-zoru-ink bg-zoru-surface-2'
-                    : 'border-zoru-line bg-zoru-bg hover:border-zoru-line',
+                    ? 'border-[var(--st-text)] bg-[var(--st-bg-muted)]'
+                    : 'border-[var(--st-border)] bg-[var(--st-bg)] hover:border-[var(--st-border)]',
             )}
         >
             <div
                 className={cn(
                     'flex h-9 w-9 items-center justify-center rounded-lg',
-                    selected ? 'bg-zoru-ink text-zoru-bg' : 'bg-zoru-surface-2 text-zoru-ink',
+                    selected ? 'bg-[var(--st-text)] text-[var(--st-bg)]' : 'bg-[var(--st-bg-muted)] text-[var(--st-text)]',
                 )}
             >
                 {icon}
             </div>
-            <span className="text-[13px] text-zoru-ink">{label}</span>
+            <span className="text-[13px] text-[var(--st-text)]">{label}</span>
         </button>
     );
 }
@@ -273,12 +273,12 @@ function DensityTile({
             className={cn(
                 'rounded-xl border p-4 text-left transition-colors',
                 selected
-                    ? 'border-zoru-ink bg-zoru-surface-2'
-                    : 'border-zoru-line bg-zoru-bg hover:border-zoru-line',
+                    ? 'border-[var(--st-text)] bg-[var(--st-bg-muted)]'
+                    : 'border-[var(--st-border)] bg-[var(--st-bg)] hover:border-[var(--st-border)]',
             )}
         >
-            <p className="text-[13px] text-zoru-ink">{label}</p>
-            <p className="mt-1 text-xs text-zoru-ink-muted">{description}</p>
+            <p className="text-[13px] text-[var(--st-text)]">{label}</p>
+            <p className="mt-1 text-xs text-[var(--st-text-secondary)]">{description}</p>
         </button>
     );
 }
@@ -302,7 +302,7 @@ function Row({
                 <Label htmlFor={id} className="text-[13px]">
                     {label}
                 </Label>
-                <p className="mt-0.5 text-xs text-zoru-ink-muted">{description}</p>
+                <p className="mt-0.5 text-xs text-[var(--st-text-secondary)]">{description}</p>
             </div>
             <Switch id={id} checked={checked} onCheckedChange={onChange} />
         </li>

@@ -81,11 +81,11 @@ export default function CustomerSegmentsPage() {
     <div className="flex w-full flex-col gap-6 p-6">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-zoru-ink tracking-tight flex items-center gap-2">
+          <h1 className="text-2xl font-semibold text-[var(--st-text)] tracking-tight flex items-center gap-2">
             <Filter className="w-6 h-6 text-indigo-500" />
             Customer Segments
           </h1>
-          <p className="text-sm text-zoru-ink-muted mt-1">
+          <p className="text-sm text-[var(--st-text-secondary)] mt-1">
             Build dynamic segments using powerful rule criteria to target specific audiences.
           </p>
         </div>
@@ -109,8 +109,8 @@ export default function CustomerSegmentsPage() {
                 <Users className="w-5 h-5 text-indigo-500" />
               </div>
               <div>
-                <p className="text-sm font-medium text-zoru-ink-muted">Total Segmented</p>
-                <p className="text-2xl font-bold text-zoru-ink">6,984</p>
+                <p className="text-sm font-medium text-[var(--st-text-secondary)]">Total Segmented</p>
+                <p className="text-2xl font-bold text-[var(--st-text)]">6,984</p>
               </div>
             </div>
           </CardContent>
@@ -123,8 +123,8 @@ export default function CustomerSegmentsPage() {
                 <Activity className="w-5 h-5 text-emerald-500" />
               </div>
               <div>
-                <p className="text-sm font-medium text-zoru-ink-muted">Active Rules</p>
-                <p className="text-2xl font-bold text-zoru-ink">24</p>
+                <p className="text-sm font-medium text-[var(--st-text-secondary)]">Active Rules</p>
+                <p className="text-2xl font-bold text-[var(--st-text)]">24</p>
               </div>
             </div>
           </CardContent>
@@ -137,8 +137,8 @@ export default function CustomerSegmentsPage() {
                 <Settings className="w-5 h-5 text-blue-500" />
               </div>
               <div>
-                <p className="text-sm font-medium text-zoru-ink-muted">Dynamic Updates</p>
-                <p className="text-2xl font-bold text-zoru-ink">Real-time</p>
+                <p className="text-sm font-medium text-[var(--st-text-secondary)]">Dynamic Updates</p>
+                <p className="text-2xl font-bold text-[var(--st-text)]">Real-time</p>
               </div>
             </div>
           </CardContent>
@@ -146,13 +146,13 @@ export default function CustomerSegmentsPage() {
       </div>
 
       <Card>
-        <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zoru-line pb-4">
+        <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--st-border)] pb-4">
           <div>
             <CardTitle>All Segments</CardTitle>
             <CardDescription>Manage and track your customer segments.</CardDescription>
           </div>
           <div className="relative w-full sm:w-72">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zoru-ink-muted" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--st-text-secondary)]" />
             <Input 
               placeholder="Search segments..." 
               className="pl-9"
@@ -178,14 +178,14 @@ export default function CustomerSegmentsPage() {
               {filteredSegments.length > 0 ? (
                 filteredSegments.map((segment) => (
                   <TableRow key={segment.id}>
-                    <TableCell className="font-medium text-zoru-ink">
+                    <TableCell className="font-medium text-[var(--st-text)]">
                       {segment.name}
                     </TableCell>
-                    <TableCell className="text-zoru-ink-subtle">
+                    <TableCell className="text-[var(--st-text-tertiary)]">
                       {segment.description}
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className="bg-zoru-surface font-mono">
+                      <Badge variant="outline" className="bg-[var(--st-bg-secondary)] font-mono">
                         {segment.rules} Rules
                       </Badge>
                     </TableCell>
@@ -197,19 +197,19 @@ export default function CustomerSegmentsPage() {
                         {segment.status}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-zoru-ink-subtle">
+                    <TableCell className="text-[var(--st-text-tertiary)]">
                       {segment.lastUpdated}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
                         <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <PenTool className="w-4 h-4 text-zoru-ink-subtle" />
+                          <PenTool className="w-4 h-4 text-[var(--st-text-tertiary)]" />
                         </Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8 text-rose-500 hover:text-rose-600 hover:bg-rose-500/10">
                           <Trash2 className="w-4 h-4" />
                         </Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreHorizontal className="w-4 h-4 text-zoru-ink-subtle" />
+                          <MoreHorizontal className="w-4 h-4 text-[var(--st-text-tertiary)]" />
                         </Button>
                       </div>
                     </TableCell>
@@ -217,7 +217,7 @@ export default function CustomerSegmentsPage() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={7} className="h-32 text-center text-zoru-ink-muted">
+                  <TableCell colSpan={7} className="h-32 text-center text-[var(--st-text-secondary)]">
                     No segments found matching "{search}"
                   </TableCell>
                 </TableRow>

@@ -243,10 +243,10 @@ export function KpiGrid({ stats, velocity, derived, currency }: KpiGridProps) {
     <section className="mt-10">
       <div className="flex items-end justify-between">
         <div>
-          <h2 className="text-[22px] tracking-tight text-zoru-ink leading-none">
+          <h2 className="text-[22px] tracking-tight text-[var(--st-text)] leading-none">
             Performance
           </h2>
-          <p className="mt-1.5 text-[12.5px] text-zoru-ink-muted">
+          <p className="mt-1.5 text-[12.5px] text-[var(--st-text-secondary)]">
             Key metrics across every app in your account
           </p>
         </div>

@@ -165,24 +165,24 @@ function RawKeyRevealDialog({
       >
         <ZoruDialogHeader>
           <ZoruDialogTitle className="flex items-center gap-2">
-            <Key className="h-4 w-4 text-zoru-ink" />
+            <Key className="h-4 w-4 text-[var(--st-text)]" />
             API key created — copy it now
           </ZoruDialogTitle>
           <ZoruDialogDescription>
-            <span className="font-medium text-zoru-ink">{label}</span> has been
+            <span className="font-medium text-[var(--st-text)]">{label}</span> has been
             issued. The secret will <span className="font-semibold">never be shown again</span>{' '}
             — copy it before closing this dialog.
           </ZoruDialogDescription>
         </ZoruDialogHeader>
 
         {/* Key display area */}
-        <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3">
-          <p className="mb-1.5 text-xs font-medium text-zoru-ink-muted">Secret key</p>
+        <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+          <p className="mb-1.5 text-xs font-medium text-[var(--st-text-secondary)]">Secret key</p>
           <div className="flex items-center gap-2">
             <code
               className={cn(
-                'flex-1 select-all break-all font-mono text-xs text-zoru-ink',
-                !visible && 'tracking-widest text-zoru-ink-muted',
+                'flex-1 select-all break-all font-mono text-xs text-[var(--st-text)]',
+                !visible && 'tracking-widest text-[var(--st-text-secondary)]',
               )}
             >
               {visible ? rawKey : rawKey.replace(/./g, '•')}
@@ -203,9 +203,9 @@ function RawKeyRevealDialog({
         </div>
 
         {/* Warning banner */}
-        <div className="flex items-start gap-2 rounded-[var(--zoru-radius)] border border-zoru-warning/30 bg-zoru-warning/10 px-3 py-2.5">
-          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-zoru-warning-ink" />
-          <p className="text-xs leading-relaxed text-zoru-warning-ink">
+        <div className="flex items-start gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-warn)]/30 bg-[var(--st-warn)]/10 px-3 py-2.5">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[var(--st-warn)]" />
+          <p className="text-xs leading-relaxed text-[var(--st-warn)]">
             Store this key in a secrets manager or environment variable. SabNode
             cannot recover it after you close this dialog.
           </p>
@@ -311,7 +311,7 @@ function IssueKeyDialog({
               autoFocus
             />
             {error && (
-              <p className="text-xs text-zoru-danger" role="alert">
+              <p className="text-xs text-[var(--st-danger)]" role="alert">
                 {error}
               </p>
             )}
@@ -367,7 +367,7 @@ function KeyRow({ apiKey, onRevoke, revoking }: KeyRowProps) {
   return (
     <div
       className={cn(
-        'flex items-start justify-between gap-4 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-4 py-3',
+        'flex items-start justify-between gap-4 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-4 py-3',
         'transition-colors',
         apiKey.revoked && 'opacity-50',
       )}
@@ -375,7 +375,7 @@ function KeyRow({ apiKey, onRevoke, revoking }: KeyRowProps) {
       {/* Left: key info */}
       <div className="min-w-0 flex-1 space-y-1">
         <div className="flex items-center gap-2">
-          <span className="truncate text-sm font-medium text-zoru-ink">
+          <span className="truncate text-sm font-medium text-[var(--st-text)]">
             {apiKey.label}
           </span>
           {apiKey.revoked && (
@@ -385,17 +385,17 @@ function KeyRow({ apiKey, onRevoke, revoking }: KeyRowProps) {
           )}
         </div>
 
-        <code className="block truncate font-mono text-xs text-zoru-ink-muted">
+        <code className="block truncate font-mono text-xs text-[var(--st-text-secondary)]">
           {maskedKey(apiKey.prefix)}
         </code>
 
         <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5">
-          <span className="text-xs text-zoru-ink-subtle">
+          <span className="text-xs text-[var(--st-text-tertiary)]">
             Created {formatDate(apiKey.createdAt)}
           </span>
-          <span className="text-xs text-zoru-ink-subtle">{relativeLastUsed}</span>
+          <span className="text-xs text-[var(--st-text-tertiary)]">{relativeLastUsed}</span>
           {apiKey.revokedAt && (
-            <span className="text-xs text-zoru-ink-subtle">
+            <span className="text-xs text-[var(--st-text-tertiary)]">
               Revoked {formatDate(apiKey.revokedAt)}
             </span>
           )}
@@ -411,7 +411,7 @@ function KeyRow({ apiKey, onRevoke, revoking }: KeyRowProps) {
               size="icon-sm"
               aria-label={`Revoke key "${apiKey.label}"`}
               disabled={revoking}
-              className="shrink-0 text-zoru-ink-muted hover:text-zoru-danger"
+              className="shrink-0 text-[var(--st-text-secondary)] hover:text-[var(--st-danger)]"
             >
               {revoking ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -425,7 +425,7 @@ function KeyRow({ apiKey, onRevoke, revoking }: KeyRowProps) {
             <ZoruAlertDialogHeader>
               <ZoruAlertDialogTitle>Revoke API key?</ZoruAlertDialogTitle>
               <ZoruAlertDialogDescription>
-                The key <span className="font-medium text-zoru-ink">{apiKey.label}</span>{' '}
+                The key <span className="font-medium text-[var(--st-text)]">{apiKey.label}</span>{' '}
                 (<code className="font-mono text-xs">{maskedKey(apiKey.prefix)}</code>) will
                 immediately stop authenticating API requests. This action cannot be undone.
               </ZoruAlertDialogDescription>
@@ -554,8 +554,8 @@ export function ApiKeyManager({
       {/* Header row */}
       <div className="flex items-center justify-between gap-4">
         <div className="space-y-0.5">
-          <h2 className="text-sm font-semibold text-zoru-ink">API keys</h2>
-          <p className="text-xs text-zoru-ink-muted">
+          <h2 className="text-sm font-semibold text-[var(--st-text)]">API keys</h2>
+          <p className="text-xs text-[var(--st-text-secondary)]">
             Bearer tokens that authenticate requests to the SabCRM public REST
             API. Each key is scoped to this project.
           </p>
@@ -575,10 +575,10 @@ export function ApiKeyManager({
 
       {/* Active keys */}
       {activeKeys.length === 0 ? (
-        <div className="flex flex-col items-center gap-2 rounded-[var(--zoru-radius-lg)] border border-dashed border-zoru-line py-10 text-center">
-          <Key className="h-7 w-7 text-zoru-ink-subtle" />
-          <p className="text-sm font-medium text-zoru-ink-muted">No active API keys</p>
-          <p className="text-xs text-zoru-ink-subtle">
+        <div className="flex flex-col items-center gap-2 rounded-[var(--zoru-radius-lg)] border border-dashed border-[var(--st-border)] py-10 text-center">
+          <Key className="h-7 w-7 text-[var(--st-text-tertiary)]" />
+          <p className="text-sm font-medium text-[var(--st-text-secondary)]">No active API keys</p>
+          <p className="text-xs text-[var(--st-text-tertiary)]">
             Create a key to start authenticating SabCRM REST requests.
           </p>
           <Button
@@ -609,7 +609,7 @@ export function ApiKeyManager({
       {/* Revoked keys (collapsed history) */}
       {revokedKeys.length > 0 && (
         <details className="group">
-          <summary className="cursor-pointer select-none list-none text-xs text-zoru-ink-muted hover:text-zoru-ink">
+          <summary className="cursor-pointer select-none list-none text-xs text-[var(--st-text-secondary)] hover:text-[var(--st-text)]">
             <span className="inline-flex items-center gap-1">
               <span className="group-open:hidden">Show</span>
               <span className="hidden group-open:inline">Hide</span>

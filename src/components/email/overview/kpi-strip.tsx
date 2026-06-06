@@ -68,13 +68,13 @@ export function EmailKpiStrip({
       {tiles.map((t) => (
         <Card key={t.label} className="p-0">
           <ZoruCardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <ZoruCardTitle className="text-sm text-zoru-ink-muted">{t.label}</ZoruCardTitle>
-            <t.icon className="h-4 w-4 text-zoru-ink-muted" />
+            <ZoruCardTitle className="text-sm text-[var(--st-text-secondary)]">{t.label}</ZoruCardTitle>
+            <t.icon className="h-4 w-4 text-[var(--st-text-secondary)]" />
           </ZoruCardHeader>
           <ZoruCardContent>
-            <div className="text-2xl text-zoru-ink font-semibold">{t.value}</div>
+            <div className="text-2xl text-[var(--st-text)] font-semibold">{t.value}</div>
             {t.delta ? (
-              <p className="text-xs text-zoru-ink-muted">{t.delta}</p>
+              <p className="text-xs text-[var(--st-text-secondary)]">{t.delta}</p>
             ) : null}
           </ZoruCardContent>
         </Card>

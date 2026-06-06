@@ -44,12 +44,12 @@ export function WebhookProcessingToggle() {
         <div className="flex items-center justify-between rounded-lg border p-4 shadow-sm">
             <div className="space-y-0.5">
                 <Label htmlFor="webhook-switch" className="text-base font-semibold">Webhook Processing</Label>
-                <p className="text-sm text-zoru-ink-muted">
+                <p className="text-sm text-[var(--st-text-secondary)]">
                     Globally enable or disable processing of incoming webhooks from Meta.
                 </p>
             </div>
             <div className="flex items-center gap-2">
-                 {(isLoading || isUpdating) && <LoaderCircle className="h-4 w-4 animate-spin text-zoru-ink-muted" />}
+                 {(isLoading || isUpdating) && <LoaderCircle className="h-4 w-4 animate-spin text-[var(--st-text-secondary)]" />}
                 <Switch
                     id="webhook-switch"
                     checked={isEnabled}

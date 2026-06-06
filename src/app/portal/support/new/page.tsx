@@ -54,8 +54,8 @@ export default function NewSupportTicketPage(): React.JSX.Element {
       <Card>
         <ZoruCardContent className="space-y-4 p-6">
           <div>
-            <h1 className="text-[18px] font-semibold text-zoru-ink">Open a support request</h1>
-            <p className="mt-1 text-[13px] text-zoru-ink-muted">
+            <h1 className="text-[18px] font-semibold text-[var(--st-text)]">Open a support request</h1>
+            <p className="mt-1 text-[13px] text-[var(--st-text-secondary)]">
               Tell us what's happening. Our team will follow up via the channel you signed in with.
             </p>
           </div>

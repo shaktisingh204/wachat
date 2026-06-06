@@ -98,7 +98,7 @@ export function CreateRandomizerPostDialog({ isOpen, onOpenChange, project, onPo
                   value={imageUrl}
                   onChange={setImageUrl}
                 />
-                <p className="text-xs text-zoru-ink-muted">If provided, this post will be published as a photo post.</p>
+                <p className="text-xs text-[var(--st-text-secondary)]">If provided, this post will be published as a photo post.</p>
               </div>
             </div>
           </div>

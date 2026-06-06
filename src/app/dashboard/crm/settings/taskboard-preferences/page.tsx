@@ -195,8 +195,8 @@ export default function TaskboardPreferencesPage() {
             <div className="grid gap-4 lg:grid-cols-3">
                 <Card className="p-6 lg:col-span-2">
                     <div className="pb-3">
-                        <h2 className="text-[16px] text-zoru-ink">Edit preferences</h2>
-                        <p className="text-[12.5px] text-zoru-ink-muted">
+                        <h2 className="text-[16px] text-[var(--st-text)]">Edit preferences</h2>
+                        <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                             Leave project id blank for a global default that applies to
                             every project board.
                         </p>
@@ -303,8 +303,8 @@ export default function TaskboardPreferencesPage() {
 
                 <Card className="p-6">
                     <div className="pb-3">
-                        <h2 className="text-[16px] text-zoru-ink">Saved presets</h2>
-                        <p className="text-[12.5px] text-zoru-ink-muted">
+                        <h2 className="text-[16px] text-[var(--st-text)]">Saved presets</h2>
+                        <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                             Click a preset to load it into the editor.
                         </p>
                     </div>
@@ -340,9 +340,9 @@ export default function TaskboardPreferencesPage() {
                         </div>
                     </div>
                     {isLoading ? (
-                        <p className="text-[13px] text-zoru-ink-muted">Loading…</p>
+                        <p className="text-[13px] text-[var(--st-text-secondary)]">Loading…</p>
                     ) : filteredRows.length === 0 ? (
-                        <p className="text-[13px] text-zoru-ink-muted">
+                        <p className="text-[13px] text-[var(--st-text-secondary)]">
                             {rows.length === 0
                                 ? 'No presets yet. Save one to see it here.'
                                 : 'No presets match your filter.'}
@@ -352,14 +352,14 @@ export default function TaskboardPreferencesPage() {
                             {filteredRows.map((r) => (
                                 <li
                                     key={r._id}
-                                    className="flex items-center justify-between gap-2 rounded-lg border border-zoru-line p-2"
+                                    className="flex items-center justify-between gap-2 rounded-lg border border-[var(--st-border)] p-2"
                                 >
                                     <button
                                         type="button"
                                         onClick={() => loadRow(r)}
                                         className="min-w-0 flex-1 text-left"
                                     >
-                                        <p className="truncate text-[13px] text-zoru-ink">
+                                        <p className="truncate text-[13px] text-[var(--st-text)]">
                                             {r.project_id
                                                 ? `Project ${String(r.project_id).slice(-6)}`
                                                 : 'Global default'}
@@ -384,7 +384,7 @@ export default function TaskboardPreferencesPage() {
                                         onClick={() => setDeletingId(r._id)}
                                         aria-label="Delete preset"
                                     >
-                                        <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                                        <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                                     </Button>
                                 </li>
                             ))}

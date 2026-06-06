@@ -179,7 +179,7 @@ export default function ProductsCatalogListPage() {
       ) : !hasCatalogAccess ? (
         <Card className="mt-8">
           <ZoruCardHeader>
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)]">
               <Lock className="h-5 w-5" />
             </div>
             <ZoruCardTitle>Catalog management locked</ZoruCardTitle>
@@ -241,7 +241,7 @@ function CatalogTile({ catalog }: { catalog: WithId<Catalog> }) {
           ID: {id}
         </ZoruCardDescription>
       </ZoruCardHeader>
-      <ZoruCardContent className="flex-1 text-xs text-zoru-ink-muted">
+      <ZoruCardContent className="flex-1 text-xs text-[var(--st-text-secondary)]">
         {catalog.createdAt
           ? `Created ${new Date(catalog.createdAt).toLocaleDateString()}`
           : "No creation date available"}

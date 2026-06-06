@@ -106,7 +106,7 @@ export function SabpublishProfileTab({
           ))}
         </div>
         {message ? (
-          <p className="text-sm text-zoru-ink-muted">{message}</p>
+          <p className="text-sm text-[var(--st-text-secondary)]">{message}</p>
         ) : null}
         <div className="flex gap-2">
           <Button onClick={handleSave} disabled={pending}>

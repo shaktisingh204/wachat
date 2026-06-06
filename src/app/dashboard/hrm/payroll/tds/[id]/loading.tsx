@@ -9,7 +9,7 @@ export default function LoadingTdsDetail() {
             back={{ href: '/dashboard/hrm/payroll/tds', label: 'TDS' }}
         >
             <Card className="p-6">
-                <div className="h-40 animate-pulse bg-zoru-surface-2 rounded-md" />
+                <div className="h-40 animate-pulse bg-[var(--st-bg-muted)] rounded-md" />
             </Card>
         </EntityDetailShell>
     );

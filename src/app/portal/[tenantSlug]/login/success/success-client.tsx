@@ -25,20 +25,20 @@ export function SuccessClient({ tenantSlug }: { tenantSlug: string }) {
             {isMobile && (
                 <button
                     onClick={handleOpenEmail}
-                    className="w-full rounded-md bg-zoru-ink px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zoru-ink focus:outline-none focus:ring-2 focus:ring-zoru-line focus:ring-offset-2"
+                    className="w-full rounded-md bg-[var(--st-text)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--st-text)] focus:outline-none focus:ring-2 focus:ring-[var(--st-border)] focus:ring-offset-2"
                 >
                     Open Email App
                 </button>
             )}
 
-            <div className="text-[13px] text-zoru-ink-muted">
+            <div className="text-[13px] text-[var(--st-text-secondary)]">
                 Didn&apos;t get it?{' '}
                 {timeLeft > 0 ? (
                     <span>Wait {timeLeft}s to request a new link</span>
                 ) : (
                     <Link
                         href={`/portal/${encodeURIComponent(tenantSlug)}/login`}
-                        className="font-semibold text-zoru-ink hover:underline"
+                        className="font-semibold text-[var(--st-text)] hover:underline"
                     >
                         Request a new link
                     </Link>

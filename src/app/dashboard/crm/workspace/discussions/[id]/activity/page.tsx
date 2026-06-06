@@ -10,7 +10,7 @@ export default async function DiscussionActivityPage({
     const { id } = await params;
     return (
         <div className="p-4 md:p-6">
-            <h1 className="mb-4 text-xl font-semibold text-zoru-ink">Discussion activity</h1>
+            <h1 className="mb-4 text-xl font-semibold text-[var(--st-text)]">Discussion activity</h1>
             <EntityAuditTimeline entityKind="discussion" entityId={id} />
         </div>
     );

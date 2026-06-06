@@ -22,17 +22,17 @@ export default async function PublicLeadFormPage({ params }: PageProps) {
       <div className="flex flex-col gap-6 lg:col-span-3">
         <div>
           <div className="flex items-center gap-3">
-            <span className="rounded bg-zoru-surface-2 border border-zoru-line px-2 py-0.5 font-mono text-[11px] font-bold text-zoru-ink uppercase">
+            <span className="rounded bg-[var(--st-bg-muted)] border border-[var(--st-border)] px-2 py-0.5 font-mono text-[11px] font-bold text-[var(--st-text)] uppercase">
               GET
             </span>
-            <span className="font-mono text-[13px] text-zoru-ink tracking-tight">
+            <span className="font-mono text-[13px] text-[var(--st-text)] tracking-tight">
               /v1/lead-forms/{formId.slice(0, 8)}...
             </span>
           </div>
-          <h1 className="mt-2 text-2xl font-bold tracking-tight text-zoru-ink font-mono">
+          <h1 className="mt-2 text-2xl font-bold tracking-tight text-[var(--st-text)] font-mono">
             Tell us about yourself
           </h1>
-          <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
+          <p className="mt-1.5 text-[13px] text-[var(--st-text-secondary)]">
             Complete this form to submit your details directly to our CRM endpoint.
           </p>
         </div>
@@ -45,10 +45,10 @@ export default async function PublicLeadFormPage({ params }: PageProps) {
       <div className="lg:col-span-2">
         <div className="sticky top-6 flex flex-col gap-5">
           <div className="flex items-center gap-3">
-            <span className="rounded bg-zoru-surface-2 border border-zoru-line px-2 py-0.5 font-mono text-[11px] font-bold text-zoru-ink uppercase">
+            <span className="rounded bg-[var(--st-bg-muted)] border border-[var(--st-border)] px-2 py-0.5 font-mono text-[11px] font-bold text-[var(--st-text)] uppercase">
               POST
             </span>
-            <span className="font-mono text-[13px] text-zoru-ink tracking-tight">
+            <span className="font-mono text-[13px] text-[var(--st-text)] tracking-tight">
               /v1/lead-forms/{formId.slice(0, 8)}.../submit
             </span>
           </div>

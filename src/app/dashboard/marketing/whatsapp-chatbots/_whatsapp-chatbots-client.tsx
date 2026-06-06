@@ -162,14 +162,14 @@ export function WhatsappBotClient({ initialData }: { initialData: any[] }) {
       >
         
         {/* Global Campaign Dashboard */}
-        <div className="mb-6 rounded-xl border border-zoru-line bg-gradient-to-r from-zoru-surface-2/50 to-zoru-surface-2/50 p-6">
+        <div className="mb-6 rounded-xl border border-[var(--st-border)] bg-gradient-to-r from-[var(--st-bg-muted)]/50 to-[var(--st-bg-muted)]/50 p-6">
           <div className="mb-6 flex items-center gap-3">
-            <div className="rounded-lg bg-zoru-surface-2 p-3 text-zoru-ink">
+            <div className="rounded-lg bg-[var(--st-bg-muted)] p-3 text-[var(--st-text)]">
               <Megaphone className="h-6 w-6" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-zoru-ink">Global Campaign Dashboard</h2>
-              <p className="text-sm text-zoru-ink-muted">Aggregated metrics and cross-channel ROI</p>
+              <h2 className="text-2xl font-bold text-[var(--st-text)]">Global Campaign Dashboard</h2>
+              <p className="text-sm text-[var(--st-text-secondary)]">Aggregated metrics and cross-channel ROI</p>
             </div>
           </div>
           
@@ -208,11 +208,11 @@ export function WhatsappBotClient({ initialData }: { initialData: any[] }) {
 
 
         {filteredData.length === 0 ? (
-          <div className="flex h-[400px] items-center justify-center rounded-md border border-dashed text-sm text-zoru-ink-muted">
+          <div className="flex h-[400px] items-center justify-center rounded-md border border-dashed text-sm text-[var(--st-text-secondary)]">
             No bots found.
           </div>
         ) : (
-          <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface overflow-hidden">
+          <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] overflow-hidden">
             <Table>
               <ZoruTableHeader>
                 <ZoruTableRow>
@@ -240,10 +240,10 @@ export function WhatsappBotClient({ initialData }: { initialData: any[] }) {
                     </ZoruTableCell>
                     <ZoruTableCell className="text-right space-x-2">
                       <Button variant="ghost" size="icon" onClick={() => openEdit(item)}>
-                        <Edit2 className="h-4 w-4 text-zoru-ink" />
+                        <Edit2 className="h-4 w-4 text-[var(--st-text)]" />
                       </Button>
                       <Button variant="ghost" size="icon" onClick={() => handleDelete(item._id)}>
-                        <Trash2 className="h-4 w-4 text-zoru-ink" />
+                        <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                       </Button>
                     </ZoruTableCell>
                   </ZoruTableRow>

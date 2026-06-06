@@ -63,7 +63,7 @@ export function ChartGroupHeatmap({ data }: ChartGroupHeatmapProps) {
 
   return (
     <div className="space-y-2 overflow-x-auto">
-      <div className="grid min-w-[640px] grid-cols-[36px_repeat(24,minmax(0,1fr))] items-center gap-px text-[10px] text-zoru-ink-muted">
+      <div className="grid min-w-[640px] grid-cols-[36px_repeat(24,minmax(0,1fr))] items-center gap-px text-[10px] text-[var(--st-text-secondary)]">
         <div aria-hidden />
         {Array.from({ length: 24 }, (_, h) => (
           <div key={h} className="text-center tabular-nums">
@@ -89,7 +89,7 @@ export function ChartGroupHeatmap({ data }: ChartGroupHeatmapProps) {
           </React.Fragment>
         ))}
       </div>
-      <div className="flex items-center justify-end gap-1 text-[10px] text-zoru-ink-muted">
+      <div className="flex items-center justify-end gap-1 text-[10px] text-[var(--st-text-secondary)]">
         <span>Low</span>
         {legendStops.map((stop) => (
           <span

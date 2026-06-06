@@ -59,7 +59,7 @@ export default function NativeAppAPIsClient({ initialData }: { initialData: Nati
       primaryAction={<Button onClick={() => { setDialogOpen(true); setNewKey(null); }}><Plus className="w-4 h-4 mr-2" />Generate Key</Button>}
       search={{ value: query, onChange: setQuery, placeholder: 'Search keys...' }}
     >
-      <Card className="border-zoru-line bg-zoru-bg overflow-hidden">
+      <Card className="border-[var(--st-border)] bg-[var(--st-bg)] overflow-hidden">
         <Table>
           <ZoruTableHeader>
             <ZoruTableRow>
@@ -73,24 +73,24 @@ export default function NativeAppAPIsClient({ initialData }: { initialData: Nati
           <ZoruTableBody>
             {filteredData.map(item => (
               <ZoruTableRow key={item.id}>
-                <ZoruTableCell className="font-medium flex items-center"><KeyRound className="w-4 h-4 mr-2 text-zoru-ink-light" />{item.name}</ZoruTableCell>
+                <ZoruTableCell className="font-medium flex items-center"><KeyRound className="w-4 h-4 mr-2 text-[var(--st-text-tertiary)]" />{item.name}</ZoruTableCell>
                 <ZoruTableCell className="font-mono text-sm">{item.keyPrefix}...</ZoruTableCell>
                 <ZoruTableCell>
                   <div className="flex gap-1 flex-wrap">
                     {item.scopes.map(s => <span key={s} className="bg-zoru-neutral-hover px-2 py-0.5 rounded text-xs">{s}</span>)}
                   </div>
                 </ZoruTableCell>
-                <ZoruTableCell className="text-sm text-zoru-ink-light">{fmtDate(item.createdAt)}</ZoruTableCell>
+                <ZoruTableCell className="text-sm text-[var(--st-text-tertiary)]">{fmtDate(item.createdAt)}</ZoruTableCell>
                 <ZoruTableCell className="text-right">
                   <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)} disabled={isPending}>
-                    <Trash2 className="w-4 h-4 text-zoru-ink" />
+                    <Trash2 className="w-4 h-4 text-[var(--st-text)]" />
                   </Button>
                 </ZoruTableCell>
               </ZoruTableRow>
             ))}
             {filteredData.length === 0 && (
               <ZoruTableRow>
-                <ZoruTableCell colSpan={5} className="text-center py-8 text-zoru-ink-light">No API keys found.</ZoruTableCell>
+                <ZoruTableCell colSpan={5} className="text-center py-8 text-[var(--st-text-tertiary)]">No API keys found.</ZoruTableCell>
               </ZoruTableRow>
             )}
           </ZoruTableBody>
@@ -104,9 +104,9 @@ export default function NativeAppAPIsClient({ initialData }: { initialData: Nati
           </ZoruDialogHeader>
           <div className="grid gap-4 py-4">
             {newKey ? (
-              <div className="bg-zoru-surface-2 p-4 rounded-lg border border-zoru-line">
-                <p className="text-sm text-zoru-ink mb-2 font-medium">Please copy your API key now. It will not be shown again.</p>
-                <code className="block p-3 bg-white border border-zoru-line rounded text-zoru-ink font-mono break-all">
+              <div className="bg-[var(--st-bg-muted)] p-4 rounded-lg border border-[var(--st-border)]">
+                <p className="text-sm text-[var(--st-text)] mb-2 font-medium">Please copy your API key now. It will not be shown again.</p>
+                <code className="block p-3 bg-white border border-[var(--st-border)] rounded text-[var(--st-text)] font-mono break-all">
                   {newKey}
                 </code>
               </div>

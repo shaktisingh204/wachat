@@ -175,12 +175,12 @@ export default function AttendanceListPage(): React.JSX.Element {
                 filters={
                     <>
                         <div className="flex items-center gap-2">
-                            <span className="text-[12px] text-zoru-ink-muted">Date</span>
+                            <span className="text-[12px] text-[var(--st-text-secondary)]">Date</span>
                             <Input
                                 type="date"
                                 value={dateIso}
                                 onChange={(e) => setDateIso(e.target.value)}
-                                className="h-9 w-[160px] rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                                className="h-9 w-[160px] rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                             />
                         </div>
                         <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
@@ -200,24 +200,24 @@ export default function AttendanceListPage(): React.JSX.Element {
                 }
                 loading={isPending && rows.length === 0}
             >
-                <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                     <Table>
                         <ZoruTableHeader>
-                            <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                <ZoruTableHead className="text-zoru-ink-muted">Employee</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Department</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Check-in</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Check-out</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted text-right">Actions</ZoruTableHead>
+                            <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Employee</ZoruTableHead>
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Department</ZoruTableHead>
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Check-in</ZoruTableHead>
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Check-out</ZoruTableHead>
+                                <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Actions</ZoruTableHead>
                             </ZoruTableRow>
                         </ZoruTableHeader>
                         <ZoruTableBody>
                             {filtered.length === 0 ? (
-                                <ZoruTableRow className="border-zoru-line">
+                                <ZoruTableRow className="border-[var(--st-border)]">
                                     <ZoruTableCell
                                         colSpan={6}
-                                        className="h-24 text-center text-zoru-ink-muted"
+                                        className="h-24 text-center text-[var(--st-text-secondary)]"
                                     >
                                         {isPending
                                             ? 'Loading…'
@@ -228,8 +228,8 @@ export default function AttendanceListPage(): React.JSX.Element {
                                 filtered.map((r) => {
                                     const tone = STATUS_TONE[r.status] ?? 'neutral';
                                     return (
-                                        <ZoruTableRow key={r._id} className="border-zoru-line">
-                                            <ZoruTableCell className="font-medium text-zoru-ink">
+                                        <ZoruTableRow key={r._id} className="border-[var(--st-border)]">
+                                            <ZoruTableCell className="font-medium text-[var(--st-text)]">
                                                 <Link
                                                     href={`${BASE}/${r._id}`}
                                                     className="hover:underline"
@@ -237,16 +237,16 @@ export default function AttendanceListPage(): React.JSX.Element {
                                                     {r.employeeName}
                                                 </Link>
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="text-zoru-ink">
+                                            <ZoruTableCell className="text-[var(--st-text)]">
                                                 {r.departmentId ?? '—'}
                                             </ZoruTableCell>
                                             <ZoruTableCell>
                                                 <StatusPill label={r.status} tone={tone} />
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="text-zoru-ink">
+                                            <ZoruTableCell className="text-[var(--st-text)]">
                                                 {fmtTime(r.checkIn)}
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="text-zoru-ink">
+                                            <ZoruTableCell className="text-[var(--st-text)]">
                                                 {fmtTime(r.checkOut)}
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-right">
@@ -264,7 +264,7 @@ export default function AttendanceListPage(): React.JSX.Element {
                     </Table>
                 </div>
 
-            <p className="text-[12px] text-zoru-ink-muted">
+            <p className="text-[12px] text-[var(--st-text-secondary)]">
                 <CalendarCheck className="-mt-0.5 mr-1 inline h-3.5 w-3.5" />
                 Showing attendance for <strong>{dateIso}</strong>.
             </p>

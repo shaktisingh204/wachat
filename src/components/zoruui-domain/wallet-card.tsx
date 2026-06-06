@@ -91,41 +91,41 @@ export function WalletCard({ user }: { user: WithId<User> }) {
     const currency = user.wallet?.currency || 'INR';
 
     return (
-        <Card className="relative overflow-hidden bg-zoru-bg border border-zoru-line shadow-md text-zoru-ink">
-            <ZoruCardHeader className="pb-2 bg-zoru-surface-2 border-b border-zoru-line">
+        <Card className="relative overflow-hidden bg-[var(--st-bg)] border border-[var(--st-border)] shadow-md text-[var(--st-text)]">
+            <ZoruCardHeader className="pb-2 bg-[var(--st-bg-muted)] border-b border-[var(--st-border)]">
                 <div className="flex items-center justify-between">
-                    <ZoruCardTitle className="flex items-center gap-2 text-zoru-ink text-lg tracking-tight">
-                        <IndianRupee className="h-5 w-5 text-zoru-ink-muted" />
+                    <ZoruCardTitle className="flex items-center gap-2 text-[var(--st-text)] text-lg tracking-tight">
+                        <IndianRupee className="h-5 w-5 text-[var(--st-text-secondary)]" />
                         Wallet Balance
                     </ZoruCardTitle>
-                    <div className="h-2 w-2 rounded-full bg-zoru-success animate-pulse" />
+                    <div className="h-2 w-2 rounded-full bg-[var(--st-status-ok)] animate-pulse" />
                 </div>
             </ZoruCardHeader>
             <ZoruCardContent className="space-y-6 pt-6">
                 {paymentStatus === 'success' && paymentType === 'wallet' && (
-                    <div className="flex items-center gap-2 rounded-lg bg-zoru-success/10 p-3 text-sm text-zoru-success-ink border border-zoru-success/30">
-                        <CheckCircle2 className="h-4 w-4 text-zoru-success" />
+                    <div className="flex items-center gap-2 rounded-lg bg-[var(--st-status-ok)]/10 p-3 text-sm text-[var(--st-status-ok)] border border-[var(--st-status-ok)]/30">
+                        <CheckCircle2 className="h-4 w-4 text-[var(--st-status-ok)]" />
                         Wallet topped up successfully!
                     </div>
                 )}
                 {paymentStatus === 'failed' && (
-                    <div className="flex items-center gap-2 rounded-lg bg-zoru-danger/10 p-3 text-sm text-zoru-danger-ink border border-zoru-danger/30">
-                        <AlertCircle className="h-4 w-4 text-zoru-danger" />
+                    <div className="flex items-center gap-2 rounded-lg bg-[var(--st-danger)]/10 p-3 text-sm text-[var(--st-danger)] border border-[var(--st-danger)]/30">
+                        <AlertCircle className="h-4 w-4 text-[var(--st-danger)]" />
                         Payment failed. Please try again.
                     </div>
                 )}
 
                 <div className="flex flex-col">
-                    <div className="text-4xl md:text-5xl font-extrabold tracking-tighter text-zoru-ink-strong">
+                    <div className="text-4xl md:text-5xl font-extrabold tracking-tighter text-[var(--st-text)]">
                         {new Intl.NumberFormat('en-IN', { style: 'currency', currency, maximumFractionDigits: 0 }).format(balance / 100)}
                     </div>
-                    <p className="text-xs text-zoru-ink-muted mt-1 uppercase tracking-wider font-medium">Available Funds</p>
+                    <p className="text-xs text-[var(--st-text-secondary)] mt-1 uppercase tracking-wider font-medium">Available Funds</p>
                 </div>
 
-                <div className="rounded-xl bg-zoru-surface-2 p-4 border border-zoru-line">
+                <div className="rounded-xl bg-[var(--st-bg-muted)] p-4 border border-[var(--st-border)]">
                     <form onSubmit={handleAddFunds} className="space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="amount" className="text-zoru-ink-muted text-xs uppercase tracking-wider">Quick Top-Up</Label>
+                            <Label htmlFor="amount" className="text-[var(--st-text-secondary)] text-xs uppercase tracking-wider">Quick Top-Up</Label>
                             <div className="flex flex-wrap gap-2">
                                 {QUICK_AMOUNTS.map((a) => (
                                     <button
@@ -134,8 +134,8 @@ export function WalletCard({ user }: { user: WithId<User> }) {
                                         onClick={() => setAmount(a)}
                                         className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-all duration-200 ${
                                             amount === a
-                                                ? 'bg-zoru-primary text-zoru-on-primary shadow-sm'
-                                                : 'bg-zoru-bg text-zoru-ink border border-zoru-line hover:border-zoru-line-strong'
+                                                ? 'bg-[var(--st-text)] text-[var(--st-text-inverted)] shadow-sm'
+                                                : 'bg-[var(--st-bg)] text-[var(--st-text)] border border-[var(--st-border)] hover:border-[var(--st-border-strong)]'
                                         }`}
                                     >
                                         ₹{a.toLocaleString('en-IN')}
@@ -146,7 +146,7 @@ export function WalletCard({ user }: { user: WithId<User> }) {
 
                         <div className="flex gap-2">
                             <div className="relative flex-1">
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zoru-ink-muted font-medium z-10">₹</span>
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--st-text-secondary)] font-medium z-10">₹</span>
                                 <Input
                                     id="amount"
                                     name="amount"
@@ -156,13 +156,13 @@ export function WalletCard({ user }: { user: WithId<User> }) {
                                     min="100"
                                     max="100000"
                                     step="100"
-                                    className="pl-7 bg-zoru-bg border-zoru-line text-zoru-ink rounded-lg h-10"
+                                    className="pl-7 bg-[var(--st-bg)] border-[var(--st-border)] text-[var(--st-text)] rounded-lg h-10"
                                 />
                             </div>
                             <Button
                                 type="submit"
                                 disabled={isPending}
-                                className="bg-zoru-primary text-zoru-on-primary hover:bg-zoru-primary-hover rounded-lg h-10 px-6 font-bold"
+                                className="bg-[var(--st-text)] text-[var(--st-text-inverted)] hover:bg-[var(--st-text)] rounded-lg h-10 px-6 font-bold"
                             >
                                 {isPending ? (
                                     <LoaderCircle className="h-4 w-4 animate-spin" />
@@ -174,7 +174,7 @@ export function WalletCard({ user }: { user: WithId<User> }) {
                     </form>
                 </div>
 
-                <p className="text-center text-[10px] text-zoru-ink-subtle uppercase tracking-widest font-medium flex items-center justify-center gap-1.5">
+                <p className="text-center text-[10px] text-[var(--st-text-tertiary)] uppercase tracking-widest font-medium flex items-center justify-center gap-1.5">
                     <Lock className="h-3 w-3" /> Secure payment via PayU
                 </p>
             </ZoruCardContent>

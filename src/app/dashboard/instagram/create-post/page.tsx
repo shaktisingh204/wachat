@@ -62,7 +62,7 @@ export default function CreateInstagramPostPage() {
                 <X className="h-5 w-5" />
               </Link>
             </Button>
-            <h1 className="text-lg flex items-center gap-2 text-zoru-ink">
+            <h1 className="text-lg flex items-center gap-2 text-[var(--st-text)]">
               <Instagram className="h-5 w-5" /> Create Post
             </h1>
             <SubmitButton disabled={!projectId} />
@@ -78,7 +78,7 @@ export default function CreateInstagramPostPage() {
                 value={imageUrl}
                 onChange={setImageUrl}
               />
-              <p className="text-xs text-zoru-ink-muted">
+              <p className="text-xs text-[var(--st-text-secondary)]">
                 Your image must be publicly accessible.
               </p>
             </div>

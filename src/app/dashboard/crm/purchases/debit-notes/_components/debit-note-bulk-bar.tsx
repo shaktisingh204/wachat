@@ -26,7 +26,7 @@ export function DebitNoteBulkBar({
 }: DebitNoteBulkBarProps) {
     return (
         <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[13px] font-medium text-zoru-ink">
+            <span className="text-[13px] font-medium text-[var(--st-text)]">
                 {count} selected
             </span>
             <span className="flex-1" />
@@ -43,7 +43,7 @@ export function DebitNoteBulkBar({
                 size="sm"
                 variant="outline"
                 onClick={onDelete}
-                className="text-zoru-danger-ink"
+                className="text-[var(--st-danger)]"
             >
                 <Trash2 className="h-3.5 w-3.5" /> Delete
             </Button>

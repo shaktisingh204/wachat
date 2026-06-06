@@ -70,19 +70,19 @@ export function AssignTaskForm({ employee, onCancel, onSuccess }: AssignTaskForm
 
     return (
         <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-5 px-1">
-            <div className="rounded-lg border border-zoru-line bg-zoru-surface-2 px-4 py-3">
-                <p className="text-[12px] font-medium text-zoru-ink-muted mb-0.5">Assignee</p>
-                <p className="text-[14px] font-medium text-zoru-ink">
+            <div className="rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-3">
+                <p className="text-[12px] font-medium text-[var(--st-text-secondary)] mb-0.5">Assignee</p>
+                <p className="text-[14px] font-medium text-[var(--st-text)]">
                     {employee.firstName} {employee.lastName}
                 </p>
                 {employee.designationName && (
-                    <p className="text-[12px] text-zoru-ink-muted">{employee.designationName}</p>
+                    <p className="text-[12px] text-[var(--st-text-secondary)]">{employee.designationName}</p>
                 )}
             </div>
 
             <div className="flex flex-col gap-1.5">
                 <Label htmlFor="task-title">
-                    Task title <span className="text-zoru-danger-ink">*</span>
+                    Task title <span className="text-[var(--st-danger)]">*</span>
                 </Label>
                 <Input
                     id="task-title"

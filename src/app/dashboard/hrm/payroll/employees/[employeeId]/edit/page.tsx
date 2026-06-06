@@ -34,7 +34,7 @@ export default async function EditEmployeePage(props: {
 
     if (!employee) {
         return (
-            <p className="text-[13px] text-zoru-ink-muted">Employee not found.</p>
+            <p className="text-[13px] text-[var(--st-text-secondary)]">Employee not found.</p>
         );
     }
 
@@ -47,7 +47,7 @@ export default async function EditEmployeePage(props: {
                         Back to Employee Directory
                     </Button>
                 </Link>
-                <h1 className="mt-2 text-[26px] leading-tight text-zoru-ink">
+                <h1 className="mt-2 text-[26px] leading-tight text-[var(--st-text)]">
                     Edit Employee
                 </h1>
             </div>

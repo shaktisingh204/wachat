@@ -176,8 +176,8 @@ export function BuilderShell({
   /* ────────── Render ────────── */
 
   return (
-    <div className="flex h-screen flex-col bg-zoru-surface">
-      <header className="flex items-center gap-3 border-b border-zoru-line px-4 py-2.5">
+    <div className="flex h-screen flex-col bg-[var(--st-bg-secondary)]">
+      <header className="flex items-center gap-3 border-b border-[var(--st-border)] px-4 py-2.5">
         <Button
           type="button"
           variant="ghost"
@@ -204,7 +204,7 @@ export function BuilderShell({
           />
         </div>
         {warnings.length > 0 ? (
-          <Badge variant="outline" className="gap-1 text-zoru-ink">
+          <Badge variant="outline" className="gap-1 text-[var(--st-text)]">
             <AlertTriangle className="h-3.5 w-3.5" />
             {warnings.length} warning{warnings.length === 1 ? '' : 's'}
           </Badge>
@@ -223,7 +223,7 @@ export function BuilderShell({
       </header>
 
       {warnings.length > 0 ? (
-        <div className="border-b border-zoru-line bg-zoru-surface-2 px-4 py-2 dark:bg-zoru-ink/30">
+        <div className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-2 dark:bg-[var(--st-text)]/30">
           <Alert variant="warning">
             <AlertTriangle className="h-4 w-4" />
             <ZoruAlertTitle>Renderer warnings</ZoruAlertTitle>

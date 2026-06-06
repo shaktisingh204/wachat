@@ -254,13 +254,13 @@ export function EventForm({ initialData }: EventFormProps) {
                                 aria-invalid={endBeforeStartError || undefined}
                             />
                             {endBeforeStartError ? (
-                                <p className="text-xs text-zoru-danger-ink">
+                                <p className="text-xs text-[var(--st-danger)]">
                                     End time must be on or after the start.
                                 </p>
                             ) : null}
                         </div>
 
-                        <label className="flex items-center gap-2 text-sm text-zoru-ink">
+                        <label className="flex items-center gap-2 text-sm text-[var(--st-text)]">
                             <Checkbox
                                 name="is_all_day"
                                 checked={isAllDay}
@@ -299,7 +299,7 @@ export function EventForm({ initialData }: EventFormProps) {
                                 defaultValue={initialData?.location ?? ''}
                             />
                         </div>
-                        <label className="flex items-center gap-2 text-sm text-zoru-ink">
+                        <label className="flex items-center gap-2 text-sm text-[var(--st-text)]">
                             <Checkbox
                                 name="is_online"
                                 checked={isOnline}
@@ -352,7 +352,7 @@ export function EventForm({ initialData }: EventFormProps) {
 
                     {/* Recurrence */}
                     <div className="grid gap-4 sm:grid-cols-2">
-                        <label className="flex items-center gap-2 text-sm text-zoru-ink">
+                        <label className="flex items-center gap-2 text-sm text-[var(--st-text)]">
                             <Checkbox
                                 name="is_recurring"
                                 checked={isRecurring}
@@ -380,14 +380,14 @@ export function EventForm({ initialData }: EventFormProps) {
                         <Label>Banner image</Label>
                         <div className="flex flex-wrap items-center gap-3">
                             {bannerUrl ? (
-                                <div className="flex items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface/40 p-2">
+                                <div className="flex items-center gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40 p-2">
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img
                                         src={bannerUrl}
                                         alt=""
                                         className="h-12 w-20 rounded object-cover"
                                     />
-                                    <span className="max-w-[180px] truncate text-xs text-zoru-ink">
+                                    <span className="max-w-[180px] truncate text-xs text-[var(--st-text)]">
                                         {bannerName || 'Banner image'}
                                     </span>
                                     <Button
@@ -404,7 +404,7 @@ export function EventForm({ initialData }: EventFormProps) {
                                     </Button>
                                 </div>
                             ) : (
-                                <div className="flex h-12 w-20 items-center justify-center rounded-[var(--zoru-radius)] border border-dashed border-zoru-line text-zoru-ink-muted">
+                                <div className="flex h-12 w-20 items-center justify-center rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] text-[var(--st-text-secondary)]">
                                     <ImageIcon className="h-5 w-5" />
                                 </div>
                             )}
@@ -419,7 +419,7 @@ export function EventForm({ initialData }: EventFormProps) {
                                 {bannerUrl ? 'Change banner' : 'Pick from SabFiles'}
                             </SabFilePickerButton>
                         </div>
-                        <p className="text-[11px] text-zoru-ink-muted">
+                        <p className="text-[11px] text-[var(--st-text-secondary)]">
                             Banner is sourced from your SabFiles library — uploads land
                             there too.
                         </p>
@@ -431,7 +431,7 @@ export function EventForm({ initialData }: EventFormProps) {
                             type="button"
                             variant="ghost"
                             asChild
-                            className="text-zoru-ink-muted hover:text-zoru-ink"
+                            className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                         >
                             <Link
                                 href={

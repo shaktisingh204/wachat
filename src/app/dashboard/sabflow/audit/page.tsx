@@ -103,10 +103,10 @@ export default function SabflowAuditPage() {
         header: 'Time',
         cell: ({ row }) => (
           <div className="flex flex-col">
-            <span className="text-[13px] text-zoru-ink">
+            <span className="text-[13px] text-[var(--st-text)]">
               {formatDistanceToNow(new Date(row.original.timestamp), { addSuffix: true })}
             </span>
-            <span className="text-[11px] text-zoru-ink-muted">
+            <span className="text-[11px] text-[var(--st-text-secondary)]">
               {new Date(row.original.timestamp).toLocaleString()}
             </span>
           </div>
@@ -128,8 +128,8 @@ export default function SabflowAuditPage() {
           
           return (
             <div className="flex items-center gap-2">
-              <Icon className="h-4 w-4 text-zoru-ink-subtle" />
-              <span className="text-[13px] font-medium text-zoru-ink">{action}</span>
+              <Icon className="h-4 w-4 text-[var(--st-text-tertiary)]" />
+              <span className="text-[13px] font-medium text-[var(--st-text)]">{action}</span>
             </div>
           );
         },
@@ -138,7 +138,7 @@ export default function SabflowAuditPage() {
         accessorKey: 'target',
         header: 'Target',
         cell: ({ row }) => (
-          <span className="text-[13px] text-zoru-ink font-medium">
+          <span className="text-[13px] text-[var(--st-text)] font-medium">
             {row.original.target}
           </span>
         ),
@@ -148,12 +148,12 @@ export default function SabflowAuditPage() {
         header: 'User',
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
-            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-zoru-surface-2 text-[10px] font-medium text-zoru-ink">
+            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[10px] font-medium text-[var(--st-text)]">
               {row.original.user.name.charAt(0)}
             </div>
             <div className="flex flex-col">
-              <span className="text-[12.5px] text-zoru-ink leading-tight">{row.original.user.name}</span>
-              <span className="text-[11px] text-zoru-ink-muted leading-tight">{row.original.user.email}</span>
+              <span className="text-[12.5px] text-[var(--st-text)] leading-tight">{row.original.user.name}</span>
+              <span className="text-[11px] text-[var(--st-text-secondary)] leading-tight">{row.original.user.email}</span>
             </div>
           </div>
         ),
@@ -162,7 +162,7 @@ export default function SabflowAuditPage() {
         accessorKey: 'ipAddress',
         header: 'IP Address',
         cell: ({ row }) => (
-          <span className="font-mono text-[12px] text-zoru-ink-muted">
+          <span className="font-mono text-[12px] text-[var(--st-text-secondary)]">
             {row.original.ipAddress}
           </span>
         ),
@@ -247,8 +247,8 @@ export default function SabflowAuditPage() {
       </div>
 
       <div className="mt-8">
-        <h2 className="text-[14px] font-medium text-zoru-ink">Event Timeline</h2>
-        <p className="text-[12px] text-zoru-ink-muted">All tracked actions for this workspace.</p>
+        <h2 className="text-[14px] font-medium text-[var(--st-text)]">Event Timeline</h2>
+        <p className="text-[12px] text-[var(--st-text-secondary)]">All tracked actions for this workspace.</p>
         
         <div className="mt-4">
           <DataTable

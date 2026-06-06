@@ -80,7 +80,7 @@ export default function SslCheckerPage() {
         <Input value={host} onChange={(e) => setHost(e.target.value)} placeholder="example.com" onKeyDown={(e) => e.key === 'Enter' && run()} />
         <Button onClick={run} disabled={loading}>{loading ? 'Checking…' : 'Check'}</Button>
       </div>
-      {error && <Card className="border-zoru-line"><ZoruCardContent className="p-4 text-zoru-ink text-sm">{error}</ZoruCardContent></Card>}
+      {error && <Card className="border-[var(--st-border)]"><ZoruCardContent className="p-4 text-[var(--st-text)] text-sm">{error}</ZoruCardContent></Card>}
       {data && (
         <Card><ZoruCardContent className="p-4 space-y-6 text-sm">
           {(() => {
@@ -100,7 +100,7 @@ export default function SslCheckerPage() {
                   </div>
                   <Progress 
                     value={score} 
-                    indicatorClassName={score >= 80 ? "bg-zoru-ink" : score >= 50 ? "bg-zoru-ink" : "bg-zoru-ink"}
+                    indicatorClassName={score >= 80 ? "bg-[var(--st-text)]" : score >= 50 ? "bg-[var(--st-text)]" : "bg-[var(--st-text)]"}
                   />
                 </div>
 
@@ -114,12 +114,12 @@ export default function SslCheckerPage() {
                     <div>
                       <span className="font-semibold block mb-1">Trusted:</span> 
                       {data.authorized ? (
-                        <span className="text-zoru-ink font-medium">✅ Yes</span>
+                        <span className="text-[var(--st-text)] font-medium">✅ Yes</span>
                       ) : (
-                        <div className="text-zoru-ink flex flex-col items-start gap-1">
+                        <div className="text-[var(--st-text)] flex flex-col items-start gap-1">
                           <span className="font-medium">⚠️ No</span>
                           {data.authorizationError && (
-                            <span className="text-xs text-zoru-ink bg-zoru-surface-2 p-2 rounded border border-zoru-line">
+                            <span className="text-xs text-[var(--st-text)] bg-[var(--st-bg-muted)] p-2 rounded border border-[var(--st-border)]">
                               {getExplanation(data.authorizationError)}
                             </span>
                           )}
@@ -130,7 +130,7 @@ export default function SslCheckerPage() {
                     <div>
                       <span className="font-semibold block mb-1">Protocol:</span>
                       {data.protocol ? (
-                        <span className={cn(isWeakProtocol(data.protocol) && "text-zoru-ink font-medium")}>
+                        <span className={cn(isWeakProtocol(data.protocol) && "text-[var(--st-text)] font-medium")}>
                           {data.protocol} {isWeakProtocol(data.protocol) && <Badge variant="danger" className="ml-2">Weak</Badge>}
                         </span>
                       ) : '—'}
@@ -139,10 +139,10 @@ export default function SslCheckerPage() {
                     {data.cipher && (
                       <div>
                         <span className="font-semibold block mb-1">Cipher Suite:</span>
-                        <div className={cn(isWeakCipher(data.cipher.name) && "text-zoru-ink font-medium")}>
+                        <div className={cn(isWeakCipher(data.cipher.name) && "text-[var(--st-text)] font-medium")}>
                           {data.cipher.name} {isWeakCipher(data.cipher.name) && <Badge variant="danger" className="ml-2">Weak</Badge>}
                         </div>
-                        <div className="text-xs text-zoru-ink-muted mt-1">
+                        <div className="text-xs text-[var(--st-text-secondary)] mt-1">
                           Version: {data.cipher.version}
                         </div>
                       </div>
@@ -176,9 +176,9 @@ export default function SslCheckerPage() {
                         {daysRemaining !== null ? (
                           <span className={cn(
                             "font-medium",
-                            expiringSoon && "text-zoru-ink font-bold",
-                            expired && "text-zoru-ink font-bold",
-                            !expiringSoon && !expired && "text-zoru-ink"
+                            expiringSoon && "text-[var(--st-text)] font-bold",
+                            expired && "text-[var(--st-text)] font-bold",
+                            !expiringSoon && !expired && "text-[var(--st-text)]"
                           )}>
                             {daysRemaining}
                           </span>
@@ -190,7 +190,7 @@ export default function SslCheckerPage() {
                   </div>
                 </div>
 
-                <div className="font-mono text-xs break-all bg-zoru-surface-2 p-3 rounded-md mt-4 border">
+                <div className="font-mono text-xs break-all bg-[var(--st-bg-muted)] p-3 rounded-md mt-4 border">
                   <span className="font-semibold block mb-1 font-sans text-sm">SHA-256 Fingerprint:</span>
                   {data.fingerprint256 || '—'}
                 </div>

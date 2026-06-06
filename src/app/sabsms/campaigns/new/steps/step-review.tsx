@@ -189,17 +189,17 @@ export function StepReview({
   return (
     <div className="space-y-5">
       {issues.length > 0 && (
-        <Card className="border-zoru-line bg-zoru-surface-2">
+        <Card className="border-[var(--st-border)] bg-[var(--st-bg-muted)]">
           <ZoruCardHeader>
-            <ZoruCardTitle className="text-base text-zoru-ink">
+            <ZoruCardTitle className="text-base text-[var(--st-text)]">
               {issues.length} issue{issues.length === 1 ? "" : "s"} blocking launch
             </ZoruCardTitle>
-            <ZoruCardDescription className="text-zoru-ink">
+            <ZoruCardDescription className="text-[var(--st-text)]">
               Fix these before you can launch or schedule.
             </ZoruCardDescription>
           </ZoruCardHeader>
           <ZoruCardContent>
-            <ul className="space-y-1 text-sm text-zoru-ink">
+            <ul className="space-y-1 text-sm text-[var(--st-text)]">
               {issues.map((i, idx) => (
                 <li key={idx} className="flex items-center justify-between">
                   <span>
@@ -232,7 +232,7 @@ export function StepReview({
           </ZoruCardDescription>
         </ZoruCardHeader>
         <ZoruCardContent>
-          <ul className="divide-y divide-zoru-line">
+          <ul className="divide-y divide-[var(--st-border)]">
             {items.map((it) => (
               <li
                 key={it.index}
@@ -240,12 +240,12 @@ export function StepReview({
               >
                 <div className="flex items-center gap-3">
                   <Badge variant="outline">{it.index}</Badge>
-                  <span className="font-medium text-zoru-ink">
+                  <span className="font-medium text-[var(--st-text)]">
                     {it.label}
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="max-w-xs truncate text-right text-xs text-zoru-ink">
+                  <span className="max-w-xs truncate text-right text-xs text-[var(--st-text)]">
                     {it.value}
                   </span>
                   <Button

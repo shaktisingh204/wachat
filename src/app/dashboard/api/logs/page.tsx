@@ -104,7 +104,7 @@ export default async function LogsPage({
             <div className="flex justify-end">
               <Link
                 href={nextUrl}
-                className="text-xs text-zoru-ink-muted hover:text-zoru-ink underline underline-offset-2"
+                className="text-xs text-[var(--st-text-secondary)] hover:text-[var(--st-text)] underline underline-offset-2"
               >
                 Next page →
               </Link>

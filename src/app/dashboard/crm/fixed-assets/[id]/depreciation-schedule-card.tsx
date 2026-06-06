@@ -11,7 +11,7 @@ export function DepreciationScheduleCard({ asset }: { asset: any }) {
           <ZoruCardTitle>Depreciation schedule</ZoruCardTitle>
         </ZoruCardHeader>
         <ZoruCardContent>
-          <p className="text-[13px] text-zoru-ink-muted">Incomplete data to calculate schedule. Ensure cost, purchase date, and useful life are set.</p>
+          <p className="text-[13px] text-[var(--st-text-secondary)]">Incomplete data to calculate schedule. Ensure cost, purchase date, and useful life are set.</p>
         </ZoruCardContent>
       </Card>
     );

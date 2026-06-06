@@ -97,23 +97,23 @@ export default function ProjectStatusesPage() {
                         >
                             <div className="space-y-3 text-sm">
                                 <div>
-                                    <div className="text-zoru-ink-muted text-xs">Slug</div>
+                                    <div className="text-[var(--st-text-secondary)] text-xs">Slug</div>
                                     <div className="font-mono">{row.slug || '—'}</div>
                                 </div>
                                 <div>
-                                    <div className="text-zoru-ink-muted text-xs">Color</div>
+                                    <div className="text-[var(--st-text-secondary)] text-xs">Color</div>
                                     <div className="font-mono">{row.color || '—'}</div>
                                 </div>
                                 <div>
-                                    <div className="text-zoru-ink-muted text-xs">Order</div>
+                                    <div className="text-[var(--st-text-secondary)] text-xs">Order</div>
                                     <div>{row.priority != null ? String(row.priority) : '—'}</div>
                                 </div>
                                 <div>
-                                    <div className="text-zoru-ink-muted text-xs">Terminal</div>
+                                    <div className="text-[var(--st-text-secondary)] text-xs">Terminal</div>
                                     <div>{row.is_final ? 'Yes' : 'No'}</div>
                                 </div>
                                 <div>
-                                    <div className="text-zoru-ink-muted text-xs">Default</div>
+                                    <div className="text-[var(--st-text-secondary)] text-xs">Default</div>
                                     <div>{row.is_default ? 'Yes' : 'No'}</div>
                                 </div>
                             </div>
@@ -128,10 +128,10 @@ export default function ProjectStatusesPage() {
                         row.color ? (
                             <span className="inline-flex items-center gap-2">
                                 <span
-                                    className="inline-block h-4 w-4 rounded-full border border-zoru-line"
+                                    className="inline-block h-4 w-4 rounded-full border border-[var(--st-border)]"
                                     style={{ backgroundColor: row.color }}
                                 />
-                                <span className="text-[12px] text-zoru-ink-muted">
+                                <span className="text-[12px] text-[var(--st-text-secondary)]">
                                     {row.color}
                                 </span>
                             </span>

@@ -36,20 +36,20 @@ export default async function PortalLayout({ children }: PortalLayoutProps) {
             <div className="flex min-h-[60vh] items-center justify-center p-6">
                 <Card className="max-w-md w-full text-center" variant="soft">
                     <ZoruCardHeader className="items-center gap-3 pb-2">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2">
-                            <UserX className="h-6 w-6 text-zoru-ink-muted" />
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)]">
+                            <UserX className="h-6 w-6 text-[var(--st-text-secondary)]" />
                         </div>
                         <div>
-                            <ZoruCardTitle className="text-[16px] text-zoru-ink">
+                            <ZoruCardTitle className="text-[16px] text-[var(--st-text)]">
                                 No employee profile linked
                             </ZoruCardTitle>
-                            <ZoruCardDescription className="mt-1 text-[13px] text-zoru-ink-muted">
+                            <ZoruCardDescription className="mt-1 text-[13px] text-[var(--st-text-secondary)]">
                                 Your account ({session.user.email}) doesn&apos;t have an employee profile linked
                                 to it yet. Please ask your HR administrator to link your employee record.
                             </ZoruCardDescription>
                         </div>
                     </ZoruCardHeader>
-                    <ZoruCardContent className="pb-6 text-[12.5px] text-zoru-ink-muted">
+                    <ZoruCardContent className="pb-6 text-[12.5px] text-[var(--st-text-secondary)]">
                         Once linked, your profile, team, and tasks will appear here.
                     </ZoruCardContent>
                 </Card>

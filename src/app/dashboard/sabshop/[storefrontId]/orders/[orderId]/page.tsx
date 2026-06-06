@@ -86,11 +86,11 @@ export default function OrderDetailsPage({ params }: { params: { storefrontId: s
           </Button>
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold tracking-tight text-zoru-ink">Order {orderId}</h1>
+              <h1 className="text-3xl font-bold tracking-tight text-[var(--st-text)]">Order {orderId}</h1>
               <Badge variant="secondary">{ORDER_DETAILS.status}</Badge>
               <Badge variant="default">{ORDER_DETAILS.payment}</Badge>
             </div>
-            <p className="text-zoru-ink-muted mt-1 text-sm flex items-center gap-2">
+            <p className="text-[var(--st-text-secondary)] mt-1 text-sm flex items-center gap-2">
               <Calendar className="w-4 h-4" /> {ORDER_DETAILS.date}
             </p>
           </div>
@@ -117,9 +117,9 @@ export default function OrderDetailsPage({ params }: { params: { storefrontId: s
               <CardTitle>Order Items</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="rounded-md border border-zoru-line overflow-hidden">
+              <div className="rounded-md border border-[var(--st-border)] overflow-hidden">
                 <Table>
-                  <TableHeader className="bg-zoru-surface">
+                  <TableHeader className="bg-[var(--st-bg-secondary)]">
                     <TableRow>
                       <TableHead>Product</TableHead>
                       <TableHead>SKU</TableHead>
@@ -133,13 +133,13 @@ export default function OrderDetailsPage({ params }: { params: { storefrontId: s
                       <TableRow key={item.id}>
                         <TableCell>
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded bg-zoru-surface flex items-center justify-center text-xl border border-zoru-line">
+                            <div className="w-10 h-10 rounded bg-[var(--st-bg-secondary)] flex items-center justify-center text-xl border border-[var(--st-border)]">
                               {item.image}
                             </div>
-                            <span className="font-medium text-zoru-ink">{item.name}</span>
+                            <span className="font-medium text-[var(--st-text)]">{item.name}</span>
                           </div>
                         </TableCell>
-                        <TableCell className="text-zoru-ink-muted">{item.sku}</TableCell>
+                        <TableCell className="text-[var(--st-text-secondary)]">{item.sku}</TableCell>
                         <TableCell className="text-right">${item.price.toFixed(2)}</TableCell>
                         <TableCell className="text-center">{item.quantity}</TableCell>
                         <TableCell className="text-right font-medium">${item.total.toFixed(2)}</TableCell>
@@ -151,25 +151,25 @@ export default function OrderDetailsPage({ params }: { params: { storefrontId: s
               
               <div className="mt-6 space-y-3">
                 <div className="flex justify-between text-sm">
-                  <span className="text-zoru-ink-muted">Subtotal</span>
-                  <span className="text-zoru-ink font-medium">${ORDER_DETAILS.subtotal.toFixed(2)}</span>
+                  <span className="text-[var(--st-text-secondary)]">Subtotal</span>
+                  <span className="text-[var(--st-text)] font-medium">${ORDER_DETAILS.subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-zoru-ink-muted">Shipping</span>
-                  <span className="text-zoru-ink font-medium">${ORDER_DETAILS.shipping.toFixed(2)}</span>
+                  <span className="text-[var(--st-text-secondary)]">Shipping</span>
+                  <span className="text-[var(--st-text)] font-medium">${ORDER_DETAILS.shipping.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-zoru-ink-muted">Tax</span>
-                  <span className="text-zoru-ink font-medium">${ORDER_DETAILS.tax.toFixed(2)}</span>
+                  <span className="text-[var(--st-text-secondary)]">Tax</span>
+                  <span className="text-[var(--st-text)] font-medium">${ORDER_DETAILS.tax.toFixed(2)}</span>
                 </div>
                 <Separator className="my-3" />
-                <div className="flex justify-between font-semibold text-lg text-zoru-ink">
+                <div className="flex justify-between font-semibold text-lg text-[var(--st-text)]">
                   <span>Total</span>
                   <span>${ORDER_DETAILS.total.toFixed(2)}</span>
                 </div>
               </div>
             </CardContent>
-            <CardFooter className="bg-zoru-surface/50 border-t border-zoru-line flex justify-end">
+            <CardFooter className="bg-[var(--st-bg-secondary)]/50 border-t border-[var(--st-border)] flex justify-end">
               <Button variant="outline">Refund Order</Button>
             </CardFooter>
           </Card>
@@ -187,22 +187,22 @@ export default function OrderDetailsPage({ params }: { params: { storefrontId: s
                     <div key={event.id} className="flex gap-4 relative mb-6 last:mb-0">
                       {/* Timeline connecting line */}
                       {index !== ORDER_DETAILS.timeline.length - 1 && (
-                        <div className={`absolute top-8 left-4 w-px h-[calc(100%+1.5rem)] -ml-[0.5px] ${event.done ? 'bg-zoru-brand' : 'bg-zoru-line'}`} />
+                        <div className={`absolute top-8 left-4 w-px h-[calc(100%+1.5rem)] -ml-[0.5px] ${event.done ? 'bg-[var(--st-accent)]' : 'bg-[var(--st-border)]'}`} />
                       )}
                       
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 z-10 border-2 ${
                         event.done 
-                          ? 'bg-zoru-brand border-zoru-brand text-white' 
-                          : 'bg-zoru-surface border-zoru-line text-zoru-ink-muted'
+                          ? 'bg-[var(--st-accent)] border-[var(--st-accent)] text-white' 
+                          : 'bg-[var(--st-bg-secondary)] border-[var(--st-border)] text-[var(--st-text-secondary)]'
                       }`}>
                         <Icon className="w-4 h-4" />
                       </div>
                       
                       <div className="flex-1 pt-1">
-                        <p className={`font-medium ${event.done ? 'text-zoru-ink' : 'text-zoru-ink-muted'}`}>
+                        <p className={`font-medium ${event.done ? 'text-[var(--st-text)]' : 'text-[var(--st-text-secondary)]'}`}>
                           {event.status}
                         </p>
-                        <p className="text-sm text-zoru-ink-muted mt-1">{event.date}</p>
+                        <p className="text-sm text-[var(--st-text-secondary)] mt-1">{event.date}</p>
                       </div>
                     </div>
                   );
@@ -222,27 +222,27 @@ export default function OrderDetailsPage({ params }: { params: { storefrontId: s
             <CardContent className="space-y-6">
               <div className="flex items-center gap-3">
                 <Avatar className="h-10 w-10">
-                  <AvatarFallback className="bg-zoru-surface text-zoru-ink font-semibold border border-zoru-line">
+                  <AvatarFallback className="bg-[var(--st-bg-secondary)] text-[var(--st-text)] font-semibold border border-[var(--st-border)]">
                     {ORDER_DETAILS.customer.avatar}
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="font-medium text-zoru-ink">{ORDER_DETAILS.customer.name}</p>
-                  <p className="text-sm text-zoru-ink-muted">12 Orders</p>
+                  <p className="font-medium text-[var(--st-text)]">{ORDER_DETAILS.customer.name}</p>
+                  <p className="text-sm text-[var(--st-text-secondary)]">12 Orders</p>
                 </div>
               </div>
               
               <Separator />
               
               <div className="space-y-3">
-                <h4 className="font-medium text-sm text-zoru-ink">Contact Info</h4>
-                <div className="flex items-center gap-2 text-sm text-zoru-ink-muted">
+                <h4 className="font-medium text-sm text-[var(--st-text)]">Contact Info</h4>
+                <div className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
                   <Mail className="w-4 h-4 shrink-0" />
-                  <a href={`mailto:${ORDER_DETAILS.customer.email}`} className="hover:text-zoru-brand hover:underline transition-colors truncate">
+                  <a href={`mailto:${ORDER_DETAILS.customer.email}`} className="hover:text-[var(--st-accent)] hover:underline transition-colors truncate">
                     {ORDER_DETAILS.customer.email}
                   </a>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-zoru-ink-muted">
+                <div className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
                   <Phone className="w-4 h-4 shrink-0" />
                   <span>{ORDER_DETAILS.customer.phone}</span>
                 </div>
@@ -260,9 +260,9 @@ export default function OrderDetailsPage({ params }: { params: { storefrontId: s
             </CardHeader>
             <CardContent>
               <div className="flex items-start gap-3 mt-2">
-                <MapPin className="w-4 h-4 text-zoru-ink-muted mt-1 shrink-0" />
-                <div className="text-sm text-zoru-ink-muted space-y-1">
-                  <p className="text-zoru-ink font-medium">{ORDER_DETAILS.customer.name}</p>
+                <MapPin className="w-4 h-4 text-[var(--st-text-secondary)] mt-1 shrink-0" />
+                <div className="text-sm text-[var(--st-text-secondary)] space-y-1">
+                  <p className="text-[var(--st-text)] font-medium">{ORDER_DETAILS.customer.name}</p>
                   <p>{ORDER_DETAILS.shippingAddress.line1}</p>
                   <p>{ORDER_DETAILS.shippingAddress.line2}</p>
                   <p>
@@ -280,7 +280,7 @@ export default function OrderDetailsPage({ params }: { params: { storefrontId: s
               <CardTitle>Billing Address</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-zoru-ink-muted mt-2">
+              <p className="text-sm text-[var(--st-text-secondary)] mt-2">
                 Same as shipping address
               </p>
             </CardContent>

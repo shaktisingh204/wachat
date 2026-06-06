@@ -64,7 +64,7 @@ export default async function MilestoneDetailPage({
     >
       <Card className="p-6 animate-in fade-in-50">
         <div className="mb-4 flex flex-wrap items-center gap-2">
-          <div className="text-[14px] font-medium text-zoru-ink">Overview</div>
+          <div className="text-[14px] font-medium text-[var(--st-text)]">Overview</div>
           <StatusPill
             label={milestone.status.replace(/_/g, ' ')}
             tone={statusToTone(milestone.status)}
@@ -82,8 +82,8 @@ export default async function MilestoneDetailPage({
 
         <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
           <div>
-            <div className="text-zoru-ink-muted">Project</div>
-            <div className="text-zoru-ink font-medium">
+            <div className="text-[var(--st-text-secondary)]">Project</div>
+            <div className="text-[var(--st-text)] font-medium">
               {milestone.projectId ? (
                 <EntityPickerChip
                   entity="project"
@@ -96,24 +96,24 @@ export default async function MilestoneDetailPage({
             </div>
           </div>
           <div>
-            <div className="text-zoru-ink-muted">Parent milestone</div>
-            <div className="font-mono text-[12px] text-zoru-ink font-medium">
+            <div className="text-[var(--st-text-secondary)]">Parent milestone</div>
+            <div className="font-mono text-[12px] text-[var(--st-text)] font-medium">
               —
             </div>
           </div>
           <div>
-            <div className="text-zoru-ink-muted">Due date</div>
-            <div className="text-zoru-ink font-medium">{fmtDateUTC(milestone.endDate)}</div>
+            <div className="text-[var(--st-text-secondary)]">Due date</div>
+            <div className="text-[var(--st-text)] font-medium">{fmtDateUTC(milestone.endDate)}</div>
           </div>
           <div>
-            <div className="text-zoru-ink-muted">Completed</div>
-            <div className="text-zoru-ink font-medium">
+            <div className="text-[var(--st-text-secondary)]">Completed</div>
+            <div className="text-[var(--st-text)] font-medium">
               {milestone.status === 'complete' ? fmtDateUTC(milestone.endDate) : '—'}
             </div>
           </div>
           <div>
-            <div className="text-zoru-ink-muted">Owner</div>
-            <div className="text-zoru-ink font-medium">
+            <div className="text-[var(--st-text-secondary)]">Owner</div>
+            <div className="text-[var(--st-text)] font-medium">
               {milestone.userId ? (
                 <EntityPickerChip
                   entity="employee"
@@ -126,18 +126,18 @@ export default async function MilestoneDetailPage({
             </div>
           </div>
           <div>
-            <div className="text-zoru-ink-muted">Progress</div>
+            <div className="text-[var(--st-text-secondary)]">Progress</div>
             <div className="flex items-center gap-2">
               <Progress value={progress} className="h-1.5 w-[160px]" />
-              <span className="font-mono text-[12px] text-zoru-ink font-medium">
+              <span className="font-mono text-[12px] text-[var(--st-text)] font-medium">
                 {progress}%
               </span>
             </div>
           </div>
           {milestone.summary ? (
             <div className="sm:col-span-2">
-              <div className="text-zoru-ink-muted">Description</div>
-              <div className="whitespace-pre-wrap text-zoru-ink mt-1 font-medium bg-zoru-surface p-3 rounded-lg border">
+              <div className="text-[var(--st-text-secondary)]">Description</div>
+              <div className="whitespace-pre-wrap text-[var(--st-text)] mt-1 font-medium bg-[var(--st-bg-secondary)] p-3 rounded-lg border">
                 {milestone.summary}
               </div>
             </div>
@@ -146,12 +146,12 @@ export default async function MilestoneDetailPage({
       </Card>
 
       <Card className="p-6">
-        <h2 className="text-[14px] font-semibold text-zoru-ink">Audit</h2>
+        <h2 className="text-[14px] font-semibold text-[var(--st-text)]">Audit</h2>
         <div className="mt-3 grid grid-cols-2 gap-x-6 gap-y-2 text-[12.5px]">
-          <div className="text-zoru-ink-muted">Created</div>
-          <div className="text-zoru-ink font-medium">{fmtDateUTC(milestone.createdAt)}</div>
-          <div className="text-zoru-ink-muted">Updated</div>
-          <div className="text-zoru-ink font-medium">{fmtDateUTC(milestone.updatedAt)}</div>
+          <div className="text-[var(--st-text-secondary)]">Created</div>
+          <div className="text-[var(--st-text)] font-medium">{fmtDateUTC(milestone.createdAt)}</div>
+          <div className="text-[var(--st-text-secondary)]">Updated</div>
+          <div className="text-[var(--st-text)] font-medium">{fmtDateUTC(milestone.updatedAt)}</div>
         </div>
       </Card>
     </EntityDetailShell>

@@ -36,7 +36,7 @@ export function DataSourceEditor({ label, dataSource, updateDataSource }: DataSo
             <Label className="font-semibold">{label}</Label>
             <div className="space-y-3">
                 {dataSource.map(item => (
-                    <div key={item.id} className="p-3 border rounded-md space-y-2 relative bg-zoru-surface-2/50">
+                    <div key={item.id} className="p-3 border rounded-md space-y-2 relative bg-[var(--st-bg-muted)]/50">
                         <Button
                             type="button"
                             variant="ghost"
@@ -44,7 +44,7 @@ export function DataSourceEditor({ label, dataSource, updateDataSource }: DataSo
                             className="absolute top-1 right-1 h-6 w-6"
                             onClick={() => handleRemoveItem(item.id)}
                         >
-                            <Trash2 className="h-3 w-3 text-zoru-ink" />
+                            <Trash2 className="h-3 w-3 text-[var(--st-text)]" />
                         </Button>
                         <div className="space-y-1">
                             <Label htmlFor={`title-${item.id}`} className="text-xs">Title</Label>

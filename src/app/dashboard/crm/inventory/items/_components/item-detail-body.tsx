@@ -59,7 +59,7 @@ export function ItemDetailBody({ product, productId, defaultTab }: ItemDetailBod
       <TabsContent value="overview" className="space-y-4">
       {/* Overview */}
       <Card className="p-6">
-        <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Overview
         </h2>
         <div className="grid gap-4 md:grid-cols-2">
@@ -136,7 +136,7 @@ export function ItemDetailBody({ product, productId, defaultTab }: ItemDetailBod
       <TabsContent value="pricing" className="space-y-4">
       {/* Pricing */}
       <Card className="p-6">
-        <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Pricing
         </h2>
         <div className="grid gap-4 md:grid-cols-3">
@@ -174,29 +174,29 @@ export function ItemDetailBody({ product, productId, defaultTab }: ItemDetailBod
       <TabsContent value="inventory" className="space-y-4">
       {/* Inventory per warehouse */}
       <Card className="p-6">
-        <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Inventory
         </h2>
         {!product.isTrackInventory ? (
-          <p className="text-[13px] text-zoru-ink-muted">
+          <p className="text-[13px] text-[var(--st-text-secondary)]">
             Inventory tracking is disabled for this item.
           </p>
         ) : (
-          <div className="overflow-x-auto rounded-md border border-zoru-line">
+          <div className="overflow-x-auto rounded-md border border-[var(--st-border)]">
             <table className="w-full text-[13px]">
-              <thead className="bg-zoru-surface-2">
-                <tr className="border-b border-zoru-line text-left">
-                  <th className="p-2 font-medium text-zoru-ink">Warehouse</th>
-                  <th className="p-2 text-right font-medium text-zoru-ink">
+              <thead className="bg-[var(--st-bg-muted)]">
+                <tr className="border-b border-[var(--st-border)] text-left">
+                  <th className="p-2 font-medium text-[var(--st-text)]">Warehouse</th>
+                  <th className="p-2 text-right font-medium text-[var(--st-text)]">
                     On hand
                   </th>
-                  <th className="p-2 text-right font-medium text-zoru-ink">
+                  <th className="p-2 text-right font-medium text-[var(--st-text)]">
                     Committed
                   </th>
-                  <th className="p-2 text-right font-medium text-zoru-ink">
+                  <th className="p-2 text-right font-medium text-[var(--st-text)]">
                     Available
                   </th>
-                  <th className="p-2 text-right font-medium text-zoru-ink">
+                  <th className="p-2 text-right font-medium text-[var(--st-text)]">
                     Reorder?
                   </th>
                   <th className="p-2" />
@@ -207,7 +207,7 @@ export function ItemDetailBody({ product, productId, defaultTab }: ItemDetailBod
                   <tr>
                     <td
                       colSpan={6}
-                      className="p-6 text-center text-zoru-ink-muted"
+                      className="p-6 text-center text-[var(--st-text-secondary)]"
                     >
                       No warehouse rows. Use Adjust stock to seed inventory.
                     </td>
@@ -220,7 +220,7 @@ export function ItemDetailBody({ product, productId, defaultTab }: ItemDetailBod
                     return (
                       <tr
                         key={idx}
-                        className="border-b border-zoru-line last:border-b-0"
+                        className="border-b border-[var(--st-border)] last:border-b-0"
                       >
                         <td className="p-2 align-middle">
                           <EntityPickerChip
@@ -228,18 +228,18 @@ export function ItemDetailBody({ product, productId, defaultTab }: ItemDetailBod
                             id={String(row.warehouseId)}
                           />
                         </td>
-                        <td className="p-2 text-right align-middle font-mono tabular-nums text-zoru-ink">
+                        <td className="p-2 text-right align-middle font-mono tabular-nums text-[var(--st-text)]">
                           {stock}
                         </td>
-                        <td className="p-2 text-right align-middle font-mono tabular-nums text-zoru-ink-muted">
+                        <td className="p-2 text-right align-middle font-mono tabular-nums text-[var(--st-text-secondary)]">
                           —
                         </td>
-                        <td className="p-2 text-right align-middle font-mono tabular-nums text-zoru-ink">
+                        <td className="p-2 text-right align-middle font-mono tabular-nums text-[var(--st-text)]">
                           {stock}
                         </td>
                         <td
                           className={`p-2 text-right align-middle text-[11.5px] uppercase ${
-                            reorder ? 'text-zoru-warning-ink' : 'text-zoru-ink-muted'
+                            reorder ? 'text-[var(--st-warn)]' : 'text-[var(--st-text-secondary)]'
                           }`}
                         >
                           {reorder ? 'Yes' : 'No'}
@@ -268,10 +268,10 @@ export function ItemDetailBody({ product, productId, defaultTab }: ItemDetailBod
       {/* Variants */}
       {variants.length > 0 ? (
         <Card className="p-6">
-          <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
             Variants
           </h2>
-          <p className="text-[13px] text-zoru-ink-muted">
+          <p className="text-[13px] text-[var(--st-text-secondary)]">
             {variants.length} variant{variants.length === 1 ? '' : 's'} linked.
           </p>
           {/* TODO 1D.2: per-variant table when variant schema lands. */}
@@ -281,7 +281,7 @@ export function ItemDetailBody({ product, productId, defaultTab }: ItemDetailBod
       {/* Suppliers / Vendors */}
       {vendorIds.length > 0 ? (
         <Card className="p-6">
-          <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
             Vendors
           </h2>
           <div className="flex flex-wrap gap-2">
@@ -300,7 +300,7 @@ export function ItemDetailBody({ product, productId, defaultTab }: ItemDetailBod
       <TabsContent value="accounting" className="space-y-4">
       {/* Accounting refs */}
       <Card className="p-6">
-        <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Accounting
         </h2>
         <div className="grid gap-4 md:grid-cols-2">
@@ -352,11 +352,11 @@ export function ItemDetailBody({ product, productId, defaultTab }: ItemDetailBod
 
       {/* Images */}
       <Card className="p-6">
-        <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Images
         </h2>
         {!thumbnail ? (
-          <div className="flex h-32 items-center justify-center rounded border border-dashed border-zoru-line text-zoru-ink-muted">
+          <div className="flex h-32 items-center justify-center rounded border border-dashed border-[var(--st-border)] text-[var(--st-text-secondary)]">
             <Package className="h-8 w-8" />
           </div>
         ) : (
@@ -370,7 +370,7 @@ export function ItemDetailBody({ product, productId, defaultTab }: ItemDetailBod
 
       {/* Dimensions */}
       <Card className="p-6">
-        <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Dimensions
         </h2>
         <div className="grid gap-4 md:grid-cols-3">
@@ -398,21 +398,21 @@ export function ItemDetailBody({ product, productId, defaultTab }: ItemDetailBod
       {/* Specifications */}
       {specs.length > 0 ? (
         <Card className="p-6">
-          <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
             Specifications
           </h2>
-          <div className="overflow-x-auto rounded-md border border-zoru-line">
+          <div className="overflow-x-auto rounded-md border border-[var(--st-border)]">
             <table className="w-full text-[13px]">
               <tbody>
                 {specs.map((s, idx) => (
                   <tr
                     key={idx}
-                    className="border-b border-zoru-line last:border-b-0"
+                    className="border-b border-[var(--st-border)] last:border-b-0"
                   >
-                    <td className="p-2 w-1/3 font-medium text-zoru-ink">
+                    <td className="p-2 w-1/3 font-medium text-[var(--st-text)]">
                       {s.key}
                     </td>
-                    <td className="p-2 text-zoru-ink">{s.value}</td>
+                    <td className="p-2 text-[var(--st-text)]">{s.value}</td>
                   </tr>
                 ))}
               </tbody>
@@ -424,7 +424,7 @@ export function ItemDetailBody({ product, productId, defaultTab }: ItemDetailBod
       {/* Custom attributes */}
       {customAttrs.length > 0 ? (
         <Card className="p-6">
-          <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
             Custom attributes
           </h2>
           <div className="grid gap-3 md:grid-cols-2">
@@ -440,7 +440,7 @@ export function ItemDetailBody({ product, productId, defaultTab }: ItemDetailBod
       {/* Tags */}
       {tags ? (
         <Card className="p-6">
-          <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
             Tags
           </h2>
           <div className="flex flex-wrap gap-1.5">
@@ -451,7 +451,7 @@ export function ItemDetailBody({ product, productId, defaultTab }: ItemDetailBod
               .map((t, idx) => (
                 <span
                   key={idx}
-                  className="inline-flex items-center rounded-full bg-zoru-surface-2 px-2 py-0.5 text-[11.5px] text-zoru-ink"
+                  className="inline-flex items-center rounded-full bg-[var(--st-bg-muted)] px-2 py-0.5 text-[11.5px] text-[var(--st-text)]"
                 >
                   {t}
                 </span>
@@ -475,10 +475,10 @@ function DetailField({
 }) {
   return (
     <div className={colSpan === 2 ? 'md:col-span-2' : ''}>
-      <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
         {label}
       </div>
-      <div className="mt-1 text-[13px] text-zoru-ink">{children}</div>
+      <div className="mt-1 text-[13px] text-[var(--st-text)]">{children}</div>
     </div>
   );
 }
@@ -491,7 +491,7 @@ function DetailImage({ src, alt }: { src: string; alt: string }) {
       <img
         src={src}
         alt={alt}
-        className="h-32 w-full rounded border border-zoru-line object-cover"
+        className="h-32 w-full rounded border border-[var(--st-border)] object-cover"
       />
     );
   }
@@ -501,7 +501,7 @@ function DetailImage({ src, alt }: { src: string; alt: string }) {
       alt={alt}
       width={320}
       height={128}
-      className="h-32 w-full rounded border border-zoru-line object-cover"
+      className="h-32 w-full rounded border border-[var(--st-border)] object-cover"
       unoptimized
     />
   );

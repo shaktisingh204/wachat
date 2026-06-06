@@ -176,7 +176,7 @@ export function PageDesignerClient({ app, page }: Props) {
       <div className="flex-1 grid grid-cols-[200px_1fr_320px] gap-4 px-6 pb-10">
         <aside>
           <Card className="p-3">
-            <h3 className="text-xs font-semibold text-zoru-ink-muted mb-2">
+            <h3 className="text-xs font-semibold text-[var(--st-text-secondary)] mb-2">
               WIDGETS
             </h3>
             <div className="space-y-1">
@@ -185,7 +185,7 @@ export function PageDesignerClient({ app, page }: Props) {
                   key={p.kind}
                   type="button"
                   onClick={() => addWidget(p.kind)}
-                  className="w-full flex items-center gap-2 px-2 py-2 rounded-md text-sm text-left hover:bg-zoru-surface-2"
+                  className="w-full flex items-center gap-2 px-2 py-2 rounded-md text-sm text-left hover:bg-[var(--st-bg-muted)]"
                 >
                   {p.icon}
                   {p.label}
@@ -197,11 +197,11 @@ export function PageDesignerClient({ app, page }: Props) {
 
         <main>
           <Card className="p-4">
-            <h3 className="text-xs font-semibold text-zoru-ink-muted mb-3">
+            <h3 className="text-xs font-semibold text-[var(--st-text-secondary)] mb-3">
               CANVAS · {page.kind}
             </h3>
             {widgets.length === 0 ? (
-              <div className="text-sm text-zoru-ink-muted py-8 text-center">
+              <div className="text-sm text-[var(--st-text-secondary)] py-8 text-center">
                 Add a widget from the palette.
               </div>
             ) : (
@@ -212,14 +212,14 @@ export function PageDesignerClient({ app, page }: Props) {
                     onClick={() => setSelectedId(w.id)}
                     className={`p-3 border rounded-md cursor-pointer transition-colors ${
                       selectedId === w.id
-                        ? 'border-primary bg-zoru-ink/5'
-                        : 'hover:bg-zoru-surface-2/50'
+                        ? 'border-primary bg-[var(--st-text)]/5'
+                        : 'hover:bg-[var(--st-bg-muted)]/50'
                     }`}
                   >
                     <div className="flex items-center justify-between gap-2">
                       <div className="min-w-0">
                         <div className="text-sm font-medium">{w.kind}</div>
-                        <div className="text-xs text-zoru-ink-muted truncate">
+                        <div className="text-xs text-[var(--st-text-secondary)] truncate">
                           {Object.keys(w.config ?? {}).length === 0
                             ? 'no config'
                             : Object.keys(w.config).join(', ')}
@@ -257,7 +257,7 @@ export function PageDesignerClient({ app, page }: Props) {
 
         <aside className="space-y-4">
           <Card className="p-3">
-            <h3 className="text-xs font-semibold text-zoru-ink-muted mb-2">
+            <h3 className="text-xs font-semibold text-[var(--st-text-secondary)] mb-2">
               WIDGET PROPERTIES
             </h3>
             {selected ? (
@@ -292,14 +292,14 @@ export function PageDesignerClient({ app, page }: Props) {
                 </Button>
               </div>
             ) : (
-              <div className="text-xs text-zoru-ink-muted">
+              <div className="text-xs text-[var(--st-text-secondary)]">
                 Select a widget on the canvas to edit it.
               </div>
             )}
           </Card>
 
           <Card className="p-3">
-            <h3 className="text-xs font-semibold text-zoru-ink-muted mb-2">
+            <h3 className="text-xs font-semibold text-[var(--st-text-secondary)] mb-2">
               VISIBILITY
             </h3>
             <Select

@@ -49,16 +49,16 @@ async function PublicGanttContainer({ hash }: { hash: string }) {
       <Card>
         <ZoruCardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-zoru-ink">
+            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--st-text)]">
               Project timeline
             </p>
             <ZoruCardTitle className="mt-1">{project.name}</ZoruCardTitle>
-            <p className="mt-1 text-sm text-zoru-ink">
+            <p className="mt-1 text-sm text-[var(--st-text)]">
               {fmtDate(project.startDate)} &middot;{' '}
               {fmtDate(project.deadline)}
             </p>
             {project.description ? (
-              <p className="mt-2 max-w-2xl text-sm text-zoru-ink">
+              <p className="mt-2 max-w-2xl text-sm text-[var(--st-text)]">
                 {project.description}
               </p>
             ) : null}
@@ -69,7 +69,7 @@ async function PublicGanttContainer({ hash }: { hash: string }) {
             {project.status}
           </Badge>
         </ZoruCardHeader>
-        <ZoruCardContent className="grid gap-3 border-t border-zoru-line pt-4 sm:grid-cols-3">
+        <ZoruCardContent className="grid gap-3 border-t border-[var(--st-border)] pt-4 sm:grid-cols-3">
           <Stat label="Tasks" value={tasks.length} />
           <Stat label="Milestones" value={milestones.length} />
           <Stat label="Dependencies" value={links.length} />
@@ -105,9 +105,9 @@ export default async function PublicGanttPage({ params }: { params: Params }) {
 
 function Stat({ label, value }: { label: string; value: number }): React.ReactElement {
   return (
-    <div className="rounded-md border border-zoru-line bg-white p-3">
-      <p className="text-xs uppercase tracking-wide text-zoru-ink">{label}</p>
-      <p className="mt-0.5 text-xl font-semibold text-zoru-ink">{value}</p>
+    <div className="rounded-md border border-[var(--st-border)] bg-white p-3">
+      <p className="text-xs uppercase tracking-wide text-[var(--st-text)]">{label}</p>
+      <p className="mt-0.5 text-xl font-semibold text-[var(--st-text)]">{value}</p>
     </div>
   );
 }

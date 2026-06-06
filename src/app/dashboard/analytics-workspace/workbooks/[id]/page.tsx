@@ -43,14 +43,14 @@ export default async function WorkbookPage({
     <div className="zoruui flex flex-col gap-4 p-6">
       <header className="flex items-end justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-wide text-zoru-ink-muted">
+          <p className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
             <Link href="/dashboard/analytics-workspace" className="hover:underline">
               Workbooks
             </Link>
           </p>
-          <h1 className="text-2xl font-semibold text-zoru-ink">{workbook.name}</h1>
+          <h1 className="text-2xl font-semibold text-[var(--st-text)]">{workbook.name}</h1>
           {workbook.description && (
-            <p className="text-sm text-zoru-ink-muted">{workbook.description}</p>
+            <p className="text-sm text-[var(--st-text-secondary)]">{workbook.description}</p>
           )}
         </div>
         <Button asChild variant="ghost">

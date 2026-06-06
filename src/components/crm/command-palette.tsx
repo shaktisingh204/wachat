@@ -498,14 +498,14 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent
-        className="overflow-hidden p-0 shadow-lg sm:max-w-2xl border-zoru-line bg-zoru-surface-2"
+        className="overflow-hidden p-0 shadow-lg sm:max-w-2xl border-[var(--st-border)] bg-[var(--st-bg-muted)]"
       >
         <ZoruDialogTitle className="sr-only">ZoruCommand palette</ZoruDialogTitle>
         <ZoruDialogDescription className="sr-only">
           Search clients, vendors, items, employees, and run quick actions.
         </ZoruDialogDescription>
         <ZoruCommand
-          className="bg-transparent text-zoru-ink [&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-[11px] [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wider [&_[cmdk-group-heading]]:text-zoru-ink-muted [&_[cmdk-group]]:px-2 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-3 [&_[cmdk-item]]:py-2.5"
+          className="bg-transparent text-[var(--st-text)] [&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-[11px] [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wider [&_[cmdk-group-heading]]:text-[var(--st-text-secondary)] [&_[cmdk-group]]:px-2 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-3 [&_[cmdk-item]]:py-2.5"
           shouldFilter={!isEmptyQuery ? false : true}
           // When typing, we already filter on the server — disable the
           // built-in fuzzy filter so server hits always render. When
@@ -517,7 +517,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
             onValueChange={setQuery}
             autoFocus
           />
-          <ZoruCommandList className="max-h-[60vh] border-t border-zoru-line">
+          <ZoruCommandList className="max-h-[60vh] border-t border-[var(--st-border)]">
             {isEmptyQuery ? (
               <>
                 <ZoruCommandGroup heading="Quick actions">
@@ -528,13 +528,13 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                       onSelect={() => handleSelectAction(action)}
                     >
                       <span className="flex-1 truncate">{action.label}</span>
-                      <ZoruCommandShortcut className="text-zoru-ink-muted">{action.hint}</ZoruCommandShortcut>
+                      <ZoruCommandShortcut className="text-[var(--st-text-secondary)]">{action.hint}</ZoruCommandShortcut>
                     </ZoruCommandItem>
                   ))}
                 </ZoruCommandGroup>
                 {recentsLoaded && recents.length > 0 ? (
                   <>
-                    <ZoruCommandSeparator className="bg-zoru-line" />
+                    <ZoruCommandSeparator className="bg-[var(--st-border)]" />
                     <ZoruCommandGroup heading="Recent">
                       {recents.map(({ entity, item }) => (
                         <ResultItem
@@ -574,7 +574,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                 })}
 
                 {isSearching && totalHits === 0 ? (
-                  <div className="px-4 py-6 text-center text-xs text-zoru-ink-muted">
+                  <div className="px-4 py-6 text-center text-xs text-[var(--st-text-secondary)]">
                     Searching…
                   </div>
                 ) : null}
@@ -669,14 +669,14 @@ function ResultItem({ entity, item, valuePrefix, onSelect }: ResultItemProps) {
     <ZoruCommandItem value={value} onSelect={onSelect}>
       <Avatar avatarUrl={chip.avatarUrl} fallback={initials(chip.primary)} />
       <div className="flex min-w-0 flex-1 flex-col">
-        <span className="truncate text-sm text-zoru-ink">{chip.primary}</span>
+        <span className="truncate text-sm text-[var(--st-text)]">{chip.primary}</span>
         {chip.secondary || chip.tertiary ? (
-          <span className="truncate text-[11px] text-zoru-ink-muted">
+          <span className="truncate text-[11px] text-[var(--st-text-secondary)]">
             {[chip.secondary, chip.tertiary].filter(Boolean).join(' · ')}
           </span>
         ) : null}
       </div>
-      <ZoruCommandShortcut className="text-zoru-ink-muted">
+      <ZoruCommandShortcut className="text-[var(--st-text-secondary)]">
         {entityLabel[entity]}
       </ZoruCommandShortcut>
     </ZoruCommandItem>
@@ -700,7 +700,7 @@ function ZoruAvatar({ avatarUrl, fallback }: { avatarUrl?: string; fallback: str
   return (
     <span
       aria-hidden
-      className="mr-2 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-zoru-line bg-zoru-surface text-[10px] font-medium text-zoru-ink-muted"
+      className="mr-2 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[10px] font-medium text-[var(--st-text-secondary)]"
     >
       {fallback || '·'}
     </span>

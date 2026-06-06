@@ -217,7 +217,7 @@ export default function AbandonedCartsPage(): React.JSX.Element {
                     <Card>
                         <ZoruCardContent className="flex flex-wrap items-end gap-3 pt-4">
                             <div className="min-w-[180px] space-y-1">
-                                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                                <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                                     Storefront
                                 </Label>
                                 <Select value={storefrontFilter} onValueChange={setStorefrontFilter}>
@@ -235,13 +235,13 @@ export default function AbandonedCartsPage(): React.JSX.Element {
                                 </Select>
                             </div>
                             <div className="min-w-[220px] space-y-1">
-                                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                                <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                                     Date range
                                 </Label>
                                 <ZoruDateRangePicker value={dateRange} onChange={setDateRange} />
                             </div>
                             <div className="min-w-[140px] space-y-1">
-                                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                                <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                                     Min value
                                 </Label>
                                 <Input
@@ -271,7 +271,7 @@ export default function AbandonedCartsPage(): React.JSX.Element {
                 bulkBar={
                     selected.size > 0 ? (
                         <div className="flex flex-wrap items-center gap-2">
-                            <span className="text-sm font-medium text-zoru-ink">{selected.size} selected</span>
+                            <span className="text-sm font-medium text-[var(--st-text)]">{selected.size} selected</span>
                             <span className="flex-1" />
                             <Button size="sm" variant="outline" onClick={handleBulkSendRecovery}>
                                 <Mail className="h-3.5 w-3.5" /> Send recovery email
@@ -299,8 +299,8 @@ export default function AbandonedCartsPage(): React.JSX.Element {
                 empty={
                     !isPending && filtered.length === 0 ? (
                         <div className="flex flex-col items-center gap-3 p-8">
-                            <AlertTriangle className="h-8 w-8 text-zoru-ink-muted" />
-                            <h3 className="text-base font-medium text-zoru-ink">No abandoned carts found</h3>
+                            <AlertTriangle className="h-8 w-8 text-[var(--st-text-secondary)]" />
+                            <h3 className="text-base font-medium text-[var(--st-text)]">No abandoned carts found</h3>
                         </div>
                     ) : null
                 }
@@ -366,16 +366,16 @@ export default function AbandonedCartsPage(): React.JSX.Element {
                                                         onCheckedChange={() => toggleOne(id)}
                                                     />
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {String(c.customerEmail ?? '—')}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {itemsArr.length}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {fmtMoney(c.subtotal, String(c.currency ?? 'INR'))}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                                                <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                                                     {fmtDate(c.lastInteractionAt)}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>

@@ -51,7 +51,7 @@ export function ClientForm() {
             <CardContent className="p-6">
                 <form onSubmit={onSubmit} className="flex flex-col gap-5">
                     {error && (
-                        <div className="rounded-md border border-zoru-line/40 bg-zoru-ink/10 p-3 text-sm text-zoru-ink-muted">
+                        <div className="rounded-md border border-[var(--st-border)]/40 bg-[var(--st-text)]/10 p-3 text-sm text-[var(--st-text-secondary)]">
                             {error}
                         </div>
                     )}

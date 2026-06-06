@@ -121,7 +121,7 @@ export function StockTransferDetailActions({
                 size="sm"
                 disabled={pending}
                 onClick={() => setDeleteOpen(true)}
-                className="text-zoru-danger-ink"
+                className="text-[var(--st-danger)]"
             >
                 <Trash2 className="h-3.5 w-3.5" strokeWidth={1.75} /> Delete
             </Button>

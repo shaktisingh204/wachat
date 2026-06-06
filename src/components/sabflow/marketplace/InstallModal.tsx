@@ -145,11 +145,11 @@ export function InstallModal({
       }}
     >
       {/* Panel */}
-      <div className="relative w-full max-w-md rounded-xl border border-zoru-line bg-zoru-ink shadow-2xl">
+      <div className="relative w-full max-w-md rounded-xl border border-[var(--st-border)] bg-[var(--st-text)] shadow-2xl">
         {/* Header */}
-        <div className="flex items-start justify-between gap-3 border-b border-zoru-line px-5 py-4">
+        <div className="flex items-start justify-between gap-3 border-b border-[var(--st-border)] px-5 py-4">
           <div className="flex items-center gap-2">
-            <LuSparkles className="h-4 w-4 shrink-0 text-zoru-ink-muted" />
+            <LuSparkles className="h-4 w-4 shrink-0 text-[var(--st-text-secondary)]" />
             <h2 className="text-sm font-semibold text-white">
               Install template
             </h2>
@@ -158,7 +158,7 @@ export function InstallModal({
             type="button"
             onClick={onClose}
             aria-label="Close modal"
-            className="text-zoru-ink transition-colors hover:text-white"
+            className="text-[var(--st-text)] transition-colors hover:text-white"
           >
             <LuX className="h-4 w-4" />
           </button>
@@ -175,7 +175,7 @@ export function InstallModal({
                   {templateName}
                 </p>
                 {description && (
-                  <p className="mt-1 text-sm text-zoru-ink-muted">{description}</p>
+                  <p className="mt-1 text-sm text-[var(--st-text-secondary)]">{description}</p>
                 )}
               </div>
 
@@ -183,21 +183,21 @@ export function InstallModal({
               {(nodeLabel ?? connectionLabel) && (
                 <div className="flex flex-wrap gap-3">
                   {nodeLabel && (
-                    <span className="inline-flex items-center gap-1.5 rounded-md border border-zoru-line bg-zoru-ink px-2.5 py-1 text-xs text-zoru-ink-muted">
-                      <LuWorkflow className="h-3.5 w-3.5 text-zoru-ink-muted" />
+                    <span className="inline-flex items-center gap-1.5 rounded-md border border-[var(--st-border)] bg-[var(--st-text)] px-2.5 py-1 text-xs text-[var(--st-text-secondary)]">
+                      <LuWorkflow className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                       {nodeLabel}
                     </span>
                   )}
                   {connectionLabel && (
-                    <span className="inline-flex items-center gap-1.5 rounded-md border border-zoru-line bg-zoru-ink px-2.5 py-1 text-xs text-zoru-ink-muted">
-                      <LuGitFork className="h-3.5 w-3.5 text-zoru-ink-muted" />
+                    <span className="inline-flex items-center gap-1.5 rounded-md border border-[var(--st-border)] bg-[var(--st-text)] px-2.5 py-1 text-xs text-[var(--st-text-secondary)]">
+                      <LuGitFork className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                       {connectionLabel}
                     </span>
                   )}
                 </div>
               )}
 
-              <p className="text-xs text-zoru-ink">
+              <p className="text-xs text-[var(--st-text)]">
                 This template will be cloned into your workspace as a new draft.
                 You can review and modify it before activating.
               </p>
@@ -207,7 +207,7 @@ export function InstallModal({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="rounded-md px-3.5 py-1.5 text-sm text-zoru-ink-muted transition-colors hover:bg-zoru-ink hover:text-white"
+                  className="rounded-md px-3.5 py-1.5 text-sm text-[var(--st-text-secondary)] transition-colors hover:bg-[var(--st-text)] hover:text-white"
                 >
                   Cancel
                 </button>
@@ -215,8 +215,8 @@ export function InstallModal({
                   type="button"
                   onClick={() => void runInstall()}
                   className={cn(
-                    'inline-flex items-center gap-2 rounded-md bg-zoru-ink px-4 py-1.5 text-sm font-medium text-zoru-ink',
-                    'transition-colors hover:bg-zoru-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-line/60',
+                    'inline-flex items-center gap-2 rounded-md bg-[var(--st-text)] px-4 py-1.5 text-sm font-medium text-[var(--st-text)]',
+                    'transition-colors hover:bg-[var(--st-bg-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-border)]/60',
                   )}
                 >
                   <LuSparkles className="h-3.5 w-3.5" />
@@ -229,8 +229,8 @@ export function InstallModal({
           {/* ── Step 2: Installing ───────────────────────────────────── */}
           {phase === 'installing' && (
             <div className="flex flex-col items-center gap-3 py-8">
-              <LuLoader className="h-6 w-6 animate-spin text-zoru-ink-muted" />
-              <p className="text-sm text-zoru-ink-muted">
+              <LuLoader className="h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
+              <p className="text-sm text-[var(--st-text-secondary)]">
                 Cloning template into your workspace&hellip;
               </p>
             </div>
@@ -239,22 +239,22 @@ export function InstallModal({
           {/* ── Step 3: Success ──────────────────────────────────────── */}
           {phase === 'success' && success && (
             <div className="flex flex-col items-center gap-4 py-6">
-              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-zoru-ink/15 text-zoru-ink-muted">
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[var(--st-text)]/15 text-[var(--st-text-secondary)]">
                 <LuCheck className="h-5 w-5" />
               </div>
               <div className="text-center">
                 <p className="text-sm font-medium text-white">
                   Template installed!
                 </p>
-                <p className="mt-1 text-xs text-zoru-ink">
+                <p className="mt-1 text-xs text-[var(--st-text)]">
                   Your new flow is ready in draft state.
                 </p>
               </div>
               <Link
                 href={success.editorUrl}
                 className={cn(
-                  'inline-flex items-center gap-2 rounded-md bg-zoru-ink px-4 py-2 text-sm font-medium text-zoru-ink',
-                  'transition-colors hover:bg-zoru-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-line/60',
+                  'inline-flex items-center gap-2 rounded-md bg-[var(--st-text)] px-4 py-2 text-sm font-medium text-[var(--st-text)]',
+                  'transition-colors hover:bg-[var(--st-bg-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-border)]/60',
                 )}
                 onClick={onClose}
               >
@@ -267,14 +267,14 @@ export function InstallModal({
           {/* ── Error state ──────────────────────────────────────────── */}
           {phase === 'error' && (
             <div className="flex flex-col gap-4">
-              <div className="rounded-lg border border-zoru-line/40 bg-zoru-ink/10 px-3 py-2 text-xs text-zoru-ink-muted">
+              <div className="rounded-lg border border-[var(--st-border)]/40 bg-[var(--st-text)]/10 px-3 py-2 text-xs text-[var(--st-text-secondary)]">
                 {errorMsg ?? 'Install failed. Please try again.'}
               </div>
               <div className="flex items-center justify-end gap-2">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="rounded-md px-3.5 py-1.5 text-sm text-zoru-ink-muted transition-colors hover:bg-zoru-ink hover:text-white"
+                  className="rounded-md px-3.5 py-1.5 text-sm text-[var(--st-text-secondary)] transition-colors hover:bg-[var(--st-text)] hover:text-white"
                 >
                   Close
                 </button>
@@ -282,8 +282,8 @@ export function InstallModal({
                   type="button"
                   onClick={() => void runInstall()}
                   className={cn(
-                    'inline-flex items-center gap-2 rounded-md border border-zoru-line bg-zoru-ink px-3.5 py-1.5 text-sm font-medium text-white',
-                    'transition-colors hover:bg-zoru-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-line/60',
+                    'inline-flex items-center gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-text)] px-3.5 py-1.5 text-sm font-medium text-white',
+                    'transition-colors hover:bg-[var(--st-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-border)]/60',
                   )}
                 >
                   <LuRefreshCw className="h-3.5 w-3.5" />

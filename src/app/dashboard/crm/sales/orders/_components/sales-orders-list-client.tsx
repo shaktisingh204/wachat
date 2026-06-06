@@ -368,14 +368,14 @@ export function SalesOrdersListClient({
       render: (row) => row.clientId ? (
         <EntityPickerChip entity="client" id={row.clientId} />
       ) : (
-        <span className="text-zoru-ink-muted">—</span>
+        <span className="text-[var(--st-text-secondary)]">—</span>
       ),
     },
     {
       key: 'date',
       header: 'Date',
       sortable: true,
-      render: (row) => <span className="text-zoru-ink-muted">{fmtDate(row.date)}</span>,
+      render: (row) => <span className="text-[var(--st-text-secondary)]">{fmtDate(row.date)}</span>,
       editRender: (row, value, onChange) => (
         <Input
           type="date"
@@ -390,7 +390,7 @@ export function SalesOrdersListClient({
       key: 'expectedShipmentDate',
       header: 'Expected shipment',
       sortable: true,
-      render: (row) => <span className="text-zoru-ink-muted">{fmtDate(row.expectedShipmentDate)}</span>,
+      render: (row) => <span className="text-[var(--st-text-secondary)]">{fmtDate(row.expectedShipmentDate)}</span>,
       editRender: (row, value, onChange) => (
         <Input
           type="date"
@@ -406,13 +406,13 @@ export function SalesOrdersListClient({
       header: 'Warehouse Allocation',
       render: (row) => {
         const whIds = Array.from(new Set(row.items?.map(it => it.warehouseId).filter(Boolean)));
-        if (whIds.length === 0) return <span className="text-zoru-ink-muted">—</span>;
+        if (whIds.length === 0) return <span className="text-[var(--st-text-secondary)]">—</span>;
         return (
           <div className="flex flex-wrap gap-1">
             {whIds.map((id) => {
               const whName = warehouses?.find(w => String(w._id) === id)?.name || `WH-${id?.slice(-4)}`;
               return (
-                <span key={id} className="inline-flex items-center rounded-full bg-zoru-surface-2 border border-zoru-line px-1.5 py-0.5 text-[10.5px] font-medium text-zoru-ink">
+                <span key={id} className="inline-flex items-center rounded-full bg-[var(--st-bg-muted)] border border-[var(--st-border)] px-1.5 py-0.5 text-[10.5px] font-medium text-[var(--st-text)]">
                   {whName}
                 </span>
               );
@@ -432,13 +432,13 @@ export function SalesOrdersListClient({
           {row.quotationRef.slice(-6)}
         </Link>
       ) : (
-        <span className="text-zoru-ink-muted">—</span>
+        <span className="text-[var(--st-text-secondary)]">—</span>
       ),
     },
     {
       key: 'poNo',
       header: 'PO #',
-      render: (row) => <span className="text-zoru-ink-muted">{row.poNo || '—'}</span>,
+      render: (row) => <span className="text-[var(--st-text-secondary)]">{row.poNo || '—'}</span>,
       editRender: (row, value, onChange) => (
         <Input
           size="sm"
@@ -453,7 +453,7 @@ export function SalesOrdersListClient({
       header: 'Total',
       sortable: true,
       render: (row) => (
-        <span className="font-mono tabular-nums text-zoru-ink font-semibold">
+        <span className="font-mono tabular-nums text-[var(--st-text)] font-semibold">
           {fmtMoney(row.totals?.total, row.currency)}
         </span>
       ),
@@ -468,13 +468,13 @@ export function SalesOrdersListClient({
           tone={statusToTone(row.status)}
         />
       ) : (
-        <span className="text-zoru-ink-muted">—</span>
+        <span className="text-[var(--st-text-secondary)]">—</span>
       ),
       editRender: (row, value, onChange) => {
         const options = ['open', 'partial', 'fulfilled', 'closed', 'cancelled'];
         return (
           <select
-            className="h-8 w-28 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg text-zoru-ink text-[12.5px] p-1 outline-none"
+            className="h-8 w-28 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)] text-[12.5px] p-1 outline-none"
             value={value !== undefined ? String(value) : 'open'}
             onChange={(e) => onChange(e.target.value)}
           >
@@ -495,7 +495,7 @@ export function SalesOrdersListClient({
         return agentId ? (
           <EntityPickerChip entity="user" id={agentId} />
         ) : (
-          <span className="text-zoru-ink-muted">—</span>
+          <span className="text-[var(--st-text-secondary)]">—</span>
         );
       }
     }
@@ -540,7 +540,7 @@ export function SalesOrdersListClient({
         />
 
         {error ? (
-          <div className="flex items-center gap-2 border-b border-zoru-line/40 bg-zoru-ink/10 px-4 py-2.5 text-[13px] text-zoru-ink">
+          <div className="flex items-center gap-2 border-b border-[var(--st-border)]/40 bg-[var(--st-text)]/10 px-4 py-2.5 text-[13px] text-[var(--st-text)]">
             <AlertCircle className="h-4 w-4 shrink-0" />
             {error}
           </div>
@@ -557,11 +557,11 @@ export function SalesOrdersListClient({
           onDelete={() => setPendingBulkDelete(true)}
         />
 
-        <div className="flex items-center justify-between px-4 py-2 border-b border-zoru-line bg-zoru-surface-2/20">
-          <div className="text-[12.5px] text-zoru-ink-muted">
+        <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]/20">
+          <div className="text-[12.5px] text-[var(--st-text-secondary)]">
             Double-click any row to edit inline or use the actions menu
           </div>
-          <div className="flex items-center border border-zoru-line rounded-md p-0.5 bg-zoru-surface-2/40">
+          <div className="flex items-center border border-[var(--st-border)] rounded-md p-0.5 bg-[var(--st-bg-muted)]/40">
             <Button
               size="sm"
               variant={density === 'comfortable' ? 'outline' : 'ghost'}
@@ -626,7 +626,7 @@ export function SalesOrdersListClient({
                   e.preventDefault();
                   confirmDelete();
                 }}
-                className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
+                className="bg-[var(--st-danger)] text-white hover:bg-[var(--st-danger)]/90"
               >
                 Delete permanently
               </ZoruAlertDialogAction>
@@ -653,7 +653,7 @@ export function SalesOrdersListClient({
                   e.preventDefault();
                   confirmBulkDelete();
                 }}
-                className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
+                className="bg-[var(--st-danger)] text-white hover:bg-[var(--st-danger)]/90"
               >
                 Delete permanently
               </ZoruAlertDialogAction>

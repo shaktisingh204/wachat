@@ -32,8 +32,8 @@ export default function ChartsPage() {
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight text-zoru-ink">Charts & Visualisations</h2>
-          <p className="text-muted-foreground text-zoru-ink/60">
+          <h2 className="text-3xl font-bold tracking-tight text-[var(--st-text)]">Charts & Visualisations</h2>
+          <p className="text-muted-foreground text-[var(--st-text)]/60">
             Build and manage data visualisations from your datasets.
           </p>
         </div>
@@ -141,7 +141,7 @@ export default function ChartsPage() {
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-500/80 hover:text-blue-600">
                       <Play className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-zoru-ink/60 hover:text-zoru-ink">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-[var(--st-text)]/60 hover:text-[var(--st-text)]">
                       <MoreVertical className="h-4 w-4" />
                     </Button>
                   </TableCell>

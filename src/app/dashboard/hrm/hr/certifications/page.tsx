@@ -114,7 +114,7 @@ export default function CertificationsPage() {
         {
           key: 'category',
           label: 'Category',
-          render: (r) => (r.category ? <HrChip>{r.category}</HrChip> : <span className="text-zoru-ink-muted">—</span>),
+          render: (r) => (r.category ? <HrChip>{r.category}</HrChip> : <span className="text-[var(--st-text-secondary)]">—</span>),
         },
         { key: 'issuedAt', label: 'Issued', render: (r) => <HrDateCell value={r.issuedAt} /> },
         { key: 'expiresAt', label: 'Expires', render: (r) => <HrDateCell value={r.expiresAt} /> },
@@ -127,12 +127,12 @@ export default function CertificationsPage() {
                 href={r.credentialUrl}
                 target="_blank"
                 rel="noreferrer noopener"
-                className="text-zoru-ink underline-offset-2 hover:underline"
+                className="text-[var(--st-text)] underline-offset-2 hover:underline"
               >
                 View
               </a>
             ) : (
-              <span className="text-zoru-ink-muted">—</span>
+              <span className="text-[var(--st-text-secondary)]">—</span>
             ),
         },
         {

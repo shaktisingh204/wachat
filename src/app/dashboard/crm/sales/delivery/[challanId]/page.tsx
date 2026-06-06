@@ -34,10 +34,10 @@ function fmtDate(v: unknown): string {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
         {label}
       </div>
-      <div className="mt-1 text-[13px] text-zoru-ink">{children}</div>
+      <div className="mt-1 text-[13px] text-[var(--st-text)]">{children}</div>
     </div>
   );
 }
@@ -89,7 +89,7 @@ export default async function DeliveryChallanDetailPage({
             <Pencil className="h-3.5 w-3.5" />
             Edit
           </Button>
-          <span className="mx-1 h-4 w-px bg-zoru-line" />
+          <span className="mx-1 h-4 w-px bg-[var(--st-border)]" />
           <Button variant="outline" size="sm" disabled title="Email — coming soon">
             <Mail className="h-3.5 w-3.5" /> Email
           </Button>
@@ -117,7 +117,7 @@ export default async function DeliveryChallanDetailPage({
             variant="outline"
             size="sm"
             disabled
-            className="text-zoru-danger-ink"
+            className="text-[var(--st-danger)]"
             title="Delete — use the list page's row action"
           >
             <Trash2 className="h-3.5 w-3.5" /> Delete
@@ -135,7 +135,7 @@ export default async function DeliveryChallanDetailPage({
             }}
             lineage={lineage}
           />
-          <Card className="p-4 text-[11.5px] text-zoru-ink-muted">
+          <Card className="p-4 text-[11.5px] text-[var(--st-text-secondary)]">
             Created {fmtDate(dc.createdAt)}
             <br />
             Updated {fmtDate(dc.updatedAt)}
@@ -147,7 +147,7 @@ export default async function DeliveryChallanDetailPage({
       {/* Header card */}
       <Card className="p-6">
         <div className="mb-4 flex items-center justify-between gap-3">
-          <h3 className="text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          <h3 className="text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
             Header
           </h3>
         </div>
@@ -165,7 +165,7 @@ export default async function DeliveryChallanDetailPage({
             {soRef ? (
               <Link
                 href={`/dashboard/crm/sales/orders/${soRef}`}
-                className="text-zoru-primary hover:underline"
+                className="text-[var(--st-text)] hover:underline"
               >
                 {soRef.slice(-8)}
               </Link>
@@ -201,7 +201,7 @@ export default async function DeliveryChallanDetailPage({
 
       {/* Vehicle & transport */}
       <Card className="p-6">
-        <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Vehicle & transport
         </h3>
         <div className="grid gap-4 md:grid-cols-3">
@@ -223,12 +223,12 @@ export default async function DeliveryChallanDetailPage({
 
       {/* Line items */}
       <Card className="p-6">
-        <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Line items
         </h3>
-        <div className="overflow-x-auto rounded-md border border-zoru-line">
+        <div className="overflow-x-auto rounded-md border border-[var(--st-border)]">
           <table className="w-full text-[13px]">
-            <thead className="bg-zoru-surface-2 text-left text-zoru-ink-muted">
+            <thead className="bg-[var(--st-bg-muted)] text-left text-[var(--st-text-secondary)]">
               <tr>
                 <th className="p-2.5 font-medium">#</th>
                 <th className="p-2.5 font-medium">Item</th>
@@ -242,10 +242,10 @@ export default async function DeliveryChallanDetailPage({
             </thead>
             <tbody>
               {lineItems.length === 0 ? (
-                <tr className="border-t border-zoru-line">
+                <tr className="border-t border-[var(--st-border)]">
                   <td
                     colSpan={8}
-                    className="p-4 text-center text-[12.5px] text-zoru-ink-muted"
+                    className="p-4 text-center text-[12.5px] text-[var(--st-text-secondary)]"
                   >
                     No line items.
                   </td>
@@ -266,27 +266,27 @@ export default async function DeliveryChallanDetailPage({
                         ? anyLi.serialNos
                         : [];
                   return (
-                    <tr key={li.id ?? idx} className="border-t border-zoru-line align-top">
-                      <td className="p-2.5 text-zoru-ink-muted">{idx + 1}</td>
+                    <tr key={li.id ?? idx} className="border-t border-[var(--st-border)] align-top">
+                      <td className="p-2.5 text-[var(--st-text-secondary)]">{idx + 1}</td>
                       <td className="p-2.5">
                         {anyLi.itemId ? (
                           <EntityPickerChip entity="item" id={anyLi.itemId} />
                         ) : (
-                          <span className="text-zoru-ink">{li.name || '—'}</span>
+                          <span className="text-[var(--st-text)]">{li.name || '—'}</span>
                         )}
                       </td>
-                      <td className="p-2.5 text-zoru-ink-muted">
+                      <td className="p-2.5 text-[var(--st-text-secondary)]">
                         {li.hsnCode || '—'}
                       </td>
-                      <td className="p-2.5 text-right tabular-nums text-zoru-ink">
+                      <td className="p-2.5 text-right tabular-nums text-[var(--st-text)]">
                         {li.quantity}
                       </td>
-                      <td className="p-2.5 text-zoru-ink-muted">{li.unit || '—'}</td>
-                      <td className="p-2.5 text-zoru-ink">{anyLi.batch || '—'}</td>
-                      <td className="p-2.5 text-zoru-ink">
+                      <td className="p-2.5 text-[var(--st-text-secondary)]">{li.unit || '—'}</td>
+                      <td className="p-2.5 text-[var(--st-text)]">{anyLi.batch || '—'}</td>
+                      <td className="p-2.5 text-[var(--st-text)]">
                         {anyLi.expiry ? fmtDate(anyLi.expiry) : '—'}
                       </td>
-                      <td className="p-2.5 text-zoru-ink">
+                      <td className="p-2.5 text-[var(--st-text)]">
                         {serials.length ? serials.join(', ') : '—'}
                       </td>
                     </tr>
@@ -300,10 +300,10 @@ export default async function DeliveryChallanDetailPage({
 
       {dc.notes ? (
         <Card className="p-6">
-          <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
             Notes
           </h3>
-          <div className="whitespace-pre-wrap text-[13px] text-zoru-ink">
+          <div className="whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
             {dc.notes}
           </div>
         </Card>

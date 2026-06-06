@@ -118,14 +118,14 @@ function MetricTile({
     <Card variant="elevated" className="p-5">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className="text-[11px] uppercase tracking-wide text-zoru-ink-subtle">
+          <p className="text-[11px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
             {label}
           </p>
-          <p className="mt-2 text-[26px] tracking-[-0.01em] text-zoru-ink leading-none">
+          <p className="mt-2 text-[26px] tracking-[-0.01em] text-[var(--st-text)] leading-none">
             {value}
           </p>
         </div>
-        <span className="flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink [&_svg]:size-4">
+        <span className="flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)] [&_svg]:size-4">
           {icon}
         </span>
       </div>
@@ -137,7 +137,7 @@ function StoryTile({ story }: { story: Story }) {
   const isPublished = story.status === "PUBLISHED";
   return (
     <Card variant="elevated" className="overflow-hidden">
-      <div className="relative aspect-[9/16] max-h-72 overflow-hidden bg-zoru-surface-2">
+      <div className="relative aspect-[9/16] max-h-72 overflow-hidden bg-[var(--st-bg-muted)]">
         {story.url ? (
           story.media_type === "video" || story.url.includes(".mp4") ? (
             <video
@@ -160,7 +160,7 @@ function StoryTile({ story }: { story: Story }) {
             />
           )
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-zoru-ink-subtle">
+          <div className="flex h-full w-full items-center justify-center text-[var(--st-text-tertiary)]">
             <ImageIcon className="h-8 w-8" />
           </div>
         )}
@@ -175,7 +175,7 @@ function StoryTile({ story }: { story: Story }) {
           )}
         </div>
         {story.created_time && (
-          <p className="text-[11.5px] text-zoru-ink-muted">
+          <p className="text-[11.5px] text-[var(--st-text-secondary)]">
             {formatDistanceToNow(new Date(story.created_time), {
               addSuffix: true,
             })}
@@ -493,7 +493,7 @@ function CreateStoryDialog({
                 placeholder="https://example.com/media.jpg"
                 disabled={isPublishing}
               />
-              <p className="text-[11.5px] text-zoru-ink-muted">
+              <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                 JPEG, PNG, or MP4 hosted on a public HTTPS URL.
               </p>
             </div>

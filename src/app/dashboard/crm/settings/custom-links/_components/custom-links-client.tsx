@@ -108,7 +108,7 @@ function EditDialog({
           </ZoruDialogHeader>
           <div className="grid grid-cols-1 gap-4 py-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="link_name">Name <span className="text-zoru-danger-ink">*</span></Label>
+              <Label htmlFor="link_name">Name <span className="text-[var(--st-danger)]">*</span></Label>
               <Input id="link_name" name="link_name" required defaultValue={initial?.link_name ?? ''} placeholder="My Dashboard" />
             </div>
             <div className="space-y-2">
@@ -116,7 +116,7 @@ function EditDialog({
               <Input id="position" name="position" type="number" defaultValue={String(initial?.position ?? 0)} />
             </div>
             <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="url">URL <span className="text-zoru-danger-ink">*</span></Label>
+              <Label htmlFor="url">URL <span className="text-[var(--st-danger)]">*</span></Label>
               <Input id="url" name="url" required defaultValue={initial?.url ?? ''} placeholder="https://example.com" />
             </div>
             <div className="space-y-2">
@@ -298,7 +298,7 @@ export function CustomLinksClient(): React.JSX.Element {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-2 text-[12.5px]">
                 <Badge variant="default">{selected.size} selected</Badge>
-                <button type="button" onClick={() => setSelected(new Set())} className="text-zoru-ink-muted hover:text-zoru-ink">Clear</button>
+                <button type="button" onClick={() => setSelected(new Set())} className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]">Clear</button>
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <Button variant="outline" size="sm" onClick={handleExportCsv}><Download className="mr-1 h-3.5 w-3.5" /> Export CSV</Button>
@@ -334,18 +334,18 @@ export function CustomLinksClient(): React.JSX.Element {
           )}
 
           <Card className="p-0">
-            <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
+            <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
               <Table>
                 <ZoruTableHeader>
-                  <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                  <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                     <ZoruTableHead className="w-10">
                       <Checkbox checked={allSelected ? true : someSelected ? 'indeterminate' : false} onCheckedChange={(v) => togglePage(v === true)} aria-label="Select all on page" />
                     </ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Name</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">URL</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Opens In</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Order</ZoruTableHead>
-                    <ZoruTableHead className="text-right text-zoru-ink-muted">Actions</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Name</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">URL</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Opens In</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Order</ZoruTableHead>
+                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Actions</ZoruTableHead>
                   </ZoruTableRow>
                 </ZoruTableHeader>
                 <ZoruTableBody>
@@ -355,25 +355,25 @@ export function CustomLinksClient(): React.JSX.Element {
                     ))
                   ) : pageRows.length === 0 ? (
                     <ZoruTableRow>
-                      <ZoruTableCell colSpan={6} className="h-24 text-center text-[13px] text-zoru-ink-muted">No custom links match this filter.</ZoruTableCell>
+                      <ZoruTableCell colSpan={6} className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]">No custom links match this filter.</ZoruTableCell>
                     </ZoruTableRow>
                   ) : (
                     pageRows.map((row) => (
-                      <ZoruTableRow key={row._id} className="border-zoru-line">
+                      <ZoruTableRow key={row._id} className="border-[var(--st-border)]">
                         <ZoruTableCell>
                           <Checkbox checked={selected.has(row._id)} onCheckedChange={() => toggleOne(row._id)} aria-label={`Select ${row.link_name}`} />
                         </ZoruTableCell>
-                        <ZoruTableCell className="font-medium text-zoru-ink">
+                        <ZoruTableCell className="font-medium text-[var(--st-text)]">
                           <RowDrawer label={row.link_name} title={`Custom Link · ${row.link_name}`} description="Link details. Use Edit to modify.">
                             <div className="space-y-3 text-sm">
-                              <div><div className="text-xs text-zoru-ink-muted">Name</div><div>{row.link_name}</div></div>
-                              <div><div className="text-xs text-zoru-ink-muted">URL</div><div className="break-all">{row.url}</div></div>
-                              <div><div className="text-xs text-zoru-ink-muted">Opens In</div><div>{row.open_in_new_tab ? 'New tab' : 'Same tab'}</div></div>
-                              <div><div className="text-xs text-zoru-ink-muted">Order</div><div>{row.position ?? 0}</div></div>
+                              <div><div className="text-xs text-[var(--st-text-secondary)]">Name</div><div>{row.link_name}</div></div>
+                              <div><div className="text-xs text-[var(--st-text-secondary)]">URL</div><div className="break-all">{row.url}</div></div>
+                              <div><div className="text-xs text-[var(--st-text-secondary)]">Opens In</div><div>{row.open_in_new_tab ? 'New tab' : 'Same tab'}</div></div>
+                              <div><div className="text-xs text-[var(--st-text-secondary)]">Order</div><div>{row.position ?? 0}</div></div>
                             </div>
                           </RowDrawer>
                         </ZoruTableCell>
-                        <ZoruTableCell className="max-w-[240px] truncate text-[13px] text-zoru-ink-muted">
+                        <ZoruTableCell className="max-w-[240px] truncate text-[13px] text-[var(--st-text-secondary)]">
                           <a href={row.url} target="_blank" rel="noreferrer" className="hover:underline">{row.url}</a>
                         </ZoruTableCell>
                         <ZoruTableCell className="text-[13px]">
@@ -381,12 +381,12 @@ export function CustomLinksClient(): React.JSX.Element {
                             {row.open_in_new_tab ? 'New tab' : 'Same tab'}
                           </Badge>
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-zoru-ink">{row.position ?? 0}</ZoruTableCell>
+                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">{row.position ?? 0}</ZoruTableCell>
                         <ZoruTableCell className="text-right">
                           <div className="flex justify-end gap-1">
                             <Button variant="ghost" size="sm" onClick={() => { setEditing(row); setDialogOpen(true); }} aria-label={`Edit ${row.link_name}`}>Edit</Button>
                             <Button variant="ghost" size="sm" onClick={() => setPendingDelete(row)} aria-label={`Delete ${row.link_name}`}>
-                              <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                              <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                             </Button>
                           </div>
                         </ZoruTableCell>

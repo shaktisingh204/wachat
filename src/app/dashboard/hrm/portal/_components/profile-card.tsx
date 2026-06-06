@@ -42,14 +42,14 @@ export function ProfileCard({ profile }: ProfileCardProps) {
         <Card className="p-6">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
                 {/* Avatar */}
-                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-zoru-primary/10 text-xl font-semibold text-zoru-primary">
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-[var(--st-text)]/10 text-xl font-semibold text-[var(--st-text)]">
                     {initials(profile.firstName, profile.lastName)}
                 </div>
 
                 {/* Core info */}
                 <div className="flex-1 space-y-3">
                     <div className="flex flex-wrap items-center gap-2">
-                        <h2 className="text-[18px] font-semibold text-zoru-ink">
+                        <h2 className="text-[18px] font-semibold text-[var(--st-text)]">
                             {profile.firstName} {profile.lastName}
                         </h2>
                         <Badge variant={statusVariant(profile.status)}>
@@ -57,7 +57,7 @@ export function ProfileCard({ profile }: ProfileCardProps) {
                         </Badge>
                     </div>
 
-                    <div className="flex flex-wrap gap-x-6 gap-y-2 text-[13px] text-zoru-ink-muted">
+                    <div className="flex flex-wrap gap-x-6 gap-y-2 text-[13px] text-[var(--st-text-secondary)]">
                         {profile.designationName && (
                             <span className="flex items-center gap-1.5">
                                 <Briefcase className="h-3.5 w-3.5 shrink-0" />
@@ -83,9 +83,9 @@ export function ProfileCard({ profile }: ProfileCardProps) {
                     </div>
 
                     {profile.reportingManagerName && (
-                        <p className="text-[12.5px] text-zoru-ink-muted">
+                        <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                             Reports to:{' '}
-                            <span className="font-medium text-zoru-ink">
+                            <span className="font-medium text-[var(--st-text)]">
                                 {profile.reportingManagerName}
                             </span>
                         </p>

@@ -37,19 +37,19 @@ const variantToZoru: Record<Variant, ZoruButtonProps['variant']> = {
 
 const variantOverride: Record<Variant, string> = {
   // Use `[background-image:none]` (not `[background:none]`) to strip the
-  // shadcn `default` gradient WITHOUT also wiping the `bg-zoru-ink` color.
+  // shadcn `default` gradient WITHOUT also wiping the `bg-[var(--st-text)]` color.
   // The shorthand `background` resets all background props, which had been
   // rendering the obsidian CTA as a blank/invisible pill.
   obsidian:
-    'rounded-full bg-zoru-ink text-zoru-surface [background-image:none] hover:bg-zoru-ink/90 hover:[background-image:none] shadow-none',
+    'rounded-full bg-[var(--st-text)] text-[var(--st-bg-secondary)] [background-image:none] hover:bg-[var(--st-text)]/90 hover:[background-image:none] shadow-none',
   rose:
-    'rounded-full bg-zoru-ink text-white [background-image:none] hover:bg-zoru-ink/90 hover:[background-image:none] shadow-none',
+    'rounded-full bg-[var(--st-text)] text-white [background-image:none] hover:bg-[var(--st-text)]/90 hover:[background-image:none] shadow-none',
   'rose-soft':
-    'rounded-full bg-zoru-surface-2 text-zoru-ink border-accent hover:bg-zoru-surface-2/80 hover:border-accent',
+    'rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)] border-accent hover:bg-[var(--st-bg-muted)]/80 hover:border-accent',
   pill:
-    'rounded-full bg-zoru-surface text-zoru-ink hover:bg-zoru-surface-2',
+    'rounded-full bg-[var(--st-bg-secondary)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]',
   ghost:
-    'rounded-lg text-zoru-ink-muted hover:text-zoru-ink hover:bg-zoru-surface-2',
+    'rounded-lg text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]',
 };
 
 const sizeToZoru: Record<Size, ZoruButtonProps['size']> = {

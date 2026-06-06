@@ -61,7 +61,7 @@ export function BlockDocsSection({ blockType }: Props) {
                 {doc.fields.map((f) => (
                   <li key={f.name} className="text-[11.5px] leading-snug text-[var(--gray-11)]">
                     <span className="font-semibold text-[var(--gray-12)]">{f.name}</span>
-                    {f.required ? <span className="ml-1 text-zoru-ink">*</span> : null}
+                    {f.required ? <span className="ml-1 text-[var(--st-text)]">*</span> : null}
                     {f.defaultValue ? (
                       <span className="ml-1 rounded bg-[var(--gray-3)] px-1 font-mono text-[10.5px] text-[var(--gray-10)]">
                         default: {f.defaultValue}
@@ -82,7 +82,7 @@ export function BlockDocsSection({ blockType }: Props) {
               <ul className="mt-1 space-y-1">
                 {doc.outputs.map((o) => (
                   <li key={o.token} className="flex items-start gap-1.5 text-[11.5px]">
-                    <code className="shrink-0 rounded bg-[var(--gray-3)] px-1 py-0.5 font-mono text-[10.5px] text-zoru-ink">
+                    <code className="shrink-0 rounded bg-[var(--gray-3)] px-1 py-0.5 font-mono text-[10.5px] text-[var(--st-text)]">
                       {o.token}
                     </code>
                     <span className="text-[var(--gray-10)]">{o.description}</span>
@@ -103,7 +103,7 @@ export function BlockDocsSection({ blockType }: Props) {
                     key={ex}
                     className="flex items-start gap-1.5 text-[11.5px] text-[var(--gray-11)]"
                   >
-                    <LuCircleCheck className="mt-[1px] h-3 w-3 shrink-0 text-zoru-ink" />
+                    <LuCircleCheck className="mt-[1px] h-3 w-3 shrink-0 text-[var(--st-text)]" />
                     <span>{ex}</span>
                   </li>
                 ))}

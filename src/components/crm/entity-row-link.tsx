@@ -13,7 +13,7 @@ export interface EntityRowLinkProps {
 }
 
 const baseClasses =
-    "group inline-flex flex-col items-start gap-0.5 rounded-sm text-left outline-none transition-colors hover:text-zoru-ink focus-visible:ring-2 focus-visible:ring-zoru-line focus-visible:ring-offset-1";
+    "group inline-flex flex-col items-start gap-0.5 rounded-sm text-left outline-none transition-colors hover:text-[var(--st-text)] focus-visible:ring-2 focus-visible:ring-[var(--st-border)] focus-visible:ring-offset-1";
 
 export function EntityRowLink({
     href,
@@ -24,12 +24,12 @@ export function EntityRowLink({
     className,
 }: EntityRowLinkProps) {
     const labelNode = (
-        <span className="font-medium text-zoru-ink transition-colors group-hover:text-zoru-ink group-hover:underline group-focus-visible:underline">
+        <span className="font-medium text-[var(--st-text)] transition-colors group-hover:text-[var(--st-text)] group-hover:underline group-focus-visible:underline">
             {label}
         </span>
     );
     const subtitleNode = subtitle ? (
-        <span className="text-[12px] text-zoru-ink-muted">{subtitle}</span>
+        <span className="text-[12px] text-[var(--st-text-secondary)]">{subtitle}</span>
     ) : null;
 
     if (external) {

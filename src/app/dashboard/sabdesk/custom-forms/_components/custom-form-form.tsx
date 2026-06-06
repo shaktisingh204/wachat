@@ -97,11 +97,11 @@ export function CustomFormForm({ initialData }: CustomFormFormProps) {
       <input type="hidden" name="captcha" value={captcha ? "true" : "false"} />
 
       <Card className="p-6">
-        <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">Basics</h2>
+        <h2 className="mb-4 text-[14px] font-medium text-[var(--st-text)]">Basics</h2>
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <div className="space-y-1.5 sm:col-span-2">
             <Label htmlFor="name">
-              Name <span className="text-zoru-danger-ink">*</span>
+              Name <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <Input
               id="name"
@@ -139,7 +139,7 @@ export function CustomFormForm({ initialData }: CustomFormFormProps) {
       </Card>
 
       <Card className="p-6">
-        <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">Settings</h2>
+        <h2 className="mb-4 text-[14px] font-medium text-[var(--st-text)]">Settings</h2>
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <div className="space-y-1.5 sm:col-span-2">
             <Label htmlFor="successMessage">Success message</Label>
@@ -161,10 +161,10 @@ export function CustomFormForm({ initialData }: CustomFormFormProps) {
               placeholder="https://example.com/thanks (optional)"
             />
           </div>
-          <div className="flex items-center justify-between rounded-md border border-zoru-line px-3 py-2 sm:col-span-2">
+          <div className="flex items-center justify-between rounded-md border border-[var(--st-border)] px-3 py-2 sm:col-span-2">
             <div className="flex flex-col">
               <Label htmlFor="captcha-toggle">Require CAPTCHA</Label>
-              <span className="text-xs text-zoru-ink-muted">
+              <span className="text-xs text-[var(--st-text-secondary)]">
                 Recommended for public-facing forms to deter bot submissions.
               </span>
             </div>

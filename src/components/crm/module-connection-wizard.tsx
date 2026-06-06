@@ -238,9 +238,9 @@ export function ModuleConnectionWizard<TDraft extends Record<string, any>>(
               initial={{ scale: 0.7, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ type: 'spring', stiffness: 220, damping: 18 }}
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface border border-zoru-line"
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] border border-[var(--st-border)]"
             >
-              <Icon className="h-6 w-6 text-zoru-ink" />
+              <Icon className="h-6 w-6 text-[var(--st-text)]" />
             </motion.div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
@@ -253,9 +253,9 @@ export function ModuleConnectionWizard<TDraft extends Record<string, any>>(
               <ZoruCardDescription className="mt-1">
                 {subtitle}
               </ZoruCardDescription>
-              <p className="mt-2 text-xs text-zoru-ink-muted">
+              <p className="mt-2 text-xs text-[var(--st-text-secondary)]">
                 Routes to:{' '}
-                <span className="font-medium text-zoru-ink">
+                <span className="font-medium text-[var(--st-text)]">
                   {targetModuleLabel}
                 </span>
               </p>
@@ -319,11 +319,11 @@ export function ModuleConnectionWizard<TDraft extends Record<string, any>>(
                     transition={{ duration: 0.25, ease: 'easeOut' }}
                     className="min-h-[180px]"
                   >
-                    <h3 className="text-base font-semibold text-zoru-ink">
+                    <h3 className="text-base font-semibold text-[var(--st-text)]">
                       {steps[stepIdx].title}
                     </h3>
                     {steps[stepIdx].description ? (
-                      <p className="mt-1 text-sm text-zoru-ink-muted">
+                      <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
                         {steps[stepIdx].description}
                       </p>
                     ) : null}
@@ -335,7 +335,7 @@ export function ModuleConnectionWizard<TDraft extends Record<string, any>>(
                       })}
                     </div>
                     {stepError ? (
-                      <p className="mt-3 text-sm text-zoru-danger flex items-center gap-1">
+                      <p className="mt-3 text-sm text-[var(--st-danger)] flex items-center gap-1">
                         <XCircle className="h-4 w-4" />
                         {stepError}
                       </p>
@@ -354,7 +354,7 @@ export function ModuleConnectionWizard<TDraft extends Record<string, any>>(
                   {stepIdx === 0 ? 'Cancel' : 'Back'}
                 </Button>
                 <div className="flex items-center gap-3">
-                  <span className="text-xs text-zoru-ink-muted">
+                  <span className="text-xs text-[var(--st-text-secondary)]">
                     Step {stepIdx + 1} of {steps.length}
                   </span>
                   <Button
@@ -386,14 +386,14 @@ export function ModuleConnectionWizard<TDraft extends Record<string, any>>(
             ) : (
               <Card>
                 <ZoruCardContent className="p-8 flex flex-col items-center text-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface border border-zoru-line">
-                    <Plug className="h-6 w-6 text-zoru-ink-muted" />
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-secondary)] border border-[var(--st-border)]">
+                    <Plug className="h-6 w-6 text-[var(--st-text-secondary)]" />
                   </div>
                   <div>
-                    <h3 className="text-base font-semibold text-zoru-ink">
+                    <h3 className="text-base font-semibold text-[var(--st-text)]">
                       {title} is not connected yet
                     </h3>
-                    <p className="mt-1 text-sm text-zoru-ink-muted max-w-md">
+                    <p className="mt-1 text-sm text-[var(--st-text-secondary)] max-w-md">
                       Click <span className="font-medium">Connect</span> to
                       wire the CRM into {targetModuleLabel}. We&apos;ll walk
                       you through the {steps.length}-step setup.
@@ -435,7 +435,7 @@ function ConnectionBadge({
         animate={{ scale: 1, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 260, damping: 18 }}
       >
-        <Badge variant="default" className="gap-1 bg-zoru-ink/15 text-zoru-ink border-zoru-line/30">
+        <Badge variant="default" className="gap-1 bg-[var(--st-text)]/15 text-[var(--st-text)] border-[var(--st-border)]/30">
           <CheckCircle2 className="h-3 w-3" />
           Connected
         </Badge>
@@ -472,11 +472,11 @@ function StepperHeader<TDraft extends Record<string, any>>({
                 className={cn(
                   'flex h-7 w-7 items-center justify-center rounded-full border text-xs font-medium',
                   state === 'done' &&
-                    'bg-zoru-ink border-zoru-line text-white',
+                    'bg-[var(--st-text)] border-[var(--st-border)] text-white',
                   state === 'active' &&
-                    'bg-zoru-ink text-zoru-on-primary border-zoru-ink',
+                    'bg-[var(--st-text)] text-[var(--st-text-inverted)] border-[var(--st-text)]',
                   state === 'upcoming' &&
-                    'bg-zoru-surface border-zoru-line text-zoru-ink-muted',
+                    'bg-[var(--st-bg-secondary)] border-[var(--st-border)] text-[var(--st-text-secondary)]',
                 )}
               >
                 {state === 'done' ? (
@@ -489,15 +489,15 @@ function StepperHeader<TDraft extends Record<string, any>>({
                 className={cn(
                   'text-sm whitespace-nowrap',
                   state === 'active'
-                    ? 'text-zoru-ink font-medium'
-                    : 'text-zoru-ink-muted',
+                    ? 'text-[var(--st-text)] font-medium'
+                    : 'text-[var(--st-text-secondary)]',
                 )}
               >
                 {s.title}
               </span>
             </li>
             {i < steps.length - 1 ? (
-              <span className="h-px w-6 bg-zoru-line" aria-hidden />
+              <span className="h-px w-6 bg-[var(--st-border)]" aria-hidden />
             ) : null}
           </React.Fragment>
         );

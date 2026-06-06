@@ -35,15 +35,15 @@ export function PosSalesGraph({ transactions }: { transactions: PosTransactionDo
                         return (
                             <div key={i} className="flex flex-1 flex-col items-center justify-end group relative h-full">
                                 {d.total > 0 && (
-                                    <div className="absolute -top-6 hidden group-hover:block whitespace-nowrap bg-zoru-surface-2 text-xs py-1 px-2 rounded border border-zoru-line z-10">
+                                    <div className="absolute -top-6 hidden group-hover:block whitespace-nowrap bg-[var(--st-bg-muted)] text-xs py-1 px-2 rounded border border-[var(--st-border)] z-10">
                                         ₹{d.total.toFixed(0)}
                                     </div>
                                 )}
                                 <div 
-                                    className="w-full bg-zoru-primary rounded-t-sm transition-all duration-300" 
+                                    className="w-full bg-[var(--st-text)] rounded-t-sm transition-all duration-300" 
                                     style={{ height: `${Math.max(heightPct, 1)}%`, opacity: d.total > 0 ? 1 : 0.2 }}
                                 />
-                                <span className="text-[10px] text-zoru-ink-muted mt-2 hidden sm:block">
+                                <span className="text-[10px] text-[var(--st-text-secondary)] mt-2 hidden sm:block">
                                     {i % 3 === 0 ? `${i}h` : ''}
                                 </span>
                             </div>

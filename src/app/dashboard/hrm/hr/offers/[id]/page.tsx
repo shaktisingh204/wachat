@@ -152,7 +152,7 @@ export default async function OfferDetailPage({ params }: PageProps) {
                 hint={candidate.email || ''}
               />
             ) : (
-              <p className="px-2 py-1.5 text-zoru-ink-muted">No candidate.</p>
+              <p className="px-2 py-1.5 text-[var(--st-text-secondary)]">No candidate.</p>
             )}
           </RailCard>
           <RailCard title="Chain — next step">
@@ -166,24 +166,24 @@ export default async function OfferDetailPage({ params }: PageProps) {
           </RailCard>
           <RailCard title="Quick stats">
             <p>
-              <span className="text-zoru-ink-muted">CTC: </span>
-              <span className="text-zoru-ink">
+              <span className="text-[var(--st-text-secondary)]">CTC: </span>
+              <span className="text-[var(--st-text)]">
                 {o.ctc != null || o.salary != null
                   ? `${Number(o.ctc ?? o.salary).toLocaleString()} ${o.currency || ''}`.trim()
                   : '—'}
               </span>
             </p>
             <p>
-              <span className="text-zoru-ink-muted">Joining: </span>
-              <span className="text-zoru-ink">
+              <span className="text-[var(--st-text-secondary)]">Joining: </span>
+              <span className="text-[var(--st-text)]">
                 {o.joining_date
                   ? new Date(o.joining_date).toLocaleDateString()
                   : '—'}
               </span>
             </p>
             <p>
-              <span className="text-zoru-ink-muted">Validity: </span>
-              <span className="text-zoru-ink">
+              <span className="text-[var(--st-text-secondary)]">Validity: </span>
+              <span className="text-[var(--st-text)]">
                 {o.valid_till
                   ? new Date(o.valid_till).toLocaleDateString()
                   : '—'}
@@ -202,7 +202,7 @@ export default async function OfferDetailPage({ params }: PageProps) {
             value: o.candidateId ? (
               <Link
                 href={`/dashboard/hrm/hr/candidates/${o.candidateId}`}
-                className="text-zoru-ink hover:underline"
+                className="text-[var(--st-text)] hover:underline"
               >
                 {candidate?.name || String(o.candidateId)}
               </Link>

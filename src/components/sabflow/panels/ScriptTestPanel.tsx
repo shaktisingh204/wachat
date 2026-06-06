@@ -53,18 +53,18 @@ export function ScriptTestPanel({ result, variablesBefore, onClose }: Props) {
       <div
         className={cn(
           'flex items-center gap-2 px-3 py-2 border-b border-[var(--gray-5)]',
-          result.success ? 'bg-zoru-ink/5' : 'bg-zoru-ink/5',
+          result.success ? 'bg-[var(--st-text)]/5' : 'bg-[var(--st-text)]/5',
         )}
       >
         {result.success ? (
           <LuCircleCheck
-            className="h-3.5 w-3.5 text-zoru-ink shrink-0"
+            className="h-3.5 w-3.5 text-[var(--st-text)] shrink-0"
             strokeWidth={2.2}
             aria-label="Success"
           />
         ) : (
           <LuCircleX
-            className="h-3.5 w-3.5 text-zoru-ink shrink-0"
+            className="h-3.5 w-3.5 text-[var(--st-text)] shrink-0"
             strokeWidth={2.2}
             aria-label="Error"
           />
@@ -72,7 +72,7 @@ export function ScriptTestPanel({ result, variablesBefore, onClose }: Props) {
         <span
           className={cn(
             'text-[11.5px] font-semibold uppercase tracking-wide',
-            result.success ? 'text-zoru-ink dark:text-zoru-ink-muted' : 'text-zoru-ink dark:text-zoru-ink-muted',
+            result.success ? 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]' : 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',
           )}
         >
           {result.success ? 'Passed' : 'Failed'}
@@ -113,7 +113,7 @@ export function ScriptTestPanel({ result, variablesBefore, onClose }: Props) {
               t.disabled
                 ? 'text-[var(--gray-6)] cursor-not-allowed'
                 : tab === t.id
-                ? 'text-zoru-ink border-b-2 border-zoru-line -mb-px'
+                ? 'text-[var(--st-text)] border-b-2 border-[var(--st-border)] -mb-px'
                 : 'text-[var(--gray-9)] hover:text-[var(--gray-12)]',
             )}
           >
@@ -155,8 +155,8 @@ function ResultTab({ result }: { result: SandboxResult }) {
   return (
     <pre
       className={cn(
-        'rounded-lg bg-zoru-ink p-3',
-        'font-mono text-[11.5px] leading-[1.55] text-zoru-ink-muted',
+        'rounded-lg bg-[var(--st-text)] p-3',
+        'font-mono text-[11.5px] leading-[1.55] text-[var(--st-text-secondary)]',
         'overflow-auto whitespace-pre-wrap break-words',
       )}
     >
@@ -183,7 +183,7 @@ function LogsTab({ logs }: { logs: SandboxResult['logs'] }) {
             'flex items-start gap-2 rounded-md px-2 py-1.5',
             'font-mono text-[11.5px] leading-relaxed',
             entry.level === 'error'
-              ? 'bg-zoru-ink/5 text-zoru-ink dark:text-zoru-ink-muted'
+              ? 'bg-[var(--st-text)]/5 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]'
               : 'bg-[var(--gray-1)] text-[var(--gray-12)]',
           )}
         >
@@ -234,7 +234,7 @@ function VariablesTab({
             <div className="flex items-center gap-2 mb-1">
               <span className="font-mono text-[var(--gray-11)]">{k}</span>
               {changed && (
-                <span className="text-[9.5px] font-semibold text-zoru-ink uppercase tracking-widest">
+                <span className="text-[9.5px] font-semibold text-[var(--st-text)] uppercase tracking-widest">
                   changed
                 </span>
               )}
@@ -248,7 +248,7 @@ function VariablesTab({
               <code
                 className={cn(
                   'font-mono whitespace-pre-wrap break-words',
-                  changed ? 'text-zoru-ink' : 'text-[var(--gray-10)]',
+                  changed ? 'text-[var(--st-text)]' : 'text-[var(--gray-10)]',
                 )}
               >
                 {a}
@@ -273,8 +273,8 @@ function ErrorTab({ message }: { message?: string }) {
   return (
     <pre
       className={cn(
-        'rounded-lg bg-zoru-ink/5 border border-zoru-line/20 p-3',
-        'font-mono text-[11px] leading-relaxed text-zoru-ink dark:text-zoru-ink-muted',
+        'rounded-lg bg-[var(--st-text)]/5 border border-[var(--st-border)]/20 p-3',
+        'font-mono text-[11px] leading-relaxed text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',
         'overflow-auto whitespace-pre-wrap break-words',
       )}
     >

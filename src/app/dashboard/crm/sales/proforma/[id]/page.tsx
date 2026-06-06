@@ -58,19 +58,19 @@ function StatusStep({ status, current }: StatusStepProps) {
     <li
       className={`flex items-center gap-2 rounded px-2 py-1 text-[12.5px] ${
         isCurrent
-          ? 'bg-zoru-surface-2 font-medium text-zoru-ink'
-          : 'text-zoru-ink-muted'
+          ? 'bg-[var(--st-bg-muted)] font-medium text-[var(--st-text)]'
+          : 'text-[var(--st-text-secondary)]'
       }`}
     >
       <span
         className={`inline-block h-2 w-2 rounded-full ${
-          isCurrent ? 'bg-zoru-primary' : 'bg-zoru-line'
+          isCurrent ? 'bg-[var(--st-text)]' : 'bg-[var(--st-border)]'
         }`}
         aria-hidden
       />
       {status}
       {isCurrent ? (
-        <span className="ml-auto text-[10.5px] uppercase text-zoru-primary">
+        <span className="ml-auto text-[10.5px] uppercase text-[var(--st-text)]">
           current
         </span>
       ) : null}
@@ -87,10 +87,10 @@ function DetailField({
 }) {
   return (
     <div>
-      <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
         {label}
       </div>
-      <div className="mt-1 text-[13px] text-zoru-ink">{children}</div>
+      <div className="mt-1 text-[13px] text-[var(--st-text)]">{children}</div>
     </div>
   );
 }
@@ -280,21 +280,21 @@ export default async function ProformaDetailPage({
             <ZoruCardContent>
               <div className="space-y-1.5 text-[12.5px]">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-zoru-ink-muted">Total</span>
+                  <span className="text-[var(--st-text-secondary)]">Total</span>
                   <span className="font-mono tabular-nums">
                     {fmtMoney(proforma.total, currency)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-zoru-ink-muted">Valid until</span>
+                  <span className="text-[var(--st-text-secondary)]">Valid until</span>
                   <span>{fmtDate(proforma.validTillDate)}</span>
                 </div>
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-zoru-ink-muted">Created</span>
+                  <span className="text-[var(--st-text-secondary)]">Created</span>
                   <span>{fmtDate(proforma.createdAt)}</span>
                 </div>
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-zoru-ink-muted">Updated</span>
+                  <span className="text-[var(--st-text-secondary)]">Updated</span>
                   <span>{fmtDate(proforma.updatedAt)}</span>
                 </div>
               </div>
@@ -316,7 +316,7 @@ export default async function ProformaDetailPage({
         <CrmLineageChart nodes={lineageNodes} />
       </div>
 
-      <p className="text-[12.5px] text-zoru-ink-muted mb-4">
+      <p className="text-[12.5px] text-[var(--st-text-secondary)] mb-4">
         {fmtMoney(proforma.total, currency)} · {status}
       </p>
 
@@ -373,11 +373,11 @@ export default async function ProformaDetailPage({
         </ZoruCardHeader>
         <ZoruCardContent>
           {lineItems.length === 0 ? (
-            <p className="text-[13px] text-zoru-ink-muted">No line items.</p>
+            <p className="text-[13px] text-[var(--st-text-secondary)]">No line items.</p>
           ) : (
-            <div className="overflow-x-auto rounded border border-zoru-line">
+            <div className="overflow-x-auto rounded border border-[var(--st-border)]">
               <table className="w-full text-[12.5px]">
-                <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
+                <thead className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                   <tr>
                     <th className="p-2 text-left">Item</th>
                     <th className="p-2 text-left">HSN/SAC</th>
@@ -392,31 +392,31 @@ export default async function ProformaDetailPage({
                   {lineItems.map((li, idx) => (
                     <tr
                       key={idx}
-                      className="border-t border-zoru-line last:border-b last:border-zoru-line"
+                      className="border-t border-[var(--st-border)] last:border-b last:border-[var(--st-border)]"
                     >
-                      <td className="p-2 font-medium text-zoru-ink">
+                      <td className="p-2 font-medium text-[var(--st-text)]">
                         {li.description || '—'}
                       </td>
-                      <td className="p-2 font-mono text-[11px] text-zoru-ink-muted">
+                      <td className="p-2 font-mono text-[11px] text-[var(--st-text-secondary)]">
                         {(li as any).hsnSac || '—'}
                       </td>
-                      <td className="p-2 text-right font-mono tabular-nums text-zoru-ink">
+                      <td className="p-2 text-right font-mono tabular-nums text-[var(--st-text)]">
                         {li.quantity}
                       </td>
-                      <td className="p-2 text-right font-mono tabular-nums text-zoru-ink">
+                      <td className="p-2 text-right font-mono tabular-nums text-[var(--st-text)]">
                         {fmtMoney(li.rate, currency)}
                       </td>
-                      <td className="p-2 text-right font-mono tabular-nums text-zoru-ink-muted">
+                      <td className="p-2 text-right font-mono tabular-nums text-[var(--st-text-secondary)]">
                         {typeof (li as any).discountPct === 'number'
                           ? `${(li as any).discountPct}%`
                           : '—'}
                       </td>
-                      <td className="p-2 text-right font-mono tabular-nums text-zoru-ink-muted">
+                      <td className="p-2 text-right font-mono tabular-nums text-[var(--st-text-secondary)]">
                         {typeof li.taxPct === 'number'
                           ? `${li.taxPct}%`
                           : '—'}
                       </td>
-                      <td className="p-2 text-right font-mono tabular-nums text-zoru-ink">
+                      <td className="p-2 text-right font-mono tabular-nums text-[var(--st-text)]">
                         {fmtMoney((li as any).amount || (li.quantity * li.rate), currency)}
                       </td>
                     </tr>
@@ -436,86 +436,86 @@ export default async function ProformaDetailPage({
         <ZoruCardContent>
           <dl className="grid gap-2 md:grid-cols-2 text-[13px]">
             <div className="flex justify-between md:col-start-2">
-              <span className="text-zoru-ink-muted">Subtotal</span>
-              <span className="font-mono tabular-nums text-zoru-ink">
+              <span className="text-[var(--st-text-secondary)]">Subtotal</span>
+              <span className="font-mono tabular-nums text-[var(--st-text)]">
                 {fmtMoney(proforma.subtotal, currency)}
               </span>
             </div>
             {typeof (proforma as any).discountOverall === 'number' && (proforma as any).discountOverall > 0 ? (
               <div className="flex justify-between md:col-start-2">
-                <span className="text-zoru-ink-muted">Discount</span>
-                <span className="font-mono tabular-nums text-zoru-ink">
+                <span className="text-[var(--st-text-secondary)]">Discount</span>
+                <span className="font-mono tabular-nums text-[var(--st-text)]">
                   −{fmtMoney((proforma as any).discountOverall, currency)}
                 </span>
               </div>
             ) : null}
             {typeof (proforma as any).taxCgst === 'number' && (proforma as any).taxCgst > 0 ? (
               <div className="flex justify-between md:col-start-2">
-                <span className="text-zoru-ink-muted">CGST</span>
-                <span className="font-mono tabular-nums text-zoru-ink">
+                <span className="text-[var(--st-text-secondary)]">CGST</span>
+                <span className="font-mono tabular-nums text-[var(--st-text)]">
                   {fmtMoney((proforma as any).taxCgst, currency)}
                 </span>
               </div>
             ) : null}
             {typeof (proforma as any).taxSgst === 'number' && (proforma as any).taxSgst > 0 ? (
               <div className="flex justify-between md:col-start-2">
-                <span className="text-zoru-ink-muted">SGST</span>
-                <span className="font-mono tabular-nums text-zoru-ink">
+                <span className="text-[var(--st-text-secondary)]">SGST</span>
+                <span className="font-mono tabular-nums text-[var(--st-text)]">
                   {fmtMoney((proforma as any).taxSgst, currency)}
                 </span>
               </div>
             ) : null}
             {typeof (proforma as any).taxIgst === 'number' && (proforma as any).taxIgst > 0 ? (
               <div className="flex justify-between md:col-start-2">
-                <span className="text-zoru-ink-muted">IGST</span>
-                <span className="font-mono tabular-nums text-zoru-ink">
+                <span className="text-[var(--st-text-secondary)]">IGST</span>
+                <span className="font-mono tabular-nums text-[var(--st-text)]">
                   {fmtMoney((proforma as any).taxIgst, currency)}
                 </span>
               </div>
             ) : null}
             {typeof (proforma as any).shippingCharge === 'number' && (proforma as any).shippingCharge > 0 ? (
               <div className="flex justify-between md:col-start-2">
-                <span className="text-zoru-ink-muted">Shipping</span>
-                <span className="font-mono tabular-nums text-zoru-ink">
+                <span className="text-[var(--st-text-secondary)]">Shipping</span>
+                <span className="font-mono tabular-nums text-[var(--st-text)]">
                   {fmtMoney((proforma as any).shippingCharge, currency)}
                 </span>
               </div>
             ) : null}
             {typeof (proforma as any).adjustment === 'number' && (proforma as any).adjustment !== 0 ? (
               <div className="flex justify-between md:col-start-2">
-                <span className="text-zoru-ink-muted">Adjustment</span>
-                <span className="font-mono tabular-nums text-zoru-ink">
+                <span className="text-[var(--st-text-secondary)]">Adjustment</span>
+                <span className="font-mono tabular-nums text-[var(--st-text)]">
                   {fmtMoney((proforma as any).adjustment, currency)}
                 </span>
               </div>
             ) : null}
             {typeof (proforma as any).roundOff === 'number' && (proforma as any).roundOff !== 0 ? (
               <div className="flex justify-between md:col-start-2">
-                <span className="text-zoru-ink-muted">Round-off</span>
-                <span className="font-mono tabular-nums text-zoru-ink">
+                <span className="text-[var(--st-text-secondary)]">Round-off</span>
+                <span className="font-mono tabular-nums text-[var(--st-text)]">
                   {fmtMoney((proforma as any).roundOff, currency)}
                 </span>
               </div>
             ) : null}
             {typeof (proforma as any).tdsPct === 'number' && (proforma as any).tdsPct > 0 ? (
               <div className="flex justify-between md:col-start-2">
-                <span className="text-zoru-ink-muted">TDS withheld ({(proforma as any).tdsPct}%)</span>
-                <span className="font-mono tabular-nums text-zoru-danger">
+                <span className="text-[var(--st-text-secondary)]">TDS withheld ({(proforma as any).tdsPct}%)</span>
+                <span className="font-mono tabular-nums text-[var(--st-danger)]">
                   −{fmtMoney(((proforma as any).subtotal * (proforma as any).tdsPct) / 100, currency)}
                 </span>
               </div>
             ) : null}
             {typeof (proforma as any).tcsPct === 'number' && (proforma as any).tcsPct > 0 ? (
               <div className="flex justify-between md:col-start-2">
-                <span className="text-zoru-ink-muted">TCS collected ({(proforma as any).tcsPct}%)</span>
-                <span className="font-mono tabular-nums text-zoru-ink">
+                <span className="text-[var(--st-text-secondary)]">TCS collected ({(proforma as any).tcsPct}%)</span>
+                <span className="font-mono tabular-nums text-[var(--st-text)]">
                   +{fmtMoney(((proforma as any).subtotal * (proforma as any).tcsPct) / 100, currency)}
                 </span>
               </div>
             ) : null}
-            <div className="flex justify-between border-t border-zoru-line pt-2 md:col-start-2">
-              <span className="font-medium text-zoru-ink">Total</span>
-              <span className="font-medium font-mono tabular-nums text-zoru-ink">
+            <div className="flex justify-between border-t border-[var(--st-border)] pt-2 md:col-start-2">
+              <span className="font-medium text-[var(--st-text)]">Total</span>
+              <span className="font-medium font-mono tabular-nums text-[var(--st-text)]">
                 {fmtMoney(proforma.total, currency)}
               </span>
             </div>
@@ -530,7 +530,7 @@ export default async function ProformaDetailPage({
             <ZoruCardTitle>Terms &amp; conditions</ZoruCardTitle>
           </ZoruCardHeader>
           <ZoruCardContent>
-            <ol className="list-decimal pl-5 space-y-1 text-[13px] text-zoru-ink">
+            <ol className="list-decimal pl-5 space-y-1 text-[13px] text-[var(--st-text)]">
               {proforma.termsAndConditions.map((t, idx) => (
                 <li key={idx}>{t}</li>
               ))}
@@ -545,11 +545,11 @@ export default async function ProformaDetailPage({
         </ZoruCardHeader>
         <ZoruCardContent>
           {proforma.notes ? (
-            <p className="whitespace-pre-wrap text-[13px] text-zoru-ink">
+            <p className="whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
               {proforma.notes}
             </p>
           ) : (
-            <p className="text-[13px] text-zoru-ink-muted">
+            <p className="text-[13px] text-[var(--st-text-secondary)]">
               No notes yet — add them via the Edit form.
             </p>
           )}

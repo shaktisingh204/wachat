@@ -13,7 +13,7 @@ export default function EditGrnLoading() {
                 </div>
             </div>
 
-            <div className="rounded-lg border border-zoru-line p-6">
+            <div className="rounded-lg border border-[var(--st-border)] p-6">
                 <div className="grid gap-6">
                     <div className="grid gap-4 md:grid-cols-2">
                         {Array.from({ length: 6 }).map((_, i) => (

@@ -216,7 +216,7 @@ export function RecurringExpensesListClient({
       header: 'Vendor',
       sortable: true,
       render: (row) => (
-        <span className="text-zoru-ink-muted">{row.vendor || '—'}</span>
+        <span className="text-[var(--st-text-secondary)]">{row.vendor || '—'}</span>
       ),
     },
     {
@@ -224,7 +224,7 @@ export function RecurringExpensesListClient({
       header: 'Frequency',
       sortable: true,
       render: (row) => (
-        <span className="text-zoru-ink-muted">
+        <span className="text-[var(--st-text-secondary)]">
           Every {row.frequency_count} {row.frequency}
         </span>
       ),
@@ -234,7 +234,7 @@ export function RecurringExpensesListClient({
       header: 'Amount',
       sortable: true,
       render: (row) => (
-        <span className="font-mono tabular-nums text-zoru-ink text-right block w-full">
+        <span className="font-mono tabular-nums text-[var(--st-text)] text-right block w-full">
           {fmtMoney(row.amount, row.currency)}
         </span>
       ),
@@ -244,7 +244,7 @@ export function RecurringExpensesListClient({
       header: 'Next run',
       sortable: true,
       render: (row) => (
-        <span className="text-zoru-ink-muted">{fmtDate(row.next_run_date)}</span>
+        <span className="text-[var(--st-text-secondary)]">{fmtDate(row.next_run_date)}</span>
       ),
     },
     {
@@ -252,7 +252,7 @@ export function RecurringExpensesListClient({
       header: 'End date',
       sortable: true,
       render: (row) => (
-        <span className="text-zoru-ink-muted">{fmtDate(row.until_date)}</span>
+        <span className="text-[var(--st-text-secondary)]">{fmtDate(row.until_date)}</span>
       ),
     },
     {
@@ -260,7 +260,7 @@ export function RecurringExpensesListClient({
       header: 'Last run',
       sortable: true,
       render: (row) => (
-        <span className="text-zoru-ink-muted">{fmtDate(row.last_run_date)}</span>
+        <span className="text-[var(--st-text-secondary)]">{fmtDate(row.last_run_date)}</span>
       ),
     },
     {
@@ -275,7 +275,7 @@ export function RecurringExpensesListClient({
       ),
       editRender: (row, value, onChange) => (
         <select
-          className="bg-zoru-surface-2 border border-zoru-line rounded px-1.5 py-0.5 text-xs text-zoru-ink focus:outline-none"
+          className="bg-[var(--st-bg-muted)] border border-[var(--st-border)] rounded px-1.5 py-0.5 text-xs text-[var(--st-text)] focus:outline-none"
           value={value || 'active'}
           onChange={(e) => onChange(e.target.value)}
         >
@@ -422,11 +422,11 @@ export function RecurringExpensesListClient({
     <div className="flex w-full flex-col gap-5">
       <RecurringExpensesKpiStrip kpi={kpi} currency={defaultCurrency} />
 
-      <Card className="overflow-hidden p-0 border border-zoru-line">
+      <Card className="overflow-hidden p-0 border border-[var(--st-border)]">
         {/* Toolbar */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zoru-line p-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--st-border)] p-3">
           <div className="relative w-full max-w-sm">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -450,8 +450,8 @@ export function RecurringExpensesListClient({
         </div>
 
         {/* Filters */}
-        <details className="border-b border-zoru-line bg-zoru-surface-2/40" open>
-          <summary className="cursor-pointer list-none px-3 py-2 text-[12px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+        <details className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]/40" open>
+          <summary className="cursor-pointer list-none px-3 py-2 text-[12px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
             Filters
           </summary>
           <div className="grid gap-3 px-3 pb-3 md:grid-cols-2 lg:grid-cols-4">
@@ -494,9 +494,9 @@ export function RecurringExpensesListClient({
 
         {/* Bulk bar */}
         {bulky.selected.size > 0 ? (
-          <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 border-b border-zoru-line bg-zoru-surface px-3 py-2 shadow-sm">
-            <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink">
-              <ListChecks className="h-4 w-4 text-zoru-primary" />
+          <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 shadow-sm">
+            <div className="flex items-center gap-2 text-[12.5px] text-[var(--st-text)]">
+              <ListChecks className="h-4 w-4 text-[var(--st-text)]" />
               {bulky.selected.size} selected
             </div>
             <div className="flex flex-wrap items-center gap-1">
@@ -563,7 +563,7 @@ export function RecurringExpensesListClient({
           isLoading={pending}
         />
 
-        <div className="border-t border-zoru-line p-3">
+        <div className="border-t border-[var(--st-border)] p-3">
           <PaginationBar page={page} limit={limit} hasMore={hasMore} />
         </div>
       </Card>

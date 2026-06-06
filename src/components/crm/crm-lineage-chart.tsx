@@ -23,27 +23,27 @@ export function CrmLineageChart({ nodes, onNodeClick }: CrmLineageChartProps) {
   // Variant configurations
   const nodeStyles = {
     completed: {
-      card: 'border-zoru-success bg-zoru-success/5 hover:bg-zoru-success/10',
+      card: 'border-[var(--st-status-ok)] bg-[var(--st-status-ok)]/5 hover:bg-[var(--st-status-ok)]/10',
       badge: 'success',
-      iconBg: 'bg-zoru-success text-white',
+      iconBg: 'bg-[var(--st-status-ok)] text-white',
     },
     active: {
-      card: 'border-primary bg-zoru-ink/5 hover:bg-zoru-ink/10 shadow-[0_0_12px_rgba(var(--primary-rgb),0.15)] ring-1 ring-primary/40',
+      card: 'border-primary bg-[var(--st-text)]/5 hover:bg-[var(--st-text)]/10 shadow-[0_0_12px_rgba(var(--primary-rgb),0.15)] ring-1 ring-primary/40',
       badge: 'info',
-      iconBg: 'bg-zoru-ink text-white animate-pulse',
+      iconBg: 'bg-[var(--st-text)] text-white animate-pulse',
     },
     pending: {
-      card: 'border-zoru-line bg-zoru-surface-2/20 hover:bg-zoru-surface-2/40 opacity-70',
+      card: 'border-[var(--st-border)] bg-[var(--st-bg-muted)]/20 hover:bg-[var(--st-bg-muted)]/40 opacity-70',
       badge: 'ghost',
-      iconBg: 'bg-zoru-surface text-zoru-ink-subtle',
+      iconBg: 'bg-[var(--st-bg-secondary)] text-[var(--st-text-tertiary)]',
     },
   };
 
   return (
     <ZoruTooltipProvider>
-      <Card className="p-5 border border-zoru-line bg-zoru-surface">
-        <h4 className="text-[12px] font-semibold uppercase tracking-wider text-zoru-ink-muted mb-4 flex items-center gap-2">
-          <ArrowRightCircle className="h-4 w-4 text-zoru-ink" /> Document Conversion Lineage Track
+      <Card className="p-5 border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+        <h4 className="text-[12px] font-semibold uppercase tracking-wider text-[var(--st-text-secondary)] mb-4 flex items-center gap-2">
+          <ArrowRightCircle className="h-4 w-4 text-[var(--st-text)]" /> Document Conversion Lineage Track
         </h4>
 
         {/* Scrollable node track */}
@@ -77,16 +77,16 @@ export function CrmLineageChart({ nodes, onNodeClick }: CrmLineageChartProps) {
 
                       {/* Content block */}
                       <div className="mt-1">
-                        <div className="text-[13px] font-semibold text-zoru-ink truncate">
+                        <div className="text-[13px] font-semibold text-[var(--st-text)] truncate">
                           {node.docNumber ?? 'N/A'}
                         </div>
                         {node.valueString && (
-                          <div className="text-[11px] font-medium text-zoru-ink-muted mt-0.5">
+                          <div className="text-[11px] font-medium text-[var(--st-text-secondary)] mt-0.5">
                             {node.valueString}
                           </div>
                         )}
                         {node.dateString && (
-                          <div className="text-[10px] text-zoru-ink-subtle mt-1 font-mono">
+                          <div className="text-[10px] text-[var(--st-text-tertiary)] mt-1 font-mono">
                             {node.dateString}
                           </div>
                         )}
@@ -95,23 +95,23 @@ export function CrmLineageChart({ nodes, onNodeClick }: CrmLineageChartProps) {
                   </ZoruTooltipTrigger>
                   
                   {/* Detailed tooltip */}
-                  <ZoruTooltipContent className="bg-zoru-surface border border-zoru-line text-zoru-ink p-3 rounded-lg shadow-lg w-[220px]">
+                  <ZoruTooltipContent className="bg-[var(--st-bg-secondary)] border border-[var(--st-border)] text-[var(--st-text)] p-3 rounded-lg shadow-lg w-[220px]">
                     <div className="space-y-1.5">
-                      <div className="text-[11px] uppercase tracking-wider text-zoru-ink-muted font-bold">
+                      <div className="text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)] font-bold">
                         {node.type} Record Details
                       </div>
-                      <div className="text-[13px] font-semibold text-zoru-ink">
+                      <div className="text-[13px] font-semibold text-[var(--st-text)]">
                         Num: {node.docNumber ?? 'Awaiting conversion'}
                       </div>
                       {node.valueString && (
-                        <div className="text-[12px] text-zoru-ink-muted">
+                        <div className="text-[12px] text-[var(--st-text-secondary)]">
                           Amount: {node.valueString}
                         </div>
                       )}
-                      <div className="text-[11px] text-zoru-ink-subtle flex items-center gap-1.5">
+                      <div className="text-[11px] text-[var(--st-text-tertiary)] flex items-center gap-1.5">
                         Status: <Badge variant={style.badge as any} className="text-[9px] px-1 py-0">{node.status}</Badge>
                       </div>
-                      <div className="text-[10px] text-zoru-ink-muted pt-1.5 border-t border-zoru-line">
+                      <div className="text-[10px] text-[var(--st-text-secondary)] pt-1.5 border-t border-[var(--st-border)]">
                         Click node card to preview record.
                       </div>
                     </div>
@@ -122,7 +122,7 @@ export function CrmLineageChart({ nodes, onNodeClick }: CrmLineageChartProps) {
                 {!isLast && (
                   <div className="flex items-center shrink-0 mx-1">
                     <ArrowRight className={`h-4.5 w-4.5 ${
-                      node.status === 'completed' ? 'text-zoru-success opacity-80' : 'text-zoru-line'
+                      node.status === 'completed' ? 'text-[var(--st-status-ok)] opacity-80' : 'text-[var(--st-border)]'
                     }`} />
                   </div>
                 )}

@@ -94,20 +94,20 @@ export default async function ProductionOrderDetailPage({ params }: PageProps) {
             <ZoruCardContent className="text-[13px]">
               {order.bomRef || order.bomId ? (
                 <>
-                  <div className="font-mono text-zoru-ink">
+                  <div className="font-mono text-[var(--st-text)]">
                     {order.bomRef || order.bomId}
                   </div>
                   {order.bomId ? (
                     <Link
                       href={`/dashboard/crm/inventory/bom/${order.bomId}`}
-                      className="mt-1 inline-block text-[12px] text-zoru-primary hover:underline"
+                      className="mt-1 inline-block text-[12px] text-[var(--st-text)] hover:underline"
                     >
                       Open BOM →
                     </Link>
                   ) : null}
                 </>
               ) : (
-                <span className="text-zoru-ink-muted">No BOM linked.</span>
+                <span className="text-[var(--st-text-secondary)]">No BOM linked.</span>
               )}
             </ZoruCardContent>
           </Card>
@@ -118,16 +118,16 @@ export default async function ProductionOrderDetailPage({ params }: PageProps) {
             </ZoruCardHeader>
             <ZoruCardContent>
               <dl className="grid grid-cols-2 gap-x-3 gap-y-2 text-[12.5px]">
-                <dt className="text-zoru-ink-muted">Material</dt>
-                <dd className="text-right font-mono text-zoru-ink">
+                <dt className="text-[var(--st-text-secondary)]">Material</dt>
+                <dd className="text-right font-mono text-[var(--st-text)]">
                   {fmtINR(materialCost)}
                 </dd>
-                <dt className="text-zoru-ink-muted">Labour</dt>
-                <dd className="text-right font-mono text-zoru-ink">{fmtINR(labour)}</dd>
-                <dt className="text-zoru-ink-muted">Overhead</dt>
-                <dd className="text-right font-mono text-zoru-ink">{fmtINR(overhead)}</dd>
-                <dt className="border-t border-zoru-line pt-1 text-zoru-ink">Total</dt>
-                <dd className="border-t border-zoru-line pt-1 text-right font-mono font-semibold text-zoru-ink">
+                <dt className="text-[var(--st-text-secondary)]">Labour</dt>
+                <dd className="text-right font-mono text-[var(--st-text)]">{fmtINR(labour)}</dd>
+                <dt className="text-[var(--st-text-secondary)]">Overhead</dt>
+                <dd className="text-right font-mono text-[var(--st-text)]">{fmtINR(overhead)}</dd>
+                <dt className="border-t border-[var(--st-border)] pt-1 text-[var(--st-text)]">Total</dt>
+                <dd className="border-t border-[var(--st-border)] pt-1 text-right font-mono font-semibold text-[var(--st-text)]">
                   {fmtINR(total)}
                 </dd>
               </dl>
@@ -136,7 +136,7 @@ export default async function ProductionOrderDetailPage({ params }: PageProps) {
         </div>
       }
       audit={
-        <Suspense fallback={<div className="h-24 animate-pulse rounded-lg bg-zoru-surface-2 dark:bg-zoru-ink" />}>
+        <Suspense fallback={<div className="h-24 animate-pulse rounded-lg bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]" />}>
           <EntityAuditTimeline entityKind="production_order" entityId={orderId} />
         </Suspense>
       }
@@ -148,67 +148,67 @@ export default async function ProductionOrderDetailPage({ params }: PageProps) {
         <ZoruCardContent>
           <dl className="grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
             <div>
-              <dt className="text-xs text-zoru-ink">PO #</dt>
-              <dd className="font-mono text-zoru-ink dark:text-white">
+              <dt className="text-xs text-[var(--st-text)]">PO #</dt>
+              <dd className="font-mono text-[var(--st-text)] dark:text-white">
                 {order.orderNo || '—'}
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-zoru-ink">BOM reference</dt>
-              <dd className="text-zoru-ink dark:text-white">
+              <dt className="text-xs text-[var(--st-text)]">BOM reference</dt>
+              <dd className="text-[var(--st-text)] dark:text-white">
                 {order.bomRef || order.bomId || '—'}
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-zoru-ink">Finished good</dt>
-              <dd className="text-zoru-ink dark:text-white">
+              <dt className="text-xs text-[var(--st-text)]">Finished good</dt>
+              <dd className="text-[var(--st-text)] dark:text-white">
                 {order.finishedGoodName || '—'}
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-zoru-ink">Planned qty</dt>
-              <dd className="text-zoru-ink dark:text-white">
+              <dt className="text-xs text-[var(--st-text)]">Planned qty</dt>
+              <dd className="text-[var(--st-text)] dark:text-white">
                 {planned} {order.unit ?? ''}
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-zoru-ink">Actual yield</dt>
-              <dd className="text-zoru-ink dark:text-white">
+              <dt className="text-xs text-[var(--st-text)]">Actual yield</dt>
+              <dd className="text-[var(--st-text)] dark:text-white">
                 {actual} {order.unit ?? ''}
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-zoru-ink">Scrap</dt>
-              <dd className="text-zoru-ink dark:text-white">{scrap}</dd>
+              <dt className="text-xs text-[var(--st-text)]">Scrap</dt>
+              <dd className="text-[var(--st-text)] dark:text-white">{scrap}</dd>
             </div>
             <div>
-              <dt className="text-xs text-zoru-ink">Machine / line</dt>
-              <dd className="text-zoru-ink dark:text-white">
+              <dt className="text-xs text-[var(--st-text)]">Machine / line</dt>
+              <dd className="text-[var(--st-text)] dark:text-white">
                 {order.machineId || '—'}
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-zoru-ink">Operator</dt>
-              <dd className="text-zoru-ink dark:text-white">
+              <dt className="text-xs text-[var(--st-text)]">Operator</dt>
+              <dd className="text-[var(--st-text)] dark:text-white">
                 {order.machineOperator || '—'}
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-zoru-ink">Planned start</dt>
-              <dd className="text-zoru-ink dark:text-white">
+              <dt className="text-xs text-[var(--st-text)]">Planned start</dt>
+              <dd className="text-[var(--st-text)] dark:text-white">
                 {fmtDate(order.plannedStart)}
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-zoru-ink">Planned end</dt>
-              <dd className="text-zoru-ink dark:text-white">
+              <dt className="text-xs text-[var(--st-text)]">Planned end</dt>
+              <dd className="text-[var(--st-text)] dark:text-white">
                 {fmtDate(order.plannedEnd)}
               </dd>
             </div>
             {order.notes ? (
               <div className="sm:col-span-2">
-                <dt className="text-xs text-zoru-ink">Notes</dt>
-                <dd className="whitespace-pre-wrap text-zoru-ink dark:text-white">
+                <dt className="text-xs text-[var(--st-text)]">Notes</dt>
+                <dd className="whitespace-pre-wrap text-[var(--st-text)] dark:text-white">
                   {order.notes}
                 </dd>
               </div>
@@ -224,8 +224,8 @@ export default async function ProductionOrderDetailPage({ params }: PageProps) {
         <ZoruCardContent className="flex flex-col gap-4">
           <div>
             <div className="mb-1 flex items-center justify-between text-[12.5px]">
-              <span className="text-zoru-ink-muted">Yield</span>
-              <span className="font-mono text-zoru-ink">
+              <span className="text-[var(--st-text-secondary)]">Yield</span>
+              <span className="font-mono text-[var(--st-text)]">
                 {actual} / {planned} ({yieldPct}%)
               </span>
             </div>
@@ -233,8 +233,8 @@ export default async function ProductionOrderDetailPage({ params }: PageProps) {
           </div>
           <div>
             <div className="mb-1 flex items-center justify-between text-[12.5px]">
-              <span className="text-zoru-ink-muted">Scrap</span>
-              <span className="font-mono text-zoru-ink">
+              <span className="text-[var(--st-text-secondary)]">Scrap</span>
+              <span className="font-mono text-[var(--st-text)]">
                 {scrap} ({scrapPct}%)
               </span>
             </div>
@@ -249,12 +249,12 @@ export default async function ProductionOrderDetailPage({ params }: PageProps) {
         </ZoruCardHeader>
         <ZoruCardContent>
           {components.length === 0 ? (
-            <p className="text-sm text-zoru-ink">
+            <p className="text-sm text-[var(--st-text)]">
               No component snapshot for this order — pick a BOM during creation to
               populate planned consumption.
             </p>
           ) : (
-            <div className="overflow-x-auto rounded border border-zoru-line dark:border-zoru-line">
+            <div className="overflow-x-auto rounded border border-[var(--st-border)] dark:border-[var(--st-border)]">
               <Table>
                 <TableHeader>
                   <TableRow>

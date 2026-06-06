@@ -182,35 +182,35 @@ export default function ActivityLogPage() {
                                 setUntil('');
                                 setPage(1);
                             }}
-                            className="text-[12px] text-zoru-ink underline-offset-2 hover:underline"
+                            className="text-[12px] text-[var(--st-text)] underline-offset-2 hover:underline"
                         >
                             Reset
                         </button>
                     )}
                 </div>
-                <div className="text-[12px] text-zoru-ink-muted">
+                <div className="text-[12px] text-[var(--st-text-secondary)]">
                     {total.toLocaleString()} event{total === 1 ? '' : 's'}
                 </div>
             </Card>
 
             <Card className="overflow-hidden p-0">
                 {loading ? (
-                    <div className="flex items-center justify-center gap-2 p-10 text-zoru-ink-muted">
+                    <div className="flex items-center justify-center gap-2 p-10 text-[var(--st-text-secondary)]">
                         <Loader className="h-4 w-4 animate-spin" />
                         <span className="text-[13px]">Loading activity…</span>
                     </div>
                 ) : logs.length === 0 ? (
                     <div className="flex flex-col items-center gap-2 p-12 text-center">
-                        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
+                        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                             <Activity className="h-5 w-5" strokeWidth={1.75} />
                         </span>
-                        <div className="text-[15px] text-zoru-ink">No matching activity</div>
-                        <div className="max-w-[360px] text-[12.5px] text-zoru-ink-muted">
+                        <div className="text-[15px] text-[var(--st-text)]">No matching activity</div>
+                        <div className="max-w-[360px] text-[12.5px] text-[var(--st-text-secondary)]">
                             Try broadening the filters — as your team does more, this feed fills up.
                         </div>
                     </div>
                 ) : (
-                    <div className="divide-y divide-zoru-line">
+                    <div className="divide-y divide-[var(--st-border)]">
                         {logs.map((log) => (
                             <ActivityRow key={log._id.toString()} log={log} />
                         ))}
@@ -229,7 +229,7 @@ export default function ActivityLogPage() {
                         <ChevronLeft className="h-3.5 w-3.5" />
                         Previous
                     </Button>
-                    <span className="text-[12px] text-zoru-ink-muted">
+                    <span className="text-[12px] text-[var(--st-text-secondary)]">
                         Page {page} of {totalPages}
                     </span>
                     <Button
@@ -266,10 +266,10 @@ function ActivityRow({ log }: { log: WithId<ActivityLog> }) {
             <div className="flex min-w-0 flex-1 flex-col gap-1">
                 <div className="flex items-center justify-between gap-4">
                     <div className="text-[13px]">
-                        <span className="text-zoru-ink">{log.user?.name || 'Unknown user'}</span>{' '}
-                        <span className="text-zoru-ink-muted">{actionMessage(log.action as string, log.details)}</span>
+                        <span className="text-[var(--st-text)]">{log.user?.name || 'Unknown user'}</span>{' '}
+                        <span className="text-[var(--st-text-secondary)]">{actionMessage(log.action as string, log.details)}</span>
                     </div>
-                    <div className="flex shrink-0 items-center gap-1 text-[11px] text-zoru-ink-muted" title={format(new Date(log.createdAt), 'PPpp')}>
+                    <div className="flex shrink-0 items-center gap-1 text-[11px] text-[var(--st-text-secondary)]" title={format(new Date(log.createdAt), 'PPpp')}>
                         <Clock className="h-3 w-3" />
                         {formatDistanceToNow(new Date(log.createdAt), { addSuffix: true })}
                     </div>

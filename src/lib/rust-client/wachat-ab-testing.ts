@@ -7,10 +7,11 @@
  *
  *   GET    /?projectId=                  → listTests
  *   POST   /                             → createTest (create + persist scaffold)
- *   GET    /{id}                         → getTest (detail + per-variant results)
- *   DELETE /{id}                         → deleteTest
- *   POST   /{id}/stop                    → stopTest
- *   POST   /{id}/promote-winner          → promoteWinner
+ *   GET    /{id}                              → getTest (detail + per-variant results)
+ *   DELETE /{id}                              → deleteTest
+ *   POST   /{id}/stop                         → stopTest
+ *   POST   /{id}/promote-winner               → promoteWinner
+ *   POST   /{id}/variants/{variant}/broadcast → attachBroadcast (variant=A|B)
  *
  * The crate ONLY persists the config + a zeroed results scaffold — the
  * actual split broadcast is fired Next-side via
@@ -62,6 +63,20 @@ export interface PromoteWinnerBody {
     winnerVariant: 'A' | 'B';
 }
 
+/**
+ * Body for `POST /v1/wachat/ab-tests/{id}/variants/{variant}/broadcast` —
+ * associate the launched broadcast with a variant. Once set, that variant's
+ * `sent/delivered/read/failed` metrics are computed live from the
+ * broadcast's `broadcast_contacts` rows.
+ */
+export interface AttachBroadcastBody {
+    /** Hex `ObjectId` of the launched broadcast (a `broadcasts._id`). */
+    broadcastId: string;
+}
+
+/** A/B test variant discriminator. */
+export type AbVariant = 'A' | 'B';
+
 /** Stored variant sub-doc as it comes back on a test config. */
 export interface AbTestVariant {
     templateId: string | null;
@@ -72,10 +87,25 @@ export interface AbTestVariant {
 export interface VariantResult {
     /** `"A"` or `"B"`. */
     variant: string;
+    /**
+     * The `broadcasts._id` (hex) feeding this variant's metrics, or `null`
+     * when no broadcast has been attached yet (the "not launched yet"
+     * state — counts are all `0`, never fabricated).
+     */
+    broadcastId: string | null;
+    /** Rows that reached SENT, DELIVERED or READ (handed to Meta). */
     sent: number;
+    /** Rows that reached DELIVERED or READ. */
+    delivered: number;
+    /** Rows that reached READ (the "opened" signal for templates). */
+    read: number;
+    /** Rows that terminated in FAILED. */
+    failed: number;
+    /** Alias of `read` kept for the existing page contract (opened === read). */
     opened: number;
+    /** Best-effort inbound replies attributed to this broadcast's recipients. */
     replied: number;
-    /** `opened / sent`, in `0.0..=1.0` (0 when `sent === 0`). */
+    /** `read / sent`, in `0.0..=1.0` (0 when `sent === 0`). */
     openRate: number;
     /** `replied / sent`, in `0.0..=1.0` (0 when `sent === 0`). */
     replyRate: number;
@@ -84,6 +114,9 @@ export interface VariantResult {
 /** Light summary embedded on each row of the list response. */
 export interface AbTestSummary {
     totalSent: number;
+    totalDelivered: number;
+    totalRead: number;
+    totalFailed: number;
     totalReplied: number;
     variants: VariantResult[];
 }
@@ -169,6 +202,22 @@ export const wachatAbTestingApi = {
             {
                 method: 'POST',
                 body: JSON.stringify(body),
+            },
+        ),
+
+    /**
+     * `POST /v1/wachat/ab-tests/{id}/variants/{variant}/broadcast` — link the
+     * launched broadcast to variant `A`/`B` so its live metrics light up.
+     * Idempotent on the Rust side (re-attaching overwrites the link).
+     */
+    attachBroadcast: (testId: string, variant: AbVariant, broadcastId: string) =>
+        rustFetch<SuccessResponse>(
+            `${BASE}/${encodeURIComponent(testId)}/variants/${encodeURIComponent(
+                variant,
+            )}/broadcast`,
+            {
+                method: 'POST',
+                body: JSON.stringify({ broadcastId } satisfies AttachBroadcastBody),
             },
         ),
 

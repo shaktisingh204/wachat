@@ -135,7 +135,7 @@ export function PersistentMenuForm({ shop }: PersistentMenuFormProps) {
           {menuItems.map((item, index) => (
             <div
               key={index}
-              className="relative space-y-3 rounded-[var(--zoru-radius-lg)] border border-zoru-line p-4"
+              className="relative space-y-3 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] p-4"
             >
               <Button
                 variant="ghost"
@@ -147,7 +147,7 @@ export function PersistentMenuForm({ shop }: PersistentMenuFormProps) {
               >
                 <Trash2 />
               </Button>
-              <h4 className="text-sm tracking-tight text-zoru-ink">
+              <h4 className="text-sm tracking-tight text-[var(--st-text)]">
                 Menu item {index + 1}
               </h4>
               <div className="space-y-1.5">
@@ -208,7 +208,7 @@ export function PersistentMenuForm({ shop }: PersistentMenuFormProps) {
                     placeholder="e.g., MENU_BROWSE_PRODUCTS"
                     required
                   />
-                  <p className="text-xs text-zoru-ink-muted">
+                  <p className="text-xs text-[var(--st-text-secondary)]">
                     This keyword will trigger the corresponding flow.
                   </p>
                 </div>

@@ -120,13 +120,13 @@ export default async function SabsmsAdminOverviewPage() {
           <ZoruPageTitle>SabSMS</ZoruPageTitle>
           <ZoruPageDescription>
             Rust engine at{' '}
-            <code className="rounded bg-zoru-surface px-1 py-0.5 text-xs">
+            <code className="rounded bg-[var(--st-bg-secondary)] px-1 py-0.5 text-xs">
               {process.env.SABSMS_ENGINE_URL ?? 'http://localhost:4002'}
             </code>{' '}
             ·{' '}
             <Link
               href="/admin/dashboard/sabsms/debug"
-              className="text-zoru-ink underline underline-offset-2"
+              className="text-[var(--st-text)] underline underline-offset-2"
             >
               open send debug
             </Link>
@@ -149,10 +149,10 @@ export default async function SabsmsAdminOverviewPage() {
               <Badge variant="destructive">unreachable</Badge>
             )}
             {health.version && (
-              <span className="text-zoru-ink-muted">version {health.version}</span>
+              <span className="text-[var(--st-text-secondary)]">version {health.version}</span>
             )}
             {health.error && (
-              <span className="text-zoru-ink">{health.error}</span>
+              <span className="text-[var(--st-text)]">{health.error}</span>
             )}
           </ZoruCardContent>
         </Card>

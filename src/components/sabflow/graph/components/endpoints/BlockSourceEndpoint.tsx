@@ -153,10 +153,10 @@ export function BlockSourceEndpoint({
           className={cn(
             'rounded-full border-[3.5px] shadow-sm transition-all duration-150',
             isHighlighted
-              ? 'h-[13px] w-[13px] border-zoru-line scale-125'
+              ? 'h-[13px] w-[13px] border-[var(--st-border)] scale-125'
               : hasOutgoingEdge
                 ? 'h-[10px] w-[10px] border-[var(--gray-8)] scale-100'
-                : 'h-[13px] w-[13px] border-zoru-line scale-100',
+                : 'h-[13px] w-[13px] border-[var(--st-border)] scale-100',
           )}
         />
       </div>

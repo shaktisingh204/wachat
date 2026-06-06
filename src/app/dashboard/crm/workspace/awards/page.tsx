@@ -35,7 +35,7 @@ async function AwardsView() {
 function AwardsSkeleton() {
     return (
         <div className="flex flex-col gap-6">
-            <div className="flex items-center justify-between p-4 border border-zoru-line rounded-[var(--zoru-radius-xl)] bg-zoru-bg">
+            <div className="flex items-center justify-between p-4 border border-[var(--st-border)] rounded-[var(--zoru-radius-xl)] bg-[var(--st-bg)]">
                 <div className="flex flex-col gap-2">
                     <Skeleton className="h-8 w-48" />
                     <Skeleton className="h-4 w-72" />
@@ -62,32 +62,32 @@ export default function AwardsPage() {
     return (
         <div className="flex w-full flex-col gap-6 p-4 md:p-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Card className="flex items-center gap-4 p-4 hover:border-zoru-line transition-colors cursor-pointer" role="button">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink dark:text-zoru-ink-muted">
+                <Card className="flex items-center gap-4 p-4 hover:border-[var(--st-border)] transition-colors cursor-pointer" role="button">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
                         <Trophy className="h-6 w-6" />
                     </div>
                     <div>
-                        <h3 className="font-medium text-zoru-ink">Top Performers</h3>
-                        <p className="text-sm text-zoru-ink-muted">View this month's stars</p>
+                        <h3 className="font-medium text-[var(--st-text)]">Top Performers</h3>
+                        <p className="text-sm text-[var(--st-text-secondary)]">View this month's stars</p>
                     </div>
                 </Card>
-                <Card className="flex items-center gap-4 p-4 hover:border-zoru-line transition-colors cursor-pointer" role="button">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink dark:text-zoru-ink-muted">
+                <Card className="flex items-center gap-4 p-4 hover:border-[var(--st-border)] transition-colors cursor-pointer" role="button">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
                         <Medal className="h-6 w-6" />
                     </div>
                     <div>
-                        <h3 className="font-medium text-zoru-ink">Recent Badges</h3>
-                        <p className="text-sm text-zoru-ink-muted">Latest granted awards</p>
+                        <h3 className="font-medium text-[var(--st-text)]">Recent Badges</h3>
+                        <p className="text-sm text-[var(--st-text-secondary)]">Latest granted awards</p>
                     </div>
                 </Card>
                 <Link href="/dashboard/crm/workspace/awards/appreciations" className="block">
-                    <Card className="flex items-center gap-4 p-4 hover:border-zoru-line transition-colors h-full cursor-pointer">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink dark:text-zoru-ink-muted">
+                    <Card className="flex items-center gap-4 p-4 hover:border-[var(--st-border)] transition-colors h-full cursor-pointer">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
                             <Heart className="h-6 w-6" />
                         </div>
                         <div>
-                            <h3 className="font-medium text-zoru-ink">Give Kudos</h3>
-                            <p className="text-sm text-zoru-ink-muted">Appreciate a colleague</p>
+                            <h3 className="font-medium text-[var(--st-text)]">Give Kudos</h3>
+                            <p className="text-sm text-[var(--st-text-secondary)]">Appreciate a colleague</p>
                         </div>
                     </Card>
                 </Link>

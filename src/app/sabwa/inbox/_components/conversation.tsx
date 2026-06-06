@@ -346,7 +346,7 @@ export function Conversation({
 
   return (
     <section
-      className={cn('flex h-full w-full flex-col bg-zoru-bg', className)}
+      className={cn('flex h-full w-full flex-col bg-[var(--st-bg)]', className)}
       aria-label="Conversation"
     >
       <ConversationHeader
@@ -365,7 +365,7 @@ export function Conversation({
         className="relative flex-1 overflow-y-auto bg-[radial-gradient(circle_at_top,_hsl(var(--zoru-surface))_0%,_transparent_60%)]"
       >
         {loadingMore ? (
-          <div className="flex items-center justify-center py-2 text-xs text-zoru-ink-muted">
+          <div className="flex items-center justify-center py-2 text-xs text-[var(--st-text-secondary)]">
             <Loader2 className="mr-2 h-3 w-3 animate-spin" />
             Loading older messages…
           </div>
@@ -373,7 +373,7 @@ export function Conversation({
 
         {loading && messages.length === 0 ? (
           <div className="flex h-full items-center justify-center">
-            <Loader2 className="h-5 w-5 animate-spin text-zoru-ink-muted" />
+            <Loader2 className="h-5 w-5 animate-spin text-[var(--st-text-secondary)]" />
           </div>
         ) : messages.length === 0 ? (
           <EmptyState
@@ -386,7 +386,7 @@ export function Conversation({
           <div className="flex flex-col gap-1 px-3 py-3 md:px-6">
             {groups.map((group) => (
               <React.Fragment key={group.dayKey}>
-                <div className="sticky top-2 z-10 mx-auto my-2 w-fit rounded-full bg-zoru-bg/90 px-3 py-1 text-[11px] font-medium text-zoru-ink-muted shadow-sm ring-1 ring-zoru-line">
+                <div className="sticky top-2 z-10 mx-auto my-2 w-fit rounded-full bg-[var(--st-bg)]/90 px-3 py-1 text-[11px] font-medium text-[var(--st-text-secondary)] shadow-sm ring-1 ring-[var(--st-border)]">
                   {group.label}
                 </div>
                 {group.messages.map((m, idx) => {

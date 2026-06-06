@@ -220,23 +220,23 @@ export function TemplatePreview({
         </ZoruCardDescription>
       </ZoruCardHeader>
       <ZoruCardContent className="space-y-4">
-        <div className="rounded border border-zoru-line bg-zoru-surface-2 p-3 text-sm whitespace-pre-wrap font-mono leading-relaxed text-zoru-ink min-h-[7rem]">
+        <div className="rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-sm whitespace-pre-wrap font-mono leading-relaxed text-[var(--st-text)] min-h-[7rem]">
           {interpolated || (
-            <span className="text-zoru-ink-muted">Preview will appear here…</span>
+            <span className="text-[var(--st-text-secondary)]">Preview will appear here…</span>
           )}
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 text-xs text-zoru-ink">
+        <div className="flex flex-wrap items-center gap-3 text-xs text-[var(--st-text)]">
           <span>{[...interpolated].length} chars</span>
           <span>·</span>
           <Badge variant="secondary">{seg.encoding}</Badge>
           <span>
             {seg.segments} segment{seg.segments === 1 ? "" : "s"}
           </span>
-          <span className="text-zoru-ink-muted">·</span>
+          <span className="text-[var(--st-text-secondary)]">·</span>
           <span>
             Est.{" "}
-            <span className="font-medium text-zoru-ink">
+            <span className="font-medium text-[var(--st-text)]">
               {cost.toFixed(2)}¢
             </span>{" "}
             per recipient
@@ -247,16 +247,16 @@ export function TemplatePreview({
 
         <div className="space-y-2">
           <div className="flex items-center justify-between text-xs">
-            <span className="font-medium text-zoru-ink">
+            <span className="font-medium text-[var(--st-text)]">
               Spam likelihood
             </span>
             <span
               className={
                 spam >= 70
-                  ? "text-zoru-ink"
+                  ? "text-[var(--st-text)]"
                   : spam >= 40
-                    ? "text-zoru-ink"
-                    : "text-zoru-ink"
+                    ? "text-[var(--st-text)]"
+                    : "text-[var(--st-text)]"
               }
             >
               {spam} / 100
@@ -266,13 +266,13 @@ export function TemplatePreview({
             value={spam}
             indicatorClassName={
               spam >= 70
-                ? "bg-zoru-ink"
+                ? "bg-[var(--st-text)]"
                 : spam >= 40
-                  ? "bg-zoru-ink"
-                  : "bg-zoru-ink"
+                  ? "bg-[var(--st-text)]"
+                  : "bg-[var(--st-text)]"
             }
           />
-          <p className="text-[11px] text-zoru-ink">
+          <p className="text-[11px] text-[var(--st-text)]">
             Heuristic only — counts spammy keywords, ALL-CAPS ratio, and
             emoji density.
           </p>

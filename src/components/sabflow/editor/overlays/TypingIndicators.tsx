@@ -103,7 +103,7 @@ export function TypingIndicators({
     >
       <span
         aria-hidden
-        className="inline-flex h-1.5 w-1.5 animate-pulse rounded-full bg-zoru-ink"
+        className="inline-flex h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--st-text)]"
       />
       <span className="rounded-full bg-[var(--gray-3)] px-2 py-0.5">
         {label}

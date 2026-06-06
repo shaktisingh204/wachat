@@ -236,7 +236,7 @@ export function LoanForm({ initialData }: LoanFormProps) {
                             placeholder={emiPreview > 0 ? emiPreview.toFixed(2) : 'auto'}
                             defaultValue={initialData?.emi ?? ''}
                         />
-                        <p className="text-[11.5px] text-zoru-ink-muted">
+                        <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                             Auto-computed:{' '}
                             <span className="font-mono">{emiPreview.toFixed(2)}</span>.
                             Leave blank to use the computed value.

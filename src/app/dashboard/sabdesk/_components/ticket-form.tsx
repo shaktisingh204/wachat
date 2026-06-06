@@ -170,13 +170,13 @@ export function TicketForm({ initial, customFields }: TicketFormProps) {
 
       {/* ─── Basics ──────────────────────────────────────────────── */}
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Basics
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div className="md:col-span-2">
             <Label htmlFor="subject">
-              Subject <span className="text-zoru-danger-ink">*</span>
+              Subject <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <Input
               id="subject"
@@ -204,7 +204,7 @@ export function TicketForm({ initial, customFields }: TicketFormProps) {
 
           <div>
             <Label>
-              Requester type <span className="text-zoru-danger-ink">*</span>
+              Requester type <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <div className="mt-1.5">
               <EnumFormField
@@ -229,7 +229,7 @@ export function TicketForm({ initial, customFields }: TicketFormProps) {
 
           <div>
             <Label>
-              Requester <span className="text-zoru-danger-ink">*</span>
+              Requester <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <div className="mt-1.5">
               <EntityFormField
@@ -245,7 +245,7 @@ export function TicketForm({ initial, customFields }: TicketFormProps) {
 
           <div>
             <Label>
-              Channel <span className="text-zoru-danger-ink">*</span>
+              Channel <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <div className="mt-1.5">
               <EnumFormField
@@ -297,7 +297,7 @@ export function TicketForm({ initial, customFields }: TicketFormProps) {
 
       {/* ─── Workflow ────────────────────────────────────────────── */}
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Workflow
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
@@ -315,7 +315,7 @@ export function TicketForm({ initial, customFields }: TicketFormProps) {
           </div>
           <div>
             <Label>
-              Severity <span className="text-zoru-danger-ink">*</span>
+              Severity <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <div className="mt-1.5">
               <EnumFormField
@@ -370,7 +370,7 @@ export function TicketForm({ initial, customFields }: TicketFormProps) {
 
       {/* ─── Assignment & linked ─────────────────────────────────── */}
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Assignment & links
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
@@ -432,7 +432,7 @@ export function TicketForm({ initial, customFields }: TicketFormProps) {
 
       {customFields.length > 0 ? (
         <Card className="p-6">
-          <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
             Custom fields
           </h3>
           <div className="grid gap-4 md:grid-cols-2">

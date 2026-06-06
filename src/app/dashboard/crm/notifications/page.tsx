@@ -31,8 +31,8 @@ async function NotificationsContent() {
     if ('error' in result) {
         return (
             <Card className="p-6">
-                <h1 className="mb-1 text-base font-semibold text-zoru-ink">Notifications Error</h1>
-                <p className="text-sm text-zoru-ink-muted">{result.error}</p>
+                <h1 className="mb-1 text-base font-semibold text-[var(--st-text)]">Notifications Error</h1>
+                <p className="text-sm text-[var(--st-text-secondary)]">{result.error}</p>
             </Card>
         );
     }
@@ -56,7 +56,7 @@ export default function CrmNotificationsPage() {
             <React.Suspense fallback={
                 <div className="space-y-4">
                     {Array.from({ length: 6 }).map((_, i) => (
-                        <div key={i} className="h-20 w-full animate-pulse bg-zoru-surface-2 rounded-md" />
+                        <div key={i} className="h-20 w-full animate-pulse bg-[var(--st-bg-muted)] rounded-md" />
                     ))}
                 </div>
             }>

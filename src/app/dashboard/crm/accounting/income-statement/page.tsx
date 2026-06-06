@@ -173,7 +173,7 @@ export default function IncomeStatementPage(): React.JSX.Element {
     if (!mounted || (isLoading && !data)) {
         return (
             <div className="flex h-full items-center justify-center py-16">
-                <LoaderCircle className="h-8 w-8 animate-spin text-zoru-ink-muted" />
+                <LoaderCircle className="h-8 w-8 animate-spin text-[var(--st-text-secondary)]" />
             </div>
         );
     }
@@ -256,15 +256,15 @@ export default function IncomeStatementPage(): React.JSX.Element {
 
     const chart = (
         <div>
-            <h2 className="text-[15px] font-semibold text-zoru-ink">
+            <h2 className="text-[15px] font-semibold text-[var(--st-text)]">
                 Monthly revenue vs expense
             </h2>
-            <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+            <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">
                 Trend line across the selected fiscal range.
             </p>
             <div className="mt-4 h-64 w-full">
                 {series.length === 0 ? (
-                    <div className="flex h-full items-center justify-center text-[13px] text-zoru-ink-muted">
+                    <div className="flex h-full items-center justify-center text-[13px] text-[var(--st-text-secondary)]">
                         No data in this range.
                     </div>
                 ) : (
@@ -313,18 +313,18 @@ export default function IncomeStatementPage(): React.JSX.Element {
         const isTotal = r.kind === 'total';
         const isSubtotal = r.kind === 'subtotal';
         const cls = isTotal
-            ? 'border-zoru-line bg-zoru-surface-2 font-semibold'
+            ? 'border-[var(--st-border)] bg-[var(--st-bg-muted)] font-semibold'
             : isSection
-                ? 'border-zoru-line bg-zoru-surface-2 font-semibold'
+                ? 'border-[var(--st-border)] bg-[var(--st-bg-muted)] font-semibold'
                 : isSubtotal
-                    ? 'border-zoru-line font-semibold'
-                    : 'border-zoru-line';
+                    ? 'border-[var(--st-border)] font-semibold'
+                    : 'border-[var(--st-border)]';
         return (
             <ZoruTableRow key={`${r.label}-${idx}`} className={cls}>
-                <ZoruTableCell className="text-zoru-ink" style={{ paddingLeft: indent }}>
+                <ZoruTableCell className="text-[var(--st-text)]" style={{ paddingLeft: indent }}>
                     {r.label}
                 </ZoruTableCell>
-                <ZoruTableCell className="text-right font-mono text-zoru-ink">
+                <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
                     {r.value !== undefined ? fmtMoney(r.value) : ''}
                 </ZoruTableCell>
             </ZoruTableRow>
@@ -334,15 +334,15 @@ export default function IncomeStatementPage(): React.JSX.Element {
     const table = (
         <Table>
             <ZoruTableHeader>
-                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                    <ZoruTableHead className="text-zoru-ink-muted">Account</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted text-right">Balance</ZoruTableHead>
+                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Account</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Balance</ZoruTableHead>
                 </ZoruTableRow>
             </ZoruTableHeader>
             <ZoruTableBody>
                 {pageRows.length === 0 ? (
-                    <ZoruTableRow className="border-zoru-line">
-                        <ZoruTableCell colSpan={2} className="h-24 text-center text-zoru-ink-muted">
+                    <ZoruTableRow className="border-[var(--st-border)]">
+                        <ZoruTableCell colSpan={2} className="h-24 text-center text-[var(--st-text-secondary)]">
                             No accounts in this range.
                         </ZoruTableCell>
                     </ZoruTableRow>

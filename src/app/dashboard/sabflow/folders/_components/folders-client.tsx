@@ -165,7 +165,7 @@ export function FoldersClient() {
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex flex-wrap items-center gap-3 border-b border-[var(--gray-4)] px-4 sm:px-6 py-4 shrink-0">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
           <LuFolder className="h-4 w-4" strokeWidth={2} />
         </div>
         <div className="flex flex-col leading-tight min-w-0">
@@ -189,7 +189,7 @@ export function FoldersClient() {
           <button
             type="button"
             onClick={() => setCreateOpen(true)}
-            className="flex items-center gap-1.5 rounded-lg bg-zoru-ink px-2.5 py-1.5 text-[12px] font-medium text-white hover:bg-zoru-ink"
+            className="flex items-center gap-1.5 rounded-lg bg-[var(--st-text)] px-2.5 py-1.5 text-[12px] font-medium text-white hover:bg-[var(--st-text)]"
           >
             <LuPlus className="h-3.5 w-3.5" />
             Create folder
@@ -200,7 +200,7 @@ export function FoldersClient() {
       {/* Body */}
       <div className="flex-1 overflow-y-auto">
         {error && (
-          <div className="m-6 flex items-start gap-2 rounded-lg border border-zoru-line bg-zoru-surface-2 px-4 py-3 text-[12px] text-zoru-ink">
+          <div className="m-6 flex items-start gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-3 text-[12px] text-[var(--st-text)]">
             <LuTriangleAlert className="h-4 w-4 shrink-0 mt-0.5" />
             <span>{error}</span>
           </div>
@@ -226,7 +226,7 @@ export function FoldersClient() {
             <button
               type="button"
               onClick={() => setCreateOpen(true)}
-              className="mt-1 flex items-center gap-1.5 rounded-lg bg-zoru-ink px-3 py-1.5 text-[12px] font-medium text-white hover:bg-zoru-ink"
+              className="mt-1 flex items-center gap-1.5 rounded-lg bg-[var(--st-text)] px-3 py-1.5 text-[12px] font-medium text-white hover:bg-[var(--st-text)]"
             >
               <LuPlus className="h-3.5 w-3.5" />
               Create your first folder
@@ -343,7 +343,7 @@ function FolderCard({
             type="button"
             onClick={onDelete}
             title="Delete"
-            className="rounded-md p-1 text-[var(--gray-10)] hover:bg-zoru-surface-2 hover:text-zoru-ink dark:hover:bg-zoru-ink/40 dark:hover:text-zoru-ink-muted"
+            className="rounded-md p-1 text-[var(--gray-10)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] dark:hover:bg-[var(--st-text)]/40 dark:hover:text-[var(--st-text-secondary)]"
           >
             <LuTrash2 className="h-3.5 w-3.5" />
           </button>
@@ -429,7 +429,7 @@ function FolderModal({
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Customer onboarding"
               maxLength={60}
-              className="rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-zoru-line"
+              className="rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[var(--st-border)]"
             />
           </div>
 
@@ -462,7 +462,7 @@ function FolderModal({
           </div>
 
           {err && (
-            <div className="flex items-start gap-2 rounded-lg border border-zoru-line bg-zoru-surface-2 px-3 py-2 text-[11.5px] text-zoru-ink">
+            <div className="flex items-start gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-[11.5px] text-[var(--st-text)]">
               <LuTriangleAlert className="h-3.5 w-3.5 shrink-0 mt-0.5" />
               <span>{err}</span>
             </div>
@@ -481,7 +481,7 @@ function FolderModal({
           <button
             type="submit"
             disabled={submitting || !name.trim()}
-            className="flex items-center gap-1.5 rounded-lg bg-zoru-ink px-3 py-1.5 text-[12px] font-medium text-white hover:bg-zoru-ink disabled:opacity-50"
+            className="flex items-center gap-1.5 rounded-lg bg-[var(--st-text)] px-3 py-1.5 text-[12px] font-medium text-white hover:bg-[var(--st-text)] disabled:opacity-50"
           >
             {submitting && <LuLoader className="h-3.5 w-3.5 animate-spin" />}
             {submitLabel}
@@ -545,7 +545,7 @@ function DeleteConfirmModal({
           </p>
 
           {err && (
-            <div className="flex items-start gap-2 rounded-lg border border-zoru-line bg-zoru-surface-2 px-3 py-2 text-[11.5px] text-zoru-ink">
+            <div className="flex items-start gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-[11.5px] text-[var(--st-text)]">
               <LuTriangleAlert className="h-3.5 w-3.5 shrink-0 mt-0.5" />
               <span>{err}</span>
             </div>
@@ -565,7 +565,7 @@ function DeleteConfirmModal({
             type="button"
             onClick={confirm}
             disabled={submitting}
-            className="flex items-center gap-1.5 rounded-lg bg-zoru-ink px-3 py-1.5 text-[12px] font-medium text-white hover:bg-zoru-ink disabled:opacity-50"
+            className="flex items-center gap-1.5 rounded-lg bg-[var(--st-text)] px-3 py-1.5 text-[12px] font-medium text-white hover:bg-[var(--st-text)] disabled:opacity-50"
           >
             {submitting ? (
               <LuLoader className="h-3.5 w-3.5 animate-spin" />

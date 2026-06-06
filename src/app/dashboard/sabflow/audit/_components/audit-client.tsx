@@ -89,21 +89,21 @@ const DATE_FILTERS: Array<{ value: DateRange; label: string }> = [
 /** Tailwind classes for the family-coloured action chip. */
 function actionChipClasses(action: string): string {
   if (action.startsWith('flow.')) {
-    return 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/50 dark:text-zoru-ink-muted';
+    return 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/50 dark:text-[var(--st-text-secondary)]';
   }
   if (action.startsWith('credential.')) {
-    return 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/50 dark:text-zoru-ink-muted';
+    return 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/50 dark:text-[var(--st-text-secondary)]';
   }
   if (action.startsWith('apiKey.')) {
-    return 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/50 dark:text-zoru-ink-muted';
+    return 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/50 dark:text-[var(--st-text-secondary)]';
   }
   if (action.startsWith('env.')) {
-    return 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/50 dark:text-zoru-ink-muted';
+    return 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/50 dark:text-[var(--st-text-secondary)]';
   }
   if (action.startsWith('folder.')) {
-    return 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/50 dark:text-zoru-ink-muted';
+    return 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/50 dark:text-[var(--st-text-secondary)]';
   }
-  return 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/50 dark:text-zoru-ink-muted';
+  return 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/50 dark:text-[var(--st-text-secondary)]';
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
@@ -221,7 +221,7 @@ export function AuditClient() {
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex flex-wrap items-center gap-3 border-b border-[var(--gray-4)] px-4 sm:px-6 py-4 shrink-0">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
           <LuHistory className="h-4 w-4" strokeWidth={2} />
         </div>
         <div className="flex flex-col leading-tight min-w-0">
@@ -259,7 +259,7 @@ export function AuditClient() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search target or metadata…"
-            className="w-full sm:w-[280px] rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] py-1.5 pl-8 pr-2.5 text-[12.5px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-zoru-line"
+            className="w-full sm:w-[280px] rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] py-1.5 pl-8 pr-2.5 text-[12.5px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[var(--st-border)]"
           />
         </div>
 
@@ -271,7 +271,7 @@ export function AuditClient() {
         <select
           value={actionFilter}
           onChange={(e) => setActionFilter(e.target.value)}
-          className="rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] py-1.5 pl-2.5 pr-2.5 text-[12px] font-medium text-[var(--gray-11)] outline-none hover:border-[var(--gray-7)] focus:border-zoru-line"
+          className="rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] py-1.5 pl-2.5 pr-2.5 text-[12px] font-medium text-[var(--gray-11)] outline-none hover:border-[var(--gray-7)] focus:border-[var(--st-border)]"
         >
           {ACTION_OPTIONS.map((opt) => (
             <option key={opt.value} value={opt.value}>
@@ -307,7 +307,7 @@ export function AuditClient() {
             <span className="text-[12px]">Loading audit entries…</span>
           </div>
         ) : error ? (
-          <div className="m-6 flex items-start gap-2 rounded-lg border border-zoru-line bg-zoru-surface-2 px-4 py-3 text-[12px] text-zoru-ink">
+          <div className="m-6 flex items-start gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-3 text-[12px] text-[var(--st-text)]">
             <LuTriangleAlert className="h-4 w-4 shrink-0 mt-0.5" />
             <span>{error}</span>
           </div>
@@ -445,7 +445,7 @@ function Row({
           {row.flowId ? (
             <Link
               href={`/dashboard/sabflow/${row.flowId}`}
-              className="inline-flex items-center gap-1 font-mono text-[11px] text-zoru-ink hover:text-zoru-ink"
+              className="inline-flex items-center gap-1 font-mono text-[11px] text-[var(--st-text)] hover:text-[var(--st-text)]"
               title={row.flowId}
             >
               {row.target ?? shortenId(row.flowId)}

@@ -256,7 +256,7 @@ export default function KanbanPage() {
         <>
           <div className="w-[220px]">
             <Select value={projectFilter} onValueChange={setProjectFilter}>
-              <ZoruSelectTrigger className="h-9 rounded-full border-zoru-line bg-zoru-bg text-[13px]">
+              <ZoruSelectTrigger className="h-9 rounded-full border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
                 <ZoruSelectValue placeholder="All projects" />
               </ZoruSelectTrigger>
               <ZoruSelectContent>
@@ -271,7 +271,7 @@ export default function KanbanPage() {
           </div>
           <div className="w-[180px]">
             <Select value={swimlaneBy} onValueChange={(val) => setSwimlaneBy(val as any)}>
-              <ZoruSelectTrigger className="h-9 rounded-full border-zoru-line bg-zoru-bg text-[13px]">
+              <ZoruSelectTrigger className="h-9 rounded-full border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
                 <ZoruSelectValue placeholder="Swimlanes" />
               </ZoruSelectTrigger>
               <ZoruSelectContent>
@@ -295,7 +295,7 @@ export default function KanbanPage() {
         {swimlanes.map((swimlane) => (
           <div key={swimlane.id} className="flex flex-col gap-4">
             {swimlane.label && (
-              <h3 className="text-[14px] font-semibold text-zoru-ink border-b border-zoru-line pb-2 sticky left-0">
+              <h3 className="text-[14px] font-semibold text-[var(--st-text)] border-b border-[var(--st-border)] pb-2 sticky left-0">
                 {swimlane.label}
               </h3>
             )}
@@ -325,26 +325,26 @@ export default function KanbanPage() {
                           style={{ backgroundColor: col.labelColor }}
                           aria-hidden
                         />
-                        <p className="text-[13px] font-semibold text-zoru-ink">
+                        <p className="text-[13px] font-semibold text-[var(--st-text)]">
                           {col.columnName}
                         </p>
                       </div>
-                      <span className="text-[11.5px] text-zoru-ink-muted">
+                      <span className="text-[11.5px] text-[var(--st-text-secondary)]">
                         {colTasks.length}
                       </span>
                     </div>
                     <div className="flex flex-col gap-2">
                       {colTasks.length === 0 ? (
-                        <div className="rounded-lg border border-dashed border-zoru-line p-4 text-center text-[12px] text-zoru-ink-muted">
+                        <div className="rounded-lg border border-dashed border-[var(--st-border)] p-4 text-center text-[12px] text-[var(--st-text-secondary)]">
                           No tasks
                         </div>
                       ) : (
                         colTasks.map((task) => (
                           <Card key={task._id} interactive className="p-3">
-                            <p className="text-[13px] font-medium text-zoru-ink">
+                            <p className="text-[13px] font-medium text-[var(--st-text)]">
                               {task.heading}
                             </p>
-                            <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11.5px] text-zoru-ink-muted">
+                            <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11.5px] text-[var(--st-text-secondary)]">
                               {task.assigneeName ? (
                                 <span>{task.assigneeName}</span>
                               ) : null}
@@ -368,7 +368,7 @@ export default function KanbanPage() {
                                 <button
                                   type="button"
                                   onClick={() => moveTask(task._id, prevCol)}
-                                  className="inline-flex h-7 w-7 items-center justify-center rounded-full text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
+                                  className="inline-flex h-7 w-7 items-center justify-center rounded-full text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
                                   aria-label="Move left"
                                 >
                                   <ArrowLeft className="h-3.5 w-3.5" />
@@ -380,7 +380,7 @@ export default function KanbanPage() {
                                 <button
                                   type="button"
                                   onClick={() => moveTask(task._id, nextCol)}
-                                  className="inline-flex h-7 w-7 items-center justify-center rounded-full text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
+                                  className="inline-flex h-7 w-7 items-center justify-center rounded-full text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
                                   aria-label="Move right"
                                 >
                                   <ArrowRight className="h-3.5 w-3.5" />

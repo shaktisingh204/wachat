@@ -237,7 +237,7 @@ export default function StoreOrdersPage(): React.JSX.Element {
                     <Card>
                         <ZoruCardContent className="flex flex-wrap items-end gap-3 pt-4">
                             <div className="min-w-[180px] space-y-1">
-                                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                                <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                                     Storefront
                                 </Label>
                                 <Select value={storefrontFilter} onValueChange={setStorefrontFilter}>
@@ -255,7 +255,7 @@ export default function StoreOrdersPage(): React.JSX.Element {
                                 </Select>
                             </div>
                             <div className="min-w-[160px] space-y-1">
-                                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                                <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                                     Status
                                 </Label>
                                 <Select
@@ -276,7 +276,7 @@ export default function StoreOrdersPage(): React.JSX.Element {
                                 </Select>
                             </div>
                             <div className="min-w-[220px] space-y-1">
-                                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                                <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                                     Date placed
                                 </Label>
                                 <ZoruDateRangePicker value={dateRange} onChange={setDateRange} />
@@ -299,7 +299,7 @@ export default function StoreOrdersPage(): React.JSX.Element {
                 bulkBar={
                     selected.size > 0 ? (
                         <div className="flex flex-wrap items-center gap-2">
-                            <span className="text-sm font-medium text-zoru-ink">{selected.size} selected</span>
+                            <span className="text-sm font-medium text-[var(--st-text)]">{selected.size} selected</span>
                             <span className="flex-1" />
                             <Button size="sm" variant="outline" onClick={handleBulkFulfill}>
                                 Fulfill
@@ -330,8 +330,8 @@ export default function StoreOrdersPage(): React.JSX.Element {
                 empty={
                     !isPending && filtered.length === 0 ? (
                         <div className="flex flex-col items-center gap-3 p-8">
-                            <ShoppingBag className="h-8 w-8 text-zoru-ink-muted" />
-                            <h3 className="text-base font-medium text-zoru-ink">No orders found</h3>
+                            <ShoppingBag className="h-8 w-8 text-[var(--st-text-secondary)]" />
+                            <h3 className="text-base font-medium text-[var(--st-text)]">No orders found</h3>
                         </div>
                     ) : null
                 }
@@ -387,7 +387,7 @@ export default function StoreOrdersPage(): React.JSX.Element {
                                                         onCheckedChange={() => toggleOne(id)}
                                                     />
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     <Link
                                                         href={`/dashboard/crm/store/orders/${id}`}
                                                         className="hover:underline"
@@ -395,13 +395,13 @@ export default function StoreOrdersPage(): React.JSX.Element {
                                                         {orderNo}
                                                     </Link>
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {String(o.customerEmail ?? o.customerName ?? '—')}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {fmtMoney(oTotal(o), String(o.currency ?? 'INR'))}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                                                <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                                                     {fmtDate(o.createdAt)}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>

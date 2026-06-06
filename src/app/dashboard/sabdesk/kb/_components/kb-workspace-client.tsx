@@ -296,13 +296,13 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
       <button
         type="button"
         onClick={() => setActiveCategory(node._id)}
-        className={`flex w-full items-center justify-between gap-2 rounded px-2 py-1 text-left text-[13px] hover:bg-zoru-surface-2 ${
-          activeCategory === node._id ? "bg-zoru-surface-2 font-medium" : ""
+        className={`flex w-full items-center justify-between gap-2 rounded px-2 py-1 text-left text-[13px] hover:bg-[var(--st-bg-muted)] ${
+          activeCategory === node._id ? "bg-[var(--st-bg-muted)] font-medium" : ""
         }`}
         style={{ paddingLeft: `${8 + depth * 14}px` }}
       >
-        <span className="flex items-center gap-1.5 truncate text-zoru-ink">
-          <Folder className="h-3.5 w-3.5 text-zoru-ink-muted" />
+        <span className="flex items-center gap-1.5 truncate text-[var(--st-text)]">
+          <Folder className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
           {node.name}
         </span>
         <span className="flex items-center gap-1">
@@ -315,7 +315,7 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
               if (confirm(`Archive category "${node.name}"?`))
                 handleDeleteCategory(node._id);
             }}
-            className="rounded p-0.5 text-zoru-ink-muted hover:bg-zoru-danger/10 hover:text-zoru-danger"
+            className="rounded p-0.5 text-[var(--st-text-secondary)] hover:bg-[var(--st-danger)]/10 hover:text-[var(--st-danger)]"
           >
             <Trash2 className="h-3 w-3" />
           </button>
@@ -328,11 +328,11 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
   );
 
   return (
-    <div className="zoruui flex h-full min-h-0 flex-1 gap-0 overflow-hidden border-t border-zoru-line">
+    <div className="zoruui flex h-full min-h-0 flex-1 gap-0 overflow-hidden border-t border-[var(--st-border)]">
       {/* LEFT: categories */}
-      <aside className="flex h-full w-[280px] min-w-[240px] shrink-0 flex-col border-r border-zoru-line bg-zoru-surface">
-        <div className="flex items-center justify-between gap-2 border-b border-zoru-line px-3 py-3">
-          <span className="text-sm font-semibold text-zoru-ink">
+      <aside className="flex h-full w-[280px] min-w-[240px] shrink-0 flex-col border-r border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+        <div className="flex items-center justify-between gap-2 border-b border-[var(--st-border)] px-3 py-3">
+          <span className="text-sm font-semibold text-[var(--st-text)]">
             Categories
           </span>
           <Button
@@ -348,18 +348,18 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
             <button
               type="button"
               onClick={() => setActiveCategory("all")}
-              className={`flex w-full items-center justify-between rounded px-2 py-1 text-left text-[13px] hover:bg-zoru-surface-2 ${
-                activeCategory === "all" ? "bg-zoru-surface-2 font-medium" : ""
+              className={`flex w-full items-center justify-between rounded px-2 py-1 text-left text-[13px] hover:bg-[var(--st-bg-muted)] ${
+                activeCategory === "all" ? "bg-[var(--st-bg-muted)] font-medium" : ""
               }`}
             >
-              <span className="flex items-center gap-1.5 text-zoru-ink">
+              <span className="flex items-center gap-1.5 text-[var(--st-text)]">
                 <ChevronRight className="h-3.5 w-3.5" />
                 All articles
               </span>
               <Badge variant="ghost">{articles.length}</Badge>
             </button>
             {tree.length === 0 ? (
-              <p className="px-2 py-3 text-[12px] text-zoru-ink-muted">
+              <p className="px-2 py-3 text-[12px] text-[var(--st-text-secondary)]">
                 No categories yet.
               </p>
             ) : (
@@ -370,13 +370,13 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
       </aside>
 
       {/* CENTER: article list + editor */}
-      <section className="flex h-full min-w-0 flex-1 flex-col bg-zoru-surface">
-        <header className="flex items-center justify-between gap-3 border-b border-zoru-line px-5 py-3">
+      <section className="flex h-full min-w-0 flex-1 flex-col bg-[var(--st-bg-secondary)]">
+        <header className="flex items-center justify-between gap-3 border-b border-[var(--st-border)] px-5 py-3">
           <div>
-            <h2 className="text-[15px] font-semibold text-zoru-ink">
+            <h2 className="text-[15px] font-semibold text-[var(--st-text)]">
               Knowledge Base
             </h2>
-            <p className="text-[12px] text-zoru-ink-muted">
+            <p className="text-[12px] text-[var(--st-text-secondary)]">
               {filteredArticles.length} article
               {filteredArticles.length === 1 ? "" : "s"}
               {activeCategory !== "all" ? " in selected category" : ""}
@@ -410,17 +410,17 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
 
         <div className="flex min-h-0 flex-1">
           {/* article list rail */}
-          <ScrollArea className="w-[280px] shrink-0 border-r border-zoru-line">
+          <ScrollArea className="w-[280px] shrink-0 border-r border-[var(--st-border)]">
             {props.initialError ? (
-              <div className="p-4 text-[13px] text-zoru-danger">
+              <div className="p-4 text-[13px] text-[var(--st-danger)]">
                 {props.initialError}
               </div>
             ) : filteredArticles.length === 0 ? (
-              <div className="p-4 text-[13px] text-zoru-ink-muted">
+              <div className="p-4 text-[13px] text-[var(--st-text-secondary)]">
                 No articles here yet.
               </div>
             ) : (
-              <ul className="divide-y divide-zoru-line">
+              <ul className="divide-y divide-[var(--st-border)]">
                 {filteredArticles.map((a) => {
                   const active = selectedArticleId === a._id;
                   return (
@@ -428,11 +428,11 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
                       <button
                         type="button"
                         onClick={() => setSelectedArticleId(a._id)}
-                        className={`flex w-full flex-col gap-1 px-3 py-3 text-left hover:bg-zoru-surface-2 ${
-                          active ? "bg-zoru-surface-2" : ""
+                        className={`flex w-full flex-col gap-1 px-3 py-3 text-left hover:bg-[var(--st-bg-muted)] ${
+                          active ? "bg-[var(--st-bg-muted)]" : ""
                         }`}
                       >
-                        <span className="line-clamp-2 text-[13px] font-medium text-zoru-ink">
+                        <span className="line-clamp-2 text-[13px] font-medium text-[var(--st-text)]">
                           {a.title ?? "Untitled"}
                         </span>
                         <div className="flex flex-wrap items-center gap-1.5">
@@ -539,7 +539,7 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
                 <div>
                   <div className="mb-1 flex items-center justify-between">
                     <Label>Body (Markdown)</Label>
-                    <span className="text-[11px] text-zoru-ink-muted">
+                    <span className="text-[11px] text-[var(--st-text-secondary)]">
                       Markdown is rendered in the customer portal.
                     </span>
                   </div>
@@ -581,7 +581,7 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="text-zoru-danger"
+                        className="text-[var(--st-danger)]"
                         onClick={handleDelete}
                         disabled={isPending}
                       >

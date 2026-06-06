@@ -239,8 +239,8 @@ export function TeamTable({ initialRows, total }: TeamTableProps) {
       width: "220px",
       render: (r) => (
         <div className="flex flex-col">
-          <span className="font-medium text-sm text-zoru-ink">{r.name || r.email}</span>
-          {r.name && <span className="text-xs text-zoru-ink">{r.email}</span>}
+          <span className="font-medium text-sm text-[var(--st-text)]">{r.name || r.email}</span>
+          {r.name && <span className="text-xs text-[var(--st-text)]">{r.email}</span>}
         </div>
       ),
     },
@@ -269,7 +269,7 @@ export function TeamTable({ initialRows, total }: TeamTableProps) {
       header: "API Usage",
       width: "100px",
       align: "right",
-      render: (r) => <span className="text-xs text-zoru-ink">{fmtQty(r.apiKeyUsage)} reqs</span>,
+      render: (r) => <span className="text-xs text-[var(--st-text)]">{fmtQty(r.apiKeyUsage)} reqs</span>,
     },
     {
       id: "flags",
@@ -277,7 +277,7 @@ export function TeamTable({ initialRows, total }: TeamTableProps) {
       width: "120px",
       render: (r) => (
         <div className="flex gap-1">
-          {r.twoFactorEnabled && <Badge variant="outline" className="text-[10px] border-zoru-line text-zoru-ink bg-zoru-surface-2">2FA</Badge>}
+          {r.twoFactorEnabled && <Badge variant="outline" className="text-[10px] border-[var(--st-border)] text-[var(--st-text)] bg-[var(--st-bg-muted)]">2FA</Badge>}
           {r.outOfOffice && <Badge variant="outline" className="text-[10px]">OOO</Badge>}
         </div>
       ),
@@ -286,7 +286,7 @@ export function TeamTable({ initialRows, total }: TeamTableProps) {
       id: "lastSeen",
       header: "Last Seen",
       width: "120px",
-      render: (r) => <span className="text-xs text-zoru-ink">{formatRelative(r.lastSeenAt)}</span>,
+      render: (r) => <span className="text-xs text-[var(--st-text)]">{formatRelative(r.lastSeenAt)}</span>,
     },
   ];
 
@@ -346,7 +346,7 @@ export function TeamTable({ initialRows, total }: TeamTableProps) {
       />
 
       {feedback && (
-        <div className={feedback.kind === "ok" ? "rounded-md border border-zoru-line bg-zoru-surface-2 px-3 py-2 text-sm text-zoru-ink" : "rounded-md border border-zoru-line bg-zoru-surface-2 px-3 py-2 text-sm text-zoru-ink"} role="status">
+        <div className={feedback.kind === "ok" ? "rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-sm text-[var(--st-text)]" : "rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-sm text-[var(--st-text)]"} role="status">
           {feedback.msg}
         </div>
       )}
@@ -408,7 +408,7 @@ export function TeamTable({ initialRows, total }: TeamTableProps) {
           },
           {
             label: "Revoke invite",
-            icon: <Trash2 className="h-4 w-4 text-zoru-ink" />,
+            icon: <Trash2 className="h-4 w-4 text-[var(--st-text)]" />,
             destructive: true,
             onSelect: async (r) => {
               if (r.status !== "invited") return feedbackResult({ ok: false, error: "Member already active" }, "");
@@ -419,7 +419,7 @@ export function TeamTable({ initialRows, total }: TeamTableProps) {
           },
           {
             label: "Remove member",
-            icon: <Trash2 className="h-4 w-4 text-zoru-ink" />,
+            icon: <Trash2 className="h-4 w-4 text-[var(--st-text)]" />,
             destructive: true,
             onSelect: async (r) => {
               if (r.role === "sabsms_admin" && r.status === "active") {
@@ -588,19 +588,19 @@ export function TeamTable({ initialRows, total }: TeamTableProps) {
         description="Role changes, logins, and settings updates for this member."
       >
         {auditDrawer.loading ? (
-          <div className="text-sm text-zoru-ink">Loading…</div>
+          <div className="text-sm text-[var(--st-text)]">Loading…</div>
         ) : auditDrawer.entries.length === 0 ? (
-          <div className="text-sm text-zoru-ink">No audit entries yet.</div>
+          <div className="text-sm text-[var(--st-text)]">No audit entries yet.</div>
         ) : (
           <ul className="space-y-3">
             {auditDrawer.entries.map((e) => (
-              <li key={e.id} className="rounded-md border border-zoru-line bg-white p-3">
-                <div className="flex justify-between text-xs text-zoru-ink">
+              <li key={e.id} className="rounded-md border border-[var(--st-border)] bg-white p-3">
+                <div className="flex justify-between text-xs text-[var(--st-text)]">
                   <span>{e.actor}</span>
                   <span>{formatUTC(e.at, true)}</span>
                 </div>
                 <div className="mt-1 font-medium">{e.kind}</div>
-                {e.detail && <div className="mt-1 text-sm text-zoru-ink">{e.detail}</div>}
+                {e.detail && <div className="mt-1 text-sm text-[var(--st-text)]">{e.detail}</div>}
               </li>
             ))}
           </ul>

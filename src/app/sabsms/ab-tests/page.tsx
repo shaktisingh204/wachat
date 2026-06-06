@@ -38,7 +38,7 @@ async function SabsmsAbTestsPageContent() {
         breadcrumbs={[{ label: "A/B tests" }]}
         description="Sign in to view your SabSMS A/B tests."
       >
-        <p className="text-sm text-zoru-ink-muted">No session.</p>
+        <p className="text-sm text-[var(--st-text-secondary)]">No session.</p>
       </SabsmsPageShell>
     );
   }
@@ -62,7 +62,7 @@ async function SabsmsAbTestsPageContent() {
       helpTitle="How A/B tests work"
       helpBody={
         <>
-          Each row in <code className="rounded bg-zoru-surface-2 px-1">
+          Each row in <code className="rounded bg-[var(--st-bg-muted)] px-1">
             sabsms_ab_tests
           </code>{" "}
           carries a control variant + one or more challengers. We compute

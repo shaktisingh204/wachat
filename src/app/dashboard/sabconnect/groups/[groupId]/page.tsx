@@ -52,7 +52,7 @@ export default async function SabConnectGroupPage({ params }: PageProps) {
                     </ZoruPageDescription>
                     <div className="flex items-center gap-2 pt-1">
                         <Badge variant="outline">{group.visibility}</Badge>
-                        <span className="text-xs text-zoru-muted">
+                        <span className="text-xs text-[var(--st-bg-muted)]">
                             {group.memberCount ?? group.memberIds?.length ?? 0} members
                         </span>
                     </div>
@@ -63,7 +63,7 @@ export default async function SabConnectGroupPage({ params }: PageProps) {
             <SabConnectComposer groups={[]} />
 
             <section aria-labelledby="group-manuals" className="flex flex-col gap-2">
-                <h2 id="group-manuals" className="text-sm font-semibold text-zoru-muted">
+                <h2 id="group-manuals" className="text-sm font-semibold text-[var(--st-bg-muted)]">
                     Manuals
                 </h2>
                 {manuals.items.length === 0 ? (
@@ -80,7 +80,7 @@ export default async function SabConnectGroupPage({ params }: PageProps) {
                                         <p className="text-sm font-semibold text-zoru-text">
                                             {m.title}
                                         </p>
-                                        <p className="line-clamp-2 text-xs text-zoru-muted">
+                                        <p className="line-clamp-2 text-xs text-[var(--st-bg-muted)]">
                                             {m.body}
                                         </p>
                                     </CardContent>
@@ -92,7 +92,7 @@ export default async function SabConnectGroupPage({ params }: PageProps) {
             </section>
 
             <section aria-labelledby="group-feed">
-                <h2 id="group-feed" className="pb-2 text-sm font-semibold text-zoru-muted">
+                <h2 id="group-feed" className="pb-2 text-sm font-semibold text-[var(--st-bg-muted)]">
                     Feed
                 </h2>
                 <SabConnectFeedList

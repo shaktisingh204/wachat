@@ -123,15 +123,15 @@ export default async function IncomeReportPage(props: {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Card className="p-6">
           <div className="mb-3">
-            <h2 className="text-[16px] font-semibold text-zoru-ink">
+            <h2 className="text-[16px] font-semibold text-[var(--st-text)]">
               Monthly trend
             </h2>
-            <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+            <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">
               Revenue recognised per month.
             </p>
           </div>
           {monthly.length === 0 ? (
-            <div className="py-8 text-center text-[13px] text-zoru-ink-muted">
+            <div className="py-8 text-center text-[13px] text-[var(--st-text-secondary)]">
               No income for this FY.
             </div>
           ) : (
@@ -144,15 +144,15 @@ export default async function IncomeReportPage(props: {
         </Card>
         <Card className="p-6">
           <div className="mb-3">
-            <h2 className="text-[16px] font-semibold text-zoru-ink">
+            <h2 className="text-[16px] font-semibold text-[var(--st-text)]">
               By source
             </h2>
-            <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+            <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">
               Top revenue sources.
             </p>
           </div>
           {bySource.length === 0 ? (
-            <div className="py-8 text-center text-[13px] text-zoru-ink-muted">
+            <div className="py-8 text-center text-[13px] text-[var(--st-text-secondary)]">
               No source data.
             </div>
           ) : (
@@ -162,65 +162,65 @@ export default async function IncomeReportPage(props: {
       </div>
 
       <Card className="p-0">
-        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+        <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <Table>
             <ZoruTableHeader>
-              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                <ZoruTableHead className="text-zoru-ink-muted">
+              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                   Invoice
                 </ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                   Date
                 </ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                   Client
                 </ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                   Source
                 </ZoruTableHead>
-                <ZoruTableHead className="text-right text-zoru-ink-muted">
+                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                   Total
                 </ZoruTableHead>
-                <ZoruTableHead className="text-right text-zoru-ink-muted">
+                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                   Paid
                 </ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                   Status
                 </ZoruTableHead>
               </ZoruTableRow>
             </ZoruTableHeader>
             <ZoruTableBody>
               {pageRows.length === 0 ? (
-                <ZoruTableRow className="border-zoru-line">
+                <ZoruTableRow className="border-[var(--st-border)]">
                   <ZoruTableCell
                     colSpan={7}
-                    className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                    className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     No invoices for this range.
                   </ZoruTableCell>
                 </ZoruTableRow>
               ) : (
                 pageRows.map((r) => (
-                  <ZoruTableRow key={r.id} className="border-zoru-line">
+                  <ZoruTableRow key={r.id} className="border-[var(--st-border)]">
                     <ZoruTableCell>
                       <EntityRowLink
                         href={`/dashboard/crm/sales/invoices/${r.id}`}
                         label={r.invoiceNumber}
                       />
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-zoru-ink">
+                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                       {r.invoiceDate}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-zoru-ink">
+                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                       {r.clientName}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                       {r.source}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
+                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
                       {fmtMoney(r.total)}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-zoru-success-ink">
+                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-status-ok)]">
                       {fmtMoney(r.paidAmount)}
                     </ZoruTableCell>
                     <ZoruTableCell>

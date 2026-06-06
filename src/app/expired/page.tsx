@@ -44,46 +44,46 @@ export default async function ExpiredLinkPage({ searchParams }: PageProps) {
     const isDateExpired = shortUrl?.expiresAt && new Date(shortUrl.expiresAt) < new Date();
 
     let reasonText = "It may have reached its expiry date or click limit.";
-    let icon = <Clock className="h-8 w-8 text-zoru-ink-muted" />;
+    let icon = <Clock className="h-8 w-8 text-[var(--st-text-secondary)]" />;
 
     if (shortUrl) {
         if (shortUrl.status === 'inactive') {
             reasonText = "This link has been deactivated by its creator.";
-            icon = <ShieldAlert className="h-8 w-8 text-zoru-ink-muted" />;
+            icon = <ShieldAlert className="h-8 w-8 text-[var(--st-text-secondary)]" />;
         } else if (isClickLimitReached) {
             reasonText = `This link has reached its maximum allowed clicks (${shortUrl.clickLimit}).`;
-            icon = <Activity className="h-8 w-8 text-zoru-ink-muted" />;
+            icon = <Activity className="h-8 w-8 text-[var(--st-text-secondary)]" />;
         } else if (isDateExpired) {
             reasonText = `This link expired on ${format(new Date(shortUrl.expiresAt!), 'MMM d, yyyy')}.`;
-            icon = <Clock className="h-8 w-8 text-zoru-ink-muted" />;
+            icon = <Clock className="h-8 w-8 text-[var(--st-text-secondary)]" />;
         }
     }
 
     return (
-        <div className="zoruui min-h-screen bg-zoru-bg text-zoru-ink">
-            <div className="flex min-h-screen flex-col items-center justify-center bg-zoru-bg px-4 text-center">
-                <Card className="max-w-md w-full p-8 flex flex-col items-center bg-zoru-surface border border-zoru-line shadow-2xl">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-zoru-surface mb-6 shadow-inner">
+        <div className="zoruui min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
+            <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--st-bg)] px-4 text-center">
+                <Card className="max-w-md w-full p-8 flex flex-col items-center bg-[var(--st-bg-secondary)] border border-[var(--st-border)] shadow-2xl">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--st-bg-secondary)] mb-6 shadow-inner">
                         {icon}
                     </div>
 
-                    <h1 className="text-2xl font-semibold text-zoru-ink mb-2 tracking-tight">This link has expired</h1>
+                    <h1 className="text-2xl font-semibold text-[var(--st-text)] mb-2 tracking-tight">This link has expired</h1>
 
-                    <p className="text-sm text-zoru-ink-muted max-w-sm mb-6 leading-relaxed">
+                    <p className="text-sm text-[var(--st-text-secondary)] max-w-sm mb-6 leading-relaxed">
                         The link you followed is no longer active. {reasonText}
                     </p>
 
                     {originalDomain && (
-                        <div className="w-full bg-zoru-bg rounded-lg p-4 mb-6 border border-zoru-line flex flex-col gap-1 items-center">
-                            <span className="text-xs text-zoru-ink-muted uppercase tracking-wider font-semibold">Destination</span>
-                            <div className="flex items-center gap-2 text-zoru-ink">
-                                <ExternalLink className="h-4 w-4 text-zoru-ink-muted" />
+                        <div className="w-full bg-[var(--st-bg)] rounded-lg p-4 mb-6 border border-[var(--st-border)] flex flex-col gap-1 items-center">
+                            <span className="text-xs text-[var(--st-text-secondary)] uppercase tracking-wider font-semibold">Destination</span>
+                            <div className="flex items-center gap-2 text-[var(--st-text)]">
+                                <ExternalLink className="h-4 w-4 text-[var(--st-text-secondary)]" />
                                 <span className="font-medium">{originalDomain}</span>
                             </div>
                         </div>
                     )}
 
-                    <div className="w-full pt-4 border-t border-zoru-line">
+                    <div className="w-full pt-4 border-t border-[var(--st-border)]">
                         <Link href="/" className="w-full block">
                             <Button variant="outline" className="w-full">
                                 Go to Homepage
@@ -95,7 +95,7 @@ export default async function ExpiredLinkPage({ searchParams }: PageProps) {
 
                 <Link
                     href="/"
-                    className="mt-8 text-xs text-zoru-ink-muted hover:text-zoru-ink transition-colors flex items-center gap-1.5"
+                    className="mt-8 text-xs text-[var(--st-text-secondary)] hover:text-[var(--st-text)] transition-colors flex items-center gap-1.5"
                 >
                     <span>Powered by</span>
                     <span className="font-semibold">SabNode</span>

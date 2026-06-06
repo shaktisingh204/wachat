@@ -229,13 +229,13 @@ export function WorkingFeaturePage({
             <Icon className="h-6 w-6" strokeWidth={1.75} />
           </div>
           <div>
-            <p className="text-[11px] uppercase tracking-[0.12em] text-zoru-ink-muted">
+            <p className="text-[11px] uppercase tracking-[0.12em] text-[var(--st-text-secondary)]">
               {eyebrow}
             </p>
-            <h1 className="mt-1 text-[24px] font-semibold leading-tight text-zoru-ink">
+            <h1 className="mt-1 text-[24px] font-semibold leading-tight text-[var(--st-text)]">
               {title}
             </h1>
-            <p className="mt-1 max-w-3xl text-[13.5px] leading-relaxed text-zoru-ink-muted">
+            <p className="mt-1 max-w-3xl text-[13.5px] leading-relaxed text-[var(--st-text-secondary)]">
               {description}
             </p>
           </div>
@@ -261,8 +261,8 @@ export function WorkingFeaturePage({
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((item) => (
           <Card key={item.label} className="p-4">
-            <p className="text-[12px] text-zoru-ink-muted">{item.label}</p>
-            <p className="mt-2 text-[26px] font-semibold text-zoru-ink">{item.value}</p>
+            <p className="text-[12px] text-[var(--st-text-secondary)]">{item.label}</p>
+            <p className="mt-2 text-[26px] font-semibold text-[var(--st-text)]">{item.value}</p>
           </Card>
         ))}
       </div>
@@ -272,7 +272,7 @@ export function WorkingFeaturePage({
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-1 flex-col gap-2 sm:flex-row">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
                 <Input
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
@@ -294,7 +294,7 @@ export function WorkingFeaturePage({
             </div>
           </div>
 
-          <div className="mt-5 overflow-x-auto rounded-lg border border-zoru-line">
+          <div className="mt-5 overflow-x-auto rounded-lg border border-[var(--st-border)]">
             <Table>
               <ZoruTableHeader>
                 <ZoruTableRow>
@@ -327,7 +327,7 @@ export function WorkingFeaturePage({
                 ))}
                 {filtered.length === 0 ? (
                   <ZoruTableRow>
-                    <ZoruTableCell colSpan={6} className="h-24 text-center text-zoru-ink-muted">
+                    <ZoruTableCell colSpan={6} className="h-24 text-center text-[var(--st-text-secondary)]">
                       No records match the current filters.
                     </ZoruTableCell>
                   </ZoruTableRow>
@@ -340,8 +340,8 @@ export function WorkingFeaturePage({
         <div className="flex flex-col gap-4">
           <Card className="p-5">
             <div className="flex items-center gap-2">
-              <Plus className="h-4 w-4 text-zoru-ink-muted" />
-              <h2 className="text-[15px] font-semibold text-zoru-ink">{primaryActionLabel}</h2>
+              <Plus className="h-4 w-4 text-[var(--st-text-secondary)]" />
+              <h2 className="text-[15px] font-semibold text-[var(--st-text)]">{primaryActionLabel}</h2>
             </div>
             <div className="mt-4 flex flex-col gap-3">
               <div>
@@ -365,15 +365,15 @@ export function WorkingFeaturePage({
 
           <Card className="p-5">
             <div className="flex items-center gap-2">
-              <Settings className="h-4 w-4 text-zoru-ink-muted" />
-              <h2 className="text-[15px] font-semibold text-zoru-ink">Settings</h2>
+              <Settings className="h-4 w-4 text-[var(--st-text-secondary)]" />
+              <h2 className="text-[15px] font-semibold text-[var(--st-text)]">Settings</h2>
             </div>
             <div className="mt-4 flex flex-col gap-4">
               {settings.map((item) => (
                 <div key={item.label} className="flex items-start justify-between gap-4">
                   <div>
-                    <p className="text-[13px] font-medium text-zoru-ink">{item.label}</p>
-                    <p className="mt-0.5 text-[12px] leading-relaxed text-zoru-ink-muted">
+                    <p className="text-[13px] font-medium text-[var(--st-text)]">{item.label}</p>
+                    <p className="mt-0.5 text-[12px] leading-relaxed text-[var(--st-text-secondary)]">
                       {item.description}
                     </p>
                   </div>
@@ -397,8 +397,8 @@ export function WorkingFeaturePage({
           {quickLinks.length ? (
             <Card className="p-5">
               <div className="flex items-center gap-2">
-                <Activity className="h-4 w-4 text-zoru-ink-muted" />
-                <h2 className="text-[15px] font-semibold text-zoru-ink">Shortcuts</h2>
+                <Activity className="h-4 w-4 text-[var(--st-text-secondary)]" />
+                <h2 className="text-[15px] font-semibold text-[var(--st-text)]">Shortcuts</h2>
               </div>
               <div className="mt-3 flex flex-col gap-2">
                 {quickLinks.map((link) => (

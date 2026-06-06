@@ -125,7 +125,7 @@ async function CandidateDetailPageContainer({ params }: PageProps) {
                 hint={String(c.jobId)}
               />
             ) : (
-              <p className="px-2 py-1.5 text-zoru-ink-muted">No linked job.</p>
+              <p className="px-2 py-1.5 text-[var(--st-text-secondary)]">No linked job.</p>
             )}
             <RailLink
               href={`/dashboard/hrm/hr/interviews?candidateId=${id}`}
@@ -138,22 +138,22 @@ async function CandidateDetailPageContainer({ params }: PageProps) {
           </RailCard>
           <RailCard title="Quick stats">
             <p>
-              <span className="text-zoru-ink-muted">Rating: </span>
-              <span className="text-zoru-ink">
+              <span className="text-[var(--st-text-secondary)]">Rating: </span>
+              <span className="text-[var(--st-text)]">
                 {c.rating != null ? `${c.rating}/5` : '—'}
               </span>
             </p>
             <p>
-              <span className="text-zoru-ink-muted">Applied: </span>
-              <span className="text-zoru-ink">
+              <span className="text-[var(--st-text-secondary)]">Applied: </span>
+              <span className="text-[var(--st-text)]">
                 {c.applied_at
                   ? fmtDate(c.applied_at)
                   : '—'}
               </span>
             </p>
             <p>
-              <span className="text-zoru-ink-muted">Source: </span>
-              <span className="text-zoru-ink">{c.source || '—'}</span>
+              <span className="text-[var(--st-text-secondary)]">Source: </span>
+              <span className="text-[var(--st-text)]">{c.source || '—'}</span>
             </p>
           </RailCard>
           <CalendlySchedulingCard
@@ -213,18 +213,18 @@ async function CandidateDetailPageContainer({ params }: PageProps) {
       />
       <DetailCard title="Skills & documents">
         <p>
-          <span className="text-zoru-ink-muted">Skills: </span>
-          <span className="text-zoru-ink">
+          <span className="text-[var(--st-text-secondary)]">Skills: </span>
+          <span className="text-[var(--st-text)]">
             {Array.isArray(c.skills) ? c.skills.join(', ') : c.skills || '—'}
           </span>
         </p>
         <p>
-          <span className="text-zoru-ink-muted">Resume: </span>
+          <span className="text-[var(--st-text-secondary)]">Resume: </span>
           {c.resumeUrl ? (
             <div className="inline-flex items-center">
               <Link
                 href={c.resumeUrl}
-                className="text-zoru-ink underline-offset-2 hover:underline"
+                className="text-[var(--st-text)] underline-offset-2 hover:underline"
                 target="_blank"
               >
                 Open resume
@@ -232,13 +232,13 @@ async function CandidateDetailPageContainer({ params }: PageProps) {
               <ParseResumeButton candidateId={id} resumeUrl={c.resumeUrl} />
             </div>
           ) : (
-            <span className="text-zoru-ink">—</span>
+            <span className="text-[var(--st-text)]">—</span>
           )}
         </p>
         {c.coverLetter ? (
           <div>
-            <p className="text-zoru-ink-muted">Cover letter</p>
-            <p className="whitespace-pre-wrap text-zoru-ink">{c.coverLetter}</p>
+            <p className="text-[var(--st-text-secondary)]">Cover letter</p>
+            <p className="whitespace-pre-wrap text-[var(--st-text)]">{c.coverLetter}</p>
           </div>
         ) : null}
       </DetailCard>

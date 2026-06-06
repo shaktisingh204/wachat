@@ -36,7 +36,7 @@ export function SabsmsShell({
   );
 
   const caption = React.useMemo(() => {
-    const dot = engineEnabled ? "bg-zoru-success" : "bg-zoru-ink-muted";
+    const dot = engineEnabled ? "bg-[var(--st-status-ok)]" : "bg-[var(--st-text-secondary)]";
     return (
       <span className="flex items-center gap-1.5">
         <span

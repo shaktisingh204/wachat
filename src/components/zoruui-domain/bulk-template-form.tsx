@@ -88,7 +88,7 @@ export function BulkTemplateForm({
                 ))}
               </ZoruSelectContent>
             </Select>
-            <p className="text-xs text-zoru-ink-muted">
+            <p className="text-xs text-[var(--st-text-secondary)]">
               This will add or update the template with the same name and language in each
               selected project.
             </p>

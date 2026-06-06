@@ -449,14 +449,14 @@ export default function Page() {
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface text-zoru-ink">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
             <MessageSquareDashed className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-[24px] tracking-[-0.015em] text-zoru-ink leading-[1.2]">
+            <h1 className="text-[24px] tracking-[-0.015em] text-[var(--st-text)] leading-[1.2]">
               Auto-reply
             </h1>
-            <p className="mt-1 text-[13px] text-zoru-ink-muted">
+            <p className="mt-1 text-[13px] text-[var(--st-text-secondary)]">
               Match inbound messages on triggers, then run actions. Drag rules
               to set priority — first match wins.
             </p>
@@ -473,7 +473,7 @@ export default function Page() {
         </ZoruCardHeader>
         <ZoruCardContent className="p-0">
           {loading && rules.length === 0 && (
-            <p className="px-6 py-10 text-center text-[13px] text-zoru-ink-muted">
+            <p className="px-6 py-10 text-center text-[13px] text-[var(--st-text-secondary)]">
               Loading rules…
             </p>
           )}
@@ -492,7 +492,7 @@ export default function Page() {
               />
             </div>
           )}
-          <ul className="divide-y divide-zoru-line">
+          <ul className="divide-y divide-[var(--st-border)]">
             {rules.map((r, i) => (
               <li
                 key={r.id}
@@ -508,7 +508,7 @@ export default function Page() {
                 <button
                   type="button"
                   aria-label="Drag to reorder"
-                  className="cursor-grab text-zoru-ink-muted"
+                  className="cursor-grab text-[var(--st-text-secondary)]"
                 >
                   <GripVertical className="h-4 w-4" />
                 </button>
@@ -521,17 +521,17 @@ export default function Page() {
                   aria-label={`Toggle ${r.name}`}
                 />
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium text-zoru-ink">{r.name}</p>
-                  <p className="truncate text-[11.5px] text-zoru-ink-muted">
+                  <p className="truncate font-medium text-[var(--st-text)]">{r.name}</p>
+                  <p className="truncate text-[11.5px] text-[var(--st-text-secondary)]">
                     <span className="font-medium">When:</span>{' '}
                     {summariseTriggers(r.triggers)}
                   </p>
-                  <p className="truncate text-[11.5px] text-zoru-ink-muted">
+                  <p className="truncate text-[11.5px] text-[var(--st-text-secondary)]">
                     <span className="font-medium">Then:</span>{' '}
                     {summariseActions(r.actions)}
                   </p>
                 </div>
-                <span className="hidden text-[11.5px] text-zoru-ink-muted sm:inline">
+                <span className="hidden text-[11.5px] text-[var(--st-text-secondary)] sm:inline">
                   {r.lastFiredAt ? 'Fired' : 'Never fired'}
                 </span>
                 <Button
@@ -553,7 +553,7 @@ export default function Page() {
                 <Button
                   size="icon-sm"
                   variant="ghost"
-                  className="text-zoru-danger"
+                  className="text-[var(--st-danger)]"
                   aria-label={`Delete ${r.name}`}
                   onClick={() => void onDelete(r.id)}
                 >
@@ -616,7 +616,7 @@ function TestSandbox({ rules }: { rules: RuleRow[] }) {
         <ZoruCardTitle className="flex items-center gap-2 text-[14px]">
           <Beaker className="h-4 w-4" /> Test sandbox
         </ZoruCardTitle>
-        <p className="text-[11.5px] text-zoru-ink-muted">
+        <p className="text-[11.5px] text-[var(--st-text-secondary)]">
           Pure client-side simulation — no message is sent. Verify which rules
           would fire for a given inbound.
         </p>
@@ -643,7 +643,7 @@ function TestSandbox({ rules }: { rules: RuleRow[] }) {
           </div>
         </div>
         <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-          <div className="flex items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line p-2">
+          <div className="flex items-center gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-2">
             <Switch
               checked={isNewContact}
               onCheckedChange={setIsNewContact}
@@ -685,30 +685,30 @@ function TestSandbox({ rules }: { rules: RuleRow[] }) {
         </Button>
 
         {results && (
-          <div className="space-y-2 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-surface p-3">
+          <div className="space-y-2 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
             {results.matches.length === 0 ? (
-              <p className="flex items-center gap-2 text-[13px] text-zoru-ink">
-                <MailWarning className="h-4 w-4 text-zoru-ink-muted" />
+              <p className="flex items-center gap-2 text-[13px] text-[var(--st-text)]">
+                <MailWarning className="h-4 w-4 text-[var(--st-text-secondary)]" />
                 No rules matched. Nothing would fire.
               </p>
             ) : (
               <>
-                <p className="flex items-center gap-2 text-[13px] font-medium text-zoru-ink">
-                  <CheckCircle2 className="h-4 w-4 text-zoru-success" />
+                <p className="flex items-center gap-2 text-[13px] font-medium text-[var(--st-text)]">
+                  <CheckCircle2 className="h-4 w-4 text-[var(--st-status-ok)]" />
                   First match wins:{' '}
                   <Badge variant="success" className="text-[10px]">
                     {results.firstMatch?.name}
                   </Badge>
                 </p>
                 <Separator />
-                <p className="text-[11.5px] font-medium text-zoru-ink-muted">
+                <p className="text-[11.5px] font-medium text-[var(--st-text-secondary)]">
                   Actions that would run:
                 </p>
                 <ul className="space-y-1 text-[11.5px]">
                   {results.firstMatch?.actions.map((a, idx) => (
                     <li
                       key={idx}
-                      className="rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-bg px-2 py-1 text-zoru-ink"
+                      className="rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-1 text-[var(--st-text)]"
                     >
                       {summariseActions([a])}
                     </li>
@@ -717,7 +717,7 @@ function TestSandbox({ rules }: { rules: RuleRow[] }) {
                 {results.matches.length > 1 && (
                   <>
                     <Separator />
-                    <p className="text-[11.5px] text-zoru-ink-muted">
+                    <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                       Other rules that also matched (but won&apos;t run):
                     </p>
                     <ul className="space-y-1 text-[11.5px]">
@@ -855,9 +855,9 @@ function RuleEditorDialog({
 
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             {/* Triggers column */}
-            <section className="space-y-2 rounded-[var(--zoru-radius-lg)] border border-zoru-line p-3">
+            <section className="space-y-2 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] p-3">
               <div className="flex items-center justify-between">
-                <h3 className="text-[13px] font-semibold text-zoru-ink">
+                <h3 className="text-[13px] font-semibold text-[var(--st-text)]">
                   Triggers (AND)
                 </h3>
                 <Button size="sm" variant="ghost" onClick={addTrigger}>
@@ -875,7 +875,7 @@ function RuleEditorDialog({
                   />
                 ))}
                 {triggers.length === 0 && (
-                  <p className="text-[11.5px] text-zoru-ink-muted">
+                  <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                     Add at least one trigger.
                   </p>
                 )}
@@ -883,9 +883,9 @@ function RuleEditorDialog({
             </section>
 
             {/* Actions column */}
-            <section className="space-y-2 rounded-[var(--zoru-radius-lg)] border border-zoru-line p-3">
+            <section className="space-y-2 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] p-3">
               <div className="flex items-center justify-between">
-                <h3 className="text-[13px] font-semibold text-zoru-ink">
+                <h3 className="text-[13px] font-semibold text-[var(--st-text)]">
                   Actions
                 </h3>
                 <Button size="sm" variant="ghost" onClick={addAction}>
@@ -903,7 +903,7 @@ function RuleEditorDialog({
                   />
                 ))}
                 {actions.length === 0 && (
-                  <p className="text-[11.5px] text-zoru-ink-muted">
+                  <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                     Add at least one action.
                   </p>
                 )}
@@ -942,7 +942,7 @@ function TriggerEditor({ trigger, onChange, onRemove }: TriggerEditorProps) {
     trigger.kind === 'regex' ||
     trigger.kind === 'contact_label';
   return (
-    <div className="space-y-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-2">
+    <div className="space-y-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2">
       <div className="flex items-center gap-2">
         <Select
           value={trigger.kind}
@@ -983,7 +983,7 @@ function TriggerEditor({ trigger, onChange, onRemove }: TriggerEditorProps) {
         />
       )}
       {trigger.kind === 'regex' && (
-        <label className="flex items-center gap-2 text-[11.5px] text-zoru-ink-muted">
+        <label className="flex items-center gap-2 text-[11.5px] text-[var(--st-text-secondary)]">
           <Switch
             checked={trigger.caseSensitive ?? false}
             onCheckedChange={(v) => onChange({ caseSensitive: v })}
@@ -1008,7 +1008,7 @@ function TriggerEditor({ trigger, onChange, onRemove }: TriggerEditorProps) {
         </div>
       )}
       {trigger.kind === 'outside_business_hours' && (
-        <p className="flex items-center gap-1 text-[11px] text-zoru-ink-muted">
+        <p className="flex items-center gap-1 text-[11px] text-[var(--st-text-secondary)]">
           <Clock className="h-3 w-3" /> Uses sandbox business-hours window.
         </p>
       )}
@@ -1024,7 +1024,7 @@ interface ActionEditorProps {
 
 function ActionEditor({ action, onChange, onRemove }: ActionEditorProps) {
   return (
-    <div className="space-y-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-2">
+    <div className="space-y-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2">
       <div className="flex items-center gap-2">
         <Select
           value={action.kind}
@@ -1081,7 +1081,7 @@ function ActionEditor({ action, onChange, onRemove }: ActionEditorProps) {
             placeholder="SabFlow ID"
             className="h-8 text-[13px]"
           />
-          <p className="flex items-center gap-1 text-[11px] text-zoru-ink-muted">
+          <p className="flex items-center gap-1 text-[11px] text-[var(--st-text-secondary)]">
             <Workflow className="h-3 w-3" /> Hand off to a SabFlow chatbot.
           </p>
         </div>
@@ -1094,13 +1094,13 @@ function ActionEditor({ action, onChange, onRemove }: ActionEditorProps) {
             placeholder="Label ID"
             className="h-8 text-[13px]"
           />
-          <p className="flex items-center gap-1 text-[11px] text-zoru-ink-muted">
+          <p className="flex items-center gap-1 text-[11px] text-[var(--st-text-secondary)]">
             <TagIcon className="h-3 w-3" /> Tag the chat after the rule fires.
           </p>
         </div>
       )}
       {action.kind === 'send_message' && (
-        <p className="flex items-center gap-1 text-[11px] text-zoru-ink-muted">
+        <p className="flex items-center gap-1 text-[11px] text-[var(--st-text-secondary)]">
           <Send className="h-3 w-3" /> Sent immediately on the active session.
         </p>
       )}

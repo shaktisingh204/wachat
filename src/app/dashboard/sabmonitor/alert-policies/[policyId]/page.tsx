@@ -18,7 +18,7 @@ export default async function EditAlertPolicyPage({
     if (!policy) notFound();
     return (
         <div className="flex flex-col gap-4">
-            <h2 className="text-sm font-semibold text-zoru-ink">{policy.name}</h2>
+            <h2 className="text-sm font-semibold text-[var(--st-text)]">{policy.name}</h2>
             <AlertPolicyForm initial={policy} />
         </div>
     );

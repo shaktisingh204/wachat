@@ -232,7 +232,7 @@ export function BankingListClient(): React.JSX.Element {
             <div className="flex w-full flex-col gap-6">
                 <BankingKpiStrip kpi={kpi} />
 
-                <div className="inline-flex w-full overflow-x-auto rounded-md border border-zoru-line">
+                <div className="inline-flex w-full overflow-x-auto rounded-md border border-[var(--st-border)]">
                     <TabButton active={tab === 'bank'} onClick={() => setTab('bank')}>
                         Bank Accounts ({rows.filter((r) => r.accountType === 'bank').length})
                     </TabButton>
@@ -322,7 +322,7 @@ export function BankingListClient(): React.JSX.Element {
                     }
                     bulkBar={
                         selection.size > 0 ? (
-                            <div className="flex items-center justify-between gap-2 text-[13px] text-zoru-ink">
+                            <div className="flex items-center justify-between gap-2 text-[13px] text-[var(--st-text)]">
                                 <div>
                                     <strong>{selection.size}</strong> selected
                                 </div>
@@ -434,8 +434,8 @@ function TabButton({ active, onClick, children }: TabButtonProps) {
             onClick={onClick}
             aria-pressed={active}
             className={[
-                'px-3 py-2 text-[12.5px] font-medium first:rounded-l-md last:rounded-r-md border-l border-zoru-line first:border-l-0',
-                active ? 'bg-zoru-surface-2 text-zoru-ink' : 'text-zoru-ink-muted hover:text-zoru-ink',
+                'px-3 py-2 text-[12.5px] font-medium first:rounded-l-md last:rounded-r-md border-l border-[var(--st-border)] first:border-l-0',
+                active ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]' : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
             ].join(' ')}
         >
             {children}

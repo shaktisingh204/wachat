@@ -117,7 +117,7 @@ const { toast } = useZoruToast();
       header: 'SKU',
       sortable: true,
       render: (row) => (
-        <span className="font-mono text-zoru-ink">{row.sku || '—'}</span>
+        <span className="font-mono text-[var(--st-text)]">{row.sku || '—'}</span>
       ),
     },
     {
@@ -127,7 +127,7 @@ const { toast } = useZoruToast();
       render: (row) => row.categoryId ? (
         <EntityPickerChip entity="category" id={row.categoryId} />
       ) : (
-        <span className="text-zoru-ink-muted">—</span>
+        <span className="text-[var(--st-text-secondary)]">—</span>
       ),
     },
     {
@@ -137,7 +137,7 @@ const { toast } = useZoruToast();
       render: (row) => row.brandId ? (
         <EntityPickerChip entity="brand" id={row.brandId} />
       ) : (
-        <span className="text-zoru-ink-muted">—</span>
+        <span className="text-[var(--st-text-secondary)]">—</span>
       ),
     },
     {
@@ -147,7 +147,7 @@ const { toast } = useZoruToast();
       render: (row) => row.unitId ? (
         <EntityPickerChip entity="unit" id={row.unitId} />
       ) : (
-        <span className="text-zoru-ink-muted">—</span>
+        <span className="text-[var(--st-text-secondary)]">—</span>
       ),
     },
     {
@@ -155,7 +155,7 @@ const { toast } = useZoruToast();
       header: 'Type',
       sortable: true,
       render: (row) => (
-        <span className="capitalize text-zoru-ink-muted">{row.itemType ?? 'goods'}</span>
+        <span className="capitalize text-[var(--st-text-secondary)]">{row.itemType ?? 'goods'}</span>
       ),
     },
     {
@@ -163,7 +163,7 @@ const { toast } = useZoruToast();
       header: 'Selling price',
       sortable: true,
       render: (row) => (
-        <span className="font-mono tabular-nums text-zoru-ink text-right block w-full">
+        <span className="font-mono tabular-nums text-[var(--st-text)] text-right block w-full">
           {fmtINR(row.sellingPrice, row.currency)}
         </span>
       ),
@@ -176,10 +176,10 @@ const { toast } = useZoruToast();
         const low = isLowStock(row);
         const out = isOutOfStock(row);
         const stockClass = out
-          ? 'text-zoru-danger-ink font-semibold'
+          ? 'text-[var(--st-danger)] font-semibold'
           : low
-            ? 'text-zoru-warning-ink font-semibold'
-            : 'text-zoru-ink';
+            ? 'text-[var(--st-warn)] font-semibold'
+            : 'text-[var(--st-text)]';
         return (
           <span className={`font-mono tabular-nums text-right block w-full ${stockClass}`}>
             {row.isTrackInventory ? (
@@ -192,7 +192,7 @@ const { toast } = useZoruToast();
                 ) : null}
               </>
             ) : (
-              <span className="text-zoru-ink-muted">—</span>
+              <span className="text-[var(--st-text-secondary)]">—</span>
             )}
           </span>
         );
@@ -203,7 +203,7 @@ const { toast } = useZoruToast();
       header: 'Reorder pt',
       sortable: true,
       render: (row) => (
-        <span className="font-mono tabular-nums text-zoru-ink-muted text-right block w-full">
+        <span className="font-mono tabular-nums text-[var(--st-text-secondary)] text-right block w-full">
           {row.reorderPoint ?? row.inventory?.[0]?.reorderPoint ?? '—'}
         </span>
       ),
@@ -218,7 +218,7 @@ const { toast } = useZoruToast();
       },
       editRender: (row, value, onChange) => (
         <select
-          className="bg-zoru-surface-2 border border-zoru-line rounded px-1.5 py-0.5 text-[12px] font-medium text-zoru-ink focus:outline-none focus:ring-1 focus:ring-zoru-ink"
+          className="bg-[var(--st-bg-muted)] border border-[var(--st-border)] rounded px-1.5 py-0.5 text-[12px] font-medium text-[var(--st-text)] focus:outline-none focus:ring-1 focus:ring-[var(--st-text)]"
           value={value || 'active'}
           onChange={(e) => onChange(e.target.value)}
         >
@@ -301,7 +301,7 @@ function ItemThumbnail({ src, alt }: { src?: string; alt: string }) {
   const isData = typeof src === 'string' && src.startsWith('data:');
   if (!src || errored) {
     return (
-      <span className="inline-flex h-9 w-9 items-center justify-center rounded-sm bg-zoru-surface-2 text-zoru-ink-muted border border-zoru-line">
+      <span className="inline-flex h-9 w-9 items-center justify-center rounded-sm bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] border border-[var(--st-border)]">
         <Package className="h-4 w-4" />
       </span>
     );
@@ -316,7 +316,7 @@ function ItemThumbnail({ src, alt }: { src?: string; alt: string }) {
         alt={alt}
         width={36}
         height={36}
-        className="h-9 w-9 rounded-sm object-cover border border-zoru-line"
+        className="h-9 w-9 rounded-sm object-cover border border-[var(--st-border)]"
         onError={() => setErrored(true)}
       />
     );
@@ -327,7 +327,7 @@ function ItemThumbnail({ src, alt }: { src?: string; alt: string }) {
       alt={alt}
       width={36}
       height={36}
-      className="h-9 w-9 rounded-sm object-cover border border-zoru-line"
+      className="h-9 w-9 rounded-sm object-cover border border-[var(--st-border)]"
       onError={() => setErrored(true)}
       unoptimized
     />

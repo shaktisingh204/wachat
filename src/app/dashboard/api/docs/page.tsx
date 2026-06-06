@@ -152,7 +152,7 @@ export default function ApiDocsPage() {
                     <BookOpen className="h-8 w-8" />
                     API Documentation
                 </h1>
-                <p className="text-zoru-ink-muted mt-2">
+                <p className="text-[var(--st-text-secondary)] mt-2">
                     Integrate your applications with SabNode using our REST API.
                 </p>
             </div>
@@ -166,7 +166,7 @@ export default function ApiDocsPage() {
                 </ZoruCardHeader>
                 <ZoruCardContent>
                     <CodeBlock code={'Authorization: Bearer YOUR_API_KEY'} language="bash" />
-                    <p className="text-sm text-zoru-ink-muted mt-2">You can generate API keys from the <Link href="/dashboard/api" className="text-zoru-ink hover:underline">API settings page</Link>.</p>
+                    <p className="text-sm text-[var(--st-text-secondary)] mt-2">You can generate API keys from the <Link href="/dashboard/api" className="text-[var(--st-text)] hover:underline">API settings page</Link>.</p>
                 </ZoruCardContent>
             </ZoruCard>
 
@@ -179,7 +179,7 @@ export default function ApiDocsPage() {
                             <ZoruCard key={i} className="card-gradient card-gradient-green">
                                 <ZoruCardHeader>
                                     <div className="flex items-center gap-4">
-                                        <ZoruBadge className={method === 'GET' ? 'bg-zoru-ink' : (method === 'POST' ? 'bg-zoru-ink' : (method === 'PUT' ? 'bg-zoru-ink' : 'bg-zoru-ink'))}>{method}</ZoruBadge>
+                                        <ZoruBadge className={method === 'GET' ? 'bg-[var(--st-text)]' : (method === 'POST' ? 'bg-[var(--st-text)]' : (method === 'PUT' ? 'bg-[var(--st-text)]' : 'bg-[var(--st-text)]'))}>{method}</ZoruBadge>
                                         <ZoruCardTitle className="font-mono text-lg">{path}</ZoruCardTitle>
                                     </div>
                                     <ZoruCardDescription>{endpoint.description}</ZoruCardDescription>
@@ -202,7 +202,7 @@ export default function ApiDocsPage() {
                                                             <ZoruTableRow key={param.name}>
                                                                 <ZoruTableCell className="font-mono">{param.name}</ZoruTableCell>
                                                                 <ZoruTableCell className="font-mono text-xs">{param.type}</ZoruTableCell>
-                                                                <ZoruTableCell className="text-zoru-ink-muted text-xs">{param.desc}</ZoruTableCell>
+                                                                <ZoruTableCell className="text-[var(--st-text-secondary)] text-xs">{param.desc}</ZoruTableCell>
                                                             </ZoruTableRow>
                                                         ))}
                                                     </ZoruTableBody>
@@ -227,7 +227,7 @@ export default function ApiDocsPage() {
                                                             <ZoruTableRow key={param.name}>
                                                                 <ZoruTableCell className="font-mono">{param.name}</ZoruTableCell>
                                                                 <ZoruTableCell className="font-mono text-xs">{param.type}</ZoruTableCell>
-                                                                <ZoruTableCell className="text-zoru-ink-muted text-xs">{param.desc}</ZoruTableCell>
+                                                                <ZoruTableCell className="text-[var(--st-text-secondary)] text-xs">{param.desc}</ZoruTableCell>
                                                             </ZoruTableRow>
                                                         ))}
                                                     </ZoruTableBody>

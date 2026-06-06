@@ -420,7 +420,7 @@ export function EcommProductDialog({
                       name="item_group_id"
                       defaultValue={p?.item_group_id as string | undefined}
                     />
-                    <p className="text-xs text-zoru-ink-muted">
+                    <p className="text-xs text-[var(--st-text-secondary)]">
                       All variants of the same product must share the same
                       group ID.
                     </p>
@@ -432,7 +432,7 @@ export function EcommProductDialog({
                       {variants.map((variant) => (
                         <div
                           key={variant.id}
-                          className="grid grid-cols-[1fr_2fr_auto] items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line p-2"
+                          className="grid grid-cols-[1fr_2fr_auto] items-center gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-2"
                         >
                           <Input
                             placeholder="Name (e.g. Color)"

@@ -116,11 +116,11 @@ function categoryAccept(c: SabfilesCategory): string | undefined {
 }
 
 function iconFor(mime?: string): React.ReactElement {
-    if (mime?.startsWith('image/')) return <FileImage className="text-zoru-ink" />;
-    if (mime?.startsWith('video/')) return <FileVideo className="text-zoru-ink" />;
-    if (mime?.startsWith('audio/')) return <FileAudio className="text-zoru-ink" />;
-    if (mime?.includes('pdf') || mime?.includes('text')) return <FileText className="text-zoru-ink" />;
-    return <FileIcon className="text-zoru-ink-muted" />;
+    if (mime?.startsWith('image/')) return <FileImage className="text-[var(--st-text)]" />;
+    if (mime?.startsWith('video/')) return <FileVideo className="text-[var(--st-text)]" />;
+    if (mime?.startsWith('audio/')) return <FileAudio className="text-[var(--st-text)]" />;
+    if (mime?.includes('pdf') || mime?.includes('text')) return <FileText className="text-[var(--st-text)]" />;
+    return <FileIcon className="text-[var(--st-text-secondary)]" />;
 }
 
 function fmtSize(bytes?: number): string {
@@ -426,7 +426,7 @@ export function SabFilePicker({
                 className="z-[1300] flex max-h-[85vh] max-w-4xl flex-col gap-0 overflow-hidden p-0"
                 overlayClassName="z-[1290]"
             >
-                <div className="flex flex-col gap-3 border-b border-zoru-line p-5">
+                <div className="flex flex-col gap-3 border-b border-[var(--st-border)] p-5">
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>{title}</ZoruDialogTitle>
                         <ZoruDialogDescription>
@@ -434,7 +434,7 @@ export function SabFilePicker({
                         </ZoruDialogDescription>
                     </ZoruDialogHeader>
 
-                    <div className="inline-flex w-fit items-center gap-1 rounded-full border border-zoru-line bg-zoru-surface p-1">
+                    <div className="inline-flex w-fit items-center gap-1 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1">
                         <ModeButton
                             active={mode === 'library'}
                             icon={<FileImage />}
@@ -484,9 +484,9 @@ export function SabFilePicker({
                                         type="button"
                                         onClick={() => setCategory(t.id)}
                                         className={cn(
-                                            'rounded-full border border-zoru-line bg-zoru-bg px-3 py-1 text-xs text-zoru-ink-muted transition-colors hover:border-zoru-ink/30 hover:text-zoru-ink',
+                                            'rounded-full border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-1 text-xs text-[var(--st-text-secondary)] transition-colors hover:border-[var(--st-text)]/30 hover:text-[var(--st-text)]',
                                             category === t.id &&
-                                                'border-zoru-ink bg-zoru-ink text-zoru-on-primary hover:text-zoru-on-primary',
+                                                'border-[var(--st-text)] bg-[var(--st-text)] text-[var(--st-text-inverted)] hover:text-[var(--st-text-inverted)]',
                                         )}
                                     >
                                         {t.label}
@@ -494,17 +494,17 @@ export function SabFilePicker({
                                 ))}
                             </div>
 
-                            <div className="min-h-0 flex-1 overflow-y-auto rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface/40">
+                            <div className="min-h-0 flex-1 overflow-y-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40">
                                 {loading ? (
-                                    <div className="flex h-full min-h-[320px] items-center justify-center text-sm text-zoru-ink-muted">
+                                    <div className="flex h-full min-h-[320px] items-center justify-center text-sm text-[var(--st-text-secondary)]">
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading
                                         your library…
                                     </div>
                                 ) : libraryError ? (
-                                    <div className="flex h-full min-h-[320px] flex-col items-center justify-center gap-2 px-6 text-center text-sm text-zoru-ink">
+                                    <div className="flex h-full min-h-[320px] flex-col items-center justify-center gap-2 px-6 text-center text-sm text-[var(--st-text)]">
                                         <AlertCircle className="h-6 w-6" />
                                         <div className="font-medium">Couldn’t load your library</div>
-                                        <div className="max-w-md text-xs text-zoru-ink-muted">
+                                        <div className="max-w-md text-xs text-[var(--st-text-secondary)]">
                                             {libraryError}
                                         </div>
                                         <Button
@@ -517,9 +517,9 @@ export function SabFilePicker({
                                         </Button>
                                     </div>
                                 ) : items.length === 0 ? (
-                                    <div className="flex h-full min-h-[320px] flex-col items-center justify-center gap-2 px-6 text-center text-sm text-zoru-ink-muted">
-                                        <FileImage className="h-7 w-7 text-zoru-ink-muted/70" />
-                                        <div className="font-medium text-zoru-ink">
+                                    <div className="flex h-full min-h-[320px] flex-col items-center justify-center gap-2 px-6 text-center text-sm text-[var(--st-text-secondary)]">
+                                        <FileImage className="h-7 w-7 text-[var(--st-text-secondary)]/70" />
+                                        <div className="font-medium text-[var(--st-text)]">
                                             {debouncedQuery
                                                 ? 'No matches'
                                                 : 'Nothing here yet'}
@@ -549,9 +549,9 @@ export function SabFilePicker({
                                                     <button
                                                         type="button"
                                                         className={cn(
-                                                            'group relative flex w-full flex-col items-stretch gap-1.5 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-2 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-zoru-ink/40 hover:shadow-md',
+                                                            'group relative flex w-full flex-col items-stretch gap-1.5 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-[var(--st-text)]/40 hover:shadow-md',
                                                             selected &&
-                                                                'border-zoru-ink ring-2 ring-zoru-ink/30',
+                                                                'border-[var(--st-text)] ring-2 ring-[var(--st-text)]/30',
                                                         )}
                                                         onClick={() => setSelectedId(n.id)}
                                                         onDoubleClick={() => {
@@ -559,7 +559,7 @@ export function SabFilePicker({
                                                             setTimeout(onConfirmPick, 0);
                                                         }}
                                                     >
-                                                        <div className="relative flex h-24 w-full items-center justify-center overflow-hidden rounded-[var(--zoru-radius-sm)] bg-zoru-surface">
+                                                        <div className="relative flex h-24 w-full items-center justify-center overflow-hidden rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-secondary)]">
                                                             {n.mime?.startsWith('image/') &&
                                                             n.url ? (
                                                                 // eslint-disable-next-line @next/next/no-img-element
@@ -575,15 +575,15 @@ export function SabFilePicker({
                                                                 </span>
                                                             )}
                                                             {selected && (
-                                                                <div className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-zoru-ink text-zoru-on-primary shadow">
+                                                                <div className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-[var(--st-text)] text-[var(--st-text-inverted)] shadow">
                                                                     <Check className="h-3 w-3" />
                                                                 </div>
                                                             )}
                                                         </div>
-                                                        <div className="truncate text-xs font-medium text-zoru-ink">
+                                                        <div className="truncate text-xs font-medium text-[var(--st-text)]">
                                                             {n.name}
                                                         </div>
-                                                        <div className="text-[10px] uppercase tracking-wide text-zoru-ink-muted">
+                                                        <div className="text-[10px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                                                             {fmtSize(n.size)}
                                                         </div>
                                                     </button>
@@ -615,15 +615,15 @@ export function SabFilePicker({
                                     e.preventDefault();
                                     onUploadFiles(e.dataTransfer.files);
                                 }}
-                                className="flex min-h-[180px] cursor-pointer flex-col items-center justify-center gap-2 rounded-[var(--zoru-radius-lg)] border-2 border-dashed border-zoru-line bg-zoru-surface/40 p-6 text-center transition-colors hover:border-zoru-ink/40 hover:bg-zoru-surface"
+                                className="flex min-h-[180px] cursor-pointer flex-col items-center justify-center gap-2 rounded-[var(--zoru-radius-lg)] border-2 border-dashed border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40 p-6 text-center transition-colors hover:border-[var(--st-text)]/40 hover:bg-[var(--st-bg-secondary)]"
                             >
-                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-bg text-zoru-ink-muted shadow-sm">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg)] text-[var(--st-text-secondary)] shadow-sm">
                                     <Upload className="h-5 w-5" />
                                 </div>
-                                <div className="text-sm font-medium text-zoru-ink">
+                                <div className="text-sm font-medium text-[var(--st-text)]">
                                     Click or drag files here
                                 </div>
-                                <div className="text-xs text-zoru-ink-muted">
+                                <div className="text-xs text-[var(--st-text-secondary)]">
                                     Files upload directly to your SabFiles library.
                                     {acceptAttr && <> Accepts {acceptAttr}.</>} Max{' '}
                                     {fmtSize(maxSize)} per file.
@@ -641,21 +641,21 @@ export function SabFilePicker({
                                 }}
                             />
                             {tasks.length > 0 && (
-                                <div className="flex min-h-0 flex-1 flex-col rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg">
-                                    <div className="flex items-center justify-between border-b border-zoru-line px-3 py-2">
-                                        <span className="text-xs font-semibold text-zoru-ink">
+                                <div className="flex min-h-0 flex-1 flex-col rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)]">
+                                    <div className="flex items-center justify-between border-b border-[var(--st-border)] px-3 py-2">
+                                        <span className="text-xs font-semibold text-[var(--st-text)]">
                                             Uploads
-                                            <span className="ml-1 text-zoru-ink-muted">
+                                            <span className="ml-1 text-[var(--st-text-secondary)]">
                                                 ({doneCount}/{tasks.length})
                                             </span>
                                             {inFlight > 0 && (
-                                                <Loader2 className="ml-2 inline h-3.5 w-3.5 animate-spin text-zoru-ink-muted" />
+                                                <Loader2 className="ml-2 inline h-3.5 w-3.5 animate-spin text-[var(--st-text-secondary)]" />
                                             )}
                                         </span>
                                         {doneCount > 0 && (
                                             <button
                                                 type="button"
-                                                className="text-[11px] text-zoru-ink-muted hover:text-zoru-ink hover:underline"
+                                                className="text-[11px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:underline"
                                                 onClick={() => setMode('library')}
                                             >
                                                 View in library
@@ -666,10 +666,10 @@ export function SabFilePicker({
                                         {tasks.map((t) => (
                                             <li
                                                 key={t.id}
-                                                className="flex flex-col gap-1 rounded-[var(--zoru-radius-sm)] border border-zoru-line/60 bg-zoru-surface/40 p-2"
+                                                className="flex flex-col gap-1 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)]/60 bg-[var(--st-bg-secondary)]/40 p-2"
                                             >
                                                 <div className="flex items-center justify-between gap-2 text-xs">
-                                                    <span className="truncate font-medium text-zoru-ink">
+                                                    <span className="truncate font-medium text-[var(--st-text)]">
                                                         {t.name}
                                                     </span>
                                                     {t.status === 'done' && t.node && (
@@ -678,8 +678,8 @@ export function SabFilePicker({
                                                             className={cn(
                                                                 'text-[11px] font-medium',
                                                                 selectedId === t.node.id
-                                                                    ? 'text-zoru-ink'
-                                                                    : 'text-zoru-ink-muted hover:text-zoru-ink hover:underline',
+                                                                    ? 'text-[var(--st-text)]'
+                                                                    : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:underline',
                                                             )}
                                                             onClick={() =>
                                                                 setSelectedId(t.node!.id)
@@ -691,19 +691,19 @@ export function SabFilePicker({
                                                         </button>
                                                     )}
                                                     {t.status === 'error' && (
-                                                        <span className="text-[11px] font-medium text-zoru-ink">
+                                                        <span className="text-[11px] font-medium text-[var(--st-text)]">
                                                             Failed
                                                         </span>
                                                     )}
                                                     {(t.status === 'uploading' ||
                                                         t.status === 'queued') && (
-                                                        <span className="text-[11px] text-zoru-ink-muted">
+                                                        <span className="text-[11px] text-[var(--st-text-secondary)]">
                                                             {t.progress}%
                                                         </span>
                                                     )}
                                                 </div>
                                                 {t.status === 'error' ? (
-                                                    <span className="text-[11px] text-zoru-ink">
+                                                    <span className="text-[11px] text-[var(--st-text)]">
                                                         {t.error}
                                                     </span>
                                                 ) : (
@@ -721,8 +721,8 @@ export function SabFilePicker({
                     )}
                 </div>
 
-                <ZoruDialogFooter className="border-t border-zoru-line bg-zoru-surface/40 px-5 py-3">
-                    <div className="mr-auto flex items-center text-xs text-zoru-ink-muted">
+                <ZoruDialogFooter className="border-t border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40 px-5 py-3">
+                    <div className="mr-auto flex items-center text-xs text-[var(--st-text-secondary)]">
                         {selectedId
                             ? `1 file selected`
                             : mode === 'library'
@@ -761,8 +761,8 @@ function ModeButton({
             type="button"
             onClick={onClick}
             className={cn(
-                'inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-medium text-zoru-ink-muted transition-colors hover:text-zoru-ink [&>svg]:h-3.5 [&>svg]:w-3.5',
-                active && 'bg-zoru-ink text-zoru-on-primary shadow-sm hover:text-zoru-on-primary',
+                'inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-medium text-[var(--st-text-secondary)] transition-colors hover:text-[var(--st-text)] [&>svg]:h-3.5 [&>svg]:w-3.5',
+                active && 'bg-[var(--st-text)] text-[var(--st-text-inverted)] shadow-sm hover:text-[var(--st-text-inverted)]',
             )}
         >
             {icon}
@@ -772,8 +772,8 @@ function ModeButton({
                     className={cn(
                         'inline-flex h-4 min-w-[1rem] items-center justify-center rounded-full px-1 text-[10px] font-semibold',
                         active
-                            ? 'bg-zoru-on-primary text-zoru-ink'
-                            : 'bg-zoru-ink text-zoru-on-primary',
+                            ? 'bg-[var(--st-text-inverted)] text-[var(--st-text)]'
+                            : 'bg-[var(--st-text)] text-[var(--st-text-inverted)]',
                     )}
                 >
                     {badge}
@@ -863,7 +863,7 @@ export function SabFileUrlInput({
         <div className={cn('flex items-center gap-2', className)}>
             <div
                 className={cn(
-                    'flex h-9 flex-1 items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 text-sm',
+                    'flex h-9 flex-1 items-center gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 text-sm',
                     disabled && 'opacity-60',
                 )}
             >
@@ -877,12 +877,12 @@ export function SabFileUrlInput({
                                 className="h-5 w-5 rounded object-cover"
                             />
                         ) : (
-                            <FileIcon className="h-4 w-4 text-zoru-ink-muted" />
+                            <FileIcon className="h-4 w-4 text-[var(--st-text-secondary)]" />
                         )}
-                        <span className="truncate text-zoru-ink">{displayName}</span>
+                        <span className="truncate text-[var(--st-text)]">{displayName}</span>
                     </>
                 ) : (
-                    <span className="text-zoru-ink-muted">{placeholder}</span>
+                    <span className="text-[var(--st-text-secondary)]">{placeholder}</span>
                 )}
             </div>
             {/* Hidden field so existing FormData-based submissions still work. */}

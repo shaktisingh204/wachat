@@ -180,8 +180,8 @@ export function PayrollRunForm({ initialData }: PayrollRunFormProps) {
         {isEditing ? (
           <>
             <input type="hidden" name="runId" value={initialData!._id} />
-            <ZoruAlert className="bg-zoru-info/10 border-zoru-info/20 text-zoru-info-ink">
-              <Info className="h-4 w-4 !text-zoru-info-ink" />
+            <ZoruAlert className="bg-[var(--st-text-secondary)]/10 border-[var(--st-text-secondary)]/20 text-[var(--st-text-secondary)]">
+              <Info className="h-4 w-4 !text-[var(--st-text-secondary)]" />
               <ZoruAlertTitle>Payslips are locked</ZoruAlertTitle>
               <ZoruAlertDescription>
                 You can only update the run's metadata (status, date, notes). The generated payslips and totals for this run are immutable.
@@ -195,12 +195,12 @@ export function PayrollRunForm({ initialData }: PayrollRunFormProps) {
 
         {/* Wizard Progress Bar */}
         {!isEditing && (
-          <div className="flex items-center gap-2 text-[12px] font-medium text-zoru-ink-muted bg-zoru-surface-2/20 p-3 rounded-lg border border-zoru-line mb-2">
-            <span className={`px-2 py-1 rounded-md ${wizardStep === 1 ? 'bg-zoru-surface-2 text-zoru-ink font-semibold' : ''}`}>1. Select Period</span>
+          <div className="flex items-center gap-2 text-[12px] font-medium text-[var(--st-text-secondary)] bg-[var(--st-bg-muted)]/20 p-3 rounded-lg border border-[var(--st-border)] mb-2">
+            <span className={`px-2 py-1 rounded-md ${wizardStep === 1 ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] font-semibold' : ''}`}>1. Select Period</span>
             <ChevronRight className="h-4 w-4" />
-            <span className={`px-2 py-1 rounded-md ${wizardStep === 2 ? 'bg-zoru-surface-2 text-zoru-ink font-semibold' : ''}`}>2. Resolve Leaves</span>
+            <span className={`px-2 py-1 rounded-md ${wizardStep === 2 ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] font-semibold' : ''}`}>2. Resolve Leaves</span>
             <ChevronRight className="h-4 w-4" />
-            <span className={`px-2 py-1 rounded-md ${wizardStep === 3 ? 'bg-zoru-surface-2 text-zoru-ink font-semibold' : ''}`}>3. Generate Run</span>
+            <span className={`px-2 py-1 rounded-md ${wizardStep === 3 ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] font-semibold' : ''}`}>3. Generate Run</span>
           </div>
         )}
 
@@ -296,37 +296,37 @@ export function PayrollRunForm({ initialData }: PayrollRunFormProps) {
             )}
 
             {wizardStep === 2 && (
-              <Card className={`border p-6 shadow-sm ${pendingLeaves.length > 0 ? 'border-zoru-warning/50 bg-zoru-warning/5' : 'border-zoru-success/50 bg-zoru-success/5'}`}>
+              <Card className={`border p-6 shadow-sm ${pendingLeaves.length > 0 ? 'border-[var(--st-warn)]/50 bg-[var(--st-warn)]/5' : 'border-[var(--st-status-ok)]/50 bg-[var(--st-status-ok)]/5'}`}>
                 <div className="flex items-start gap-4">
                   {pendingLeaves.length > 0 ? (
-                    <AlertTriangle className="h-6 w-6 text-zoru-warning-ink shrink-0 mt-1" />
+                    <AlertTriangle className="h-6 w-6 text-[var(--st-warn)] shrink-0 mt-1" />
                   ) : (
-                    <Sparkles className="h-6 w-6 text-zoru-success-ink shrink-0 mt-1" />
+                    <Sparkles className="h-6 w-6 text-[var(--st-status-ok)] shrink-0 mt-1" />
                   )}
                   <div className="flex-1 space-y-4">
                     <div>
-                      <h4 className={`text-sm font-semibold ${pendingLeaves.length > 0 ? 'text-zoru-warning-ink' : 'text-zoru-success-ink'}`}>
+                      <h4 className={`text-sm font-semibold ${pendingLeaves.length > 0 ? 'text-[var(--st-warn)]' : 'text-[var(--st-status-ok)]'}`}>
                         {pendingLeaves.length > 0 ? 'Pending Leaves Detected' : 'All clear! No pending leaves.'}
                       </h4>
-                      <p className="text-xs text-zoru-ink-muted mt-1">
+                      <p className="text-xs text-[var(--st-text-secondary)] mt-1">
                         {pendingLeaves.length > 0 
                           ? `There are ${pendingLeaves.length} pending leave requests for the selected period. Processing payroll now might result in inaccurate deductions.`
                           : 'There are no pending leave requests for the selected period. You can safely proceed to simulation.'}
                       </p>
                     </div>
                     {pendingLeaves.length > 0 && (
-                      <div className="max-h-40 overflow-y-auto border border-zoru-line rounded bg-zoru-bg shadow-inner">
+                      <div className="max-h-40 overflow-y-auto border border-[var(--st-border)] rounded bg-[var(--st-bg)] shadow-inner">
                         <table className="w-full text-left text-xs">
-                          <thead className="bg-zoru-surface-2 text-zoru-ink-muted sticky top-0">
+                          <thead className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] sticky top-0">
                             <tr>
                               <th className="p-2 font-medium">Employee</th>
                               <th className="p-2 font-medium">Dates</th>
                               <th className="p-2 font-medium">Type</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-zoru-line">
+                          <tbody className="divide-y divide-[var(--st-border)]">
                             {pendingLeaves.map(l => (
-                              <tr key={l._id} className="hover:bg-zoru-surface/50">
+                              <tr key={l._id} className="hover:bg-[var(--st-bg-secondary)]/50">
                                 <td className="p-2">{l.employeeName || 'Unknown'}</td>
                                 <td className="p-2">{new Date(l.startDate).toLocaleDateString()} - {new Date(l.endDate).toLocaleDateString()}</td>
                                 <td className="p-2">{l.leaveType}</td>
@@ -340,7 +340,7 @@ export function PayrollRunForm({ initialData }: PayrollRunFormProps) {
                       <Button type="button" variant="outline" onClick={() => setWizardStep(1)}>
                         Back
                       </Button>
-                      <Button type="button" onClick={handleNextToStep3} className={pendingLeaves.length > 0 ? 'bg-zoru-warning-ink hover:bg-zoru-warning-ink/90 text-white' : ''}>
+                      <Button type="button" onClick={handleNextToStep3} className={pendingLeaves.length > 0 ? 'bg-[var(--st-warn)] hover:bg-[var(--st-warn)]/90 text-white' : ''}>
                         {pendingLeaves.length > 0 ? 'Ignore & Continue' : 'Continue to Simulation'}
                       </Button>
                     </div>
@@ -350,21 +350,21 @@ export function PayrollRunForm({ initialData }: PayrollRunFormProps) {
             )}
 
             {wizardStep === 3 && (
-              <Card className="border border-zoru-line overflow-hidden p-0 bg-zoru-surface/20">
+              <Card className="border border-[var(--st-border)] overflow-hidden p-0 bg-[var(--st-bg-secondary)]/20">
                 {/* Simulation Controller Header */}
-                <div className="flex flex-col gap-4 border-b border-zoru-line bg-zoru-surface/50 p-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-col gap-4 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 p-4 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex items-center gap-2">
-                    <Sparkles className="h-5 w-5 text-zoru-success-ink animate-pulse" />
+                    <Sparkles className="h-5 w-5 text-[var(--st-status-ok)] animate-pulse" />
                     <div>
-                      <h4 className="text-[14px] font-semibold text-zoru-ink">Interactive Simulator Grid</h4>
-                      <p className="text-[11px] text-zoru-ink-muted">Reactively adjust allowancing scales prior to payslip locks</p>
+                      <h4 className="text-[14px] font-semibold text-[var(--st-text)]">Interactive Simulator Grid</h4>
+                      <p className="text-[11px] text-[var(--st-text-secondary)]">Reactively adjust allowancing scales prior to payslip locks</p>
                     </div>
                   </div>
 
                   {/* Slider Controller */}
-                  <div className="flex items-center gap-3 bg-zoru-bg border border-zoru-line px-3 py-1.5 rounded-lg">
-                    <SlidersHorizontal className="h-4 w-4 text-zoru-ink-muted" />
-                    <span className="text-[12px] font-semibold text-zoru-ink-muted uppercase">Multiplier</span>
+                  <div className="flex items-center gap-3 bg-[var(--st-bg)] border border-[var(--st-border)] px-3 py-1.5 rounded-lg">
+                    <SlidersHorizontal className="h-4 w-4 text-[var(--st-text-secondary)]" />
+                    <span className="text-[12px] font-semibold text-[var(--st-text-secondary)] uppercase">Multiplier</span>
                     <input
                       type="range"
                       min="0.5"
@@ -372,10 +372,10 @@ export function PayrollRunForm({ initialData }: PayrollRunFormProps) {
                       step="0.1"
                       value={multiplier}
                       onChange={(e) => setMultiplier(Number(e.target.value))}
-                      className="w-32 accent-zoru-ink h-1.5 bg-zoru-surface rounded-lg cursor-pointer"
+                      className="w-32 accent-[var(--st-text)] h-1.5 bg-[var(--st-bg-secondary)] rounded-lg cursor-pointer"
                     />
                     <span className={`text-[12px] font-mono font-bold px-2 py-0.5 rounded ${
-                      multiplier > 1.0 ? 'bg-zoru-success/15 text-zoru-success-ink' : multiplier < 1.0 ? 'bg-zoru-danger/15 text-zoru-danger-ink' : 'bg-zoru-surface-2 text-zoru-ink'
+                      multiplier > 1.0 ? 'bg-[var(--st-status-ok)]/15 text-[var(--st-status-ok)]' : multiplier < 1.0 ? 'bg-[var(--st-danger)]/15 text-[var(--st-danger)]' : 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
                     }`}>
                       {multiplier.toFixed(1)}x
                     </span>
@@ -384,19 +384,19 @@ export function PayrollRunForm({ initialData }: PayrollRunFormProps) {
 
                 {/* Simulated spreadsheet list */}
                 {isPending ? (
-                  <div className="flex flex-col items-center justify-center py-12 gap-3 text-zoru-ink-muted">
-                    <LoaderCircle className="h-8 w-8 animate-spin text-zoru-info-ink" />
+                  <div className="flex flex-col items-center justify-center py-12 gap-3 text-[var(--st-text-secondary)]">
+                    <LoaderCircle className="h-8 w-8 animate-spin text-[var(--st-text-secondary)]" />
                     <span className="text-[12px]">Computing live salary ledgers...</span>
                   </div>
                 ) : simulatedRows.length === 0 ? (
-                  <div className="text-center py-10 text-[12.5px] text-zoru-ink-muted">
+                  <div className="text-center py-10 text-[12.5px] text-[var(--st-text-secondary)]">
                     No active employee salary structures available for the selected period.
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-[12.5px]">
                       <thead>
-                        <tr className="bg-zoru-surface-2 text-zoru-ink-muted text-[11px] font-semibold uppercase">
+                        <tr className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] text-[11px] font-semibold uppercase">
                           <th className="p-3 text-left">Employee Name</th>
                           <th className="p-3 text-right">Base CTC Gross</th>
                           <th className="p-3 text-right">Basic Pay (50%)</th>
@@ -406,7 +406,7 @@ export function PayrollRunForm({ initialData }: PayrollRunFormProps) {
                           <th className="p-3 text-right">Net Takehome</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-zoru-line">
+                      <tbody className="divide-y divide-[var(--st-border)]">
                         {simulatedRows.map((row) => {
                           const { totalEarnings, totalDeductions, netSalary } = getScaledValues(row);
                           const baseGross = row.grossSalary || 0;
@@ -417,22 +417,22 @@ export function PayrollRunForm({ initialData }: PayrollRunFormProps) {
                           const allowanceAmt = ((row.earnings ?? []).find((e: any) => e.name.toLowerCase().includes('allowance'))?.amount || (baseGross * 0.3)) * multiplier;
 
                           return (
-                            <tr key={row.employeeId} className="hover:bg-zoru-surface-2/10">
+                            <tr key={row.employeeId} className="hover:bg-[var(--st-bg-muted)]/10">
                               <td className="p-3">
-                                <div className="font-medium text-zoru-ink">{row.employeeName}</div>
-                                <div className="text-[10px] font-mono text-zoru-ink-muted mt-0.5">{row.employeeId}</div>
+                                <div className="font-medium text-[var(--st-text)]">{row.employeeName}</div>
+                                <div className="text-[10px] font-mono text-[var(--st-text-secondary)] mt-0.5">{row.employeeId}</div>
                               </td>
-                              <td className="p-3 text-right font-mono text-zoru-ink-muted">{inrFormatter.format(baseGross / 12)}</td>
-                              <td className="p-3 text-right font-mono text-zoru-ink">{inrFormatter.format(basicAmt)}</td>
-                              <td className={`p-3 text-right font-mono font-medium transition-colors duration-300 ${multiplier !== 1.0 ? 'text-zoru-ink bg-zoru-ink/5' : 'text-zoru-ink'}`}>
+                              <td className="p-3 text-right font-mono text-[var(--st-text-secondary)]">{inrFormatter.format(baseGross / 12)}</td>
+                              <td className="p-3 text-right font-mono text-[var(--st-text)]">{inrFormatter.format(basicAmt)}</td>
+                              <td className={`p-3 text-right font-mono font-medium transition-colors duration-300 ${multiplier !== 1.0 ? 'text-[var(--st-text)] bg-[var(--st-text)]/5' : 'text-[var(--st-text)]'}`}>
                                 {inrFormatter.format(hraAmt)}
                               </td>
-                              <td className={`p-3 text-right font-mono font-medium transition-colors duration-300 ${multiplier !== 1.0 ? 'text-zoru-ink bg-zoru-ink/5' : 'text-zoru-ink'}`}>
+                              <td className={`p-3 text-right font-mono font-medium transition-colors duration-300 ${multiplier !== 1.0 ? 'text-[var(--st-text)] bg-[var(--st-text)]/5' : 'text-[var(--st-text)]'}`}>
                                 {inrFormatter.format(allowanceAmt)}
                               </td>
-                              <td className="p-3 text-right font-mono text-zoru-danger-ink">{inrFormatter.format(totalDeductions)}</td>
+                              <td className="p-3 text-right font-mono text-[var(--st-danger)]">{inrFormatter.format(totalDeductions)}</td>
                               <td className="p-3 text-right">
-                                <span className="inline-block px-2.5 py-1 rounded bg-zoru-success/10 text-zoru-success-ink font-mono font-bold shadow-sm">
+                                <span className="inline-block px-2.5 py-1 rounded bg-[var(--st-status-ok)]/10 text-[var(--st-status-ok)] font-mono font-bold shadow-sm">
                                   {inrFormatter.format(netSalary)}
                                 </span>
                               </td>
@@ -446,14 +446,14 @@ export function PayrollRunForm({ initialData }: PayrollRunFormProps) {
 
                 {/* Safety Switch Box */}
                 {simulatedRows.length > 0 && (
-                  <div className="border-t border-zoru-line p-4 flex items-center justify-between gap-4 bg-zoru-surface-2/30">
+                  <div className="border-t border-[var(--st-border)] p-4 flex items-center justify-between gap-4 bg-[var(--st-bg-muted)]/30">
                     <div className="flex items-center gap-2">
                       {isApproved ? (
-                        <Lock className="h-4 w-4 text-zoru-success-ink" />
+                        <Lock className="h-4 w-4 text-[var(--st-status-ok)]" />
                       ) : (
-                        <Unlock className="h-4 w-4 text-zoru-warning-ink" />
+                        <Unlock className="h-4 w-4 text-[var(--st-warn)]" />
                       )}
-                      <span className="text-[12.5px] font-medium text-zoru-ink">
+                      <span className="text-[12.5px] font-medium text-[var(--st-text)]">
                         {isApproved ? 'Parameters locked and ready' : 'Unlock run validation before processing'}
                       </span>
                     </div>
@@ -464,13 +464,13 @@ export function PayrollRunForm({ initialData }: PayrollRunFormProps) {
                         onChange={(e) => setIsApproved(e.target.checked)}
                         className="sr-only peer"
                       />
-                      <div className="w-11 h-6 bg-zoru-surface-2 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-zoru-ink-muted after:border-zoru-line after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-zoru-ink peer-checked:after:bg-white"></div>
+                      <div className="w-11 h-6 bg-[var(--st-bg-muted)] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[var(--st-text-secondary)] after:border-[var(--st-border)] after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--st-text)] peer-checked:after:bg-white"></div>
                     </label>
                   </div>
                 )}
                 
                 {/* Back button for Step 3 */}
-                <div className="p-4 border-t border-zoru-line flex justify-start bg-zoru-bg">
+                <div className="p-4 border-t border-[var(--st-border)] flex justify-start bg-[var(--st-bg)]">
                   <Button type="button" variant="outline" onClick={() => setWizardStep(2)}>
                     Back
                   </Button>
@@ -494,7 +494,7 @@ export function PayrollRunForm({ initialData }: PayrollRunFormProps) {
               disabled={!isEditing && !isApproved}
               className={`shadow-sm transition-all duration-300 ${
                 !isEditing && isApproved
-                  ? 'bg-gradient-to-r from-zoru-ink to-zoru-ink hover:from-zoru-ink hover:to-zoru-ink text-white font-semibold ring-2 ring-zoru-line/20'
+                  ? 'bg-gradient-to-r from-[var(--st-text)] to-[var(--st-text)] hover:from-[var(--st-text)] hover:to-[var(--st-text)] text-white font-semibold ring-2 ring-[var(--st-border)]/20'
                   : ''
               }`}
             >

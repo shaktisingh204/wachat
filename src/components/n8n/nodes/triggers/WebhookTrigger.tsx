@@ -45,12 +45,12 @@ export type WebhookTriggerProps = {
 const METHODS: WebhookTriggerMethod[] = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'ANY'];
 
 const METHOD_COLORS: Record<WebhookTriggerMethod, string> = {
-  GET:    'text-zoru-ink bg-zoru-surface-2 border-zoru-line',
-  POST:   'text-zoru-ink bg-zoru-surface-2 border-zoru-line',
-  PUT:    'text-zoru-ink bg-zoru-surface-2 border-zoru-line',
-  PATCH:  'text-zoru-ink bg-zoru-surface-2 border-zoru-line',
-  DELETE: 'text-zoru-ink bg-zoru-surface-2 border-zoru-line',
-  ANY:    'text-zoru-ink bg-zoru-surface-2 border-zoru-line',
+  GET:    'text-[var(--st-text)] bg-[var(--st-bg-muted)] border-[var(--st-border)]',
+  POST:   'text-[var(--st-text)] bg-[var(--st-bg-muted)] border-[var(--st-border)]',
+  PUT:    'text-[var(--st-text)] bg-[var(--st-bg-muted)] border-[var(--st-border)]',
+  PATCH:  'text-[var(--st-text)] bg-[var(--st-bg-muted)] border-[var(--st-border)]',
+  DELETE: 'text-[var(--st-text)] bg-[var(--st-bg-muted)] border-[var(--st-border)]',
+  ANY:    'text-[var(--st-text)] bg-[var(--st-bg-muted)] border-[var(--st-border)]',
 };
 
 /* ── Component ───────────────────────────────────────────── */
@@ -75,7 +75,7 @@ export function WebhookTrigger({ config, baseUrl = '', onChange, className }: We
     <div className={cn('space-y-4', className)}>
       {/* Node header chip */}
       <div className="flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-ink/10 text-zoru-ink">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-text)]/10 text-[var(--st-text)]">
           <LuWebhook className="h-4 w-4" strokeWidth={2} />
         </div>
         <div>
@@ -98,7 +98,7 @@ export function WebhookTrigger({ config, baseUrl = '', onChange, className }: We
             title="Copy URL"
           >
             {copied
-              ? <LuCheck className="h-3.5 w-3.5 text-zoru-ink" strokeWidth={2} />
+              ? <LuCheck className="h-3.5 w-3.5 text-[var(--st-text)]" strokeWidth={2} />
               : <LuCopy className="h-3.5 w-3.5" strokeWidth={2} />
             }
           </button>
@@ -294,8 +294,8 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
       aria-checked={checked}
       onClick={() => onChange(!checked)}
       className={cn(
-        'relative h-5 w-9 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-line',
-        checked ? 'bg-zoru-ink' : 'bg-[var(--gray-5)]',
+        'relative h-5 w-9 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-border)]',
+        checked ? 'bg-[var(--st-text)]' : 'bg-[var(--gray-5)]',
       )}
     >
       <span
@@ -317,7 +317,7 @@ function OutputSchema({ fields }: { fields: OutputField[] }) {
       <div className="rounded-lg border border-dashed border-[var(--gray-5)] bg-[var(--gray-2)] divide-y divide-[var(--gray-4)]">
         {fields.map((f) => (
           <div key={f.key} className="flex items-center gap-2 px-3 py-1.5">
-            <code className="min-w-[80px] text-[11.5px] font-mono font-medium text-zoru-ink">{f.key}</code>
+            <code className="min-w-[80px] text-[11.5px] font-mono font-medium text-[var(--st-text)]">{f.key}</code>
             <span className="rounded bg-[var(--gray-4)] px-1 py-0.5 text-[10px] font-mono text-[var(--gray-9)]">{f.type}</span>
             <span className="flex-1 text-[11px] text-[var(--gray-9)] truncate">{f.description}</span>
           </div>
@@ -330,4 +330,4 @@ function OutputSchema({ fields }: { fields: OutputField[] }) {
 /* ── Shared class strings ────────────────────────────────── */
 
 const INPUT_CLS =
-  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-3)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-zoru-line transition-colors';
+  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-3)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[var(--st-border)] transition-colors';

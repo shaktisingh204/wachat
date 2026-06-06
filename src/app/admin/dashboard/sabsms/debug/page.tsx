@@ -41,7 +41,7 @@ export default async function SabsmsAdminDebugPage() {
           <ZoruPageDescription>
             Push a real SMS through the Rust engine to verify the pipeline.
             Uses the Twilio credentials configured on the engine
-            (<code className="rounded bg-zoru-surface px-1 py-0.5 text-xs">SABSMS_TWILIO_*</code>).
+            (<code className="rounded bg-[var(--st-bg-secondary)] px-1 py-0.5 text-xs">SABSMS_TWILIO_*</code>).
           </ZoruPageDescription>
         </ZoruPageHeading>
       </PageHeader>
@@ -56,7 +56,7 @@ export default async function SabsmsAdminDebugPage() {
         </ZoruCardHeader>
         <ZoruCardContent>
           {!engineHealthy && (
-            <div className="mb-4 rounded border border-zoru-line bg-zoru-surface-2 p-4 text-sm text-zoru-ink">
+            <div className="mb-4 rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 text-sm text-[var(--st-text)]">
               <strong className="font-semibold">Engine Unavailable: </strong>
               {engineError || 'The SabSMS engine is currently down or disabled.'}
             </div>

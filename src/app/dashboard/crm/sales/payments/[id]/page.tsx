@@ -43,10 +43,10 @@ function fmtDate(v?: string): string {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
         {label}
       </div>
-      <div className="mt-1 text-[13px] text-zoru-ink">{children}</div>
+      <div className="mt-1 text-[13px] text-[var(--st-text)]">{children}</div>
     </div>
   );
 }
@@ -63,7 +63,7 @@ export default async function PaymentReceiptDetailPage({
     if (error) {
       return (
         <div className="flex w-full flex-col gap-4 p-6">
-          <p className="text-[14px] text-zoru-ink">
+          <p className="text-[14px] text-[var(--st-text)]">
             Couldn&apos;t load this payment receipt — {error}
           </p>
           <Button variant="outline" asChild>
@@ -96,7 +96,7 @@ export default async function PaymentReceiptDetailPage({
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="p-6 lg:col-span-2">
-          <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
             Header
           </h3>
           <div className="grid gap-4 md:grid-cols-2">
@@ -128,7 +128,7 @@ export default async function PaymentReceiptDetailPage({
             </Field>
           </div>
 
-          <h3 className="mb-4 mt-8 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          <h3 className="mb-4 mt-8 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
             Mode details
           </h3>
           <div className="grid gap-4 md:grid-cols-2">
@@ -146,10 +146,10 @@ export default async function PaymentReceiptDetailPage({
 
           {receipt.notes ? (
             <>
-              <h3 className="mb-2 mt-8 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+              <h3 className="mb-2 mt-8 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Notes
               </h3>
-              <p className="whitespace-pre-wrap text-[13px] text-zoru-ink">
+              <p className="whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
                 {receipt.notes}
               </p>
             </>
@@ -157,7 +157,7 @@ export default async function PaymentReceiptDetailPage({
         </Card>
 
         <Card className="p-6">
-          <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
             Amount
           </h3>
           <div className="flex flex-col gap-4">
@@ -177,11 +177,11 @@ export default async function PaymentReceiptDetailPage({
       </div>
 
       <Card className="p-6">
-        <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Allocation
         </h3>
         {applied.length === 0 ? (
-          <p className="text-[13px] text-zoru-ink-muted">
+          <p className="text-[13px] text-[var(--st-text-secondary)]">
             No invoice allocations on this receipt.
           </p>
         ) : (
@@ -189,12 +189,12 @@ export default async function PaymentReceiptDetailPage({
             {applied.map((row, idx) => (
               <div
                 key={`${row.invoiceId}-${idx}`}
-                className="flex items-center justify-between rounded-md border border-zoru-line bg-zoru-surface-2 px-3 py-2 text-[13px]"
+                className="flex items-center justify-between rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-[13px]"
               >
-                <span className="font-mono text-[12px] text-zoru-ink">
+                <span className="font-mono text-[12px] text-[var(--st-text)]">
                   {row.invoiceId}
                 </span>
-                <span className="tabular-nums text-zoru-ink">
+                <span className="tabular-nums text-[var(--st-text)]">
                   {fmtMoney(row.amount, receipt.currency)}
                 </span>
               </div>
@@ -203,7 +203,7 @@ export default async function PaymentReceiptDetailPage({
         )}
       </Card>
 
-      <div className="text-[11px] text-zoru-ink-muted">
+      <div className="text-[11px] text-[var(--st-text-secondary)]">
         Created {fmtDate(receipt.createdAt || receipt.audit?.createdAt)} · Updated{' '}
         {fmtDate(receipt.updatedAt || receipt.audit?.updatedAt)}
       </div>

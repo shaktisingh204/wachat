@@ -117,7 +117,7 @@ function renderTokens(root: HTMLElement, tokens: Token[]) {
       chip.textContent = `{{${t.name}}}`;
       chip.className = [
         'inline-flex items-center rounded-md',
-        'bg-zoru-ink/15 text-zoru-ink',
+        'bg-[var(--st-text)]/15 text-[var(--st-text)]',
         'px-1.5 py-0.5 mx-0.5',
         'font-mono text-[11.5px] font-medium',
         'select-none whitespace-nowrap align-baseline',
@@ -635,7 +635,7 @@ export function ChipInput({
           className={cn(
             'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)]',
             'px-3 py-2 text-[13px] text-[var(--gray-12)]',
-            'outline-none focus:border-zoru-line transition-colors',
+            'outline-none focus:border-[var(--st-border)] transition-colors',
             'whitespace-pre-wrap break-words',
             multiline ? 'min-h-[80px]' : 'min-h-[38px]',
             className,

@@ -51,7 +51,7 @@ async function RoadmapDataLoader({ id }: { id: string }) {
 function RoadmapLoading() {
   return (
     <div className="flex h-full items-center justify-center min-h-[400px]">
-      <LoaderCircle className="h-8 w-8 animate-spin text-zoru-ink-muted" />
+      <LoaderCircle className="h-8 w-8 animate-spin text-[var(--st-text-secondary)]" />
     </div>
   );
 }

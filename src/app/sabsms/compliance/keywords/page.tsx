@@ -106,8 +106,8 @@ export default function KeywordsPage() {
               />
             </div>
 
-            <Card className="border-zoru-line shadow-sm">
-              <ZoruCardHeader className="flex flex-row items-start justify-between bg-zoru-surface-2/20 pb-4 border-b">
+            <Card className="border-[var(--st-border)] shadow-sm">
+              <ZoruCardHeader className="flex flex-row items-start justify-between bg-[var(--st-bg-muted)]/20 pb-4 border-b">
                 <div>
                   <ZoruCardTitle className="text-xl">Keyword & Suppression Mapping</ZoruCardTitle>
                   <ZoruCardDescription className="mt-1">
@@ -115,7 +115,7 @@ export default function KeywordsPage() {
                   </ZoruCardDescription>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Input placeholder="Search keywords..." className="w-64 bg-zoru-surface" />
+                  <Input placeholder="Search keywords..." className="w-64 bg-[var(--st-bg-secondary)]" />
                   <Button variant="outline"><Filter className="w-4 h-4 mr-2" /> Filter</Button>
                 </div>
               </ZoruCardHeader>
@@ -129,7 +129,7 @@ export default function KeywordsPage() {
                       render: (r) => (
                         <div className="flex flex-col py-2">
                           <span className="font-mono font-bold text-[15px]">{r.keyword}</span>
-                          <span className="text-xs text-zoru-ink-muted flex items-center gap-1 mt-1">
+                          <span className="text-xs text-[var(--st-text-secondary)] flex items-center gap-1 mt-1">
                             <Code2 className="w-3 h-3"/> {r.matchType} Match
                           </span>
                         </div>
@@ -141,7 +141,7 @@ export default function KeywordsPage() {
                       render: (r) => (
                         <Badge 
                           variant={r.actionType === "Opt-out" ? "destructive" : r.actionType === "Opt-in" ? "default" : "secondary"}
-                          className={r.actionType === "Opt-in" ? "bg-zoru-ink/10 text-zoru-ink hover:bg-zoru-ink/20 border-zoru-line/20" : ""}
+                          className={r.actionType === "Opt-in" ? "bg-[var(--st-text)]/10 text-[var(--st-text)] hover:bg-[var(--st-text)]/20 border-[var(--st-border)]/20" : ""}
                         >
                           {r.actionType}
                         </Badge>
@@ -153,11 +153,11 @@ export default function KeywordsPage() {
                       render: (r) => (
                         <div className="flex items-center gap-2">
                           {r.actionType === "Opt-out" ? (
-                            <ShieldAlert className="w-4 h-4 text-zoru-ink/70"/>
+                            <ShieldAlert className="w-4 h-4 text-[var(--st-text)]/70"/>
                           ) : r.actionType === "Opt-in" ? (
-                            <ShieldCheck className="w-4 h-4 text-zoru-ink/70"/>
+                            <ShieldCheck className="w-4 h-4 text-[var(--st-text)]/70"/>
                           ) : (
-                            <ListFilter className="w-4 h-4 text-zoru-ink-muted"/>
+                            <ListFilter className="w-4 h-4 text-[var(--st-text-secondary)]"/>
                           )}
                           <span className="font-medium text-sm">{r.suppressionList}</span>
                         </div>
@@ -168,7 +168,7 @@ export default function KeywordsPage() {
                       header: "Locale", 
                       render: (r) => (
                         <div className="flex items-center gap-1.5 text-sm">
-                          <Globe2 className="w-3.5 h-3.5 text-zoru-ink-muted" /> {r.locale}
+                          <Globe2 className="w-3.5 h-3.5 text-[var(--st-text-secondary)]" /> {r.locale}
                         </div>
                       )
                     },
@@ -178,10 +178,10 @@ export default function KeywordsPage() {
                       render: (r) => (
                         <div className="flex flex-wrap gap-1">
                           {r.networks.length > 0 ? r.networks.map(n => (
-                            <Badge key={n} variant="outline" className="text-[10px] uppercase font-semibold bg-zoru-surface-2/30">
+                            <Badge key={n} variant="outline" className="text-[10px] uppercase font-semibold bg-[var(--st-bg-muted)]/30">
                               {n}
                             </Badge>
-                          )) : <span className="text-xs text-zoru-ink-muted italic">None</span>}
+                          )) : <span className="text-xs text-[var(--st-text-secondary)] italic">None</span>}
                         </div>
                       ) 
                     },
@@ -195,7 +195,7 @@ export default function KeywordsPage() {
                       header: "Status", 
                       render: (r) => (
                         <div className="flex items-center gap-2 text-sm font-medium">
-                          <span className={`w-2 h-2 rounded-full ${r.status === 'Active' ? 'bg-zoru-ink shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-zoru-surface-2-foreground'}`} />
+                          <span className={`w-2 h-2 rounded-full ${r.status === 'Active' ? 'bg-[var(--st-text)] shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-[var(--st-text)]'}`} />
                           {r.status}
                         </div>
                       )
@@ -286,8 +286,8 @@ export default function KeywordsPage() {
 
                 <div className="space-y-2">
                   <Label className="text-base">Match Precedence Editor (Feature 15)</Label>
-                  <p className="text-sm text-zoru-ink-muted">Drag to reorder precedence (mocked UI).</p>
-                  <div className="p-3 border rounded-md bg-zoru-surface-2/50 font-mono text-sm">
+                  <p className="text-sm text-[var(--st-text-secondary)]">Drag to reorder precedence (mocked UI).</p>
+                  <div className="p-3 border rounded-md bg-[var(--st-bg-muted)]/50 font-mono text-sm">
                     1. Exact word match (e.g., "STOP")<br/>
                     2. Prefix match (e.g., "STOP promotions")<br/>
                     3. Fuzzy match / Typo tolerance
@@ -311,7 +311,7 @@ export default function KeywordsPage() {
                     <Label>Auto-reply Rate Limit (Feature 8)</Label>
                     <div className="flex items-center gap-2">
                       <Input type="number" defaultValue={1} className="w-24" />
-                      <span className="text-sm text-zoru-ink-muted">replies per minute per contact</span>
+                      <span className="text-sm text-[var(--st-text-secondary)]">replies per minute per contact</span>
                     </div>
                   </div>
 
@@ -335,16 +335,16 @@ export default function KeywordsPage() {
                 </ZoruCardContent>
               </Card>
 
-              <Card className="border-zoru-line dark:border-zoru-line">
+              <Card className="border-[var(--st-border)] dark:border-[var(--st-border)]">
                 <ZoruCardHeader>
-                  <div className="flex items-center gap-2 text-zoru-ink dark:text-zoru-ink">
+                  <div className="flex items-center gap-2 text-[var(--st-text)] dark:text-[var(--st-text)]">
                     <ShieldAlert className="h-5 w-5" />
                     <ZoruCardTitle>Carrier-Blocked Warnings (Feature 11)</ZoruCardTitle>
                   </div>
                   <ZoruCardDescription>Alerts regarding carrier restrictions on keywords.</ZoruCardDescription>
                 </ZoruCardHeader>
                 <ZoruCardContent>
-                  <div className="text-sm p-3 bg-zoru-surface-2 dark:bg-zoru-ink/30 rounded-md">
+                  <div className="text-sm p-3 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 rounded-md">
                     <strong>Warning:</strong> The keyword <em>"FREE"</em> is heavily filtered by US carriers on 10DLC. Avoid using this as a custom trigger.
                   </div>
                 </ZoruCardContent>
@@ -384,15 +384,15 @@ export default function KeywordsPage() {
                       <Button>Test</Button>
                     </div>
                   </div>
-                  <div className="p-3 border rounded text-sm text-zoru-ink-muted">
-                    Result: Matches <span className="font-bold text-zoru-ink">STOP</span> (Fuzzy match)
+                  <div className="p-3 border rounded text-sm text-[var(--st-text-secondary)]">
+                    Result: Matches <span className="font-bold text-[var(--st-text)]">STOP</span> (Fuzzy match)
                   </div>
                 </ZoruCardContent>
               </Card>
 
-              <Card className="bg-zoru-ink/5 border-primary/20">
+              <Card className="bg-[var(--st-text)]/5 border-primary/20">
                 <ZoruCardHeader>
-                  <div className="flex items-center gap-2 text-zoru-ink">
+                  <div className="flex items-center gap-2 text-[var(--st-text)]">
                     <Sparkles className="h-5 w-5" />
                     <ZoruCardTitle>AI Insights (Feature 18)</ZoruCardTitle>
                   </div>

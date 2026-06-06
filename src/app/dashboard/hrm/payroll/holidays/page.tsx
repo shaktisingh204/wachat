@@ -431,18 +431,18 @@ export default function HolidaysPage(): React.JSX.Element {
         bulkBar={
           selected.size > 0 ? (
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[13px] text-zoru-ink">
+              <span className="text-[13px] text-[var(--st-text)]">
                 {selected.size === 1
                   ? t('hrm.payroll.holidays.selection.one', { count: selected.size })
                   : t('hrm.payroll.holidays.selection.many', { count: selected.size })}
               </span>
-              <span className="mx-1 h-4 w-px bg-zoru-line" aria-hidden />
+              <span className="mx-1 h-4 w-px bg-[var(--st-border)]" aria-hidden />
               <Button
                 size="sm"
                 variant="outline"
                 onClick={() => setDeletePending(true)}
               >
-                <Trash2 className="h-3.5 w-3.5 text-zoru-ink" /> {t('hrm.payroll.holidays.bulk.delete')}
+                <Trash2 className="h-3.5 w-3.5 text-[var(--st-text)]" /> {t('hrm.payroll.holidays.bulk.delete')}
               </Button>
               <Button size="sm" variant="outline" onClick={exportCsv}>
                 {t('hrm.payroll.holidays.bulk.export')}
@@ -462,11 +462,11 @@ export default function HolidaysPage(): React.JSX.Element {
         empty={
           !isPending && holidays.length === 0 ? (
             <div className="flex flex-col items-center gap-3 p-4">
-              <CalendarHeart className="h-8 w-8 text-zoru-ink-muted" />
-              <h3 className="text-base font-medium text-zoru-ink">
+              <CalendarHeart className="h-8 w-8 text-[var(--st-text-secondary)]" />
+              <h3 className="text-base font-medium text-[var(--st-text)]">
                 {t('hrm.payroll.holidays.empty.title')}
               </h3>
-              <p className="max-w-sm text-sm text-zoru-ink-muted">
+              <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                 {t('hrm.payroll.holidays.empty.subtitle')}
               </p>
               <div className="flex gap-2">

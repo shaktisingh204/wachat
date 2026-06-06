@@ -23,7 +23,7 @@ export default async function SurveyDetailPage({
   const list = (await getSurveys()) as Row[];
   const row = list.find((r) => String(r._id) === id) ?? null;
 
-  if (!row) return <div className="text-sm text-zoru-ink-muted">Survey not found.</div>;
+  if (!row) return <div className="text-sm text-[var(--st-text-secondary)]">Survey not found.</div>;
 
   const questions = (row.questions ?? []) as { prompt: string; type: string; required?: string }[];
   const got = Number(row.responsesCount) || 0;
@@ -81,8 +81,8 @@ export default async function SurveyDetailPage({
                   label: `Q${i + 1}`,
                   value: (
                     <div>
-                      <p className="text-sm text-zoru-ink">{q.prompt}</p>
-                      <p className="mt-0.5 text-[11px] text-zoru-ink-muted">
+                      <p className="text-sm text-[var(--st-text)]">{q.prompt}</p>
+                      <p className="mt-0.5 text-[11px] text-[var(--st-text-secondary)]">
                         {q.type}
                         {q.required === 'yes' ? ' · required' : ''}
                       </p>

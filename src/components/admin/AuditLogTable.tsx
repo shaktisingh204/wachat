@@ -63,12 +63,12 @@ interface BucketCardProps {
 function BucketCard({ title, items, emptyLabel, onSelect, selectedKey }: BucketCardProps) {
     const top = items.slice(0, 5);
     return (
-        <div className="rounded-2xl border border-zoru-line bg-white p-4">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-zoru-ink">
+        <div className="rounded-2xl border border-[var(--st-border)] bg-white p-4">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--st-text)]">
                 {title}
             </h3>
             {top.length === 0 ? (
-                <p className="mt-3 text-sm text-zoru-ink-muted">
+                <p className="mt-3 text-sm text-[var(--st-text-secondary)]">
                     {emptyLabel ?? 'No data in range.'}
                 </p>
             ) : (
@@ -80,14 +80,14 @@ function BucketCard({ title, items, emptyLabel, onSelect, selectedKey }: BucketC
                                 onClick={() => onSelect?.(b.key)}
                                 className={cn(
                                     'flex w-full items-center justify-between rounded-md px-2 py-1.5 text-sm transition-colors',
-                                    'hover:bg-zoru-surface-2',
-                                    selectedKey === b.key && 'bg-zoru-surface-2 font-medium',
+                                    'hover:bg-[var(--st-bg-muted)]',
+                                    selectedKey === b.key && 'bg-[var(--st-bg-muted)] font-medium',
                                 )}
                             >
-                                <span className="truncate text-zoru-ink">{b.key}</span>
-                                <span className="ml-2 flex shrink-0 items-center gap-2 text-xs text-zoru-ink">
+                                <span className="truncate text-[var(--st-text)]">{b.key}</span>
+                                <span className="ml-2 flex shrink-0 items-center gap-2 text-xs text-[var(--st-text)]">
                                     {b.failures > 0 ? (
-                                        <span className="rounded-full bg-zoru-surface-2 px-1.5 py-0.5 font-medium text-zoru-ink">
+                                        <span className="rounded-full bg-[var(--st-bg-muted)] px-1.5 py-0.5 font-medium text-[var(--st-text)]">
                                             {b.failures} fail
                                         </span>
                                     ) : null}
@@ -201,36 +201,36 @@ export function AuditLogTable({ summary }: AuditLogTableProps) {
         <div className="space-y-6">
             {/* KPI strip */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <div className="rounded-2xl border border-zoru-line bg-white p-4">
-                    <div className="text-xs font-semibold uppercase tracking-wider text-zoru-ink">
+                <div className="rounded-2xl border border-[var(--st-border)] bg-white p-4">
+                    <div className="text-xs font-semibold uppercase tracking-wider text-[var(--st-text)]">
                         Total events
                     </div>
-                    <div className="mt-2 text-2xl font-bold text-zoru-ink">
+                    <div className="mt-2 text-2xl font-bold text-[var(--st-text)]">
                         {summary.total.toLocaleString()}
                     </div>
                 </div>
-                <div className="rounded-2xl border border-zoru-line bg-white p-4">
-                    <div className="text-xs font-semibold uppercase tracking-wider text-zoru-ink">
+                <div className="rounded-2xl border border-[var(--st-border)] bg-white p-4">
+                    <div className="text-xs font-semibold uppercase tracking-wider text-[var(--st-text)]">
                         Failures
                     </div>
                     <div className="mt-2 flex items-center gap-2">
-                        <span className="text-2xl font-bold text-zoru-ink">
+                        <span className="text-2xl font-bold text-[var(--st-text)]">
                             {summary.failures.toLocaleString()}
                         </span>
                         {summary.failures > 0 ? (
-                            <ShieldAlert className="h-5 w-5 text-zoru-ink" />
+                            <ShieldAlert className="h-5 w-5 text-[var(--st-text)]" />
                         ) : (
-                            <ShieldCheck className="h-5 w-5 text-zoru-ink" />
+                            <ShieldCheck className="h-5 w-5 text-[var(--st-text)]" />
                         )}
                     </div>
                 </div>
-                <div className="rounded-2xl border border-zoru-line bg-white p-4">
-                    <div className="text-xs font-semibold uppercase tracking-wider text-zoru-ink">
+                <div className="rounded-2xl border border-[var(--st-border)] bg-white p-4">
+                    <div className="text-xs font-semibold uppercase tracking-wider text-[var(--st-text)]">
                         Window
                     </div>
-                    <div className="mt-2 text-sm text-zoru-ink">
+                    <div className="mt-2 text-sm text-[var(--st-text)]">
                         {formatTimestamp(summary.range.from)}
-                        <span className="mx-2 text-zoru-ink-muted">→</span>
+                        <span className="mx-2 text-[var(--st-text-secondary)]">→</span>
                         {formatTimestamp(summary.range.to)}
                     </div>
                 </div>
@@ -261,14 +261,14 @@ export function AuditLogTable({ summary }: AuditLogTableProps) {
             </div>
 
             {/* Filter row */}
-            <div className="rounded-2xl border border-zoru-line bg-white p-4">
+            <div className="rounded-2xl border border-[var(--st-border)] bg-white p-4">
                 <div className="flex flex-wrap items-end gap-3">
                     <div className="min-w-[220px] flex-1">
-                        <label className="text-xs font-medium text-zoru-ink">
+                        <label className="text-xs font-medium text-[var(--st-text)]">
                             Search
                         </label>
                         <div className="relative mt-1">
-                            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+                            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
                             <Input
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
@@ -278,7 +278,7 @@ export function AuditLogTable({ summary }: AuditLogTableProps) {
                         </div>
                     </div>
                     <div>
-                        <label className="text-xs font-medium text-zoru-ink">
+                        <label className="text-xs font-medium text-[var(--st-text)]">
                             Action
                         </label>
                         <Select
@@ -299,7 +299,7 @@ export function AuditLogTable({ summary }: AuditLogTableProps) {
                         </Select>
                     </div>
                     <div>
-                        <label className="text-xs font-medium text-zoru-ink">
+                        <label className="text-xs font-medium text-[var(--st-text)]">
                             From
                         </label>
                         <Input
@@ -310,7 +310,7 @@ export function AuditLogTable({ summary }: AuditLogTableProps) {
                         />
                     </div>
                     <div>
-                        <label className="text-xs font-medium text-zoru-ink">
+                        <label className="text-xs font-medium text-[var(--st-text)]">
                             To
                         </label>
                         <Input
@@ -324,7 +324,7 @@ export function AuditLogTable({ summary }: AuditLogTableProps) {
                         <button
                             type="button"
                             onClick={clearFilters}
-                            className="rounded-md border border-zoru-line bg-white px-3 py-1.5 text-xs font-medium text-zoru-ink hover:bg-zoru-surface-2"
+                            className="rounded-md border border-[var(--st-border)] bg-white px-3 py-1.5 text-xs font-medium text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
                         >
                             Clear filters
                         </button>
@@ -347,13 +347,13 @@ export function AuditLogTable({ summary }: AuditLogTableProps) {
             </div>
 
             {/* Table */}
-            <div className="rounded-2xl border border-zoru-line bg-white">
-                <div className="border-b border-zoru-line px-4 py-3 flex items-center justify-between">
+            <div className="rounded-2xl border border-[var(--st-border)] bg-white">
+                <div className="border-b border-[var(--st-border)] px-4 py-3 flex items-center justify-between">
                     <div>
-                        <h2 className="text-sm font-semibold text-zoru-ink">
+                        <h2 className="text-sm font-semibold text-[var(--st-text)]">
                             Recent events
                         </h2>
-                        <p className="text-xs text-zoru-ink">
+                        <p className="text-xs text-[var(--st-text)]">
                             Showing {filtered.length} of {summary.recent.length} most-recent rows.
                         </p>
                     </div>
@@ -381,7 +381,7 @@ export function AuditLogTable({ summary }: AuditLogTableProps) {
                             <ZoruTableRow>
                                 <ZoruTableCell
                                     colSpan={5}
-                                    className="py-12 text-center text-sm text-zoru-ink-muted"
+                                    className="py-12 text-center text-sm text-[var(--st-text-secondary)]"
                                 >
                                     No events match the current filters.
                                 </ZoruTableCell>
@@ -389,16 +389,16 @@ export function AuditLogTable({ summary }: AuditLogTableProps) {
                         ) : (
                             filtered.map((evt) => (
                                 <ZoruTableRow key={evt.id}>
-                                    <ZoruTableCell className="font-mono text-xs text-zoru-ink">
+                                    <ZoruTableCell className="font-mono text-xs text-[var(--st-text)]">
                                         {formatTimestamp(evt.ts)}
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="text-sm text-zoru-ink">
+                                    <ZoruTableCell className="text-sm text-[var(--st-text)]">
                                         {evt.actor}
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="font-mono text-xs text-zoru-ink">
+                                    <ZoruTableCell className="font-mono text-xs text-[var(--st-text)]">
                                         {evt.action}
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="font-mono text-xs text-zoru-ink">
+                                    <ZoruTableCell className="font-mono text-xs text-[var(--st-text)]">
                                         {evt.resource}
                                     </ZoruTableCell>
                                     <ZoruTableCell>

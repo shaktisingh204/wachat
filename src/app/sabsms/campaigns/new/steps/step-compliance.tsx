@@ -114,7 +114,7 @@ export function StepCompliance({
         </ZoruCardHeader>
         <ZoruCardContent className="space-y-3">
           {templateVariables.length === 0 ? (
-            <p className="text-xs text-zoru-ink">
+            <p className="text-xs text-[var(--st-text)]">
               No <code>{`{{var}}`}</code> tokens detected on this template.
             </p>
           ) : (
@@ -132,7 +132,7 @@ export function StepCompliance({
               ))}
             </div>
           )}
-          <pre className="whitespace-pre-wrap rounded bg-zoru-surface-2 p-3 text-xs text-zoru-ink">
+          <pre className="whitespace-pre-wrap rounded bg-[var(--st-bg-muted)] p-3 text-xs text-[var(--st-text)]">
             {previewed || "Pick a template back in Step 1 to preview here."}
           </pre>
         </ZoruCardContent>
@@ -148,7 +148,7 @@ export function StepCompliance({
         </ZoruCardHeader>
         <ZoruCardContent className="space-y-3">
           <label className="flex items-center justify-between">
-            <span className="text-sm text-zoru-ink">Enable A/B split</span>
+            <span className="text-sm text-[var(--st-text)]">Enable A/B split</span>
             <Switch
               checked={draft.abSplit.enabled}
               onCheckedChange={(v) => setAb({ enabled: Boolean(v) })}
@@ -198,7 +198,7 @@ export function StepCompliance({
                 {draft.abSplit.variants.map((v, i) => (
                   <div
                     key={v.id}
-                    className="space-y-2 rounded border border-zoru-line p-3"
+                    className="space-y-2 rounded border border-[var(--st-border)] p-3"
                   >
                     <div className="flex items-center justify-between">
                       <Input
@@ -265,7 +265,7 @@ export function StepCompliance({
         </ZoruCardHeader>
         <ZoruCardContent className="space-y-3">
           <label className="flex items-center justify-between">
-            <span className="text-sm text-zoru-ink">Enable frequency cap</span>
+            <span className="text-sm text-[var(--st-text)]">Enable frequency cap</span>
             <Switch
               checked={draft.frequencyCap.enabled}
               onCheckedChange={(v) => setFc({ enabled: Boolean(v) })}
@@ -315,9 +315,9 @@ export function StepCompliance({
         </ZoruCardHeader>
         <ZoruCardContent className="space-y-3">
           <label className="flex items-center justify-between">
-            <span className="text-sm text-zoru-ink">
+            <span className="text-sm text-[var(--st-text)]">
               Smart suppression
-              <span className="block text-xs text-zoru-ink">
+              <span className="block text-xs text-[var(--st-text)]">
                 Filter out contacts that haven&apos;t engaged in 90 days.
               </span>
             </span>
@@ -329,9 +329,9 @@ export function StepCompliance({
             />
           </label>
           <label className="flex items-center justify-between">
-            <span className="text-sm text-zoru-ink">
+            <span className="text-sm text-[var(--st-text)]">
               Send-time optimization
-              <span className="block text-xs text-zoru-ink">
+              <span className="block text-xs text-[var(--st-text)]">
                 Pick the best send hour per recipient based on history.
               </span>
             </span>
@@ -373,20 +373,20 @@ export function StepCompliance({
             </Select>
           </div>
           <div className="grid grid-cols-3 gap-2 text-sm">
-            <div className="rounded border border-zoru-line p-3">
-              <div className="text-xs text-zoru-ink">Low</div>
+            <div className="rounded border border-[var(--st-border)] p-3">
+              <div className="text-xs text-[var(--st-text)]">Low</div>
               <div className="font-mono">
                 {estimate.low.toFixed(2)} {draft.costCurrency}
               </div>
             </div>
-            <div className="rounded border border-zoru-line bg-zoru-surface-2 p-3">
-              <div className="text-xs text-zoru-ink">Median</div>
+            <div className="rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3">
+              <div className="text-xs text-[var(--st-text)]">Median</div>
               <div className="font-mono font-semibold">
                 {estimate.median.toFixed(2)} {draft.costCurrency}
               </div>
             </div>
-            <div className="rounded border border-zoru-line p-3">
-              <div className="text-xs text-zoru-ink">High</div>
+            <div className="rounded border border-[var(--st-border)] p-3">
+              <div className="text-xs text-[var(--st-text)]">High</div>
               <div className="font-mono">
                 {estimate.high.toFixed(2)} {draft.costCurrency}
               </div>
@@ -410,7 +410,7 @@ export function StepCompliance({
                 onChange({ complianceAttested: Boolean(v) })
               }
             />
-            <span className="text-sm text-zoru-ink">
+            <span className="text-sm text-[var(--st-text)]">
               I attest every recipient has given explicit opt-in for this
               category, and the message includes valid sender ID + opt-out
               instructions where required.
@@ -422,7 +422,7 @@ export function StepCompliance({
             </span>
           </label>
           <Separator className="my-3" />
-          <p className="text-xs text-zoru-ink">
+          <p className="text-xs text-[var(--st-text)]">
             Your attestation, along with workspace + user + timestamp, is
             written to the audit log when you launch.
           </p>

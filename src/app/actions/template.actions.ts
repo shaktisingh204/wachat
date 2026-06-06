@@ -372,3 +372,99 @@ export async function handleApplyTemplateToProjects(
         return { success: false, error: e?.message ?? 'An unexpected error occurred.' };
     }
 }
+
+// ---------------------------------------------------------------------------
+// Multi-language clone (Wave E)
+// ---------------------------------------------------------------------------
+
+/** Input for {@link handleCloneTemplateMultilang}. Identify the source by id or name. */
+export interface CloneTemplateMultilangInput {
+    projectId: string;
+    sourceTemplateId?: string;
+    sourceTemplateName?: string;
+    targetLanguages: string[];
+}
+
+/** Per-language outcome — mirrors the Rust `CloneOutcome` (camelCase wire shape). */
+export interface CloneTemplateOutcome {
+    language: string;
+    status: 'created' | 'failed' | 'skipped';
+    error?: string;
+    metaId?: string;
+}
+
+/**
+ * Result of {@link handleCloneTemplateMultilang}. On a whole-request failure
+ * (bad project, missing source, empty target list) `error` is set and the
+ * other fields are absent; otherwise the per-language `outcomes` array is
+ * returned along with the resolved source echo and counts.
+ */
+export interface CloneTemplateMultilangResult {
+    error?: string;
+    sourceName?: string;
+    sourceLanguage?: string;
+    created?: number;
+    failed?: number;
+    outcomes?: CloneTemplateOutcome[];
+}
+
+/**
+ * Clone an already-created template into additional languages via Meta.
+ *
+ * Thin shim over `wachatTemplatesActions.cloneMultilang`. Whole-request
+ * validation failures throw in the Rust client and are folded into
+ * `{ error }`; per-language failures (e.g. absent Meta creds) come back as
+ * `status: 'failed'` rows inside `outcomes`, so the UI degrades gracefully.
+ */
+export async function handleCloneTemplateMultilang(
+    input: CloneTemplateMultilangInput,
+): Promise<CloneTemplateMultilangResult> {
+    if (!input.projectId) return { error: 'A project is required.' };
+    if (!input.sourceTemplateId && !input.sourceTemplateName) {
+        return { error: 'A source template id or name is required.' };
+    }
+    const targetLanguages = (input.targetLanguages ?? [])
+        .map((l) => l.trim())
+        .filter(Boolean);
+    if (targetLanguages.length === 0) {
+        return { error: 'Select at least one target language.' };
+    }
+
+    try {
+        const { rustClient } = await import('@/lib/rust-client');
+        const r = await rustClient.wachatTemplatesActions.cloneMultilang({
+            projectId: input.projectId,
+            sourceTemplateId: input.sourceTemplateId,
+            sourceTemplateName: input.sourceTemplateName,
+            targetLanguages,
+        });
+        revalidatePath('/wachat/templates');
+        if (r.created > 0) {
+            const actor = await _wachatTplActorId();
+            if (actor) {
+                void recordFlowAction('wachat.template.created', {
+                    userId: actor,
+                    target: input.sourceTemplateName ?? input.sourceTemplateId,
+                    metadata: {
+                        projectId: input.projectId,
+                        multilang: true,
+                        created: r.created,
+                        failed: r.failed,
+                        languages: r.outcomes
+                            .filter((o) => o.status === 'created')
+                            .map((o) => o.language),
+                    },
+                });
+            }
+        }
+        return {
+            sourceName: r.sourceName,
+            sourceLanguage: r.sourceLanguage,
+            created: r.created,
+            failed: r.failed,
+            outcomes: r.outcomes,
+        };
+    } catch (e: any) {
+        return { error: e?.message ?? 'Multi-language clone failed.' };
+    }
+}

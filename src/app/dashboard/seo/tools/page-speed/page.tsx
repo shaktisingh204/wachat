@@ -109,15 +109,15 @@ export default function PageSpeedPage() {
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 90) return 'text-zoru-ink dark:text-zoru-ink-muted';
-    if (score >= 50) return 'text-zoru-ink dark:text-zoru-ink-muted';
-    return 'text-zoru-ink dark:text-zoru-ink-muted';
+    if (score >= 90) return 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]';
+    if (score >= 50) return 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]';
+    return 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]';
   };
 
   return (
     <ToolShell title="Page Speed Insights" description="Analyze page speed and Core Web Vitals with real Google PSI data.">
-      <Card className="border-zoru-line bg-zoru-surface dark:bg-zoru-surface">
-        <ZoruCardContent className="p-3 text-xs text-zoru-ink-muted">
+      <Card className="border-[var(--st-border)] bg-[var(--st-bg-secondary)] dark:bg-[var(--st-bg-secondary)]">
+        <ZoruCardContent className="p-3 text-xs text-[var(--st-text-secondary)]">
           For production use, provide a Google PageSpeed Insights API key to avoid rate limits. Without a key, requests may be limited.
         </ZoruCardContent>
       </Card>
@@ -152,8 +152,8 @@ export default function PageSpeedPage() {
       </div>
 
       {error && (
-        <Card className="border-zoru-line bg-zoru-surface-2 dark:bg-zoru-ink/30">
-          <ZoruCardContent className="p-3 text-sm text-zoru-ink dark:text-zoru-ink-muted">
+        <Card className="border-[var(--st-border)] bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30">
+          <ZoruCardContent className="p-3 text-sm text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
             {error}
           </ZoruCardContent>
         </Card>
@@ -162,8 +162,8 @@ export default function PageSpeedPage() {
       {data && (
         <div className="space-y-6 mt-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <Card className="col-span-2 md:col-span-4 border-zoru-line flex flex-col items-center justify-center p-6">
-              <div className="text-sm font-medium text-zoru-ink-muted mb-2">Performance Score</div>
+            <Card className="col-span-2 md:col-span-4 border-[var(--st-border)] flex flex-col items-center justify-center p-6">
+              <div className="text-sm font-medium text-[var(--st-text-secondary)] mb-2">Performance Score</div>
               <div className={cn("text-6xl font-black", getScoreColor(data.performanceScore))}>
                 {data.performanceScore}
               </div>
@@ -178,7 +178,7 @@ export default function PageSpeedPage() {
           </div>
           
           {data.opportunities.length > 0 && (
-            <Card className="border-zoru-line">
+            <Card className="border-[var(--st-border)]">
               <ZoruCardHeader>
                 <ZoruCardTitle className="text-lg">Opportunities to Improve</ZoruCardTitle>
               </ZoruCardHeader>
@@ -190,7 +190,7 @@ export default function PageSpeedPage() {
                         <div className="flex items-center gap-3">
                           <span className={cn(
                             "w-2 h-2 rounded-full flex-shrink-0",
-                            (opp.score !== null && opp.score < 0.5) ? 'bg-zoru-ink' : 'bg-zoru-ink'
+                            (opp.score !== null && opp.score < 0.5) ? 'bg-[var(--st-text)]' : 'bg-[var(--st-text)]'
                           )} />
                           {opp.title}
                           {opp.displayValue && (
@@ -198,7 +198,7 @@ export default function PageSpeedPage() {
                           )}
                         </div>
                       </ZoruAccordionTrigger>
-                      <ZoruAccordionContent className="text-sm text-zoru-ink-muted leading-relaxed">
+                      <ZoruAccordionContent className="text-sm text-[var(--st-text-secondary)] leading-relaxed">
                         <div dangerouslySetInnerHTML={{ __html: formatDescription(opp.description) }} />
                       </ZoruAccordionContent>
                     </ZoruAccordionItem>
@@ -215,10 +215,10 @@ export default function PageSpeedPage() {
 
 function MetricCard({ title, value }: { title: string, value: string }) {
   return (
-    <Card className="border-zoru-line">
+    <Card className="border-[var(--st-border)]">
       <ZoruCardContent className="p-4 flex flex-col justify-between h-full">
-        <div className="text-2xl font-bold text-zoru-ink break-words">{value}</div>
-        <div className="text-xs text-zoru-ink-muted mt-2">{title}</div>
+        <div className="text-2xl font-bold text-[var(--st-text)] break-words">{value}</div>
+        <div className="text-xs text-[var(--st-text-secondary)] mt-2">{title}</div>
       </ZoruCardContent>
     </Card>
   );
@@ -226,5 +226,5 @@ function MetricCard({ title, value }: { title: string, value: string }) {
 
 function formatDescription(desc: string) {
   // Simple markdown link replacement to HTML
-  return desc.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-zoru-ink hover:underline">$1</a>');
+  return desc.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-[var(--st-text)] hover:underline">$1</a>');
 }

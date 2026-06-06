@@ -44,7 +44,7 @@ export default function InventoryPage() {
                             {devices.map(device => (
                                 <TableRow key={device.id}>
                                     <TableCell className="font-medium flex items-center gap-2">
-                                        <HardDrive className="size-4 text-zoru-muted-foreground" />
+                                        <HardDrive className="size-4 text-[var(--st-text-secondary)]" />
                                         {device.id}
                                     </TableCell>
                                     <TableCell>{device.user}</TableCell>

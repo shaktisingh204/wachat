@@ -96,7 +96,7 @@ export default function DiscountsPage({ params }: { params: { storefrontId: stri
       header: "Discount Code",
       cell: ({ row }: any) => (
         <div className="flex items-center gap-2">
-          <Ticket className="h-4 w-4 text-zoru-text-muted" />
+          <Ticket className="h-4 w-4 text-[var(--st-text-secondary)]" />
           <span className="font-medium">{row.original.code}</span>
         </div>
       ),
@@ -165,7 +165,7 @@ export default function DiscountsPage({ params }: { params: { storefrontId: stri
       header: "Title",
       cell: ({ row }: any) => (
         <div className="flex items-center gap-2">
-          <Tag className="h-4 w-4 text-zoru-text-muted" />
+          <Tag className="h-4 w-4 text-[var(--st-text-secondary)]" />
           <span className="font-medium">{row.original.title}</span>
         </div>
       ),
@@ -270,8 +270,8 @@ export default function DiscountsPage({ params }: { params: { storefrontId: stri
             <TabsTrigger value="automatic">Automatic Discounts</TabsTrigger>
           </TabsList>
           <TabsContent value="codes" className="w-full">
-            <div className="rounded-xl border border-zoru-line bg-zoru-background">
-              <div className="p-4 border-b border-zoru-line flex items-center justify-between">
+            <div className="rounded-xl border border-[var(--st-border)] bg-[var(--st-bg)]">
+              <div className="p-4 border-b border-[var(--st-border)] flex items-center justify-between">
                 <h3 className="font-semibold">Active & Expired Codes</h3>
               </div>
               <DataTable
@@ -283,8 +283,8 @@ export default function DiscountsPage({ params }: { params: { storefrontId: stri
             </div>
           </TabsContent>
           <TabsContent value="automatic" className="w-full">
-            <div className="rounded-xl border border-zoru-line bg-zoru-background">
-              <div className="p-4 border-b border-zoru-line flex items-center justify-between">
+            <div className="rounded-xl border border-[var(--st-border)] bg-[var(--st-bg)]">
+              <div className="p-4 border-b border-[var(--st-border)] flex items-center justify-between">
                 <h3 className="font-semibold">Automatic Discounts</h3>
               </div>
               <DataTable

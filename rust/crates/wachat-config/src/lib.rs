@@ -3,6 +3,8 @@
 //! phone register/verify/2FA, QR codes) under a single crate to keep the
 //! crate count manageable. One module per concern.
 
+pub mod display_name;
+pub mod flows_crypto;
 pub mod phone;
 pub mod project;
 pub mod qr;

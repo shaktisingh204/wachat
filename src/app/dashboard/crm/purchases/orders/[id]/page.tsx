@@ -140,7 +140,7 @@ export default async function PurchaseOrderDetailPage({
     if (error) {
       return (
         <div className="flex w-full flex-col gap-4 p-6">
-          <p className="text-[14px] text-zoru-ink">
+          <p className="text-[14px] text-[var(--st-text)]">
             Couldn&apos;t load this purchase order — {error}
           </p>
           <Button variant="outline" asChild>
@@ -249,16 +249,16 @@ export default async function PurchaseOrderDetailPage({
               {order.vendorId ? (
                 <EntityPickerChip entity="vendor" id={order.vendorId} />
               ) : (
-                <span className="text-zoru-ink-muted">No vendor linked</span>
+                <span className="text-[var(--st-text-secondary)]">No vendor linked</span>
               )}
               {vendor.outstanding != null ? (
-                <div className="flex items-center justify-between gap-2 border-t border-zoru-line pt-2">
-                  <span className="text-zoru-ink-muted">Outstanding</span>
+                <div className="flex items-center justify-between gap-2 border-t border-[var(--st-border)] pt-2">
+                  <span className="text-[var(--st-text-secondary)]">Outstanding</span>
                   <span
                     className={`font-mono tabular-nums ${
                       vendor.outstanding > 0
-                        ? 'text-zoru-danger-ink'
-                        : 'text-zoru-ink'
+                        ? 'text-[var(--st-danger)]'
+                        : 'text-[var(--st-text)]'
                     }`}
                   >
                     {fmtMoney(vendor.outstanding, currency)}
@@ -283,25 +283,25 @@ export default async function PurchaseOrderDetailPage({
               />
               <div className="mt-3 space-y-1.5 text-[12.5px]">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-zoru-ink-muted">Subtotal</span>
+                  <span className="text-[var(--st-text-secondary)]">Subtotal</span>
                   <span className="font-mono tabular-nums">
                     {fmtMoney(totals.subTotal, currency)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-zoru-ink-muted">Total</span>
+                  <span className="text-[var(--st-text-secondary)]">Total</span>
                   <span className="font-mono tabular-nums">
                     {fmtMoney(totals.total, currency)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-zoru-ink-muted">Created</span>
+                  <span className="text-[var(--st-text-secondary)]">Created</span>
                   <span>
                     {fmtDate(order.createdAt ?? order.audit?.createdAt)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-zoru-ink-muted">Updated</span>
+                  <span className="text-[var(--st-text-secondary)]">Updated</span>
                   <span>
                     {fmtDate(order.updatedAt ?? order.audit?.updatedAt)}
                   </span>
@@ -329,7 +329,7 @@ export default async function PurchaseOrderDetailPage({
       }
     >
       {/* Subtitle banner — narrow row below the shell header. */}
-      <p className="text-[12.5px] text-zoru-ink-muted">
+      <p className="text-[12.5px] text-[var(--st-text-secondary)]">
         {subtitleParts.join(' · ')}
       </p>
 
@@ -352,7 +352,7 @@ export default async function PurchaseOrderDetailPage({
             <div className="grid gap-4 md:grid-cols-2 text-[13px]">
               {order.notes ? (
                 <div>
-                  <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+                  <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                     Internal notes
                   </div>
                   <p className="mt-1 whitespace-pre-wrap">{order.notes}</p>
@@ -360,7 +360,7 @@ export default async function PurchaseOrderDetailPage({
               ) : null}
               {order.termsAndConditions ? (
                 <div>
-                  <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+                  <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                     Terms &amp; conditions
                   </div>
                   <p className="mt-1 whitespace-pre-wrap">

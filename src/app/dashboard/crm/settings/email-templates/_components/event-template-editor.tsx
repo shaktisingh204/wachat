@@ -191,7 +191,7 @@ export function EventTemplateEditor({
 
     return (
         <Card className="flex h-full flex-col">
-            <ZoruCardHeader className="border-b border-zoru-line">
+            <ZoruCardHeader className="border-b border-[var(--st-border)]">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
@@ -204,22 +204,22 @@ export function EventTemplateEditor({
                                 <Badge variant="outline">Using default</Badge>
                             )}
                         </div>
-                        <p className="mt-1 text-sm text-zoru-ink-muted">
+                        <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
                             {template.description}
                         </p>
-                        <p className="mt-1 font-mono text-[11px] text-zoru-ink-subtle">
+                        <p className="mt-1 font-mono text-[11px] text-[var(--st-text-tertiary)]">
                             event: {template.eventKey}
                         </p>
                     </div>
-                    <div className="flex items-center gap-1 rounded-md border border-zoru-line p-1">
+                    <div className="flex items-center gap-1 rounded-md border border-[var(--st-border)] p-1">
                         <button
                             type="button"
                             onClick={() => void togglePreview('edit')}
                             className={cn(
                                 'flex items-center gap-1.5 rounded px-2.5 py-1 text-xs font-medium transition-colors',
                                 viewMode === 'edit'
-                                    ? 'bg-zoru-ink text-zoru-bg'
-                                    : 'text-zoru-ink-muted hover:text-zoru-ink',
+                                    ? 'bg-[var(--st-text)] text-[var(--st-bg)]'
+                                    : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
                             )}
                             aria-pressed={viewMode === 'edit'}
                         >
@@ -231,8 +231,8 @@ export function EventTemplateEditor({
                             className={cn(
                                 'flex items-center gap-1.5 rounded px-2.5 py-1 text-xs font-medium transition-colors',
                                 viewMode === 'preview'
-                                    ? 'bg-zoru-ink text-zoru-bg'
-                                    : 'text-zoru-ink-muted hover:text-zoru-ink',
+                                    ? 'bg-[var(--st-text)] text-[var(--st-bg)]'
+                                    : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
                             )}
                             aria-pressed={viewMode === 'preview'}
                         >
@@ -283,7 +283,7 @@ export function EventTemplateEditor({
                                         spellCheck={false}
                                         className="min-h-[320px] flex-1 font-mono text-[12.5px] leading-relaxed"
                                     />
-                                    <p className="text-[11px] text-zoru-ink-subtle">
+                                    <p className="text-[11px] text-[var(--st-text-tertiary)]">
                                         Use{' '}
                                         <code className="rounded bg-zoru-bg-elev px-1 py-0.5 font-mono">
                                             {'{{variableName}}'}
@@ -302,15 +302,15 @@ export function EventTemplateEditor({
                             </>
                         ) : (
                             <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden">
-                                <div className="rounded-md border border-zoru-line bg-zoru-bg-elev p-3 text-sm">
-                                    <p className="text-[11px] uppercase tracking-wide text-zoru-ink-subtle">
+                                <div className="rounded-md border border-[var(--st-border)] bg-zoru-bg-elev p-3 text-sm">
+                                    <p className="text-[11px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                                         Subject
                                     </p>
-                                    <p className="mt-1 font-medium text-zoru-ink">
+                                    <p className="mt-1 font-medium text-[var(--st-text)]">
                                         {previewSubject || '(empty)'}
                                     </p>
                                 </div>
-                                <div className="flex-1 overflow-y-auto rounded-md border border-zoru-line bg-white p-5 text-sm text-zoru-ink shadow-inner">
+                                <div className="flex-1 overflow-y-auto rounded-md border border-[var(--st-border)] bg-white p-5 text-sm text-[var(--st-text)] shadow-inner">
                                     {/*
                                         Preview HTML is generated server-side by `previewEmailTemplate`
                                         which already escapes variable values. The remaining HTML is
@@ -321,7 +321,7 @@ export function EventTemplateEditor({
                                         dangerouslySetInnerHTML={{ __html: previewHtml }}
                                     />
                                 </div>
-                                <p className="text-[11px] text-zoru-ink-subtle">
+                                <p className="text-[11px] text-[var(--st-text-tertiary)]">
                                     Preview uses example values from the variable list.
                                 </p>
                             </div>
@@ -329,8 +329,8 @@ export function EventTemplateEditor({
                     </div>
 
                     {/* Variables column */}
-                    <div className="flex min-h-0 flex-col overflow-hidden rounded-md border border-zoru-line bg-zoru-bg-elev/40">
-                        <div className="border-b border-zoru-line px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                    <div className="flex min-h-0 flex-col overflow-hidden rounded-md border border-[var(--st-border)] bg-zoru-bg-elev/40">
+                        <div className="border-b border-[var(--st-border)] px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                             Variables
                         </div>
                         <div className="flex-1 overflow-y-auto p-2">
@@ -343,7 +343,7 @@ export function EventTemplateEditor({
                                                     <button
                                                         type="button"
                                                         onClick={() => handleInsertVariable(v.key)}
-                                                        className="flex w-full items-center justify-between rounded px-2 py-1.5 text-left text-[12px] font-mono text-zoru-ink hover:bg-zoru-bg-elev"
+                                                        className="flex w-full items-center justify-between rounded px-2 py-1.5 text-left text-[12px] font-mono text-[var(--st-text)] hover:bg-zoru-bg-elev"
                                                     >
                                                         <span className="truncate">{`{{${v.key}}}`}</span>
                                                     </button>
@@ -355,7 +355,7 @@ export function EventTemplateEditor({
                                                     <p className="text-[12px] font-medium">
                                                         {v.description}
                                                     </p>
-                                                    <p className="mt-0.5 text-[11px] text-zoru-ink-subtle">
+                                                    <p className="mt-0.5 text-[11px] text-[var(--st-text-tertiary)]">
                                                         e.g. {v.example}
                                                     </p>
                                                 </ZoruTooltipContent>
@@ -365,14 +365,14 @@ export function EventTemplateEditor({
                                 </ul>
                             </ZoruTooltipProvider>
                         </div>
-                        <div className="border-t border-zoru-line px-3 py-2 text-[11px] text-zoru-ink-subtle">
+                        <div className="border-t border-[var(--st-border)] px-3 py-2 text-[11px] text-[var(--st-text-tertiary)]">
                             Click a chip to insert at the cursor.
                         </div>
                     </div>
                 </div>
 
                 {/* Footer actions */}
-                <div className="flex flex-wrap items-center justify-between gap-2 border-t border-zoru-line pt-3">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[var(--st-border)] pt-3">
                     <div className="flex items-center gap-2">
                         <Button
                             variant="outline"
@@ -403,11 +403,11 @@ export function EventTemplateEditor({
                     </div>
                     <div className="flex items-center gap-2">
                         {isDirty ? (
-                            <span className="text-[11px] text-zoru-ink-subtle">
+                            <span className="text-[11px] text-[var(--st-text-tertiary)]">
                                 Unsaved changes
                             </span>
                         ) : template.updatedAt ? (
-                            <span className="text-[11px] text-zoru-ink-subtle">
+                            <span className="text-[11px] text-[var(--st-text-tertiary)]">
                                 Last saved {new Date(template.updatedAt).toLocaleString()}
                             </span>
                         ) : null}

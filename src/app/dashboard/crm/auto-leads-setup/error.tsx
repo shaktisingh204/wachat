@@ -12,13 +12,13 @@ export default function AutoLeadsSetupError({
 }) {
   return (
     <div className="flex h-[50vh] w-full flex-col items-center justify-center p-6">
-      <Card className="flex max-w-md flex-col items-center gap-4 p-8 text-center shadow-md border-zoru-danger/20">
-        <div className="rounded-full bg-zoru-danger/10 p-3 text-zoru-danger-ink">
+      <Card className="flex max-w-md flex-col items-center gap-4 p-8 text-center shadow-md border-[var(--st-danger)]/20">
+        <div className="rounded-full bg-[var(--st-danger)]/10 p-3 text-[var(--st-danger)]">
           <AlertCircle className="h-6 w-6" />
         </div>
         <div>
-          <h2 className="text-[16px] font-semibold text-zoru-ink">Failed to load Auto-Leads Setup</h2>
-          <p className="mt-2 text-[13px] text-zoru-ink-muted">
+          <h2 className="text-[16px] font-semibold text-[var(--st-text)]">Failed to load Auto-Leads Setup</h2>
+          <p className="mt-2 text-[13px] text-[var(--st-text-secondary)]">
             {error.message || 'An unexpected error occurred while loading auto-lead rules.'}
           </p>
         </div>

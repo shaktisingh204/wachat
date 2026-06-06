@@ -13,7 +13,7 @@ const WebsiteBuilder = nextDynamic(
         
         loading: () => (
             <div className="flex h-screen w-full items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-zoru-ink-muted" />
+                <Loader2 className="h-8 w-8 animate-spin text-[var(--st-text-secondary)]" />
             </div>
         )
     }
@@ -33,7 +33,7 @@ export default async function WebsiteBuilderPage(props: { params: Promise<{ port
     return (
         <Suspense fallback={
             <div className="flex h-screen w-full items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-zoru-ink-muted" />
+                <Loader2 className="h-8 w-8 animate-spin text-[var(--st-text-secondary)]" />
             </div>
         }>
             <CartProvider>

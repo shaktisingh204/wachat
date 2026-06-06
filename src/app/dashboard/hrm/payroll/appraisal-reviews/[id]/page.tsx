@@ -29,11 +29,11 @@ function StarRow({ label, value }: { label: string; value?: number }) {
         {[1, 2, 3, 4, 5].map((i) => (
           <Star
             key={i}
-            className={`h-3 w-3 ${i <= n ? 'fill-zoru-ink-muted text-zoru-ink-muted' : 'fill-transparent text-zoru-line'}`}
+            className={`h-3 w-3 ${i <= n ? 'fill-[var(--st-text-secondary)] text-[var(--st-text-secondary)]' : 'fill-transparent text-[var(--st-border)]'}`}
           />
         ))}
       </div>
-      <span className="text-[12px] tabular-nums text-zoru-ink-muted">
+      <span className="text-[12px] tabular-nums text-[var(--st-text-secondary)]">
         {value !== undefined && value !== null ? Number(value).toFixed(1) : '—'} · {label}
       </span>
     </div>
@@ -49,7 +49,7 @@ export default async function AppraisalDetailPage({
   const list = (await getCrmAppraisalReviews()) as unknown as Row[];
   const row = list.find((r) => String(r._id) === id) ?? null;
 
-  if (!row) return <div className="text-sm text-zoru-ink-muted">Review not found.</div>;
+  if (!row) return <div className="text-sm text-[var(--st-text-secondary)]">Review not found.</div>;
 
   const emp = row.employeeInfo
     ? `${row.employeeInfo.firstName ?? ''} ${row.employeeInfo.lastName ?? ''}`.trim()

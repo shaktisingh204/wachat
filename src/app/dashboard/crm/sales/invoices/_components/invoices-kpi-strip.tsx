@@ -124,8 +124,8 @@ function KpiButton({
       aria-label={ariaLabel}
       aria-pressed={Boolean(active)}
       className={[
-        'text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-zoru-primary',
-        active ? 'rounded-[var(--zoru-radius-lg)] ring-1 ring-zoru-primary' : '',
+        'text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]',
+        active ? 'rounded-[var(--zoru-radius-lg)] ring-1 ring-[var(--st-text)]' : '',
       ].join(' ')}
     >
       {children}

@@ -139,30 +139,30 @@ export default function DocumentTemplatesListPage() {
                     }
                     loading={isLoading && templates.length === 0}
                 >
-                    <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                    <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                         <Table>
                             <ZoruTableHeader>
-                                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                    <ZoruTableHead className="text-zoru-ink-muted">Name</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Category</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Variables</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Updated</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted text-right">Actions</ZoruTableHead>
+                                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Name</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Category</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Variables</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Updated</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Actions</ZoruTableHead>
                                 </ZoruTableRow>
                             </ZoruTableHeader>
                             <ZoruTableBody>
                                 {isLoading ? (
-                                    <ZoruTableRow className="border-zoru-line">
+                                    <ZoruTableRow className="border-[var(--st-border)]">
                                         <ZoruTableCell colSpan={6} className="h-24 text-center">
-                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
+                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 ) : templates.length === 0 ? (
-                                    <ZoruTableRow className="border-zoru-line">
+                                    <ZoruTableRow className="border-[var(--st-border)]">
                                         <ZoruTableCell
                                             colSpan={6}
-                                            className="h-24 text-center text-zoru-ink-muted"
+                                            className="h-24 text-center text-[var(--st-text-secondary)]"
                                         >
                                             No templates match this filter.
                                         </ZoruTableCell>
@@ -173,8 +173,8 @@ export default function DocumentTemplatesListPage() {
                                         const tone = STATUS_TONE[status] ?? 'neutral';
                                         const varCount = t.variables?.length ?? 0;
                                         return (
-                                            <ZoruTableRow key={t._id} className="border-zoru-line">
-                                                <ZoruTableCell className="font-medium text-zoru-ink">
+                                            <ZoruTableRow key={t._id} className="border-[var(--st-border)]">
+                                                <ZoruTableCell className="font-medium text-[var(--st-text)]">
                                                     <Link
                                                         href={`${BASE}/${t._id}`}
                                                         className="hover:underline"
@@ -182,16 +182,16 @@ export default function DocumentTemplatesListPage() {
                                                         {t.name}
                                                     </Link>
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="capitalize text-zoru-ink">
+                                                <ZoruTableCell className="capitalize text-[var(--st-text)]">
                                                     {(t.category ?? '—').replace(/_/g, ' ')}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
+                                                <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
                                                     {varCount}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
                                                     <StatusPill label={statusLabel(status)} tone={tone} />
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {fmtDate(t.updatedAt)}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="text-right">
@@ -205,7 +205,7 @@ export default function DocumentTemplatesListPage() {
                                                         size="icon"
                                                         onClick={() => setPendingDelete(t)}
                                                     >
-                                                        <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                                        <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                                     </Button>
                                                 </ZoruTableCell>
                                             </ZoruTableRow>

@@ -252,13 +252,13 @@ export function RfqForm({ initial }: RfqFormProps) {
 
       {/* ─── Header ─────────────────────────────────────────────── */}
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Header
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div className="md:col-span-2">
             <Label htmlFor="title">
-              Title <span className="text-zoru-danger-ink">*</span>
+              Title <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <Input
               id="title"
@@ -295,7 +295,7 @@ export function RfqForm({ initial }: RfqFormProps) {
 
       {/* ─── Vendors invited ────────────────────────────────────── */}
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Vendors invited
         </h3>
         <Label>Pick one or more vendors</Label>
@@ -312,7 +312,7 @@ export function RfqForm({ initial }: RfqFormProps) {
             }}
           />
         </div>
-        <p className="mt-2 text-[11px] text-zoru-ink-muted">
+        <p className="mt-2 text-[11px] text-[var(--st-text-secondary)]">
           Vendors are notified when the RFQ moves to <em>open</em>. The list
           can still be appended while the RFQ is open.
         </p>
@@ -321,7 +321,7 @@ export function RfqForm({ initial }: RfqFormProps) {
       {/* ─── Line Items ─────────────────────────────────────────── */}
       <Card className="p-6">
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          <h3 className="text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
             Line items
           </h3>
           <Button
@@ -334,7 +334,7 @@ export function RfqForm({ initial }: RfqFormProps) {
             Add line
           </Button>
         </div>
-        <p className="mb-3 text-[11px] text-zoru-ink-muted">
+        <p className="mb-3 text-[11px] text-[var(--st-text-secondary)]">
           RFQ lines carry no price — vendors quote their rates back via a
           separate bid response.
         </p>
@@ -342,7 +342,7 @@ export function RfqForm({ initial }: RfqFormProps) {
         <div className="overflow-x-auto">
           <table className="w-full text-[12.5px]">
             <thead>
-              <tr className="border-b border-zoru-line text-left text-zoru-ink-muted">
+              <tr className="border-b border-[var(--st-border)] text-left text-[var(--st-text-secondary)]">
                 <th className="py-2 pr-3 font-medium">Item</th>
                 <th className="py-2 pr-3 font-medium">Description</th>
                 <th className="py-2 pr-3 font-medium">Qty</th>
@@ -355,7 +355,7 @@ export function RfqForm({ initial }: RfqFormProps) {
               {lines.map((line) => (
                 <tr
                   key={line.key}
-                  className="border-b border-zoru-line/60 align-top"
+                  className="border-b border-[var(--st-border)]/60 align-top"
                 >
                   <td className="min-w-[180px] py-2 pr-2">
                     <EntityPicker
@@ -435,7 +435,7 @@ export function RfqForm({ initial }: RfqFormProps) {
                       variant="ghost"
                       disabled={lines.length === 1}
                       onClick={() => removeLine(line.key)}
-                      className="text-zoru-danger-ink"
+                      className="text-[var(--st-danger)]"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>
@@ -449,7 +449,7 @@ export function RfqForm({ initial }: RfqFormProps) {
 
       {/* ─── Workflow + terms + attachments ─────────────────────── */}
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Workflow
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
@@ -499,9 +499,9 @@ export function RfqForm({ initial }: RfqFormProps) {
                 {attachments.map((a, idx) => (
                   <li
                     key={`${a.fileId ?? 'att'}-${idx}`}
-                    className="flex items-center justify-between gap-2 rounded-lg border border-zoru-line px-2 py-1.5"
+                    className="flex items-center justify-between gap-2 rounded-lg border border-[var(--st-border)] px-2 py-1.5"
                   >
-                    <span className="truncate text-[12px] text-zoru-ink">
+                    <span className="truncate text-[12px] text-[var(--st-text)]">
                       {a.name || a.fileId || 'Attachment'}
                     </span>
                     <Button
@@ -521,7 +521,7 @@ export function RfqForm({ initial }: RfqFormProps) {
                 ))}
               </ul>
             ) : null}
-            <p className="mt-2 text-[11px] text-zoru-ink-muted">
+            <p className="mt-2 text-[11px] text-[var(--st-text-secondary)]">
               Files are stored in your SabFiles library.
             </p>
           </div>

@@ -36,12 +36,12 @@ function SectionHead({
 }) {
   return (
     <div className="mb-4 flex items-start gap-3">
-      <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2">
-        <Icon className="h-4 w-4 text-zoru-ink" strokeWidth={1.75} />
+      <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)]">
+        <Icon className="h-4 w-4 text-[var(--st-text)]" strokeWidth={1.75} />
       </div>
       <div className="min-w-0">
-        <h3 className="text-[15px] leading-tight text-zoru-ink">{title}</h3>
-        <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">{subtitle}</p>
+        <h3 className="text-[15px] leading-tight text-[var(--st-text)]">{title}</h3>
+        <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">{subtitle}</p>
       </div>
     </div>
   );
@@ -55,9 +55,9 @@ function EmptyState({
   text: string;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 p-10 text-center">
-      <Icon className="mb-3 h-10 w-10 text-zoru-ink-muted/70" strokeWidth={1.5} />
-      <p className="text-[13px] text-zoru-ink-muted">{text}</p>
+    <div className="flex flex-col items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)] p-10 text-center">
+      <Icon className="mb-3 h-10 w-10 text-[var(--st-text-secondary)]/70" strokeWidth={1.5} />
+      <p className="text-[13px] text-[var(--st-text-secondary)]">{text}</p>
     </div>
   );
 }
@@ -88,11 +88,11 @@ export const RecentDealsCard = ({ deals, currency }: RecentDealsCardProps) => (
         <ZoruTableBody>
           {deals.map((deal) => (
             <ZoruTableRow key={deal._id}>
-              <ZoruTableCell className="font-medium text-zoru-ink">{deal.name}</ZoruTableCell>
+              <ZoruTableCell className="font-medium text-[var(--st-text)]">{deal.name}</ZoruTableCell>
               <ZoruTableCell>
                 <Badge variant="ghost">{deal.stage}</Badge>
               </ZoruTableCell>
-              <ZoruTableCell className="text-right font-medium text-zoru-ink">
+              <ZoruTableCell className="text-right font-medium text-[var(--st-text)]">
                 {new Intl.NumberFormat('en-US', {
                   style: 'currency',
                   currency: deal.currency || currency || 'USD',
@@ -125,13 +125,13 @@ export const UpcomingTasksCard = ({ tasks }: UpcomingTasksCardProps) => (
           {tasks.map((task) => (
             <div
               key={task._id}
-              className="flex items-start justify-between gap-3 border-b border-zoru-line pb-3 last:border-0 last:pb-0"
+              className="flex items-start justify-between gap-3 border-b border-[var(--st-border)] pb-3 last:border-0 last:pb-0"
             >
               <div className="min-w-0 space-y-1">
-                <p className="text-[13px] font-medium leading-tight text-zoru-ink">
+                <p className="text-[13px] font-medium leading-tight text-[var(--st-text)]">
                   {task.title}
                 </p>
-                <div className="flex flex-wrap items-center gap-2 text-[11.5px] text-zoru-ink-muted">
+                <div className="flex flex-wrap items-center gap-2 text-[11.5px] text-[var(--st-text-secondary)]">
                   <Badge variant={task.priority === 'High' ? 'danger' : 'ghost'}>
                     {task.priority || 'Normal'}
                   </Badge>
@@ -140,11 +140,11 @@ export const UpcomingTasksCard = ({ tasks }: UpcomingTasksCardProps) => (
                   )}
                 </div>
               </div>
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-zoru-surface-2">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--st-bg-muted)]">
                 {task.type === 'Call' ? (
-                  <Users className="h-3 w-3 text-zoru-ink" strokeWidth={1.75} />
+                  <Users className="h-3 w-3 text-[var(--st-text)]" strokeWidth={1.75} />
                 ) : (
-                  <FileText className="h-3 w-3 text-zoru-ink" strokeWidth={1.75} />
+                  <FileText className="h-3 w-3 text-[var(--st-text)]" strokeWidth={1.75} />
                 )}
               </div>
             </div>
@@ -174,15 +174,15 @@ export const PipelineBreakdownCard = ({ stages, currency }: PipelineBreakdownCar
         {stages.map((item, index) => (
           <div
             key={index}
-            className="flex items-center gap-4 rounded-[var(--zoru-radius)] bg-zoru-surface-2 px-4 py-3"
+            className="flex items-center gap-4 rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)] px-4 py-3"
           >
             <div className="min-w-0 flex-1 space-y-0.5">
-              <p className="text-[13px] font-medium leading-tight text-zoru-ink">
+              <p className="text-[13px] font-medium leading-tight text-[var(--st-text)]">
                 {item.stage}
               </p>
-              <p className="text-[11.5px] text-zoru-ink-muted">{item.count} deals</p>
+              <p className="text-[11.5px] text-[var(--st-text-secondary)]">{item.count} deals</p>
             </div>
-            <div className="text-[14px] font-semibold text-zoru-ink">
+            <div className="text-[14px] font-semibold text-[var(--st-text)]">
               {new Intl.NumberFormat('en-US', {
                 style: 'currency',
                 currency: currency || 'USD',
@@ -212,17 +212,17 @@ export const RecentContactsCard = ({ contacts }: RecentContactsCardProps) => (
       <div className="space-y-3">
         {contacts.map((contact) => (
           <div key={contact._id} className="flex items-center gap-3">
-            <Avatar className="h-9 w-9 border border-zoru-line">
+            <Avatar className="h-9 w-9 border border-[var(--st-border)]">
               <ZoruAvatarImage src={contact.avatarUrl} alt={contact.name} />
-              <ZoruAvatarFallback className="bg-zoru-surface-2 text-[12px] text-zoru-ink">
+              <ZoruAvatarFallback className="bg-[var(--st-bg-muted)] text-[12px] text-[var(--st-text)]">
                 {contact.name?.charAt(0) ?? '?'}
               </ZoruAvatarFallback>
             </Avatar>
             <div className="min-w-0">
-              <p className="truncate text-[13px] font-medium leading-tight text-zoru-ink">
+              <p className="truncate text-[13px] font-medium leading-tight text-[var(--st-text)]">
                 {contact.name}
               </p>
-              <p className="truncate text-[11.5px] text-zoru-ink-muted">{contact.email}</p>
+              <p className="truncate text-[11.5px] text-[var(--st-text-secondary)]">{contact.email}</p>
             </div>
           </div>
         ))}
@@ -248,29 +248,29 @@ export const InvoiceSummaryCard = ({ stats, currency }: InvoiceStatsCardProps) =
         subtitle="Overview of pending payments"
       />
       <div className="space-y-3">
-        <div className="flex items-center justify-between gap-4 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 px-4 py-3">
+        <div className="flex items-center justify-between gap-4 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-3">
           <div className="min-w-0">
-            <p className="text-[12px] font-medium text-zoru-danger-ink">Overdue</p>
-            <p className="mt-0.5 text-[22px] font-semibold leading-none text-zoru-danger-ink">
+            <p className="text-[12px] font-medium text-[var(--st-danger)]">Overdue</p>
+            <p className="mt-0.5 text-[22px] font-semibold leading-none text-[var(--st-danger)]">
               {fmt(stats.overdueAmount)}
             </p>
           </div>
           <div className="text-right">
-            <p className="text-[11px] text-zoru-ink-muted">Invoices</p>
-            <p className="text-[15px] font-semibold text-zoru-ink">{stats.overdueCount}</p>
+            <p className="text-[11px] text-[var(--st-text-secondary)]">Invoices</p>
+            <p className="text-[15px] font-semibold text-[var(--st-text)]">{stats.overdueCount}</p>
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-4 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 px-4 py-3">
+        <div className="flex items-center justify-between gap-4 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-3">
           <div className="min-w-0">
-            <p className="text-[12px] font-medium text-zoru-ink">Sent (Due)</p>
-            <p className="mt-0.5 text-[22px] font-semibold leading-none text-zoru-ink">
+            <p className="text-[12px] font-medium text-[var(--st-text)]">Sent (Due)</p>
+            <p className="mt-0.5 text-[22px] font-semibold leading-none text-[var(--st-text)]">
               {fmt(stats.sentAmount)}
             </p>
           </div>
           <div className="text-right">
-            <p className="text-[11px] text-zoru-ink-muted">Invoices</p>
-            <p className="text-[15px] font-semibold text-zoru-ink">{stats.sentCount}</p>
+            <p className="text-[11px] text-[var(--st-text-secondary)]">Invoices</p>
+            <p className="text-[15px] font-semibold text-[var(--st-text)]">{stats.sentCount}</p>
           </div>
         </div>
       </div>

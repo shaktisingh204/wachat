@@ -178,6 +178,72 @@ pub struct UpdateContactTagsBody {
 }
 
 // ---------------------------------------------------------------------------
+// `GET /v1/contacts/kanban` — getKanbanData (contacts-domain board)
+// ---------------------------------------------------------------------------
+
+/// Query string for `GET /v1/contacts/kanban`. Mirrors the native
+/// `getKanbanData(projectId)` argument plus an optional `phoneNumberId`
+/// scope so a single project with several connected numbers can show a
+/// per-number board.
+#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct KanbanQuery {
+    /// Required — hex `ObjectId` string identifying the project scope.
+    pub project_id: String,
+    /// Optional phone-number scope (a project can connect multiple
+    /// numbers). Empty / missing means "all numbers in the project".
+    #[serde(default)]
+    pub phone_number_id: Option<String>,
+}
+
+/// One kanban column. `id` is the stable status slug the move handler
+/// (`PATCH /{id}/status`) writes back; `title` is the human label the
+/// board renders. `contacts` are the raw stored contact documents
+/// (ObjectIds → hex, dates → ISO 8601) so the existing board, which
+/// already understands the `Contact` shape (`_id`, `name`, `waId`,
+/// `unreadCount`, `lastMessage`, `lastMessageTimestamp`,
+/// `assignedAgentId`, `status`), can drive it unchanged.
+#[derive(Debug, Clone, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct KanbanColumn {
+    /// Stable status slug — the value `PATCH /{id}/status` persists.
+    pub id: String,
+    /// Human-facing column label (currently identical to `id`).
+    pub title: String,
+    #[schema(value_type = Vec<Object>)]
+    pub contacts: Vec<Value>,
+}
+
+/// Response body for `GET /v1/contacts/kanban`. The board reads
+/// `columns[].contacts`; the column ordering mirrors the native
+/// `getKanbanData` (default statuses first, then any custom
+/// `kanbanStatuses` saved on the project, deduped).
+#[derive(Debug, Clone, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct KanbanResponse {
+    pub columns: Vec<KanbanColumn>,
+}
+
+// ---------------------------------------------------------------------------
+// `POST /v1/contacts/kanban/statuses` — saveKanbanStatuses
+// ---------------------------------------------------------------------------
+
+/// Body for `POST /v1/contacts/kanban/statuses`. Mirrors the native
+/// `saveKanbanStatuses(projectId, statuses)` — the caller sends the full
+/// list of column names currently on the board; the default statuses
+/// (`new`, `open`, `resolved`) are stripped before persisting so only
+/// the user-added custom lists land in `projects.kanbanStatuses`.
+#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct SaveKanbanStatusesBody {
+    /// Required — hex `ObjectId` string identifying the project scope.
+    pub project_id: String,
+    /// Full list of column names on the board (defaults + custom).
+    #[serde(default)]
+    pub statuses: Vec<String>,
+}
+
+// ---------------------------------------------------------------------------
 // Generic success envelope
 // ---------------------------------------------------------------------------
 

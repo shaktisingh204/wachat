@@ -207,7 +207,7 @@ export default function RoleDetailPage() {
   if (!mounted || (isLoading && !role)) {
     return (
       <div className="flex h-60 items-center justify-center">
-        <LoaderCircle className="h-5 w-5 animate-spin text-zoru-ink-muted" />
+        <LoaderCircle className="h-5 w-5 animate-spin text-[var(--st-text-secondary)]" />
       </div>
     );
   }
@@ -235,9 +235,9 @@ export default function RoleDetailPage() {
 
       {/* Members */}
       <Card className="p-0">
-        <div className="border-b border-zoru-line p-5">
-          <h2 className="text-[15px] text-zoru-ink">Members</h2>
-          <p className="text-[13px] text-zoru-ink-muted">
+        <div className="border-b border-[var(--st-border)] p-5">
+          <h2 className="text-[15px] text-[var(--st-text)]">Members</h2>
+          <p className="text-[13px] text-[var(--st-text-secondary)]">
             {members.length} assigned
           </p>
         </div>
@@ -269,11 +269,11 @@ export default function RoleDetailPage() {
           </div>
 
           {members.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-zoru-line p-6 text-center text-[13px] text-zoru-ink-muted">
+            <div className="rounded-lg border border-dashed border-[var(--st-border)] p-6 text-center text-[13px] text-[var(--st-text-secondary)]">
               No members yet.
             </div>
           ) : (
-            <ul className="divide-y divide-zoru-line rounded-lg border border-zoru-line">
+            <ul className="divide-y divide-[var(--st-border)] rounded-lg border border-[var(--st-border)]">
               {members.map((m) => {
                 const label = m.user_name || m.user_email || m.user_id;
                 return (
@@ -283,14 +283,14 @@ export default function RoleDetailPage() {
                   >
                     <div className="flex items-center gap-3">
                       <Avatar className="h-9 w-9">
-                        <ZoruAvatarFallback className="bg-zoru-surface-2 text-[12px] text-zoru-ink">
+                        <ZoruAvatarFallback className="bg-[var(--st-bg-muted)] text-[12px] text-[var(--st-text)]">
                           {initials(label)}
                         </ZoruAvatarFallback>
                       </Avatar>
                       <div>
-                        <div className="text-[13px] text-zoru-ink">{label}</div>
+                        <div className="text-[13px] text-[var(--st-text)]">{label}</div>
                         {m.user_email && m.user_name ? (
-                          <div className="text-[12px] text-zoru-ink-muted">
+                          <div className="text-[12px] text-[var(--st-text-secondary)]">
                             {m.user_email}
                           </div>
                         ) : null}
@@ -302,7 +302,7 @@ export default function RoleDetailPage() {
                       onClick={() => removeMember(m.user_id)}
                       aria-label="Remove member"
                     >
-                      <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                      <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                     </Button>
                   </li>
                 );
@@ -314,9 +314,9 @@ export default function RoleDetailPage() {
 
       {/* Permission matrix */}
       <Card className="p-0">
-        <div className="border-b border-zoru-line p-5">
-          <h2 className="text-[15px] text-zoru-ink">Permission matrix</h2>
-          <p className="text-[13px] text-zoru-ink-muted">
+        <div className="border-b border-[var(--st-border)] p-5">
+          <h2 className="text-[15px] text-[var(--st-text)]">Permission matrix</h2>
+          <p className="text-[13px] text-[var(--st-text-secondary)]">
             Toggle a cell to grant this role the permission with the chosen
             type. Toggle again to revoke.{' '}
             {isBusy ? (
@@ -327,7 +327,7 @@ export default function RoleDetailPage() {
 
         <div className="overflow-x-auto p-5">
           {groups.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-zoru-line p-6 text-center text-[13px] text-zoru-ink-muted">
+            <div className="rounded-lg border border-dashed border-[var(--st-border)] p-6 text-center text-[13px] text-[var(--st-text-secondary)]">
               No permissions defined. Create some under{' '}
               <Link
                 href="/dashboard/crm/settings/permissions"
@@ -341,9 +341,9 @@ export default function RoleDetailPage() {
             <Table>
               <ZoruTableHeader>
                 <ZoruTableRow className="hover:bg-transparent">
-                  <ZoruTableHead className="text-zoru-ink-muted">Permission</ZoruTableHead>
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">Permission</ZoruTableHead>
                   {types.map((t) => (
-                    <ZoruTableHead key={t._id} className="text-center text-zoru-ink-muted">
+                    <ZoruTableHead key={t._id} className="text-center text-[var(--st-text-secondary)]">
                       {t.display_name || t.name}
                     </ZoruTableHead>
                   ))}
@@ -352,10 +352,10 @@ export default function RoleDetailPage() {
               <ZoruTableBody>
                 {groups.map((g, gi) => (
                   <React.Fragment key={g.module?._id || `orphan-${gi}`}>
-                    <ZoruTableRow className="bg-zoru-surface-2 hover:bg-zoru-surface-2">
+                    <ZoruTableRow className="bg-[var(--st-bg-muted)] hover:bg-[var(--st-bg-muted)]">
                       <ZoruTableCell
                         colSpan={types.length + 1}
-                        className="text-[13px] text-zoru-ink"
+                        className="text-[13px] text-[var(--st-text)]"
                       >
                         {g.module?.display_name ||
                           g.module?.module_name ||
@@ -366,7 +366,7 @@ export default function RoleDetailPage() {
                       <ZoruTableRow>
                         <ZoruTableCell
                           colSpan={types.length + 1}
-                          className="py-3 text-center text-[12px] text-zoru-ink-muted"
+                          className="py-3 text-center text-[12px] text-[var(--st-text-secondary)]"
                         >
                           No permissions in this module.
                         </ZoruTableCell>
@@ -376,9 +376,9 @@ export default function RoleDetailPage() {
                         const activeType = grants.get(String(p._id));
                         return (
                           <ZoruTableRow key={p._id}>
-                            <ZoruTableCell className="text-[13px] text-zoru-ink">
+                            <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                               <div>{p.display_name || p.name}</div>
-                              <div className="text-[12px] text-zoru-ink-muted">
+                              <div className="text-[12px] text-[var(--st-text-secondary)]">
                                 <code>{p.name}</code>
                               </div>
                             </ZoruTableCell>
@@ -388,7 +388,7 @@ export default function RoleDetailPage() {
                                 <ZoruTableCell key={t._id} className="text-center">
                                   <input
                                     type="checkbox"
-                                    className="h-4 w-4 cursor-pointer accent-zoru-ink"
+                                    className="h-4 w-4 cursor-pointer accent-[var(--st-text)]"
                                     checked={checked}
                                     disabled={isBusy}
                                     onChange={() =>
@@ -410,7 +410,7 @@ export default function RoleDetailPage() {
           )}
         </div>
 
-        <div className="flex flex-wrap gap-2 border-t border-zoru-line p-4">
+        <div className="flex flex-wrap gap-2 border-t border-[var(--st-border)] p-4">
           {Array.from(grants.entries()).slice(0, 6).map(([permId, typeId]) => {
             const perm = groups
               .flatMap((g) => g.permissions)

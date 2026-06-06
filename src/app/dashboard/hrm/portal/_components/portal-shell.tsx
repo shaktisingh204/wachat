@@ -46,8 +46,8 @@ const SECTIONS: SectionDef[] = [
 
 function SectionLoader() {
     return (
-        <div className="flex h-32 items-center justify-center rounded-lg border border-zoru-line bg-zoru-surface-2">
-            <Loader2 className="h-6 w-6 animate-spin text-zoru-ink-muted" />
+        <div className="flex h-32 items-center justify-center rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)]">
+            <Loader2 className="h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
         </div>
     );
 }
@@ -81,7 +81,7 @@ export function PortalShell({
             <div
                 role="group"
                 aria-label="Portal sections"
-                className="flex flex-wrap gap-1 rounded-full border border-zoru-line bg-zoru-bg p-1 w-fit"
+                className="flex flex-wrap gap-1 rounded-full border border-[var(--st-border)] bg-[var(--st-bg)] p-1 w-fit"
             >
                 {SECTIONS.map((s) => (
                     <button
@@ -91,8 +91,8 @@ export function PortalShell({
                         className={cn(
                             'inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[13px] font-medium transition-colors',
                             activeSection === s.id
-                                ? 'bg-zoru-ink text-zoru-bg shadow-sm'
-                                : 'text-zoru-ink-muted hover:text-zoru-ink hover:bg-zoru-surface-2',
+                                ? 'bg-[var(--st-text)] text-[var(--st-bg)] shadow-sm'
+                                : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]',
                         )}
                     >
                         {s.icon}
@@ -105,8 +105,8 @@ export function PortalShell({
             {activeSection === 'team' && (
                 <section>
                     <div className="mb-4">
-                        <h3 className="text-[15px] font-semibold text-zoru-ink">My Team</h3>
-                        <p className="text-[12.5px] text-zoru-ink-muted">
+                        <h3 className="text-[15px] font-semibold text-[var(--st-text)]">My Team</h3>
+                        <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                             Your direct reports — click a card to assign a task.
                         </p>
                     </div>
@@ -119,8 +119,8 @@ export function PortalShell({
             {activeSection === 'my-tasks' && (
                 <section>
                     <div className="mb-4">
-                        <h3 className="text-[15px] font-semibold text-zoru-ink">Tasks Assigned to Me</h3>
-                        <p className="text-[12.5px] text-zoru-ink-muted">
+                        <h3 className="text-[15px] font-semibold text-[var(--st-text)]">Tasks Assigned to Me</h3>
+                        <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                             Open tasks you need to complete. Hit &ldquo;Done&rdquo; to mark complete.
                         </p>
                     </div>
@@ -133,8 +133,8 @@ export function PortalShell({
             {activeSection === 'created-tasks' && (
                 <section>
                     <div className="mb-4">
-                        <h3 className="text-[15px] font-semibold text-zoru-ink">Tasks I Assigned</h3>
-                        <p className="text-[12.5px] text-zoru-ink-muted">
+                        <h3 className="text-[15px] font-semibold text-[var(--st-text)]">Tasks I Assigned</h3>
+                        <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                             Open tasks you have delegated to your team.
                         </p>
                     </div>

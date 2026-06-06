@@ -15,7 +15,7 @@ export default async function ShiftsPage() {
     return (
         <Suspense fallback={
             <div className="flex h-64 items-center justify-center">
-                <LoaderCircle className="h-8 w-8 animate-spin text-zoru-ink-muted" />
+                <LoaderCircle className="h-8 w-8 animate-spin text-[var(--st-text-secondary)]" />
             </div>
         }>
             <ShiftsDataLoader />

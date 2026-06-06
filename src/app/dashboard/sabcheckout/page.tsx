@@ -119,7 +119,7 @@ export default async function SabcheckoutHomePage({
       </div>
 
       <div className="mt-4">
-        <h3 className="mb-4 text-lg font-medium tracking-tight text-zoru-ink">Your Pages</h3>
+        <h3 className="mb-4 text-lg font-medium tracking-tight text-[var(--st-text)]">Your Pages</h3>
         {!result.ok ? (
           <Card>
             <ZoruCardHeader>
@@ -129,7 +129,7 @@ export default async function SabcheckoutHomePage({
           </Card>
         ) : result.data.items.length === 0 ? (
           <Card className="flex flex-col items-center justify-center p-12 text-center border-dashed">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted mb-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] mb-4">
               <Package className="h-6 w-6" />
             </div>
             <ZoruCardTitle className="text-xl">No payment pages yet</ZoruCardTitle>

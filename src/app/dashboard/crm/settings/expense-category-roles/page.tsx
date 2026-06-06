@@ -141,12 +141,12 @@ export default function ExpenseCategoryRolesPage() {
 
       <Card className="p-6">
         <form action={formAction} className="space-y-4">
-          <h3 className="text-[13px] uppercase tracking-wide text-zoru-ink-muted">
+          <h3 className="text-[13px] uppercase tracking-wide text-[var(--st-text-secondary)]">
             Add Permission
           </h3>
           <div className="grid gap-4 md:grid-cols-4">
             <div>
-              <Label htmlFor="expense_category_id" className="text-[13px] text-zoru-ink">
+              <Label htmlFor="expense_category_id" className="text-[13px] text-[var(--st-text)]">
                 Category
               </Label>
               <Select
@@ -167,7 +167,7 @@ export default function ExpenseCategoryRolesPage() {
               </Select>
             </div>
             <div>
-              <Label htmlFor="role_id" className="text-[13px] text-zoru-ink">
+              <Label htmlFor="role_id" className="text-[13px] text-[var(--st-text)]">
                 Role
               </Label>
               <Select name="role_id" value={roleId} onValueChange={setRoleId}>
@@ -183,13 +183,13 @@ export default function ExpenseCategoryRolesPage() {
                 </ZoruSelectContent>
               </Select>
             </div>
-            <div className="flex items-center gap-3 rounded-lg border border-zoru-line bg-zoru-surface px-4">
+            <div className="flex items-center gap-3 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4">
               <Switch
                 id="can_create"
                 checked={canCreate}
                 onCheckedChange={setCanCreate}
               />
-              <Label htmlFor="can_create" className="text-[13px] text-zoru-ink">
+              <Label htmlFor="can_create" className="text-[13px] text-[var(--st-text)]">
                 Can create
               </Label>
               <input
@@ -198,13 +198,13 @@ export default function ExpenseCategoryRolesPage() {
                 value={canCreate ? 'yes' : 'no'}
               />
             </div>
-            <div className="flex items-center gap-3 rounded-lg border border-zoru-line bg-zoru-surface px-4">
+            <div className="flex items-center gap-3 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4">
               <Switch
                 id="can_approve"
                 checked={canApprove}
                 onCheckedChange={setCanApprove}
               />
-              <Label htmlFor="can_approve" className="text-[13px] text-zoru-ink">
+              <Label htmlFor="can_approve" className="text-[13px] text-[var(--st-text)]">
                 Can approve
               </Label>
               <input
@@ -231,7 +231,7 @@ export default function ExpenseCategoryRolesPage() {
         {isLoading && rows.length === 0 ? (
           <Skeleton className="h-[200px] w-full" />
         ) : rows.length === 0 ? (
-          <div className="py-10 text-center text-[13px] text-zoru-ink-muted">
+          <div className="py-10 text-center text-[13px] text-[var(--st-text-secondary)]">
             No permissions configured yet.
           </div>
         ) : (
@@ -262,7 +262,7 @@ export default function ExpenseCategoryRolesPage() {
                         disabled={isDeleting && deletingId === String(row._id)}
                         onClick={() => handleDelete(String(row._id))}
                       >
-                        <Trash2 className="h-4 w-4 text-zoru-ink-muted" />
+                        <Trash2 className="h-4 w-4 text-[var(--st-text-secondary)]" />
                       </Button>
                     </ZoruTableCell>
                   </ZoruTableRow>

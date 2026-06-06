@@ -83,9 +83,9 @@ function Field({
   value: React.ReactNode;
 }) {
   return (
-    <div className="grid grid-cols-3 gap-3 border-b border-zoru-line/60 py-2 last:border-0">
-      <dt className="col-span-1 text-[12.5px] text-zoru-ink-muted">{label}</dt>
-      <dd className="col-span-2 text-[13px] text-zoru-ink">{value ?? '—'}</dd>
+    <div className="grid grid-cols-3 gap-3 border-b border-[var(--st-border)]/60 py-2 last:border-0">
+      <dt className="col-span-1 text-[12.5px] text-[var(--st-text-secondary)]">{label}</dt>
+      <dd className="col-span-2 text-[13px] text-[var(--st-text)]">{value ?? '—'}</dd>
     </div>
   );
 }
@@ -121,25 +121,25 @@ export default async function LoanDetailPage({ params }: PageProps) {
             <ZoruCardContent>
               <div className="space-y-2 text-[12.5px]">
                 <div className="flex items-center justify-between">
-                  <span className="text-zoru-ink-muted">Outstanding</span>
+                  <span className="text-[var(--st-text-secondary)]">Outstanding</span>
                   <span
                     className={`font-mono tabular-nums ${
                       (loan.outstanding ?? 0) > 0
-                        ? 'text-zoru-danger-ink'
-                        : 'text-zoru-ink'
+                        ? 'text-[var(--st-danger)]'
+                        : 'text-[var(--st-text)]'
                     }`}
                   >
                     {fmtMoney(loan.outstanding ?? 0)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-zoru-ink-muted">Principal</span>
+                  <span className="text-[var(--st-text-secondary)]">Principal</span>
                   <span className="font-mono tabular-nums">
                     {fmtMoney(loan.principal)}
                   </span>
                 </div>
-                <div className="flex items-center justify-between border-t border-zoru-line pt-2">
-                  <span className="text-zoru-ink-muted">EMI</span>
+                <div className="flex items-center justify-between border-t border-[var(--st-border)] pt-2">
+                  <span className="text-[var(--st-text-secondary)]">EMI</span>
                   <span className="font-mono tabular-nums">
                     {fmtMoney(loan.emi)}
                   </span>
@@ -154,8 +154,8 @@ export default async function LoanDetailPage({ params }: PageProps) {
             </ZoruCardHeader>
             <ZoruCardContent>
               <div className="space-y-1 text-[12.5px]">
-                <div className="text-zoru-ink">{loan.borrowerName || '—'}</div>
-                <div className="text-zoru-ink-muted">
+                <div className="text-[var(--st-text)]">{loan.borrowerName || '—'}</div>
+                <div className="text-[var(--st-text-secondary)]">
                   {loan.borrowerId ? `ID ${loan.borrowerId}` : ''}
                 </div>
               </div>
@@ -169,11 +169,11 @@ export default async function LoanDetailPage({ params }: PageProps) {
             <ZoruCardContent>
               <div className="space-y-1.5 text-[12.5px]">
                 <div className="flex justify-between">
-                  <span className="text-zoru-ink-muted">Due</span>
+                  <span className="text-[var(--st-text-secondary)]">Due</span>
                   <span>{fmtDate(next.dueDate)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-zoru-ink-muted">Amount</span>
+                  <span className="text-[var(--st-text-secondary)]">Amount</span>
                   <span className="font-mono tabular-nums">
                     {fmtMoney(next.amount)}
                   </span>
@@ -190,13 +190,13 @@ export default async function LoanDetailPage({ params }: PageProps) {
               <div className="flex flex-col gap-2 text-[12.5px]">
                 <Link
                   href={`/dashboard/crm/sales/receipts?loanId=${id}`}
-                  className="text-zoru-primary hover:underline"
+                  className="text-[var(--st-text)] hover:underline"
                 >
                   Payment receipts →
                 </Link>
                 <Link
                   href={`/dashboard/crm/loans/${id}/documents`}
-                  className="text-zoru-primary hover:underline"
+                  className="text-[var(--st-text)] hover:underline"
                 >
                   Loan documents →
                 </Link>
@@ -263,13 +263,13 @@ export default async function LoanDetailPage({ params }: PageProps) {
         </ZoruCardHeader>
         <ZoruCardContent>
           {payments.length === 0 ? (
-            <p className="text-[13px] text-zoru-ink-muted">
+            <p className="text-[13px] text-[var(--st-text-secondary)]">
               No payments recorded yet.
             </p>
           ) : (
             <Table className="text-[13px]">
               <TableHeader>
-                <TableRow className="border-b border-zoru-line/60 text-left text-[11px] uppercase text-zoru-ink-muted bg-transparent">
+                <TableRow className="border-b border-[var(--st-border)]/60 text-left text-[11px] uppercase text-[var(--st-text-secondary)] bg-transparent">
                   <TableHead className="py-2 h-auto">Date</TableHead>
                   <TableHead className="py-2 text-right h-auto">Amount</TableHead>
                   <TableHead className="py-2 h-auto">Mode</TableHead>
@@ -280,14 +280,14 @@ export default async function LoanDetailPage({ params }: PageProps) {
                 {payments.map((p, idx) => (
                   <TableRow
                     key={p._id ?? `${p.date}-${idx}`}
-                    className="border-b border-zoru-line/40 last:border-0"
+                    className="border-b border-[var(--st-border)]/40 last:border-0"
                   >
                     <TableCell className="py-2">{fmtDate(p.date)}</TableCell>
                     <TableCell className="py-2 text-right font-mono tabular-nums">
                       {fmtMoney(p.amount)}
                     </TableCell>
                     <TableCell className="py-2">{p.mode || '—'}</TableCell>
-                    <TableCell className="py-2 text-zoru-ink-muted">
+                    <TableCell className="py-2 text-[var(--st-text-secondary)]">
                       {p.txnId || '—'}
                     </TableCell>
                   </TableRow>
@@ -304,11 +304,11 @@ export default async function LoanDetailPage({ params }: PageProps) {
         </ZoruCardHeader>
         <ZoruCardContent>
           {/* TODO 1D.2: loan-document collection not yet implemented */}
-          <p className="text-[13px] text-zoru-ink-muted">
+          <p className="text-[13px] text-[var(--st-text-secondary)]">
             No documents uploaded yet.{' '}
             <Link
               href={`/dashboard/crm/loans/${id}/documents`}
-              className="text-zoru-primary hover:underline"
+              className="text-[var(--st-text)] hover:underline"
             >
               Manage documents →
             </Link>
@@ -322,7 +322,7 @@ export default async function LoanDetailPage({ params }: PageProps) {
             <ZoruCardTitle>Notes</ZoruCardTitle>
           </ZoruCardHeader>
           <ZoruCardContent>
-            <p className="whitespace-pre-wrap text-[13px] text-zoru-ink">
+            <p className="whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
               {loan.notes}
             </p>
           </ZoruCardContent>

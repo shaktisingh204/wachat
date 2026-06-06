@@ -68,9 +68,9 @@ function formatMoney(value: number | undefined, currency: string | undefined): s
 function StatCard({ title, value, accent }: { title: string; value: number; accent?: string }) {
     return (
         <Card>
-            <p className="text-[13px] font-medium text-zoru-ink-muted">{title}</p>
-            <p className="mt-1 text-[28px] font-semibold text-zoru-ink">{value.toLocaleString()}</p>
-            {accent ? <p className="mt-1 text-[11.5px] text-zoru-ink-muted">{accent}</p> : null}
+            <p className="text-[13px] font-medium text-[var(--st-text-secondary)]">{title}</p>
+            <p className="mt-1 text-[28px] font-semibold text-[var(--st-text)]">{value.toLocaleString()}</p>
+            {accent ? <p className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">{accent}</p> : null}
         </Card>
     );
 }
@@ -117,25 +117,25 @@ function MergePanel({ group, onMerged }: MergePanelProps) {
     };
 
     return (
-        <div className="space-y-3 border-t border-zoru-line p-3">
-            <p className="text-[12px] font-medium text-zoru-ink">Pick the survivor</p>
+        <div className="space-y-3 border-t border-[var(--st-border)] p-3">
+            <p className="text-[12px] font-medium text-[var(--st-text)]">Pick the survivor</p>
             <RadioGroup value={survivor} onValueChange={setSurvivor} className="space-y-2">
                 {group.leads.map((lead) => (
                     <label
                         key={lead._id}
                         htmlFor={`survivor-${group.signature}-${lead._id}`}
-                        className="flex cursor-pointer items-start gap-3 rounded-md border border-zoru-line bg-zoru-surface-2/40 p-2.5 hover:border-primary"
+                        className="flex cursor-pointer items-start gap-3 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)]/40 p-2.5 hover:border-primary"
                     >
                         <ZoruRadioGroupItem id={`survivor-${group.signature}-${lead._id}`} value={lead._id} />
                         <div className="min-w-0 flex-1">
-                            <p className="text-[13px] font-medium text-zoru-ink">
+                            <p className="text-[13px] font-medium text-[var(--st-text)]">
                                 {lead.title || lead.contactName || 'Untitled'}
                             </p>
-                            <p className="truncate text-[11.5px] text-zoru-ink-muted">
+                            <p className="truncate text-[11.5px] text-[var(--st-text-secondary)]">
                                 {lead.contactName ?? ''}
                                 {lead.company ? ` · ${lead.company}` : ''}
                             </p>
-                            <p className="mt-1 font-mono text-[11.5px] text-zoru-ink-muted">
+                            <p className="mt-1 font-mono text-[11.5px] text-[var(--st-text-secondary)]">
                                 {formatMoney(lead.value, lead.currency)}
                             </p>
                         </div>
@@ -270,9 +270,9 @@ export default function LeadDuplicatesPage() {
             empty={
                 !isPending && loaded && annotated.length === 0 ? (
                     <div className="flex flex-col items-center gap-3 p-4">
-                        <Copy className="h-8 w-8 text-zoru-ink-muted" />
-                        <h3 className="text-base font-medium text-zoru-ink">No duplicates found</h3>
-                        <p className="max-w-sm text-sm text-zoru-ink-muted">
+                        <Copy className="h-8 w-8 text-[var(--st-text-secondary)]" />
+                        <h3 className="text-base font-medium text-[var(--st-text)]">No duplicates found</h3>
+                        <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                             Every lead in your tenant has a unique email and phone (or those fields
                             are blank). Nice job keeping the pipeline tidy.
                         </p>
@@ -291,7 +291,7 @@ export default function LeadDuplicatesPage() {
             <Card>
                 <div className="flex flex-wrap items-end gap-3">
                     <div className="min-w-[200px]">
-                        <p className="mb-1 text-[12px] font-medium text-zoru-ink">Status</p>
+                        <p className="mb-1 text-[12px] font-medium text-[var(--st-text)]">Status</p>
                         <Select
                             value={statusFilter}
                             onValueChange={(v) => setStatusFilter(v as StatusFilter)}
@@ -307,7 +307,7 @@ export default function LeadDuplicatesPage() {
                             </ZoruSelectContent>
                         </Select>
                     </div>
-                    <p className="text-[12px] text-zoru-ink-muted">
+                    <p className="text-[12px] text-[var(--st-text-secondary)]">
                         Showing {visibleGroups.length} of {annotated.length}
                     </p>
                 </div>
@@ -319,12 +319,12 @@ export default function LeadDuplicatesPage() {
                     const isIgnored = group.status === 'ignored';
                     return (
                         <Card key={group.signature} className="overflow-hidden p-0">
-                            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zoru-line p-3">
+                            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--st-border)] p-3">
                                 <span className="inline-flex items-center gap-2 text-[14px]">
                                     {group.key === 'email' ? (
-                                        <Mail className="h-3.5 w-3.5 text-zoru-ink-muted" />
+                                        <Mail className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                                     ) : (
-                                        <Phone className="h-3.5 w-3.5 text-zoru-ink-muted" />
+                                        <Phone className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                                     )}
                                     <span className="truncate font-mono">{group.value}</span>
                                 </span>
@@ -362,29 +362,29 @@ export default function LeadDuplicatesPage() {
                                             key={lead._id}
                                             className={`flex flex-col gap-1 rounded-md border p-2.5 ${
                                                 isSurvivor
-                                                    ? 'border-zoru-success/40 bg-zoru-success/5'
+                                                    ? 'border-[var(--st-status-ok)]/40 bg-[var(--st-status-ok)]/5'
                                                     : wasMerged
-                                                      ? 'border-zoru-line bg-zoru-surface-2/40 opacity-60'
-                                                      : 'border-zoru-line bg-zoru-bg'
+                                                      ? 'border-[var(--st-border)] bg-[var(--st-bg-muted)]/40 opacity-60'
+                                                      : 'border-[var(--st-border)] bg-[var(--st-bg)]'
                                             }`}
                                         >
                                             <div className="flex items-start justify-between gap-2">
                                                 <Link
                                                     href={`/dashboard/crm/sales-crm/all-leads/${lead._id}`}
-                                                    className="text-[13px] font-medium text-zoru-ink hover:underline"
+                                                    className="text-[13px] font-medium text-[var(--st-text)] hover:underline"
                                                 >
                                                     {lead.title || lead.contactName || 'Untitled'}
                                                 </Link>
                                                 <StatusPill label={status} tone={statusToTone(status)} />
                                             </div>
-                                            <p className="truncate text-[11.5px] text-zoru-ink-muted">
+                                            <p className="truncate text-[11.5px] text-[var(--st-text-secondary)]">
                                                 {lead.contactName}
                                                 {lead.company ? ` · ${lead.company}` : ''}
                                             </p>
-                                            <p className="truncate font-mono text-[11.5px] text-zoru-ink-muted">
+                                            <p className="truncate font-mono text-[11.5px] text-[var(--st-text-secondary)]">
                                                 {lead.email ?? '—'} · {lead.phone ?? '—'}
                                             </p>
-                                            <p className="text-[11.5px] text-zoru-ink-muted">
+                                            <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                                                 Value: {formatMoney(lead.value, lead.currency)}
                                             </p>
                                             {isSurvivor ? (

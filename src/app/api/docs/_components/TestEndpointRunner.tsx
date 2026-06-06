@@ -172,7 +172,7 @@ export function TestEndpointRunner({
   };
 
   return (
-    <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-4 space-y-4">
+    <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4 space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2">
         <Input
           type="password"
@@ -192,12 +192,12 @@ export function TestEndpointRunner({
 
       {pathParams.length > 0 ? (
         <div>
-          <p className="text-xs font-medium text-zoru-ink-muted mb-1.5">Path parameters</p>
+          <p className="text-xs font-medium text-[var(--st-text-secondary)] mb-1.5">Path parameters</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {pathParams.map((p) => (
               <div key={p.name} className="space-y-1">
-                <Label className="text-xs font-normal text-zoru-ink-muted">
-                  <span className="font-mono text-zoru-ink-muted">{p.name}</span>
+                <Label className="text-xs font-normal text-[var(--st-text-secondary)]">
+                  <span className="font-mono text-[var(--st-text-secondary)]">{p.name}</span>
                   {p.description ? <span className="ml-1">— {p.description}</span> : null}
                 </Label>
                 <Input
@@ -213,13 +213,13 @@ export function TestEndpointRunner({
 
       {queryParams.length > 0 ? (
         <div>
-          <p className="text-xs font-medium text-zoru-ink-muted mb-1.5">Query parameters</p>
+          <p className="text-xs font-medium text-[var(--st-text-secondary)] mb-1.5">Query parameters</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {queryParams.map((q) => (
               <div key={q.name} className="space-y-1">
-                <Label className="text-xs font-normal text-zoru-ink-muted">
-                  <span className="font-mono text-zoru-ink-muted">{q.name}</span>
-                  {q.required ? <span className="ml-1 text-zoru-danger">*</span> : null}
+                <Label className="text-xs font-normal text-[var(--st-text-secondary)]">
+                  <span className="font-mono text-[var(--st-text-secondary)]">{q.name}</span>
+                  {q.required ? <span className="ml-1 text-[var(--st-danger)]">*</span> : null}
                   {q.description ? <span className="ml-1">— {q.description}</span> : null}
                 </Label>
                 <Input
@@ -235,7 +235,7 @@ export function TestEndpointRunner({
 
       {hasBody ? (
         <div>
-          <p className="text-xs font-medium text-zoru-ink-muted mb-1.5">JSON body</p>
+          <p className="text-xs font-medium text-[var(--st-text-secondary)] mb-1.5">JSON body</p>
           <Textarea
             value={body}
             onChange={(e) => setBody(e.target.value)}
@@ -246,8 +246,8 @@ export function TestEndpointRunner({
         </div>
       ) : null}
 
-      <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-3 py-2 text-xs font-mono text-zoru-ink break-all">
-        <span className="text-zoru-ink-muted">{method}</span>{' '}
+      <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-xs font-mono text-[var(--st-text)] break-all">
+        <span className="text-[var(--st-text-secondary)]">{method}</span>{' '}
         <span>{builtUrl}</span>
       </div>
 
@@ -255,7 +255,7 @@ export function TestEndpointRunner({
         <Button onClick={run} disabled={busy}>
           {busy ? 'Sending…' : 'Send request'}
         </Button>
-        {error ? <span className="text-xs text-zoru-danger">{error}</span> : null}
+        {error ? <span className="text-xs text-[var(--st-danger)]">{error}</span> : null}
       </div>
 
       {result ? (
@@ -264,35 +264,35 @@ export function TestEndpointRunner({
             <span
               className={
                 result.status >= 500
-                  ? 'text-zoru-danger'
+                  ? 'text-[var(--st-danger)]'
                   : result.status >= 400
-                    ? 'text-zoru-warning'
+                    ? 'text-[var(--st-warn)]'
                     : result.status >= 300
-                      ? 'text-zoru-ink-muted'
-                      : 'text-zoru-success'
+                      ? 'text-[var(--st-text-secondary)]'
+                      : 'text-[var(--st-status-ok)]'
               }
             >
               <strong>{result.status}</strong> {result.statusText}
             </span>
-            <span className="text-zoru-ink-subtle">· {result.elapsedMs} ms</span>
+            <span className="text-[var(--st-text-tertiary)]">· {result.elapsedMs} ms</span>
           </div>
 
-          <details className="border border-zoru-line rounded-[var(--zoru-radius)]">
-            <summary className="cursor-pointer px-3 py-1.5 text-xs text-zoru-ink bg-zoru-surface">
+          <details className="border border-[var(--st-border)] rounded-[var(--zoru-radius)]">
+            <summary className="cursor-pointer px-3 py-1.5 text-xs text-[var(--st-text)] bg-[var(--st-bg-secondary)]">
               Response headers ({Object.keys(result.headers).length})
             </summary>
-            <pre className="px-3 py-2 text-[11px] text-zoru-ink m-0 overflow-x-auto">
+            <pre className="px-3 py-2 text-[11px] text-[var(--st-text)] m-0 overflow-x-auto">
 {Object.entries(result.headers)
   .map(([k, v]) => `${k}: ${v}`)
   .join('\n')}
             </pre>
           </details>
 
-          <details open className="border border-zoru-line rounded-[var(--zoru-radius)]">
-            <summary className="cursor-pointer px-3 py-1.5 text-xs text-zoru-ink bg-zoru-surface">
+          <details open className="border border-[var(--st-border)] rounded-[var(--zoru-radius)]">
+            <summary className="cursor-pointer px-3 py-1.5 text-xs text-[var(--st-text)] bg-[var(--st-bg-secondary)]">
               Response body
             </summary>
-            <pre className="px-3 py-2 text-[11px] text-zoru-ink m-0 overflow-x-auto max-h-96">
+            <pre className="px-3 py-2 text-[11px] text-[var(--st-text)] m-0 overflow-x-auto max-h-96">
 {typeof result.parsedBody === 'object' && result.parsedBody !== null
   ? JSON.stringify(result.parsedBody, null, 2)
   : result.body}

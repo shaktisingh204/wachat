@@ -115,12 +115,12 @@ export function GscClient({ projectId, initialIntegration }: { projectId: string
 
     if (!integration) {
         return (
-            <div className="flex flex-col items-center justify-center rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2/50 p-12">
-                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-zoru-info/10">
-                    <LineChart className="h-8 w-8 text-zoru-info" />
+            <div className="flex flex-col items-center justify-center rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)]/50 p-12">
+                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--st-text-secondary)]/10">
+                    <LineChart className="h-8 w-8 text-[var(--st-text-secondary)]" />
                 </div>
-                <h2 className="text-xl text-zoru-ink mb-2">Connect Google Search Console</h2>
-                <p className="text-zoru-ink-muted max-w-md text-center mb-6">
+                <h2 className="text-xl text-[var(--st-text)] mb-2">Connect Google Search Console</h2>
+                <p className="text-[var(--st-text-secondary)] max-w-md text-center mb-6">
                     Import real performance data (clicks, impressions, position) directly from Google.
                 </p>
                 <Button onClick={handleConnect} disabled={connecting} size="lg">
@@ -135,12 +135,12 @@ export function GscClient({ projectId, initialIntegration }: { projectId: string
         <div className="flex flex-col gap-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl text-zoru-ink flex items-center gap-3">
+                    <h1 className="text-3xl text-[var(--st-text)] flex items-center gap-3">
                         <GoogleLogo className="h-8 w-8" />
                         Search Console
                     </h1>
-                    <p className="text-zoru-ink-muted mt-1 flex items-center gap-2">
-                        <CheckCircle className="h-3 w-3 text-zoru-success" />
+                    <p className="text-[var(--st-text-secondary)] mt-1 flex items-center gap-2">
+                        <CheckCircle className="h-3 w-3 text-[var(--st-status-ok)]" />
                         Connected to {integration.selectedSite || integration.sites?.[0] || 'Unknown Site'}
                     </p>
                 </div>
@@ -163,7 +163,7 @@ export function GscClient({ projectId, initialIntegration }: { projectId: string
                         <div className="flex-1 min-w-[150px]">
                             <label className="text-sm font-medium mb-1.5 block">Query</label>
                             <div className="relative">
-                                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+                                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
                                 <Input 
                                     placeholder="Contains..." 
                                     className="pl-9" 
@@ -223,7 +223,7 @@ export function GscClient({ projectId, initialIntegration }: { projectId: string
                 </ZoruCardHeader>
                 <ZoruCardContent className="h-[300px]">
                     {loading && chartData.length === 0 ? (
-                        <div className="h-full flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-zoru-ink-muted" /></div>
+                        <div className="h-full flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-[var(--st-text-secondary)]" /></div>
                     ) : chartData.length > 0 ? (
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={chartData}>
@@ -257,7 +257,7 @@ export function GscClient({ projectId, initialIntegration }: { projectId: string
                             </BarChart>
                         </ResponsiveContainer>
                     ) : (
-                        <div className="h-full flex items-center justify-center text-zoru-ink-muted">No data for selected range</div>
+                        <div className="h-full flex items-center justify-center text-[var(--st-text-secondary)]">No data for selected range</div>
                     )}
                 </ZoruCardContent>
             </Card>
@@ -281,11 +281,11 @@ export function GscClient({ projectId, initialIntegration }: { projectId: string
                 </div>
                 <ZoruCardContent className="pt-6">
                     {tableLoading && tableData.length === 0 ? (
-                        <div className="py-12 flex justify-center"><Loader2 className="h-8 w-8 animate-spin text-zoru-ink-muted" /></div>
+                        <div className="py-12 flex justify-center"><Loader2 className="h-8 w-8 animate-spin text-[var(--st-text-secondary)]" /></div>
                     ) : (
-                        <div className="rounded-md border border-zoru-line overflow-hidden">
+                        <div className="rounded-md border border-[var(--st-border)] overflow-hidden">
                             <Table>
-                                <TableHeader className="bg-zoru-surface-2/50">
+                                <TableHeader className="bg-[var(--st-bg-muted)]/50">
                                     <TableRow>
                                         <TableHead className="font-semibold">{activeDimension.charAt(0).toUpperCase() + activeDimension.slice(1)}</TableHead>
                                         <TableHead className="text-right font-semibold">Clicks</TableHead>
@@ -309,7 +309,7 @@ export function GscClient({ projectId, initialIntegration }: { projectId: string
                                         ))
                                     ) : (
                                         <TableRow>
-                                            <TableCell colSpan={5} className="text-center py-8 text-zoru-ink-muted">
+                                            <TableCell colSpan={5} className="text-center py-8 text-[var(--st-text-secondary)]">
                                                 No results found
                                             </TableCell>
                                         </TableRow>
@@ -328,10 +328,10 @@ function MetricCard({ title, value }: { title: string; value: string | number })
     return (
         <Card>
             <ZoruCardHeader className="pb-2">
-                <ZoruCardTitle className="text-sm text-zoru-ink-muted">{title}</ZoruCardTitle>
+                <ZoruCardTitle className="text-sm text-[var(--st-text-secondary)]">{title}</ZoruCardTitle>
             </ZoruCardHeader>
             <ZoruCardContent>
-                <div className="text-2xl font-semibold text-zoru-ink">{value}</div>
+                <div className="text-2xl font-semibold text-[var(--st-text)]">{value}</div>
             </ZoruCardContent>
         </Card>
     );

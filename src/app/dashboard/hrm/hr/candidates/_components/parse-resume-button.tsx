@@ -35,7 +35,7 @@ export function ParseResumeButton({ candidateId, resumeUrl }: { candidateId: str
       {parsing ? (
         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
       ) : parsed ? (
-        <CheckCircle2 className="mr-2 h-4 w-4 text-zoru-ink" />
+        <CheckCircle2 className="mr-2 h-4 w-4 text-[var(--st-text)]" />
       ) : (
         <FileText className="mr-2 h-4 w-4" />
       )}

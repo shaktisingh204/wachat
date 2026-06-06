@@ -86,30 +86,30 @@ export default async function RewardsDashboardPage(): Promise<React.JSX.Element>
                 description="Once customers join a rewards program they will appear on this leaderboard."
               />
             ) : (
-              <ol className="flex flex-col divide-y divide-zoru-line">
+              <ol className="flex flex-col divide-y divide-[var(--st-border)]">
                 {topEarners.map((m, idx) => (
                   <li
                     key={m.memberId}
                     className="flex items-center justify-between gap-3 py-3 text-sm"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-zoru-surface-muted text-[12px] font-semibold text-zoru-ink">
+                      <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[12px] font-semibold text-[var(--st-text)]">
                         {idx + 1}
                       </span>
                       <div className="flex flex-col">
-                        <span className="font-medium text-zoru-ink">
+                        <span className="font-medium text-[var(--st-text)]">
                           Customer {m.customerId.slice(-6)}
                         </span>
-                        <span className="text-[12px] text-zoru-ink-muted">
+                        <span className="text-[12px] text-[var(--st-text-secondary)]">
                           {m.currentTier ? `Tier · ${m.currentTier}` : 'Base tier'}
                         </span>
                       </div>
                     </div>
                     <div className="flex flex-col items-end">
-                      <span className="font-semibold text-zoru-ink">
+                      <span className="font-semibold text-[var(--st-text)]">
                         {m.lifetimePoints.toLocaleString()} pts
                       </span>
-                      <span className="text-[12px] text-zoru-ink-muted">
+                      <span className="text-[12px] text-[var(--st-text-secondary)]">
                         {m.currentPoints.toLocaleString()} active
                       </span>
                     </div>
@@ -142,13 +142,13 @@ export default async function RewardsDashboardPage(): Promise<React.JSX.Element>
               programs.slice(0, 5).map((p) => (
                 <div
                   key={p._id}
-                  className="rounded-[var(--zoru-radius)] border border-zoru-line p-3"
+                  className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-3"
                 >
-                  <p className="text-[13px] font-medium text-zoru-ink">{p.name}</p>
+                  <p className="text-[13px] font-medium text-[var(--st-text)]">{p.name}</p>
                   {p.description ? (
-                    <p className="mt-0.5 text-[12px] text-zoru-ink-muted">{p.description}</p>
+                    <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">{p.description}</p>
                   ) : null}
-                  <p className="mt-1 text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                  <p className="mt-1 text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                     {p.status ?? 'active'} ·{' '}
                     {p.pointsExpireAfterDays
                       ? `Points expire after ${p.pointsExpireAfterDays}d`

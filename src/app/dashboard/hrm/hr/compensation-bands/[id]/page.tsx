@@ -150,23 +150,23 @@ async function CompensationBandDetailPageContainer({ params }: PageProps) {
                 ) : null}
             </HrDetailGrid>
             <div className="mt-8 rounded-lg border bg-white p-6 shadow-sm">
-                <h3 className="mb-4 text-sm font-semibold text-zoru-ink">Compensation Range Overview</h3>
+                <h3 className="mb-4 text-sm font-semibold text-[var(--st-text)]">Compensation Range Overview</h3>
                 <div className="relative pt-6 pb-2 w-full max-w-2xl">
-                    <div className="h-4 rounded-full bg-zoru-surface-2 relative w-full overflow-hidden border border-zoru-line">
-                        <div className="absolute top-0 bottom-0 left-[20%] right-[20%] bg-zoru-surface-2 opacity-50" />
-                        <div className="absolute top-0 bottom-0 left-[49%] w-2 bg-zoru-ink rounded" />
+                    <div className="h-4 rounded-full bg-[var(--st-bg-muted)] relative w-full overflow-hidden border border-[var(--st-border)]">
+                        <div className="absolute top-0 bottom-0 left-[20%] right-[20%] bg-[var(--st-bg-muted)] opacity-50" />
+                        <div className="absolute top-0 bottom-0 left-[49%] w-2 bg-[var(--st-text)] rounded" />
                     </div>
-                    <div className="mt-2 flex justify-between text-[13px] font-medium text-zoru-ink-muted">
+                    <div className="mt-2 flex justify-between text-[13px] font-medium text-[var(--st-text-secondary)]">
                         <div>
-                           <div className="text-zoru-ink">Min</div>
+                           <div className="text-[var(--st-text)]">Min</div>
                            <div>{row.salaryMin ? fmtINR(Number(row.salaryMin)) : 'N/A'}</div>
                         </div>
                         <div className="text-center">
-                           <div className="text-zoru-ink">Mid</div>
+                           <div className="text-[var(--st-text)]">Mid</div>
                            <div>{row.salaryMid ? fmtINR(Number(row.salaryMid)) : 'N/A'}</div>
                         </div>
                         <div className="text-right">
-                           <div className="text-zoru-ink">Max</div>
+                           <div className="text-[var(--st-text)]">Max</div>
                            <div>{row.salaryMax ? fmtINR(Number(row.salaryMax)) : 'N/A'}</div>
                         </div>
                     </div>

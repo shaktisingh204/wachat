@@ -175,12 +175,12 @@ export function ChatThread({ peerUserId, currentUserId, initialMessages }: ChatT
 
   return (
     <Card className="flex min-h-[480px] flex-col p-0">
-      <div className="border-b border-zoru-line px-5 py-3 flex justify-between items-center">
+      <div className="border-b border-[var(--st-border)] px-5 py-3 flex justify-between items-center">
         <div>
-          <p className="text-[12.5px] text-zoru-ink-muted">Conversation with</p>
-          <p className="truncate text-[14px] font-medium text-zoru-ink flex items-center gap-2">
+          <p className="text-[12.5px] text-[var(--st-text-secondary)]">Conversation with</p>
+          <p className="truncate text-[14px] font-medium text-[var(--st-text)] flex items-center gap-2">
             {peerUserId}
-            <span className="w-2 h-2 rounded-full bg-zoru-success inline-block" title="Online status indicator"></span>
+            <span className="w-2 h-2 rounded-full bg-[var(--st-status-ok)] inline-block" title="Online status indicator"></span>
           </p>
         </div>
       </div>
@@ -194,7 +194,7 @@ export function ChatThread({ peerUserId, currentUserId, initialMessages }: ChatT
           </div>
         )}
         {messages.length === 0 ? (
-          <p className="py-10 text-center text-[12.5px] text-zoru-ink-muted">
+          <p className="py-10 text-center text-[12.5px] text-[var(--st-text-secondary)]">
             No messages yet. Say hi.
           </p>
         ) : (
@@ -209,8 +209,8 @@ export function ChatThread({ peerUserId, currentUserId, initialMessages }: ChatT
                   className={cn(
                     'max-w-[80%] rounded-lg px-3 py-2 text-[13px] leading-snug',
                     own
-                      ? 'bg-zoru-ink text-white'
-                      : 'bg-zoru-surface-2 text-zoru-ink',
+                      ? 'bg-[var(--st-text)] text-white'
+                      : 'bg-[var(--st-bg-muted)] text-[var(--st-text)]',
                   )}
                 >
                   {m.message ? (
@@ -235,11 +235,11 @@ export function ChatThread({ peerUserId, currentUserId, initialMessages }: ChatT
                   ) : null}
                 </div>
                 <div className="mt-1 px-1 flex items-center gap-1">
-                  <span className="text-[10.5px] text-zoru-ink-muted">
+                  <span className="text-[10.5px] text-[var(--st-text-secondary)]">
                     {formatStamp(m.createdAt)}
                   </span>
                   {own && !m.isOptimistic && (
-                    m.is_read ? <CheckCheck className="h-3 w-3 text-zoru-ink" /> : <Check className="h-3 w-3 text-zoru-ink-muted" />
+                    m.is_read ? <CheckCheck className="h-3 w-3 text-[var(--st-text)]" /> : <Check className="h-3 w-3 text-[var(--st-text-secondary)]" />
                   )}
                 </div>
               </div>
@@ -248,7 +248,7 @@ export function ChatThread({ peerUserId, currentUserId, initialMessages }: ChatT
         )}
         {typing && (
           <div className="flex flex-col items-start">
-            <div className="bg-zoru-surface-2 text-zoru-ink max-w-[80%] rounded-lg px-3 py-2 text-[13px] leading-snug">
+            <div className="bg-[var(--st-bg-muted)] text-[var(--st-text)] max-w-[80%] rounded-lg px-3 py-2 text-[13px] leading-snug">
               <span className="animate-pulse">Typing...</span>
             </div>
           </div>
@@ -258,21 +258,21 @@ export function ChatThread({ peerUserId, currentUserId, initialMessages }: ChatT
 
       <form
         onSubmit={handleSend}
-        className="space-y-2 border-t border-zoru-line px-5 py-3"
+        className="space-y-2 border-t border-[var(--st-border)] px-5 py-3"
       >
         {pending.length > 0 ? (
           <ul className="flex flex-wrap gap-2">
             {pending.map((p, i) => (
               <li
                 key={i}
-                className="flex items-center gap-1.5 rounded-lg border border-zoru-line bg-zoru-surface-2 px-2 py-1 text-[11.5px] text-zoru-ink"
+                className="flex items-center gap-1.5 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2 py-1 text-[11.5px] text-[var(--st-text)]"
               >
                 <Paperclip className="h-3 w-3" />
                 <span className="max-w-[160px] truncate">{p.filename}</span>
                 <button
                   type="button"
                   onClick={() => removePending(i)}
-                  className="text-zoru-danger-ink"
+                  className="text-[var(--st-danger)]"
                   aria-label="Remove attachment"
                 >
                   ×
@@ -287,14 +287,14 @@ export function ChatThread({ peerUserId, currentUserId, initialMessages }: ChatT
           onChange={handleTyping}
           placeholder="Write a message…"
           rows={2}
-          className="rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+          className="rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
         />
         <div className="flex flex-wrap items-center gap-2">
           <Input
             value={fileName}
             onChange={(e) => setFileName(e.target.value)}
             placeholder="File name (optional)"
-            className="h-8 w-44 rounded-lg border-zoru-line bg-zoru-bg text-[12px]"
+            className="h-8 w-44 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[12px]"
           />
           <SabFileUrlInput
             value={fileUrl}

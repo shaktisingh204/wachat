@@ -79,12 +79,12 @@ interface KpiCardProps {
 function KpiCard({ label, value, active, onClick, tone = 'neutral' }: KpiCardProps) {
   const toneClass =
     tone === 'green'
-      ? 'border-zoru-line/30 bg-zoru-ink/10 text-zoru-ink dark:text-zoru-ink-muted'
+      ? 'border-[var(--st-border)]/30 bg-[var(--st-text)]/10 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]'
       : tone === 'amber'
-        ? 'border-zoru-line/30 bg-zoru-ink/10 text-zoru-ink dark:text-zoru-ink-muted'
+        ? 'border-[var(--st-border)]/30 bg-[var(--st-text)]/10 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]'
         : tone === 'red'
-          ? 'border-zoru-line/30 bg-zoru-ink/10 text-zoru-ink dark:text-zoru-ink-muted'
-          : 'border-zoru-line bg-zoru-surface-2 text-zoru-ink-muted';
+          ? 'border-[var(--st-border)]/30 bg-[var(--st-text)]/10 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]'
+          : 'border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]';
 
   return (
     <button
@@ -93,7 +93,7 @@ function KpiCard({ label, value, active, onClick, tone = 'neutral' }: KpiCardPro
       className={[
         'flex flex-col gap-0.5 rounded-[var(--zoru-radius)] border px-4 py-3 text-left transition-all',
         toneClass,
-        active ? 'ring-2 ring-zoru-brand ring-offset-1' : 'hover:opacity-80',
+        active ? 'ring-2 ring-[var(--st-accent)] ring-offset-1' : 'hover:opacity-80',
       ].join(' ')}
     >
       <span className="text-xl font-semibold tabular-nums">{value}</span>
@@ -415,7 +415,7 @@ export function ProposalListClient({
         bulkBar={
           selected.size > 0 ? (
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[12.5px] text-zoru-ink">
+              <span className="text-[12.5px] text-[var(--st-text)]">
                 {selected.size} selected
               </span>
               <Button size="sm" variant="ghost" onClick={bulkExport}>
@@ -447,9 +447,9 @@ export function ProposalListClient({
         empty={
           filtered.length === 0 && !filtersActive && !query ? (
             <div className="flex flex-col items-center gap-3 p-4">
-              <FileText className="h-8 w-8 text-zoru-ink-muted" />
-              <h3 className="text-base font-medium text-zoru-ink">No proposals yet</h3>
-              <p className="max-w-sm text-sm text-zoru-ink-muted">
+              <FileText className="h-8 w-8 text-[var(--st-text-secondary)]" />
+              <h3 className="text-base font-medium text-[var(--st-text)]">No proposals yet</h3>
+              <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                 Create a proposal to start sending to customers.
               </p>
               <Button asChild>
@@ -478,14 +478,14 @@ export function ProposalListClient({
                 }
               />
             ))}
-            <div className="flex flex-col gap-0.5 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 px-4 py-3">
-              <span className="text-xl font-semibold tabular-nums text-zoru-ink">
+            <div className="flex flex-col gap-0.5 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-3">
+              <span className="text-xl font-semibold tabular-nums text-[var(--st-text)]">
                 {fmtINR(
                   kpi.totalValue,
                   serverRows[0]?.currency,
                 )}
               </span>
-              <span className="text-[11.5px] text-zoru-ink-muted">Total value</span>
+              <span className="text-[11.5px] text-[var(--st-text-secondary)]">Total value</span>
             </div>
           </div>
 
@@ -513,7 +513,7 @@ export function ProposalListClient({
                   <TableRow>
                     <TableCell
                       colSpan={7}
-                      className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                      className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                     >
                       {filtersActive || query
                         ? 'No proposals match these filters.'
@@ -543,13 +543,13 @@ export function ProposalListClient({
                             subtitle={p.title || undefined}
                           />
                         </TableCell>
-                        <TableCell className="text-[12.5px] text-zoru-ink">
+                        <TableCell className="text-[12.5px] text-[var(--st-text)]">
                           {p.title || '—'}
                         </TableCell>
-                        <TableCell className="text-[12.5px] text-zoru-ink-muted">
+                        <TableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                           {fmtDate(p.issue_date)}
                         </TableCell>
-                        <TableCell className="text-[12.5px] text-zoru-ink-muted">
+                        <TableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                           {fmtDate(p.valid_until)}
                         </TableCell>
                         <TableCell>
@@ -558,7 +558,7 @@ export function ProposalListClient({
                             tone={STATUS_TONE[p.status] ?? 'neutral'}
                           />
                         </TableCell>
-                        <TableCell className="text-right text-[12.5px] tabular-nums text-zoru-ink">
+                        <TableCell className="text-right text-[12.5px] tabular-nums text-[var(--st-text)]">
                           {fmtINR(p.total || 0, p.currency)}
                         </TableCell>
                       </TableRow>

@@ -20,7 +20,7 @@ export default async function NewSalaryStructurePage() {
             subtitle="Capture an employee's basic / HRA / DA, plus PF, ESI, professional tax."
             primaryAction={<BulkUploadAction />}
         >
-            <Suspense fallback={<div className="p-8 flex justify-center"><LoaderCircle className="animate-spin text-zoru-ink-muted" /></div>}>
+            <Suspense fallback={<div className="p-8 flex justify-center"><LoaderCircle className="animate-spin text-[var(--st-text-secondary)]" /></div>}>
                 <SalaryStructureForm />
             </Suspense>
         </EntityListShell>

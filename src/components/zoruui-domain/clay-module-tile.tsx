@@ -37,24 +37,24 @@ export interface ClayModuleTileProps {
 }
 
 const accentClasses: Record<NonNullable<ClayModuleTileProps['accent']>, string> = {
-  rose:     'bg-zoru-surface-2 text-zoru-ink',
-  obsidian: 'bg-zoru-ink text-zoru-surface',
-  violet:   'bg-zoru-surface-2 text-zoru-ink',
-  amber:    'bg-zoru-surface text-zoru-ink',
-  green:    'bg-zoru-surface text-zoru-ink',
-  blue:     'bg-zoru-surface-2 text-zoru-ink',
-  orange:   'bg-zoru-surface text-zoru-ink',
-  pink:     'bg-zoru-surface text-zoru-ink',
-  teal:     'bg-zoru-surface text-zoru-ink',
-  lime:     'bg-zoru-surface text-zoru-ink',
-  indigo:   'bg-zoru-surface-2 text-zoru-ink',
-  slate:    'bg-zoru-surface text-zoru-ink',
+  rose:     'bg-[var(--st-bg-muted)] text-[var(--st-text)]',
+  obsidian: 'bg-[var(--st-text)] text-[var(--st-bg-secondary)]',
+  violet:   'bg-[var(--st-bg-muted)] text-[var(--st-text)]',
+  amber:    'bg-[var(--st-bg-secondary)] text-[var(--st-text)]',
+  green:    'bg-[var(--st-bg-secondary)] text-[var(--st-text)]',
+  blue:     'bg-[var(--st-bg-muted)] text-[var(--st-text)]',
+  orange:   'bg-[var(--st-bg-secondary)] text-[var(--st-text)]',
+  pink:     'bg-[var(--st-bg-secondary)] text-[var(--st-text)]',
+  teal:     'bg-[var(--st-bg-secondary)] text-[var(--st-text)]',
+  lime:     'bg-[var(--st-bg-secondary)] text-[var(--st-text)]',
+  indigo:   'bg-[var(--st-bg-muted)] text-[var(--st-text)]',
+  slate:    'bg-[var(--st-bg-secondary)] text-[var(--st-text)]',
 };
 
 const statusClasses = {
-  ok:   'bg-zoru-ink',
-  warn: 'bg-zoru-ink',
-  off:  'bg-zoru-surface-2-foreground/70',
+  ok:   'bg-[var(--st-text)]',
+  warn: 'bg-[var(--st-text)]',
+  off:  'bg-[var(--st-text)]/70',
 };
 
 /**
@@ -92,17 +92,17 @@ export function ClayModuleTile({
             </span>
           </span>
           <LuArrowUpRight
-            className="h-3.5 w-3.5 text-zoru-ink-muted/70 transition-[color,transform] group-hover:text-zoru-ink group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+            className="h-3.5 w-3.5 text-[var(--st-text-secondary)]/70 transition-[color,transform] group-hover:text-[var(--st-text)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
             strokeWidth={2}
           />
         </div>
 
-        <div className="mt-3.5 text-xs font-medium text-zoru-ink-muted leading-none">
+        <div className="mt-3.5 text-xs font-medium text-[var(--st-text-secondary)] leading-none">
           {name}
         </div>
 
         <div className="mt-1.5 flex items-baseline gap-1.5">
-          <div className="text-xl font-semibold tracking-[-0.01em] text-zoru-ink leading-none">
+          <div className="text-xl font-semibold tracking-[-0.01em] text-[var(--st-text)] leading-none">
             {primary}
           </div>
           {status ? (
@@ -116,7 +116,7 @@ export function ClayModuleTile({
         </div>
 
         {secondary ? (
-          <div className="mt-1 text-[11px] text-zoru-ink-muted leading-tight truncate">
+          <div className="mt-1 text-[11px] text-[var(--st-text-secondary)] leading-tight truncate">
             {secondary}
           </div>
         ) : null}

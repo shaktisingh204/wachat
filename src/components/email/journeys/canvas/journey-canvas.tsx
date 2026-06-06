@@ -87,8 +87,8 @@ function SortableJourneyNode({
       <div className="flex w-full items-start gap-2 max-w-md">
         <div className="flex flex-col gap-1 mt-2">
            {(!readOnly && node.type !== 'trigger') ? (
-              <div {...attributes} {...listeners} className="cursor-grab hover:bg-zoru-surface-2 p-1 rounded">
-                 <GripVertical className="h-4 w-4 text-zoru-ink-muted" />
+              <div {...attributes} {...listeners} className="cursor-grab hover:bg-[var(--st-bg-muted)] p-1 rounded">
+                 <GripVertical className="h-4 w-4 text-[var(--st-text-secondary)]" />
               </div>
            ) : <div className="w-6" />}
         </div>
@@ -160,8 +160,8 @@ export function JourneyCanvas({
   return (
     <div className="flex flex-col items-center gap-0">
       {nodes.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-zoru-line bg-zoru-surface-2 px-6 py-12 text-center">
-          <p className="text-sm text-zoru-ink-muted">This journey has no steps yet.</p>
+        <div className="rounded-xl border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-6 py-12 text-center">
+          <p className="text-sm text-[var(--st-text-secondary)]">This journey has no steps yet.</p>
         </div>
       ) : (
         nodes.map((node, i) => (
@@ -217,7 +217,7 @@ export function JourneyCanvas({
       ) : null}
 
       {edges.length > 0 ? (
-        <p className="mt-6 text-[10px] text-zoru-ink-muted">
+        <p className="mt-6 text-[10px] text-[var(--st-text-secondary)]">
           {edges.length} edge{edges.length === 1 ? '' : 's'} rendered as a linear ladder. Branching from condition/split nodes
           is preserved in the underlying data and inspected in the side panel.
         </p>

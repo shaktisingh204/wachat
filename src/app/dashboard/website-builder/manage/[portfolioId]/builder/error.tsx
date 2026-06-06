@@ -16,9 +16,9 @@ export default function ErrorBoundary({
     }, [error]);
 
     return (
-        <div className="flex h-screen w-full flex-col items-center justify-center p-8 text-center bg-zoru-surface dark:bg-zoru-ink">
-            <h2 className="text-2xl font-bold mb-4 text-zoru-ink">Something went wrong!</h2>
-            <p className="text-zoru-ink-muted mb-8 max-w-md">
+        <div className="flex h-screen w-full flex-col items-center justify-center p-8 text-center bg-[var(--st-bg-secondary)] dark:bg-[var(--st-text)]">
+            <h2 className="text-2xl font-bold mb-4 text-[var(--st-text)]">Something went wrong!</h2>
+            <p className="text-[var(--st-text-secondary)] mb-8 max-w-md">
                 We encountered an error loading the website builder or its resources. Please try again or return to the dashboard if the issue persists.
             </p>
             <div className="flex gap-4">

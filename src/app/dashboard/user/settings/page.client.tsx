@@ -107,7 +107,7 @@ export default function UserSettingsOverviewPage() {
         <div className="space-y-8 animate-in fade-in duration-500">
             <div>
                 <h1 className="text-3xl font-bold tracking-tight">Settings Overview</h1>
-                <p className="text-zoru-ink-muted mt-2">
+                <p className="text-[var(--st-text-secondary)] mt-2">
                     Manage your account settings, preferences, and billing.
                 </p>
             </div>
@@ -117,8 +117,8 @@ export default function UserSettingsOverviewPage() {
                     <Card key={card.title} className="flex flex-col h-full hover:border-primary/50 transition-colors">
                         <ZoruCardHeader>
                             <div className="flex items-center gap-2 mb-2">
-                                <div className="p-2 bg-zoru-ink/10 rounded-md">
-                                    <card.icon className="h-5 w-5 text-zoru-ink" />
+                                <div className="p-2 bg-[var(--st-text)]/10 rounded-md">
+                                    <card.icon className="h-5 w-5 text-[var(--st-text)]" />
                                 </div>
                                 <ZoruCardTitle className="text-xl">{card.title}</ZoruCardTitle>
                             </div>
@@ -127,7 +127,7 @@ export default function UserSettingsOverviewPage() {
                         <ZoruCardContent className="flex-1">
                             <div className="space-y-2 mt-2">
                                 {card.details.map((detail, idx) => (
-                                    <div key={idx} className="flex items-center gap-2 text-sm text-zoru-ink-muted">
+                                    <div key={idx} className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
                                         <detail.icon className="h-4 w-4" />
                                         <span className="truncate">{detail.text}</span>
                                     </div>
@@ -146,7 +146,7 @@ export default function UserSettingsOverviewPage() {
                 ))}
             </div>
             
-            <Card className="bg-zoru-surface-2/30 border-dashed">
+            <Card className="bg-[var(--st-bg-muted)]/30 border-dashed">
                 <ZoruCardHeader>
                     <ZoruCardTitle>Need Help?</ZoruCardTitle>
                     <ZoruCardDescription>If you have any questions about your account settings, our support team is here to help.</ZoruCardDescription>

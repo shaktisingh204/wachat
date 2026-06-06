@@ -40,10 +40,10 @@ function Field({
 }) {
     return (
         <div className={fullWidth ? 'sm:col-span-2' : undefined}>
-            <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+            <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                 {label}
             </div>
-            <div className="mt-1 text-[13px] text-zoru-ink">{children}</div>
+            <div className="mt-1 text-[13px] text-[var(--st-text)]">{children}</div>
         </div>
     );
 }
@@ -79,7 +79,7 @@ export default async function GiftCardDetailPage({
             audit={<EntityAuditTimeline entityKind="giftCard" entityId={id} />}
         >
             <Card className="p-6">
-                <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                     Gift card details
                 </h2>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
@@ -105,7 +105,7 @@ export default async function GiftCardDetailPage({
             </Card>
 
             <Card className="p-6 mt-6 print:block">
-                <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                     Gift Card QR Code
                 </h2>
                 <div className="flex flex-col items-center justify-center p-4">

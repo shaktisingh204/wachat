@@ -231,13 +231,13 @@ export function MetaFlowBuilderLayout({
             `}</style>
 
             {isEmpty ? (
-                <div className="flex h-full flex-col items-center justify-center bg-zoru-surface-2/20">
+                <div className="flex h-full flex-col items-center justify-center bg-[var(--st-bg-muted)]/20">
                     <div className="space-y-4 text-center">
-                        <div className="mb-4 inline-block rounded-full bg-zoru-surface p-4 shadow-sm">
-                            <Layers className="h-10 w-10 text-zoru-ink" />
+                        <div className="mb-4 inline-block rounded-full bg-[var(--st-bg-secondary)] p-4 shadow-sm">
+                            <Layers className="h-10 w-10 text-[var(--st-text)]" />
                         </div>
                         <h2 className="text-2xl font-bold">Start building your Flow</h2>
-                        <p className="mx-auto max-w-sm text-zoru-ink-muted">
+                        <p className="mx-auto max-w-sm text-[var(--st-text-secondary)]">
                             Add your first screen. Each screen is a page in the flow; the palette on the
                             left lets you drop components onto it.
                         </p>
@@ -259,7 +259,7 @@ export function MetaFlowBuilderLayout({
                     direction="horizontal"
                     cursor="col-resize"
                 >
-                    <div className="h-full overflow-hidden bg-zoru-surface">
+                    <div className="h-full overflow-hidden bg-[var(--st-bg-secondary)]">
                         <MetaFlowNavigator
                             screens={flowData.screens || []}
                             selectedScreenId={selectedScreenId}
@@ -274,7 +274,7 @@ export function MetaFlowBuilderLayout({
                         />
                     </div>
 
-                    <div className="relative h-full overflow-hidden border-l border-r bg-zoru-surface">
+                    <div className="relative h-full overflow-hidden border-l border-r bg-[var(--st-bg-secondary)]">
                         <MetaFlowCanvas
                             flowData={flowData}
                             setFlowData={setFlowData}
@@ -282,7 +282,7 @@ export function MetaFlowBuilderLayout({
                         />
                     </div>
 
-                    <div className="relative h-full overflow-hidden bg-zoru-surface">
+                    <div className="relative h-full overflow-hidden bg-[var(--st-bg-secondary)]">
                         <MetaFlowProperties
                             selectedScreen={currentScreen}
                             onUpdateScreen={handleUpdateScreen}

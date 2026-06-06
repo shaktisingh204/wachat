@@ -70,23 +70,23 @@ export function LinkHistoryDrawer({ linkId, currentUrl }: Props) {
 
                     {/* Current */}
                     <div className="space-y-1 py-1">
-                        <p className="text-[11px] font-medium uppercase tracking-wider text-zoru-ink-muted/60">Current Destination</p>
-                        <div className="flex items-start gap-2 p-2.5 rounded-md bg-zoru-ink border border-zoru-border">
-                            <div className="h-1.5 w-1.5 rounded-full bg-zoru-success mt-1.5 flex-shrink-0" />
-                            <span className="text-[12.5px] text-zoru-ink break-all">{currentUrl}</span>
+                        <p className="text-[11px] font-medium uppercase tracking-wider text-[var(--st-text-secondary)]/60">Current Destination</p>
+                        <div className="flex items-start gap-2 p-2.5 rounded-md bg-[var(--st-text)] border border-[var(--st-border)]">
+                            <div className="h-1.5 w-1.5 rounded-full bg-[var(--st-status-ok)] mt-1.5 flex-shrink-0" />
+                            <span className="text-[12.5px] text-[var(--st-text)] break-all">{currentUrl}</span>
                             <Badge variant="success" className="text-[10px] flex-shrink-0 ml-auto">Current</Badge>
                         </div>
                     </div>
 
                     {/* History */}
                     <div className="space-y-1">
-                        <p className="text-[11px] font-medium uppercase tracking-wider text-zoru-ink-muted/60">Previous Versions</p>
+                        <p className="text-[11px] font-medium uppercase tracking-wider text-[var(--st-text-secondary)]/60">Previous Versions</p>
                         {loading ? (
                             <div className="space-y-2">
                                 {[1, 2].map((i) => <Skeleton key={i} className="h-12 w-full" />)}
                             </div>
                         ) : history.length === 0 ? (
-                            <div className="py-6 text-center text-zoru-ink-muted">
+                            <div className="py-6 text-center text-[var(--st-text-secondary)]">
                                 <Clock className="h-6 w-6 mx-auto mb-2 opacity-40" />
                                 <p className="text-[12px]">No history yet. Edit this link&apos;s destination to start tracking changes.</p>
                             </div>
@@ -95,12 +95,12 @@ export function LinkHistoryDrawer({ linkId, currentUrl }: Props) {
                                 {[...history].reverse().map((entry, i) => (
                                     <div
                                         key={i}
-                                        className="flex items-start gap-2 p-2.5 rounded-md border border-zoru-border hover:bg-zoru-ink transition-colors group"
+                                        className="flex items-start gap-2 p-2.5 rounded-md border border-[var(--st-border)] hover:bg-[var(--st-text)] transition-colors group"
                                     >
-                                        <div className="h-1.5 w-1.5 rounded-full bg-zoru-ink mt-1.5 flex-shrink-0" />
+                                        <div className="h-1.5 w-1.5 rounded-full bg-[var(--st-text)] mt-1.5 flex-shrink-0" />
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-[12.5px] text-zoru-ink break-all">{entry.url}</p>
-                                            <p className="text-[11px] text-zoru-ink-muted mt-0.5">{formatDate(entry.changedAt)}</p>
+                                            <p className="text-[12.5px] text-[var(--st-text)] break-all">{entry.url}</p>
+                                            <p className="text-[11px] text-[var(--st-text-secondary)] mt-0.5">{formatDate(entry.changedAt)}</p>
                                         </div>
                                         <Button
                                             variant="ghost"

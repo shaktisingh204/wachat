@@ -110,8 +110,8 @@ function InstalledMarketplaceAppsContent(): React.JSX.Element {
 
             <header className="flex items-start justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl text-zoru-ink">Installed Apps</h1>
-                    <p className="mt-1 text-sm text-zoru-ink-muted">
+                    <h1 className="text-2xl text-[var(--st-text)]">Installed Apps</h1>
+                    <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
                         Apps your workspace has connected, with the last 30 days of usage.
                     </p>
                 </div>
@@ -190,7 +190,7 @@ function StarRating({ rating: initialRating, count: initialCount, installId }: {
 
     return (
         <div className="flex items-center gap-1 mt-1" aria-label={`Rating: ${initialRating} out of 5 stars with ${initialCount} reviews`}>
-            <div className="flex items-center text-zoru-ink" onMouseLeave={() => setHoveredRating(null)}>
+            <div className="flex items-center text-[var(--st-text)]" onMouseLeave={() => setHoveredRating(null)}>
                 {[...Array(5)].map((_, i) => {
                     const starValue = i + 1;
                     const isFilled = starValue <= Math.floor(displayRating);
@@ -211,13 +211,13 @@ function StarRating({ rating: initialRating, count: initialCount, installId }: {
                             ) : isHalf ? (
                                 <StarHalf className="h-4 w-4 fill-current" />
                             ) : (
-                                <Star className="h-4 w-4 text-zoru-line" />
+                                <Star className="h-4 w-4 text-[var(--st-border)]" />
                             )}
                         </button>
                     );
                 })}
             </div>
-            <span className="text-[11px] text-zoru-ink-muted ml-1">
+            <span className="text-[11px] text-[var(--st-text-secondary)] ml-1">
                 {initialRating.toFixed(1)} ({initialCount.toLocaleString()})
             </span>
         </div>
@@ -235,7 +235,7 @@ function InstalledAppCard({ row }: { row: InstalledAppRow }): React.JSX.Element 
             <header className="flex items-start gap-3">
                 <div
                     aria-hidden="true"
-                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-zoru-surface-2 text-zoru-ink shrink-0"
+                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--st-bg-muted)] text-[var(--st-text)] shrink-0"
                 >
                     {row.iconUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
@@ -245,8 +245,8 @@ function InstalledAppCard({ row }: { row: InstalledAppRow }): React.JSX.Element 
                     )}
                 </div>
                 <div className="flex-1 min-w-0">
-                    <h2 className="text-base text-zoru-ink truncate">{row.name}</h2>
-                    <p className="text-xs text-zoru-ink-muted">
+                    <h2 className="text-base text-[var(--st-text)] truncate">{row.name}</h2>
+                    <p className="text-xs text-[var(--st-text-secondary)]">
                         v{row.version} · {row.pricingType}
                     </p>
                     {row.rating !== undefined && row.reviewsCount !== undefined && (
@@ -258,11 +258,11 @@ function InstalledAppCard({ row }: { row: InstalledAppRow }): React.JSX.Element 
 
             <UsageSparkline series={row.usageSeries} />
 
-            <footer className="flex items-baseline justify-between text-xs text-zoru-ink-muted">
+            <footer className="flex items-baseline justify-between text-xs text-[var(--st-text-secondary)]">
                 <span>30-day usage</span>
-                <span className="font-mono text-sm text-zoru-ink">{total.toLocaleString()} units</span>
+                <span className="font-mono text-sm text-[var(--st-text)]">{total.toLocaleString()} units</span>
             </footer>
-            <p className="text-[11px] uppercase tracking-wider text-zoru-ink-muted">
+            <p className="text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)]">
                 Lifetime: {row.lifetimeUnits.toLocaleString()} units
             </p>
         </Card>
@@ -280,7 +280,7 @@ function UsageSparkline({
 
     if (series.length === 0) {
         return (
-            <div className="flex h-16 items-center justify-center rounded-lg bg-zoru-surface-2 text-xs text-zoru-ink-muted">
+            <div className="flex h-16 items-center justify-center rounded-lg bg-[var(--st-bg-muted)] text-xs text-[var(--st-text-secondary)]">
                 No usage in the last 30 days
             </div>
         );
@@ -294,7 +294,7 @@ function UsageSparkline({
             role="img"
             aria-label={`Daily usage chart with ${series.length} bars; max ${max} units in a single day`}
             viewBox={`0 0 ${W} ${H}`}
-            className="h-16 w-full text-zoru-ink"
+            className="h-16 w-full text-[var(--st-text)]"
         >
             <title>30-day usage</title>
             {series.map((p, i) => {
@@ -324,10 +324,10 @@ function StatusPill({
     status: InstalledAppRow['status'];
 }): React.JSX.Element {
     const styles: Record<InstalledAppRow['status'], string> = {
-        active: 'bg-zoru-success/10 text-zoru-success',
-        pending: 'bg-zoru-warning/10 text-zoru-warning',
-        suspended: 'bg-zoru-danger/10 text-zoru-danger-ink',
-        uninstalled: 'bg-zoru-surface-2 text-zoru-ink-muted',
+        active: 'bg-[var(--st-status-ok)]/10 text-[var(--st-status-ok)]',
+        pending: 'bg-[var(--st-warn)]/10 text-[var(--st-warn)]',
+        suspended: 'bg-[var(--st-danger)]/10 text-[var(--st-danger)]',
+        uninstalled: 'bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]',
     };
     return (
         <span
@@ -341,7 +341,7 @@ function StatusPill({
 function LoadingPanel(): React.JSX.Element {
     return (
         <div className="flex min-h-[240px] items-center justify-center">
-            <Loader className="h-6 w-6 animate-spin text-zoru-ink-muted" />
+            <Loader className="h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
         </div>
     );
 }
@@ -349,9 +349,9 @@ function LoadingPanel(): React.JSX.Element {
 function EmptyPanel(): React.JSX.Element {
     return (
         <Card className="flex min-h-[240px] flex-col items-center justify-center gap-2 p-8 text-center">
-            <Store className="h-8 w-8 text-zoru-ink-muted" />
-            <h2 className="text-base text-zoru-ink">No apps installed yet</h2>
-            <p className="max-w-md text-sm text-zoru-ink-muted">
+            <Store className="h-8 w-8 text-[var(--st-text-secondary)]" />
+            <h2 className="text-base text-[var(--st-text)]">No apps installed yet</h2>
+            <p className="max-w-md text-sm text-[var(--st-text-secondary)]">
                 Browse the marketplace to extend your workspace with first- and third-party apps.
             </p>
             <Button
@@ -375,8 +375,8 @@ function ErrorPanel({
 }): React.JSX.Element {
     return (
         <Card className="flex min-h-[160px] flex-col items-center justify-center gap-3 p-6 text-center">
-            <p className="text-sm text-zoru-ink">Couldn&apos;t load installed apps.</p>
-            <p className="font-mono text-xs text-zoru-ink-muted">{message}</p>
+            <p className="text-sm text-[var(--st-text)]">Couldn&apos;t load installed apps.</p>
+            <p className="font-mono text-xs text-[var(--st-text-secondary)]">{message}</p>
             <Button variant="ghost" onClick={onRetry}>
                 <RefreshCw className="mr-2 h-4 w-4" />
                 Retry

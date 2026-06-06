@@ -68,11 +68,11 @@ function KpiTile({
     return (
         <Card className="p-4">
             <div className="flex items-center justify-between">
-                <p className="text-[12.5px] font-medium text-zoru-ink-muted">{label}</p>
-                <Icon className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
+                <p className="text-[12.5px] font-medium text-[var(--st-text-secondary)]">{label}</p>
+                <Icon className="h-4 w-4 text-[var(--st-text-secondary)]" strokeWidth={1.75} />
             </div>
-            <p className="mt-2 truncate text-[22px] font-semibold text-zoru-ink">{value}</p>
-            {sub ? <p className="mt-0.5 truncate text-[11.5px] text-zoru-ink-muted">{sub}</p> : null}
+            <p className="mt-2 truncate text-[22px] font-semibold text-[var(--st-text)]">{value}</p>
+            {sub ? <p className="mt-0.5 truncate text-[11.5px] text-[var(--st-text-secondary)]">{sub}</p> : null}
         </Card>
     );
 }
@@ -177,7 +177,7 @@ export default function PartyTransactionsDeepClient({
             >
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
                     {[1, 2, 3, 4].map((i) => (
-                        <Card key={i} className="h-[104px] animate-pulse bg-zoru-surface-2/20" />
+                        <Card key={i} className="h-[104px] animate-pulse bg-[var(--st-bg-muted)]/20" />
                     ))}
                 </div>
             </EntityListShell>
@@ -235,8 +235,8 @@ export default function PartyTransactionsDeepClient({
             </div>
 
             <Card className="mt-4 p-4">
-                <h2 className="text-[16px] font-semibold text-zoru-ink">Top 10 parties by volume</h2>
-                <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+                <h2 className="text-[16px] font-semibold text-[var(--st-text)]">Top 10 parties by volume</h2>
+                <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">
                     Combined invoice + credit-note exposure, descending.
                 </p>
                 <div className="mt-4 h-[280px] w-full">
@@ -263,7 +263,7 @@ export default function PartyTransactionsDeepClient({
             </Card>
 
             <Card className="mt-4 p-4">
-                <h2 className="text-[16px] font-semibold text-zoru-ink">Per-party drilldown</h2>
+                <h2 className="text-[16px] font-semibold text-[var(--st-text)]">Per-party drilldown</h2>
                 <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4">
                     <div className="space-y-1">
                         <Label>Party type</Label>
@@ -319,60 +319,60 @@ export default function PartyTransactionsDeepClient({
                     </Button>
                 </div>
 
-                <div className="mt-4 overflow-x-auto rounded-lg border border-zoru-line">
+                <div className="mt-4 overflow-x-auto rounded-lg border border-[var(--st-border)]">
                     <Table>
                         <ZoruTableHeader>
-                            <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                <ZoruTableHead className="text-zoru-ink-muted whitespace-nowrap">Date</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted whitespace-nowrap">Type</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted whitespace-nowrap">Reference</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted whitespace-nowrap">Item</ZoruTableHead>
-                                <ZoruTableHead className="text-right text-zoru-ink-muted whitespace-nowrap">Qty</ZoruTableHead>
-                                <ZoruTableHead className="text-right text-zoru-ink-muted whitespace-nowrap">Rate</ZoruTableHead>
-                                <ZoruTableHead className="text-right text-zoru-ink-muted whitespace-nowrap">Total</ZoruTableHead>
+                            <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                                <ZoruTableHead className="text-[var(--st-text-secondary)] whitespace-nowrap">Date</ZoruTableHead>
+                                <ZoruTableHead className="text-[var(--st-text-secondary)] whitespace-nowrap">Type</ZoruTableHead>
+                                <ZoruTableHead className="text-[var(--st-text-secondary)] whitespace-nowrap">Reference</ZoruTableHead>
+                                <ZoruTableHead className="text-[var(--st-text-secondary)] whitespace-nowrap">Item</ZoruTableHead>
+                                <ZoruTableHead className="text-right text-[var(--st-text-secondary)] whitespace-nowrap">Qty</ZoruTableHead>
+                                <ZoruTableHead className="text-right text-[var(--st-text-secondary)] whitespace-nowrap">Rate</ZoruTableHead>
+                                <ZoruTableHead className="text-right text-[var(--st-text-secondary)] whitespace-nowrap">Total</ZoruTableHead>
                             </ZoruTableRow>
                         </ZoruTableHeader>
                         <ZoruTableBody>
                             {isLoading ? (
-                                <ZoruTableRow className="border-zoru-line">
+                                <ZoruTableRow className="border-[var(--st-border)]">
                                     <ZoruTableCell colSpan={7} className="h-24 text-center">
-                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
+                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
                                     </ZoruTableCell>
                                 </ZoruTableRow>
                             ) : reportData.length > 0 ? (
                                 reportData.map((row, index) => (
                                     <ZoruTableRow
                                         key={`${row.reference}-${index}`}
-                                        className="border-zoru-line"
+                                        className="border-[var(--st-border)]"
                                     >
-                                        <ZoruTableCell className="text-zoru-ink whitespace-nowrap">
+                                        <ZoruTableCell className="text-[var(--st-text)] whitespace-nowrap">
                                             {fmtDate(row.date)}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-zoru-ink whitespace-nowrap">
+                                        <ZoruTableCell className="text-[var(--st-text)] whitespace-nowrap">
                                             {row.type}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="font-mono text-[11.5px] text-zoru-ink whitespace-nowrap">
+                                        <ZoruTableCell className="font-mono text-[11.5px] text-[var(--st-text)] whitespace-nowrap">
                                             {row.reference}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="font-medium text-zoru-ink whitespace-nowrap">
+                                        <ZoruTableCell className="font-medium text-[var(--st-text)] whitespace-nowrap">
                                             {row.itemName}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-right text-zoru-ink whitespace-nowrap">
+                                        <ZoruTableCell className="text-right text-[var(--st-text)] whitespace-nowrap">
                                             {row.quantity}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-right text-zoru-ink whitespace-nowrap">
+                                        <ZoruTableCell className="text-right text-[var(--st-text)] whitespace-nowrap">
                                             {fmtINR(row.rate)}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-right font-semibold text-zoru-ink whitespace-nowrap">
+                                        <ZoruTableCell className="text-right font-semibold text-[var(--st-text)] whitespace-nowrap">
                                             {fmtINR(row.quantity * row.rate)}
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 ))
                             ) : (
-                                <ZoruTableRow className="border-zoru-line">
+                                <ZoruTableRow className="border-[var(--st-border)]">
                                     <ZoruTableCell
                                         colSpan={7}
-                                        className="h-24 text-center text-zoru-ink-muted"
+                                        className="h-24 text-center text-[var(--st-text-secondary)]"
                                     >
                                         {partyId ? 'No transactions match the selected criteria.' : 'Select a party above to load transactions.'}
                                     </ZoruTableCell>

@@ -45,30 +45,30 @@ export function NewAnnouncementClient({ initialKpis }: { initialKpis: Announceme
                             <BarChart3 className="h-4 w-4" />
                             Summary Dashboard
                         </ZoruCardTitle>
-                        <p className="text-[12px] text-zoru-ink-muted">
+                        <p className="text-[12px] text-[var(--st-text-secondary)]">
                             Overview of your current announcements
                         </p>
                     </ZoruCardHeader>
                     <ZoruCardContent className="flex flex-col gap-4">
                         <div className="flex items-center justify-between">
-                            <span className="text-sm text-zoru-ink-muted">Total</span>
+                            <span className="text-sm text-[var(--st-text-secondary)]">Total</span>
                             <Badge variant="secondary">{kpis.total}</Badge>
                         </div>
                         <div className="flex items-center justify-between">
-                            <span className="text-sm text-zoru-ink-muted">Active / Pinned</span>
+                            <span className="text-sm text-[var(--st-text-secondary)]">Active / Pinned</span>
                             <Badge variant="default">{kpis.active}</Badge>
                         </div>
                         <div className="flex items-center justify-between">
-                            <span className="text-sm text-zoru-ink-muted">Drafts</span>
+                            <span className="text-sm text-[var(--st-text-secondary)]">Drafts</span>
                             <Badge variant="outline">{kpis.drafts}</Badge>
                         </div>
                         <div className="flex items-center justify-between">
-                            <span className="text-sm text-zoru-ink-muted">Published this month</span>
+                            <span className="text-sm text-[var(--st-text-secondary)]">Published this month</span>
                             <Badge variant="secondary">{kpis.recent}</Badge>
                         </div>
-                        <div className="mt-2 flex items-center justify-between rounded-lg bg-zoru-surface-2 p-3">
+                        <div className="mt-2 flex items-center justify-between rounded-lg bg-[var(--st-bg-muted)] p-3">
                             <span className="text-sm font-medium">Activity Rate</span>
-                            <span className="text-sm font-bold text-zoru-brand">{kpis.engagementRate}%</span>
+                            <span className="text-sm font-bold text-[var(--st-accent)]">{kpis.engagementRate}%</span>
                         </div>
                     </ZoruCardContent>
                 </Card>
@@ -86,7 +86,7 @@ export function NewAnnouncementClient({ initialKpis }: { initialKpis: Announceme
                             className="w-full justify-start"
                             onClick={() => handleQuickAction('back')}
                         >
-                            <FileText className="mr-2 h-4 w-4 text-zoru-ink-muted" />
+                            <FileText className="mr-2 h-4 w-4 text-[var(--st-text-secondary)]" />
                             View all announcements
                         </Button>
                         <Button 
@@ -94,7 +94,7 @@ export function NewAnnouncementClient({ initialKpis }: { initialKpis: Announceme
                             className="w-full justify-start"
                             onClick={() => handleQuickAction('drafts')}
                         >
-                            <PlusCircle className="mr-2 h-4 w-4 text-zoru-ink-muted" />
+                            <PlusCircle className="mr-2 h-4 w-4 text-[var(--st-text-secondary)]" />
                             Manage drafts
                         </Button>
                     </ZoruCardContent>

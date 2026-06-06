@@ -175,7 +175,7 @@ export function FieldRenderer({
         return (
             <div className="flex items-center gap-2">
                 <Input {...common} type="color" className="h-9 w-12 p-1" />
-                <span className="text-[12px] text-zoru-ink-muted">
+                <span className="text-[12px] text-[var(--st-text-secondary)]">
                     {stringValue || field.defaultValue || ''}
                 </span>
             </div>

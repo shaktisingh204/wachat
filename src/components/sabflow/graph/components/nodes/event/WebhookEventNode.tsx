@@ -27,15 +27,15 @@ const WEBHOOK_CYAN = '#22d3ee';
 function methodBadgeClass(method: WebhookEventOptions['method']): string {
   switch (method) {
     case 'GET':
-      return 'bg-zoru-ink/20 text-white';
+      return 'bg-[var(--st-text)]/20 text-white';
     case 'POST':
-      return 'bg-zoru-ink/25 text-white';
+      return 'bg-[var(--st-text)]/25 text-white';
     case 'PUT':
-      return 'bg-zoru-ink/25 text-white';
+      return 'bg-[var(--st-text)]/25 text-white';
     case 'PATCH':
-      return 'bg-zoru-ink/25 text-white';
+      return 'bg-[var(--st-text)]/25 text-white';
     case 'DELETE':
-      return 'bg-zoru-ink/25 text-white';
+      return 'bg-[var(--st-text)]/25 text-white';
     case 'ANY':
     default:
       return 'bg-white/20 text-white';
@@ -145,7 +145,7 @@ export function WebhookEventNode({ event, onEventUpdate, flow, flowId }: Props) 
           'flex flex-col rounded-xl border select-none',
           'transition-[border-color,box-shadow]',
           'hover:shadow-md',
-          isFocused ? 'border-2 border-zoru-line' : 'border border-[var(--gray-5)]',
+          isFocused ? 'border-2 border-[var(--st-border)]' : 'border border-[var(--gray-5)]',
           isMouseDown ? 'cursor-grabbing shadow-lg z-10' : 'cursor-grab',
           isDraggingGraph ? 'pointer-events-none' : 'pointer-events-auto',
           !enabled && 'opacity-75',
@@ -191,7 +191,7 @@ export function WebhookEventNode({ event, onEventUpdate, flow, flowId }: Props) 
             </span>
           </div>
           {!enabled ? (
-            <span className="text-[10.5px] text-zoru-ink font-medium">Disabled</span>
+            <span className="text-[10.5px] text-[var(--st-text)] font-medium">Disabled</span>
           ) : null}
         </div>
 

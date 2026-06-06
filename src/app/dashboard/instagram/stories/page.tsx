@@ -95,7 +95,7 @@ function StoryInsightsRow({
 
   if (error) {
     return (
-      <p className="mt-2 text-[11px] text-zoru-ink-muted">
+      <p className="mt-2 text-[11px] text-[var(--st-text-secondary)]">
         Insights unavailable — {error}
       </p>
     );
@@ -116,10 +116,10 @@ function StoryInsightsRow({
       {STORY_METRICS.map((m) => (
         <div
           key={m.key}
-          className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-2"
+          className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2"
         >
-          <p className="text-[10px] uppercase tracking-wide text-zoru-ink-muted">{m.label}</p>
-          <p className="mt-0.5 text-sm text-zoru-ink">
+          <p className="text-[10px] uppercase tracking-wide text-[var(--st-text-secondary)]">{m.label}</p>
+          <p className="mt-0.5 text-sm text-[var(--st-text)]">
             {typeof insights[m.key] === 'number' ? insights[m.key].toLocaleString() : '—'}
           </p>
         </div>
@@ -186,8 +186,8 @@ export default function InstagramStoriesPage(): React.JSX.Element {
 
       <header className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl text-zoru-ink">Active stories</h1>
-          <p className="mt-1 text-sm text-zoru-ink-muted">
+          <h1 className="text-2xl text-[var(--st-text)]">Active stories</h1>
+          <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
             Stories currently live on the connected Instagram account
             (24-hour expiry).
           </p>
@@ -224,7 +224,7 @@ export default function InstagramStoriesPage(): React.JSX.Element {
             const src = s.thumbnail_url || s.media_url;
             return (
               <Card key={s.id} className="flex flex-col gap-3 p-3">
-                <div className="relative aspect-[9/16] w-full overflow-hidden rounded-[var(--zoru-radius)] bg-zoru-surface-2">
+                <div className="relative aspect-[9/16] w-full overflow-hidden rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)]">
                   {src ? (
                     s.media_type === 'VIDEO' ? (
                       <video
@@ -241,7 +241,7 @@ export default function InstagramStoriesPage(): React.JSX.Element {
                 </div>
                 <div className="flex items-center justify-between text-xs">
                   <Badge variant="outline">{s.media_type ?? 'STORY'}</Badge>
-                  <span className="text-zoru-ink-muted">{safeRelative(s.timestamp)}</span>
+                  <span className="text-[var(--st-text-secondary)]">{safeRelative(s.timestamp)}</span>
                 </div>
                 <StoryInsightsRow projectId={projectId} storyId={s.id} />
                 {s.permalink ? (

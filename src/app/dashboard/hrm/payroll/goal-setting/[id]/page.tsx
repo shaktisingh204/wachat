@@ -24,7 +24,7 @@ export default async function GoalDetailPage({
 
   if (!goal) {
     return (
-      <div className="text-sm text-zoru-ink-muted">Goal not found.</div>
+      <div className="text-sm text-[var(--st-text-secondary)]">Goal not found.</div>
     );
   }
 

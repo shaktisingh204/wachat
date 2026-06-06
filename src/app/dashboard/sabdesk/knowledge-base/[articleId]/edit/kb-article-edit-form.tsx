@@ -65,7 +65,7 @@ export default function KbArticleEditForm({
 
       {/* Article Details Card */}
       <Card className="p-6">
-        <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">
+        <h2 className="mb-4 text-[14px] font-medium text-[var(--st-text)]">
           Article Details
         </h2>
         <div className="flex flex-col gap-5">
@@ -144,7 +144,7 @@ export default function KbArticleEditForm({
 
       {/* Content Card */}
       <Card className="p-6">
-        <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">Content</h2>
+        <h2 className="mb-4 text-[14px] font-medium text-[var(--st-text)]">Content</h2>
         <div className="space-y-1.5">
           <Label htmlFor="body">Article Body *</Label>
           <Textarea
@@ -162,7 +162,7 @@ export default function KbArticleEditForm({
         <Button
           variant="ghost"
           asChild
-          className="text-zoru-ink-muted hover:text-zoru-ink"
+          className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
         >
           <Link href={`/dashboard/sabdesk/knowledge-base/${articleId}`}>
             <ArrowLeft className="mr-2 h-4 w-4" />

@@ -380,7 +380,7 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
                         </Button>
                     </div>
                     {agenda.length === 0 ? (
-                        <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                        <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                             No agenda topics yet.
                         </div>
                     ) : (
@@ -388,7 +388,7 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
                             {agenda.map((ag) => (
                                 <div
                                     key={ag.id}
-                                    className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-3"
+                                    className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3"
                                 >
                                     <div className="flex items-start gap-2">
                                         <div className="flex-1 space-y-1.5">
@@ -408,7 +408,7 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
                                             onClick={() => removeAgenda(ag.id)}
                                             aria-label="Remove topic"
                                         >
-                                            <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                            <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                         </Button>
                                     </div>
                                     <div className="mt-3 grid gap-3 sm:grid-cols-3">
@@ -451,7 +451,7 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
                                                     updateAgenda(ag.id, 'discussed', !!v)
                                                 }
                                             />
-                                            <span className="text-[12.5px] text-zoru-ink">
+                                            <span className="text-[12.5px] text-[var(--st-text)]">
                                                 Discussed
                                             </span>
                                         </div>
@@ -477,7 +477,7 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
                         </Button>
                     </div>
                     {actionItems.length === 0 ? (
-                        <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                        <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                             No action items yet.
                         </div>
                     ) : (
@@ -485,7 +485,7 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
                             {actionItems.map((ai) => (
                                 <div
                                     key={ai.id}
-                                    className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-3"
+                                    className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3"
                                 >
                                     <div className="flex items-start gap-2">
                                         <div className="flex-1 space-y-1.5">
@@ -505,7 +505,7 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
                                             onClick={() => removeAction(ai.id)}
                                             aria-label="Remove action item"
                                         >
-                                            <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                            <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                         </Button>
                                     </div>
                                     <div className="mt-3 grid gap-3 sm:grid-cols-3">

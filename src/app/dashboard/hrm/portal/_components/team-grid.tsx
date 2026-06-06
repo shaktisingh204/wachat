@@ -48,7 +48,7 @@ export function TeamGrid({ members, onTaskAssigned }: TeamGridProps) {
                         >
                             {/* Avatar + status */}
                             <div className="flex items-start justify-between">
-                                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-zoru-primary/10 text-[15px] font-semibold text-zoru-primary">
+                                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[var(--st-text)]/10 text-[15px] font-semibold text-[var(--st-text)]">
                                     {initials(member.firstName, member.lastName)}
                                 </div>
                                 <Badge variant={statusVariant(member.status)} className="text-[11px]">
@@ -58,16 +58,16 @@ export function TeamGrid({ members, onTaskAssigned }: TeamGridProps) {
 
                             {/* Name + designation */}
                             <div className="min-w-0">
-                                <p className="truncate text-[14px] font-medium text-zoru-ink">
+                                <p className="truncate text-[14px] font-medium text-[var(--st-text)]">
                                     {member.firstName} {member.lastName}
                                 </p>
                                 {member.designationName && (
-                                    <p className="mt-0.5 truncate text-[12px] text-zoru-ink-muted">
+                                    <p className="mt-0.5 truncate text-[12px] text-[var(--st-text-secondary)]">
                                         {member.designationName}
                                     </p>
                                 )}
                                 {member.departmentName && (
-                                    <p className="truncate text-[11.5px] text-zoru-ink-muted/70">
+                                    <p className="truncate text-[11.5px] text-[var(--st-text-secondary)]/70">
                                         {member.departmentName}
                                     </p>
                                 )}

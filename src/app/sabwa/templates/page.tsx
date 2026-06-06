@@ -272,14 +272,14 @@ export default function Page() {
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface text-zoru-ink">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
             <BookCopy className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-[24px] tracking-[-0.015em] text-zoru-ink leading-[1.2]">
+            <h1 className="text-[24px] tracking-[-0.015em] text-[var(--st-text)] leading-[1.2]">
               Templates
             </h1>
-            <p className="mt-1 text-[13px] text-zoru-ink-muted max-w-2xl">
+            <p className="mt-1 text-[13px] text-[var(--st-text-secondary)] max-w-2xl">
               Reusable message templates with variables and media. Pull them
               into any composer, scheduler, or broadcast.
             </p>
@@ -311,14 +311,14 @@ export default function Page() {
                     type="button"
                     onClick={() => setActiveFolder(f.id)}
                     className={cn(
-                      'flex w-full items-center gap-2 rounded-[var(--zoru-radius)] px-2 py-1.5 text-left text-sm text-zoru-ink hover:bg-zoru-surface',
+                      'flex w-full items-center gap-2 rounded-[var(--zoru-radius)] px-2 py-1.5 text-left text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]',
                       activeFolder === f.id &&
-                        'bg-zoru-surface font-medium',
+                        'bg-[var(--st-bg-secondary)] font-medium',
                     )}
                   >
-                    <Folder className="h-3.5 w-3.5 text-zoru-ink-muted" />
+                    <Folder className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                     <span className="truncate">{f.name}</span>
-                    <span className="ml-auto text-xs text-zoru-ink-muted">
+                    <span className="ml-auto text-xs text-[var(--st-text-secondary)]">
                       {f.id === 'all'
                         ? templates.length
                         : templates.filter((t) => t.folder === f.id).length}
@@ -333,7 +333,7 @@ export default function Page() {
         {/* Right pane: search + grid */}
         <div className="space-y-4">
           <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -454,11 +454,11 @@ interface TemplateCardProps {
 }
 
 const statusColorMap: Record<string, string> = {
-  APPROVED: 'bg-zoru-ink/10 text-zoru-ink border-zoru-line',
-  REJECTED: 'bg-zoru-ink/10 text-zoru-ink border-zoru-line',
-  PENDING: 'bg-zoru-ink/10 text-zoru-ink border-zoru-line',
-  PAUSED: 'bg-zoru-ink/10 text-zoru-ink border-zoru-line',
-  UNMAPPED: 'bg-zoru-ink/10 text-zoru-ink border-zoru-line',
+  APPROVED: 'bg-[var(--st-text)]/10 text-[var(--st-text)] border-[var(--st-border)]',
+  REJECTED: 'bg-[var(--st-text)]/10 text-[var(--st-text)] border-[var(--st-border)]',
+  PENDING: 'bg-[var(--st-text)]/10 text-[var(--st-text)] border-[var(--st-border)]',
+  PAUSED: 'bg-[var(--st-text)]/10 text-[var(--st-text)] border-[var(--st-border)]',
+  UNMAPPED: 'bg-[var(--st-text)]/10 text-[var(--st-text)] border-[var(--st-border)]',
 };
 
 function TemplateCard({ template, onEdit, onDelete }: TemplateCardProps) {
@@ -496,14 +496,14 @@ function TemplateCard({ template, onEdit, onDelete }: TemplateCardProps) {
               <button
                 type="button"
                 onClick={onEdit}
-                className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm text-zoru-ink hover:bg-zoru-surface"
+                className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]"
               >
                 <Edit3 className="h-3.5 w-3.5" /> Edit
               </button>
               <button
                 type="button"
                 onClick={onDelete}
-                className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm text-zoru-danger hover:bg-zoru-surface"
+                className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm text-[var(--st-danger)] hover:bg-[var(--st-bg-secondary)]"
               >
                 <Trash2 className="h-3.5 w-3.5" /> Delete
               </button>
@@ -512,7 +512,7 @@ function TemplateCard({ template, onEdit, onDelete }: TemplateCardProps) {
         </div>
       </ZoruCardHeader>
       <ZoruCardContent className="flex flex-1 flex-col gap-3 pb-3">
-        <p className="line-clamp-3 whitespace-pre-wrap text-sm text-zoru-ink-muted">
+        <p className="line-clamp-3 whitespace-pre-wrap text-sm text-[var(--st-text-secondary)]">
           {template.body}
         </p>
         {template.variables.length > 0 && (
@@ -524,7 +524,7 @@ function TemplateCard({ template, onEdit, onDelete }: TemplateCardProps) {
             ))}
           </div>
         )}
-        <div className="mt-auto flex items-center justify-between text-xs text-zoru-ink-muted">
+        <div className="mt-auto flex items-center justify-between text-xs text-[var(--st-text-secondary)]">
           <span>Used {template.usageCount}×</span>
           <Popover open={actionsOpen} onOpenChange={setActionsOpen}>
             <ZoruPopoverTrigger asChild>
@@ -535,21 +535,21 @@ function TemplateCard({ template, onEdit, onDelete }: TemplateCardProps) {
             <ZoruPopoverContent className="w-52 p-1" align="end">
               <button
                 type="button"
-                className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm text-zoru-ink hover:bg-zoru-surface"
+                className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]"
                 onClick={() => setActionsOpen(false)}
               >
                 <MessageSquarePlus className="h-3.5 w-3.5" /> Insert into chat
               </button>
               <button
                 type="button"
-                className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm text-zoru-ink hover:bg-zoru-surface"
+                className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]"
                 onClick={() => setActionsOpen(false)}
               >
                 <Send className="h-3.5 w-3.5" /> Send to broadcast
               </button>
               <button
                 type="button"
-                className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm text-zoru-ink hover:bg-zoru-surface"
+                className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]"
                 onClick={() => setActionsOpen(false)}
               >
                 <CalendarClock className="h-3.5 w-3.5" /> Schedule
@@ -640,7 +640,7 @@ function TemplateEditorDialog({
           <ZoruDialogTitle>{initial ? 'Edit template' : 'New template'}</ZoruDialogTitle>
           <ZoruDialogDescription>
             Compose a reusable message. Use{' '}
-            <code className="rounded bg-zoru-surface px-1 py-0.5 text-xs text-zoru-ink">
+            <code className="rounded bg-[var(--st-bg-secondary)] px-1 py-0.5 text-xs text-[var(--st-text)]">
               {'{{variable}}'}
             </code>{' '}
             for dynamic fields.
@@ -690,7 +690,7 @@ function TemplateEditorDialog({
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs text-zoru-ink-muted">Insert variable:</span>
+          <span className="text-xs text-[var(--st-text-secondary)]">Insert variable:</span>
           {KNOWN_VARIABLES.map((v) => (
             <Button
               key={v}
@@ -733,7 +733,7 @@ function TemplateEditorDialog({
             </Badge>
           )}
           {detected.length > 0 && (
-            <span className="ml-auto text-xs text-zoru-ink-muted">
+            <span className="ml-auto text-xs text-[var(--st-text-secondary)]">
               Variables: {detected.map((v) => `{{${v}}}`).join(', ')}
             </span>
           )}

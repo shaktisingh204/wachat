@@ -67,7 +67,7 @@ export function SmartCombobox({
                     variant="outline"
                     role="combobox"
                     aria-expanded={open}
-                    className={cn("w-full justify-between", !value && "text-zoru-ink-muted", className)}
+                    className={cn("w-full justify-between", !value && "text-[var(--st-text-secondary)]", className)}
                     disabled={disabled}
                 >
                     {selectedLabel || placeholder}
@@ -116,7 +116,7 @@ export function SmartCombobox({
                                             onCreate(inputValue);
                                             setOpen(false);
                                         }}
-                                        className="cursor-pointer text-zoru-ink-muted"
+                                        className="cursor-pointer text-[var(--st-text-secondary)]"
                                     >
                                         <Plus className="mr-2 h-4 w-4" />
                                         {createLabel} {inputValue ? `"${inputValue}"` : ""}

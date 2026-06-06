@@ -125,10 +125,10 @@ export default function QrCampaignsPage() {
 
       {showForm ? (
         <Card className="p-5 space-y-4">
-          <h3 className="text-[14px] text-zoru-ink">Create Campaign</h3>
+          <h3 className="text-[14px] text-[var(--st-text)]">Create Campaign</h3>
           <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-[12.5px] text-zoru-ink-muted">Name</Label>
+              <Label className="text-[12.5px] text-[var(--st-text-secondary)]">Name</Label>
               <Input
                 placeholder="e.g., Summer 2026"
                 value={formName}
@@ -136,7 +136,7 @@ export default function QrCampaignsPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[12.5px] text-zoru-ink-muted">Description (Optional)</Label>
+              <Label className="text-[12.5px] text-[var(--st-text-secondary)]">Description (Optional)</Label>
               <Textarea
                 placeholder="What is this campaign about?"
                 value={formDescription}
@@ -145,21 +145,21 @@ export default function QrCampaignsPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[12.5px] text-zoru-ink-muted">Start Date (Optional)</Label>
+              <Label className="text-[12.5px] text-[var(--st-text-secondary)]">Start Date (Optional)</Label>
               <input
                 type="date"
                 value={formStartDate}
                 onChange={(e) => setFormStartDate(e.target.value)}
-                className="flex h-9 w-full rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 text-[13px] text-zoru-ink focus:outline-none focus:border-zoru-ink"
+                className="flex h-9 w-full rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 text-[13px] text-[var(--st-text)] focus:outline-none focus:border-[var(--st-text)]"
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[12.5px] text-zoru-ink-muted">End Date (Optional)</Label>
+              <Label className="text-[12.5px] text-[var(--st-text-secondary)]">End Date (Optional)</Label>
               <input
                 type="date"
                 value={formEndDate}
                 onChange={(e) => setFormEndDate(e.target.value)}
-                className="flex h-9 w-full rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 text-[13px] text-zoru-ink focus:outline-none focus:border-zoru-ink"
+                className="flex h-9 w-full rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 text-[13px] text-[var(--st-text)] focus:outline-none focus:border-[var(--st-text)]"
               />
             </div>
           </div>
@@ -172,11 +172,11 @@ export default function QrCampaignsPage() {
 
       {campaigns.length === 0 && !showForm ? (
         <Card className="p-10 text-center">
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
             <Megaphone className="h-5 w-5" />
           </div>
-          <p className="text-sm text-zoru-ink">No campaigns yet</p>
-          <p className="mt-1 text-xs text-zoru-ink-muted">
+          <p className="text-sm text-[var(--st-text)]">No campaigns yet</p>
+          <p className="mt-1 text-xs text-[var(--st-text-secondary)]">
             Group your QR codes into campaigns to track performance together.
           </p>
           <Button size="sm" className="mt-4" onClick={() => setShowForm(true)}>
@@ -193,15 +193,15 @@ export default function QrCampaignsPage() {
               <Card key={c.id} className="p-5 flex flex-col gap-3">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <p className="text-[14px] font-medium text-zoru-ink truncate">{c.name}</p>
+                    <p className="text-[14px] font-medium text-[var(--st-text)] truncate">{c.name}</p>
                     {c.description ? (
-                      <p className="mt-0.5 text-[12px] text-zoru-ink-muted line-clamp-2">{c.description}</p>
+                      <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)] line-clamp-2">{c.description}</p>
                     ) : null}
                   </div>
                   <button
                     type="button"
                     onClick={() => handleDelete(c.id)}
-                    className="rounded p-1.5 text-zoru-ink-muted hover:bg-zoru-danger/10 hover:text-zoru-danger-ink shrink-0"
+                    className="rounded p-1.5 text-[var(--st-text-secondary)] hover:bg-[var(--st-danger)]/10 hover:text-[var(--st-danger)] shrink-0"
                     aria-label="Delete campaign"
                   >
                     <Trash2 className="h-3.5 w-3.5" />

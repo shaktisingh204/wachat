@@ -54,7 +54,7 @@ export const ThemePanel = () => {
             <h3 className="font-semibold text-lg border-b pb-2">Global Theme</h3>
 
             <div className="space-y-4">
-                <h4 className="text-sm font-medium text-zoru-ink">Colors</h4>
+                <h4 className="text-sm font-medium text-[var(--st-text)]">Colors</h4>
                 <div className="grid grid-cols-2 gap-4">
                     <div>
                         <Label className="text-xs">Primary</Label>
@@ -104,7 +104,7 @@ export const ThemePanel = () => {
             </div>
 
             <div className="space-y-4">
-                <h4 className="text-sm font-medium text-zoru-ink">Typography</h4>
+                <h4 className="text-sm font-medium text-[var(--st-text)]">Typography</h4>
                 <div>
                     <Label className="text-xs">Heading Font</Label>
                     <Input

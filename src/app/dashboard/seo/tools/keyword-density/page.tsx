@@ -20,7 +20,7 @@ export default function KeywordDensityPage() {
       <ZoruCardContent className="p-4">
         <table className="w-full text-sm">
           <thead>
-            <tr className="text-left text-xs text-zoru-ink-muted">
+            <tr className="text-left text-xs text-[var(--st-text-secondary)]">
               <th className="py-2">#</th>
               <th>Keyword</th>
               <th className="text-right">Count</th>
@@ -30,7 +30,7 @@ export default function KeywordDensityPage() {
           <tbody>
             {density.map((row, i) => (
               <tr key={row.word} className="border-t">
-                <td className="py-2 text-zoru-ink-muted">{i + 1}</td>
+                <td className="py-2 text-[var(--st-text-secondary)]">{i + 1}</td>
                 <td className="font-mono">{row.word}</td>
                 <td className="text-right">{row.count}</td>
                 <td className="text-right">{row.density.toFixed(2)}%</td>
@@ -38,7 +38,7 @@ export default function KeywordDensityPage() {
             ))}
             {density.length === 0 && (
               <tr>
-                <td colSpan={4} className="text-center text-zoru-ink-muted py-6">
+                <td colSpan={4} className="text-center text-[var(--st-text-secondary)] py-6">
                   Start typing to see keyword density.
                 </td>
               </tr>
@@ -59,7 +59,7 @@ export default function KeywordDensityPage() {
       />
       
       <div className="flex items-center justify-between mb-4">
-        <div className="text-sm text-zoru-ink-muted">Total words: {total}</div>
+        <div className="text-sm text-[var(--st-text-secondary)]">Total words: {total}</div>
         <div className="flex items-center space-x-2">
           <Switch 
             id="stopword-filter" 

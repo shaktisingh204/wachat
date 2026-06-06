@@ -447,7 +447,7 @@ async function SabsmsAnalyticsPageContent({
       helpBody={
         <>
           Every chart reads directly from{" "}
-          <code className="rounded bg-zoru-surface-2 px-1">
+          <code className="rounded bg-[var(--st-bg-muted)] px-1">
             sabsms_messages
           </code>{" "}
           and friends — there is no precomputed materialised view, so
@@ -500,7 +500,7 @@ async function SabsmsAnalyticsPageContent({
         </ZoruCardHeader>
         <ZoruCardContent className="p-0">
           {data.grouped.length === 0 ? (
-            <p className="px-6 py-8 text-center text-sm text-zoru-ink-muted">
+            <p className="px-6 py-8 text-center text-sm text-[var(--st-text-secondary)]">
               No data yet — try a wider date range or switch group-by.
             </p>
           ) : (
@@ -559,14 +559,14 @@ async function SabsmsAnalyticsPageContent({
             <ZoruCardDescription>
               Click-through rate per short link. Populated when the engine
               writes to{" "}
-              <code className="rounded bg-zoru-surface-2 px-1 text-xs">
+              <code className="rounded bg-[var(--st-bg-muted)] px-1 text-xs">
                 sabsms_link_clicks
               </code>
               .
             </ZoruCardDescription>
           </ZoruCardHeader>
           <ZoruCardContent>
-            <p className="text-sm text-zoru-ink-muted">
+            <p className="text-sm text-[var(--st-text-secondary)]">
               No link clicks yet in this window. Once you send a campaign
               with a tracked short link, this table fills automatically.
             </p>
@@ -596,7 +596,7 @@ async function SabsmsAnalyticsPageContent({
                 <ZoruTableRow>
                   <ZoruTableCell
                     colSpan={3}
-                    className="px-6 py-8 text-center text-sm text-zoru-ink-muted"
+                    className="px-6 py-8 text-center text-sm text-[var(--st-text-secondary)]"
                   >
                     No conversions tracked yet.{" "}
                     <Link

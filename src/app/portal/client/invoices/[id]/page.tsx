@@ -51,7 +51,7 @@ async function ClientInvoiceDetailPageContent({
 
     return (
         <div className="flex flex-col gap-4">
-            <Link href="/portal/client/invoices" className="self-start text-sm text-zoru-ink-muted hover:underline">
+            <Link href="/portal/client/invoices" className="self-start text-sm text-[var(--st-text-secondary)] hover:underline">
                 ← Back to invoices
             </Link>
 
@@ -59,7 +59,7 @@ async function ClientInvoiceDetailPageContent({
                 <ZoruCardHeader className="flex flex-row items-start justify-between gap-3">
                     <div>
                         <ZoruCardTitle>Invoice {invoice.invoiceNumber}</ZoruCardTitle>
-                        <p className="mt-1 text-sm text-zoru-ink-muted">
+                        <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
                             Issued {fmtDate(invoice.invoiceDate)} · Due {fmtDate(invoice.dueDate)}
                         </p>
                     </div>
@@ -75,20 +75,20 @@ async function ClientInvoiceDetailPageContent({
                 <ZoruCardContent>
                     <dl className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
                         <div>
-                            <dt className="text-xs text-zoru-ink-muted">Total</dt>
-                            <dd className="text-zoru-ink">{fmtINR(invoice.total, invoice.currency)}</dd>
+                            <dt className="text-xs text-[var(--st-text-secondary)]">Total</dt>
+                            <dd className="text-[var(--st-text)]">{fmtINR(invoice.total, invoice.currency)}</dd>
                         </div>
                         <div>
-                            <dt className="text-xs text-zoru-ink-muted">Paid</dt>
-                            <dd className="text-zoru-ink">{fmtINR(invoice.paidAmount ?? 0, invoice.currency)}</dd>
+                            <dt className="text-xs text-[var(--st-text-secondary)]">Paid</dt>
+                            <dd className="text-[var(--st-text)]">{fmtINR(invoice.paidAmount ?? 0, invoice.currency)}</dd>
                         </div>
                         <div>
-                            <dt className="text-xs text-zoru-ink-muted">Balance</dt>
-                            <dd className="text-zoru-ink">{fmtINR(Math.max(0, balance), invoice.currency)}</dd>
+                            <dt className="text-xs text-[var(--st-text-secondary)]">Balance</dt>
+                            <dd className="text-[var(--st-text)]">{fmtINR(Math.max(0, balance), invoice.currency)}</dd>
                         </div>
                         <div>
-                            <dt className="text-xs text-zoru-ink-muted">Currency</dt>
-                            <dd className="text-zoru-ink">{invoice.currency}</dd>
+                            <dt className="text-xs text-[var(--st-text-secondary)]">Currency</dt>
+                            <dd className="text-[var(--st-text)]">{invoice.currency}</dd>
                         </div>
                     </dl>
                 </ZoruCardContent>
@@ -116,9 +116,9 @@ async function ClientInvoiceDetailPageContent({
                                     return (
                                         <ZoruTableRow key={idx}>
                                             <ZoruTableCell>
-                                                <div className="font-medium text-zoru-ink">{li.name ?? '—'}</div>
+                                                <div className="font-medium text-[var(--st-text)]">{li.name ?? '—'}</div>
                                                 {li.description ? (
-                                                    <div className="text-xs text-zoru-ink-muted">{li.description}</div>
+                                                    <div className="text-xs text-[var(--st-text-secondary)]">{li.description}</div>
                                                 ) : null}
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-right">{qty}</ZoruTableCell>

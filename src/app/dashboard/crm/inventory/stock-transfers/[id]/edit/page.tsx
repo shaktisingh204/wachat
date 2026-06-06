@@ -27,7 +27,7 @@ interface PageProps {
 
 function AuditTimelineSkeleton() {
     return (
-        <div className="space-y-4 rounded-lg border border-zoru-line bg-zoru-surface p-4">
+        <div className="space-y-4 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4">
             <Skeleton className="mb-4 h-5 w-24" />
             {Array.from({ length: 3 }).map((_, i) => (
                 <div key={i} className="flex gap-4">

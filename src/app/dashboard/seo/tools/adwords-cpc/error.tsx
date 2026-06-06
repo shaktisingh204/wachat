@@ -17,8 +17,8 @@ export default function AdwordsCpcError({
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[400px] p-6 text-center space-y-4">
-      <h2 className="text-2xl font-semibold text-zoru-ink">Something went wrong!</h2>
-      <p className="text-zoru-ink-muted">An error occurred while calculating the AdWords CPC.</p>
+      <h2 className="text-2xl font-semibold text-[var(--st-text)]">Something went wrong!</h2>
+      <p className="text-[var(--st-text-secondary)]">An error occurred while calculating the AdWords CPC.</p>
       <Button onClick={() => reset()} variant="outline">
         Try again
       </Button>

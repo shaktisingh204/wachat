@@ -64,20 +64,20 @@ function RuleCard({ title, description, enabled, onToggle, thresholdLabel, thres
     <div className={`p-4 bg-white/[0.02] border border-white/5 rounded-xl hover:bg-white/[0.04] transition-colors ${enabled ? 'opacity-100' : 'opacity-60'}`}>
       <div className="flex justify-between items-start mb-3">
         <div>
-          <h4 className={`${enabled ? 'text-white' : 'text-zoru-ink-muted'} font-medium mb-1`}>{title}</h4>
-          <p className="text-sm text-zoru-ink">{description}</p>
+          <h4 className={`${enabled ? 'text-white' : 'text-[var(--st-text-secondary)]'} font-medium mb-1`}>{title}</h4>
+          <p className="text-sm text-[var(--st-text)]">{description}</p>
         </div>
         <div 
           onClick={onToggle}
-          className={`w-10 h-5 rounded-full flex items-center p-1 cursor-pointer transition-colors ${enabled ? 'bg-zoru-ink' : 'bg-white/10'}`}
+          className={`w-10 h-5 rounded-full flex items-center p-1 cursor-pointer transition-colors ${enabled ? 'bg-[var(--st-text)]' : 'bg-white/10'}`}
         >
-          <div className={`w-3.5 h-3.5 rounded-full shadow-sm transition-transform duration-200 ${enabled ? 'bg-white translate-x-4' : 'bg-zoru-surface-2 translate-x-0'}`}></div>
+          <div className={`w-3.5 h-3.5 rounded-full shadow-sm transition-transform duration-200 ${enabled ? 'bg-white translate-x-4' : 'bg-[var(--st-bg-muted)] translate-x-0'}`}></div>
         </div>
       </div>
       {(thresholdLabel || thresholdValue) && (
         <div className="flex items-center space-x-3 mt-4">
           <div className="flex-1 bg-black/40 rounded-lg border border-white/10 px-3 py-2 flex items-center justify-between">
-            <span className="text-sm text-zoru-ink-muted">{thresholdLabel}</span>
+            <span className="text-sm text-[var(--st-text-secondary)]">{thresholdLabel}</span>
             <span className="text-sm font-mono text-white">{thresholdValue}</span>
           </div>
         </div>
@@ -101,19 +101,19 @@ function SortableItem({ provider, index, disabled }: { provider: Provider; index
       ref={setNodeRef}
       style={style}
       className={`relative mb-4 transition-all ${
-        isDragging ? "ring-2 ring-zoru-line shadow-2xl shadow-zoru-line/20 rounded-xl" : ""
+        isDragging ? "ring-2 ring-[var(--st-border)] shadow-2xl shadow-zoru-line/20 rounded-xl" : ""
       }`}
     >
-      <div className="group flex items-stretch rounded-xl border border-white/10 bg-zoru-ink hover:bg-zoru-ink transition-colors overflow-hidden">
+      <div className="group flex items-stretch rounded-xl border border-white/10 bg-[var(--st-text)] hover:bg-[var(--st-text)] transition-colors overflow-hidden">
         {/* Priority Badge */}
-        <div className="flex flex-col items-center justify-center w-12 bg-white/[0.02] border-r border-white/5 font-mono text-sm text-zoru-ink-muted">
+        <div className="flex flex-col items-center justify-center w-12 bg-white/[0.02] border-r border-white/5 font-mono text-sm text-[var(--st-text-secondary)]">
           <span className="mb-2">#{index + 1}</span>
           <div
             {...(disabled ? {} : attributes)}
             {...(disabled ? {} : listeners)}
             className={`p-2 rounded-md transition-colors ${disabled ? 'opacity-30 cursor-not-allowed' : 'cursor-grab active:cursor-grabbing hover:bg-white/10'}`}
           >
-            <GripVertical className="w-4 h-4 text-zoru-ink" />
+            <GripVertical className="w-4 h-4 text-[var(--st-text)]" />
           </div>
         </div>
 
@@ -122,15 +122,15 @@ function SortableItem({ provider, index, disabled }: { provider: Provider; index
           {/* Provider Info */}
           <div className="col-span-12 md:col-span-4 flex items-center space-x-4">
             <div className={`p-3 rounded-lg flex-shrink-0 ${
-              provider.status === 'active' ? 'bg-zoru-ink/10 text-zoru-ink-muted' :
-              provider.status === 'warning' ? 'bg-zoru-ink/10 text-zoru-ink-muted' :
-              'bg-zoru-ink/10 text-zoru-ink-muted'
+              provider.status === 'active' ? 'bg-[var(--st-text)]/10 text-[var(--st-text-secondary)]' :
+              provider.status === 'warning' ? 'bg-[var(--st-text)]/10 text-[var(--st-text-secondary)]' :
+              'bg-[var(--st-text)]/10 text-[var(--st-text-secondary)]'
             }`}>
               <Server className="w-6 h-6" />
             </div>
             <div>
               <h3 className="text-lg font-semibold text-white tracking-tight">{provider.name}</h3>
-              <div className="flex items-center text-sm text-zoru-ink-muted mt-1 space-x-2">
+              <div className="flex items-center text-sm text-[var(--st-text-secondary)] mt-1 space-x-2">
                 <Globe className="w-3.5 h-3.5" />
                 <span>{provider.region}</span>
               </div>
@@ -140,23 +140,23 @@ function SortableItem({ provider, index, disabled }: { provider: Provider; index
           {/* Metrics */}
           <div className="col-span-12 md:col-span-6 grid grid-cols-3 gap-4">
             <div>
-              <p className="text-xs text-zoru-ink uppercase tracking-wider mb-1">Latency</p>
+              <p className="text-xs text-[var(--st-text)] uppercase tracking-wider mb-1">Latency</p>
               <div className="flex items-center space-x-1.5 text-white">
-                <Clock className="w-4 h-4 text-zoru-ink-muted" />
+                <Clock className="w-4 h-4 text-[var(--st-text-secondary)]" />
                 <span className="font-mono">{provider.latency}</span>
               </div>
             </div>
             <div>
-              <p className="text-xs text-zoru-ink uppercase tracking-wider mb-1">Success</p>
+              <p className="text-xs text-[var(--st-text)] uppercase tracking-wider mb-1">Success</p>
               <div className="flex items-center space-x-1.5 text-white">
-                <CheckCircle2 className="w-4 h-4 text-zoru-ink-muted" />
+                <CheckCircle2 className="w-4 h-4 text-[var(--st-text-secondary)]" />
                 <span className="font-mono">{provider.successRate}</span>
               </div>
             </div>
             <div>
-              <p className="text-xs text-zoru-ink uppercase tracking-wider mb-1">Cost</p>
+              <p className="text-xs text-[var(--st-text)] uppercase tracking-wider mb-1">Cost</p>
               <div className="flex items-center space-x-1.5 text-white">
-                <Zap className="w-4 h-4 text-zoru-ink-muted" />
+                <Zap className="w-4 h-4 text-[var(--st-text-secondary)]" />
                 <span className="font-mono">{provider.costPerSms}</span>
               </div>
             </div>
@@ -164,10 +164,10 @@ function SortableItem({ provider, index, disabled }: { provider: Provider; index
 
           {/* Actions */}
           <div className="col-span-12 md:col-span-2 flex justify-end items-center">
-            <button className="p-2 text-zoru-ink-muted hover:text-white hover:bg-white/10 rounded-lg transition-colors">
+            <button className="p-2 text-[var(--st-text-secondary)] hover:text-white hover:bg-white/10 rounded-lg transition-colors">
               <Settings className="w-5 h-5" />
             </button>
-            <button className="p-2 text-zoru-ink-muted hover:text-white hover:bg-white/10 rounded-lg transition-colors">
+            <button className="p-2 text-[var(--st-text-secondary)] hover:text-white hover:bg-white/10 rounded-lg transition-colors">
               <MoreVertical className="w-5 h-5" />
             </button>
           </div>
@@ -179,19 +179,19 @@ function SortableItem({ provider, index, disabled }: { provider: Provider; index
 
 function StatCard({ title, value, icon: Icon, trend, trendUp }: any) {
   return (
-    <div className="bg-zoru-ink border border-white/5 rounded-2xl p-6 relative overflow-hidden group">
-      <div className="absolute inset-0 bg-gradient-to-br from-zoru-ink/5 to-zoru-ink/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+    <div className="bg-[var(--st-text)] border border-white/5 rounded-2xl p-6 relative overflow-hidden group">
+      <div className="absolute inset-0 bg-gradient-to-br from-[var(--st-text)]/5 to-[var(--st-text)]/5 opacity-0 group-hover:opacity-100 transition-opacity" />
       <div className="relative z-10 flex items-start justify-between">
         <div>
-          <p className="text-sm font-medium text-zoru-ink-muted">{title}</p>
+          <p className="text-sm font-medium text-[var(--st-text-secondary)]">{title}</p>
           <h4 className="text-3xl font-bold text-white mt-2 font-mono tracking-tight">{value}</h4>
-          <div className={`flex items-center mt-3 text-sm ${trendUp ? 'text-zoru-ink-muted' : 'text-zoru-ink-muted'}`}>
+          <div className={`flex items-center mt-3 text-sm ${trendUp ? 'text-[var(--st-text-secondary)]' : 'text-[var(--st-text-secondary)]'}`}>
             <Activity className="w-4 h-4 mr-1.5" />
             <span>{trend} vs last month</span>
           </div>
         </div>
         <div className="p-3 bg-white/[0.03] rounded-xl border border-white/10">
-          <Icon className="w-6 h-6 text-zoru-ink-muted" />
+          <Icon className="w-6 h-6 text-[var(--st-text-secondary)]" />
         </div>
       </div>
     </div>
@@ -315,7 +315,7 @@ export default function RoutingPage() {
   const activeProvider = providers.find((p) => p.id === activeId);
 
   return (
-    <div className="min-h-screen bg-zoru-ink text-white p-6 lg:p-12 font-sans selection:bg-zoru-ink/30">
+    <div className="min-h-screen bg-[var(--st-text)] text-white p-6 lg:p-12 font-sans selection:bg-[var(--st-text)]/30">
       <div className="max-w-7xl mx-auto space-y-10">
         
         {/* Header Section */}
@@ -325,14 +325,14 @@ export default function RoutingPage() {
           className="flex flex-col md:flex-row md:items-center justify-between gap-6"
         >
           <div>
-            <div className="inline-flex items-center space-x-2 px-3 py-1 bg-zoru-ink/10 border border-zoru-line/20 rounded-full text-zoru-ink-muted text-sm font-medium mb-4">
+            <div className="inline-flex items-center space-x-2 px-3 py-1 bg-[var(--st-text)]/10 border border-[var(--st-border)]/20 rounded-full text-[var(--st-text-secondary)] text-sm font-medium mb-4">
               <Network className="w-4 h-4" />
               <span>Network Routing</span>
             </div>
-            <h1 className="text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white via-zoru-surface-2 to-zoru-ink tracking-tight">
+            <h1 className="text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white via-zoru-surface-2 to-[var(--st-text)] tracking-tight">
               Routing & Fallback
             </h1>
-            <p className="text-zoru-ink-muted mt-3 text-lg max-w-2xl">
+            <p className="text-[var(--st-text-secondary)] mt-3 text-lg max-w-2xl">
               Configure provider priorities and setup fallback rules to guarantee delivery of your SMS traffic across the globe.
             </p>
           </div>
@@ -345,7 +345,7 @@ export default function RoutingPage() {
               <Settings className="w-4 h-4" />
               <span>Simulate</span>
             </button>
-            <button className="px-5 py-2.5 bg-zoru-ink hover:bg-zoru-ink shadow-[0_0_20px_rgba(79,70,229,0.3)] rounded-xl font-medium transition-all text-white flex items-center space-x-2">
+            <button className="px-5 py-2.5 bg-[var(--st-text)] hover:bg-[var(--st-text)] shadow-[0_0_20px_rgba(79,70,229,0.3)] rounded-xl font-medium transition-all text-white flex items-center space-x-2">
               <Plus className="w-4 h-4" />
               <span>Add Provider</span>
             </button>
@@ -376,10 +376,10 @@ export default function RoutingPage() {
           >
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <h2 className="text-xl font-semibold text-white flex items-center">
-                <ArrowRight className="w-5 h-5 mr-2 text-zoru-ink-muted" />
+                <ArrowRight className="w-5 h-5 mr-2 text-[var(--st-text-secondary)]" />
                 Priority Waterfall
               </h2>
-              <span className="text-sm text-zoru-ink bg-white/5 px-3 py-1 rounded-full border border-white/10">
+              <span className="text-sm text-[var(--st-text)] bg-white/5 px-3 py-1 rounded-full border border-white/10">
                 Drag to reorder
               </span>
             </div>
@@ -400,22 +400,22 @@ export default function RoutingPage() {
               
               <DragOverlay>
                 {activeProvider ? (
-                  <div className="group flex items-stretch rounded-xl border border-zoru-line/50 bg-zoru-ink shadow-2xl shadow-zoru-line/20 overflow-hidden opacity-90 scale-105 transition-transform">
-                    <div className="flex flex-col items-center justify-center w-12 bg-white/[0.02] border-r border-white/5 font-mono text-sm text-zoru-ink-muted">
-                      <GripVertical className="w-4 h-4 text-zoru-ink" />
+                  <div className="group flex items-stretch rounded-xl border border-[var(--st-border)]/50 bg-[var(--st-text)] shadow-2xl shadow-zoru-line/20 overflow-hidden opacity-90 scale-105 transition-transform">
+                    <div className="flex flex-col items-center justify-center w-12 bg-white/[0.02] border-r border-white/5 font-mono text-sm text-[var(--st-text-secondary)]">
+                      <GripVertical className="w-4 h-4 text-[var(--st-text)]" />
                     </div>
                     <div className="flex-1 p-5 grid grid-cols-12 gap-6 items-center">
                       <div className="col-span-12 md:col-span-4 flex items-center space-x-4">
                         <div className={`p-3 rounded-lg flex-shrink-0 ${
-                          activeProvider.status === 'active' ? 'bg-zoru-ink/10 text-zoru-ink-muted' :
-                          activeProvider.status === 'warning' ? 'bg-zoru-ink/10 text-zoru-ink-muted' :
-                          'bg-zoru-ink/10 text-zoru-ink-muted'
+                          activeProvider.status === 'active' ? 'bg-[var(--st-text)]/10 text-[var(--st-text-secondary)]' :
+                          activeProvider.status === 'warning' ? 'bg-[var(--st-text)]/10 text-[var(--st-text-secondary)]' :
+                          'bg-[var(--st-text)]/10 text-[var(--st-text-secondary)]'
                         }`}>
                           <Server className="w-6 h-6" />
                         </div>
                         <div>
                           <h3 className="text-lg font-semibold text-white tracking-tight">{activeProvider.name}</h3>
-                          <div className="flex items-center text-sm text-zoru-ink-muted mt-1 space-x-2">
+                          <div className="flex items-center text-sm text-[var(--st-text-secondary)] mt-1 space-x-2">
                             <Globe className="w-3.5 h-3.5" />
                             <span>{activeProvider.region}</span>
                           </div>
@@ -433,10 +433,10 @@ export default function RoutingPage() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
-            className="bg-gradient-to-b from-zoru-ink to-zoru-ink border border-white/10 rounded-2xl p-6 lg:col-span-1 h-fit sticky top-6 shadow-xl"
+            className="bg-gradient-to-b from-[var(--st-text)] to-[var(--st-text)] border border-white/10 rounded-2xl p-6 lg:col-span-1 h-fit sticky top-6 shadow-xl"
           >
             <div className="flex items-center space-x-3 mb-6">
-              <div className="p-2.5 bg-zoru-ink/10 text-zoru-ink-muted rounded-lg">
+              <div className="p-2.5 bg-[var(--st-text)]/10 text-[var(--st-text-secondary)] rounded-lg">
                 <AlertTriangle className="w-5 h-5" />
               </div>
               <h3 className="text-xl font-semibold text-white">Rule Evaluation</h3>
@@ -449,7 +449,7 @@ export default function RoutingPage() {
                     initial={{ opacity: 0, height: 0 }} 
                     animate={{ opacity: 1, height: 'auto' }} 
                     key={i} 
-                    className="p-3 bg-zoru-ink/10 border border-zoru-line/20 rounded-xl flex items-start space-x-3 text-zoru-ink-muted"
+                    className="p-3 bg-[var(--st-text)]/10 border border-[var(--st-border)]/20 rounded-xl flex items-start space-x-3 text-[var(--st-text-secondary)]"
                   >
                     <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />
                     <p className="text-sm">{conflict}</p>
@@ -494,7 +494,7 @@ export default function RoutingPage() {
                 onToggle={() => setRules(r => ({ ...r, geoRouting: !r.geoRouting }))}
               />
 
-              <button className="w-full py-3 bg-white/5 hover:bg-white/10 border border-white/10 border-dashed rounded-xl text-zoru-ink-muted hover:text-white font-medium transition-all flex items-center justify-center space-x-2">
+              <button className="w-full py-3 bg-white/5 hover:bg-white/10 border border-white/10 border-dashed rounded-xl text-[var(--st-text-secondary)] hover:text-white font-medium transition-all flex items-center justify-center space-x-2">
                 <Plus className="w-4 h-4" />
                 <span>Add Custom Rule</span>
               </button>
@@ -509,32 +509,32 @@ export default function RoutingPage() {
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-zoru-ink border border-white/10 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden"
+            className="bg-[var(--st-text)] border border-white/10 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden"
           >
             <div className="p-6 border-b border-white/10 flex justify-between items-center">
               <h3 className="text-xl font-bold text-white flex items-center">
-                <Settings className="w-5 h-5 mr-2 text-zoru-ink-muted" />
+                <Settings className="w-5 h-5 mr-2 text-[var(--st-text-secondary)]" />
                 Routing Simulation
               </h3>
-              <button onClick={() => setIsSimulateOpen(false)} className="text-zoru-ink-muted hover:text-white transition-colors">
+              <button onClick={() => setIsSimulateOpen(false)} className="text-[var(--st-text-secondary)] hover:text-white transition-colors">
                 <X className="w-5 h-5" />
               </button>
             </div>
             <div className="p-6 space-y-6">
               <div>
-                <label className="block text-sm font-medium text-zoru-ink-muted mb-2">Destination Phone Number</label>
+                <label className="block text-sm font-medium text-[var(--st-text-secondary)] mb-2">Destination Phone Number</label>
                 <input 
                   type="text" 
                   value={simNumber}
                   onChange={(e) => setSimNumber(e.target.value)}
                   placeholder="+1 234 567 8900"
-                  className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-zoru-ink focus:outline-none focus:ring-2 focus:ring-zoru-line"
+                  className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-[var(--st-text)] focus:outline-none focus:ring-2 focus:ring-[var(--st-border)]"
                 />
               </div>
               <button 
                 onClick={runSimulation}
                 disabled={!simNumber || isSimulating}
-                className="w-full py-3 bg-zoru-ink hover:bg-zoru-ink disabled:opacity-50 disabled:cursor-not-allowed rounded-xl text-white font-medium transition-colors"
+                className="w-full py-3 bg-[var(--st-text)] hover:bg-[var(--st-text)] disabled:opacity-50 disabled:cursor-not-allowed rounded-xl text-white font-medium transition-colors"
               >
                 {isSimulating ? "Simulating..." : "Run Simulation"}
               </button>
@@ -545,23 +545,23 @@ export default function RoutingPage() {
                   animate={{ opacity: 1, y: 0 }}
                   className="mt-6 p-4 bg-white/5 border border-white/10 rounded-xl space-y-3"
                 >
-                  <h4 className="text-sm font-medium text-zoru-ink-muted">Simulation Result</h4>
+                  <h4 className="text-sm font-medium text-[var(--st-text-secondary)]">Simulation Result</h4>
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-zoru-ink/10 text-zoru-ink-muted rounded-lg">
+                    <div className="p-2 bg-[var(--st-text)]/10 text-[var(--st-text-secondary)] rounded-lg">
                       <CheckCircle2 className="w-5 h-5" />
                     </div>
                     <div>
                       <p className="text-white font-medium">{simResult.providerName}</p>
-                      <p className="text-sm text-zoru-ink">Reason: {simResult.reason}</p>
+                      <p className="text-sm text-[var(--st-text)]">Reason: {simResult.reason}</p>
                     </div>
                   </div>
                   {simResult.steps && (
                     <div className="mt-4 pt-4 border-t border-white/10">
-                      <p className="text-xs text-zoru-ink uppercase tracking-wider mb-2">Evaluation Steps</p>
-                      <ul className="space-y-2 text-sm text-zoru-ink-muted">
+                      <p className="text-xs text-[var(--st-text)] uppercase tracking-wider mb-2">Evaluation Steps</p>
+                      <ul className="space-y-2 text-sm text-[var(--st-text-secondary)]">
                         {simResult.steps.map((step: string, i: number) => (
                           <li key={i} className="flex items-start">
-                            <ArrowRight className="w-4 h-4 mr-2 mt-0.5 text-zoru-ink-muted flex-shrink-0" />
+                            <ArrowRight className="w-4 h-4 mr-2 mt-0.5 text-[var(--st-text-secondary)] flex-shrink-0" />
                             <span>{step}</span>
                           </li>
                         ))}

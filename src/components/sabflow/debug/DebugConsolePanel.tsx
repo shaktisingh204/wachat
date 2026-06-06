@@ -251,7 +251,7 @@ export function DebugConsolePanel({
     >
       {/* ── Header ───────────────────────────────────────────────── */}
       <div className="flex items-center gap-2 border-b border-[var(--gray-4)] bg-[var(--gray-2)] px-3 py-2 shrink-0">
-        <LuTerminal className="h-3.5 w-3.5 text-zoru-ink" strokeWidth={2} />
+        <LuTerminal className="h-3.5 w-3.5 text-[var(--st-text)]" strokeWidth={2} />
         <span className="flex-1 text-[12.5px] font-semibold text-[var(--gray-12)]">
           {title}
         </span>
@@ -263,7 +263,7 @@ export function DebugConsolePanel({
           className={
             'flex h-6 w-6 items-center justify-center rounded-md transition-colors active:scale-95 ' +
             (paused
-              ? 'bg-zoru-surface-2 text-zoru-ink hover:bg-zoru-surface-2 dark:bg-zoru-ink/40 dark:text-zoru-ink-muted'
+              ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]'
               : 'text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]')
           }
         >
@@ -333,7 +333,7 @@ export function DebugConsolePanel({
                   className={
                     'inline-flex min-w-[16px] items-center justify-center rounded px-1 text-[10px] font-semibold tabular-nums ' +
                     (active
-                      ? 'bg-zoru-surface text-zoru-ink'
+                      ? 'bg-[var(--st-bg-secondary)] text-[var(--st-text)]'
                       : 'bg-[var(--gray-3)] text-[var(--gray-10)]')
                   }
                 >
@@ -344,7 +344,7 @@ export function DebugConsolePanel({
           );
         })}
         {paused ? (
-          <span className="ml-auto self-center rounded bg-zoru-surface-2 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
+          <span className="ml-auto self-center rounded bg-[var(--st-bg-muted)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
             Paused
           </span>
         ) : null}
@@ -431,16 +431,16 @@ function EmptyState({ message }: { message: string }) {
 function LogRow({ log }: { log: DebugLog }) {
   const tone =
     log.level === 'error'
-      ? 'text-zoru-ink dark:text-zoru-ink-muted'
+      ? 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]'
       : log.level === 'warn'
-        ? 'text-zoru-ink dark:text-zoru-ink-muted'
+        ? 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]'
         : 'text-[var(--gray-10)]';
 
   const badge =
     log.level === 'error'
-      ? 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted'
+      ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]'
       : log.level === 'warn'
-        ? 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted'
+        ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]'
         : 'bg-[var(--gray-3)] text-[var(--gray-10)]';
 
   return (

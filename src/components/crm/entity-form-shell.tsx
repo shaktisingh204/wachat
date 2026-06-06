@@ -133,10 +133,10 @@ export function EntityFormShell({
             {(title || subtitle) && (
                 <header className="flex flex-col gap-1">
                     {title ? (
-                        <h1 className="text-2xl font-semibold text-zoru-ink">{title}</h1>
+                        <h1 className="text-2xl font-semibold text-[var(--st-text)]">{title}</h1>
                     ) : null}
                     {subtitle ? (
-                        <p className="text-sm text-zoru-ink-muted">{subtitle}</p>
+                        <p className="text-sm text-[var(--st-text-secondary)]">{subtitle}</p>
                     ) : null}
                 </header>
             )}
@@ -162,7 +162,7 @@ export function EntityFormShell({
             {error ? (
                 <p
                     role="alert"
-                    className="text-sm text-zoru-danger-ink"
+                    className="text-sm text-[var(--st-danger)]"
                 >
                     {error}
                 </p>
@@ -170,14 +170,14 @@ export function EntityFormShell({
             {message ? (
                 <p
                     role="status"
-                    className="text-sm text-zoru-success-ink"
+                    className="text-sm text-[var(--st-status-ok)]"
                 >
                     {message}
                 </p>
             ) : null}
 
             {/* Sticky submit bar */}
-            <div className="sticky bottom-0 bg-zoru-bg border-t border-zoru-line py-3">
+            <div className="sticky bottom-0 bg-[var(--st-bg)] border-t border-[var(--st-border)] py-3">
                 <div className="flex items-center justify-end gap-2">
                     {cancelHref ? (
                         <Button asChild variant="ghost">

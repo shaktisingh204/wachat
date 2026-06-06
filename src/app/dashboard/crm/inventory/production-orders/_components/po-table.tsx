@@ -69,10 +69,10 @@ export function PoTable({
         !allSelected && orders.some((o) => selectedIds.has(o._id));
 
     return (
-        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+        <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
             <Table>
                 <ZoruTableHeader>
-                    <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                    <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                         <ZoruTableHead className="w-[36px]">
                             <Checkbox
                                 aria-label="Select all orders on this page"
@@ -94,10 +94,10 @@ export function PoTable({
                 </ZoruTableHeader>
                 <ZoruTableBody>
                     {orders.length === 0 ? (
-                        <ZoruTableRow className="border-zoru-line">
+                        <ZoruTableRow className="border-[var(--st-border)]">
                             <ZoruTableCell
                                 colSpan={11}
-                                className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                                className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                             >
                                 No orders match the current filters.
                             </ZoruTableCell>
@@ -118,8 +118,8 @@ export function PoTable({
                                         if (btn) btn.click();
                                     }}
                                     className={[
-                                        'border-zoru-line transition-colors',
-                                        isSel ? 'bg-zoru-surface-2/70' : '',
+                                        'border-[var(--st-border)] transition-colors',
+                                        isSel ? 'bg-[var(--st-bg-muted)]/70' : '',
                                     ].join(' ')}
                                 >
                                     <ZoruTableCell>
@@ -136,7 +136,7 @@ export function PoTable({
                                             subtitle={o.finishedGoodName || undefined}
                                         />
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                                    <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                                         {o.bomRef || o.bomId || '—'}
                                     </ZoruTableCell>
                                     <ZoruTableCell>
@@ -147,24 +147,24 @@ export function PoTable({
                                                 fallback={o.finishedGoodName || '—'}
                                             />
                                         ) : (
-                                            <span className="text-[13px] text-zoru-ink">
+                                            <span className="text-[13px] text-[var(--st-text)]">
                                                 {o.finishedGoodName || '—'}
                                             </span>
                                         )}
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
+                                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
                                         {fmtNum(o.plannedQty)} {o.unit || ''}
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
+                                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
                                         {fmtNum(o.actualYield)} {o.unit || ''}
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="text-right text-[13px] text-zoru-ink-muted">
+                                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text-secondary)]">
                                         {fmtNum(o.scrap)}
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                                    <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                                         {o.plannedStart ? new Date(o.plannedStart).toLocaleDateString('en-GB', { timeZone: 'UTC' }) : '—'}
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                                    <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                                         {o.plannedEnd ? new Date(o.plannedEnd).toLocaleDateString('en-GB', { timeZone: 'UTC' }) : '—'}
                                     </ZoruTableCell>
                                     <ZoruTableCell>
@@ -177,7 +177,7 @@ export function PoTable({
                                                     id={`po-actions-${o._id}`}
                                                     type="button"
                                                     aria-label={`Actions for ${o.orderNo}`}
-                                                    className="inline-flex h-8 w-8 items-center justify-center rounded-md text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
+                                                    className="inline-flex h-8 w-8 items-center justify-center rounded-md text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
                                                 >
                                                     <MoreHorizontal className="h-4 w-4" />
                                                 </button>
@@ -221,7 +221,7 @@ export function PoTable({
                                                 </ZoruDropdownMenuItem>
                                                 <ZoruDropdownMenuItem
                                                     onClick={() => onDelete(o._id)}
-                                                    className="text-zoru-danger"
+                                                    className="text-[var(--st-danger)]"
                                                 >
                                                     <Trash2 className="mr-1.5 h-3.5 w-3.5" />
                                                     Delete

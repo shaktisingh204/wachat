@@ -104,13 +104,13 @@ export function EditShiftClient({ initial }: { initial: CrmShiftDoc }) {
                 <Card className="p-6">
                     <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                            <h2 className="text-xl font-semibold text-zoru-ink">Edit Shift</h2>
+                            <h2 className="text-xl font-semibold text-[var(--st-text)]">Edit Shift</h2>
                             {mounted && lastUpdated && (
-                                <p className="text-xs text-zoru-ink-muted mt-1">Last updated: {lastUpdated}</p>
+                                <p className="text-xs text-[var(--st-text-secondary)] mt-1">Last updated: {lastUpdated}</p>
                             )}
                         </div>
-                        <div className="flex items-center gap-2 text-sm text-zoru-ink-muted">
-                            <span className="flex h-2 w-2 rounded-full bg-zoru-ink" />
+                        <div className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
+                            <span className="flex h-2 w-2 rounded-full bg-[var(--st-text)]" />
                             {collabStatus}
                         </div>
                     </div>
@@ -124,7 +124,7 @@ export function EditShiftClient({ initial }: { initial: CrmShiftDoc }) {
             <div className="flex w-full flex-col gap-4 lg:w-[450px]">
                 <Card className="flex flex-col p-4 h-[600px]">
                     <div className="mb-4 flex items-center justify-between">
-                        <div className="flex items-center gap-2 font-medium text-zoru-ink">
+                        <div className="flex items-center gap-2 font-medium text-[var(--st-text)]">
                             <Users className="h-4 w-4" />
                             Shift Assignments
                         </div>
@@ -154,7 +154,7 @@ export function EditShiftClient({ initial }: { initial: CrmShiftDoc }) {
 
                     <div 
                         ref={parentRef} 
-                        className="flex-1 overflow-auto rounded-md border border-zoru-line bg-zoru-bg"
+                        className="flex-1 overflow-auto rounded-md border border-[var(--st-border)] bg-[var(--st-bg)]"
                     >
                         <div 
                             style={{ 
@@ -163,15 +163,15 @@ export function EditShiftClient({ initial }: { initial: CrmShiftDoc }) {
                                 position: 'relative' 
                             }}
                         >
-                            <div className="sticky top-0 z-10 flex border-b border-zoru-line bg-zoru-bg/95 p-2 backdrop-blur">
+                            <div className="sticky top-0 z-10 flex border-b border-[var(--st-border)] bg-[var(--st-bg)]/95 p-2 backdrop-blur">
                                 <div className="flex w-10 items-center justify-center">
                                     <Checkbox 
                                         checked={filteredAssignments.length > 0 && filteredAssignments.every(a => a.selected)}
                                         onCheckedChange={(c) => handleSelectAll(Boolean(c))}
                                     />
                                 </div>
-                                <div className="flex-1 px-2 font-medium text-zoru-ink-muted text-sm">Name</div>
-                                <div className="w-24 px-2 font-medium text-zoru-ink-muted text-sm">Dept</div>
+                                <div className="flex-1 px-2 font-medium text-[var(--st-text-secondary)] text-sm">Name</div>
+                                <div className="w-24 px-2 font-medium text-[var(--st-text-secondary)] text-sm">Dept</div>
                             </div>
                             
                             {virtualizer.getVirtualItems().map((virtualItem) => {
@@ -187,7 +187,7 @@ export function EditShiftClient({ initial }: { initial: CrmShiftDoc }) {
                                             height: `${virtualItem.size}px`,
                                             transform: `translateY(${virtualItem.start}px)`,
                                         }}
-                                        className="flex items-center border-b border-zoru-line p-2 hover:bg-zoru-line/30 transition-colors"
+                                        className="flex items-center border-b border-[var(--st-border)] p-2 hover:bg-[var(--st-border)]/30 transition-colors"
                                     >
                                         <div className="flex w-10 items-center justify-center">
                                             <Checkbox 
@@ -195,8 +195,8 @@ export function EditShiftClient({ initial }: { initial: CrmShiftDoc }) {
                                                 onCheckedChange={(c) => toggleSelection(item.id, Boolean(c))}
                                             />
                                         </div>
-                                        <div className="flex-1 truncate px-2 text-sm text-zoru-ink">{item.name}</div>
-                                        <div className="w-24 truncate px-2 text-xs text-zoru-ink-muted">{item.department}</div>
+                                        <div className="flex-1 truncate px-2 text-sm text-[var(--st-text)]">{item.name}</div>
+                                        <div className="w-24 truncate px-2 text-xs text-[var(--st-text-secondary)]">{item.department}</div>
                                     </div>
                                 );
                             })}

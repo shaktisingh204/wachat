@@ -21,25 +21,25 @@ export function KpiStrip({ kpis }: KpiStripProps) {
             label: 'My Team',
             value: kpis.teamSize,
             icon: <Users className="h-5 w-5" />,
-            accent: 'text-zoru-primary bg-zoru-primary/10',
+            accent: 'text-[var(--st-text)] bg-[var(--st-text)]/10',
         },
         {
             label: 'Tasks Assigned to Me',
             value: kpis.pendingTasks,
             icon: <ClipboardList className="h-5 w-5" />,
-            accent: 'text-zoru-warning-ink bg-zoru-warning/10',
+            accent: 'text-[var(--st-warn)] bg-[var(--st-warn)]/10',
         },
         {
             label: "Tasks I've Assigned",
             value: kpis.pendingReports,
             icon: <FileWarning className="h-5 w-5" />,
-            accent: 'text-zoru-info-ink bg-zoru-info/10',
+            accent: 'text-[var(--st-text-secondary)] bg-[var(--st-text-secondary)]/10',
         },
         {
             label: 'Completed This Week',
             value: kpis.completedThisWeek,
             icon: <CheckCircle2 className="h-5 w-5" />,
-            accent: 'text-zoru-success-ink bg-zoru-success/10',
+            accent: 'text-[var(--st-status-ok)] bg-[var(--st-status-ok)]/10',
         },
     ];
 
@@ -51,10 +51,10 @@ export function KpiStrip({ kpis }: KpiStripProps) {
                         {item.icon}
                     </div>
                     <div>
-                        <p className="text-[24px] font-bold text-zoru-ink leading-tight">
+                        <p className="text-[24px] font-bold text-[var(--st-text)] leading-tight">
                             {item.value}
                         </p>
-                        <p className="text-[12px] text-zoru-ink-muted">{item.label}</p>
+                        <p className="text-[12px] text-[var(--st-text-secondary)]">{item.label}</p>
                     </div>
                 </Card>
             ))}

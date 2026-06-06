@@ -285,7 +285,7 @@ export function KbInternalListClient(): React.JSX.Element {
                 title="Knowledge Base"
                 subtitle="Internal articles, guides, and reference material grouped by category."
                 viewSwitcher={
-                    <div className="inline-flex rounded-md border border-zoru-line p-0.5">
+                    <div className="inline-flex rounded-md border border-[var(--st-border)] p-0.5">
                         <button
                             type="button"
                             onClick={() => setView('table')}
@@ -293,8 +293,8 @@ export function KbInternalListClient(): React.JSX.Element {
                             className={[
                                 'inline-flex items-center gap-1 rounded-sm px-2 py-1 text-[12px]',
                                 view === 'table'
-                                    ? 'bg-zoru-surface text-zoru-ink'
-                                    : 'text-zoru-ink-muted hover:text-zoru-ink',
+                                    ? 'bg-[var(--st-bg-secondary)] text-[var(--st-text)]'
+                                    : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
                             ].join(' ')}
                         >
                             <LayoutList className="h-3.5 w-3.5" /> Table
@@ -306,8 +306,8 @@ export function KbInternalListClient(): React.JSX.Element {
                             className={[
                                 'inline-flex items-center gap-1 rounded-sm px-2 py-1 text-[12px]',
                                 view === 'tree'
-                                    ? 'bg-zoru-surface text-zoru-ink'
-                                    : 'text-zoru-ink-muted hover:text-zoru-ink',
+                                    ? 'bg-[var(--st-bg-secondary)] text-[var(--st-text)]'
+                                    : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
                             ].join(' ')}
                         >
                             <ListTree className="h-3.5 w-3.5" /> Tree
@@ -402,7 +402,7 @@ export function KbInternalListClient(): React.JSX.Element {
                 bulkBar={
                     someSelected ? (
                         <div className="flex items-center justify-between">
-                            <span className="text-sm text-zoru-ink">
+                            <span className="text-sm text-[var(--st-text)]">
                                 {selected.size} selected
                             </span>
                             <div className="flex gap-2">
@@ -441,11 +441,11 @@ export function KbInternalListClient(): React.JSX.Element {
                 empty={
                     !loading && articles.length === 0 ? (
                         <div className="flex flex-col items-center gap-3 p-4">
-                            <BookOpen className="h-6 w-6 text-zoru-ink-muted" />
-                            <h3 className="text-base font-medium text-zoru-ink">
+                            <BookOpen className="h-6 w-6 text-[var(--st-text-secondary)]" />
+                            <h3 className="text-base font-medium text-[var(--st-text)]">
                                 No articles yet
                             </h3>
-                            <p className="max-w-sm text-sm text-zoru-ink-muted">
+                            <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                                 Author your first internal article — process docs, runbooks, or
                                 quick references for the team.
                             </p>
@@ -532,9 +532,9 @@ function KbInternalTable({
     onTogglePin: (id: string) => void;
 }) {
     return (
-        <div className="overflow-x-auto rounded-[var(--zoru-radius-lg)] border border-zoru-line">
+        <div className="overflow-x-auto rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)]">
             <table className="w-full min-w-[860px] text-[13px]">
-                <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
+                <thead className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                     <tr>
                         <th className="px-3 py-2 text-left font-medium w-10">
                             <Checkbox
@@ -558,10 +558,10 @@ function KbInternalTable({
                         ))}
                     </tr>
                 </thead>
-                <tbody className="divide-y divide-zoru-line bg-zoru-bg">
+                <tbody className="divide-y divide-[var(--st-border)] bg-[var(--st-bg)]">
                     {articles.length === 0 ? (
                         <tr>
-                            <td colSpan={8} className="p-6 text-center text-zoru-ink-muted">
+                            <td colSpan={8} className="p-6 text-center text-[var(--st-text-secondary)]">
                                 No articles match the current filters.
                             </td>
                         </tr>
@@ -573,8 +573,8 @@ function KbInternalTable({
                             <tr
                                 key={a._id}
                                 className={[
-                                    'hover:bg-zoru-surface',
-                                    isSelected ? 'bg-zoru-surface' : '',
+                                    'hover:bg-[var(--st-bg-secondary)]',
+                                    isSelected ? 'bg-[var(--st-bg-secondary)]' : '',
                                 ].join(' ')}
                             >
                                 <td className="px-3 py-2">
@@ -593,15 +593,15 @@ function KbInternalTable({
                                 <td className="px-3 py-2">
                                     <Badge variant="ghost">{cat?.name ?? 'Uncategorized'}</Badge>
                                 </td>
-                                <td className="px-3 py-2 capitalize text-zoru-ink-muted">{a.type}</td>
+                                <td className="px-3 py-2 capitalize text-[var(--st-text-secondary)]">{a.type}</td>
                                 <td className="px-3 py-2">
                                     <StatusPill
                                         label={a.pinned ? 'Published' : 'Draft'}
                                         tone={a.pinned ? 'green' : 'amber'}
                                     />
                                 </td>
-                                <td className="px-3 py-2 text-zoru-ink-muted">{a.to_do}</td>
-                                <td className="px-3 py-2 text-zoru-ink-muted">
+                                <td className="px-3 py-2 text-[var(--st-text-secondary)]">{a.to_do}</td>
+                                <td className="px-3 py-2 text-[var(--st-text-secondary)]">
                                     {fmtDate(a.updatedAt ?? a.createdAt)}
                                 </td>
                                 <td className="px-3 py-2 text-right">
@@ -639,28 +639,28 @@ function KbInternalTree({
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             {grouped.map((g) => (
                 <Card key={g.id}>
-                    <h3 className="mb-2 text-[13.5px] font-semibold text-zoru-ink">
+                    <h3 className="mb-2 text-[13.5px] font-semibold text-[var(--st-text)]">
                         {g.name}{' '}
                         <Badge variant="ghost" className="ml-1">
                             {g.articles.length}
                         </Badge>
                     </h3>
                     {g.articles.length === 0 ? (
-                        <p className="text-[12.5px] text-zoru-ink-muted">No articles.</p>
+                        <p className="text-[12.5px] text-[var(--st-text-secondary)]">No articles.</p>
                     ) : (
                         <ul className="flex flex-col gap-1">
                             {g.articles.map((a) => (
                                 <li
                                     key={String(a._id)}
-                                    className="flex items-center justify-between rounded-sm px-2 py-1 text-[13px] hover:bg-zoru-surface-2"
+                                    className="flex items-center justify-between rounded-sm px-2 py-1 text-[13px] hover:bg-[var(--st-bg-muted)]"
                                 >
                                     <Link
                                         href={`/dashboard/crm/workspace/knowledge-base/${a._id}`}
-                                        className="truncate text-zoru-ink hover:underline"
+                                        className="truncate text-[var(--st-text)] hover:underline"
                                     >
                                         {a.title}
                                     </Link>
-                                    <span className="ml-2 inline-flex items-center gap-1 text-[11.5px] text-zoru-ink-muted">
+                                    <span className="ml-2 inline-flex items-center gap-1 text-[11.5px] text-[var(--st-text-secondary)]">
                                         {a.pinned ? <Pin className="h-3 w-3" /> : null}
                                         {a.type}
                                     </span>

@@ -121,51 +121,51 @@ export default async function PayrollRunDetailPage({
             {/* Summary card */}
             <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
-                    <div className="text-[14px] font-medium text-zoru-ink">Summary</div>
+                    <div className="text-[14px] font-medium text-[var(--st-text)]">Summary</div>
                 </div>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-3">
                     <div>
-                        <div className="text-zoru-ink-muted">Period</div>
-                        <div className="text-zoru-ink">{periodLabel}</div>
+                        <div className="text-[var(--st-text-secondary)]">Period</div>
+                        <div className="text-[var(--st-text)]">{periodLabel}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Run date</div>
-                        <div className="text-zoru-ink">{fmtDate(run.run_date, 'MMM d, yyyy')}</div>
+                        <div className="text-[var(--st-text-secondary)]">Run date</div>
+                        <div className="text-[var(--st-text)]">{fmtDate(run.run_date, 'MMM d, yyyy')}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Run by</div>
-                        <div className="font-mono text-[12px] text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Run by</div>
+                        <div className="font-mono text-[12px] text-[var(--st-text)]">
                             {run.run_by ?? '—'}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Employees</div>
-                        <div className="font-mono text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Employees</div>
+                        <div className="font-mono text-[var(--st-text)]">
                             {run.total_employees ?? 0}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Total gross</div>
-                        <div className="font-mono text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Total gross</div>
+                        <div className="font-mono text-[var(--st-text)]">
                             {fmtINR(run.total_gross ?? 0)}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Total deductions</div>
-                        <div className="font-mono text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Total deductions</div>
+                        <div className="font-mono text-[var(--st-text)]">
                             {fmtINR(totalDeductions)}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Total net</div>
-                        <div className="font-mono text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Total net</div>
+                        <div className="font-mono text-[var(--st-text)]">
                             {fmtINR(run.total_net ?? 0)}
                         </div>
                     </div>
                     {run.notes ? (
                         <div className="sm:col-span-3">
-                            <div className="text-zoru-ink-muted">Notes</div>
-                            <div className="whitespace-pre-wrap text-zoru-ink">
+                            <div className="text-[var(--st-text-secondary)]">Notes</div>
+                            <div className="whitespace-pre-wrap text-[var(--st-text)]">
                                 {run.notes}
                             </div>
                         </div>
@@ -175,24 +175,24 @@ export default async function PayrollRunDetailPage({
 
             {/* Payslips */}
             <Card className="p-6">
-                <div className="mb-3 text-[15px] font-medium text-zoru-ink">
+                <div className="mb-3 text-[15px] font-medium text-[var(--st-text)]">
                     Payslips · {payslips.length}
                 </div>
-                <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                     <Table>
                         <ZoruTableHeader>
-                            <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                <ZoruTableHead className="text-zoru-ink-muted">Employee ID</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted text-right">Gross</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted text-right">Net</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted w-12"></ZoruTableHead>
+                            <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Employee ID</ZoruTableHead>
+                                <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Gross</ZoruTableHead>
+                                <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Net</ZoruTableHead>
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
+                                <ZoruTableHead className="text-[var(--st-text-secondary)] w-12"></ZoruTableHead>
                             </ZoruTableRow>
                         </ZoruTableHeader>
                         <ZoruTableBody>
                             {payslips.length === 0 ? (
-                                <ZoruTableRow className="border-zoru-line">
-                                    <ZoruTableCell colSpan={5} className="h-24 text-center text-zoru-ink-muted">
+                                <ZoruTableRow className="border-[var(--st-border)]">
+                                    <ZoruTableCell colSpan={5} className="h-24 text-center text-[var(--st-text-secondary)]">
                                         No payslips for this period.
                                     </ZoruTableCell>
                                 </ZoruTableRow>
@@ -200,18 +200,18 @@ export default async function PayrollRunDetailPage({
                                 payslips.map((p, i) => (
                                     <ZoruTableRow
                                         key={p._id ?? `${p.employeeId}-${i}`}
-                                        className="border-zoru-line"
+                                        className="border-[var(--st-border)]"
                                     >
-                                        <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
+                                        <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
                                             {p.employeeId ?? '—'}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-right font-mono text-zoru-ink">
+                                        <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
                                             {fmtINR(p.grossSalary ?? 0)}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-right font-mono text-zoru-ink">
+                                        <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
                                             {fmtINR(p.netPay ?? 0)}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="capitalize text-zoru-ink">
+                                        <ZoruTableCell className="capitalize text-[var(--st-text)]">
                                             {(p.status ?? '—').replace(/_/g, ' ')}
                                         </ZoruTableCell>
                                         <ZoruTableCell>

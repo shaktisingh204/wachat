@@ -186,10 +186,10 @@ export function BacklogBoard({
                   className="inline-block h-2.5 w-2.5 rounded-full"
                   style={{ backgroundColor: row.color ?? 'var(--zoru-line-strong)' }}
                 />
-                <h2 className="text-sm font-semibold text-zoru-ink">
+                <h2 className="text-sm font-semibold text-[var(--st-text)]">
                   {row.epicName}
                 </h2>
-                <span className="text-xs text-zoru-ink-subtle">
+                <span className="text-xs text-[var(--st-text-tertiary)]">
                   {row.stories.length} stories
                 </span>
               </header>
@@ -208,15 +208,15 @@ export function BacklogBoard({
                       onDragOver={(e) => e.preventDefault()}
                       onDrop={() => handleDrop(overallIdx)}
                       aria-grabbed={isDragging}
-                      className="flex items-center gap-3 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-bg px-3 py-2 hover:border-zoru-line-strong cursor-grab"
+                      className="flex items-center gap-3 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 hover:border-[var(--st-border-strong)] cursor-grab"
                     >
                       <span
                         aria-hidden
-                        className="text-xs text-zoru-ink-subtle font-mono w-6"
+                        className="text-xs text-[var(--st-text-tertiary)] font-mono w-6"
                       >
                         #{overallIdx + 1}
                       </span>
-                      <span className="flex-1 truncate text-sm text-zoru-ink">
+                      <span className="flex-1 truncate text-sm text-[var(--st-text)]">
                         {s.title}
                       </span>
                       <Badge variant={PRIORITY_VARIANTS[s.priority] ?? 'ghost'}>

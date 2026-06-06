@@ -34,7 +34,7 @@ export function SabbiginNav({ active }: { active?: string }) {
     return (
         <nav
             aria-label="SabBigin navigation"
-            className="flex flex-wrap items-center gap-1 border-b border-zoru-border pb-2"
+            className="flex flex-wrap items-center gap-1 border-b border-[var(--st-border)] pb-2"
         >
             {SABBIGIN_NAV.map(({ href, label, icon: Icon }) => {
                 const isActive = active === href;
@@ -45,8 +45,8 @@ export function SabbiginNav({ active }: { active?: string }) {
                         className={cn(
                             'inline-flex items-center gap-1.5 rounded-[var(--zoru-radius-sm)] px-3 py-1.5 text-[13px] font-medium transition-colors',
                             isActive
-                                ? 'bg-zoru-surface-2 text-zoru-ink'
-                                : 'text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink',
+                                ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
+                                : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]',
                         )}
                     >
                         <Icon className="h-3.5 w-3.5" strokeWidth={1.75} />

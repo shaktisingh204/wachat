@@ -219,16 +219,16 @@ export function Gstr2bClient({
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
                 <Card className="lg:col-span-2">
                     <div className="mb-3">
-                        <h2 className="text-[16px] font-semibold text-zoru-ink">
+                        <h2 className="text-[16px] font-semibold text-[var(--st-text)]">
                             Inward supplies by vendor
                         </h2>
-                        <p className="text-[12.5px] text-zoru-ink-muted">
+                        <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                             Top suppliers ranked by taxable inward value.
                         </p>
                     </div>
                     <div className="h-[280px] w-full">
                         {vendorChart.length === 0 ? (
-                            <div className="flex h-full items-center justify-center text-[13px] text-zoru-ink-muted">
+                            <div className="flex h-full items-center justify-center text-[13px] text-[var(--st-text-secondary)]">
                                 No vendor data for this period.
                             </div>
                         ) : (
@@ -265,13 +265,13 @@ export function Gstr2bClient({
 
                 <Card>
                     <div className="mb-3">
-                        <h2 className="text-[16px] font-semibold text-zoru-ink">
+                        <h2 className="text-[16px] font-semibold text-[var(--st-text)]">
                             Monthly ITC trend
                         </h2>
                     </div>
                     <div className="h-[280px] w-full">
                         {trend.length === 0 ? (
-                            <div className="flex h-full items-center justify-center text-[13px] text-zoru-ink-muted">
+                            <div className="flex h-full items-center justify-center text-[13px] text-[var(--st-text-secondary)]">
                                 No ITC history.
                             </div>
                         ) : (
@@ -313,43 +313,43 @@ export function Gstr2bClient({
 
             <Card>
                 <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-zoru-ink">
+                    <h2 className="text-[16px] font-semibold text-[var(--st-text)]">
                         Purchase Documents
                     </h2>
-                    <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+                    <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">
                         Eligible ITC from recorded purchase orders / bills.
                     </p>
                 </div>
-                <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                     <Table>
                         <ZoruTableHeader>
-                            <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                <ZoruTableHead className="text-zoru-ink-muted">
+                            <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                     Date
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                     Order
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                     Vendor
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-right text-zoru-ink-muted">
+                                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                                     Total
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                     Status
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                     ITC
                                 </ZoruTableHead>
                             </ZoruTableRow>
                         </ZoruTableHeader>
                         <ZoruTableBody>
                             {rows.length === 0 ? (
-                                <ZoruTableRow className="border-zoru-line">
+                                <ZoruTableRow className="border-[var(--st-border)]">
                                     <ZoruTableCell
                                         colSpan={6}
-                                        className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                                        className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                                     >
                                         No documents found.
                                     </ZoruTableCell>
@@ -358,27 +358,27 @@ export function Gstr2bClient({
                                 rows.map((r) => (
                                     <ZoruTableRow
                                         key={r.id}
-                                        className="border-zoru-line"
+                                        className="border-[var(--st-border)]"
                                     >
-                                        <ZoruTableCell className="text-[13px] text-zoru-ink">
+                                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                                             {format(new Date(r.orderDate), 'PP')}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="font-medium text-zoru-ink">
+                                        <ZoruTableCell className="font-medium text-[var(--st-text)]">
                                             <EntityRowLink
                                                 href={`/dashboard/crm/purchase-orders/${r.id}`}
                                                 label={r.orderNumber}
                                             />
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-[13px] text-zoru-ink">
+                                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                                             {r.vendorName}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
+                                        <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
                                             {r.currency} {r.total.toFixed(2)}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-[13px] text-zoru-ink">
+                                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                                             {r.status}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-[13px] text-zoru-ink">
+                                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                                             {r.itcEligible}
                                         </ZoruTableCell>
                                     </ZoruTableRow>

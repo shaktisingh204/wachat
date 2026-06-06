@@ -30,10 +30,10 @@ import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { generateProfitAndLossData } from "@/app/actions/crm-accounting.actions";
 
 const StatCard = ({ title, value, percentage, isProfit }: { title: string; value: string; percentage?: string, isProfit?: boolean }) => (
-    <div className="bg-zoru-surface-2 border border-zoru-line p-4 rounded-lg text-center">
-        <p className="text-[12.5px] text-zoru-ink-muted">{title}</p>
-        <p className={`mt-1 text-[22px] font-semibold ${isProfit ? (parseFloat(value.replace(/[^0-9.-]+/g,"")) >= 0 ? 'text-zoru-ink' : 'text-zoru-ink') : 'text-zoru-ink'}`}>{value}</p>
-        {percentage && <p className="text-[11.5px] text-zoru-ink-muted">{percentage}</p>}
+    <div className="bg-[var(--st-bg-muted)] border border-[var(--st-border)] p-4 rounded-lg text-center">
+        <p className="text-[12.5px] text-[var(--st-text-secondary)]">{title}</p>
+        <p className={`mt-1 text-[22px] font-semibold ${isProfit ? (parseFloat(value.replace(/[^0-9.-]+/g,"")) >= 0 ? 'text-[var(--st-text)]' : 'text-[var(--st-text)]') : 'text-[var(--st-text)]'}`}>{value}</p>
+        {percentage && <p className="text-[11.5px] text-[var(--st-text-secondary)]">{percentage}</p>}
     </div>
 );
 
@@ -136,7 +136,7 @@ export function PnlClient({ initialData, initialStartDate, initialEndDate }: Pnl
                     </Popover>
                 }
             >
-                <div className="text-center py-12 text-[13px] text-zoru-ink-muted bg-zoru-surface border rounded-lg shadow-sm">
+                <div className="text-center py-12 text-[13px] text-[var(--st-text-secondary)] bg-[var(--st-bg-secondary)] border rounded-lg shadow-sm">
                     <p>Could not generate Profit & Loss data. Please ensure you have income/expense accounts and transactions.</p>
                 </div>
             </EntityListShell>
@@ -179,8 +179,8 @@ export function PnlClient({ initialData, initialStartDate, initialEndDate }: Pnl
             <div className={`flex w-full flex-col gap-6 transition-opacity duration-200 ${isPending ? 'opacity-50' : 'opacity-100'}`}>
                 <Card>
                     <div className="flex justify-between items-center p-6 pb-2">
-                        <h2 className="text-[16px] font-semibold text-zoru-ink">Summary</h2>
-                        <p className="text-[12.5px] text-zoru-ink-muted">
+                        <h2 className="text-[16px] font-semibold text-[var(--st-text)]">Summary</h2>
+                        <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                             For period: {initialStartDate ? format(initialStartDate, 'dd MMM, yyyy') : '...'} - {initialEndDate ? format(initialEndDate, 'dd MMM, yyyy') : '...'}
                         </p>
                     </div>
@@ -202,7 +202,7 @@ export function PnlClient({ initialData, initialStartDate, initialEndDate }: Pnl
                 </Card>
 
                 <Card>
-                    <div className="p-6 pb-4 flex justify-between items-center border-b border-zoru-line">
+                    <div className="p-6 pb-4 flex justify-between items-center border-b border-[var(--st-border)]">
                         <h3 className="font-medium text-sm">Account Breakdown</h3>
                         <DropdownMenu>
                             <ZoruDropdownMenuTrigger asChild>
@@ -220,19 +220,19 @@ export function PnlClient({ initialData, initialStartDate, initialEndDate }: Pnl
                     </div>
                     <div className="overflow-x-auto">
                         <Table>
-                            <ZoruTableHeader className="bg-zoru-surface-2/50">
-                                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                    <ZoruTableHead className="text-zoru-ink-muted">Accounts</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted text-right">Amount</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted text-right">% of Total</ZoruTableHead>
+                            <ZoruTableHeader className="bg-[var(--st-bg-muted)]/50">
+                                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Accounts</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Amount</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">% of Total</ZoruTableHead>
                                 </ZoruTableRow>
                             </ZoruTableHeader>
                             <ZoruTableBody>
                                 {entries.map((entry: any, index: number) => (
-                                    <ZoruTableRow key={index} className={`border-zoru-line ${entry.isMain ? 'bg-zoru-surface-2/50 font-semibold' : ''}`}>
-                                        <ZoruTableCell className="text-zoru-ink pl-6">{index + 1}. {entry.account}</ZoruTableCell>
-                                        <ZoruTableCell className="text-right font-mono text-zoru-ink">₹{entry.amount.toFixed(2)}</ZoruTableCell>
-                                        <ZoruTableCell className="text-right font-mono text-zoru-ink pr-6">{summary.totalIncome > 0 ? ((entry.amount / summary.totalIncome) * 100).toFixed(2) : '0.00'}%</ZoruTableCell>
+                                    <ZoruTableRow key={index} className={`border-[var(--st-border)] ${entry.isMain ? 'bg-[var(--st-bg-muted)]/50 font-semibold' : ''}`}>
+                                        <ZoruTableCell className="text-[var(--st-text)] pl-6">{index + 1}. {entry.account}</ZoruTableCell>
+                                        <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">₹{entry.amount.toFixed(2)}</ZoruTableCell>
+                                        <ZoruTableCell className="text-right font-mono text-[var(--st-text)] pr-6">{summary.totalIncome > 0 ? ((entry.amount / summary.totalIncome) * 100).toFixed(2) : '0.00'}%</ZoruTableCell>
                                     </ZoruTableRow>
                                 ))}
                             </ZoruTableBody>

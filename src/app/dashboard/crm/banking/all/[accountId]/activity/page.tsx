@@ -30,10 +30,10 @@ export default async function PaymentAccountActivityPage(props: {
         >
             <div className="flex flex-col gap-6">
                 <div>
-                    <h2 className="text-lg font-medium text-zoru-ink dark:text-white mb-1">
+                    <h2 className="text-lg font-medium text-[var(--st-text)] dark:text-white mb-1">
                         Activity History
                     </h2>
-                    <p className="text-sm text-zoru-ink">
+                    <p className="text-sm text-[var(--st-text)]">
                         A comprehensive audit trail of all changes, transactions, and events associated with this payment account.
                     </p>
                 </div>

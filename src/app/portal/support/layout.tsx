@@ -31,8 +31,8 @@ export default async function SupportPortalLayout({
   }
 
   return (
-    <div className="zoruui min-h-screen bg-zoru-bg text-zoru-ink">
-      <header className="border-b border-zoru-line bg-zoru-surface">
+    <div className="zoruui min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
+      <header className="border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <Link
             href="/portal/support"
@@ -40,10 +40,10 @@ export default async function SupportPortalLayout({
           >
             Help &amp; Support
           </Link>
-          <nav className="flex items-center gap-4 text-[13px] text-zoru-ink-muted">
-            <Link href="/portal/support" className="hover:text-zoru-ink">My tickets</Link>
-            <Link href="/portal/support/kb" className="hover:text-zoru-ink">Knowledge base</Link>
-            <Link href="/portal/support/new" className="hover:text-zoru-ink">New request</Link>
+          <nav className="flex items-center gap-4 text-[13px] text-[var(--st-text-secondary)]">
+            <Link href="/portal/support" className="hover:text-[var(--st-text)]">My tickets</Link>
+            <Link href="/portal/support/kb" className="hover:text-[var(--st-text)]">Knowledge base</Link>
+            <Link href="/portal/support/new" className="hover:text-[var(--st-text)]">New request</Link>
           </nav>
         </div>
       </header>

@@ -60,7 +60,7 @@ export default function WebhooksClient({ initialData }: { initialData: WebhookEn
       primaryAction={<Button onClick={() => setDialogOpen(true)}><Plus className="w-4 h-4 mr-2" />Add Webhook</Button>}
       search={{ value: query, onChange: setQuery, placeholder: 'Search webhooks...' }}
     >
-      <Card className="border-zoru-line bg-zoru-bg overflow-hidden">
+      <Card className="border-[var(--st-border)] bg-[var(--st-bg)] overflow-hidden">
         <Table>
           <ZoruTableHeader>
             <ZoruTableRow>
@@ -75,9 +75,9 @@ export default function WebhooksClient({ initialData }: { initialData: WebhookEn
             {filteredData.map(item => (
               <ZoruTableRow key={item.id}>
                 <ZoruTableCell className="font-medium">{item.name}</ZoruTableCell>
-                <ZoruTableCell className="text-sm font-mono text-zoru-ink-light">{item.url}</ZoruTableCell>
+                <ZoruTableCell className="text-sm font-mono text-[var(--st-text-tertiary)]">{item.url}</ZoruTableCell>
                 <ZoruTableCell>
-                  <span className={`px-2 py-1 text-xs rounded-full ${item.status === 'active' ? 'bg-zoru-surface-2 text-zoru-ink' : 'bg-zoru-surface-2 text-zoru-ink'}`}>
+                  <span className={`px-2 py-1 text-xs rounded-full ${item.status === 'active' ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]' : 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'}`}>
                     {item.status}
                   </span>
                 </ZoruTableCell>
@@ -87,17 +87,17 @@ export default function WebhooksClient({ initialData }: { initialData: WebhookEn
                     navigator.clipboard.writeText(item.secret);
                     toast({ title: 'Secret copied to clipboard' });
                   }}>
-                    <Key className="w-4 h-4 text-zoru-ink-light" />
+                    <Key className="w-4 h-4 text-[var(--st-text-tertiary)]" />
                   </Button>
                   <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)} disabled={deletingId === item.id}>
-                    {deletingId === item.id ? <LoaderCircle className="w-4 h-4 text-zoru-ink animate-spin" /> : <Trash2 className="w-4 h-4 text-zoru-ink" />}
+                    {deletingId === item.id ? <LoaderCircle className="w-4 h-4 text-[var(--st-text)] animate-spin" /> : <Trash2 className="w-4 h-4 text-[var(--st-text)]" />}
                   </Button>
                 </ZoruTableCell>
               </ZoruTableRow>
             ))}
             {filteredData.length === 0 && (
               <ZoruTableRow>
-                <ZoruTableCell colSpan={5} className="text-center py-8 text-zoru-ink-light">No webhooks found.</ZoruTableCell>
+                <ZoruTableCell colSpan={5} className="text-center py-8 text-[var(--st-text-tertiary)]">No webhooks found.</ZoruTableCell>
               </ZoruTableRow>
             )}
           </ZoruTableBody>

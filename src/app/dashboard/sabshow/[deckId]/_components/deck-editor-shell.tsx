@@ -333,7 +333,7 @@ export function DeckEditorShell({
 
     /* ── render ───────────────────────────────────────────────────── */
     return (
-        <div className="zoruui flex h-[calc(100vh-3rem)] w-full flex-col bg-zoru-surface">
+        <div className="zoruui flex h-[calc(100vh-3rem)] w-full flex-col bg-[var(--st-bg-secondary)]">
             {/* top bar */}
             <div className="flex items-center gap-3 border-b px-4 py-2">
                 <Input
@@ -342,7 +342,7 @@ export function DeckEditorShell({
                     onBlur={persistTitle}
                     className="max-w-xs"
                 />
-                <span className="text-xs text-zoru-ink-muted">
+                <span className="text-xs text-[var(--st-text-secondary)]">
                     v{deck.version ?? 1}
                 </span>
                 <div className="ml-auto flex items-center gap-2">
@@ -376,7 +376,7 @@ export function DeckEditorShell({
                 {/* slide sidebar */}
                 <aside className="flex w-56 flex-col border-r">
                     <div className="flex items-center justify-between gap-2 px-3 py-2">
-                        <span className="text-xs font-medium uppercase text-zoru-ink-muted">
+                        <span className="text-xs font-medium uppercase text-[var(--st-text-secondary)]">
                             Slides
                         </span>
                         <Button
@@ -400,11 +400,11 @@ export function DeckEditorShell({
                                         }}
                                         className={`flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition ${
                                             selectedSlideId === slide._id
-                                                ? 'bg-zoru-surface-2'
-                                                : 'hover:bg-zoru-surface-2/60'
+                                                ? 'bg-[var(--st-bg-muted)]'
+                                                : 'hover:bg-[var(--st-bg-muted)]/60'
                                         }`}
                                     >
-                                        <span className="w-5 text-xs text-zoru-ink-muted">
+                                        <span className="w-5 text-xs text-[var(--st-text-secondary)]">
                                             {idx + 1}
                                         </span>
                                         <span className="line-clamp-1">
@@ -551,7 +551,7 @@ export function DeckEditorShell({
 
                     {/* canvas */}
                     <div
-                        className="flex-1 overflow-auto bg-zoru-surface-2/30 p-6"
+                        className="flex-1 overflow-auto bg-[var(--st-bg-muted)]/30 p-6"
                         onMouseDown={() => setSelectedElementId(null)}
                     >
                         <div className="mx-auto w-full max-w-[1280px]">
@@ -696,7 +696,7 @@ function CanvasInner({
                             />
                             {sel ? (
                                 <div
-                                    className="absolute -bottom-1.5 -right-1.5 h-3 w-3 cursor-se-resize rounded-sm bg-zoru-ink"
+                                    className="absolute -bottom-1.5 -right-1.5 h-3 w-3 cursor-se-resize rounded-sm bg-[var(--st-text)]"
                                     onMouseDown={(e) => onStartDrag(e, el, 'resize-se')}
                                 />
                             ) : null}
@@ -739,7 +739,7 @@ function ElementRenderer({
         case 'image': {
             const fileId = typeof cfg.fileId === 'string' ? cfg.fileId : null;
             return (
-                <div className="flex h-full w-full items-center justify-center bg-zoru-surface-2 text-xs text-zoru-ink-muted">
+                <div className="flex h-full w-full items-center justify-center bg-[var(--st-bg-muted)] text-xs text-[var(--st-text-secondary)]">
                     {fileId ? `image: ${fileId}` : 'image'}
                 </div>
             );
@@ -751,7 +751,7 @@ function ElementRenderer({
         }
         case 'chart':
             return (
-                <div className="flex h-full w-full items-center justify-center bg-zoru-surface-2 text-xs text-zoru-ink-muted">
+                <div className="flex h-full w-full items-center justify-center bg-[var(--st-bg-muted)] text-xs text-[var(--st-text-secondary)]">
                     chart placeholder
                 </div>
             );
@@ -763,7 +763,7 @@ function ElementRenderer({
             );
         case 'code':
             return (
-                <pre className="h-full w-full overflow-hidden bg-zoru-ink p-2 text-xs text-white">
+                <pre className="h-full w-full overflow-hidden bg-[var(--st-text)] p-2 text-xs text-white">
                     {typeof cfg.value === 'string' ? (cfg.value as string) : ''}
                 </pre>
             );
@@ -834,7 +834,7 @@ function SlidePropertiesPanel({
 }) {
     if (!slide) {
         return (
-            <p className="text-sm text-zoru-ink-muted">
+            <p className="text-sm text-[var(--st-text-secondary)]">
                 Select a slide or element.
             </p>
         );
@@ -848,7 +848,7 @@ function SlidePropertiesPanel({
                 onBlur={(e) => onChange({ title: e.target.value })}
             />
             <Label>Layout</Label>
-            <div className="text-xs text-zoru-ink-muted">
+            <div className="text-xs text-[var(--st-text-secondary)]">
                 {slide.layoutKind ?? 'blank'}
             </div>
         </Card>
@@ -863,7 +863,7 @@ function NotesDrawer({
     onChange: (notes: string) => void | Promise<void>;
 }) {
     return (
-        <div className="border-t bg-zoru-surface-2/40 px-3 py-2">
+        <div className="border-t bg-[var(--st-bg-muted)]/40 px-3 py-2">
             <Label className="mb-1 block text-xs uppercase">Speaker notes</Label>
             <Textarea
                 key={slide?._id ?? 'none'}

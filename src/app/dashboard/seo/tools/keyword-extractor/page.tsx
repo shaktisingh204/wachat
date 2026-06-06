@@ -90,18 +90,18 @@ export default function KeywordExtractorPage() {
           <ZoruCardContent className="p-4">
             <div className="flex justify-between items-center mb-4 pb-2 border-b">
               <span className="font-semibold text-sm">Keyword</span>
-              <div className="flex gap-8 text-sm text-zoru-ink-muted">
+              <div className="flex gap-8 text-sm text-[var(--st-text-secondary)]">
                 <span className="w-12 text-right">TF</span>
                 <span className="w-16 text-right">TF-IDF</span>
               </div>
             </div>
             <div className="grid gap-2 text-sm">
               {results.map((r) => (
-                <div key={r.word} className="flex justify-between p-2 rounded bg-zoru-surface-2/40 items-center">
+                <div key={r.word} className="flex justify-between p-2 rounded bg-[var(--st-bg-muted)]/40 items-center">
                   <span className="font-medium">{r.word}</span>
                   <div className="flex gap-8">
-                    <span className="w-12 text-right text-zoru-ink-muted">{r.count}</span>
-                    <span className="w-16 text-right font-medium text-zoru-ink">{r.score.toFixed(2)}</span>
+                    <span className="w-12 text-right text-[var(--st-text-secondary)]">{r.count}</span>
+                    <span className="w-16 text-right font-medium text-[var(--st-text)]">{r.score.toFixed(2)}</span>
                   </div>
                 </div>
               ))}

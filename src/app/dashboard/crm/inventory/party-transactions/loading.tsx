@@ -10,13 +10,13 @@ export default function PartyTransactionsLoading() {
         >
             <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
                 {[1, 2, 3, 4].map((i) => (
-                    <Card key={i} className="h-[104px] animate-pulse bg-zoru-surface-2/20" />
+                    <Card key={i} className="h-[104px] animate-pulse bg-[var(--st-bg-muted)]/20" />
                 ))}
             </div>
-            <Card className="mt-4 h-[352px] animate-pulse bg-zoru-surface-2/20 flex items-center justify-center">
-                <LoaderCircle className="h-8 w-8 animate-spin text-zoru-ink-muted" />
+            <Card className="mt-4 h-[352px] animate-pulse bg-[var(--st-bg-muted)]/20 flex items-center justify-center">
+                <LoaderCircle className="h-8 w-8 animate-spin text-[var(--st-text-secondary)]" />
             </Card>
-            <Card className="mt-4 h-[400px] animate-pulse bg-zoru-surface-2/20" />
+            <Card className="mt-4 h-[400px] animate-pulse bg-[var(--st-bg-muted)]/20" />
         </EntityListShell>
     );
 }

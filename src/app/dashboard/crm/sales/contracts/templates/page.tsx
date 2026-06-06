@@ -219,48 +219,48 @@ export default function ContractTemplatesListPage() {
                     }
                     loading={isLoading && items.length === 0}
                 >
-                    <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                    <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                         <Table>
                             <ZoruTableHeader>
-                                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                    <ZoruTableHead className="text-zoru-ink-muted">
+                                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                         Name
                                     </ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                         Type
                                     </ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                         Term (months)
                                     </ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                         Auto-renew
                                     </ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                         Variables
                                     </ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                         Status
                                     </ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted text-right">
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">
                                         Actions
                                     </ZoruTableHead>
                                 </ZoruTableRow>
                             </ZoruTableHeader>
                             <ZoruTableBody>
                                 {isLoading ? (
-                                    <ZoruTableRow className="border-zoru-line">
+                                    <ZoruTableRow className="border-[var(--st-border)]">
                                         <ZoruTableCell
                                             colSpan={7}
                                             className="h-24 text-center"
                                         >
-                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
+                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 ) : items.length === 0 ? (
-                                    <ZoruTableRow className="border-zoru-line">
+                                    <ZoruTableRow className="border-[var(--st-border)]">
                                         <ZoruTableCell
                                             colSpan={7}
-                                            className="h-24 text-center text-zoru-ink-muted"
+                                            className="h-24 text-center text-[var(--st-text-secondary)]"
                                         >
                                             No contract templates match this
                                             filter.
@@ -276,9 +276,9 @@ export default function ContractTemplatesListPage() {
                                         return (
                                             <ZoruTableRow
                                                 key={t._id}
-                                                className="border-zoru-line"
+                                                className="border-[var(--st-border)]"
                                             >
-                                                <ZoruTableCell className="font-medium text-zoru-ink">
+                                                <ZoruTableCell className="font-medium text-[var(--st-text)]">
                                                     <Link
                                                         href={`${BASE}/${t._id}`}
                                                         className="hover:underline"
@@ -286,20 +286,20 @@ export default function ContractTemplatesListPage() {
                                                         {t.name}
                                                     </Link>
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="uppercase text-[12px] font-mono text-zoru-ink">
+                                                <ZoruTableCell className="uppercase text-[12px] font-mono text-[var(--st-text)]">
                                                     {t.type}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
+                                                <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
                                                     {t.defaultTermMonths ?? '—'}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {t.defaultAutoRenew
                                                         ? 'Yes'
                                                         : 'No'}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
                                                     {vars.length === 0 ? (
-                                                        <span className="text-zoru-ink-muted">
+                                                        <span className="text-[var(--st-text-secondary)]">
                                                             —
                                                         </span>
                                                     ) : (
@@ -316,7 +316,7 @@ export default function ContractTemplatesListPage() {
                                                                     </Badge>
                                                                 ))}
                                                             {vars.length > 3 ? (
-                                                                <span className="text-[11px] text-zoru-ink-muted">
+                                                                <span className="text-[11px] text-[var(--st-text-secondary)]">
                                                                     +
                                                                     {vars.length -
                                                                         3}
@@ -350,7 +350,7 @@ export default function ContractTemplatesListPage() {
                                                             setPendingDelete(t)
                                                         }
                                                     >
-                                                        <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                                        <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                                     </Button>
                                                 </ZoruTableCell>
                                             </ZoruTableRow>

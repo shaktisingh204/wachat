@@ -277,7 +277,7 @@ end`;
                 <a
                   key={cat.id}
                   href={`#${cat.id}`}
-                  className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-zoru-surface-2 text-sm font-medium transition-colors text-zoru-ink-muted hover:text-zoru-ink"
+                  className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-[var(--st-bg-muted)] text-sm font-medium transition-colors text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                 >
                   <Icon className="h-4 w-4" />
                   {cat.label}
@@ -295,22 +295,22 @@ end`;
                     <CardTitle className="text-lg">{cat.label}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="relative group rounded-md bg-zoru-ink p-4 border overflow-hidden">
+                    <div className="relative group rounded-md bg-[var(--st-text)] p-4 border overflow-hidden">
                       <pre className="text-sm text-white font-mono overflow-x-auto whitespace-pre">
                         <code>{code}</code>
                       </pre>
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 text-zoru-ink-muted hover:text-white"
+                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 text-[var(--st-text-secondary)] hover:text-white"
                         onClick={() => handleCopy(code)}
                       >
                         <Copy className="h-4 w-4" />
                       </Button>
                     </div>
                   </CardContent>
-                  <CardFooter className="bg-zoru-surface-2/50 py-3 flex items-center justify-between">
-                    <div className="text-xs text-zoru-ink-muted">
+                  <CardFooter className="bg-[var(--st-bg-muted)]/50 py-3 flex items-center justify-between">
+                    <div className="text-xs text-[var(--st-text-secondary)]">
                       Generated from{" "}
                       <Badge
                         variant="secondary"
@@ -341,7 +341,7 @@ end`;
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="h-8 text-zoru-ink hover:text-zoru-ink"
+                        className="h-8 text-[var(--st-text)] hover:text-[var(--st-text)]"
                         onClick={handleAiConvert}
                       >
                         <Sparkles className="mr-2 h-3 w-3" />

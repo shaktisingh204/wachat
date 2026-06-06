@@ -23,9 +23,9 @@ export default function PnlError({
             subtitle="Per-product profitability over the trailing six months."
         >
             <Card className="flex flex-col items-center justify-center py-12">
-                <AlertCircle className="h-10 w-10 text-zoru-ink mb-4" />
+                <AlertCircle className="h-10 w-10 text-[var(--st-text)] mb-4" />
                 <h2 className="text-lg font-semibold">Failed to load P&L Report</h2>
-                <p className="text-zoru-ink-muted mt-2 mb-6 text-sm">
+                <p className="text-[var(--st-text-secondary)] mt-2 mb-6 text-sm">
                     {error.message || 'An unexpected error occurred while fetching the report.'}
                 </p>
                 <Button onClick={() => reset()} variant="outline">

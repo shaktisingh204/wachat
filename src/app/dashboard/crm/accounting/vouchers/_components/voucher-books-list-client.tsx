@@ -272,12 +272,12 @@ export function VoucherBooksListClient({ initialRows, totalCount, searchParams, 
         <>
             <div className="flex w-full flex-col gap-6">
                 {pendingVouchers.length > 0 && (
-                    <div className="bg-zoru-surface-2 border border-zoru-line rounded-md p-4 flex items-center justify-between">
+                    <div className="bg-[var(--st-bg-muted)] border border-[var(--st-border)] rounded-md p-4 flex items-center justify-between">
                         <div>
-                            <h3 className="text-zoru-ink font-medium">Pending Vouchers</h3>
-                            <p className="text-zoru-ink text-sm">{pendingVouchers.length} voucher(s) require your approval.</p>
+                            <h3 className="text-[var(--st-text)] font-medium">Pending Vouchers</h3>
+                            <p className="text-[var(--st-text)] text-sm">{pendingVouchers.length} voucher(s) require your approval.</p>
                         </div>
-                        <Button onClick={handleApprovePending} disabled={isPending} variant="outline" className="bg-zoru-surface-2 text-zoru-ink hover:bg-zoru-surface-2 border-zoru-line">
+                        <Button onClick={handleApprovePending} disabled={isPending} variant="outline" className="bg-[var(--st-bg-muted)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] border-[var(--st-border)]">
                             Approve All
                         </Button>
                     </div>
@@ -326,7 +326,7 @@ export function VoucherBooksListClient({ initialRows, totalCount, searchParams, 
                         onDelete={setPendingRow}
                     />
                     {totalCount > filtered.length && (
-                        <div className="py-4 text-center text-sm text-zoru-ink-muted border-t">
+                        <div className="py-4 text-center text-sm text-[var(--st-text-secondary)] border-t">
                             Showing {filtered.length} of {totalCount} books.
                             <div className="mt-2 space-x-2">
                                 <Button

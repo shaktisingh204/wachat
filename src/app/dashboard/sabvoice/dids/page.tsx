@@ -194,11 +194,11 @@ export default function VoiceDidsPage() {
                   {d.status}
                 </Badge>
               </div>
-              <div className="text-xs text-zoru-ink-muted uppercase tracking-wide">
+              <div className="text-xs text-[var(--st-text-secondary)] uppercase tracking-wide">
                 {d.country} · {d.provider}
               </div>
               {d.label && <div className="text-sm">{d.label}</div>}
-              <div className="text-xs text-zoru-ink-muted">
+              <div className="text-xs text-[var(--st-text-secondary)]">
                 {(d.capabilities ?? []).join(', ')}
               </div>
               <div className="text-xs">
@@ -208,7 +208,7 @@ export default function VoiceDidsPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="mt-2 text-zoru-ink"
+                  className="mt-2 text-[var(--st-text)]"
                   onClick={() => handleRelease(d._id)}
                 >
                   <Trash2 className="h-3 w-3 mr-1" /> Release
@@ -251,15 +251,15 @@ export default function VoiceDidsPage() {
             </Button>
           </div>
           {searchResults.length > 0 && (
-            <div className="border-t border-zoru-line pt-2 max-h-80 overflow-y-auto">
+            <div className="border-t border-[var(--st-border)] pt-2 max-h-80 overflow-y-auto">
               {searchResults.map((n) => (
                 <div
                   key={n.number}
-                  className="flex items-center justify-between py-2 border-b border-zoru-line last:border-0"
+                  className="flex items-center justify-between py-2 border-b border-[var(--st-border)] last:border-0"
                 >
                   <div>
                     <div className="font-mono">{n.number}</div>
-                    <div className="text-xs text-zoru-ink-muted">
+                    <div className="text-xs text-[var(--st-text-secondary)]">
                       {n.capabilities.join(', ')} · ${n.monthlyCost.toFixed(2)}/mo
                     </div>
                   </div>

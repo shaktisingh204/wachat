@@ -78,11 +78,11 @@ export function SignersEditor({
 
   return (
     <div className="space-y-4">
-      <Card className="p-4 border border-zoru-line">
+      <Card className="p-4 border border-[var(--st-border)]">
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div>
-            <h4 className="text-sm font-medium text-zoru-ink">Routing</h4>
-            <p className="text-xs text-zoru-ink-muted">
+            <h4 className="text-sm font-medium text-[var(--st-text)]">Routing</h4>
+            <p className="text-xs text-[var(--st-text-secondary)]">
               How signers are notified and ordered.
             </p>
           </div>
@@ -102,9 +102,9 @@ export function SignersEditor({
       </Card>
 
       {signers.map((s, idx) => (
-        <Card key={s.id} className="p-4 border border-zoru-line">
+        <Card key={s.id} className="p-4 border border-[var(--st-border)]">
           <div className="flex items-center justify-between mb-3">
-            <div className="text-sm font-medium text-zoru-ink">
+            <div className="text-sm font-medium text-[var(--st-text)]">
               #{idx + 1} — {s.role}
             </div>
             <div className="flex items-center gap-1">
@@ -117,7 +117,7 @@ export function SignersEditor({
               <Button
                 size="sm"
                 variant="ghost"
-                className="text-zoru-ink hover:text-zoru-ink hover:bg-zoru-ink/10"
+                className="text-[var(--st-text)] hover:text-[var(--st-text)] hover:bg-[var(--st-text)]/10"
                 onClick={() => removeSigner(s.id)}
               >
                 <Trash2 className="h-4 w-4" />
@@ -186,8 +186,8 @@ export function SignersEditor({
                 />
               )}
             </div>
-            <div className="sm:col-span-2 pt-2 border-t border-zoru-line">
-              <Label className="flex items-center gap-1"><Mail className="w-4 h-4 text-zoru-ink-muted" /> Private Message</Label>
+            <div className="sm:col-span-2 pt-2 border-t border-[var(--st-border)]">
+              <Label className="flex items-center gap-1"><Mail className="w-4 h-4 text-[var(--st-text-secondary)]" /> Private Message</Label>
               <Textarea 
                 className="mt-1" 
                 placeholder={`Optional private message for ${s.name || 'this recipient'} only...`} 
@@ -228,8 +228,8 @@ function KbaEditor({ questions, onChange }: KbaEditorProps) {
   const removeQ = (i: number) => onChange(questions.filter((_, idx) => idx !== i));
 
   return (
-    <div className="mt-3 space-y-2 border border-zoru-line rounded-md p-3">
-      <div className="text-xs text-zoru-ink-muted">
+    <div className="mt-3 space-y-2 border border-[var(--st-border)] rounded-md p-3">
+      <div className="text-xs text-[var(--st-text-secondary)]">
         Answers are hashed client-side; cleartext is never stored.
       </div>
       {questions.map((q, i) => (
@@ -256,7 +256,7 @@ function KbaEditor({ questions, onChange }: KbaEditorProps) {
             type="button"
             size="sm"
             variant="ghost"
-            className="text-zoru-ink"
+            className="text-[var(--st-text)]"
             onClick={() => removeQ(i)}
           >
             <Trash2 className="h-4 w-4" />

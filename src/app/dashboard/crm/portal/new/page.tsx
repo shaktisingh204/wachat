@@ -152,7 +152,7 @@ export default function NewPortalUserPage() {
             {/* Full Name */}
             <div className="flex flex-col gap-1.5">
                 <Label htmlFor="name">
-                Full Name <span className="text-zoru-ink">*</span>
+                Full Name <span className="text-[var(--st-text)]">*</span>
                 </Label>
                 <Input
                 id="name"
@@ -167,7 +167,7 @@ export default function NewPortalUserPage() {
             {/* Email Address */}
             <div className="flex flex-col gap-1.5">
                 <Label htmlFor="email">
-                Email Address <span className="text-zoru-ink">*</span>
+                Email Address <span className="text-[var(--st-text)]">*</span>
                 </Label>
                 <Input
                 id="email"
@@ -228,27 +228,27 @@ export default function NewPortalUserPage() {
                                 onClick={() => applyRolePreset(opt.value)}
                                 className={`rounded-lg border p-3 text-left transition ${
                                     role === opt.value
-                                        ? 'border-zoru-primary bg-zoru-primary/5'
-                                        : 'border-zoru-line bg-zoru-bg hover:bg-zoru-surface-2'
+                                        ? 'border-[var(--st-text)] bg-[var(--st-text)]/5'
+                                        : 'border-[var(--st-border)] bg-[var(--st-bg)] hover:bg-[var(--st-bg-muted)]'
                                 }`}
                             >
-                                <div className="text-[13px] font-medium text-zoru-ink">
+                                <div className="text-[13px] font-medium text-[var(--st-text)]">
                                     {opt.label}
                                 </div>
-                                <div className="mt-0.5 text-[11.5px] text-zoru-ink-muted">
+                                <div className="mt-0.5 text-[11.5px] text-[var(--st-text-secondary)]">
                                     {opt.description}
                                 </div>
                             </button>
                         ))}
                     </div>
-                    <div className="rounded-lg border border-zoru-line bg-zoru-bg p-3">
-                        <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                    <div className="rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] p-3">
+                        <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                             Capabilities
                         </div>
                         <div className="grid gap-3 md:grid-cols-2">
                             {groupedCapabilities.map(([section, caps]) => (
                                 <div key={section} className="space-y-1.5">
-                                    <div className="text-[11px] font-medium capitalize text-zoru-ink-muted">
+                                    <div className="text-[11px] font-medium capitalize text-[var(--st-text-secondary)]">
                                         {section}
                                     </div>
                                     {caps.map((cap) => {
@@ -256,7 +256,7 @@ export default function NewPortalUserPage() {
                                         return (
                                             <label
                                                 key={cap.key}
-                                                className="flex cursor-pointer items-start gap-2 rounded px-1 py-0.5 hover:bg-zoru-surface-2"
+                                                className="flex cursor-pointer items-start gap-2 rounded px-1 py-0.5 hover:bg-[var(--st-bg-muted)]"
                                             >
                                                 <Checkbox
                                                     checked={checked}
@@ -266,10 +266,10 @@ export default function NewPortalUserPage() {
                                                     aria-label={cap.label}
                                                 />
                                                 <div className="text-[12.5px]">
-                                                    <div className="text-zoru-ink">
+                                                    <div className="text-[var(--st-text)]">
                                                         {cap.label}
                                                     </div>
-                                                    <div className="text-[11px] text-zoru-ink-muted">
+                                                    <div className="text-[11px] text-[var(--st-text-secondary)]">
                                                         {cap.description}
                                                     </div>
                                                 </div>
@@ -285,10 +285,10 @@ export default function NewPortalUserPage() {
         </Card>
 
         {clientError && (
-            <p className="text-[13px] text-zoru-ink">{clientError}</p>
+            <p className="text-[13px] text-[var(--st-text)]">{clientError}</p>
         )}
         {state.error && (
-            <p className="text-[13px] text-zoru-ink">{state.error}</p>
+            <p className="text-[13px] text-[var(--st-text)]">{state.error}</p>
         )}
 
         <div className="flex items-center gap-3">

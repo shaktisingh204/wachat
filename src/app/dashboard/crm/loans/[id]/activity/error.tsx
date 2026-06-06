@@ -22,15 +22,15 @@ export default function ActivityError({
             title="Activity Error"
             eyebrow="LOAN ACTIVITY"
         >
-            <Card className="border-zoru-line dark:border-zoru-line">
+            <Card className="border-[var(--st-border)] dark:border-[var(--st-border)]">
                 <ZoruCardHeader>
-                    <ZoruCardTitle className="flex items-center gap-2 text-zoru-ink dark:text-zoru-ink-muted">
+                    <ZoruCardTitle className="flex items-center gap-2 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
                         <AlertTriangle className="h-5 w-5" />
                         Something went wrong
                     </ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent className="space-y-4">
-                    <p className="text-sm text-zoru-ink dark:text-zoru-ink-muted">
+                    <p className="text-sm text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
                         We couldn't load the activity log for this loan. {error.message}
                     </p>
                     <Button onClick={() => reset()} variant="outline">

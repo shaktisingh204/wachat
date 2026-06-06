@@ -39,20 +39,20 @@ export function TimeLogsFilter({
         </SelectContent>
       </Select>
 
-      <Filter className="h-4 w-4 shrink-0 text-zoru-ink-muted ml-2" />
+      <Filter className="h-4 w-4 shrink-0 text-[var(--st-text-secondary)] ml-2" />
       <Input
         type="date"
         value={fromDate}
         onChange={(e) => setFromDate(e.target.value)}
-        className="h-9 w-[140px] rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+        className="h-9 w-[140px] rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
         aria-label="From date"
       />
-      <span className="text-[12px] text-zoru-ink-muted">to</span>
+      <span className="text-[12px] text-[var(--st-text-secondary)]">to</span>
       <Input
         type="date"
         value={toDate}
         onChange={(e) => setToDate(e.target.value)}
-        className="h-9 w-[140px] rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+        className="h-9 w-[140px] rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
         aria-label="To date"
       />
       <Button variant="outline" onClick={onApply} disabled={isPending}>

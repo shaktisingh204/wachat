@@ -137,19 +137,19 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
                         <ZoruCardContent className="space-y-2 text-[13px]">
                             <Link
                                 href={`/dashboard/crm/inventory/adjustments?warehouseId=${id}`}
-                                className="block rounded-md border border-zoru-line p-2.5 hover:bg-zoru-surface-2"
+                                className="block rounded-md border border-[var(--st-border)] p-2.5 hover:bg-[var(--st-bg-muted)]"
                             >
                                 Stock adjustments here
                             </Link>
                             <Link
                                 href={`/dashboard/crm/inventory/grn?warehouseId=${id}`}
-                                className="block rounded-md border border-zoru-line p-2.5 hover:bg-zoru-surface-2"
+                                className="block rounded-md border border-[var(--st-border)] p-2.5 hover:bg-[var(--st-bg-muted)]"
                             >
                                 GRNs to this warehouse
                             </Link>
                             <Link
                                 href={`/dashboard/crm/inventory/items?warehouseId=${id}`}
-                                className="block rounded-md border border-zoru-line p-2.5 hover:bg-zoru-surface-2"
+                                className="block rounded-md border border-[var(--st-border)] p-2.5 hover:bg-[var(--st-bg-muted)]"
                             >
                                 Items with stock here
                             </Link>
@@ -166,13 +166,13 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
                 <ZoruCardContent>
                     <dl className="grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
                         <div>
-                            <dt className="text-xs text-zoru-ink">Code</dt>
-                            <dd className="font-mono text-zoru-ink dark:text-white">
+                            <dt className="text-xs text-[var(--st-text)]">Code</dt>
+                            <dd className="font-mono text-[var(--st-text)] dark:text-white">
                                 {fmt(warehouse.code)}
                             </dd>
                         </div>
                         <div>
-                            <dt className="text-xs text-zoru-ink">Type</dt>
+                            <dt className="text-xs text-[var(--st-text)]">Type</dt>
                             <dd>
                                 <Badge variant="secondary">
                                     {typeLabel(warehouse.type)}
@@ -181,17 +181,17 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
                         </div>
                         {warehouse.gstin ? (
                             <div>
-                                <dt className="text-xs text-zoru-ink">GSTIN</dt>
-                                <dd className="font-mono text-zoru-ink dark:text-white">
+                                <dt className="text-xs text-[var(--st-text)]">GSTIN</dt>
+                                <dd className="font-mono text-[var(--st-text)] dark:text-white">
                                     {warehouse.gstin}
                                 </dd>
                             </div>
                         ) : null}
                         {warehouse.isDefault ? (
                             <div>
-                                <dt className="text-xs text-zoru-ink">Default</dt>
+                                <dt className="text-xs text-[var(--st-text)]">Default</dt>
                                 <dd className="flex items-center gap-1.5">
-                                    <BadgeCheck className="h-3.5 w-3.5 text-zoru-info" />
+                                    <BadgeCheck className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                                     Yes
                                 </dd>
                             </div>
@@ -207,32 +207,32 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
                 <ZoruCardContent>
                     <dl className="grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
                         <div className="sm:col-span-2">
-                            <dt className="text-xs text-zoru-ink">Address</dt>
-                            <dd className="text-zoru-ink dark:text-white">
+                            <dt className="text-xs text-[var(--st-text)]">Address</dt>
+                            <dd className="text-[var(--st-text)] dark:text-white">
                                 {fmt(warehouse.address)}
                             </dd>
                         </div>
                         <div>
-                            <dt className="text-xs text-zoru-ink">City</dt>
-                            <dd className="text-zoru-ink dark:text-white">
+                            <dt className="text-xs text-[var(--st-text)]">City</dt>
+                            <dd className="text-[var(--st-text)] dark:text-white">
                                 {fmt(warehouse.city)}
                             </dd>
                         </div>
                         <div>
-                            <dt className="text-xs text-zoru-ink">State</dt>
-                            <dd className="text-zoru-ink dark:text-white">
+                            <dt className="text-xs text-[var(--st-text)]">State</dt>
+                            <dd className="text-[var(--st-text)] dark:text-white">
                                 {fmt(warehouse.state)}
                             </dd>
                         </div>
                         <div>
-                            <dt className="text-xs text-zoru-ink">Country</dt>
-                            <dd className="text-zoru-ink dark:text-white">
+                            <dt className="text-xs text-[var(--st-text)]">Country</dt>
+                            <dd className="text-[var(--st-text)] dark:text-white">
                                 {fmt(warehouse.country)}
                             </dd>
                         </div>
                         <div>
-                            <dt className="text-xs text-zoru-ink">Pincode</dt>
-                            <dd className="text-zoru-ink dark:text-white">
+                            <dt className="text-xs text-[var(--st-text)]">Pincode</dt>
+                            <dd className="text-[var(--st-text)] dark:text-white">
                                 {fmt(warehouse.pincode)}
                             </dd>
                         </div>
@@ -247,14 +247,14 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
                 <ZoruCardContent>
                     <dl className="grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
                         <div>
-                            <dt className="text-xs text-zoru-ink">Manager</dt>
-                            <dd className="text-zoru-ink dark:text-white">
+                            <dt className="text-xs text-[var(--st-text)]">Manager</dt>
+                            <dd className="text-[var(--st-text)] dark:text-white">
                                 {fmt(warehouse.managerName)}
                             </dd>
                         </div>
                         <div>
-                            <dt className="text-xs text-zoru-ink">Phone</dt>
-                            <dd className="text-zoru-ink dark:text-white">
+                            <dt className="text-xs text-[var(--st-text)]">Phone</dt>
+                            <dd className="text-[var(--st-text)] dark:text-white">
                                 {fmt(warehouse.phone)}
                             </dd>
                         </div>
@@ -269,8 +269,8 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
                 <ZoruCardContent>
                     <dl className="grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-3">
                         <div>
-                            <dt className="text-xs text-zoru-ink">Units</dt>
-                            <dd className="text-zoru-ink dark:text-white" suppressHydrationWarning>
+                            <dt className="text-xs text-[var(--st-text)]">Units</dt>
+                            <dd className="text-[var(--st-text)] dark:text-white" suppressHydrationWarning>
                                 {(warehouse as any).capacityUnits
                                     ? Number(
                                           (warehouse as any).capacityUnits,
@@ -279,8 +279,8 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
                             </dd>
                         </div>
                         <div>
-                            <dt className="text-xs text-zoru-ink">Footprint</dt>
-                            <dd className="text-zoru-ink dark:text-white" suppressHydrationWarning>
+                            <dt className="text-xs text-[var(--st-text)]">Footprint</dt>
+                            <dd className="text-[var(--st-text)] dark:text-white" suppressHydrationWarning>
                                 {(warehouse as any).capacitySqft
                                     ? `${Number(
                                           (warehouse as any).capacitySqft,
@@ -289,11 +289,11 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
                             </dd>
                         </div>
                         <div>
-                            <dt className="text-xs text-zoru-ink">Climate</dt>
-                            <dd className="flex items-center gap-1.5 text-zoru-ink dark:text-white">
+                            <dt className="text-xs text-[var(--st-text)]">Climate</dt>
+                            <dd className="flex items-center gap-1.5 text-[var(--st-text)] dark:text-white">
                                 {(warehouse as any).climateControlled ? (
                                     <>
-                                        <Snowflake className="h-3.5 w-3.5 text-zoru-info" />
+                                        <Snowflake className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                                         Climate-controlled
                                     </>
                                 ) : (
@@ -336,20 +336,20 @@ async function InventorySummaryCard({ id }: { id: string }) {
             <ZoruCardContent>
                 <dl className="grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-3">
                     <div>
-                        <dt className="text-xs text-zoru-ink">Items</dt>
-                        <dd className="text-lg font-semibold text-zoru-ink dark:text-white" suppressHydrationWarning>
+                        <dt className="text-xs text-[var(--st-text)]">Items</dt>
+                        <dd className="text-lg font-semibold text-[var(--st-text)] dark:text-white" suppressHydrationWarning>
                             {summary.itemsCount.toLocaleString()}
                         </dd>
                     </div>
                     <div>
-                        <dt className="text-xs text-zoru-ink">Total stock</dt>
-                        <dd className="text-lg font-semibold text-zoru-ink dark:text-white" suppressHydrationWarning>
+                        <dt className="text-xs text-[var(--st-text)]">Total stock</dt>
+                        <dd className="text-lg font-semibold text-[var(--st-text)] dark:text-white" suppressHydrationWarning>
                             {summary.totalStock.toLocaleString()}
                         </dd>
                     </div>
                     <div>
-                        <dt className="text-xs text-zoru-ink">Stock value</dt>
-                        <dd className="text-lg font-semibold text-zoru-ink dark:text-white" suppressHydrationWarning>
+                        <dt className="text-xs text-[var(--st-text)]">Stock value</dt>
+                        <dd className="text-lg font-semibold text-[var(--st-text)] dark:text-white" suppressHydrationWarning>
                             {summary.totalValue.toLocaleString('en-IN', {
                                 style: 'currency',
                                 currency: 'INR',
@@ -374,13 +374,13 @@ async function StockByItemCard({ id }: { id: string }) {
             </ZoruCardHeader>
             <ZoruCardContent className="p-0">
                 {stockRows.length === 0 ? (
-                    <p className="p-4 text-sm text-zoru-ink">
+                    <p className="p-4 text-sm text-[var(--st-text)]">
                         No items stocked in this warehouse yet.
                     </p>
                 ) : (
                     <div className="overflow-x-auto">
                         <Table className="w-full text-[12.5px]">
-                            <TableHeader className="bg-zoru-surface-2 text-zoru-ink-muted">
+                            <TableHeader className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                                 <TableRow>
                                     <TableHead className="px-3 py-2 text-left font-medium">
                                         Item
@@ -411,39 +411,39 @@ async function StockByItemCard({ id }: { id: string }) {
                                     return (
                                         <TableRow
                                             key={r.productId}
-                                            className="border-t border-zoru-line"
+                                            className="border-t border-[var(--st-border)]"
                                         >
                                             <TableCell className="px-3 py-2">
                                                 <Link
                                                     href={`/dashboard/crm/inventory/items/${r.productId}`}
-                                                    className="text-zoru-primary hover:underline"
+                                                    className="text-[var(--st-text)] hover:underline"
                                                 >
                                                     {r.name}
                                                 </Link>
                                             </TableCell>
-                                            <TableCell className="px-3 py-2 font-mono text-zoru-ink-muted">
+                                            <TableCell className="px-3 py-2 font-mono text-[var(--st-text-secondary)]">
                                                 {r.sku || '—'}
                                             </TableCell>
                                             <TableCell
                                                 className={[
                                                     'px-3 py-2 text-right font-mono',
                                                     r.stock <= 0
-                                                        ? 'text-zoru-ink'
+                                                        ? 'text-[var(--st-text)]'
                                                         : low
-                                                          ? 'text-zoru-ink'
+                                                          ? 'text-[var(--st-text)]'
                                                           : '',
                                                 ].join(' ')}
                                                 suppressHydrationWarning
                                             >
                                                 {r.stock.toLocaleString()}
                                             </TableCell>
-                                            <TableCell className="px-3 py-2 text-right font-mono text-zoru-ink-muted" suppressHydrationWarning>
+                                            <TableCell className="px-3 py-2 text-right font-mono text-[var(--st-text-secondary)]" suppressHydrationWarning>
                                                 {typeof r.reorderPoint ===
                                                 'number'
                                                     ? r.reorderPoint
                                                     : '—'}
                                             </TableCell>
-                                            <TableCell className="px-3 py-2 text-right font-mono text-zoru-ink-muted" suppressHydrationWarning>
+                                            <TableCell className="px-3 py-2 text-right font-mono text-[var(--st-text-secondary)]" suppressHydrationWarning>
                                                 {r.costPrice
                                                     ? r.costPrice.toLocaleString(
                                                           'en-IN',

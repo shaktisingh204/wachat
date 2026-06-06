@@ -28,9 +28,9 @@ function statusLabel(session: FlowSession): 'completed' | 'active' | 'abandoned'
 }
 
 const STATUS_STYLES: Record<string, string> = {
-  completed: 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted',
-  active: 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted',
-  abandoned: 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink dark:text-zoru-ink-muted',
+  completed: 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]',
+  active: 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]',
+  abandoned: 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)] dark:text-[var(--st-text-secondary)]',
 };
 
 function exportToCsv(sessions: FlowSession[]) {
@@ -62,28 +62,28 @@ function ExpandedRow({ session }: { session: FlowSession }) {
 
   return (
     <tr>
-      <td colSpan={5} className="px-4 py-3 bg-zoru-surface-2 dark:bg-zoru-ink/50 border-b border-zoru-line dark:border-zoru-line">
+      <td colSpan={5} className="px-4 py-3 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/50 border-b border-[var(--st-border)] dark:border-[var(--st-border)]">
         <div className="max-w-2xl">
-          <p className="text-xs font-semibold text-zoru-ink dark:text-zoru-ink-muted uppercase tracking-wide mb-2">
+          <p className="text-xs font-semibold text-[var(--st-text)] dark:text-[var(--st-text-secondary)] uppercase tracking-wide mb-2">
             Collected variables
           </p>
           {entries.length === 0 ? (
-            <p className="text-sm text-zoru-ink-muted dark:text-zoru-ink italic">No variables collected.</p>
+            <p className="text-sm text-[var(--st-text-secondary)] dark:text-[var(--st-text)] italic">No variables collected.</p>
           ) : (
             <div className="flex flex-wrap gap-2">
               {entries.map(([key, val]) => (
                 <div
                   key={key}
-                  className="flex items-center gap-1.5 bg-white dark:bg-zoru-ink border border-zoru-line dark:border-zoru-line rounded-md px-2.5 py-1 text-sm"
+                  className="flex items-center gap-1.5 bg-white dark:bg-[var(--st-text)] border border-[var(--st-border)] dark:border-[var(--st-border)] rounded-md px-2.5 py-1 text-sm"
                 >
-                  <span className="font-mono text-xs text-zoru-ink dark:text-zoru-ink-muted">{key}</span>
-                  <span className="text-zoru-ink-muted dark:text-zoru-ink">=</span>
-                  <span className="text-zoru-ink dark:text-zoru-ink-muted max-w-[200px] truncate">{val}</span>
+                  <span className="font-mono text-xs text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">{key}</span>
+                  <span className="text-[var(--st-text-secondary)] dark:text-[var(--st-text)]">=</span>
+                  <span className="text-[var(--st-text)] dark:text-[var(--st-text-secondary)] max-w-[200px] truncate">{val}</span>
                 </div>
               ))}
             </div>
           )}
-          <div className="mt-3 text-xs text-zoru-ink-muted dark:text-zoru-ink space-y-0.5">
+          <div className="mt-3 text-xs text-[var(--st-text-secondary)] dark:text-[var(--st-text)] space-y-0.5">
             <div>Session ID: <span className="font-mono">{session.sessionId}</span></div>
             <div>Last updated: {fmtDate(session.updatedAt)}</div>
           </div>
@@ -106,19 +106,19 @@ function DateRangeFilter({
 }) {
   return (
     <div className="flex items-center gap-2">
-      <LuCalendar className="w-4 h-4 text-zoru-ink-muted" />
+      <LuCalendar className="w-4 h-4 text-[var(--st-text-secondary)]" />
       <input
         type="date"
         value={value.from}
         onChange={(e) => onChange({ ...value, from: e.target.value })}
-        className="text-sm border border-zoru-line dark:border-zoru-line rounded-md px-2 py-1 bg-white dark:bg-zoru-ink text-zoru-ink dark:text-zoru-ink-muted focus:outline-none focus:ring-2 focus:ring-zoru-line"
+        className="text-sm border border-[var(--st-border)] dark:border-[var(--st-border)] rounded-md px-2 py-1 bg-white dark:bg-[var(--st-text)] text-[var(--st-text)] dark:text-[var(--st-text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--st-border)]"
       />
-      <span className="text-zoru-ink-muted text-sm">—</span>
+      <span className="text-[var(--st-text-secondary)] text-sm">—</span>
       <input
         type="date"
         value={value.to}
         onChange={(e) => onChange({ ...value, to: e.target.value })}
-        className="text-sm border border-zoru-line dark:border-zoru-line rounded-md px-2 py-1 bg-white dark:bg-zoru-ink text-zoru-ink dark:text-zoru-ink-muted focus:outline-none focus:ring-2 focus:ring-zoru-line"
+        className="text-sm border border-[var(--st-border)] dark:border-[var(--st-border)] rounded-md px-2 py-1 bg-white dark:bg-[var(--st-text)] text-[var(--st-text)] dark:text-[var(--st-text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--st-border)]"
       />
     </div>
   );
@@ -173,7 +173,7 @@ export function ResultsTable({
           <button
             onClick={() => startTransition(onRefresh)}
             disabled={isLoading}
-            className="flex items-center gap-1.5 text-sm text-zoru-ink hover:text-zoru-ink dark:hover:text-zoru-ink-muted transition-colors disabled:opacity-50"
+            className="flex items-center gap-1.5 text-sm text-[var(--st-text)] hover:text-[var(--st-text)] dark:hover:text-[var(--st-text-secondary)] transition-colors disabled:opacity-50"
           >
             <LuRefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
             Refresh
@@ -181,7 +181,7 @@ export function ResultsTable({
           <button
             onClick={() => exportToCsv(filtered)}
             disabled={filtered.length === 0}
-            className="flex items-center gap-1.5 text-sm bg-zoru-ink hover:bg-zoru-ink text-white rounded-md px-3 py-1.5 font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex items-center gap-1.5 text-sm bg-[var(--st-text)] hover:bg-[var(--st-text)] text-white rounded-md px-3 py-1.5 font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <LuDownload className="w-4 h-4" />
             Export CSV
@@ -190,31 +190,31 @@ export function ResultsTable({
       </div>
 
       {/* Table */}
-      <div className="rounded-xl border border-zoru-line dark:border-zoru-line overflow-hidden">
+      <div className="rounded-xl border border-[var(--st-border)] dark:border-[var(--st-border)] overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-zoru-surface-2 dark:bg-zoru-ink/60 border-b border-zoru-line dark:border-zoru-line">
+          <thead className="bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/60 border-b border-[var(--st-border)] dark:border-[var(--st-border)]">
             <tr>
               <th className="w-8" />
-              <th className="text-left px-4 py-3 font-medium text-zoru-ink dark:text-zoru-ink-muted">Session ID</th>
-              <th className="text-left px-4 py-3 font-medium text-zoru-ink dark:text-zoru-ink-muted">Started</th>
-              <th className="text-left px-4 py-3 font-medium text-zoru-ink dark:text-zoru-ink-muted">Status</th>
-              <th className="text-left px-4 py-3 font-medium text-zoru-ink dark:text-zoru-ink-muted">Messages</th>
+              <th className="text-left px-4 py-3 font-medium text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">Session ID</th>
+              <th className="text-left px-4 py-3 font-medium text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">Started</th>
+              <th className="text-left px-4 py-3 font-medium text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">Status</th>
+              <th className="text-left px-4 py-3 font-medium text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">Messages</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-zoru-line dark:divide-zoru-line">
+          <tbody className="divide-y divide-[var(--st-border)] dark:divide-[var(--st-border)]">
             {isLoading ? (
               Array.from({ length: 5 }).map((_, i) => (
                 <tr key={i} className="animate-pulse">
-                  <td className="px-4 py-3"><div className="h-4 w-4 bg-zoru-surface-2 dark:bg-zoru-ink rounded" /></td>
-                  <td className="px-4 py-3"><div className="h-4 w-28 bg-zoru-surface-2 dark:bg-zoru-ink rounded" /></td>
-                  <td className="px-4 py-3"><div className="h-4 w-32 bg-zoru-surface-2 dark:bg-zoru-ink rounded" /></td>
-                  <td className="px-4 py-3"><div className="h-4 w-20 bg-zoru-surface-2 dark:bg-zoru-ink rounded" /></td>
-                  <td className="px-4 py-3"><div className="h-4 w-8 bg-zoru-surface-2 dark:bg-zoru-ink rounded" /></td>
+                  <td className="px-4 py-3"><div className="h-4 w-4 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded" /></td>
+                  <td className="px-4 py-3"><div className="h-4 w-28 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded" /></td>
+                  <td className="px-4 py-3"><div className="h-4 w-32 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded" /></td>
+                  <td className="px-4 py-3"><div className="h-4 w-20 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded" /></td>
+                  <td className="px-4 py-3"><div className="h-4 w-8 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded" /></td>
                 </tr>
               ))
             ) : filtered.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-4 py-12 text-center text-zoru-ink-muted dark:text-zoru-ink">
+                <td colSpan={5} className="px-4 py-12 text-center text-[var(--st-text-secondary)] dark:text-[var(--st-text)]">
                   No sessions found.
                 </td>
               </tr>
@@ -226,17 +226,17 @@ export function ResultsTable({
                   <tr
                     key={session.sessionId}
                     onClick={() => toggleRow(session.sessionId)}
-                    className="cursor-pointer hover:bg-zoru-surface-2 dark:hover:bg-zoru-ink/40 transition-colors"
+                    className="cursor-pointer hover:bg-[var(--st-bg-muted)] dark:hover:bg-[var(--st-text)]/40 transition-colors"
                   >
-                    <td className="px-3 py-3 text-zoru-ink-muted">
+                    <td className="px-3 py-3 text-[var(--st-text-secondary)]">
                       {isExpanded
                         ? <LuChevronDown className="w-4 h-4" />
                         : <LuChevronRight className="w-4 h-4" />}
                     </td>
-                    <td className="px-4 py-3 font-mono text-zoru-ink dark:text-zoru-ink-muted">
+                    <td className="px-4 py-3 font-mono text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
                       {truncateId(session.sessionId)}
                     </td>
-                    <td className="px-4 py-3 text-zoru-ink dark:text-zoru-ink-muted">
+                    <td className="px-4 py-3 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
                       {fmtDate(session.createdAt)}
                     </td>
                     <td className="px-4 py-3">
@@ -244,7 +244,7 @@ export function ResultsTable({
                         {status}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-zoru-ink dark:text-zoru-ink-muted">
+                    <td className="px-4 py-3 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
                       {session.messageCount ?? 0}
                     </td>
                   </tr>,
@@ -258,7 +258,7 @@ export function ResultsTable({
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between text-sm text-zoru-ink dark:text-zoru-ink-muted">
+        <div className="flex items-center justify-between text-sm text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
           <span>
             {total} session{total !== 1 ? 's' : ''} total
           </span>
@@ -266,7 +266,7 @@ export function ResultsTable({
             <button
               onClick={() => onPageChange(page - 1)}
               disabled={page <= 1}
-              className="px-2 py-1 rounded hover:bg-zoru-surface-2 dark:hover:bg-zoru-ink disabled:opacity-40 disabled:cursor-not-allowed"
+              className="px-2 py-1 rounded hover:bg-[var(--st-bg-muted)] dark:hover:bg-[var(--st-text)] disabled:opacity-40 disabled:cursor-not-allowed"
             >
               ‹
             </button>
@@ -286,8 +286,8 @@ export function ResultsTable({
                     onClick={() => onPageChange(item as number)}
                     className={`w-7 h-7 rounded text-sm font-medium transition-colors ${
                       item === page
-                        ? 'bg-zoru-ink text-white'
-                        : 'hover:bg-zoru-surface-2 dark:hover:bg-zoru-ink'
+                        ? 'bg-[var(--st-text)] text-white'
+                        : 'hover:bg-[var(--st-bg-muted)] dark:hover:bg-[var(--st-text)]'
                     }`}
                   >
                     {item}
@@ -297,7 +297,7 @@ export function ResultsTable({
             <button
               onClick={() => onPageChange(page + 1)}
               disabled={page >= totalPages}
-              className="px-2 py-1 rounded hover:bg-zoru-surface-2 dark:hover:bg-zoru-ink disabled:opacity-40 disabled:cursor-not-allowed"
+              className="px-2 py-1 rounded hover:bg-[var(--st-bg-muted)] dark:hover:bg-[var(--st-text)] disabled:opacity-40 disabled:cursor-not-allowed"
             >
               ›
             </button>

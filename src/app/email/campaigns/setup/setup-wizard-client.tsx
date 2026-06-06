@@ -89,11 +89,11 @@ export function SetupWizardClient({ initialLists, initialSegments }: SetupWizard
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center space-x-2 text-zoru-ink-muted mb-8">
+      <div className="flex items-center space-x-2 text-[var(--st-text-secondary)] mb-8">
         {steps.map((s, i) => (
           <React.Fragment key={i}>
             <div className={`flex items-center space-x-2 ${step === i ? 'text-zoru-ink-primary font-medium' : ''}`}>
-              <span className={`flex h-6 w-6 items-center justify-center rounded-full text-xs ${step === i ? 'bg-zoru-primary text-white' : 'bg-zoru-cloud-secondary'}`}>
+              <span className={`flex h-6 w-6 items-center justify-center rounded-full text-xs ${step === i ? 'bg-[var(--st-text)] text-white' : 'bg-zoru-cloud-secondary'}`}>
                 {i + 1}
               </span>
               <span className="hidden sm:inline">{s.title}</span>
@@ -147,7 +147,7 @@ export function SetupWizardClient({ initialLists, initialSegments }: SetupWizard
                   rows={12} 
                   className="font-mono text-xs font-medium"
                 />
-                <p className="text-xs text-zoru-ink-muted mt-2">
+                <p className="text-xs text-[var(--st-text-secondary)] mt-2">
                   Merge tags available: <code>{'{{ firstName }}'}</code>, <code>{'{{ email }}'}</code>
                 </p>
               </div>
@@ -159,7 +159,7 @@ export function SetupWizardClient({ initialLists, initialSegments }: SetupWizard
               <div className="space-y-3">
                 <Label>Lists</Label>
                 {initialLists.length === 0 ? (
-                  <p className="text-sm text-zoru-ink-muted">No lists available.</p>
+                  <p className="text-sm text-[var(--st-text-secondary)]">No lists available.</p>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {initialLists.map(list => (
@@ -167,7 +167,7 @@ export function SetupWizardClient({ initialLists, initialSegments }: SetupWizard
                         <Checkbox checked={listIds.includes(list._id)} onCheckedChange={() => toggleList(list._id)} />
                         <div className="flex flex-col">
                           <span className="text-sm font-medium">{list.name}</span>
-                          <span className="text-xs text-zoru-ink-muted">{list.subscriberCount || 0} subscribers</span>
+                          <span className="text-xs text-[var(--st-text-secondary)]">{list.subscriberCount || 0} subscribers</span>
                         </div>
                       </div>
                     ))}
@@ -178,7 +178,7 @@ export function SetupWizardClient({ initialLists, initialSegments }: SetupWizard
               <div className="space-y-3">
                 <Label>Segments</Label>
                 {initialSegments.length === 0 ? (
-                  <p className="text-sm text-zoru-ink-muted">No segments available.</p>
+                  <p className="text-sm text-[var(--st-text-secondary)]">No segments available.</p>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {initialSegments.map(segment => (
@@ -199,18 +199,18 @@ export function SetupWizardClient({ initialLists, initialSegments }: SetupWizard
             <div className="space-y-6 animate-in fade-in">
               <div className="rounded-md border p-4 space-y-4">
                 <div>
-                  <h4 className="text-sm font-medium text-zoru-ink-muted">Campaign Settings</h4>
+                  <h4 className="text-sm font-medium text-[var(--st-text-secondary)]">Campaign Settings</h4>
                   <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
-                    <span className="text-zoru-ink-muted">Name:</span> <span>{name || <span className="text-zoru-ink">Missing</span>}</span>
-                    <span className="text-zoru-ink-muted">Subject:</span> <span>{subject || <span className="text-zoru-ink">Missing</span>}</span>
-                    <span className="text-zoru-ink-muted">From:</span> <span>{fromName} &lt;{fromEmail}&gt;</span>
+                    <span className="text-[var(--st-text-secondary)]">Name:</span> <span>{name || <span className="text-[var(--st-text)]">Missing</span>}</span>
+                    <span className="text-[var(--st-text-secondary)]">Subject:</span> <span>{subject || <span className="text-[var(--st-text)]">Missing</span>}</span>
+                    <span className="text-[var(--st-text-secondary)]">From:</span> <span>{fromName} &lt;{fromEmail}&gt;</span>
                   </div>
                 </div>
                 <div className="border-t pt-4">
-                  <h4 className="text-sm font-medium text-zoru-ink-muted mb-2">Audience</h4>
+                  <h4 className="text-sm font-medium text-[var(--st-text-secondary)] mb-2">Audience</h4>
                   <div className="flex flex-wrap gap-2">
                     {listIds.length === 0 && segmentIds.length === 0 && (
-                      <Badge variant="outline" className="text-zoru-ink border-zoru-line">No audience selected (draft mode)</Badge>
+                      <Badge variant="outline" className="text-[var(--st-text)] border-[var(--st-border)]">No audience selected (draft mode)</Badge>
                     )}
                     {listIds.map(id => {
                       const list = initialLists.find(l => l._id === id);
@@ -223,7 +223,7 @@ export function SetupWizardClient({ initialLists, initialSegments }: SetupWizard
                   </div>
                 </div>
               </div>
-              <p className="text-sm text-zoru-ink-muted">
+              <p className="text-sm text-[var(--st-text-secondary)]">
                 The campaign will be created as a draft. You can preview, test, and schedule it from the dashboard.
               </p>
             </div>

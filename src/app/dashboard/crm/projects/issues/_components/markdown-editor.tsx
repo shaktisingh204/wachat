@@ -37,13 +37,13 @@ export function MarkdownEditor({
   };
 
   return (
-    <div className="rounded-md border border-zoru-line bg-zoru-surface">
-      <div className="flex items-center gap-2 border-b border-zoru-line px-2 py-1">
+    <div className="rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+      <div className="flex items-center gap-2 border-b border-[var(--st-border)] px-2 py-1">
         <button
           type="button"
           onClick={() => setMode('write')}
           className={`px-3 py-1 text-[12px] font-medium rounded-md transition ${
-            mode === 'write' ? 'bg-zoru-surface-2 text-zoru-ink' : 'text-zoru-ink-muted hover:text-zoru-ink'
+            mode === 'write' ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]' : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]'
           }`}
         >
           Write
@@ -52,7 +52,7 @@ export function MarkdownEditor({
           type="button"
           onClick={() => setMode('preview')}
           className={`px-3 py-1 text-[12px] font-medium rounded-md transition ${
-            mode === 'preview' ? 'bg-zoru-surface-2 text-zoru-ink' : 'text-zoru-ink-muted hover:text-zoru-ink'
+            mode === 'preview' ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]' : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]'
           }`}
         >
           Preview
@@ -71,8 +71,8 @@ export function MarkdownEditor({
           />
         ) : (
           <div
-            className="prose prose-sm dark:prose-invert min-h-[120px] px-3 py-2 text-[13.5px] text-zoru-ink"
-            dangerouslySetInnerHTML={{ __html: value ? marked.parse(value) as string : '<span class="text-zoru-ink-muted italic">Nothing to preview</span>' }}
+            className="prose prose-sm dark:prose-invert min-h-[120px] px-3 py-2 text-[13.5px] text-[var(--st-text)]"
+            dangerouslySetInnerHTML={{ __html: value ? marked.parse(value) as string : '<span class="text-[var(--st-text-secondary)] italic">Nothing to preview</span>' }}
           />
         )}
         {mode === 'preview' && (

@@ -108,7 +108,7 @@ export function ReplyComposer({
         disabled && 'pointer-events-none opacity-60',
       )}
     >
-      <div className="flex items-center gap-2 text-xs text-zoru-ink-muted">
+      <div className="flex items-center gap-2 text-xs text-[var(--st-text-secondary)]">
         <span className="font-semibold uppercase tracking-wide">To</span>
         <span className="truncate">
           {toEmails.length > 0 ? toEmails.join(', ') : '(no recipients)'}
@@ -128,7 +128,7 @@ export function ReplyComposer({
           {attachments.map((a) => (
             <li
               key={a._key}
-              className="inline-flex items-center gap-1.5 rounded-full border border-zoru-line bg-zoru-bg px-2 py-0.5 text-[11px] text-zoru-ink"
+              className="inline-flex items-center gap-1.5 rounded-full border border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-0.5 text-[11px] text-[var(--st-text)]"
             >
               <Paperclip className="h-3 w-3" />
               <span className="max-w-[10rem] truncate">{a.filename}</span>
@@ -136,7 +136,7 @@ export function ReplyComposer({
                 type="button"
                 onClick={() => removeAttachment(a._key)}
                 aria-label={`Remove ${a.filename}`}
-                className="text-zoru-ink-muted hover:text-zoru-ink"
+                className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
               >
                 <X className="h-3 w-3" />
               </button>

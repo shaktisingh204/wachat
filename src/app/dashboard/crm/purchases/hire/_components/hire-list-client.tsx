@@ -206,25 +206,25 @@ export function HireListClient({ rows, error, newHref }: HireListClientProps) {
             key: 'category',
             header: 'Category',
             sortable: true,
-            render: (row) => <span className="text-zoru-ink">{row.category || '—'}</span>,
+            render: (row) => <span className="text-[var(--st-text)]">{row.category || '—'}</span>,
         },
         {
             key: 'vendorCandidate',
             header: 'Vendor candidate',
             sortable: true,
-            render: (row) => <span className="text-zoru-ink">{row.vendorCandidate || '—'}</span>,
+            render: (row) => <span className="text-[var(--st-text)]">{row.vendorCandidate || '—'}</span>,
         },
         {
             key: 'requiredBy',
             header: 'Required by',
             sortable: true,
-            render: (row) => <span className="text-zoru-ink">{fmtDate(row.requiredBy)}</span>,
+            render: (row) => <span className="text-[var(--st-text)]">{fmtDate(row.requiredBy)}</span>,
         },
         {
             key: 'estimatedBudget',
             header: 'Budget',
             sortable: true,
-            render: (row) => <span className="text-zoru-ink">{fmtMoney(row.estimatedBudget)}</span>,
+            render: (row) => <span className="text-[var(--st-text)]">{fmtMoney(row.estimatedBudget)}</span>,
         },
         {
             key: 'stage',
@@ -237,7 +237,7 @@ export function HireListClient({ rows, error, newHref }: HireListClientProps) {
             },
             editRender: (row, value, onChange) => (
                 <select
-                    className="bg-zoru-surface-2 border border-zoru-line rounded px-1.5 py-0.5 text-xs text-zoru-ink focus:outline-none"
+                    className="bg-[var(--st-bg-muted)] border border-[var(--st-border)] rounded px-1.5 py-0.5 text-xs text-[var(--st-text)] focus:outline-none"
                     value={value || 'sourcing'}
                     onChange={(e) => onChange(e.target.value)}
                 >
@@ -255,7 +255,7 @@ export function HireListClient({ rows, error, newHref }: HireListClientProps) {
             key: 'owner',
             header: 'Owner',
             sortable: true,
-            render: (row) => <span className="text-zoru-ink">{row.owner || '—'}</span>,
+            render: (row) => <span className="text-[var(--st-text)]">{row.owner || '—'}</span>,
         },
         {
             key: 'actions',
@@ -264,7 +264,7 @@ export function HireListClient({ rows, error, newHref }: HireListClientProps) {
                 <div className="flex justify-end gap-1">
                     <Button variant="ghost" size="icon" asChild>
                         <Link href={`${BASE}/${row._id}/edit`}>
-                            <Edit className="h-4 w-4 text-zoru-ink-muted" />
+                            <Edit className="h-4 w-4 text-[var(--st-text-secondary)]" />
                         </Link>
                     </Button>
                 </div>
@@ -324,10 +324,10 @@ export function HireListClient({ rows, error, newHref }: HireListClientProps) {
                 bulkBar={
                     bulky.selected.size > 0 ? (
                         <div className="flex flex-wrap items-center gap-2 text-[13px]">
-                            <span className="font-medium text-zoru-ink">
+                            <span className="font-medium text-[var(--st-text)]">
                                 {bulky.selected.size} selected
                             </span>
-                            <span className="text-zoru-ink-muted">·</span>
+                            <span className="text-[var(--st-text-secondary)]">·</span>
                             <Button
                                 variant="ghost"
                                 size="sm"
@@ -353,9 +353,9 @@ export function HireListClient({ rows, error, newHref }: HireListClientProps) {
                     ) : null
                 }
             >
-                <div className="overflow-hidden rounded-lg border border-zoru-line bg-zoru-surface">
+                <div className="overflow-hidden rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
                     {error ? (
-                        <div className="h-24 flex items-center justify-center text-[13px] text-zoru-ink-muted">
+                        <div className="h-24 flex items-center justify-center text-[13px] text-[var(--st-text-secondary)]">
                             {error}
                         </div>
                     ) : (

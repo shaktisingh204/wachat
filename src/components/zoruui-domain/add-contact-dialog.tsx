@@ -145,7 +145,7 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
 
       <ZoruDialogContent
         className={cn(
-          'max-w-[520px] rounded-[18px] border border-zoru-line bg-zoru-surface p-0 shadow-lg',
+          'max-w-[520px] rounded-[18px] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-0 shadow-lg',
         )}
       >
         <form action={wrappedFormAction} ref={formRef}>
@@ -158,15 +158,15 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
           />
           <input type="hidden" name="countryCode" value={countryCode} />
 
-          <ZoruDialogHeader className="flex flex-row items-start gap-3 border-b border-zoru-line px-6 py-5">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-zoru-surface-2 text-zoru-ink">
+          <ZoruDialogHeader className="flex flex-row items-start gap-3 border-b border-[var(--st-border)] px-6 py-5">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
               <LuUserPlus className="h-5 w-5" strokeWidth={2} />
             </span>
             <div className="min-w-0 flex-1">
-              <ZoruDialogTitle className="text-[16px] font-semibold text-zoru-ink leading-tight">
+              <ZoruDialogTitle className="text-[16px] font-semibold text-[var(--st-text)] leading-tight">
                 Add new contact
               </ZoruDialogTitle>
-              <ZoruDialogDescription className="mt-0.5 text-[12px] text-zoru-ink-muted leading-snug">
+              <ZoruDialogDescription className="mt-0.5 text-[12px] text-[var(--st-text-secondary)] leading-snug">
                 Manually add a contact to your project. They&apos;ll become
                 available for chat and broadcasts right away.
               </ZoruDialogDescription>
@@ -234,7 +234,7 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
 
             {/* Tags */}
             <div className="flex flex-col gap-1.5">
-              <Label className="text-[11.5px] font-semibold text-zoru-ink-muted">
+              <Label className="text-[11.5px] font-semibold text-[var(--st-text-secondary)]">
                 Tags
               </Label>
               <MultiSelectCombobox
@@ -246,7 +246,7 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
             </div>
           </div>
 
-          <ZoruDialogFooter className="border-t border-zoru-line px-6 py-4 sm:justify-end gap-2">
+          <ZoruDialogFooter className="border-t border-[var(--st-border)] px-6 py-4 sm:justify-end gap-2">
             <Button
               type="button"
               variant="pill"
@@ -280,10 +280,10 @@ function Field({
     <div className="flex flex-col gap-1.5">
       <Label
         htmlFor={htmlFor}
-        className="text-[11.5px] font-semibold text-zoru-ink-muted"
+        className="text-[11.5px] font-semibold text-[var(--st-text-secondary)]"
       >
         {label}
-        {required ? <span className="ml-1 text-zoru-ink">*</span> : null}
+        {required ? <span className="ml-1 text-[var(--st-text)]">*</span> : null}
       </Label>
       {children}
     </div>

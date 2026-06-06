@@ -23,10 +23,10 @@ export function ToolShell({ title, description, children }: ToolShellProps) {
             </Link>
           </Button>
           <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-            <Wrench className="h-7 w-7 text-zoru-ink" />
+            <Wrench className="h-7 w-7 text-[var(--st-text)]" />
             {title}
           </h1>
-          {description && <p className="text-zoru-ink-muted mt-1">{description}</p>}
+          {description && <p className="text-[var(--st-text-secondary)] mt-1">{description}</p>}
         </div>
       </div>
       {children}

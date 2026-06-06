@@ -93,7 +93,7 @@ export function IntegrationsClient() {
       <div
         role="tablist"
         aria-label="Integrations sections"
-        className="inline-flex rounded-[var(--zoru-radius-md)] border border-zoru-line bg-zoru-surface p-1"
+        className="inline-flex rounded-[var(--zoru-radius-md)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1"
       >
         {([
           { key: 'keys', label: 'API keys', icon: KeyRound, count: keys.length },
@@ -111,8 +111,8 @@ export function IntegrationsClient() {
               className={cn(
                 'inline-flex items-center gap-2 rounded-[var(--zoru-radius-sm)] px-3 py-1.5 text-sm font-medium transition-colors',
                 isActive
-                  ? 'bg-zoru-bg text-zoru-ink shadow-[var(--zoru-shadow-sm)]'
-                  : 'text-zoru-ink-muted hover:text-zoru-ink',
+                  ? 'bg-[var(--st-bg)] text-[var(--st-text)] shadow-[var(--zoru-shadow-sm)]'
+                  : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
               )}
             >
               <Icon className="h-3.5 w-3.5" />
@@ -120,7 +120,7 @@ export function IntegrationsClient() {
               <span
                 className={cn(
                   'rounded-full px-1.5 py-0.5 text-xs',
-                  isActive ? 'bg-zoru-surface-2 text-zoru-ink' : 'bg-zoru-surface text-zoru-ink-muted',
+                  isActive ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]' : 'bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]',
                 )}
               >
                 {seg.count}

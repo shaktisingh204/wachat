@@ -10,7 +10,7 @@ export default function Loading() {
         <Skeleton className="h-4 w-full" />
       </ClayCard>
       <ClayCard>
-        <div className="divide-y divide-zoru-line">
+        <div className="divide-y divide-[var(--st-border)]">
           {[1, 2, 3].map((i) => (
             <div key={i} className="flex items-start gap-3 py-3 first:pt-0 last:pb-0">
               <Skeleton className="h-4 w-4 rounded mt-1" />

@@ -90,7 +90,7 @@ export function BulkBroadcastForm({ targetProjects }: BulkBroadcastFormProps) {
               required
               placeholder="e.g. offer_update_v2"
             />
-            <p className="text-xs text-zoru-ink-muted">
+            <p className="text-xs text-[var(--st-text-secondary)]">
               This template must exist with the same name and language across all selected projects.
             </p>
           </div>
@@ -114,7 +114,7 @@ export function BulkBroadcastForm({ targetProjects }: BulkBroadcastFormProps) {
               accept=".csv,.xlsx"
               onChange={(e) => setFile(e.target.files?.[0] || null)}
             />
-            <p className="text-xs text-zoru-ink-muted">
+            <p className="text-xs text-[var(--st-text-secondary)]">
               A CSV or XLSX file. The first column must be the phone number.
             </p>
           </div>

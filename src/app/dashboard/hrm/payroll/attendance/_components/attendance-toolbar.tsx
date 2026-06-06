@@ -51,9 +51,9 @@ export function AttendanceToolbar({
   onExportCsv,
 }: AttendanceToolbarProps) {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zoru-line p-3">
+    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--st-border)] p-3">
       <div className="relative w-full max-w-sm">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
         <Input
           value={query}
           onChange={(e) => onQueryChange(e.target.value)}
@@ -80,7 +80,7 @@ export function AttendanceToolbar({
           </ZoruSelectContent>
         </Select>
 
-        <div className="flex items-center rounded border border-zoru-line bg-zoru-surface p-0.5">
+        <div className="flex items-center rounded border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-0.5">
           <Button
             type="button"
             variant={view === 'table' ? 'default' : 'ghost'}

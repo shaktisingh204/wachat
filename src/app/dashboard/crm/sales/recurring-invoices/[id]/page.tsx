@@ -61,31 +61,31 @@ export default async function RecurringInvoiceDetailPage(props: {
         <Card className="p-4">
           <div className="space-y-4">
             <div>
-              <p className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Next issue
               </p>
-              <p className="mt-1 text-[13px] text-zoru-ink">{fmtDate(doc.next_issue_date)}</p>
+              <p className="mt-1 text-[13px] text-[var(--st-text)]">{fmtDate(doc.next_issue_date)}</p>
             </div>
             <div>
-              <p className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Issued
               </p>
-              <p className="mt-1 text-[13px] text-zoru-ink">
+              <p className="mt-1 text-[13px] text-[var(--st-text)]">
                 {doc.issued_count || 0}
                 {doc.stop_at_count ? ` / ${doc.stop_at_count}` : ''}
               </p>
             </div>
             <div>
-              <p className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Last issued
               </p>
-              <p className="mt-1 text-[13px] text-zoru-ink">{fmtDate(doc.last_issued_at)}</p>
+              <p className="mt-1 text-[13px] text-[var(--st-text)]">{fmtDate(doc.last_issued_at)}</p>
             </div>
             <div>
-              <p className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Total
               </p>
-              <p className="mt-1 text-[18px] font-semibold text-zoru-ink">
+              <p className="mt-1 text-[18px] font-semibold text-[var(--st-text)]">
                 {fmtMoney(doc.total, doc.currency)}
               </p>
             </div>
@@ -95,31 +95,31 @@ export default async function RecurringInvoiceDetailPage(props: {
     >
       {/* Line items */}
       <Card className="p-6">
-        <h2 className="mb-3 text-[15px] text-zoru-ink">Line Items</h2>
-        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+        <h2 className="mb-3 text-[15px] text-[var(--st-text)]">Line Items</h2>
+        <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <table className="w-full text-sm">
-            <thead className="bg-zoru-surface-2">
-              <tr className="border-b border-zoru-line text-left">
-                <th className="p-3 text-zoru-ink">Item</th>
-                <th className="p-3 text-right text-zoru-ink">Qty</th>
-                <th className="p-3 text-right text-zoru-ink">Unit</th>
-                <th className="p-3 text-right text-zoru-ink">Total</th>
+            <thead className="bg-[var(--st-bg-muted)]">
+              <tr className="border-b border-[var(--st-border)] text-left">
+                <th className="p-3 text-[var(--st-text)]">Item</th>
+                <th className="p-3 text-right text-[var(--st-text)]">Qty</th>
+                <th className="p-3 text-right text-[var(--st-text)]">Unit</th>
+                <th className="p-3 text-right text-[var(--st-text)]">Total</th>
               </tr>
             </thead>
             <tbody>
               {items.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="p-4 text-center text-[13px] text-zoru-ink-muted">
+                  <td colSpan={4} className="p-4 text-center text-[13px] text-[var(--st-text-secondary)]">
                     No items.
                   </td>
                 </tr>
               ) : (
                 items.map((it, idx) => (
-                  <tr key={idx} className="border-b border-zoru-line">
-                    <td className="p-3 text-zoru-ink">
+                  <tr key={idx} className="border-b border-[var(--st-border)]">
+                    <td className="p-3 text-[var(--st-text)]">
                       <div>{it.name || '—'}</div>
                       {it.description ? (
-                        <div className="text-[12px] text-zoru-ink-muted">{it.description}</div>
+                        <div className="text-[12px] text-[var(--st-text-secondary)]">{it.description}</div>
                       ) : null}
                     </td>
                     <td className="p-3 text-right">{it.quantity}</td>
@@ -137,13 +137,13 @@ export default async function RecurringInvoiceDetailPage(props: {
 
       {/* Generated invoices */}
       <Card className="p-6">
-        <h2 className="mb-3 text-[15px] text-zoru-ink">Generated Invoices</h2>
+        <h2 className="mb-3 text-[15px] text-[var(--st-text)]">Generated Invoices</h2>
         {generated.length === 0 ? (
-          <p className="text-[13px] text-zoru-ink-muted">
+          <p className="text-[13px] text-[var(--st-text-secondary)]">
             No invoices generated yet. Click <em>Run now</em> to create one.
           </p>
         ) : (
-          <ul className="space-y-1 text-[13px] text-zoru-ink">
+          <ul className="space-y-1 text-[13px] text-[var(--st-text)]">
             {generated.map((inv, i) => (
               <li key={i} className="font-mono">
                 {String(inv)}

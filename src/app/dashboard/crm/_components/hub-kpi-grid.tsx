@@ -13,10 +13,10 @@ export interface HubKpi {
 }
 
 const toneClass: Record<NonNullable<HubKpi['tone']>, string> = {
-    default: 'bg-zoru-surface-2 text-zoru-ink',
-    success: 'bg-zoru-success/10 text-zoru-success-ink',
-    warning: 'bg-zoru-warning/15 text-zoru-warning-ink',
-    danger: 'bg-zoru-danger/10 text-zoru-danger-ink',
+    default: 'bg-[var(--st-bg-muted)] text-[var(--st-text)]',
+    success: 'bg-[var(--st-status-ok)]/10 text-[var(--st-status-ok)]',
+    warning: 'bg-[var(--st-warn)]/15 text-[var(--st-warn)]',
+    danger: 'bg-[var(--st-danger)]/10 text-[var(--st-danger)]',
 };
 
 export function HubKpiGrid({ kpis }: { kpis: HubKpi[] }) {
@@ -28,7 +28,7 @@ export function HubKpiGrid({ kpis }: { kpis: HubKpi[] }) {
                 const inner = (
                     <Card className="h-full p-5">
                         <div className="flex items-start justify-between gap-3">
-                            <p className="text-[12px] font-medium uppercase tracking-wide text-zoru-ink-subtle">
+                            <p className="text-[12px] font-medium uppercase tracking-wide text-[var(--st-text-tertiary)]">
                                 {kpi.label}
                             </p>
                             <span
@@ -37,11 +37,11 @@ export function HubKpiGrid({ kpis }: { kpis: HubKpi[] }) {
                                 <Icon className="h-4 w-4" strokeWidth={1.75} />
                             </span>
                         </div>
-                        <p className="mt-3 text-[24px] font-semibold leading-none tracking-tight text-zoru-ink">
+                        <p className="mt-3 text-[24px] font-semibold leading-none tracking-tight text-[var(--st-text)]">
                             {kpi.value}
                         </p>
                         {kpi.hint ? (
-                            <p className="mt-2 text-[12px] text-zoru-ink-muted">{kpi.hint}</p>
+                            <p className="mt-2 text-[12px] text-[var(--st-text-secondary)]">{kpi.hint}</p>
                         ) : null}
                     </Card>
                 );
@@ -72,14 +72,14 @@ export function HubQuickLinkGrid({ links }: { links: HubQuickLink[] }) {
                 return (
                     <Link key={link.href} href={link.href} className="group">
                         <Card className="h-full p-5 transition-shadow group-hover:shadow-[var(--zoru-shadow-md)]">
-                            <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink">
+                            <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                                 <Icon className="h-[18px] w-[18px]" strokeWidth={1.75} />
                             </div>
                             <div className="flex items-start justify-between gap-2">
-                                <p className="text-[14px] font-medium text-zoru-ink">{link.title}</p>
-                                <ArrowUpRight className="h-4 w-4 text-zoru-ink-muted transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-zoru-ink" />
+                                <p className="text-[14px] font-medium text-[var(--st-text)]">{link.title}</p>
+                                <ArrowUpRight className="h-4 w-4 text-[var(--st-text-secondary)] transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[var(--st-text)]" />
                             </div>
-                            <p className="mt-1 text-[12.5px] leading-relaxed text-zoru-ink-muted">
+                            <p className="mt-1 text-[12.5px] leading-relaxed text-[var(--st-text-secondary)]">
                                 {link.description}
                             </p>
                         </Card>
@@ -112,37 +112,37 @@ export function HubRecentList({
     return (
         <Card className="p-5">
             <div className="mb-3 flex items-center justify-between gap-2">
-                <h2 className="text-[14px] font-medium text-zoru-ink">{title}</h2>
+                <h2 className="text-[14px] font-medium text-[var(--st-text)]">{title}</h2>
                 {viewAllHref ? (
                     <Link
                         href={viewAllHref}
-                        className="text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
+                        className="text-[12.5px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                     >
                         View all
                     </Link>
                 ) : null}
             </div>
             {rows.length === 0 ? (
-                <p className="py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                <p className="py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                     {emptyHint ?? 'Nothing yet.'}
                 </p>
             ) : (
-                <ul className="divide-y divide-zoru-line">
+                <ul className="divide-y divide-[var(--st-border)]">
                     {rows.map((row) => {
                         const body = (
                             <div className="flex items-center justify-between gap-3 py-2.5">
                                 <div className="min-w-0 flex-1">
-                                    <div className="truncate text-[13px] text-zoru-ink">
+                                    <div className="truncate text-[13px] text-[var(--st-text)]">
                                         {row.primary}
                                     </div>
                                     {row.secondary ? (
-                                        <div className="mt-0.5 truncate text-[12px] text-zoru-ink-muted">
+                                        <div className="mt-0.5 truncate text-[12px] text-[var(--st-text-secondary)]">
                                             {row.secondary}
                                         </div>
                                     ) : null}
                                 </div>
                                 {row.trailing ? (
-                                    <div className="shrink-0 text-[12.5px] text-zoru-ink-muted">
+                                    <div className="shrink-0 text-[12.5px] text-[var(--st-text-secondary)]">
                                         {row.trailing}
                                     </div>
                                 ) : null}
@@ -151,7 +151,7 @@ export function HubRecentList({
                         return (
                             <li key={row.id}>
                                 {row.href ? (
-                                    <Link href={row.href} className="block hover:bg-zoru-surface-2">
+                                    <Link href={row.href} className="block hover:bg-[var(--st-bg-muted)]">
                                         {body}
                                     </Link>
                                 ) : (

@@ -108,11 +108,11 @@ function fmtHours(r: Row): string {
 
 function TableSkeleton() {
   return (
-    <div className="overflow-x-auto rounded-lg border border-zoru-line">
+    <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
       <Table>
         <ZoruTableHeader>
-          <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-            <ZoruTableHead className="w-10"><div className="h-4 w-4 rounded bg-zoru-surface-2 animate-pulse" /></ZoruTableHead>
+          <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+            <ZoruTableHead className="w-10"><div className="h-4 w-4 rounded bg-[var(--st-bg-muted)] animate-pulse" /></ZoruTableHead>
             <ZoruTableHead>Employee</ZoruTableHead>
             <ZoruTableHead>Week of</ZoruTableHead>
             <ZoruTableHead>Week end</ZoruTableHead>
@@ -125,16 +125,16 @@ function TableSkeleton() {
         </ZoruTableHeader>
         <ZoruTableBody>
           {[1, 2, 3, 4, 5].map((i) => (
-            <ZoruTableRow key={i} className="border-zoru-line">
-              <ZoruTableCell><div className="h-4 w-4 rounded bg-zoru-surface-2 animate-pulse" /></ZoruTableCell>
-              <ZoruTableCell><div className="h-6 w-24 rounded-full bg-zoru-surface-2 animate-pulse" /></ZoruTableCell>
-              <ZoruTableCell><div className="h-4 w-20 rounded bg-zoru-surface-2 animate-pulse" /></ZoruTableCell>
-              <ZoruTableCell><div className="h-4 w-20 rounded bg-zoru-surface-2 animate-pulse" /></ZoruTableCell>
-              <ZoruTableCell className="text-right"><div className="ml-auto h-4 w-12 rounded bg-zoru-surface-2 animate-pulse" /></ZoruTableCell>
-              <ZoruTableCell><div className="h-5 w-16 rounded-full bg-zoru-surface-2 animate-pulse" /></ZoruTableCell>
-              <ZoruTableCell><div className="h-4 w-24 rounded bg-zoru-surface-2 animate-pulse" /></ZoruTableCell>
-              <ZoruTableCell><div className="h-6 w-24 rounded-full bg-zoru-surface-2 animate-pulse" /></ZoruTableCell>
-              <ZoruTableCell className="text-right"><div className="ml-auto h-8 w-8 rounded bg-zoru-surface-2 animate-pulse" /></ZoruTableCell>
+            <ZoruTableRow key={i} className="border-[var(--st-border)]">
+              <ZoruTableCell><div className="h-4 w-4 rounded bg-[var(--st-bg-muted)] animate-pulse" /></ZoruTableCell>
+              <ZoruTableCell><div className="h-6 w-24 rounded-full bg-[var(--st-bg-muted)] animate-pulse" /></ZoruTableCell>
+              <ZoruTableCell><div className="h-4 w-20 rounded bg-[var(--st-bg-muted)] animate-pulse" /></ZoruTableCell>
+              <ZoruTableCell><div className="h-4 w-20 rounded bg-[var(--st-bg-muted)] animate-pulse" /></ZoruTableCell>
+              <ZoruTableCell className="text-right"><div className="ml-auto h-4 w-12 rounded bg-[var(--st-bg-muted)] animate-pulse" /></ZoruTableCell>
+              <ZoruTableCell><div className="h-5 w-16 rounded-full bg-[var(--st-bg-muted)] animate-pulse" /></ZoruTableCell>
+              <ZoruTableCell><div className="h-4 w-24 rounded bg-[var(--st-bg-muted)] animate-pulse" /></ZoruTableCell>
+              <ZoruTableCell><div className="h-6 w-24 rounded-full bg-[var(--st-bg-muted)] animate-pulse" /></ZoruTableCell>
+              <ZoruTableCell className="text-right"><div className="ml-auto h-8 w-8 rounded bg-[var(--st-bg-muted)] animate-pulse" /></ZoruTableCell>
             </ZoruTableRow>
           ))}
         </ZoruTableBody>
@@ -233,7 +233,7 @@ export default function WeeklyTimesheetsPage() {
               className="h-9 w-[160px] text-[13px]"
             />
             <div className="flex items-center gap-1.5">
-              <span className="text-sm text-zoru-ink-muted">From</span>
+              <span className="text-sm text-[var(--st-text-secondary)]">From</span>
               <Input
                 type="date"
                 value={fromDate}
@@ -242,7 +242,7 @@ export default function WeeklyTimesheetsPage() {
               />
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="text-sm text-zoru-ink-muted">To</span>
+              <span className="text-sm text-[var(--st-text-secondary)]">To</span>
               <Input
                 type="date"
                 value={toDate}
@@ -260,9 +260,9 @@ export default function WeeklyTimesheetsPage() {
         empty={
           !initialLoading && rows.length === 0 ? (
             <div className="flex flex-col items-center gap-3 p-4">
-              <CalendarRange className="h-8 w-8 text-zoru-ink-muted" />
-              <h3 className="text-base font-medium text-zoru-ink">No timesheets yet</h3>
-              <p className="max-w-sm text-sm text-zoru-ink-muted text-center">
+              <CalendarRange className="h-8 w-8 text-[var(--st-text-secondary)]" />
+              <h3 className="text-base font-medium text-[var(--st-text)]">No timesheets yet</h3>
+              <p className="max-w-sm text-sm text-[var(--st-text-secondary)] text-center">
                 Create weekly timesheets to collect hours from your team and approve them in one place.
               </p>
               <Button onClick={() => setCreateOpen(true)}>
@@ -283,7 +283,7 @@ export default function WeeklyTimesheetsPage() {
           {/* Bulk selection header */}
           {rows.length > 0 && (
             <div className="flex items-center gap-2">
-              <label className="flex cursor-pointer items-center gap-2 text-sm text-zoru-ink-muted select-none">
+              <label className="flex cursor-pointer items-center gap-2 text-sm text-[var(--st-text-secondary)] select-none">
                 <Checkbox
                   checked={allChecked}
                   aria-checked={someChecked && !allChecked ? 'mixed' : allChecked}
@@ -297,8 +297,8 @@ export default function WeeklyTimesheetsPage() {
 
           {/* Bulk action bar */}
           {hasSelection && (
-            <div className="flex flex-wrap items-center gap-3 rounded-lg border border-zoru-line bg-zoru-surface-2/40 px-4 py-2.5 text-sm">
-              <span className="font-medium text-zoru-ink">{selectedIds.length} selected</span>
+            <div className="flex flex-wrap items-center gap-3 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)]/40 px-4 py-2.5 text-sm">
+              <span className="font-medium text-[var(--st-text)]">{selectedIds.length} selected</span>
               <Button variant="outline" size="sm" disabled={bulkPending} onClick={handleBulkSubmit}>
                 {bulkPending ? <LoaderCircle className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <Send className="mr-1.5 h-3.5 w-3.5" />}
                 Submit
@@ -339,10 +339,10 @@ export default function WeeklyTimesheetsPage() {
             <TableSkeleton />
           ) : rows.length > 0 ? (
             <div className="flex flex-col gap-3">
-              <div className="overflow-x-auto rounded-lg border border-zoru-line">
+              <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                 <Table>
                   <ZoruTableHeader>
-                    <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                    <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                       <ZoruTableHead className="w-10">
                         <Checkbox
                           checked={allChecked}
@@ -364,7 +364,7 @@ export default function WeeklyTimesheetsPage() {
                   </ZoruTableHeader>
                   <ZoruTableBody>
                     {rows.map((r) => (
-                      <ZoruTableRow key={r._id} className="border-zoru-line transition-colors">
+                      <ZoruTableRow key={r._id} className="border-[var(--st-border)] transition-colors">
                         <ZoruTableCell>
                           <Checkbox
                             checked={selected.has(r._id)}
@@ -379,27 +379,27 @@ export default function WeeklyTimesheetsPage() {
                               label={<EntityPickerChip entity="user" id={String(r.user_id)} fallback="—" />}
                             />
                           ) : (
-                            <span className="text-[12px] text-zoru-ink-muted">—</span>
+                            <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
                           )}
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">{fmtDate(r.week_start_date)}</ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">{fmtDate(r.week_end_date)}</ZoruTableCell>
-                        <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-zoru-ink">{fmtHours(r)}</ZoruTableCell>
+                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">{fmtDate(r.week_start_date)}</ZoruTableCell>
+                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">{fmtDate(r.week_end_date)}</ZoruTableCell>
+                        <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-[var(--st-text)]">{fmtHours(r)}</ZoruTableCell>
                         <ZoruTableCell>
                           <StatusPill label={r.status} tone={statusToTone(r.status)} />
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">{fmtDateTime(r.submitted_at)}</ZoruTableCell>
+                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">{fmtDateTime(r.submitted_at)}</ZoruTableCell>
                         <ZoruTableCell>
                           {r.approved_by ? (
                             <EntityPickerChip entity="user" id={String(r.approved_by)} fallback="—" />
                           ) : (
-                            <span className="text-[12px] text-zoru-ink-muted">—</span>
+                            <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
                           )}
                         </ZoruTableCell>
                         <ZoruTableCell className="text-right">
                           <DropdownMenu>
                             <ZoruDropdownMenuTrigger asChild>
-                              <button type="button" aria-label="Actions" className="inline-flex h-8 w-8 items-center justify-center rounded-md text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink">
+                              <button type="button" aria-label="Actions" className="inline-flex h-8 w-8 items-center justify-center rounded-md text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]">
                                 <MoreHorizontal className="h-4 w-4" />
                               </button>
                             </ZoruDropdownMenuTrigger>
@@ -427,7 +427,7 @@ export default function WeeklyTimesheetsPage() {
                                   </ZoruDropdownMenuItem>
                                 </>
                               ) : null}
-                              <ZoruDropdownMenuItem onClick={() => setDeleteId(r._id)} className="text-zoru-danger">
+                              <ZoruDropdownMenuItem onClick={() => setDeleteId(r._id)} className="text-[var(--st-danger)]">
                                 <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Delete
                               </ZoruDropdownMenuItem>
                             </ZoruDropdownMenuContent>
@@ -529,7 +529,7 @@ function TimesheetDialog({ open, initial, onOpenChange, onSaved }: TimesheetDial
           ) : null}
           <div>
             <Label>
-              Employee <span className="text-zoru-danger-ink">*</span>
+              Employee <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <EntityFormField
               entity="employee"
@@ -542,7 +542,7 @@ function TimesheetDialog({ open, initial, onOpenChange, onSaved }: TimesheetDial
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label htmlFor="week_start_date">
-                Week start <span className="text-zoru-danger-ink">*</span>
+                Week start <span className="text-[var(--st-danger)]">*</span>
               </Label>
               <Input
                 id="week_start_date"
@@ -554,7 +554,7 @@ function TimesheetDialog({ open, initial, onOpenChange, onSaved }: TimesheetDial
             </div>
             <div>
               <Label htmlFor="week_end_date">
-                Week end <span className="text-zoru-danger-ink">*</span>
+                Week end <span className="text-[var(--st-danger)]">*</span>
               </Label>
               <Input
                 id="week_end_date"
@@ -609,7 +609,7 @@ function TimesheetDialog({ open, initial, onOpenChange, onSaved }: TimesheetDial
             />
           </div>
           {state?.error ? (
-            <p className="text-sm text-zoru-danger-ink">{state.error}</p>
+            <p className="text-sm text-[var(--st-danger)]">{state.error}</p>
           ) : null}
           <ZoruDialogFooter className="gap-2">
             <Button

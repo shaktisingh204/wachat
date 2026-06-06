@@ -262,13 +262,13 @@ export default function BenefitsPortalClient({ initialData }: { initialData: Ben
   });
 
   return (
-    <ErrorBoundary fallback={<div className="p-4 text-zoru-ink rounded-md border border-zoru-line bg-zoru-surface-2">Failed to load Benefits Portal. Please refresh the page.</div>}>
+    <ErrorBoundary fallback={<div className="p-4 text-[var(--st-text)] rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)]">Failed to load Benefits Portal. Please refresh the page.</div>}>
       <Card className="p-4 flex flex-col gap-4">
         {/* Toolbar */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div className="flex flex-1 items-center gap-2 flex-wrap">
             <div className="relative w-64">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
               <Input placeholder="Search plans..." value={search} onChange={e => setSearch(e.target.value)} className="pl-8" />
             </div>
             
@@ -321,9 +321,9 @@ export default function BenefitsPortalClient({ initialData }: { initialData: Ben
         </div>
 
         {/* Data Table with Virtualization */}
-        <div className="rounded-[var(--zoru-radius-lg)] border border-zoru-line overflow-hidden flex flex-col h-[500px] shadow-[var(--zoru-shadow-sm)]">
+        <div className="rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] overflow-hidden flex flex-col h-[500px] shadow-[var(--zoru-shadow-sm)]">
           {/* Header */}
-          <div className="bg-zoru-surface border-b border-zoru-line flex w-full font-medium text-[11px] text-zoru-ink-subtle uppercase tracking-wide">
+          <div className="bg-[var(--st-bg-secondary)] border-b border-[var(--st-border)] flex w-full font-medium text-[11px] text-[var(--st-text-tertiary)] uppercase tracking-wide">
             <div className="w-12 p-3 flex items-center justify-center">
               <Checkbox 
                 checked={filteredData.length > 0 && selectedIds.size === filteredData.length} 
@@ -351,14 +351,14 @@ export default function BenefitsPortalClient({ initialData }: { initialData: Ben
               />
             </div>
           ) : (
-            <div ref={parentRef} className="flex-1 overflow-auto relative bg-zoru-bg">
+            <div ref={parentRef} className="flex-1 overflow-auto relative bg-[var(--st-bg)]">
               <div style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
                 {rowVirtualizer.getVirtualItems().map((virtualRow) => {
                   const row = filteredData[virtualRow.index];
                   return (
                     <div 
                       key={row._id || virtualRow.index} 
-                      className="absolute w-full flex items-center border-b border-zoru-line hover:bg-zoru-surface transition-colors text-sm text-zoru-ink"
+                      className="absolute w-full flex items-center border-b border-[var(--st-border)] hover:bg-[var(--st-bg-secondary)] transition-colors text-sm text-[var(--st-text)]"
                       style={{
                         top: 0,
                         left: 0,
@@ -371,13 +371,13 @@ export default function BenefitsPortalClient({ initialData }: { initialData: Ben
                       </div>
                       <div className="flex-1 p-3 truncate font-medium">{row.name}</div>
                       <div className="flex-1 p-3 truncate">{row.provider}</div>
-                      <div className="flex-1 p-3 truncate text-zoru-ink-muted">{row.coverageDetails || '-'}</div>
+                      <div className="flex-1 p-3 truncate text-[var(--st-text-secondary)]">{row.coverageDetails || '-'}</div>
                       <div className="w-32 p-3 font-medium">${row.costToEmployee.toFixed(2)}</div>
                       <div className="w-24 p-3 flex justify-end gap-2">
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-zoru-ink-subtle hover:text-zoru-ink" onClick={() => { setEditingItem(row); setIsDialogOpen(true); }}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-[var(--st-text-tertiary)] hover:text-[var(--st-text)]" onClick={() => { setEditingItem(row); setIsDialogOpen(true); }}>
                           <Edit className="w-4 h-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-zoru-ink hover:text-zoru-ink hover:bg-zoru-surface-2 dark:hover:bg-zoru-ink" onClick={() => handleDelete(row._id!)}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-[var(--st-text)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] dark:hover:bg-[var(--st-text)]" onClick={() => handleDelete(row._id!)}>
                           <Trash className="w-4 h-4" />
                         </Button>
                       </div>

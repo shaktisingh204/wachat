@@ -51,7 +51,7 @@ export default async function SabConnectPeoplePage() {
                             <li key={p._id}>
                                 <Link
                                     href={`/dashboard/crm/hr/employees/${p._id}`}
-                                    className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-accent"
+                                    className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent)]"
                                 >
                                     <Card>
                                         <CardContent className="flex items-center gap-3 p-3">
@@ -63,7 +63,7 @@ export default async function SabConnectPeoplePage() {
                                                     {p.name ?? p.email ?? 'Unnamed'}
                                                 </span>
                                                 {p.title ? (
-                                                    <span className="text-xs text-zoru-muted">
+                                                    <span className="text-xs text-[var(--st-bg-muted)]">
                                                         {p.title}
                                                         {p.department ? ` · ${p.department}` : ''}
                                                     </span>

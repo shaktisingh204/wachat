@@ -132,14 +132,14 @@ function MetricTile({
     <Card variant="elevated" className="p-5">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className="text-[11px] uppercase tracking-wide text-zoru-ink-subtle">
+          <p className="text-[11px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
             {label}
           </p>
-          <p className="mt-2 text-[26px] tracking-[-0.01em] text-zoru-ink leading-none">
+          <p className="mt-2 text-[26px] tracking-[-0.01em] text-[var(--st-text)] leading-none">
             {value}
           </p>
         </div>
-        <span className="flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink [&_svg]:size-4">
+        <span className="flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)] [&_svg]:size-4">
           {icon}
         </span>
       </div>
@@ -168,7 +168,7 @@ function ReelTile({ reel }: { reel: Reel }) {
 
   return (
     <Card variant="elevated" className="flex flex-col overflow-hidden">
-      <div className="relative aspect-[9/16] max-h-72 overflow-hidden bg-zoru-surface-2">
+      <div className="relative aspect-[9/16] max-h-72 overflow-hidden bg-[var(--st-bg-muted)]">
         {reel.picture ? (
           <Image
             src={reel.picture}
@@ -179,20 +179,20 @@ function ReelTile({ reel }: { reel: Reel }) {
             className="object-cover"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-zoru-ink-subtle">
+          <div className="flex h-full w-full items-center justify-center text-[var(--st-text-tertiary)]">
             <Film className="h-8 w-8" />
           </div>
         )}
       </div>
       <div className="flex flex-1 flex-col gap-2 p-4">
         {reel.description ? (
-          <p className="line-clamp-2 text-sm text-zoru-ink">
+          <p className="line-clamp-2 text-sm text-[var(--st-text)]">
             {reel.description}
           </p>
         ) : (
-          <p className="text-sm text-zoru-ink-muted">Untitled reel</p>
+          <p className="text-sm text-[var(--st-text-secondary)]">Untitled reel</p>
         )}
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11.5px] text-zoru-ink-muted">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11.5px] text-[var(--st-text-secondary)]">
           {reel.created_time && (
             <span>
               {formatDistanceToNow(new Date(reel.created_time), {
@@ -230,7 +230,7 @@ function ReelTile({ reel }: { reel: Reel }) {
             href={reel.permalink_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-1 inline-flex items-center gap-1 text-[12px] text-zoru-ink underline-offset-4 hover:underline"
+            className="mt-1 inline-flex items-center gap-1 text-[12px] text-[var(--st-text)] underline-offset-4 hover:underline"
           >
             <ExternalLink className="h-3 w-3" /> View on Facebook
           </a>

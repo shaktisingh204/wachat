@@ -62,29 +62,29 @@ export function EditReceiptForm({ receipt }: EditReceiptFormProps) {
                 <div className="p-6 space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-1.5">
-                            <Label className="text-zoru-ink">Receipt No</Label>
+                            <Label className="text-[var(--st-text)]">Receipt No</Label>
                             <Input value={receipt.receiptNumber} disabled readOnly />
                         </div>
                         <div className="space-y-1.5">
-                            <Label className="text-zoru-ink">Receipt Date</Label>
+                            <Label className="text-[var(--st-text)]">Receipt Date</Label>
                             <DatePicker date={receiptDate} setDate={setReceiptDate} />
                         </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-1.5">
-                            <Label className="text-zoru-ink">Total Received</Label>
+                            <Label className="text-[var(--st-text)]">Total Received</Label>
                             <Input
                                 value={`${receipt.currency} ${(receipt.totalAmountReceived ?? 0).toFixed(2)}`}
                                 disabled
                                 readOnly
                             />
-                            <p className="text-[12px] text-zoru-ink-muted">
+                            <p className="text-[12px] text-[var(--st-text-secondary)]">
                                 Amount and settled invoices are immutable on edit. To change them, void this receipt and create a new one.
                             </p>
                         </div>
                         <div className="space-y-1.5">
-                            <Label className="text-zoru-ink">Deposit To (Bank Account)</Label>
+                            <Label className="text-[var(--st-text)]">Deposit To (Bank Account)</Label>
                             <EntityPicker
                                 entity="bankAccount"
                                 value={bankAccountId || null}
@@ -98,7 +98,7 @@ export function EditReceiptForm({ receipt }: EditReceiptFormProps) {
                     </div>
 
                     <div className="space-y-1.5">
-                        <Label htmlFor="notes" className="text-zoru-ink">Notes</Label>
+                        <Label htmlFor="notes" className="text-[var(--st-text)]">Notes</Label>
                         <Textarea
                             id="notes"
                             name="notes"

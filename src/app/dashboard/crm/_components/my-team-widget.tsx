@@ -59,8 +59,8 @@ export async function MyTeamWidget() {
     <Card className="p-0">
       <ZoruCardHeader className="pb-2">
         <div className="flex items-center justify-between">
-          <ZoruCardTitle className="flex items-center gap-2 text-[14px] text-zoru-ink">
-            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-zoru-surface-2">
+          <ZoruCardTitle className="flex items-center gap-2 text-[14px] text-[var(--st-text)]">
+            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[var(--st-bg-muted)]">
               <Users2 className="h-3.5 w-3.5" strokeWidth={1.75} />
             </span>
             My team
@@ -75,7 +75,7 @@ export async function MyTeamWidget() {
             return (
               <li
                 key={r._id}
-                className="flex items-center gap-3 rounded-[var(--zoru-radius-sm)] px-2 py-1.5 hover:bg-zoru-surface-2"
+                className="flex items-center gap-3 rounded-[var(--zoru-radius-sm)] px-2 py-1.5 hover:bg-[var(--st-bg-muted)]"
               >
                 <Avatar className="h-8 w-8">
                   <ZoruAvatarFallback>
@@ -83,10 +83,10 @@ export async function MyTeamWidget() {
                   </ZoruAvatarFallback>
                 </Avatar>
                 <div className="flex min-w-0 flex-1 flex-col">
-                  <span className="truncate text-[13px] font-medium text-zoru-ink">
+                  <span className="truncate text-[13px] font-medium text-[var(--st-text)]">
                     {r.name}
                   </span>
-                  <span className="truncate text-[11.5px] text-zoru-ink-muted">
+                  <span className="truncate text-[11.5px] text-[var(--st-text-secondary)]">
                     {r.designation ?? r.status}
                   </span>
                 </div>
@@ -98,10 +98,10 @@ export async function MyTeamWidget() {
           })}
         </ul>
       </ZoruCardContent>
-      <div className="border-t border-zoru-line px-5 py-2">
+      <div className="border-t border-[var(--st-border)] px-5 py-2">
         <Link
           href="/dashboard/hrm/portal#team"
-          className="text-[12px] text-zoru-ink-muted hover:text-zoru-ink hover:underline"
+          className="text-[12px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:underline"
         >
           Open team portal
         </Link>

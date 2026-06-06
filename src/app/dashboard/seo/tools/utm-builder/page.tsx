@@ -97,9 +97,9 @@ export default function UtmBuilderPage() {
           value={base} 
           onChange={(e) => setBase(e.target.value)} 
           placeholder="https://example.com/landing" 
-          className={baseUrlError ? 'border-zoru-line' : ''}
+          className={baseUrlError ? 'border-[var(--st-border)]' : ''}
         />
-        {baseUrlError && <p className="text-sm text-zoru-ink">{baseUrlError}</p>}
+        {baseUrlError && <p className="text-sm text-[var(--st-text)]">{baseUrlError}</p>}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -112,26 +112,26 @@ export default function UtmBuilderPage() {
 
       <div className="flex flex-col gap-2 mt-2">
         <div className="flex justify-between items-center">
-          <Label className="text-zoru-ink-muted">Saved Presets</Label>
+          <Label className="text-[var(--st-text-secondary)]">Saved Presets</Label>
           <Button variant="outline" size="sm" onClick={savePreset}>Save Current as Preset</Button>
         </div>
         {isMounted && (
           presets.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {presets.map((p, i) => (
-                <div key={i} className="flex items-center bg-zoru-surface-2 border rounded-md text-sm">
-                  <button onClick={() => setU(p.data)} className="px-3 py-1.5 hover:bg-zoru-surface/50 rounded-l-md transition-colors">
+                <div key={i} className="flex items-center bg-[var(--st-bg-muted)] border rounded-md text-sm">
+                  <button onClick={() => setU(p.data)} className="px-3 py-1.5 hover:bg-[var(--st-bg-secondary)]/50 rounded-l-md transition-colors">
                     {p.name}
                   </button>
                   <div className="w-px h-4 bg-border"></div>
-                  <button onClick={() => deletePreset(i)} className="px-2 py-1.5 hover:text-zoru-ink hover:bg-zoru-surface/50 rounded-r-md transition-colors" title="Delete preset">
+                  <button onClick={() => deletePreset(i)} className="px-2 py-1.5 hover:text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]/50 rounded-r-md transition-colors" title="Delete preset">
                     ×
                   </button>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-sm text-zoru-ink-muted italic">No presets saved. Configure your parameters and save them for quick access.</p>
+            <p className="text-sm text-[var(--st-text-secondary)] italic">No presets saved. Configure your parameters and save them for quick access.</p>
           )
         )}
       </div>
@@ -140,7 +140,7 @@ export default function UtmBuilderPage() {
         <div className="space-y-3 mt-4">
           <div className="space-y-2">
             <Label>Generated URL</Label>
-            <div className="font-mono text-xs bg-zoru-surface-2 p-3 rounded break-all border">{out}</div>
+            <div className="font-mono text-xs bg-[var(--st-bg-muted)] p-3 rounded break-all border">{out}</div>
             <div className="flex flex-wrap gap-2">
               <Button onClick={() => navigator.clipboard.writeText(out)}>Copy URL</Button>
               <Button variant="secondary" onClick={handleShorten} disabled={isShortening}>
@@ -150,10 +150,10 @@ export default function UtmBuilderPage() {
           </div>
           
           {shortUrl && (
-            <div className="space-y-2 mt-4 p-3 border rounded-md bg-zoru-surface-2/50">
+            <div className="space-y-2 mt-4 p-3 border rounded-md bg-[var(--st-bg-muted)]/50">
               <Label>Shortened URL</Label>
               <div className="flex items-center gap-2">
-                <Input value={shortUrl} readOnly className="font-mono bg-zoru-surface" />
+                <Input value={shortUrl} readOnly className="font-mono bg-[var(--st-bg-secondary)]" />
                 <Button variant="outline" onClick={() => navigator.clipboard.writeText(shortUrl)}>Copy</Button>
               </div>
             </div>

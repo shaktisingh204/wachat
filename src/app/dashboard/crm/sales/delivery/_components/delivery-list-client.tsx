@@ -322,7 +322,7 @@ export function DeliveryListClient({
       render: (row) => row.accountId ? (
         <EntityPickerChip entity="client" id={row.accountId} />
       ) : (
-        <span className="text-zoru-ink-muted">—</span>
+        <span className="text-[var(--st-text-secondary)]">—</span>
       ),
     },
     {
@@ -332,12 +332,12 @@ export function DeliveryListClient({
       render: (row) => row.soRef ? (
         <Link
           href={`/dashboard/crm/sales/orders/${row.soRef}`}
-          className="hover:underline text-[12.5px] text-zoru-ink-muted"
+          className="hover:underline text-[12.5px] text-[var(--st-text-secondary)]"
         >
           {row.soRef.slice(-6)}
         </Link>
       ) : (
-        <span className="text-zoru-ink-muted">—</span>
+        <span className="text-[var(--st-text-secondary)]">—</span>
       ),
     },
     {
@@ -345,7 +345,7 @@ export function DeliveryListClient({
       header: 'Date',
       sortable: true,
       render: (row) => (
-        <span className="text-[12.5px] text-zoru-ink-muted">
+        <span className="text-[12.5px] text-[var(--st-text-secondary)]">
           {fmtDate(row.challanDate)}
         </span>
       ),
@@ -355,7 +355,7 @@ export function DeliveryListClient({
       header: 'Vehicle #',
       sortable: true,
       render: (row) => (
-        <span className="text-[12.5px] text-zoru-ink">
+        <span className="text-[12.5px] text-[var(--st-text)]">
           {row.vehicleNumber || '—'}
         </span>
       ),
@@ -365,7 +365,7 @@ export function DeliveryListClient({
       header: 'Driver',
       sortable: true,
       render: (row) => (
-        <span className="text-[12.5px] text-zoru-ink">
+        <span className="text-[12.5px] text-[var(--st-text)]">
           {row.driverName || '—'}
         </span>
       ),
@@ -382,10 +382,10 @@ export function DeliveryListClient({
           parts.push(`${row.serialsCount} serial${row.serialsCount > 1 ? 's' : ''}`);
         }
         if (parts.length === 0) {
-          return <span className="text-[12.5px] text-zoru-ink-muted">—</span>;
+          return <span className="text-[12.5px] text-[var(--st-text-secondary)]">—</span>;
         }
         return (
-          <span className="inline-flex items-center gap-1 rounded bg-zoru-surface-2 px-2 py-0.5 text-[11.5px] font-medium text-zoru-ink border border-zoru-line">
+          <span className="inline-flex items-center gap-1 rounded bg-[var(--st-bg-muted)] px-2 py-0.5 text-[11.5px] font-medium text-[var(--st-text)] border border-[var(--st-border)]">
             {parts.join(', ')}
           </span>
         );
@@ -398,13 +398,13 @@ export function DeliveryListClient({
       render: (row) => row.status ? (
         <StatusPill label={row.status} tone={statusToTone(row.status)} />
       ) : (
-        <span className="text-zoru-ink-muted">—</span>
+        <span className="text-[var(--st-text-secondary)]">—</span>
       ),
       editRender: (row, value, onChange) => {
         const options: DcStatus[] = ['Draft', 'In Transit', 'Delivered', 'Returned'];
         return (
           <select
-            className="h-8 w-28 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg text-zoru-ink text-[12.5px] p-1 outline-none focus:ring-1 focus:ring-zoru-primary"
+            className="h-8 w-28 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)] text-[12.5px] p-1 outline-none focus:ring-1 focus:ring-[var(--st-text)]"
             value={value !== undefined ? String(value) : 'Draft'}
             onChange={(e) => onChange(e.target.value as DcStatus)}
           >
@@ -421,11 +421,11 @@ export function DeliveryListClient({
       key: 'tracking',
       header: 'Tracking',
       render: (row) => row.status === 'In Transit' || row.status === 'Delivered' ? (
-        <Button variant="ghost" size="sm" className="h-7 text-[11px] px-2 text-zoru-primary" onClick={() => generateTracking(row)}>
+        <Button variant="ghost" size="sm" className="h-7 text-[11px] px-2 text-[var(--st-text)]" onClick={() => generateTracking(row)}>
           Track Link
         </Button>
       ) : (
-        <span className="text-zoru-ink-muted text-[12.5px]">—</span>
+        <span className="text-[var(--st-text-secondary)] text-[12.5px]">—</span>
       ),
     },
   ], []);
@@ -465,9 +465,9 @@ export function DeliveryListClient({
       empty={
         rows.length === 0 && !initialQuery && !hasActive ? (
           <div className="flex flex-col items-center gap-3 p-4">
-            <Truck className="h-8 w-8 text-zoru-ink-muted" />
-            <h3 className="text-base font-medium text-zoru-ink">No delivery challans yet</h3>
-            <p className="max-w-sm text-sm text-zoru-ink-muted">
+            <Truck className="h-8 w-8 text-[var(--st-text-secondary)]" />
+            <h3 className="text-base font-medium text-[var(--st-text)]">No delivery challans yet</h3>
+            <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
               Create a delivery challan to track goods dispatched to customers.
             </p>
             <Button asChild>
@@ -488,7 +488,7 @@ export function DeliveryListClient({
         />
 
         {error ? (
-          <div className="flex items-center gap-2 rounded border border-zoru-line/40 bg-zoru-ink/10 px-4 py-2.5 text-[13px] text-zoru-ink">
+          <div className="flex items-center gap-2 rounded border border-[var(--st-border)]/40 bg-[var(--st-text)]/10 px-4 py-2.5 text-[13px] text-[var(--st-text)]">
             <AlertCircle className="h-4 w-4 shrink-0" />
             {error}
           </div>
@@ -508,8 +508,8 @@ export function DeliveryListClient({
             onRemove={(k) => pushParams({ [k]: undefined, page: '1' })}
           />
 
-          <div className="p-3 border-b border-zoru-line flex items-center justify-between gap-4 bg-zoru-surface-2">
-            <span className="text-[12px] font-medium text-zoru-ink-muted">
+          <div className="p-3 border-b border-[var(--st-border)] flex items-center justify-between gap-4 bg-[var(--st-bg-muted)]">
+            <span className="text-[12px] font-medium text-[var(--st-text-secondary)]">
               Double-click a row status to edit inline.
             </span>
             <div className="flex gap-1.5">
@@ -567,7 +567,7 @@ export function DeliveryListClient({
               confirmDelete();
             }}
             disabled={busy}
-            className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
+            className="bg-[var(--st-danger)] text-white hover:bg-[var(--st-danger)]/90"
           >
             {busy ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : null}
             Delete permanently
@@ -597,7 +597,7 @@ export function DeliveryListClient({
               confirmBulkDelete();
             }}
             disabled={busy}
-            className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
+            className="bg-[var(--st-danger)] text-white hover:bg-[var(--st-danger)]/90"
           >
             {busy ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : null}
             Delete permanently

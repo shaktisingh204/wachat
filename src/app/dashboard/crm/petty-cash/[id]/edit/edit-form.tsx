@@ -129,7 +129,7 @@ export function PettyCashEditForm({ float }: { float: PettyCashFloat }) {
                     <div className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-2">
                             <Label htmlFor="name">
-                                Float name <span className="text-zoru-danger-ink">*</span>
+                                Float name <span className="text-[var(--st-danger)]">*</span>
                             </Label>
                             <Input
                                 id="name"
@@ -164,7 +164,7 @@ export function PettyCashEditForm({ float }: { float: PettyCashFloat }) {
                             <select
                                 value={status}
                                 onChange={(e) => setStatus(e.target.value as FloatStatus)}
-                                className="h-10 w-full rounded-lg border border-zoru-line bg-zoru-bg px-3 text-[13px] text-zoru-ink"
+                                className="h-10 w-full rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] px-3 text-[13px] text-[var(--st-text)]"
                             >
                                 {STATUS_OPTIONS.map((opt) => (
                                     <option key={opt.value} value={opt.value}>
@@ -232,9 +232,9 @@ export function PettyCashEditForm({ float }: { float: PettyCashFloat }) {
                                 value={currentBalance}
                                 readOnly
                                 aria-readonly
-                                className="bg-zoru-surface-2/40"
+                                className="bg-[var(--st-bg-muted)]/40"
                             />
-                            <p className="text-[11px] text-zoru-ink-muted">
+                            <p className="text-[11px] text-[var(--st-text-secondary)]">
                                 Adjusted via top-ups, vouchers and reconciliation.
                             </p>
                         </div>
@@ -248,7 +248,7 @@ export function PettyCashEditForm({ float }: { float: PettyCashFloat }) {
                                 }
                                 readOnly
                                 aria-readonly
-                                className="bg-zoru-surface-2/40"
+                                className="bg-[var(--st-bg-muted)]/40"
                             />
                         </div>
                     </div>
@@ -268,20 +268,20 @@ export function PettyCashEditForm({ float }: { float: PettyCashFloat }) {
                             {policy ? 'Replace document' : 'Attach document'}
                         </SabFilePickerButton>
                         {policy ? (
-                            <span className="inline-flex items-center gap-2 rounded-md border border-zoru-line bg-zoru-surface-2/40 px-2 py-1 text-[12.5px] text-zoru-ink">
-                                <FileText className="h-3.5 w-3.5 text-zoru-ink-muted" />
+                            <span className="inline-flex items-center gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)]/40 px-2 py-1 text-[12.5px] text-[var(--st-text)]">
+                                <FileText className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                                 <span className="max-w-[220px] truncate">{policy.name}</span>
                                 <button
                                     type="button"
                                     onClick={() => setPolicy(null)}
                                     aria-label="Remove document"
-                                    className="rounded p-0.5 text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-danger-ink"
+                                    className="rounded p-0.5 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-danger)]"
                                 >
                                     <X className="h-3 w-3" />
                                 </button>
                             </span>
                         ) : (
-                            <span className="text-[12px] text-zoru-ink-muted">
+                            <span className="text-[12px] text-[var(--st-text-secondary)]">
                                 Pick from your SabFiles library or upload a new file.
                             </span>
                         )}
@@ -304,12 +304,12 @@ export function PettyCashEditForm({ float }: { float: PettyCashFloat }) {
                 </ZoruCardContent>
             </Card>
 
-            <div className="sticky bottom-0 z-10 -mx-2 flex flex-wrap items-center justify-between gap-2 border-t border-zoru-line bg-zoru-bg px-2 py-3">
+            <div className="sticky bottom-0 z-10 -mx-2 flex flex-wrap items-center justify-between gap-2 border-t border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-3">
                 <div className="text-sm">
                     {state?.error ? (
-                        <span className="text-zoru-danger-ink">{state.error}</span>
+                        <span className="text-[var(--st-danger)]">{state.error}</span>
                     ) : state?.message ? (
-                        <span className="text-zoru-success-ink">{state.message}</span>
+                        <span className="text-[var(--st-status-ok)]">{state.message}</span>
                     ) : null}
                 </div>
                 <div className="flex items-center gap-2">

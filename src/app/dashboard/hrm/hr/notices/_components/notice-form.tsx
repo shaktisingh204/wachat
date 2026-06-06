@@ -208,7 +208,7 @@ export function NoticeForm({ initialData }: NoticeFormProps) {
             ) : null}
 
             <Card className="p-6">
-                <div className="mb-4 text-[14px] font-medium text-zoru-ink">
+                <div className="mb-4 text-[14px] font-medium text-[var(--st-text)]">
                     Notice details
                 </div>
 
@@ -225,7 +225,7 @@ export function NoticeForm({ initialData }: NoticeFormProps) {
                                 placeholder="Auto-generated when blank"
                                 defaultValue={initialData?.noticeNumber ?? ''}
                             />
-                            <p className="text-[11.5px] text-zoru-ink-muted">
+                            <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                                 Leave blank to auto-generate (e.g. NTC-2026-0001).
                             </p>
                         </div>
@@ -404,21 +404,21 @@ export function NoticeForm({ initialData }: NoticeFormProps) {
             {/* Attachments — SabFiles only, no URL paste */}
             <Card className="p-6">
                 <div className="mb-1 flex items-baseline justify-between">
-                    <div className="text-[14px] font-medium text-zoru-ink">
+                    <div className="text-[14px] font-medium text-[var(--st-text)]">
                         Attachments
                     </div>
-                    <span className="text-[11.5px] text-zoru-ink-muted">
+                    <span className="text-[11.5px] text-[var(--st-text-secondary)]">
                         {attachments.length} file
                         {attachments.length === 1 ? '' : 's'}
                     </span>
                 </div>
-                <p className="mb-4 text-[12px] text-zoru-ink-muted">
+                <p className="mb-4 text-[12px] text-[var(--st-text-secondary)]">
                     Pick from your SabFiles library or upload a new file. External
                     URLs are not supported.
                 </p>
 
                 {attachments.length === 0 ? (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No attachments yet.
                     </div>
                 ) : (
@@ -426,7 +426,7 @@ export function NoticeForm({ initialData }: NoticeFormProps) {
                         {attachments.map((a) => (
                             <li
                                 key={a.key}
-                                className="flex items-center gap-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 py-2"
+                                className="flex items-center gap-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2"
                             >
                                 {a.mime?.startsWith('image/') ? (
                                     // eslint-disable-next-line @next/next/no-img-element
@@ -436,9 +436,9 @@ export function NoticeForm({ initialData }: NoticeFormProps) {
                                         className="h-8 w-8 shrink-0 rounded object-cover"
                                     />
                                 ) : (
-                                    <FileIcon className="h-4 w-4 shrink-0 text-zoru-ink-muted" />
+                                    <FileIcon className="h-4 w-4 shrink-0 text-[var(--st-text-secondary)]" />
                                 )}
-                                <span className="min-w-0 flex-1 truncate text-[13px] text-zoru-ink">
+                                <span className="min-w-0 flex-1 truncate text-[13px] text-[var(--st-text)]">
                                     {a.name}
                                 </span>
                                 {/* The actual payload — FormData.getAll('attachments') reads these. */}

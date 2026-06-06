@@ -195,13 +195,13 @@ export function DeliveryForm({ seed, fromKind, fromId, editId }: DeliveryFormPro
 
       {/* Header */}
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Header
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <Label htmlFor="challanNumber">
-              Challan # <span className="text-zoru-danger-ink">*</span>
+              Challan # <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <Input
               id="challanNumber"
@@ -214,7 +214,7 @@ export function DeliveryForm({ seed, fromKind, fromId, editId }: DeliveryFormPro
           </div>
           <div>
             <Label htmlFor="challanDate">
-              Challan date <span className="text-zoru-danger-ink">*</span>
+              Challan date <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <Input
               id="challanDate"
@@ -227,7 +227,7 @@ export function DeliveryForm({ seed, fromKind, fromId, editId }: DeliveryFormPro
           </div>
           <div>
             <Label>
-              Customer <span className="text-zoru-danger-ink">*</span>
+              Customer <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <div className="mt-1.5">
               <EntityFormField
@@ -266,7 +266,7 @@ export function DeliveryForm({ seed, fromKind, fromId, editId }: DeliveryFormPro
 
       {/* Dispatch + ship-to */}
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Dispatch & ship-to
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
@@ -347,7 +347,7 @@ export function DeliveryForm({ seed, fromKind, fromId, editId }: DeliveryFormPro
 
       {/* Transport */}
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Transport
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
@@ -428,7 +428,7 @@ export function DeliveryForm({ seed, fromKind, fromId, editId }: DeliveryFormPro
 
       {/* Notes */}
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Notes
         </h3>
         <Textarea

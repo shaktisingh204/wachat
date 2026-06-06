@@ -116,7 +116,7 @@ export default function TenDlcRegistrationPage() {
                 value="95 / 100"
                 delta={5}
                 period="Excellent standing based on recent vetting"
-                className="bg-gradient-to-br from-zoru-bg to-zoru-surface-2/30 dark:to-zoru-ink/10 border-zoru-line/50"
+                className="bg-gradient-to-br from-[var(--st-bg)] to-[var(--st-bg-muted)]/30 dark:to-[var(--st-text)]/10 border-[var(--st-border)]/50"
               />
               <ZoruStatCard
                 label="Registered Brands"
@@ -132,14 +132,14 @@ export default function TenDlcRegistrationPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2 space-y-6">
-                <Card className="border-zoru-line overflow-hidden shadow-sm">
-                  <div className="bg-zoru-surface border-b px-6 py-4 flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-zoru-primary/10 flex items-center justify-center text-zoru-primary">
+                <Card className="border-[var(--st-border)] overflow-hidden shadow-sm">
+                  <div className="bg-[var(--st-bg-secondary)] border-b px-6 py-4 flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-[var(--st-text)]/10 flex items-center justify-center text-[var(--st-text)]">
                       <Building2 className="h-5 w-5" />
                     </div>
                     <div>
                       <h2 className="text-lg font-semibold">Premium Brand Registration</h2>
-                      <p className="text-sm text-zoru-ink-muted">Complete the multi-step verification process to register a new entity.</p>
+                      <p className="text-sm text-[var(--st-text-secondary)]">Complete the multi-step verification process to register a new entity.</p>
                     </div>
                   </div>
                   <ZoruCardContent className="p-0">
@@ -231,21 +231,21 @@ export default function TenDlcRegistrationPage() {
                             <div className="space-y-2">
                               <Label>Support Email</Label>
                               <div className="relative">
-                                <Mail className="absolute left-3 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+                                <Mail className="absolute left-3 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
                                 <Input placeholder="support@acme.com" className="pl-9" />
                               </div>
                             </div>
                             <div className="space-y-2">
                               <Label>Support Phone</Label>
                               <div className="relative">
-                                <Phone className="absolute left-3 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+                                <Phone className="absolute left-3 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
                                 <Input placeholder="+1 (800) 555-0199" className="pl-9" />
                               </div>
                             </div>
                             <div className="space-y-2 sm:col-span-2">
                               <Label>Website URL</Label>
                               <div className="relative">
-                                <Globe className="absolute left-3 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+                                <Globe className="absolute left-3 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
                                 <Input placeholder="https://www.acme.com" className="pl-9" />
                               </div>
                             </div>
@@ -254,7 +254,7 @@ export default function TenDlcRegistrationPage() {
                       </ZoruAccordion03Item>
                     </ZoruAccordion03>
                   </ZoruCardContent>
-                  <div className="p-6 bg-zoru-surface border-t flex justify-end gap-3">
+                  <div className="p-6 bg-[var(--st-bg-secondary)] border-t flex justify-end gap-3">
                     <Button variant="outline">Save Draft</Button>
                     <Button>Submit for Verification</Button>
                   </div>
@@ -265,28 +265,28 @@ export default function TenDlcRegistrationPage() {
                 <Card>
                   <ZoruCardHeader>
                     <ZoruCardTitle className="text-base flex items-center gap-2">
-                      <ShieldCheck className="h-4 w-4 text-zoru-primary" /> TCR Verification Status
+                      <ShieldCheck className="h-4 w-4 text-[var(--st-text)]" /> TCR Verification Status
                     </ZoruCardTitle>
                   </ZoruCardHeader>
                   <ZoruCardContent className="space-y-4">
                     <div className="flex flex-col gap-3">
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-zoru-ink-muted">EIN Verification</span>
-                        <Badge variant="secondary" className="bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted">Verified</Badge>
+                        <span className="text-[var(--st-text-secondary)]">EIN Verification</span>
+                        <Badge variant="secondary" className="bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]">Verified</Badge>
                       </div>
                       <Separator />
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-zoru-ink-muted">Address Matching</span>
-                        <Badge variant="secondary" className="bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted">Pending</Badge>
+                        <span className="text-[var(--st-text-secondary)]">Address Matching</span>
+                        <Badge variant="secondary" className="bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]">Pending</Badge>
                       </div>
                       <Separator />
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-zoru-ink-muted">Vetting Class</span>
+                        <span className="text-[var(--st-text-secondary)]">Vetting Class</span>
                         <span className="font-medium">Standard</span>
                       </div>
                     </div>
                     <Button variant="outline" className="w-full mt-4">
-                      <Zap className="mr-2 h-4 w-4 text-zoru-ink" /> Apply for Enhanced Vetting
+                      <Zap className="mr-2 h-4 w-4 text-[var(--st-text)]" /> Apply for Enhanced Vetting
                     </Button>
                   </ZoruCardContent>
                 </Card>
@@ -328,7 +328,7 @@ export default function TenDlcRegistrationPage() {
                     { id: "campaign", header: "Assigned Campaign", render: (r) => <span className="font-medium">{r.campaign}</span> },
                     { id: "throughput", header: "Throughput (TPM)", render: (r) => r.throughput },
                     { id: "status", header: "Status", render: (r) => (
-                      <Badge variant="secondary" className={r.status === 'Active' ? 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted' : ''}>
+                      <Badge variant="secondary" className={r.status === 'Active' ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]' : ''}>
                         {r.status}
                       </Badge>
                     )},
@@ -362,21 +362,21 @@ export default function TenDlcRegistrationPage() {
                 value="12,000 TPM"
                 period="T-Mobile Tier: Top"
               />
-              <Card className="flex flex-col justify-center p-4 bg-zoru-surface border-zoru-line border-dashed">
+              <Card className="flex flex-col justify-center p-4 bg-[var(--st-bg-secondary)] border-[var(--st-border)] border-dashed">
                 <Button variant="outline" className="w-full">
                   Bulk Register Campaigns
                 </Button>
               </Card>
             </div>
 
-            <Card className="border-zoru-line shadow-sm overflow-hidden">
-              <div className="bg-zoru-surface border-b px-6 py-5 flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-zoru-surface-2 dark:bg-zoru-ink/30 flex items-center justify-center text-zoru-ink dark:text-zoru-ink-muted">
+            <Card className="border-[var(--st-border)] shadow-sm overflow-hidden">
+              <div className="bg-[var(--st-bg-secondary)] border-b px-6 py-5 flex items-center gap-3">
+                <div className="h-10 w-10 rounded-full bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 flex items-center justify-center text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
                   <MessageSquare className="h-5 w-5" />
                 </div>
                 <div>
                   <h2 className="text-lg font-semibold">Comprehensive Campaign Registration</h2>
-                  <p className="text-sm text-zoru-ink-muted">Detail your messaging use case, samples, and opt-in flows to ensure compliance.</p>
+                  <p className="text-sm text-[var(--st-text-secondary)]">Detail your messaging use case, samples, and opt-in flows to ensure compliance.</p>
                 </div>
               </div>
               <ZoruCardContent className="p-0">
@@ -417,7 +417,7 @@ export default function TenDlcRegistrationPage() {
                   <ZoruAccordionItem value="samples" className="px-6">
                     <ZoruAccordionTrigger className="text-base py-5">Message Samples</ZoruAccordionTrigger>
                     <ZoruAccordionContent className="space-y-6 pb-6">
-                      <div className="bg-zoru-surface-2 dark:bg-zoru-ink/10 border border-zoru-line dark:border-zoru-line/30 rounded-lg p-4 flex gap-3 text-sm text-zoru-ink dark:text-zoru-ink-muted">
+                      <div className="bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/10 border border-[var(--st-border)] dark:border-[var(--st-border)]/30 rounded-lg p-4 flex gap-3 text-sm text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
                         <Info className="h-5 w-5 shrink-0 mt-0.5" />
                         <div>
                           <p className="font-semibold mb-1">Required Samples</p>
@@ -429,13 +429,13 @@ export default function TenDlcRegistrationPage() {
                         {[1, 2, 3, 4].map((num) => (
                           <div key={num} className="space-y-2">
                             <Label className="flex justify-between">
-                              Sample Message {num} {num > 2 && <span className="text-zoru-ink-muted font-normal">(Optional)</span>}
+                              Sample Message {num} {num > 2 && <span className="text-[var(--st-text-secondary)] font-normal">(Optional)</span>}
                             </Label>
                             <Textarea 
                               placeholder={`E.g., "Your Acme code is 123456. Valid for 10 minutes."`} 
                               className="font-mono text-sm resize-none h-24" 
                             />
-                            <p className="text-xs text-zoru-ink-muted text-right">0 / 160 chars</p>
+                            <p className="text-xs text-[var(--st-text-secondary)] text-right">0 / 160 chars</p>
                           </div>
                         ))}
                       </div>
@@ -472,14 +472,14 @@ export default function TenDlcRegistrationPage() {
                         <div className="space-y-3">
                           <Label>Opt-Out Keywords (Comma separated)</Label>
                           <Input defaultValue="STOP, UNSUBSCRIBE, CANCEL, QUIT" />
-                          <div className="p-3 bg-zoru-surface-2 rounded-md text-sm border font-mono">
+                          <div className="p-3 bg-[var(--st-bg-muted)] rounded-md text-sm border font-mono">
                             Preview: Reply STOP to unsubscribe.
                           </div>
                         </div>
                         <div className="space-y-3">
                           <Label>Help Keywords (Comma separated)</Label>
                           <Input defaultValue="HELP, INFO" />
-                          <div className="p-3 bg-zoru-surface-2 rounded-md text-sm border font-mono">
+                          <div className="p-3 bg-[var(--st-bg-muted)] rounded-md text-sm border font-mono">
                             Preview: Reply HELP for info. Msg&Data rates apply.
                           </div>
                         </div>
@@ -488,7 +488,7 @@ export default function TenDlcRegistrationPage() {
                   </ZoruAccordionItem>
                 </Accordion>
 
-                <div className="px-6 py-4 bg-zoru-bg border-b border-t">
+                <div className="px-6 py-4 bg-[var(--st-bg)] border-b border-t">
                   <ZoruCollapsible
                     open={isAdvancedOpen}
                     onOpenChange={setIsAdvancedOpen}
@@ -507,45 +507,45 @@ export default function TenDlcRegistrationPage() {
                     </div>
                     <ZoruCollapsibleContent className="space-y-4 pt-4 pb-2">
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <div className="flex flex-row items-center justify-between rounded-lg border p-4 bg-zoru-surface">
+                        <div className="flex flex-row items-center justify-between rounded-lg border p-4 bg-[var(--st-bg-secondary)]">
                           <div className="space-y-0.5">
                             <Label className="text-base">MMS Enabled</Label>
-                            <p className="text-sm text-zoru-ink-muted">Send rich media</p>
+                            <p className="text-sm text-[var(--st-text-secondary)]">Send rich media</p>
                           </div>
                           <Switch defaultChecked />
                         </div>
-                        <div className="flex flex-row items-center justify-between rounded-lg border p-4 bg-zoru-surface">
+                        <div className="flex flex-row items-center justify-between rounded-lg border p-4 bg-[var(--st-bg-secondary)]">
                           <div className="space-y-0.5">
                             <Label className="text-base">Age Gating</Label>
-                            <p className="text-sm text-zoru-ink-muted">18+ or 21+ content</p>
+                            <p className="text-sm text-[var(--st-text-secondary)]">18+ or 21+ content</p>
                           </div>
                           <Switch />
                         </div>
-                        <div className="flex flex-row items-center justify-between rounded-lg border p-4 bg-zoru-surface">
+                        <div className="flex flex-row items-center justify-between rounded-lg border p-4 bg-[var(--st-bg-secondary)]">
                           <div className="space-y-0.5">
                             <Label className="text-base">Number Pooling</Label>
-                            <p className="text-sm text-zoru-ink-muted">&gt;50 numbers</p>
+                            <p className="text-sm text-[var(--st-text-secondary)]">&gt;50 numbers</p>
                           </div>
                           <Switch />
                         </div>
-                        <div className="flex flex-row items-center justify-between rounded-lg border p-4 bg-zoru-surface">
+                        <div className="flex flex-row items-center justify-between rounded-lg border p-4 bg-[var(--st-bg-secondary)]">
                           <div className="space-y-0.5">
                             <Label className="text-base">Direct Lending</Label>
-                            <p className="text-sm text-zoru-ink-muted">Financial lending</p>
+                            <p className="text-sm text-[var(--st-text-secondary)]">Financial lending</p>
                           </div>
                           <Switch />
                         </div>
-                        <div className="flex flex-row items-center justify-between rounded-lg border p-4 bg-zoru-surface">
+                        <div className="flex flex-row items-center justify-between rounded-lg border p-4 bg-[var(--st-bg-secondary)]">
                           <div className="space-y-0.5">
                             <Label className="text-base">Embedded Links</Label>
-                            <p className="text-sm text-zoru-ink-muted">Contains URLs</p>
+                            <p className="text-sm text-[var(--st-text-secondary)]">Contains URLs</p>
                           </div>
                           <Switch defaultChecked />
                         </div>
-                        <div className="flex flex-row items-center justify-between rounded-lg border p-4 bg-zoru-surface">
+                        <div className="flex flex-row items-center justify-between rounded-lg border p-4 bg-[var(--st-bg-secondary)]">
                           <div className="space-y-0.5">
                             <Label className="text-base">Embedded Phone</Label>
-                            <p className="text-sm text-zoru-ink-muted">Contains phone numbers</p>
+                            <p className="text-sm text-[var(--st-text-secondary)]">Contains phone numbers</p>
                           </div>
                           <Switch defaultChecked />
                         </div>
@@ -554,7 +554,7 @@ export default function TenDlcRegistrationPage() {
                   </ZoruCollapsible>
                 </div>
               </ZoruCardContent>
-              <div className="p-6 bg-zoru-surface flex justify-end gap-3">
+              <div className="p-6 bg-[var(--st-bg-secondary)] flex justify-end gap-3">
                 <Button variant="outline">Save Campaign</Button>
                 <Button>Register Campaign ($15.00)</Button>
               </div>
@@ -572,27 +572,27 @@ export default function TenDlcRegistrationPage() {
                 </ZoruCardHeader>
                 <ZoruCardContent>
                   <div className="space-y-4">
-                    <div className="bg-zoru-surface rounded-lg p-4 border">
-                      <h4 className="font-semibold text-sm mb-3 text-zoru-ink-muted uppercase tracking-wider">One-Time Fees</h4>
+                    <div className="bg-[var(--st-bg-secondary)] rounded-lg p-4 border">
+                      <h4 className="font-semibold text-sm mb-3 text-[var(--st-text-secondary)] uppercase tracking-wider">One-Time Fees</h4>
                       <div className="flex justify-between py-2 border-b">
                         <span>Brand Vetting (Standard)</span>
-                        <strong className="text-zoru-ink">$40.00</strong>
+                        <strong className="text-[var(--st-text)]">$40.00</strong>
                       </div>
                       <div className="flex justify-between py-2 border-b">
                         <span>Campaign Registration</span>
-                        <strong className="text-zoru-ink">$15.00</strong>
+                        <strong className="text-[var(--st-text)]">$15.00</strong>
                       </div>
                     </div>
                     
-                    <div className="bg-zoru-surface rounded-lg p-4 border">
-                      <h4 className="font-semibold text-sm mb-3 text-zoru-ink-muted uppercase tracking-wider">Recurring Monthly Fees</h4>
+                    <div className="bg-[var(--st-bg-secondary)] rounded-lg p-4 border">
+                      <h4 className="font-semibold text-sm mb-3 text-[var(--st-text-secondary)] uppercase tracking-wider">Recurring Monthly Fees</h4>
                       <div className="flex justify-between py-2 border-b">
                         <span>Campaign Maintenance (Standard)</span>
-                        <strong className="text-zoru-ink">$10.00 / mo</strong>
+                        <strong className="text-[var(--st-text)]">$10.00 / mo</strong>
                       </div>
                       <div className="flex justify-between py-2">
                         <span>Low Volume Campaign</span>
-                        <strong className="text-zoru-ink">$1.50 / mo</strong>
+                        <strong className="text-[var(--st-text)]">$1.50 / mo</strong>
                       </div>
                     </div>
                   </div>
@@ -606,18 +606,18 @@ export default function TenDlcRegistrationPage() {
                     <ZoruCardDescription>Configure alerts to avoid campaign expiration.</ZoruCardDescription>
                   </ZoruCardHeader>
                   <ZoruCardContent className="space-y-4">
-                    <div className="flex items-start space-x-3 p-3 bg-zoru-surface rounded-lg border">
+                    <div className="flex items-start space-x-3 p-3 bg-[var(--st-bg-secondary)] rounded-lg border">
                       <Checkbox id="remind-30" defaultChecked className="mt-1" />
                       <div>
                         <Label htmlFor="remind-30" className="font-medium text-base">30 Days Prior</Label>
-                        <p className="text-sm text-zoru-ink-muted">Receive early warning for upcoming renewals.</p>
+                        <p className="text-sm text-[var(--st-text-secondary)]">Receive early warning for upcoming renewals.</p>
                       </div>
                     </div>
-                    <div className="flex items-start space-x-3 p-3 bg-zoru-surface rounded-lg border">
+                    <div className="flex items-start space-x-3 p-3 bg-[var(--st-bg-secondary)] rounded-lg border">
                       <Checkbox id="remind-7" defaultChecked className="mt-1" />
                       <div>
                         <Label htmlFor="remind-7" className="font-medium text-base">7 Days Prior</Label>
-                        <p className="text-sm text-zoru-ink-muted">Critical final warning before expiration.</p>
+                        <p className="text-sm text-[var(--st-text-secondary)]">Critical final warning before expiration.</p>
                       </div>
                     </div>
                   </ZoruCardContent>
@@ -633,10 +633,10 @@ export default function TenDlcRegistrationPage() {
                       <Label>Reseller TCR ID (Optional)</Label>
                       <Input placeholder="R-XXXXXXXX" />
                     </div>
-                    <div className="flex flex-row items-center justify-between rounded-lg border p-4 bg-zoru-surface mt-4">
+                    <div className="flex flex-row items-center justify-between rounded-lg border p-4 bg-[var(--st-bg-secondary)] mt-4">
                       <div className="space-y-0.5">
                         <Label className="text-base">Campaign Sharing</Label>
-                        <p className="text-sm text-zoru-ink-muted">Allow reseller to view active campaigns</p>
+                        <p className="text-sm text-[var(--st-text-secondary)]">Allow reseller to view active campaigns</p>
                       </div>
                       <Switch />
                     </div>
@@ -653,27 +653,27 @@ export default function TenDlcRegistrationPage() {
               <Card>
                 <ZoruCardHeader>
                   <ZoruCardTitle className="flex items-center gap-2">
-                    <AlertTriangle className="h-5 w-5 text-zoru-ink" /> Action Required
+                    <AlertTriangle className="h-5 w-5 text-[var(--st-text)]" /> Action Required
                   </ZoruCardTitle>
                   <ZoruCardDescription>Review rejected or flagged campaigns.</ZoruCardDescription>
                 </ZoruCardHeader>
                 <ZoruCardContent>
-                  <div className="rounded-lg border p-5 bg-zoru-surface-2/50 dark:bg-zoru-ink/10 border-zoru-line dark:border-zoru-line/30">
+                  <div className="rounded-lg border p-5 bg-[var(--st-bg-muted)]/50 dark:bg-[var(--st-text)]/10 border-[var(--st-border)] dark:border-[var(--st-border)]/30">
                     <div className="flex justify-between items-start mb-3">
                       <div>
-                        <h4 className="font-bold text-zoru-ink dark:text-zoru-ink-muted text-lg">Marketing 2026</h4>
-                        <p className="text-sm text-zoru-ink/80 dark:text-zoru-ink-muted/80 mt-1">Campaign Registration</p>
+                        <h4 className="font-bold text-[var(--st-text)] dark:text-[var(--st-text-secondary)] text-lg">Marketing 2026</h4>
+                        <p className="text-sm text-[var(--st-text)]/80 dark:text-[var(--st-text-secondary)]/80 mt-1">Campaign Registration</p>
                       </div>
-                      <Badge variant="outline" className="text-zoru-ink border-zoru-line">Rejected</Badge>
+                      <Badge variant="outline" className="text-[var(--st-text)] border-[var(--st-border)]">Rejected</Badge>
                     </div>
-                    <Separator className="bg-zoru-surface-2 dark:bg-zoru-ink/50 my-3" />
-                    <p className="text-sm font-medium text-zoru-ink dark:text-zoru-ink-muted mb-2">Rejection Reason (TCR Code: 301):</p>
-                    <p className="text-sm text-zoru-ink dark:text-zoru-ink-muted">Opt-out language missing in sample message 3. The phrase "Reply STOP to cancel" or similar must be clearly visible in promotional samples.</p>
+                    <Separator className="bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/50 my-3" />
+                    <p className="text-sm font-medium text-[var(--st-text)] dark:text-[var(--st-text-secondary)] mb-2">Rejection Reason (TCR Code: 301):</p>
+                    <p className="text-sm text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">Opt-out language missing in sample message 3. The phrase "Reply STOP to cancel" or similar must be clearly visible in promotional samples.</p>
                     <div className="mt-5 flex gap-3">
-                      <Button variant="outline" size="sm" className="bg-white dark:bg-zoru-bg border-zoru-line hover:bg-zoru-surface-2 dark:hover:bg-zoru-ink/20">
+                      <Button variant="outline" size="sm" className="bg-white dark:bg-[var(--st-bg)] border-[var(--st-border)] hover:bg-[var(--st-bg-muted)] dark:hover:bg-[var(--st-text)]/20">
                         View Details
                       </Button>
-                      <Button size="sm" className="bg-zoru-ink hover:bg-zoru-ink text-white">
+                      <Button size="sm" className="bg-[var(--st-text)] hover:bg-[var(--st-text)] text-white">
                         Edit & Re-submit
                       </Button>
                     </div>
@@ -687,26 +687,26 @@ export default function TenDlcRegistrationPage() {
                   <ZoruCardDescription>Recent state changes for your entities.</ZoruCardDescription>
                 </ZoruCardHeader>
                 <ZoruCardContent>
-                  <div className="relative border-l border-zoru-line ml-3 space-y-6 pb-2">
+                  <div className="relative border-l border-[var(--st-border)] ml-3 space-y-6 pb-2">
                     <div className="relative pl-6">
-                      <span className="absolute -left-1.5 top-1.5 h-3 w-3 rounded-full border-2 border-zoru-bg bg-zoru-ink" />
+                      <span className="absolute -left-1.5 top-1.5 h-3 w-3 rounded-full border-2 border-[var(--st-bg)] bg-[var(--st-text)]" />
                       <div className="flex flex-col">
                         <span className="text-sm font-semibold">Vetting Completed (Score: 95)</span>
-                        <span className="text-xs text-zoru-ink-muted mt-1">Acme Corporation Inc. • Oct 14, 02:30 PM</span>
+                        <span className="text-xs text-[var(--st-text-secondary)] mt-1">Acme Corporation Inc. • Oct 14, 02:30 PM</span>
                       </div>
                     </div>
                     <div className="relative pl-6">
-                      <span className="absolute -left-1.5 top-1.5 h-3 w-3 rounded-full border-2 border-zoru-bg bg-zoru-ink" />
+                      <span className="absolute -left-1.5 top-1.5 h-3 w-3 rounded-full border-2 border-[var(--st-bg)] bg-[var(--st-text)]" />
                       <div className="flex flex-col">
                         <span className="text-sm font-semibold">Submitted to TCR</span>
-                        <span className="text-xs text-zoru-ink-muted mt-1">Acme Corporation Inc. • Oct 12, 10:00 AM</span>
+                        <span className="text-xs text-[var(--st-text-secondary)] mt-1">Acme Corporation Inc. • Oct 12, 10:00 AM</span>
                       </div>
                     </div>
                     <div className="relative pl-6">
-                      <span className="absolute -left-1.5 top-1.5 h-3 w-3 rounded-full border-2 border-zoru-bg bg-zoru-line-strong" />
+                      <span className="absolute -left-1.5 top-1.5 h-3 w-3 rounded-full border-2 border-[var(--st-bg)] bg-[var(--st-border-strong)]" />
                       <div className="flex flex-col">
                         <span className="text-sm font-semibold">Draft Created</span>
-                        <span className="text-xs text-zoru-ink-muted mt-1">System User • Oct 10, 09:15 AM</span>
+                        <span className="text-xs text-[var(--st-text-secondary)] mt-1">System User • Oct 10, 09:15 AM</span>
                       </div>
                     </div>
                   </div>

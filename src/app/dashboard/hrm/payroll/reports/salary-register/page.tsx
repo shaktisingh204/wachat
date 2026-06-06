@@ -47,11 +47,11 @@ const fmt = (n: number) => `₹${n.toLocaleString('en-IN')}`;
 const StatCard = ({ title, value, icon: Icon, sub }: { title: string; value: string; icon: React.ElementType; sub?: string }) => (
     <Card className="flex flex-col gap-1 p-6">
         <div className="flex items-center justify-between">
-            <p className="text-[12.5px] font-medium text-zoru-ink-muted">{title}</p>
-            <Icon className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
+            <p className="text-[12.5px] font-medium text-[var(--st-text-secondary)]">{title}</p>
+            <Icon className="h-4 w-4 text-[var(--st-text-secondary)]" strokeWidth={1.75} />
         </div>
-        <p className="mt-1 text-2xl text-zoru-ink">{value}</p>
-        {sub ? <p className="text-[11.5px] text-zoru-ink-muted">{sub}</p> : null}
+        <p className="mt-1 text-2xl text-[var(--st-text)]">{value}</p>
+        {sub ? <p className="text-[11.5px] text-[var(--st-text-secondary)]">{sub}</p> : null}
     </Card>
 );
 
@@ -124,7 +124,7 @@ export default function SalaryRegisterPage() {
                                     <select
                                         value={selectedMonth}
                                         onChange={e => setSelectedMonth(Number(e.target.value))}
-                                        className="w-full rounded-lg border border-zoru-line bg-zoru-bg px-3 py-2 text-[13px] text-zoru-ink focus:outline-none focus:ring-2 focus:ring-primary/30"
+                                        className="w-full rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-[13px] text-[var(--st-text)] focus:outline-none focus:ring-2 focus:ring-primary/30"
                                     >
                                         {MONTHS.map((m, i) => <option key={m} value={i + 1}>{m}</option>)}
                                     </select>
@@ -134,7 +134,7 @@ export default function SalaryRegisterPage() {
                                     <select
                                         value={selectedYear}
                                         onChange={e => setSelectedYear(Number(e.target.value))}
-                                        className="w-full rounded-lg border border-zoru-line bg-zoru-bg px-3 py-2 text-[13px] text-zoru-ink focus:outline-none focus:ring-2 focus:ring-primary/30"
+                                        className="w-full rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-[13px] text-[var(--st-text)] focus:outline-none focus:ring-2 focus:ring-primary/30"
                                     >
                                         {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
                                     </select>
@@ -168,134 +168,134 @@ export default function SalaryRegisterPage() {
             <Card className="p-6">
                 <div className="mb-4 flex items-center justify-between">
                     <div>
-                        <h2 className="text-[16px] text-zoru-ink">Register Details</h2>
-                        <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+                        <h2 className="text-[16px] text-[var(--st-text)]">Register Details</h2>
+                        <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">
                             {MONTHS[selectedMonth - 1]} {selectedYear}
                         </p>
                     </div>
                     {reportData.length > 0 && (
-                        <span className="text-[12.5px] text-zoru-ink-muted">{reportData.length} employee{reportData.length !== 1 ? 's' : ''}</span>
+                        <span className="text-[12.5px] text-[var(--st-text-secondary)]">{reportData.length} employee{reportData.length !== 1 ? 's' : ''}</span>
                     )}
                 </div>
 
-                <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                     <table className="w-full text-left text-[13px]">
                         <thead>
-                            <tr className="border-b border-zoru-line bg-zoru-surface-2">
-                                <th className="sticky left-0 z-20 bg-zoru-surface-2 w-[180px] min-w-[180px] px-4 py-3 font-medium text-zoru-ink-muted">Employee</th>
-                                <th className="sticky left-[180px] z-20 bg-zoru-surface-2 border-r border-zoru-line w-[140px] min-w-[140px] px-4 py-3 font-medium text-zoru-ink-muted shadow-[4px_0_12px_-4px_rgba(0,0,0,0.1)]">Department</th>
+                            <tr className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]">
+                                <th className="sticky left-0 z-20 bg-[var(--st-bg-muted)] w-[180px] min-w-[180px] px-4 py-3 font-medium text-[var(--st-text-secondary)]">Employee</th>
+                                <th className="sticky left-[180px] z-20 bg-[var(--st-bg-muted)] border-r border-[var(--st-border)] w-[140px] min-w-[140px] px-4 py-3 font-medium text-[var(--st-text-secondary)] shadow-[4px_0_12px_-4px_rgba(0,0,0,0.1)]">Department</th>
                                 {/* Earnings */}
-                                <th className="border-l border-zoru-line px-4 py-3 text-right font-medium text-zoru-ink">Basic</th>
-                                <th className="px-4 py-3 text-right font-medium text-zoru-ink">HRA</th>
-                                <th className="px-4 py-3 text-right font-medium text-zoru-ink">Spl. Allow.</th>
-                                <th className="px-4 py-3 text-right font-medium text-zoru-ink">Other</th>
-                                <th className="px-4 py-3 text-right font-medium text-zoru-ink">Total Gross</th>
-                                <th className="px-4 py-3 text-right font-medium text-zoru-ink/80">YTD Gross</th>
-                                <th className="px-4 py-3 text-right font-medium text-zoru-ink/80">YTD Basic</th>
+                                <th className="border-l border-[var(--st-border)] px-4 py-3 text-right font-medium text-[var(--st-text)]">Basic</th>
+                                <th className="px-4 py-3 text-right font-medium text-[var(--st-text)]">HRA</th>
+                                <th className="px-4 py-3 text-right font-medium text-[var(--st-text)]">Spl. Allow.</th>
+                                <th className="px-4 py-3 text-right font-medium text-[var(--st-text)]">Other</th>
+                                <th className="px-4 py-3 text-right font-medium text-[var(--st-text)]">Total Gross</th>
+                                <th className="px-4 py-3 text-right font-medium text-[var(--st-text)]/80">YTD Gross</th>
+                                <th className="px-4 py-3 text-right font-medium text-[var(--st-text)]/80">YTD Basic</th>
                                 {/* Deductions */}
-                                <th className="border-l border-zoru-line px-4 py-3 text-right font-medium text-zoru-ink">PF</th>
-                                <th className="px-4 py-3 text-right font-medium text-zoru-ink/80">YTD PF</th>
-                                <th className="px-4 py-3 text-right font-medium text-zoru-ink">ESI</th>
-                                <th className="px-4 py-3 text-right font-medium text-zoru-ink">TDS</th>
-                                <th className="px-4 py-3 text-right font-medium text-zoru-ink/80">YTD TDS</th>
-                                <th className="px-4 py-3 text-right font-medium text-zoru-ink">Total Deductions</th>
-                                <th className="px-4 py-3 text-right font-medium text-zoru-ink/80">YTD Deductions</th>
+                                <th className="border-l border-[var(--st-border)] px-4 py-3 text-right font-medium text-[var(--st-text)]">PF</th>
+                                <th className="px-4 py-3 text-right font-medium text-[var(--st-text)]/80">YTD PF</th>
+                                <th className="px-4 py-3 text-right font-medium text-[var(--st-text)]">ESI</th>
+                                <th className="px-4 py-3 text-right font-medium text-[var(--st-text)]">TDS</th>
+                                <th className="px-4 py-3 text-right font-medium text-[var(--st-text)]/80">YTD TDS</th>
+                                <th className="px-4 py-3 text-right font-medium text-[var(--st-text)]">Total Deductions</th>
+                                <th className="px-4 py-3 text-right font-medium text-[var(--st-text)]/80">YTD Deductions</th>
                                 {/* Net */}
-                                <th className="border-l border-zoru-line px-4 py-3 text-right font-medium text-zoru-ink">Net Pay</th>
-                                <th className="px-4 py-3 text-right font-medium text-zoru-ink-muted">YTD Net Pay</th>
+                                <th className="border-l border-[var(--st-border)] px-4 py-3 text-right font-medium text-[var(--st-text)]">Net Pay</th>
+                                <th className="px-4 py-3 text-right font-medium text-[var(--st-text-secondary)]">YTD Net Pay</th>
                             </tr>
                         </thead>
                         <tbody>
                             {isLoading ? (
                                 <tr>
                                     <td colSpan={15} className="h-48 text-center">
-                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-zoru-ink-muted" />
+                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-[var(--st-text-secondary)]" />
                                     </td>
                                 </tr>
                             ) : reportData.length > 0 ? (
                                 <>
                                     {reportData.map(row => (
-                                        <tr key={row.employeeId} className="group border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2/50 transition-colors">
-                                            <td className="sticky left-0 z-10 w-[180px] min-w-[180px] bg-zoru-bg group-hover:bg-zoru-surface-2 px-4 py-3 font-medium text-zoru-ink transition-colors">{row.employeeName}</td>
-                                            <td className="sticky left-[180px] z-10 w-[140px] min-w-[140px] bg-zoru-bg group-hover:bg-zoru-surface-2 border-r border-zoru-line px-4 py-3 text-zoru-ink-muted transition-colors shadow-[4px_0_12px_-4px_rgba(0,0,0,0.1)]">{row.department}</td>
+                                        <tr key={row.employeeId} className="group border-b border-[var(--st-border)] last:border-0 hover:bg-[var(--st-bg-muted)]/50 transition-colors">
+                                            <td className="sticky left-0 z-10 w-[180px] min-w-[180px] bg-[var(--st-bg)] group-hover:bg-[var(--st-bg-muted)] px-4 py-3 font-medium text-[var(--st-text)] transition-colors">{row.employeeName}</td>
+                                            <td className="sticky left-[180px] z-10 w-[140px] min-w-[140px] bg-[var(--st-bg)] group-hover:bg-[var(--st-bg-muted)] border-r border-[var(--st-border)] px-4 py-3 text-[var(--st-text-secondary)] transition-colors shadow-[4px_0_12px_-4px_rgba(0,0,0,0.1)]">{row.department}</td>
                                             {/* Earnings */}
-                                            <td className="border-l border-zoru-line px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.basic)}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.hra)}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.specialAllowance)}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.otherEarnings)}</td>
-                                            <td className="px-4 py-3 text-right font-mono font-semibold text-zoru-ink">{fmt(row.totalGross)}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-zoru-ink/80">{fmt(row.ytdGross)}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-zoru-ink/80">{fmt(row.ytdBasic)}</td>
+                                            <td className="border-l border-[var(--st-border)] px-4 py-3 text-right font-mono text-[var(--st-text)]">{fmt(row.basic)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]">{fmt(row.hra)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]">{fmt(row.specialAllowance)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]">{fmt(row.otherEarnings)}</td>
+                                            <td className="px-4 py-3 text-right font-mono font-semibold text-[var(--st-text)]">{fmt(row.totalGross)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]/80">{fmt(row.ytdGross)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]/80">{fmt(row.ytdBasic)}</td>
                                             {/* Deductions */}
-                                            <td className="border-l border-zoru-line px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.pf)}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-zoru-ink/80">{fmt(row.ytdPf)}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.esi)}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.tds)}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-zoru-ink/80">{fmt(row.ytdTds)}</td>
-                                            <td className="px-4 py-3 text-right font-mono font-semibold text-zoru-ink">{fmt(row.totalDeductions)}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-zoru-ink/80">{fmt(row.ytdDeductions)}</td>
+                                            <td className="border-l border-[var(--st-border)] px-4 py-3 text-right font-mono text-[var(--st-text)]">{fmt(row.pf)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]/80">{fmt(row.ytdPf)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]">{fmt(row.esi)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]">{fmt(row.tds)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]/80">{fmt(row.ytdTds)}</td>
+                                            <td className="px-4 py-3 text-right font-mono font-semibold text-[var(--st-text)]">{fmt(row.totalDeductions)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]/80">{fmt(row.ytdDeductions)}</td>
                                             {/* Net */}
-                                            <td className="border-l border-zoru-line px-4 py-3 text-right font-mono font-bold text-zoru-ink">{fmt(row.netPay)}</td>
-                                            <td className="px-4 py-3 text-right font-mono font-medium text-zoru-ink-muted">{fmt(row.ytdNetPay)}</td>
+                                            <td className="border-l border-[var(--st-border)] px-4 py-3 text-right font-mono font-bold text-[var(--st-text)]">{fmt(row.netPay)}</td>
+                                            <td className="px-4 py-3 text-right font-mono font-medium text-[var(--st-text-secondary)]">{fmt(row.ytdNetPay)}</td>
                                         </tr>
                                     ))}
                                     {/* Totals row */}
-                                    <tr className="border-t-2 border-zoru-line bg-zoru-surface-2 font-semibold">
-                                        <td className="sticky left-0 z-10 w-[180px] min-w-[180px] bg-zoru-surface-2 px-4 py-3 text-zoru-ink" colSpan={1}>Totals</td>
-                                        <td className="sticky left-[180px] z-10 w-[140px] min-w-[140px] bg-zoru-surface-2 border-r border-zoru-line px-4 py-3 shadow-[4px_0_12px_-4px_rgba(0,0,0,0.1)]"></td>
-                                        <td className="border-l border-zoru-line px-4 py-3 text-right font-mono text-zoru-ink">
+                                    <tr className="border-t-2 border-[var(--st-border)] bg-[var(--st-bg-muted)] font-semibold">
+                                        <td className="sticky left-0 z-10 w-[180px] min-w-[180px] bg-[var(--st-bg-muted)] px-4 py-3 text-[var(--st-text)]" colSpan={1}>Totals</td>
+                                        <td className="sticky left-[180px] z-10 w-[140px] min-w-[140px] bg-[var(--st-bg-muted)] border-r border-[var(--st-border)] px-4 py-3 shadow-[4px_0_12px_-4px_rgba(0,0,0,0.1)]"></td>
+                                        <td className="border-l border-[var(--st-border)] px-4 py-3 text-right font-mono text-[var(--st-text)]">
                                             {fmt(reportData.reduce((s, r) => s + r.basic, 0))}
                                         </td>
-                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">
+                                        <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]">
                                             {fmt(reportData.reduce((s, r) => s + r.hra, 0))}
                                         </td>
-                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">
+                                        <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]">
                                             {fmt(reportData.reduce((s, r) => s + r.specialAllowance, 0))}
                                         </td>
-                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">
+                                        <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]">
                                             {fmt(reportData.reduce((s, r) => s + r.otherEarnings, 0))}
                                         </td>
-                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">
+                                        <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]">
                                             {fmt(summary.totalGross)}
                                         </td>
-                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink/80">
+                                        <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]/80">
                                             {fmt(reportData.reduce((s, r) => s + r.ytdGross, 0))}
                                         </td>
-                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink/80">
+                                        <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]/80">
                                             {fmt(reportData.reduce((s, r) => s + r.ytdBasic, 0))}
                                         </td>
-                                        <td className="border-l border-zoru-line px-4 py-3 text-right font-mono text-zoru-ink">
+                                        <td className="border-l border-[var(--st-border)] px-4 py-3 text-right font-mono text-[var(--st-text)]">
                                             {fmt(reportData.reduce((s, r) => s + r.pf, 0))}
                                         </td>
-                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink/80">
+                                        <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]/80">
                                             {fmt(reportData.reduce((s, r) => s + r.ytdPf, 0))}
                                         </td>
-                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">
+                                        <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]">
                                             {fmt(reportData.reduce((s, r) => s + r.esi, 0))}
                                         </td>
-                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">
+                                        <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]">
                                             {fmt(reportData.reduce((s, r) => s + r.tds, 0))}
                                         </td>
-                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink/80">
+                                        <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]/80">
                                             {fmt(reportData.reduce((s, r) => s + r.ytdTds, 0))}
                                         </td>
-                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">
+                                        <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]">
                                             {fmt(summary.totalDeductions)}
                                         </td>
-                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink/80">
+                                        <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]/80">
                                             {fmt(reportData.reduce((s, r) => s + r.ytdDeductions, 0))}
                                         </td>
-                                        <td className="border-l border-zoru-line px-4 py-3 text-right font-mono text-zoru-ink">
+                                        <td className="border-l border-[var(--st-border)] px-4 py-3 text-right font-mono text-[var(--st-text)]">
                                             {fmt(summary.totalNetPay)}
                                         </td>
-                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink-muted">
+                                        <td className="px-4 py-3 text-right font-mono text-[var(--st-text-secondary)]">
                                             {fmt(reportData.reduce((s, r) => s + r.ytdNetPay, 0))}
                                         </td>
                                     </tr>
                                 </>
                             ) : (
                                 <tr>
-                                    <td colSpan={15} className="h-24 text-center text-zoru-ink-muted">
+                                    <td colSpan={15} className="h-24 text-center text-[var(--st-text-secondary)]">
                                         No salary data found for the selected period.
                                     </td>
                                 </tr>

@@ -58,7 +58,7 @@ export function ShiftDetailView({ initialShift }: { initialShift: CrmShiftDoc })
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div className="flex flex-1 items-center gap-3">
-            <h1 className="text-2xl font-semibold text-zoru-ink">{optimisticShift.name}</h1>
+            <h1 className="text-2xl font-semibold text-[var(--st-text)]">{optimisticShift.name}</h1>
             <Badge variant={status === 'active' ? 'success' : 'secondary'}>{status}</Badge>
             {isConnected && (
               <Badge variant="success" className="ml-2 animate-pulse">
@@ -72,58 +72,58 @@ export function ShiftDetailView({ initialShift }: { initialShift: CrmShiftDoc })
         </div>
 
         {lastModifiedBy && (
-          <div className="flex items-center gap-2 rounded-md bg-zoru-surface-2 px-4 py-2 text-sm text-zoru-ink dark:bg-zoru-ink/20 dark:text-zoru-ink-muted">
+          <div className="flex items-center gap-2 rounded-md bg-[var(--st-bg-muted)] px-4 py-2 text-sm text-[var(--st-text)] dark:bg-[var(--st-text)]/20 dark:text-[var(--st-text-secondary)]">
             <BellRing className="h-4 w-4" />
             <span>Updates received from {lastModifiedBy} (Collaborative Editing)</span>
           </div>
         )}
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-lg border border-zoru-line p-4">
-            <div className="flex items-center gap-2 text-zoru-ink-muted">
+          <div className="rounded-lg border border-[var(--st-border)] p-4">
+            <div className="flex items-center gap-2 text-[var(--st-text-secondary)]">
               <Clock className="h-4 w-4" />
               <span className="text-sm font-medium">Window</span>
             </div>
-            <p className="mt-2 text-lg font-semibold text-zoru-ink">
+            <p className="mt-2 text-lg font-semibold text-[var(--st-text)]">
               {formatTime(optimisticShift.startTime)} – {formatTime(optimisticShift.endTime)}
             </p>
-            <p className="text-xs text-zoru-ink-muted">
+            <p className="text-xs text-[var(--st-text-secondary)]">
               {optimisticShift.breakMinutes ?? 0}m break • {optimisticShift.graceMinutes ?? 0}m grace
             </p>
           </div>
-          <div className="rounded-lg border border-zoru-line p-4">
-            <div className="flex items-center gap-2 text-zoru-ink-muted">
+          <div className="rounded-lg border border-[var(--st-border)] p-4">
+            <div className="flex items-center gap-2 text-[var(--st-text-secondary)]">
               <Calendar className="h-4 w-4" />
               <span className="text-sm font-medium">Working Days</span>
             </div>
             <div className="mt-2">{dayBadges(optimisticShift.workingDays)}</div>
-            <p className="mt-1 text-xs text-zoru-ink-muted">
+            <p className="mt-1 text-xs text-[var(--st-text-secondary)]">
               {optimisticShift.isNightShift ? 'Crosses midnight' : 'Day shift'}
             </p>
           </div>
-          <div className="rounded-lg border border-zoru-line p-4">
-            <div className="flex items-center gap-2 text-zoru-ink-muted">
+          <div className="rounded-lg border border-[var(--st-border)] p-4">
+            <div className="flex items-center gap-2 text-[var(--st-text-secondary)]">
               <Info className="h-4 w-4" />
               <span className="text-sm font-medium">Details</span>
             </div>
-            <p className="mt-2 text-sm font-medium text-zoru-ink">
+            <p className="mt-2 text-sm font-medium text-[var(--st-text)]">
               Code: <span className="font-mono font-normal">{optimisticShift.code || 'None'}</span>
             </p>
             <div className="mt-1 flex items-center gap-2 text-sm">
               Color: 
               <span 
-                className="inline-block h-3 w-3 rounded-full border border-zoru-line" 
+                className="inline-block h-3 w-3 rounded-full border border-[var(--st-border)]" 
                 style={{ backgroundColor: optimisticShift.color || '#EAB308' }} 
               />
             </div>
           </div>
-          <div className="rounded-lg border border-zoru-line p-4">
-            <div className="flex items-center gap-2 text-zoru-ink-muted">
+          <div className="rounded-lg border border-[var(--st-border)] p-4">
+            <div className="flex items-center gap-2 text-[var(--st-text-secondary)]">
               <Users className="h-4 w-4" />
               <span className="text-sm font-medium">Assignments</span>
             </div>
-            <p className="mt-2 text-lg font-semibold text-zoru-ink">5,000</p>
-            <p className="text-xs text-zoru-ink-muted">Active employees</p>
+            <p className="mt-2 text-lg font-semibold text-[var(--st-text)]">5,000</p>
+            <p className="text-xs text-[var(--st-text-secondary)]">Active employees</p>
           </div>
         </div>
       </div>

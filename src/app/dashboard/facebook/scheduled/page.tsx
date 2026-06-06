@@ -234,7 +234,7 @@ export default function ScheduledPostsPage() {
           const post = row.original;
           return (
             <div className="flex min-w-0 items-center gap-3">
-              <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2">
+              <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)]">
                 {post.full_picture ? (
                   <Image
                     src={post.full_picture}
@@ -244,7 +244,7 @@ export default function ScheduledPostsPage() {
                     className="object-cover"
                   />
                 ) : (
-                  <span className="flex h-full w-full items-center justify-center text-zoru-ink-muted">
+                  <span className="flex h-full w-full items-center justify-center text-[var(--st-text-secondary)]">
                     {post.full_picture ? (
                       <ImageIcon className="h-4 w-4" />
                     ) : (
@@ -254,10 +254,10 @@ export default function ScheduledPostsPage() {
                 )}
               </div>
               <div className="min-w-0">
-                <p className="truncate text-sm font-medium text-zoru-ink">
+                <p className="truncate text-sm font-medium text-[var(--st-text)]">
                   {post.message || "Scheduled media post"}
                 </p>
-                <p className="text-[11px] text-zoru-ink-muted">
+                <p className="text-[11px] text-[var(--st-text-secondary)]">
                   Created{" "}
                   {formatDistanceToNow(new Date(post.created_time), {
                     addSuffix: true,
@@ -274,14 +274,14 @@ export default function ScheduledPostsPage() {
         accessorFn: (row) => row.scheduled_publish_time ?? 0,
         cell: ({ row }) => {
           const t = row.original.scheduled_publish_time;
-          if (!t) return <span className="text-zoru-ink-muted">—</span>;
+          if (!t) return <span className="text-[var(--st-text-secondary)]">—</span>;
           const at = new Date(t * 1000);
           return (
             <div className="flex flex-col">
-              <span className="text-sm text-zoru-ink">
+              <span className="text-sm text-[var(--st-text)]">
                 {format(at, "PPP")}
               </span>
-              <span className="text-[11px] text-zoru-ink-muted">
+              <span className="text-[11px] text-[var(--st-text-secondary)]">
                 {format(at, "p")} · {formatDistanceToNow(at, { addSuffix: true })}
               </span>
             </div>
@@ -342,7 +342,7 @@ export default function ScheduledPostsPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <div className="flex items-center gap-1 rounded-[var(--zoru-radius-sm)] border border-zoru-line p-1 bg-zoru-surface">
+          <div className="flex items-center gap-1 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] p-1 bg-[var(--st-bg-secondary)]">
             <Button
               variant={view === "table" ? "secondary" : "ghost"}
               size="icon-sm"

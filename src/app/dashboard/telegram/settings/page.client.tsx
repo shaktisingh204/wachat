@@ -184,7 +184,7 @@ export default function TelegramSettingsPage() {
                                 'inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm transition-colors ' +
                                 (active
                                     ? 'border-transparent text-white'
-                                    : 'border-zoru-line bg-zoru-bg text-zoru-fg/70 hover:text-zoru-fg')
+                                    : 'border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)]/70 hover:text-[var(--st-text)]')
                             }
                             style={active ? { backgroundColor: ACCENT } : undefined}
                         >

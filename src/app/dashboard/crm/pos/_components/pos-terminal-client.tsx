@@ -341,7 +341,7 @@ export function PosTerminalClient({
             <Card className="md:col-span-3">
                 <ZoruCardContent className="flex flex-col gap-3 p-4">
                     <div className="relative">
-                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
                         <Input
                             value={query}
                             onChange={(e) => void onSearch(e.target.value)}
@@ -352,11 +352,11 @@ export function PosTerminalClient({
                     </div>
                     <div className="grid max-h-[60vh] grid-cols-2 gap-2 overflow-y-auto md:grid-cols-3 lg:grid-cols-4">
                         {searching && items.length === 0 ? (
-                            <p className="col-span-full p-6 text-center text-[12px] text-zoru-ink-muted">
+                            <p className="col-span-full p-6 text-center text-[12px] text-[var(--st-text-secondary)]">
                                 Searching…
                             </p>
                         ) : items.length === 0 ? (
-                            <p className="col-span-full p-6 text-center text-[12px] text-zoru-ink-muted">
+                            <p className="col-span-full p-6 text-center text-[12px] text-[var(--st-text-secondary)]">
                                 No items match this search.
                             </p>
                         ) : (
@@ -365,17 +365,17 @@ export function PosTerminalClient({
                                     key={item._id}
                                     type="button"
                                     onClick={() => addItemFromCatalogue(item)}
-                                    className="flex flex-col items-start gap-1 rounded-md border border-zoru-line bg-zoru-surface p-3 text-left transition-colors hover:border-zoru-ink/40 hover:bg-zoru-surface-2"
+                                    className="flex flex-col items-start gap-1 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 text-left transition-colors hover:border-[var(--st-text)]/40 hover:bg-[var(--st-bg-muted)]"
                                 >
-                                    <span className="line-clamp-2 text-[12.5px] font-medium text-zoru-ink">
+                                    <span className="line-clamp-2 text-[12.5px] font-medium text-[var(--st-text)]">
                                         {item.name}
                                     </span>
                                     {item.sku ? (
-                                        <span className="font-mono text-[10.5px] text-zoru-ink-muted">
+                                        <span className="font-mono text-[10.5px] text-[var(--st-text-secondary)]">
                                             {item.sku}
                                         </span>
                                     ) : null}
-                                    <span className="mt-auto text-[12px] font-semibold text-zoru-accent">
+                                    <span className="mt-auto text-[12px] font-semibold text-[var(--st-accent)]">
                                         {fmtMoney(item.sellingPrice)}
                                     </span>
                                 </button>
@@ -389,7 +389,7 @@ export function PosTerminalClient({
             <Card className="md:col-span-2">
                 <ZoruCardContent className="flex flex-col gap-3 p-4">
                     <div className="flex items-center justify-between">
-                        <p className="text-sm font-medium text-zoru-ink">
+                        <p className="text-sm font-medium text-[var(--st-text)]">
                             Cart {prefillHold ? '· recalled' : ''}
                         </p>
                         {cart.length > 0 ? (
@@ -408,7 +408,7 @@ export function PosTerminalClient({
                             Customer
                         </Label>
                         <div className="relative">
-                            <UserPlus className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zoru-ink-muted" />
+                            <UserPlus className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--st-text-secondary)]" />
                             <Input
                                 id="customerName"
                                 value={customerName}
@@ -421,24 +421,24 @@ export function PosTerminalClient({
 
                     <div className="flex max-h-[40vh] flex-col gap-2 overflow-y-auto">
                         {cart.length === 0 ? (
-                            <p className="rounded-md border border-dashed border-zoru-line p-6 text-center text-[12px] text-zoru-ink-muted">
+                            <p className="rounded-md border border-dashed border-[var(--st-border)] p-6 text-center text-[12px] text-[var(--st-text-secondary)]">
                                 Cart is empty — pick an item to begin.
                             </p>
                         ) : (
                             cart.map((line) => (
                                 <div
                                     key={line.key}
-                                    className="flex flex-col gap-1 rounded-md border border-zoru-line bg-zoru-surface p-2"
+                                    className="flex flex-col gap-1 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2"
                                 >
                                     <div className="flex items-center justify-between gap-2">
-                                        <span className="line-clamp-1 text-[12.5px] font-medium text-zoru-ink">
+                                        <span className="line-clamp-1 text-[12.5px] font-medium text-[var(--st-text)]">
                                             {line.name}
                                         </span>
                                         <button
                                             type="button"
                                             onClick={() => removeLine(line.key)}
                                             aria-label="Remove line"
-                                            className="text-zoru-ink-muted hover:text-zoru-ink"
+                                            className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                                         >
                                             <Trash2 className="h-3.5 w-3.5" />
                                         </button>
@@ -484,7 +484,7 @@ export function PosTerminalClient({
                                             min={0}
                                             step="0.01"
                                         />
-                                        <span className="ml-auto text-[12.5px] font-semibold tabular-nums text-zoru-ink">
+                                        <span className="ml-auto text-[12.5px] font-semibold tabular-nums text-[var(--st-text)]">
                                             {fmtMoney(line.total)}
                                         </span>
                                     </div>
@@ -493,20 +493,20 @@ export function PosTerminalClient({
                         )}
                     </div>
 
-                    <div className="flex flex-col gap-1 border-t border-zoru-line pt-3 text-[12.5px]">
-                        <div className="flex items-center justify-between text-zoru-ink-muted">
+                    <div className="flex flex-col gap-1 border-t border-[var(--st-border)] pt-3 text-[12.5px]">
+                        <div className="flex items-center justify-between text-[var(--st-text-secondary)]">
                             <span>Subtotal</span>
                             <span className="tabular-nums">
                                 {fmtMoney(totals.subtotal)}
                             </span>
                         </div>
-                        <div className="flex items-center justify-between text-zoru-ink-muted">
+                        <div className="flex items-center justify-between text-[var(--st-text-secondary)]">
                             <span>Tax</span>
                             <span className="tabular-nums">
                                 {fmtMoney(totals.taxTotal)}
                             </span>
                         </div>
-                        <div className="flex items-center justify-between text-sm font-semibold text-zoru-ink">
+                        <div className="flex items-center justify-between text-sm font-semibold text-[var(--st-text)]">
                             <span>Total</span>
                             <span className="tabular-nums">
                                 {fmtMoney(totals.total)}
@@ -515,7 +515,7 @@ export function PosTerminalClient({
                     </div>
 
                     <div className="flex flex-col gap-2">
-                        <p className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                        <p className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                             Payment method
                         </p>
                         <div className="grid grid-cols-4 gap-1">
@@ -529,8 +529,8 @@ export function PosTerminalClient({
                                         onClick={() => setPaymentMethod(m.value)}
                                         className={
                                             active
-                                                ? 'flex flex-col items-center gap-1 rounded-md border border-zoru-accent bg-zoru-accent/10 p-2 text-[11.5px] font-medium text-zoru-accent'
-                                                : 'flex flex-col items-center gap-1 rounded-md border border-zoru-line bg-zoru-surface p-2 text-[11.5px] text-zoru-ink hover:border-zoru-ink/30'
+                                                ? 'flex flex-col items-center gap-1 rounded-md border border-[var(--st-accent)] bg-[var(--st-accent)]/10 p-2 text-[11.5px] font-medium text-[var(--st-accent)]'
+                                                : 'flex flex-col items-center gap-1 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2 text-[11.5px] text-[var(--st-text)] hover:border-[var(--st-text)]/30'
                                         }
                                     >
                                         <Icon className="h-3.5 w-3.5" />
@@ -665,13 +665,13 @@ export function PosTerminalClient({
                                 </span>
                             </div>
                         ))}
-                        <div className="flex items-center justify-between border-t border-zoru-line pt-2 font-bold">
+                        <div className="flex items-center justify-between border-t border-[var(--st-border)] pt-2 font-bold">
                             <span>Total</span>
                             <span className="tabular-nums">
                                 {fmtMoney(receipt?.total ?? 0)}
                             </span>
                         </div>
-                        <div className="flex items-center justify-between text-zoru-ink-muted">
+                        <div className="flex items-center justify-between text-[var(--st-text-secondary)]">
                             <span>Paid via</span>
                             <span className="capitalize">{receipt?.method}</span>
                         </div>

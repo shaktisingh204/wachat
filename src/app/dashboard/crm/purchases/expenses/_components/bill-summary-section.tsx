@@ -43,7 +43,7 @@ export function BillSummarySection({
 }: BillSummarySectionProps) {
   return (
     <Card className="p-6">
-      <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+      <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
         Summary
       </h3>
       <div className="ml-auto w-full max-w-sm space-y-2 text-[13px]">
@@ -53,8 +53,8 @@ export function BillSummarySection({
         ) : null}
         <Separator />
         <div className="flex justify-between">
-          <span className="font-medium text-zoru-ink">Total</span>
-          <span className="text-base font-semibold tabular-nums text-zoru-ink">
+          <span className="font-medium text-[var(--st-text)]">Total</span>
+          <span className="text-base font-semibold tabular-nums text-[var(--st-text)]">
             {fmtMoney(total, currency)}
           </span>
         </div>
@@ -68,7 +68,7 @@ export function BillSummarySection({
             />
           </>
         ) : null}
-        <p className="text-[11px] text-zoru-ink-muted">
+        <p className="text-[11px] text-[var(--st-text-secondary)]">
           Server recomputes authoritatively on save.
         </p>
       </div>
@@ -87,10 +87,10 @@ function Row({
 }) {
   return (
     <div className="flex justify-between">
-      <span className="text-zoru-ink-muted">{label}</span>
+      <span className="text-[var(--st-text-secondary)]">{label}</span>
       <span
         className={`font-mono tabular-nums ${
-          tone === 'danger' ? 'text-zoru-danger-ink' : 'text-zoru-ink'
+          tone === 'danger' ? 'text-[var(--st-danger)]' : 'text-[var(--st-text)]'
         }`}
       >
         {value}

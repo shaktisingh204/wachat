@@ -194,7 +194,7 @@ function FilterField({
 }) {
   return (
     <div className="space-y-1">
-      <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+      <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
         {label}
       </Label>
       {children}
@@ -263,7 +263,7 @@ export function TicketsBulkBar({
           </Button>
         </ZoruPopoverTrigger>
         <ZoruPopoverContent align="start" className="w-72 space-y-2">
-          <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+          <p className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
             Assign to user
           </p>
           <EntityFormField
@@ -278,7 +278,7 @@ export function TicketsBulkBar({
           />
           <button
             type="button"
-            className="text-[12px] text-zoru-ink-muted hover:underline"
+            className="text-[12px] text-[var(--st-text-secondary)] hover:underline"
             onClick={() => {
               setAssignOpen(false);
               onAssign(null);
@@ -431,7 +431,7 @@ export function TicketsViewsMenu({
       <ZoruDropdownMenuTrigger asChild>
         <Button variant="outline" size="sm">
           <ListChecks className="h-3.5 w-3.5" /> {active.label}
-          <ChevronDown className="h-3.5 w-3.5 text-zoru-ink-subtle" />
+          <ChevronDown className="h-3.5 w-3.5 text-[var(--st-text-tertiary)]" />
         </Button>
       </ZoruDropdownMenuTrigger>
       <ZoruDropdownMenuContent align="start" className="w-64">
@@ -445,7 +445,7 @@ export function TicketsViewsMenu({
             <div className="flex flex-col">
               <span className="text-[13px] font-medium">{preset.label}</span>
               {preset.description ? (
-                <span className="text-[11.5px] text-zoru-ink-muted">
+                <span className="text-[11.5px] text-[var(--st-text-secondary)]">
                   {preset.description}
                 </span>
               ) : null}

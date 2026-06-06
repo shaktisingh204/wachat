@@ -124,9 +124,9 @@ export function WarmupSchedule({ runs, onUpdated }: WarmupScheduleProps) {
               </div>
             </ZoruCardHeader>
             <ZoruCardContent>
-              <div className="mb-2 h-2 w-full overflow-hidden rounded-full bg-zoru-surface-2">
+              <div className="mb-2 h-2 w-full overflow-hidden rounded-full bg-[var(--st-bg-muted)]">
                 <div
-                  className="h-full bg-zoru-primary transition-[width] duration-500"
+                  className="h-full bg-[var(--st-text)] transition-[width] duration-500"
                   style={{ width: `${progressPct}%` }}
                 />
               </div>
@@ -141,15 +141,15 @@ export function WarmupSchedule({ runs, onUpdated }: WarmupScheduleProps) {
                         <div
                           className={cn(
                             'w-full rounded-sm transition-colors',
-                            isCurrent && 'bg-zoru-primary',
-                            isPast && 'bg-zoru-ink-muted/40',
-                            !isPast && !isCurrent && 'bg-zoru-line',
+                            isCurrent && 'bg-[var(--st-text)]',
+                            isPast && 'bg-[var(--st-text-secondary)]/40',
+                            !isPast && !isCurrent && 'bg-[var(--st-border)]',
                           )}
                           style={{ height }}
                           title={`Day ${d.day}: ${d.cap.toLocaleString()} sends`}
                         />
                       </div>
-                      <span className="text-[10px] text-zoru-ink-muted">
+                      <span className="text-[10px] text-[var(--st-text-secondary)]">
                         {d.day}
                       </span>
                     </div>

@@ -89,7 +89,7 @@ export function SettingsEntityTable<T extends { _id: string; [k: string]: any }>
                             <ZoruTableRow>
                                 <ZoruTableCell
                                     colSpan={columns.length + 2}
-                                    className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                                    className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                                 >
                                     <LoaderCircle className="mx-auto h-4 w-4 animate-spin" />
                                 </ZoruTableCell>
@@ -98,7 +98,7 @@ export function SettingsEntityTable<T extends { _id: string; [k: string]: any }>
                             <ZoruTableRow>
                                 <ZoruTableCell
                                     colSpan={columns.length + 2}
-                                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                                    className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                                 >
                                     {search
                                         ? `No ${singular.toLowerCase()} matched “${search}”.`
@@ -122,7 +122,7 @@ export function SettingsEntityTable<T extends { _id: string; [k: string]: any }>
                                         {columns.map((c) => (
                                             <ZoruTableCell
                                                 key={c.key}
-                                                className="text-[13px] text-zoru-ink"
+                                                className="text-[13px] text-[var(--st-text)]"
                                             >
                                                 {c.render
                                                     ? (c.render(row) as React.ReactNode)
@@ -148,7 +148,7 @@ export function SettingsEntityTable<T extends { _id: string; [k: string]: any }>
                                                     aria-label="Delete"
                                                     onClick={() => onDelete(row._id)}
                                                 >
-                                                    <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                                                    <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                                                 </Button>
                                             </div>
                                         </ZoruTableCell>

@@ -163,10 +163,10 @@ export default function BillingPage() {
         return (
             <div className="space-y-6">
                 <AmBreadcrumb page="Billing" />
-                <ZoruAlert className="bg-zoru-surface/50 border border-zoru-line">
-                    <AlertCircle className="h-4 w-4 text-zoru-ink-muted" />
-                    <ZoruAlertTitle className="text-zoru-ink">No ad account selected</ZoruAlertTitle>
-                    <ZoruAlertDescription className="text-zoru-ink-muted">Pick an ad account to view billing info.</ZoruAlertDescription>
+                <ZoruAlert className="bg-[var(--st-bg-secondary)]/50 border border-[var(--st-border)]">
+                    <AlertCircle className="h-4 w-4 text-[var(--st-text-secondary)]" />
+                    <ZoruAlertTitle className="text-[var(--st-text)]">No ad account selected</ZoruAlertTitle>
+                    <ZoruAlertDescription className="text-[var(--st-text-secondary)]">Pick an ad account to view billing info.</ZoruAlertDescription>
                 </ZoruAlert>
             </div>
         );
@@ -180,18 +180,18 @@ export default function BillingPage() {
                     title="Billing"
                     description={`Payment methods, spend and account balance for ${activeAccount.name}.`}
                 />
-                <ZoruCard className="border border-zoru-line/20 bg-zoru-ink/5 shadow-[var(--zoru-shadow-sm)]">
+                <ZoruCard className="border border-[var(--st-border)]/20 bg-[var(--st-text)]/5 shadow-[var(--zoru-shadow-sm)]">
                     <ZoruCardHeader className="pb-3 text-center flex flex-col items-center">
-                        <div className="h-12 w-12 rounded-full bg-zoru-surface-2 dark:bg-zoru-ink/30 flex items-center justify-center mb-3">
-                            <Lock className="h-6 w-6 text-zoru-ink dark:text-zoru-ink-muted" />
+                        <div className="h-12 w-12 rounded-full bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 flex items-center justify-center mb-3">
+                            <Lock className="h-6 w-6 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]" />
                         </div>
-                        <ZoruCardTitle className="text-xl text-zoru-ink">Connect Billing Permissions</ZoruCardTitle>
+                        <ZoruCardTitle className="text-xl text-[var(--st-text)]">Connect Billing Permissions</ZoruCardTitle>
                     </ZoruCardHeader>
                     <ZoruCardContent className="text-center space-y-4">
-                        <p className="text-zoru-ink-muted max-w-md mx-auto">
+                        <p className="text-[var(--st-text-secondary)] max-w-md mx-auto">
                             We cannot access billing information for this account. Please reconnect your Meta account and make sure to explicitly grant <strong>Ads Management</strong> and <strong>Billing</strong> permissions.
                         </p>
-                        <div className="text-sm bg-zoru-surface-2 p-3 rounded-md text-zoru-ink-muted inline-block text-left break-words max-w-full">
+                        <div className="text-sm bg-[var(--st-bg-muted)] p-3 rounded-md text-[var(--st-text-secondary)] inline-block text-left break-words max-w-full">
                             <strong>Meta Error:</strong> {permissionError}
                         </div>
                         <div className="pt-4 flex justify-center gap-3">
@@ -235,7 +235,7 @@ export default function BillingPage() {
                                 navigator.clipboard.writeText(activeAccount.account_id);
                                 toast({ title: 'Copied', description: `Account ID ${activeAccount.account_id} copied to clipboard.` });
                             }}
-                            className="border-zoru-line text-zoru-ink hover:bg-zoru-surface-2"
+                            className="border-[var(--st-border)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
                         >
                             <Copy className="h-3.5 w-3.5 mr-1" /> Copy Account ID
                         </ZoruButton>
@@ -243,7 +243,7 @@ export default function BillingPage() {
                             variant="outline"
                             size="icon"
                             onClick={() => setRefreshKey((k) => k + 1)}
-                            className="border-zoru-line text-zoru-ink hover:bg-zoru-surface-2"
+                            className="border-[var(--st-border)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
                         >
                             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
                         </ZoruButton>
@@ -256,59 +256,59 @@ export default function BillingPage() {
                     Array.from({ length: 3 }).map((_, i) => <ZoruSkeleton key={i} className="h-28" />)
                 ) : (
                     <>
-                        <ZoruCard className="border border-zoru-line bg-zoru-surface/50 shadow-[var(--zoru-shadow-sm)]">
+                        <ZoruCard className="border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 shadow-[var(--zoru-shadow-sm)]">
                             <ZoruCardHeader className="pb-2">
-                                <ZoruCardTitle className="text-sm text-zoru-ink-muted flex items-center gap-2">
+                                <ZoruCardTitle className="text-sm text-[var(--st-text-secondary)] flex items-center gap-2">
                                     <Wallet className="h-4 w-4" /> Amount spent
                                 </ZoruCardTitle>
                             </ZoruCardHeader>
                             <ZoruCardContent>
-                                <div className="text-2xl font-bold text-zoru-ink">
+                                <div className="text-2xl font-bold text-[var(--st-text)]">
                                     {formatMoney((Number(details?.amount_spent) || 0) / 100, details?.currency)}
                                 </div>
                             </ZoruCardContent>
                         </ZoruCard>
-                        <ZoruCard className="border border-zoru-line bg-zoru-surface/50 shadow-[var(--zoru-shadow-sm)]">
+                        <ZoruCard className="border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 shadow-[var(--zoru-shadow-sm)]">
                             <ZoruCardHeader className="pb-2">
-                                <ZoruCardTitle className="text-sm text-zoru-ink-muted flex items-center gap-2">
+                                <ZoruCardTitle className="text-sm text-[var(--st-text-secondary)] flex items-center gap-2">
                                     <Wallet className="h-4 w-4" /> Balance
                                 </ZoruCardTitle>
                             </ZoruCardHeader>
                             <ZoruCardContent>
-                                <div className="text-2xl font-bold text-zoru-ink">
+                                <div className="text-2xl font-bold text-[var(--st-text)]">
                                     {formatMoney((Number(details?.balance) || 0) / 100, details?.currency)}
                                 </div>
                             </ZoruCardContent>
                         </ZoruCard>
-                        <ZoruCard className="border border-zoru-line bg-zoru-surface/50 shadow-[var(--zoru-shadow-sm)]">
+                        <ZoruCard className="border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 shadow-[var(--zoru-shadow-sm)]">
                             <ZoruCardHeader className="pb-2">
-                                <ZoruCardTitle className="text-sm text-zoru-ink-muted flex items-center gap-2">
+                                <ZoruCardTitle className="text-sm text-[var(--st-text-secondary)] flex items-center gap-2">
                                     <Wallet className="h-4 w-4" /> Spending limit
                                 </ZoruCardTitle>
                             </ZoruCardHeader>
                             <ZoruCardContent>
-                                <div className="text-2xl font-bold text-zoru-ink">
+                                <div className="text-2xl font-bold text-[var(--st-text)]">
                                     {details?.spend_cap
                                         ? formatMoney(Number(details.spend_cap) / 100, details?.currency)
                                         : 'No limit'}
                                 </div>
                             </ZoruCardContent>
                         </ZoruCard>
-                        <ZoruCard className="md:col-span-3 border border-zoru-line bg-zoru-surface/50 shadow-[var(--zoru-shadow-sm)]">
+                        <ZoruCard className="md:col-span-3 border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 shadow-[var(--zoru-shadow-sm)]">
                             <ZoruCardHeader className="pb-2">
-                                <ZoruCardTitle className="text-sm text-zoru-ink-muted">Spending limit progress</ZoruCardTitle>
+                                <ZoruCardTitle className="text-sm text-[var(--st-text-secondary)]">Spending limit progress</ZoruCardTitle>
                             </ZoruCardHeader>
                             <ZoruCardContent>
                                 {details?.spend_cap ? (
                                     <div className="space-y-2">
                                         <div className="flex justify-between text-sm">
-                                            <span className="text-zoru-ink">{formatMoney((Number(details.amount_spent) || 0) / 100, details.currency)} spent</span>
-                                            <span className="text-zoru-ink-muted">{formatMoney(Number(details.spend_cap) / 100, details.currency)} limit</span>
+                                            <span className="text-[var(--st-text)]">{formatMoney((Number(details.amount_spent) || 0) / 100, details.currency)} spent</span>
+                                            <span className="text-[var(--st-text-secondary)]">{formatMoney(Number(details.spend_cap) / 100, details.currency)} limit</span>
                                         </div>
                                         <Progress value={Math.min(100, ((Number(details.amount_spent) || 0) / Number(details.spend_cap)) * 100)} className="h-2" />
                                     </div>
                                 ) : (
-                                    <div className="text-sm text-zoru-ink-muted">No spending limit set for this account.</div>
+                                    <div className="text-sm text-[var(--st-text-secondary)]">No spending limit set for this account.</div>
                                 )}
                             </ZoruCardContent>
                         </ZoruCard>
@@ -317,10 +317,10 @@ export default function BillingPage() {
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
-                <ZoruCard className="border border-zoru-line bg-zoru-surface/50 shadow-[var(--zoru-shadow-sm)]">
+                <ZoruCard className="border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 shadow-[var(--zoru-shadow-sm)]">
                     <ZoruCardHeader>
-                        <ZoruCardTitle className="text-base text-zoru-ink flex items-center gap-2">
-                            <FileText className="h-5 w-5 text-zoru-ink-muted" /> Account details
+                        <ZoruCardTitle className="text-base text-[var(--st-text)] flex items-center gap-2">
+                            <FileText className="h-5 w-5 text-[var(--st-text-secondary)]" /> Account details
                         </ZoruCardTitle>
                     </ZoruCardHeader>
                     <ZoruCardContent className="space-y-2 text-sm">
@@ -328,7 +328,7 @@ export default function BillingPage() {
                             <>
                                 <Row label="Account ID" value={details?.account_id} />
                                 <Row label="Account status" value={
-                                    <ZoruBadge variant="outline" className="border-zoru-line text-zoru-ink">{details?.account_status === 1 ? 'Active' : 'Disabled'}</ZoruBadge>
+                                    <ZoruBadge variant="outline" className="border-[var(--st-border)] text-[var(--st-text)]">{details?.account_status === 1 ? 'Active' : 'Disabled'}</ZoruBadge>
                                 } />
                                 <Row label="Currency" value={details?.currency} />
                                 <Row label="Timezone" value={details?.timezone_name} />
@@ -339,31 +339,31 @@ export default function BillingPage() {
                     </ZoruCardContent>
                 </ZoruCard>
 
-                <ZoruCard className="border border-zoru-line bg-zoru-surface/50 shadow-[var(--zoru-shadow-sm)]">
+                <ZoruCard className="border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 shadow-[var(--zoru-shadow-sm)]">
                     <ZoruCardHeader>
-                        <ZoruCardTitle className="text-base text-zoru-ink flex items-center gap-2">
-                            <CreditCard className="h-5 w-5 text-zoru-ink-muted" /> Payment Methods
+                        <ZoruCardTitle className="text-base text-[var(--st-text)] flex items-center gap-2">
+                            <CreditCard className="h-5 w-5 text-[var(--st-text-secondary)]" /> Payment Methods
                         </ZoruCardTitle>
                     </ZoruCardHeader>
                     <ZoruCardContent className="text-sm">
                         {loading ? <ZoruSkeleton className="h-32" /> : (
                             <div className="space-y-3">
                                 {details?.funding_source_details ? (
-                                    <div className="p-3 border border-zoru-line rounded-md bg-zoru-surface flex items-center justify-between">
+                                    <div className="p-3 border border-[var(--st-border)] rounded-md bg-[var(--st-bg-secondary)] flex items-center justify-between">
                                         <div className="flex items-center gap-3">
-                                            <div className="h-10 w-14 bg-zoru-surface-2 rounded flex items-center justify-center border border-zoru-line">
-                                                <CreditCard className="h-5 w-5 text-zoru-ink-muted" />
+                                            <div className="h-10 w-14 bg-[var(--st-bg-muted)] rounded flex items-center justify-center border border-[var(--st-border)]">
+                                                <CreditCard className="h-5 w-5 text-[var(--st-text-secondary)]" />
                                             </div>
                                             <div>
-                                                <div className="font-medium text-zoru-ink">{details.funding_source_details.display_string || 'Primary Payment Method'}</div>
-                                                <div className="text-xs text-zoru-ink-muted capitalize">
+                                                <div className="font-medium text-[var(--st-text)]">{details.funding_source_details.display_string || 'Primary Payment Method'}</div>
+                                                <div className="text-xs text-[var(--st-text-secondary)] capitalize">
                                                     {details.funding_source_details.type === '1' ? 'Credit Card' : details.funding_source_details.type === '2' ? 'PayPal' : 'Payment Method'}
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="text-center py-6 text-zoru-ink-muted border border-dashed border-zoru-line rounded-md">
+                                    <div className="text-center py-6 text-[var(--st-text-secondary)] border border-dashed border-[var(--st-border)] rounded-md">
                                         No payment methods found.
                                     </div>
                                 )}
@@ -373,10 +373,10 @@ export default function BillingPage() {
                 </ZoruCard>
             </div>
 
-            <ZoruCard className="border border-zoru-line bg-zoru-surface/50 shadow-[var(--zoru-shadow-sm)]">
+            <ZoruCard className="border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 shadow-[var(--zoru-shadow-sm)]">
                 <ZoruCardHeader className="flex flex-row items-center justify-between pb-2">
-                    <ZoruCardTitle className="text-base text-zoru-ink flex items-center gap-2">
-                        <FileText className="h-5 w-5 text-zoru-ink-muted" /> Invoice History
+                    <ZoruCardTitle className="text-base text-[var(--st-text)] flex items-center gap-2">
+                        <FileText className="h-5 w-5 text-[var(--st-text-secondary)]" /> Invoice History
                     </ZoruCardTitle>
                     <ZoruButton 
                         size="sm" 
@@ -390,9 +390,9 @@ export default function BillingPage() {
                 <ZoruCardContent>
                     {loading ? <ZoruSkeleton className="h-48" /> : (
                         transactions.length > 0 ? (
-                            <div className="rounded-md border border-zoru-line overflow-hidden">
+                            <div className="rounded-md border border-[var(--st-border)] overflow-hidden">
                                 <ZoruTable>
-                                    <ZoruTableHeader className="bg-zoru-surface-2">
+                                    <ZoruTableHeader className="bg-[var(--st-bg-muted)]">
                                         <ZoruTableRow>
                                             <ZoruTableHead>Date</ZoruTableHead>
                                             <ZoruTableHead>Transaction ID</ZoruTableHead>
@@ -407,7 +407,7 @@ export default function BillingPage() {
                                                 <ZoruTableCell>
                                                     {tx.time ? new Date(tx.time * 1000).toLocaleDateString() : 'N/A'}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="font-mono text-xs text-zoru-ink-muted">
+                                                <ZoruTableCell className="font-mono text-xs text-[var(--st-text-secondary)]">
                                                     {tx.id}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
@@ -435,8 +435,8 @@ export default function BillingPage() {
                                 </ZoruTable>
                             </div>
                         ) : (
-                            <div className="text-center py-12 text-zoru-ink-muted border border-dashed border-zoru-line rounded-md">
-                                <FileText className="h-8 w-8 mx-auto mb-3 text-zoru-line" />
+                            <div className="text-center py-12 text-[var(--st-text-secondary)] border border-dashed border-[var(--st-border)] rounded-md">
+                                <FileText className="h-8 w-8 mx-auto mb-3 text-[var(--st-border)]" />
                                 <p>No invoice history available.</p>
                             </div>
                         )
@@ -449,9 +449,9 @@ export default function BillingPage() {
 
 function Row({ label, value }: { label: string; value: React.ReactNode }) {
     return (
-        <div className="flex justify-between py-1.5 border-b border-zoru-line last:border-0">
-            <span className="text-zoru-ink-muted">{label}</span>
-            <span className="font-medium text-zoru-ink">{value || '—'}</span>
+        <div className="flex justify-between py-1.5 border-b border-[var(--st-border)] last:border-0">
+            <span className="text-[var(--st-text-secondary)]">{label}</span>
+            <span className="font-medium text-[var(--st-text)]">{value || '—'}</span>
         </div>
     );
 }

@@ -21,14 +21,14 @@ export default function ImportExportError({
   return (
     <div className="flex h-[80vh] w-full items-center justify-center p-6">
       <Card className="flex max-w-md flex-col items-center justify-center space-y-4 p-8 text-center shadow-sm">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-danger/10 text-zoru-danger">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-danger)]/10 text-[var(--st-danger)]">
           <AlertCircle className="h-6 w-6" />
         </div>
         <div className="space-y-2">
-          <h2 className="text-xl font-semibold tracking-tight text-zoru-ink">
+          <h2 className="text-xl font-semibold tracking-tight text-[var(--st-text)]">
             Failed to load Import & Export
           </h2>
-          <p className="text-[13px] text-zoru-ink-muted">
+          <p className="text-[13px] text-[var(--st-text-secondary)]">
             {error.message || 'An unexpected error occurred while loading the module.'}
           </p>
         </div>

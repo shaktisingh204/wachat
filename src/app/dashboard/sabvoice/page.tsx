@@ -113,15 +113,15 @@ export default function VoiceCallHubPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {SECTIONS.map((s) => (
           <Link key={s.href} href={s.href} className="group">
-            <Card className="p-5 h-full hover:border-zoru-brand transition-colors">
+            <Card className="p-5 h-full hover:border-[var(--st-accent)] transition-colors">
               <div className="flex items-center justify-between mb-3">
-                <div className="w-10 h-10 rounded-lg bg-zoru-surface-2 flex items-center justify-center text-zoru-brand">
+                <div className="w-10 h-10 rounded-lg bg-[var(--st-bg-muted)] flex items-center justify-center text-[var(--st-accent)]">
                   {s.icon}
                 </div>
-                <ChevronRight className="h-4 w-4 text-zoru-ink-muted group-hover:text-zoru-brand transition-colors" />
+                <ChevronRight className="h-4 w-4 text-[var(--st-text-secondary)] group-hover:text-[var(--st-accent)] transition-colors" />
               </div>
               <div className="font-medium">{s.title}</div>
-              <div className="text-sm text-zoru-ink-muted mt-1">
+              <div className="text-sm text-[var(--st-text-secondary)] mt-1">
                 {s.description}
               </div>
             </Card>

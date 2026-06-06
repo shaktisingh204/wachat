@@ -70,10 +70,10 @@ function modeLabel(mode: string | undefined): string {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
     return (
         <div>
-            <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+            <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                 {label}
             </div>
-            <div className="mt-1 text-[13px] text-zoru-ink">{children}</div>
+            <div className="mt-1 text-[13px] text-[var(--st-text)]">{children}</div>
         </div>
     );
 }
@@ -120,7 +120,7 @@ export default async function PaymentReceiptDetailPage({
         if (error) {
             return (
                 <div className="flex w-full flex-col gap-4 p-6">
-                    <p className="text-[14px] text-zoru-ink">
+                    <p className="text-[14px] text-[var(--st-text)]">
                         Couldn&apos;t load this receipt — {error}
                     </p>
                     <Button variant="outline" asChild>
@@ -193,7 +193,7 @@ export default async function PaymentReceiptDetailPage({
                 <div className="flex flex-col gap-6">
                     {/* Header card */}
                     <Card className="p-6">
-                        <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                        <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                             Header
                         </h3>
                         <div className="grid gap-4 md:grid-cols-2">
@@ -229,7 +229,7 @@ export default async function PaymentReceiptDetailPage({
 
                     {/* Applied invoices */}
                     <Card className="p-6">
-                        <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                        <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                             Applied to invoices ({receipt.applyTo?.length ?? 0})
                         </h3>
                         {receipt.applyTo && receipt.applyTo.length > 0 ? (
@@ -237,22 +237,22 @@ export default async function PaymentReceiptDetailPage({
                                 {receipt.applyTo.map((row, idx) => (
                                     <li
                                         key={`${row.invoiceId}-${idx}`}
-                                        className="flex items-center justify-between rounded-md border border-zoru-line bg-zoru-surface-2 px-3 py-2"
+                                        className="flex items-center justify-between rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2"
                                     >
                                         <Link
                                             href={`/dashboard/crm/sales/invoices/${row.invoiceId}`}
-                                            className="text-[13px] font-medium text-zoru-ink hover:underline"
+                                            className="text-[13px] font-medium text-[var(--st-text)] hover:underline"
                                         >
                                             {row.invoiceId.slice(-8)}
                                         </Link>
-                                        <span className="text-[13px] tabular-nums text-zoru-ink">
+                                        <span className="text-[13px] tabular-nums text-[var(--st-text)]">
                                             {fmtMoney(row.amount, currency)}
                                         </span>
                                     </li>
                                 ))}
                             </ul>
                         ) : (
-                            <p className="text-[12.5px] text-zoru-ink-muted">
+                            <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                                 No invoices applied — this receipt records an advance.
                             </p>
                         )}
@@ -260,7 +260,7 @@ export default async function PaymentReceiptDetailPage({
 
                     {/* Deductions + notes */}
                     <Card className="p-6">
-                        <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                        <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                             Deductions & notes
                         </h3>
                         <div className="grid gap-4 md:grid-cols-2">
@@ -281,17 +281,17 @@ export default async function PaymentReceiptDetailPage({
                         </div>
                         {receipt.notes ? (
                             <div className="mt-4">
-                                <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+                                <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                                     Notes
                                 </div>
-                                <div className="mt-1 whitespace-pre-wrap text-[13px] text-zoru-ink">
+                                <div className="mt-1 whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
                                     {receipt.notes}
                                 </div>
                             </div>
                         ) : null}
                     </Card>
 
-                    <div className="text-[11px] text-zoru-ink-muted">
+                    <div className="text-[11px] text-[var(--st-text-secondary)]">
                         Created {fmtDate(receipt.createdAt || receipt.audit?.createdAt)} ·
                         Updated {fmtDate(receipt.updatedAt || receipt.audit?.updatedAt)}
                     </div>
@@ -300,29 +300,29 @@ export default async function PaymentReceiptDetailPage({
                 {/* Right rail: money summary + lineage */}
                 <div className="flex flex-col gap-4">
                     <Card className="p-6">
-                        <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                        <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                             Money summary
                         </h3>
                         <div className="flex flex-col gap-3 text-[13px] tabular-nums">
-                            <div className="flex items-center justify-between text-zoru-ink-muted">
+                            <div className="flex items-center justify-between text-[var(--st-text-secondary)]">
                                 <span>Received</span>
-                                <span className="text-zoru-ink">
+                                <span className="text-[var(--st-text)]">
                                     {fmtMoney(receipt.amount, currency)}
                                 </span>
                             </div>
-                            <div className="flex items-center justify-between text-zoru-ink-muted">
+                            <div className="flex items-center justify-between text-[var(--st-text-secondary)]">
                                 <span>Settled</span>
                                 <span>{fmtMoney(totalSettled, currency)}</span>
                             </div>
-                            <div className="flex items-center justify-between text-zoru-ink-muted">
+                            <div className="flex items-center justify-between text-[var(--st-text-secondary)]">
                                 <span>TDS</span>
                                 <span>{fmtMoney(receipt.tdsDeducted, currency)}</span>
                             </div>
-                            <div className="flex items-center justify-between text-zoru-ink-muted">
+                            <div className="flex items-center justify-between text-[var(--st-text-secondary)]">
                                 <span>Bank charges</span>
                                 <span>{fmtMoney(receipt.bankCharges, currency)}</span>
                             </div>
-                            <div className="flex items-center justify-between border-t border-zoru-line pt-3 text-[14px] font-semibold text-zoru-ink">
+                            <div className="flex items-center justify-between border-t border-[var(--st-border)] pt-3 text-[14px] font-semibold text-[var(--st-text)]">
                                 <span>Advance</span>
                                 <span>{fmtMoney(advance, currency)}</span>
                             </div>

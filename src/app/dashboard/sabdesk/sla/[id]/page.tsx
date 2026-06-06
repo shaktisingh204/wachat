@@ -76,26 +76,26 @@ export default async function SlaDetailPage({
     >
       <Card className="p-6">
         <div className="mb-4 flex flex-wrap items-center gap-2">
-          <div className="text-[14px] font-medium text-zoru-ink">Overview</div>
+          <div className="text-[14px] font-medium text-[var(--st-text)]">Overview</div>
           <StatusPill label={status} tone={tone} />
           <StatusPill label={priority} tone={priorityTone} />
         </div>
         <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-3">
           <div>
-            <div className="text-zoru-ink-muted">First response</div>
-            <div className="font-mono text-zoru-ink">
+            <div className="text-[var(--st-text-secondary)]">First response</div>
+            <div className="font-mono text-[var(--st-text)]">
               {fmtMins(sla.firstResponseMinutes)}
             </div>
           </div>
           <div>
-            <div className="text-zoru-ink-muted">Resolution</div>
-            <div className="font-mono text-zoru-ink">
+            <div className="text-[var(--st-text-secondary)]">Resolution</div>
+            <div className="font-mono text-[var(--st-text)]">
               {fmtMins(sla.resolutionMinutes)}
             </div>
           </div>
           <div>
-            <div className="text-zoru-ink-muted">Business hours only</div>
-            <div className="text-zoru-ink">
+            <div className="text-[var(--st-text-secondary)]">Business hours only</div>
+            <div className="text-[var(--st-text)]">
               {sla.businessHoursOnly ? "Yes" : "No"}
             </div>
           </div>
@@ -104,19 +104,19 @@ export default async function SlaDetailPage({
 
       {sla.escalateAfterMinutes || sla.escalateTo ? (
         <Card className="p-6">
-          <div className="mb-3 text-[15px] font-medium text-zoru-ink">
+          <div className="mb-3 text-[15px] font-medium text-[var(--st-text)]">
             Escalation
           </div>
           <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
             <div>
-              <div className="text-zoru-ink-muted">Escalate after</div>
-              <div className="font-mono text-zoru-ink">
+              <div className="text-[var(--st-text-secondary)]">Escalate after</div>
+              <div className="font-mono text-[var(--st-text)]">
                 {fmtMins(sla.escalateAfterMinutes ?? undefined)}
               </div>
             </div>
             <div>
-              <div className="text-zoru-ink-muted">Escalate to</div>
-              <div className="font-mono text-zoru-ink">
+              <div className="text-[var(--st-text-secondary)]">Escalate to</div>
+              <div className="font-mono text-[var(--st-text)]">
                 {sla.escalateTo || "—"}
               </div>
             </div>
@@ -126,25 +126,25 @@ export default async function SlaDetailPage({
 
       {sla.description || sla.notes ? (
         <Card className="p-6">
-          <div className="mb-3 text-[15px] font-medium text-zoru-ink">
+          <div className="mb-3 text-[15px] font-medium text-[var(--st-text)]">
             Notes
           </div>
           {sla.description ? (
             <div className="mb-4 space-y-1">
-              <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+              <div className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Description
               </div>
-              <p className="whitespace-pre-wrap text-zoru-ink">
+              <p className="whitespace-pre-wrap text-[var(--st-text)]">
                 {sla.description}
               </p>
             </div>
           ) : null}
           {sla.notes ? (
             <div className="space-y-1">
-              <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+              <div className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Internal notes
               </div>
-              <p className="whitespace-pre-wrap text-zoru-ink">{sla.notes}</p>
+              <p className="whitespace-pre-wrap text-[var(--st-text)]">{sla.notes}</p>
             </div>
           ) : null}
         </Card>

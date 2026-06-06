@@ -134,7 +134,7 @@ async function ShortUrlRedirectPageContent({ params }: { params: Promise<{ short
 
     if (hasPixels && trackingAllowed) {
         return (
-            <main className="flex min-h-screen flex-col items-center justify-center p-4 bg-zoru-surface">
+            <main className="flex min-h-screen flex-col items-center justify-center p-4 bg-[var(--st-bg-secondary)]">
                 {/* Meta redirect as fallback */}
                 <meta httpEquiv="refresh" content={`2;url=${finalUrl}`} />
                 
@@ -208,10 +208,10 @@ async function ShortUrlRedirectPageContent({ params }: { params: Promise<{ short
                 }} />
                 
                 <div className="text-center space-y-4">
-                    <Loader2 className="w-10 h-10 animate-spin mx-auto text-zoru-ink" />
-                    <p className="text-lg font-medium text-zoru-ink">Taking you to your destination...</p>
-                    <p className="text-sm text-zoru-ink-muted">
-                        If you are not redirected automatically, <a href={finalUrl} className="text-zoru-ink hover:underline">click here</a>.
+                    <Loader2 className="w-10 h-10 animate-spin mx-auto text-[var(--st-text)]" />
+                    <p className="text-lg font-medium text-[var(--st-text)]">Taking you to your destination...</p>
+                    <p className="text-sm text-[var(--st-text-secondary)]">
+                        If you are not redirected automatically, <a href={finalUrl} className="text-[var(--st-text)] hover:underline">click here</a>.
                     </p>
                 </div>
             </main>

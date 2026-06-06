@@ -175,29 +175,29 @@ export default function DepartmentsListPage() {
                     }
                     loading={isLoading && departments.length === 0}
                 >
-                    <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                    <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                         <Table>
                             <ZoruTableHeader>
-                                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                    <ZoruTableHead className="text-zoru-ink-muted">{t('hrm.payroll.departments.col.name')}</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">{t('hrm.payroll.departments.col.code')}</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">{t('hrm.payroll.departments.col.costCenter')}</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">{t('hrm.payroll.departments.col.status')}</ZoruTableHead>
-                                    <ZoruTableHead className="text-right text-zoru-ink-muted">{t('hrm.payroll.departments.col.actions')}</ZoruTableHead>
+                                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">{t('hrm.payroll.departments.col.name')}</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">{t('hrm.payroll.departments.col.code')}</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">{t('hrm.payroll.departments.col.costCenter')}</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">{t('hrm.payroll.departments.col.status')}</ZoruTableHead>
+                                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">{t('hrm.payroll.departments.col.actions')}</ZoruTableHead>
                                 </ZoruTableRow>
                             </ZoruTableHeader>
                             <ZoruTableBody>
                                 {isLoading ? (
-                                    <ZoruTableRow className="border-zoru-line">
+                                    <ZoruTableRow className="border-[var(--st-border)]">
                                         <ZoruTableCell colSpan={5} className="h-24 text-center">
-                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
+                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 ) : departments.length === 0 ? (
-                                    <ZoruTableRow className="border-zoru-line">
+                                    <ZoruTableRow className="border-[var(--st-border)]">
                                         <ZoruTableCell
                                             colSpan={5}
-                                            className="h-24 text-center text-zoru-ink-muted"
+                                            className="h-24 text-center text-[var(--st-text-secondary)]"
                                         >
                                             {t('hrm.payroll.departments.empty')}
                                         </ZoruTableCell>
@@ -206,8 +206,8 @@ export default function DepartmentsListPage() {
                                     departments.map((d) => {
                                         const active = d.active !== false;
                                         return (
-                                            <ZoruTableRow key={d._id} className="border-zoru-line">
-                                                <ZoruTableCell className="font-medium text-zoru-ink">
+                                            <ZoruTableRow key={d._id} className="border-[var(--st-border)]">
+                                                <ZoruTableCell className="font-medium text-[var(--st-text)]">
                                                     <Link
                                                         href={`${BASE}/${d._id}`}
                                                         className="hover:underline"
@@ -215,15 +215,15 @@ export default function DepartmentsListPage() {
                                                         {d.name}
                                                     </Link>
                                                     {d.description ? (
-                                                        <div className="text-[11.5px] text-zoru-ink-muted">
+                                                        <div className="text-[11.5px] text-[var(--st-text-secondary)]">
                                                             {d.description}
                                                         </div>
                                                     ) : null}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
+                                                <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
                                                     {d.code ?? '—'}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {d.costCenter ? (
                                                         <Badge variant="outline">
                                                             {d.costCenter}
@@ -249,7 +249,7 @@ export default function DepartmentsListPage() {
                                                         size="icon"
                                                         onClick={() => setPendingDelete(d)}
                                                     >
-                                                        <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                                        <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                                     </Button>
                                                 </ZoruTableCell>
                                             </ZoruTableRow>

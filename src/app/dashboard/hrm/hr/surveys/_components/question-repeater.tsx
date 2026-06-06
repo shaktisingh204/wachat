@@ -153,7 +153,7 @@ export function QuestionRepeater({
             <input type="hidden" name={name} value={payload} />
 
             {items.length === 0 ? (
-                <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                     No questions yet. Add your first question to start.
                 </div>
             ) : (
@@ -161,11 +161,11 @@ export function QuestionRepeater({
                     {items.map((q, idx) => (
                         <li
                             key={q._key}
-                            className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-4"
+                            className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4"
                         >
                             <div className="mb-3 flex items-center gap-2">
-                                <GripVertical className="h-4 w-4 text-zoru-ink-muted" />
-                                <span className="text-[12px] font-medium text-zoru-ink-muted">
+                                <GripVertical className="h-4 w-4 text-[var(--st-text-secondary)]" />
+                                <span className="text-[12px] font-medium text-[var(--st-text-secondary)]">
                                     Question {idx + 1}
                                 </span>
                                 <div className="ml-auto flex items-center gap-1">
@@ -196,7 +196,7 @@ export function QuestionRepeater({
                                         aria-label="Remove question"
                                         onClick={() => removeAt(idx)}
                                     >
-                                        <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                        <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                     </Button>
                                 </div>
                             </div>
@@ -261,7 +261,7 @@ export function QuestionRepeater({
                                 />
                             ) : null}
 
-                            <label className="mt-3 flex items-center gap-2 text-[13px] text-zoru-ink">
+                            <label className="mt-3 flex items-center gap-2 text-[13px] text-[var(--st-text)]">
                                 <Checkbox
                                     checked={!!q.required}
                                     onCheckedChange={(c) =>
@@ -301,12 +301,12 @@ function OptionsEditor({
         onChange(options.map((o, i) => (i === idx ? value : o)));
 
     return (
-        <div className="mt-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-3">
-            <div className="mb-2 text-[12px] font-medium text-zoru-ink-muted">
+        <div className="mt-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3">
+            <div className="mb-2 text-[12px] font-medium text-[var(--st-text-secondary)]">
                 Options
             </div>
             {options.length === 0 ? (
-                <p className="mb-2 text-[12px] text-zoru-ink-muted">
+                <p className="mb-2 text-[12px] text-[var(--st-text-secondary)]">
                     No options yet — add at least one.
                 </p>
             ) : (

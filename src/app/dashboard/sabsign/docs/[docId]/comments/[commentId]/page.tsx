@@ -62,15 +62,15 @@ export default function SabwriterCommentPermalinkPage() {
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        <h1 className="text-xl font-semibold text-zoru-ink inline-flex items-center gap-2">
+        <h1 className="text-xl font-semibold text-[var(--st-text)] inline-flex items-center gap-2">
           <MessageCircle className="h-5 w-5" /> Comment
         </h1>
       </div>
 
       {loading ? (
-        <p className="text-sm text-zoru-ink-muted">Loading…</p>
+        <p className="text-sm text-[var(--st-text-secondary)]">Loading…</p>
       ) : !comment ? (
-        <p className="text-sm text-zoru-ink-muted">Comment not found.</p>
+        <p className="text-sm text-[var(--st-text-secondary)]">Comment not found.</p>
       ) : (
         <Card>
           <CardContent className="p-4 flex flex-col gap-3">
@@ -83,11 +83,11 @@ export default function SabwriterCommentPermalinkPage() {
               ) : (
                 <Badge variant="secondary">Open</Badge>
               )}
-              <span className="text-xs text-zoru-ink-muted ml-auto">
+              <span className="text-xs text-[var(--st-text-secondary)] ml-auto">
                 {new Date(comment.createdAt).toLocaleString()}
               </span>
             </div>
-            <p className="text-sm text-zoru-ink whitespace-pre-wrap">
+            <p className="text-sm text-[var(--st-text)] whitespace-pre-wrap">
               {comment.body}
             </p>
             <div className="flex gap-2">

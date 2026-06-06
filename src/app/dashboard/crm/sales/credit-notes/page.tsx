@@ -311,11 +311,11 @@ export default function CreditNotesPage() {
                 empty={
                     !isPending && creditNotes.length === 0 ? (
                         <div className="flex flex-col items-center gap-3 p-4">
-                            <FileMinus className="h-8 w-8 text-zoru-ink-muted" />
-                            <h3 className="text-base font-medium text-zoru-ink">
+                            <FileMinus className="h-8 w-8 text-[var(--st-text-secondary)]" />
+                            <h3 className="text-base font-medium text-[var(--st-text)]">
                                 No credit notes yet
                             </h3>
-                            <p className="max-w-sm text-sm text-zoru-ink-muted">
+                            <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                                 Issue a refund or credit against a prior invoice.
                             </p>
                             <Button asChild>

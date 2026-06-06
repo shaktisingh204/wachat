@@ -241,15 +241,15 @@ export default function SabWaCallsPage() {
       <div className="flex flex-wrap items-start gap-3">
         <div
           aria-hidden
-          className="rounded-[var(--zoru-radius)] bg-zoru-surface p-3 text-zoru-ink"
+          className="rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] p-3 text-[var(--st-text)]"
         >
           <Phone className="h-6 w-6" />
         </div>
         <div className="min-w-0 flex-1">
-          <h1 className="text-[24px] tracking-[-0.015em] text-zoru-ink leading-[1.2]">
+          <h1 className="text-[24px] tracking-[-0.015em] text-[var(--st-text)] leading-[1.2]">
             Calls
           </h1>
-          <p className="mt-1 text-[13px] text-zoru-ink-muted">
+          <p className="mt-1 text-[13px] text-[var(--st-text-secondary)]">
             Read-only history of incoming, outgoing, missed, and video calls.
           </p>
         </div>
@@ -275,7 +275,7 @@ export default function SabWaCallsPage() {
               Search
             </Label>
             <div className="relative">
-              <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+              <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
               <Input
                 id="calls-search"
                 value={query}
@@ -373,9 +373,9 @@ export default function SabWaCallsPage() {
             </div>
           ) : filtered.length === 0 ? (
             <div className="flex flex-col items-center gap-2 p-10 text-center">
-              <CalendarDays className="h-7 w-7 text-zoru-ink-muted" />
-              <h3 className="text-sm font-semibold text-zoru-ink">No calls to show</h3>
-              <p className="max-w-md text-[11.5px] text-zoru-ink-muted">
+              <CalendarDays className="h-7 w-7 text-[var(--st-text-secondary)]" />
+              <h3 className="text-sm font-semibold text-[var(--st-text)]">No calls to show</h3>
+              <p className="max-w-md text-[11.5px] text-[var(--st-text-secondary)]">
                 Once your SabWa session is connected and the engine starts
                 streaming call events, they&apos;ll appear here. Adjust
                 filters or refresh to refetch.
@@ -408,20 +408,20 @@ export default function SabWaCallsPage() {
                       </ZoruTableCell>
                       <ZoruTableCell>
                         <div className="flex items-center gap-2">
-                          <span className="font-medium text-zoru-ink">
+                          <span className="font-medium text-[var(--st-text)]">
                             {c.counterpartName ?? c.counterpartJid}
                           </span>
                           {c.type === "incoming" || c.type === "missed" ? (
-                            <ArrowDownLeft className="h-3.5 w-3.5 text-zoru-ink-muted" />
+                            <ArrowDownLeft className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                           ) : (
-                            <ArrowUpRight className="h-3.5 w-3.5 text-zoru-ink-muted" />
+                            <ArrowUpRight className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                           )}
                         </div>
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink-muted">
+                      <ZoruTableCell className="text-[var(--st-text-secondary)]">
                         {formatDuration(c.durationSec)}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink-muted">
+                      <ZoruTableCell className="text-[var(--st-text-secondary)]">
                         {formatTs(c.ts)}
                       </ZoruTableCell>
                       <ZoruTableCell className="text-right">

@@ -104,12 +104,12 @@ export default function BrandKitPage() {
             Back to Settings
           </Link>
         </Button>
-        <h1 className="text-3xl text-zoru-ink">Brand Kit</h1>
-        <p className="text-zoru-ink-muted mt-1">Save your colors and logo as reusable presets.</p>
+        <h1 className="text-3xl text-[var(--st-text)]">Brand Kit</h1>
+        <p className="text-[var(--st-text-secondary)] mt-1">Save your colors and logo as reusable presets.</p>
       </div>
 
       <div className="flex items-center justify-between">
-        <p className="text-sm text-zoru-ink-muted">{kits.length} / {MAX_KITS} kits saved</p>
+        <p className="text-sm text-[var(--st-text-secondary)]">{kits.length} / {MAX_KITS} kits saved</p>
         {!showForm && kits.length < MAX_KITS && (
           <Button onClick={() => { setShowForm(true); setFormError(''); }} size="sm">
             <Plus className="h-4 w-4 mr-2" />
@@ -119,16 +119,16 @@ export default function BrandKitPage() {
       </div>
 
       {showForm && (
-        <Card className="border-zoru-line ring-1 ring-zoru-line">
+        <Card className="border-[var(--st-border)] ring-1 ring-[var(--st-border)]">
           <ZoruCardHeader>
             <ZoruCardTitle className="flex items-center gap-2 text-base">
-              <Palette className="h-4 w-4 text-zoru-ink" />
+              <Palette className="h-4 w-4 text-[var(--st-text)]" />
               New Brand Kit
             </ZoruCardTitle>
           </ZoruCardHeader>
           <ZoruCardContent className="space-y-4">
             <div className="space-y-2">
-              <Label>Kit Name <span className="text-zoru-ink">*</span></Label>
+              <Label>Kit Name <span className="text-[var(--st-text)]">*</span></Label>
               <Input
                 value={form.name}
                 onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
@@ -176,7 +176,7 @@ export default function BrandKitPage() {
               <Label>Logo</Label>
               <div className="flex items-center gap-3">
                 {form.logoUrl && (
-                  <div className="w-12 h-12 border rounded-lg overflow-hidden flex items-center justify-center bg-zoru-surface-2">
+                  <div className="w-12 h-12 border rounded-lg overflow-hidden flex items-center justify-center bg-[var(--st-bg-muted)]">
                     <img src={form.logoUrl} className="max-w-full max-h-full object-contain" alt="Kit logo" />
                   </div>
                 )}
@@ -194,7 +194,7 @@ export default function BrandKitPage() {
               </div>
             </div>
             {formError && (
-              <p className="text-sm text-zoru-ink bg-zoru-surface-2 border border-zoru-line rounded-md px-3 py-2">{formError}</p>
+              <p className="text-sm text-[var(--st-text)] bg-[var(--st-bg-muted)] border border-[var(--st-border)] rounded-md px-3 py-2">{formError}</p>
             )}
             <div className="flex gap-2 pt-2">
               <Button onClick={handleAdd}>Save Kit</Button>
@@ -205,10 +205,10 @@ export default function BrandKitPage() {
       )}
 
       {kits.length === 0 && !showForm && (
-        <div className="text-center py-16 border-2 border-dashed border-zoru-line rounded-xl">
-          <Palette className="h-10 w-10 text-zoru-ink-muted mx-auto mb-3" />
-          <p className="text-zoru-ink font-medium">No brand kits yet</p>
-          <p className="text-sm text-zoru-ink-muted mt-1">Add your first kit to reuse colors and logos across QR codes.</p>
+        <div className="text-center py-16 border-2 border-dashed border-[var(--st-border)] rounded-xl">
+          <Palette className="h-10 w-10 text-[var(--st-text-secondary)] mx-auto mb-3" />
+          <p className="text-[var(--st-text)] font-medium">No brand kits yet</p>
+          <p className="text-sm text-[var(--st-text-secondary)] mt-1">Add your first kit to reuse colors and logos across QR codes.</p>
         </div>
       )}
 
@@ -229,20 +229,20 @@ export default function BrandKitPage() {
                 />
               </div>
               {kit.logoUrl && (
-                <div className="w-10 h-10 border rounded-lg overflow-hidden flex items-center justify-center bg-zoru-surface-2 shrink-0">
+                <div className="w-10 h-10 border rounded-lg overflow-hidden flex items-center justify-center bg-[var(--st-bg-muted)] shrink-0">
                   <img src={kit.logoUrl} className="max-w-full max-h-full object-contain" alt={`${kit.name} logo`} />
                 </div>
               )}
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-sm truncate">{kit.name}</p>
-                <p className="text-xs text-zoru-ink-muted font-mono">{kit.primaryColor} · {kit.bgColor}</p>
+                <p className="text-xs text-[var(--st-text-secondary)] font-mono">{kit.primaryColor} · {kit.bgColor}</p>
               </div>
               <div className="flex gap-2 shrink-0">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => handleApply(kit)}
-                  className={cn(copied === kit.id && "border-zoru-line text-zoru-ink")}
+                  className={cn(copied === kit.id && "border-[var(--st-border)] text-[var(--st-text)]")}
                 >
                   {copied === kit.id ? 'Copied!' : 'Apply'}
                 </Button>
@@ -250,7 +250,7 @@ export default function BrandKitPage() {
                   variant="ghost"
                   size="sm"
                   onClick={() => handleDelete(kit.id)}
-                  className="text-zoru-ink hover:text-zoru-ink hover:bg-zoru-surface-2"
+                  className="text-[var(--st-text)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
                   aria-label={`Delete ${kit.name}`}
                 >
                   <Trash2 className="h-4 w-4" />

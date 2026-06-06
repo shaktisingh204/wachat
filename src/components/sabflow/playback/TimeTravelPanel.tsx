@@ -281,17 +281,17 @@ export function TimeTravelPanel({
     }
     if (bin.errorRate >= 0.1) {
       return isActive
-        ? 'bg-zoru-ink'
-        : 'bg-zoru-surface-2/70 dark:bg-zoru-ink/60';
+        ? 'bg-[var(--st-text)]'
+        : 'bg-[var(--st-bg-muted)]/70 dark:bg-[var(--st-text)]/60';
     }
     if (bin.errorRate > 0) {
       return isActive
-        ? 'bg-zoru-surface-2'
-        : 'bg-zoru-surface-2/70 dark:bg-zoru-ink/60';
+        ? 'bg-[var(--st-bg-muted)]'
+        : 'bg-[var(--st-bg-muted)]/70 dark:bg-[var(--st-text)]/60';
     }
     return isActive
-      ? 'bg-zoru-ink'
-      : 'bg-zoru-surface-2/60 dark:bg-zoru-ink/50';
+      ? 'bg-[var(--st-text)]'
+      : 'bg-[var(--st-bg-muted)]/60 dark:bg-[var(--st-text)]/50';
   }
 
   /* ── Elapsed for current position ────────────────────────────────────── */
@@ -448,13 +448,13 @@ export function TimeTravelPanel({
             '[&::-webkit-slider-thumb]:w-3.5',
             '[&::-webkit-slider-thumb]:h-3.5',
             '[&::-webkit-slider-thumb]:rounded-full',
-            '[&::-webkit-slider-thumb]:bg-zoru-ink',
+            '[&::-webkit-slider-thumb]:bg-[var(--st-text)]',
             '[&::-webkit-slider-thumb]:cursor-pointer',
             '[&::-webkit-slider-thumb]:shadow-sm',
             '[&::-moz-range-thumb]:w-3.5',
             '[&::-moz-range-thumb]:h-3.5',
             '[&::-moz-range-thumb]:rounded-full',
-            '[&::-moz-range-thumb]:bg-zoru-ink',
+            '[&::-moz-range-thumb]:bg-[var(--st-text)]',
             '[&::-moz-range-thumb]:border-0',
             '[&::-moz-range-thumb]:cursor-pointer',
             count === 0 && 'opacity-40 cursor-not-allowed',
@@ -496,7 +496,7 @@ function TransportButton({
       className={cn(
         'flex h-7 w-7 items-center justify-center rounded-lg transition-colors',
         prominent
-          ? 'bg-zoru-ink text-white hover:bg-zoru-ink active:bg-zoru-ink'
+          ? 'bg-[var(--st-text)] text-white hover:bg-[var(--st-text)] active:bg-[var(--st-text)]'
           : 'text-[var(--gray-10)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
         disabled && 'opacity-40 cursor-not-allowed pointer-events-none',
       )}

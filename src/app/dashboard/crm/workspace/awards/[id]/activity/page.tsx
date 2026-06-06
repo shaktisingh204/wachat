@@ -52,7 +52,7 @@ function MetricsSkeleton() {
     return (
         <div className="mb-6 grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
             {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="rounded-xl border border-zoru-line bg-white p-6 shadow-sm dark:border-zoru-line dark:bg-zoru-ink">
+                <div key={i} className="rounded-xl border border-[var(--st-border)] bg-white p-6 shadow-sm dark:border-[var(--st-border)] dark:bg-[var(--st-text)]">
                     <div className="flex items-center justify-between">
                         <Skeleton className="h-4 w-20" />
                         <Skeleton className="h-8 w-8 rounded-md" />
@@ -100,8 +100,8 @@ export default async function AwardActivityPage({
         <div className="p-4 md:p-6 w-full space-y-6">
             <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                 <div>
-                    <h1 className="text-2xl font-semibold tracking-tight text-zoru-ink">Award Overview & Activity</h1>
-                    <p className="text-sm text-zoru-ink-muted">Key metrics and recent audit history for this award program.</p>
+                    <h1 className="text-2xl font-semibold tracking-tight text-[var(--st-text)]">Award Overview & Activity</h1>
+                    <p className="text-sm text-[var(--st-text-secondary)]">Key metrics and recent audit history for this award program.</p>
                 </div>
             </div>
 

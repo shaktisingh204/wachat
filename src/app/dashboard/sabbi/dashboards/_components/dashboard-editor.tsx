@@ -101,7 +101,7 @@ function SortableWidgetCard({ w, patchWidget, patchDataSource, move, removeWidge
             data-flip-id={w.id}
         >
             <div className="mb-2 flex items-center justify-between gap-2">
-                <div {...attributes} {...listeners} className="cursor-grab text-zoru-ink-muted hover:text-zoru-ink active:cursor-grabbing">
+                <div {...attributes} {...listeners} className="cursor-grab text-[var(--st-text-secondary)] hover:text-[var(--st-text)] active:cursor-grabbing">
                     <GripHorizontal className="h-4 w-4" />
                 </div>
                 <Input
@@ -135,7 +135,7 @@ function SortableWidgetCard({ w, patchWidget, patchDataSource, move, removeWidge
                         onClick={() => removeWidget(w.id)}
                         aria-label="Remove widget"
                     >
-                        <Trash2 className="h-4 w-4 text-zoru-danger-ink" />
+                        <Trash2 className="h-4 w-4 text-[var(--st-danger)]" />
                     </Button>
                 </div>
             </div>
@@ -223,7 +223,7 @@ function SortableWidgetCard({ w, patchWidget, patchDataSource, move, removeWidge
             </div>
 
             {w.dataSource.type === 'report' ? (
-                <p className="mt-2 text-[11px] text-zoru-warning-ink">
+                <p className="mt-2 text-[11px] text-[var(--st-warn)]">
                     Reports engine not wired yet — see §6.8.
                 </p>
             ) : null}
@@ -335,7 +335,7 @@ export function DashboardEditor({ dashboardId, initialWidgets }: DashboardEditor
         <div className="space-y-4" ref={containerRef}>
             <div className="flex items-center justify-between gap-2">
                 <div>
-                    <p className="text-[13px] text-zoru-ink-muted">
+                    <p className="text-[13px] text-[var(--st-text-secondary)]">
                         {widgets.length} widget(s). Drag and drop or move up/down to reorder; resize using bottom-right handle.
                     </p>
                 </div>
@@ -361,8 +361,8 @@ export function DashboardEditor({ dashboardId, initialWidgets }: DashboardEditor
             {widgets.length === 0 ? (
                 <Card>
                     <ZoruCardContent className="flex flex-col items-center justify-center gap-2 p-10 text-center">
-                        <p className="text-[14px] text-zoru-ink">No widgets yet.</p>
-                        <p className="text-[12.5px] text-zoru-ink-muted">
+                        <p className="text-[14px] text-[var(--st-text)]">No widgets yet.</p>
+                        <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                             Add your first widget — a metric, chart, or table — to start building this board.
                         </p>
                         <Button className="mt-2" onClick={() => setIsAddOpen(true)}>

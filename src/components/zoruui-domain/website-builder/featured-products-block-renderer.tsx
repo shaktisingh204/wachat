@@ -38,7 +38,7 @@ export function FeaturedProductsBlockRenderer({ settings, products, shopSlug }: 
         <div style={style}>
             <div className="text-center mb-8">
                 <h2 className="text-3xl font-bold">{settings.title || 'Featured Products'}</h2>
-                <p className="text-zoru-ink-muted">{settings.subtitle}</p>
+                <p className="text-[var(--st-text-secondary)]">{settings.subtitle}</p>
             </div>
              <div className={cn("grid gap-6", gridCols)}>
                 {featuredProducts.map(product => (

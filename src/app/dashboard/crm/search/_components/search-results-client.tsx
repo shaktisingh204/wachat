@@ -110,7 +110,7 @@ export function SearchResultsClient({
         <Card key={group.entityKind} className="p-6">
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <h2 className="text-[15px] font-semibold text-zoru-ink">{group.label}</h2>
+              <h2 className="text-[15px] font-semibold text-[var(--st-text)]">{group.label}</h2>
               <Badge variant="secondary">{group.results.length}</Badge>
             </div>
           </div>
@@ -132,18 +132,18 @@ export function SearchResultsClient({
                     }}
                     className={cn(
                       'flex items-center gap-3 rounded-lg border border-transparent px-3 py-2 text-left transition-colors',
-                      'hover:border-zoru-line hover:bg-zoru-surface-2',
-                      'focus:border-zoru-primary focus:bg-zoru-primary/10 focus:outline-none',
-                      isFocused && 'border-zoru-primary bg-zoru-primary/10',
+                      'hover:border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]',
+                      'focus:border-[var(--st-text)] focus:bg-[var(--st-text)]/10 focus:outline-none',
+                      isFocused && 'border-[var(--st-text)] bg-[var(--st-text)]/10',
                     )}
                   >
                     <Avatar avatarUrl={r.avatarUrl} fallback={initialsOf(r.primary)} />
                     <div className="flex min-w-0 flex-1 flex-col">
-                      <span className="truncate text-[13px] font-medium text-zoru-ink">
+                      <span className="truncate text-[13px] font-medium text-[var(--st-text)]">
                         {r.primary}
                       </span>
                       {r.secondary ? (
-                        <span className="truncate text-[11.5px] text-zoru-ink-muted">
+                        <span className="truncate text-[11.5px] text-[var(--st-text-secondary)]">
                           {r.secondary}
                         </span>
                       ) : null}
@@ -182,7 +182,7 @@ function Avatar({
   return (
     <span
       aria-hidden
-      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-zoru-line bg-zoru-surface text-[10px] font-medium text-zoru-ink-muted"
+      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[10px] font-medium text-[var(--st-text-secondary)]"
     >
       {fallback}
     </span>

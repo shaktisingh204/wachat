@@ -190,7 +190,7 @@ export default function ImageResizerPage() {
           </div>
           
           {imgSrc && enableCrop && (
-            <div className="flex justify-center border p-2 bg-zoru-surface-2/20 overflow-auto max-h-[60vh]">
+            <div className="flex justify-center border p-2 bg-[var(--st-bg-muted)]/20 overflow-auto max-h-[60vh]">
               <ReactCrop
                 crop={crop}
                 onChange={(_, percentCrop) => setCrop(percentCrop)}
@@ -210,7 +210,7 @@ export default function ImageResizerPage() {
           )}
           
           {imgSrc && !enableCrop && (
-            <div className="flex justify-center border p-2 bg-zoru-surface-2/20 overflow-auto max-h-[60vh]">
+            <div className="flex justify-center border p-2 bg-[var(--st-bg-muted)]/20 overflow-auto max-h-[60vh]">
                {/* eslint-disable-next-line @next/next/no-img-element */}
                <img
                   ref={imgRef}
@@ -264,15 +264,15 @@ export default function ImageResizerPage() {
           <Button onClick={resize} disabled={!imgSrc}>
             Resize
           </Button>
-          {err && <div className="text-sm text-zoru-ink">{err}</div>}
+          {err && <div className="text-sm text-[var(--st-text)]">{err}</div>}
         </ZoruCardContent>
       </Card>
       {outUrl && (
         <Card>
           <ZoruCardContent className="p-4 space-y-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={outUrl} alt="Resized preview" className="max-w-full rounded border bg-zoru-surface-2/20" />
-            <a href={outUrl} download="resized.png" className="underline text-sm text-zoru-ink">
+            <img src={outUrl} alt="Resized preview" className="max-w-full rounded border bg-[var(--st-bg-muted)]/20" />
+            <a href={outUrl} download="resized.png" className="underline text-sm text-[var(--st-text)]">
               Download resized image
             </a>
           </ZoruCardContent>

@@ -325,9 +325,9 @@ export function ActivityTimelinePage({ getList, bulkDelete }: ActivityTimelinePa
               </Select>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-[12px] text-zoru-ink-muted">From</span>
+              <span className="text-[12px] text-[var(--st-text-secondary)]">From</span>
               <Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="w-40" />
-              <span className="text-[12px] text-zoru-ink-muted">To</span>
+              <span className="text-[12px] text-[var(--st-text-secondary)]">To</span>
               <Input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="w-40" />
             </div>
           </>
@@ -335,7 +335,7 @@ export function ActivityTimelinePage({ getList, bulkDelete }: ActivityTimelinePa
         bulkBar={
           selected.size > 0 ? (
             <div className="flex items-center justify-between gap-3">
-              <span className="text-[12.5px] text-zoru-ink-muted">{selected.size} selected</span>
+              <span className="text-[12.5px] text-[var(--st-text-secondary)]">{selected.size} selected</span>
               <div className="flex items-center gap-2">
                 <Button variant="outline" size="sm" onClick={() => setSelected(new Set())}>Clear</Button>
                 <Button
@@ -346,7 +346,7 @@ export function ActivityTimelinePage({ getList, bulkDelete }: ActivityTimelinePa
                   <Download className="h-3.5 w-3.5" strokeWidth={1.75} /> Export selected
                 </Button>
                 <Button variant="outline" size="sm" onClick={() => setPendingBulk(true)}>
-                  <Trash2 className="h-3.5 w-3.5 text-zoru-ink" strokeWidth={1.75} /> Delete selected
+                  <Trash2 className="h-3.5 w-3.5 text-[var(--st-text)]" strokeWidth={1.75} /> Delete selected
                 </Button>
               </div>
             </div>
@@ -363,9 +363,9 @@ export function ActivityTimelinePage({ getList, bulkDelete }: ActivityTimelinePa
           </div>
 
           <Card className="p-0">
-            <ol className="relative divide-y divide-zoru-line">
+            <ol className="relative divide-y divide-[var(--st-border)]">
               {pageRows.length === 0 ? (
-                <li className="px-6 py-10 text-center text-zoru-ink-muted">
+                <li className="px-6 py-10 text-center text-[var(--st-text-secondary)]">
                   {rows.length === 0
                     ? 'No project activity recorded yet.'
                     : 'No activity matches the current filters.'}
@@ -386,24 +386,24 @@ export function ActivityTimelinePage({ getList, bulkDelete }: ActivityTimelinePa
                             return next;
                           });
                         }}
-                        className="mt-1.5 h-4 w-4 cursor-pointer rounded border-zoru-line"
+                        className="mt-1.5 h-4 w-4 cursor-pointer rounded border-[var(--st-border)]"
                         aria-label={`Select activity ${r._id}`}
                       />
-                      <div className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-zoru-line bg-zoru-surface-2">
-                        <User className="h-3.5 w-3.5 text-zoru-ink-muted" aria-hidden />
+                      <div className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--st-border)] bg-[var(--st-bg-muted)]">
+                        <User className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" aria-hidden />
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                          <span className="text-[13px] font-medium text-zoru-ink">{r.actorName ?? 'Unknown'}</span>
-                          <span className="text-[12px] text-zoru-ink-muted">{fmt(r.createdAt)}</span>
+                          <span className="text-[13px] font-medium text-[var(--st-text)]">{r.actorName ?? 'Unknown'}</span>
+                          <span className="text-[12px] text-[var(--st-text-secondary)]">{fmt(r.createdAt)}</span>
                         </div>
-                        <p className="mt-0.5 text-[13px] text-zoru-ink">{r.activity}</p>
-                        <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-zoru-ink-muted">
+                        <p className="mt-0.5 text-[13px] text-[var(--st-text)]">{r.activity}</p>
+                        <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-[var(--st-text-secondary)]">
                           {r.projectId ? <span>Project: {String(r.projectId)}</span> : null}
-                          <span className="rounded-full border border-zoru-line px-2 py-0.5">
+                          <span className="rounded-full border border-[var(--st-border)] px-2 py-0.5">
                             {inferKind(r.activity)}
                           </span>
-                          <span className="rounded-full border border-zoru-line px-2 py-0.5">
+                          <span className="rounded-full border border-[var(--st-border)] px-2 py-0.5">
                             {inferAction(r.activity)}
                           </span>
                         </div>

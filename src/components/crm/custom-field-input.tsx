@@ -165,7 +165,7 @@ export function CustomFieldInput({
           {showLabel ? (
             <Label htmlFor={slug} className="text-[13px]">
               {label}
-              {required ? <span className="ml-0.5 text-zoru-ink">*</span> : null}
+              {required ? <span className="ml-0.5 text-[var(--st-text)]">*</span> : null}
             </Label>
           ) : null}
         </div>
@@ -288,7 +288,7 @@ export function CustomFieldInput({
       {showLabel ? (
         <Label htmlFor={slug} className="text-[13px]">
           {label}
-          {required ? <span className="ml-0.5 text-zoru-ink">*</span> : null}
+          {required ? <span className="ml-0.5 text-[var(--st-text)]">*</span> : null}
         </Label>
       ) : null}
       {control}
@@ -321,10 +321,10 @@ export function CustomFieldDisplay({
   let body: React.ReactNode;
 
   if (value == null || value === '') {
-    body = <span className="text-zoru-ink-muted">—</span>;
+    body = <span className="text-[var(--st-text-secondary)]">—</span>;
   } else if (field.type === 'entity_ref') {
     if (!field.targetEntity) {
-      body = <span className="text-zoru-ink-muted">—</span>;
+      body = <span className="text-[var(--st-text-secondary)]">—</span>;
     } else if (field.multi) {
       const ids = Array.isArray(value)
         ? value.filter((x): x is string => typeof x === 'string')
@@ -332,7 +332,7 @@ export function CustomFieldDisplay({
           ? [value]
           : [];
       body = ids.length === 0 ? (
-        <span className="text-zoru-ink-muted">—</span>
+        <span className="text-[var(--st-text-secondary)]">—</span>
       ) : (
         <div className="flex flex-wrap gap-1">
           {ids.map((id) => (
@@ -366,7 +366,7 @@ export function CustomFieldDisplay({
         href={value}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-[13px] text-zoru-ink underline-offset-2 hover:underline"
+        className="text-[13px] text-[var(--st-text)] underline-offset-2 hover:underline"
       >
         {value}
       </a>
@@ -375,7 +375,7 @@ export function CustomFieldDisplay({
     body = (
       <a
         href={`mailto:${value}`}
-        className="text-[13px] text-zoru-ink underline-offset-2 hover:underline"
+        className="text-[13px] text-[var(--st-text)] underline-offset-2 hover:underline"
       >
         {value}
       </a>
@@ -390,7 +390,7 @@ export function CustomFieldDisplay({
 
   return (
     <div className={cn('flex flex-col gap-0.5', className)}>
-      <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+      <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
         {field.label}
       </span>
       {body}

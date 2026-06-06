@@ -76,8 +76,8 @@ export function CrmEmailTemplatesManager() {
             <Card className="p-6">
                 <div className="flex justify-between items-center mb-4">
                     <div>
-                        <h2 className="text-zoru-ink font-semibold text-lg">Email Templates</h2>
-                        <p className="text-zoru-ink-muted text-sm">Create and manage reusable email templates for your CRM.</p>
+                        <h2 className="text-[var(--st-text)] font-semibold text-lg">Email Templates</h2>
+                        <p className="text-[var(--st-text-secondary)] text-sm">Create and manage reusable email templates for your CRM.</p>
                     </div>
                     <Button onClick={handleCreateNew}>
                         <Plus className="h-4 w-4" />
@@ -91,18 +91,18 @@ export function CrmEmailTemplatesManager() {
                             <Skeleton className="h-10 w-full" />
                          </div>
                     ) : templates.length > 0 ? (
-                        <div className="border border-zoru-line rounded-md">
+                        <div className="border border-[var(--st-border)] rounded-md">
                             {templates.map(template => (
-                                <div key={template._id.toString()} className="flex items-center p-3 border-b border-zoru-line last:border-b-0">
+                                <div key={template._id.toString()} className="flex items-center p-3 border-b border-[var(--st-border)] last:border-b-0">
                                     <div className="flex-1">
-                                        <p className="font-medium text-zoru-ink">{template.name}</p>
-                                        <p className="text-sm text-zoru-ink-muted">{template.subject}</p>
+                                        <p className="font-medium text-[var(--st-text)]">{template.name}</p>
+                                        <p className="text-sm text-[var(--st-text-secondary)]">{template.subject}</p>
                                     </div>
                                     <div className="flex gap-2">
                                         <Button variant="ghost" size="icon" onClick={() => handleEdit(template)}><Edit className="h-4 w-4"/></Button>
                                          <ZoruAlertDialog>
                                             <ZoruAlertDialogTrigger asChild>
-                                                <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-zoru-danger-ink"/></Button>
+                                                <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-[var(--st-danger)]"/></Button>
                                             </ZoruAlertDialogTrigger>
                                             <ZoruAlertDialogContent>
                                                 <ZoruAlertDialogHeader>
@@ -120,7 +120,7 @@ export function CrmEmailTemplatesManager() {
                             ))}
                         </div>
                     ) : (
-                        <div className="text-center text-zoru-ink-muted py-12 border-2 border-dashed border-zoru-line rounded-lg">
+                        <div className="text-center text-[var(--st-text-secondary)] py-12 border-2 border-dashed border-[var(--st-border)] rounded-lg">
                             <p>No email templates created yet.</p>
                         </div>
                     )}

@@ -73,7 +73,7 @@ function categoryTone(
 
 function dash(v: string | number | null | undefined): React.ReactNode {
     if (v === null || v === undefined || v === '') {
-        return <span className="text-zoru-ink-muted">—</span>;
+        return <span className="text-[var(--st-text-secondary)]">—</span>;
     }
     return v;
 }
@@ -173,10 +173,10 @@ export default async function AccountDetailPage({ params }: PageProps) {
                         </ZoruCardHeader>
                         <ZoruCardContent className="space-y-3">
                             <div className="flex items-center gap-3">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-ink/10 text-xl font-bold text-zoru-ink">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-text)]/10 text-xl font-bold text-[var(--st-text)]">
                                     {scoreData.score}
                                 </div>
-                                <div className="flex flex-col text-[12px] text-zoru-ink-muted">
+                                <div className="flex flex-col text-[12px] text-[var(--st-text-secondary)]">
                                     <span>{scoreData.interactionsCount} interactions</span>
                                     <span>${scoreData.totalDealValue.toLocaleString()} in open deals</span>
                                 </div>
@@ -191,7 +191,7 @@ export default async function AccountDetailPage({ params }: PageProps) {
                         </ZoruCardHeader>
                         <ZoruCardContent className="space-y-3 text-[13px]">
                             <div className="flex justify-between">
-                                <span className="text-zoru-ink-muted">
+                                <span className="text-[var(--st-text-secondary)]">
                                     Category
                                 </span>
                                 <span>
@@ -206,19 +206,19 @@ export default async function AccountDetailPage({ params }: PageProps) {
                                 </span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-zoru-ink-muted">
+                                <span className="text-[var(--st-text-secondary)]">
                                     Currency
                                 </span>
                                 <span>{dash(account.currency)}</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-zoru-ink-muted">
+                                <span className="text-[var(--st-text-secondary)]">
                                     Payment terms
                                 </span>
                                 <span>{dash(account.paymentTerms)}</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-zoru-ink-muted">
+                                <span className="text-[var(--st-text-secondary)]">
                                     Annual revenue
                                 </span>
                                 <span>
@@ -228,13 +228,13 @@ export default async function AccountDetailPage({ params }: PageProps) {
                                 </span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-zoru-ink-muted">
+                                <span className="text-[var(--st-text-secondary)]">
                                     Employees
                                 </span>
                                 <span>{dash(account.employeeCount)}</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-zoru-ink-muted">
+                                <span className="text-[var(--st-text-secondary)]">
                                     Created
                                 </span>
                                 <span
@@ -268,9 +268,9 @@ export default async function AccountDetailPage({ params }: PageProps) {
                                 <Link
                                     key={item.label}
                                     href={item.href}
-                                    className="flex items-center justify-between rounded-md px-2 py-1.5 text-[13px] text-zoru-ink hover:bg-zoru-surface-2"
+                                    className="flex items-center justify-between rounded-md px-2 py-1.5 text-[13px] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
                                 >
-                                    <span className="inline-flex items-center gap-2 text-zoru-ink-muted">
+                                    <span className="inline-flex items-center gap-2 text-[var(--st-text-secondary)]">
                                         {item.icon}
                                         {item.label}
                                     </span>
@@ -290,7 +290,7 @@ export default async function AccountDetailPage({ params }: PageProps) {
                             </ZoruCardHeader>
                             <ZoruCardContent className="space-y-3 text-[13px]">
                                 <div className="flex justify-between">
-                                    <span className="text-zoru-ink-muted">
+                                    <span className="text-[var(--st-text-secondary)]">
                                         GSTIN
                                     </span>
                                     <span className="font-mono">
@@ -298,7 +298,7 @@ export default async function AccountDetailPage({ params }: PageProps) {
                                     </span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-zoru-ink-muted">
+                                    <span className="text-[var(--st-text-secondary)]">
                                         PAN
                                     </span>
                                     <span className="font-mono">
@@ -325,18 +325,18 @@ export default async function AccountDetailPage({ params }: PageProps) {
                 <ZoruCardContent>
                     <div className="grid gap-4 md:grid-cols-2">
                         <div className="flex items-center gap-3 text-[13px]">
-                            <Building className="h-4 w-4 text-zoru-ink-muted" />
+                            <Building className="h-4 w-4 text-[var(--st-text-secondary)]" />
                             <div className="flex flex-col">
-                                <span className="text-zoru-ink-muted text-[11.5px] uppercase tracking-wide">
+                                <span className="text-[var(--st-text-secondary)] text-[11.5px] uppercase tracking-wide">
                                     Industry
                                 </span>
                                 <span>{dash(account.industry)}</span>
                             </div>
                         </div>
                         <div className="flex items-center gap-3 text-[13px]">
-                            <Globe className="h-4 w-4 text-zoru-ink-muted" />
+                            <Globe className="h-4 w-4 text-[var(--st-text-secondary)]" />
                             <div className="flex flex-col">
-                                <span className="text-zoru-ink-muted text-[11.5px] uppercase tracking-wide">
+                                <span className="text-[var(--st-text-secondary)] text-[11.5px] uppercase tracking-wide">
                                     Website
                                 </span>
                                 {account.website ? (
@@ -344,7 +344,7 @@ export default async function AccountDetailPage({ params }: PageProps) {
                                         href={account.website}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="text-zoru-ink hover:underline"
+                                        className="text-[var(--st-text)] hover:underline"
                                     >
                                         {account.website}
                                     </a>
@@ -354,9 +354,9 @@ export default async function AccountDetailPage({ params }: PageProps) {
                             </div>
                         </div>
                         <div className="flex items-center gap-3 text-[13px]">
-                            <PhoneIcon className="h-4 w-4 text-zoru-ink-muted" />
+                            <PhoneIcon className="h-4 w-4 text-[var(--st-text-secondary)]" />
                             <div className="flex flex-col">
-                                <span className="text-zoru-ink-muted text-[11.5px] uppercase tracking-wide">
+                                <span className="text-[var(--st-text-secondary)] text-[11.5px] uppercase tracking-wide">
                                     Phone
                                 </span>
                                 {account.phone ? (
@@ -372,9 +372,9 @@ export default async function AccountDetailPage({ params }: PageProps) {
                             </div>
                         </div>
                         <div className="flex items-center gap-3 text-[13px]">
-                            <MapPin className="h-4 w-4 text-zoru-ink-muted" />
+                            <MapPin className="h-4 w-4 text-[var(--st-text-secondary)]" />
                             <div className="flex flex-col">
-                                <span className="text-zoru-ink-muted text-[11.5px] uppercase tracking-wide">
+                                <span className="text-[var(--st-text-secondary)] text-[11.5px] uppercase tracking-wide">
                                     Location
                                 </span>
                                 <span>
@@ -392,9 +392,9 @@ export default async function AccountDetailPage({ params }: PageProps) {
                         </div>
                         {account.address ? (
                             <div className="flex items-start gap-3 text-[13px] md:col-span-2">
-                                <MapPin className="mt-0.5 h-4 w-4 text-zoru-ink-muted" />
+                                <MapPin className="mt-0.5 h-4 w-4 text-[var(--st-text-secondary)]" />
                                 <div className="flex flex-col">
-                                    <span className="text-zoru-ink-muted text-[11.5px] uppercase tracking-wide">
+                                    <span className="text-[var(--st-text-secondary)] text-[11.5px] uppercase tracking-wide">
                                         Registered address
                                     </span>
                                     <span className="whitespace-pre-line">
@@ -405,9 +405,9 @@ export default async function AccountDetailPage({ params }: PageProps) {
                         ) : null}
                         {account.billingAddress ? (
                             <div className="flex items-start gap-3 text-[13px] md:col-span-2">
-                                <Banknote className="mt-0.5 h-4 w-4 text-zoru-ink-muted" />
+                                <Banknote className="mt-0.5 h-4 w-4 text-[var(--st-text-secondary)]" />
                                 <div className="flex flex-col">
-                                    <span className="text-zoru-ink-muted text-[11.5px] uppercase tracking-wide">
+                                    <span className="text-[var(--st-text-secondary)] text-[11.5px] uppercase tracking-wide">
                                         Billing address
                                     </span>
                                     <span className="whitespace-pre-line">
@@ -418,9 +418,9 @@ export default async function AccountDetailPage({ params }: PageProps) {
                         ) : null}
                         {account.shippingAddress ? (
                             <div className="flex items-start gap-3 text-[13px] md:col-span-2">
-                                <MapPin className="mt-0.5 h-4 w-4 text-zoru-ink-muted" />
+                                <MapPin className="mt-0.5 h-4 w-4 text-[var(--st-text-secondary)]" />
                                 <div className="flex flex-col">
-                                    <span className="text-zoru-ink-muted text-[11.5px] uppercase tracking-wide">
+                                    <span className="text-[var(--st-text-secondary)] text-[11.5px] uppercase tracking-wide">
                                         Shipping address
                                     </span>
                                     <span className="whitespace-pre-line">
@@ -451,7 +451,7 @@ export default async function AccountDetailPage({ params }: PageProps) {
                 </ZoruCardHeader>
                 <ZoruCardContent>
                     {contactsRes.contacts.length > 0 ? (
-                        <ul className="divide-y divide-zoru-line">
+                        <ul className="divide-y divide-[var(--st-border)]">
                             {contactsRes.contacts.map((c) => (
                                 <li
                                     key={String(c._id)}
@@ -460,11 +460,11 @@ export default async function AccountDetailPage({ params }: PageProps) {
                                     <div className="min-w-0">
                                         <Link
                                             href={`/dashboard/crm/sales-crm/contacts/${String(c._id)}`}
-                                            className="text-[13px] font-medium text-zoru-ink hover:underline"
+                                            className="text-[13px] font-medium text-[var(--st-text)] hover:underline"
                                         >
                                             {c.name}
                                         </Link>
-                                        <div className="truncate text-[12px] text-zoru-ink-muted">
+                                        <div className="truncate text-[12px] text-[var(--st-text-secondary)]">
                                             {c.email}
                                             {c.jobTitle ? ` · ${c.jobTitle}` : ''}
                                         </div>
@@ -472,7 +472,7 @@ export default async function AccountDetailPage({ params }: PageProps) {
                                     {c.email ? (
                                         <a
                                             href={`mailto:${c.email}`}
-                                            className="text-zoru-ink-muted hover:text-zoru-ink"
+                                            className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                                             aria-label={`Email ${c.name}`}
                                         >
                                             <Mail className="h-4 w-4" />
@@ -482,7 +482,7 @@ export default async function AccountDetailPage({ params }: PageProps) {
                             ))}
                         </ul>
                     ) : (
-                        <p className="text-[13px] text-zoru-ink-muted">
+                        <p className="text-[13px] text-[var(--st-text-secondary)]">
                             No contacts yet. Add the people who buy from,
                             influence, or champion this account.
                         </p>
@@ -491,7 +491,7 @@ export default async function AccountDetailPage({ params }: PageProps) {
                         <div className="mt-3">
                             <Link
                                 href={`/dashboard/crm/sales-crm/contacts?accountId=${accountId}`}
-                                className="text-[12.5px] text-zoru-ink hover:underline"
+                                className="text-[12.5px] text-[var(--st-text)] hover:underline"
                             >
                                 View all {counts.contacts} contacts →
                             </Link>
@@ -509,14 +509,14 @@ export default async function AccountDetailPage({ params }: PageProps) {
                     <ZoruCardContent>
                         <div className="flex flex-wrap items-stretch gap-4 pt-2">
                             {orgChart.map((c: any) => (
-                                <div key={String(c._id)} className="flex min-w-[220px] flex-col items-center rounded-xl border border-zoru-line bg-zoru-surface p-4 text-center shadow-sm transition-all hover:shadow-md">
-                                    <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-zoru-ink/10 text-lg font-bold text-zoru-ink">
+                                <div key={String(c._id)} className="flex min-w-[220px] flex-col items-center rounded-xl border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4 text-center shadow-sm transition-all hover:shadow-md">
+                                    <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-text)]/10 text-lg font-bold text-[var(--st-text)]">
                                         {c.name.charAt(0).toUpperCase()}
                                     </div>
-                                    <span className="text-[14px] font-semibold text-zoru-ink">{c.name}</span>
-                                    {c.jobTitle && <span className="mt-1 text-[12px] font-medium text-zoru-ink-muted">{c.jobTitle}</span>}
+                                    <span className="text-[14px] font-semibold text-[var(--st-text)]">{c.name}</span>
+                                    {c.jobTitle && <span className="mt-1 text-[12px] font-medium text-[var(--st-text-secondary)]">{c.jobTitle}</span>}
                                     {c.email && (
-                                        <div className="mt-2 flex items-center gap-1 text-[11px] text-zoru-ink-muted">
+                                        <div className="mt-2 flex items-center gap-1 text-[11px] text-[var(--st-text-secondary)]">
                                             <Mail className="h-3 w-3" />
                                             <span>{c.email}</span>
                                         </div>
@@ -552,7 +552,7 @@ export default async function AccountDetailPage({ params }: PageProps) {
                                         href={url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="text-zoru-ink hover:underline"
+                                        className="text-[var(--st-text)] hover:underline"
                                     >
                                         {url.split('/').pop() ?? url}
                                     </a>

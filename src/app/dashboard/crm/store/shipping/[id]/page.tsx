@@ -34,10 +34,10 @@ function Field({
 }) {
     return (
         <div className={fullWidth ? 'sm:col-span-2' : undefined}>
-            <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+            <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                 {label}
             </div>
-            <div className="mt-1 text-[13px] text-zoru-ink">{children}</div>
+            <div className="mt-1 text-[13px] text-[var(--st-text)]">{children}</div>
         </div>
     );
 }
@@ -89,7 +89,7 @@ export default async function ShippingZoneDetailPage({
             }
         >
             <Card className="p-6">
-                <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                     Zone details
                 </h2>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
@@ -109,30 +109,30 @@ export default async function ShippingZoneDetailPage({
             </Card>
 
             <Card className="p-6">
-                <h2 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                <h2 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                     Methods
                 </h2>
                 {methods.length === 0 ? (
-                    <p className="text-[12.5px] text-zoru-ink-muted">
+                    <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                         No shipping methods configured.
                     </p>
                 ) : (
-                    <ul className="divide-y divide-zoru-line text-[13px]">
+                    <ul className="divide-y divide-[var(--st-border)] text-[13px]">
                         {methods.map((m, i) => (
                             <li
                                 key={i}
                                 className="grid grid-cols-1 gap-2 py-2 sm:grid-cols-4"
                             >
-                                <span className="font-medium text-zoru-ink">
+                                <span className="font-medium text-[var(--st-text)]">
                                     {String(m.name ?? '')}
                                 </span>
-                                <span className="text-zoru-ink-muted">
+                                <span className="text-[var(--st-text-secondary)]">
                                     Kind · {String(m.kind ?? '')}
                                 </span>
-                                <span className="text-zoru-ink-muted">
+                                <span className="text-[var(--st-text-secondary)]">
                                     Rate · {String(m.rate ?? 0)}
                                 </span>
-                                <span className="text-zoru-ink-muted">
+                                <span className="text-[var(--st-text-secondary)]">
                                     Free above ·{' '}
                                     {m.freeAboveSubtotal !== null &&
                                     m.freeAboveSubtotal !== undefined

@@ -238,16 +238,16 @@ export function DevicesClient() {
       {/* Header */}
       <header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-start gap-3 min-w-0">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface text-zoru-ink">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
             <Boxes className="h-5 w-5" />
           </div>
           <div className="min-w-0">
-            <h1 className="text-[24px] tracking-[-0.015em] text-zoru-ink leading-[1.2]">
+            <h1 className="text-[24px] tracking-[-0.015em] text-[var(--st-text)] leading-[1.2]">
               Linked Devices
             </h1>
-            <p className="mt-1 text-[13px] text-zoru-ink-muted">
+            <p className="mt-1 text-[13px] text-[var(--st-text-secondary)]">
               Every WhatsApp number connected to{' '}
-              <strong className="text-zoru-ink">
+              <strong className="text-[var(--st-text)]">
                 {activeProjectName ?? 'this project'}
               </strong>
               .
@@ -279,7 +279,7 @@ export function DevicesClient() {
           <div
             role="group"
             aria-label="View mode"
-            className="hidden md:inline-flex rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-1"
+            className="hidden md:inline-flex rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1"
           >
             <Button
               type="button"
@@ -316,7 +316,7 @@ export function DevicesClient() {
       {/* Body */}
       {isLoading ? (
         <Card>
-          <ZoruCardContent className="flex h-40 items-center justify-center text-zoru-ink-muted">
+          <ZoruCardContent className="flex h-40 items-center justify-center text-[var(--st-text-secondary)]">
             <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading sessions…
           </ZoruCardContent>
         </Card>
@@ -359,14 +359,14 @@ export function DevicesClient() {
                     <div className="flex items-center gap-2">
                       <span
                         aria-hidden
-                        className="flex h-7 w-7 items-center justify-center rounded-full bg-zoru-surface text-xs font-semibold text-zoru-ink"
+                        className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--st-bg-secondary)] text-xs font-semibold text-[var(--st-text)]"
                       >
                         {initials(s)}
                       </span>
                       <div className="flex flex-col leading-tight">
                         <span>{formatPhone(s.phoneE164)}</span>
                         {s.pushName ? (
-                          <span className="text-xs text-zoru-ink-muted">
+                          <span className="text-xs text-[var(--st-text-secondary)]">
                             {s.pushName}
                           </span>
                         ) : null}
@@ -377,10 +377,10 @@ export function DevicesClient() {
                   <ZoruTableCell>
                     <StatusBadge status={s.status} size="sm" />
                   </ZoruTableCell>
-                  <ZoruTableCell className="text-zoru-ink-muted">
+                  <ZoruTableCell className="text-[var(--st-text-secondary)]">
                     {s.deviceMeta?.platform ?? '—'}
                   </ZoruTableCell>
-                  <ZoruTableCell className="text-zoru-ink-muted">
+                  <ZoruTableCell className="text-[var(--st-text-secondary)]">
                     {formatRelative(s.lastSeenAt)}
                   </ZoruTableCell>
                   <ZoruTableCell className="text-right">
@@ -402,7 +402,7 @@ export function DevicesClient() {
                       size="sm"
                       variant="ghost"
                       onClick={() => setLogoutTarget(s)}
-                      className="h-7 px-2 text-zoru-danger hover:text-zoru-danger"
+                      className="h-7 px-2 text-[var(--st-danger)] hover:text-[var(--st-danger)]"
                     >
                       Logout
                     </Button>
@@ -419,7 +419,7 @@ export function DevicesClient() {
               <ZoruCardHeader className="flex flex-row items-start gap-3 space-y-0">
                 <span
                   aria-hidden
-                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-zoru-surface text-base font-semibold text-zoru-ink"
+                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--st-bg-secondary)] text-base font-semibold text-[var(--st-text)]"
                 >
                   {initials(s)}
                 </span>
@@ -438,26 +438,26 @@ export function DevicesClient() {
               <ZoruCardContent className="flex-1 text-sm">
                 <dl className="grid grid-cols-2 gap-2 text-xs">
                   <div>
-                    <dt className="text-zoru-ink-muted">Platform</dt>
-                    <dd className="mt-0.5 font-medium text-zoru-ink">
+                    <dt className="text-[var(--st-text-secondary)]">Platform</dt>
+                    <dd className="mt-0.5 font-medium text-[var(--st-text)]">
                       {s.deviceMeta?.platform ?? '—'}
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-zoru-ink-muted">Last seen</dt>
-                    <dd className="mt-0.5 font-medium text-zoru-ink">
+                    <dt className="text-[var(--st-text-secondary)]">Last seen</dt>
+                    <dd className="mt-0.5 font-medium text-[var(--st-text)]">
                       {formatRelative(s.lastSeenAt)}
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-zoru-ink-muted">Method</dt>
-                    <dd className="mt-0.5 font-medium capitalize text-zoru-ink">
+                    <dt className="text-[var(--st-text-secondary)]">Method</dt>
+                    <dd className="mt-0.5 font-medium capitalize text-[var(--st-text)]">
                       {s.pairMethod}
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-zoru-ink-muted">Rate limit</dt>
-                    <dd className="mt-0.5 font-medium capitalize text-zoru-ink">
+                    <dt className="text-[var(--st-text-secondary)]">Rate limit</dt>
+                    <dd className="mt-0.5 font-medium capitalize text-[var(--st-text)]">
                       {s.rateLimitProfile}
                     </dd>
                   </div>
@@ -469,7 +469,7 @@ export function DevicesClient() {
                   </Badge>
                 ) : null}
               </ZoruCardContent>
-              <ZoruCardFooter className="flex justify-between gap-2 border-t border-zoru-line bg-zoru-surface/40 py-3 px-5 sm:px-6">
+              <ZoruCardFooter className="flex justify-between gap-2 border-t border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40 py-3 px-5 sm:px-6">
                 <Button
                   type="button"
                   size="sm"
@@ -486,7 +486,7 @@ export function DevicesClient() {
                   type="button"
                   size="sm"
                   variant="ghost"
-                  className="text-zoru-danger hover:text-zoru-danger"
+                  className="text-[var(--st-danger)] hover:text-[var(--st-danger)]"
                   onClick={() => setLogoutTarget(s)}
                 >
                   Logout
@@ -570,7 +570,7 @@ export function DevicesClient() {
                 handleLogout();
               }}
               disabled={logoutPending}
-              className="bg-zoru-danger text-zoru-danger-foreground hover:bg-zoru-danger/90"
+              className="bg-[var(--st-danger)] text-zoru-danger-foreground hover:bg-[var(--st-danger)]/90"
             >
               {logoutPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Log out

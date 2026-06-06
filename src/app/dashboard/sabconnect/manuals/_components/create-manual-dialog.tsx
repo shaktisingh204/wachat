@@ -87,7 +87,7 @@ export function CreateManualDialog() {
                         Publish immediately
                     </label>
                     {error ? (
-                        <p role="alert" className="text-sm text-zoru-danger">
+                        <p role="alert" className="text-sm text-[var(--st-danger)]">
                             {error}
                         </p>
                     ) : null}

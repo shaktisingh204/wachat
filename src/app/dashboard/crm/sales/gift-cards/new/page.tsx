@@ -64,7 +64,7 @@ export default function NewGiftCardPage() {
                         <Card className="p-6 space-y-6">
                             {/* Code */}
                             <div className="space-y-1.5">
-                                <Label htmlFor="code" className="text-zoru-ink">
+                                <Label htmlFor="code" className="text-[var(--st-text)]">
                                     Gift Card Code
                                 </Label>
                                 <Input
@@ -75,7 +75,7 @@ export default function NewGiftCardPage() {
                                     value={code}
                                     onChange={(e) => setCode(e.target.value)}
                                 />
-                                <p className="text-[12px] text-zoru-ink-muted">
+                                <p className="text-[12px] text-[var(--st-text-secondary)]">
                                     Auto-uppercased. If left blank, a code will be generated automatically.
                                 </p>
                             </div>
@@ -83,7 +83,7 @@ export default function NewGiftCardPage() {
                             {/* Issued To + Email */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                 <div className="space-y-1.5">
-                                    <Label className="text-zoru-ink">Issued To</Label>
+                                    <Label className="text-[var(--st-text)]">Issued To</Label>
                                     <EntityFormField
                                         entity="client"
                                         name="clientId"
@@ -94,7 +94,7 @@ export default function NewGiftCardPage() {
                                     />
                                 </div>
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="issuedToEmail" className="text-zoru-ink">
+                                    <Label htmlFor="issuedToEmail" className="text-[var(--st-text)]">
                                         Customer Email
                                     </Label>
                                     <Input
@@ -110,7 +110,7 @@ export default function NewGiftCardPage() {
                             {/* Value + Expiry */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="value" className="text-zoru-ink">
+                                    <Label htmlFor="value" className="text-[var(--st-text)]">
                                         Value (₹) *
                                     </Label>
                                     <Input
@@ -126,7 +126,7 @@ export default function NewGiftCardPage() {
                                     />
                                 </div>
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="expiryDate" className="text-zoru-ink">
+                                    <Label htmlFor="expiryDate" className="text-[var(--st-text)]">
                                         Expiry Date
                                     </Label>
                                     <Input
@@ -144,9 +144,9 @@ export default function NewGiftCardPage() {
                                         id="transferable"
                                         name="transferable"
                                         type="checkbox"
-                                        className="h-4 w-4 rounded border-zoru-line accent-zoru-ink"
+                                        className="h-4 w-4 rounded border-[var(--st-border)] accent-[var(--st-text)]"
                                     />
-                                    <Label htmlFor="transferable" className="text-zoru-ink cursor-pointer">
+                                    <Label htmlFor="transferable" className="text-[var(--st-text)] cursor-pointer">
                                         Transferable
                                     </Label>
                                 </div>
@@ -157,9 +157,9 @@ export default function NewGiftCardPage() {
                                         type="checkbox"
                                         checked={sendEmail}
                                         onChange={(e) => setSendEmail(e.target.checked)}
-                                        className="h-4 w-4 rounded border-zoru-line accent-zoru-ink"
+                                        className="h-4 w-4 rounded border-[var(--st-border)] accent-[var(--st-text)]"
                                     />
-                                    <Label htmlFor="sendEmail" className="text-zoru-ink cursor-pointer">
+                                    <Label htmlFor="sendEmail" className="text-[var(--st-text)] cursor-pointer">
                                         Email gift card directly to customer upon creation
                                     </Label>
                                 </div>
@@ -167,7 +167,7 @@ export default function NewGiftCardPage() {
 
                             {/* Notes */}
                             <div className="space-y-1.5">
-                                <Label htmlFor="notes" className="text-zoru-ink">
+                                <Label htmlFor="notes" className="text-[var(--st-text)]">
                                     Notes
                                 </Label>
                                 <Textarea
@@ -185,7 +185,7 @@ export default function NewGiftCardPage() {
                     </div>
                     
                     <div className="lg:col-span-1">
-                        <Card className="p-6 sticky top-6 bg-gradient-to-br from-zoru-brand to-zoru-brand/80 text-white shadow-xl">
+                        <Card className="p-6 sticky top-6 bg-gradient-to-br from-[var(--st-accent)] to-[var(--st-accent)]/80 text-white shadow-xl">
                             <h2 className="mb-6 text-sm font-semibold uppercase tracking-wide opacity-80">
                                 Gift Card Preview
                             </h2>

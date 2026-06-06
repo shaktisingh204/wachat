@@ -71,7 +71,7 @@ export function ProposalActionsPanel({ hash, status, signature, declineReason }:
                 <img
                   src={signature.signatureDataUrl}
                   alt={`Signature of ${signature.signedByName}`}
-                  className="h-20 rounded-md border border-zoru-line bg-white"
+                  className="h-20 rounded-md border border-[var(--st-border)] bg-white"
                 />
               ) : null}
             </>
@@ -89,7 +89,7 @@ export function ProposalActionsPanel({ hash, status, signature, declineReason }:
         <ZoruCardHeader>
           <ZoruCardTitle>Proposal declined</ZoruCardTitle>
         </ZoruCardHeader>
-        <ZoruCardContent className="space-y-2 text-sm text-zoru-ink">
+        <ZoruCardContent className="space-y-2 text-sm text-[var(--st-text)]">
           {declineReason ? (
             <p className="whitespace-pre-line">Reason: {declineReason}</p>
           ) : (

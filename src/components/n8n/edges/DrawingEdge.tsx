@@ -75,7 +75,7 @@ export function DrawingEdge({ sourceX, sourceY, onCancel }: Props) {
       strokeWidth={2}
       fill="none"
       markerEnd="url(#n8n-orange-arrow)"
-      className="stroke-zoru-ink pointer-events-none"
+      className="stroke-[var(--st-text)] pointer-events-none"
       strokeDasharray="6 3"
     />
   );

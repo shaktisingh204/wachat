@@ -238,17 +238,17 @@ export default function TelegramConnectionsPage() {
                         <Plug className="h-6 w-6 text-white" strokeWidth={1.75} />
                     </div>
                     <div>
-                        <h1 className="text-[22px] leading-tight text-zoru-ink">
+                        <h1 className="text-[22px] leading-tight text-[var(--st-text)]">
                             Connections
                         </h1>
-                        <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-zoru-ink-muted">
+                        <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-[var(--st-text-secondary)]">
                             Link a Telegram Bot (for standard messaging) or MTProto user
                             credentials (for full client-level automation).
                         </p>
                         {activeProject ? (
-                            <p className="mt-1 text-[12px] text-zoru-ink-muted">
+                            <p className="mt-1 text-[12px] text-[var(--st-text-secondary)]">
                                 Working in{' '}
-                                <span className="font-medium text-zoru-ink">
+                                <span className="font-medium text-[var(--st-text)]">
                                     {activeProject.name}
                                 </span>
                             </p>
@@ -272,15 +272,15 @@ export default function TelegramConnectionsPage() {
                     className="flex items-start gap-3 rounded-2xl border p-4"
                     style={{ borderColor: 'var(--zoru-line)', background: 'var(--zoru-surface-2)' }}
                 >
-                    <Info className="mt-0.5 h-4 w-4 text-zoru-ink" />
-                    <div className="flex-1 text-[12.5px] leading-relaxed text-zoru-ink">
+                    <Info className="mt-0.5 h-4 w-4 text-[var(--st-text)]" />
+                    <div className="flex-1 text-[12.5px] leading-relaxed text-[var(--st-text)]">
                         Select a project before connecting a bot. Connections are
                         scoped per project — bots, webhooks, and chats belong to the
                         active workspace.
                         <div className="mt-2">
                             <Link
                                 href="/dashboard/telegram/projects?next=/dashboard/telegram/connections"
-                                className="inline-flex items-center gap-1 text-zoru-ink underline underline-offset-2"
+                                className="inline-flex items-center gap-1 text-[var(--st-text)] underline underline-offset-2"
                             >
                                 Choose a Telegram project{' '}
                                 <ArrowRight className="h-3 w-3" />
@@ -295,10 +295,10 @@ export default function TelegramConnectionsPage() {
                 <div className="flex items-center justify-between">
                     <div>
                         <div className="flex items-center gap-2">
-                            <h2 className="text-[15px] text-zoru-ink">Bot API</h2>
+                            <h2 className="text-[15px] text-[var(--st-text)]">Bot API</h2>
                             <Badge variant="ghost">Recommended</Badge>
                         </div>
-                        <p className="mt-1 text-[12.5px] text-zoru-ink-muted">
+                        <p className="mt-1 text-[12.5px] text-[var(--st-text-secondary)]">
                             Create a bot with @BotFather and paste the token below.
                         </p>
                     </div>
@@ -319,7 +319,7 @@ export default function TelegramConnectionsPage() {
                 </div>
                 <div className="mt-5 flex flex-col gap-4">
                     <label className="flex flex-col gap-1.5">
-                        <span className="text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
+                        <span className="text-[11.5px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
                             Bot token
                         </span>
                         <Input
@@ -331,11 +331,11 @@ export default function TelegramConnectionsPage() {
                         />
                     </label>
                     <div>
-                        <p className="mb-1.5 text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
+                        <p className="mb-1.5 text-[11.5px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
                             Webhook URL preview
                         </p>
                         <div className="flex items-center gap-2">
-                            <code className="flex-1 truncate rounded-lg border border-zoru-line bg-zoru-surface-2 px-3 py-2 font-mono text-[12px] text-zoru-ink">
+                            <code className="flex-1 truncate rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 font-mono text-[12px] text-[var(--st-text)]">
                                 {placeholderWebhookUrl}
                             </code>
                             <Button
@@ -353,7 +353,7 @@ export default function TelegramConnectionsPage() {
                                 {copiedKey === 'placeholder' ? 'Copied' : 'Copy'}
                             </Button>
                         </div>
-                        <p className="mt-1.5 text-[11.5px] text-zoru-ink-muted">
+                        <p className="mt-1.5 text-[11.5px] text-[var(--st-text-secondary)]">
                             The real bot id is filled in automatically after you click
                             Connect bot. We register the webhook with Telegram on your
                             behalf.
@@ -364,8 +364,8 @@ export default function TelegramConnectionsPage() {
                     <p
                         className={`mt-4 text-[12.5px] ${
                             status.kind === 'ok'
-                                ? 'text-zoru-success-ink'
-                                : 'text-zoru-danger-ink'
+                                ? 'text-[var(--st-status-ok)]'
+                                : 'text-[var(--st-danger)]'
                         }`}
                     >
                         {status.message}
@@ -420,7 +420,7 @@ export default function TelegramConnectionsPage() {
                 <div className="flex items-center justify-between">
                     <div>
                         <div className="flex items-center gap-2">
-                            <h2 className="text-[15px] text-zoru-ink">
+                            <h2 className="text-[15px] text-[var(--st-text)]">
                                 Connected bots
                             </h2>
                             <Badge variant="ghost">
@@ -429,7 +429,7 @@ export default function TelegramConnectionsPage() {
                                     : `${bots.length} active`}
                             </Badge>
                         </div>
-                        <p className="mt-1 text-[12.5px] text-zoru-ink-muted">
+                        <p className="mt-1 text-[12.5px] text-[var(--st-text-secondary)]">
                             Bots linked to this project. The webhook URL below is the
                             real one Telegram delivers updates to.
                         </p>
@@ -450,7 +450,7 @@ export default function TelegramConnectionsPage() {
                         </Button>
                         <Link
                             href="/dashboard/telegram/bots"
-                            className="text-[12px] text-zoru-ink hover:underline"
+                            className="text-[12px] text-[var(--st-text)] hover:underline"
                         >
                             <span className="inline-flex items-center gap-1">
                                 Manage bots <ArrowRight className="h-3 w-3" />
@@ -461,19 +461,19 @@ export default function TelegramConnectionsPage() {
 
                 <div className="mt-4">
                     {!projectId ? (
-                        <div className="rounded-xl border border-dashed border-zoru-line p-4 text-[12.5px] text-zoru-ink-muted">
+                        <div className="rounded-xl border border-dashed border-[var(--st-border)] p-4 text-[12.5px] text-[var(--st-text-secondary)]">
                             Pick a project to see its connected bots.
                         </div>
                     ) : botsLoading ? (
-                        <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink-muted">
+                        <div className="flex items-center gap-2 text-[12.5px] text-[var(--st-text-secondary)]">
                             <Loader2 className="h-3 w-3 animate-spin" /> Loading bots…
                         </div>
                     ) : botsError ? (
-                        <p className="text-[12.5px] text-zoru-danger-ink">
+                        <p className="text-[12.5px] text-[var(--st-danger)]">
                             {botsError}
                         </p>
                     ) : bots.length === 0 ? (
-                        <div className="rounded-xl border border-dashed border-zoru-line p-4 text-[12.5px] text-zoru-ink-muted">
+                        <div className="rounded-xl border border-dashed border-[var(--st-border)] p-4 text-[12.5px] text-[var(--st-text-secondary)]">
                             No bots linked yet. Paste a token above to connect one.
                         </div>
                     ) : (
@@ -487,15 +487,15 @@ export default function TelegramConnectionsPage() {
                                 return (
                                     <li
                                         key={b._id}
-                                        className="flex flex-col gap-2 rounded-xl border border-zoru-line bg-zoru-surface-2 px-3 py-3"
+                                        className="flex flex-col gap-2 rounded-xl border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-3"
                                     >
                                         <div className="flex items-center justify-between gap-3">
                                             <div className="min-w-0">
                                                 <div className="flex items-center gap-2">
-                                                    <span className="truncate text-[13px] text-zoru-ink">
+                                                    <span className="truncate text-[13px] text-[var(--st-text)]">
                                                         {b.name}
                                                     </span>
-                                                    <span className="font-mono text-[11.5px] text-zoru-ink-muted">
+                                                    <span className="font-mono text-[11.5px] text-[var(--st-text-secondary)]">
                                                         @{b.username}
                                                     </span>
                                                     <Badge
@@ -556,7 +556,7 @@ export default function TelegramConnectionsPage() {
                                             </Button>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <code className="flex-1 truncate rounded-lg border border-zoru-line bg-zoru-surface px-2 py-1.5 font-mono text-[11.5px] text-zoru-ink">
+                                            <code className="flex-1 truncate rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1.5 font-mono text-[11.5px] text-[var(--st-text)]">
                                                 {url}
                                             </code>
                                             <Button
@@ -585,13 +585,13 @@ export default function TelegramConnectionsPage() {
                 <div className="flex items-center justify-between">
                     <div>
                         <div className="flex items-center gap-2">
-                            <h2 className="text-[15px] text-zoru-ink">
+                            <h2 className="text-[15px] text-[var(--st-text)]">
                                 Client API (MTProto)
                             </h2>
                             <Badge variant="ghost">Advanced</Badge>
                             <Badge variant="warning">Preview</Badge>
                         </div>
-                        <p className="mt-1 max-w-2xl text-[12.5px] text-zoru-ink-muted">
+                        <p className="mt-1 max-w-2xl text-[12.5px] text-[var(--st-text-secondary)]">
                             Needed for user-account automation: reading channel history,
                             bulk imports, large file transfers, group calls. Credentials
                             are stored securely; live MTProto sessions are not yet
@@ -615,7 +615,7 @@ export default function TelegramConnectionsPage() {
                         </Button>
                         <Link
                             href="/dashboard/telegram/api-credentials"
-                            className="text-[12px] text-zoru-ink hover:underline"
+                            className="text-[12px] text-[var(--st-text)] hover:underline"
                         >
                             <span className="inline-flex items-center gap-1">
                                 Manage credentials <ArrowRight className="h-3 w-3" />
@@ -629,8 +629,8 @@ export default function TelegramConnectionsPage() {
                     className="mt-4 flex items-start gap-3 rounded-2xl border p-3"
                     style={{ borderColor: 'var(--zoru-line)', background: 'var(--zoru-surface-2)' }}
                 >
-                    <AlertTriangle className="mt-0.5 h-4 w-4 text-zoru-ink" />
-                    <p className="text-[12.5px] leading-relaxed text-zoru-ink">
+                    <AlertTriangle className="mt-0.5 h-4 w-4 text-[var(--st-text)]" />
+                    <p className="text-[12.5px] leading-relaxed text-[var(--st-text)]">
                         The MTProto login flow is in preview. Credentials saved here are
                         stored and audited; a future MTProto worker will perform the
                         real Telegram handshake.
@@ -640,16 +640,16 @@ export default function TelegramConnectionsPage() {
                 {/* Existing credentials for the active project */}
                 <div className="mt-5">
                     {credsLoading ? (
-                        <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink-muted">
+                        <div className="flex items-center gap-2 text-[12.5px] text-[var(--st-text-secondary)]">
                             <Loader2 className="h-3 w-3 animate-spin" /> Loading
                             credentials…
                         </div>
                     ) : credsError ? (
-                        <p className="text-[12.5px] text-zoru-danger-ink">
+                        <p className="text-[12.5px] text-[var(--st-danger)]">
                             {credsError}
                         </p>
                     ) : credentials.length === 0 ? (
-                        <div className="rounded-xl border border-dashed border-zoru-line p-4 text-[12.5px] text-zoru-ink-muted">
+                        <div className="rounded-xl border border-dashed border-[var(--st-border)] p-4 text-[12.5px] text-[var(--st-text-secondary)]">
                             No MTProto credentials yet. Click <strong>Add credentials</strong>{' '}
                             to store an <code className="font-mono">api_id</code>/
                             <code className="font-mono">api_hash</code> pair.
@@ -659,14 +659,14 @@ export default function TelegramConnectionsPage() {
                             {credentials.map((c) => (
                                 <li
                                     key={c._id}
-                                    className="flex items-center justify-between rounded-xl border border-zoru-line bg-zoru-surface-2 px-3 py-2"
+                                    className="flex items-center justify-between rounded-xl border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2"
                                 >
                                     <div className="min-w-0">
                                         <div className="flex items-center gap-2">
-                                            <KeyRound className="h-3 w-3 text-zoru-ink-muted" />
-                                            <span className="truncate text-[13px] text-zoru-ink">
+                                            <KeyRound className="h-3 w-3 text-[var(--st-text-secondary)]" />
+                                            <span className="truncate text-[13px] text-[var(--st-text)]">
                                                 {c.label ?? (
-                                                    <span className="italic text-zoru-ink-muted">
+                                                    <span className="italic text-[var(--st-text-secondary)]">
                                                         unnamed
                                                     </span>
                                                 )}
@@ -677,14 +677,14 @@ export default function TelegramConnectionsPage() {
                                                 {STATUS_LABEL[c.status] ?? c.status}
                                             </Badge>
                                         </div>
-                                        <p className="mt-0.5 font-mono text-[11.5px] text-zoru-ink-muted">
+                                        <p className="mt-0.5 font-mono text-[11.5px] text-[var(--st-text-secondary)]">
                                             api_id={c.apiId} · {c.phoneNumberMasked} ·{' '}
                                             {c.apiHashMasked}
                                         </p>
                                     </div>
                                     <Link
                                         href="/dashboard/telegram/api-credentials"
-                                        className="text-[12px] text-zoru-ink hover:underline"
+                                        className="text-[12px] text-[var(--st-text)] hover:underline"
                                     >
                                         Open
                                     </Link>
@@ -732,7 +732,7 @@ export default function TelegramConnectionsPage() {
 
                     <div className="flex flex-col gap-4">
                         <label className="flex flex-col gap-1.5">
-                            <span className="text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
+                            <span className="text-[11.5px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
                                 Label (optional)
                             </span>
                             <Input
@@ -743,7 +743,7 @@ export default function TelegramConnectionsPage() {
                         </label>
                         <div className="grid gap-4 md:grid-cols-2">
                             <label className="flex flex-col gap-1.5">
-                                <span className="text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
+                                <span className="text-[11.5px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
                                     api_id
                                 </span>
                                 <Input
@@ -754,7 +754,7 @@ export default function TelegramConnectionsPage() {
                                 />
                             </label>
                             <label className="flex flex-col gap-1.5">
-                                <span className="text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
+                                <span className="text-[11.5px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
                                     Phone number (E.164)
                                 </span>
                                 <Input
@@ -765,7 +765,7 @@ export default function TelegramConnectionsPage() {
                             </label>
                         </div>
                         <label className="flex flex-col gap-1.5">
-                            <span className="text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
+                            <span className="text-[11.5px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
                                 api_hash
                             </span>
                             <Input
@@ -775,10 +775,10 @@ export default function TelegramConnectionsPage() {
                                 onChange={(e) => setApiHash(e.target.value)}
                             />
                         </label>
-                        <label className="flex items-center justify-between rounded-lg border border-zoru-line px-3 py-2">
+                        <label className="flex items-center justify-between rounded-lg border border-[var(--st-border)] px-3 py-2">
                             <div>
-                                <p className="text-[12.5px] text-zoru-ink">Test mode</p>
-                                <p className="text-[11.5px] text-zoru-ink-muted">
+                                <p className="text-[12.5px] text-[var(--st-text)]">Test mode</p>
+                                <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                                     Route through Telegram's test DC pair.
                                 </p>
                             </div>
@@ -788,7 +788,7 @@ export default function TelegramConnectionsPage() {
                             />
                         </label>
                         {addErr ? (
-                            <div className="rounded-md border border-zoru-danger-line bg-zoru-danger-surface px-3 py-2 text-[12.5px] text-zoru-danger-ink">
+                            <div className="rounded-md border border-zoru-danger-line bg-zoru-danger-surface px-3 py-2 text-[12.5px] text-[var(--st-danger)]">
                                 {addErr}
                             </div>
                         ) : null}

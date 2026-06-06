@@ -275,8 +275,8 @@ export default function MessengerSettingsPage(): React.JSX.Element {
 
       <header className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl text-zoru-ink">Messenger settings</h1>
-          <p className="mt-1 text-sm text-zoru-ink-muted">
+          <h1 className="text-2xl text-[var(--st-text)]">Messenger settings</h1>
+          <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
             Greeting, get-started button, ice breakers, and whitelisted domains
             for the connected Page.
           </p>
@@ -306,8 +306,8 @@ export default function MessengerSettingsPage(): React.JSX.Element {
           <Card className="flex flex-col gap-3 p-5">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h2 className="text-base text-zoru-ink">Greeting</h2>
-                <p className="text-xs text-zoru-ink-muted">
+                <h2 className="text-base text-[var(--st-text)]">Greeting</h2>
+                <p className="text-xs text-[var(--st-text-secondary)]">
                   Shown to first-time visitors before they message your Page.
                 </p>
               </div>
@@ -336,8 +336,8 @@ export default function MessengerSettingsPage(): React.JSX.Element {
           {/* Get started */}
           <Card className="flex flex-col gap-3 p-5">
             <div>
-              <h2 className="text-base text-zoru-ink">Get-started payload</h2>
-              <p className="text-xs text-zoru-ink-muted">
+              <h2 className="text-base text-[var(--st-text)]">Get-started payload</h2>
+              <p className="text-xs text-[var(--st-text-secondary)]">
                 Payload sent when a user taps the Get Started button.
               </p>
             </div>
@@ -365,8 +365,8 @@ export default function MessengerSettingsPage(): React.JSX.Element {
           <Card className="flex flex-col gap-3 p-5">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h2 className="text-base text-zoru-ink">Ice breakers</h2>
-                <p className="text-xs text-zoru-ink-muted">
+                <h2 className="text-base text-[var(--st-text)]">Ice breakers</h2>
+                <p className="text-xs text-[var(--st-text-secondary)]">
                   Pre-set questions shown to users before they start chatting.
                 </p>
               </div>
@@ -381,7 +381,7 @@ export default function MessengerSettingsPage(): React.JSX.Element {
               </Button>
             </div>
             {iceBreakers.length === 0 ? (
-              <p className="text-xs text-zoru-ink-muted">No ice breakers set.</p>
+              <p className="text-xs text-[var(--st-text-secondary)]">No ice breakers set.</p>
             ) : (
               <ul className="flex flex-col gap-2">
                 {iceBreakers.map((ib, i) => (
@@ -448,8 +448,8 @@ export default function MessengerSettingsPage(): React.JSX.Element {
           {/* Whitelisted domains */}
           <Card className="flex flex-col gap-3 p-5">
             <div>
-              <h2 className="text-base text-zoru-ink">Whitelisted domains</h2>
-              <p className="text-xs text-zoru-ink-muted">
+              <h2 className="text-base text-[var(--st-text)]">Whitelisted domains</h2>
+              <p className="text-xs text-[var(--st-text-secondary)]">
                 Comma- or space-separated list of domains allowed in webviews
                 and link previews.
               </p>

@@ -41,12 +41,12 @@ export default async function SabbiginEmailsPage() {
                 <SabbiginNav active="/dashboard/sabbigin/emails" />
 
                 {items.length === 0 ? (
-                    <Card className="p-6 text-sm text-zoru-ink-muted">
+                    <Card className="p-6 text-sm text-[var(--st-text-secondary)]">
                         No emails logged yet. Use the Compose button to draft one in the full email module.
                     </Card>
                 ) : (
                     <Card className="overflow-hidden p-0">
-                        <ul className="divide-y divide-zoru-border">
+                        <ul className="divide-y divide-[var(--st-border)]">
                             {items.map((a) => {
                                 const id = String((a as { _id: string })._id);
                                 const subject = (a as { subject?: string }).subject ?? 'Email';
@@ -56,11 +56,11 @@ export default async function SabbiginEmailsPage() {
                                     <li key={id}>
                                         <Link
                                             href={`/dashboard/crm/activity/${id}`}
-                                            className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-zoru-surface-2"
+                                            className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-[var(--st-bg-muted)]"
                                         >
                                             <div className="min-w-0">
-                                                <p className="truncate text-sm font-medium text-zoru-ink">{subject}</p>
-                                                <p className="truncate text-xs text-zoru-ink-muted">
+                                                <p className="truncate text-sm font-medium text-[var(--st-text)]">{subject}</p>
+                                                <p className="truncate text-xs text-[var(--st-text-secondary)]">
                                                     {status} · {due ? new Date(due).toLocaleString() : 'No date'}
                                                 </p>
                                             </div>

@@ -86,7 +86,7 @@ export function SabsmsDashboardWidgets({ allMetrics }: { allMetrics: MetricData[
         </div>
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
           {[1,2,3,4].map(i => (
-             <div key={i} className="h-32 rounded-xl bg-zoru-surface-2 animate-pulse w-full"></div>
+             <div key={i} className="h-32 rounded-xl bg-[var(--st-bg-muted)] animate-pulse w-full"></div>
           ))}
         </div>
       </div>
@@ -133,7 +133,7 @@ export function SabsmsDashboardWidgets({ allMetrics }: { allMetrics: MetricData[
       </div>
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
         {displayedMetrics.length === 0 ? (
-          <div className="col-span-full text-center p-8 text-zoru-ink-muted bg-zoru-surface-2 rounded-xl">
+          <div className="col-span-full text-center p-8 text-[var(--st-text-secondary)] bg-[var(--st-bg-muted)] rounded-xl">
             No metrics pinned. Use the Customize button to add some.
           </div>
         ) : (

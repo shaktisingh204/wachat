@@ -24,7 +24,7 @@ interface RecordItem {
 export function HistoricalContributionGraph({ data }: { data: RecordItem[] }) {
     if (!data || data.length === 0) {
         return (
-            <Card className="flex h-64 items-center justify-center p-6 text-sm text-zoru-ink-muted">
+            <Card className="flex h-64 items-center justify-center p-6 text-sm text-[var(--st-text-secondary)]">
                 No historical data available.
             </Card>
         );
@@ -35,10 +35,10 @@ export function HistoricalContributionGraph({ data }: { data: RecordItem[] }) {
 
     return (
         <Card className="p-6">
-            <h3 className="mb-4 text-[14px] font-medium text-zoru-ink">Historical Contributions</h3>
+            <h3 className="mb-4 text-[14px] font-medium text-[var(--st-text)]">Historical Contributions</h3>
             <div className="space-y-8">
                 <div>
-                    <h4 className="mb-2 text-[13px] text-zoru-ink-muted">PF Contributions</h4>
+                    <h4 className="mb-2 text-[13px] text-[var(--st-text-secondary)]">PF Contributions</h4>
                     <ZoruChartContainer height={200}>
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={sorted} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
@@ -89,7 +89,7 @@ export function HistoricalContributionGraph({ data }: { data: RecordItem[] }) {
                 </div>
 
                 <div>
-                    <h4 className="mb-2 text-[13px] text-zoru-ink-muted">ESI Contributions</h4>
+                    <h4 className="mb-2 text-[13px] text-[var(--st-text-secondary)]">ESI Contributions</h4>
                     <ZoruChartContainer height={200}>
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={sorted} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>

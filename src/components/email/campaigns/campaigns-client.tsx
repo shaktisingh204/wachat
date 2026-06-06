@@ -133,13 +133,13 @@ export function EmailCampaignsClient() {
                     <Link href={`/dashboard/email/campaigns/${c._id}`} className="font-medium hover:underline">
                       {c.name}
                     </Link>
-                    <p className="text-xs text-zoru-ink-muted">{c.fromName} &lt;{c.fromEmail}&gt;</p>
+                    <p className="text-xs text-[var(--st-text-secondary)]">{c.fromName} &lt;{c.fromEmail}&gt;</p>
                   </ZoruTableCell>
                   <ZoruTableCell className="truncate max-w-sm">{c.subject}</ZoruTableCell>
                   <ZoruTableCell>
                     <Badge variant={STATUS_VARIANTS[c.status] ?? 'outline'}>{c.status}</Badge>
                   </ZoruTableCell>
-                  <ZoruTableCell className="text-zoru-ink-muted text-sm">
+                  <ZoruTableCell className="text-[var(--st-text-secondary)] text-sm">
                     {c.sentAt
                       ? `Sent ${formatDistanceToNow(new Date(c.sentAt), { addSuffix: true })}`
                       : c.scheduledAt
@@ -162,7 +162,7 @@ export function EmailCampaignsClient() {
                             <FileText className="h-4 w-4" /> Open
                           </Link>
                         </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuItem onSelect={() => handleDelete(c)} className="text-zoru-ink">
+                        <ZoruDropdownMenuItem onSelect={() => handleDelete(c)} className="text-[var(--st-text)]">
                           <Trash2 className="h-4 w-4" /> Delete
                         </ZoruDropdownMenuItem>
                       </ZoruDropdownMenuContent>
@@ -244,7 +244,7 @@ function NewCampaignDialog({ open, onOpenChange, onCreated }: NewCampaignDialogP
           <div className="space-y-1">
             <Label htmlFor="c-body">Body (HTML)</Label>
             <Textarea id="c-body" value={body} onChange={(e) => setBody(e.target.value)} rows={8} className="font-mono text-xs" />
-            <p className="text-xs text-zoru-ink-muted">Use the template builder for richer content. Merge tags: <code>{'{{'} firstName {'}}'}</code>, <code>{'{{'} email {'}}'}</code>, <code>{'{{'} unsubscribeUrl {'}}'}</code>.</p>
+            <p className="text-xs text-[var(--st-text-secondary)]">Use the template builder for richer content. Merge tags: <code>{'{{'} firstName {'}}'}</code>, <code>{'{{'} email {'}}'}</code>, <code>{'{{'} unsubscribeUrl {'}}'}</code>.</p>
           </div>
         </div>
         <ZoruDialogFooter>

@@ -16,7 +16,7 @@ export function SabsmsHistoricalChart({ data }: { data: any[] }) {
       </ZoruCardHeader>
       <ZoruCardContent>
         {data.length === 0 ? (
-          <div className="flex h-[300px] items-center justify-center text-sm text-zoru-ink-muted">
+          <div className="flex h-[300px] items-center justify-center text-sm text-[var(--st-text-secondary)]">
             No historical data available.
           </div>
         ) : (

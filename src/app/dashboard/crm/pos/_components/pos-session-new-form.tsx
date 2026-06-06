@@ -52,7 +52,7 @@ export function PosSessionNewForm() {
                             placeholder="e.g. Counter-1, Kiosk-A"
                             required
                         />
-                        <p className="text-[12px] text-zoru-ink-muted">
+                        <p className="text-[12px] text-[var(--st-text-secondary)]">
                             Free-text identifier for this checkout point.
                         </p>
                     </div>
@@ -81,7 +81,7 @@ export function PosSessionNewForm() {
                     </div>
 
                     {state.error ? (
-                        <div className="rounded-md border border-zoru-line/30 bg-zoru-ink/10 px-3 py-2 text-[12.5px] text-zoru-ink">
+                        <div className="rounded-md border border-[var(--st-border)]/30 bg-[var(--st-text)]/10 px-3 py-2 text-[12.5px] text-[var(--st-text)]">
                             {state.error}
                         </div>
                     ) : null}

@@ -180,14 +180,14 @@ export default function AuditPage() {
 
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface text-zoru-ink">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
             <ScrollText className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-[24px] leading-[1.2] tracking-[-0.015em] text-zoru-ink">
+            <h1 className="text-[24px] leading-[1.2] tracking-[-0.015em] text-[var(--st-text)]">
               Audit Log
             </h1>
-            <p className="mt-1 text-[13px] text-zoru-ink-muted">
+            <p className="mt-1 text-[13px] text-[var(--st-text-secondary)]">
               Append-only record of every actor / action / target for
               compliance.
             </p>
@@ -231,7 +231,7 @@ export default function AuditPage() {
         <ZoruCardContent>
           <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-5">
             <div className="space-y-1.5">
-              <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+              <Label className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Session
               </Label>
               <Input
@@ -241,7 +241,7 @@ export default function AuditPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+              <Label className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                 From
               </Label>
               <DatePicker
@@ -251,7 +251,7 @@ export default function AuditPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+              <Label className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                 To
               </Label>
               <DatePicker
@@ -261,7 +261,7 @@ export default function AuditPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+              <Label className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Action prefix
               </Label>
               <Input
@@ -271,12 +271,12 @@ export default function AuditPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+              <Label className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Search
               </Label>
               <div className="relative">
                 <Search
-                  className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zoru-ink-muted"
+                  className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--st-text-secondary)]"
                   aria-hidden
                 />
                 <Input
@@ -343,9 +343,9 @@ export default function AuditPage() {
                         >
                           <ZoruTableCell className="pr-0 align-top">
                             {isOpen ? (
-                              <ChevronDown className="h-3.5 w-3.5 text-zoru-ink-muted" />
+                              <ChevronDown className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                             ) : (
-                              <ChevronRight className="h-3.5 w-3.5 text-zoru-ink-muted" />
+                              <ChevronRight className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                             )}
                           </ZoruTableCell>
                           <ZoruTableCell className="font-mono text-xs">
@@ -379,11 +379,11 @@ export default function AuditPage() {
                               const pretty = formatJid(t);
                               return (
                                 <div className="flex flex-col">
-                                  <span className="truncate text-zoru-ink">
+                                  <span className="truncate text-[var(--st-text)]">
                                     {resolved}
                                   </span>
                                   {resolved !== pretty && (
-                                    <span className="truncate font-mono text-[10px] text-zoru-ink-muted">
+                                    <span className="truncate font-mono text-[10px] text-[var(--st-text-secondary)]">
                                       {pretty}
                                     </span>
                                   )}
@@ -396,7 +396,7 @@ export default function AuditPage() {
                           </ZoruTableCell>
                           <ZoruTableCell
                             className={cn(
-                              'max-w-[180px] truncate text-xs text-zoru-ink-muted',
+                              'max-w-[180px] truncate text-xs text-[var(--st-text-secondary)]',
                             )}
                             title={row.userAgent}
                           >
@@ -408,9 +408,9 @@ export default function AuditPage() {
                             <ZoruTableCell />
                             <ZoruTableCell
                               colSpan={6}
-                              className="bg-zoru-surface"
+                              className="bg-[var(--st-bg-secondary)]"
                             >
-                              <pre className="overflow-auto rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3 text-[11px] leading-relaxed text-zoru-ink">
+                              <pre className="overflow-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 text-[11px] leading-relaxed text-[var(--st-text)]">
                                 {JSON.stringify(row, null, 2)}
                               </pre>
                             </ZoruTableCell>

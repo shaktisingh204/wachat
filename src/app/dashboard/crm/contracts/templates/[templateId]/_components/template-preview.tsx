@@ -70,11 +70,11 @@ export function TemplatePreview({ body, variables }: TemplatePreviewProps) {
   return (
     <div ref={containerRef} className="grid gap-4 md:grid-cols-[200px_1fr]">
       <div className="space-y-3 stagger-item">
-        <p className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+        <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
           Sample values
         </p>
         {variables.length === 0 ? (
-          <p className="text-[12.5px] text-zoru-ink-muted">
+          <p className="text-[12.5px] text-[var(--st-text-secondary)]">
             No variables detected.
           </p>
         ) : (
@@ -82,7 +82,7 @@ export function TemplatePreview({ body, variables }: TemplatePreviewProps) {
             <div key={v} className="stagger-item">
               <Label
                 htmlFor={`preview-${v}`}
-                className="text-[11.5px] text-zoru-ink-muted"
+                className="text-[11.5px] text-[var(--st-text-secondary)]"
               >
                 {v}
               </Label>
@@ -98,10 +98,10 @@ export function TemplatePreview({ body, variables }: TemplatePreviewProps) {
           ))
         )}
       </div>
-      <div className="rounded-md border border-zoru-line bg-zoru-surface p-4 stagger-item">
-        <pre className="whitespace-pre-wrap break-words font-sans text-[13px] leading-relaxed text-zoru-ink">
+      <div className="rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4 stagger-item">
+        <pre className="whitespace-pre-wrap break-words font-sans text-[13px] leading-relaxed text-[var(--st-text)]">
           {rendered || (
-            <span className="text-zoru-ink-muted">Empty template.</span>
+            <span className="text-[var(--st-text-secondary)]">Empty template.</span>
           )}
         </pre>
       </div>

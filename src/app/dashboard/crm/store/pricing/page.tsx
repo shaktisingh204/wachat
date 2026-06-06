@@ -219,7 +219,7 @@ export default function PricingRulesPage(): React.JSX.Element {
                     <Card>
                         <ZoruCardContent className="flex flex-wrap items-end gap-3 pt-4">
                             <div className="min-w-[180px] space-y-1">
-                                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                                <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                                     Storefront
                                 </Label>
                                 <Select value={storefrontFilter} onValueChange={setStorefrontFilter}>
@@ -237,7 +237,7 @@ export default function PricingRulesPage(): React.JSX.Element {
                                 </Select>
                             </div>
                             <div className="min-w-[160px] space-y-1">
-                                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                                <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                                     Status
                                 </Label>
                                 <Select
@@ -257,7 +257,7 @@ export default function PricingRulesPage(): React.JSX.Element {
                             </div>
                             {kinds.length > 0 ? (
                                 <div className="min-w-[160px] space-y-1">
-                                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                                    <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                                         Type
                                     </Label>
                                     <Select value={kindFilter} onValueChange={setKindFilter}>
@@ -293,7 +293,7 @@ export default function PricingRulesPage(): React.JSX.Element {
                 bulkBar={
                     selected.size > 0 ? (
                         <div className="flex flex-wrap items-center gap-2">
-                            <span className="text-sm font-medium text-zoru-ink">{selected.size} selected</span>
+                            <span className="text-sm font-medium text-[var(--st-text)]">{selected.size} selected</span>
                             <span className="flex-1" />
                             <Button size="sm" variant="outline" onClick={handleBulkActivate}>
                                 Activate
@@ -321,8 +321,8 @@ export default function PricingRulesPage(): React.JSX.Element {
                 empty={
                     !isPending && filtered.length === 0 ? (
                         <div className="flex flex-col items-center gap-3 p-8">
-                            <Tag className="h-8 w-8 text-zoru-ink-muted" />
-                            <h3 className="text-base font-medium text-zoru-ink">No pricing rules found</h3>
+                            <Tag className="h-8 w-8 text-[var(--st-text-secondary)]" />
+                            <h3 className="text-base font-medium text-[var(--st-text)]">No pricing rules found</h3>
                             <Button variant="outline" asChild>
                                 <Link href={newHref}>
                                     <Plus className="h-4 w-4" /> New rule
@@ -390,13 +390,13 @@ export default function PricingRulesPage(): React.JSX.Element {
                                                         />
                                                     </RowDrawer>
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {String(r.kind ?? '—')}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {String(r.value ?? '—')}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {String(r.priority ?? 0)}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>

@@ -32,16 +32,16 @@ async function PublicProjectRatingContainer({ hash }: { hash: string }) {
     <div className="mx-auto max-w-xl space-y-4">
       <Card>
         <ZoruCardHeader>
-          <p className="text-xs font-semibold uppercase tracking-wide text-zoru-ink">
+          <p className="text-xs font-semibold uppercase tracking-wide text-[var(--st-text)]">
             Project feedback
           </p>
           <ZoruCardTitle className="mt-1">{project.name}</ZoruCardTitle>
           {project.clientName ? (
-            <p className="mt-1 text-sm text-zoru-ink">
+            <p className="mt-1 text-sm text-[var(--st-text)]">
               for {project.clientName}
             </p>
           ) : null}
-          <p className="mt-3 text-sm text-zoru-ink">
+          <p className="mt-3 text-sm text-[var(--st-text)]">
             Please rate your experience working on this project. Your feedback
             helps us improve.
           </p>

@@ -15,7 +15,7 @@ export default function Error({
     }, [error]);
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-[400px] p-8 text-center bg-zoru-surface-1 rounded-[var(--zoru-radius)] border border-zoru-line">
+        <div className="flex flex-col items-center justify-center min-h-[400px] p-8 text-center bg-[var(--st-bg-secondary)] rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
             <div className="w-12 h-12 mb-4 text-zoru-error rounded-full bg-zoru-error/10 flex items-center justify-center">
                 <svg
                     className="w-6 h-6"
@@ -31,10 +31,10 @@ export default function Error({
                     />
                 </svg>
             </div>
-            <h2 className="text-lg font-medium text-zoru-ink mb-2">
+            <h2 className="text-lg font-medium text-[var(--st-text)] mb-2">
                 Something went wrong!
             </h2>
-            <p className="text-[13px] text-zoru-ink-muted mb-6 max-w-md">
+            <p className="text-[13px] text-[var(--st-text-secondary)] mb-6 max-w-md">
                 {error.message || 'An unexpected error occurred while loading the new salary structure page.'}
             </p>
             <div className="flex gap-4">

@@ -188,13 +188,13 @@ export default function ApplyLeaveClient({
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 md:grid-cols-2">
       <div>
-              <Label className="text-zoru-ink">Employee *</Label>
+              <Label className="text-[var(--st-text)]">Employee *</Label>
               <Controller
                 name="userId"
                 control={control}
                 render={({ field }) => (
                   <Select value={field.value || undefined} onValueChange={field.onChange}>
-                    <ZoruSelectTrigger className={`mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px] ${errors.userId ? 'border-zoru-line' : ''}`}>
+                    <ZoruSelectTrigger className={`mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px] ${errors.userId ? 'border-[var(--st-border)]' : ''}`}>
                       <ZoruSelectValue placeholder="Select employee" />
                     </ZoruSelectTrigger>
                     <ZoruSelectContent>
@@ -208,17 +208,17 @@ export default function ApplyLeaveClient({
                 )}
               />
               {errors.userId && (
-                <p className="mt-1 text-[13px] text-zoru-ink">{errors.userId.message}</p>
+                <p className="mt-1 text-[13px] text-[var(--st-text)]">{errors.userId.message}</p>
               )}
             </div>
             <div>
-              <Label className="text-zoru-ink">Leave Type *</Label>
+              <Label className="text-[var(--st-text)]">Leave Type *</Label>
               <Controller
                 name="leaveTypeId"
                 control={control}
                 render={({ field }) => (
                   <Select value={field.value || undefined} onValueChange={field.onChange}>
-                    <ZoruSelectTrigger className={`mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px] ${errors.leaveTypeId ? 'border-zoru-line' : ''}`}>
+                    <ZoruSelectTrigger className={`mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px] ${errors.leaveTypeId ? 'border-[var(--st-border)]' : ''}`}>
                       <ZoruSelectValue placeholder="Select leave type" />
                     </ZoruSelectTrigger>
                     <ZoruSelectContent>
@@ -239,29 +239,29 @@ export default function ApplyLeaveClient({
                 )}
               />
               {errors.leaveTypeId && (
-                <p className="mt-1 text-[13px] text-zoru-ink">{errors.leaveTypeId.message}</p>
+                <p className="mt-1 text-[13px] text-[var(--st-text)]">{errors.leaveTypeId.message}</p>
               )}
             </div>
 
             {currentBalance && (
               <div className="md:col-span-2">
-                <div className="flex items-center gap-2 rounded-lg border border-zoru-line bg-zoru-bg p-3 text-[13px]">
+                <div className="flex items-center gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] p-3 text-[13px]">
                   <div className="flex-1 flex flex-col gap-1">
                     <div>
-                      <span className="font-medium text-zoru-ink">Requested Days: </span>
-                      <span className="text-zoru-ink-muted">
+                      <span className="font-medium text-[var(--st-text)]">Requested Days: </span>
+                      <span className="text-[var(--st-text-secondary)]">
                         {calculatedDays} {calculatedDays === 1 ? 'day' : 'days'}
                       </span>
                     </div>
                     <div>
-                      <span className="font-medium text-zoru-ink">Remaining Balance: </span>
-                      <span className="text-zoru-ink-muted">
+                      <span className="font-medium text-[var(--st-text)]">Remaining Balance: </span>
+                      <span className="text-[var(--st-text-secondary)]">
                         {currentBalance.remaining} {currentBalance.remaining === 1 ? 'day' : 'days'}
                       </span>
                     </div>
                   </div>
                   {exceedsQuota && (
-                    <div className="flex items-center gap-1.5 text-zoru-ink">
+                    <div className="flex items-center gap-1.5 text-[var(--st-text)]">
                       <AlertTriangle className="h-4 w-4" />
                       <span className="font-medium">Requested days exceed available quota</span>
                     </div>
@@ -271,7 +271,7 @@ export default function ApplyLeaveClient({
             )}
 
             <div>
-              <Label className="text-zoru-ink">Duration</Label>
+              <Label className="text-[var(--st-text)]">Duration</Label>
               <div className="mt-1.5">
                 <Controller
                   name="duration"
@@ -291,7 +291,7 @@ export default function ApplyLeaveClient({
 
             {watchDuration === 'half-day' ? (
               <div>
-                <Label className="text-zoru-ink">Half-day Type</Label>
+                <Label className="text-[var(--st-text)]">Half-day Type</Label>
                 <div className="mt-1.5">
                   <Controller
                     name="halfDayType"
@@ -311,81 +311,81 @@ export default function ApplyLeaveClient({
             ) : null}
 
             <div>
-              <Label className="text-zoru-ink">
+              <Label className="text-[var(--st-text)]">
                 {watchDuration === 'multiple' ? 'Start Date *' : 'Leave Date *'}
               </Label>
               <Input
                 type="date"
                 {...register('leaveDate')}
-                className={`mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px] ${errors.leaveDate ? 'border-zoru-line' : ''}`}
+                className={`mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px] ${errors.leaveDate ? 'border-[var(--st-border)]' : ''}`}
               />
               {errors.leaveDate && (
-                <p className="mt-1 text-[13px] text-zoru-ink">{errors.leaveDate.message}</p>
+                <p className="mt-1 text-[13px] text-[var(--st-text)]">{errors.leaveDate.message}</p>
               )}
             </div>
 
             {watchDuration === 'multiple' ? (
               <div>
-                <Label className="text-zoru-ink">End Date *</Label>
+                <Label className="text-[var(--st-text)]">End Date *</Label>
                 <Input
                   type="date"
                   min={watchLeaveDate}
                   {...register('endDate')}
-                  className={`mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px] ${errors.endDate ? 'border-zoru-line' : ''}`}
+                  className={`mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px] ${errors.endDate ? 'border-[var(--st-border)]' : ''}`}
                 />
                 {errors.endDate && (
-                  <p className="mt-1 text-[13px] text-zoru-ink">{errors.endDate.message}</p>
+                  <p className="mt-1 text-[13px] text-[var(--st-text)]">{errors.endDate.message}</p>
                 )}
               </div>
             ) : null}
 
             {watchDuration === 'hours' ? (
               <div>
-                <Label className="text-zoru-ink">Hours *</Label>
+                <Label className="text-[var(--st-text)]">Hours *</Label>
                 <Input
                   type="number"
                   step="0.5"
                   min="0.5"
                   {...register('hours')}
-                  className={`mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px] ${errors.hours ? 'border-zoru-line' : ''}`}
+                  className={`mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px] ${errors.hours ? 'border-[var(--st-border)]' : ''}`}
                 />
                 {errors.hours && (
-                  <p className="mt-1 text-[13px] text-zoru-ink">{errors.hours.message}</p>
+                  <p className="mt-1 text-[13px] text-[var(--st-text)]">{errors.hours.message}</p>
                 )}
               </div>
             ) : null}
 
             <div className="md:col-span-2">
-              <Label className="text-zoru-ink">Reason</Label>
+              <Label className="text-[var(--st-text)]">Reason</Label>
               <Textarea
                 {...register('reason')}
                 rows={3}
-                className="mt-1.5 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                className="mt-1.5 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
               />
             </div>
 
             <div>
-              <Label className="text-zoru-ink">Days Count</Label>
+              <Label className="text-[var(--st-text)]">Days Count</Label>
               <Input
                 type="number"
                 step="0.5"
                 min="0"
                 {...register('daysCount')}
                 placeholder="Auto-calculated if left blank"
-                className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
               />
             </div>
 
             <div>
-              <Label className="text-zoru-ink">Attachment Name</Label>
+              <Label className="text-[var(--st-text)]">Attachment Name</Label>
               <Input
                 {...register('attachmentName')}
                 placeholder="doctor-note.pdf"
-                className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
               />
             </div>
             <div>
-              <Label className="text-zoru-ink">Attachment URL</Label>
+              <Label className="text-[var(--st-text)]">Attachment URL</Label>
               <div className="mt-1.5">
                 <Controller
                   name="attachmentUrl"

@@ -96,11 +96,11 @@ export function EditLoanForm({ loan, loanId }: Props) {
                 <Card className="p-6">
                     <div className="grid gap-4">
                         <div className="space-y-2">
-                            <Label htmlFor="type" className="text-[12.5px] text-zoru-ink-muted">
+                            <Label htmlFor="type" className="text-[12.5px] text-[var(--st-text-secondary)]">
                                 Type
                             </Label>
                             <Select name="type" value={loanType} onValueChange={setLoanType}>
-                                <SelectTrigger className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                                <SelectTrigger className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
                                     <SelectValue placeholder="Select type" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -111,7 +111,7 @@ export function EditLoanForm({ loan, loanId }: Props) {
                             </Select>
                         </div>
                         <div className="space-y-2">
-                            <Label className="text-[12.5px] text-zoru-ink-muted">
+                            <Label className="text-[12.5px] text-[var(--st-text-secondary)]">
                                 Borrower
                             </Label>
                             <EntityFormField
@@ -128,7 +128,7 @@ export function EditLoanForm({ loan, loanId }: Props) {
                             <div className="space-y-2">
                                 <Label
                                     htmlFor="principal"
-                                    className="text-[12.5px] text-zoru-ink-muted"
+                                    className="text-[12.5px] text-[var(--st-text-secondary)]"
                                 >
                                     Principal
                                 </Label>
@@ -140,13 +140,13 @@ export function EditLoanForm({ loan, loanId }: Props) {
                                     required
                                     value={principal}
                                     onChange={(e) => setPrincipal(e.target.value === '' ? 0 : Number(e.target.value))}
-                                    className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                                    className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                                 />
                             </div>
                             <div className="space-y-2">
                                 <Label
                                     htmlFor="interestRate"
-                                    className="text-[12.5px] text-zoru-ink-muted"
+                                    className="text-[12.5px] text-[var(--st-text-secondary)]"
                                 >
                                     Interest % (Annual)
                                 </Label>
@@ -157,7 +157,7 @@ export function EditLoanForm({ loan, loanId }: Props) {
                                     step="0.01"
                                     value={interestRate}
                                     onChange={(e) => setInterestRate(e.target.value === '' ? 0 : Number(e.target.value))}
-                                    className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                                    className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                                 />
                             </div>
                         </div>
@@ -165,7 +165,7 @@ export function EditLoanForm({ loan, loanId }: Props) {
                             <div className="space-y-2">
                                 <Label
                                     htmlFor="tenureMonths"
-                                    className="text-[12.5px] text-zoru-ink-muted"
+                                    className="text-[12.5px] text-[var(--st-text-secondary)]"
                                 >
                                     Tenure (months)
                                 </Label>
@@ -175,13 +175,13 @@ export function EditLoanForm({ loan, loanId }: Props) {
                                     type="number"
                                     value={tenureMonths}
                                     onChange={(e) => setTenureMonths(e.target.value === '' ? 0 : Number(e.target.value))}
-                                    className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                                    className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                                 />
                             </div>
                             <div className="space-y-2">
                                 <Label
                                     htmlFor="startDate"
-                                    className="text-[12.5px] text-zoru-ink-muted"
+                                    className="text-[12.5px] text-[var(--st-text-secondary)]"
                                 >
                                     Start date
                                 </Label>
@@ -190,19 +190,19 @@ export function EditLoanForm({ loan, loanId }: Props) {
                                     name="startDate"
                                     type="date"
                                     defaultValue={toInputDate(loan.startDate)}
-                                    className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                                    className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                                 />
                             </div>
                         </div>
                         <div className="space-y-2">
                             <Label
                                 htmlFor="status"
-                                className="text-[12.5px] text-zoru-ink-muted"
+                                className="text-[12.5px] text-[var(--st-text-secondary)]"
                             >
                                 Status
                             </Label>
                             <Select name="status" defaultValue={loan.status ?? 'active'}>
-                                <SelectTrigger className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                                <SelectTrigger className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
                                     <SelectValue placeholder="Select status" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -216,7 +216,7 @@ export function EditLoanForm({ loan, loanId }: Props) {
                         <div className="space-y-2">
                             <Label
                                 htmlFor="notes"
-                                className="text-[12.5px] text-zoru-ink-muted"
+                                className="text-[12.5px] text-[var(--st-text-secondary)]"
                             >
                                 Notes
                             </Label>
@@ -224,29 +224,29 @@ export function EditLoanForm({ loan, loanId }: Props) {
                                 id="notes"
                                 name="notes"
                                 defaultValue={loan.notes ?? ''}
-                                className="min-h-24 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                                className="min-h-24 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                             />
                         </div>
 
                         {/* Schedule Preview */}
-                        <div className="rounded-lg border border-zoru-line bg-zoru-bg-zoru-surface-2 p-4 mt-4">
+                        <div className="rounded-lg border border-[var(--st-border)] bg-zoru-bg-[var(--st-bg-muted)] p-4 mt-4">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <h4 className="text-[13px] font-medium text-zoru-ink">Estimated Monthly Repayment</h4>
-                                    <p className="text-[12px] text-zoru-ink-muted mt-0.5">Calculated using amortized schedule</p>
+                                    <h4 className="text-[13px] font-medium text-[var(--st-text)]">Estimated Monthly Repayment</h4>
+                                    <p className="text-[12px] text-[var(--st-text-secondary)] mt-0.5">Calculated using amortized schedule</p>
                                 </div>
                                 <div className="text-right">
-                                    <div className="text-lg font-semibold text-zoru-ink">
+                                    <div className="text-lg font-semibold text-[var(--st-text)]">
                                         ${monthlyPayment.toFixed(2)}
                                     </div>
-                                    <div className="text-[12px] text-zoru-ink-muted mt-0.5">
+                                    <div className="text-[12px] text-[var(--st-text-secondary)] mt-0.5">
                                         Total: ${(monthlyPayment * tenureMonths).toFixed(2)}
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div className="mt-6 flex justify-end border-t border-zoru-line pt-4">
+                    <div className="mt-6 flex justify-end border-t border-[var(--st-border)] pt-4">
                         <SubmitButton />
                     </div>
                 </Card>

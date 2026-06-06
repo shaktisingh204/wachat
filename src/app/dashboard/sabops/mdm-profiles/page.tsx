@@ -44,11 +44,11 @@ export default function MdmProfilesPage() {
                             {profiles.map(profile => (
                                 <TableRow key={profile.id}>
                                     <TableCell className="font-medium flex items-center gap-2">
-                                        <ShieldCheck className="size-4 text-zoru-muted-foreground" />
+                                        <ShieldCheck className="size-4 text-[var(--st-text-secondary)]" />
                                         {profile.name}
                                     </TableCell>
                                     <TableCell>
-                                        <div className="flex items-center gap-2 text-sm text-zoru-muted-foreground">
+                                        <div className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
                                             {profile.platform === 'iOS' || profile.platform === 'Android' ? <Smartphone className="size-3" /> : <Laptop className="size-3" />}
                                             {profile.platform}
                                         </div>

@@ -123,7 +123,7 @@ export default function EmailTemplatesSettingsPage(): React.JSX.Element {
                         workspace.
                     </ZoruPageDescription>
                 </ZoruPageHeading>
-                <div className="flex items-center gap-2 text-sm text-zoru-ink-muted">
+                <div className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
                     <Mail className="h-4 w-4" />
                     <span>
                         {customizedCount} of {events.length} customized
@@ -133,21 +133,21 @@ export default function EmailTemplatesSettingsPage(): React.JSX.Element {
 
             <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 lg:grid-cols-[320px_1fr]">
                 {/* Left rail */}
-                <aside className="flex min-h-0 flex-col overflow-hidden rounded-md border border-zoru-line bg-zoru-bg">
-                    <div className="border-b border-zoru-line p-3">
+                <aside className="flex min-h-0 flex-col overflow-hidden rounded-md border border-[var(--st-border)] bg-[var(--st-bg)]">
+                    <div className="border-b border-[var(--st-border)] p-3">
                         <Input
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             placeholder="Search events…"
                             leadingSlot={
-                                <Search className="h-3.5 w-3.5 text-zoru-ink-subtle" />
+                                <Search className="h-3.5 w-3.5 text-[var(--st-text-tertiary)]" />
                             }
                         />
                     </div>
                     <div className="flex-1 overflow-y-auto p-2">
                         {listLoading ? (
                             <div className="flex items-center justify-center py-10">
-                                <LoaderCircle className="h-5 w-5 animate-spin text-zoru-ink-muted" />
+                                <LoaderCircle className="h-5 w-5 animate-spin text-[var(--st-text-secondary)]" />
                             </div>
                         ) : (
                             EMAIL_EVENT_CATEGORIES.map((cat) => {
@@ -155,7 +155,7 @@ export default function EmailTemplatesSettingsPage(): React.JSX.Element {
                                 if (items.length === 0) return null;
                                 return (
                                     <div key={cat.key} className="mb-3">
-                                        <h3 className="px-2 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wide text-zoru-ink-subtle">
+                                        <h3 className="px-2 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text-tertiary)]">
                                             {cat.label}
                                         </h3>
                                         <ul className="flex flex-col gap-0.5">
@@ -169,8 +169,8 @@ export default function EmailTemplatesSettingsPage(): React.JSX.Element {
                                                             className={cn(
                                                                 'flex w-full items-center justify-between gap-2 rounded px-2.5 py-2 text-left text-sm transition-colors',
                                                                 isActive
-                                                                    ? 'bg-zoru-ink text-zoru-bg'
-                                                                    : 'text-zoru-ink hover:bg-zoru-bg-elev',
+                                                                    ? 'bg-[var(--st-text)] text-[var(--st-bg)]'
+                                                                    : 'text-[var(--st-text)] hover:bg-zoru-bg-elev',
                                                             )}
                                                             aria-pressed={isActive}
                                                         >
@@ -182,7 +182,7 @@ export default function EmailTemplatesSettingsPage(): React.JSX.Element {
                                                                     variant={isActive ? 'outline' : 'secondary'}
                                                                     className={cn(
                                                                         'shrink-0 text-[10px]',
-                                                                        isActive && 'border-zoru-bg/40 text-zoru-bg',
+                                                                        isActive && 'border-[var(--st-bg)]/40 text-[var(--st-bg)]',
                                                                     )}
                                                                 >
                                                                     Custom
@@ -201,7 +201,7 @@ export default function EmailTemplatesSettingsPage(): React.JSX.Element {
                         Array.from(filteredByCategory.values()).every(
                             (arr) => arr.length === 0,
                         ) ? (
-                            <p className="px-2 py-8 text-center text-sm text-zoru-ink-subtle">
+                            <p className="px-2 py-8 text-center text-sm text-[var(--st-text-tertiary)]">
                                 No events match &ldquo;{search}&rdquo;.
                             </p>
                         ) : null}
@@ -211,8 +211,8 @@ export default function EmailTemplatesSettingsPage(): React.JSX.Element {
                 {/* Right pane */}
                 <section className="flex min-h-0 flex-col">
                     {detailLoading && !selectedDetail ? (
-                        <div className="flex flex-1 items-center justify-center rounded-md border border-zoru-line bg-zoru-bg">
-                            <LoaderCircle className="h-6 w-6 animate-spin text-zoru-ink-muted" />
+                        <div className="flex flex-1 items-center justify-center rounded-md border border-[var(--st-border)] bg-[var(--st-bg)]">
+                            <LoaderCircle className="h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
                         </div>
                     ) : selectedDetail ? (
                         <EventTemplateEditor
@@ -221,7 +221,7 @@ export default function EmailTemplatesSettingsPage(): React.JSX.Element {
                             onPersisted={handlePersisted}
                         />
                     ) : (
-                        <div className="flex flex-1 items-center justify-center rounded-md border border-dashed border-zoru-line bg-zoru-bg p-8 text-center text-sm text-zoru-ink-muted">
+                        <div className="flex flex-1 items-center justify-center rounded-md border border-dashed border-[var(--st-border)] bg-[var(--st-bg)] p-8 text-center text-sm text-[var(--st-text-secondary)]">
                             Select an event from the list to customize its template.
                         </div>
                     )}

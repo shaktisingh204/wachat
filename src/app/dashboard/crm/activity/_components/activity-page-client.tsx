@@ -84,17 +84,17 @@ import { downloadCsv, dateStamp } from '@/lib/crm-list-export';
 function ActivityTypeIcon({ type }: { type: string }): React.JSX.Element {
   switch (type) {
     case 'call':
-      return <Phone className="h-3.5 w-3.5 text-zoru-ink-muted" />;
+      return <Phone className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />;
     case 'email':
-      return <Mail className="h-3.5 w-3.5 text-zoru-ink-muted" />;
+      return <Mail className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />;
     case 'meeting':
-      return <Users className="h-3.5 w-3.5 text-zoru-ink-muted" />;
+      return <Users className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />;
     case 'task':
-      return <ClipboardList className="h-3.5 w-3.5 text-zoru-ink-muted" />;
+      return <ClipboardList className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />;
     case 'note':
-      return <MessageSquare className="h-3.5 w-3.5 text-zoru-ink-muted" />;
+      return <MessageSquare className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />;
     default:
-      return <Layers className="h-3.5 w-3.5 text-zoru-ink-muted" />;
+      return <Layers className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />;
   }
 }
 
@@ -446,7 +446,7 @@ export function ActivityPageClient({
           </div>
 
           {feedRows.length === 0 ? (
-            <Card className="p-10 text-center text-[13px] text-zoru-ink-muted">
+            <Card className="p-10 text-center text-[13px] text-[var(--st-text-secondary)]">
               No audit events yet.
             </Card>
           ) : (
@@ -454,11 +454,11 @@ export function ActivityPageClient({
               {BUCKETS_ORDER.map((b) =>
                 bucketed[b].length === 0 ? null : (
                   <Card key={b} className="p-0">
-                    <div className="flex items-center gap-2 border-b border-zoru-line p-4">
-                      <h2 className="text-[14px] font-semibold text-zoru-ink">{b}</h2>
+                    <div className="flex items-center gap-2 border-b border-[var(--st-border)] p-4">
+                      <h2 className="text-[14px] font-semibold text-[var(--st-text)]">{b}</h2>
                       <Badge variant="secondary">{bucketed[b].length}</Badge>
                     </div>
-                    <ul className="divide-y divide-zoru-line">
+                    <ul className="divide-y divide-[var(--st-border)]">
                       {bucketed[b].map((entry) => (
                         <ActivityRow key={entry._id} entry={entry} currentUserId={currentUserId} />
                       ))}
@@ -482,7 +482,7 @@ export function ActivityPageClient({
                   </Button>
                 </div>
               ) : (
-                <p className="py-3 text-center text-xs text-zoru-ink-muted">End of feed.</p>
+                <p className="py-3 text-center text-xs text-[var(--st-text-secondary)]">End of feed.</p>
               )}
             </>
           )}
@@ -564,8 +564,8 @@ export function ActivityPageClient({
 
           {/* Bulk bar */}
           {selected.size > 0 && (
-            <div className="flex flex-wrap items-center gap-2 rounded border border-zoru-line bg-zoru-surface-2 px-3 py-2">
-              <span className="text-[12.5px] text-zoru-ink">{selected.size} selected</span>
+            <div className="flex flex-wrap items-center gap-2 rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2">
+              <span className="text-[12.5px] text-[var(--st-text)]">{selected.size} selected</span>
               <Button
                 size="sm"
                 onClick={() => void handleBulkComplete()}
@@ -598,10 +598,10 @@ export function ActivityPageClient({
           <Card className="overflow-hidden p-0">
             {loadingTable ? (
               <div className="flex items-center justify-center p-10">
-                <Loader2 className="h-5 w-5 animate-spin text-zoru-ink-muted" />
+                <Loader2 className="h-5 w-5 animate-spin text-[var(--st-text-secondary)]" />
               </div>
             ) : activities.length === 0 ? (
-              <div className="p-10 text-center text-[13px] text-zoru-ink-muted">
+              <div className="p-10 text-center text-[13px] text-[var(--st-text-secondary)]">
                 No activities found. Activities created from entity detail pages will appear here.
               </div>
             ) : (
@@ -641,15 +641,15 @@ export function ActivityPageClient({
                           <ZoruTableCell>
                             <div className="flex items-center gap-1.5">
                               <ActivityTypeIcon type={a.type} />
-                              <span className="text-[12.5px] capitalize text-zoru-ink">
+                              <span className="text-[12.5px] capitalize text-[var(--st-text)]">
                                 {a.type}
                               </span>
                             </div>
                           </ZoruTableCell>
-                          <ZoruTableCell className="text-[13px] font-medium text-zoru-ink">
+                          <ZoruTableCell className="text-[13px] font-medium text-[var(--st-text)]">
                             {a.subject}
                           </ZoruTableCell>
-                          <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                          <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                             {a.relatedEntityKind && a.relatedEntityId ? (
                               <span>
                                 {a.relatedEntityKind}{' '}
@@ -661,15 +661,15 @@ export function ActivityPageClient({
                               '—'
                             )}
                           </ZoruTableCell>
-                          <ZoruTableCell className="font-mono text-[12px] text-zoru-ink-muted">
+                          <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text-secondary)]">
                             {a.assignedUserId ? a.assignedUserId.slice(-6) : '—'}
                           </ZoruTableCell>
-                          <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                          <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                             {a.dueDate ? (
                               <span
                                 className={
                                   a.status === 'overdue'
-                                    ? 'font-medium text-zoru-danger-ink'
+                                    ? 'font-medium text-[var(--st-danger)]'
                                     : ''
                                 }
                               >
@@ -694,7 +694,7 @@ export function ActivityPageClient({
           {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="text-[12.5px] text-zoru-ink-muted">
+              <span className="text-[12.5px] text-[var(--st-text-secondary)]">
                 Page {activitiesPage} of {totalPages} &middot;{' '}
                 {activitiesTotal.toLocaleString()} activities
               </span>

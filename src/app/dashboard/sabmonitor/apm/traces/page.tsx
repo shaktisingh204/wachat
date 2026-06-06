@@ -22,9 +22,9 @@ export default async function ApmTracesPage({ searchParams }: PageProps): Promis
     return (
         <div className="flex flex-col gap-4">
             <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-zoru-ink">APM traces</h2>
+                <h2 className="text-sm font-semibold text-[var(--st-text)]">APM traces</h2>
                 <form className="flex items-center gap-2 text-[12px]">
-                    <label className="flex items-center gap-1 text-zoru-ink-muted">
+                    <label className="flex items-center gap-1 text-[var(--st-text-secondary)]">
                         <input
                             type="checkbox"
                             name="erroredOnly"
@@ -38,17 +38,17 @@ export default async function ApmTracesPage({ searchParams }: PageProps): Promis
                         type="number"
                         defaultValue={sp.slowMs}
                         placeholder="slow ms"
-                        className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-2 py-1"
+                        className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1"
                     />
                     <input
                         name="service"
                         defaultValue={sp.service}
                         placeholder="service"
-                        className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-2 py-1"
+                        className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1"
                     />
                     <button
                         type="submit"
-                        className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-2 py-1"
+                        className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1"
                     >
                         Filter
                     </button>
@@ -57,11 +57,11 @@ export default async function ApmTracesPage({ searchParams }: PageProps): Promis
             <Card className="zoruui">
                 <CardContent className="p-0">
                     {res.items.length === 0 ? (
-                        <p className="p-4 text-sm text-zoru-ink-muted">No traces yet.</p>
+                        <p className="p-4 text-sm text-[var(--st-text-secondary)]">No traces yet.</p>
                     ) : (
                         <table className="w-full text-sm">
-                            <thead className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
-                                <tr className="border-b border-zoru-line">
+                            <thead className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
+                                <tr className="border-b border-[var(--st-border)]">
                                     <th className="p-3 text-left font-medium">Started</th>
                                     <th className="p-3 text-left font-medium">Trace</th>
                                     <th className="p-3 text-left font-medium">Service</th>
@@ -73,27 +73,27 @@ export default async function ApmTracesPage({ searchParams }: PageProps): Promis
                             </thead>
                             <tbody>
                                 {res.items.map((t) => (
-                                    <tr key={t.traceId} className="border-b border-zoru-line">
-                                        <td className="p-3 text-zoru-ink-muted">
+                                    <tr key={t.traceId} className="border-b border-[var(--st-border)]">
+                                        <td className="p-3 text-[var(--st-text-secondary)]">
                                             {t.startedAt ? new Date(t.startedAt).toLocaleString() : '—'}
                                         </td>
                                         <td className="p-3">
                                             <Link
-                                                className="font-mono text-[12px] text-zoru-brand hover:underline"
+                                                className="font-mono text-[12px] text-[var(--st-accent)] hover:underline"
                                                 href={`/dashboard/sabmonitor/apm/traces/${t.traceId}`}
                                             >
                                                 {t.traceId.slice(0, 16)}…
                                             </Link>
                                         </td>
-                                        <td className="p-3 text-zoru-ink-muted">{t.rootService ?? '—'}</td>
-                                        <td className="p-3 text-zoru-ink-muted">{t.rootOperation ?? '—'}</td>
-                                        <td className="p-3 text-right text-zoru-ink-muted">{t.durationMs}ms</td>
-                                        <td className="p-3 text-right text-zoru-ink-muted">{t.spanCount}</td>
+                                        <td className="p-3 text-[var(--st-text-secondary)]">{t.rootService ?? '—'}</td>
+                                        <td className="p-3 text-[var(--st-text-secondary)]">{t.rootOperation ?? '—'}</td>
+                                        <td className="p-3 text-right text-[var(--st-text-secondary)]">{t.durationMs}ms</td>
+                                        <td className="p-3 text-right text-[var(--st-text-secondary)]">{t.spanCount}</td>
                                         <td className="p-3 text-right">
                                             {t.errored ? (
-                                                <span className="text-zoru-ink">error</span>
+                                                <span className="text-[var(--st-text)]">error</span>
                                             ) : (
-                                                <span className="text-zoru-ink">ok</span>
+                                                <span className="text-[var(--st-text)]">ok</span>
                                             )}
                                         </td>
                                     </tr>

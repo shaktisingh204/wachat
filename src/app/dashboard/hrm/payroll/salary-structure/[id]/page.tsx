@@ -69,8 +69,8 @@ export default async function SalaryStructureDetailPage({
             >
                 <div className="p-6">
                     <div className="animate-pulse space-y-4">
-                        <div className="h-8 w-1/4 rounded bg-zoru-surface-2"></div>
-                        <div className="h-64 rounded bg-zoru-surface-2"></div>
+                        <div className="h-8 w-1/4 rounded bg-[var(--st-bg-muted)]"></div>
+                        <div className="h-64 rounded bg-[var(--st-bg-muted)]"></div>
                     </div>
                 </div>
             </EntityDetailShell>

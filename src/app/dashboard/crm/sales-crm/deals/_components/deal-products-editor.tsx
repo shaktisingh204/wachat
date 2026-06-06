@@ -45,8 +45,8 @@ export function DealProductsEditor({ products, onAdd, onRemove, onPatch }: Produ
     <div className="space-y-4">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h2 className="text-[15px] font-semibold text-zoru-ink">Products</h2>
-          <p className="text-[12.5px] text-zoru-ink-muted">
+          <h2 className="text-[15px] font-semibold text-[var(--st-text)]">Products</h2>
+          <p className="text-[12.5px] text-[var(--st-text-secondary)]">
             Optional line items; helps when converting to a quotation.
           </p>
         </div>
@@ -56,11 +56,11 @@ export function DealProductsEditor({ products, onAdd, onRemove, onPatch }: Produ
       </div>
 
       {products.length === 0 ? (
-        <p className="text-[12.5px] text-zoru-ink-muted">No line items yet.</p>
+        <p className="text-[12.5px] text-[var(--st-text-secondary)]">No line items yet.</p>
       ) : (
-        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+        <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <table className="w-full text-[12.5px]">
-            <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
+            <thead className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
               <tr>
                 <th className="p-2 text-left">Item</th>
                 <th className="p-2 text-left">Name</th>
@@ -76,7 +76,7 @@ export function DealProductsEditor({ products, onAdd, onRemove, onPatch }: Produ
                 const total =
                   Math.max(0, row.quantity) * Math.max(0, row.rate) * (1 - row.discount / 100);
                 return (
-                  <tr key={idx} className="border-t border-zoru-line">
+                  <tr key={idx} className="border-t border-[var(--st-border)]">
                     <td className="p-2 align-top" style={{ minWidth: 180 }}>
                       <Label className="sr-only" htmlFor={`item-${idx}`}>
                         Item
@@ -159,8 +159,8 @@ export function DealProductsEditor({ products, onAdd, onRemove, onPatch }: Produ
                   </tr>
                 );
               })}
-              <tr className="border-t border-zoru-line bg-zoru-surface-2">
-                <td colSpan={5} className="p-2 text-right font-medium text-zoru-ink-muted">
+              <tr className="border-t border-[var(--st-border)] bg-[var(--st-bg-muted)]">
+                <td colSpan={5} className="p-2 text-right font-medium text-[var(--st-text-secondary)]">
                   Subtotal
                 </td>
                 <td className="p-2 text-right font-mono font-semibold tabular-nums">

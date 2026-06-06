@@ -17,7 +17,7 @@ export function StartEditor({ node, onUpdate }: EditorProps) {
           value={node.data.triggerKeywords || ''}
           onChange={(e) => onUpdate({ triggerKeywords: e.target.value })}
         />
-        <p className="text-xs text-zoru-ink-muted">Comma-separated keywords to start this flow.</p>
+        <p className="text-xs text-[var(--st-text-secondary)]">Comma-separated keywords to start this flow.</p>
       </div>
        <div className="space-y-2">
         <Label htmlFor="startMessage">Starting Message (Optional)</Label>
@@ -27,7 +27,7 @@ export function StartEditor({ node, onUpdate }: EditorProps) {
           value={node.data.startMessage || ''}
           onChange={(e) => onUpdate({ startMessage: e.target.value })}
         />
-        <p className="text-xs text-zoru-ink-muted">This message will be sent when the flow is triggered.</p>
+        <p className="text-xs text-[var(--st-text-secondary)]">This message will be sent when the flow is triggered.</p>
       </div>
     </div>
   );

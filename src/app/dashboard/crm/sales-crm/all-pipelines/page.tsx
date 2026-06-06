@@ -378,13 +378,13 @@ export default function SalesPipelinePage() {
                 empty={
                     !isPending && pageRows.length === 0 ? (
                         <div className="flex flex-col items-center gap-3 p-4">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-zoru-surface-2">
-                                <Columns3 className="h-6 w-6 text-zoru-ink-muted" strokeWidth={1.75} />
+                            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[var(--st-bg-muted)]">
+                                <Columns3 className="h-6 w-6 text-[var(--st-text-secondary)]" strokeWidth={1.75} />
                             </div>
-                            <h3 className="text-base font-medium text-zoru-ink">
+                            <h3 className="text-base font-medium text-[var(--st-text)]">
                                 {hasActiveFilters ? 'No pipelines match your filters' : 'No pipelines yet'}
                             </h3>
-                            <p className="max-w-sm text-sm text-zoru-ink-muted">
+                            <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                                 {hasActiveFilters
                                     ? 'Try clearing your filters or create a new pipeline.'
                                     : "You haven't created any pipelines yet. Get started by creating one."}
@@ -482,7 +482,7 @@ function PipelinesFiltersRow(props: PipelinesFiltersRowProps): React.JSX.Element
         <Card>
             <ZoruCardContent className="grid grid-cols-1 gap-3 pt-4 md:grid-cols-3 lg:grid-cols-4">
                 <div className="space-y-1">
-                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Status
                     </Label>
                     <Select
@@ -502,7 +502,7 @@ function PipelinesFiltersRow(props: PipelinesFiltersRowProps): React.JSX.Element
                 </div>
 
                 <div className="space-y-1">
-                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Owner
                     </Label>
                     <Select
@@ -520,7 +520,7 @@ function PipelinesFiltersRow(props: PipelinesFiltersRowProps): React.JSX.Element
                 </div>
 
                 <div className="space-y-1 md:col-span-1 lg:col-span-2">
-                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Created
                     </Label>
                     <ZoruDateRangePicker
@@ -559,7 +559,7 @@ interface PipelinesBulkBarProps {
 function PipelinesBulkBar(props: PipelinesBulkBarProps): React.JSX.Element {
     return (
         <div className="flex flex-wrap items-center gap-2">
-            <span className="text-sm font-medium text-zoru-ink">
+            <span className="text-sm font-medium text-[var(--st-text)]">
                 {props.count} selected
             </span>
             <span className="flex-1" />
@@ -602,7 +602,7 @@ interface PipelinesGridProps {
 function PipelinesGrid(props: PipelinesGridProps): React.JSX.Element {
     return (
         <div className="space-y-3">
-            <div className="flex items-center gap-2 px-1 text-[12px] text-zoru-ink-muted">
+            <div className="flex items-center gap-2 px-1 text-[12px] text-[var(--st-text-secondary)]">
                 <Checkbox
                     aria-label="Select all on this page"
                     checked={props.allSelected}
@@ -620,7 +620,7 @@ function PipelinesGrid(props: PipelinesGridProps): React.JSX.Element {
                             key={id}
                             className={
                                 isSelected
-                                    ? 'border-zoru-primary/40 ring-1 ring-zoru-primary/20'
+                                    ? 'border-[var(--st-text)]/40 ring-1 ring-[var(--st-text)]/20'
                                     : undefined
                             }
                         >
@@ -648,12 +648,12 @@ function PipelinesGrid(props: PipelinesGridProps): React.JSX.Element {
                                     {(p.stages ?? []).slice(0, 6).map((stage) => (
                                         <div
                                             key={stage.id}
-                                            className="rounded-lg border border-zoru-line bg-zoru-surface-2 p-2 text-center"
+                                            className="rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2 text-center"
                                         >
-                                            <p className="truncate text-[12.5px] font-medium text-zoru-ink">
+                                            <p className="truncate text-[12.5px] font-medium text-[var(--st-text)]">
                                                 {stage.name}
                                             </p>
-                                            <p className="mt-0.5 text-[11px] text-zoru-ink-muted">
+                                            <p className="mt-0.5 text-[11px] text-[var(--st-text-secondary)]">
                                                 {stage.chance ?? 0}% chance
                                             </p>
                                         </div>
@@ -662,7 +662,7 @@ function PipelinesGrid(props: PipelinesGridProps): React.JSX.Element {
                                 <div className="flex justify-end">
                                     <Link
                                         href="/dashboard/crm/deals"
-                                        className="text-[12px] font-medium text-zoru-primary hover:underline"
+                                        className="text-[12px] font-medium text-[var(--st-text)] hover:underline"
                                     >
                                         View deals in this pipeline →
                                     </Link>

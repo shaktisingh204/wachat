@@ -60,7 +60,7 @@ export function AccountsFiltersRow(props: AccountsFiltersRowProps) {
         <Card>
             <ZoruCardContent className="grid grid-cols-1 gap-3 pt-4 md:grid-cols-3 lg:grid-cols-5">
                 <div className="space-y-1">
-                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Status
                     </Label>
                     <Select
@@ -81,7 +81,7 @@ export function AccountsFiltersRow(props: AccountsFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Category
                     </Label>
                     <Select
@@ -104,7 +104,7 @@ export function AccountsFiltersRow(props: AccountsFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Industry
                     </Label>
                     <EntityFormField
@@ -117,7 +117,7 @@ export function AccountsFiltersRow(props: AccountsFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Country
                     </Label>
                     <EntityFormField
@@ -130,7 +130,7 @@ export function AccountsFiltersRow(props: AccountsFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Currency
                     </Label>
                     <EntityFormField
@@ -144,7 +144,7 @@ export function AccountsFiltersRow(props: AccountsFiltersRowProps) {
 
                 {props.onDateRangeChange ? (
                     <div className="space-y-1 lg:col-span-2">
-                        <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                        <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                             Created
                         </Label>
                         <ZoruDateRangePicker
@@ -188,12 +188,12 @@ export function AccountsBulkBar({
 }: AccountsBulkBarProps) {
     return (
         <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink">
+            <div className="flex items-center gap-2 text-[12.5px] text-[var(--st-text)]">
                 <Badge variant="info">{count} selected</Badge>
                 <button
                     type="button"
                     onClick={onClear}
-                    className="text-zoru-ink-muted hover:text-zoru-ink"
+                    className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                 >
                     Clear
                 </button>

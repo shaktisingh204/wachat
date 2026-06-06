@@ -19,7 +19,7 @@ export default async function ShiftSchedulePage(props: { searchParams: Promise<a
     <Suspense fallback={
       <EntityListShell title="Shift Schedule">
         <Card className="p-6 flex justify-center items-center h-64">
-          <LoaderCircle className="h-8 w-8 animate-spin text-zoru-ink-muted" />
+          <LoaderCircle className="h-8 w-8 animate-spin text-[var(--st-text-secondary)]" />
         </Card>
       </EntityListShell>
     }>

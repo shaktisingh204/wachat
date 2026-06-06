@@ -62,7 +62,7 @@ export function TemplateMessageContent({ content, isOutgoing = false, isQuoted =
 
         if (header.format === 'IMAGE' && mediaUrl) {
             return (
-                <div className="relative aspect-video w-full bg-zoru-surface-2 rounded-t-lg overflow-hidden">
+                <div className="relative aspect-video w-full bg-[var(--st-bg-muted)] rounded-t-lg overflow-hidden">
                     <img src={mediaUrl} alt="Template Header" className="w-full h-full object-cover" />
                 </div>
             );
@@ -72,7 +72,7 @@ export function TemplateMessageContent({ content, isOutgoing = false, isQuoted =
         }
         if (header.format === 'DOCUMENT' && mediaUrl) {
             return (
-                <a href={mediaUrl} target="_blank" rel="noopener noreferrer" className="p-4 bg-zoru-surface-2 rounded-t-lg flex items-center justify-center text-zoru-ink">
+                <a href={mediaUrl} target="_blank" rel="noopener noreferrer" className="p-4 bg-[var(--st-bg-muted)] rounded-t-lg flex items-center justify-center text-[var(--st-text)]">
                     <File className="h-10 w-10" />
                 </a>
             );
@@ -82,9 +82,9 @@ export function TemplateMessageContent({ content, isOutgoing = false, isQuoted =
 
     const isMarketingCarousel = carouselComp;
     const shouldUseWhiteText = isOutgoing && !isQuoted;
-    const mutedTextColor = shouldUseWhiteText ? "text-white/70" : "text-zoru-ink-muted";
+    const mutedTextColor = shouldUseWhiteText ? "text-white/70" : "text-[var(--st-text-secondary)]";
     const borderColor = shouldUseWhiteText ? "border-white/20" : "border-black/10";
-    const cardTitleColor = shouldUseWhiteText ? "text-white/70" : "text-zoru-ink-muted";
+    const cardTitleColor = shouldUseWhiteText ? "text-white/70" : "text-[var(--st-text-secondary)]";
 
     if (isMarketingCarousel) {
         return (
@@ -104,17 +104,17 @@ export function TemplateMessageContent({ content, isOutgoing = false, isQuoted =
             <div className="w-64">
                 <Card className="shadow-none border-0 bg-transparent">
                     <CardHeader className="p-2 flex flex-row items-center gap-2">
-                        <Gift className="h-5 w-5 text-zoru-ink" />
+                        <Gift className="h-5 w-5 text-[var(--st-text)]" />
                         <CardTitle className="text-base">Limited-Time Offer</CardTitle>
                     </CardHeader>
                     <CardContent className="p-2">
                         {renderHeader()}
                         <p className="py-2 text-sm">{bodyTextWithParams}</p>
-                        <div className="bg-zoru-ink text-white p-2 rounded-md text-center">
+                        <div className="bg-[var(--st-text)] text-white p-2 rounded-md text-center">
                             <p className="font-bold text-lg">Offer Ends In:</p>
                             <CountdownTimer targetDate={new Date(ltoComp.expiration.timestamp * 1000).toISOString()} />
                         </div>
-                        {ltoComp.coupon_code && <p className="text-center font-mono text-xs mt-2 bg-zoru-surface-2 p-1 rounded">Code: {ltoComp.coupon_code}</p>}
+                        {ltoComp.coupon_code && <p className="text-center font-mono text-xs mt-2 bg-[var(--st-bg-muted)] p-1 rounded">Code: {ltoComp.coupon_code}</p>}
                     </CardContent>
                 </Card>
             </div>
@@ -156,7 +156,7 @@ export function TemplateMessageContent({ content, isOutgoing = false, isQuoted =
                         }
 
                         return (
-                            <div key={index} className="text-center bg-white/80 dark:bg-zoru-surface-2/50 rounded-md py-1.5 text-sm font-medium text-zoru-ink border flex items-center justify-center">
+                            <div key={index} className="text-center bg-white/80 dark:bg-[var(--st-bg-muted)]/50 rounded-md py-1.5 text-sm font-medium text-[var(--st-text)] border flex items-center justify-center">
                                 {getButtonIcon()}
                                 {button.text}
                             </div>

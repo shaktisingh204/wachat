@@ -40,7 +40,7 @@ export function TasksKanban({ tasks }: TasksKanbanProps) {
 
     if (tasks.length === 0) {
         return (
-            <Card className="flex min-h-[240px] items-center justify-center text-sm text-zoru-ink-muted">
+            <Card className="flex min-h-[240px] items-center justify-center text-sm text-[var(--st-text-secondary)]">
                 No tasks to plot on the board.
             </Card>
         );
@@ -53,11 +53,11 @@ export function TasksKanban({ tasks }: TasksKanbanProps) {
             {Array.from(grouped.entries()).map(([key, rows]) => (
                 <div
                     key={key}
-                    className="flex w-72 shrink-0 flex-col gap-2 rounded-lg border border-zoru-line bg-zoru-surface-2 p-3"
+                    className="flex w-72 shrink-0 flex-col gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3"
                 >
                     <header className="flex items-center justify-between">
                         <StatusPill label={key} tone={statusToTone(key)} />
-                        <span className="text-[11.5px] text-zoru-ink-muted">{rows.length}</span>
+                        <span className="text-[11.5px] text-[var(--st-text-secondary)]">{rows.length}</span>
                     </header>
                     <ol className="flex flex-col gap-2">
                         {rows.map((task) => {
@@ -69,23 +69,23 @@ export function TasksKanban({ tasks }: TasksKanbanProps) {
                                     <Link
                                         href={`/dashboard/crm/sales-crm/tasks/${String(task._id)}`}
                                         className={[
-                                            'block rounded-md border border-zoru-line bg-zoru-bg p-2.5 transition-colors hover:border-zoru-line-strong',
+                                            'block rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] p-2.5 transition-colors hover:border-[var(--st-border-strong)]',
                                             overdue ? 'border-l-2 border-l-zoru-danger' : '',
                                         ].join(' ')}
                                     >
-                                        <div className="flex items-center gap-1.5 text-[13px] font-medium text-zoru-ink">
-                                            <CheckSquare className="h-3.5 w-3.5 text-zoru-ink-muted" />
+                                        <div className="flex items-center gap-1.5 text-[13px] font-medium text-[var(--st-text)]">
+                                            <CheckSquare className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                                             <span className="line-clamp-1">
                                                 {task.title || 'Untitled task'}
                                             </span>
                                         </div>
-                                        <div className="mt-1 flex items-center justify-between text-[11.5px] text-zoru-ink-muted">
+                                        <div className="mt-1 flex items-center justify-between text-[11.5px] text-[var(--st-text-secondary)]">
                                             <span>{(task.type as string) || 'Follow-up'}</span>
                                             {due ? (
                                                 <span
                                                     className={[
                                                         'inline-flex items-center gap-1',
-                                                        overdue ? 'text-zoru-danger' : '',
+                                                        overdue ? 'text-[var(--st-danger)]' : '',
                                                     ].join(' ')}
                                                 >
                                                     <Clock className="h-3 w-3" />
@@ -93,7 +93,7 @@ export function TasksKanban({ tasks }: TasksKanbanProps) {
                                                 </span>
                                             ) : null}
                                         </div>
-                                        <div className="mt-1 text-[11.5px] text-zoru-ink-muted">
+                                        <div className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">
                                             {(task.priority as string) || 'Medium'}
                                         </div>
                                     </Link>
@@ -101,7 +101,7 @@ export function TasksKanban({ tasks }: TasksKanbanProps) {
                             );
                         })}
                         {rows.length === 0 ? (
-                            <li className="rounded-md border border-dashed border-zoru-line p-2 text-center text-[11.5px] text-zoru-ink-muted">
+                            <li className="rounded-md border border-dashed border-[var(--st-border)] p-2 text-center text-[11.5px] text-[var(--st-text-secondary)]">
                                 Empty
                             </li>
                         ) : null}

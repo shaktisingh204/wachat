@@ -128,7 +128,7 @@ export function InvoiceQuickEdits({
     <>
       <dl className="space-y-2 text-[12.5px]">
         <div className="flex items-center justify-between gap-2">
-          <dt className="text-zoru-ink-muted">Status</dt>
+          <dt className="text-[var(--st-text-secondary)]">Status</dt>
           <dd>
             <DropdownMenu>
               <ZoruDropdownMenuTrigger asChild>
@@ -157,7 +157,7 @@ export function InvoiceQuickEdits({
           </dd>
         </div>
         <div className="flex items-center justify-between gap-2">
-          <dt className="text-zoru-ink-muted">Customer</dt>
+          <dt className="text-[var(--st-text-secondary)]">Customer</dt>
           <dd>
             <button
               type="button"
@@ -171,7 +171,7 @@ export function InvoiceQuickEdits({
               {currentCustomer ? (
                 <EntityPickerChip entity="client" id={currentCustomer} />
               ) : (
-                <span className="text-zoru-ink-muted underline-offset-2 hover:underline">
+                <span className="text-[var(--st-text-secondary)] underline-offset-2 hover:underline">
                   — set customer
                 </span>
               )}
@@ -179,12 +179,12 @@ export function InvoiceQuickEdits({
           </dd>
         </div>
         <div className="flex items-center justify-between gap-2">
-          <dt className="text-zoru-ink-muted">Sales agent</dt>
+          <dt className="text-[var(--st-text-secondary)]">Sales agent</dt>
           <dd>
             {salesAgentId ? (
               <EntityPickerChip entity="user" id={salesAgentId} />
             ) : (
-              <span className="text-zoru-ink-muted">—</span>
+              <span className="text-[var(--st-text-secondary)]">—</span>
             )}
           </dd>
         </div>

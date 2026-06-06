@@ -24,8 +24,8 @@ export const PlanCategorySection = ({
       className="space-y-6"
     >
       <div className="flex items-center gap-3">
-        <h2 className="text-2xl font-bold tracking-tight text-zoru-ink">{title}</h2>
-        <div className="h-px flex-1 bg-gradient-to-r from-zoru-line to-transparent" />
+        <h2 className="text-2xl font-bold tracking-tight text-[var(--st-text)]">{title}</h2>
+        <div className="h-px flex-1 bg-gradient-to-r from-[var(--st-border)] to-transparent" />
       </div>
       <ZoruScrollArea className="w-full pb-8 -mb-8">
         <div className="flex w-max space-x-6 pb-8 px-2 pt-2">

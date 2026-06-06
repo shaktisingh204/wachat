@@ -173,7 +173,7 @@ function EditorContent({
         {/* Saved indicator */}
         {lastSaved && (
           <span className="text-[11.5px] text-[var(--gray-9)] flex items-center gap-1.5">
-            <LuCheck className="h-3.5 w-3.5 text-zoru-ink" strokeWidth={2} />
+            <LuCheck className="h-3.5 w-3.5 text-[var(--st-text)]" strokeWidth={2} />
             Saved
           </span>
         )}
@@ -186,7 +186,7 @@ function EditorContent({
             'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12.5px] font-medium transition-colors',
             isSaving
               ? 'bg-[var(--gray-4)] text-[var(--gray-9)] cursor-wait'
-              : 'bg-zoru-ink text-white hover:bg-zoru-ink',
+              : 'bg-[var(--st-text)] text-white hover:bg-[var(--st-text)]',
           )}
         >
           {isSaving ? (
@@ -203,7 +203,7 @@ function EditorContent({
           className={cn(
             'flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[12.5px] font-medium transition-colors',
             workflow.active
-              ? 'border-zoru-line bg-zoru-surface-2 text-zoru-ink hover:bg-zoru-surface-2'
+              ? 'border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]'
               : 'border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-11)] hover:bg-[var(--gray-3)]',
           )}
         >

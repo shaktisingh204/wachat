@@ -93,7 +93,7 @@ export function EcommProductCard({
     <Card className="flex flex-col overflow-hidden p-0">
       <Wrapper>
         <ZoruCardHeader className="p-0">
-          <div className="relative aspect-[4/5] bg-zoru-surface-2">
+          <div className="relative aspect-[4/5] bg-[var(--st-bg-muted)]">
             <Image
               src={product.imageUrl || "https://placehold.co/400x500.png"}
               alt={product.name}
@@ -109,11 +109,11 @@ export function EcommProductCard({
           </div>
         </ZoruCardHeader>
         <ZoruCardContent className="flex-1 px-4 pb-4 pt-2">
-          <p className="line-clamp-2 h-10 text-[13px] text-zoru-ink-muted">
+          <p className="line-clamp-2 h-10 text-[13px] text-[var(--st-text-secondary)]">
             {product.description}
           </p>
           <div className="mt-4 flex items-center justify-between">
-            <p className="text-[15px] tracking-tight text-zoru-ink">
+            <p className="text-[15px] tracking-tight text-[var(--st-text)]">
               {new Intl.NumberFormat("en-US", {
                 style: "currency",
                 currency,
@@ -125,7 +125,7 @@ export function EcommProductCard({
           </div>
         </ZoruCardContent>
       </Wrapper>
-      <ZoruCardFooter className="flex justify-end gap-2 border-t border-zoru-line p-4">
+      <ZoruCardFooter className="flex justify-end gap-2 border-t border-[var(--st-border)] p-4">
         <Button variant="outline" size="sm" onClick={onEdit}>
           <Edit />
           Edit

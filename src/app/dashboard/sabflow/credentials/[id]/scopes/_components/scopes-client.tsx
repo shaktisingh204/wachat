@@ -227,7 +227,7 @@ export function ScopesClient({ credentialId }: { credentialId: string }) {
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center gap-3 border-b border-[var(--gray-4)] px-6 py-4 shrink-0">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
           <LuShieldCheck className="h-4 w-4" strokeWidth={2} />
         </div>
         <div className="flex flex-col leading-tight">
@@ -269,7 +269,7 @@ export function ScopesClient({ credentialId }: { credentialId: string }) {
             <span className="text-[12px]">Loading credential…</span>
           </div>
         ) : error ? (
-          <div className="m-6 flex items-start gap-2 rounded-lg border border-zoru-line bg-zoru-surface-2 px-4 py-3 text-[12px] text-zoru-ink">
+          <div className="m-6 flex items-start gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-3 text-[12px] text-[var(--st-text)]">
             <LuTriangleAlert className="h-4 w-4 shrink-0 mt-0.5" />
             <span>{error}</span>
           </div>
@@ -287,7 +287,7 @@ export function ScopesClient({ credentialId }: { credentialId: string }) {
             </p>
             <Link
               href="/dashboard/sabflow/connections"
-              className="mt-2 inline-flex items-center gap-1 text-[11.5px] font-medium text-zoru-ink hover:text-zoru-ink"
+              className="mt-2 inline-flex items-center gap-1 text-[11.5px] font-medium text-[var(--st-text)] hover:text-[var(--st-text)]"
             >
               Back to connections <LuArrowRight className="h-3 w-3" />
             </Link>
@@ -317,7 +317,7 @@ export function ScopesClient({ credentialId }: { credentialId: string }) {
                   <span className="text-[10.5px] uppercase tracking-wide text-[var(--gray-9)] font-semibold">
                     Locally revoked
                   </span>
-                  <span className="text-[13px] font-semibold text-zoru-ink tabular-nums">
+                  <span className="text-[13px] font-semibold text-[var(--st-text)] tabular-nums">
                     {data.revoked.length}
                   </span>
                 </div>
@@ -330,7 +330,7 @@ export function ScopesClient({ credentialId }: { credentialId: string }) {
                 Currently granted
               </h2>
               {scopeError && (
-                <div className="mb-2 flex items-start gap-1.5 rounded-md border border-zoru-line bg-zoru-surface-2 px-3 py-2 text-[11.5px] text-zoru-ink">
+                <div className="mb-2 flex items-start gap-1.5 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-[11.5px] text-[var(--st-text)]">
                   <LuTriangleAlert className="h-3.5 w-3.5 shrink-0 mt-0.5" />
                   <span>{scopeError}</span>
                 </div>
@@ -367,7 +367,7 @@ export function ScopesClient({ credentialId }: { credentialId: string }) {
                               {row.scope}
                               {row.required && (
                                 <span
-                                  className="inline-flex items-center gap-0.5 rounded px-1 py-0.5 text-[9.5px] font-semibold uppercase tracking-wide bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted"
+                                  className="inline-flex items-center gap-0.5 rounded px-1 py-0.5 text-[9.5px] font-semibold uppercase tracking-wide bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]"
                                   title="Required for basic provider functionality"
                                 >
                                   <LuLock className="h-2.5 w-2.5" />
@@ -397,7 +397,7 @@ export function ScopesClient({ credentialId }: { credentialId: string }) {
                                 'inline-flex items-center gap-1 rounded-md border px-2 py-1 text-[11px] font-medium transition-colors',
                                 row.required
                                   ? 'border-[var(--gray-4)] bg-[var(--gray-2)] text-[var(--gray-8)] cursor-not-allowed'
-                                  : 'border-zoru-line bg-zoru-surface-2 text-zoru-ink hover:bg-zoru-surface-2 dark:border-zoru-line/40 dark:bg-zoru-ink/30 dark:text-zoru-ink-muted',
+                                  : 'border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] dark:border-[var(--st-border)]/40 dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]',
                               )}
                             >
                               {revokingScope === row.scope ? (
@@ -416,7 +416,7 @@ export function ScopesClient({ credentialId }: { credentialId: string }) {
               </div>
               {data.revoked.length > 0 && (
                 <p className="mt-2 text-[11px] text-[var(--gray-9)]">
-                  <strong className="text-zoru-ink">{data.revoked.length}</strong>{' '}
+                  <strong className="text-[var(--st-text)]">{data.revoked.length}</strong>{' '}
                   scope{data.revoked.length === 1 ? '' : 's'} locally revoked —
                   SabFlow flows will refuse to use{' '}
                   {data.revoked.length === 1 ? 'it' : 'them'} even though the
@@ -443,7 +443,7 @@ export function ScopesClient({ credentialId }: { credentialId: string }) {
                     setPicked(new Set(['workspace']));
                     void grantAdditional();
                   }}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-zoru-ink px-3 py-1.5 text-[12px] font-medium text-white hover:bg-zoru-ink"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--st-text)] px-3 py-1.5 text-[12px] font-medium text-white hover:bg-[var(--st-text)]"
                 >
                   <LuRefreshCw className="h-3.5 w-3.5" />
                   Re-authorise with Notion
@@ -495,7 +495,7 @@ export function ScopesClient({ credentialId }: { credentialId: string }) {
                             className={cn(
                               'flex items-start gap-2 rounded-md px-2 py-1.5 cursor-pointer',
                               checked
-                                ? 'bg-zoru-surface-2 dark:bg-zoru-ink/30'
+                                ? 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30'
                                 : 'hover:bg-[var(--gray-3)]',
                             )}
                           >
@@ -503,7 +503,7 @@ export function ScopesClient({ credentialId }: { credentialId: string }) {
                               type="checkbox"
                               checked={checked}
                               onChange={() => togglePicked(entry.scope)}
-                              className="mt-0.5 h-3.5 w-3.5 rounded border-[var(--gray-6)] accent-zoru-ink"
+                              className="mt-0.5 h-3.5 w-3.5 rounded border-[var(--gray-6)] accent-[var(--st-text)]"
                             />
                             <div className="flex flex-col leading-tight">
                               <span className="font-mono text-[11.5px] text-[var(--gray-12)]">
@@ -523,7 +523,7 @@ export function ScopesClient({ credentialId }: { credentialId: string }) {
                       })}
                     </div>
                     {grantError && (
-                      <div className="mt-2 flex items-start gap-1.5 rounded-md border border-zoru-line bg-zoru-surface-2 px-3 py-2 text-[11.5px] text-zoru-ink">
+                      <div className="mt-2 flex items-start gap-1.5 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-[11.5px] text-[var(--st-text)]">
                         <LuTriangleAlert className="h-3.5 w-3.5 shrink-0 mt-0.5" />
                         <span>{grantError}</span>
                       </div>
@@ -534,7 +534,7 @@ export function ScopesClient({ credentialId }: { credentialId: string }) {
                         onClick={grantAdditional}
                         disabled={grantPending || picked.size === 0}
                         className={cn(
-                          'inline-flex items-center gap-1.5 rounded-lg bg-zoru-ink px-3 py-1.5 text-[12px] font-medium text-white hover:bg-zoru-ink',
+                          'inline-flex items-center gap-1.5 rounded-lg bg-[var(--st-text)] px-3 py-1.5 text-[12px] font-medium text-white hover:bg-[var(--st-text)]',
                           (grantPending || picked.size === 0) &&
                             'opacity-50 cursor-not-allowed',
                         )}
@@ -570,16 +570,16 @@ export function ScopesClient({ credentialId }: { credentialId: string }) {
             )}
 
             {/* Revoke whole credential */}
-            <section className="rounded-lg border border-zoru-line bg-zoru-surface-2 dark:border-zoru-line/40 dark:bg-zoru-ink/20 px-4 py-3">
-              <h2 className="text-[12px] font-semibold uppercase tracking-wide text-zoru-ink dark:text-zoru-ink-muted">
+            <section className="rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] dark:border-[var(--st-border)]/40 dark:bg-[var(--st-text)]/20 px-4 py-3">
+              <h2 className="text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
                 Revoke entire credential
               </h2>
-              <p className="mt-1 text-[11.5px] text-zoru-ink/80 dark:text-zoru-ink-muted/80 max-w-2xl">
+              <p className="mt-1 text-[11.5px] text-[var(--st-text)]/80 dark:text-[var(--st-text-secondary)]/80 max-w-2xl">
                 Permanently delete this credential. Any flow that references
                 it will fail until you reconnect. This cannot be undone.
               </p>
               {destructiveError && (
-                <div className="mt-2 flex items-start gap-1.5 text-[11.5px] text-zoru-ink">
+                <div className="mt-2 flex items-start gap-1.5 text-[11.5px] text-[var(--st-text)]">
                   <LuTriangleAlert className="h-3.5 w-3.5 shrink-0 mt-0.5" />
                   <span>{destructiveError}</span>
                 </div>
@@ -588,7 +588,7 @@ export function ScopesClient({ credentialId }: { credentialId: string }) {
                 type="button"
                 onClick={revokeWholeCredential}
                 disabled={destructiveRevoking}
-                className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-zoru-ink px-3 py-1.5 text-[12px] font-medium text-white hover:bg-zoru-ink disabled:opacity-60"
+                className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-[var(--st-text)] px-3 py-1.5 text-[12px] font-medium text-white hover:bg-[var(--st-text)] disabled:opacity-60"
               >
                 {destructiveRevoking ? (
                   <LuLoader className="h-3.5 w-3.5 animate-spin" />

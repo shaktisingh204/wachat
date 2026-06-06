@@ -94,7 +94,7 @@ export default async function EmployeeDetailPage({
     if (error) {
       return (
         <div className="flex w-full flex-col gap-4 p-6">
-          <p className="text-[14px] text-zoru-ink">
+          <p className="text-[14px] text-[var(--st-text)]">
             Couldn&apos;t load this employee — {error}
           </p>
           <Button variant="outline" asChild>
@@ -143,12 +143,12 @@ export default async function EmployeeDetailPage({
       rightRail={
         <>
           <Card className="p-4">
-            <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+            <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
               Reporting tree
             </h3>
-            <div className="space-y-3 text-[12.5px] text-zoru-ink">
+            <div className="space-y-3 text-[12.5px] text-[var(--st-text)]">
               <div>
-                <div className="text-[11px] text-zoru-ink-muted">Manager</div>
+                <div className="text-[11px] text-[var(--st-text-secondary)]">Manager</div>
                 <div className="mt-1">
                   {employee.reportingManagerId ? (
                     <EntityPickerChip
@@ -156,17 +156,17 @@ export default async function EmployeeDetailPage({
                       id={employee.reportingManagerId}
                     />
                   ) : (
-                    <span className="text-zoru-ink-muted">—</span>
+                    <span className="text-[var(--st-text-secondary)]">—</span>
                   )}
                 </div>
               </div>
               <div>
-                <div className="text-[11px] text-zoru-ink-muted">
+                <div className="text-[11px] text-[var(--st-text-secondary)]">
                   Direct reports
                 </div>
                 <div className="mt-1 flex flex-wrap gap-1">
                   {directReports.length === 0 ? (
-                    <span className="text-zoru-ink-muted">—</span>
+                    <span className="text-[var(--st-text-secondary)]">—</span>
                   ) : (
                     directReports.map((r) => (
                       <EntityPickerChip
@@ -182,7 +182,7 @@ export default async function EmployeeDetailPage({
           </Card>
 
           <Card className="p-4">
-            <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+            <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
               Quick actions
             </h3>
             <div className="flex flex-col gap-1.5">
@@ -211,27 +211,27 @@ export default async function EmployeeDetailPage({
           </Card>
 
           <Card className="p-4">
-            <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+            <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
               Assigned to
             </h3>
-            <div className="text-[12.5px] text-zoru-ink">
+            <div className="text-[12.5px] text-[var(--st-text)]">
               {employee.assignedTo ? (
                 <EntityPickerChip entity="user" id={employee.assignedTo} />
               ) : (
                 '—'
               )}
             </div>
-            <h3 className="mb-3 mt-6 text-[11px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+            <h3 className="mb-3 mt-6 text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
               Tags
             </h3>
             <div className="flex flex-wrap gap-1">
               {(employee.tags ?? []).length === 0 ? (
-                <span className="text-[12px] text-zoru-ink-muted">—</span>
+                <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
               ) : (
                 (employee.tags ?? []).map((t) => (
                   <span
                     key={t}
-                    className="rounded-full bg-zoru-surface px-2 py-0.5 text-[11px] text-zoru-ink"
+                    className="rounded-full bg-[var(--st-bg-secondary)] px-2 py-0.5 text-[11px] text-[var(--st-text)]"
                   >
                     {t}
                   </span>

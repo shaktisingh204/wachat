@@ -38,7 +38,7 @@ export function TimesheetRow({
   return (
     <div
       style={style}
-      className="flex items-center gap-4 px-4 border-b border-zoru-line/50 hover:bg-zoru-bg/50 transition-colors"
+      className="flex items-center gap-4 px-4 border-b border-[var(--st-border)]/50 hover:bg-[var(--st-bg)]/50 transition-colors"
     >
       <ZoruCheckbox 
         checked={isSelected}
@@ -50,7 +50,7 @@ export function TimesheetRow({
           value={entry.userId} 
           onValueChange={(val) => onUpdate(entry.id, 'userId', val)}
         >
-          <ZoruSelectTrigger className="h-9 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+          <ZoruSelectTrigger className="h-9 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
             <ZoruSelectValue placeholder="Select employee" />
           </ZoruSelectTrigger>
           <ZoruSelectContent>
@@ -69,7 +69,7 @@ export function TimesheetRow({
           value={entry.weekStart}
           onChange={(e) => onUpdate(entry.id, 'weekStart', e.target.value)}
           required
-          className="h-9 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+          className="h-9 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
         />
       </div>
 
@@ -78,7 +78,7 @@ export function TimesheetRow({
           type="date"
           value={entry.weekEnd}
           readOnly
-          className="h-9 rounded-lg border-zoru-line bg-zoru-bg text-[13px] opacity-60"
+          className="h-9 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px] opacity-60"
         />
       </div>
 
@@ -87,7 +87,7 @@ export function TimesheetRow({
           type="button"
           variant="ghost"
           size="icon"
-          className="text-zoru-danger-ink hover:bg-zoru-danger-bg hover:text-zoru-danger-ink"
+          className="text-[var(--st-danger)] hover:bg-[var(--st-danger-soft)] hover:text-[var(--st-danger)]"
           onClick={() => onRemove(entry.id)}
         >
           <Trash className="h-4 w-4" />

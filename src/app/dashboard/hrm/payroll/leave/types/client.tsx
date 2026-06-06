@@ -191,42 +191,42 @@ export default function LeaveTypesClient({
 
       <Card className="p-6">
         {isLoadingList && types.length === 0 ? (
-          <div className="py-12 text-center text-[13px] text-zoru-ink-muted">Loading…</div>
+          <div className="py-12 text-center text-[13px] text-[var(--st-text-secondary)]">Loading…</div>
         ) : types.length === 0 ? (
-          <div className="py-12 text-center text-[13px] text-zoru-ink-muted">
+          <div className="py-12 text-center text-[13px] text-[var(--st-text-secondary)]">
             No leave types yet. Add one above.
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-lg border border-zoru-line">
+          <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
             <table className="w-full text-left text-[13px]">
               <thead>
-                <tr className="border-b border-zoru-line">
-                  <th className="px-4 py-3 font-medium text-zoru-ink-muted">Type</th>
-                  <th className="px-4 py-3 font-medium text-zoru-ink-muted">Per Year</th>
-                  <th className="px-4 py-3 font-medium text-zoru-ink-muted">Monthly Cap</th>
-                  <th className="px-4 py-3 font-medium text-zoru-ink-muted">Unit</th>
-                  <th className="px-4 py-3 font-medium text-zoru-ink-muted">Paid</th>
-                  <th className="px-4 py-3 font-medium text-zoru-ink-muted">Status</th>
-                  <th className="px-4 py-3 font-medium text-zoru-ink-muted">Accrual</th>
-                  <th className="px-4 py-3 text-right font-medium text-zoru-ink-muted">Actions</th>
+                <tr className="border-b border-[var(--st-border)]">
+                  <th className="px-4 py-3 font-medium text-[var(--st-text-secondary)]">Type</th>
+                  <th className="px-4 py-3 font-medium text-[var(--st-text-secondary)]">Per Year</th>
+                  <th className="px-4 py-3 font-medium text-[var(--st-text-secondary)]">Monthly Cap</th>
+                  <th className="px-4 py-3 font-medium text-[var(--st-text-secondary)]">Unit</th>
+                  <th className="px-4 py-3 font-medium text-[var(--st-text-secondary)]">Paid</th>
+                  <th className="px-4 py-3 font-medium text-[var(--st-text-secondary)]">Status</th>
+                  <th className="px-4 py-3 font-medium text-[var(--st-text-secondary)]">Accrual</th>
+                  <th className="px-4 py-3 text-right font-medium text-[var(--st-text-secondary)]">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {types.map((t) => (
-                  <tr key={t._id} className="border-b border-zoru-line last:border-0">
+                  <tr key={t._id} className="border-b border-[var(--st-border)] last:border-0">
                     <td className="px-4 py-3">
                       <span className="inline-flex items-center gap-2">
                         <span
                           aria-hidden
-                          className="inline-block h-3 w-3 rounded-full border border-zoru-line"
+                          className="inline-block h-3 w-3 rounded-full border border-[var(--st-border)]"
                           style={{ backgroundColor: t.color || '#94A3B8' }}
                         />
-                        <span className="font-medium text-zoru-ink">{t.type_name}</span>
+                        <span className="font-medium text-[var(--st-text)]">{t.type_name}</span>
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-zoru-ink">{t.no_of_leaves}</td>
-                    <td className="px-4 py-3 text-zoru-ink">{t.monthly_limit}</td>
-                    <td className="px-4 py-3 text-zoru-ink capitalize">{t.leave_unit}</td>
+                    <td className="px-4 py-3 text-[var(--st-text)]">{t.no_of_leaves}</td>
+                    <td className="px-4 py-3 text-[var(--st-text)]">{t.monthly_limit}</td>
+                    <td className="px-4 py-3 text-[var(--st-text)] capitalize">{t.leave_unit}</td>
                     <td className="px-4 py-3">
                       <Badge variant={t.paid ? 'success' : 'warning'}>
                         {t.paid ? 'Paid' : 'Unpaid'}
@@ -239,11 +239,11 @@ export default function LeaveTypesClient({
                     </td>
                     <td className="px-4 py-3">
                       {t.accrual_enabled ? (
-                        <span className="text-[12px] text-zoru-ink-muted">
+                        <span className="text-[12px] text-[var(--st-text-secondary)]">
                           Earn {t.accrual_rate} {t.leave_unit} per {t.accrual_frequency ? t.accrual_frequency.replace('ly', '') : 'month'}
                         </span>
                       ) : (
-                        <span className="text-[12px] text-zoru-ink-muted">-</span>
+                        <span className="text-[12px] text-[var(--st-text-secondary)]">-</span>
                       )}
                     </td>
                     <td className="px-4 py-3">
@@ -264,7 +264,7 @@ export default function LeaveTypesClient({
                               onClick={() => setTypeToDelete(t._id)}
                               disabled={isDeleting}
                             >
-                              <Trash2 className="h-3.5 w-3.5 text-zoru-ink" strokeWidth={1.75} />
+                              <Trash2 className="h-3.5 w-3.5 text-[var(--st-text)]" strokeWidth={1.75} />
                               Delete
                             </Button>
                           </ZoruAlertDialogTrigger>
@@ -297,7 +297,7 @@ export default function LeaveTypesClient({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <Card className="w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-[16px] text-zoru-ink">
+              <h2 className="text-[16px] text-[var(--st-text)]">
                 {editing ? 'Edit Leave Type' : 'Add Leave Type'}
               </h2>
               <Button
@@ -312,56 +312,56 @@ export default function LeaveTypesClient({
 
             <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 md:grid-cols-2">
               <div className="md:col-span-2">
-                <Label className="text-zoru-ink">Type Name *</Label>
+                <Label className="text-[var(--st-text)]">Type Name *</Label>
                 <Input
                   {...register('type_name')}
                   required
-                  className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 />
               </div>
 
               <div>
-                <Label className="text-zoru-ink">Leaves Per Year</Label>
+                <Label className="text-[var(--st-text)]">Leaves Per Year</Label>
                 <Input
                   {...register('no_of_leaves')}
                   type="number"
                   step="0.5"
                   min="0"
-                  className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 />
               </div>
 
               <div>
-                <Label className="text-zoru-ink">Monthly Limit</Label>
+                <Label className="text-[var(--st-text)]">Monthly Limit</Label>
                 <Input
                   {...register('monthly_limit')}
                   type="number"
                   step="0.5"
                   min="0"
-                  className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 />
               </div>
 
               <div>
-                <Label className="text-zoru-ink">Color</Label>
+                <Label className="text-[var(--st-text)]">Color</Label>
                 <div className="mt-1.5 flex items-center gap-2">
                   <input
                     type="color"
                     {...register('color')}
-                    className="h-10 w-12 cursor-pointer rounded-lg border border-zoru-line bg-zoru-bg p-1"
+                    className="h-10 w-12 cursor-pointer rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] p-1"
                   />
-                  <span className="text-[13px] text-zoru-ink-muted">{watch('color')}</span>
+                  <span className="text-[13px] text-[var(--st-text-secondary)]">{watch('color')}</span>
                 </div>
               </div>
 
               <div>
-                <Label className="text-zoru-ink">Leave Unit</Label>
+                <Label className="text-[var(--st-text)]">Leave Unit</Label>
                 <Controller
                   control={control}
                   name="leave_unit"
                   render={({ field }) => (
                     <Select value={field.value} onValueChange={field.onChange}>
-                      <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                      <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
                         <ZoruSelectValue />
                       </ZoruSelectTrigger>
                       <ZoruSelectContent>
@@ -375,13 +375,13 @@ export default function LeaveTypesClient({
               </div>
 
               <div>
-                <Label className="text-zoru-ink">Paid</Label>
+                <Label className="text-[var(--st-text)]">Paid</Label>
                 <Controller
                   control={control}
                   name="paid"
                   render={({ field }) => (
                     <Select value={field.value} onValueChange={field.onChange}>
-                      <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                      <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
                         <ZoruSelectValue />
                       </ZoruSelectTrigger>
                       <ZoruSelectContent>
@@ -394,13 +394,13 @@ export default function LeaveTypesClient({
               </div>
 
               <div>
-                <Label className="text-zoru-ink">Status</Label>
+                <Label className="text-[var(--st-text)]">Status</Label>
                 <Controller
                   control={control}
                   name="status"
                   render={({ field }) => (
                     <Select value={field.value} onValueChange={field.onChange}>
-                      <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                      <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
                         <ZoruSelectValue />
                       </ZoruSelectTrigger>
                       <ZoruSelectContent>
@@ -412,18 +412,18 @@ export default function LeaveTypesClient({
                 />
               </div>
 
-              <div className="md:col-span-2 mt-2 border-t border-zoru-line pt-4">
-                <h3 className="text-[14px] font-medium text-zoru-ink mb-3">Accrual Rules</h3>
+              <div className="md:col-span-2 mt-2 border-t border-[var(--st-border)] pt-4">
+                <h3 className="text-[14px] font-medium text-[var(--st-text)] mb-3">Accrual Rules</h3>
               </div>
 
               <div>
-                <Label className="text-zoru-ink">Enable Accrual</Label>
+                <Label className="text-[var(--st-text)]">Enable Accrual</Label>
                 <Controller
                   control={control}
                   name="accrual_enabled"
                   render={({ field }) => (
                     <Select value={field.value} onValueChange={field.onChange}>
-                      <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                      <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
                         <ZoruSelectValue />
                       </ZoruSelectTrigger>
                       <ZoruSelectContent>
@@ -438,24 +438,24 @@ export default function LeaveTypesClient({
               {watch('accrual_enabled') === 'true' && (
                 <>
                   <div>
-                    <Label className="text-zoru-ink">Accrual Rate</Label>
+                    <Label className="text-[var(--st-text)]">Accrual Rate</Label>
                     <Input
                       {...register('accrual_rate')}
                       type="number"
                       step="0.1"
                       min="0"
-                      className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                      className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                     />
                   </div>
 
                   <div>
-                    <Label className="text-zoru-ink">Frequency</Label>
+                    <Label className="text-[var(--st-text)]">Frequency</Label>
                     <Controller
                       control={control}
                       name="accrual_frequency"
                       render={({ field }) => (
                         <Select value={field.value} onValueChange={field.onChange}>
-                          <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                          <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
                             <ZoruSelectValue />
                           </ZoruSelectTrigger>
                           <ZoruSelectContent>
@@ -468,8 +468,8 @@ export default function LeaveTypesClient({
                     />
                   </div>
                   
-                  <div className="md:col-span-2 rounded-lg bg-zoru-surface-2 p-3 text-[13px] text-zoru-ink-muted">
-                    Preview: Earn <strong className="text-zoru-ink">{watch('accrual_rate') || 0}</strong> {watch('leave_unit')} per {watch('accrual_frequency')?.replace('ly', '') || 'month'}
+                  <div className="md:col-span-2 rounded-lg bg-[var(--st-bg-muted)] p-3 text-[13px] text-[var(--st-text-secondary)]">
+                    Preview: Earn <strong className="text-[var(--st-text)]">{watch('accrual_rate') || 0}</strong> {watch('leave_unit')} per {watch('accrual_frequency')?.replace('ly', '') || 'month'}
                   </div>
                 </>
               )}

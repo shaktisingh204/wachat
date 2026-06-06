@@ -164,7 +164,7 @@ export function AccountsClient({ domains, initialAccounts }: AccountsClientProps
                                     autoComplete="off"
                                     required
                                 />
-                                <span className="text-sm text-zoru-ink-muted">
+                                <span className="text-sm text-[var(--st-text-secondary)]">
                                     @{domainOf(domainId)}
                                 </span>
                             </div>
@@ -202,7 +202,7 @@ export function AccountsClient({ domains, initialAccounts }: AccountsClientProps
                                 step={256}
                                 value={quotaMb}
                                 onChange={(e) => setQuotaMb(Number(e.target.value))}
-                                className="w-full accent-zoru-accent"
+                                className="w-full accent-[var(--st-accent)]"
                             />
                         </div>
                         <div className="sm:col-span-2">
@@ -250,15 +250,15 @@ export function AccountsClient({ domains, initialAccounts }: AccountsClientProps
                                 <ZoruCardContent className="flex flex-wrap items-center justify-between gap-3 p-4">
                                     <div className="min-w-0 flex-1">
                                         <div className="flex items-center gap-2">
-                                            <Mail className="h-4 w-4 text-zoru-ink-muted" />
+                                            <Mail className="h-4 w-4 text-[var(--st-text-secondary)]" />
                                             <span className="font-medium">{a.displayName ?? email}</span>
                                             <Badge variant={active ? 'default' : 'secondary'}>
                                                 {a.status ?? 'active'}
                                             </Badge>
                                         </div>
-                                        <div className="truncate text-sm text-zoru-ink-muted">{email}</div>
+                                        <div className="truncate text-sm text-[var(--st-text-secondary)]">{email}</div>
                                         {a.quotaMb ? (
-                                            <div className="text-xs text-zoru-ink-muted">
+                                            <div className="text-xs text-[var(--st-text-secondary)]">
                                                 Quota: {a.quotaMb} MB
                                             </div>
                                         ) : null}

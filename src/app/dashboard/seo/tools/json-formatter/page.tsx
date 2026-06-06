@@ -49,17 +49,17 @@ function JsonHighlighter({ jsonString }: { jsonString: string }) {
     if (!jsonString) return '';
     const sanitized = jsonString.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     return sanitized.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
-        let cls = 'text-zoru-ink dark:text-zoru-ink-muted';
+        let cls = 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]';
         if (/^"/.test(match)) {
             if (/:$/.test(match)) {
-                cls = 'text-zoru-ink dark:text-zoru-ink-muted font-medium';
+                cls = 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)] font-medium';
             } else {
-                cls = 'text-zoru-ink dark:text-zoru-ink-muted';
+                cls = 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]';
             }
         } else if (/true|false/.test(match)) {
-            cls = 'text-zoru-ink';
+            cls = 'text-[var(--st-text)]';
         } else if (/null/.test(match)) {
-            cls = 'text-zoru-ink italic';
+            cls = 'text-[var(--st-text)] italic';
         }
         return '<span class="' + cls + '">' + match + '</span>';
     });
@@ -67,7 +67,7 @@ function JsonHighlighter({ jsonString }: { jsonString: string }) {
 
   return (
     <pre 
-      className="p-4 bg-[var(--gray-2)] rounded-md font-mono text-xs overflow-auto min-h-[300px] max-h-[600px] border border-zoru-line"
+      className="p-4 bg-[var(--gray-2)] rounded-md font-mono text-xs overflow-auto min-h-[300px] max-h-[600px] border border-[var(--st-border)]"
       dangerouslySetInnerHTML={{ __html: highlighted }} 
     />
   );
@@ -136,7 +136,7 @@ export default function JsonFormatterPage() {
   return (
     <ToolShell title="JSON Formatter" description="Format, minify, and visualize JSON with validation.">
       <div className="flex flex-col sm:flex-row gap-4 mb-4 justify-between items-start sm:items-center">
-        <div className="flex gap-1 bg-zoru-surface-2 dark:bg-zoru-ink p-1 rounded-lg">
+        <div className="flex gap-1 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] p-1 rounded-lg">
           <Button 
             variant={viewMode === 'raw' ? 'default' : 'ghost'} 
             size="sm" 
@@ -193,7 +193,7 @@ export default function JsonFormatterPage() {
           <JsonHighlighter jsonString={text} />
         )}
         {viewMode === 'tree' && (
-          <div className="min-h-[300px] max-h-[600px] overflow-auto border border-zoru-line rounded-md bg-[var(--gray-1)] p-4">
+          <div className="min-h-[300px] max-h-[600px] overflow-auto border border-[var(--st-border)] rounded-md bg-[var(--gray-1)] p-4">
             <JsonTreeView data={parsedData} />
           </div>
         )}
@@ -205,14 +205,14 @@ export default function JsonFormatterPage() {
       </div>
 
       {error && (
-        <Card className="border-zoru-line overflow-hidden">
-          <ZoruCardContent className="p-4 bg-zoru-surface-2/50">
-            <p className="text-zoru-ink font-semibold mb-2">{error.message}</p>
+        <Card className="border-[var(--st-border)] overflow-hidden">
+          <ZoruCardContent className="p-4 bg-[var(--st-bg-muted)]/50">
+            <p className="text-[var(--st-text)] font-semibold mb-2">{error.message}</p>
             {error.pos !== undefined && text && (
-              <pre className="text-xs font-mono text-zoru-ink bg-zoru-surface-2 p-2 rounded overflow-x-auto whitespace-pre-wrap break-words">
+              <pre className="text-xs font-mono text-[var(--st-text)] bg-[var(--st-bg-muted)] p-2 rounded overflow-x-auto whitespace-pre-wrap break-words">
                 {Math.max(0, error.pos - 40) > 0 && '...'}
                 {text.slice(Math.max(0, error.pos - 40), error.pos)}
-                <span className="bg-zoru-ink text-white font-bold px-1 rounded shadow-sm">
+                <span className="bg-[var(--st-text)] text-white font-bold px-1 rounded shadow-sm">
                   {text[error.pos] === '\n' ? '↵' : text[error.pos] === ' ' ? '␣' : (text[error.pos] || 'EOF')}
                 </span>
                 {text.slice(error.pos + 1, Math.min(text.length, error.pos + 40))}

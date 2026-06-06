@@ -170,31 +170,31 @@ export default function OkrsListPage() {
                     }
                     loading={isLoading && okrs.length === 0}
                 >
-                    <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                    <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                         <Table>
                             <ZoruTableHeader>
-                                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                    <ZoruTableHead className="text-zoru-ink-muted">Objective</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Period</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Owner</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Progress</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Confidence</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted text-right">Actions</ZoruTableHead>
+                                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Objective</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Period</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Owner</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Progress</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Confidence</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Actions</ZoruTableHead>
                                 </ZoruTableRow>
                             </ZoruTableHeader>
                             <ZoruTableBody>
                                 {isLoading ? (
-                                    <ZoruTableRow className="border-zoru-line">
+                                    <ZoruTableRow className="border-[var(--st-border)]">
                                         <ZoruTableCell colSpan={7} className="h-24 text-center">
-                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
+                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 ) : okrs.length === 0 ? (
-                                    <ZoruTableRow className="border-zoru-line">
+                                    <ZoruTableRow className="border-[var(--st-border)]">
                                         <ZoruTableCell
                                             colSpan={7}
-                                            className="h-24 text-center text-zoru-ink-muted"
+                                            className="h-24 text-center text-[var(--st-text-secondary)]"
                                         >
                                             No OKRs match this filter.
                                         </ZoruTableCell>
@@ -205,8 +205,8 @@ export default function OkrsListPage() {
                                         const tone = STATUS_TONE[status] ?? 'neutral';
                                         const progress = clampPercent(o.progress);
                                         return (
-                                            <ZoruTableRow key={o._id} className="border-zoru-line">
-                                                <ZoruTableCell className="font-medium text-zoru-ink">
+                                            <ZoruTableRow key={o._id} className="border-[var(--st-border)]">
+                                                <ZoruTableCell className="font-medium text-[var(--st-text)]">
                                                     <Link
                                                         href={`${BASE}/${o._id}`}
                                                         className="block max-w-[280px] truncate hover:underline"
@@ -214,10 +214,10 @@ export default function OkrsListPage() {
                                                         {o.objective}
                                                     </Link>
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
+                                                <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
                                                     {o.period ?? '—'}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {o.ownerName ?? o.ownerId ?? '—'}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="min-w-[140px]">
@@ -226,12 +226,12 @@ export default function OkrsListPage() {
                                                             value={progress}
                                                             className="h-2 w-24"
                                                         />
-                                                        <span className="font-mono text-[11.5px] tabular-nums text-zoru-ink">
+                                                        <span className="font-mono text-[11.5px] tabular-nums text-[var(--st-text)]">
                                                             {progress}%
                                                         </span>
                                                     </div>
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="font-mono text-[12px] tabular-nums text-zoru-ink">
+                                                <ZoruTableCell className="font-mono text-[12px] tabular-nums text-[var(--st-text)]">
                                                     {typeof o.confidence === 'number'
                                                         ? `${clampPercent(o.confidence)}%`
                                                         : '—'}
@@ -250,7 +250,7 @@ export default function OkrsListPage() {
                                                         size="icon"
                                                         onClick={() => setPendingDelete(o)}
                                                     >
-                                                        <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                                        <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                                     </Button>
                                                 </ZoruTableCell>
                                             </ZoruTableRow>

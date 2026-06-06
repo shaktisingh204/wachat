@@ -221,7 +221,7 @@ export function ViewSwitcher({
     onChange: (v: View) => void;
 }) {
     return (
-        <div className="flex gap-1 rounded-full border border-zoru-line bg-zoru-bg p-1">
+        <div className="flex gap-1 rounded-full border border-[var(--st-border)] bg-[var(--st-bg)] p-1">
             {VIEWS.map((v) => (
                 <button
                     key={v.key}
@@ -230,8 +230,8 @@ export function ViewSwitcher({
                     className={cn(
                         'h-8 rounded-full px-4 text-[12.5px] font-medium transition-colors',
                         view === v.key
-                            ? 'bg-zoru-ink text-white shadow-sm'
-                            : 'text-zoru-ink-muted hover:bg-zoru-surface-2/60 hover:text-zoru-ink',
+                            ? 'bg-[var(--st-text)] text-white shadow-sm'
+                            : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)]/60 hover:text-[var(--st-text)]',
                     )}
                     aria-pressed={view === v.key}
                 >
@@ -263,7 +263,7 @@ export function ToggleRow({
     onChange: (v: boolean) => void;
 }) {
     return (
-        <label className="flex items-center justify-between gap-2 rounded border border-zoru-line bg-zoru-bg px-3 py-2 text-sm">
+        <label className="flex items-center justify-between gap-2 rounded border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-sm">
             <span>{label}</span>
             <Switch checked={value} onCheckedChange={onChange} />
         </label>

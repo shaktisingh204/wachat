@@ -210,7 +210,7 @@ export default function CreateFacebookPostPage() {
   if (!projectIdReady) {
     return (
       <div className="mx-auto w-full max-w-[1320px] px-6 pt-10">
-        <p className="text-sm text-zoru-ink-muted">Loading composer…</p>
+        <p className="text-sm text-[var(--st-text-secondary)]">Loading composer…</p>
       </div>
     );
   }
@@ -298,10 +298,10 @@ export default function CreateFacebookPostPage() {
                     </ZoruAvatarFallback>
                   </Avatar>
                   <div className="flex flex-col">
-                    <span className="text-sm font-semibold text-zoru-ink">
+                    <span className="text-sm font-semibold text-[var(--st-text)]">
                       {pageDetails?.name ?? "Connected Page"}
                     </span>
-                    <span className="text-[12px] text-zoru-ink-muted">
+                    <span className="text-[12px] text-[var(--st-text-secondary)]">
                       Public post · Facebook Page
                     </span>
                   </div>
@@ -328,7 +328,7 @@ export default function CreateFacebookPostPage() {
                     rows={6}
                     className="min-h-32 resize-y"
                   />
-                  <p className="text-[11px] text-zoru-ink-subtle">
+                  <p className="text-[11px] text-[var(--st-text-tertiary)]">
                     {message.length} characters
                   </p>
                 </div>
@@ -347,7 +347,7 @@ export default function CreateFacebookPostPage() {
                   <div className="flex flex-col gap-3">
                     <div className="grid grid-cols-2 gap-2">
                       {mediaUrls.map((media, i) => (
-                        <div key={i} className="relative overflow-hidden rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-surface-2 aspect-square">
+                        <div key={i} className="relative overflow-hidden rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] aspect-square">
                           <Image src={media.url} fill alt="Carousel image" className="object-cover" unoptimized />
                           <Button
                             type="button"
@@ -366,7 +366,7 @@ export default function CreateFacebookPostPage() {
                     </div>
                   </div>
                 ) : mediaPreview ? (
-                  <div className="relative overflow-hidden rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-surface-2">
+                  <div className="relative overflow-hidden rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-muted)]">
                     {postType === "image" ? (
                       <Image
                         src={mediaPreview}
@@ -395,14 +395,14 @@ export default function CreateFacebookPostPage() {
                     </Button>
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center gap-2 rounded-[var(--zoru-radius-lg)] border border-dashed border-zoru-line bg-zoru-bg p-8 text-center">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
+                  <div className="flex flex-col items-center gap-2 rounded-[var(--zoru-radius-lg)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg)] p-8 text-center">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                       <Upload className="h-5 w-5" />
                     </span>
-                    <span className="text-sm font-medium text-zoru-ink">
+                    <span className="text-sm font-medium text-[var(--st-text)]">
                       Attach an image or video from SabFiles
                     </span>
-                    <span className="text-xs text-zoru-ink-muted">
+                    <span className="text-xs text-[var(--st-text-secondary)]">
                       JPG, PNG, MP4 or MOV — pick from your library or upload
                       a new file.
                     </span>
@@ -427,7 +427,7 @@ export default function CreateFacebookPostPage() {
                   )}
                   
                   {mediaName && (
-                    <span className="ml-2 truncate text-[12px] text-zoru-ink-muted">
+                    <span className="ml-2 truncate text-[12px] text-[var(--st-text-secondary)]">
                       {mediaName}
                     </span>
                   )}
@@ -441,7 +441,7 @@ export default function CreateFacebookPostPage() {
                 <ZoruCardTitle>Schedule</ZoruCardTitle>
               </ZoruCardHeader>
               <ZoruCardContent className="flex flex-col gap-4">
-                <div className="flex items-center justify-between gap-4 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface px-4 py-3">
+                <div className="flex items-center justify-between gap-4 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-3">
                   <div className="flex flex-col">
                     <Label
                       htmlFor="isScheduledSwitch"
@@ -449,7 +449,7 @@ export default function CreateFacebookPostPage() {
                     >
                       Schedule this post
                     </Label>
-                    <span className="text-[12px] text-zoru-ink-muted">
+                    <span className="text-[12px] text-[var(--st-text-secondary)]">
                       Publish later at a specific date and time.
                     </span>
                   </div>
@@ -490,8 +490,8 @@ export default function CreateFacebookPostPage() {
             </Card>
 
             {/* Actions */}
-            <div className="flex items-center justify-between gap-3 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg px-4 py-3">
-              <p className="text-[12px] text-zoru-ink-muted">
+            <div className="flex items-center justify-between gap-3 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] px-4 py-3">
+              <p className="text-[12px] text-[var(--st-text-secondary)]">
                 {isPostDisabled
                   ? "Add a message or attach media to enable publishing."
                   : isScheduled
@@ -536,10 +536,10 @@ export default function CreateFacebookPostPage() {
                     </ZoruAvatarFallback>
                   </Avatar>
                   <div className="flex flex-col">
-                    <span className="text-sm font-semibold text-zoru-ink">
+                    <span className="text-sm font-semibold text-[var(--st-text)]">
                       {pageDetails?.name ?? "Connected Page"}
                     </span>
-                    <span className="inline-flex items-center gap-1 text-[11px] text-zoru-ink-muted">
+                    <span className="inline-flex items-center gap-1 text-[11px] text-[var(--st-text-secondary)]">
                       <CalendarClock className="h-3 w-3" />
                       {previewTimestamp}
                     </span>
@@ -547,11 +547,11 @@ export default function CreateFacebookPostPage() {
                 </div>
 
                 {message ? (
-                  <p className="whitespace-pre-wrap text-sm text-zoru-ink">
+                  <p className="whitespace-pre-wrap text-sm text-[var(--st-text)]">
                     {message}
                   </p>
                 ) : (
-                  <p className="text-sm italic text-zoru-ink-subtle">
+                  <p className="text-sm italic text-[var(--st-text-tertiary)]">
                     Your message will appear here.
                   </p>
                 )}
@@ -559,13 +559,13 @@ export default function CreateFacebookPostPage() {
                 {postType === "carousel" && mediaUrls.length > 0 ? (
                   <div className="flex gap-2 overflow-x-auto snap-x pb-2">
                     {mediaUrls.map((media, i) => (
-                      <div key={i} className="flex-none w-[80%] snap-center overflow-hidden rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface-2 aspect-square relative">
+                      <div key={i} className="flex-none w-[80%] snap-center overflow-hidden rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] aspect-square relative">
                         <Image src={media.url} fill alt="Carousel preview" className="object-cover" unoptimized />
                       </div>
                     ))}
                   </div>
                 ) : mediaPreview && (
-                  <div className="overflow-hidden rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface-2">
+                  <div className="overflow-hidden rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-muted)]">
                     {postType === "image" ? (
                       <Image
                         src={mediaPreview}

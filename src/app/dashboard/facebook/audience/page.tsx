@@ -165,11 +165,11 @@ function DemoBars({ title, buckets }: { title: string; buckets: DemoBucket[] }) 
   const total = buckets.reduce((acc, b) => acc + b.value, 0);
   return (
     <Card className="flex flex-col gap-3 p-4">
-      <p className="text-xs font-medium uppercase tracking-wide text-zoru-ink-subtle">
+      <p className="text-xs font-medium uppercase tracking-wide text-[var(--st-text-tertiary)]">
         {title}
       </p>
       {buckets.length === 0 ? (
-        <p className="text-xs text-zoru-ink-muted">No data.</p>
+        <p className="text-xs text-[var(--st-text-secondary)]">No data.</p>
       ) : (
         <ul className="flex flex-col gap-2.5">
           {buckets.map((b) => {
@@ -177,8 +177,8 @@ function DemoBars({ title, buckets }: { title: string; buckets: DemoBucket[] }) 
             return (
               <li key={b.label} className="flex flex-col gap-1">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-zoru-ink">{b.label}</span>
-                  <span className="text-zoru-ink-muted">{pct}%</span>
+                  <span className="text-[var(--st-text)]">{b.label}</span>
+                  <span className="text-[var(--st-text-secondary)]">{pct}%</span>
                 </div>
                 <Progress value={pct} />
               </li>
@@ -296,8 +296,8 @@ export default function FacebookAudiencePage(): React.JSX.Element {
 
       <header className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl text-zoru-ink">Audience</h1>
-          <p className="mt-1 text-sm text-zoru-ink-muted">
+          <h1 className="text-2xl text-[var(--st-text)]">Audience</h1>
+          <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
             Demographic breakdown of Page fans and reusable audience segments.
           </p>
         </div>
@@ -370,19 +370,19 @@ export default function FacebookAudiencePage(): React.JSX.Element {
                 return (
                   <li
                     key={key}
-                    className="flex flex-wrap items-center gap-3 rounded-md border border-zoru-line px-3 py-2"
+                    className="flex flex-wrap items-center gap-3 rounded-md border border-[var(--st-border)] px-3 py-2"
                   >
                     <div className="min-w-0 flex-1">
-                      <p className="line-clamp-1 text-sm text-zoru-ink">
+                      <p className="line-clamp-1 text-sm text-[var(--st-text)]">
                         {s.name ?? '(untitled)'}
                       </p>
                       {s.description ? (
-                        <p className="line-clamp-1 text-xs text-zoru-ink-muted">
+                        <p className="line-clamp-1 text-xs text-[var(--st-text-secondary)]">
                           {s.description}
                         </p>
                       ) : null}
                       {crit.length > 0 ? (
-                        <p className="mt-0.5 text-[11px] text-zoru-ink-subtle">
+                        <p className="mt-0.5 text-[11px] text-[var(--st-text-tertiary)]">
                           {crit.join(' · ')}
                         </p>
                       ) : null}
@@ -390,7 +390,7 @@ export default function FacebookAudiencePage(): React.JSX.Element {
                     <Badge variant="secondary">
                       {Number(size).toLocaleString()} contacts
                     </Badge>
-                    <span className="text-[11px] text-zoru-ink-muted">
+                    <span className="text-[11px] text-[var(--st-text-secondary)]">
                       {fmtDate(s.createdAt)}
                     </span>
                   </li>

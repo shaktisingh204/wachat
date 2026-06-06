@@ -41,10 +41,10 @@ export function TransactionFilters({
   return (
     <div className="flex flex-col sm:flex-row gap-4 mb-6">
       <div className="relative flex-1">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zoru-ink-muted" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--st-text-secondary)]" />
         <ZoruInput 
           placeholder="Search descriptions..." 
-          className="pl-9 bg-zoru-surface/50"
+          className="pl-9 bg-[var(--st-bg-secondary)]/50"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
@@ -52,7 +52,7 @@ export function TransactionFilters({
       
       <div className="flex flex-col sm:flex-row gap-2">
         <ZoruSelect value={filterType} onValueChange={(val) => setFilterType(val as FilterType)}>
-          <ZoruSelectTrigger className="w-full sm:w-[130px] bg-zoru-surface/50">
+          <ZoruSelectTrigger className="w-full sm:w-[130px] bg-[var(--st-bg-secondary)]/50">
             <ZoruSelectValue placeholder="Type" />
           </ZoruSelectTrigger>
           <ZoruSelectContent>
@@ -63,7 +63,7 @@ export function TransactionFilters({
         </ZoruSelect>
 
         <ZoruSelect value={filterStatus} onValueChange={(val) => setFilterStatus(val as FilterStatus)}>
-          <ZoruSelectTrigger className="w-full sm:w-[130px] bg-zoru-surface/50">
+          <ZoruSelectTrigger className="w-full sm:w-[130px] bg-[var(--st-bg-secondary)]/50">
             <ZoruSelectValue placeholder="Status" />
           </ZoruSelectTrigger>
           <ZoruSelectContent>
@@ -75,7 +75,7 @@ export function TransactionFilters({
         </ZoruSelect>
 
         <ZoruSelect value={sortOption} onValueChange={(val) => setSortOption(val as SortOption)}>
-          <ZoruSelectTrigger className="w-full sm:w-[150px] bg-zoru-surface/50">
+          <ZoruSelectTrigger className="w-full sm:w-[150px] bg-[var(--st-bg-secondary)]/50">
             <ZoruSelectValue placeholder="Sort By" />
           </ZoruSelectTrigger>
           <ZoruSelectContent>
@@ -92,7 +92,7 @@ export function TransactionFilters({
           onClick={onRefresh} 
           disabled={isRefreshing}
           title="Refresh transactions"
-          className="bg-zoru-surface/50"
+          className="bg-[var(--st-bg-secondary)]/50"
         >
           <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
         </ZoruButton>

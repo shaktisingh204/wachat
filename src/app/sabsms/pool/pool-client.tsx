@@ -71,7 +71,7 @@ export function PoolClient({ rows }: PoolClientProps) {
         <div className="flex flex-col gap-1">
           <span className="text-xs capitalize">{r.rotationStrategy.replace(/-/g, ' ')}</span>
           {r.geomatch && (
-            <span className="text-[10px] text-zoru-ink font-medium">Geomatch Enabled</span>
+            <span className="text-[10px] text-[var(--st-text)] font-medium">Geomatch Enabled</span>
           )}
         </div>
       ),
@@ -100,8 +100,8 @@ export function PoolClient({ rows }: PoolClientProps) {
       header: "Health",
       render: (r) => (
         <div className="flex flex-col gap-1 text-[11px]">
-          <span className={r.healthDlr > 98 ? "text-zoru-ink font-medium" : "text-zoru-ink font-medium"}>{r.healthDlr}% DLR</span>
-          <span className="text-zoru-ink">{r.healthComplaint}% CMP</span>
+          <span className={r.healthDlr > 98 ? "text-[var(--st-text)] font-medium" : "text-[var(--st-text)] font-medium"}>{r.healthDlr}% DLR</span>
+          <span className="text-[var(--st-text)]">{r.healthComplaint}% CMP</span>
         </div>
       ),
       width: "100px",
@@ -229,7 +229,7 @@ export function PoolClient({ rows }: PoolClientProps) {
             emptyTitle="No sender pools configured"
             emptyDescription="Create a pool to group numbers together for better deliverability and throughput."
             emptyAction={{ label: "Create pool", onClick: () => console.log("Create") }}
-            emptyIcon={<Users className="h-8 w-8 text-zoru-ink-muted" />}
+            emptyIcon={<Users className="h-8 w-8 text-[var(--st-text-secondary)]" />}
             bulkActions={[
               {
                 label: "Archive pools",
@@ -253,10 +253,10 @@ export function PoolClient({ rows }: PoolClientProps) {
             label: "Configuration",
             icon: <Settings2 className="h-4 w-4" />,
             content: (
-              <div className="p-4 space-y-6 text-sm text-zoru-ink">
+              <div className="p-4 space-y-6 text-sm text-[var(--st-text)]">
                 <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-4">
-                    <h4 className="font-medium text-zoru-ink border-b pb-2">Strategy & Settings</h4>
+                    <h4 className="font-medium text-[var(--st-text)] border-b pb-2">Strategy & Settings</h4>
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <Label>Rotation Strategy</Label>
@@ -282,7 +282,7 @@ export function PoolClient({ rows }: PoolClientProps) {
                       <div className="flex items-center justify-between">
                         <div className="flex flex-col space-y-1">
                           <Label>Geographic Matching</Label>
-                          <span className="text-[10px] text-zoru-ink">Send from a number with the same area code as the recipient</span>
+                          <span className="text-[10px] text-[var(--st-text)]">Send from a number with the same area code as the recipient</span>
                         </div>
                         <Switch checked={detailRow?.geomatch} />
                       </div>
@@ -294,7 +294,7 @@ export function PoolClient({ rows }: PoolClientProps) {
                   </div>
 
                   <div className="space-y-4">
-                    <h4 className="font-medium text-zoru-ink border-b pb-2">Quiet Hours</h4>
+                    <h4 className="font-medium text-[var(--st-text)] border-b pb-2">Quiet Hours</h4>
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <Label>Enable Quiet Hours</Label>
@@ -302,11 +302,11 @@ export function PoolClient({ rows }: PoolClientProps) {
                       </div>
                       <div className="flex items-center gap-2">
                         <Input type="time" defaultValue={detailRow?.quietHours.start} />
-                        <span className="text-zoru-ink-muted">to</span>
+                        <span className="text-[var(--st-text-secondary)]">to</span>
                         <Input type="time" defaultValue={detailRow?.quietHours.end} />
                       </div>
                       <div>
-                        <Label className="text-xs text-zoru-ink mb-1 block">Timezone</Label>
+                        <Label className="text-xs text-[var(--st-text)] mb-1 block">Timezone</Label>
                         <Select value={detailRow?.quietHours.tz}>
                           <SelectTrigger>
                             <SelectValue placeholder="Timezone" />
@@ -324,28 +324,28 @@ export function PoolClient({ rows }: PoolClientProps) {
 
                 <div className="space-y-4 pt-4 border-t">
                   <div className="flex items-center justify-between">
-                    <h4 className="font-medium text-zoru-ink">Pool Definition ({detailRow?.numbersCount} Numbers)</h4>
+                    <h4 className="font-medium text-[var(--st-text)]">Pool Definition ({detailRow?.numbersCount} Numbers)</h4>
                     <div className="flex gap-2">
                       <Button variant="outline" size="sm" className="h-7"><Plus className="w-3 h-3 mr-1"/> Add</Button>
-                      <Button variant="outline" size="sm" className="h-7"><Sparkles className="w-3 h-3 mr-1 text-zoru-ink"/> AI Suggest</Button>
+                      <Button variant="outline" size="sm" className="h-7"><Sparkles className="w-3 h-3 mr-1 text-[var(--st-text)]"/> AI Suggest</Button>
                     </div>
                   </div>
-                  <div className="border rounded-md bg-zoru-surface-2 divide-y text-xs">
+                  <div className="border rounded-md bg-[var(--st-bg-muted)] divide-y text-xs">
                     {/* Mock list of numbers for drag-and-drop allocation representation */}
                     {[1, 2, 3].slice(0, detailRow?.numbersCount || 3).map((_, i) => (
-                      <div key={i} className="flex items-center justify-between p-2 hover:bg-zoru-surface-2 transition-colors">
+                      <div key={i} className="flex items-center justify-between p-2 hover:bg-[var(--st-bg-muted)] transition-colors">
                         <div className="flex items-center gap-2">
-                          <GripVertical className="h-4 w-4 text-zoru-ink-muted cursor-grab" />
-                          <span className="font-mono text-zoru-ink">+1234567890{i}</span>
+                          <GripVertical className="h-4 w-4 text-[var(--st-text-secondary)] cursor-grab" />
+                          <span className="font-mono text-[var(--st-text)]">+1234567890{i}</span>
                           <Badge variant="secondary" className="text-[9px]">Twilio</Badge>
                         </div>
-                        <Button variant="ghost" size="icon" className="h-6 w-6 text-zoru-ink-muted hover:text-zoru-ink">
+                        <Button variant="ghost" size="icon" className="h-6 w-6 text-[var(--st-text-secondary)] hover:text-[var(--st-text)]">
                           <Trash className="h-3 w-3" />
                         </Button>
                       </div>
                     ))}
                   </div>
-                  <div className="bg-zoru-surface-2 text-zoru-ink p-3 rounded-md text-xs flex justify-between items-center">
+                  <div className="bg-[var(--st-bg-muted)] text-[var(--st-text)] p-3 rounded-md text-xs flex justify-between items-center">
                     <span>Live Size Preview: <strong>{detailRow?.numbersCount}</strong> senders</span>
                     <span>Assigned to <strong>{detailRow?.campaignsAssigned}</strong> campaigns</span>
                   </div>
@@ -358,32 +358,32 @@ export function PoolClient({ rows }: PoolClientProps) {
             label: "Analytics",
             icon: <LineChart className="h-4 w-4" />,
             content: (
-              <div className="p-4 text-sm text-zoru-ink space-y-6">
+              <div className="p-4 text-sm text-[var(--st-text)] space-y-6">
                 <div className="grid grid-cols-3 gap-4">
                   <div className="border rounded-lg p-3 bg-white">
-                    <p className="text-xs text-zoru-ink mb-1">Capacity Simulation</p>
-                    <p className="text-lg font-semibold text-zoru-ink">{detailRow?.capacityMsgsSec} msgs/sec</p>
-                    <p className="text-[10px] text-zoru-ink mt-1">Sufficient for active campaigns</p>
+                    <p className="text-xs text-[var(--st-text)] mb-1">Capacity Simulation</p>
+                    <p className="text-lg font-semibold text-[var(--st-text)]">{detailRow?.capacityMsgsSec} msgs/sec</p>
+                    <p className="text-[10px] text-[var(--st-text)] mt-1">Sufficient for active campaigns</p>
                   </div>
                   <div className="border rounded-lg p-3 bg-white">
-                    <p className="text-xs text-zoru-ink mb-1">Avg Deliverability</p>
-                    <p className="text-lg font-semibold text-zoru-ink">{detailRow?.healthDlr}%</p>
+                    <p className="text-xs text-[var(--st-text)] mb-1">Avg Deliverability</p>
+                    <p className="text-lg font-semibold text-[var(--st-text)]">{detailRow?.healthDlr}%</p>
                   </div>
                   <div className="border rounded-lg p-3 bg-white">
-                    <p className="text-xs text-zoru-ink mb-1">Complaint Rate</p>
-                    <p className="text-lg font-semibold text-zoru-ink">{detailRow?.healthComplaint}%</p>
+                    <p className="text-xs text-[var(--st-text)] mb-1">Complaint Rate</p>
+                    <p className="text-lg font-semibold text-[var(--st-text)]">{detailRow?.healthComplaint}%</p>
                   </div>
                 </div>
 
                 <div className="space-y-4">
-                  <h4 className="font-medium text-zoru-ink border-b pb-2">Per-pool Charts</h4>
-                  <div className="h-32 border border-dashed rounded-lg flex items-center justify-center bg-zoru-surface-2 text-zoru-ink-muted text-xs">
+                  <h4 className="font-medium text-[var(--st-text)] border-b pb-2">Per-pool Charts</h4>
+                  <div className="h-32 border border-dashed rounded-lg flex items-center justify-center bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] text-xs">
                     Deliverability Trend Chart (Phase 2)
                   </div>
-                  <div className="h-32 border border-dashed rounded-lg flex items-center justify-center bg-zoru-surface-2 text-zoru-ink-muted text-xs">
+                  <div className="h-32 border border-dashed rounded-lg flex items-center justify-center bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] text-xs">
                     Cost Trend Chart (Phase 2)
                   </div>
-                  <div className="h-32 border border-dashed rounded-lg flex items-center justify-center bg-zoru-surface-2 text-zoru-ink-muted text-xs">
+                  <div className="h-32 border border-dashed rounded-lg flex items-center justify-center bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] text-xs">
                     Complaint-rate Chart (Phase 2)
                   </div>
                 </div>
@@ -395,35 +395,35 @@ export function PoolClient({ rows }: PoolClientProps) {
             label: "History",
             icon: <History className="h-4 w-4" />,
             content: (
-              <div className="p-4 text-sm text-zoru-ink space-y-6">
+              <div className="p-4 text-sm text-[var(--st-text)] space-y-6">
                 <div>
-                  <h4 className="font-medium text-zoru-ink mb-3 border-b pb-2">Membership Change History</h4>
-                  <ul className="space-y-3 relative border-l ml-2 pl-4 border-zoru-line">
+                  <h4 className="font-medium text-[var(--st-text)] mb-3 border-b pb-2">Membership Change History</h4>
+                  <ul className="space-y-3 relative border-l ml-2 pl-4 border-[var(--st-border)]">
                     <li className="relative">
-                      <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 bg-zoru-ink rounded-full border-2 border-white"></div>
-                      <p className="text-zoru-ink text-xs font-medium">Number +12345678902 added to pool</p>
-                      <p className="text-[10px] text-zoru-ink-muted">2 hours ago by admin@example.com</p>
+                      <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 bg-[var(--st-text)] rounded-full border-2 border-white"></div>
+                      <p className="text-[var(--st-text)] text-xs font-medium">Number +12345678902 added to pool</p>
+                      <p className="text-[10px] text-[var(--st-text-secondary)]">2 hours ago by admin@example.com</p>
                     </li>
                     <li className="relative">
-                      <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 bg-zoru-surface-2 rounded-full border-2 border-white"></div>
-                      <p className="text-zoru-ink text-xs font-medium">Number +1987654321 removed from pool</p>
-                      <p className="text-[10px] text-zoru-ink-muted">Yesterday by auto-degrade rule</p>
+                      <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 bg-[var(--st-bg-muted)] rounded-full border-2 border-white"></div>
+                      <p className="text-[var(--st-text)] text-xs font-medium">Number +1987654321 removed from pool</p>
+                      <p className="text-[10px] text-[var(--st-text-secondary)]">Yesterday by auto-degrade rule</p>
                     </li>
                   </ul>
                 </div>
                 
                 <div>
-                  <h4 className="font-medium text-zoru-ink mb-3 border-b pb-2">Audit Log</h4>
-                  <ul className="space-y-3 relative border-l ml-2 pl-4 border-zoru-line">
+                  <h4 className="font-medium text-[var(--st-text)] mb-3 border-b pb-2">Audit Log</h4>
+                  <ul className="space-y-3 relative border-l ml-2 pl-4 border-[var(--st-border)]">
                     <li className="relative">
-                      <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 bg-zoru-surface-2 rounded-full border-2 border-white"></div>
-                      <p className="text-zoru-ink text-xs font-medium">Throttle increased to {detailRow?.throttlePerSecond} msg/s</p>
-                      <p className="text-[10px] text-zoru-ink-muted">Last week by admin@example.com</p>
+                      <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 bg-[var(--st-bg-muted)] rounded-full border-2 border-white"></div>
+                      <p className="text-[var(--st-text)] text-xs font-medium">Throttle increased to {detailRow?.throttlePerSecond} msg/s</p>
+                      <p className="text-[10px] text-[var(--st-text-secondary)]">Last week by admin@example.com</p>
                     </li>
                     <li className="relative">
-                      <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 bg-zoru-surface-2 rounded-full border-2 border-white"></div>
-                      <p className="text-zoru-ink text-xs font-medium">Pool created</p>
-                      <p className="text-[10px] text-zoru-ink-muted">2 months ago by admin@example.com</p>
+                      <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 bg-[var(--st-bg-muted)] rounded-full border-2 border-white"></div>
+                      <p className="text-[var(--st-text)] text-xs font-medium">Pool created</p>
+                      <p className="text-[10px] text-[var(--st-text-secondary)]">2 months ago by admin@example.com</p>
                     </li>
                   </ul>
                 </div>

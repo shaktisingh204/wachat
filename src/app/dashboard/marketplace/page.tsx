@@ -69,7 +69,7 @@ async function MarketplaceAppsData({ filter }: { filter: AppListFilter }) {
       </PageHeader>
 
       {loadError ? (
-        <div className="rounded-md border border-zoru-danger/40 bg-zoru-danger/10 p-4 text-sm text-zoru-danger-ink">
+        <div className="rounded-md border border-[var(--st-danger)]/40 bg-[var(--st-danger)]/10 p-4 text-sm text-[var(--st-danger)]">
           {loadError}
         </div>
       ) : apps.length === 0 ? (
@@ -119,7 +119,7 @@ export default async function MarketplacePage({ searchParams }: PageProps) {
 
       <Suspense fallback={
         <div className="flex justify-center items-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin text-zoru-primary" />
+          <Loader2 className="h-8 w-8 animate-spin text-[var(--st-text)]" />
         </div>
       }>
         <MarketplaceAppsData filter={filter} />

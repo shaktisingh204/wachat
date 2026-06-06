@@ -197,7 +197,7 @@ export function AssignmentControl({
   return (
     <div className="flex flex-col gap-1.5">
       {label ? (
-        <span className="text-[11.5px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+        <span className="text-[11.5px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
           {label}
         </span>
       ) : null}
@@ -207,8 +207,8 @@ export function AssignmentControl({
         disabled={disabled || isSaving}
         onClick={() => setOpen(true)}
         className={cn(
-          'flex items-center gap-2 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface-1 px-2 py-1.5 text-left transition-colors',
-          'hover:border-zoru-line-strong hover:bg-zoru-surface-2',
+          'flex items-center gap-2 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1.5 text-left transition-colors',
+          'hover:border-[var(--st-border-strong)] hover:bg-[var(--st-bg-muted)]',
           'disabled:cursor-not-allowed disabled:opacity-60',
         )}
         aria-label={current ? `Reassign from ${fullName(current)}` : 'Assign owner'}
@@ -221,7 +221,7 @@ export function AssignmentControl({
             {current ? (
               initials(current)
             ) : (
-              <UserCircle2 className="h-4 w-4 text-zoru-ink-muted" />
+              <UserCircle2 className="h-4 w-4 text-[var(--st-text-secondary)]" />
             )}
           </ZoruAvatarFallback>
         </Avatar>
@@ -230,17 +230,17 @@ export function AssignmentControl({
             <Skeleton className="h-3.5 w-24" />
           ) : current ? (
             <>
-              <span className={cn('truncate font-medium text-zoru-ink', textSize)}>
+              <span className={cn('truncate font-medium text-[var(--st-text)]', textSize)}>
                 {fullName(current)}
               </span>
               {current.designation ? (
-                <span className="truncate text-[11.5px] text-zoru-ink-muted">
+                <span className="truncate text-[11.5px] text-[var(--st-text-secondary)]">
                   {current.designation}
                 </span>
               ) : null}
             </>
           ) : (
-            <span className={cn('text-zoru-ink-muted', textSize)}>
+            <span className={cn('text-[var(--st-text-secondary)]', textSize)}>
               Unassigned
             </span>
           )}
@@ -257,7 +257,7 @@ export function AssignmentControl({
           </ZoruSheetHeader>
 
           <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
             <Input
               autoFocus
               value={search}
@@ -267,7 +267,7 @@ export function AssignmentControl({
             />
           </div>
 
-          <div className="flex-1 overflow-y-auto rounded-[var(--zoru-radius-md)] border border-zoru-line">
+          <div className="flex-1 overflow-y-auto rounded-[var(--zoru-radius-md)] border border-[var(--st-border)]">
             {employeesLoading ? (
               <div className="flex flex-col gap-2 p-3">
                 {[...Array(5)].map((_, i) => (
@@ -275,11 +275,11 @@ export function AssignmentControl({
                 ))}
               </div>
             ) : filtered.length === 0 ? (
-              <p className="p-6 text-center text-[13px] text-zoru-ink-muted">
+              <p className="p-6 text-center text-[13px] text-[var(--st-text-secondary)]">
                 No employees match your search.
               </p>
             ) : (
-              <ul className="divide-y divide-zoru-line/60">
+              <ul className="divide-y divide-[var(--st-border)]/60">
                 {filtered.map((emp) => {
                   const isCurrent = emp._id === currentAssigneeId;
                   return (
@@ -290,9 +290,9 @@ export function AssignmentControl({
                         onClick={() => handlePick(emp._id)}
                         className={cn(
                           'flex w-full items-center gap-3 px-3 py-2 text-left transition-colors',
-                          'hover:bg-zoru-surface-2',
+                          'hover:bg-[var(--st-bg-muted)]',
                           'disabled:cursor-not-allowed disabled:opacity-60',
-                          isCurrent ? 'bg-zoru-surface-2' : '',
+                          isCurrent ? 'bg-[var(--st-bg-muted)]' : '',
                         )}
                       >
                         <Avatar className="h-8 w-8">
@@ -307,15 +307,15 @@ export function AssignmentControl({
                           </ZoruAvatarFallback>
                         </Avatar>
                         <div className="flex min-w-0 flex-1 flex-col">
-                          <span className="truncate text-[13px] font-medium text-zoru-ink">
+                          <span className="truncate text-[13px] font-medium text-[var(--st-text)]">
                             {fullName(emp)}
                           </span>
-                          <span className="truncate text-[11.5px] text-zoru-ink-muted">
+                          <span className="truncate text-[11.5px] text-[var(--st-text-secondary)]">
                             {emp.designation || emp.department || emp.email}
                           </span>
                         </div>
                         {isCurrent ? (
-                          <span className="text-[11px] font-medium uppercase tracking-wide text-zoru-accent">
+                          <span className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-accent)]">
                             Current
                           </span>
                         ) : null}

@@ -348,11 +348,11 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                   <ZoruCardTitle>Template</ZoruCardTitle>
                   <ZoruCardDescription>
                     Variables use{" "}
-                    <code className="rounded bg-zoru-surface-2 px-1 text-xs">
+                    <code className="rounded bg-[var(--st-bg-muted)] px-1 text-xs">
                       {"{{ name }}"}
                     </code>{" "}
                     syntax. Conditional blocks use{" "}
-                    <code className="rounded bg-zoru-surface-2 px-1 text-xs">
+                    <code className="rounded bg-[var(--st-bg-muted)] px-1 text-xs">
                       {"{% if x %}…{% endif %}"}
                     </code>
                     .
@@ -411,8 +411,8 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
 
               {/* Locale switcher — segmented buttons (no ZoruTabs) */}
               <div className="space-y-2">
-                <div className="text-xs font-medium text-zoru-ink">Locale</div>
-                <div className="flex flex-wrap gap-1.5 rounded-md border border-zoru-line bg-zoru-surface-2 p-1">
+                <div className="text-xs font-medium text-[var(--st-text)]">Locale</div>
+                <div className="flex flex-wrap gap-1.5 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-1">
                   {SUPPORTED_LOCALES.map((l) => {
                     const has = vm.bodies.some((b) => b.locale === l.code);
                     const active = activeLocale === l.code;
@@ -427,14 +427,14 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                         className={
                           "group inline-flex items-center gap-1.5 rounded px-2.5 py-1 text-xs transition-colors " +
                           (active
-                            ? "bg-white text-zoru-ink shadow-sm border border-zoru-line"
-                            : "text-zoru-ink hover:bg-white/60")
+                            ? "bg-white text-[var(--st-text)] shadow-sm border border-[var(--st-border)]"
+                            : "text-[var(--st-text)] hover:bg-white/60")
                         }
                       >
                         <span className="font-medium uppercase tracking-wide">
                           {l.code}
                         </span>
-                        <span className="hidden text-zoru-ink-muted sm:inline">
+                        <span className="hidden text-[var(--st-text-secondary)] sm:inline">
                           {l.label}
                         </span>
                         {has && active && vm.bodies.length > 1 && (
@@ -445,7 +445,7 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                               e.stopPropagation();
                               removeLocale(l.code);
                             }}
-                            className="ml-1 rounded p-0.5 text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
+                            className="ml-1 rounded p-0.5 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
                           >
                             <X className="h-3 w-3" />
                           </span>
@@ -477,7 +477,7 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                             <button
                               key={s}
                               type="button"
-                              className="rounded bg-zoru-surface-2 px-2 py-1 text-left font-mono text-xs hover:bg-zoru-surface-2"
+                              className="rounded bg-[var(--st-bg-muted)] px-2 py-1 text-left font-mono text-xs hover:bg-[var(--st-bg-muted)]"
                               onClick={() => {
                                 insertSnippet(s);
                                 setVarsHelpOpen(false);
@@ -493,7 +493,7 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                         <div className="mb-1 font-medium">Conditional block</div>
                         <button
                           type="button"
-                          className="w-full rounded bg-zoru-surface-2 px-2 py-1 text-left font-mono text-xs hover:bg-zoru-surface-2"
+                          className="w-full rounded bg-[var(--st-bg-muted)] px-2 py-1 text-left font-mono text-xs hover:bg-[var(--st-bg-muted)]"
                           onClick={() => {
                             insertSnippet("{% if name %}Hi {{ name }}{% endif %}");
                             setVarsHelpOpen(false);
@@ -516,15 +516,15 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                     className="font-mono text-sm"
                   />
                   {varSuggestOpen && detectedVars.length > 0 && (
-                    <div className="absolute right-2 top-2 z-10 w-48 rounded-md border border-zoru-line bg-white p-1 text-xs shadow-md">
-                      <div className="px-2 py-1 text-[10px] font-semibold uppercase text-zoru-ink">
+                    <div className="absolute right-2 top-2 z-10 w-48 rounded-md border border-[var(--st-border)] bg-white p-1 text-xs shadow-md">
+                      <div className="px-2 py-1 text-[10px] font-semibold uppercase text-[var(--st-text)]">
                         Insert variable
                       </div>
                       {detectedVars.map((v) => (
                         <button
                           key={v}
                           type="button"
-                          className="block w-full rounded px-2 py-1 text-left font-mono hover:bg-zoru-surface-2"
+                          className="block w-full rounded px-2 py-1 text-left font-mono hover:bg-[var(--st-bg-muted)]"
                           onClick={() => insertVar(v)}
                         >
                           {v}
@@ -554,9 +554,9 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
             </ZoruCardHeader>
             <ZoruCardContent className="space-y-3">
               {vm.variableDefaults.length === 0 && (
-                <p className="text-xs text-zoru-ink">
+                <p className="text-xs text-[var(--st-text)]">
                   Type{" "}
-                  <code className="rounded bg-zoru-surface-2 px-1">
+                  <code className="rounded bg-[var(--st-bg-muted)] px-1">
                     {"{{ var_name }}"}
                   </code>{" "}
                   in the body — variables appear here automatically.
@@ -886,7 +886,7 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                     Reviewer inbox
                   </Link>
                 </Button>
-                <p className="text-[11px] text-zoru-ink">
+                <p className="text-[11px] text-[var(--st-text)]">
                   TODO: <code>/sabsms/templates/approvals</code> ships
                   with Phase 11.
                 </p>
@@ -923,7 +923,7 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
               metadata={vm.metadata}
             />
 
-            <div className="rounded border border-zoru-line bg-white p-3 space-y-2">
+            <div className="rounded border border-[var(--st-border)] bg-white p-3 space-y-2">
               <div className="flex flex-wrap items-center gap-2">
                 <Button onClick={handleSave} disabled={pending}>
                   <Save className="mr-1.5 h-4 w-4" />
@@ -971,12 +971,12 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                 />
               </div>
               {error && (
-                <p className="rounded border border-zoru-line bg-zoru-surface-2 p-2 text-xs text-zoru-ink">
+                <p className="rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2 text-xs text-[var(--st-text)]">
                   {error}
                 </p>
               )}
               {info && !error && (
-                <p className="rounded border border-zoru-line bg-zoru-surface-2 p-2 text-xs text-zoru-ink">
+                <p className="rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2 text-xs text-[var(--st-text)]">
                   {info}
                 </p>
               )}
@@ -993,28 +993,28 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
         description={`Locale: ${activeLocale}`}
       >
         {diffData === null ? (
-          <p className="text-sm text-zoru-ink">Computing diff…</p>
+          <p className="text-sm text-[var(--st-text)]">Computing diff…</p>
         ) : !diffData.ok ? (
-          <p className="text-sm text-zoru-ink">{diffData.error}</p>
+          <p className="text-sm text-[var(--st-text)]">{diffData.error}</p>
         ) : !diffData.hasPrevious ? (
-          <p className="text-sm text-zoru-ink">
+          <p className="text-sm text-[var(--st-text)]">
             No published version yet — publish once to enable diffs.
           </p>
         ) : (
-          <div className="rounded border border-zoru-line bg-zoru-surface-2 p-3 font-mono text-sm leading-relaxed whitespace-pre-wrap">
+          <div className="rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 font-mono text-sm leading-relaxed whitespace-pre-wrap">
             {diffData.segments.map((s, i) => {
               if (s.kind === "same") return <span key={i}>{s.text}</span>;
               if (s.kind === "ins")
                 return (
                   <ins
                     key={i}
-                    className="bg-zoru-surface-2 text-zoru-ink no-underline"
+                    className="bg-[var(--st-bg-muted)] text-[var(--st-text)] no-underline"
                   >
                     {s.text}
                   </ins>
                 );
               return (
-                <del key={i} className="bg-zoru-surface-2 text-zoru-ink">
+                <del key={i} className="bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                   {s.text}
                 </del>
               );
@@ -1032,12 +1032,12 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
       >
         <div className="space-y-4">
           {!vm.history || vm.history.length === 0 ? (
-            <p className="text-sm text-zoru-ink">No version history yet.</p>
+            <p className="text-sm text-[var(--st-text)]">No version history yet.</p>
           ) : (
             vm.history.map((entry) => (
               <div
                 key={entry.id}
-                className="rounded border border-zoru-line bg-white p-3 space-y-2"
+                className="rounded border border-[var(--st-border)] bg-white p-3 space-y-2"
               >
                 <div className="flex items-center justify-between">
                   <div className="text-sm font-medium">
@@ -1045,7 +1045,7 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                   </div>
                   <Badge variant="outline">{entry.status}</Badge>
                 </div>
-                <div className="text-xs text-zoru-ink">
+                <div className="text-xs text-[var(--st-text)]">
                   {entry.bodies.length} locale(s), {entry.variableDefaults.length} variable(s)
                 </div>
                 <Button
@@ -1078,22 +1078,22 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
       >
         <div className="space-y-3 text-sm">
           <div>
-            <div className="mb-1 text-xs font-semibold uppercase text-zoru-ink">
+            <div className="mb-1 text-xs font-semibold uppercase text-[var(--st-text)]">
               Original
             </div>
-            <pre className="rounded border border-zoru-line bg-zoru-surface-2 p-3 whitespace-pre-wrap text-xs">
+            <pre className="rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 whitespace-pre-wrap text-xs">
               {activeBody || "(empty)"}
             </pre>
           </div>
           <div>
-            <div className="mb-1 text-xs font-semibold uppercase text-zoru-ink">
+            <div className="mb-1 text-xs font-semibold uppercase text-[var(--st-text)]">
               After scrub
             </div>
-            <pre className="rounded border border-zoru-line bg-zoru-surface-2 p-3 whitespace-pre-wrap text-xs">
+            <pre className="rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 whitespace-pre-wrap text-xs">
               {piiScrub(activeBody) || "(empty)"}
             </pre>
           </div>
-          <p className="text-[11px] text-zoru-ink">
+          <p className="text-[11px] text-[var(--st-text)]">
             Phones (E.164-ish) and emails are masked before any AI
             prompt leaves the workspace.
           </p>
@@ -1139,8 +1139,8 @@ function PolicyRow({
     <label className="flex items-start gap-3 cursor-pointer">
       <Switch checked={checked} onCheckedChange={onChange} />
       <div className="flex-1">
-        <div className="text-sm font-medium text-zoru-ink">{title}</div>
-        <div className="text-xs text-zoru-ink">{desc}</div>
+        <div className="text-sm font-medium text-[var(--st-text)]">{title}</div>
+        <div className="text-xs text-[var(--st-text)]">{desc}</div>
       </div>
     </label>
   );

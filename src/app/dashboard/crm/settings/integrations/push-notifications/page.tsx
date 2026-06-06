@@ -253,12 +253,12 @@ export default function PushNotificationsIntegrationPage() {
               value={enabled ? 'true' : 'false'}
             />
 
-            <div className="flex items-center justify-between rounded-lg border border-zoru-line bg-zoru-bg px-4 py-3">
+            <div className="flex items-center justify-between rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] px-4 py-3">
               <div>
-                <div className="text-[13px] text-zoru-ink">
+                <div className="text-[13px] text-[var(--st-text)]">
                   Push notifications enabled
                 </div>
-                <div className="text-[12px] text-zoru-ink-muted">
+                <div className="text-[12px] text-[var(--st-text-secondary)]">
                   Deliver realtime notifications via FCM.
                 </div>
               </div>
@@ -284,7 +284,7 @@ export default function PushNotificationsIntegrationPage() {
                 />
               </div>
               {firebaseConfigStr && !parsed.ok ? (
-                <p className="mt-1.5 text-xs text-zoru-danger">
+                <p className="mt-1.5 text-xs text-[var(--st-danger)]">
                   Config is not valid JSON.
                 </p>
               ) : null}
@@ -303,13 +303,13 @@ export default function PushNotificationsIntegrationPage() {
 
         {stats?.lastErrorMessage ? (
           <Card>
-            <ZoruCardContent className="flex items-start gap-3 border-l-2 border-zoru-danger/40 p-4">
-              <AlertCircle className="mt-0.5 h-4 w-4 text-zoru-danger" />
+            <ZoruCardContent className="flex items-start gap-3 border-l-2 border-[var(--st-danger)]/40 p-4">
+              <AlertCircle className="mt-0.5 h-4 w-4 text-[var(--st-danger)]" />
               <div>
-                <p className="text-sm font-medium text-zoru-ink">
+                <p className="text-sm font-medium text-[var(--st-text)]">
                   Last delivery error
                 </p>
-                <p className="mt-0.5 text-xs text-zoru-ink-muted break-words">
+                <p className="mt-0.5 text-xs text-[var(--st-text-secondary)] break-words">
                   {stats.lastErrorMessage}
                 </p>
               </div>

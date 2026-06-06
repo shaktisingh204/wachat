@@ -233,7 +233,7 @@ export function CertificationForm({ initialData }: CertificationFormProps) {
                                     href={certificateUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="max-w-[260px] truncate text-[12.5px] text-zoru-ink underline-offset-2 hover:underline"
+                                    className="max-w-[260px] truncate text-[12.5px] text-[var(--st-text)] underline-offset-2 hover:underline"
                                 >
                                     {certificateName || certificateUrl}
                                 </a>
@@ -247,7 +247,7 @@ export function CertificationForm({ initialData }: CertificationFormProps) {
                                 </Button>
                             </>
                         ) : (
-                            <span className="text-[12px] text-zoru-ink-muted">
+                            <span className="text-[12px] text-[var(--st-text-secondary)]">
                                 No file attached.
                             </span>
                         )}

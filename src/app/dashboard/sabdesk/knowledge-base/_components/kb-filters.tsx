@@ -125,7 +125,7 @@ function FilterField({
 }) {
   return (
     <div className="space-y-1">
-      <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+      <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
         {label}
       </Label>
       {children}

@@ -235,7 +235,7 @@ export default function GdprEraseRequestsPage() {
                         aria-label="Approve"
                         title={row.legalHold ? 'Subject under legal hold' : undefined}
                     >
-                        <CheckCircle2 className="h-3.5 w-3.5 text-zoru-success-ink" />
+                        <CheckCircle2 className="h-3.5 w-3.5 text-[var(--st-status-ok)]" />
                     </Button>
                     <Button
                         variant="ghost"
@@ -244,7 +244,7 @@ export default function GdprEraseRequestsPage() {
                         onClick={() => setRejecting(row._id)}
                         aria-label="Reject"
                     >
-                        <XCircle className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                        <XCircle className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                     </Button>
                 </>
             ) : null}
@@ -269,8 +269,8 @@ export default function GdprEraseRequestsPage() {
 
     const empty = (
         <div className="space-y-3 py-6">
-            <UserMinus className="mx-auto h-8 w-8 text-zoru-ink-muted" />
-            <p className="text-sm text-zoru-ink-muted">
+            <UserMinus className="mx-auto h-8 w-8 text-[var(--st-text-secondary)]" />
+            <p className="text-sm text-[var(--st-text-secondary)]">
                 No GDPR erase requests yet. Subjects can request erasure under GDPR Art. 17.
             </p>
             <Button asChild>
@@ -319,10 +319,10 @@ export default function GdprEraseRequestsPage() {
                                     type="button"
                                     onClick={() => setStatus(o.value)}
                                     className={cn(
-                                        'rounded-full border border-zoru-line px-3 py-1 text-xs transition-colors',
+                                        'rounded-full border border-[var(--st-border)] px-3 py-1 text-xs transition-colors',
                                         status === o.value
-                                            ? 'bg-zoru-ink text-zoru-bg'
-                                            : 'bg-zoru-surface text-zoru-ink-muted hover:text-zoru-ink',
+                                            ? 'bg-[var(--st-text)] text-[var(--st-bg)]'
+                                            : 'bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
                                     )}
                                 >
                                     {o.label}
@@ -336,10 +336,10 @@ export default function GdprEraseRequestsPage() {
                                     type="button"
                                     onClick={() => setSubjectKind(o.value)}
                                     className={cn(
-                                        'rounded-full border border-zoru-line px-3 py-1 text-xs transition-colors',
+                                        'rounded-full border border-[var(--st-border)] px-3 py-1 text-xs transition-colors',
                                         subjectKind === o.value
-                                            ? 'bg-zoru-ink text-zoru-bg'
-                                            : 'bg-zoru-surface text-zoru-ink-muted hover:text-zoru-ink',
+                                            ? 'bg-[var(--st-text)] text-[var(--st-bg)]'
+                                            : 'bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
                                     )}
                                 >
                                     {o.label}
@@ -355,25 +355,25 @@ export default function GdprEraseRequestsPage() {
                     <Table>
                         <ZoruTableHeader>
                             <ZoruTableRow className="hover:bg-transparent">
-                                <ZoruTableHead className="text-zoru-ink-muted">
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                     Subject
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                     Kind
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                     Scope
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                     Status
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                     Hold
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                     Requested
                                 </ZoruTableHead>
-                                <ZoruTableHead className="w-[260px] text-right text-zoru-ink-muted">
+                                <ZoruTableHead className="w-[260px] text-right text-[var(--st-text-secondary)]">
                                     Actions
                                 </ZoruTableHead>
                             </ZoruTableRow>
@@ -385,21 +385,21 @@ export default function GdprEraseRequestsPage() {
                                         <div className="flex flex-col">
                                             <Link
                                                 href={`/dashboard/crm/settings/gdpr/removal-requests/${row._id}`}
-                                                className="text-[13px] font-medium text-zoru-ink hover:underline"
+                                                className="text-[13px] font-medium text-[var(--st-text)] hover:underline"
                                             >
                                                 {row.subjectName}
                                             </Link>
                                             {row.subjectEmail ? (
-                                                <span className="text-[12px] text-zoru-ink-muted">
+                                                <span className="text-[12px] text-[var(--st-text-secondary)]">
                                                     {row.subjectEmail}
                                                 </span>
                                             ) : null}
                                         </div>
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                                         {row.subjectKind}
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                                         {row.scope === 'hard_delete' ? 'Hard delete' : 'Soft redact'}
                                     </ZoruTableCell>
                                     <ZoruTableCell>
@@ -409,15 +409,15 @@ export default function GdprEraseRequestsPage() {
                                     </ZoruTableCell>
                                     <ZoruTableCell>
                                         {row.legalHold ? (
-                                            <span className="inline-flex items-center gap-1 text-[12px] text-zoru-danger-ink">
+                                            <span className="inline-flex items-center gap-1 text-[12px] text-[var(--st-danger)]">
                                                 <ShieldOff className="h-3.5 w-3.5" />
                                                 Held
                                             </span>
                                         ) : (
-                                            <span className="text-[12px] text-zoru-ink-muted">—</span>
+                                            <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
                                         )}
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="text-[12px] text-zoru-ink-muted">
+                                    <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
                                         {fmtDate(row.requestedAt)}
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-right">

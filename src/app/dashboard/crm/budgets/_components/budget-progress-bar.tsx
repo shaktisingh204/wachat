@@ -21,14 +21,14 @@ export function BudgetProgressBar({ utilisation }: { utilisation: number }) {
   );
 
   return (
-    <div ref={container} className="mt-2 h-1.5 w-full overflow-hidden rounded bg-zoru-surface-2">
+    <div ref={container} className="mt-2 h-1.5 w-full overflow-hidden rounded bg-[var(--st-bg-muted)]">
       <div
         className={`bar h-full ${
           utilisation >= 100
-            ? 'bg-zoru-danger-ink'
+            ? 'bg-[var(--st-danger)]'
             : utilisation >= 80
-            ? 'bg-zoru-warning-ink'
-            : 'bg-zoru-primary'
+            ? 'bg-[var(--st-warn)]'
+            : 'bg-[var(--st-text)]'
         }`}
         style={{ width: `${utilisation}%` }}
       />

@@ -52,13 +52,13 @@ import Link from 'next/link';
 const OverviewFeatureCard = ({ icon: Icon, title, description, gradient }: { icon: React.ElementType, title: string, description: string, gradient?: string }) => (
     <Card className={cn("hover:shadow-lg hover:-translate-y-1 transition-transform flex flex-col card-gradient", gradient)}>
         <ZoruCardHeader className="items-center">
-            <div className="p-4 bg-zoru-ink/10 rounded-full">
-                <Icon className="h-8 w-8 text-zoru-ink" />
+            <div className="p-4 bg-[var(--st-text)]/10 rounded-full">
+                <Icon className="h-8 w-8 text-[var(--st-text)]" />
             </div>
         </ZoruCardHeader>
         <ZoruCardContent className="space-y-2 flex-grow text-center">
             <h3 className="text-xl font-semibold">{title}</h3>
-            <p className="text-zoru-ink-muted">{description}</p>
+            <p className="text-[var(--st-text-secondary)]">{description}</p>
         </ZoruCardContent>
     </Card>
 );
@@ -84,7 +84,7 @@ export const MetaSuiteShowcase = () => {
             <div className="container mx-auto px-4 grid justify-items-center text-center gap-8">
                 <div className="space-y-4 max-w-3xl">
                     <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-headline tracking-tighter">The Meta Suite by SabNode</h1>
-                    <p className="mx-auto text-lg text-zoru-ink-muted">Unify your social media presence. Manage content, ads, and messages for Facebook and Instagram from one powerful dashboard.</p>
+                    <p className="mx-auto text-lg text-[var(--st-text-secondary)]">Unify your social media presence. Manage content, ads, and messages for Facebook and Instagram from one powerful dashboard.</p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <Button size="lg" asChild><Link href="/signup">Get Started for Free <ArrowRight className="ml-2 h-5 w-5" /></Link></Button>
                         <Button size="lg" variant="outline" asChild><Link href="#features">Learn More <ChevronDown className="ml-2 h-5 w-5" /></Link></Button>
@@ -93,9 +93,9 @@ export const MetaSuiteShowcase = () => {
             </div>
 
             {/* Features Section */}
-            <section id="features" className="py-16 bg-zoru-surface-2 rounded-lg">
+            <section id="features" className="py-16 bg-[var(--st-bg-muted)] rounded-lg">
                 <div className="container mx-auto px-4">
-                    <div className="text-center space-y-4 mb-12"><h2 className="text-3xl md:text-4xl font-bold font-headline">One Hub for All Your Meta Channels</h2><p className="max-w-2xl mx-auto text-lg text-zoru-ink-muted">Streamline your workflow and save time by managing all your Meta platforms from a single, powerful interface.</p></div>
+                    <div className="text-center space-y-4 mb-12"><h2 className="text-3xl md:text-4xl font-bold font-headline">One Hub for All Your Meta Channels</h2><p className="max-w-2xl mx-auto text-lg text-[var(--st-text-secondary)]">Streamline your workflow and save time by managing all your Meta platforms from a single, powerful interface.</p></div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         {features.map((feature, index) => <OverviewFeatureCard key={index} {...feature} />)}
                     </div>
@@ -107,7 +107,7 @@ export const MetaSuiteShowcase = () => {
                 <div className="container mx-auto px-4">
                     <div className="text-center space-y-4 mb-16">
                         <h2 className="text-3xl md:text-4xl font-bold font-headline">Built for Efficiency and Scale</h2>
-                        <p className="max-w-2xl mx-auto text-lg text-zoru-ink-muted">
+                        <p className="max-w-2xl mx-auto text-lg text-[var(--st-text-secondary)]">
                             See how our unified tools simplify your social media management.
                         </p>
                     </div>
@@ -117,30 +117,30 @@ export const MetaSuiteShowcase = () => {
                         <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12" key={`meta-showcase-chat-${animationKey}`}>
                             <div className="lg:w-1/3 space-y-4 text-center lg:text-left">
                                 <h3 className="text-2xl font-bold font-headline">Unified Messenger Inbox</h3>
-                                <p className="text-zoru-ink-muted">
+                                <p className="text-[var(--st-text-secondary)]">
                                     Manage all your Facebook Messenger conversations in one place. Assign chats, use canned replies, and never miss a message.
                                 </p>
                             </div>
-                            <div className="lg:w-2/3 p-4 rounded-lg bg-zoru-surface/30 w-full flex justify-center">
+                            <div className="lg:w-2/3 p-4 rounded-lg bg-[var(--st-bg-secondary)]/30 w-full flex justify-center">
                                 <Card className="w-full shadow-xl animate-fade-in-up flex h-[450px] overflow-hidden">
-                                    <div className="w-1/3 border-r bg-zoru-surface flex flex-col">
+                                    <div className="w-1/3 border-r bg-[var(--st-bg-secondary)] flex flex-col">
                                         <div className="p-3 border-b"><Input placeholder="Search..." /></div>
                                         <div className="flex-1 overflow-y-auto">
-                                            <div className="p-3 flex gap-3 border-b bg-zoru-surface-2">
+                                            <div className="p-3 flex gap-3 border-b bg-[var(--st-bg-muted)]">
                                                 <Avatar><ZoruAvatarImage src="https://placehold.co/100x100.png" alt="user" data-ai-hint="woman portrait" /><ZoruAvatarFallback>A</ZoruAvatarFallback></Avatar>
-                                                <div><p className="font-semibold text-sm">Aisha Ahmed</p><p className="text-xs text-zoru-ink-muted">Thanks for the help!</p></div>
+                                                <div><p className="font-semibold text-sm">Aisha Ahmed</p><p className="text-xs text-[var(--st-text-secondary)]">Thanks for the help!</p></div>
                                             </div>
                                             <div className="p-3 flex gap-3 border-b">
                                                 <Avatar><ZoruAvatarImage src="https://placehold.co/100x100.png" alt="user" data-ai-hint="man portrait" /><ZoruAvatarFallback>D</ZoruAvatarFallback></Avatar>
-                                                <div><p className="font-semibold text-sm">David Chen</p><p className="text-xs text-zoru-ink-muted">Sure, here is my order #...</p></div>
+                                                <div><p className="font-semibold text-sm">David Chen</p><p className="text-xs text-[var(--st-text-secondary)]">Sure, here is my order #...</p></div>
                                             </div>
                                         </div>
                                     </div>
                                     <div className="w-2/3 flex flex-col">
                                         <div className="p-3 border-b flex-shrink-0 flex items-center gap-2"><Avatar><ZoruAvatarFallback>A</ZoruAvatarFallback></Avatar><p className="font-semibold">Aisha Ahmed</p></div>
-                                        <div className="flex-1 p-4 space-y-3 bg-zoru-surface-2">
-                                            <div className="flex justify-start"><div className="bg-zoru-surface-2 p-2 rounded-lg text-sm">Is the blue shirt in stock?</div></div>
-                                            <div className="flex justify-end animate-fade-in-up" style={{ animationDelay: '0.5s' }}><div className="bg-zoru-ink text-white p-2 rounded-lg text-sm">Yes it is! Would you like to order?</div></div>
+                                        <div className="flex-1 p-4 space-y-3 bg-[var(--st-bg-muted)]">
+                                            <div className="flex justify-start"><div className="bg-[var(--st-bg-muted)] p-2 rounded-lg text-sm">Is the blue shirt in stock?</div></div>
+                                            <div className="flex justify-end animate-fade-in-up" style={{ animationDelay: '0.5s' }}><div className="bg-[var(--st-text)] text-white p-2 rounded-lg text-sm">Yes it is! Would you like to order?</div></div>
                                         </div>
                                         <div className="p-2 border-t"><Input placeholder="Type a message..." /></div>
                                     </div>
@@ -151,36 +151,36 @@ export const MetaSuiteShowcase = () => {
                         <div className="flex flex-col lg:flex-row-reverse items-center gap-8 lg:gap-12" key={`meta-showcase-kanban-${animationKey}`}>
                             <div className="lg:w-1/3 space-y-4 text-center lg:text-left">
                                 <h3 className="text-2xl font-bold font-headline">Visualize Your Workflow</h3>
-                                <p className="text-zoru-ink-muted">
+                                <p className="text-[var(--st-text-secondary)]">
                                     Drag and drop conversations through your pipeline. From new lead to resolved ticket, never lose track of a customer again.
                                 </p>
                             </div>
-                            <div className="lg:w-2/3 p-4 rounded-lg bg-zoru-surface/30 w-full">
+                            <div className="lg:w-2/3 p-4 rounded-lg bg-[var(--st-bg-secondary)]/30 w-full">
                                 <div className="relative h-[450px] w-full overflow-hidden">
                                     <div className="flex h-full gap-4">
                                         {/* Column 1: New */}
-                                        <div className="w-1/3 bg-zoru-surface/50 rounded-lg p-2 md:p-3 flex flex-col gap-3">
-                                            <h3 className="font-semibold px-2 text-zoru-ink">New Leads (2)</h3>
-                                            <div className="bg-zoru-surface p-3 rounded-md shadow">
+                                        <div className="w-1/3 bg-[var(--st-bg-secondary)]/50 rounded-lg p-2 md:p-3 flex flex-col gap-3">
+                                            <h3 className="font-semibold px-2 text-[var(--st-text)]">New Leads (2)</h3>
+                                            <div className="bg-[var(--st-bg-secondary)] p-3 rounded-md shadow">
                                                 <p className="font-semibold text-sm">Aisha Ahmed</p>
-                                                <p className="text-xs text-zoru-ink-muted">Interested in the new collection.</p>
+                                                <p className="text-xs text-[var(--st-text-secondary)]">Interested in the new collection.</p>
                                             </div>
-                                            <div className="bg-zoru-surface p-3 rounded-md shadow animate-kanban-drag relative z-10">
+                                            <div className="bg-[var(--st-bg-secondary)] p-3 rounded-md shadow animate-kanban-drag relative z-10">
                                                 <p className="font-semibold text-sm">David Chen</p>
-                                                <p className="text-xs text-zoru-ink-muted">Where is my order #1234?</p>
+                                                <p className="text-xs text-[var(--st-text-secondary)]">Where is my order #1234?</p>
                                             </div>
                                         </div>
                                         {/* Column 2: Open */}
-                                        <div className="w-1/3 bg-zoru-surface/50 rounded-lg p-2 md:p-3 flex flex-col gap-3">
-                                            <h3 className="font-semibold px-2 text-zoru-ink">Open Tickets (1)</h3>
-                                            <div className="bg-zoru-surface p-3 rounded-md shadow">
+                                        <div className="w-1/3 bg-[var(--st-bg-secondary)]/50 rounded-lg p-2 md:p-3 flex flex-col gap-3">
+                                            <h3 className="font-semibold px-2 text-[var(--st-text)]">Open Tickets (1)</h3>
+                                            <div className="bg-[var(--st-bg-secondary)] p-3 rounded-md shadow">
                                                 <p className="font-semibold text-sm">Maria Garcia</p>
-                                                <p className="text-xs text-zoru-ink-muted">Follow-up on quote required.</p>
+                                                <p className="text-xs text-[var(--st-text-secondary)]">Follow-up on quote required.</p>
                                             </div>
                                         </div>
                                         {/* Column 3: Resolved */}
-                                        <div className="w-1/3 bg-zoru-surface/50 rounded-lg p-2 md:p-3 flex flex-col gap-3">
-                                            <h3 className="font-semibold px-2 text-zoru-ink">Resolved (0)</h3>
+                                        <div className="w-1/3 bg-[var(--st-bg-secondary)]/50 rounded-lg p-2 md:p-3 flex flex-col gap-3">
+                                            <h3 className="font-semibold px-2 text-[var(--st-text)]">Resolved (0)</h3>
                                         </div>
                                     </div>
                                 </div>
@@ -190,27 +190,27 @@ export const MetaSuiteShowcase = () => {
                         <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12" key={`meta-showcase-builder-${animationKey}`}>
                             <div className="lg:w-1/3 space-y-4 text-center lg:text-left">
                                 <h3 className="text-2xl font-bold font-headline">Custom Website Builder</h3>
-                                <p className="text-zoru-ink-muted">
+                                <p className="text-[var(--st-text-secondary)]">
                                     Build custom landing pages, product galleries, or forms that launch directly from Messenger or your Facebook Page.
                                 </p>
                             </div>
-                            <div className="lg:w-2/3 p-4 rounded-lg bg-zoru-surface/30 w-full flex justify-center">
+                            <div className="lg:w-2/3 p-4 rounded-lg bg-[var(--st-bg-secondary)]/30 w-full flex justify-center">
                                 <Card className="w-full shadow-xl animate-fade-in-up flex h-[450px] overflow-hidden">
-                                    <div className="w-1/4 border-r bg-zoru-surface flex flex-col p-2 space-y-2">
+                                    <div className="w-1/4 border-r bg-[var(--st-bg-secondary)] flex flex-col p-2 space-y-2">
                                         <Button variant="outline" size="sm" className="justify-start"><LayoutGrid className="mr-2 h-4 w-4" /> Section</Button>
                                         <Button variant="outline" size="sm" className="justify-start"><Newspaper className="mr-2 h-4 w-4" /> Heading</Button>
                                         <Button variant="outline" size="sm" className="justify-start"><ShoppingBag className="mr-2 h-4 w-4" /> Products</Button>
                                     </div>
-                                    <div className="flex-1 p-4 bg-zoru-surface-2">
+                                    <div className="flex-1 p-4 bg-[var(--st-bg-muted)]">
                                         <div className="bg-white p-4 rounded-md shadow-inner space-y-4">
-                                            <div className="h-24 bg-zoru-surface-2 rounded-md animate-pulse"></div>
+                                            <div className="h-24 bg-[var(--st-bg-muted)] rounded-md animate-pulse"></div>
                                             <div className="space-y-2">
-                                                <div className="h-6 w-2/3 bg-zoru-surface-2 rounded-md animate-pulse"></div>
-                                                <div className="h-4 w-full bg-zoru-surface-2 rounded-md animate-pulse"></div>
+                                                <div className="h-6 w-2/3 bg-[var(--st-bg-muted)] rounded-md animate-pulse"></div>
+                                                <div className="h-4 w-full bg-[var(--st-bg-muted)] rounded-md animate-pulse"></div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="w-1/3 border-l bg-zoru-surface p-3 space-y-4">
+                                    <div className="w-1/3 border-l bg-[var(--st-bg-secondary)] p-3 space-y-4">
                                         <h4 className="font-semibold text-sm">Properties</h4>
                                         <div className="space-y-2">
                                             <Label className="text-xs">Background</Label>

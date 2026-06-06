@@ -34,7 +34,7 @@ async function ClientKbArticlePageContent({
         <div className="flex flex-col gap-4">
             <Link
                 href="/portal/client/knowledge-base"
-                className="self-start text-sm text-zoru-ink-muted hover:underline"
+                className="self-start text-sm text-[var(--st-text-secondary)] hover:underline"
             >
                 ← Back to articles
             </Link>
@@ -42,7 +42,7 @@ async function ClientKbArticlePageContent({
             <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>{article.title}</ZoruCardTitle>
-                    <p className="text-xs text-zoru-ink-muted">
+                    <p className="text-xs text-[var(--st-text-secondary)]">
                         {article.category ? `${article.category} · ` : ''}
                         Updated {fmtDate(article.updatedAt)}
                     </p>
@@ -50,7 +50,7 @@ async function ClientKbArticlePageContent({
                 <ZoruCardContent>
                     {article.body ? (
                         <div
-                            className="prose prose-zinc max-w-none text-sm text-zoru-ink"
+                            className="prose prose-zinc max-w-none text-sm text-[var(--st-text)]"
                             // KB articles are authored in the admin and trusted; rendering
                             // as HTML preserves the editor's formatting (headings, lists,
                             // links). If the source content is plaintext, this still
@@ -58,7 +58,7 @@ async function ClientKbArticlePageContent({
                             dangerouslySetInnerHTML={{ __html: article.body }}
                         />
                     ) : (
-                        <p className="text-sm text-zoru-ink-muted">No content available.</p>
+                        <p className="text-sm text-[var(--st-text-secondary)]">No content available.</p>
                     )}
                 </ZoruCardContent>
             </Card>

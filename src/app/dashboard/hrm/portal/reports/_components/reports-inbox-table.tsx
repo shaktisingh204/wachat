@@ -28,12 +28,12 @@ function workerInitials(name: string): string {
 }
 
 const AVATAR_COLORS = [
-  'bg-zoru-surface-2 text-zoru-ink',
-  'bg-zoru-surface-2 text-zoru-ink',
-  'bg-zoru-surface-2 text-zoru-ink',
-  'bg-zoru-surface-2 text-zoru-ink',
-  'bg-zoru-surface-2 text-zoru-ink',
-  'bg-zoru-surface-2 text-zoru-ink',
+  'bg-[var(--st-bg-muted)] text-[var(--st-text)]',
+  'bg-[var(--st-bg-muted)] text-[var(--st-text)]',
+  'bg-[var(--st-bg-muted)] text-[var(--st-text)]',
+  'bg-[var(--st-bg-muted)] text-[var(--st-text)]',
+  'bg-[var(--st-bg-muted)] text-[var(--st-text)]',
+  'bg-[var(--st-bg-muted)] text-[var(--st-text)]',
 ];
 
 function avatarColor(name: string): string {
@@ -64,24 +64,24 @@ export function ReportsInboxTable({
 
   if (loading) {
     return (
-      <div className="flex h-40 items-center justify-center border border-zoru-line rounded-lg">
-        <LoaderCircle className="h-6 w-6 animate-spin text-zoru-ink-muted" />
+      <div className="flex h-40 items-center justify-center border border-[var(--st-border)] rounded-lg">
+        <LoaderCircle className="h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
       </div>
     );
   }
 
   if (reports.length === 0) {
     return (
-      <div className="flex h-40 items-center justify-center text-sm text-zoru-ink-muted border border-zoru-line rounded-lg">
+      <div className="flex h-40 items-center justify-center text-sm text-[var(--st-text-secondary)] border border-[var(--st-border)] rounded-lg">
         No reports match your filters.
       </div>
     );
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border border-zoru-line flex flex-col">
+    <div className="overflow-hidden rounded-lg border border-[var(--st-border)] flex flex-col">
       {/* Header */}
-      <div className="grid grid-cols-[3rem_minmax(120px,1.5fr)_minmax(120px,1fr)_minmax(100px,1fr)_minmax(80px,0.8fr)_minmax(120px,1fr)_minmax(100px,1fr)_minmax(120px,1fr)] items-center px-4 py-3 border-b border-zoru-line bg-zoru-surface-2 text-[13px] font-medium text-zoru-ink-muted">
+      <div className="grid grid-cols-[3rem_minmax(120px,1.5fr)_minmax(120px,1fr)_minmax(100px,1fr)_minmax(80px,0.8fr)_minmax(120px,1fr)_minmax(100px,1fr)_minmax(120px,1fr)] items-center px-4 py-3 border-b border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[13px] font-medium text-[var(--st-text-secondary)]">
         <div className="flex justify-center">
           <Checkbox
             checked={allSelected ? true : someSelected ? 'indeterminate' : false}
@@ -127,7 +127,7 @@ export function ReportsInboxTable({
                   height: `${virtualRow.size}px`,
                   transform: `translateY(${virtualRow.start}px)`,
                 }}
-                className="grid grid-cols-[3rem_minmax(120px,1.5fr)_minmax(120px,1fr)_minmax(100px,1fr)_minmax(80px,0.8fr)_minmax(120px,1fr)_minmax(100px,1fr)_minmax(120px,1fr)] items-center px-4 border-b border-zoru-line hover:bg-zoru-surface-2/50 transition-colors bg-zoru-surface text-[13px]"
+                className="grid grid-cols-[3rem_minmax(120px,1.5fr)_minmax(120px,1fr)_minmax(100px,1fr)_minmax(80px,0.8fr)_minmax(120px,1fr)_minmax(100px,1fr)_minmax(120px,1fr)] items-center px-4 border-b border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]/50 transition-colors bg-[var(--st-bg-secondary)] text-[13px]"
               >
                 <div className="flex justify-center">
                   <Checkbox
@@ -136,7 +136,7 @@ export function ReportsInboxTable({
                     aria-label={`Select ${report.taskTitle}`}
                   />
                 </div>
-                <div className="font-medium text-zoru-ink pr-2 truncate">
+                <div className="font-medium text-[var(--st-text)] pr-2 truncate">
                   {report.taskTitle}
                 </div>
                 <div>
@@ -147,21 +147,21 @@ export function ReportsInboxTable({
                     >
                       {workerInitials(report.workerName)}
                     </span>
-                    <span className="text-zoru-ink truncate">{report.workerName}</span>
+                    <span className="text-[var(--st-text)] truncate">{report.workerName}</span>
                   </div>
                 </div>
                 <div>
                   <Link
                     href={`/dashboard/hrm/portal/roadmaps/${report.roadmapId}`}
-                    className="hover:underline text-zoru-ink truncate"
+                    className="hover:underline text-[var(--st-text)] truncate"
                   >
                     View roadmap
                   </Link>
                 </div>
-                <div className="text-zoru-ink truncate">
+                <div className="text-[var(--st-text)] truncate">
                   {report.phaseId || '—'}
                 </div>
-                <div className="text-zoru-ink truncate" suppressHydrationWarning>
+                <div className="text-[var(--st-text)] truncate" suppressHydrationWarning>
                   {fmtDate(report.completedAt)}
                 </div>
                 <div>

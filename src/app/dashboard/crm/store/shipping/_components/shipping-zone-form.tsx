@@ -184,7 +184,7 @@ export function ShippingZoneForm({
                 <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                     <div className="flex flex-col gap-1.5">
                         <Label>
-                            Storefront <span className="text-zoru-ink">*</span>
+                            Storefront <span className="text-[var(--st-text)]">*</span>
                         </Label>
                         <Input
                             value={storefrontId}
@@ -195,7 +195,7 @@ export function ShippingZoneForm({
                     </div>
                     <div className="flex flex-col gap-1.5">
                         <Label htmlFor="name">
-                            Name <span className="text-zoru-ink">*</span>
+                            Name <span className="text-[var(--st-text)]">*</span>
                         </Label>
                         <Input
                             id="name"
@@ -214,7 +214,7 @@ export function ShippingZoneForm({
                             onChange={(e) => setCountriesText(e.target.value)}
                             placeholder="IN, US, GB"
                         />
-                        <p className="text-[11px] text-zoru-ink-muted">
+                        <p className="text-[11px] text-[var(--st-text-secondary)]">
                             Comma-separated ISO-2 codes.
                         </p>
                     </div>
@@ -269,7 +269,7 @@ export function ShippingZoneForm({
                         {methods.map((m, i) => (
                             <div
                                 key={i}
-                                className="grid grid-cols-1 gap-2 rounded-md border border-zoru-line p-3 md:grid-cols-[2fr_1fr_1fr_1fr_auto]"
+                                className="grid grid-cols-1 gap-2 rounded-md border border-[var(--st-border)] p-3 md:grid-cols-[2fr_1fr_1fr_1fr_auto]"
                             >
                                 <Input
                                     placeholder="Method name"
@@ -336,7 +336,7 @@ export function ShippingZoneForm({
                             </div>
                         ))}
                         {methods.length === 0 ? (
-                            <p className="text-[12.5px] text-zoru-ink-muted">
+                            <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                                 No shipping methods. Add at least one to start
                                 offering this zone.
                             </p>
@@ -345,7 +345,7 @@ export function ShippingZoneForm({
                 </div>
 
                 {state.error ? (
-                    <p className="text-[13px] text-zoru-ink">{state.error}</p>
+                    <p className="text-[13px] text-[var(--st-text)]">{state.error}</p>
                 ) : null}
 
                 <div className="flex items-center gap-3">

@@ -45,7 +45,7 @@ export function RankingsTable({ keywords, onRefresh }: { keywords: any[]; onRefr
                                 <div className="flex flex-col">
                                     <span>{kw.keyword}</span>
                                     {kw.history?.[kw.history.length - 1]?.url && (
-                                        <a href={kw.history?.[kw.history.length - 1]?.url} target="_blank" className="text-xs text-zoru-ink-muted hover:underline truncate max-w-[200px]">
+                                        <a href={kw.history?.[kw.history.length - 1]?.url} target="_blank" className="text-xs text-[var(--st-text-secondary)] hover:underline truncate max-w-[200px]">
                                             {kw.history?.[kw.history.length - 1]?.url}
                                         </a>
                                     )}
@@ -68,14 +68,14 @@ export function RankingsTable({ keywords, onRefresh }: { keywords: any[]; onRefr
                             </TableCell>
                             <TableCell className="text-right">
                                 <Button variant="ghost" size="icon" onClick={() => handleDelete(kw._id)}>
-                                    <Trash2 className="h-4 w-4 text-zoru-ink-muted hover:text-zoru-ink" />
+                                    <Trash2 className="h-4 w-4 text-[var(--st-text-secondary)] hover:text-[var(--st-text)]" />
                                 </Button>
                             </TableCell>
                         </TableRow>
                     ))}
                     {keywords.length === 0 && (
                         <TableRow>
-                            <TableCell colSpan={7} className="text-center h-24 text-zoru-ink-muted">
+                            <TableCell colSpan={7} className="text-center h-24 text-[var(--st-text-secondary)]">
                                 No keywords tracked yet. Add some to get started.
                             </TableCell>
                         </TableRow>
@@ -97,14 +97,14 @@ function LocationBadge({ code }: { code: string }) {
 }
 
 function RankDisplay({ rank }: { rank?: number }) {
-    if (!rank || rank === 0) return <span className="text-zoru-ink-muted">-</span>;
-    if (rank <= 3) return <span className="font-bold text-zoru-ink text-lg">#{rank}</span>;
-    if (rank <= 10) return <span className="font-medium text-zoru-ink">#{rank}</span>;
+    if (!rank || rank === 0) return <span className="text-[var(--st-text-secondary)]">-</span>;
+    if (rank <= 3) return <span className="font-bold text-[var(--st-text)] text-lg">#{rank}</span>;
+    if (rank <= 10) return <span className="font-medium text-[var(--st-text)]">#{rank}</span>;
     return <span>#{rank}</span>;
 }
 
 function RankChange({ history }: { history: any[] }) {
-    if (!history || history.length < 2) return <Minus className="h-4 w-4 text-zoru-ink-muted" />;
+    if (!history || history.length < 2) return <Minus className="h-4 w-4 text-[var(--st-text-secondary)]" />;
 
     // Sort by date just in case
     // Assuming history is appended, so last is newest.
@@ -112,19 +112,19 @@ function RankChange({ history }: { history: any[] }) {
     const current = history[history.length - 1].rank;
     const prev = history[history.length - 2].rank;
 
-    if (current === 0 || prev === 0) return <Minus className="h-4 w-4 text-zoru-ink-muted" />;
+    if (current === 0 || prev === 0) return <Minus className="h-4 w-4 text-[var(--st-text-secondary)]" />;
 
     const change = prev - current; // Rank decrease is GOOD (moved up)
 
-    if (change === 0) return <Minus className="h-4 w-4 text-zoru-ink-muted" />;
-    if (change > 0) return <div className="flex items-center text-zoru-ink"><TrendingUp className="h-4 w-4 mr-1" /> {change}</div>;
-    return <div className="flex items-center text-zoru-ink"><TrendingDown className="h-4 w-4 mr-1" /> {Math.abs(change)}</div>;
+    if (change === 0) return <Minus className="h-4 w-4 text-[var(--st-text-secondary)]" />;
+    if (change > 0) return <div className="flex items-center text-[var(--st-text)]"><TrendingUp className="h-4 w-4 mr-1" /> {change}</div>;
+    return <div className="flex items-center text-[var(--st-text)]"><TrendingDown className="h-4 w-4 mr-1" /> {Math.abs(change)}</div>;
 }
 
 function getDifficultyColor(diff?: number) {
     if (!diff) return "";
-    if (diff > 80) return "bg-zoru-surface-2 text-zoru-ink";
-    if (diff > 60) return "bg-zoru-surface-2 text-zoru-ink";
-    if (diff > 40) return "bg-zoru-surface-2 text-zoru-ink";
-    return "bg-zoru-surface-2 text-zoru-ink";
+    if (diff > 80) return "bg-[var(--st-bg-muted)] text-[var(--st-text)]";
+    if (diff > 60) return "bg-[var(--st-bg-muted)] text-[var(--st-text)]";
+    if (diff > 40) return "bg-[var(--st-bg-muted)] text-[var(--st-text)]";
+    return "bg-[var(--st-bg-muted)] text-[var(--st-text)]";
 }

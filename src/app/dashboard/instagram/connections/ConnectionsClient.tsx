@@ -189,9 +189,9 @@ export default function ConnectionsClient({ initialProjects }: { initialProjects
 
       {projects.length > 0 ? (
         <>
-          <div className="flex flex-col md:flex-row items-center gap-4 justify-between bg-zoru-surface p-4 rounded-lg border shadow-sm shrink-0">
+          <div className="flex flex-col md:flex-row items-center gap-4 justify-between bg-[var(--st-bg-secondary)] p-4 rounded-lg border shadow-sm shrink-0">
             <div className="relative w-full md:w-96">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-zoru-ink-muted" />
+              <Search className="absolute left-3 top-3 h-4 w-4 text-[var(--st-text-secondary)]" />
               <Input
                 placeholder="Search accounts..."
                 className="pl-9 w-full"
@@ -201,7 +201,7 @@ export default function ConnectionsClient({ initialProjects }: { initialProjects
             </div>
             {selectedIds.size > 0 && (
               <div className="flex items-center gap-3 w-full md:w-auto">
-                <span className="text-sm text-zoru-ink-muted whitespace-nowrap">
+                <span className="text-sm text-[var(--st-text-secondary)] whitespace-nowrap">
                   {selectedIds.size} selected
                 </span>
                 <Button variant="destructive" onClick={handleBulkDisconnect}>
@@ -264,15 +264,15 @@ export default function ConnectionsClient({ initialProjects }: { initialProjects
                               </div>
                             </ZoruCardHeader>
                             <ZoruCardContent className="flex-grow pt-2">
-                              <div className="grid grid-cols-2 gap-4 bg-zoru-surface-2/30 p-3 rounded-md">
+                              <div className="grid grid-cols-2 gap-4 bg-[var(--st-bg-muted)]/30 p-3 rounded-md">
                                 <div>
-                                  <p className="text-xs text-zoru-ink-muted mb-1">Followers</p>
+                                  <p className="text-xs text-[var(--st-text-secondary)] mb-1">Followers</p>
                                   <p className="font-semibold text-sm">
                                     {mounted ? (instagramProfile?.followers_count?.toLocaleString() || 'N/A') : (instagramProfile?.followers_count || 'N/A')}
                                   </p>
                                 </div>
                                 <div>
-                                  <p className="text-xs text-zoru-ink-muted mb-1">Media Count</p>
+                                  <p className="text-xs text-[var(--st-text-secondary)] mb-1">Media Count</p>
                                   <p className="font-semibold text-sm">
                                     {mounted ? (instagramProfile?.media_count?.toLocaleString() || 'N/A') : (instagramProfile?.media_count || 'N/A')}
                                   </p>
@@ -295,7 +295,7 @@ export default function ConnectionsClient({ initialProjects }: { initialProjects
           </div>
           
           {filteredProjects.length === 0 && (
-             <div className="text-center py-12 text-zoru-ink-muted">
+             <div className="text-center py-12 text-[var(--st-text-secondary)]">
                No accounts match your search.
              </div>
           )}
@@ -303,8 +303,8 @@ export default function ConnectionsClient({ initialProjects }: { initialProjects
       ) : (
         <Card className="text-center py-12 p-6">
           <ZoruCardContent className="space-y-4">
-            <p className="text-lg text-zoru-ink">No Instagram Accounts Found</p>
-            <p className="text-zoru-ink-muted max-w-md mx-auto">
+            <p className="text-lg text-[var(--st-text)]">No Instagram Accounts Found</p>
+            <p className="text-[var(--st-text-secondary)] max-w-md mx-auto">
               We couldn&apos;t find any Instagram Business Accounts linked to your connected
               Facebook Pages. Please ensure they are properly connected in your Meta Business
               Suite.

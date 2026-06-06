@@ -44,7 +44,7 @@ export default async function EditQuotationPage({ params }: PageProps) {
         title="Error loading quotation"
         back={{ href: `/dashboard/crm/sales/quotations`, label: 'Quotations' }}
       >
-        <div className="p-6 text-center text-zoru-danger-ink bg-zoru-danger-bg rounded-lg border border-zoru-danger">
+        <div className="p-6 text-center text-[var(--st-danger)] bg-[var(--st-danger-soft)] rounded-lg border border-[var(--st-danger)]">
           <p className="font-semibold text-lg mb-2">Could not load quotation</p>
           <p>{error || 'Quotation not found or you do not have permission to view it.'}</p>
         </div>

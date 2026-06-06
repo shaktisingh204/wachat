@@ -202,18 +202,18 @@ export function EcommCustomDomainForm() {
         <Separator />
 
         <div className="space-y-4">
-          <h4 className="text-sm tracking-tight text-zoru-ink">Your domains</h4>
+          <h4 className="text-sm tracking-tight text-[var(--st-text)]">Your domains</h4>
           {isLoading ? (
             <Skeleton className="h-24 w-full" />
           ) : domains.length > 0 ? (
             domains.map((domain) => (
               <div
                 key={domain._id.toString()}
-                className="space-y-4 rounded-[var(--zoru-radius-lg)] border border-zoru-line p-4"
+                className="space-y-4 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] p-4"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2">
-                    <p className="text-sm tracking-tight text-zoru-ink">
+                    <p className="text-sm tracking-tight text-[var(--st-text)]">
                       {domain.hostname}
                     </p>
                     {domain.verified ? (
@@ -230,13 +230,13 @@ export function EcommCustomDomainForm() {
                   />
                 </div>
                 {domain.verified ? (
-                  <div className="space-y-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-3 text-sm">
+                  <div className="space-y-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-sm">
                     <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 font-mono text-xs">
-                      <span className="text-zoru-ink-muted">Type:</span>
+                      <span className="text-[var(--st-text-secondary)]">Type:</span>
                       <span>CNAME</span>
-                      <span className="text-zoru-ink-muted">Host/Name:</span>
+                      <span className="text-[var(--st-text-secondary)]">Host/Name:</span>
                       <span>{domain.hostname}</span>
-                      <span className="text-zoru-ink-muted">
+                      <span className="text-[var(--st-text-secondary)]">
                         Value/Target:
                       </span>
                       <div className="flex items-center gap-2">
@@ -253,13 +253,13 @@ export function EcommCustomDomainForm() {
                     </div>
                   </div>
                 ) : (
-                  <div className="space-y-3 rounded-[var(--zoru-radius)] bg-zoru-surface-2 p-3 text-sm">
+                  <div className="space-y-3 rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)] p-3 text-sm">
                     <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 font-mono text-xs">
-                      <span className="text-zoru-ink-muted">Type:</span>
+                      <span className="text-[var(--st-text-secondary)]">Type:</span>
                       <span>TXT</span>
-                      <span className="text-zoru-ink-muted">Host:</span>
+                      <span className="text-[var(--st-text-secondary)]">Host:</span>
                       <span>@ or {domain.hostname}</span>
-                      <span className="text-zoru-ink-muted">Value:</span>
+                      <span className="text-[var(--st-text-secondary)]">Value:</span>
                       <div className="flex items-center gap-2">
                         <span className="break-all">
                           {domain.verificationCode}
@@ -285,7 +285,7 @@ export function EcommCustomDomainForm() {
               </div>
             ))
           ) : (
-            <p className="py-4 text-center text-sm text-zoru-ink-muted">
+            <p className="py-4 text-center text-sm text-[var(--st-text-secondary)]">
               No custom domains added yet.
             </p>
           )}

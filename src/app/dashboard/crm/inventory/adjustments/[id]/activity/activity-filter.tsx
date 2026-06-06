@@ -22,7 +22,7 @@ export function ActivityFilter() {
 
   return (
     <div className="flex items-center gap-2">
-      <label htmlFor="eventType" className="text-sm font-medium text-zoru-ink">
+      <label htmlFor="eventType" className="text-sm font-medium text-[var(--st-text)]">
         Filter by event:
       </label>
       <Select value={currentEventType} onValueChange={handleValueChange}>

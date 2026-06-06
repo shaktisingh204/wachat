@@ -67,15 +67,15 @@ export default function ManualInstagramSetupDocsPage() {
         </ZoruCardHeader>
         <ZoruCardContent className="space-y-4">
           <div>
-            <h3 className="text-zoru-ink">Facebook Page ID</h3>
-            <p className="text-sm text-zoru-ink-muted mt-1">
+            <h3 className="text-[var(--st-text)]">Facebook Page ID</h3>
+            <p className="text-sm text-[var(--st-text-secondary)] mt-1">
               Go to your Facebook Page. Click on &ldquo;About&rdquo; and then &ldquo;Page
               Transparency&rdquo;. Your Page ID will be listed there.
             </p>
           </div>
           <div>
-            <h3 className="text-zoru-ink">Ad Account ID</h3>
-            <p className="text-sm text-zoru-ink-muted mt-1">
+            <h3 className="text-[var(--st-text)]">Ad Account ID</h3>
+            <p className="text-sm text-[var(--st-text-secondary)] mt-1">
               Go to your Meta Ads Manager. The Ad Account ID (e.g., `act_12345...`) will be
               visible in the URL or the account dropdown menu.
             </p>
@@ -140,7 +140,7 @@ export default function ManualInstagramSetupDocsPage() {
         <ZoruCardContent>
           <p className="text-sm">
             Go back to the{' '}
-            <Link href="/dashboard/instagram/setup" className="text-zoru-ink underline">
+            <Link href="/dashboard/instagram/setup" className="text-[var(--st-text)] underline">
               Setup Page
             </Link>
             , open the &ldquo;Manual Setup&rdquo; dialog, and paste your credentials into the

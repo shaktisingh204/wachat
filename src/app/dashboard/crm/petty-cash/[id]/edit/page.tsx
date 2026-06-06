@@ -49,13 +49,13 @@ export default async function PettyCashEditPage({ params }: PageProps) {
                         <ZoruCardContent>
                             <div className="space-y-1.5 text-[12.5px]">
                                 <div className="flex justify-between">
-                                    <span className="text-zoru-ink-muted">Current</span>
+                                    <span className="text-[var(--st-text-secondary)]">Current</span>
                                     <span className="font-mono tabular-nums">
                                         {fmtMoney(balance, float.currency)}
                                     </span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-zoru-ink-muted">Opening</span>
+                                    <span className="text-[var(--st-text-secondary)]">Opening</span>
                                     <span className="font-mono tabular-nums">
                                         {fmtMoney(float.openingBalance, float.currency)}
                                     </span>
@@ -70,21 +70,21 @@ export default async function PettyCashEditPage({ params }: PageProps) {
                         <ZoruCardContent>
                             <div className="space-y-1.5 text-[12.5px]">
                                 <div>
-                                    <div className="text-zoru-ink-muted">Custodian</div>
-                                    <div className="text-zoru-ink">
+                                    <div className="text-[var(--st-text-secondary)]">Custodian</div>
+                                    <div className="text-[var(--st-text)]">
                                         {float.custodianName || '—'}
                                     </div>
                                 </div>
-                                <div className="border-t border-zoru-line pt-2">
-                                    <div className="text-zoru-ink-muted">Branch</div>
-                                    <div className="text-zoru-ink">
+                                <div className="border-t border-[var(--st-border)] pt-2">
+                                    <div className="text-[var(--st-text-secondary)]">Branch</div>
+                                    <div className="text-[var(--st-text)]">
                                         {float.branchName || '—'}
                                     </div>
                                 </div>
                                 {float.approverName ? (
-                                    <div className="border-t border-zoru-line pt-2">
-                                        <div className="text-zoru-ink-muted">Approver</div>
-                                        <div className="text-zoru-ink">{float.approverName}</div>
+                                    <div className="border-t border-[var(--st-border)] pt-2">
+                                        <div className="text-[var(--st-text-secondary)]">Approver</div>
+                                        <div className="text-[var(--st-text)]">{float.approverName}</div>
                                     </div>
                                 ) : null}
                             </div>

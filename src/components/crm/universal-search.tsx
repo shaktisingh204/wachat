@@ -120,22 +120,22 @@ export function UniversalSearch({ className }: UniversalSearchProps) {
         }}
       >
         {query.trim().length < 2 ? (
-          <div className="p-6 text-sm text-zoru-ink-muted">
-            <p className="text-zoru-ink">Type to search…</p>
+          <div className="p-6 text-sm text-[var(--st-text-secondary)]">
+            <p className="text-[var(--st-text)]">Type to search…</p>
             <ul className="mt-3 space-y-1.5 text-[12.5px]">
               <li>• Try a contact name or company</li>
               <li>• Search invoice numbers like <code>INV-2024-001</code></li>
               <li>• Find tickets by subject keyword</li>
             </ul>
-            <p className="mt-4 text-[11px] text-zoru-ink-subtle">
+            <p className="mt-4 text-[11px] text-[var(--st-text-tertiary)]">
               Press <ZoruKbd>⌘K</ZoruKbd> anywhere to focus
             </p>
           </div>
         ) : loading && !results ? (
-          <div className="p-6 text-sm text-zoru-ink-muted">Searching…</div>
+          <div className="p-6 text-sm text-[var(--st-text-secondary)]">Searching…</div>
         ) : totalHits === 0 ? (
-          <div className="p-6 text-sm text-zoru-ink-muted">
-            No results for <span className="text-zoru-ink">"{query}"</span>
+          <div className="p-6 text-sm text-[var(--st-text-secondary)]">
+            No results for <span className="text-[var(--st-text)]">"{query}"</span>
           </div>
         ) : (
           <div className="max-h-[480px] overflow-auto py-1">
@@ -144,7 +144,7 @@ export function UniversalSearch({ className }: UniversalSearchProps) {
               if (hits.length === 0) return null;
               return (
                 <div key={section.key} className="py-1">
-                  <p className="px-3 pb-1 pt-1 text-[10px] uppercase tracking-wider text-zoru-ink-subtle">
+                  <p className="px-3 pb-1 pt-1 text-[10px] uppercase tracking-wider text-[var(--st-text-tertiary)]">
                     {section.label}
                   </p>
                   <ul>
@@ -153,11 +153,11 @@ export function UniversalSearch({ className }: UniversalSearchProps) {
                         <Link
                           href={hit.href}
                           onClick={() => setOpen(false)}
-                          className="flex flex-col gap-0.5 px-3 py-2 text-sm text-zoru-ink hover:bg-zoru-surface"
+                          className="flex flex-col gap-0.5 px-3 py-2 text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]"
                         >
                           <span className="truncate">{hit.title}</span>
                           {hit.subtitle && (
-                            <span className="truncate text-[11px] text-zoru-ink-muted">
+                            <span className="truncate text-[11px] text-[var(--st-text-secondary)]">
                               {hit.subtitle}
                             </span>
                           )}

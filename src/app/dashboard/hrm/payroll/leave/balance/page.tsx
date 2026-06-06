@@ -26,7 +26,7 @@ export default function LeaveBalancePage() {
           title="Leave Balance"
           subtitle="Loading leave balances..."
         >
-          <div className="text-center py-8 text-zoru-ink-muted">Loading…</div>
+          <div className="text-center py-8 text-[var(--st-text-secondary)]">Loading…</div>
         </EntityListShell>
       }
     >

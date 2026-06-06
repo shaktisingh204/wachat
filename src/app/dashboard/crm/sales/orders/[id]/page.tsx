@@ -45,10 +45,10 @@ function Field({
 }) {
   return (
     <div>
-      <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
         {label}
       </div>
-      <div className="mt-1 text-[13px] text-zoru-ink">{children}</div>
+      <div className="mt-1 text-[13px] text-[var(--st-text)]">{children}</div>
     </div>
   );
 }
@@ -91,7 +91,7 @@ export default async function SalesOrderDetailPage({
     if (error) {
       return (
         <div className="flex w-full flex-col gap-4 p-6">
-          <p className="text-[14px] text-zoru-ink">
+          <p className="text-[14px] text-[var(--st-text)]">
             Couldn&apos;t load this sales order — {error}
           </p>
           <Button variant="outline" asChild>
@@ -151,7 +151,7 @@ export default async function SalesOrderDetailPage({
             <Receipt className="h-3.5 w-3.5" /> Convert to invoice
           </Link>
         </Button>
-        <span className="mx-1 h-4 w-px bg-zoru-line" />
+        <span className="mx-1 h-4 w-px bg-[var(--st-border)]" />
         <Button variant="outline" size="sm" disabled title="Email — coming soon">
           <Mail className="h-3.5 w-3.5" /> Email
         </Button>
@@ -185,7 +185,7 @@ export default async function SalesOrderDetailPage({
           variant="outline"
           size="sm"
           disabled
-          className="text-zoru-danger-ink"
+          className="text-[var(--st-danger)]"
           title="Delete — use the list page's row action"
         >
           <Trash2 className="h-3.5 w-3.5" /> Delete
@@ -197,7 +197,7 @@ export default async function SalesOrderDetailPage({
         <div className="flex flex-col gap-6">
           <Card className="p-6">
             <div className="mb-4 flex items-center justify-between gap-3">
-              <h3 className="text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+              <h3 className="text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Header
               </h3>
               {order.status ? (
@@ -221,7 +221,7 @@ export default async function SalesOrderDetailPage({
                 {order.quotationRef ? (
                   <Link
                     href={`/dashboard/crm/sales/quotations/${order.quotationRef}`}
-                    className="text-zoru-primary hover:underline"
+                    className="text-[var(--st-text)] hover:underline"
                   >
                     {order.quotationRef.slice(-8)}
                   </Link>
@@ -249,7 +249,7 @@ export default async function SalesOrderDetailPage({
           </Card>
 
           <Card className="p-6">
-            <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+            <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
               Line items
             </h3>
             <SalesOrdersDetailFulfillment items={items} currency={currency} />
@@ -257,22 +257,22 @@ export default async function SalesOrderDetailPage({
 
           {ship && (ship.line1 || ship.city) ? (
             <Card className="p-6">
-              <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+              <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Shipping address
               </h3>
-              <div className="text-[13px] text-zoru-ink">
+              <div className="text-[13px] text-[var(--st-text)]">
                 {[ship.line1, ship.line2].filter(Boolean).join(', ')}
-                <div className="text-zoru-ink-muted">
+                <div className="text-[var(--st-text-secondary)]">
                   {[ship.city, ship.state, ship.postalCode].filter(Boolean).join(', ')}
                 </div>
-                <div className="text-zoru-ink-muted">{ship.country}</div>
+                <div className="text-[var(--st-text-secondary)]">{ship.country}</div>
               </div>
             </Card>
           ) : null}
 
           {order.customerNotes || order.internalNotes ? (
             <Card className="p-6">
-              <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+              <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Notes
               </h3>
               <div className="grid gap-4 md:grid-cols-2">
@@ -289,41 +289,41 @@ export default async function SalesOrderDetailPage({
 
         <div className="flex flex-col gap-6">
           <Card className="p-6">
-            <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+            <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
               Totals
             </h3>
             <div className="flex flex-col gap-3 text-[13px]">
-              <div className="flex justify-between text-zoru-ink-muted">
+              <div className="flex justify-between text-[var(--st-text-secondary)]">
                 <span>Sub-total</span>
-                <span className="tabular-nums text-zoru-ink font-mono">
+                <span className="tabular-nums text-[var(--st-text)] font-mono">
                   {fmtINR(order.totals?.subTotal, currency)}
                 </span>
               </div>
               {order.totals?.shippingCharge != null ? (
-                <div className="flex justify-between text-zoru-ink-muted">
+                <div className="flex justify-between text-[var(--st-text-secondary)]">
                   <span>Shipping</span>
-                  <span className="tabular-nums text-zoru-ink font-mono">
+                  <span className="tabular-nums text-[var(--st-text)] font-mono">
                     {fmtINR(order.totals.shippingCharge, currency)}
                   </span>
                 </div>
               ) : null}
               {order.totals?.discountOverall != null ? (
-                <div className="flex justify-between text-zoru-ink-muted">
+                <div className="flex justify-between text-[var(--st-text-secondary)]">
                   <span>Discount</span>
-                  <span className="tabular-nums text-zoru-ink font-mono">
+                  <span className="tabular-nums text-[var(--st-text)] font-mono">
                     − {fmtINR(order.totals.discountOverall, currency)}
                   </span>
                 </div>
               ) : null}
               {order.totals?.adjustment != null ? (
-                <div className="flex justify-between text-zoru-ink-muted">
+                <div className="flex justify-between text-[var(--st-text-secondary)]">
                   <span>Adjustment</span>
-                  <span className="tabular-nums text-zoru-ink font-mono">
+                  <span className="tabular-nums text-[var(--st-text)] font-mono">
                     {fmtINR(order.totals.adjustment, currency)}
                   </span>
                 </div>
               ) : null}
-              <div className="mt-2 flex justify-between border-t border-zoru-line pt-2 text-[14px] font-semibold text-zoru-ink">
+              <div className="mt-2 flex justify-between border-t border-[var(--st-border)] pt-2 text-[14px] font-semibold text-[var(--st-text)]">
                 <span>Total ({currency})</span>
                 <span className="tabular-nums font-mono">
                   {fmtINR(order.totals?.total, currency)}
@@ -344,13 +344,13 @@ export default async function SalesOrderDetailPage({
 
           <Suspense fallback={
             <div className="animate-pulse space-y-4">
-              <div className="h-32 bg-zoru-surface-2 rounded-lg dark:bg-zoru-ink/40"></div>
+              <div className="h-32 bg-[var(--st-bg-muted)] rounded-lg dark:bg-[var(--st-text)]/40"></div>
             </div>
           }>
             <RelatedRailSection id={id} />
           </Suspense>
 
-          <Card className="p-4 text-[11.5px] text-zoru-ink-muted">
+          <Card className="p-4 text-[11.5px] text-[var(--st-text-secondary)]">
             Created {fmtDate(order.createdAt || order.audit?.createdAt)}
             <br />
             Updated {fmtDate(order.updatedAt || order.audit?.updatedAt)}
@@ -360,10 +360,10 @@ export default async function SalesOrderDetailPage({
 
       <Suspense fallback={
         <div className="animate-pulse mt-8 space-y-4">
-          <div className="h-6 bg-zoru-surface-2 rounded w-1/4 dark:bg-zoru-ink/40"></div>
+          <div className="h-6 bg-[var(--st-bg-muted)] rounded w-1/4 dark:bg-[var(--st-text)]/40"></div>
           <div className="space-y-3">
-            <div className="h-4 bg-zoru-surface-2 rounded dark:bg-zoru-ink/40"></div>
-            <div className="h-4 bg-zoru-surface-2 rounded w-5/6 dark:bg-zoru-ink/40"></div>
+            <div className="h-4 bg-[var(--st-bg-muted)] rounded dark:bg-[var(--st-text)]/40"></div>
+            <div className="h-4 bg-[var(--st-bg-muted)] rounded w-5/6 dark:bg-[var(--st-text)]/40"></div>
           </div>
         </div>
       }>

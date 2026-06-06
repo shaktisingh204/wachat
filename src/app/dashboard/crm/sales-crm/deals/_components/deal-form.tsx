@@ -221,7 +221,7 @@ export function DealForm({ initial, redirectTo, currentUserId }: DealFormProps) 
 
       {/* Restore-draft banner (only on /new, only if a draft exists) */}
       {!editing && draftAvailable && !draftDismissed ? (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded border border-zoru-line/40 bg-zoru-ink/10 px-3 py-2 text-[12.5px] text-zoru-ink dark:text-zoru-ink-muted">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded border border-[var(--st-border)]/40 bg-[var(--st-text)]/10 px-3 py-2 text-[12.5px] text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
           <span>You have an unsaved draft from a previous session.</span>
           <div className="flex items-center gap-2">
             <Button size="sm" variant="outline" type="button" onClick={restoreDraft}>
@@ -256,15 +256,15 @@ export function DealForm({ initial, redirectTo, currentUserId }: DealFormProps) 
       {/* ─── Section 1: Overview ──────────────────────────────────────── */}
       <Card className="space-y-4 p-6">
         <div>
-          <h2 className="text-[15px] font-semibold text-zoru-ink">Overview</h2>
-          <p className="text-[12.5px] text-zoru-ink-muted">
+          <h2 className="text-[15px] font-semibold text-[var(--st-text)]">Overview</h2>
+          <p className="text-[12.5px] text-[var(--st-text-secondary)]">
             Identify the opportunity, owner, and pipeline.
           </p>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           <div className="md:col-span-2 space-y-1.5">
             <Label htmlFor="name">
-              Title <span className="text-zoru-danger-ink">*</span>
+              Title <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <Input
               id="name"
@@ -277,7 +277,7 @@ export function DealForm({ initial, redirectTo, currentUserId }: DealFormProps) 
 
           <div className="space-y-1.5">
             <Label htmlFor="ownerId">
-              Owner <span className="text-zoru-danger-ink">*</span>
+              Owner <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <EntityFormField
               entity="user"
@@ -289,7 +289,7 @@ export function DealForm({ initial, redirectTo, currentUserId }: DealFormProps) 
 
           <div className="space-y-1.5">
             <Label htmlFor="pipelineId">
-              Pipeline <span className="text-zoru-danger-ink">*</span>
+              Pipeline <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <EntityFormField
               entity="pipeline"
@@ -305,7 +305,7 @@ export function DealForm({ initial, redirectTo, currentUserId }: DealFormProps) 
 
           <div className="space-y-1.5">
             <Label htmlFor="stage">
-              Stage <span className="text-zoru-danger-ink">*</span>
+              Stage <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <EntityFormField
               entity="stage"
@@ -319,7 +319,7 @@ export function DealForm({ initial, redirectTo, currentUserId }: DealFormProps) 
           {/* Counter-party discriminator — `client` ↔ `lead` */}
           <div className="space-y-1.5">
             <Label>
-              Counter-party type <span className="text-zoru-danger-ink">*</span>
+              Counter-party type <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <EnumFormField
               enumName="partyKind"
@@ -356,15 +356,15 @@ export function DealForm({ initial, redirectTo, currentUserId }: DealFormProps) 
       {/* ─── Section 2: Money ─────────────────────────────────────────── */}
       <Card className="space-y-4 p-6">
         <div>
-          <h2 className="text-[15px] font-semibold text-zoru-ink">Money</h2>
-          <p className="text-[12.5px] text-zoru-ink-muted">
+          <h2 className="text-[15px] font-semibold text-[var(--st-text)]">Money</h2>
+          <p className="text-[12.5px] text-[var(--st-text-secondary)]">
             Deal value, currency, win probability, and expected close.
           </p>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-1.5">
             <Label htmlFor="value">
-              Amount <span className="text-zoru-danger-ink">*</span>
+              Amount <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <Input
               id="value"
@@ -437,8 +437,8 @@ export function DealForm({ initial, redirectTo, currentUserId }: DealFormProps) 
       {/* ─── Section 5: Profile (source/priority/tags) + Notes ────────── */}
       <Card className="space-y-4 p-6">
         <div>
-          <h2 className="text-[15px] font-semibold text-zoru-ink">Profile & notes</h2>
-          <p className="text-[12.5px] text-zoru-ink-muted">
+          <h2 className="text-[15px] font-semibold text-[var(--st-text)]">Profile & notes</h2>
+          <p className="text-[12.5px] text-[var(--st-text-secondary)]">
             Lead source, priority, next step, and free-text notes.
           </p>
         </div>
@@ -521,13 +521,13 @@ export function DealForm({ initial, redirectTo, currentUserId }: DealFormProps) 
 
       {/* Inline error (action returns { error }) */}
       {state?.error ? (
-        <p role="alert" className="text-sm text-zoru-danger-ink">
+        <p role="alert" className="text-sm text-[var(--st-danger)]">
           {state.error}
         </p>
       ) : null}
 
       {/* Sticky action bar */}
-      <div className="sticky bottom-0 z-10 border-t border-zoru-line bg-zoru-bg py-3">
+      <div className="sticky bottom-0 z-10 border-t border-[var(--st-border)] bg-[var(--st-bg)] py-3">
         <div className="flex flex-wrap items-center justify-end gap-2">
           <Button
             type="button"

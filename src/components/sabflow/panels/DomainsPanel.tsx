@@ -136,7 +136,7 @@ function CopyButton({
       className={cn(
         'flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[12px] font-medium transition-colors shrink-0',
         copied
-          ? 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted'
+          ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]'
           : 'bg-[var(--gray-3)] text-[var(--gray-11)] hover:bg-[var(--gray-4)] hover:text-[var(--gray-12)]',
         className,
       )}
@@ -159,20 +159,20 @@ function StatusPill({ status }: { status: DomainStatus }) {
       return {
         Icon: LuCheck,
         label: 'Verified',
-        cls: 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted',
+        cls: 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]',
       };
     }
     if (status === 'failed') {
       return {
         Icon: LuX,
         label: 'Failed',
-        cls: 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted',
+        cls: 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]',
       };
     }
     return {
       Icon: LuClock,
       label: 'Pending',
-      cls: 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted',
+      cls: 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]',
     };
   }, [status]);
 
@@ -194,13 +194,13 @@ function SslPill({ status }: { status: SslStatus }) {
     if (status === 'issued') {
       return {
         label: 'SSL issued',
-        cls: 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted',
+        cls: 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]',
       };
     }
     if (status === 'failed') {
       return {
         label: 'SSL failed',
-        cls: 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted',
+        cls: 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]',
       };
     }
     return {
@@ -370,7 +370,7 @@ function DomainRow({
             disabled={verifying || deleting}
             title="Delete domain"
             aria-label="Delete domain"
-            className="flex items-center justify-center rounded-lg p-1.5 text-[var(--gray-9)] transition-colors hover:bg-zoru-surface-2 hover:text-zoru-ink disabled:opacity-60 dark:hover:bg-zoru-ink/30 dark:hover:text-zoru-ink-muted"
+            className="flex items-center justify-center rounded-lg p-1.5 text-[var(--gray-9)] transition-colors hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] disabled:opacity-60 dark:hover:bg-[var(--st-text)]/30 dark:hover:text-[var(--st-text-secondary)]"
           >
             {deleting ? (
               <LuLoader className="h-3.5 w-3.5 animate-spin" strokeWidth={2} />
@@ -421,8 +421,8 @@ function DomainRow({
               className={cn(
                 'flex items-start gap-2 rounded-lg px-3 py-2 text-[12px]',
                 message.kind === 'error'
-                  ? 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted'
-                  : 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted',
+                  ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]'
+                  : 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]',
               )}
             >
               {message.kind === 'error' ? (
@@ -520,7 +520,7 @@ function AddDomainForm({
         </button>
       </div>
       {error && (
-        <p className="mt-2 flex items-center gap-1.5 text-[12px] text-zoru-ink dark:text-zoru-ink-muted">
+        <p className="mt-2 flex items-center gap-1.5 text-[12px] text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
           <LuTriangleAlert className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
           {error}
         </p>
@@ -629,7 +629,7 @@ export function DomainsPanel({ flowId, flowName }: DomainsPanelProps) {
           Loading domains…
         </div>
       ) : loadError ? (
-        <div className="flex items-start gap-2 rounded-xl bg-zoru-surface-2 px-3.5 py-3 text-[12.5px] text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted">
+        <div className="flex items-start gap-2 rounded-xl bg-[var(--st-bg-muted)] px-3.5 py-3 text-[12.5px] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]">
           <LuTriangleAlert
             className="mt-0.5 h-4 w-4 shrink-0"
             strokeWidth={2}

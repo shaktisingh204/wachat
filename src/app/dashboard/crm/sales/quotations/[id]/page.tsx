@@ -93,19 +93,19 @@ function StatusStep({ status, current }: StatusStepProps) {
     <li
       className={`flex items-center gap-2 rounded px-2 py-1 text-[12.5px] ${
         isCurrent
-          ? 'bg-zoru-surface-2 font-medium text-zoru-ink'
-          : 'text-zoru-ink-muted'
+          ? 'bg-[var(--st-bg-muted)] font-medium text-[var(--st-text)]'
+          : 'text-[var(--st-text-secondary)]'
       }`}
     >
       <span
         className={`inline-block h-2 w-2 rounded-full ${
-          isCurrent ? 'bg-zoru-primary' : 'bg-zoru-line'
+          isCurrent ? 'bg-[var(--st-text)]' : 'bg-[var(--st-border)]'
         }`}
         aria-hidden
       />
       {status}
       {isCurrent ? (
-        <span className="ml-auto text-[10.5px] uppercase text-zoru-primary">
+        <span className="ml-auto text-[10.5px] uppercase text-[var(--st-text)]">
           current
         </span>
       ) : null}
@@ -122,10 +122,10 @@ function DetailField({
 }) {
   return (
     <div>
-      <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
         {label}
       </div>
-      <div className="mt-1 text-[13px] text-zoru-ink">{children}</div>
+      <div className="mt-1 text-[13px] text-[var(--st-text)]">{children}</div>
     </div>
   );
 }
@@ -150,7 +150,7 @@ export default async function QuotationDetailPage({
     if (error) {
       return (
         <div className="flex w-full flex-col gap-4 p-6">
-          <p className="text-[14px] text-zoru-ink">
+          <p className="text-[14px] text-[var(--st-text)]">
             Couldn&apos;t load this quotation — {error}
           </p>
           <Button variant="outline" asChild>
@@ -349,23 +349,23 @@ export default async function QuotationDetailPage({
               />
               <div className="mt-3 space-y-1.5 text-[12.5px]">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-zoru-ink-muted">Total</span>
+                  <span className="text-[var(--st-text-secondary)]">Total</span>
                   <span className="font-mono tabular-nums">
                     {fmtMoney(totals.total, currency)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-zoru-ink-muted">Valid until</span>
+                  <span className="text-[var(--st-text-secondary)]">Valid until</span>
                   <span>{fmtDate(quotation.validUntil)}</span>
                 </div>
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-zoru-ink-muted">Created</span>
+                  <span className="text-[var(--st-text-secondary)]">Created</span>
                   <span>
                     {fmtDate(quotation.createdAt || quotation.audit?.createdAt)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-zoru-ink-muted">Updated</span>
+                  <span className="text-[var(--st-text-secondary)]">Updated</span>
                   <span>
                     {fmtDate(quotation.updatedAt || quotation.audit?.updatedAt)}
                   </span>
@@ -382,9 +382,9 @@ export default async function QuotationDetailPage({
             <ZoruCardContent className="space-y-1">
               <Link
                 href={`/dashboard/crm/sales/orders?quotationId=${quotationId}`}
-                className="flex items-center justify-between rounded-md px-2 py-1.5 text-[13px] text-zoru-ink hover:bg-zoru-surface-2"
+                className="flex items-center justify-between rounded-md px-2 py-1.5 text-[13px] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
               >
-                <span className="inline-flex items-center gap-2 text-zoru-ink-muted">
+                <span className="inline-flex items-center gap-2 text-[var(--st-text-secondary)]">
                   <ShoppingCart className="h-4 w-4" /> Sales orders
                 </span>
                 <Badge variant="secondary">
@@ -393,9 +393,9 @@ export default async function QuotationDetailPage({
               </Link>
               <Link
                 href={`/dashboard/crm/sales/invoices?quotationId=${quotationId}`}
-                className="flex items-center justify-between rounded-md px-2 py-1.5 text-[13px] text-zoru-ink hover:bg-zoru-surface-2"
+                className="flex items-center justify-between rounded-md px-2 py-1.5 text-[13px] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
               >
-                <span className="inline-flex items-center gap-2 text-zoru-ink-muted">
+                <span className="inline-flex items-center gap-2 text-[var(--st-text-secondary)]">
                   <Receipt className="h-4 w-4" /> Invoices
                 </span>
                 <Badge variant="secondary">
@@ -422,7 +422,7 @@ export default async function QuotationDetailPage({
         <CrmLineageChart nodes={lineageNodes} />
       </div>
 
-      <p className="text-[12.5px] text-zoru-ink-muted mb-4">
+      <p className="text-[12.5px] text-[var(--st-text-secondary)] mb-4">
         {fmtMoney(totals.total, currency)} · {status}
       </p>
 
@@ -496,11 +496,11 @@ export default async function QuotationDetailPage({
         </ZoruCardHeader>
         <ZoruCardContent>
           {items.length === 0 ? (
-            <p className="text-[13px] text-zoru-ink-muted">No line items.</p>
+            <p className="text-[13px] text-[var(--st-text-secondary)]">No line items.</p>
           ) : (
-            <div className="overflow-x-auto rounded border border-zoru-line">
+            <div className="overflow-x-auto rounded border border-[var(--st-border)]">
               <table className="w-full text-[12.5px]">
-                <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
+                <thead className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                   <tr>
                     <th className="p-2 text-left">Item</th>
                     <th className="p-2 text-left">HSN</th>
@@ -515,43 +515,43 @@ export default async function QuotationDetailPage({
                   {items.map((li, idx) => (
                     <tr
                       key={`${li.itemId ?? 'row'}-${idx}`}
-                      className="border-t border-zoru-line"
+                      className="border-t border-[var(--st-border)]"
                     >
                       <td className="p-2">
                         {li.itemId ? (
                           <EntityPickerChip entity="item" id={li.itemId} />
                         ) : (
-                          <span className="text-zoru-ink">
+                          <span className="text-[var(--st-text)]">
                             {li.description || '—'}
                           </span>
                         )}
                         {li.itemId && li.description ? (
-                          <div className="mt-0.5 text-[11.5px] text-zoru-ink-muted">
+                          <div className="mt-0.5 text-[11.5px] text-[var(--st-text-secondary)]">
                             {li.description}
                           </div>
                         ) : null}
                       </td>
-                      <td className="p-2 text-left font-mono text-[11.5px] tabular-nums text-zoru-ink-muted">
+                      <td className="p-2 text-left font-mono text-[11.5px] tabular-nums text-[var(--st-text-secondary)]">
                         {(li as { hsn?: string }).hsn ?? '—'}
                       </td>
-                      <td className="p-2 text-right font-mono tabular-nums text-zoru-ink">
+                      <td className="p-2 text-right font-mono tabular-nums text-[var(--st-text)]">
                         {li.qty}
                       </td>
-                      <td className="p-2 text-right font-mono tabular-nums text-zoru-ink">
+                      <td className="p-2 text-right font-mono tabular-nums text-[var(--st-text)]">
                         {fmtMoney(li.rate, currency)}
                       </td>
-                      <td className="p-2 text-right font-mono tabular-nums text-zoru-ink-muted">
+                      <td className="p-2 text-right font-mono tabular-nums text-[var(--st-text-secondary)]">
                         {typeof (li as { discountPct?: number }).discountPct ===
                         'number'
                           ? `${(li as { discountPct: number }).discountPct}%`
                           : '—'}
                       </td>
-                      <td className="p-2 text-right font-mono tabular-nums text-zoru-ink-muted">
+                      <td className="p-2 text-right font-mono tabular-nums text-[var(--st-text-secondary)]">
                         {typeof li.taxRatePct === 'number'
                           ? `${li.taxRatePct}%`
                           : '—'}
                       </td>
-                      <td className="p-2 text-right font-mono tabular-nums text-zoru-ink">
+                      <td className="p-2 text-right font-mono tabular-nums text-[var(--st-text)]">
                         {fmtMoney(li.total, currency)}
                       </td>
                     </tr>
@@ -571,15 +571,15 @@ export default async function QuotationDetailPage({
         <ZoruCardContent>
           <dl className="grid gap-2 md:grid-cols-2 text-[13px]">
             <div className="flex justify-between md:col-start-2">
-              <span className="text-zoru-ink-muted">Subtotal</span>
-              <span className="font-mono tabular-nums text-zoru-ink">
+              <span className="text-[var(--st-text-secondary)]">Subtotal</span>
+              <span className="font-mono tabular-nums text-[var(--st-text)]">
                 {fmtMoney(totals.subTotal, currency)}
               </span>
             </div>
             {typeof totals.discountOverall === 'number' ? (
               <div className="flex justify-between md:col-start-2">
-                <span className="text-zoru-ink-muted">Discount</span>
-                <span className="font-mono tabular-nums text-zoru-ink">
+                <span className="text-[var(--st-text-secondary)]">Discount</span>
+                <span className="font-mono tabular-nums text-[var(--st-text)]">
                   −{fmtMoney(totals.discountOverall, currency)}
                 </span>
               </div>
@@ -588,8 +588,8 @@ export default async function QuotationDetailPage({
               totals as { taxCgst?: number }
             ).taxCgst === 'number' ? (
               <div className="flex justify-between md:col-start-2">
-                <span className="text-zoru-ink-muted">CGST</span>
-                <span className="font-mono tabular-nums text-zoru-ink">
+                <span className="text-[var(--st-text-secondary)]">CGST</span>
+                <span className="font-mono tabular-nums text-[var(--st-text)]">
                   {fmtMoney(
                     (totals as { taxCgst: number }).taxCgst,
                     currency,
@@ -601,8 +601,8 @@ export default async function QuotationDetailPage({
               totals as { taxSgst?: number }
             ).taxSgst === 'number' ? (
               <div className="flex justify-between md:col-start-2">
-                <span className="text-zoru-ink-muted">SGST</span>
-                <span className="font-mono tabular-nums text-zoru-ink">
+                <span className="text-[var(--st-text-secondary)]">SGST</span>
+                <span className="font-mono tabular-nums text-[var(--st-text)]">
                   {fmtMoney(
                     (totals as { taxSgst: number }).taxSgst,
                     currency,
@@ -614,8 +614,8 @@ export default async function QuotationDetailPage({
               totals as { taxIgst?: number }
             ).taxIgst === 'number' ? (
               <div className="flex justify-between md:col-start-2">
-                <span className="text-zoru-ink-muted">IGST</span>
-                <span className="font-mono tabular-nums text-zoru-ink">
+                <span className="text-[var(--st-text-secondary)]">IGST</span>
+                <span className="font-mono tabular-nums text-[var(--st-text)]">
                   {fmtMoney(
                     (totals as { taxIgst: number }).taxIgst,
                     currency,
@@ -625,31 +625,31 @@ export default async function QuotationDetailPage({
             ) : null}
             {typeof totals.shippingCharge === 'number' ? (
               <div className="flex justify-between md:col-start-2">
-                <span className="text-zoru-ink-muted">Shipping</span>
-                <span className="font-mono tabular-nums text-zoru-ink">
+                <span className="text-[var(--st-text-secondary)]">Shipping</span>
+                <span className="font-mono tabular-nums text-[var(--st-text)]">
                   {fmtMoney(totals.shippingCharge, currency)}
                 </span>
               </div>
             ) : null}
             {typeof totals.adjustment === 'number' ? (
               <div className="flex justify-between md:col-start-2">
-                <span className="text-zoru-ink-muted">Adjustment</span>
-                <span className="font-mono tabular-nums text-zoru-ink">
+                <span className="text-[var(--st-text-secondary)]">Adjustment</span>
+                <span className="font-mono tabular-nums text-[var(--st-text)]">
                   {fmtMoney(totals.adjustment, currency)}
                 </span>
               </div>
             ) : null}
             {typeof totals.roundOff === 'number' ? (
               <div className="flex justify-between md:col-start-2">
-                <span className="text-zoru-ink-muted">Round-off</span>
-                <span className="font-mono tabular-nums text-zoru-ink">
+                <span className="text-[var(--st-text-secondary)]">Round-off</span>
+                <span className="font-mono tabular-nums text-[var(--st-text)]">
                   {fmtMoney(totals.roundOff, currency)}
                 </span>
               </div>
             ) : null}
-            <div className="flex justify-between border-t border-zoru-line pt-2 md:col-start-2">
-              <span className="font-medium text-zoru-ink">Total</span>
-              <span className="font-medium font-mono tabular-nums text-zoru-ink">
+            <div className="flex justify-between border-t border-[var(--st-border)] pt-2 md:col-start-2">
+              <span className="font-medium text-[var(--st-text)]">Total</span>
+              <span className="font-medium font-mono tabular-nums text-[var(--st-text)]">
                 {fmtMoney(totals.total, currency)}
               </span>
             </div>
@@ -664,7 +664,7 @@ export default async function QuotationDetailPage({
             <ZoruCardTitle>Terms &amp; conditions</ZoruCardTitle>
           </ZoruCardHeader>
           <ZoruCardContent>
-            <p className="whitespace-pre-wrap text-[13px] text-zoru-ink">
+            <p className="whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
               {quotation.termsAndConditions}
             </p>
           </ZoruCardContent>
@@ -678,11 +678,11 @@ export default async function QuotationDetailPage({
         </ZoruCardHeader>
         <ZoruCardContent>
           {quotation.customerNotes ? (
-            <p className="whitespace-pre-wrap text-[13px] text-zoru-ink">
+            <p className="whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
               {quotation.customerNotes}
             </p>
           ) : (
-            <p className="text-[13px] text-zoru-ink-muted">
+            <p className="text-[13px] text-[var(--st-text-secondary)]">
               No notes yet — add them via the Edit form.
             </p>
           )}
@@ -696,7 +696,7 @@ export default async function QuotationDetailPage({
             <ZoruCardTitle>Attachments</ZoruCardTitle>
           </ZoruCardHeader>
           <ZoruCardContent>
-            <ul className="list-disc space-y-1 pl-5 text-[13px] text-zoru-ink">
+            <ul className="list-disc space-y-1 pl-5 text-[13px] text-[var(--st-text)]">
               {(cfValues._attachments as string[]).map((u) => (
                 <li key={u}>
                   <a

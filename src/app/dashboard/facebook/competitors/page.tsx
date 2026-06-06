@@ -199,7 +199,7 @@ export default function FacebookCompetitorsPage() {
       accessorKey: 'name',
       header: 'Name',
       cell: ({ row }) => (
-        <span className="font-medium text-zoru-ink">
+        <span className="font-medium text-[var(--st-text)]">
           {row.original.name ?? row.original.pageId ?? '—'}
         </span>
       ),
@@ -214,7 +214,7 @@ export default function FacebookCompetitorsPage() {
             href={c.pageUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-xs text-zoru-ink-muted hover:underline"
+            className="inline-flex items-center gap-1 text-xs text-[var(--st-text-secondary)] hover:underline"
           >
             {c.pageUrl.replace(/^https?:\/\/(www\.)?/, '')}
             <ExternalLink className="h-3 w-3" />
@@ -248,7 +248,7 @@ export default function FacebookCompetitorsPage() {
       accessorKey: 'lastSyncedAt',
       header: 'Last synced',
       cell: ({ row }) => (
-        <div className="text-xs text-zoru-ink-muted">
+        <div className="text-xs text-[var(--st-text-secondary)]">
           {fmtDate(row.original.lastSyncedAt) || 'never'}
         </div>
       ),
@@ -330,8 +330,8 @@ export default function FacebookCompetitorsPage() {
 
       <header className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl text-zoru-ink">Competitors</h1>
-          <p className="mt-1 text-sm text-zoru-ink-muted">
+          <h1 className="text-2xl text-[var(--st-text)]">Competitors</h1>
+          <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
             Track competitor Pages and their public engagement signals.
           </p>
         </div>
@@ -434,12 +434,12 @@ export default function FacebookCompetitorsPage() {
           </ZoruDialogHeader>
           <div className="py-4">
             {analyzingId ? (
-              <div className="flex items-center gap-2 text-sm text-zoru-ink-muted">
+              <div className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
                 <RefreshCw className="h-4 w-4 animate-spin" />
                 Analyzing recent trends and posts...
               </div>
             ) : (
-              <div className="text-sm text-zoru-ink bg-zoru-surface-muted p-4 rounded-md">
+              <div className="text-sm text-[var(--st-text)] bg-[var(--st-bg-muted)] p-4 rounded-md">
                 {analysisResult}
               </div>
             )}

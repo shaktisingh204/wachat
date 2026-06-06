@@ -220,7 +220,7 @@ export default function EstimateTemplatesPage() {
         bulkBar={
           selected.size > 0 ? (
             <div className="flex flex-wrap items-center gap-2 text-[13px]">
-              <span className="font-medium text-zoru-ink">{selected.size} selected</span>
+              <span className="font-medium text-[var(--st-text)]">{selected.size} selected</span>
               <Button size="sm" variant="outline" onClick={bulkArchive} disabled={busy}>
                 <Archive className="h-3.5 w-3.5" /> Archive
               </Button>
@@ -230,7 +230,7 @@ export default function EstimateTemplatesPage() {
               <Button
                 size="sm"
                 variant="ghost"
-                className="text-zoru-danger-ink"
+                className="text-[var(--st-danger)]"
                 onClick={() => setPendingBulkDelete(true)}
                 disabled={busy}
               >
@@ -245,9 +245,9 @@ export default function EstimateTemplatesPage() {
       >
         <Card className="overflow-hidden p-0">
           {/* Filter bar */}
-          <div className="flex flex-wrap items-center gap-3 border-b border-zoru-line p-3">
+          <div className="flex flex-wrap items-center gap-3 border-b border-[var(--st-border)] p-3">
             <div className="relative max-w-sm flex-1">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
               <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -275,7 +275,7 @@ export default function EstimateTemplatesPage() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setStatusFilter('')}
-                className="text-[12px] text-zoru-ink-muted"
+                className="text-[12px] text-[var(--st-text-secondary)]"
               >
                 <X className="h-3.5 w-3.5" /> Clear
               </Button>
@@ -284,7 +284,7 @@ export default function EstimateTemplatesPage() {
 
           <Table>
             <ZoruTableHeader>
-              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                 <ZoruTableHead className="w-[36px]">
                   <Checkbox
                     checked={allSelected}
@@ -292,11 +292,11 @@ export default function EstimateTemplatesPage() {
                     aria-label="Select all"
                   />
                 </ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Name</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Title</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Currency</ZoruTableHead>
-                <ZoruTableHead className="text-right text-zoru-ink-muted">Total</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Name</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Title</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Currency</ZoruTableHead>
+                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Total</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
                 <ZoruTableHead className="w-24" />
               </ZoruTableRow>
             </ZoruTableHeader>
@@ -304,14 +304,14 @@ export default function EstimateTemplatesPage() {
               {isLoading ? (
                 <ZoruTableRow>
                   <ZoruTableCell colSpan={7} className="h-24 text-center">
-                    <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
+                    <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
                   </ZoruTableCell>
                 </ZoruTableRow>
               ) : filtered.length === 0 ? (
                 <ZoruTableRow>
                   <ZoruTableCell
                     colSpan={7}
-                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                    className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     {hasActive || query
                       ? 'No templates match these filters.'
@@ -325,7 +325,7 @@ export default function EstimateTemplatesPage() {
                   return (
                     <ZoruTableRow
                       key={t._id}
-                      className="border-zoru-line"
+                      className="border-[var(--st-border)]"
                       data-state={isSelected ? 'selected' : undefined}
                     >
                       <ZoruTableCell>
@@ -341,13 +341,13 @@ export default function EstimateTemplatesPage() {
                           label={t.name || '—'}
                         />
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-zoru-ink">
+                      <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                         {t.title || '—'}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-zoru-ink">
+                      <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                         {t.currency || '—'}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
+                      <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
                         {fmtCurrency(t.total, t.currency)}
                       </ZoruTableCell>
                       <ZoruTableCell>
@@ -376,7 +376,7 @@ export default function EstimateTemplatesPage() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="text-zoru-danger-ink"
+                            className="text-[var(--st-danger)]"
                             onClick={() => setPendingDelete(t)}
                           >
                             <Trash2 className="h-3.5 w-3.5" />
@@ -413,7 +413,7 @@ export default function EstimateTemplatesPage() {
                 confirmDelete();
               }}
               disabled={busy}
-              className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
+              className="bg-[var(--st-danger)] text-white hover:bg-[var(--st-danger)]/90"
             >
               {busy ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : null}
               Delete permanently
@@ -443,7 +443,7 @@ export default function EstimateTemplatesPage() {
                 confirmBulkDelete();
               }}
               disabled={busy}
-              className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
+              className="bg-[var(--st-danger)] text-white hover:bg-[var(--st-danger)]/90"
             >
               {busy ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : null}
               Delete permanently

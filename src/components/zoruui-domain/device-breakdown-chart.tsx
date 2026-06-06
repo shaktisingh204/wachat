@@ -42,8 +42,8 @@ interface PieTooltipProps {
 function PieTooltip({ active, payload }: PieTooltipProps) {
   if (!active || !payload || payload.length === 0) return null;
   return (
-    <div className="rounded-lg border border-zoru-line bg-zoru-surface px-3 py-2 text-[12px] shadow-lg">
-      <p className="text-zoru-ink">{payload[0].name}: <span className="font-medium">{payload[0].value}</span></p>
+    <div className="rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-[12px] shadow-lg">
+      <p className="text-[var(--st-text)]">{payload[0].name}: <span className="font-medium">{payload[0].value}</span></p>
     </div>
   );
 }
@@ -61,22 +61,22 @@ interface BarTooltipProps {
 function BarTooltip({ active, payload, label }: BarTooltipProps) {
   if (!active || !payload || payload.length === 0) return null;
   return (
-    <div className="rounded-lg border border-zoru-line bg-zoru-surface px-3 py-2 text-[12px] shadow-lg">
-      <p className="text-zoru-ink-muted mb-0.5">{label}</p>
-      <p className="text-zoru-ink font-medium">{payload[0].value} clicks</p>
+    <div className="rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-[12px] shadow-lg">
+      <p className="text-[var(--st-text-secondary)] mb-0.5">{label}</p>
+      <p className="text-[var(--st-text)] font-medium">{payload[0].value} clicks</p>
     </div>
   );
 }
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-[11px] uppercase tracking-wider text-zoru-ink-muted mb-3">{children}</p>
+    <p className="text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)] mb-3">{children}</p>
   );
 }
 
 function EmptyState({ message }: { message: string }) {
   return (
-    <div className="py-6 text-center text-[12px] text-zoru-ink-muted">{message}</div>
+    <div className="py-6 text-center text-[12px] text-[var(--st-text-secondary)]">{message}</div>
   );
 }
 
@@ -99,8 +99,8 @@ export function DeviceBreakdownChart({ data, isLoading }: DeviceBreakdownChartPr
   return (
     <Card className="p-5 space-y-6">
       <div className="flex items-center gap-2">
-        <Monitor className="h-4 w-4 text-zoru-ink-muted" />
-        <span className="text-[13px] text-zoru-ink">Device Breakdown</span>
+        <Monitor className="h-4 w-4 text-[var(--st-text-secondary)]" />
+        <span className="text-[13px] text-[var(--st-text)]">Device Breakdown</span>
       </div>
 
       {/* Device Type — Donut */}
@@ -128,7 +128,7 @@ export function DeviceBreakdownChart({ data, isLoading }: DeviceBreakdownChartPr
               <Tooltip content={<PieTooltip />} />
               <Legend
                 formatter={(value) => (
-                  <span className="text-[11px] text-zoru-ink capitalize">{value}</span>
+                  <span className="text-[11px] text-[var(--st-text)] capitalize">{value}</span>
                 )}
                 iconSize={8}
                 iconType="circle"

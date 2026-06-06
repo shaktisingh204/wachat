@@ -154,13 +154,13 @@ export default function PeopleAlsoAskPage() {
       {results.length > 0 && (
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-medium text-zoru-ink">Results ({results.length})</h3>
+            <h3 className="text-lg font-medium text-[var(--st-text)]">Results ({results.length})</h3>
             <Button onClick={exportCsv} variant="outline" size="sm">
               <Download className="w-4 h-4 mr-2" />
               Export CSV
             </Button>
           </div>
-          <div className="border border-zoru-line rounded-lg overflow-hidden bg-zoru-surface">
+          <div className="border border-[var(--st-border)] rounded-lg overflow-hidden bg-[var(--st-bg-secondary)]">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -172,11 +172,11 @@ export default function PeopleAlsoAskPage() {
               <TableBody>
                 {results.map((r, i) => (
                   <TableRow key={i}>
-                    <TableCell className="font-medium text-zoru-ink">{r.question}</TableCell>
+                    <TableCell className="font-medium text-[var(--st-text)]">{r.question}</TableCell>
                     <TableCell>
                       <Badge variant="secondary">{r.group}</Badge>
                     </TableCell>
-                    <TableCell className="text-right text-zoru-ink-muted">{r.volume.toLocaleString()}</TableCell>
+                    <TableCell className="text-right text-[var(--st-text-secondary)]">{r.volume.toLocaleString()}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

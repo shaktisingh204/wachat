@@ -43,7 +43,7 @@ export function ItemPrintView({
   return (
     <div className="space-y-4 print:space-y-0">
       <Card className="p-4 print:hidden">
-        <p className="text-[12.5px] text-zoru-ink-muted">
+        <p className="text-[12.5px] text-[var(--st-text-secondary)]">
           Press <kbd>Ctrl/Cmd + P</kbd> to print. Use a 3×8 label sheet (24
           labels per page).
         </p>
@@ -53,9 +53,9 @@ export function ItemPrintView({
         {Array.from({ length: LABELS_PER_SHEET }).map((_, idx) => (
           <div
             key={idx}
-            className="flex flex-col items-center justify-center rounded border border-zoru-line bg-white p-2 text-center text-zoru-ink print:break-inside-avoid"
+            className="flex flex-col items-center justify-center rounded border border-[var(--st-border)] bg-white p-2 text-center text-[var(--st-text)] print:break-inside-avoid"
           >
-            <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink">
+            <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text)]">
               {productName}
             </div>
             {variant === 'qr' ? (
@@ -69,7 +69,7 @@ export function ItemPrintView({
               <BarcodeSvg code={code} />
             )}
             <div className="text-[11px] font-mono">{code}</div>
-            <div className="text-[10.5px] text-zoru-ink">
+            <div className="text-[10.5px] text-[var(--st-text)]">
               {fmtINR(sellingPrice, currency)}
             </div>
           </div>

@@ -16,9 +16,9 @@ export default function TimeLogsPage() {
       <Suspense
         fallback={
           <div className="p-6">
-            <Card className="flex flex-col items-center justify-center h-64 border-zoru-line bg-zoru-bg">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-zoru-ink-muted border-t-transparent" />
-              <p className="mt-4 text-sm text-zoru-ink-muted">Loading time logs...</p>
+            <Card className="flex flex-col items-center justify-center h-64 border-[var(--st-border)] bg-[var(--st-bg)]">
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-[var(--st-text-secondary)] border-t-transparent" />
+              <p className="mt-4 text-sm text-[var(--st-text-secondary)]">Loading time logs...</p>
             </Card>
           </div>
         }

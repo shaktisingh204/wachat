@@ -63,16 +63,16 @@ export function ContractRelatedRail({
         <ZoruCardContent>
           <div className="space-y-3 text-[12.5px]">
             <div className="flex items-center justify-between">
-              <span className="text-zoru-ink-muted">Status</span>
+              <span className="text-[var(--st-text-secondary)]">Status</span>
               <Badge variant="outline">{status || 'draft'}</Badge>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-zoru-ink-muted">Days remaining</span>
+              <span className="text-[var(--st-text-secondary)]">Days remaining</span>
               <span
                 className={`font-mono tabular-nums ${
                   remaining !== null && remaining < 0
-                    ? 'text-zoru-danger-ink'
-                    : 'text-zoru-ink'
+                    ? 'text-[var(--st-danger)]'
+                    : 'text-[var(--st-text)]'
                 }`}
               >
                 {remaining === null
@@ -82,8 +82,8 @@ export function ContractRelatedRail({
                   : `${remaining}d`}
               </span>
             </div>
-            <div className="flex items-center justify-between border-t border-zoru-line pt-2">
-              <span className="text-zoru-ink-muted">Value</span>
+            <div className="flex items-center justify-between border-t border-[var(--st-border)] pt-2">
+              <span className="text-[var(--st-text-secondary)]">Value</span>
               <span className="font-mono tabular-nums">{fmtMoney}</span>
             </div>
           </div>
@@ -97,16 +97,16 @@ export function ContractRelatedRail({
         <ZoruCardContent>
           <div className="space-y-3 text-[12.5px]">
             <div>
-              <div className="text-[11px] uppercase text-zoru-ink-muted">
+              <div className="text-[11px] uppercase text-[var(--st-text-secondary)]">
                 Party A
               </div>
-              <div className="mt-0.5 text-zoru-ink">Our organization</div>
+              <div className="mt-0.5 text-[var(--st-text)]">Our organization</div>
             </div>
             <div>
-              <div className="text-[11px] uppercase text-zoru-ink-muted">
+              <div className="text-[11px] uppercase text-[var(--st-text-secondary)]">
                 Party B
               </div>
-              <div className="mt-0.5 text-zoru-ink">{clientName || '—'}</div>
+              <div className="mt-0.5 text-[var(--st-text)]">{clientName || '—'}</div>
             </div>
           </div>
         </ZoruCardContent>
@@ -120,17 +120,17 @@ export function ContractRelatedRail({
           <div className="flex flex-col gap-2 text-[12.5px]">
             <Link
               href={`/dashboard/crm/contracts/renewals?contractId=${contractId}`}
-              className="text-zoru-primary hover:underline"
+              className="text-[var(--st-text)] hover:underline"
             >
               Renewals →
             </Link>
             {/* TODO 1D.2: contract amendments collection not yet implemented */}
-            <span className="text-zoru-ink-muted">
+            <span className="text-[var(--st-text-secondary)]">
               Amendments — coming soon
             </span>
             <Link
               href={`/dashboard/crm/sales/invoices?contractId=${contractId}`}
-              className="text-zoru-primary hover:underline"
+              className="text-[var(--st-text)] hover:underline"
             >
               Linked invoices →
             </Link>
@@ -146,13 +146,13 @@ export function ContractRelatedRail({
           <ZoruCardContent>
             <div className="space-y-1.5 text-[12.5px]">
               <div className="flex justify-between">
-                <span className="text-zoru-ink-muted">Start</span>
+                <span className="text-[var(--st-text-secondary)]">Start</span>
                 <span>
                   {formatDate(startDate)}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-zoru-ink-muted">End</span>
+                <span className="text-[var(--st-text-secondary)]">End</span>
                 <span>
                   {formatDate(endDate)}
                 </span>

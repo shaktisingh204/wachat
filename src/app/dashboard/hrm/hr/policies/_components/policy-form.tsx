@@ -227,7 +227,7 @@ export function PolicyForm({ initialData }: PolicyFormProps) {
                                     href={documentUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="max-w-[260px] truncate text-[12.5px] text-zoru-ink underline-offset-2 hover:underline"
+                                    className="max-w-[260px] truncate text-[12.5px] text-[var(--st-text)] underline-offset-2 hover:underline"
                                 >
                                     {documentName || documentUrl}
                                 </a>
@@ -241,7 +241,7 @@ export function PolicyForm({ initialData }: PolicyFormProps) {
                                 </Button>
                             </>
                         ) : (
-                            <span className="text-[12px] text-zoru-ink-muted">
+                            <span className="text-[12px] text-[var(--st-text-secondary)]">
                                 No document attached.
                             </span>
                         )}

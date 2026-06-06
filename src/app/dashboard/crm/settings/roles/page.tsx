@@ -151,7 +151,7 @@ export default function RolesPage() {
     if (!mounted) {
         return (
             <div className="flex h-60 items-center justify-center">
-                <span className="flex items-center gap-2 text-sm text-zoru-ink-muted">
+                <span className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
                     <LoaderCircle className="h-4 w-4 animate-spin" />
                     Loading roles...
                 </span>
@@ -267,17 +267,17 @@ export default function RolesPage() {
                 bulkBar={
                     selected.size > 0 ? (
                         <div className="flex flex-wrap items-center gap-2 text-[13px]">
-                            <span className="font-medium text-zoru-ink">
+                            <span className="font-medium text-[var(--st-text)]">
                                 {selected.size} selected
                             </span>
-                            <span className="text-zoru-ink-muted">·</span>
+                            <span className="text-[var(--st-text-secondary)]">·</span>
                             <Button
                                 variant="ghost"
                                 size="sm"
                                 disabled={bulkDeleting}
                                 onClick={handleBulkDelete}
                             >
-                                <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                                <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                                 Delete (custom only)
                             </Button>
                             <Button
@@ -311,7 +311,7 @@ export default function RolesPage() {
                         <button
                             type="button"
                             onClick={() => setFilter('all')}
-                            className="text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-zoru-primary"
+                            className="text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]"
                         >
                             <StatCard
                                 label="Total"
@@ -319,7 +319,7 @@ export default function RolesPage() {
                                 icon={<Shield className="h-4 w-4" />}
                                 className={
                                     filter === 'all'
-                                        ? 'ring-1 ring-zoru-primary rounded-[var(--zoru-radius-lg)]'
+                                        ? 'ring-1 ring-[var(--st-text)] rounded-[var(--zoru-radius-lg)]'
                                         : undefined
                                 }
                             />
@@ -327,7 +327,7 @@ export default function RolesPage() {
                         <button
                             type="button"
                             onClick={() => setFilter('system')}
-                            className="text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-zoru-primary"
+                            className="text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]"
                         >
                             <StatCard
                                 label="System"
@@ -335,7 +335,7 @@ export default function RolesPage() {
                                 icon={<UserCheck className="h-4 w-4" />}
                                 className={
                                     filter === 'system'
-                                        ? 'ring-1 ring-zoru-primary rounded-[var(--zoru-radius-lg)]'
+                                        ? 'ring-1 ring-[var(--st-text)] rounded-[var(--zoru-radius-lg)]'
                                         : undefined
                                 }
                             />
@@ -343,7 +343,7 @@ export default function RolesPage() {
                         <button
                             type="button"
                             onClick={() => setFilter('custom')}
-                            className="text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-zoru-primary"
+                            className="text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]"
                         >
                             <StatCard
                                 label="Custom"
@@ -354,7 +354,7 @@ export default function RolesPage() {
                                 icon={<UserCog className="h-4 w-4" />}
                                 className={
                                     filter === 'custom'
-                                        ? 'ring-1 ring-zoru-primary rounded-[var(--zoru-radius-lg)]'
+                                        ? 'ring-1 ring-[var(--st-text)] rounded-[var(--zoru-radius-lg)]'
                                         : undefined
                                 }
                             />
@@ -381,19 +381,19 @@ export default function RolesPage() {
                                                 aria-label="Select all"
                                             />
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-zoru-ink-muted">
+                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                             Role
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-zoru-ink-muted">
+                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                             Slug
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-zoru-ink-muted">
+                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                             Members
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-zoru-ink-muted">
+                                        <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                             Type
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="w-[180px] text-right text-zoru-ink-muted">
+                                        <ZoruTableHead className="w-[180px] text-right text-[var(--st-text-secondary)]">
                                             Actions
                                         </ZoruTableHead>
                                     </ZoruTableRow>
@@ -403,7 +403,7 @@ export default function RolesPage() {
                                         <ZoruTableRow>
                                             <ZoruTableCell
                                                 colSpan={6}
-                                                className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                                                className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                                             >
                                                 <LoaderCircle className="mx-auto h-4 w-4 animate-spin" />
                                             </ZoruTableCell>
@@ -412,7 +412,7 @@ export default function RolesPage() {
                                         <ZoruTableRow>
                                             <ZoruTableCell
                                                 colSpan={6}
-                                                className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                                                className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                                             >
                                                 {search
                                                     ? `No roles matched “${search}”.`
@@ -431,14 +431,14 @@ export default function RolesPage() {
                                                         aria-label="Select row"
                                                     />
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-[13px] text-zoru-ink">
+                                                <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                                                     <EntityRowLink
                                                         href={`/dashboard/crm/settings/roles/${row._id}/edit`}
                                                         label={row.display_name || row.name}
                                                         subtitle={row.description || undefined}
                                                     />
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-[12px] text-zoru-ink-muted">
+                                                <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
                                                     <code>{row.name}</code>
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
@@ -489,7 +489,7 @@ export default function RolesPage() {
                                                             }
                                                             aria-label="Delete"
                                                         >
-                                                            <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                                                            <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                                                         </Button>
                                                     </div>
                                                 </ZoruTableCell>

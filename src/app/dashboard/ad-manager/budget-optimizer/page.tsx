@@ -102,17 +102,17 @@ function CampaignBudgetCard({
                 </ZoruCardTitle>
             </ZoruCardHeader>
             <ZoruCardContent className="space-y-4 text-sm flex-1 flex flex-col">
-                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-zoru-ink-muted">
-                    <span>Spend</span><span className="text-zoru-ink tabular-nums">${rec.spend.toFixed(2)}</span>
-                    <span>Clicks</span><span className="text-zoru-ink tabular-nums">{rec.clicks}</span>
-                    <span>CPC</span><span className="text-zoru-ink tabular-nums">${rec.cpc.toFixed(2)}</span>
-                    <span>Hist. ROAS</span><span className="text-zoru-ink tabular-nums">{historicalRoas.toFixed(2)}x</span>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[var(--st-text-secondary)]">
+                    <span>Spend</span><span className="text-[var(--st-text)] tabular-nums">${rec.spend.toFixed(2)}</span>
+                    <span>Clicks</span><span className="text-[var(--st-text)] tabular-nums">{rec.clicks}</span>
+                    <span>CPC</span><span className="text-[var(--st-text)] tabular-nums">${rec.cpc.toFixed(2)}</span>
+                    <span>Hist. ROAS</span><span className="text-[var(--st-text)] tabular-nums">{historicalRoas.toFixed(2)}x</span>
                 </div>
                 
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                        <span className="font-medium text-zoru-ink">Daily budget</span>
-                        <span className="font-bold text-zoru-ink tabular-nums">${budget.toFixed(2)}</span>
+                        <span className="font-medium text-[var(--st-text)]">Daily budget</span>
+                        <span className="font-bold text-[var(--st-text)] tabular-nums">${budget.toFixed(2)}</span>
                     </div>
                     <input 
                         type="range"
@@ -123,27 +123,27 @@ function CampaignBudgetCard({
                         onChange={handleSliderChange}
                         onMouseUp={handleSliderMouseUp}
                         onTouchEnd={handleSliderMouseUp}
-                        className="w-full accent-primary h-2 bg-zoru-surface-2 rounded-lg appearance-none cursor-pointer"
+                        className="w-full accent-primary h-2 bg-[var(--st-bg-muted)] rounded-lg appearance-none cursor-pointer"
                     />
-                    <div className="flex justify-between text-xs text-zoru-ink-muted">
+                    <div className="flex justify-between text-xs text-[var(--st-text-secondary)]">
                         <span>$1</span>
                         <span>${Math.max(rec.dailyBudget * 3, 100).toFixed(0)}</span>
                     </div>
                 </div>
 
-                <div className="p-3 bg-zoru-surface-2/30 rounded-md border border-zoru-line/50 space-y-1">
-                    <div className="text-xs font-medium text-zoru-ink mb-2">Projected Daily Outcomes</div>
+                <div className="p-3 bg-[var(--st-bg-muted)]/30 rounded-md border border-[var(--st-border)]/50 space-y-1">
+                    <div className="text-xs font-medium text-[var(--st-text)] mb-2">Projected Daily Outcomes</div>
                     <div className="flex justify-between text-xs">
-                        <span className="text-zoru-ink-muted">Clicks</span>
+                        <span className="text-[var(--st-text-secondary)]">Clicks</span>
                         <span className="font-medium">~{projectedClicks}</span>
                     </div>
                     <div className="flex justify-between text-xs">
-                        <span className="text-zoru-ink-muted">Revenue</span>
-                        <span className="font-medium text-zoru-ink">~${projectedRev.toFixed(2)}</span>
+                        <span className="text-[var(--st-text-secondary)]">Revenue</span>
+                        <span className="font-medium text-[var(--st-text)]">~${projectedRev.toFixed(2)}</span>
                     </div>
                 </div>
 
-                <p className="text-xs text-zoru-ink-muted italic flex-1">{rec.reason}</p>
+                <p className="text-xs text-[var(--st-text-secondary)] italic flex-1">{rec.reason}</p>
                 
                 <div className="flex gap-2 mt-auto pt-2">
                     <Button
@@ -158,7 +158,7 @@ function CampaignBudgetCard({
                     </Button>
                     <Button
                         size="sm"
-                        className="flex-1 bg-zoru-ink text-white hover:bg-zoru-ink/90"
+                        className="flex-1 bg-[var(--st-text)] text-white hover:bg-[var(--st-text)]/90"
                         onClick={() => onApply(rec, budget)}
                     >
                         Apply
@@ -239,7 +239,7 @@ export default function BudgetOptimizerPage() {
                 actions={
                     <div className="flex items-center gap-2">
                         {tab === 'recommendations' && recs.length > 0 && (
-                            <Button variant="default" onClick={handleApplyAll} className="bg-zoru-ink hover:bg-zoru-ink/90">
+                            <Button variant="default" onClick={handleApplyAll} className="bg-[var(--st-text)] hover:bg-[var(--st-text)]/90">
                                 Apply All
                             </Button>
                         )}
@@ -250,7 +250,7 @@ export default function BudgetOptimizerPage() {
                 }
             />
 
-            <div className="flex items-center gap-4 border-b border-zoru-line pb-2">
+            <div className="flex items-center gap-4 border-b border-[var(--st-border)] pb-2">
                 <Button variant={tab === 'recommendations' ? 'secondary' : 'ghost'} onClick={() => setTab('recommendations')} size="sm">
                     Recommendations
                 </Button>
@@ -259,7 +259,7 @@ export default function BudgetOptimizerPage() {
                 </Button>
             </div>
 
-            <div className="flex items-center gap-2 text-sm text-zoru-ink-muted">
+            <div className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
                 <Wallet className="h-4 w-4" />
                 <span>Recommendations refreshed from the last 7 days of insights.</span>
             </div>
@@ -272,7 +272,7 @@ export default function BudgetOptimizerPage() {
                 <Card>
                     <ZoruCardContent className="p-0">
                         {history.length === 0 ? (
-                            <div className="p-8 text-center text-zoru-ink-muted">No history yet.</div>
+                            <div className="p-8 text-center text-[var(--st-text-secondary)]">No history yet.</div>
                         ) : (
                             <Table>
                                 <ZoruTableHeader>
@@ -285,7 +285,7 @@ export default function BudgetOptimizerPage() {
                                 <ZoruTableBody>
                                     {history.map((h, i) => (
                                         <ZoruTableRow key={i}>
-                                            <ZoruTableCell className="text-sm text-zoru-ink-muted">{h.date}</ZoruTableCell>
+                                            <ZoruTableCell className="text-sm text-[var(--st-text-secondary)]">{h.date}</ZoruTableCell>
                                             <ZoruTableCell className="font-medium">{h.campaignName}</ZoruTableCell>
                                             <ZoruTableCell>{h.action}</ZoruTableCell>
                                         </ZoruTableRow>
@@ -300,26 +300,26 @@ export default function BudgetOptimizerPage() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <Card>
                             <ZoruCardContent className="p-4">
-                                <div className="text-sm text-zoru-ink-muted">Increase budget</div>
-                                <div className="text-3xl font-bold text-zoru-ink">{countByType('increase')}</div>
+                                <div className="text-sm text-[var(--st-text-secondary)]">Increase budget</div>
+                                <div className="text-3xl font-bold text-[var(--st-text)]">{countByType('increase')}</div>
                             </ZoruCardContent>
                         </Card>
                         <Card>
                             <ZoruCardContent className="p-4">
-                                <div className="text-sm text-zoru-ink-muted">Decrease budget</div>
-                                <div className="text-3xl font-bold text-zoru-ink">{countByType('decrease')}</div>
+                                <div className="text-sm text-[var(--st-text-secondary)]">Decrease budget</div>
+                                <div className="text-3xl font-bold text-[var(--st-text)]">{countByType('decrease')}</div>
                             </ZoruCardContent>
                         </Card>
                         <Card>
                             <ZoruCardContent className="p-4">
-                                <div className="text-sm text-zoru-ink-muted">Pause</div>
-                                <div className="text-3xl font-bold text-zoru-ink">{countByType('pause')}</div>
+                                <div className="text-sm text-[var(--st-text-secondary)]">Pause</div>
+                                <div className="text-3xl font-bold text-[var(--st-text)]">{countByType('pause')}</div>
                             </ZoruCardContent>
                         </Card>
                     </div>
 
                     {recs.length === 0 ? (
-                        <Card><ZoruCardContent className="p-8 text-center text-zoru-ink-muted">No active campaigns with insights found.</ZoruCardContent></Card>
+                        <Card><ZoruCardContent className="p-8 text-center text-[var(--st-text-secondary)]">No active campaigns with insights found.</ZoruCardContent></Card>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             {recs.map((r) => (

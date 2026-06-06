@@ -56,7 +56,7 @@ export function FlowInspectorPanel({
       <div className="flex flex-col gap-4 p-4">
         <header>
           <h3 className="text-sm font-semibold">Trigger</h3>
-          <p className="text-xs text-zoru-ink-muted">
+          <p className="text-xs text-[var(--st-text-secondary)]">
             Configure how this flow gets activated.
           </p>
         </header>
@@ -81,7 +81,7 @@ export function FlowInspectorPanel({
             {meta.label}
           </span>
           <h3 className="mt-1 text-sm font-semibold">{meta.subtitle}</h3>
-          <p className="text-xs text-zoru-ink-muted">Node id: {selectedNode.id}</p>
+          <p className="text-xs text-[var(--st-text-secondary)]">Node id: {selectedNode.id}</p>
         </div>
         {!disabled ? (
           <Button
@@ -90,7 +90,7 @@ export function FlowInspectorPanel({
             onClick={onDeleteNode}
             aria-label="Delete node"
           >
-            <Trash2 className="h-4 w-4 text-zoru-ink" />
+            <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
           </Button>
         ) : null}
       </header>
@@ -132,13 +132,13 @@ function renderForm(
       return <RunSubflowForm data={data} patch={patch} disabled={disabled} />;
     case 'end':
       return (
-        <p className="text-sm text-zoru-ink-muted">
+        <p className="text-sm text-[var(--st-text-secondary)]">
           The flow stops here. Nothing to configure.
         </p>
       );
     default:
       return (
-        <p className="text-sm text-zoru-ink-muted">
+        <p className="text-sm text-[var(--st-text-secondary)]">
           No inspector form for this node type yet.
         </p>
       );
@@ -346,7 +346,7 @@ function BranchForm({ data, patch, disabled }: FormProps) {
           <Plus className="h-3 w-3" /> Add
         </Button>
       </div>
-      <p className="text-xs text-zoru-ink-muted">
+      <p className="text-xs text-[var(--st-text-secondary)]">
         Wire one outgoing edge per case; the canvas picks the matching edge by
         label.
       </p>

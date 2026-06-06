@@ -15,9 +15,9 @@ export function BioProfileForm({ state, update }: Props) {
   return (
     <Card className="p-5 space-y-4">
       <div className="space-y-1.5">
-        <Label className="text-[12.5px] text-zoru-ink-muted">Page URL</Label>
+        <Label className="text-[12.5px] text-[var(--st-text-secondary)]">Page URL</Label>
         <div className="flex items-center gap-2">
-          <span className="text-[13px] text-zoru-ink-muted whitespace-nowrap">/bio/</span>
+          <span className="text-[13px] text-[var(--st-text-secondary)] whitespace-nowrap">/bio/</span>
           <Input
             placeholder="your-name"
             value={state.slug}
@@ -29,7 +29,7 @@ export function BioProfileForm({ state, update }: Props) {
       </div>
 
       <div className="space-y-1.5">
-        <Label className="text-[12.5px] text-zoru-ink-muted">Title</Label>
+        <Label className="text-[12.5px] text-[var(--st-text-secondary)]">Title</Label>
         <Input
           placeholder="Your name or brand"
           value={state.title}
@@ -38,8 +38,8 @@ export function BioProfileForm({ state, update }: Props) {
       </div>
 
       <div className="space-y-1.5">
-        <Label className="text-[12.5px] text-zoru-ink-muted">
-          Bio <span className="text-zoru-ink-muted/60">({state.bio.length}/160)</span>
+        <Label className="text-[12.5px] text-[var(--st-text-secondary)]">
+          Bio <span className="text-[var(--st-text-secondary)]/60">({state.bio.length}/160)</span>
         </Label>
         <Textarea
           placeholder="A short description about you..."
@@ -51,16 +51,16 @@ export function BioProfileForm({ state, update }: Props) {
       </div>
 
       <div className="space-y-1.5">
-        <Label className="text-[12.5px] text-zoru-ink-muted">Avatar</Label>
+        <Label className="text-[12.5px] text-[var(--st-text-secondary)]">Avatar</Label>
         <div className="flex items-center gap-3">
           {state.avatarUrl ? (
             <img
               src={state.avatarUrl}
               alt="Avatar"
-              className="h-10 w-10 rounded-full object-cover border border-zoru-line"
+              className="h-10 w-10 rounded-full object-cover border border-[var(--st-border)]"
             />
           ) : (
-            <div className="h-10 w-10 rounded-full bg-zoru-ink border border-zoru-line" />
+            <div className="h-10 w-10 rounded-full bg-[var(--st-text)] border border-[var(--st-border)]" />
           )}
           <SabFilePickerButton onPick={handleAvatarPick} variant="outline">
             Choose Avatar

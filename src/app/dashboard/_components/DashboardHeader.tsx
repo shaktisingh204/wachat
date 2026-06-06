@@ -83,10 +83,10 @@ export function DashboardHeader({ userName, totalProjects, planName, data }: Das
 
       <div className="mt-5 flex items-end justify-between gap-6">
         <div className="min-w-0">
-          <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
+          <h1 className="text-[30px] tracking-[-0.015em] text-[var(--st-text)] leading-[1.1]">
             {greeting()}, {userName}
           </h1>
-          <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
+          <p className="mt-1.5 text-[13px] text-[var(--st-text-secondary)]">
             {totalProjects} project{totalProjects !== 1 ? "s" : ""}{" "}
             · {format(new Date(), "EEEE, MMM d · HH:mm")}
           </p>

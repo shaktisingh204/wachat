@@ -46,11 +46,11 @@ export default function NewPipelinePage() {
   return (
     <div className="flex w-full flex-col gap-6">
       <div>
-        <Link href="/dashboard/sabbigin/pipelines" className="inline-flex items-center gap-2 text-[13px] text-zoru-ink-muted hover:text-zoru-ink">
+        <Link href="/dashboard/sabbigin/pipelines" className="inline-flex items-center gap-2 text-[13px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)]">
           <ArrowLeft className="h-4 w-4" /> Back to Pipelines
         </Link>
-        <h1 className="mt-2 text-[26px] font-semibold tracking-tight text-zoru-ink flex items-center gap-3">
-          <Columns3 className="h-6 w-6 text-zoru-ink" />
+        <h1 className="mt-2 text-[26px] font-semibold tracking-tight text-[var(--st-text)] flex items-center gap-3">
+          <Columns3 className="h-6 w-6 text-[var(--st-text)]" />
           Create New Pipeline
         </h1>
       </div>
@@ -58,19 +58,19 @@ export default function NewPipelinePage() {
       <Card>
         <div className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="pipeline-name" className="text-zoru-ink">Pipeline Name</Label>
+            <Label htmlFor="pipeline-name" className="text-[var(--st-text)]">Pipeline Name</Label>
             <Input
               id="pipeline-name"
-              className="h-10 rounded-lg border-zoru-line bg-zoru-surface text-[13px]"
+              className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px]"
               value={pipelineName}
               onChange={e => setPipelineName(e.target.value)}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="description" className="text-zoru-ink">Description</Label>
+            <Label htmlFor="description" className="text-[var(--st-text)]">Description</Label>
             <Input
               id="description"
-              className="h-10 rounded-lg border-zoru-line bg-zoru-surface text-[13px]"
+              className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px]"
               value={description}
               onChange={e => setDescription(e.target.value)}
             />
@@ -80,27 +80,27 @@ export default function NewPipelinePage() {
 
       <Card>
         <div className="mb-4">
-          <h2 className="text-[16px] font-semibold text-zoru-ink">Edit Pipeline Stages</h2>
+          <h2 className="text-[16px] font-semibold text-[var(--st-text)]">Edit Pipeline Stages</h2>
         </div>
         <div className="space-y-4">
           <div className="space-y-2">
             {stages.map((stage, index) => (
-              <div key={stage.id} className="flex items-center gap-4 rounded-lg border border-zoru-line bg-zoru-surface-2 p-2">
+              <div key={stage.id} className="flex items-center gap-4 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2">
                 <div className="flex-1 space-y-1">
-                  <Label htmlFor={`stage-name-${index}`} className="text-xs text-zoru-ink-muted">Stage Name</Label>
+                  <Label htmlFor={`stage-name-${index}`} className="text-xs text-[var(--st-text-secondary)]">Stage Name</Label>
                   <Input
                     id={`stage-name-${index}`}
-                    className="h-10 rounded-lg border-zoru-line bg-zoru-surface text-[13px]"
+                    className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px]"
                     value={stage.name}
                     onChange={e => handleStageChange(stage.id, 'name', e.target.value)}
                   />
                 </div>
                 <div className="w-32 space-y-1">
-                  <Label htmlFor={`stage-chance-${index}`} className="text-xs text-zoru-ink-muted">Closure Chances (%)</Label>
+                  <Label htmlFor={`stage-chance-${index}`} className="text-xs text-[var(--st-text-secondary)]">Closure Chances (%)</Label>
                   <Input
                     id={`stage-chance-${index}`}
                     type="number"
-                    className="h-10 rounded-lg border-zoru-line bg-zoru-surface text-[13px]"
+                    className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px]"
                     value={stage.chance}
                     onChange={e => handleStageChange(stage.id, 'chance', Number(e.target.value))}
                   />
@@ -111,7 +111,7 @@ export default function NewPipelinePage() {
                   onClick={() => handleRemoveStage(stage.id)}
                   className="self-end mb-1"
                 >
-                  <Trash2 className="h-4 w-4 text-zoru-ink" />
+                  <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                 </Button>
               </div>
             ))}

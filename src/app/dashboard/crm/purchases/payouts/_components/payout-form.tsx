@@ -279,13 +279,13 @@ export function PayoutForm({ initial }: PayoutFormProps) {
 
             {/* ─── Header ─────────────────────────────────────────── */}
             <Card className="p-6">
-                <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                     Payout
                 </h3>
                 <div className="grid gap-4 md:grid-cols-2">
                     <div>
                         <Label htmlFor="paymentNo">
-                            Payment # <span className="text-zoru-danger-ink">*</span>
+                            Payment # <span className="text-[var(--st-danger)]">*</span>
                         </Label>
                         <Input
                             id="paymentNo"
@@ -298,7 +298,7 @@ export function PayoutForm({ initial }: PayoutFormProps) {
                     </div>
                     <div>
                         <Label htmlFor="date">
-                            Date <span className="text-zoru-danger-ink">*</span>
+                            Date <span className="text-[var(--st-danger)]">*</span>
                         </Label>
                         <Input
                             id="date"
@@ -311,7 +311,7 @@ export function PayoutForm({ initial }: PayoutFormProps) {
                     </div>
                     <div>
                         <Label>
-                            Vendor <span className="text-zoru-danger-ink">*</span>
+                            Vendor <span className="text-[var(--st-danger)]">*</span>
                         </Label>
                         <div className="mt-1.5">
                             <EntityFormField
@@ -324,7 +324,7 @@ export function PayoutForm({ initial }: PayoutFormProps) {
                             />
                         </div>
                         {editing ? (
-                            <p className="mt-1 text-[11.5px] text-zoru-ink-muted">
+                            <p className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">
                                 Vendor is locked after creation. Void and recreate the
                                 payout if it must be reassigned.
                             </p>
@@ -369,7 +369,7 @@ export function PayoutForm({ initial }: PayoutFormProps) {
 
             {/* ─── Mode-specific reference fields ─────────────────── */}
             <Card className="p-6">
-                <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                     Reference
                 </h3>
                 <div className="grid gap-4 md:grid-cols-2">
@@ -471,17 +471,17 @@ export function PayoutForm({ initial }: PayoutFormProps) {
 
             {/* ─── TDS / notes ────────────────────────────────────── */}
             <Card className="p-6">
-                <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                     Deductions & notes
                 </h3>
                 <div className="grid gap-4 md:grid-cols-2">
                     <div>
-                        <label className="flex items-center gap-2 text-[12.5px] text-zoru-ink-muted">
+                        <label className="flex items-center gap-2 text-[12.5px] text-[var(--st-text-secondary)]">
                             <input
                                 type="checkbox"
                                 checked={tdsDeductedFlag}
                                 onChange={(e) => setTdsDeductedFlag(e.target.checked)}
-                                className="h-4 w-4 rounded border-zoru-line"
+                                className="h-4 w-4 rounded border-[var(--st-border)]"
                             />
                             TDS deducted
                         </label>

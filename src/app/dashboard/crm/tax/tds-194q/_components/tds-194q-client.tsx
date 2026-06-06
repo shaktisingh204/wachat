@@ -50,13 +50,13 @@ function fmtMoney(n: number): string {
 function ThresholdBar({ value, max }: { value: number; max: number }) {
     const pct = max > 0 ? Math.min(100, Math.round((value / max) * 100)) : 0;
     const tone =
-        pct >= 100 ? 'bg-zoru-ink' : pct >= 75 ? 'bg-zoru-ink' : 'bg-zoru-ink';
+        pct >= 100 ? 'bg-[var(--st-text)]' : pct >= 75 ? 'bg-[var(--st-text)]' : 'bg-[var(--st-text)]';
     return (
         <div className="flex flex-col gap-1 min-w-[140px]">
-            <div className="h-1.5 w-full overflow-hidden rounded-full bg-zoru-surface-2">
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--st-bg-muted)]">
                 <div className={`h-full rounded-full ${tone}`} style={{ width: `${pct}%` }} />
             </div>
-            <span className="text-[10.5px] text-zoru-ink-muted">{pct}% of ₹50L</span>
+            <span className="text-[10.5px] text-[var(--st-text-secondary)]">{pct}% of ₹50L</span>
         </div>
     );
 }
@@ -65,18 +65,18 @@ function StatusPill({ status }: { status: string }) {
     const map: Record<string, { label: string; cls: string }> = {
         threshold_not_crossed: {
             label: 'Below threshold',
-            cls: 'bg-zoru-surface-2 text-zoru-ink',
+            cls: 'bg-[var(--st-bg-muted)] text-[var(--st-text)]',
         },
         deduct_on_next_bill: {
             label: 'Deduct on next bill',
-            cls: 'bg-zoru-ink/15 text-zoru-ink',
+            cls: 'bg-[var(--st-text)]/15 text-[var(--st-text)]',
         },
         deducted: {
             label: 'Deducted',
-            cls: 'bg-zoru-ink/15 text-zoru-ink',
+            cls: 'bg-[var(--st-text)]/15 text-[var(--st-text)]',
         },
     };
-    const c = map[status] ?? { label: status, cls: 'bg-zoru-surface-2 text-zoru-ink' };
+    const c = map[status] ?? { label: status, cls: 'bg-[var(--st-bg-muted)] text-[var(--st-text)]' };
     return (
         <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${c.cls}`}>
             {c.label}
@@ -135,20 +135,20 @@ function BulkDeductionModal({
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div className="w-full max-w-md rounded-xl border border-zoru-line bg-zoru-surface p-6 shadow-xl">
+            <div className="w-full max-w-md rounded-xl border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-6 shadow-xl">
                 <div className="mb-1 flex items-center justify-between">
-                    <h2 className="text-[15px] font-semibold text-zoru-ink">
+                    <h2 className="text-[15px] font-semibold text-[var(--st-text)]">
                         Record deduction — {row.vendorName}
                     </h2>
-                    <span className="text-[11px] text-zoru-ink-muted">
+                    <span className="text-[11px] text-[var(--st-text-secondary)]">
                         {index + 1} of {total}
                     </span>
                 </div>
-                <p className="mb-4 text-[12.5px] text-zoru-ink-muted">
+                <p className="mb-4 text-[12.5px] text-[var(--st-text-secondary)]">
                     Suggested: {fmtMoney(remaining)} · YTD purchases: {fmtMoney(row.totalPurchases)}
                 </p>
                 <form onSubmit={onSubmit} className="flex flex-col gap-3">
-                    <label className="flex flex-col gap-1 text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                    <label className="flex flex-col gap-1 text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                         Bill
                         <EntityFormField
                             entity="vendorBill"
@@ -158,7 +158,7 @@ function BulkDeductionModal({
                             placeholder="Pick a vendor bill…"
                         />
                     </label>
-                    <label className="flex flex-col gap-1 text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                    <label className="flex flex-col gap-1 text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                         Amount (INR)
                         <Input
                             type="number"
@@ -168,7 +168,7 @@ function BulkDeductionModal({
                             onChange={(e) => setAmount(e.target.value)}
                         />
                     </label>
-                    {error && <p className="text-[12px] text-zoru-ink">{error}</p>}
+                    {error && <p className="text-[12px] text-[var(--st-text)]">{error}</p>}
                     <div className="flex gap-2">
                         <Button type="submit" disabled={submitting} className="flex-1">
                             {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
@@ -311,7 +311,7 @@ export function Tds194qClient({ rows, fy, applicable }: Props) {
         <div className="flex flex-col gap-3">
             {/* Bulk action bar — shown when at least one row selected */}
             {selectionCount > 0 && (
-                <div className="flex flex-wrap items-center gap-2 rounded-lg border border-zoru-line bg-zoru-surface-2/40 px-3 py-2 text-[13px]">
+                <div className="flex flex-wrap items-center gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)]/40 px-3 py-2 text-[13px]">
                     <span className="font-medium">{selectionCount} selected</span>
                     <Button size="sm" variant="outline" onClick={handleCsv}>
                         <Download className="h-3.5 w-3.5" />
@@ -368,10 +368,10 @@ export function Tds194qClient({ rows, fy, applicable }: Props) {
             )}
 
             {/* Table */}
-            <div className="overflow-x-auto rounded-lg border border-zoru-line">
+            <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                 <Table>
                     <ZoruTableHeader>
-                        <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                        <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                             <ZoruTableHead className="w-8">
                                 <Checkbox
                                     checked={allSelected ? true : someSelected ? 'indeterminate' : false}
@@ -380,21 +380,21 @@ export function Tds194qClient({ rows, fy, applicable }: Props) {
                                     disabled={rows.length === 0}
                                 />
                             </ZoruTableHead>
-                            <ZoruTableHead className="text-zoru-ink-muted">Vendor</ZoruTableHead>
-                            <ZoruTableHead className="text-zoru-ink-muted">GSTIN</ZoruTableHead>
-                            <ZoruTableHead className="text-right text-zoru-ink-muted">YTD purchases</ZoruTableHead>
-                            <ZoruTableHead className="text-zoru-ink-muted">Threshold</ZoruTableHead>
-                            <ZoruTableHead className="text-right text-zoru-ink-muted">Deductible</ZoruTableHead>
-                            <ZoruTableHead className="text-right text-zoru-ink-muted">TDS to deduct</ZoruTableHead>
-                            <ZoruTableHead className="text-right text-zoru-ink-muted">TDS deducted</ZoruTableHead>
-                            <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                            <ZoruTableHead className="text-zoru-ink-muted">Action</ZoruTableHead>
+                            <ZoruTableHead className="text-[var(--st-text-secondary)]">Vendor</ZoruTableHead>
+                            <ZoruTableHead className="text-[var(--st-text-secondary)]">GSTIN</ZoruTableHead>
+                            <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">YTD purchases</ZoruTableHead>
+                            <ZoruTableHead className="text-[var(--st-text-secondary)]">Threshold</ZoruTableHead>
+                            <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Deductible</ZoruTableHead>
+                            <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">TDS to deduct</ZoruTableHead>
+                            <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">TDS deducted</ZoruTableHead>
+                            <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
+                            <ZoruTableHead className="text-[var(--st-text-secondary)]">Action</ZoruTableHead>
                         </ZoruTableRow>
                     </ZoruTableHeader>
                     <ZoruTableBody>
                         {rows.length === 0 ? (
-                            <ZoruTableRow className="border-zoru-line">
-                                <ZoruTableCell colSpan={10} className="h-24 text-center text-[13px] text-zoru-ink-muted">
+                            <ZoruTableRow className="border-[var(--st-border)]">
+                                <ZoruTableCell colSpan={10} className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]">
                                     No vendor purchases recorded for this FY.
                                 </ZoruTableCell>
                             </ZoruTableRow>
@@ -404,7 +404,7 @@ export function Tds194qClient({ rows, fy, applicable }: Props) {
                                 return (
                                     <ZoruTableRow
                                         key={row.vendorId}
-                                        className={`border-zoru-line ${selected.has(row.vendorId) ? 'bg-zoru-surface-2/30' : ''}`}
+                                        className={`border-[var(--st-border)] ${selected.has(row.vendorId) ? 'bg-[var(--st-bg-muted)]/30' : ''}`}
                                     >
                                         <ZoruTableCell>
                                             <Checkbox
@@ -413,28 +413,28 @@ export function Tds194qClient({ rows, fy, applicable }: Props) {
                                                 aria-label={`Select ${row.vendorName}`}
                                             />
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-[13px] font-medium text-zoru-ink">
+                                        <ZoruTableCell className="text-[13px] font-medium text-[var(--st-text)]">
                                             <EntityRowLink
                                                 href={`/dashboard/crm/purchases/vendors/${row.vendorId}`}
                                                 label={row.vendorName}
                                             />
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                                             {row.gstin ?? '—'}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
+                                        <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
                                             {fmtMoney(row.totalPurchases)}
                                         </ZoruTableCell>
                                         <ZoruTableCell>
                                             <ThresholdBar value={row.totalPurchases} max={5_000_000} />
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
+                                        <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
                                             {fmtMoney(row.deductibleAmount)}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
+                                        <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
                                             {fmtMoney(row.tdsToDeduct)}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
+                                        <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
                                             {fmtMoney(row.tdsDeducted)}
                                         </ZoruTableCell>
                                         <ZoruTableCell>
@@ -455,7 +455,7 @@ export function Tds194qClient({ rows, fy, applicable }: Props) {
             </div>
 
             {!applicable && rows.length > 0 ? (
-                <p className="text-[12px] text-zoru-ink-muted">
+                <p className="text-[12px] text-[var(--st-text-secondary)]">
                     §194Q does not apply for this FY — the tracker is shown for informational
                     purposes only.
                 </p>

@@ -214,7 +214,7 @@ export function CrmFormForm({ initialData }: CrmFormFormProps) {
                         </Button>
                     </div>
                     {fields.length === 0 ? (
-                        <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                        <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                             At least one field is required.
                         </div>
                     ) : (
@@ -222,19 +222,19 @@ export function CrmFormForm({ initialData }: CrmFormFormProps) {
                             {fields.map((f, idx) => (
                                 <div
                                     key={f.rowKey}
-                                    className="grid grid-cols-1 gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-3 sm:grid-cols-[auto_1fr_1fr_140px_auto_1fr_auto]"
+                                    className="grid grid-cols-1 gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 sm:grid-cols-[auto_1fr_1fr_140px_auto_1fr_auto]"
                                 >
                                     <div className="flex flex-col items-center justify-center gap-1 self-center">
                                         <button
                                             type="button"
                                             onClick={() => moveField(idx, -1)}
                                             disabled={idx === 0}
-                                            className="text-zoru-ink-muted hover:text-zoru-ink disabled:opacity-30"
+                                            className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)] disabled:opacity-30"
                                             aria-label="Move up"
                                         >
                                             <GripVertical className="h-4 w-4" />
                                         </button>
-                                        <span className="font-mono text-[10px] text-zoru-ink-muted">
+                                        <span className="font-mono text-[10px] text-[var(--st-text-secondary)]">
                                             {idx + 1}
                                         </span>
                                     </div>
@@ -278,7 +278,7 @@ export function CrmFormForm({ initialData }: CrmFormFormProps) {
                                         />
                                         <Label
                                             htmlFor={`fields-${idx}-required`}
-                                            className="cursor-pointer text-[11px] text-zoru-ink-muted"
+                                            className="cursor-pointer text-[11px] text-[var(--st-text-secondary)]"
                                         >
                                             Req
                                         </Label>
@@ -331,7 +331,7 @@ export function CrmFormForm({ initialData }: CrmFormFormProps) {
                                         onClick={() => removeField(idx)}
                                         aria-label="Remove field"
                                     >
-                                        <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                        <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                     </Button>
                                 </div>
                             ))}

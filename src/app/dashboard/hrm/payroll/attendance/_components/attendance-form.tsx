@@ -119,13 +119,13 @@ export function AttendanceForm({ initial }: AttendanceFormProps) {
       ) : null}
 
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Header
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <Label>
-              Employee <span className="text-zoru-danger-ink">*</span>
+              Employee <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <div className="mt-1.5">
               <EntityFormField
@@ -138,7 +138,7 @@ export function AttendanceForm({ initial }: AttendanceFormProps) {
           </div>
           <div>
             <Label htmlFor="date">
-              Date <span className="text-zoru-danger-ink">*</span>
+              Date <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <Input
               id="date"
@@ -151,7 +151,7 @@ export function AttendanceForm({ initial }: AttendanceFormProps) {
           </div>
           <div>
             <Label htmlFor="status">
-              Status <span className="text-zoru-danger-ink">*</span>
+              Status <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <div className="mt-1.5">
               <EnumFormField
@@ -185,10 +185,10 @@ export function AttendanceForm({ initial }: AttendanceFormProps) {
       </Card>
 
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Times
         </h3>
-        <p className="-mt-3 mb-4 text-[12px] text-zoru-ink-muted">
+        <p className="-mt-3 mb-4 text-[12px] text-[var(--st-text-secondary)]">
           Times are interpreted as UTC. Leave the hours field empty to
           auto-compute from the check-in / check-out window.
         </p>
@@ -267,7 +267,7 @@ export function AttendanceForm({ initial }: AttendanceFormProps) {
       </Card>
 
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Notes
         </h3>
         <div>

@@ -50,7 +50,7 @@ export function ABTestSettings({ block, onBlockChange, variables: _variables = [
           step={1}
           value={aPercent}
           onChange={(e) => update({ aPercent: Number(e.target.value) })}
-          className="w-full accent-zoru-ink"
+          className="w-full accent-[var(--st-text)]"
           aria-label="A branch percentage"
         />
       </div>

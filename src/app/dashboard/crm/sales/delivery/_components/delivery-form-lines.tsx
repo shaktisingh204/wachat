@@ -111,21 +111,21 @@ function SerialBatchAllocationDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="max-w-md rounded-lg p-6 bg-zoru-bg border border-zoru-line text-zoru-ink">
+      <ZoruDialogContent className="max-w-md rounded-lg p-6 bg-[var(--st-bg)] border border-[var(--st-border)] text-[var(--st-text)]">
         <ZoruDialogHeader>
           <ZoruDialogTitle className="flex items-center gap-2 text-base font-semibold">
-            <Barcode className="h-5 w-5 text-zoru-primary" /> Allocate Serials & Batches
+            <Barcode className="h-5 w-5 text-[var(--st-text)]" /> Allocate Serials & Batches
           </ZoruDialogTitle>
-          <ZoruDialogDescription className="text-xs text-zoru-ink-muted">
+          <ZoruDialogDescription className="text-xs text-[var(--st-text-secondary)]">
             Specify the tracking batch number, expiration date, and physical serial codes for:
-            <strong className="block mt-1 text-zoru-ink">{row.name || 'Unnamed Item'}</strong>
+            <strong className="block mt-1 text-[var(--st-text)]">{row.name || 'Unnamed Item'}</strong>
           </ZoruDialogDescription>
         </ZoruDialogHeader>
 
         <div className="space-y-4 my-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label className="text-xs font-semibold text-zoru-ink-muted">Batch Number</Label>
+              <Label className="text-xs font-semibold text-[var(--st-text-secondary)]">Batch Number</Label>
               <Input
                 value={batch}
                 onChange={(e) => setBatch(e.target.value)}
@@ -134,7 +134,7 @@ function SerialBatchAllocationDialog({
               />
             </div>
             <div>
-              <Label className="text-xs font-semibold text-zoru-ink-muted">Expiry Date</Label>
+              <Label className="text-xs font-semibold text-[var(--st-text-secondary)]">Expiry Date</Label>
               <Input
                 type="date"
                 value={expiry}
@@ -144,15 +144,15 @@ function SerialBatchAllocationDialog({
             </div>
           </div>
 
-          <div className="border-t border-zoru-line pt-3">
-            <Label className="text-xs font-semibold text-zoru-ink-muted flex items-center justify-between mb-1.5">
+          <div className="border-t border-[var(--st-border)] pt-3">
+            <Label className="text-xs font-semibold text-[var(--st-text-secondary)] flex items-center justify-between mb-1.5">
               <span>Serial Numbers</span>
               {row.quantity > 0 && (
                 <span
                   className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold ${
                     serialsMatch
-                      ? 'bg-zoru-ink/10 text-zoru-ink border border-zoru-line/20'
-                      : 'bg-zoru-ink/10 text-zoru-ink border border-zoru-line/20'
+                      ? 'bg-[var(--st-text)]/10 text-[var(--st-text)] border border-[var(--st-border)]/20'
+                      : 'bg-[var(--st-text)]/10 text-[var(--st-text)] border border-[var(--st-border)]/20'
                   }`}
                 >
                   {serialsMatch ? (
@@ -185,17 +185,17 @@ function SerialBatchAllocationDialog({
             </div>
 
             {serials.length > 0 && (
-              <div className="mt-3 max-h-32 overflow-y-auto rounded border border-zoru-line bg-zoru-surface-2 p-2 flex flex-wrap gap-1.5">
+              <div className="mt-3 max-h-32 overflow-y-auto rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2 flex flex-wrap gap-1.5">
                 {serials.map((s, idx) => (
                   <span
                     key={idx}
-                    className="inline-flex items-center gap-1 rounded bg-zoru-surface border border-zoru-line px-2 py-0.5 text-[11px] text-zoru-ink hover:border-zoru-danger-ink/40 group transition-colors"
+                    className="inline-flex items-center gap-1 rounded bg-[var(--st-bg-secondary)] border border-[var(--st-border)] px-2 py-0.5 text-[11px] text-[var(--st-text)] hover:border-[var(--st-danger)]/40 group transition-colors"
                   >
                     {s}
                     <button
                       type="button"
                       onClick={() => handleRemoveSerial(idx)}
-                      className="text-zoru-ink-muted group-hover:text-zoru-danger-ink hover:font-bold"
+                      className="text-[var(--st-text-secondary)] group-hover:text-[var(--st-danger)] hover:font-bold"
                     >
                       ×
                     </button>
@@ -232,7 +232,7 @@ export function DcLineItemsTable({
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Line items
         </h3>
         <Button type="button" variant="outline" size="sm" onClick={onAdd}>
@@ -240,9 +240,9 @@ export function DcLineItemsTable({
         </Button>
       </div>
 
-      <div className="overflow-x-auto rounded-md border border-zoru-line">
+      <div className="overflow-x-auto rounded-md border border-[var(--st-border)]">
         <table className="w-full text-[13px]">
-          <thead className="bg-zoru-surface-2 text-left text-zoru-ink-muted">
+          <thead className="bg-[var(--st-bg-muted)] text-left text-[var(--st-text-secondary)]">
             <tr>
               <th className="p-2.5 font-medium">Item Description</th>
               <th className="p-2.5 font-medium">HSN/SAC</th>
@@ -264,7 +264,7 @@ export function DcLineItemsTable({
               const hasSerials = serials.length > 0;
 
               return (
-                <tr key={row.id} className="border-t border-zoru-line align-middle">
+                <tr key={row.id} className="border-t border-[var(--st-border)] align-middle">
                   <td className="min-w-[200px] p-2">
                     <EntityFormField
                       entity="item"
@@ -332,26 +332,26 @@ export function DcLineItemsTable({
                   <td className="p-2 min-w-[220px]">
                     <div className="flex flex-col gap-1.5">
                       {(!hasBatch && !hasExpiry && !hasSerials) ? (
-                        <span className="text-[12px] text-zoru-ink-muted italic">
+                        <span className="text-[12px] text-[var(--st-text-secondary)] italic">
                           No batches or serial numbers assigned
                         </span>
                       ) : (
                         <div className="flex flex-wrap gap-1">
                           {hasBatch && (
-                            <span className="inline-flex items-center gap-1 rounded bg-zoru-surface border border-zoru-line px-2 py-0.5 text-[11px] font-medium text-zoru-ink">
-                              <Barcode className="h-3 w-3 text-zoru-ink-muted" /> Batch: {row.batch}
+                            <span className="inline-flex items-center gap-1 rounded bg-[var(--st-bg-secondary)] border border-[var(--st-border)] px-2 py-0.5 text-[11px] font-medium text-[var(--st-text)]">
+                              <Barcode className="h-3 w-3 text-[var(--st-text-secondary)]" /> Batch: {row.batch}
                             </span>
                           )}
                           {hasExpiry && (
-                            <span className="inline-flex items-center gap-1 rounded bg-zoru-surface border border-zoru-line px-2 py-0.5 text-[11px] font-medium text-zoru-ink">
-                              <Calendar className="h-3 w-3 text-zoru-ink-muted" /> Exp: {row.expiry}
+                            <span className="inline-flex items-center gap-1 rounded bg-[var(--st-bg-secondary)] border border-[var(--st-border)] px-2 py-0.5 text-[11px] font-medium text-[var(--st-text)]">
+                              <Calendar className="h-3 w-3 text-[var(--st-text-secondary)]" /> Exp: {row.expiry}
                             </span>
                           )}
                           {hasSerials && (
                             <span className={`inline-flex items-center gap-1 rounded border px-2 py-0.5 text-[11px] font-semibold ${
                               serials.length === row.quantity
-                                ? 'bg-zoru-ink/10 text-zoru-ink border-zoru-line/20'
-                                : 'bg-zoru-ink/10 text-zoru-ink border-zoru-line/20'
+                                ? 'bg-[var(--st-text)]/10 text-[var(--st-text)] border-[var(--st-border)]/20'
+                                : 'bg-[var(--st-text)]/10 text-[var(--st-text)] border-[var(--st-border)]/20'
                             }`}>
                               {serials.length} serials
                             </span>
@@ -363,7 +363,7 @@ export function DcLineItemsTable({
                         variant="link"
                         size="sm"
                         onClick={() => setActiveAllocRow(row)}
-                        className="text-xs h-auto p-0 justify-start text-zoru-primary hover:underline"
+                        className="text-xs h-auto p-0 justify-start text-[var(--st-text)] hover:underline"
                       >
                         <Edit className="h-3 w-3 mr-1" /> Allocate & Manage
                       </Button>
@@ -376,7 +376,7 @@ export function DcLineItemsTable({
                       variant="ghost"
                       onClick={() => onRemove(row.id)}
                       disabled={rows.length === 1}
-                      className="text-zoru-danger-ink mx-auto"
+                      className="text-[var(--st-danger)] mx-auto"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>

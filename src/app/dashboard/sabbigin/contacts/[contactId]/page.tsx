@@ -62,8 +62,8 @@ export default async function SabbiginContactDetailPage({ params }: PageProps) {
 function Field({ label, value }: { label: string; value?: string | null }) {
     return (
         <div>
-            <dt className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-subtle">{label}</dt>
-            <dd className="mt-1 text-sm text-zoru-ink">{value && value.length > 0 ? value : '—'}</dd>
+            <dt className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-tertiary)]">{label}</dt>
+            <dd className="mt-1 text-sm text-[var(--st-text)]">{value && value.length > 0 ? value : '—'}</dd>
         </div>
     );
 }

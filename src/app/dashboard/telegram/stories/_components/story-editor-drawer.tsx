@@ -124,11 +124,11 @@ function Section({
     return (
         <section className="flex flex-col gap-3">
             <div>
-                <h3 className="text-[14px] font-medium text-zoru-ink">
+                <h3 className="text-[14px] font-medium text-[var(--st-text)]">
                     {title}
                 </h3>
                 {description ? (
-                    <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+                    <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">
                         {description}
                     </p>
                 ) : null}
@@ -147,7 +147,7 @@ function Field({
 }) {
     return (
         <label className="flex flex-col gap-1.5">
-            <span className="text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
+            <span className="text-[11.5px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
                 {label}
             </span>
             {children}
@@ -267,7 +267,7 @@ export function StoryEditorDrawer({
                                             </ZoruSelectTrigger>
                                             <ZoruSelectContent>
                                                 {channels.length === 0 ? (
-                                                    <div className="px-3 py-2 text-[12px] text-zoru-ink-muted">
+                                                    <div className="px-3 py-2 text-[12px] text-[var(--st-text-secondary)]">
                                                         No channels —
                                                         connect a channel
                                                         first in
@@ -362,12 +362,12 @@ export function StoryEditorDrawer({
                                     }
                                     className="flex gap-3"
                                 >
-                                    <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-zoru-line px-3 py-2 text-sm">
+                                    <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-[var(--st-border)] px-3 py-2 text-sm">
                                         <ZoruRadioGroupItem value="photo" />
                                         <ImageIcon className="h-3.5 w-3.5" />
                                         Photo
                                     </label>
-                                    <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-zoru-line px-3 py-2 text-sm">
+                                    <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-[var(--st-border)] px-3 py-2 text-sm">
                                         <ZoruRadioGroupItem value="video" />
                                         <VideoIcon className="h-3.5 w-3.5" />
                                         Video
@@ -399,7 +399,7 @@ export function StoryEditorDrawer({
                                     pickerTitle="Pick story media"
                                 />
                                 {!editorForm.mediaSabFileId && (
-                                    <span className="mt-1 text-[11.5px] text-zoru-ink-muted">
+                                    <span className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">
                                         Telegram fetches the file directly,
                                         so it must be in your library.
                                     </span>
@@ -455,7 +455,7 @@ export function StoryEditorDrawer({
                             {/* Areas builder */}
                             <div>
                                 <div className="mb-2 flex items-center justify-between">
-                                    <Label className="text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
+                                    <Label className="text-[11.5px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
                                         Interactive areas
                                     </Label>
                                     <Button
@@ -489,7 +489,7 @@ export function StoryEditorDrawer({
                                     </Button>
                                 </div>
                                 {editorForm.areas.length === 0 ? (
-                                    <p className="text-[12px] text-zoru-ink-muted">
+                                    <p className="text-[12px] text-[var(--st-text-secondary)]">
                                         None. Areas can layer
                                         reactions, locations, links, or
                                         unique gifts on top of the media.
@@ -576,7 +576,7 @@ export function StoryEditorDrawer({
                                         }
                                         placeholder="1234567, 9876543"
                                     />
-                                    <span className="mt-1 text-[11.5px] text-zoru-ink-muted">
+                                    <span className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">
                                         Comma- or whitespace-separated
                                         numeric Telegram user ids.
                                     </span>
@@ -611,8 +611,8 @@ export function StoryEditorDrawer({
                                                 }
                                                 className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${
                                                     active
-                                                        ? 'border-zoru-ink bg-zoru-ink text-zoru-on-primary'
-                                                        : 'border-zoru-line text-zoru-ink-muted hover:text-zoru-ink'
+                                                        ? 'border-[var(--st-text)] bg-[var(--st-text)] text-[var(--st-text-inverted)]'
+                                                        : 'border-[var(--st-border)] text-[var(--st-text-secondary)] hover:text-[var(--st-text)]'
                                                 }`}
                                             >
                                                 {p.label}
@@ -621,12 +621,12 @@ export function StoryEditorDrawer({
                                     })}
                                 </div>
                             </Field>
-                            <div className="flex items-center justify-between rounded-md border border-zoru-line p-3">
+                            <div className="flex items-center justify-between rounded-md border border-[var(--st-border)] p-3">
                                 <div>
-                                    <p className="text-sm text-zoru-ink">
+                                    <p className="text-sm text-[var(--st-text)]">
                                         Pin to chat page
                                     </p>
-                                    <p className="text-[12px] text-zoru-ink-muted">
+                                    <p className="text-[12px] text-[var(--st-text-secondary)]">
                                         Story stays on the chat page after
                                         it expires from the story feed.
                                     </p>
@@ -641,12 +641,12 @@ export function StoryEditorDrawer({
                                     }
                                 />
                             </div>
-                            <div className="flex items-center justify-between rounded-md border border-zoru-line p-3">
+                            <div className="flex items-center justify-between rounded-md border border-[var(--st-border)] p-3">
                                 <div>
-                                    <p className="text-sm text-zoru-ink">
+                                    <p className="text-sm text-[var(--st-text)]">
                                         Protect content
                                     </p>
-                                    <p className="text-[12px] text-zoru-ink-muted">
+                                    <p className="text-[12px] text-[var(--st-text-secondary)]">
                                         Disable forwarding and saving.
                                     </p>
                                 </div>
@@ -680,11 +680,11 @@ export function StoryEditorDrawer({
                             }
                             className="flex gap-3"
                         >
-                            <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-zoru-line px-3 py-2 text-sm">
+                            <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-[var(--st-border)] px-3 py-2 text-sm">
                                 <ZoruRadioGroupItem value="now" />
                                 Save as draft / Post now
                             </label>
-                            <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-zoru-line px-3 py-2 text-sm">
+                            <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-[var(--st-border)] px-3 py-2 text-sm">
                                 <ZoruRadioGroupItem value="later" />
                                 Schedule for later
                             </label>
@@ -719,7 +719,7 @@ export function StoryEditorDrawer({
                     </Section>
 
                     {editorErr ? (
-                        <p className="rounded-md border border-zoru-danger-line/50 bg-zoru-danger-surface px-3 py-2 text-[12.5px] text-zoru-danger-ink">
+                        <p className="rounded-md border border-zoru-danger-line/50 bg-zoru-danger-surface px-3 py-2 text-[12.5px] text-[var(--st-danger)]">
                             {editorErr}
                         </p>
                     ) : null}

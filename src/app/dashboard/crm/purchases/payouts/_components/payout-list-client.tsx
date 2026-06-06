@@ -129,7 +129,7 @@ export function PayoutListClient({
             render: (row) => row.vendorId ? (
                 <EntityPickerChip entity="vendor" id={row.vendorId} />
             ) : (
-                <span className="text-zoru-ink-muted">—</span>
+                <span className="text-[var(--st-text-secondary)]">—</span>
             ),
         },
         {
@@ -137,7 +137,7 @@ export function PayoutListClient({
             header: 'Date',
             sortable: true,
             render: (row) => (
-                <span className="text-zoru-ink-muted">{fmtDate(row.date)}</span>
+                <span className="text-[var(--st-text-secondary)]">{fmtDate(row.date)}</span>
             ),
         },
         {
@@ -155,7 +155,7 @@ export function PayoutListClient({
             render: (row) => row.bankAccountId ? (
                 <EntityPickerChip entity="bankAccount" id={row.bankAccountId} />
             ) : (
-                <span className="text-zoru-ink-muted">—</span>
+                <span className="text-[var(--st-text-secondary)]">—</span>
             ),
         },
         {
@@ -163,7 +163,7 @@ export function PayoutListClient({
             header: 'Cheque / Ref',
             render: (row) => {
                 const refLabel = row.chequeNo || row.txnId || row.reference || '—';
-                return <span className="text-zoru-ink-muted">{refLabel}</span>;
+                return <span className="text-[var(--st-text-secondary)]">{refLabel}</span>;
             },
         },
         {
@@ -171,7 +171,7 @@ export function PayoutListClient({
             header: 'Amount',
             sortable: true,
             render: (row) => (
-                <span className="font-mono tabular-nums text-zoru-ink text-right block w-full">
+                <span className="font-mono tabular-nums text-[var(--st-text)] text-right block w-full">
                     {fmtMoney(row.amount, row.currency)}
                 </span>
             ),
@@ -186,7 +186,7 @@ export function PayoutListClient({
             },
             editRender: (row, value, onChange) => (
                 <select
-                    className="bg-zoru-surface-2 border border-zoru-line rounded px-1.5 py-0.5 text-xs text-zoru-ink focus:outline-none"
+                    className="bg-[var(--st-bg-muted)] border border-[var(--st-border)] rounded px-1.5 py-0.5 text-xs text-[var(--st-text)] focus:outline-none"
                     value={value || 'sent'}
                     onChange={(e) => onChange(e.target.value)}
                 >
@@ -206,7 +206,7 @@ export function PayoutListClient({
                         <FileText className="mr-1 h-3 w-3" /> {appliedCount}
                     </Badge>
                 ) : (
-                    <span className="text-zoru-ink-muted">—</span>
+                    <span className="text-[var(--st-text-secondary)]">—</span>
                 );
             },
         },
@@ -256,7 +256,7 @@ export function PayoutListClient({
                                     Mark failed
                                 </ZoruDropdownMenuItem>
                                 <ZoruDropdownMenuSeparator />
-                                <ZoruDropdownMenuItem onClick={() => onDelete(id)} className="text-zoru-danger-ink">
+                                <ZoruDropdownMenuItem onClick={() => onDelete(id)} className="text-[var(--st-danger)]">
                                     <Trash2 className="h-3.5 w-3.5 mr-1.5" />
                                     Delete
                                 </ZoruDropdownMenuItem>

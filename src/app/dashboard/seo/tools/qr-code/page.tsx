@@ -57,10 +57,10 @@ export default function QrCodePage() {
         </div>
 
         {submitted && (
-          <div className="flex flex-col gap-6 p-6 border border-zoru-line rounded-xl bg-zoru-surface-2 mt-2 shadow-sm">
+          <div className="flex flex-col gap-6 p-6 border border-[var(--st-border)] rounded-xl bg-[var(--st-bg-muted)] mt-2 shadow-sm">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium text-zoru-ink">Foreground</label>
+                <label className="text-sm font-medium text-[var(--st-text)]">Foreground</label>
                 <div className="flex gap-2 items-center">
                   <Input 
                     type="color" 
@@ -78,7 +78,7 @@ export default function QrCodePage() {
               </div>
               
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium text-zoru-ink">Background</label>
+                <label className="text-sm font-medium text-[var(--st-text)]">Background</label>
                 <div className="flex gap-2 items-center">
                   <Input 
                     type="color" 
@@ -96,7 +96,7 @@ export default function QrCodePage() {
               </div>
               
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium text-zoru-ink">Logo URL (Optional)</label>
+                <label className="text-sm font-medium text-[var(--st-text)]">Logo URL (Optional)</label>
                 <Input 
                   type="url" 
                   value={logoUrl} 
@@ -107,7 +107,7 @@ export default function QrCodePage() {
               </div>
             </div>
 
-            <div className="flex flex-col items-center gap-6 p-6 bg-zoru-bg border border-zoru-line rounded-xl shadow-[var(--zoru-shadow-sm)] self-center w-full max-w-sm">
+            <div className="flex flex-col items-center gap-6 p-6 bg-[var(--st-bg)] border border-[var(--st-border)] rounded-xl shadow-[var(--zoru-shadow-sm)] self-center w-full max-w-sm">
               <div 
                 ref={wrapRef} 
                 className="relative flex items-center justify-center rounded-md" 
@@ -136,7 +136,7 @@ export default function QrCodePage() {
               <div className="flex items-center gap-3 w-full">
                 <div className="flex-1">
                   <Select value={format} onValueChange={setFormat}>
-                    <SelectTrigger className="w-full bg-zoru-bg">
+                    <SelectTrigger className="w-full bg-[var(--st-bg)]">
                       <SelectValue placeholder="Format" />
                     </SelectTrigger>
                     <SelectContent>

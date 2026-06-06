@@ -46,10 +46,10 @@ export function RoutingRulesEditor({
   const remove = (i: number) => onChange(rules.filter((_, idx) => idx !== i));
 
   return (
-    <Card className="p-4 border border-zoru-line space-y-3">
+    <Card className="p-4 border border-[var(--st-border)] space-y-3">
       <div>
-        <h4 className="text-sm font-medium text-zoru-ink">Conditional routing</h4>
-        <p className="text-xs text-zoru-ink-muted">
+        <h4 className="text-sm font-medium text-[var(--st-text)]">Conditional routing</h4>
+        <p className="text-xs text-[var(--st-text-secondary)]">
           The first matching rule decides who signs next. Falls back to the
           lowest-order pending signer if none match.
         </p>
@@ -59,7 +59,7 @@ export function RoutingRulesEditor({
           <div>
             <Label className="text-xs">Field</Label>
             <select
-              className="w-full h-9 rounded-md border border-zoru-line bg-zoru-bg px-2 text-sm"
+              className="w-full h-9 rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-2 text-sm"
               value={r.fieldId}
               onChange={(e) => update(i, { fieldId: e.target.value })}
             >
@@ -73,7 +73,7 @@ export function RoutingRulesEditor({
           <div>
             <Label className="text-xs">Op</Label>
             <select
-              className="w-full h-9 rounded-md border border-zoru-line bg-zoru-bg px-2 text-sm"
+              className="w-full h-9 rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-2 text-sm"
               value={r.op}
               onChange={(e) => update(i, { op: e.target.value as RoutingRule['op'] })}
             >
@@ -94,7 +94,7 @@ export function RoutingRulesEditor({
           <div>
             <Label className="text-xs">Next signer</Label>
             <select
-              className="w-full h-9 rounded-md border border-zoru-line bg-zoru-bg px-2 text-sm"
+              className="w-full h-9 rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-2 text-sm"
               value={r.nextSignerId}
               onChange={(e) => update(i, { nextSignerId: e.target.value })}
             >
@@ -108,7 +108,7 @@ export function RoutingRulesEditor({
           <Button
             size="sm"
             variant="ghost"
-            className="self-end text-zoru-ink"
+            className="self-end text-[var(--st-text)]"
             onClick={() => remove(i)}
           >
             <Trash2 className="h-4 w-4" />

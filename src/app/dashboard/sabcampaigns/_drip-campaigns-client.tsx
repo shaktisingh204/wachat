@@ -161,7 +161,7 @@ export function DripCampaignClient({ initialData }: { initialData: any[] }) {
                       id="status"
                       value={status}
                       onChange={(e) => setStatus(e.target.value)}
-                      className="col-span-3 flex h-9 w-full rounded-md border border-zoru-line bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zoru-ring disabled:cursor-not-allowed disabled:opacity-50"
+                      className="col-span-3 flex h-9 w-full rounded-md border border-[var(--st-border)] bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--st-accent)] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <option value="">Select option</option>
                       <option value="draft">draft</option>
@@ -223,8 +223,8 @@ export function DripCampaignClient({ initialData }: { initialData: any[] }) {
         />
       </div>
 
-      <div className="mb-8 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-6">
-        <h3 className="mb-4 text-sm font-medium text-zoru-ink">Cross-Channel ROI (%)</h3>
+      <div className="mb-8 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-6">
+        <h3 className="mb-4 text-sm font-medium text-[var(--st-text)]">Cross-Channel ROI (%)</h3>
         <ZoruChartContainer height={250}>
           <BarChart data={roiData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--zoru-line))" />
@@ -247,8 +247,8 @@ export function DripCampaignClient({ initialData }: { initialData: any[] }) {
       </div>
 
       {filteredData.length === 0 ? (
-        <div className="flex h-[300px] flex-col items-center justify-center rounded-md border border-dashed border-zoru-line text-sm text-zoru-ink-muted space-y-4">
-          <Target className="h-10 w-10 text-zoru-ink-muted opacity-50" />
+        <div className="flex h-[300px] flex-col items-center justify-center rounded-md border border-dashed border-[var(--st-border)] text-sm text-[var(--st-text-secondary)] space-y-4">
+          <Target className="h-10 w-10 text-[var(--st-text-secondary)] opacity-50" />
           <p>No campaigns found.</p>
           {data.length === 0 && (
             <Button onClick={openNew} variant="outline" size="sm">
@@ -258,7 +258,7 @@ export function DripCampaignClient({ initialData }: { initialData: any[] }) {
           )}
         </div>
       ) : (
-        <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface overflow-hidden">
+        <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] overflow-hidden">
           <Table>
             <ZoruTableHeader>
               <ZoruTableRow>
@@ -296,10 +296,10 @@ export function DripCampaignClient({ initialData }: { initialData: any[] }) {
                   
                   <ZoruTableCell className="text-right space-x-2">
                     <Button variant="ghost" size="icon" onClick={() => openEdit(item)}>
-                      <Edit2 className="h-4 w-4 text-zoru-ink" />
+                      <Edit2 className="h-4 w-4 text-[var(--st-text)]" />
                     </Button>
                     <Button variant="ghost" size="icon" onClick={() => handleDelete(item._id)}>
-                      <Trash2 className="h-4 w-4 text-zoru-ink" />
+                      <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                     </Button>
                   </ZoruTableCell>
                 </ZoruTableRow>

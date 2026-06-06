@@ -41,7 +41,7 @@ export default async function BaseShellPage({ params }: PageProps) {
       tables={[]}
       activeTableId={null}
     >
-      <div className="p-10 text-center text-zoru-ink-muted">
+      <div className="p-10 text-center text-[var(--st-text-secondary)]">
         Create your first table to get started.
       </div>
     </BaseShellClient>

@@ -136,7 +136,7 @@ export function BankTransactionForm({
                         <div className="grid gap-4 md:grid-cols-2">
                             <div>
                                 <Label htmlFor="accountId">
-                                    Account <span className="text-zoru-danger-ink">*</span>
+                                    Account <span className="text-[var(--st-danger)]">*</span>
                                 </Label>
                                 <div className="mt-1.5">
                                     <EntityFormField
@@ -154,7 +154,7 @@ export function BankTransactionForm({
                             </div>
                             <div>
                                 <Label htmlFor="transactionDate">
-                                    Date <span className="text-zoru-danger-ink">*</span>
+                                    Date <span className="text-[var(--st-danger)]">*</span>
                                 </Label>
                                 <Input
                                     id="transactionDate"
@@ -167,7 +167,7 @@ export function BankTransactionForm({
                             </div>
                             <div>
                                 <Label htmlFor="amount">
-                                    Amount <span className="text-zoru-danger-ink">*</span>
+                                    Amount <span className="text-[var(--st-danger)]">*</span>
                                 </Label>
                                 <Input
                                     id="amount"
@@ -187,7 +187,7 @@ export function BankTransactionForm({
                             </div>
                             <div>
                                 <Label htmlFor="type">
-                                    Direction <span className="text-zoru-danger-ink">*</span>
+                                    Direction <span className="text-[var(--st-danger)]">*</span>
                                 </Label>
                                 <div className="mt-1.5">
                                     <EnumFormField
@@ -288,8 +288,8 @@ export function BankTransactionForm({
                                 {sourceFileUrl ? 'Replace file' : 'Attach file'}
                             </SabFilePickerButton>
                             {sourceFileUrl ? (
-                                <div className="mt-2 flex items-center justify-between gap-2 rounded-lg border border-zoru-line px-2 py-1.5">
-                                    <span className="truncate text-[12px] text-zoru-ink">
+                                <div className="mt-2 flex items-center justify-between gap-2 rounded-lg border border-[var(--st-border)] px-2 py-1.5">
+                                    <span className="truncate text-[12px] text-[var(--st-text)]">
                                         {sourceFileName || sourceFileUrl}
                                     </span>
                                     <Button

@@ -112,7 +112,7 @@ export default function PixelsPage() {
                         </Button>
                         <Dialog open={open} onOpenChange={setOpen}>
                             <ZoruDialogTrigger asChild>
-                                <Button className="bg-zoru-ink hover:bg-zoru-ink/90">
+                                <Button className="bg-[var(--st-text)] hover:bg-[var(--st-text)]/90">
                                     <Plus className="h-4 w-4 mr-1" /> Create pixel
                                 </Button>
                             </ZoruDialogTrigger>
@@ -128,7 +128,7 @@ export default function PixelsPage() {
                                             value={name} 
                                             onChange={(e) => setName(e.target.value)} 
                                         />
-                                        <p className="text-xs text-zoru-ink-muted">
+                                        <p className="text-xs text-[var(--st-text-secondary)]">
                                             This name will appear in your Events Manager.
                                         </p>
                                     </div>
@@ -150,9 +150,9 @@ export default function PixelsPage() {
             ) : pixels.length === 0 ? (
                 <Card className="border-dashed">
                     <ZoruCardContent className="py-12 text-center space-y-3">
-                        <Target className="h-10 w-10 mx-auto text-zoru-ink-muted" />
+                        <Target className="h-10 w-10 mx-auto text-[var(--st-text-secondary)]" />
                         <p className="font-medium">No pixels yet</p>
-                        <p className="text-sm text-zoru-ink-muted">Create your first pixel to start tracking website activities and optimizing ads.</p>
+                        <p className="text-sm text-[var(--st-text-secondary)]">Create your first pixel to start tracking website activities and optimizing ads.</p>
                         <Button variant="outline" onClick={() => setOpen(true)}>
                             <Plus className="h-4 w-4 mr-2" />
                             Create Pixel
@@ -167,7 +167,7 @@ export default function PixelsPage() {
                                 <ZoruCardTitle className="text-base flex items-center justify-between">
                                     <span className="truncate pr-2" title={p.name}>{p.name}</span>
                                     {p.last_fired_time ? (
-                                        <Badge variant="outline" className="text-zoru-ink bg-zoru-surface-2 shrink-0">Active</Badge>
+                                        <Badge variant="outline" className="text-[var(--st-text)] bg-[var(--st-bg-muted)] shrink-0">Active</Badge>
                                     ) : (
                                         <Badge variant="secondary" className="shrink-0 text-xs font-normal">No Recent Activity</Badge>
                                     )}
@@ -175,13 +175,13 @@ export default function PixelsPage() {
                             </ZoruCardHeader>
                             <ZoruCardContent className="space-y-4 pt-0">
                                 <div className="flex flex-col gap-1.5">
-                                    <Label className="text-[10px] text-zoru-ink-muted uppercase tracking-wider font-semibold">Pixel ID</Label>
-                                    <div className="flex items-center gap-2 text-sm font-mono bg-zoru-surface-2/50 px-2 py-1.5 rounded border border-zoru-line/50">
+                                    <Label className="text-[10px] text-[var(--st-text-secondary)] uppercase tracking-wider font-semibold">Pixel ID</Label>
+                                    <div className="flex items-center gap-2 text-sm font-mono bg-[var(--st-bg-muted)]/50 px-2 py-1.5 rounded border border-[var(--st-border)]/50">
                                         <span className="truncate flex-1 select-all">{p.id}</span>
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            className="h-6 w-6 shrink-0 hover:bg-zoru-surface"
+                                            className="h-6 w-6 shrink-0 hover:bg-[var(--st-bg-secondary)]"
                                             onClick={() => {
                                                 navigator.clipboard.writeText(p.id);
                                                 toast({ title: 'Copied to clipboard', description: `Pixel ID: ${p.id}` });
@@ -194,8 +194,8 @@ export default function PixelsPage() {
                                 </div>
                                 
                                 {p.last_fired_time && (
-                                    <div className="text-xs text-zoru-ink-muted flex items-center gap-1.5 bg-zoru-surface-2/30 px-2 py-1.5 rounded border border-zoru-line/30">
-                                        <span className="h-2 w-2 rounded-full bg-zoru-ink inline-block animate-pulse"></span>
+                                    <div className="text-xs text-[var(--st-text-secondary)] flex items-center gap-1.5 bg-[var(--st-bg-muted)]/30 px-2 py-1.5 rounded border border-[var(--st-border)]/30">
+                                        <span className="h-2 w-2 rounded-full bg-[var(--st-text)] inline-block animate-pulse"></span>
                                         Last event: {new Date(p.last_fired_time).toLocaleString()}
                                     </div>
                                 )}
@@ -203,7 +203,7 @@ export default function PixelsPage() {
                                 <div className="flex flex-wrap items-center gap-2 pt-3 border-t mt-4">
                                     <Button variant="outline" size="sm" className="flex-1 text-xs h-8" asChild>
                                         <Link href={`/dashboard/ad-manager/events-manager?pixel=${p.id}`}>
-                                            <Eye className="h-3.5 w-3.5 mr-1.5 text-zoru-ink-muted" /> 
+                                            <Eye className="h-3.5 w-3.5 mr-1.5 text-[var(--st-text-secondary)]" /> 
                                             View Events
                                         </Link>
                                     </Button>
@@ -211,7 +211,7 @@ export default function PixelsPage() {
                                     <Dialog>
                                         <ZoruDialogTrigger asChild>
                                             <Button variant="outline" size="sm" className="flex-1 text-xs h-8">
-                                                <Code2 className="h-3.5 w-3.5 mr-1.5 text-zoru-ink-muted" />
+                                                <Code2 className="h-3.5 w-3.5 mr-1.5 text-[var(--st-text-secondary)]" />
                                                 Install Code
                                             </Button>
                                         </ZoruDialogTrigger>
@@ -220,11 +220,11 @@ export default function PixelsPage() {
                                                 <ZoruDialogTitle>Install Pixel Base Code</ZoruDialogTitle>
                                             </ZoruDialogHeader>
                                             <div className="space-y-4">
-                                                <p className="text-sm text-zoru-ink-muted">
-                                                    Copy and paste this code at the bottom of the header section of your website, just above the <code className="bg-zoru-surface-2 px-1 py-0.5 rounded">&lt;/head&gt;</code> tag.
+                                                <p className="text-sm text-[var(--st-text-secondary)]">
+                                                    Copy and paste this code at the bottom of the header section of your website, just above the <code className="bg-[var(--st-bg-muted)] px-1 py-0.5 rounded">&lt;/head&gt;</code> tag.
                                                 </p>
                                                 <div className="relative">
-                                                    <pre className="bg-zoru-surface-2 p-4 rounded-md text-xs font-mono overflow-x-auto whitespace-pre-wrap text-zoru-ink-muted border">
+                                                    <pre className="bg-[var(--st-bg-muted)] p-4 rounded-md text-xs font-mono overflow-x-auto whitespace-pre-wrap text-[var(--st-text-secondary)] border">
 {`<!-- Meta Pixel Code -->
 <script>
 !function(f,b,e,v,n,t,s)
@@ -262,7 +262,7 @@ src="https://www.facebook.com/tr?id=${p.id}&ev=PageView&noscript=1"
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        className="h-8 w-8 text-zoru-ink hover:text-zoru-ink hover:bg-zoru-surface-2"
+                                        className="h-8 w-8 text-[var(--st-text)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
                                         title="Remove from view"
                                         onClick={() => {
                                             if (confirm('Are you sure you want to remove this pixel from the list?')) {

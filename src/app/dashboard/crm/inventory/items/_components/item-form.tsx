@@ -291,7 +291,7 @@ export function ItemForm({ initial }: ItemFormProps) {
         onStatus={f.setStatus}
       />
 
-      <div className="sticky bottom-0 z-10 -mx-2 flex flex-wrap items-center justify-end gap-2 border-t border-zoru-line bg-zoru-bg px-2 py-3">
+      <div className="sticky bottom-0 z-10 -mx-2 flex flex-wrap items-center justify-end gap-2 border-t border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-3">
         <Button variant="outline" asChild>
           <Link
             href={

@@ -118,7 +118,7 @@ export function PinButton({
       title={label}
       className={cn(
         iconOnly && 'h-8 w-8 p-0',
-        pinned && 'text-zoru-warning-ink',
+        pinned && 'text-[var(--st-warn)]',
         className,
       )}
     >

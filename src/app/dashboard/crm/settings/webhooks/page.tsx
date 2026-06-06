@@ -159,8 +159,8 @@ export default function CrmWebhooksListPage() {
   if (!mounted) {
     return (
       <div className="flex h-60 items-center justify-center">
-        <span className="flex items-center gap-2 text-sm text-zoru-ink-muted">
-          <span className="h-4 w-4 animate-spin rounded-full border-2 border-zoru-ink-muted border-t-transparent" />
+        <span className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
+          <span className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--st-text-secondary)] border-t-transparent" />
           Loading webhooks...
         </span>
       </div>
@@ -292,15 +292,15 @@ export default function CrmWebhooksListPage() {
       bulkBar={
         selected.size > 0 ? (
           <div className="flex flex-wrap items-center gap-2 text-[13px]">
-            <span className="font-medium text-zoru-ink">{selected.size} selected</span>
-            <span className="text-zoru-ink-muted">·</span>
+            <span className="font-medium text-[var(--st-text)]">{selected.size} selected</span>
+            <span className="text-[var(--st-text-secondary)]">·</span>
             <Button
               variant="ghost"
               size="sm"
               disabled={bulkPending}
               onClick={handleBulkDelete}
             >
-              <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+              <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
               Delete
             </Button>
             <Button variant="ghost" size="sm" onClick={handleExportCsv}>
@@ -333,7 +333,7 @@ export default function CrmWebhooksListPage() {
               label="Total"
               value={kpis.total.toLocaleString()}
               icon={<Webhook className="h-4 w-4" />}
-              className={statusFilter === 'all' ? 'ring-1 ring-zoru-primary rounded-[var(--zoru-radius-lg)]' : undefined}
+              className={statusFilter === 'all' ? 'ring-1 ring-[var(--st-text)] rounded-[var(--zoru-radius-lg)]' : undefined}
             />
           </button>
           <button
@@ -345,7 +345,7 @@ export default function CrmWebhooksListPage() {
               label="Active"
               value={kpis.active.toLocaleString()}
               icon={<CheckCircle2 className="h-4 w-4" />}
-              className={statusFilter === 'active' ? 'ring-1 ring-zoru-primary rounded-[var(--zoru-radius-lg)]' : undefined}
+              className={statusFilter === 'active' ? 'ring-1 ring-[var(--st-text)] rounded-[var(--zoru-radius-lg)]' : undefined}
             />
           </button>
           <button
@@ -357,7 +357,7 @@ export default function CrmWebhooksListPage() {
               label="Paused"
               value={kpis.paused.toLocaleString()}
               icon={<PauseCircle className="h-4 w-4" />}
-              className={statusFilter === 'paused' ? 'ring-1 ring-zoru-primary rounded-[var(--zoru-radius-lg)]' : undefined}
+              className={statusFilter === 'paused' ? 'ring-1 ring-[var(--st-text)] rounded-[var(--zoru-radius-lg)]' : undefined}
             />
           </button>
           <StatCard
@@ -415,7 +415,7 @@ export default function CrmWebhooksListPage() {
                 <ZoruTableRow>
                   <ZoruTableCell
                     colSpan={7}
-                    className="text-center text-zoru-ink-muted py-12"
+                    className="text-center text-[var(--st-text-secondary)] py-12"
                   >
                     {rows.length === 0
                       ? 'No subscriptions yet.'
@@ -426,7 +426,7 @@ export default function CrmWebhooksListPage() {
                 filtered.map((row) => (
                   <ZoruTableRow
                     key={row._id}
-                    className={cn(selected.has(row._id) && 'bg-zoru-surface')}
+                    className={cn(selected.has(row._id) && 'bg-[var(--st-bg-secondary)]')}
                   >
                     <ZoruTableCell>
                       <Checkbox

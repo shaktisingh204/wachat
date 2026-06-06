@@ -50,8 +50,8 @@ export default function NewStorefrontPage(): React.JSX.Element {
     return (
         <div className="zoruui flex flex-col gap-4 p-6">
             <header>
-                <h1 className="text-2xl font-semibold text-zoru-ink">New storefront</h1>
-                <p className="text-sm text-zoru-ink-muted">
+                <h1 className="text-2xl font-semibold text-[var(--st-text)]">New storefront</h1>
+                <p className="text-sm text-[var(--st-text-secondary)]">
                     Create a tenant-scoped public store reachable at <code>/store/&lt;slug&gt;</code>.
                 </p>
             </header>
@@ -80,7 +80,7 @@ export default function NewStorefrontPage(): React.JSX.Element {
                                 value={form.slug}
                                 onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))}
                             />
-                            <p className="text-xs text-zoru-ink-muted">Public URL: /store/{form.slug || 'your-slug'}</p>
+                            <p className="text-xs text-[var(--st-text-secondary)]">Public URL: /store/{form.slug || 'your-slug'}</p>
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="description">Description</Label>

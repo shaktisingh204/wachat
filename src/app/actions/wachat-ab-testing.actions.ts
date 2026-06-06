@@ -10,13 +10,15 @@
  *   1. persists the test config via `wachatAbTestingApi.create`, then
  *   2. fires the real split broadcast via
  *      `rustClient.wachatBroadcast.bulkStart` — variant A to `splitPct`
- *      of the audience, variant B to the remainder.
+ *      of the audience, variant B to the remainder, then
+ *   3. recovers each launched `broadcasts._id` and links it to its variant
+ *      via `wachatAbTestingApi.attachBroadcast` so the crate can aggregate
+ *      per-variant `sent/delivered/read/failed` live from the broadcast's
+ *      `broadcast_contacts`.
  *
- * Results stay zero until the broadcast webhook populates
- * `wa_ab_test_results`.
- *
- * NOTE: imports `wachatAbTestingApi` DIRECTLY from its module (the crate
- * is not yet registered on the `rustClient` barrel).
+ * Per-variant metrics fill in as the delivery/read webhooks advance the
+ * attached broadcast's contacts; a variant with no broadcast attached
+ * stays in the "not launched yet" state (all-zero, never fabricated).
  */
 
 import { revalidatePath } from 'next/cache';
@@ -62,6 +64,40 @@ function toContactRecord(c: Record<string, unknown>): ContactRecord | null {
     if (!phone) return null;
     const name = c.name ? String(c.name) : 'Subscriber';
     return { phone, name };
+}
+
+/** A loosely-typed broadcast row as it comes back from `listForProject`. */
+interface BroadcastRow {
+    _id?: unknown;
+    fileName?: unknown;
+    createdAt?: unknown;
+}
+
+/**
+ * Recover the `_id` (hex string) of the broadcast `bulkStart` just created
+ * for a variant. `bulkStart` returns only a message, so we match on the
+ * unique `fileName` we stamped per variant (`ab-test-{name}-variant-{A|B}`).
+ *
+ * The Rust `listForProject` returns broadcasts already sorted `createdAt`
+ * desc, so the FIRST `fileName` match is the most recently launched one —
+ * the right pick even if an older test reused the same name.
+ */
+function findBroadcastIdByFileName(
+    broadcasts: unknown[],
+    fileName: string,
+): string | null {
+    for (const raw of broadcasts) {
+        const row = raw as BroadcastRow;
+        if (typeof row?.fileName === 'string' && row.fileName === fileName) {
+            const id = row._id;
+            if (typeof id === 'string' && id.trim()) return id;
+            if (id != null) {
+                const s = String(id).trim();
+                if (s) return s;
+            }
+        }
+    }
+    return null;
 }
 
 // =================================================================
@@ -175,6 +211,13 @@ export async function createAbTest(input: CreateAbTestInput) {
     const groupA = contacts.slice(0, cutoff);
     const groupB = contacts.slice(cutoff);
 
+    // Each variant gets a UNIQUE `fileName` — we use it below to recover the
+    // `broadcasts._id` that `bulkStart` creates (it only returns a message,
+    // not the id) so the variant→broadcast link can be attached for live
+    // metrics. See `findBroadcastIdByFileName`.
+    const fileNameA = `ab-test-${name}-variant-A`;
+    const fileNameB = `ab-test-${name}-variant-B`;
+
     // ---- 3. Fire the real split broadcast, one bulkStart per variant. ----
     try {
         const launches: Promise<unknown>[] = [];
@@ -184,7 +227,7 @@ export async function createAbTest(input: CreateAbTestInput) {
                     projectIds: [projectId],
                     templateName: variantAInput.name,
                     language: DEFAULT_LANGUAGE,
-                    fileName: `ab-test-${name}-variant-A`,
+                    fileName: fileNameA,
                     contacts: groupA,
                 }),
             );
@@ -195,7 +238,7 @@ export async function createAbTest(input: CreateAbTestInput) {
                     projectIds: [projectId],
                     templateName: variantBInput.name,
                     language: DEFAULT_LANGUAGE,
-                    fileName: `ab-test-${name}-variant-B`,
+                    fileName: fileNameB,
                     contacts: groupB,
                 }),
             );
@@ -208,11 +251,52 @@ export async function createAbTest(input: CreateAbTestInput) {
         };
     }
 
+    // ---- 4. Recover each launched broadcast's _id and link it to its
+    //         variant so the per-variant metrics aggregate live. `bulkStart`
+    //         doesn't return the broadcast id, so we re-read the project's
+    //         broadcasts and pick the just-created one by its unique
+    //         `fileName`. Best-effort: a failure here only means metrics stay
+    //         dark, so it downgrades to a warning rather than failing launch.
+    const testId = String((test as { _id?: unknown })?._id ?? '');
+    const attachWarnings: string[] = [];
+    if (testId) {
+        try {
+            const { broadcasts } = await rustClient.wachatBroadcast.listForProject(
+                projectId,
+                { limit: 50 },
+            );
+            const attachments: Array<{ variant: 'A' | 'B'; fileName: string }> = [];
+            if (groupA.length > 0) attachments.push({ variant: 'A', fileName: fileNameA });
+            if (groupB.length > 0) attachments.push({ variant: 'B', fileName: fileNameB });
+
+            for (const { variant, fileName } of attachments) {
+                const broadcastId = findBroadcastIdByFileName(broadcasts, fileName);
+                if (!broadcastId) {
+                    attachWarnings.push(`variant ${variant}`);
+                    continue;
+                }
+                try {
+                    await wachatAbTestingApi.attachBroadcast(testId, variant, broadcastId);
+                } catch (e) {
+                    attachWarnings.push(`variant ${variant} (${getErrorMessage(e)})`);
+                }
+            }
+        } catch (e) {
+            attachWarnings.push(`lookup failed (${getErrorMessage(e)})`);
+        }
+    }
+
     revalidatePath(PAGE_PATH);
-    return {
-        test,
-        message: `A/B test launched — ${groupA.length} to variant A, ${groupB.length} to variant B.`,
-    };
+    const baseMessage = `A/B test launched — ${groupA.length} to variant A, ${groupB.length} to variant B.`;
+    if (attachWarnings.length > 0) {
+        return {
+            test,
+            warning: `${baseMessage} Metrics linking incomplete for: ${attachWarnings.join(
+                ', ',
+            )}. They will stay dark until re-linked.`,
+        };
+    }
+    return { test, message: baseMessage };
 }
 
 // =================================================================

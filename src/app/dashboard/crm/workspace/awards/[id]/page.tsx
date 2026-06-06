@@ -82,20 +82,20 @@ export default async function AwardDetailPage({
                 audit={<EntityAuditTimeline entityKind="award" entityId={String(a._id)} />}
                 rightRail={
                     <Card>
-                        <h3 className="mb-2 text-[13.5px] font-semibold text-zoru-ink">
+                        <h3 className="mb-2 text-[13.5px] font-semibold text-[var(--st-text)]">
                             Program details
                         </h3>
                         <dl className="grid grid-cols-2 gap-y-1 text-[12.5px]">
-                            <dt className="text-zoru-ink-muted">Frequency</dt>
-                            <dd className="text-zoru-ink capitalize">{a.frequency}</dd>
-                            <dt className="text-zoru-ink-muted">Nominations</dt>
-                            <dd className="text-zoru-ink">{linked.length}</dd>
-                            <dt className="text-zoru-ink-muted">Winners</dt>
-                            <dd className="text-zoru-ink">
+                            <dt className="text-[var(--st-text-secondary)]">Frequency</dt>
+                            <dd className="text-[var(--st-text)] capitalize">{a.frequency}</dd>
+                            <dt className="text-[var(--st-text-secondary)]">Nominations</dt>
+                            <dd className="text-[var(--st-text)]">{linked.length}</dd>
+                            <dt className="text-[var(--st-text-secondary)]">Winners</dt>
+                            <dd className="text-[var(--st-text)]">
                                 {new Set(linked.map((x) => x.given_to_user_id)).size}
                             </dd>
-                            <dt className="text-zoru-ink-muted">Prize</dt>
-                            <dd className="text-zoru-ink">
+                            <dt className="text-[var(--st-text-secondary)]">Prize</dt>
+                            <dd className="text-[var(--st-text)]">
                                 {a.prize && !isNaN(Number(a.prize)) ? fmtINR(Number(a.prize)) : (a.prize || '—')}
                             </dd>
                         </dl>
@@ -103,20 +103,20 @@ export default async function AwardDetailPage({
                 }
             >
                 <Card>
-                    <h3 className="mb-2 flex items-center gap-2 text-[14px] font-semibold text-zoru-ink">
+                    <h3 className="mb-2 flex items-center gap-2 text-[14px] font-semibold text-[var(--st-text)]">
                         <Trophy className="h-4 w-4" /> About this program
                     </h3>
                     {a.summary ? (
-                        <p className="text-[13.5px] text-zoru-ink">{a.summary}</p>
+                        <p className="text-[13.5px] text-[var(--st-text)]">{a.summary}</p>
                     ) : (
-                        <p className="text-[13px] text-zoru-ink-muted">No summary.</p>
+                        <p className="text-[13px] text-[var(--st-text-secondary)]">No summary.</p>
                     )}
                     {a.criteria ? (
                         <div className="mt-3">
-                            <h4 className="text-[12.5px] font-semibold text-zoru-ink-muted">
+                            <h4 className="text-[12.5px] font-semibold text-[var(--st-text-secondary)]">
                                 Criteria
                             </h4>
-                            <p className="mt-1 whitespace-pre-wrap text-[13px] text-zoru-ink">
+                            <p className="mt-1 whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
                                 {a.criteria}
                             </p>
                         </div>
@@ -124,18 +124,18 @@ export default async function AwardDetailPage({
                 </Card>
 
                 <Card>
-                    <h3 className="mb-3 text-[14px] font-semibold text-zoru-ink">
+                    <h3 className="mb-3 text-[14px] font-semibold text-[var(--st-text)]">
                         Nominations & winners ({linked.length})
                     </h3>
                     {linked.length === 0 ? (
-                        <p className="text-[13px] text-zoru-ink-muted">
+                        <p className="text-[13px] text-[var(--st-text-secondary)]">
                             No nominations yet. Grant the first appreciation against this
                             program from the Appreciations sub-route.
                         </p>
                     ) : (
                         <div className="overflow-x-auto">
                             <table className="w-full min-w-[500px] text-[12.5px]">
-                                <thead className="text-zoru-ink-muted">
+                                <thead className="text-[var(--st-text-secondary)]">
                                     <tr>
                                         {['Given to', 'Given by', 'Given on', 'Summary'].map((h) => (
                                             <th key={h} className="px-2 py-1 text-left font-medium">
@@ -144,7 +144,7 @@ export default async function AwardDetailPage({
                                         ))}
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-zoru-line">
+                                <tbody className="divide-y divide-[var(--st-border)]">
                                     {linked.map((ap) => (
                                         <tr key={String(ap._id)}>
                                             <td className="px-2 py-1.5">
@@ -152,13 +152,13 @@ export default async function AwardDetailPage({
                                                     {ap.given_to_user_name || ap.given_to_user_id}
                                                 </Badge>
                                             </td>
-                                            <td className="px-2 py-1.5 text-zoru-ink-muted">
+                                            <td className="px-2 py-1.5 text-[var(--st-text-secondary)]">
                                                 {ap.given_by_user_name || ap.given_by_user_id}
                                             </td>
-                                            <td className="px-2 py-1.5 text-zoru-ink-muted">
+                                            <td className="px-2 py-1.5 text-[var(--st-text-secondary)]">
                                                 {fmtDate(ap.given_on)}
                                             </td>
-                                            <td className="px-2 py-1.5 text-zoru-ink-muted line-clamp-1">
+                                            <td className="px-2 py-1.5 text-[var(--st-text-secondary)] line-clamp-1">
                                                 {ap.summary || '—'}
                                             </td>
                                         </tr>

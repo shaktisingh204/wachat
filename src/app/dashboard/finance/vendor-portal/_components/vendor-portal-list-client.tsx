@@ -210,7 +210,7 @@ export function VendorListClient({ initialItems, error }: { initialItems: Vendor
                 <Label>Status</Label>
                 <select 
                   name="onboardingStatus"
-                  className="flex h-10 w-full rounded-md border border-zoru-line bg-zoru-surface px-3 py-2 text-sm ring-offset-zoru-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-line focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex h-10 w-full rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-sm ring-offset-zoru-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-border)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   defaultValue={editingId ? items.find(i => i._id === editingId)?.onboardingStatus : 'ACTIVE'}
                 >
                   <option value="ACTIVE">Active</option>
@@ -231,14 +231,14 @@ export function VendorListClient({ initialItems, error }: { initialItems: Vendor
       }
     >
       {error && (
-        <div className="mb-4 rounded-md border border-zoru-line bg-zoru-surface-2 p-4 text-sm text-zoru-ink">
+        <div className="mb-4 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 text-sm text-[var(--st-text)]">
           {error}
         </div>
       )}
 
       <div className="mb-6 flex items-center gap-2">
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
           <Input 
             placeholder="Search records..." 
             className="pl-8"
@@ -277,8 +277,8 @@ export function VendorListClient({ initialItems, error }: { initialItems: Vendor
                 <ZoruTableRow key={item._id}>
                   <ZoruTableCell>
                     <div className="flex items-center gap-2">
-                      <div className="flex h-8 w-8 items-center justify-center rounded bg-zoru-ink/10">
-                        <Building2 className="h-4 w-4 text-zoru-ink" />
+                      <div className="flex h-8 w-8 items-center justify-center rounded bg-[var(--st-text)]/10">
+                        <Building2 className="h-4 w-4 text-[var(--st-text)]" />
                       </div>
                       <span className="font-medium">{String(item.name ?? 'Unknown')}</span>
                     </div>
@@ -286,24 +286,24 @@ export function VendorListClient({ initialItems, error }: { initialItems: Vendor
                   <ZoruTableCell>
                     <div className="flex flex-col gap-1 text-sm">
                       {item.contactEmail && (
-                        <div className="flex items-center gap-1.5 text-zoru-ink-muted">
+                        <div className="flex items-center gap-1.5 text-[var(--st-text-secondary)]">
                           <Mail className="h-3 w-3" />
-                          <a href={`mailto:${item.contactEmail}`} className="hover:underline text-zoru-ink">{item.contactEmail}</a>
+                          <a href={`mailto:${item.contactEmail}`} className="hover:underline text-[var(--st-text)]">{item.contactEmail}</a>
                         </div>
                       )}
                       {item.contactPhone && (
-                        <div className="flex items-center gap-1.5 text-zoru-ink-muted">
+                        <div className="flex items-center gap-1.5 text-[var(--st-text-secondary)]">
                           <Phone className="h-3 w-3" />
                           <a href={`tel:${item.contactPhone}`} className="hover:underline">{item.contactPhone}</a>
                         </div>
                       )}
-                      {!item.contactEmail && !item.contactPhone && <span className="text-zoru-ink-muted italic">No contact info</span>}
+                      {!item.contactEmail && !item.contactPhone && <span className="text-[var(--st-text-secondary)] italic">No contact info</span>}
                     </div>
                   </ZoruTableCell>
                   <ZoruTableCell className="w-[200px]">
                     <div className="flex flex-col gap-1.5">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="text-zoru-ink-muted">Score</span>
+                        <span className="text-[var(--st-text-secondary)]">Score</span>
                         <span className="font-medium">{item.performanceScore || 0}/100</span>
                       </div>
                       <Progress value={Number(item.performanceScore || 0)} className="h-1.5" />
@@ -312,7 +312,7 @@ export function VendorListClient({ initialItems, error }: { initialItems: Vendor
                   <ZoruTableCell>
                     <div className="flex flex-col gap-1 text-sm">
                       <div>Terms: <span className="font-medium">{item.paymentTerms || 'N/A'}</span></div>
-                      <div className="text-zoru-ink-muted">{item.activeContracts || 0} active contracts</div>
+                      <div className="text-[var(--st-text-secondary)]">{item.activeContracts || 0} active contracts</div>
                     </div>
                   </ZoruTableCell>
                   <ZoruTableCell>
@@ -331,7 +331,7 @@ export function VendorListClient({ initialItems, error }: { initialItems: Vendor
                         <ZoruDropdownMenuItem onClick={() => openEdit(item._id as string)}>
                           <Pencil className="mr-2 h-4 w-4" /> Edit
                         </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuItem className="text-zoru-ink focus:bg-zoru-surface-2" onClick={() => handleDelete(item._id as string)}>
+                        <ZoruDropdownMenuItem className="text-[var(--st-text)] focus:bg-[var(--st-bg-muted)]" onClick={() => handleDelete(item._id as string)}>
                           <Trash className="mr-2 h-4 w-4" /> Delete
                         </ZoruDropdownMenuItem>
                       </ZoruDropdownMenuContent>
@@ -352,7 +352,7 @@ export function VendorListClient({ initialItems, error }: { initialItems: Vendor
           <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
             {viewingItem && Object.entries(viewingItem).filter(([k]) => k !== '__v').map(([key, value]) => (
               <div key={key} className="grid grid-cols-3 gap-4 border-b pb-2">
-                <div className="font-medium text-sm text-zoru-ink-muted capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</div>
+                <div className="font-medium text-sm text-[var(--st-text-secondary)] capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</div>
                 <div className="col-span-2 text-sm">{String(value)}</div>
               </div>
             ))}

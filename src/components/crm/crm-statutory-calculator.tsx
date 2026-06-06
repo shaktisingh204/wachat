@@ -169,12 +169,12 @@ export function CrmStatutoryCalculator({
 
   return (
     <div className="space-y-4">
-      <Card className="p-0 border border-zoru-line overflow-hidden bg-zoru-surface">
-        <div className="flex items-center justify-between border-b border-zoru-line px-4 py-3 bg-zoru-surface-2/40">
-          <h4 className="text-[13px] font-semibold text-zoru-ink flex items-center gap-2">
-            <Calculator className="h-4 w-4 text-zoru-ink" /> Invoice Line Items & Taxes
+      <Card className="p-0 border border-[var(--st-border)] overflow-hidden bg-[var(--st-bg-secondary)]">
+        <div className="flex items-center justify-between border-b border-[var(--st-border)] px-4 py-3 bg-[var(--st-bg-muted)]/40">
+          <h4 className="text-[13px] font-semibold text-[var(--st-text)] flex items-center gap-2">
+            <Calculator className="h-4 w-4 text-[var(--st-text)]" /> Invoice Line Items & Taxes
           </h4>
-          <div className="flex items-center gap-2 text-[11px] text-zoru-ink-muted">
+          <div className="flex items-center gap-2 text-[11px] text-[var(--st-text-secondary)]">
             <Info className="h-3.5 w-3.5" />
             Tax Treatment: {isIntraState ? 'Intra-State (CGST + SGST)' : 'Inter-State (IGST)'}
           </div>
@@ -182,14 +182,14 @@ export function CrmStatutoryCalculator({
 
         <div className="overflow-x-auto">
           <Table className="min-w-full">
-            <ZoruTableHeader className="bg-zoru-surface-2/20 border-b border-zoru-line">
+            <ZoruTableHeader className="bg-[var(--st-bg-muted)]/20 border-b border-[var(--st-border)]">
               <ZoruTableRow>
-                <ZoruTableHead className="text-zoru-ink-muted text-[12px] py-2 px-3 font-semibold text-left">Item Name / HSN</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted text-[12px] py-2 px-3 font-semibold text-center w-[100px]">Qty</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted text-[12px] py-2 px-3 font-semibold text-right w-[140px]">Rate (₹)</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted text-[12px] py-2 px-3 font-semibold text-center w-[120px]">Discount (%)</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted text-[12px] py-2 px-3 font-semibold text-center w-[120px]">GST Rate (%)</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted text-[12px] py-2 px-3 font-semibold text-right w-[140px]">Amount (₹)</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)] text-[12px] py-2 px-3 font-semibold text-left">Item Name / HSN</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)] text-[12px] py-2 px-3 font-semibold text-center w-[100px]">Qty</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)] text-[12px] py-2 px-3 font-semibold text-right w-[140px]">Rate (₹)</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)] text-[12px] py-2 px-3 font-semibold text-center w-[120px]">Discount (%)</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)] text-[12px] py-2 px-3 font-semibold text-center w-[120px]">GST Rate (%)</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)] text-[12px] py-2 px-3 font-semibold text-right w-[140px]">Amount (₹)</ZoruTableHead>
                 <ZoruTableHead className="w-10 px-3" />
               </ZoruTableRow>
             </ZoruTableHeader>
@@ -198,7 +198,7 @@ export function CrmStatutoryCalculator({
               {items.map((item, idx) => {
                 const amount = item.qty * item.rate * (1 - item.discountPercent / 100);
                 return (
-                  <ZoruTableRow key={item.itemId} className="border-b border-zoru-line hover:bg-zoru-surface-2/10">
+                  <ZoruTableRow key={item.itemId} className="border-b border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]/10">
                     {/* Item details */}
                     <ZoruTableCell className="py-2.5 px-3">
                       <div className="flex flex-col gap-1">
@@ -212,7 +212,7 @@ export function CrmStatutoryCalculator({
                           placeholder="HSN/SAC"
                           value={item.hsnSac ?? ''}
                           onChange={(e) => handleUpdateRow(idx, 'hsnSac', e.target.value)}
-                          className="h-6 text-[10.5px] max-w-[120px] text-zoru-ink-muted bg-transparent border-dashed"
+                          className="h-6 text-[10.5px] max-w-[120px] text-[var(--st-text-secondary)] bg-transparent border-dashed"
                         />
                       </div>
                     </ZoruTableCell>
@@ -254,7 +254,7 @@ export function CrmStatutoryCalculator({
                     {/* GST Rate dropdown options */}
                     <ZoruTableCell className="py-2.5 px-3">
                       <select
-                        className="flex h-8 w-full rounded-md border border-zoru-line bg-zoru-bg px-2 text-[12.5px] text-zoru-ink shadow-sm transition-colors focus-visible:outline-none"
+                        className="flex h-8 w-full rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-2 text-[12.5px] text-[var(--st-text)] shadow-sm transition-colors focus-visible:outline-none"
                         value={item.taxRatePercent}
                         onChange={(e) => handleUpdateRow(idx, 'taxRatePercent', Number(e.target.value))}
                       >
@@ -267,7 +267,7 @@ export function CrmStatutoryCalculator({
                     </ZoruTableCell>
 
                     {/* Calculated row Amount */}
-                    <ZoruTableCell className="py-2.5 px-3 text-right text-[12.5px] font-medium text-zoru-ink">
+                    <ZoruTableCell className="py-2.5 px-3 text-right text-[12.5px] font-medium text-[var(--st-text)]">
                       {amount.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}
                     </ZoruTableCell>
 
@@ -277,7 +277,7 @@ export function CrmStatutoryCalculator({
                         variant="ghost"
                         size="sm"
                         onClick={() => handleRemoveRow(idx)}
-                        className="h-7 w-7 p-0 text-zoru-danger-ink hover:bg-zoru-danger/10"
+                        className="h-7 w-7 p-0 text-[var(--st-danger)] hover:bg-[var(--st-danger)]/10"
                         disabled={items.length <= 1}
                       >
                         <Trash2 className="h-3.5 w-3.5" />
@@ -291,7 +291,7 @@ export function CrmStatutoryCalculator({
         </div>
 
         {/* Footer Quick Add row button */}
-        <div className="p-3 border-t border-zoru-line bg-zoru-surface-2/10">
+        <div className="p-3 border-t border-[var(--st-border)] bg-[var(--st-bg-muted)]/10">
           <Button variant="outline" size="sm" onClick={handleAddRow} className="h-8 gap-1 text-[12px]">
             <Plus className="h-3.5 w-3.5" /> Add Document Row
           </Button>
@@ -300,13 +300,13 @@ export function CrmStatutoryCalculator({
 
       {/* Statutory calculations math list panel */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-zoru-surface border border-zoru-line rounded-lg p-4 space-y-3">
-          <h5 className="text-[12px] font-semibold uppercase tracking-wider text-zoru-ink-muted border-b border-zoru-line pb-1.5">
+        <div className="bg-[var(--st-bg-secondary)] border border-[var(--st-border)] rounded-lg p-4 space-y-3">
+          <h5 className="text-[12px] font-semibold uppercase tracking-wider text-[var(--st-text-secondary)] border-b border-[var(--st-border)] pb-1.5">
             Withholdings, Discounts & Additions
           </h5>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
-              <Label className="text-[11px] text-zoru-ink-muted uppercase">TDS Withholding (%)</Label>
+              <Label className="text-[11px] text-[var(--st-text-secondary)] uppercase">TDS Withholding (%)</Label>
               <Input
                 type="number"
                 min="0"
@@ -318,7 +318,7 @@ export function CrmStatutoryCalculator({
               />
             </div>
             <div className="space-y-1">
-              <Label className="text-[11px] text-zoru-ink-muted uppercase">TCS Collection (%)</Label>
+              <Label className="text-[11px] text-[var(--st-text-secondary)] uppercase">TCS Collection (%)</Label>
               <Input
                 type="number"
                 min="0"
@@ -330,7 +330,7 @@ export function CrmStatutoryCalculator({
               />
             </div>
             <div className="space-y-1">
-              <Label className="text-[11px] text-zoru-ink-muted uppercase">Overall Discount (₹)</Label>
+              <Label className="text-[11px] text-[var(--st-text-secondary)] uppercase">Overall Discount (₹)</Label>
               <Input
                 type="number"
                 min="0"
@@ -341,7 +341,7 @@ export function CrmStatutoryCalculator({
               />
             </div>
             <div className="space-y-1">
-              <Label className="text-[11px] text-zoru-ink-muted uppercase">Shipping Charge (₹)</Label>
+              <Label className="text-[11px] text-[var(--st-text-secondary)] uppercase">Shipping Charge (₹)</Label>
               <Input
                 type="number"
                 min="0"
@@ -352,7 +352,7 @@ export function CrmStatutoryCalculator({
               />
             </div>
             <div className="space-y-1 col-span-2">
-              <Label className="text-[11px] text-zoru-ink-muted uppercase">Adjustment (₹)</Label>
+              <Label className="text-[11px] text-[var(--st-text-secondary)] uppercase">Adjustment (₹)</Label>
               <Input
                 type="number"
                 value={adjustment || ''}
@@ -365,14 +365,14 @@ export function CrmStatutoryCalculator({
         </div>
 
         {/* Totals Rollups */}
-        <div className="bg-zoru-surface-2/40 border border-zoru-line rounded-lg p-4 space-y-2.5">
-          <div className="flex justify-between text-[12.5px] text-zoru-ink">
+        <div className="bg-[var(--st-bg-muted)]/40 border border-[var(--st-border)] rounded-lg p-4 space-y-2.5">
+          <div className="flex justify-between text-[12.5px] text-[var(--st-text)]">
             <span>Sub-Total (Taxable Value):</span>
             <span className="font-semibold">{totals.subTotal.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</span>
           </div>
 
           {totals.discountOverall > 0 && (
-            <div className="flex justify-between text-[12.5px] text-zoru-danger-ink">
+            <div className="flex justify-between text-[12.5px] text-[var(--st-danger)]">
               <span>Overall Discount:</span>
               <span>-{totals.discountOverall.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</span>
             </div>
@@ -381,58 +381,58 @@ export function CrmStatutoryCalculator({
           {/* India Taxes Breakdown based on states */}
           {isIntraState ? (
             <>
-              <div className="flex justify-between text-[12px] text-zoru-ink-muted pl-3">
+              <div className="flex justify-between text-[12px] text-[var(--st-text-secondary)] pl-3">
                 <span>CGST (Central GST):</span>
                 <span>{totals.cgst.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</span>
               </div>
-              <div className="flex justify-between text-[12px] text-zoru-ink-muted pl-3">
+              <div className="flex justify-between text-[12px] text-[var(--st-text-secondary)] pl-3">
                 <span>SGST (State GST):</span>
                 <span>{totals.sgst.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</span>
               </div>
             </>
           ) : (
-            <div className="flex justify-between text-[12px] text-zoru-ink-muted pl-3">
+            <div className="flex justify-between text-[12px] text-[var(--st-text-secondary)] pl-3">
               <span>IGST (Integrated GST):</span>
               <span>{totals.igst.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</span>
             </div>
           )}
 
           {shippingCharge > 0 && (
-            <div className="flex justify-between text-[12.5px] text-zoru-ink">
+            <div className="flex justify-between text-[12.5px] text-[var(--st-text)]">
               <span>Shipping Charge:</span>
               <span>{shippingCharge.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</span>
             </div>
           )}
 
           {adjustment !== 0 && (
-            <div className="flex justify-between text-[12.5px] text-zoru-ink">
+            <div className="flex justify-between text-[12.5px] text-[var(--st-text)]">
               <span>Adjustment:</span>
               <span>{adjustment > 0 ? '+' : ''}{adjustment.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</span>
             </div>
           )}
 
           {totals.tdsDeducted > 0 && (
-            <div className="flex justify-between text-[12.5px] text-zoru-danger-ink">
+            <div className="flex justify-between text-[12.5px] text-[var(--st-danger)]">
               <span>Statutory TDS Withheld ({tdsPercent}%):</span>
               <span>-{totals.tdsDeducted.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</span>
             </div>
           )}
 
           {totals.tcsCollected > 0 && (
-            <div className="flex justify-between text-[12.5px] text-zoru-success-ink">
+            <div className="flex justify-between text-[12.5px] text-[var(--st-status-ok)]">
               <span>Statutory TCS Collected ({tcsPercent}%):</span>
               <span>+{totals.tcsCollected.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</span>
             </div>
           )}
 
-          <div className="flex justify-between text-[12px] text-zoru-ink-muted">
+          <div className="flex justify-between text-[12px] text-[var(--st-text-secondary)]">
             <span>Round-Off Adjustment:</span>
             <span>{totals.roundOff > 0 ? '+' : ''}{totals.roundOff.toFixed(2)}</span>
           </div>
 
-          <div className="flex justify-between text-[15px] font-bold text-zoru-ink border-t border-zoru-line pt-2.5 mt-2">
+          <div className="flex justify-between text-[15px] font-bold text-[var(--st-text)] border-t border-[var(--st-border)] pt-2.5 mt-2">
             <span>Grand Total (Net Receivable):</span>
-            <span className="text-zoru-ink">{totals.grandTotal.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</span>
+            <span className="text-[var(--st-text)]">{totals.grandTotal.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</span>
           </div>
         </div>
       </div>

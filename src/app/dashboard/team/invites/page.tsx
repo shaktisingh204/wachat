@@ -145,7 +145,7 @@ export default function TeamInvitesPage() {
 
             {/* Filters */}
             <div className="flex flex-wrap items-center gap-3">
-                <div className="flex gap-1 rounded-full border border-zoru-line bg-zoru-bg p-1">
+                <div className="flex gap-1 rounded-full border border-[var(--st-border)] bg-[var(--st-bg)] p-1">
                     {(['all', 'pending', 'expired', 'accepted'] as Filter[]).map((f) => (
                         <button
                             key={f}
@@ -154,8 +154,8 @@ export default function TeamInvitesPage() {
                             className={cn(
                                 'rounded-full px-3 py-1.5 text-[12.5px] capitalize transition-colors',
                                 filter === f
-                                    ? 'bg-zoru-ink text-zoru-bg'
-                                    : 'text-zoru-ink-muted hover:text-zoru-ink',
+                                    ? 'bg-[var(--st-text)] text-[var(--st-bg)]'
+                                    : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
                             )}
                         >
                             {f}
@@ -183,16 +183,16 @@ export default function TeamInvitesPage() {
                     </div>
                 ) : visible.length === 0 ? (
                     <div className="p-10 text-center">
-                        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
+                        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                             <UserPlus className="h-5 w-5" />
                         </div>
-                        <p className="text-[13px] text-zoru-ink">No invitations match</p>
-                        <p className="mt-1 text-[12.5px] text-zoru-ink-muted">
+                        <p className="text-[13px] text-[var(--st-text)]">No invitations match</p>
+                        <p className="mt-1 text-[12.5px] text-[var(--st-text-secondary)]">
                             Adjust the filter or invite a teammate from the Members page.
                         </p>
                     </div>
                 ) : (
-                    <ul className="divide-y divide-zoru-line">
+                    <ul className="divide-y divide-[var(--st-border)]">
                         {visible.map((inv) => {
                             const status = inv.isExpired ? 'expired' : inv.status;
                             const canResend = status === 'pending' || status === 'expired';
@@ -204,16 +204,16 @@ export default function TeamInvitesPage() {
                                 >
                                     <div className="min-w-0 flex-1">
                                         <div className="flex items-center gap-2">
-                                            <p className="truncate text-[13.5px] text-zoru-ink">
+                                            <p className="truncate text-[13.5px] text-[var(--st-text)]">
                                                 {inv.inviteeEmail}
                                             </p>
                                             <StatusBadge status={status} />
                                         </div>
-                                        <p className="mt-1 truncate text-[12.5px] text-zoru-ink-muted">
+                                        <p className="mt-1 truncate text-[12.5px] text-[var(--st-text-secondary)]">
                                             {inv.projectName ?? 'Workspace-wide'} · {inv.role}
                                             {inv.inviterName && ` · by ${inv.inviterName}`}
                                         </p>
-                                        <p className="mt-1 flex items-center gap-1.5 text-[11.5px] text-zoru-ink-muted">
+                                        <p className="mt-1 flex items-center gap-1.5 text-[11.5px] text-[var(--st-text-secondary)]">
                                             <Clock className="h-3 w-3" />
                                             {formatRelative(inv.createdAt)} · expires{' '}
                                             {formatRelative(inv.expiresAt)}

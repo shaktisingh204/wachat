@@ -112,14 +112,14 @@ export function TaskReportClient({ data, filters }: Props) {
       {/* Filter bar */}
       <form
         method="get"
-        className="flex flex-wrap items-end gap-2 rounded-lg border border-zoru-line bg-zoru-surface px-3 py-2"
+        className="flex flex-wrap items-end gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
       >
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">Status</span>
+          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">Status</span>
           <select
             name="status"
             defaultValue={filters.status ?? ''}
-            className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
+            className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
           >
             <option value="">All</option>
             <option value="To-Do">To-Do</option>
@@ -128,11 +128,11 @@ export function TaskReportClient({ data, filters }: Props) {
           </select>
         </label>
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">Priority</span>
+          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">Priority</span>
           <select
             name="priority"
             defaultValue={filters.priority ?? ''}
-            className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
+            className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
           >
             <option value="">All</option>
             <option value="High">High</option>
@@ -141,31 +141,31 @@ export function TaskReportClient({ data, filters }: Props) {
           </select>
         </label>
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">From</span>
+          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">From</span>
           <input
             type="date"
             name="from"
             defaultValue={filters.from ?? ''}
-            className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
+            className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
           />
         </label>
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">To</span>
+          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">To</span>
           <input
             type="date"
             name="to"
             defaultValue={filters.to ?? ''}
-            className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
+            className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
           />
         </label>
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">Tags / Epic</span>
+          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">Tags / Epic</span>
           <input
             type="text"
             name="tags"
             placeholder="e.g. backend, Q2"
             defaultValue={filters.tags ?? ''}
-            className="h-9 w-32 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
+            className="h-9 w-32 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
           />
         </label>
         <Button type="submit" size="sm">Apply</Button>
@@ -187,11 +187,11 @@ export function TaskReportClient({ data, filters }: Props) {
       {/* Chart */}
       <Card className="p-6">
         <div className="mb-3">
-          <h2 className="text-[16px] font-semibold text-zoru-ink">Tasks completed per week</h2>
-          <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">Weekly completion trend across the selected range.</p>
+          <h2 className="text-[16px] font-semibold text-[var(--st-text)]">Tasks completed per week</h2>
+          <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">Weekly completion trend across the selected range.</p>
         </div>
         {data.weeklyCompleted.length === 0 ? (
-          <div className="py-8 text-center text-[13px] text-zoru-ink-muted">No completed tasks in range.</div>
+          <div className="py-8 text-center text-[13px] text-[var(--st-text-secondary)]">No completed tasks in range.</div>
         ) : (
           <div className="h-[260px] w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -240,42 +240,42 @@ export function TaskReportClient({ data, filters }: Props) {
 
       {/* Table */}
       <Card className="p-0">
-        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+        <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <Table>
             <ZoruTableHeader>
-              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                <ZoruTableHead className="text-zoru-ink-muted">Task</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Project</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Assignee</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Priority</ZoruTableHead>
-                <ZoruTableHead className="text-right text-zoru-ink-muted">Time (Log/Est)</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Created</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Due</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Completed</ZoruTableHead>
+              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Task</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Project</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Assignee</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Priority</ZoruTableHead>
+                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Time (Log/Est)</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Created</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Due</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Completed</ZoruTableHead>
               </ZoruTableRow>
             </ZoruTableHeader>
             <ZoruTableBody>
               {filteredRows.length === 0 ? (
-                <ZoruTableRow className="border-zoru-line">
+                <ZoruTableRow className="border-[var(--st-border)]">
                   <ZoruTableCell
                     colSpan={8}
-                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                    className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     No tasks found for selected filters.
                   </ZoruTableCell>
                 </ZoruTableRow>
               ) : (
                 filteredRows.map((r: TaskDetailRow) => (
-                  <ZoruTableRow key={r._id} className="border-zoru-line">
+                  <ZoruTableRow key={r._id} className="border-[var(--st-border)]">
                     <ZoruTableCell>
                       <EntityRowLink
                         href={`/dashboard/crm/tasks/${r._id}`}
                         label={r.title}
                       />
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-zoru-ink-muted">{r.projectName}</ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-zoru-ink">{r.assignedTo}</ZoruTableCell>
+                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">{r.projectName}</ZoruTableCell>
+                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">{r.assignedTo}</ZoruTableCell>
                     <ZoruTableCell>
                       <Badge variant={STATUS_VARIANT[r.status] ?? 'secondary'}>
                         {r.status}
@@ -286,20 +286,20 @@ export function TaskReportClient({ data, filters }: Props) {
                         {r.priority}
                       </Badge>
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-zoru-ink-muted">
-                      <span className="text-zoru-ink font-medium">
+                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text-secondary)]">
+                      <span className="text-[var(--st-text)] font-medium">
                         {(r as any).timeLogged || Math.floor(Math.random() * 10)}h
                       </span>
                       {' / '}
                       {(r as any).estimatedTime || 10}h
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                       {r.createdAt ? r.createdAt.slice(0, 10) : '—'}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                       {r.dueDate ? r.dueDate.slice(0, 10) : '—'}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                       {r.completedAt ? r.completedAt.slice(0, 10) : '—'}
                     </ZoruTableCell>
                   </ZoruTableRow>

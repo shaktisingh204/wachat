@@ -99,8 +99,8 @@ export default function ShippingPage(): React.JSX.Element {
                 
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight text-zoru-ink">Shipping & Delivery</h1>
-                        <p className="text-zoru-ink-muted mt-1">Manage where you ship and how much you charge at checkout.</p>
+                        <h1 className="text-3xl font-bold tracking-tight text-[var(--st-text)]">Shipping & Delivery</h1>
+                        <p className="text-[var(--st-text-secondary)] mt-1">Manage where you ship and how much you charge at checkout.</p>
                     </div>
                     {!isCreating && (
                         <Button onClick={() => setIsCreating(true)} className="gap-2">
@@ -113,7 +113,7 @@ export default function ShippingPage(): React.JSX.Element {
             {isCreating ? (
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-2">
                     <div className="lg:col-span-2 space-y-6">
-                        <Button variant="ghost" onClick={() => setIsCreating(false)} className="gap-2 -ml-4 mb-2 text-zoru-ink-muted">
+                        <Button variant="ghost" onClick={() => setIsCreating(false)} className="gap-2 -ml-4 mb-2 text-[var(--st-text-secondary)]">
                             <ArrowLeft className="h-4 w-4" /> Back to zones
                         </Button>
                         
@@ -136,7 +136,7 @@ export default function ShippingPage(): React.JSX.Element {
                                     <Label>Regions</Label>
                                     <form onSubmit={addRegion} className="flex gap-2">
                                         <div className="relative flex-1">
-                                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zoru-ink-muted" />
+                                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--st-text-secondary)]" />
                                             <Input 
                                                 className="pl-9"
                                                 value={regionInput} 
@@ -151,21 +151,21 @@ export default function ShippingPage(): React.JSX.Element {
                                         <div className="flex flex-wrap gap-2 pt-2">
                                             {draft.regions.map((r) => (
                                                 <Badge key={r} variant="secondary" className="pl-2 pr-1 py-1 gap-1 flex items-center">
-                                                    <MapPin className="h-3 w-3 text-zoru-brand" />
+                                                    <MapPin className="h-3 w-3 text-[var(--st-accent)]" />
                                                     {r}
                                                     <button 
                                                         onClick={() => removeRegion(r)}
-                                                        className="ml-1 rounded-full p-0.5 hover:bg-zoru-background-hover transition-colors"
+                                                        className="ml-1 rounded-full p-0.5 hover:bg-[var(--st-hover)] transition-colors"
                                                     >
-                                                        <Trash2 className="h-3 w-3 text-zoru-ink-muted hover:text-red-500" />
+                                                        <Trash2 className="h-3 w-3 text-[var(--st-text-secondary)] hover:text-red-500" />
                                                     </button>
                                                 </Badge>
                                             ))}
                                         </div>
                                     ) : (
-                                        <div className="border border-dashed border-zoru-border rounded-lg p-6 text-center">
-                                            <Globe className="h-8 w-8 mx-auto text-zoru-ink-muted mb-2 opacity-50" />
-                                            <p className="text-sm text-zoru-ink-muted">No regions added yet.</p>
+                                        <div className="border border-dashed border-[var(--st-border)] rounded-lg p-6 text-center">
+                                            <Globe className="h-8 w-8 mx-auto text-[var(--st-text-secondary)] mb-2 opacity-50" />
+                                            <p className="text-sm text-[var(--st-text-secondary)]">No regions added yet.</p>
                                         </div>
                                     )}
                                 </div>
@@ -189,20 +189,20 @@ export default function ShippingPage(): React.JSX.Element {
                             </ZoruCardHeader>
                             <ZoruCardContent className="space-y-4">
                                 {draft.rates.length === 0 ? (
-                                    <div className="text-center py-8 text-sm text-zoru-ink-muted border border-dashed border-zoru-border rounded-lg">
+                                    <div className="text-center py-8 text-sm text-[var(--st-text-secondary)] border border-dashed border-[var(--st-border)] rounded-lg">
                                         No rates defined. Add a rate to allow checkout.
                                     </div>
                                 ) : (
                                     <div className="space-y-4">
                                         {draft.rates.map((rate, idx) => (
-                                            <div key={idx} className="p-4 border border-zoru-border rounded-xl bg-zoru-background-hover/30 space-y-4 relative group">
+                                            <div key={idx} className="p-4 border border-[var(--st-border)] rounded-xl bg-[var(--st-hover)]/30 space-y-4 relative group">
                                                 <button 
                                                     onClick={() => {
                                                         const next = [...draft.rates];
                                                         next.splice(idx, 1);
                                                         setDraft({ ...draft, rates: next });
                                                     }}
-                                                    className="absolute top-4 right-4 text-zoru-ink-muted hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    className="absolute top-4 right-4 text-[var(--st-text-secondary)] hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
                                                 >
                                                     <Trash2 className="h-4 w-4" />
                                                 </button>
@@ -241,11 +241,11 @@ export default function ShippingPage(): React.JSX.Element {
                                                 </div>
                                                 
                                                 {rate.kind !== 'free' && (
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-zoru-border border-dashed">
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-[var(--st-border)] border-dashed">
                                                         <div className="space-y-2">
                                                             <Label className="text-xs">Price ({rate.kind === 'per_kg' ? 'per kg' : 'flat'})</Label>
                                                             <div className="relative">
-                                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zoru-ink-muted">₹</span>
+                                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--st-text-secondary)]">₹</span>
                                                                 <Input
                                                                     className="pl-7"
                                                                     type="number"
@@ -263,7 +263,7 @@ export default function ShippingPage(): React.JSX.Element {
                                                         <div className="space-y-2">
                                                             <Label className="text-xs">Free shipping over (Optional)</Label>
                                                             <div className="relative">
-                                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zoru-ink-muted">₹</span>
+                                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--st-text-secondary)]">₹</span>
                                                                 <Input
                                                                     className="pl-7"
                                                                     type="number"
@@ -307,7 +307,7 @@ export default function ShippingPage(): React.JSX.Element {
                                         onCheckedChange={(c) => setDraft({ ...draft, active: c })} 
                                     />
                                 </div>
-                                <p className="text-xs text-zoru-ink-muted mt-2">
+                                <p className="text-xs text-[var(--st-text-secondary)] mt-2">
                                     {draft.active ? 'This zone is currently active and rates will apply at checkout.' : 'This zone is disabled. Rates will not appear.'}
                                 </p>
                             </ZoruCardContent>
@@ -319,7 +319,7 @@ export default function ShippingPage(): React.JSX.Element {
                     <Card>
                         <div className="overflow-x-auto">
                             <table className="w-full text-sm text-left">
-                                <thead className="bg-zoru-background-hover/50 border-b border-zoru-border text-xs uppercase text-zoru-ink-muted">
+                                <thead className="bg-[var(--st-hover)]/50 border-b border-[var(--st-border)] text-xs uppercase text-[var(--st-text-secondary)]">
                                     <tr>
                                         <th className="px-6 py-4 font-medium">Zone Name</th>
                                         <th className="px-6 py-4 font-medium">Regions</th>
@@ -328,23 +328,23 @@ export default function ShippingPage(): React.JSX.Element {
                                         <th className="px-6 py-4 text-right font-medium">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-zoru-border">
+                                <tbody className="divide-y divide-[var(--st-border)]">
                                     {zones.length === 0 ? (
                                         <tr>
-                                            <td colSpan={5} className="px-6 py-12 text-center text-zoru-ink-muted">
-                                                <Truck className="h-10 w-10 mx-auto text-zoru-border mb-3" />
-                                                <p className="font-medium text-zoru-ink mb-1">No shipping zones</p>
+                                            <td colSpan={5} className="px-6 py-12 text-center text-[var(--st-text-secondary)]">
+                                                <Truck className="h-10 w-10 mx-auto text-[var(--st-border)] mb-3" />
+                                                <p className="font-medium text-[var(--st-text)] mb-1">No shipping zones</p>
                                                 <p className="text-sm">Create a shipping zone to start charging for delivery.</p>
                                             </td>
                                         </tr>
                                     ) : (
                                         zones.map((z) => (
-                                            <tr key={z._id} className="hover:bg-zoru-background-hover/30 transition-colors group">
-                                                <td className="px-6 py-4 font-medium text-zoru-ink">
+                                            <tr key={z._id} className="hover:bg-[var(--st-hover)]/30 transition-colors group">
+                                                <td className="px-6 py-4 font-medium text-[var(--st-text)]">
                                                     {z.name}
                                                 </td>
                                                 <td className="px-6 py-4 max-w-[200px] truncate">
-                                                    <span className="text-zoru-ink-muted" title={z.regions.join(', ')}>
+                                                    <span className="text-[var(--st-text-secondary)]" title={z.regions.join(', ')}>
                                                         {z.regions.length > 0 ? z.regions.join(', ') : 'No regions'}
                                                     </span>
                                                 </td>
@@ -352,7 +352,7 @@ export default function ShippingPage(): React.JSX.Element {
                                                     <Badge variant="secondary" className="font-normal">{z.rates.length} rate(s)</Badge>
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    <Badge variant={z.active ? 'success' : 'default'} className={!z.active ? 'bg-zoru-ink-muted text-white' : ''}>
+                                                    <Badge variant={z.active ? 'success' : 'default'} className={!z.active ? 'bg-[var(--st-text-secondary)] text-white' : ''}>
                                                         {z.active ? 'Active' : 'Draft'}
                                                     </Badge>
                                                 </td>

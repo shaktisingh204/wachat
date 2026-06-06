@@ -25,13 +25,13 @@ function StatCard({
   value: string | number;
 }) {
   return (
-    <div className="flex items-center gap-4 bg-white dark:bg-zoru-ink border border-zoru-line dark:border-zoru-line rounded-xl px-5 py-4">
-      <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-zoru-surface-2 dark:bg-zoru-ink/20 flex items-center justify-center text-zoru-ink">
+    <div className="flex items-center gap-4 bg-white dark:bg-[var(--st-text)] border border-[var(--st-border)] dark:border-[var(--st-border)] rounded-xl px-5 py-4">
+      <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/20 flex items-center justify-center text-[var(--st-text)]">
         {icon}
       </div>
       <div>
-        <p className="text-xs text-zoru-ink-muted dark:text-zoru-ink font-medium uppercase tracking-wide">{label}</p>
-        <p className="text-xl font-bold text-zoru-ink dark:text-white mt-0.5">{value}</p>
+        <p className="text-xs text-[var(--st-text-secondary)] dark:text-[var(--st-text)] font-medium uppercase tracking-wide">{label}</p>
+        <p className="text-xl font-bold text-[var(--st-text)] dark:text-white mt-0.5">{value}</p>
       </div>
     </div>
   );
@@ -125,10 +125,10 @@ export function ResultsPageClient({
 
       {/* Table */}
       {total === 0 && !isLoading ? (
-        <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-zoru-ink border border-zoru-line dark:border-zoru-line rounded-xl text-center">
-          <LuActivity className="w-10 h-10 text-zoru-ink-muted dark:text-zoru-ink mb-3" />
-          <p className="text-base font-semibold text-zoru-ink dark:text-zoru-ink-muted">No results yet</p>
-          <p className="text-sm text-zoru-ink-muted dark:text-zoru-ink mt-1 max-w-xs">
+        <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-[var(--st-text)] border border-[var(--st-border)] dark:border-[var(--st-border)] rounded-xl text-center">
+          <LuActivity className="w-10 h-10 text-[var(--st-text-secondary)] dark:text-[var(--st-text)] mb-3" />
+          <p className="text-base font-semibold text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">No results yet</p>
+          <p className="text-sm text-[var(--st-text-secondary)] dark:text-[var(--st-text)] mt-1 max-w-xs">
             Results will appear here once users start interacting with your published flow.
           </p>
         </div>

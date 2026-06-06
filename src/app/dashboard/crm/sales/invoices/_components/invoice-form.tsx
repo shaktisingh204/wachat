@@ -312,7 +312,7 @@ export function InvoiceForm({
 
       {customFields.length > 0 ? (
         <Card className="p-6">
-          <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
             Custom fields
           </h3>
           <div className="grid gap-4 md:grid-cols-2">
@@ -331,7 +331,7 @@ export function InvoiceForm({
       {/* TODO 1D.3: live preview pane deferred — would render a stylised
           PDF-like preview alongside the form. */}
 
-      <div className="sticky bottom-0 z-10 -mx-2 flex flex-wrap items-center justify-end gap-2 border-t border-zoru-line bg-zoru-bg px-2 py-3">
+      <div className="sticky bottom-0 z-10 -mx-2 flex flex-wrap items-center justify-end gap-2 border-t border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-3">
         <Button variant="outline" asChild>
           <Link
             href={

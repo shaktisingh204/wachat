@@ -23,30 +23,30 @@ export function AccountIntelligence() {
         <Card className="w-full">
             <ZoruCardHeader className="pb-4">
                 <ZoruCardTitle className="flex items-center gap-2">
-                    <Sparkles className="h-4 w-4 text-zoru-ink" />
+                    <Sparkles className="h-4 w-4 text-[var(--st-text)]" />
                     Account Intelligence
                 </ZoruCardTitle>
             </ZoruCardHeader>
             <ZoruCardContent className="grid gap-4">
-                <div className="flex items-center justify-between rounded-lg border border-zoru-line p-3">
+                <div className="flex items-center justify-between rounded-lg border border-[var(--st-border)] p-3">
                     <div className="flex items-center gap-3">
-                        <div className="rounded-md bg-zoru-surface-2 p-2 dark:bg-zoru-ink/20">
-                            <TrendingUp className="h-4 w-4 text-zoru-ink dark:text-zoru-ink-muted" />
+                        <div className="rounded-md bg-[var(--st-bg-muted)] p-2 dark:bg-[var(--st-text)]/20">
+                            <TrendingUp className="h-4 w-4 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]" />
                         </div>
                         <div>
                             <p className="text-sm font-medium">Account Health</p>
-                            <p className="text-xs text-zoru-ink-muted">Based on recent activity</p>
+                            <p className="text-xs text-[var(--st-text-secondary)]">Based on recent activity</p>
                         </div>
                     </div>
                     <Badge variant="success">Good</Badge>
                 </div>
 
-                <div className="space-y-3 rounded-lg border border-zoru-line p-3">
+                <div className="space-y-3 rounded-lg border border-[var(--st-border)] p-3">
                     <h4 className="text-sm font-medium flex items-center gap-2">
-                        <Building2 className="h-4 w-4 text-zoru-ink" />
+                        <Building2 className="h-4 w-4 text-[var(--st-text)]" />
                         Enrichment Data
                     </h4>
-                    <p className="text-xs text-zoru-ink-muted leading-relaxed">
+                    <p className="text-xs text-[var(--st-text-secondary)] leading-relaxed">
                         Auto-populate commercial and contact details using our third-party enrichment providers.
                     </p>
                     <Button 
@@ -65,8 +65,8 @@ export function AccountIntelligence() {
                     </Button>
                 </div>
 
-                <div className="rounded-lg bg-zoru-surface-2 p-3 flex items-start gap-2 text-xs text-zoru-ink-muted">
-                    <AlertCircle className="h-4 w-4 shrink-0 mt-0.5 text-zoru-ink" />
+                <div className="rounded-lg bg-[var(--st-bg-muted)] p-3 flex items-start gap-2 text-xs text-[var(--st-text-secondary)]">
+                    <AlertCircle className="h-4 w-4 shrink-0 mt-0.5 text-[var(--st-text)]" />
                     <p>
                         Enriched data will pre-fill any empty fields without overwriting your existing manual changes.
                     </p>

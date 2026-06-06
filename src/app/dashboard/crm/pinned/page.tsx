@@ -475,7 +475,7 @@ export default function PinnedItemsPage() {
         bulkBar={
           selected.size > 0 ? (
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="text-[13px] text-zoru-ink">
+              <div className="text-[13px] text-[var(--st-text)]">
                 {selected.size} selected
               </div>
               <div className="flex items-center gap-2">
@@ -514,13 +514,13 @@ export default function PinnedItemsPage() {
         empty={
           !isLoading && filtered.length === 0 ? (
             <div className="flex flex-col items-center gap-3 p-4">
-              <Pin className="h-8 w-8 text-zoru-ink-muted" aria-hidden="true" />
-              <h3 className="text-base font-medium text-zoru-ink">
+              <Pin className="h-8 w-8 text-[var(--st-text-secondary)]" aria-hidden="true" />
+              <h3 className="text-base font-medium text-[var(--st-text)]">
                 {hasActiveFilters
                   ? 'No pinned items match'
                   : 'Nothing pinned yet'}
               </h3>
-              <p className="max-w-sm text-sm text-zoru-ink-muted">
+              <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                 {hasActiveFilters
                   ? 'Try clearing filters to see all pinned items.'
                   : 'Pin projects, deals, tasks, tickets or articles to have them show up here.'}
@@ -556,7 +556,7 @@ export default function PinnedItemsPage() {
           {kpiStrip}
 
           <Card className="p-0">
-            <div className="flex items-center gap-2 border-b border-zoru-line px-4 py-2 text-[12px] text-zoru-ink-muted">
+            <div className="flex items-center gap-2 border-b border-[var(--st-border)] px-4 py-2 text-[12px] text-[var(--st-text-secondary)]">
               <Checkbox
                 checked={
                   allOnPageSelected
@@ -572,7 +572,7 @@ export default function PinnedItemsPage() {
               <span className="ml-auto">Pinned at</span>
               <span className="w-20 text-right">Actions</span>
             </div>
-            <ul className="divide-y divide-zoru-line">
+            <ul className="divide-y divide-[var(--st-border)]">
               {pageRows.map((r) => {
                 const Icon = ICONS[r.resource_type];
                 const href = HREFS[r.resource_type]?.(String(r.resource_id));
@@ -580,16 +580,16 @@ export default function PinnedItemsPage() {
                 return (
                   <li
                     key={r._id}
-                    className="flex items-center gap-3 px-4 py-3 hover:bg-zoru-surface-2/50"
+                    className="flex items-center gap-3 px-4 py-3 hover:bg-[var(--st-bg-muted)]/50"
                   >
                     <Checkbox
                       checked={isSelected}
                       onCheckedChange={() => toggleOne(r._id)}
                       aria-label={`Select ${titleFor(r)}`}
                     />
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zoru-surface-2">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--st-bg-muted)]">
                       <Icon
-                        className="h-4 w-4 text-zoru-ink"
+                        className="h-4 w-4 text-[var(--st-text)]"
                         strokeWidth={1.75}
                         aria-hidden="true"
                       />
@@ -609,10 +609,10 @@ export default function PinnedItemsPage() {
                         />
                       ) : (
                         <div>
-                          <p className="line-clamp-1 text-[13px] font-medium text-zoru-ink">
+                          <p className="line-clamp-1 text-[13px] font-medium text-[var(--st-text)]">
                             {titleFor(r)}
                           </p>
-                          <p className="text-[12px] capitalize text-zoru-ink-muted">
+                          <p className="text-[12px] capitalize text-[var(--st-text-secondary)]">
                             {r.resource_type}
                           </p>
                         </div>
@@ -621,7 +621,7 @@ export default function PinnedItemsPage() {
                     <Badge variant={RECENT_VARIANTS[r.resource_type]}>
                       {r.resource_type}
                     </Badge>
-                    <p className="hidden w-44 text-right text-[12px] text-zoru-ink-muted sm:block">
+                    <p className="hidden w-44 text-right text-[12px] text-[var(--st-text-secondary)] sm:block">
                       {formatPinnedAt(r)}
                     </p>
                     <div className="w-20 text-right">
@@ -631,7 +631,7 @@ export default function PinnedItemsPage() {
                         aria-label={`Unpin ${titleFor(r)}`}
                         onClick={() => setUnpinTargetId(r._id)}
                       >
-                        <PinOff className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                        <PinOff className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                       </Button>
                     </div>
                   </li>
@@ -679,17 +679,17 @@ function KpiCard({
     <Card className="p-4">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+          <p className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
             {label}
           </p>
-          <p className="mt-1 text-2xl font-semibold text-zoru-ink">{value}</p>
+          <p className="mt-1 text-2xl font-semibold text-[var(--st-text)]">{value}</p>
           {hint ? (
-            <p className="mt-1 truncate text-[12px] text-zoru-ink-muted">
+            <p className="mt-1 truncate text-[12px] text-[var(--st-text-secondary)]">
               {hint}
             </p>
           ) : null}
         </div>
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zoru-surface-2 text-zoru-ink">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text)]">
           {icon}
         </div>
       </div>

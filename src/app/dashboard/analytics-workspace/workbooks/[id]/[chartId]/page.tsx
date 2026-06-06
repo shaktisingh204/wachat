@@ -37,7 +37,7 @@ export default async function DrilldownPage({
     <div className="zoruui flex flex-col gap-4 p-6">
       <header className="flex items-end justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-wide text-zoru-ink-muted">
+          <p className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
             <Link
               href={`/dashboard/analytics-workspace/workbooks/${id}`}
               className="hover:underline"
@@ -45,7 +45,7 @@ export default async function DrilldownPage({
               Workbook
             </Link>
           </p>
-          <h1 className="text-2xl font-semibold text-zoru-ink">{chart.name}</h1>
+          <h1 className="text-2xl font-semibold text-[var(--st-text)]">{chart.name}</h1>
           <Badge variant="outline">{chart.type}</Badge>
         </div>
         <Button asChild variant="ghost">

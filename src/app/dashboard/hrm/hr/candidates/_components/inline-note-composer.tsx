@@ -39,7 +39,7 @@ export function InlineNoteComposer({ candidateId }: { candidateId: string }) {
         disabled={isSubmitting}
         className="w-full resize-none"
       />
-      {error && <p className="text-sm text-zoru-ink">{error}</p>}
+      {error && <p className="text-sm text-[var(--st-text)]">{error}</p>}
       <div className="flex justify-end">
         <Button type="submit" disabled={!note.trim() || isSubmitting} size="sm">
           {isSubmitting ? 'Saving...' : 'Add Note'}

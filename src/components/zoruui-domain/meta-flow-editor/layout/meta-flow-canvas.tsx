@@ -40,9 +40,9 @@ export function MetaFlowCanvas({
     };
 
     return (
-        <div className="h-full bg-zoru-surface-2/20 flex flex-col">
+        <div className="h-full bg-[var(--st-bg-muted)]/20 flex flex-col">
             <Tabs defaultValue="visual" className="flex-1 flex flex-col">
-                <div className="border-b bg-zoru-surface px-4">
+                <div className="border-b bg-[var(--st-bg-secondary)] px-4">
                     <TabsList className="h-10 bg-transparent p-0">
                         <TabsTrigger
                             value="visual"
@@ -61,11 +61,11 @@ export function MetaFlowCanvas({
                     </TabsList>
                 </div>
 
-                <TabsContent value="visual" className="flex-1 m-0 p-0 overflow-hidden relative bg-zoru-surface-2/20 flex items-center justify-center">
+                <TabsContent value="visual" className="flex-1 m-0 p-0 overflow-hidden relative bg-[var(--st-bg-muted)]/20 flex items-center justify-center">
                     <MetaFlowPreview
                         flowJson={JSON.stringify(flowData)}
                         activeScreenId={selectedScreenId}
-                        className="h-[90%] w-auto aspect-[9/19.5] shadow-2xl rounded-[2.5rem] border-[6px] border-zoru-line"
+                        className="h-[90%] w-auto aspect-[9/19.5] shadow-2xl rounded-[2.5rem] border-[6px] border-[var(--st-border)]"
                     />
                 </TabsContent>
 
@@ -79,7 +79,7 @@ export function MetaFlowCanvas({
                         />
                     </div>
                     {jsonError && (
-                        <div className="bg-zoru-ink/10 text-zoru-ink text-sm p-2 border-t border-destructive/20 font-mono">
+                        <div className="bg-[var(--st-text)]/10 text-[var(--st-text)] text-sm p-2 border-t border-destructive/20 font-mono">
                             Error: {jsonError}
                         </div>
                     )}

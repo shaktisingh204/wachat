@@ -287,7 +287,7 @@ export function PortalEditForm({ user }: { user: PortalUser }) {
                     <div className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-2">
                             <Label htmlFor="name">
-                                Full name <span className="text-zoru-danger-ink">*</span>
+                                Full name <span className="text-[var(--st-danger)]">*</span>
                             </Label>
                             <Input
                                 id="name"
@@ -299,7 +299,7 @@ export function PortalEditForm({ user }: { user: PortalUser }) {
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="email">
-                                Email <span className="text-zoru-danger-ink">*</span>
+                                Email <span className="text-[var(--st-danger)]">*</span>
                             </Label>
                             <Input
                                 id="email"
@@ -330,8 +330,8 @@ export function PortalEditForm({ user }: { user: PortalUser }) {
                                         onClick={() => setPortalType(opt.value)}
                                         className={`rounded-md border px-2.5 py-1 text-[12.5px] transition ${
                                             portalType === opt.value
-                                                ? 'border-zoru-primary bg-zoru-primary/10 text-zoru-primary'
-                                                : 'border-zoru-line bg-zoru-bg text-zoru-ink hover:bg-zoru-surface-2'
+                                                ? 'border-[var(--st-text)] bg-[var(--st-text)]/10 text-[var(--st-text)]'
+                                                : 'border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]'
                                         }`}
                                     >
                                         {opt.label}
@@ -344,7 +344,7 @@ export function PortalEditForm({ user }: { user: PortalUser }) {
                             <select
                                 value={status}
                                 onChange={(e) => setStatus(e.target.value as PortalStatus)}
-                                className="h-10 w-full rounded-lg border border-zoru-line bg-zoru-bg px-3 text-[13px] text-zoru-ink"
+                                className="h-10 w-full rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] px-3 text-[13px] text-[var(--st-text)]"
                             >
                                 {STATUS_OPTIONS.map((opt) => (
                                     <option key={opt.value} value={opt.value}>
@@ -399,27 +399,27 @@ export function PortalEditForm({ user }: { user: PortalUser }) {
                                     onClick={() => applyRolePreset(opt.value)}
                                     className={`rounded-lg border p-3 text-left transition ${
                                         role === opt.value
-                                            ? 'border-zoru-primary bg-zoru-primary/5'
-                                            : 'border-zoru-line bg-zoru-bg hover:bg-zoru-surface-2'
+                                            ? 'border-[var(--st-text)] bg-[var(--st-text)]/5'
+                                            : 'border-[var(--st-border)] bg-[var(--st-bg)] hover:bg-[var(--st-bg-muted)]'
                                     }`}
                                 >
-                                    <div className="text-[13px] font-medium text-zoru-ink">
+                                    <div className="text-[13px] font-medium text-[var(--st-text)]">
                                         {opt.label}
                                     </div>
-                                    <div className="mt-0.5 text-[11.5px] text-zoru-ink-muted">
+                                    <div className="mt-0.5 text-[11.5px] text-[var(--st-text-secondary)]">
                                         {opt.description}
                                     </div>
                                 </button>
                             ))}
                         </div>
-                        <div className="rounded-lg border border-zoru-line bg-zoru-bg p-3">
-                            <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                        <div className="rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] p-3">
+                            <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                                 Capabilities
                             </div>
                             <div className="grid gap-3 md:grid-cols-2">
                                 {groupedCapabilities.map(([section, caps]) => (
                                     <div key={section} className="space-y-1.5">
-                                        <div className="text-[11px] font-medium capitalize text-zoru-ink-muted">
+                                        <div className="text-[11px] font-medium capitalize text-[var(--st-text-secondary)]">
                                             {section}
                                         </div>
                                         {caps.map((cap) => {
@@ -427,7 +427,7 @@ export function PortalEditForm({ user }: { user: PortalUser }) {
                                             return (
                                                 <label
                                                     key={cap.key}
-                                                    className="flex cursor-pointer items-start gap-2 rounded px-1 py-0.5 hover:bg-zoru-surface-2"
+                                                    className="flex cursor-pointer items-start gap-2 rounded px-1 py-0.5 hover:bg-[var(--st-bg-muted)]"
                                                 >
                                                     <Checkbox
                                                         checked={checked}
@@ -437,10 +437,10 @@ export function PortalEditForm({ user }: { user: PortalUser }) {
                                                         aria-label={cap.label}
                                                     />
                                                     <div className="text-[12.5px]">
-                                                        <div className="text-zoru-ink">
+                                                        <div className="text-[var(--st-text)]">
                                                             {cap.label}
                                                         </div>
-                                                        <div className="text-[11px] text-zoru-ink-muted">
+                                                        <div className="text-[11px] text-[var(--st-text-secondary)]">
                                                             {cap.description}
                                                         </div>
                                                     </div>
@@ -470,7 +470,7 @@ export function PortalEditForm({ user }: { user: PortalUser }) {
                                         type="color"
                                         value={brandColor}
                                         onChange={(e) => setBrandColor(e.target.value)}
-                                        className="h-9 w-12 cursor-pointer rounded border border-zoru-line bg-transparent"
+                                        className="h-9 w-12 cursor-pointer rounded border border-[var(--st-border)] bg-transparent"
                                         aria-label="Brand colour"
                                     />
                                     <Input
@@ -495,7 +495,7 @@ export function PortalEditForm({ user }: { user: PortalUser }) {
                         </div>
                         <div className="space-y-2">
                             <Label>Logo</Label>
-                            <div className="flex h-32 items-center justify-center rounded-lg border border-dashed border-zoru-line bg-zoru-surface-2/40">
+                            <div className="flex h-32 items-center justify-center rounded-lg border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)]/40">
                                 {logo?.url ? (
                                     // eslint-disable-next-line @next/next/no-img-element
                                     <img
@@ -504,7 +504,7 @@ export function PortalEditForm({ user }: { user: PortalUser }) {
                                         className="max-h-28 max-w-[200px] object-contain"
                                     />
                                 ) : (
-                                    <ImageIcon className="h-8 w-8 text-zoru-ink-muted" />
+                                    <ImageIcon className="h-8 w-8 text-[var(--st-text-secondary)]" />
                                 )}
                             </div>
                             <div className="flex items-center gap-1">
@@ -519,7 +519,7 @@ export function PortalEditForm({ user }: { user: PortalUser }) {
                                         type="button"
                                         onClick={() => setLogo(null)}
                                         aria-label="Remove logo"
-                                        className="rounded p-1.5 text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-danger-ink"
+                                        className="rounded p-1.5 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-danger)]"
                                     >
                                         <X className="h-4 w-4" />
                                     </button>
@@ -545,14 +545,14 @@ export function PortalEditForm({ user }: { user: PortalUser }) {
                 </ZoruCardContent>
             </Card>
 
-            <div className="sticky bottom-0 z-10 -mx-2 flex flex-wrap items-center justify-between gap-2 border-t border-zoru-line bg-zoru-bg px-2 py-3">
+            <div className="sticky bottom-0 z-10 -mx-2 flex flex-wrap items-center justify-between gap-2 border-t border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-3">
                 <div className="text-sm">
                     {clientError ? (
-                        <span className="text-zoru-danger-ink">{clientError}</span>
+                        <span className="text-[var(--st-danger)]">{clientError}</span>
                     ) : state?.error ? (
-                        <span className="text-zoru-danger-ink">{state.error}</span>
+                        <span className="text-[var(--st-danger)]">{state.error}</span>
                     ) : state?.message ? (
-                        <span className="text-zoru-success-ink">{state.message}</span>
+                        <span className="text-[var(--st-status-ok)]">{state.message}</span>
                     ) : null}
                 </div>
                 <div className="flex items-center gap-2">

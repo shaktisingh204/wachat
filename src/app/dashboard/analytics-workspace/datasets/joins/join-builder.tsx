@@ -156,7 +156,7 @@ export function JoinBuilder({ datasets }: { datasets: DatasetRef[] }) {
                 onChange={(e) => updateRow(idx, 'left', e.target.value)}
                 placeholder="left column"
               />
-              <span className="text-zoru-ink-muted">=</span>
+              <span className="text-[var(--st-text-secondary)]">=</span>
               <Input
                 value={r.right}
                 onChange={(e) => updateRow(idx, 'right', e.target.value)}
@@ -181,7 +181,7 @@ export function JoinBuilder({ datasets }: { datasets: DatasetRef[] }) {
           </div>
         </div>
 
-        {error && <p className="mt-3 text-sm text-zoru-danger">{error}</p>}
+        {error && <p className="mt-3 text-sm text-[var(--st-danger)]">{error}</p>}
 
         <div className="mt-4 flex justify-end">
           <Button onClick={submit} disabled={pending}>

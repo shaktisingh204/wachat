@@ -65,10 +65,10 @@ export function BotSelector({
     return (
         <Card className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <div className="text-[11px] uppercase tracking-[0.1em] text-zoru-ink-muted">
+                <div className="text-[11px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
                     Bot
                 </div>
-                <div className="text-[13.5px] text-zoru-ink">
+                <div className="text-[13.5px] text-[var(--st-text)]">
                     {loading ? 'Loading connected bots…' : 'Pick which bot owns these packs.'}
                 </div>
             </div>
@@ -94,7 +94,7 @@ export function BotSelector({
                             <ZoruSelectItem key={b._id} value={b._id}>
                                 <span className="flex items-center gap-2">
                                     <span className="font-medium">{b.name || b.username}</span>
-                                    <span className="text-zoru-ink-muted">@{b.username}</span>
+                                    <span className="text-[var(--st-text-secondary)]">@{b.username}</span>
                                 </span>
                             </ZoruSelectItem>
                         ))}

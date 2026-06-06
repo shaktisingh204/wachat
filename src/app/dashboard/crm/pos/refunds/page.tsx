@@ -19,7 +19,7 @@ function PosRefundsTableSkeleton() {
                 {Array.from({ length: 4 }).map((_, i) => (
                     <div
                         key={i}
-                        className="rounded-xl border border-zoru-line bg-zoru-surface p-3.5 flex flex-col justify-between h-[80px]"
+                        className="rounded-xl border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3.5 flex flex-col justify-between h-[80px]"
                     >
                         <div className="space-y-2">
                             <Skeleton className="h-3 w-16" />
@@ -43,8 +43,8 @@ function PosRefundsTableSkeleton() {
             </div>
 
             {/* Table skeleton */}
-            <div className="rounded-xl border border-zoru-line bg-zoru-surface overflow-hidden">
-                <div className="p-4 border-b border-zoru-line flex items-center justify-between">
+            <div className="rounded-xl border border-[var(--st-border)] bg-[var(--st-bg-secondary)] overflow-hidden">
+                <div className="p-4 border-b border-[var(--st-border)] flex items-center justify-between">
                     <Skeleton className="h-4 w-4" />
                     <Skeleton className="h-4 w-24" />
                     <Skeleton className="h-4 w-32" />
@@ -53,7 +53,7 @@ function PosRefundsTableSkeleton() {
                     <Skeleton className="h-4 w-16" />
                     <Skeleton className="h-4 w-24" />
                 </div>
-                <div className="divide-y divide-zoru-line">
+                <div className="divide-y divide-[var(--st-border)]">
                     {Array.from({ length: 8 }).map((_, i) => (
                         <div key={i} className="p-4 flex items-center justify-between">
                             <Skeleton className="h-4 w-4" />

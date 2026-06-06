@@ -75,7 +75,7 @@ export function PayoutApplyRows({
             </datalist>
 
             <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                <h3 className="text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                     Apply to bills
                 </h3>
                 <Button
@@ -89,7 +89,7 @@ export function PayoutApplyRows({
                 </Button>
             </div>
             {!vendorPicked ? (
-                <p className="text-[12.5px] text-zoru-ink-muted">
+                <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                     Select a vendor above to load their open bills.
                 </p>
             ) : (
@@ -125,7 +125,7 @@ export function PayoutApplyRows({
                                         disabled={disabled}
                                     />
                                     {billLabel ? (
-                                        <span className="mt-1 text-[11px] text-zoru-ink-muted">
+                                        <span className="mt-1 text-[11px] text-[var(--st-text-secondary)]">
                                             {billLabel}
                                         </span>
                                     ) : null}
@@ -143,7 +143,7 @@ export function PayoutApplyRows({
                                         disabled={disabled}
                                     />
                                     {balance != null ? (
-                                        <span className="mt-1 text-[11px] text-zoru-ink-muted">
+                                        <span className="mt-1 text-[11px] text-[var(--st-text-secondary)]">
                                             Balance: {fmtMoney(balance, currency)}
                                         </span>
                                     ) : null}
@@ -154,7 +154,7 @@ export function PayoutApplyRows({
                                     variant="ghost"
                                     onClick={() => onRemove(row.rowKey)}
                                     disabled={disabled || rows.length <= 1}
-                                    className="text-zoru-danger-ink"
+                                    className="text-[var(--st-danger)]"
                                 >
                                     <Trash2 className="h-3.5 w-3.5" />
                                 </Button>
@@ -162,27 +162,27 @@ export function PayoutApplyRows({
                         );
                     })}
                     {busy ? (
-                        <p className="text-[11.5px] text-zoru-ink-muted">
+                        <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                             Loading open bills…
                         </p>
                     ) : null}
                 </div>
             )}
 
-            <div className="mt-5 flex items-center justify-between border-t border-zoru-line pt-4">
-                <label className="flex items-center gap-2 text-[12.5px] text-zoru-ink-muted">
+            <div className="mt-5 flex items-center justify-between border-t border-[var(--st-border)] pt-4">
+                <label className="flex items-center gap-2 text-[12.5px] text-[var(--st-text-secondary)]">
                     <input
                         type="checkbox"
                         checked={excessAsAdvance}
                         onChange={(e) => onToggleExcess(e.target.checked)}
-                        className="h-4 w-4 rounded border-zoru-line"
+                        className="h-4 w-4 rounded border-[var(--st-border)]"
                         disabled={disabled}
                     />
                     Treat excess as advance
                 </label>
                 <div className="text-[14px] tabular-nums">
-                    <span className="text-zoru-ink-muted">Total settled: </span>
-                    <span className="font-semibold text-zoru-ink">
+                    <span className="text-[var(--st-text-secondary)]">Total settled: </span>
+                    <span className="font-semibold text-[var(--st-text)]">
                         {fmtMoney(totalSettled, currency)}
                     </span>
                 </div>

@@ -68,17 +68,17 @@ function Comment({ comment, projectId, onActionComplete }: { comment: any, proje
                 <AvatarFallback>{comment.from.name.charAt(0)}</AvatarFallback>
             </Avatar>
             <div className="flex-1">
-                <div className="bg-zoru-surface-2 p-3 rounded-lg">
+                <div className="bg-[var(--st-bg-muted)] p-3 rounded-lg">
                     <div className="flex justify-between items-center">
                         <p className="font-semibold text-sm">{comment.from.name}</p>
-                        <p className="text-xs text-zoru-ink-muted">{formatDistanceToNow(new Date(comment.created_time), { addSuffix: true })}</p>
+                        <p className="text-xs text-[var(--st-text-secondary)]">{formatDistanceToNow(new Date(comment.created_time), { addSuffix: true })}</p>
                     </div>
                     <p className="text-sm mt-1">{comment.message}</p>
                 </div>
                 <div className="flex items-center gap-2 mt-1">
                      <Button variant="ghost" size="sm" className="text-xs h-auto py-0.5 px-1.5" onClick={onLike} disabled={isLiking}>Like</Button>
                      <Button variant="ghost" size="sm" className="text-xs h-auto py-0.5 px-1.5" disabled>Reply</Button>
-                     <Button variant="ghost" size="sm" className="text-xs h-auto py-0.5 px-1.5 text-zoru-ink" onClick={onDelete} disabled={isDeleting}>Delete</Button>
+                     <Button variant="ghost" size="sm" className="text-xs h-auto py-0.5 px-1.5 text-[var(--st-text)]" onClick={onDelete} disabled={isDeleting}>Delete</Button>
                 </div>
             </div>
         </div>
@@ -133,7 +133,7 @@ export function ViewCommentsDialog({ isOpen, onOpenChange, post, projectId, onAc
                         <Comment key={comment.id} comment={comment} projectId={projectId} onActionComplete={onActionComplete} />
                     ))
                 ) : (
-                    <p className="text-center text-sm text-zoru-ink-muted py-8">No comments yet.</p>
+                    <p className="text-center text-sm text-[var(--st-text-secondary)] py-8">No comments yet.</p>
                 )}
             </div>
         </ScrollArea>

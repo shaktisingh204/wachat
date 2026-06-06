@@ -512,29 +512,29 @@ export default function SabWaAIPage() {
       <div className="flex flex-wrap items-start gap-3">
         <div
           aria-hidden
-          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface text-zoru-ink"
+          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
         >
           <Sparkles className="h-5 w-5" />
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-[24px] tracking-[-0.015em] text-zoru-ink leading-[1.2]">
+            <h1 className="text-[24px] tracking-[-0.015em] text-[var(--st-text)] leading-[1.2]">
               AI Assistant
             </h1>
           </div>
-          <p className="mt-1 max-w-2xl text-[13px] text-zoru-ink-muted">
+          <p className="mt-1 max-w-2xl text-[13px] text-[var(--st-text-secondary)]">
             Per-chat AI tools and an optional Auto-pilot mode that replies to
             whitelisted contacts. Every AI action consumes credits.
           </p>
         </div>
         <Card className="ml-auto w-full sm:w-auto">
           <ZoruCardContent className="flex items-center gap-3 p-3">
-            <Wand2 className="h-4 w-4 text-zoru-ink-muted" />
+            <Wand2 className="h-4 w-4 text-[var(--st-text-secondary)]" />
             <div className="text-right">
-              <div className="text-[10px] uppercase tracking-wide text-zoru-ink-muted">
+              <div className="text-[10px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Monthly AI credits
               </div>
-              <div className="text-[15px] font-semibold leading-none text-zoru-ink">
+              <div className="text-[15px] font-semibold leading-none text-[var(--st-text)]">
                 {quotaLabel(limits.aiReplies.monthlyQuota)}
               </div>
             </div>
@@ -629,7 +629,7 @@ export default function SabWaAIPage() {
             <div
               role="tablist"
               aria-label="AI tool"
-              className="inline-flex w-full rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-1"
+              className="inline-flex w-full rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1"
             >
               {TOOL_TABS.map((tab) => {
                 const isActive = activeTool === tab.key;
@@ -656,7 +656,7 @@ export default function SabWaAIPage() {
             {/* Suggest reply */}
             {activeTool === "suggest" && (
               <div className="space-y-3">
-                <p className="text-[11.5px] text-zoru-ink-muted">
+                <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                   Generates three candidate replies from the last messages in
                   the chosen chat. Pick one to send to the inbox composer.
                 </p>
@@ -681,7 +681,7 @@ export default function SabWaAIPage() {
                       <li key={i}>
                         <Card>
                           <ZoruCardContent className="flex items-start gap-3 p-3">
-                            <span className="text-[13px] text-zoru-ink">
+                            <span className="text-[13px] text-[var(--st-text)]">
                               {s}
                             </span>
                             <div className="ml-auto flex shrink-0 gap-1">
@@ -757,7 +757,7 @@ export default function SabWaAIPage() {
                 {summary && (
                   <Card>
                     <ZoruCardContent className="space-y-2 p-3">
-                      <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-zoru-ink">
+                      <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-[var(--st-text)]">
                         {summary}
                       </p>
                     </ZoruCardContent>
@@ -825,7 +825,7 @@ export default function SabWaAIPage() {
                           Detected: {detectedLang}
                         </Badge>
                       )}
-                      <p className="text-[13px] text-zoru-ink">{translation}</p>
+                      <p className="text-[13px] text-[var(--st-text)]">{translation}</p>
                     </ZoruCardContent>
                   </Card>
                 )}
@@ -883,7 +883,7 @@ export default function SabWaAIPage() {
                 {toneOutput && (
                   <Card>
                     <ZoruCardContent className="space-y-2 p-3">
-                      <p className="text-[13px] text-zoru-ink">{toneOutput}</p>
+                      <p className="text-[13px] text-[var(--st-text)]">{toneOutput}</p>
                       <Button
                         type="button"
                         size="sm"
@@ -953,7 +953,7 @@ export default function SabWaAIPage() {
                 </Button>
               </form>
               {whitelist.length === 0 ? (
-                <p className="text-[11.5px] text-zoru-ink-muted">
+                <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                   Add at least one contact for Auto-pilot to act on.
                 </p>
               ) : (
@@ -961,9 +961,9 @@ export default function SabWaAIPage() {
                   {whitelist.map((w) => (
                     <li
                       key={w.jid}
-                      className="flex items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-2 py-1"
+                      className="flex items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-1"
                     >
-                      <span className="truncate text-[11.5px] text-zoru-ink">
+                      <span className="truncate text-[11.5px] text-[var(--st-text)]">
                         {w.label ?? w.jid}
                       </span>
                       <Button
@@ -986,23 +986,23 @@ export default function SabWaAIPage() {
               <Label className="text-[11.5px] font-medium">
                 Audit log
               </Label>
-              <ScrollArea className="h-[160px] rounded-[var(--zoru-radius)] border border-zoru-line">
+              <ScrollArea className="h-[160px] rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
                 {auditLog.length === 0 ? (
-                  <p className="p-3 text-[11.5px] text-zoru-ink-muted">
+                  <p className="p-3 text-[11.5px] text-[var(--st-text-secondary)]">
                     No Auto-pilot actions yet.
                   </p>
                 ) : (
-                  <ul className="divide-y divide-zoru-line">
+                  <ul className="divide-y divide-[var(--st-border)]">
                     {auditLog.map((entry) => (
                       <li
                         key={entry.id}
                         className="flex items-center gap-2 px-2 py-1.5 text-[11.5px]"
                       >
-                        <Check className="h-3 w-3 text-zoru-success" />
-                        <span className="font-medium text-zoru-ink">
+                        <Check className="h-3 w-3 text-[var(--st-status-ok)]" />
+                        <span className="font-medium text-[var(--st-text)]">
                           {entry.action}
                         </span>
-                        <span className="ml-auto text-zoru-ink-muted">
+                        <span className="ml-auto text-[var(--st-text-secondary)]">
                           {entry.ts.toLocaleTimeString()}
                         </span>
                       </li>
@@ -1023,12 +1023,12 @@ export default function SabWaAIPage() {
 function Phase2Banner({ topic }: { topic: string }) {
   return (
     <div
-      className="flex items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 py-2 text-[11.5px] text-zoru-ink-muted"
+      className="flex items-center gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-[11.5px] text-[var(--st-text-secondary)]"
       role="status"
     >
       <CircleSlash className="h-3.5 w-3.5 shrink-0" />
       <span>
-        <span className="font-medium text-zoru-ink">{topic}</span> — engine
+        <span className="font-medium text-[var(--st-text)]">{topic}</span> — engine
         endpoint not available yet.
       </span>
     </div>

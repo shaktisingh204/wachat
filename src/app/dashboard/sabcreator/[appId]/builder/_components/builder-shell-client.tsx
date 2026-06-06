@@ -137,8 +137,8 @@ export function BuilderShellClient({
               onClick={() => setTab(n.key)}
               className={`w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm text-left transition-colors ${
                 tab === n.key
-                  ? 'bg-zoru-ink/10 text-zoru-ink font-medium'
-                  : 'text-zoru-ink-muted hover:bg-zoru-surface-2'
+                  ? 'bg-[var(--st-text)]/10 text-[var(--st-text)] font-medium'
+                  : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)]'
               }`}
             >
               {n.icon}
@@ -148,7 +148,7 @@ export function BuilderShellClient({
           <div className="pt-4 border-t mt-4">
             <Link
               href="/dashboard/sabcreator"
-              className="block px-3 py-2 text-xs text-zoru-ink-muted hover:text-zoru-ink"
+              className="block px-3 py-2 text-xs text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
             >
               ← All apps
             </Link>
@@ -249,7 +249,7 @@ function FormsPanel({
             <li key={f._id} className="py-3 flex items-center justify-between">
               <div>
                 <div className="font-medium">{f.name}</div>
-                <div className="text-xs text-zoru-ink-muted">
+                <div className="text-xs text-[var(--st-text-secondary)]">
                   → {f.submitAction}
                   {f.sabtablesTableId ? ` · table ${f.sabtablesTableId.slice(-6)}` : ''}
                 </div>
@@ -360,7 +360,7 @@ function PagesPanel({
             <li key={p._id} className="py-3 flex items-center justify-between">
               <div>
                 <div className="font-medium">{p.name}</div>
-                <div className="text-xs text-zoru-ink-muted">
+                <div className="text-xs text-[var(--st-text-secondary)]">
                   {p.kind} · /{p.slug}
                 </div>
               </div>
@@ -480,7 +480,7 @@ function WorkflowsPanel({
             <li key={w._id} className="py-3 flex items-center justify-between">
               <div>
                 <div className="font-medium">{w.name}</div>
-                <div className="text-xs text-zoru-ink-muted">
+                <div className="text-xs text-[var(--st-text-secondary)]">
                   trigger: {w.trigger.kind}
                   {w.sabflowRefId ? ` · sabflow ${w.sabflowRefId.slice(-6)}` : ' · inline'}
                 </div>
@@ -607,7 +607,7 @@ function RolesPanel({
             <li key={r._id} className="py-3 flex items-center justify-between">
               <div>
                 <div className="font-medium">{r.name}</div>
-                <div className="text-xs text-zoru-ink-muted">
+                <div className="text-xs text-[var(--st-text-secondary)]">
                   read: {r.recordsCanRead.rule} · edit: {r.recordsCanEdit.rule} ·
                   delete: {r.recordsCanDelete.rule}
                 </div>
@@ -685,7 +685,7 @@ function DataPanel({ app }: { app: SabcreatorAppDoc }) {
   return (
     <Card className="p-6">
       <h2 className="font-semibold mb-2">Data source</h2>
-      <p className="text-sm text-zoru-ink-muted mb-4">
+      <p className="text-sm text-[var(--st-text-secondary)] mb-4">
         SabCreator stores app records in SabTables. Each form points at one table; pages
         read from the same base.
       </p>
@@ -694,7 +694,7 @@ function DataPanel({ app }: { app: SabcreatorAppDoc }) {
           Linked SabTables base: <code>{app.sabtablesBaseId}</code>
         </div>
       ) : (
-        <div className="text-sm text-zoru-ink-muted">
+        <div className="text-sm text-[var(--st-text-secondary)]">
           No SabTables base linked yet. Update the app to link one — forms can still target
           individual tables in the meantime.
         </div>

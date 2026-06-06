@@ -296,9 +296,9 @@ function StatTile({
     return (
         <Card className="flex items-center gap-3 p-4">
             <div>
-                <div className="text-[11px] uppercase tracking-[0.06em] text-zoru-ink-muted">{label}</div>
+                <div className="text-[11px] uppercase tracking-[0.06em] text-[var(--st-text-secondary)]">{label}</div>
                 <div className="flex items-center gap-2">
-                    <div className="text-[22px] tracking-[-0.01em] text-zoru-ink">{value}</div>
+                    <div className="text-[22px] tracking-[-0.01em] text-[var(--st-text)]">{value}</div>
                     {tone === 'red' && value > 0 ? <Badge variant="danger">Attention</Badge> : null}
                 </div>
             </div>
@@ -351,19 +351,19 @@ function Column({
                 if (taskId) onMove(taskId, status);
             }}
             className={
-                'flex min-h-[300px] flex-col gap-3 rounded-xl border border-zoru-line bg-zoru-bg p-4 transition-colors ' +
-                (dropActive ? 'border-zoru-ink bg-zoru-surface-2/40' : '')
+                'flex min-h-[300px] flex-col gap-3 rounded-xl border border-[var(--st-border)] bg-[var(--st-bg)] p-4 transition-colors ' +
+                (dropActive ? 'border-[var(--st-text)] bg-[var(--st-bg-muted)]/40' : '')
             }
         >
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <Badge variant={variant[status]}>{status}</Badge>
-                    <span className="text-[12px] text-zoru-ink-muted">{tasks.length}</span>
+                    <span className="text-[12px] text-[var(--st-text-secondary)]">{tasks.length}</span>
                 </div>
             </div>
 
             {tasks.length === 0 ? (
-                <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-zoru-line p-6 text-[12.5px] text-zoru-ink-muted">
+                <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-[var(--st-border)] p-6 text-[12.5px] text-[var(--st-text-secondary)]">
                     Drop tasks here
                 </div>
             ) : (
@@ -424,20 +424,20 @@ function TaskCard({
                 e.dataTransfer.setData('text/taskId', id);
                 e.dataTransfer.effectAllowed = 'move';
             }}
-            className="flex flex-col gap-2 rounded-lg border border-zoru-line bg-zoru-bg p-3 shadow-sm transition-[transform,box-shadow] hover:-translate-y-0.5 hover:shadow-md"
+            className="flex flex-col gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] p-3 shadow-sm transition-[transform,box-shadow] hover:-translate-y-0.5 hover:shadow-md"
         >
             <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0 flex-1">
-                    <div className="text-[13.5px] leading-snug text-zoru-ink">{task.title}</div>
+                    <div className="text-[13.5px] leading-snug text-[var(--st-text)]">{task.title}</div>
                     {task.description ? (
-                        <div className="mt-0.5 line-clamp-2 text-[12px] text-zoru-ink-muted">{task.description}</div>
+                        <div className="mt-0.5 line-clamp-2 text-[12px] text-[var(--st-text-secondary)]">{task.description}</div>
                     ) : null}
                 </div>
                 {canDelete ? (
                     <button
                         type="button"
                         onClick={() => onDelete(id)}
-                        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-zoru-ink-muted hover:bg-zoru-danger/10 hover:text-zoru-danger-ink"
+                        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[var(--st-text-secondary)] hover:bg-[var(--st-danger)]/10 hover:text-[var(--st-danger)]"
                         aria-label="Delete task"
                     >
                         <Trash2 className="h-3.5 w-3.5" strokeWidth={1.75} />
@@ -491,11 +491,11 @@ function AssigneeChip({
             className={
                 'inline-flex items-center gap-1.5 rounded-full border px-2 h-6 text-[11.5px] ' +
                 (task.assignedTo
-                    ? 'border-zoru-line bg-zoru-surface-2 text-zoru-ink'
-                    : 'border-dashed border-zoru-line bg-zoru-bg text-zoru-ink-muted')
+                    ? 'border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)]'
+                    : 'border-dashed border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text-secondary)]')
             }
         >
-            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-zoru-surface-2 text-[9px] text-zoru-ink">
+            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[9px] text-[var(--st-text)]">
                 {task.assignedTo ? initial : '?'}
             </span>
             <span className="max-w-[120px] truncate">{name}</span>
@@ -520,9 +520,9 @@ function AssigneeChip({
                             setOpen(false);
                             onReassign(null);
                         }}
-                        className="flex items-center justify-between rounded-md px-2 py-2 text-left text-[13px] hover:bg-zoru-surface-2"
+                        className="flex items-center justify-between rounded-md px-2 py-2 text-left text-[13px] hover:bg-[var(--st-bg-muted)]"
                     >
-                        <span className="text-zoru-ink-muted">Unassign</span>
+                        <span className="text-[var(--st-text-secondary)]">Unassign</span>
                         {!task.assignedTo ? <Check className="h-3.5 w-3.5" /> : null}
                     </button>
                     {assignees.map((a) => {
@@ -536,20 +536,20 @@ function AssigneeChip({
                                     onReassign(a._id);
                                 }}
                                 className={
-                                    'flex items-center justify-between rounded-md px-2 py-2 text-left text-[13px] hover:bg-zoru-surface-2 ' +
-                                    (active ? 'bg-zoru-surface-2/60' : '')
+                                    'flex items-center justify-between rounded-md px-2 py-2 text-left text-[13px] hover:bg-[var(--st-bg-muted)] ' +
+                                    (active ? 'bg-[var(--st-bg-muted)]/60' : '')
                                 }
                             >
                                 <span className="flex items-center gap-2">
-                                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-zoru-surface-2 text-[10px] text-zoru-ink">
+                                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[10px] text-[var(--st-text)]">
                                         {a.name.charAt(0).toUpperCase()}
                                     </span>
                                     <span>
-                                        <span className="block text-zoru-ink">{a.name}</span>
-                                        <span className="block text-[11px] text-zoru-ink-muted">{a.email}</span>
+                                        <span className="block text-[var(--st-text)]">{a.name}</span>
+                                        <span className="block text-[11px] text-[var(--st-text-secondary)]">{a.email}</span>
                                     </span>
                                 </span>
-                                {active ? <Check className="h-3.5 w-3.5 text-zoru-ink" /> : null}
+                                {active ? <Check className="h-3.5 w-3.5 text-[var(--st-text)]" /> : null}
                             </button>
                         );
                     })}
@@ -566,7 +566,7 @@ function StatusMenu({ status, onMove }: { status: Status; onMove: (s: Status) =>
             <ZoruDialogTrigger asChild>
                 <button
                     type="button"
-                    className="inline-flex h-6 items-center gap-1 rounded-full border border-zoru-line bg-zoru-surface-2 px-2 text-[11.5px] text-zoru-ink-muted hover:text-zoru-ink"
+                    className="inline-flex h-6 items-center gap-1 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2 text-[11.5px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                 >
                     Move <ChevronDown className="h-3 w-3" />
                 </button>
@@ -585,12 +585,12 @@ function StatusMenu({ status, onMove }: { status: Status; onMove: (s: Status) =>
                                 onMove(s);
                             }}
                             className={
-                                'flex items-center justify-between rounded-md px-2 py-2 text-left text-[13px] hover:bg-zoru-surface-2 ' +
-                                (s === status ? 'bg-zoru-surface-2/60' : '')
+                                'flex items-center justify-between rounded-md px-2 py-2 text-left text-[13px] hover:bg-[var(--st-bg-muted)] ' +
+                                (s === status ? 'bg-[var(--st-bg-muted)]/60' : '')
                             }
                         >
                             <span>{s}</span>
-                            {s === status ? <Check className="h-3.5 w-3.5 text-zoru-ink" /> : null}
+                            {s === status ? <Check className="h-3.5 w-3.5 text-[var(--st-text)]" /> : null}
                         </button>
                     ))}
                 </div>
@@ -722,7 +722,7 @@ function CreateTaskDialog({
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
     return (
         <div className="flex flex-col gap-1.5">
-            <label className="text-[11.5px] uppercase tracking-[0.06em] text-zoru-ink-muted">{label}</label>
+            <label className="text-[11.5px] uppercase tracking-[0.06em] text-[var(--st-text-secondary)]">{label}</label>
             {children}
         </div>
     );
@@ -732,10 +732,10 @@ function KanbanSkeleton() {
     return (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             {STATUSES.map((s) => (
-                <div key={s} className="flex h-[280px] flex-col gap-3 rounded-xl border border-zoru-line bg-zoru-bg p-4">
-                    <div className="h-4 w-24 animate-pulse rounded-full bg-zoru-surface-2" />
-                    <div className="h-16 animate-pulse rounded-lg bg-zoru-surface-2" />
-                    <div className="h-16 animate-pulse rounded-lg bg-zoru-surface-2" />
+                <div key={s} className="flex h-[280px] flex-col gap-3 rounded-xl border border-[var(--st-border)] bg-[var(--st-bg)] p-4">
+                    <div className="h-4 w-24 animate-pulse rounded-full bg-[var(--st-bg-muted)]" />
+                    <div className="h-16 animate-pulse rounded-lg bg-[var(--st-bg-muted)]" />
+                    <div className="h-16 animate-pulse rounded-lg bg-[var(--st-bg-muted)]" />
                 </div>
             ))}
         </div>

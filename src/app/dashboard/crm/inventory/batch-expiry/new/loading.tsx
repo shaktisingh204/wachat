@@ -8,7 +8,7 @@ export default function NewBatchLoading() {
             title="New batch"
             back={{ href: '/dashboard/crm/inventory/batch-expiry', label: 'Back to list' }}
         >
-            <div className="space-y-6 rounded-lg border border-zoru-line bg-zoru-surface p-6">
+            <div className="space-y-6 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-6">
                 {/* Row 1 */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-2">

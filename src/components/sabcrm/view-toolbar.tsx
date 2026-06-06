@@ -666,7 +666,7 @@ export function ViewToolbar({
             role="status"
             aria-live="polite"
             aria-atomic="true"
-            className="text-sm text-zoru-ink-muted"
+            className="text-sm text-[var(--st-text-secondary)]"
           >
             {typeof resultCount === 'number' && !loading
               ? `${resultCount} ${
@@ -679,7 +679,7 @@ export function ViewToolbar({
 
           {canBoard && (
             <div
-              className="inline-flex items-center gap-1 rounded-[var(--zoru-radius)] border border-zoru-line p-0.5"
+              className="inline-flex items-center gap-1 rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-0.5"
               role="group"
               aria-label="View layout"
             >
@@ -757,7 +757,7 @@ export function ViewToolbar({
         {state.view === 'board' && boardFields.length > 0 && (
           <div className="flex items-center gap-1.5">
             <ListFilter
-              className="h-4 w-4 text-zoru-ink-muted"
+              className="h-4 w-4 text-[var(--st-text-secondary)]"
               aria-hidden="true"
             />
             <Select
@@ -812,10 +812,10 @@ export function ViewToolbar({
               <span
                 key={`${cond.field}-${cond.operator}-${index}`}
                 role="listitem"
-                className="inline-flex items-center gap-1 rounded-full border border-zoru-line bg-zoru-surface py-1 pl-2.5 pr-1 text-xs text-zoru-ink"
+                className="inline-flex items-center gap-1 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] py-1 pl-2.5 pr-1 text-xs text-[var(--st-text)]"
               >
                 <span className="font-medium">{fieldLabel}</span>
-                <span className="text-zoru-ink-muted">
+                <span className="text-[var(--st-text-secondary)]">
                   {OPERATOR_LABELS[cond.operator]}
                 </span>
                 {!VALUELESS_OPERATORS.has(cond.operator) &&
@@ -827,7 +827,7 @@ export function ViewToolbar({
                 <button
                   type="button"
                   aria-label={`Remove filter: ${fieldLabel} ${OPERATOR_LABELS[cond.operator]}`}
-                  className="rounded-full p-0.5 text-zoru-ink-muted transition-colors hover:bg-zoru-surface-2 hover:text-zoru-ink"
+                  className="rounded-full p-0.5 text-[var(--st-text-secondary)] transition-colors hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
                   onClick={() => removeCondition(index)}
                 >
                   <X className="h-3 w-3" aria-hidden="true" />
@@ -946,8 +946,8 @@ const SavedViewsMenu = React.memo(function SavedViewsMenu({
               <Star
                 aria-hidden="true"
                 className={cn(
-                  'text-zoru-ink-muted',
-                  view.isDefault && 'fill-current text-zoru-ink',
+                  'text-[var(--st-text-secondary)]',
+                  view.isDefault && 'fill-current text-[var(--st-text)]',
                 )}
               />
               <span className="flex-1 truncate">{view.name}</span>
@@ -1186,7 +1186,7 @@ const FilterDialog = React.memo(function FilterDialog({
         {/* Lab: advancedFilterGroups — AND / OR logic toggle */}
         {showLogicToggle && (
           <div
-            className="inline-flex items-center gap-1 rounded-[var(--zoru-radius)] border border-zoru-line p-0.5 self-start"
+            className="inline-flex items-center gap-1 rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-0.5 self-start"
             role="group"
             aria-label="Filter logic"
           >
@@ -1217,7 +1217,7 @@ const FilterDialog = React.memo(function FilterDialog({
           aria-label="Filter conditions"
         >
           {draft.length === 0 ? (
-            <p className="py-4 text-center text-sm text-zoru-ink-muted">
+            <p className="py-4 text-center text-sm text-[var(--st-text-secondary)]">
               No filters yet.
             </p>
           ) : (
@@ -1375,7 +1375,7 @@ const FilterValueInput = React.memo(function FilterValueInput({
 
   if (VALUELESS_OPERATORS.has(operator)) {
     return (
-      <span className="block py-2 text-xs italic text-zoru-ink-muted">
+      <span className="block py-2 text-xs italic text-[var(--st-text-secondary)]">
         no value needed
       </span>
     );
@@ -1518,13 +1518,13 @@ const SaveViewDialog = React.memo(function SaveViewDialog({
               }}
             />
             {duplicate && (
-              <p className="text-xs text-zoru-danger">
+              <p className="text-xs text-[var(--st-danger)]">
                 A view with this name already exists.
               </p>
             )}
           </div>
 
-          <label className="flex cursor-pointer items-center gap-2 text-sm text-zoru-ink">
+          <label className="flex cursor-pointer items-center gap-2 text-sm text-[var(--st-text)]">
             <Checkbox
               checked={isDefault}
               onCheckedChange={(checked) => setIsDefault(checked === true)}

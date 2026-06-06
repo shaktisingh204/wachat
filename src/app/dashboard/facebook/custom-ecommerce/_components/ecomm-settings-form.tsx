@@ -164,7 +164,7 @@ export function EcommSettingsForm({ shop, domains }: EcommSettingsFormProps) {
                   ))}
                 </ZoruSelectContent>
               </Select>
-              <p className="text-xs text-zoru-ink-muted">
+              <p className="text-xs text-[var(--st-text-secondary)]">
                 Add and verify domains in the section below.
               </p>
             </div>
@@ -173,10 +173,10 @@ export function EcommSettingsForm({ shop, domains }: EcommSettingsFormProps) {
           <Separator />
 
           <div>
-            <h3 className="flex items-center gap-2 text-base tracking-tight text-zoru-ink">
+            <h3 className="flex items-center gap-2 text-base tracking-tight text-[var(--st-text)]">
               <CreditCard className="h-4 w-4" /> Payment links
             </h3>
-            <p className="mb-4 mt-1 text-sm text-zoru-ink-muted">
+            <p className="mb-4 mt-1 text-sm text-[var(--st-text-secondary)]">
               Provide direct payment links for services like Razorpay, Paytm,
               or GPay to enable &ldquo;Pay&rdquo; buttons in your shop flows.
             </p>
@@ -218,18 +218,18 @@ export function EcommSettingsForm({ shop, domains }: EcommSettingsFormProps) {
           <Separator />
 
           <div>
-            <h3 className="flex items-center gap-2 text-base tracking-tight text-zoru-ink">
+            <h3 className="flex items-center gap-2 text-base tracking-tight text-[var(--st-text)]">
               <Bell className="h-4 w-4" /> Abandoned cart reminder
             </h3>
-            <p className="mb-4 mt-1 text-sm text-zoru-ink-muted">
+            <p className="mb-4 mt-1 text-sm text-[var(--st-text-secondary)]">
               Automatically send a follow-up message to users who leave items
               in their cart.
             </p>
-            <div className="space-y-4 rounded-[var(--zoru-radius-lg)] border border-zoru-line p-4">
+            <div className="space-y-4 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] p-4">
               <div className="flex items-center justify-between">
                 <Label
                   htmlFor="abandonedCart.enabled"
-                  className="text-sm tracking-tight text-zoru-ink"
+                  className="text-sm tracking-tight text-[var(--st-text)]"
                 >
                   Enable reminder
                 </Label>

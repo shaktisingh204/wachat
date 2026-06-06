@@ -120,7 +120,7 @@ export function CheckForm({
                                 onChange={(e) =>
                                     setKind(e.target.value as SabmonitorCheckKind)
                                 }
-                                className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-3 py-2 text-sm text-zoru-ink"
+                                className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-sm text-[var(--st-text)]"
                             >
                                 {KIND_OPTIONS.map((o) => (
                                     <option key={o.value} value={o.value}>

@@ -92,7 +92,7 @@ function TreeNode({
   const isActive = selected === id;
   return (
     <div>
-      <div className={`flex w-full items-center gap-1 rounded-md px-2 py-1.5 text-left text-[13px] transition-colors ${isActive ? 'bg-zoru-surface-2 text-zoru-ink' : 'text-zoru-ink hover:bg-zoru-surface-2'}`} style={{ paddingLeft: 8 + depth * 12 }}>
+      <div className={`flex w-full items-center gap-1 rounded-md px-2 py-1.5 text-left text-[13px] transition-colors ${isActive ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]' : 'text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]'}`} style={{ paddingLeft: 8 + depth * 12 }}>
         {hasChildren ? (
           <button type="button" onClick={() => setIsOpen(!isOpen)} className="p-0.5 hover:bg-black/5 rounded">
              {isOpen ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
@@ -256,18 +256,18 @@ export default function CrmFilesPage() {
                 <a href={previewFile.url} download target="_blank" rel="noreferrer" className="text-sm font-medium hover:underline flex items-center gap-1">
                   <Download className="h-4 w-4" /> Download
                 </a>
-                <button onClick={() => setPreviewFile(null)} className="p-1 hover:bg-zoru-surface-2 rounded ml-4">
+                <button onClick={() => setPreviewFile(null)} className="p-1 hover:bg-[var(--st-bg-muted)] rounded ml-4">
                   <X className="h-5 w-5" />
                 </button>
               </div>
             </div>
-            <div className="flex-1 bg-zoru-surface-2 p-4 relative">
+            <div className="flex-1 bg-[var(--st-bg-muted)] p-4 relative">
               {previewFile.mime_type?.startsWith('image/') || previewFile.extension?.match(/^(jpg|jpeg|png|gif|webp)$/i) ? (
                 <img src={previewFile.url} className="w-full h-full object-contain" alt={previewFile.filename} />
               ) : previewFile.mime_type === 'application/pdf' || previewFile.extension === 'pdf' ? (
                 <iframe src={previewFile.url} className="w-full h-full border-0" />
               ) : (
-                <div className="flex flex-col items-center justify-center h-full text-zoru-ink">
+                <div className="flex flex-col items-center justify-center h-full text-[var(--st-text)]">
                   <FileIcon className="h-16 w-16 mb-4 opacity-50" />
                   <p>Preview not available for this file type.</p>
                 </div>
@@ -280,7 +280,7 @@ export default function CrmFilesPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
         <Card className="p-6 h-fit sticky top-6">
           <div className="mb-3 flex items-center justify-between">
-            <h3 className="text-[13.5px] font-semibold text-zoru-ink">Folders</h3>
+            <h3 className="text-[13.5px] font-semibold text-[var(--st-text)]">Folders</h3>
             <Badge variant="ghost">{tree.length}</Badge>
           </div>
           <div className="space-y-0.5 max-h-[60vh] overflow-y-auto pr-2">
@@ -289,15 +289,15 @@ export default function CrmFilesPage() {
               onClick={() => setSelected(null)}
               className={`flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[13px] transition-colors ${
                 selected === null
-                  ? 'bg-zoru-surface-2 text-zoru-ink'
-                  : 'text-zoru-ink hover:bg-zoru-surface-2'
+                  ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
+                  : 'text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]'
               }`}
             >
               <Folder className="h-4 w-4" />
               All files
             </button>
             {tree.length === 0 ? (
-              <p className="mt-3 text-[12px] text-zoru-ink-muted">
+              <p className="mt-3 text-[12px] text-[var(--st-text-secondary)]">
                 No folders yet — add one under&nbsp;
                 <Link href="/dashboard/crm/files/folders" className="underline">
                   Manage folders
@@ -321,16 +321,16 @@ export default function CrmFilesPage() {
         <Card className="p-6 overflow-hidden flex flex-col">
           <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h2 className="text-[16px] font-semibold text-zoru-ink">
+              <h2 className="text-[16px] font-semibold text-[var(--st-text)]">
                 {selectedLabel}
               </h2>
-              <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+              <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">
                 {filteredFiles.length} file{filteredFiles.length === 1 ? '' : 's'} in this scope.
               </p>
             </div>
             <div className="flex items-center gap-2 w-full sm:w-auto">
               <div className="relative flex-1 sm:w-64">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
                 <Input 
                   placeholder="Search files..." 
                   className="pl-8" 
@@ -347,39 +347,39 @@ export default function CrmFilesPage() {
             </div>
           </div>
 
-          <div className="overflow-x-auto rounded-lg border border-zoru-line flex-1">
+          <div className="overflow-x-auto rounded-lg border border-[var(--st-border)] flex-1">
             <Table>
               <ZoruTableHeader>
-                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                   <ZoruTableHead className="w-10">
                     <input 
                       type="checkbox" 
-                      className="rounded border-zoru-line"
+                      className="rounded border-[var(--st-border)]"
                       checked={filteredFiles.length > 0 && selectedFiles.size === filteredFiles.length}
                       onChange={(e) => toggleAll(e.target.checked)}
                     />
                   </ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">Name</ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">Size</ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">Type</ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">Attached to</ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted w-[180px]">Actions</ZoruTableHead>
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">Name</ZoruTableHead>
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">Size</ZoruTableHead>
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">Type</ZoruTableHead>
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">Attached to</ZoruTableHead>
+                  <ZoruTableHead className="text-[var(--st-text-secondary)] w-[180px]">Actions</ZoruTableHead>
                 </ZoruTableRow>
               </ZoruTableHeader>
               <ZoruTableBody>
                 {isLoading && filteredFiles.length === 0 ? (
                   [...Array(4)].map((_, i) => (
-                    <ZoruTableRow key={i} className="border-zoru-line">
+                    <ZoruTableRow key={i} className="border-[var(--st-border)]">
                       <ZoruTableCell colSpan={6}>
                         <Skeleton className="h-10 w-full" />
                       </ZoruTableCell>
                     </ZoruTableRow>
                   ))
                 ) : filteredFiles.length === 0 ? (
-                  <ZoruTableRow className="border-zoru-line">
+                  <ZoruTableRow className="border-[var(--st-border)]">
                     <ZoruTableCell
                       colSpan={6}
-                      className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                      className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                     >
                       No files match your criteria.
                     </ZoruTableCell>
@@ -388,43 +388,43 @@ export default function CrmFilesPage() {
                   filteredFiles.map((file) => (
                     <ZoruTableRow
                       key={String(file._id)}
-                      className="border-zoru-line"
+                      className="border-[var(--st-border)]"
                     >
                       <ZoruTableCell>
                         <input 
                           type="checkbox" 
-                          className="rounded border-zoru-line"
+                          className="rounded border-[var(--st-border)]"
                           checked={selectedFiles.has(String(file._id))}
                           onChange={(e) => toggleFile(String(file._id), e.target.checked)}
                         />
                       </ZoruTableCell>
                       <ZoruTableCell>
                         <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 shrink-0 overflow-hidden rounded border border-zoru-line bg-zoru-surface-2 flex items-center justify-center">
+                          <div className="h-10 w-10 shrink-0 overflow-hidden rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] flex items-center justify-center">
                             {file.mime_type?.startsWith('image/') || file.extension?.match(/^(jpg|jpeg|png|gif|webp)$/i) ? (
                               <img src={file.url} alt={file.filename} className="h-full w-full object-cover" />
                             ) : file.mime_type === 'application/pdf' || file.extension === 'pdf' ? (
                               <div className="flex flex-col items-center justify-center">
-                                <span className="text-[10px] font-bold text-zoru-ink">PDF</span>
+                                <span className="text-[10px] font-bold text-[var(--st-text)]">PDF</span>
                               </div>
                             ) : (
-                              <FileIcon className="h-5 w-5 text-zoru-ink-muted" />
+                              <FileIcon className="h-5 w-5 text-[var(--st-text-secondary)]" />
                             )}
                           </div>
                           <div className="flex flex-col max-w-[200px] sm:max-w-xs">
-                            <span className="text-[13px] font-medium text-zoru-ink truncate" title={file.display_name || file.filename}>
+                            <span className="text-[13px] font-medium text-[var(--st-text)] truncate" title={file.display_name || file.filename}>
                               {file.display_name || file.filename}
                             </span>
-                            <span className="text-[11.5px] text-zoru-ink-muted truncate" title={file.filename}>
+                            <span className="text-[11.5px] text-[var(--st-text-secondary)] truncate" title={file.filename}>
                               {file.filename}
                             </span>
                           </div>
                         </div>
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-[12.5px] text-zoru-ink whitespace-nowrap">
+                      <ZoruTableCell className="text-[12.5px] text-[var(--st-text)] whitespace-nowrap">
                         {formatFileSize(file.size_bytes)}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-[12.5px] text-zoru-ink uppercase">
+                      <ZoruTableCell className="text-[12.5px] text-[var(--st-text)] uppercase">
                         {file.extension || file.mime_type?.split('/')[1] || '—'}
                       </ZoruTableCell>
                       <ZoruTableCell>
@@ -433,7 +433,7 @@ export default function CrmFilesPage() {
                             {file.attached_to_type}
                           </Badge>
                         ) : (
-                          <span className="text-[12.5px] text-zoru-ink-muted">
+                          <span className="text-[12.5px] text-[var(--st-text-secondary)]">
                             —
                           </span>
                         )}
@@ -445,7 +445,7 @@ export default function CrmFilesPage() {
                               <button
                                 type="button"
                                 onClick={() => setPreviewFile(file)}
-                                className="inline-flex items-center gap-1 text-[12px] font-medium text-zoru-ink hover:underline"
+                                className="inline-flex items-center gap-1 text-[12px] font-medium text-[var(--st-text)] hover:underline"
                               >
                                 <Eye className="h-3.5 w-3.5" />
                                 View
@@ -454,7 +454,7 @@ export default function CrmFilesPage() {
                                 href={file.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 text-[12px] font-medium text-zoru-ink hover:underline"
+                                className="inline-flex items-center gap-1 text-[12px] font-medium text-[var(--st-text)] hover:underline"
                               >
                                 <Download className="h-3.5 w-3.5" />
                                 Get
@@ -464,7 +464,7 @@ export default function CrmFilesPage() {
                           <button
                             type="button"
                             onClick={() => handleDelete(String(file._id))}
-                            className="inline-flex items-center gap-1 text-[12px] font-medium text-zoru-danger-ink hover:underline"
+                            className="inline-flex items-center gap-1 text-[12px] font-medium text-[var(--st-danger)] hover:underline"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                             Delete

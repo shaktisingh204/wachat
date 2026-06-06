@@ -386,11 +386,11 @@ export default function CrmContactsPage() {
                 title="Contacts"
                 subtitle="People in your CRM — buyers, champions and influencers."
                 viewSwitcher={
-                    <div className="inline-flex rounded-md border border-zoru-line p-0.5">
+                    <div className="inline-flex rounded-md border border-[var(--st-border)] p-0.5">
                         <button
                             type="button"
                             aria-pressed={view === 'table'}
-                            className="inline-flex items-center gap-1 rounded-sm bg-zoru-surface px-2 py-1 text-[12px] text-zoru-ink"
+                            className="inline-flex items-center gap-1 rounded-sm bg-[var(--st-bg-secondary)] px-2 py-1 text-[12px] text-[var(--st-text)]"
                         >
                             <List className="h-3.5 w-3.5" /> Table
                         </button>
@@ -460,11 +460,11 @@ export default function CrmContactsPage() {
                 empty={
                     !isPending && contacts.length === 0 ? (
                         <div className="flex flex-col items-center gap-3 p-4">
-                            <Sparkles className="h-8 w-8 text-zoru-ink-muted" />
-                            <h3 className="text-base font-medium text-zoru-ink">
+                            <Sparkles className="h-8 w-8 text-[var(--st-text-secondary)]" />
+                            <h3 className="text-base font-medium text-[var(--st-text)]">
                                 No contacts yet
                             </h3>
-                            <p className="max-w-sm text-sm text-zoru-ink-muted">
+                            <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                                 Add the people who buy from, influence, or
                                 champion your accounts. Contacts feed your
                                 deals, tickets and email outreach.

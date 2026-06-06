@@ -124,7 +124,7 @@ export default async function InventoryItemDetailPage({
       }
       audit={<EntityAuditTimeline entityKind="item" entityId={productId} />}
     >
-      <Suspense fallback={<div className="p-4 text-sm text-zoru-ink-muted animate-pulse">Loading item details...</div>}>
+      <Suspense fallback={<div className="p-4 text-sm text-[var(--st-text-secondary)] animate-pulse">Loading item details...</div>}>
         <ItemDetailBody product={product} productId={productId} defaultTab={sp.tab} />
       </Suspense>
     </EntityDetailShell>

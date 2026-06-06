@@ -44,7 +44,7 @@ export function TemplateReplyRateTile({
         <div className="flex items-center gap-2 text-xs">
           <Link
             href={drilldownHref}
-            className="text-zoru-ink-muted hover:text-zoru-ink"
+            className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
           >
             Open in logs
           </Link>
@@ -57,7 +57,7 @@ export function TemplateReplyRateTile({
       </ZoruCardHeader>
       <ZoruCardContent className="p-0">
         {rows.length === 0 ? (
-          <p className="px-6 py-8 text-center text-sm text-zoru-ink-muted">
+          <p className="px-6 py-8 text-center text-sm text-[var(--st-text-secondary)]">
             No template sends in this window.
           </p>
         ) : (

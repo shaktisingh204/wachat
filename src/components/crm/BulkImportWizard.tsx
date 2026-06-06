@@ -357,13 +357,13 @@ export function BulkImportWizard({
     if (schemaError) {
         return (
             <Card className={cn('p-6', className)}>
-                <p className="text-sm text-zoru-danger">{schemaError}</p>
+                <p className="text-sm text-[var(--st-danger)]">{schemaError}</p>
             </Card>
         );
     }
     if (!schema) {
         return (
-            <Card className={cn('flex items-center gap-2 p-6 text-sm text-zoru-ink-muted', className)}>
+            <Card className={cn('flex items-center gap-2 p-6 text-sm text-[var(--st-text-secondary)]', className)}>
                 <Loader2 className="h-4 w-4 animate-spin" /> Loading schema…
             </Card>
         );
@@ -381,8 +381,8 @@ export function BulkImportWizard({
                             className={cn(
                                 'rounded-full border px-2 py-0.5',
                                 active
-                                    ? 'border-zoru-accent bg-zoru-accent/10 text-zoru-ink'
-                                    : 'border-zoru-line bg-zoru-bg text-zoru-ink-muted',
+                                    ? 'border-[var(--st-accent)] bg-[var(--st-accent)]/10 text-[var(--st-text)]'
+                                    : 'border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text-secondary)]',
                             )}
                         >
                             {s.label}
@@ -394,7 +394,7 @@ export function BulkImportWizard({
             {/* Step 1 — Upload */}
             {step === 'upload' ? (
                 <div className="flex flex-col gap-3">
-                    <p className="text-sm text-zoru-ink-muted">
+                    <p className="text-sm text-[var(--st-text-secondary)]">
                         Pick a CSV from SabFiles or upload a new one. The file
                         must include a header row.
                     </p>
@@ -406,19 +406,19 @@ export function BulkImportWizard({
                             <UploadIcon /> Choose CSV
                         </SabFilePickerButton>
                         {downloading ? (
-                            <span className="inline-flex items-center gap-2 text-[12.5px] text-zoru-ink-muted">
+                            <span className="inline-flex items-center gap-2 text-[12.5px] text-[var(--st-text-secondary)]">
                                 <Loader2 className="h-3.5 w-3.5 animate-spin" /> Reading…
                             </span>
                         ) : null}
                         {pickedFile && !downloading ? (
-                            <span className="inline-flex items-center gap-1 text-[12.5px] text-zoru-ink">
+                            <span className="inline-flex items-center gap-1 text-[12.5px] text-[var(--st-text)]">
                                 <FileSpreadsheet className="h-3.5 w-3.5" />
                                 {pickedFile.name}{' '}
                                 <Badge variant="secondary">{csvRowCount} rows</Badge>
                             </span>
                         ) : null}
                     </div>
-                    <p className="text-[11.5px] text-zoru-ink-muted">
+                    <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                         Per SabNode policy, all files live in SabFiles — there
                         is no free-text URL paste.
                     </p>
@@ -428,7 +428,7 @@ export function BulkImportWizard({
             {/* Step 2 — Mapping */}
             {step === 'mapping' ? (
                 <div className="flex flex-col gap-3">
-                    <p className="text-sm text-zoru-ink-muted">
+                    <p className="text-sm text-[var(--st-text-secondary)]">
                         Match each CSV column to a field on the {entityKind}{' '}
                         entity. Required fields are marked.
                     </p>
@@ -436,12 +436,12 @@ export function BulkImportWizard({
                         {csvHeaders.map((h) => (
                             <div
                                 key={h}
-                                className="flex items-center gap-2 rounded-md border border-zoru-line p-2"
+                                className="flex items-center gap-2 rounded-md border border-[var(--st-border)] p-2"
                             >
-                                <span className="flex-1 truncate text-[13px] text-zoru-ink">
+                                <span className="flex-1 truncate text-[13px] text-[var(--st-text)]">
                                     {h}
                                 </span>
-                                <ArrowRight className="h-3.5 w-3.5 text-zoru-ink-muted" />
+                                <ArrowRight className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                                 <Select
                                     value={mapping[h] ?? '__skip__'}
                                     onValueChange={(v) => {
@@ -475,7 +475,7 @@ export function BulkImportWizard({
                         ))}
                     </div>
                     {!requiredOk ? (
-                        <p className="text-[12px] text-zoru-ink">
+                        <p className="text-[12px] text-[var(--st-text)]">
                             Map all required fields (marked with *) before continuing.
                         </p>
                     ) : null}
@@ -485,7 +485,7 @@ export function BulkImportWizard({
             {/* Step 3 — Dedup */}
             {step === 'dedup' ? (
                 <div className="flex flex-col gap-3">
-                    <p className="text-sm text-zoru-ink-muted">
+                    <p className="text-sm text-[var(--st-text-secondary)]">
                         Choose which field defines a duplicate. Existing rows
                         can either be replaced or skipped.
                     </p>
@@ -510,7 +510,7 @@ export function BulkImportWizard({
                             </ZoruSelectContent>
                         </Select>
                     </div>
-                    <label className="flex items-center gap-2 text-sm text-zoru-ink">
+                    <label className="flex items-center gap-2 text-sm text-[var(--st-text)]">
                         <input
                             type="checkbox"
                             checked={updateExisting}
@@ -526,7 +526,7 @@ export function BulkImportWizard({
             {step === 'preview' ? (
                 <div className="flex flex-col gap-3">
                     {previewBusy ? (
-                        <p className="inline-flex items-center gap-2 text-sm text-zoru-ink-muted">
+                        <p className="inline-flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
                             <Loader2 className="h-4 w-4 animate-spin" /> Running dry-run…
                         </p>
                     ) : preview ? (
@@ -554,15 +554,15 @@ export function BulkImportWizard({
                                     download={`${entityKind}-preview-${new Date()
                                         .toISOString()
                                         .slice(0, 10)}.csv`}
-                                    className="ml-auto inline-flex items-center gap-1 text-[12.5px] text-zoru-accent hover:underline"
+                                    className="ml-auto inline-flex items-center gap-1 text-[12.5px] text-[var(--st-accent)] hover:underline"
                                 >
                                     <Download className="h-3.5 w-3.5" /> Download
                                     preview CSV
                                 </a>
                             </div>
-                            <div className="max-h-80 overflow-auto rounded-md border border-zoru-line">
+                            <div className="max-h-80 overflow-auto rounded-md border border-[var(--st-border)]">
                                 <table className="w-full text-[12.5px]">
-                                    <thead className="bg-zoru-bg text-zoru-ink-muted">
+                                    <thead className="bg-[var(--st-bg)] text-[var(--st-text-secondary)]">
                                         <tr>
                                             <th className="px-2 py-1 text-left">Row</th>
                                             <th className="px-2 py-1 text-left">Action</th>
@@ -573,9 +573,9 @@ export function BulkImportWizard({
                                         {preview.rows.slice(0, 200).map((r) => (
                                             <tr
                                                 key={r.rowIndex}
-                                                className="border-t border-zoru-line"
+                                                className="border-t border-[var(--st-border)]"
                                             >
-                                                <td className="px-2 py-1 text-zoru-ink-muted">
+                                                <td className="px-2 py-1 text-[var(--st-text-secondary)]">
                                                     {r.rowIndex}
                                                 </td>
                                                 <td className="px-2 py-1">
@@ -593,7 +593,7 @@ export function BulkImportWizard({
                                                         {r.action}
                                                     </Badge>
                                                 </td>
-                                                <td className="px-2 py-1 text-zoru-ink-muted">
+                                                <td className="px-2 py-1 text-[var(--st-text-secondary)]">
                                                     {r.reason ?? r.existingId ?? ''}
                                                 </td>
                                             </tr>
@@ -601,7 +601,7 @@ export function BulkImportWizard({
                                     </tbody>
                                 </table>
                                 {preview.rows.length > 200 ? (
-                                    <p className="px-2 py-1 text-[11.5px] text-zoru-ink-muted">
+                                    <p className="px-2 py-1 text-[11.5px] text-[var(--st-text-secondary)]">
                                         Showing first 200 rows. Download the
                                         preview CSV for the full list.
                                     </p>
@@ -609,7 +609,7 @@ export function BulkImportWizard({
                             </div>
                         </>
                     ) : (
-                        <p className="text-sm text-zoru-ink-muted">
+                        <p className="text-sm text-[var(--st-text-secondary)]">
                             No preview yet.
                         </p>
                     )}
@@ -621,7 +621,7 @@ export function BulkImportWizard({
                 <div className="flex flex-col gap-3">
                     {execResult ? (
                         <div className="flex flex-col gap-2">
-                            <p className="inline-flex items-center gap-2 text-sm text-zoru-ink">
+                            <p className="inline-flex items-center gap-2 text-sm text-[var(--st-text)]">
                                 <Check className="h-4 w-4" /> Import complete
                             </p>
                             <div className="flex flex-wrap items-center gap-2 text-[13px]">
@@ -641,7 +641,7 @@ export function BulkImportWizard({
                                 ) : null}
                             </div>
                             {execResult.errors.length > 0 ? (
-                                <ul className="max-h-48 overflow-auto rounded border border-zoru-line bg-zoru-bg p-2 text-[12px] text-zoru-ink-muted">
+                                <ul className="max-h-48 overflow-auto rounded border border-[var(--st-border)] bg-[var(--st-bg)] p-2 text-[12px] text-[var(--st-text-secondary)]">
                                     {execResult.errors.slice(0, 50).map((e) => (
                                         <li key={`${e.rowIndex}-${e.error}`}>
                                             Row {e.rowIndex}: {e.error}
@@ -651,7 +651,7 @@ export function BulkImportWizard({
                             ) : null}
                         </div>
                     ) : (
-                        <p className="text-sm text-zoru-ink-muted">
+                        <p className="text-sm text-[var(--st-text-secondary)]">
                             Review the counts above, then commit the import.
                             Nothing has been written yet.
                         </p>
@@ -660,7 +660,7 @@ export function BulkImportWizard({
             ) : null}
 
             {/* Footer nav */}
-            <div className="mt-2 flex flex-wrap items-center gap-2 border-t border-zoru-line pt-3">
+            <div className="mt-2 flex flex-wrap items-center gap-2 border-t border-[var(--st-border)] pt-3">
                 <Button
                     type="button"
                     variant="outline"

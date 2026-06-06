@@ -167,14 +167,14 @@ export default function AnalyticsPage() {
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface text-zoru-ink">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
             <BarChart3 className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-[24px] leading-[1.2] tracking-[-0.015em] text-zoru-ink">
+            <h1 className="text-[24px] leading-[1.2] tracking-[-0.015em] text-[var(--st-text)]">
               Analytics
             </h1>
-            <p className="mt-1 text-[13px] text-zoru-ink-muted">
+            <p className="mt-1 text-[13px] text-[var(--st-text-secondary)]">
               Throughput, responsiveness, and anti-ban posture across this
               SabWa session.
             </p>
@@ -186,7 +186,7 @@ export default function AnalyticsPage() {
           <div
             role="group"
             aria-label="Date range"
-            className="inline-flex rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-1"
+            className="inline-flex rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1"
           >
             {RANGE_OPTIONS.map((opt) => (
               <Button
@@ -235,9 +235,9 @@ export default function AnalyticsPage() {
       </div>
 
       {error ? (
-        <Card className="border-zoru-danger/40 bg-zoru-danger/5">
+        <Card className="border-[var(--st-danger)]/40 bg-[var(--st-danger)]/5">
           <ZoruCardHeader className="pb-2">
-            <ZoruCardTitle className="text-base text-zoru-danger-ink">
+            <ZoruCardTitle className="text-base text-[var(--st-danger)]">
               Couldn&apos;t load analytics
             </ZoruCardTitle>
             <ZoruCardDescription>{error}</ZoruCardDescription>
@@ -279,7 +279,7 @@ export default function AnalyticsPage() {
           tone={kpis ? banRiskTone(kpis.banRiskScore) : undefined}
           hint={
             <Activity
-              className="h-3.5 w-3.5 text-zoru-ink-muted"
+              className="h-3.5 w-3.5 text-[var(--st-text-secondary)]"
               aria-hidden
             />
           }
@@ -375,7 +375,7 @@ export default function AnalyticsPage() {
         </Card>
       </div>
 
-      <p className="text-[11px] text-zoru-ink-muted">
+      <p className="text-[11px] text-[var(--st-text-secondary)]">
         Range:{' '}
         {range === 'custom' && customFrom && customTo
           ? `${format(customFrom, 'PP')} – ${format(customTo, 'PP')}`
@@ -407,11 +407,11 @@ function KpiCard({ label, value, loading, tone, hint }: KpiCardProps) {
         <div className="flex items-baseline justify-between gap-2">
           <div
             className={cn(
-              'text-2xl font-semibold tabular-nums text-zoru-ink',
+              'text-2xl font-semibold tabular-nums text-[var(--st-text)]',
             )}
           >
             {loading ? (
-              <span className="text-zoru-ink-muted">…</span>
+              <span className="text-[var(--st-text-secondary)]">…</span>
             ) : (
               value
             )}

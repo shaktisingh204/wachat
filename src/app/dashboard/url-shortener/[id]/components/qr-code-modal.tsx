@@ -50,7 +50,7 @@ export function QrCodeModal({ url }: { url: string }) {
         <DialogHeader>
           <DialogTitle>QR Code for Short URL</DialogTitle>
         </DialogHeader>
-        <div className="flex flex-col items-center justify-center p-6 gap-6 bg-zoru-surface-hover rounded-xl mt-4">
+        <div className="flex flex-col items-center justify-center p-6 gap-6 bg-[var(--st-hover)] rounded-xl mt-4">
           <div className="bg-white p-4 rounded-xl shadow-sm">
             <QRCode
               id="qr-code-svg"
@@ -61,7 +61,7 @@ export function QrCodeModal({ url }: { url: string }) {
               viewBox={`0 0 256 256`}
             />
           </div>
-          <p className="text-center text-[13px] text-zoru-ink-muted break-all max-w-full px-4">
+          <p className="text-center text-[13px] text-[var(--st-text-secondary)] break-all max-w-full px-4">
             {url}
           </p>
         </div>

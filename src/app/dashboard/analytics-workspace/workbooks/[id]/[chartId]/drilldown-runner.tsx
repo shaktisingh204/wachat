@@ -134,7 +134,7 @@ export function DrilldownRunner({
             {pending ? 'Running…' : 'Run drilldown'}
           </Button>
         </div>
-        {error && <p className="text-sm text-zoru-danger">{error}</p>}
+        {error && <p className="text-sm text-[var(--st-danger)]">{error}</p>}
       </div>
 
       <ChartPreview

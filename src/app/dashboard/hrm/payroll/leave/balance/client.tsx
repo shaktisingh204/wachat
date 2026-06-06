@@ -107,7 +107,7 @@ export default function LeaveBalanceClient({
 
   const yearSelector = (
     <div className="flex items-center gap-2">
-      <span className="text-sm text-zoru-ink-muted">Year:</span>
+      <span className="text-sm text-[var(--st-text-secondary)]">Year:</span>
       <Select value={selectedYear} onValueChange={setSelectedYear}>
         <SelectTrigger className="w-[120px]">
           <SelectValue placeholder="Select Year" />
@@ -131,17 +131,17 @@ export default function LeaveBalanceClient({
     >
       <div className="hidden md:block">
         <Card className="p-0 border-0 shadow-none bg-transparent">
-          <div className="overflow-x-auto rounded-lg border border-zoru-line bg-white dark:bg-zoru-ink">
+          <div className="overflow-x-auto rounded-lg border border-[var(--st-border)] bg-white dark:bg-[var(--st-text)]">
             <table className="w-full text-left text-[13px] border-collapse relative min-w-max">
               <thead>
-                <tr className="border-b border-zoru-line">
-                  <th className="px-4 py-3 text-zoru-ink-muted sticky left-0 z-20 bg-zoru-surface border-r border-zoru-line">
+                <tr className="border-b border-[var(--st-border)]">
+                  <th className="px-4 py-3 text-[var(--st-text-secondary)] sticky left-0 z-20 bg-[var(--st-bg-secondary)] border-r border-[var(--st-border)]">
                     Employee
                   </th>
                   {types.map((t) => (
                     <th
                       key={String(t._id)}
-                      className="px-4 py-3 text-zoru-ink-muted whitespace-nowrap min-w-[150px] bg-white dark:bg-zoru-ink"
+                      className="px-4 py-3 text-[var(--st-text-secondary)] whitespace-nowrap min-w-[150px] bg-white dark:bg-[var(--st-text)]"
                     >
                       <span className="inline-flex items-center gap-1.5">
                         <span
@@ -160,7 +160,7 @@ export default function LeaveBalanceClient({
                   <tr>
                     <td
                       colSpan={types.length + 1}
-                      className="h-24 text-center text-zoru-ink-muted"
+                      className="h-24 text-center text-[var(--st-text-secondary)]"
                     >
                       Loading…
                     </td>
@@ -169,7 +169,7 @@ export default function LeaveBalanceClient({
                   <tr>
                     <td
                       colSpan={types.length + 1}
-                      className="h-24 text-center text-zoru-ink-muted"
+                      className="h-24 text-center text-[var(--st-text-secondary)]"
                     >
                       No employees found.
                     </td>
@@ -178,8 +178,8 @@ export default function LeaveBalanceClient({
                   rows.map((r) => {
                     const byType = new Map<string, typeof r.rows[0]>(r.rows.map((x) => [x.leave_type_id, x]));
                     return (
-                      <tr key={r.employee_id} className="border-b border-zoru-line last:border-0 group">
-                        <td className="px-4 py-3 text-zoru-ink sticky left-0 z-10 bg-zoru-surface border-r border-zoru-line shadow-[1px_0_0_0_var(--zoru-line)]">
+                      <tr key={r.employee_id} className="border-b border-[var(--st-border)] last:border-0 group">
+                        <td className="px-4 py-3 text-[var(--st-text)] sticky left-0 z-10 bg-[var(--st-bg-secondary)] border-r border-[var(--st-border)] shadow-[1px_0_0_0_var(--zoru-line)]">
                           {r.employee_name}
                         </td>
                         {types.map((t) => {
@@ -188,7 +188,7 @@ export default function LeaveBalanceClient({
                             return (
                               <td
                                 key={String(t._id)}
-                                className="px-4 py-3 text-zoru-ink-muted text-center"
+                                className="px-4 py-3 text-[var(--st-text-secondary)] text-center"
                               >
                                 —
                               </td>
@@ -198,24 +198,24 @@ export default function LeaveBalanceClient({
                           const percent = Math.min(100, (row.used / (row.allocated || 1)) * 100);
                           
                           return (
-                            <td key={String(t._id)} className="px-4 py-3 group/cell relative hover:bg-zoru-surface">
+                            <td key={String(t._id)} className="px-4 py-3 group/cell relative hover:bg-[var(--st-bg-secondary)]">
                               <div className="flex flex-col gap-1.5 w-full min-w-[120px] max-w-[180px]">
                                 <div className="flex justify-between items-center text-[12px]">
-                                  <span className={low ? 'text-zoru-ink font-medium' : 'text-zoru-ink font-medium'}>
+                                  <span className={low ? 'text-[var(--st-text)] font-medium' : 'text-[var(--st-text)] font-medium'}>
                                     {row.remaining} left
                                   </span>
-                                  <span className="text-zoru-ink-muted">
+                                  <span className="text-[var(--st-text-secondary)]">
                                     {row.used} / {row.allocated}
                                   </span>
                                 </div>
-                                <div className="h-1.5 w-full bg-zoru-surface rounded-full overflow-hidden flex relative border border-zoru-line">
+                                <div className="h-1.5 w-full bg-[var(--st-bg-secondary)] rounded-full overflow-hidden flex relative border border-[var(--st-border)]">
                                   <div
                                     className="h-full"
                                     style={{ width: `${percent}%`, backgroundColor: t.color || '#3B82F6' }}
                                   />
                                 </div>
                                 {row.topup ? (
-                                  <div className="text-[10px] text-zoru-ink dark:text-zoru-ink text-right h-4">
+                                  <div className="text-[10px] text-[var(--st-text)] dark:text-[var(--st-text)] text-right h-4">
                                     +{row.topup} top-up
                                   </div>
                                 ) : (
@@ -226,7 +226,7 @@ export default function LeaveBalanceClient({
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  className="h-6 text-[11px] px-2 bg-white/95 dark:bg-zoru-ink/95 backdrop-blur-sm"
+                                  className="h-6 text-[11px] px-2 bg-white/95 dark:bg-[var(--st-text)]/95 backdrop-blur-sm"
                                   onClick={() => {
                                     setTopupForm({
                                       employeeId: r.employee_id,
@@ -257,15 +257,15 @@ export default function LeaveBalanceClient({
 
       <div className="md:hidden flex flex-col gap-4">
         {isLoading ? (
-          <div className="text-center py-8 text-zoru-ink-muted">Loading…</div>
+          <div className="text-center py-8 text-[var(--st-text-secondary)]">Loading…</div>
         ) : rows.length === 0 ? (
-          <div className="text-center py-8 text-zoru-ink-muted">No employees found.</div>
+          <div className="text-center py-8 text-[var(--st-text-secondary)]">No employees found.</div>
         ) : (
           rows.map((r) => {
             const byType = new Map<string, typeof r.rows[0]>(r.rows.map((x) => [x.leave_type_id, x]));
             return (
-              <Card key={r.employee_id} className="p-4 space-y-4 shadow-sm border border-zoru-line">
-                <div className="font-medium text-base text-zoru-ink pb-2 border-b border-zoru-line">
+              <Card key={r.employee_id} className="p-4 space-y-4 shadow-sm border border-[var(--st-border)]">
+                <div className="font-medium text-base text-[var(--st-text)] pb-2 border-b border-[var(--st-border)]">
                   {r.employee_name}
                 </div>
                 <div className="space-y-4">
@@ -278,7 +278,7 @@ export default function LeaveBalanceClient({
                     return (
                       <div key={String(t._id)} className="space-y-2">
                         <div className="flex justify-between items-center text-sm">
-                          <span className="flex items-center gap-1.5 font-medium text-zoru-ink">
+                          <span className="flex items-center gap-1.5 font-medium text-[var(--st-text)]">
                             <span
                               aria-hidden
                               className="inline-block h-2 w-2 rounded-full"
@@ -287,7 +287,7 @@ export default function LeaveBalanceClient({
                             {t.type_name}
                           </span>
                           <div className="flex items-center gap-2">
-                            <span className={low ? 'text-zoru-ink font-medium text-xs' : 'text-zoru-ink font-medium text-xs'}>
+                            <span className={low ? 'text-[var(--st-text)] font-medium text-xs' : 'text-[var(--st-text)] font-medium text-xs'}>
                               {row.remaining} left
                             </span>
                             <Button
@@ -310,16 +310,16 @@ export default function LeaveBalanceClient({
                             </Button>
                           </div>
                         </div>
-                        <div className="h-1.5 w-full bg-zoru-surface border border-zoru-line rounded-full overflow-hidden flex">
+                        <div className="h-1.5 w-full bg-[var(--st-bg-secondary)] border border-[var(--st-border)] rounded-full overflow-hidden flex">
                           <div
                             className="h-full"
                             style={{ width: `${percent}%`, backgroundColor: t.color || '#3B82F6' }}
                           />
                         </div>
-                        <div className="flex justify-between text-[11px] text-zoru-ink-muted">
+                        <div className="flex justify-between text-[11px] text-[var(--st-text-secondary)]">
                           <span>Used: {row.used} / {row.allocated}</span>
                           {row.topup ? (
-                            <span className="text-zoru-ink dark:text-zoru-ink">
+                            <span className="text-[var(--st-text)] dark:text-[var(--st-text)]">
                               +{row.topup} top-up
                             </span>
                           ) : null}

@@ -382,12 +382,12 @@ export function ContactsTable({
         <div className="flex flex-col">
           <Link
             href={`/sabsms/contacts/${encodeURIComponent(r.id)}`}
-            className="font-mono text-sm text-zoru-ink hover:underline"
+            className="font-mono text-sm text-[var(--st-text)] hover:underline"
           >
             {r.phone}
           </Link>
           {r.name && (
-            <span className="text-xs text-zoru-ink">{r.name}</span>
+            <span className="text-xs text-[var(--st-text)]">{r.name}</span>
           )}
         </div>
       ),
@@ -423,10 +423,10 @@ export function ContactsTable({
         <span
           className={
             r.engagementScore >= 60
-              ? "font-semibold text-zoru-ink"
+              ? "font-semibold text-[var(--st-text)]"
               : r.engagementScore >= 20
-                ? "text-zoru-ink"
-                : "text-zoru-ink-muted"
+                ? "text-[var(--st-text)]"
+                : "text-[var(--st-text-secondary)]"
           }
         >
           {r.engagementScore}
@@ -444,13 +444,13 @@ export function ContactsTable({
             </Badge>
           ))}
           {r.tags.length > 3 && (
-            <span className="text-xs text-zoru-ink-muted">
+            <span className="text-xs text-[var(--st-text-secondary)]">
               +{r.tags.length - 3}
             </span>
           )}
           <button
             type="button"
-            className="text-[10px] text-zoru-ink-muted hover:text-zoru-ink"
+            className="text-[10px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
             onClick={() => openTagEditor(r)}
             aria-label="Edit tags"
           >
@@ -464,7 +464,7 @@ export function ContactsTable({
       header: "Best hr",
       width: "80px",
       render: (r) => (
-        <span className="text-xs text-zoru-ink">
+        <span className="text-xs text-[var(--st-text)]">
           {formatHour(r.bestSendHour)}
         </span>
       ),
@@ -493,7 +493,7 @@ export function ContactsTable({
       header: "Last activity",
       width: "120px",
       render: (r) => (
-        <span className="text-xs text-zoru-ink">
+        <span className="text-xs text-[var(--st-text)]">
           {formatRelative(r.lastMessageAt)}
         </span>
       ),
@@ -557,8 +557,8 @@ export function ContactsTable({
         <div
           className={
             feedback.kind === "ok"
-              ? "rounded-md border border-zoru-line bg-zoru-surface-2 px-3 py-2 text-sm text-zoru-ink"
-              : "rounded-md border border-zoru-line bg-zoru-surface-2 px-3 py-2 text-sm text-zoru-ink"
+              ? "rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-sm text-[var(--st-text)]"
+              : "rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-sm text-[var(--st-text)]"
           }
           role="status"
         >
@@ -729,9 +729,9 @@ export function ContactsTable({
         description="Consent + opt-in/out events recorded for this contact."
       >
         {auditDrawer.loading ? (
-          <div className="text-sm text-zoru-ink">Loading…</div>
+          <div className="text-sm text-[var(--st-text)]">Loading…</div>
         ) : auditDrawer.entries.length === 0 ? (
-          <div className="text-sm text-zoru-ink">
+          <div className="text-sm text-[var(--st-text)]">
             No audit entries yet.
           </div>
         ) : (
@@ -739,15 +739,15 @@ export function ContactsTable({
             {auditDrawer.entries.map((e) => (
               <li
                 key={e.id}
-                className="rounded-md border border-zoru-line bg-white p-3"
+                className="rounded-md border border-[var(--st-border)] bg-white p-3"
               >
-                <div className="flex justify-between text-xs text-zoru-ink">
+                <div className="flex justify-between text-xs text-[var(--st-text)]">
                   <span>{e.actor ?? "system"}</span>
                   <span>{new Date(e.at).toLocaleString()}</span>
                 </div>
                 <div className="mt-1 font-medium">{e.kind}</div>
                 {e.detail && (
-                  <div className="mt-1 text-sm text-zoru-ink">{e.detail}</div>
+                  <div className="mt-1 text-sm text-[var(--st-text)]">{e.detail}</div>
                 )}
               </li>
             ))}

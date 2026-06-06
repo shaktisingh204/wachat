@@ -311,47 +311,47 @@ export function PlanStep({
                                 onClick={() => setChosen(plan._id)}
                                 disabled={isPending}
                                 className={cn(
-                                    'relative flex flex-col rounded-2xl border border-zoru-line bg-zoru-bg p-6 text-left transition',
+                                    'relative flex flex-col rounded-2xl border border-[var(--st-border)] bg-[var(--st-bg)] p-6 text-left transition',
                                     active
-                                        ? 'border-zoru-primary bg-zoru-primary/5 shadow-md'
-                                        : 'hover:border-zoru-primary/60 hover:shadow-sm'
+                                        ? 'border-[var(--st-text)] bg-[var(--st-text)]/5 shadow-md'
+                                        : 'hover:border-[var(--st-text)]/60 hover:shadow-sm'
                                 )}
                             >
                                 {recommended && (
-                                    <span className="absolute -top-3 left-4 inline-flex items-center gap-1 rounded-full bg-zoru-primary px-3 py-1 text-xs font-semibold text-zoru-on-primary">
+                                    <span className="absolute -top-3 left-4 inline-flex items-center gap-1 rounded-full bg-[var(--st-text)] px-3 py-1 text-xs font-semibold text-[var(--st-text-inverted)]">
                                         <Sparkles className="h-3 w-3" />
                                         Recommended
                                     </span>
                                 )}
                                 <div className="flex items-start justify-between">
                                     <div>
-                                        <h3 className="text-lg font-bold text-zoru-ink">
+                                        <h3 className="text-lg font-bold text-[var(--st-text)]">
                                             {plan.name}
                                         </h3>
                                         {plan.appCategory && (
-                                            <p className="text-xs uppercase tracking-wider text-zoru-ink-muted">
+                                            <p className="text-xs uppercase tracking-wider text-[var(--st-text-secondary)]">
                                                 {plan.appCategory}
                                             </p>
                                         )}
                                     </div>
                                     {active && (
-                                        <Check className="h-5 w-5 text-zoru-primary" />
+                                        <Check className="h-5 w-5 text-[var(--st-text)]" />
                                     )}
                                 </div>
 
                                 <div className="mt-4 flex items-baseline gap-1">
-                                    <span className="text-3xl font-bold text-zoru-ink">
+                                    <span className="text-3xl font-bold text-[var(--st-text)]">
                                         {main}
                                     </span>
-                                    <span className="text-xs text-zoru-ink-muted">
+                                    <span className="text-xs text-[var(--st-text-secondary)]">
                                         {suffix}
                                     </span>
                                 </div>
 
                                 {selectedModules.length > 0 && (
-                                    <p className="mt-2 text-xs text-zoru-ink-muted">
+                                    <p className="mt-2 text-xs text-[var(--st-text-secondary)]">
                                         Covers{' '}
-                                        <span className="font-semibold text-zoru-ink">
+                                        <span className="font-semibold text-[var(--st-text)]">
                                             {score}
                                         </span>{' '}
                                         of {selectedModules.length} modules you
@@ -392,14 +392,14 @@ export function PlanStep({
                     })}
                 </div>
 
-                <div className="rounded-xl border border-zoru-line bg-zoru-surface/40 p-4 text-sm">
+                <div className="rounded-xl border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40 p-4 text-sm">
                     <div className="flex items-start gap-3">
-                        <ShieldCheck className="mt-0.5 h-4 w-4 text-zoru-ink-muted" />
-                        <p className="text-zoru-ink-muted">
+                        <ShieldCheck className="mt-0.5 h-4 w-4 text-[var(--st-text-secondary)]" />
+                        <p className="text-[var(--st-text-secondary)]">
                             Payments are processed securely via PayU — the
                             next screen is PayU's hosted checkout. You can
                             upgrade, downgrade, or cancel anytime from{' '}
-                            <span className="font-medium text-zoru-ink">
+                            <span className="font-medium text-[var(--st-text)]">
                                 Settings → Billing
                             </span>
                             .
@@ -454,13 +454,13 @@ function PlanFeatureLine({
         <li
             className={cn(
                 'flex items-center gap-2',
-                enabled ? 'text-zoru-ink' : 'text-zoru-ink-muted/60 line-through'
+                enabled ? 'text-[var(--st-text)]' : 'text-[var(--st-text-secondary)]/60 line-through'
             )}
         >
             <Check
                 className={cn(
                     'h-3.5 w-3.5',
-                    enabled ? 'text-zoru-primary' : 'text-zoru-ink-muted/40'
+                    enabled ? 'text-[var(--st-text)]' : 'text-[var(--st-text-secondary)]/40'
                 )}
             />
             {label}

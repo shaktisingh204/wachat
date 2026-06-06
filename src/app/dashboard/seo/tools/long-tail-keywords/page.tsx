@@ -112,7 +112,7 @@ export default function LongTailKeywordsPage() {
               <ZoruCardContent className="space-y-3">
                 <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
                   {items.map((r) => (
-                    <li key={r} className="p-3 rounded-md bg-zoru-surface border border-zoru-line text-zoru-ink transition-colors hover:bg-zoru-surface-2">{r}</li>
+                    <li key={r} className="p-3 rounded-md bg-[var(--st-bg-secondary)] border border-[var(--st-border)] text-[var(--st-text)] transition-colors hover:bg-[var(--st-bg-muted)]">{r}</li>
                   ))}
                 </ul>
               </ZoruCardContent>

@@ -37,7 +37,7 @@ type SerialisedFlow = Omit<SabFlowDoc, '_id' | 'createdAt' | 'updatedAt'> & {
 function UnpublishedFlow() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[var(--gray-2)] p-6">
-      <div className="flex flex-col items-center gap-4 text-center max-w-sm bg-white p-8 rounded-2xl shadow-sm border border-zoru-line">
+      <div className="flex flex-col items-center gap-4 text-center max-w-sm bg-white p-8 rounded-2xl shadow-sm border border-[var(--st-border)]">
         <div className="h-12 w-12 rounded-full bg-[var(--gray-3)] flex items-center justify-center">
           <svg
             xmlns="http://www.w3.org/2000/svg"

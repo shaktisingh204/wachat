@@ -17,11 +17,11 @@ export default function ErrorBoundary({
   }, [error])
 
   return (
-    <div className="flex h-screen w-screen items-center justify-center bg-zoru-surface">
+    <div className="flex h-screen w-screen items-center justify-center bg-[var(--st-bg-secondary)]">
       <Card className="max-w-sm text-center">
         <ZoruCardHeader>
           <div className="flex justify-center mb-4">
-            <AlertTriangle className="h-10 w-10 text-zoru-ink" />
+            <AlertTriangle className="h-10 w-10 text-[var(--st-text)]" />
           </div>
           <ZoruCardTitle>Something went wrong!</ZoruCardTitle>
           <ZoruCardDescription>

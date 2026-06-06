@@ -18,14 +18,14 @@ export default function ErrorBoundary({
 
   return (
     <div className="flex h-[50vh] w-full items-center justify-center p-4">
-      <Card className="max-w-md border-zoru-line/50">
+      <Card className="max-w-md border-[var(--st-border)]/50">
         <ZoruCardContent className="flex flex-col items-center gap-4 p-6 text-center">
-          <div className="rounded-full bg-zoru-surface-2 p-3 text-zoru-ink dark:bg-zoru-ink/20">
+          <div className="rounded-full bg-[var(--st-bg-muted)] p-3 text-[var(--st-text)] dark:bg-[var(--st-text)]/20">
             <AlertTriangle className="h-8 w-8" />
           </div>
           <div className="space-y-2">
             <h3 className="text-lg font-semibold tracking-tight">Something went wrong!</h3>
-            <p className="text-sm text-zoru-text-muted">
+            <p className="text-sm text-[var(--st-text-secondary)]">
               An error occurred while loading the DoFollow Checker tool. We've been notified and are looking into it.
             </p>
           </div>

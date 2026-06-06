@@ -43,7 +43,7 @@ export default async function SegmentBuilderPage({ searchParams }: PageProps) {
           { label: "New" },
         ]}
       >
-        <p className="text-sm text-zoru-ink">Sign in to build a segment.</p>
+        <p className="text-sm text-[var(--st-text)]">Sign in to build a segment.</p>
       </SabsmsPageShell>
     );
   }
@@ -111,7 +111,7 @@ export default async function SegmentBuilderPage({ searchParams }: PageProps) {
             audiences (e.g. "clicked in the last 30 days"); pick static mode
             when you need a frozen list (e.g. "anyone matching at 9 AM today").
           </p>
-          <p className="text-xs text-zoru-ink">
+          <p className="text-xs text-[var(--st-text)]">
             Marketing segments must include a consent gate
             (<code>unsubscribed = false</code>) before they can save.
           </p>

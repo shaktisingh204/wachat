@@ -11,7 +11,7 @@ export default function NewSyntheticScriptPage(): React.JSX.Element {
     const router = useRouter();
     return (
         <div className="flex flex-col gap-4">
-            <h2 className="text-sm font-semibold text-zoru-ink">New synthetic script</h2>
+            <h2 className="text-sm font-semibold text-[var(--st-text)]">New synthetic script</h2>
             <JsonEditorForm
                 showScreenshotSwitch
                 submitLabel="Create script"

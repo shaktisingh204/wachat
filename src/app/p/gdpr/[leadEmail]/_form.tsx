@@ -32,19 +32,19 @@ export function ConsentItem({
         checked={granted}
         onChange={(e) => onChange(e.target.checked)}
         disabled={disabled || purpose.is_required}
-        className="mt-1 h-4 w-4 rounded border-zoru-line accent-primary disabled:opacity-50"
+        className="mt-1 h-4 w-4 rounded border-[var(--st-border)] accent-primary disabled:opacity-50"
       />
       <div>
-        <p className="text-[13px] font-medium text-zoru-ink">
+        <p className="text-[13px] font-medium text-[var(--st-text)]">
           {purpose.title}
           {purpose.is_required ? (
-            <span className="ml-1 text-[11.5px] text-zoru-ink">
+            <span className="ml-1 text-[11.5px] text-[var(--st-text)]">
               (required)
             </span>
           ) : null}
         </p>
         {purpose.description ? (
-          <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+          <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">
             {purpose.description}
           </p>
         ) : null}
@@ -128,19 +128,19 @@ export function ConsentForm({
       {purposes.length > 0 && (
         <div className="mb-4 flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-2.5 top-2 h-4 w-4 text-zoru-ink-muted" />
+            <Search className="absolute left-2.5 top-2 h-4 w-4 text-[var(--st-text-secondary)]" />
             <input
               type="text"
               placeholder="Search purposes..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="h-8 w-full rounded-md border border-zoru-line bg-transparent pl-9 pr-3 text-sm shadow-sm transition-colors placeholder:text-zoru-ink-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zoru-line disabled:cursor-not-allowed disabled:opacity-50 text-[13px]"
+              className="h-8 w-full rounded-md border border-[var(--st-border)] bg-transparent pl-9 pr-3 text-sm shadow-sm transition-colors placeholder:text-[var(--st-text-secondary)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--st-border)] disabled:cursor-not-allowed disabled:opacity-50 text-[13px]"
             />
           </div>
           <select
             value={sortOrder}
             onChange={(e) => setSortOrder(e.target.value as any)}
-            className="h-8 rounded-md border border-zoru-line bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zoru-line disabled:cursor-not-allowed disabled:opacity-50 text-[13px]"
+            className="h-8 rounded-md border border-[var(--st-border)] bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--st-border)] disabled:cursor-not-allowed disabled:opacity-50 text-[13px]"
           >
             <option value="default">Default Order</option>
             <option value="name">Alphabetical</option>
@@ -150,15 +150,15 @@ export function ConsentForm({
       )}
 
       {purposes.length === 0 ? (
-        <p className="py-6 text-center text-[13px] text-zoru-ink-muted">
+        <p className="py-6 text-center text-[13px] text-[var(--st-text-secondary)]">
           No consent purposes are currently defined.
         </p>
       ) : filteredAndSortedPurposes.length === 0 ? (
-        <p className="py-6 text-center text-[13px] text-zoru-ink-muted">
+        <p className="py-6 text-center text-[13px] text-[var(--st-text-secondary)]">
           No matching purposes found.
         </p>
       ) : (
-        <div className="divide-y divide-zoru-line">
+        <div className="divide-y divide-[var(--st-border)]">
           {filteredAndSortedPurposes.map((p) => (
             <ConsentItem
               key={p._id}
@@ -172,7 +172,7 @@ export function ConsentForm({
       )}
       
       {error ? (
-        <p className="mt-4 text-[12.5px] text-zoru-ink font-medium bg-zoru-surface-2/10 p-2 rounded">{error}</p>
+        <p className="mt-4 text-[12.5px] text-[var(--st-text)] font-medium bg-[var(--st-bg-muted)]/10 p-2 rounded">{error}</p>
       ) : null}
       
       <div className="mt-4 flex justify-end">

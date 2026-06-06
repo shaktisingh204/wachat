@@ -159,7 +159,7 @@ export function ProjectsTable({
 
   if (rows.length === 0 && !loading) {
     return (
-      <div className="rounded-lg border border-zoru-line p-6 text-center text-[13px] text-zoru-ink-muted">
+      <div className="rounded-lg border border-[var(--st-border)] p-6 text-center text-[13px] text-[var(--st-text-secondary)]">
         No projects match the current filters.
       </div>
     );
@@ -172,9 +172,9 @@ export function ProjectsTable({
         <div
           role="region"
           aria-label="Bulk actions"
-          className="flex items-center justify-between rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-3 py-2"
+          className="flex items-center justify-between rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
         >
-          <span className="text-sm text-zoru-ink">
+          <span className="text-sm text-[var(--st-text)]">
             {selected.size} project{selected.size === 1 ? '' : 's'} selected
           </span>
           <div className="flex items-center gap-2">
@@ -227,10 +227,10 @@ export function ProjectsTable({
         </div>
       )}
 
-      <div className="overflow-x-auto rounded-lg border border-zoru-line">
+      <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
         <Table>
           <ZoruTableHeader>
-            <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+            <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
               <ZoruTableHead className="w-10">
                 <Checkbox
                   aria-label="Select all projects"
@@ -260,9 +260,9 @@ export function ProjectsTable({
                 <ZoruTableRow
                   key={p._id}
                   className={[
-                    'border-zoru-line transition-colors',
+                    'border-[var(--st-border)] transition-colors',
                     overdue ? 'border-l-2 border-l-zoru-danger' : '',
-                    isChecked ? 'bg-zoru-surface' : '',
+                    isChecked ? 'bg-[var(--st-bg-secondary)]' : '',
                   ].join(' ')}
                 >
                   <ZoruTableCell>
@@ -294,29 +294,29 @@ export function ProjectsTable({
                         fallback={p.clientName || '—'}
                       />
                     ) : (
-                      <span className="text-[12px] text-zoru-ink-muted">
+                      <span className="text-[12px] text-[var(--st-text-secondary)]">
                         {p.clientName || '—'}
                       </span>
                     )}
                   </ZoruTableCell>
-                  <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                  <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                     {fmtDate(p.startDate)}
                   </ZoruTableCell>
                   <ZoruTableCell
                     className={[
                       'text-[12.5px]',
-                      overdue ? 'text-zoru-danger' : 'text-zoru-ink-muted',
+                      overdue ? 'text-[var(--st-danger)]' : 'text-[var(--st-text-secondary)]',
                     ].join(' ')}
                   >
                     {fmtDate(p.deadline ?? p.endDate)}
                   </ZoruTableCell>
-                  <ZoruTableCell className="text-right text-[12.5px] text-zoru-ink">
+                  <ZoruTableCell className="text-right text-[12.5px] text-[var(--st-text)]">
                     {fmtMoney(
                       Number(p.projectBudget ?? p.budget ?? 0) || null,
                       p.currency ?? 'INR',
                     )}
                   </ZoruTableCell>
-                  <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                  <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                     {p.hoursAllocated ? `${p.hoursAllocated}h` : '—'}
                   </ZoruTableCell>
                   <ZoruTableCell>
@@ -328,7 +328,7 @@ export function ProjectsTable({
                   <ZoruTableCell className="min-w-[120px]">
                     <div className="flex items-center gap-2">
                       <Progress value={pct} className="h-1.5 w-16" />
-                      <span className="text-[12px] tabular-nums text-zoru-ink-muted">
+                      <span className="text-[12px] tabular-nums text-[var(--st-text-secondary)]">
                         {pct}%
                       </span>
                     </div>
@@ -341,7 +341,7 @@ export function ProjectsTable({
                         fallback={p.managerName || '—'}
                       />
                     ) : (
-                      <span className="text-[12px] text-zoru-ink-muted">
+                      <span className="text-[12px] text-[var(--st-text-secondary)]">
                         {p.managerName || '—'}
                       </span>
                     )}
@@ -352,7 +352,7 @@ export function ProjectsTable({
                         <button
                           type="button"
                           aria-label={`Actions for ${p.name}`}
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
                         >
                           <MoreHorizontal className="h-4 w-4" />
                         </button>
@@ -370,7 +370,7 @@ export function ProjectsTable({
                         </ZoruDropdownMenuItem>
                         <ZoruDropdownMenuItem
                           onClick={() => onDelete(p._id)}
-                          className="text-zoru-danger"
+                          className="text-[var(--st-danger)]"
                         >
                           <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Delete
                         </ZoruDropdownMenuItem>

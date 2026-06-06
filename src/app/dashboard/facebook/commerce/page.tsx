@@ -149,8 +149,8 @@ export default function FacebookCommercePage(): React.JSX.Element {
       </Breadcrumb>
 
       <header>
-        <h1 className="text-2xl text-zoru-ink">Commerce</h1>
-        <p className="mt-1 text-sm text-zoru-ink-muted">
+        <h1 className="text-2xl text-[var(--st-text)]">Commerce</h1>
+        <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
           Catalogs, products, orders and Shop setup for this Meta Business.
           Data comes from the <code>meta-suite</code> Rust crate.
         </p>
@@ -158,18 +158,18 @@ export default function FacebookCommercePage(): React.JSX.Element {
 
       <div className="grid grid-cols-2 gap-3">
         <Card className="p-4">
-          <p className="text-[11px] uppercase tracking-wider text-zoru-ink-muted">
+          <p className="text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)]">
             Catalogs
           </p>
-          <p className="mt-1 text-2xl text-zoru-ink">
+          <p className="mt-1 text-2xl text-[var(--st-text)]">
             {catalogCount === null ? '—' : catalogCount}
           </p>
         </Card>
         <Card className="p-4">
-          <p className="text-[11px] uppercase tracking-wider text-zoru-ink-muted">
+          <p className="text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)]">
             Products
           </p>
-          <p className="mt-1 text-2xl text-zoru-ink">
+          <p className="mt-1 text-2xl text-[var(--st-text)]">
             {productCount === null ? '—' : productCount.toLocaleString()}
           </p>
         </Card>
@@ -179,15 +179,15 @@ export default function FacebookCommercePage(): React.JSX.Element {
         {TILES.map((t) => (
           <Card key={t.key} className="flex flex-col gap-3 p-5">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-zoru-surface-2 text-zoru-ink-muted [&_svg]:size-4">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] [&_svg]:size-4">
                 {t.icon}
               </div>
               <div>
-                <p className="text-sm text-zoru-ink">{t.label}</p>
+                <p className="text-sm text-[var(--st-text)]">{t.label}</p>
               </div>
             </div>
-            <p className="text-xs text-zoru-ink-muted">{t.description}</p>
-            <footer className="flex items-center justify-between border-t border-zoru-line pt-3">
+            <p className="text-xs text-[var(--st-text-secondary)]">{t.description}</p>
+            <footer className="flex items-center justify-between border-t border-[var(--st-border)] pt-3">
               <Badge variant="ghost">live</Badge>
               <Button asChild variant="ghost" size="sm">
                 <Link href={t.href} className="inline-flex items-center">

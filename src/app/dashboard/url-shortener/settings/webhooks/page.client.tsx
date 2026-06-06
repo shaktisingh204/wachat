@@ -90,7 +90,7 @@ const apiSaveWebhooks = async (webhooks: WebhookRow[]): Promise<ApiResponse<Webh
 function WebhookSkeleton() {
   return (
     <Card className="p-0">
-      <ul className="divide-y divide-zoru-line">
+      <ul className="divide-y divide-[var(--st-border)]">
         {[1, 2, 3].map((i) => (
           <li key={i} className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
             <div className="min-w-0 flex-1 space-y-3">
@@ -149,9 +149,9 @@ function WebhookForm({
 
   return (
     <Card className="p-5 space-y-4">
-      <h3 className="text-[14px] text-zoru-ink font-semibold">New Webhook Config</h3>
+      <h3 className="text-[14px] text-[var(--st-text)] font-semibold">New Webhook Config</h3>
       <div className="space-y-1.5">
-        <Label className="text-[12.5px] text-zoru-ink-muted">Endpoint URL</Label>
+        <Label className="text-[12.5px] text-[var(--st-text-secondary)]">Endpoint URL</Label>
         <Input
           placeholder="https://yourserver.com/webhook"
           value={formUrl}
@@ -160,7 +160,7 @@ function WebhookForm({
         />
       </div>
       <div className="space-y-1.5">
-        <Label className="text-[12.5px] text-zoru-ink-muted">Secret (Optional)</Label>
+        <Label className="text-[12.5px] text-[var(--st-text-secondary)]">Secret (Optional)</Label>
         <Input
           placeholder="Signing secret for payload verification"
           value={formSecret}
@@ -169,7 +169,7 @@ function WebhookForm({
         />
       </div>
       <div className="space-y-2">
-        <Label className="text-[12.5px] text-zoru-ink-muted">Triggers</Label>
+        <Label className="text-[12.5px] text-[var(--st-text-secondary)]">Triggers</Label>
         <div className="flex flex-wrap gap-2">
           {ALL_EVENTS.map((ev) => {
             const on = formEvents.has(ev);
@@ -181,8 +181,8 @@ function WebhookForm({
                 disabled={isSaving}
                 className={`rounded-full border px-3 py-1 text-[12px] transition-colors ${
                   on
-                    ? 'border-zoru-ink bg-zoru-ink text-zoru-bg'
-                    : 'border-zoru-line bg-zoru-bg text-zoru-ink-muted hover:text-zoru-ink'
+                    ? 'border-[var(--st-text)] bg-[var(--st-text)] text-[var(--st-bg)]'
+                    : 'border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text-secondary)] hover:text-[var(--st-text)]'
                 } disabled:opacity-50`}
               >
                 {ev}
@@ -211,10 +211,10 @@ function WebhookListItem({
   onDelete: (id: string) => void;
 }) {
   return (
-    <li className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 hover:bg-zoru-surface/50 transition-colors">
+    <li className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 hover:bg-[var(--st-bg-secondary)]/50 transition-colors">
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2 mb-1">
-          <span className="truncate text-[14px] text-zoru-ink font-medium">{webhook.url}</span>
+          <span className="truncate text-[14px] text-[var(--st-text)] font-medium">{webhook.url}</span>
           {webhook.active ? (
             <Badge variant="success" className="text-[10px] py-0 h-5">Active</Badge>
           ) : (
@@ -226,7 +226,7 @@ function WebhookListItem({
             <Badge key={ev} variant="outline" className="text-[10.5px]">{ev}</Badge>
           ))}
         </div>
-        <div className="mt-2 text-[11px] text-zoru-ink-muted flex items-center gap-1">
+        <div className="mt-2 text-[11px] text-[var(--st-text-secondary)] flex items-center gap-1">
           <span>Created: {fmtDate(webhook.createdAt)}</span>
           {webhook.secret && (
             <>
@@ -245,7 +245,7 @@ function WebhookListItem({
         <button
           type="button"
           onClick={() => onDelete(webhook.id)}
-          className="rounded p-1.5 text-zoru-ink-muted hover:bg-zoru-danger/10 hover:text-zoru-danger-ink transition-colors"
+          className="rounded p-1.5 text-[var(--st-text-secondary)] hover:bg-[var(--st-danger)]/10 hover:text-[var(--st-danger)] transition-colors"
           aria-label="Delete webhook"
         >
           <Trash2 className="h-4 w-4" />
@@ -427,7 +427,7 @@ export default function UrlShortenerWebhooksPage() {
       {!isLoading && webhooks.length > 0 && (
         <div className="flex flex-wrap items-center gap-3">
           <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
             <Input 
               placeholder="Search by URL..." 
               value={searchQuery}
@@ -466,11 +466,11 @@ export default function UrlShortenerWebhooksPage() {
         <WebhookSkeleton />
       ) : webhooks.length === 0 && !showForm ? (
         <Card className="p-10 text-center">
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
             <Webhook className="h-5 w-5" />
           </div>
-          <p className="text-sm font-medium text-zoru-ink">No webhooks configured</p>
-          <p className="mt-1 text-xs text-zoru-ink-muted">
+          <p className="text-sm font-medium text-[var(--st-text)]">No webhooks configured</p>
+          <p className="mt-1 text-xs text-[var(--st-text-secondary)]">
             Add a webhook to receive real-time notifications when link events occur.
           </p>
           <Button size="sm" className="mt-4" onClick={() => setShowForm(true)}>
@@ -479,7 +479,7 @@ export default function UrlShortenerWebhooksPage() {
         </Card>
       ) : filteredAndSortedWebhooks.length > 0 ? (
         <Card className="p-0 overflow-hidden">
-          <ul className="divide-y divide-zoru-line">
+          <ul className="divide-y divide-[var(--st-border)]">
             {filteredAndSortedWebhooks.map((w) => (
               <WebhookListItem 
                 key={w.id} 
@@ -492,11 +492,11 @@ export default function UrlShortenerWebhooksPage() {
         </Card>
       ) : (
         <Card className="p-10 text-center">
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
             <AlertCircle className="h-5 w-5" />
           </div>
-          <p className="text-sm font-medium text-zoru-ink">No results found</p>
-          <p className="mt-1 text-xs text-zoru-ink-muted">
+          <p className="text-sm font-medium text-[var(--st-text)]">No results found</p>
+          <p className="mt-1 text-xs text-[var(--st-text-secondary)]">
             Try adjusting your search or filters to find what you're looking for.
           </p>
           <Button size="sm" variant="outline" className="mt-4" onClick={() => {

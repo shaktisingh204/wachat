@@ -12,14 +12,14 @@ export function StatCard({ label, value, hint, isLoading }: StatCardProps) {
     return (
         <Card className="p-6 flex flex-col justify-between">
             <div>
-                <p className="text-[11px] uppercase tracking-[0.12em] text-zoru-ink-muted">
+                <p className="text-[11px] uppercase tracking-[0.12em] text-[var(--st-text-secondary)]">
                     {label}
                 </p>
                 <div className="mt-2 flex items-center min-h-[30px]">
                     {isLoading ? (
                         <Skeleton className="h-7 w-16" />
                     ) : (
-                        <p className="text-[26px] leading-none text-zoru-ink">{value}</p>
+                        <p className="text-[26px] leading-none text-[var(--st-text)]">{value}</p>
                     )}
                 </div>
             </div>
@@ -28,7 +28,7 @@ export function StatCard({ label, value, hint, isLoading }: StatCardProps) {
                     {isLoading ? (
                         <Skeleton className="h-3 w-24" />
                     ) : (
-                        <p className="text-[12px] text-zoru-ink-muted">{hint}</p>
+                        <p className="text-[12px] text-[var(--st-text-secondary)]">{hint}</p>
                     )}
                 </div>
             )}

@@ -23,11 +23,11 @@ function MetricCard({ label, value, icon, sub }: MetricCardProps) {
     <Card className="p-4">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="text-[11px] uppercase tracking-wider text-zoru-ink-muted">{label}</p>
-          <p className="mt-1.5 text-[26px] leading-tight text-zoru-ink tabular-nums">{value}</p>
-          {sub && <p className="mt-0.5 text-[11px] text-zoru-ink-muted">{sub}</p>}
+          <p className="text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)]">{label}</p>
+          <p className="mt-1.5 text-[26px] leading-tight text-[var(--st-text)] tabular-nums">{value}</p>
+          {sub && <p className="mt-0.5 text-[11px] text-[var(--st-text-secondary)]">{sub}</p>}
         </div>
-        <div className="shrink-0 rounded-lg bg-zoru-surface-2 p-2 text-zoru-ink-muted">
+        <div className="shrink-0 rounded-lg bg-[var(--st-bg-muted)] p-2 text-[var(--st-text-secondary)]">
           {icon}
         </div>
       </div>

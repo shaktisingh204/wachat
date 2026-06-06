@@ -297,7 +297,7 @@ export function TaskForm({ mode, initial, prefill, currentUserId }: TaskFormProp
                                     : ''
                             }
                         />
-                        <p className="text-[11.5px] text-zoru-ink-muted">
+                        <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                             Comma- or semicolon-separated ISO timestamps. Plumbed for the
                             reminders cron (deferred).
                         </p>
@@ -391,7 +391,7 @@ export function TaskForm({ mode, initial, prefill, currentUserId }: TaskFormProp
                                 }}
                             />
                         ) : (
-                            <p className="text-[12.5px] text-zoru-ink-muted">
+                            <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                                 Pick a link target above to attach this task to a record.
                             </p>
                         )}
@@ -439,14 +439,14 @@ export function TaskForm({ mode, initial, prefill, currentUserId }: TaskFormProp
                             ((initial as any)?.attachments as unknown[]) ?? [],
                         )}
                     />
-                    <p className="text-[12.5px] text-zoru-ink-muted">
+                    <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                         Add files from the task detail page once it has been saved.
                     </p>
                 </ZoruCardContent>
             </Card>
 
             {/* ─── Sticky action bar ────────────────────────────────────── */}
-            <div className="sticky bottom-0 z-10 -mx-4 mt-2 border-t border-zoru-line bg-zoru-bg/95 px-4 py-3 backdrop-blur">
+            <div className="sticky bottom-0 z-10 -mx-4 mt-2 border-t border-[var(--st-border)] bg-[var(--st-bg)]/95 px-4 py-3 backdrop-blur">
                 <div className="flex flex-wrap items-center justify-end gap-2">
                     <Button
                         type="button"

@@ -68,7 +68,7 @@ export function NodeOutputBadge({
             <span
               title="Has data from the most recent run"
               aria-label="Live data available"
-              className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-zoru-ink"
+              className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--st-text)]"
             />
           )}
         </span>

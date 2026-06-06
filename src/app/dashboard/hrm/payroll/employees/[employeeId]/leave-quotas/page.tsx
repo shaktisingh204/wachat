@@ -56,7 +56,7 @@ export default async function EmployeeLeaveQuotasSubPage({
     const guard = await requirePermission('crm_leave_balance', 'view');
     if (!guard.ok) {
         return (
-            <p className="p-6 text-[13px] text-zoru-ink-muted">{guard.error}</p>
+            <p className="p-6 text-[13px] text-[var(--st-text-secondary)]">{guard.error}</p>
         );
     }
 
@@ -98,7 +98,7 @@ export default async function EmployeeLeaveQuotasSubPage({
             }
         >
 
-            <div className="flex flex-wrap gap-1 border-b border-zoru-line">
+            <div className="flex flex-wrap gap-1 border-b border-[var(--st-border)]">
                 {[
                     { href: BASE, label: 'Overview' },
                     { href: `${BASE}/profile`, label: 'Profile' },
@@ -119,8 +119,8 @@ export default async function EmployeeLeaveQuotasSubPage({
                         href={tab.href}
                         className={`-mb-px border-b-2 px-3 py-2 text-[12.5px] transition-colors ${
                             tab.active
-                                ? 'border-zoru-ink text-zoru-ink'
-                                : 'border-transparent text-zoru-ink-muted hover:text-zoru-ink'
+                                ? 'border-[var(--st-text)] text-[var(--st-text)]'
+                                : 'border-transparent text-[var(--st-text-secondary)] hover:text-[var(--st-text)]'
                         }`}
                     >
                         {tab.label}
@@ -142,17 +142,17 @@ export default async function EmployeeLeaveQuotasSubPage({
 
             {balances.length === 0 ? (
                 <Card className="flex flex-col items-start gap-3 p-8">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)]">
                         <CalendarDays
-                            className="h-5 w-5 text-zoru-ink-muted"
+                            className="h-5 w-5 text-[var(--st-text-secondary)]"
                             strokeWidth={1.75}
                         />
                     </div>
                     <div>
-                        <h3 className="text-[15px] text-zoru-ink">
+                        <h3 className="text-[15px] text-[var(--st-text)]">
                             No leave balances yet
                         </h3>
-                        <p className="mt-1 text-[13px] text-zoru-ink-muted">
+                        <p className="mt-1 text-[13px] text-[var(--st-text-secondary)]">
                             Allocate leave quotas (sick, casual, earned, etc.)
                             for {fullName} in the Leave Balances page.
                         </p>
@@ -169,26 +169,26 @@ export default async function EmployeeLeaveQuotasSubPage({
                     <div className="overflow-x-auto">
                         <Table>
                             <ZoruTableHeader>
-                                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                    <ZoruTableHead className="text-zoru-ink-muted">
+                                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                         Leave type
                                     </ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                         Period
                                     </ZoruTableHead>
-                                    <ZoruTableHead className="text-right text-zoru-ink-muted">
+                                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                                         Allotted
                                     </ZoruTableHead>
-                                    <ZoruTableHead className="text-right text-zoru-ink-muted">
+                                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                                         Used
                                     </ZoruTableHead>
-                                    <ZoruTableHead className="text-right text-zoru-ink-muted">
+                                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                                         Pending
                                     </ZoruTableHead>
-                                    <ZoruTableHead className="text-right text-zoru-ink-muted">
+                                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                                         Carry forward
                                     </ZoruTableHead>
-                                    <ZoruTableHead className="w-[160px] text-zoru-ink-muted">
+                                    <ZoruTableHead className="w-[160px] text-[var(--st-text-secondary)]">
                                         Usage
                                     </ZoruTableHead>
                                 </ZoruTableRow>
@@ -204,24 +204,24 @@ export default async function EmployeeLeaveQuotasSubPage({
                                     return (
                                         <ZoruTableRow
                                             key={b._id}
-                                            className="border-zoru-line"
+                                            className="border-[var(--st-border)]"
                                         >
-                                            <ZoruTableCell className="font-medium capitalize text-zoru-ink">
+                                            <ZoruTableCell className="font-medium capitalize text-[var(--st-text)]">
                                                 {b.leaveType.replace(/_/g, ' ')}
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="text-zoru-ink">
+                                            <ZoruTableCell className="text-[var(--st-text)]">
                                                 {b.period || '—'}
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="text-right font-mono text-[12.5px] text-zoru-ink">
+                                            <ZoruTableCell className="text-right font-mono text-[12.5px] text-[var(--st-text)]">
                                                 {b.allotted ?? 0}
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="text-right font-mono text-[12.5px] text-zoru-ink">
+                                            <ZoruTableCell className="text-right font-mono text-[12.5px] text-[var(--st-text)]">
                                                 {b.used ?? 0}
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="text-right font-mono text-[12.5px] text-zoru-ink">
+                                            <ZoruTableCell className="text-right font-mono text-[12.5px] text-[var(--st-text)]">
                                                 {b.pending ?? 0}
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="text-right font-mono text-[12.5px] text-zoru-ink">
+                                            <ZoruTableCell className="text-right font-mono text-[12.5px] text-[var(--st-text)]">
                                                 {b.carryForward ?? 0}
                                             </ZoruTableCell>
                                             <ZoruTableCell>
@@ -233,7 +233,7 @@ export default async function EmployeeLeaveQuotasSubPage({
                                                         )}
                                                         className="h-1.5 w-24"
                                                     />
-                                                    <span className="font-mono text-[11.5px] text-zoru-ink-muted">
+                                                    <span className="font-mono text-[11.5px] text-[var(--st-text-secondary)]">
                                                         {remaining} left
                                                     </span>
                                                 </div>
@@ -268,10 +268,10 @@ function KpiTile({
     return (
         <Card className="p-4">
             <div className="flex items-start justify-between gap-2">
-                <p className="text-[12px] text-zoru-ink-muted">{label}</p>
+                <p className="text-[12px] text-[var(--st-text-secondary)]">{label}</p>
                 <Badge variant={toneBadge[tone] ?? 'ghost'}>days</Badge>
             </div>
-            <p className="mt-2 text-[22px] leading-none text-zoru-ink">
+            <p className="mt-2 text-[22px] leading-none text-[var(--st-text)]">
                 {value}
             </p>
         </Card>

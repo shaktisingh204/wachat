@@ -129,7 +129,7 @@ export function SignaturePad({
   return (
     <div className={className}>
       <div className="mb-2 flex items-center justify-between">
-        <label className="text-sm font-medium text-zoru-ink">{label}</label>
+        <label className="text-sm font-medium text-[var(--st-text)]">{label}</label>
         <Button
           type="button"
           variant="ghost"
@@ -144,13 +144,13 @@ export function SignaturePad({
         ref={canvasRef}
         role="img"
         aria-label="Signature canvas"
-        className="touch-none rounded-md border border-zoru-line bg-white"
+        className="touch-none rounded-md border border-[var(--st-border)] bg-white"
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
       />
-      <p className="mt-1 text-xs text-zoru-ink">
+      <p className="mt-1 text-xs text-[var(--st-text)]">
         Sign inside the box using your mouse or finger.
       </p>
     </div>

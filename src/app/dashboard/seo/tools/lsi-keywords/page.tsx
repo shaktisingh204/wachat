@@ -79,11 +79,11 @@ export default function LsiKeywordsPage() {
   };
 
   const renderBadgeList = (words: LsiKeyword[]) => {
-    if (words.length === 0) return <div className="text-sm text-zoru-ink-muted py-4 text-center">No results found for this category.</div>;
+    if (words.length === 0) return <div className="text-sm text-[var(--st-text-secondary)] py-4 text-center">No results found for this category.</div>;
     return (
       <div className="flex flex-wrap gap-2 mt-4">
         {words.map((r) => (
-          <Badge key={r.word} variant="outline" className="text-sm font-medium hover:bg-zoru-surface-2/50 transition-colors">
+          <Badge key={r.word} variant="outline" className="text-sm font-medium hover:bg-[var(--st-bg-muted)]/50 transition-colors">
             {r.word}
           </Badge>
         ))}
@@ -115,23 +115,23 @@ export default function LsiKeywordsPage() {
       </div>
       
       {error && (
-        <div className="text-zoru-danger-ink text-sm mt-4 p-3 bg-zoru-danger rounded-md border border-zoru-line">
+        <div className="text-[var(--st-danger)] text-sm mt-4 p-3 bg-[var(--st-danger)] rounded-md border border-[var(--st-border)]">
           {error}
         </div>
       )}
       
       {(related.length > 0 || triggers.length > 0) && !loading && !error && (
-        <Card className="mt-8 border-zoru-line shadow-sm overflow-hidden">
+        <Card className="mt-8 border-[var(--st-border)] shadow-sm overflow-hidden">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b bg-zoru-surface-2/20 px-4 py-3 gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b bg-[var(--st-bg-muted)]/20 px-4 py-3 gap-3">
               <ZoruTabsList className="bg-transparent h-auto p-0 gap-2">
-                <ZoruTabsTrigger value="all" className="data-[state=active]:bg-zoru-surface data-[state=active]:shadow-sm rounded-md px-3 py-1.5 h-auto">
+                <ZoruTabsTrigger value="all" className="data-[state=active]:bg-[var(--st-bg-secondary)] data-[state=active]:shadow-sm rounded-md px-3 py-1.5 h-auto">
                   All LSI ({allKeywords.length})
                 </ZoruTabsTrigger>
-                <ZoruTabsTrigger value="triggers" className="data-[state=active]:bg-zoru-surface data-[state=active]:shadow-sm rounded-md px-3 py-1.5 h-auto">
+                <ZoruTabsTrigger value="triggers" className="data-[state=active]:bg-[var(--st-bg-secondary)] data-[state=active]:shadow-sm rounded-md px-3 py-1.5 h-auto">
                   Co-occurring ({triggers.length})
                 </ZoruTabsTrigger>
-                <ZoruTabsTrigger value="related" className="data-[state=active]:bg-zoru-surface data-[state=active]:shadow-sm rounded-md px-3 py-1.5 h-auto">
+                <ZoruTabsTrigger value="related" className="data-[state=active]:bg-[var(--st-bg-secondary)] data-[state=active]:shadow-sm rounded-md px-3 py-1.5 h-auto">
                   Semantics ({related.length})
                 </ZoruTabsTrigger>
               </ZoruTabsList>
@@ -142,22 +142,22 @@ export default function LsiKeywordsPage() {
                 onClick={copyToClipboard}
                 className="h-9 whitespace-nowrap shrink-0"
               >
-                {copied ? <Check className="w-4 h-4 mr-2 text-zoru-success-ink" /> : <Copy className="w-4 h-4 mr-2" />}
+                {copied ? <Check className="w-4 h-4 mr-2 text-[var(--st-status-ok)]" /> : <Copy className="w-4 h-4 mr-2" />}
                 {copied ? 'Copied to Clipboard' : 'Copy List'}
               </Button>
             </div>
 
             <ZoruCardContent className="p-5">
               <ZoruTabsContent value="all" className="mt-0 outline-none">
-                <div className="text-sm text-zoru-ink-muted mb-4">A complete deduplicated list of all LSI and semantically related keywords, sorted by relevance.</div>
+                <div className="text-sm text-[var(--st-text-secondary)] mb-4">A complete deduplicated list of all LSI and semantically related keywords, sorted by relevance.</div>
                 {renderBadgeList(allKeywords)}
               </ZoruTabsContent>
               <ZoruTabsContent value="triggers" className="mt-0 outline-none">
-                <div className="text-sm text-zoru-ink-muted mb-4">Words that statistically co-occur and are frequently triggered by your seed keyword in the same piece of text (True LSI).</div>
+                <div className="text-sm text-[var(--st-text-secondary)] mb-4">Words that statistically co-occur and are frequently triggered by your seed keyword in the same piece of text (True LSI).</div>
                 {renderBadgeList(triggers)}
               </ZoruTabsContent>
               <ZoruTabsContent value="related" className="mt-0 outline-none">
-                <div className="text-sm text-zoru-ink-muted mb-4">Words with related meanings, synonyms, and strongly connected semantic concepts.</div>
+                <div className="text-sm text-[var(--st-text-secondary)] mb-4">Words with related meanings, synonyms, and strongly connected semantic concepts.</div>
                 {renderBadgeList(related)}
               </ZoruTabsContent>
             </ZoruCardContent>

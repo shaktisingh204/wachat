@@ -321,7 +321,7 @@ export function GrnListClient({
                 />
 
                 {error ? (
-                    <div className="flex items-center gap-2 border-b border-zoru-line/40 bg-zoru-ink/10 px-4 py-2.5 text-[13px] text-zoru-ink">
+                    <div className="flex items-center gap-2 border-b border-[var(--st-border)]/40 bg-[var(--st-text)]/10 px-4 py-2.5 text-[13px] text-[var(--st-text)]">
                         <AlertCircle className="h-4 w-4 shrink-0" />
                         {error}
                     </div>
@@ -362,7 +362,7 @@ export function GrnListClient({
                             <ZoruTableRow>
                                 <ZoruTableCell
                                     colSpan={10}
-                                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                                    className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                                 >
                                     {initialQuery || hasActive
                                         ? 'No GRNs match these filters.'
@@ -418,10 +418,10 @@ export function GrnListClient({
                                                     id={grn.vendorId}
                                                 />
                                             ) : (
-                                                <span className="text-zoru-ink-muted">—</span>
+                                                <span className="text-[var(--st-text-secondary)]">—</span>
                                             )}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                                             {grn.poId ? (
                                                 <Link
                                                     href={`/dashboard/crm/purchases/orders/${grn.poId}`}
@@ -433,13 +433,13 @@ export function GrnListClient({
                                                 '—'
                                             )}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                                             {fmtDate(grn.date)}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-[12.5px] text-zoru-ink">
+                                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text)]">
                                             {tx?.vehicleNumber || '—'}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-[12.5px] text-zoru-ink">
+                                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text)]">
                                             {tx?.driverName || '—'}
                                         </ZoruTableCell>
                                         <ZoruTableCell>
@@ -449,12 +449,12 @@ export function GrnListClient({
                                                     tone={statusToTone(statusLabel)}
                                                 />
                                             ) : (
-                                                <span className="text-[12.5px] text-zoru-ink-muted">
+                                                <span className="text-[12.5px] text-[var(--st-text-secondary)]">
                                                     —
                                                 </span>
                                             )}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                                             {linkedBillId ? (
                                                 <Link
                                                     href={`/dashboard/crm/purchases/expenses/${linkedBillId}`}
@@ -491,7 +491,7 @@ export function GrnListClient({
                                                     size="sm"
                                                     variant="ghost"
                                                     onClick={() => setPendingDelete(grn)}
-                                                    className="text-zoru-danger-ink hidden md:flex"
+                                                    className="text-[var(--st-danger)] hidden md:flex"
                                                 >
                                                     <Trash2 className="h-3.5 w-3.5" />
                                                 </Button>
@@ -517,7 +517,7 @@ export function GrnListClient({
                                                         </ZoruDropdownMenuItem>
                                                         <ZoruDropdownMenuItem
                                                             onClick={() => setPendingDelete(grn)}
-                                                            className="text-zoru-danger-ink"
+                                                            className="text-[var(--st-danger)]"
                                                         >
                                                             <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete
                                                         </ZoruDropdownMenuItem>
@@ -557,7 +557,7 @@ export function GrnListClient({
                                     confirmDelete();
                                 }}
                                 disabled={busy}
-                                className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
+                                className="bg-[var(--st-danger)] text-white hover:bg-[var(--st-danger)]/90"
                             >
                                 {busy ? (
                                     <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
@@ -592,7 +592,7 @@ export function GrnListClient({
                                     confirmBulkDelete();
                                 }}
                                 disabled={busy}
-                                className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
+                                className="bg-[var(--st-danger)] text-white hover:bg-[var(--st-danger)]/90"
                             >
                                 {busy ? (
                                     <LoaderCircle className="h-3.5 w-3.5 animate-spin" />

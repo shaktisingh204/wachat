@@ -298,7 +298,7 @@ export default function CrmProductsPage() {
   const filtersNode = (
     <div className="grid w-full grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-5">
       <div className="space-y-1">
-        <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+        <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
           Search
         </ZoruLabel>
         <div className="relative">
@@ -312,11 +312,11 @@ export default function CrmProductsPage() {
             }}
             className="pl-9"
           />
-          <ScanBarcode className="absolute left-3 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+          <ScanBarcode className="absolute left-3 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
         </div>
       </div>
       <div className="space-y-1">
-        <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+        <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
           Stock
         </ZoruLabel>
         <ZoruSelect
@@ -337,7 +337,7 @@ export default function CrmProductsPage() {
         </ZoruSelect>
       </div>
       <div className="space-y-1">
-        <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+        <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
           Item type
         </ZoruLabel>
         <ZoruSelect
@@ -358,7 +358,7 @@ export default function CrmProductsPage() {
         </ZoruSelect>
       </div>
       <div className="space-y-1">
-        <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+        <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
           Category
         </ZoruLabel>
         <ZoruSelect
@@ -382,7 +382,7 @@ export default function CrmProductsPage() {
         </ZoruSelect>
       </div>
       <div className="space-y-1">
-        <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+        <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
           View
         </ZoruLabel>
         <ZoruSelect
@@ -411,12 +411,12 @@ export default function CrmProductsPage() {
   const bulkBarNode =
     selected.size > 0 ? (
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink">
+        <div className="flex items-center gap-2 text-[12.5px] text-[var(--st-text)]">
           <ZoruBadge variant="info">{selected.size} selected</ZoruBadge>
           <button
             type="button"
             onClick={() => setSelected(new Set())}
-            className="text-zoru-ink-muted hover:text-zoru-ink"
+            className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
           >
             Clear
           </button>
@@ -518,7 +518,7 @@ export default function CrmProductsPage() {
           {products.length > 0 ? (
             <>
               {/* Select-all toggle for grid mode */}
-              <div className="flex items-center justify-between gap-2 px-1 text-[12px] text-zoru-ink-muted">
+              <div className="flex items-center justify-between gap-2 px-1 text-[12px] text-[var(--st-text-secondary)]">
                 <label className="inline-flex items-center gap-2">
                   <input
                     type="checkbox"
@@ -545,7 +545,7 @@ export default function CrmProductsPage() {
                     return (
                       <div key={id} className="relative">
                         <label
-                          className="absolute left-3 top-3 z-10 inline-flex items-center gap-1 rounded bg-zoru-surface/90 px-1.5 py-0.5 text-[11px]"
+                          className="absolute left-3 top-3 z-10 inline-flex items-center gap-1 rounded bg-[var(--st-bg-secondary)]/90 px-1.5 py-0.5 text-[11px]"
                           aria-label={`Select ${product.name}`}
                         >
                           <input
@@ -570,7 +570,7 @@ export default function CrmProductsPage() {
                 </div>
               ) : (
                 <ZoruCard className="p-0">
-                  <div className="divide-y divide-zoru-line">
+                  <div className="divide-y divide-[var(--st-border)]">
                     {products.map((product) => {
                       const id = product._id.toString();
                       const stock = product.totalStock ?? 0;
@@ -588,20 +588,20 @@ export default function CrmProductsPage() {
                           <div className="flex-1 min-w-0">
                             <Link
                               href={`/dashboard/crm/products/${id}`}
-                              className="font-medium text-zoru-ink hover:underline"
+                              className="font-medium text-[var(--st-text)] hover:underline"
                             >
                               {product.name}
                             </Link>
-                            <p className="text-[11.5px] text-zoru-ink-muted truncate">
+                            <p className="text-[11.5px] text-[var(--st-text-secondary)] truncate">
                               {product.sku || '—'} ·{' '}
                               {product.itemType ?? 'goods'}
                             </p>
                           </div>
-                          <div className="text-right text-[12.5px] text-zoru-ink">
+                          <div className="text-right text-[12.5px] text-[var(--st-text)]">
                             <div>
                               {currency} {(product.sellingPrice ?? 0).toFixed(2)}
                             </div>
-                            <div className="text-[11px] text-zoru-ink-muted">
+                            <div className="text-[11px] text-[var(--st-text-secondary)]">
                               Stock: {stock}
                             </div>
                           </div>
@@ -611,7 +611,7 @@ export default function CrmProductsPage() {
                             aria-label={`Delete ${product.name}`}
                             onClick={() => setDeleteTargetId(id)}
                           >
-                            <Trash2 className="h-4 w-4 text-zoru-ink" />
+                            <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                           </ZoruButton>
                         </div>
                       );
@@ -623,16 +623,16 @@ export default function CrmProductsPage() {
           ) : (
             <ZoruCard className="border-dashed p-6">
               <div className="flex flex-col items-center gap-3 py-12 text-center">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-zoru-surface-2">
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[var(--st-bg-muted)]">
                   <ShoppingBag
-                    className="h-6 w-6 text-zoru-ink"
+                    className="h-6 w-6 text-[var(--st-text)]"
                     strokeWidth={1.75}
                   />
                 </div>
-                <h3 className="text-[15px] font-semibold text-zoru-ink">
+                <h3 className="text-[15px] font-semibold text-[var(--st-text)]">
                   {t('crm.products.list.empty.title')}
                 </h3>
-                <p className="text-[12.5px] text-zoru-ink-muted">
+                <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                   {t('crm.products.list.empty.subtitle')}
                 </p>
               </div>

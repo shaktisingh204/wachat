@@ -338,15 +338,15 @@ export default function SabFlowListPage() {
             <RecentActivityFeed />
           </div>
           <Card className="overflow-hidden lg:col-span-2 p-0">
-            <ZoruCardHeader className="flex flex-row items-center gap-2.5 border-b border-zoru-line bg-zoru-surface py-3">
-              <Zap className="h-4 w-4 text-zoru-ink-muted" />
+            <ZoruCardHeader className="flex flex-row items-center gap-2.5 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] py-3">
+              <Zap className="h-4 w-4 text-[var(--st-text-secondary)]" />
               <ZoruCardTitle className="text-[13px]">
                 Today&apos;s activity
               </ZoruCardTitle>
             </ZoruCardHeader>
             <ZoruCardContent className="px-4 py-3">
               {flows.length === 0 ? (
-                <p className="py-4 text-center text-[12px] text-zoru-ink-muted">
+                <p className="py-4 text-center text-[12px] text-[var(--st-text-secondary)]">
                   No flows yet.
                 </p>
               ) : (
@@ -363,7 +363,7 @@ export default function SabFlowListPage() {
                       return (
                         <li
                           key={flow._id}
-                          className="flex items-center justify-between gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-zoru-surface"
+                          className="flex items-center justify-between gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-[var(--st-bg-secondary)]"
                         >
                           <button
                             type="button"
@@ -372,7 +372,7 @@ export default function SabFlowListPage() {
                                 `/dashboard/sabflow/flow-builder/${flow._id}`,
                               )
                             }
-                            className="flex-1 truncate text-left text-[12.5px] font-medium text-zoru-ink transition-colors hover:text-zoru-ink-strong"
+                            className="flex-1 truncate text-left text-[12.5px] font-medium text-[var(--st-text)] transition-colors hover:text-[var(--st-text)]"
                           >
                             {flow.name}
                           </button>
@@ -394,10 +394,10 @@ export default function SabFlowListPage() {
 
       {/* ── Templates section ───────────────────────────────────────── */}
       {flows.length === 0 && !isPending ? (
-        <Card className="border-dashed bg-zoru-surface/40 p-6">
+        <Card className="border-dashed bg-[var(--st-bg-secondary)]/40 p-6">
           <div className="mb-4 flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-zoru-ink-muted" />
-            <span className="text-[13px] font-semibold text-zoru-ink">
+            <Sparkles className="h-4 w-4 text-[var(--st-text-secondary)]" />
+            <span className="text-[13px] font-semibold text-[var(--st-text)]">
               Get started quickly
             </span>
           </div>
@@ -410,7 +410,7 @@ export default function SabFlowListPage() {
       {/* ── My Flows section ────────────────────────────────────────── */}
       <div className="flex flex-col gap-4">
         <div className="flex flex-wrap items-center gap-3">
-          <h2 className="mr-auto text-[15px] font-semibold text-zoru-ink-strong">
+          <h2 className="mr-auto text-[15px] font-semibold text-[var(--st-text)]">
             My Flows
           </h2>
 
@@ -434,7 +434,7 @@ export default function SabFlowListPage() {
           </Button>
 
           {/* View toggle — segmented buttons (no tabs) */}
-          <div className="flex items-center gap-1 rounded-[var(--zoru-radius-md)] border border-zoru-line p-0.5">
+          <div className="flex items-center gap-1 rounded-[var(--zoru-radius-md)] border border-[var(--st-border)] p-0.5">
             <Button
               variant={viewMode === "grid" ? "default" : "ghost"}
               size="icon-sm"
@@ -475,7 +475,7 @@ export default function SabFlowListPage() {
               {Array.from({ length: 5 }).map((_, i) => (
                 <div
                   key={i}
-                  className="flex items-center gap-4 border-b border-zoru-line px-4 py-4 last:border-0"
+                  className="flex items-center gap-4 border-b border-[var(--st-border)] px-4 py-4 last:border-0"
                 >
                   <Skeleton className="h-3 w-44" />
                   <Skeleton className="h-3 w-16" />
@@ -549,7 +549,7 @@ export default function SabFlowListPage() {
                               `/dashboard/sabflow/flow-builder/${flow._id}`,
                             )
                           }
-                          className="text-left font-medium text-zoru-ink-strong transition-colors hover:text-zoru-ink"
+                          className="text-left font-medium text-[var(--st-text)] transition-colors hover:text-[var(--st-text)]"
                         >
                           {flow.name}
                         </button>
@@ -561,17 +561,17 @@ export default function SabFlowListPage() {
                         </Badge>
                       </ZoruTableCell>
 
-                      <ZoruTableCell className="tabular-nums text-zoru-ink-muted">
+                      <ZoruTableCell className="tabular-nums text-[var(--st-text-secondary)]">
                         {flow.groups?.length ?? 0}
                       </ZoruTableCell>
 
-                      <ZoruTableCell className="hidden text-[11.5px] text-zoru-ink-muted sm:table-cell">
+                      <ZoruTableCell className="hidden text-[11.5px] text-[var(--st-text-secondary)] sm:table-cell">
                         {flow.createdAt
                           ? format(new Date(flow.createdAt), "MMM d, yyyy")
                           : "—"}
                       </ZoruTableCell>
 
-                      <ZoruTableCell className="text-[11.5px] text-zoru-ink-muted">
+                      <ZoruTableCell className="text-[11.5px] text-[var(--st-text-secondary)]">
                         {flow.updatedAt
                           ? format(
                               new Date(flow.updatedAt),
@@ -586,7 +586,7 @@ export default function SabFlowListPage() {
                             +{todayCount}
                           </Badge>
                         ) : (
-                          <span className="text-[11px] text-zoru-ink-muted">
+                          <span className="text-[11px] text-[var(--st-text-secondary)]">
                             —
                           </span>
                         )}
@@ -724,7 +724,7 @@ export default function SabFlowListPage() {
           <ZoruAlertDialogHeader>
             <ZoruAlertDialogTitle>Delete flow?</ZoruAlertDialogTitle>
             <ZoruAlertDialogDescription>
-              <strong className="font-medium text-zoru-ink-strong">
+              <strong className="font-medium text-[var(--st-text)]">
                 &ldquo;{deleteTarget?.name}&rdquo;
               </strong>{" "}
               will be permanently deleted. This cannot be undone.

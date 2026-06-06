@@ -99,7 +99,7 @@ export function KeysClient({ initialKeys, usageData = [], logsData = [] }: Props
           <div className="space-y-2">
             <p className="font-semibold text-sm">Save this key now — you won&apos;t see it again.</p>
             <div className="flex items-center gap-2">
-              <code className="flex-1 text-xs font-mono bg-zoru-surface border border-zoru-line rounded px-3 py-2 text-zoru-ink overflow-x-auto">
+              <code className="flex-1 text-xs font-mono bg-[var(--st-bg-secondary)] border border-[var(--st-border)] rounded px-3 py-2 text-[var(--st-text)] overflow-x-auto">
                 {revealed}
               </code>
               <Button
@@ -183,7 +183,7 @@ export function KeysClient({ initialKeys, usageData = [], logsData = [] }: Props
             {keys.map((k) => (
               <ZoruTableRow key={k._id}>
                 <ZoruTableCell>{k.name}</ZoruTableCell>
-                <ZoruTableCell className="font-mono text-sm text-zoru-ink">
+                <ZoruTableCell className="font-mono text-sm text-[var(--st-text)]">
                   {maskKey(k.key)}
                 </ZoruTableCell>
                 <ZoruTableCell>
@@ -191,13 +191,13 @@ export function KeysClient({ initialKeys, usageData = [], logsData = [] }: Props
                         <div className="flex flex-wrap gap-1">
                             {k.scopes.map(s => <Badge variant="outline" key={s} className="text-[10px] font-mono">{s}</Badge>)}
                         </div>
-                    ) : <span className="text-zoru-ink-muted text-xs">All</span>}
+                    ) : <span className="text-[var(--st-text-secondary)] text-xs">All</span>}
                 </ZoruTableCell>
-                <ZoruTableCell className="text-zoru-ink-muted">
+                <ZoruTableCell className="text-[var(--st-text-secondary)]">
                     {usageData.find(u => u.keyId === k._id)?.count || k.requestCount || 0}
                 </ZoruTableCell>
-                <ZoruTableCell className="text-zoru-ink-muted text-xs">{formatDate(k.createdAt)}</ZoruTableCell>
-                <ZoruTableCell className="text-zoru-ink-muted text-xs">
+                <ZoruTableCell className="text-[var(--st-text-secondary)] text-xs">{formatDate(k.createdAt)}</ZoruTableCell>
+                <ZoruTableCell className="text-[var(--st-text-secondary)] text-xs">
                   {usageData.find(u => u.keyId === k._id)?.lastUsedAt 
                     ? formatDate(usageData.find(u => u.keyId === k._id)?.lastUsedAt as string) 
                     : (k.lastUsedAt ? formatDate(k.lastUsedAt) : '—')}
@@ -227,7 +227,7 @@ export function KeysClient({ initialKeys, usageData = [], logsData = [] }: Props
                         size="sm"
                         onClick={() => handleRevoke(k._id)}
                         disabled={busy}
-                        className="text-zoru-danger hover:text-zoru-danger"
+                        className="text-[var(--st-danger)] hover:text-[var(--st-danger)]"
                       >
                         Revoke
                       </Button>
@@ -258,13 +258,13 @@ export function KeysClient({ initialKeys, usageData = [], logsData = [] }: Props
           <ZoruTableBody>
             {logsData.length === 0 ? (
               <ZoruTableRow>
-                <ZoruTableCell colSpan={6} className="text-center text-zoru-ink py-8">
+                <ZoruTableCell colSpan={6} className="text-center text-[var(--st-text)] py-8">
                   No logs available.
                 </ZoruTableCell>
               </ZoruTableRow>
             ) : logsData.map((log) => (
               <ZoruTableRow key={log._id}>
-                <ZoruTableCell className="text-zoru-ink-muted text-xs">{formatDate(log.ts)}</ZoruTableCell>
+                <ZoruTableCell className="text-[var(--st-text-secondary)] text-xs">{formatDate(log.ts)}</ZoruTableCell>
                 <ZoruTableCell className="font-mono text-xs">{log.keyId}</ZoruTableCell>
                 <ZoruTableCell>
                   <Badge variant="outline">{log.method}</Badge>
@@ -273,11 +273,11 @@ export function KeysClient({ initialKeys, usageData = [], logsData = [] }: Props
                   {log.path}
                 </ZoruTableCell>
                 <ZoruTableCell>
-                  <span className={log.status >= 400 ? 'text-zoru-ink' : 'text-zoru-ink'}>
+                  <span className={log.status >= 400 ? 'text-[var(--st-text)]' : 'text-[var(--st-text)]'}>
                     {log.status}
                   </span>
                 </ZoruTableCell>
-                <ZoruTableCell className="text-zoru-ink-muted text-xs">{log.latencyMs} ms</ZoruTableCell>
+                <ZoruTableCell className="text-[var(--st-text-secondary)] text-xs">{log.latencyMs} ms</ZoruTableCell>
               </ZoruTableRow>
             ))}
           </ZoruTableBody>

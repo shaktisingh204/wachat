@@ -89,10 +89,10 @@ export default function EnvVarsPage() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-            <Shield className="h-8 w-8 text-zoru-ink" />
+            <Shield className="h-8 w-8 text-[var(--st-text)]" />
             Environment Variables
           </h1>
-          <p className="text-zoru-ink-muted mt-2 max-w-2xl">
+          <p className="text-[var(--st-text-secondary)] mt-2 max-w-2xl">
             Securely manage environment variables and secrets across different deployment scopes.
             Values are encrypted at rest.
           </p>
@@ -143,21 +143,21 @@ export default function EnvVarsPage() {
         </Dialog>
       </div>
 
-      <Card className="border-zoru-line/50 shadow-sm overflow-hidden">
-        <CardHeader className="bg-zoru-surface-2/30 border-b">
+      <Card className="border-[var(--st-border)]/50 shadow-sm overflow-hidden">
+        <CardHeader className="bg-[var(--st-bg-muted)]/30 border-b">
           <CardTitle>Configured Variables</CardTitle>
           <CardDescription>
             A list of all environment variables configured for this project.
           </CardDescription>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="p-4 border-b bg-zoru-surface">
+          <div className="p-4 border-b bg-[var(--st-bg-secondary)]">
             <div className="relative w-full max-w-sm">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
               <Input
                 type="search"
                 placeholder="Search keys..."
-                className="pl-9 bg-zoru-surface shadow-sm"
+                className="pl-9 bg-[var(--st-bg-secondary)] shadow-sm"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -166,7 +166,7 @@ export default function EnvVarsPage() {
           
           <div className="overflow-x-auto">
             <Table>
-              <TableHeader className="bg-zoru-surface-2/30">
+              <TableHeader className="bg-[var(--st-bg-muted)]/30">
                 <TableRow className="hover:bg-transparent">
                   <TableHead className="w-[280px]">Variable Name</TableHead>
                   <TableHead>Value</TableHead>
@@ -186,20 +186,20 @@ export default function EnvVarsPage() {
                   if (envVar.scope === "Global") badgeVariant = "prism"
                   
                   return (
-                    <TableRow key={envVar.id} className="group transition-colors hover:bg-zoru-surface-2/50">
+                    <TableRow key={envVar.id} className="group transition-colors hover:bg-[var(--st-bg-muted)]/50">
                       <TableCell className="font-mono text-sm font-medium">
                         {envVar.key}
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <code className="relative rounded bg-zoru-surface-2/50 px-[0.4rem] py-[0.3rem] font-mono text-sm max-w-[250px] truncate border border-zoru-line/50 shadow-sm">
+                          <code className="relative rounded bg-[var(--st-bg-muted)]/50 px-[0.4rem] py-[0.3rem] font-mono text-sm max-w-[250px] truncate border border-[var(--st-border)]/50 shadow-sm">
                             {isRevealed ? envVar.value : "••••••••••••••••••••"}
                           </code>
                           <div className="flex opacity-0 group-hover:opacity-100 transition-opacity">
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 text-zoru-ink-muted hover:text-zoru-ink"
+                              className="h-8 w-8 text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                               onClick={() => toggleReveal(envVar.id)}
                             >
                               {isRevealed ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -208,10 +208,10 @@ export default function EnvVarsPage() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 text-zoru-ink-muted hover:text-zoru-ink"
+                              className="h-8 w-8 text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                               onClick={() => copyToClipboard(envVar.value, envVar.id)}
                             >
-                              {copiedKey === envVar.id ? <Check className="h-4 w-4 text-zoru-ink" /> : <Copy className="h-4 w-4" />}
+                              {copiedKey === envVar.id ? <Check className="h-4 w-4 text-[var(--st-text)]" /> : <Copy className="h-4 w-4" />}
                               <span className="sr-only">Copy value</span>
                             </Button>
                           </div>
@@ -220,7 +220,7 @@ export default function EnvVarsPage() {
                       <TableCell>
                         <Badge variant={badgeVariant} className="shadow-sm">{envVar.scope}</Badge>
                       </TableCell>
-                      <TableCell className="text-zoru-ink-muted text-sm">
+                      <TableCell className="text-[var(--st-text-secondary)] text-sm">
                         {envVar.lastUpdated}
                       </TableCell>
                       <TableCell className="text-right">
@@ -241,7 +241,7 @@ export default function EnvVarsPage() {
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem>Edit</DropdownMenuItem>
-                            <DropdownMenuItem className="text-zoru-ink">Delete</DropdownMenuItem>
+                            <DropdownMenuItem className="text-[var(--st-text)]">Delete</DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
@@ -250,7 +250,7 @@ export default function EnvVarsPage() {
                 })}
                 {filteredVars.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={5} className="h-32 text-center text-zoru-ink-muted">
+                    <TableCell colSpan={5} className="h-32 text-center text-[var(--st-text-secondary)]">
                       <div className="flex flex-col items-center justify-center gap-2">
                         <Shield className="h-8 w-8 opacity-20" />
                         <p>No environment variables found matching "{searchTerm}"</p>

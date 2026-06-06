@@ -43,7 +43,7 @@ export default function SabSmsAdminPayrollPage() {
             title="Payroll Administration"
             subtitle="Manage payroll runs across the system."
         >
-            <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
+            <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
                 <Table>
                     <ZoruTableHeader>
                         <ZoruTableRow>
@@ -57,29 +57,29 @@ export default function SabSmsAdminPayrollPage() {
                     <ZoruTableBody>
                         {isLoading ? (
                             <ZoruTableRow>
-                                <ZoruTableCell colSpan={5} className="h-24 text-center text-zoru-ink-muted">
+                                <ZoruTableCell colSpan={5} className="h-24 text-center text-[var(--st-text-secondary)]">
                                     Loading...
                                 </ZoruTableCell>
                             </ZoruTableRow>
                         ) : runs.length === 0 ? (
                             <ZoruTableRow>
-                                <ZoruTableCell colSpan={5} className="h-24 text-center text-zoru-ink-muted">
+                                <ZoruTableCell colSpan={5} className="h-24 text-center text-[var(--st-text-secondary)]">
                                     No payroll runs found.
                                 </ZoruTableCell>
                             </ZoruTableRow>
                         ) : (
                             runs.map((r) => (
                                 <ZoruTableRow key={r._id}>
-                                    <ZoruTableCell className="text-zoru-ink font-medium">
+                                    <ZoruTableCell className="text-[var(--st-text)] font-medium">
                                         {r.period_month}/{r.period_year}
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="text-right text-zoru-ink">
+                                    <ZoruTableCell className="text-right text-[var(--st-text)]">
                                         {r.total_employees || 0}
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="text-right font-mono text-zoru-ink">
+                                    <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
                                         ₹{(r.total_gross || 0).toLocaleString('en-IN')}
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="text-right font-mono text-zoru-ink">
+                                    <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
                                         ₹{(r.total_net || 0).toLocaleString('en-IN')}
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-center">

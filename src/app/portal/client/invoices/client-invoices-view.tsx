@@ -229,7 +229,7 @@ export function ClientInvoicesView({ invoices }: ClientInvoicesViewProps) {
                                             <ZoruTableCell>
                                                 <Link
                                                     href={`/portal/client/invoices/${inv._id}`}
-                                                    className="font-medium text-zoru-ink hover:underline"
+                                                    className="font-medium text-[var(--st-text)] hover:underline"
                                                 >
                                                     {inv.invoiceNumber}
                                                 </Link>

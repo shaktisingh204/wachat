@@ -147,7 +147,7 @@ export function ListsTable({
       render: (r) => (
         <button
           type="button"
-          className="text-left font-medium text-zoru-ink hover:underline"
+          className="text-left font-medium text-[var(--st-text)] hover:underline"
           onClick={() => setDrawerList(r)}
         >
           {r.name}
@@ -163,7 +163,7 @@ export function ListsTable({
             {r.kind || "Static"}
           </Badge>
           {r.isLocked && (
-            <Lock className="h-3 w-3 text-zoru-ink" title="Locked" />
+            <Lock className="h-3 w-3 text-[var(--st-text)]" title="Locked" />
           )}
         </div>
       ),
@@ -173,7 +173,7 @@ export function ListsTable({
       header: "Members",
       align: "right",
       render: (r) => (
-        <span className="tabular-nums text-zoru-ink">
+        <span className="tabular-nums text-[var(--st-text)]">
           {r.memberCount.toLocaleString()}
         </span>
       ),
@@ -190,13 +190,13 @@ export function ListsTable({
               </Badge>
             ))}
             {r.tags.length > 3 && (
-              <span className="text-[10px] text-zoru-ink">
+              <span className="text-[10px] text-[var(--st-text)]">
                 +{r.tags.length - 3}
               </span>
             )}
           </div>
         ) : (
-          <span className="text-xs text-zoru-ink-muted">—</span>
+          <span className="text-xs text-[var(--st-text-secondary)]">—</span>
         ),
     },
     {
@@ -204,7 +204,7 @@ export function ListsTable({
       header: "Est. cost",
       align: "right",
       render: (r) => (
-        <span className="tabular-nums text-xs text-zoru-ink">
+        <span className="tabular-nums text-xs text-[var(--st-text)]">
           ${(r.memberCount * DEFAULT_COST_PER_MESSAGE).toFixed(2)}
         </span>
       ),
@@ -214,18 +214,18 @@ export function ListsTable({
       header: "Expires",
       render: (r) =>
         r.expiresAt ? (
-          <span className="text-xs text-zoru-ink">
+          <span className="text-xs text-[var(--st-text)]">
             {new Date(r.expiresAt).toLocaleDateString()}
           </span>
         ) : (
-          <span className="text-xs text-zoru-ink-muted">—</span>
+          <span className="text-xs text-[var(--st-text-secondary)]">—</span>
         ),
     },
     {
       id: "updated",
       header: "Updated",
       render: (r) => (
-        <span className="text-xs text-zoru-ink">
+        <span className="text-xs text-[var(--st-text)]">
           {r.updatedAt ? new Date(r.updatedAt).toLocaleString() : "—"}
         </span>
       ),
@@ -563,7 +563,7 @@ function CreateListDialog({
               <select
                 value={kind}
                 onChange={(e) => setKind(e.target.value as "static" | "dynamic")}
-                className="w-full rounded-md border border-zoru-line px-3 py-2 text-sm"
+                className="w-full rounded-md border border-[var(--st-border)] px-3 py-2 text-sm"
               >
                 <option value="static">Static (manual members)</option>
                 <option value="dynamic">Dynamic (filters)</option>
@@ -582,10 +582,10 @@ function CreateListDialog({
           </div>
 
           {kind === "dynamic" && (
-            <div className="space-y-3 rounded-md border border-zoru-line p-4 bg-zoru-surface-2">
+            <div className="space-y-3 rounded-md border border-[var(--st-border)] p-4 bg-[var(--st-bg-muted)]">
               <div className="flex justify-between items-center mb-2">
                 <Label className="block">Dynamic Filters</Label>
-                <div className="text-xs font-medium text-zoru-ink">
+                <div className="text-xs font-medium text-[var(--st-text)]">
                   {estimating ? (
                     "Estimating..."
                   ) : estimate ? (
@@ -595,7 +595,7 @@ function CreateListDialog({
                   )}
                 </div>
               </div>
-              <div className="bg-white rounded-md border border-zoru-line p-3">
+              <div className="bg-white rounded-md border border-[var(--st-border)] p-3">
                 <PredicateCanvas predicate={predicate} onChange={setPredicate} />
               </div>
             </div>
@@ -729,7 +729,7 @@ function AddContactsDialog({
               onChange={(e) => setSearch(e.target.value)}
               placeholder="By name or phone…"
             />
-            <p className="text-[11px] text-zoru-ink">
+            <p className="text-[11px] text-[var(--st-text)]">
               TODO(follow-up): wire to /sabsms/contacts search.
             </p>
           </div>
@@ -743,7 +743,7 @@ function AddContactsDialog({
               rows={6}
             />
             <div className="flex items-center justify-between">
-              <p className="text-[11px] text-zoru-ink">
+              <p className="text-[11px] text-[var(--st-text)]">
                 {parsed.valid.length} valid, {parsed.invalid.length} invalid.
               </p>
               <SabFilePickerButton
@@ -956,7 +956,7 @@ function CompareDialog({
             <select
               value={a}
               onChange={(e) => setA(e.target.value)}
-              className="w-full rounded-md border border-zoru-line px-3 py-2 text-sm"
+              className="w-full rounded-md border border-[var(--st-border)] px-3 py-2 text-sm"
             >
               <option value="">— Select —</option>
               {lists.map((l) => (
@@ -971,7 +971,7 @@ function CompareDialog({
             <select
               value={b}
               onChange={(e) => setB(e.target.value)}
-              className="w-full rounded-md border border-zoru-line px-3 py-2 text-sm"
+              className="w-full rounded-md border border-[var(--st-border)] px-3 py-2 text-sm"
             >
               <option value="">— Select —</option>
               {lists.map((l) => (
@@ -983,17 +983,17 @@ function CompareDialog({
           </div>
           {result && (
             <div className="grid grid-cols-3 gap-2 text-center text-xs">
-              <div className="rounded-md bg-zoru-surface-2 p-2">
-                <div className="font-semibold text-zoru-ink">{result.onlyA}</div>
-                <div className="text-zoru-ink">Only in A</div>
+              <div className="rounded-md bg-[var(--st-bg-muted)] p-2">
+                <div className="font-semibold text-[var(--st-text)]">{result.onlyA}</div>
+                <div className="text-[var(--st-text)]">Only in A</div>
               </div>
-              <div className="rounded-md bg-zoru-surface-2 p-2">
-                <div className="font-semibold text-zoru-ink">{result.both}</div>
-                <div className="text-zoru-ink">In both</div>
+              <div className="rounded-md bg-[var(--st-bg-muted)] p-2">
+                <div className="font-semibold text-[var(--st-text)]">{result.both}</div>
+                <div className="text-[var(--st-text)]">In both</div>
               </div>
-              <div className="rounded-md bg-zoru-surface-2 p-2">
-                <div className="font-semibold text-zoru-ink">{result.onlyB}</div>
-                <div className="text-zoru-ink">Only in B</div>
+              <div className="rounded-md bg-[var(--st-bg-muted)] p-2">
+                <div className="font-semibold text-[var(--st-text)]">{result.onlyB}</div>
+                <div className="text-[var(--st-text)]">Only in B</div>
               </div>
             </div>
           )}
@@ -1079,7 +1079,7 @@ function ListDetail({
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-medium text-zoru-ink">Members</h3>
+          <h3 className="text-sm font-medium text-[var(--st-text)]">Members</h3>
           {selected.size > 0 && (
             <Button
               variant="destructive"
@@ -1090,13 +1090,13 @@ function ListDetail({
             </Button>
           )}
         </div>
-        <div className="max-h-[280px] overflow-y-auto rounded-md border border-zoru-line">
+        <div className="max-h-[280px] overflow-y-auto rounded-md border border-[var(--st-border)]">
           {list.members.length === 0 ? (
-            <p className="px-3 py-4 text-xs text-zoru-ink">
+            <p className="px-3 py-4 text-xs text-[var(--st-text)]">
               This list has no members yet.
             </p>
           ) : (
-            <ul className="divide-y divide-zoru-line">
+            <ul className="divide-y divide-[var(--st-border)]">
               {list.members.slice(0, 200).map((p) => (
                 <li
                   key={p}
@@ -1108,32 +1108,32 @@ function ListDetail({
                     onChange={() => toggle(p)}
                     aria-label={`Select ${p}`}
                   />
-                  <code className="text-[11px] text-zoru-ink">{p}</code>
+                  <code className="text-[11px] text-[var(--st-text)]">{p}</code>
                 </li>
               ))}
             </ul>
           )}
         </div>
         {list.members.length > 200 && (
-          <p className="text-[11px] text-zoru-ink">
+          <p className="text-[11px] text-[var(--st-text)]">
             Showing 200 of {list.memberCount.toLocaleString()} — export to see all.
           </p>
         )}
       </div>
 
       <div className="space-y-2">
-        <h3 className="text-sm font-medium text-zoru-ink">Audit / history</h3>
+        <h3 className="text-sm font-medium text-[var(--st-text)]">Audit / history</h3>
         <ol className="space-y-2">
           {list.audit.map((evt, i) => (
             <li
               key={i}
-              className="rounded-md border border-zoru-line bg-zoru-surface-2 p-2 text-xs"
+              className="rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2 text-xs"
             >
-              <div className="font-medium text-zoru-ink">{evt.kind}</div>
+              <div className="font-medium text-[var(--st-text)]">{evt.kind}</div>
               {evt.message && (
-                <div className="text-zoru-ink">{evt.message}</div>
+                <div className="text-[var(--st-text)]">{evt.message}</div>
               )}
-              <div className="mt-0.5 text-[10px] text-zoru-ink-muted">
+              <div className="mt-0.5 text-[10px] text-[var(--st-text-secondary)]">
                 {new Date(evt.at).toLocaleString()}
               </div>
             </li>
@@ -1147,10 +1147,10 @@ function ListDetail({
 function Field({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div>
-      <div className="text-[10px] font-medium uppercase tracking-wide text-zoru-ink">
+      <div className="text-[10px] font-medium uppercase tracking-wide text-[var(--st-text)]">
         {label}
       </div>
-      <div className="text-sm text-zoru-ink">{value}</div>
+      <div className="text-sm text-[var(--st-text)]">{value}</div>
     </div>
   );
 }
@@ -1258,7 +1258,7 @@ function EditListDialog({
                 value={kind}
                 onChange={(e) => setKind(e.target.value as "static" | "dynamic")}
                 disabled={locked}
-                className="w-full rounded-md border border-zoru-line px-3 py-2 text-sm disabled:opacity-50"
+                className="w-full rounded-md border border-[var(--st-border)] px-3 py-2 text-sm disabled:opacity-50"
               >
                 <option value="static">Static (manual members)</option>
                 <option value="dynamic">Dynamic (filters)</option>
@@ -1278,10 +1278,10 @@ function EditListDialog({
           </div>
 
           {kind === "dynamic" && (
-            <div className="space-y-3 rounded-md border border-zoru-line p-4 bg-zoru-surface-2">
+            <div className="space-y-3 rounded-md border border-[var(--st-border)] p-4 bg-[var(--st-bg-muted)]">
               <div className="flex justify-between items-center mb-2">
                 <Label className="block">Dynamic Filters</Label>
-                <div className="text-xs font-medium text-zoru-ink">
+                <div className="text-xs font-medium text-[var(--st-text)]">
                   {estimating ? (
                     "Estimating..."
                   ) : estimate ? (
@@ -1291,9 +1291,9 @@ function EditListDialog({
                   )}
                 </div>
               </div>
-              <div className="bg-white rounded-md border border-zoru-line p-3">
+              <div className="bg-white rounded-md border border-[var(--st-border)] p-3">
                 {locked ? (
-                  <div className="p-4 text-center text-sm text-zoru-ink">Filters are locked</div>
+                  <div className="p-4 text-center text-sm text-[var(--st-text)]">Filters are locked</div>
                 ) : (
                   <PredicateCanvas predicate={predicate} onChange={setPredicate} />
                 )}

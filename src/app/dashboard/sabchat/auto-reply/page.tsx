@@ -139,7 +139,7 @@ export default function SabChatAutoReplyPage() {
         <Card>
           <ZoruCardHeader>
             <div className="flex items-center gap-3">
-              <span className="flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink-muted">
+              <span className="flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                 <Bot className="h-4 w-4" />
               </span>
               <div>
@@ -161,15 +161,15 @@ export default function SabChatAutoReplyPage() {
               <ZoruAccordionItem value="welcome">
                 <ZoruAccordionTrigger>
                   <span className="flex flex-col items-start gap-0.5">
-                    <span className="text-zoru-ink">Welcome message</span>
-                    <span className="text-xs font-normal text-zoru-ink-muted">
+                    <span className="text-[var(--st-text)]">Welcome message</span>
+                    <span className="text-xs font-normal text-[var(--st-text-secondary)]">
                       The first message a visitor sees when they start a chat.
                     </span>
                   </span>
                 </ZoruAccordionTrigger>
                 <ZoruAccordionContent>
                   <div className="space-y-3 pt-1">
-                    <div className="flex items-center gap-3 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-3">
+                    <div className="flex items-center gap-3 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
                       <Switch
                         id="welcomeEnabled"
                         name="welcomeEnabled"
@@ -196,8 +196,8 @@ export default function SabChatAutoReplyPage() {
               <ZoruAccordionItem value="away">
                 <ZoruAccordionTrigger>
                   <span className="flex flex-col items-start gap-0.5">
-                    <span className="text-zoru-ink">Away message</span>
-                    <span className="text-xs font-normal text-zoru-ink-muted">
+                    <span className="text-[var(--st-text)]">Away message</span>
+                    <span className="text-xs font-normal text-[var(--st-text-secondary)]">
                       Sent automatically when a visitor messages you outside
                       office hours.
                     </span>
@@ -205,7 +205,7 @@ export default function SabChatAutoReplyPage() {
                 </ZoruAccordionTrigger>
                 <ZoruAccordionContent>
                   <div className="space-y-3 pt-1">
-                    <div className="flex items-center gap-3 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-3">
+                    <div className="flex items-center gap-3 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
                       <Switch
                         id="awayMessageEnabled"
                         name="awayMessageEnabled"

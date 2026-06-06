@@ -56,7 +56,7 @@ const mockAutomations = [
     id: "wf-1",
     name: "Abandoned Checkout Recovery",
     description: "Send a reminder email to customers who leave items in their cart.",
-    icon: <ShoppingCart className="h-5 w-5 text-zoru-ink-muted" />,
+    icon: <ShoppingCart className="h-5 w-5 text-[var(--st-text-secondary)]" />,
     status: "active",
     lastRun: "2 mins ago",
     successRate: 98,
@@ -66,7 +66,7 @@ const mockAutomations = [
     id: "wf-2",
     name: "High-Risk Order Alert",
     description: "Flag and notify support team when a high-value or suspicious order is placed.",
-    icon: <AlertCircle className="h-5 w-5 text-zoru-danger" />,
+    icon: <AlertCircle className="h-5 w-5 text-[var(--st-danger)]" />,
     status: "active",
     lastRun: "1 hour ago",
     successRate: 100,
@@ -76,7 +76,7 @@ const mockAutomations = [
     id: "wf-3",
     name: "Low Inventory Warning",
     description: "Send Slack notification to inventory manager when stock drops below 10.",
-    icon: <Box className="h-5 w-5 text-zoru-ink-muted" />,
+    icon: <Box className="h-5 w-5 text-[var(--st-text-secondary)]" />,
     status: "inactive",
     lastRun: "3 days ago",
     successRate: 100,
@@ -86,7 +86,7 @@ const mockAutomations = [
     id: "wf-4",
     name: "New Customer Onboarding",
     description: "Welcome series with a 10% discount code for first-time buyers.",
-    icon: <Mail className="h-5 w-5 text-zoru-ink-muted" />,
+    icon: <Mail className="h-5 w-5 text-[var(--st-text-secondary)]" />,
     status: "active",
     lastRun: "15 mins ago",
     successRate: 95,
@@ -133,7 +133,7 @@ export default function AutomationsPage() {
         <StatCard
           label="Tasks Automated"
           value="45.2k"
-          icon={<Activity className="text-zoru-success" />}
+          icon={<Activity className="text-[var(--st-status-ok)]" />}
           delta={8.2}
           period="this month"
         />
@@ -156,17 +156,17 @@ export default function AutomationsPage() {
       </div>
 
       <Tabs defaultValue="workflows" className="w-full">
-        <div className="px-1 border-b border-zoru-line mb-6">
+        <div className="px-1 border-b border-[var(--st-border)] mb-6">
           <TabsList className="bg-transparent border-0 rounded-none w-full justify-start h-auto p-0">
             <TabsTrigger 
               value="workflows" 
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-zoru-ink data-[state=active]:bg-transparent px-4 pb-3 pt-2 font-medium"
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-[var(--st-text)] data-[state=active]:bg-transparent px-4 pb-3 pt-2 font-medium"
             >
               Your Workflows
             </TabsTrigger>
             <TabsTrigger 
               value="history" 
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-zoru-ink data-[state=active]:bg-transparent px-4 pb-3 pt-2 font-medium"
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-[var(--st-text)] data-[state=active]:bg-transparent px-4 pb-3 pt-2 font-medium"
             >
               Run History
             </TabsTrigger>
@@ -176,15 +176,15 @@ export default function AutomationsPage() {
         <TabsContent value="workflows" className="space-y-6 mt-0">
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 px-1">
             {mockAutomations.map((workflow) => (
-              <Card key={workflow.id} className="flex flex-col transition-all hover:border-zoru-line-strong hover:shadow-sm">
+              <Card key={workflow.id} className="flex flex-col transition-all hover:border-[var(--st-border-strong)] hover:shadow-sm">
                 <ZoruCardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius-md)] bg-zoru-surface-2">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius-md)] bg-[var(--st-bg-muted)]">
                       {workflow.icon}
                     </div>
                     <div>
                       <ZoruCardTitle className="text-base">{workflow.name}</ZoruCardTitle>
-                      <div className="text-xs text-zoru-ink-subtle mt-0.5">{workflow.type}</div>
+                      <div className="text-xs text-[var(--st-text-tertiary)] mt-0.5">{workflow.type}</div>
                     </div>
                   </div>
                   <DropdownMenu>
@@ -205,7 +205,7 @@ export default function AutomationsPage() {
                         <Copy className="mr-2 h-4 w-4" /> Duplicate
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem className="text-zoru-danger focus:text-zoru-danger focus:bg-red-50 dark:focus:bg-red-950/50">
+                      <DropdownMenuItem className="text-[var(--st-danger)] focus:text-[var(--st-danger)] focus:bg-red-50 dark:focus:bg-red-950/50">
                         <Trash2 className="mr-2 h-4 w-4" /> Delete
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -216,19 +216,19 @@ export default function AutomationsPage() {
                     {workflow.description}
                   </ZoruCardDescription>
                 </ZoruCardContent>
-                <div className="mt-auto border-t border-zoru-line/50 p-4 flex items-center justify-between bg-zoru-surface-2/30">
-                  <div className="flex items-center gap-4 text-xs text-zoru-ink-muted">
+                <div className="mt-auto border-t border-[var(--st-border)]/50 p-4 flex items-center justify-between bg-[var(--st-bg-muted)]/30">
+                  <div className="flex items-center gap-4 text-xs text-[var(--st-text-secondary)]">
                     <div className="flex items-center gap-1.5">
                       <Clock className="h-3.5 w-3.5" />
                       {workflow.lastRun}
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <CheckCircle2 className="h-3.5 w-3.5 text-zoru-success" />
+                      <CheckCircle2 className="h-3.5 w-3.5 text-[var(--st-status-ok)]" />
                       {workflow.successRate}%
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-medium text-zoru-ink">
+                    <span className="text-xs font-medium text-[var(--st-text)]">
                       {workflow.status === 'active' ? 'Active' : 'Paused'}
                     </span>
                     <Switch checked={workflow.status === 'active'} />
@@ -240,11 +240,11 @@ export default function AutomationsPage() {
         </TabsContent>
 
         <TabsContent value="history" className="mt-0">
-          <Card className="px-1 border-0 shadow-none bg-transparent sm:bg-zoru-bg sm:border sm:shadow-sm">
-            <div className="rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg overflow-hidden">
+          <Card className="px-1 border-0 shadow-none bg-transparent sm:bg-[var(--st-bg)] sm:border sm:shadow-sm">
+            <div className="rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] overflow-hidden">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-zoru-surface-2/50 hover:bg-zoru-surface-2/50">
+                  <TableRow className="bg-[var(--st-bg-muted)]/50 hover:bg-[var(--st-bg-muted)]/50">
                     <TableHead className="w-[100px]">Run ID</TableHead>
                     <TableHead>Workflow</TableHead>
                     <TableHead>Status</TableHead>
@@ -256,10 +256,10 @@ export default function AutomationsPage() {
                 <TableBody>
                   {mockHistory.map((run) => (
                     <TableRow key={run.id}>
-                      <TableCell className="font-mono text-xs text-zoru-ink-muted">
+                      <TableCell className="font-mono text-xs text-[var(--st-text-secondary)]">
                         {run.id}
                       </TableCell>
-                      <TableCell className="font-medium text-zoru-ink">
+                      <TableCell className="font-medium text-[var(--st-text)]">
                         {run.workflow}
                       </TableCell>
                       <TableCell>
@@ -275,16 +275,16 @@ export default function AutomationsPage() {
                           </Badge>
                         )}
                       </TableCell>
-                      <TableCell className="hidden md:table-cell text-sm text-zoru-ink-muted">
+                      <TableCell className="hidden md:table-cell text-sm text-[var(--st-text-secondary)]">
                         <div className="flex items-center gap-1.5">
                           <GitMerge className="h-3.5 w-3.5" />
                           {run.trigger}
                         </div>
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell text-sm text-zoru-ink-muted">
+                      <TableCell className="hidden sm:table-cell text-sm text-[var(--st-text-secondary)]">
                         {run.time}
                       </TableCell>
-                      <TableCell className="text-right text-sm text-zoru-ink-muted">
+                      <TableCell className="text-right text-sm text-[var(--st-text-secondary)]">
                         {run.date}
                       </TableCell>
                     </TableRow>

@@ -183,7 +183,7 @@ export function UpgradeDiffModal({
       <ZoruDialogContent className="max-w-lg">
         <ZoruDialogHeader>
           <ZoruDialogTitle className="flex items-center gap-2">
-            <LuArrowUpRight className="h-4 w-4 text-zoru-ink" />
+            <LuArrowUpRight className="h-4 w-4 text-[var(--st-text)]" />
             Upgrade template
           </ZoruDialogTitle>
           <ZoruDialogDescription>
@@ -197,7 +197,7 @@ export function UpgradeDiffModal({
         <div className="mt-4 space-y-4">
           {/* Loading */}
           {fetchState.phase === 'loading' && (
-            <div className="flex items-center gap-2 text-sm text-zoru-ink-muted">
+            <div className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
               <LuLoader className="h-4 w-4 animate-spin" />
               Computing diff…
             </div>
@@ -205,7 +205,7 @@ export function UpgradeDiffModal({
 
           {/* Error fetching diff */}
           {fetchState.phase === 'error' && (
-            <div className="rounded-md border border-destructive/50 bg-zoru-ink/10 px-3 py-2 text-sm text-zoru-ink">
+            <div className="rounded-md border border-destructive/50 bg-[var(--st-text)]/10 px-3 py-2 text-sm text-[var(--st-text)]">
               {fetchState.message}
               <button
                 className="ml-2 underline underline-offset-2"
@@ -223,14 +223,14 @@ export function UpgradeDiffModal({
 
           {/* Upgrade error */}
           {upgradeState.phase === 'error' && (
-            <div className="rounded-md border border-destructive/50 bg-zoru-ink/10 px-3 py-2 text-sm text-zoru-ink">
+            <div className="rounded-md border border-destructive/50 bg-[var(--st-text)]/10 px-3 py-2 text-sm text-[var(--st-text)]">
               Upgrade failed: {upgradeState.message}
             </div>
           )}
 
           {/* Upgrade done */}
           {isDone && (
-            <div className="flex items-center gap-2 rounded-md border border-zoru-line/50 bg-zoru-ink/10 px-3 py-2 text-sm text-zoru-ink">
+            <div className="flex items-center gap-2 rounded-md border border-[var(--st-border)]/50 bg-[var(--st-text)]/10 px-3 py-2 text-sm text-[var(--st-text)]">
               <LuCheck className="h-4 w-4" />
               Upgrade applied — opening new flow…
             </div>
@@ -293,7 +293,7 @@ function DiffSummary({ diff }: { diff: DiffData }) {
 
   if (!hasDiff) {
     return (
-      <p className="text-sm text-zoru-ink-muted">
+      <p className="text-sm text-[var(--st-text-secondary)]">
         No structural changes between these two versions.
       </p>
     );
@@ -305,19 +305,19 @@ function DiffSummary({ diff }: { diff: DiffData }) {
         label="Added nodes"
         items={diff.addedNodes}
         icon={<LuPlus className="h-3.5 w-3.5" />}
-        colorClass="text-zoru-ink bg-zoru-ink/10 border-zoru-line/30"
+        colorClass="text-[var(--st-text)] bg-[var(--st-text)]/10 border-[var(--st-border)]/30"
       />
       <NodeList
         label="Removed nodes"
         items={diff.removedNodes}
         icon={<LuMinus className="h-3.5 w-3.5" />}
-        colorClass="text-zoru-ink bg-zoru-ink/10 border-zoru-line/30"
+        colorClass="text-[var(--st-text)] bg-[var(--st-text)]/10 border-[var(--st-border)]/30"
       />
       <NodeList
         label="Changed nodes"
         items={diff.changedNodes}
         icon={<LuRefreshCw className="h-3.5 w-3.5" />}
-        colorClass="text-zoru-ink bg-zoru-ink/10 border-zoru-line/30"
+        colorClass="text-[var(--st-text)] bg-[var(--st-text)]/10 border-[var(--st-border)]/30"
       />
 
       {(diff.addedConnections > 0 || diff.removedConnections > 0) && (
@@ -344,7 +344,7 @@ function NodeList({
   if (items.length === 0) return null;
   return (
     <div>
-      <p className="mb-1 text-xs font-medium uppercase tracking-wide text-zoru-ink-muted">
+      <p className="mb-1 text-xs font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
         {label} ({items.length})
       </p>
       <ul className="space-y-1">
@@ -375,13 +375,13 @@ function ConnectionDelta({
   return (
     <div className="flex flex-wrap gap-2">
       {added > 0 && (
-        <span className="flex items-center gap-1 rounded border border-zoru-line/30 bg-zoru-ink/10 px-2 py-0.5 text-xs text-zoru-ink">
+        <span className="flex items-center gap-1 rounded border border-[var(--st-border)]/30 bg-[var(--st-text)]/10 px-2 py-0.5 text-xs text-[var(--st-text)]">
           <LuPlus className="h-3 w-3" />
           {added} connection{added !== 1 ? 's' : ''} added
         </span>
       )}
       {removed > 0 && (
-        <span className="flex items-center gap-1 rounded border border-zoru-line/30 bg-zoru-ink/10 px-2 py-0.5 text-xs text-zoru-ink">
+        <span className="flex items-center gap-1 rounded border border-[var(--st-border)]/30 bg-[var(--st-text)]/10 px-2 py-0.5 text-xs text-[var(--st-text)]">
           <LuMinus className="h-3 w-3" />
           {removed} connection{removed !== 1 ? 's' : ''} removed
         </span>

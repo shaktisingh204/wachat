@@ -160,7 +160,7 @@ export function MentionTextarea({
         <div
           role="listbox"
           aria-label="Mention suggestions"
-          className="absolute left-2 right-2 top-full z-30 mt-1 max-h-60 overflow-auto rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-1 shadow-[var(--zoru-shadow-md)]"
+          className="absolute left-2 right-2 top-full z-30 mt-1 max-h-60 overflow-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1 shadow-[var(--zoru-shadow-md)]"
         >
           {filtered.map((u, i) => (
             <button
@@ -176,8 +176,8 @@ export function MentionTextarea({
               className={cn(
                 'flex w-full items-center gap-2 rounded-[var(--zoru-radius-sm)] px-2 py-1.5 text-left text-sm',
                 i === highlight
-                  ? 'bg-zoru-surface-2 text-zoru-ink'
-                  : 'text-zoru-ink hover:bg-zoru-surface-2',
+                  ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
+                  : 'text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]',
               )}
             >
               {u.avatar ? (
@@ -188,7 +188,7 @@ export function MentionTextarea({
                   className="h-5 w-5 rounded-full object-cover"
                 />
               ) : (
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-zoru-surface-2 text-[10px] text-zoru-ink-muted">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[10px] text-[var(--st-text-secondary)]">
                   {u.name.slice(0, 1).toUpperCase()}
                 </span>
               )}

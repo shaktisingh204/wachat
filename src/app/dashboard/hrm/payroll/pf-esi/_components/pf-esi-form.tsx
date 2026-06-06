@@ -227,7 +227,7 @@ export function PfEsiForm({ initialData }: PfEsiFormProps) {
                                     size="sm"
                                     onClick={handlePrefill}
                                     disabled={isPrefilling}
-                                    className="h-auto p-0 text-xs text-zoru-ink/70 hover:text-zoru-ink hover:bg-transparent"
+                                    className="h-auto p-0 text-xs text-[var(--st-text)]/70 hover:text-[var(--st-text)] hover:bg-transparent"
                                 >
                                     {isPrefilling ? 'Loading...' : 'Pre-fill from last record'}
                                 </Button>
@@ -288,7 +288,7 @@ export function PfEsiForm({ initialData }: PfEsiFormProps) {
 
                 {/* PF block */}
                 <div>
-                    <div className="mb-2 text-[13px] font-medium text-zoru-ink">
+                    <div className="mb-2 text-[13px] font-medium text-[var(--st-text)]">
                         Provident Fund (PF)
                     </div>
                     <div className="grid gap-4 sm:grid-cols-3">
@@ -337,7 +337,7 @@ export function PfEsiForm({ initialData }: PfEsiFormProps) {
 
                 {/* ESI block */}
                 <div>
-                    <div className="mb-2 text-[13px] font-medium text-zoru-ink">
+                    <div className="mb-2 text-[13px] font-medium text-[var(--st-text)]">
                         Employee State Insurance (ESI)
                     </div>
                     <div className="grid gap-4 sm:grid-cols-3">

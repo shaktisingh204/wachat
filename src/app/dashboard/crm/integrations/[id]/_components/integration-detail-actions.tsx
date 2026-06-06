@@ -95,7 +95,7 @@ export function IntegrationDeleteButton({
   return (
     <>
       <Button variant="outline" onClick={() => setOpen(true)}>
-        <Trash2 className="mr-2 h-4 w-4 text-zoru-danger-ink" />
+        <Trash2 className="mr-2 h-4 w-4 text-[var(--st-danger)]" />
         Delete
       </Button>
       <ZoruAlertDialog open={open} onOpenChange={setOpen}>

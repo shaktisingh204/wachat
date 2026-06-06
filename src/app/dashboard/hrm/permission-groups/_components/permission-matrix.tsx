@@ -123,17 +123,17 @@ export function PermissionMatrix({
   }, []);
 
   return (
-    <div className="overflow-x-auto rounded-md border border-zoru-line">
+    <div className="overflow-x-auto rounded-md border border-[var(--st-border)]">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-zoru-line bg-zoru-surface-2">
-            <th className="px-3 py-2 text-left text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+          <tr className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]">
+            <th className="px-3 py-2 text-left text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
               Module
             </th>
             {ACTIONS.map((a) => (
               <th
                 key={a.key}
-                className="px-3 py-2 text-center text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted"
+                className="px-3 py-2 text-center text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]"
               >
                 <div className="flex flex-col items-center gap-1">
                   {a.label}
@@ -155,10 +155,10 @@ export function PermissionMatrix({
         <tbody>
           {Array.from(categories.entries()).map(([cat, mods]) => (
             <React.Fragment key={cat}>
-              <tr className="bg-zoru-surface border-b border-zoru-line">
+              <tr className="bg-[var(--st-bg-secondary)] border-b border-[var(--st-border)]">
                 <td
                   colSpan={5}
-                  className="px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-zoru-ink-muted"
+                  className="px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-[var(--st-text-secondary)]"
                 >
                   {cat}
                 </td>
@@ -169,7 +169,7 @@ export function PermissionMatrix({
                 return (
                   <tr
                     key={mod.key}
-                    className="border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2/50"
+                    className="border-b border-[var(--st-border)] last:border-0 hover:bg-[var(--st-bg-muted)]/50"
                   >
                     <td className="px-3 py-2.5">
                       <div className="flex items-center gap-2">
@@ -182,7 +182,7 @@ export function PermissionMatrix({
                             }
                           />
                         )}
-                        <span className="text-[13px] text-zoru-ink">
+                        <span className="text-[13px] text-[var(--st-text)]">
                           {mod.label}
                         </span>
                       </div>
@@ -195,7 +195,7 @@ export function PermissionMatrix({
                               {a.label}
                             </Badge>
                           ) : (
-                            <span className="text-zoru-ink-muted">—</span>
+                            <span className="text-[var(--st-text-secondary)]">—</span>
                           )
                         ) : (
                           <Checkbox

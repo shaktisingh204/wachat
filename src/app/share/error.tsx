@@ -16,12 +16,12 @@ export default function ShareErrorBoundary({
     }, [error]);
 
     return (
-        <div className="flex min-h-screen flex-col items-center justify-center p-6 text-center bg-zoru-surface-2 antialiased">
-            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink mb-6">
+        <div className="flex min-h-screen flex-col items-center justify-center p-6 text-center bg-[var(--st-bg-muted)] antialiased">
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)] mb-6">
                 <AlertTriangle className="h-10 w-10" />
             </div>
-            <h2 className="mb-2 text-2xl font-bold tracking-tight text-zoru-ink">Something went wrong</h2>
-            <p className="mb-6 max-w-md text-sm text-zoru-ink">
+            <h2 className="mb-2 text-2xl font-bold tracking-tight text-[var(--st-text)]">Something went wrong</h2>
+            <p className="mb-6 max-w-md text-sm text-[var(--st-text)]">
                 We encountered an unexpected error while trying to load this shared page.
                 Please try again or refresh the page.
             </p>

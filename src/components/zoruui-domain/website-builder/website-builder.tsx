@@ -249,11 +249,11 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
     return (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
             {/* Root Container: Full Viewport, Fixed Layout */}
-            <div className="flex flex-col h-screen w-full bg-zoru-surface dark:bg-zoru-ink overflow-hidden relative">
+            <div className="flex flex-col h-screen w-full bg-[var(--st-bg-secondary)] dark:bg-[var(--st-text)] overflow-hidden relative">
                 <div className="absolute inset-0 z-0 opacity-[0.03] dark:opacity-[0.05]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
 
                 {/* 1. Header (Fixed at top) */}
-                <div className="flex-none z-50 bg-zoru-surface/70 backdrop-blur-md border-b sticky top-0 supports-[backdrop-filter]:bg-zoru-surface/60">
+                <div className="flex-none z-50 bg-[var(--st-bg-secondary)]/70 backdrop-blur-md border-b sticky top-0 supports-[backdrop-filter]:bg-[var(--st-bg-secondary)]/60">
                     <WebsiteBuilderHeader
                         site={shop}
                         pages={pages}
@@ -293,14 +293,14 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
                                 <Plus className="h-7 w-7" />
                             </Button>
                         </ZoruDropdownMenuTrigger>
-                        <ZoruDropdownMenuContent align="end" side="top" className="w-80 h-[500px] overflow-y-auto p-0 z-50 rounded-xl shadow-2xl border bg-zoru-surface/80 backdrop-blur-xl supports-[backdrop-filter]:bg-zoru-surface/60">
-                            <div className="p-4 border-b sticky top-0 bg-zoru-surface/80 backdrop-blur-md z-10">
+                        <ZoruDropdownMenuContent align="end" side="top" className="w-80 h-[500px] overflow-y-auto p-0 z-50 rounded-xl shadow-2xl border bg-[var(--st-bg-secondary)]/80 backdrop-blur-xl supports-[backdrop-filter]:bg-[var(--st-bg-secondary)]/60">
+                            <div className="p-4 border-b sticky top-0 bg-[var(--st-bg-secondary)]/80 backdrop-blur-md z-10">
                                 <h3 className="font-semibold text-sm">Add Elements</h3>
                             </div>
                             <div className="p-4">
                                 <BlockPalette onAddBlock={(type) => { handleAddBlock(type); setIsBlockPaletteOpen(false); }} />
                                 <Separator className="my-4" />
-                                <div className="text-xs font-semibold text-zoru-ink-muted mb-2">PAGES & LAYOUT</div>
+                                <div className="text-xs font-semibold text-[var(--st-text-secondary)] mb-2">PAGES & LAYOUT</div>
                                 <PageManagerPanel pages={pages} activePageId={activePage?._id.toString() || ''} onSelectPage={handleSelectSurface} shopId={shop._id.toString()} onPagesUpdate={fetchPages} />
                             </div>
                         </ZoruDropdownMenuContent>
@@ -310,14 +310,14 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
                     {/* Fixed position relative to Main Content Area, high Z-index */}
                     <div
                         className={cn(
-                            "absolute top-0 right-0 bottom-0 z-40 bg-zoru-surface/80 backdrop-blur-2xl border-l shadow-[-10px_0_30px_-15px_rgba(0,0,0,0.1)] transition-transform duration-300 ease-cubic-bezier(0.4, 0, 0.2, 1) flex flex-col",
+                            "absolute top-0 right-0 bottom-0 z-40 bg-[var(--st-bg-secondary)]/80 backdrop-blur-2xl border-l shadow-[-10px_0_30px_-15px_rgba(0,0,0,0.1)] transition-transform duration-300 ease-cubic-bezier(0.4, 0, 0.2, 1) flex flex-col",
                             "w-[400px] lg:w-[40%]", // Responsive width: fixed on small, % on large
                             !rightPanelOpen && "translate-x-full pointer-events-none"
                         )}
                     >
                         <div className="flex items-center justify-between p-4 border-b bg-transparent sticky top-0 z-10">
                             <h3 className="font-semibold text-sm">Properties</h3>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-zoru-ink-muted hover:text-zoru-ink hover:bg-zoru-surface-2/50 rounded-full" onClick={() => { setRightPanelOpen(false); setSelectedBlockId(null); }}>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]/50 rounded-full" onClick={() => { setRightPanelOpen(false); setSelectedBlockId(null); }}>
                                 <X className="h-4 w-4" />
                             </Button>
                         </div>
@@ -330,7 +330,7 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
                                     onRemove={handleRemoveBlock}
                                 />
                             ) : (
-                                <div className="flex flex-col items-center justify-center h-full text-zoru-ink-muted p-4 text-center">
+                                <div className="flex flex-col items-center justify-center h-full text-[var(--st-text-secondary)] p-4 text-center">
                                     <p className="text-sm">Select a block on the canvas to edit its properties.</p>
                                 </div>
                             )}

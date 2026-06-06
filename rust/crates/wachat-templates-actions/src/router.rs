@@ -29,6 +29,8 @@ where
         .route("/edit", post(handlers::edit))
         .route("/delete-by-name", post(handlers::delete_by_name))
         .route("/delete-by-id", post(handlers::delete_by_id))
+        // ----- multi-language clone (literal segments) -----
+        .route("/multilang/clone", post(handlers::multilang_clone))
         // ----- library -----
         .route("/library/list", get(handlers::library_list))
         .route("/library/save", post(handlers::library_save))

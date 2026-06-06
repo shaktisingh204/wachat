@@ -131,7 +131,7 @@ function FlowStepper({
   steps: { label: string }[];
 }) {
   return (
-    <ol className="grid grid-cols-1 gap-2 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-3 md:grid-cols-5">
+    <ol className="grid grid-cols-1 gap-2 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 md:grid-cols-5">
       {steps.map((step, idx) => {
         const isDone = idx < activeStepIndex;
         const isActive = idx === activeStepIndex;
@@ -141,10 +141,10 @@ function FlowStepper({
             className={cn(
               'flex items-center gap-2 rounded-[var(--zoru-radius)] px-2 py-1.5 text-[12.5px]',
               isActive
-                ? 'bg-zoru-ink text-zoru-on-primary'
+                ? 'bg-[var(--st-text)] text-[var(--st-text-inverted)]'
                 : isDone
-                  ? 'bg-zoru-surface text-zoru-ink'
-                  : 'text-zoru-ink-muted',
+                  ? 'bg-[var(--st-bg-secondary)] text-[var(--st-text)]'
+                  : 'text-[var(--st-text-secondary)]',
             )}
           >
             <span
@@ -152,10 +152,10 @@ function FlowStepper({
               className={cn(
                 'flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10.5px] font-semibold',
                 isActive
-                  ? 'bg-zoru-on-primary text-zoru-ink'
+                  ? 'bg-[var(--st-text-inverted)] text-[var(--st-text)]'
                   : isDone
-                    ? 'bg-zoru-ink text-zoru-on-primary'
-                    : 'border border-zoru-line-strong text-zoru-ink-muted',
+                    ? 'bg-[var(--st-text)] text-[var(--st-text-inverted)]'
+                    : 'border border-[var(--st-border-strong)] text-[var(--st-text-secondary)]',
               )}
             >
               {isDone ? <Check className="h-3 w-3" /> : idx + 1}
@@ -320,12 +320,12 @@ export function ConnectClient() {
       {/* Hero */}
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex items-start gap-3 min-w-0">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface text-zoru-ink">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
             <QrCode className="h-5 w-5" />
           </div>
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-[24px] tracking-[-0.015em] text-zoru-ink leading-[1.2]">
+              <h1 className="text-[24px] tracking-[-0.015em] text-[var(--st-text)] leading-[1.2]">
                 Connect WhatsApp
               </h1>
               <Badge variant="ghost" className="gap-1 text-[10.5px]">
@@ -333,7 +333,7 @@ export function ConnectClient() {
                 Linked Devices
               </Badge>
             </div>
-            <p className="mt-1 text-[13px] text-zoru-ink-muted max-w-2xl">
+            <p className="mt-1 text-[13px] text-[var(--st-text-secondary)] max-w-2xl">
               Link your personal WhatsApp number to this SabNode project. Your
               phone stays the primary device — you can revoke the link from
               either side at any time.
@@ -342,15 +342,15 @@ export function ConnectClient() {
         </div>
 
         {activeProject && (
-          <div className="flex max-w-full items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 py-2 text-[12.5px]">
-            <Briefcase className="h-3.5 w-3.5 shrink-0 text-zoru-ink-muted" />
-            <span className="shrink-0 text-zoru-ink-muted">Project:</span>
-            <span className="min-w-0 truncate text-zoru-ink">
+          <div className="flex max-w-full items-center gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-[12.5px]">
+            <Briefcase className="h-3.5 w-3.5 shrink-0 text-[var(--st-text-secondary)]" />
+            <span className="shrink-0 text-[var(--st-text-secondary)]">Project:</span>
+            <span className="min-w-0 truncate text-[var(--st-text)]">
               {activeProject.name ?? 'Untitled'}
             </span>
             <Link
               href="/sabwa"
-              className="ml-1 text-zoru-ink underline-offset-2 hover:underline"
+              className="ml-1 text-[var(--st-text)] underline-offset-2 hover:underline"
             >
               Change
             </Link>
@@ -423,7 +423,7 @@ export function ConnectClient() {
               <div
                 role="group"
                 aria-label="Pairing method"
-                className="inline-flex rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-1"
+                className="inline-flex rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1"
               >
                 <Button
                   type="button"
@@ -449,7 +449,7 @@ export function ConnectClient() {
 
               {mode === 'qr' ? (
                 <div className="mt-6 flex flex-col items-center gap-4">
-                  <p className="max-w-md text-center text-[13px] text-zoru-ink-muted">
+                  <p className="max-w-md text-center text-[13px] text-[var(--st-text-secondary)]">
                     Generate a QR code, then on your phone go to{' '}
                     <strong>
                       WhatsApp → Settings → Linked Devices → Link a Device
@@ -496,7 +496,7 @@ export function ConnectClient() {
                           {COUNTRY_CODES.map((c) => (
                             <ZoruSelectItem key={c.iso} value={c.code}>
                               <span className="font-mono">{c.code}</span>{' '}
-                              <span className="text-zoru-ink-muted">
+                              <span className="text-[var(--st-text-secondary)]">
                                 {c.iso}
                               </span>
                             </ZoruSelectItem>
@@ -515,11 +515,11 @@ export function ConnectClient() {
                         }
                       />
                     </div>
-                    <p className="text-[11.5px] text-zoru-ink-muted">
+                    <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                       We will issue an 8-character code to enter on your phone.
                     </p>
                     {phoneInput && !phoneValid && (
-                      <p className="text-[11.5px] text-zoru-danger">
+                      <p className="text-[11.5px] text-[var(--st-danger)]">
                         Phone number does not look right. Check the country
                         code and digits.
                       </p>
@@ -562,7 +562,7 @@ export function ConnectClient() {
                 <ZoruAccordionTrigger className="text-left">
                   {item.q}
                 </ZoruAccordionTrigger>
-                <ZoruAccordionContent className="text-[13px] text-zoru-ink-muted">
+                <ZoruAccordionContent className="text-[13px] text-[var(--st-text-secondary)]">
                   {item.a}
                 </ZoruAccordionContent>
               </ZoruAccordionItem>
@@ -582,7 +582,7 @@ export function ConnectClient() {
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle className="flex items-center gap-2">
-              <ShieldCheck className="h-5 w-5 text-zoru-ink" />
+              <ShieldCheck className="h-5 w-5 text-[var(--st-text)]" />
               Before you link your WhatsApp
             </ZoruDialogTitle>
             <ZoruDialogDescription>
@@ -592,21 +592,21 @@ export function ConnectClient() {
           </ZoruDialogHeader>
           <ul className="space-y-2.5 text-[13px]">
             <li className="flex gap-2">
-              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-zoru-success" />
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[var(--st-status-ok)]" />
               <span>
                 SabWa uses the official WhatsApp <strong>Linked Devices</strong>{' '}
                 flow. Your phone remains primary and can revoke this link.
               </span>
             </li>
             <li className="flex gap-2">
-              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-zoru-success" />
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[var(--st-status-ok)]" />
               <span>
                 Messages are stored encrypted in your project workspace. Only
                 members with the right RBAC permission can read them.
               </span>
             </li>
             <li className="flex gap-2">
-              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-zoru-warning" />
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[var(--st-warn)]" />
               <span>
                 Bulk-marketing patterns on a personal number can lead to a
                 permanent WhatsApp ban. You accept that risk.

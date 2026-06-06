@@ -35,10 +35,10 @@ function Field({
 }) {
   return (
     <div>
-      <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
         {label}
       </div>
-      <div className="mt-1 text-[13px] text-zoru-ink">{children}</div>
+      <div className="mt-1 text-[13px] text-[var(--st-text)]">{children}</div>
     </div>
   );
 }
@@ -55,7 +55,7 @@ export default async function DepartmentDetailPage({
     if (error) {
       return (
         <div className="flex w-full flex-col gap-4 p-6">
-          <p className="text-[14px] text-zoru-ink">
+          <p className="text-[14px] text-[var(--st-text)]">
             Couldn&apos;t load this department — {error}
           </p>
           <Button variant="outline" asChild>
@@ -99,16 +99,16 @@ export default async function DepartmentDetailPage({
       rightRail={
         <>
           <Card className="p-4">
-            <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+            <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
               Related
             </h3>
-            <dl className="space-y-2 text-[13px] text-zoru-ink">
+            <dl className="space-y-2 text-[13px] text-[var(--st-text)]">
               <div className="flex justify-between">
-                <dt className="text-zoru-ink-muted">Members</dt>
+                <dt className="text-[var(--st-text-secondary)]">Members</dt>
                 <dd className="tabular-nums">{members.length}</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-zoru-ink-muted">Child departments</dt>
+                <dt className="text-[var(--st-text-secondary)]">Child departments</dt>
                 <dd className="tabular-nums">{children.length}</dd>
               </div>
             </dl>
@@ -116,7 +116,7 @@ export default async function DepartmentDetailPage({
 
           {children.length > 0 ? (
             <Card className="p-4">
-              <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+              <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Child departments
               </h3>
               <ul className="space-y-1.5">
@@ -124,7 +124,7 @@ export default async function DepartmentDetailPage({
                   <li key={c._id}>
                     <Link
                       href={`/dashboard/hrm/payroll/departments/${c._id}`}
-                      className="text-[13px] text-zoru-ink hover:underline"
+                      className="text-[13px] text-[var(--st-text)] hover:underline"
                     >
                       {c.name}
                     </Link>

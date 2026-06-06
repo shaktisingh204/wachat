@@ -120,7 +120,7 @@ export function PortalActions({
             <div className="space-y-2">
               <Label>Select new date</Label>
               <DatePicker value={newDate} onChange={setNewDate} />
-              <p className="text-xs text-zoru-ink-muted mt-2">Time will remain the same as original booking.</p>
+              <p className="text-xs text-[var(--st-text-secondary)] mt-2">Time will remain the same as original booking.</p>
             </div>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setIsRescheduleOpen(false)} disabled={isSubmitting}>Back</Button>

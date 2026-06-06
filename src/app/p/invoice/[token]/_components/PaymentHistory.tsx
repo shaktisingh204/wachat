@@ -19,14 +19,14 @@ export function PaymentHistory({ payments, currency }: { payments: PaymentData[]
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex items-center gap-2 font-mono text-[11.5px] uppercase tracking-wider text-zoru-ink-muted px-1">
+      <div className="flex items-center gap-2 font-mono text-[11.5px] uppercase tracking-wider text-[var(--st-text-secondary)] px-1">
         <CreditCard className="h-4 w-4" />
         <span>Verified Payment Logs (Transactions)</span>
       </div>
       <Card>
         <ZoruCardContent className="p-0">
           <Table>
-            <ZoruTableHeader className="bg-zoru-surface-2/15">
+            <ZoruTableHeader className="bg-[var(--st-bg-muted)]/15">
               <ZoruTableRow>
                 <ZoruTableHead className="font-mono text-[11px]">Txn ID</ZoruTableHead>
                 <ZoruTableHead className="font-mono text-[11px]">Gateway</ZoruTableHead>
@@ -43,10 +43,10 @@ export function PaymentHistory({ payments, currency }: { payments: PaymentData[]
                   <ZoruTableCell className="font-mono text-[11.5px] uppercase">
                     {String(p.gateway || '')}
                   </ZoruTableCell>
-                  <ZoruTableCell className="text-[12px] text-zoru-ink-muted" suppressHydrationWarning>
+                  <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]" suppressHydrationWarning>
                     {fmtDateTime(p.paid_at || p.createdAt)}
                   </ZoruTableCell>
-                  <ZoruTableCell className="text-right font-mono text-[12.5px] font-bold text-zoru-ink" suppressHydrationWarning>
+                  <ZoruTableCell className="text-right font-mono text-[12.5px] font-bold text-[var(--st-text)]" suppressHydrationWarning>
                     {fmtCurrency(Number(p.amount || 0), currency)}
                   </ZoruTableCell>
                 </ZoruTableRow>

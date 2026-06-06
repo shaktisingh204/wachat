@@ -32,14 +32,14 @@ export function ClaySectionHeader({
       <div className="min-w-0">
         <h2
           className={cn(
-            'font-semibold tracking-tight text-zoru-ink leading-none',
+            'font-semibold tracking-tight text-[var(--st-text)] leading-none',
             size === 'lg' ? 'text-3xl' : 'text-2xl',
           )}
         >
           {title}
         </h2>
         {subtitle ? (
-          <p className="mt-1 text-sm text-zoru-ink-muted">{subtitle}</p>
+          <p className="mt-1 text-sm text-[var(--st-text-secondary)]">{subtitle}</p>
         ) : null}
       </div>
       {actions ? (

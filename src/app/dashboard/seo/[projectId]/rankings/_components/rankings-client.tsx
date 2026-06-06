@@ -138,8 +138,8 @@ export function RankingsClient({
     if (error) {
         return (
             <div className="flex flex-col gap-6">
-                <Card className="border-zoru-line bg-zoru-surface-2">
-                    <ZoruCardContent className="pt-6 text-zoru-ink">
+                <Card className="border-[var(--st-border)] bg-[var(--st-bg-muted)]">
+                    <ZoruCardContent className="pt-6 text-[var(--st-text)]">
                         <p>{error}</p>
                         <Button variant="outline" className="mt-4" onClick={handleRefresh}>Try Again</Button>
                     </ZoruCardContent>
@@ -156,11 +156,11 @@ export function RankingsClient({
         <div className="flex flex-col gap-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl text-zoru-ink flex items-center gap-3">
-                        <TrendingUp className="h-8 w-8 text-zoru-ink" />
+                    <h1 className="text-3xl text-[var(--st-text)] flex items-center gap-3">
+                        <TrendingUp className="h-8 w-8 text-[var(--st-text)]" />
                         Keyword Rankings
                     </h1>
-                    <p className="text-zoru-ink-muted mt-1">
+                    <p className="text-[var(--st-text-secondary)] mt-1">
                         Track your daily search performance across multiple locations.
                     </p>
                 </div>
@@ -184,7 +184,7 @@ export function RankingsClient({
                         <ZoruCardTitle className="text-sm">Tracked Keywords</ZoruCardTitle>
                     </ZoruCardHeader>
                     <ZoruCardContent>
-                        <div className="text-2xl text-zoru-ink">{trackedCount}</div>
+                        <div className="text-2xl text-[var(--st-text)]">{trackedCount}</div>
                     </ZoruCardContent>
                 </Card>
                 <Card>
@@ -192,7 +192,7 @@ export function RankingsClient({
                         <ZoruCardTitle className="text-sm">Top 3 Rankings</ZoruCardTitle>
                     </ZoruCardHeader>
                     <ZoruCardContent>
-                        <div className="text-2xl text-zoru-success">{top3}</div>
+                        <div className="text-2xl text-[var(--st-status-ok)]">{top3}</div>
                     </ZoruCardContent>
                 </Card>
                 <Card>
@@ -200,7 +200,7 @@ export function RankingsClient({
                         <ZoruCardTitle className="text-sm">Top 10 Rankings</ZoruCardTitle>
                     </ZoruCardHeader>
                     <ZoruCardContent>
-                        <div className="text-2xl text-zoru-success">{top10}</div>
+                        <div className="text-2xl text-[var(--st-status-ok)]">{top10}</div>
                     </ZoruCardContent>
                 </Card>
                 <Card>
@@ -208,7 +208,7 @@ export function RankingsClient({
                         <ZoruCardTitle className="text-sm">Avg. Visibility</ZoruCardTitle>
                     </ZoruCardHeader>
                     <ZoruCardContent>
-                        <div className="text-2xl text-zoru-info">
+                        <div className="text-2xl text-[var(--st-text-secondary)]">
                             {trackedCount > 0 ? Math.round((top10 / trackedCount) * 100) : 0}%
                         </div>
                     </ZoruCardContent>

@@ -29,9 +29,9 @@ export class ErrorBoundary extends React.Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex flex-col items-center justify-center p-12 text-center border rounded-lg border-destructive/20 bg-zoru-ink/10">
-          <h2 className="mb-2 text-lg font-semibold text-zoru-ink">Inventory Module Error</h2>
-          <p className="mb-4 text-sm text-zoru-ink-muted">{this.state.error?.message || 'Something went wrong.'}</p>
+        <div className="flex flex-col items-center justify-center p-12 text-center border rounded-lg border-destructive/20 bg-[var(--st-text)]/10">
+          <h2 className="mb-2 text-lg font-semibold text-[var(--st-text)]">Inventory Module Error</h2>
+          <p className="mb-4 text-sm text-[var(--st-text-secondary)]">{this.state.error?.message || 'Something went wrong.'}</p>
           <Button variant="outline" onClick={() => this.setState({ hasError: false })}>
             Try again
           </Button>

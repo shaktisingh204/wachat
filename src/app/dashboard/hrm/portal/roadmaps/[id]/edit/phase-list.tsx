@@ -122,7 +122,7 @@ export default function PhaseList({ phases, setPhases }: PhaseListProps) {
         {/* Filters and Bulk Actions */}
         <div className="flex items-center justify-between gap-4 print:hidden">
           <div className="relative max-w-sm flex-1">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
             <Input
               placeholder="Search phases..."
               value={search}
@@ -133,7 +133,7 @@ export default function PhaseList({ phases, setPhases }: PhaseListProps) {
           
           {selectedIds.size > 0 && (
             <div className="flex items-center gap-2">
-              <span className="text-sm text-zoru-ink-muted">{selectedIds.size} selected</span>
+              <span className="text-sm text-[var(--st-text-secondary)]">{selectedIds.size} selected</span>
               <Button type="button" variant="destructive" size="sm" onClick={handleBulkDelete}>
                 <Trash2 className="mr-1.5 h-4 w-4" /> Bulk Delete
               </Button>
@@ -143,13 +143,13 @@ export default function PhaseList({ phases, setPhases }: PhaseListProps) {
 
         {/* Virtualized List */}
         {phases.length === 0 ? (
-          <p className="text-sm text-zoru-ink-muted">No phases yet — add at least one.</p>
+          <p className="text-sm text-[var(--st-text-secondary)]">No phases yet — add at least one.</p>
         ) : filteredPhases.length === 0 ? (
-          <p className="text-sm text-zoru-ink-muted">No phases match your search.</p>
+          <p className="text-sm text-[var(--st-text-secondary)]">No phases match your search.</p>
         ) : (
           <div className="border rounded-md">
             <div className="flex items-center gap-3 p-3 bg-zoru-background-subtle border-b print:hidden">
-              <button type="button" onClick={handleToggleSelectAll} className="text-zoru-ink-muted hover:text-zoru-ink">
+              <button type="button" onClick={handleToggleSelectAll} className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]">
                 {isAllSelected ? <CheckSquare className="h-4 w-4" /> : <Square className="h-4 w-4" />}
               </button>
               <span className="text-sm font-medium flex-1">Phase Name</span>
@@ -187,11 +187,11 @@ export default function PhaseList({ phases, setPhases }: PhaseListProps) {
                       <button
                         type="button"
                         onClick={() => handleToggleSelect(phase.id)}
-                        className="text-zoru-ink-muted hover:text-zoru-ink print:hidden"
+                        className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)] print:hidden"
                       >
                         {isSelected ? <CheckSquare className="h-4 w-4" /> : <Square className="h-4 w-4" />}
                       </button>
-                      <span className="w-5 text-xs tabular-nums text-zoru-ink-subtle print:hidden">
+                      <span className="w-5 text-xs tabular-nums text-[var(--st-text-tertiary)] print:hidden">
                         {virtualRow.index + 1}.
                       </span>
                       <Input
@@ -200,7 +200,7 @@ export default function PhaseList({ phases, setPhases }: PhaseListProps) {
                         onChange={(e) => handleUpdatePhaseName(phase.id, e.target.value)}
                         className="flex-1 print:border-none print:bg-transparent print:p-0"
                       />
-                      <span className="whitespace-nowrap text-xs text-zoru-ink-muted w-20 text-right">
+                      <span className="whitespace-nowrap text-xs text-[var(--st-text-secondary)] w-20 text-right">
                         {phase.tasks.length} task{phase.tasks.length === 1 ? '' : 's'}
                       </span>
                       <Button
@@ -210,7 +210,7 @@ export default function PhaseList({ phases, setPhases }: PhaseListProps) {
                         onClick={() => handleRemovePhase(phase.id)}
                         className="w-8 print:hidden"
                       >
-                        <Trash2 className="h-4 w-4 text-zoru-ink-muted hover:text-zoru-danger" />
+                        <Trash2 className="h-4 w-4 text-[var(--st-text-secondary)] hover:text-[var(--st-danger)]" />
                       </Button>
                     </div>
                   );

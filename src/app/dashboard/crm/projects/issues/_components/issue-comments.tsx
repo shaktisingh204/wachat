@@ -45,21 +45,21 @@ export function IssueComments({ issueId, initialComments = [] }: { issueId: stri
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-3">
         {initialComments.length === 0 ? (
-          <p className="text-[12.5px] text-zoru-ink-muted">No comments yet. Be the first!</p>
+          <p className="text-[12.5px] text-[var(--st-text-secondary)]">No comments yet. Be the first!</p>
         ) : (
           initialComments.map((c) => (
-            <div key={c._id} className="rounded-md border border-zoru-line p-3 bg-zoru-surface">
-              <div className="flex items-center justify-between mb-2 border-b border-zoru-line pb-2">
+            <div key={c._id} className="rounded-md border border-[var(--st-border)] p-3 bg-[var(--st-bg-secondary)]">
+              <div className="flex items-center justify-between mb-2 border-b border-[var(--st-border)] pb-2">
                 <span className="font-medium text-[12.5px]">{c.commentByName || 'Unknown User'}</span>
-                <div className="flex items-center gap-2 text-[11px] text-zoru-ink-muted">
+                <div className="flex items-center gap-2 text-[11px] text-[var(--st-text-secondary)]">
                   <span>{new Date(c.createdAt).toLocaleString()}</span>
-                  <button onClick={() => handleDelete(c._id)} className="text-zoru-danger hover:text-zoru-danger-ink">
+                  <button onClick={() => handleDelete(c._id)} className="text-[var(--st-danger)] hover:text-[var(--st-danger)]">
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
               <div 
-                className="prose prose-sm dark:prose-invert max-w-none text-[13px] text-zoru-ink"
+                className="prose prose-sm dark:prose-invert max-w-none text-[13px] text-[var(--st-text)]"
                 dangerouslySetInnerHTML={{ __html: marked.parse(c.comment) as string }}
               />
             </div>
@@ -67,7 +67,7 @@ export function IssueComments({ issueId, initialComments = [] }: { issueId: stri
         )}
       </div>
 
-      <form ref={formRef} action={formAction} className="mt-4 rounded-md border border-zoru-line bg-zoru-surface-2 p-3">
+      <form ref={formRef} action={formAction} className="mt-4 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3">
         <input type="hidden" name="issueId" value={issueId} />
         {/* We use current user id 1 for mock since we are not authenticating */}
         <input type="hidden" name="commentByUserId" value="1" />

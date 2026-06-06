@@ -6,7 +6,7 @@ import { VoucherBooksListServer } from './_components/voucher-books-list-server'
  */
 export default function VoucherBooksPage({ searchParams }: { searchParams: any }) {
     return (
-        <Suspense fallback={<div className="p-8 text-center text-zoru-ink-muted animate-pulse">Loading voucher books...</div>}>
+        <Suspense fallback={<div className="p-8 text-center text-[var(--st-text-secondary)] animate-pulse">Loading voucher books...</div>}>
             <VoucherBooksListServer searchParams={searchParams} />
         </Suspense>
     );

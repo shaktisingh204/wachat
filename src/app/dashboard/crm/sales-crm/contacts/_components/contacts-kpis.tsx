@@ -62,9 +62,9 @@ export function ContactsKpiStrip({
             type="button"
             onClick={onClick}
             className={[
-                'text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-zoru-primary',
+                'text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]',
                 active
-                    ? 'ring-1 ring-zoru-primary rounded-[var(--zoru-radius-lg)]'
+                    ? 'ring-1 ring-[var(--st-text)] rounded-[var(--zoru-radius-lg)]'
                     : '',
             ].join(' ')}
         >

@@ -343,7 +343,7 @@ export default function BulkCreatePage() {
                 </ZoruCardTitle>
               </ZoruCardHeader>
               <ZoruCardContent className="flex flex-col gap-3">
-                <p className="text-[12.5px] text-zoru-ink-muted">
+                <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                   CSV must have a <code>message</code> column. Optional
                   columns: <code>image_url</code>, <code>scheduled_time</code>.
                 </p>
@@ -363,7 +363,7 @@ export default function BulkCreatePage() {
                 </ZoruCardTitle>
               </ZoruCardHeader>
               <ZoruCardContent className="flex flex-col gap-3">
-                <p className="text-[12.5px] text-zoru-ink-muted">
+                <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                   Add a row at a time. Each post must have a non-empty
                   message; image URL and schedule are optional.
                 </p>
@@ -421,7 +421,7 @@ export default function BulkCreatePage() {
                     <ZoruTableBody>
                       {rows.map((row, i) => (
                         <ZoruTableRow key={i}>
-                          <ZoruTableCell className="text-zoru-ink-muted">
+                          <ZoruTableCell className="text-[var(--st-text-secondary)]">
                             {i + 1}
                           </ZoruTableCell>
                           <ZoruTableCell>

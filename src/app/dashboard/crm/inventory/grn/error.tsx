@@ -17,12 +17,12 @@ export default function GrnError({
 
     return (
         <div className="flex h-[400px] w-full flex-col items-center justify-center space-y-4 rounded-md border border-dashed p-8 text-center animate-in fade-in-50">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 dark:bg-zoru-ink/20">
-                <AlertCircle className="h-6 w-6 text-zoru-ink dark:text-zoru-ink" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/20">
+                <AlertCircle className="h-6 w-6 text-[var(--st-text)] dark:text-[var(--st-text)]" />
             </div>
             <div className="space-y-2">
                 <h3 className="text-lg font-medium">Failed to load GRNs</h3>
-                <p className="text-sm text-zoru-ink-muted max-w-[500px]">
+                <p className="text-sm text-[var(--st-text-secondary)] max-w-[500px]">
                     {error.message || 'An unexpected error occurred while fetching the Goods Receipt Notes.'}
                 </p>
             </div>

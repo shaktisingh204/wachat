@@ -470,9 +470,9 @@ export default function AllLeadsPage() {
                 empty={
                     !isPending && displayedLeads.length === 0 ? (
                         <div className="flex flex-col items-center gap-3 p-4">
-                            <Sparkles className="h-8 w-8 text-zoru-ink-muted" />
-                            <h3 className="text-base font-medium text-zoru-ink">No leads yet</h3>
-                            <p className="max-w-sm text-sm text-zoru-ink-muted">
+                            <Sparkles className="h-8 w-8 text-[var(--st-text-secondary)]" />
+                            <h3 className="text-base font-medium text-[var(--st-text)]">No leads yet</h3>
+                            <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                                 Start capturing prospects in your sales pipeline. New leads can
                                 later be converted into accounts and deals.
                             </p>

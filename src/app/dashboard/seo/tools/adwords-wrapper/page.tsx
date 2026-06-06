@@ -57,7 +57,7 @@ export default function AdwordsWrapperPage() {
     <ToolShell title="AdWords Keyword Wrapper" description="Wrap a list of keywords with Google Ads match type syntax.">
       <div className="space-y-1">
         <Label>Match type</Label>
-        <select className="border border-zoru-line rounded-[var(--zoru-radius)] h-9 px-2 bg-zoru-bg text-zoru-ink text-sm" value={mt} onChange={(e) => setMt(e.target.value as MatchType)}>
+        <select className="border border-[var(--st-border)] rounded-[var(--zoru-radius)] h-9 px-2 bg-[var(--st-bg)] text-[var(--st-text)] text-sm" value={mt} onChange={(e) => setMt(e.target.value as MatchType)}>
           <option value="broad">Broad</option>
           <option value="phrase">"Phrase"</option>
           <option value="exact">[Exact]</option>
@@ -71,7 +71,7 @@ export default function AdwordsWrapperPage() {
           <Button 
             variant="outline"
             size="sm"
-            className="bg-zoru-bg"
+            className="bg-[var(--st-bg)]"
             onClick={handleCopy}
             disabled={!out}
             leading={copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
@@ -81,7 +81,7 @@ export default function AdwordsWrapperPage() {
           <Button 
             variant="outline"
             size="sm"
-            className="bg-zoru-bg"
+            className="bg-[var(--st-bg)]"
             onClick={handleDownloadCSV}
             disabled={!out}
             leading={<Download className="w-4 h-4" />}

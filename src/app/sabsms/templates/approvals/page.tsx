@@ -112,7 +112,7 @@ export default async function SabsmsApprovalsPage(props: PageProps) {
         ]}
         eyebrow="SabSMS · Admin"
       >
-        <p className="text-sm text-zoru-ink">
+        <p className="text-sm text-[var(--st-text)]">
           Sign in with reviewer access to use the approval queue.
         </p>
       </SabsmsPageShell>
@@ -157,7 +157,7 @@ export default async function SabsmsApprovalsPage(props: PageProps) {
         </ul>
       }
     >
-      <Suspense fallback={<div className="h-96 w-full bg-zoru-surface-2 animate-pulse rounded-xl" />}>
+      <Suspense fallback={<div className="h-96 w-full bg-[var(--st-bg-muted)] animate-pulse rounded-xl" />}>
         <ApprovalsDataLoader {...props} />
       </Suspense>
     </SabsmsPageShell>

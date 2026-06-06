@@ -41,7 +41,7 @@ export function ProjectSwitcher() {
 
     if (!activeProject) {
         return (
-            <div className="flex w-full items-center gap-2 text-sm font-semibold text-zoru-ink px-2">
+            <div className="flex w-full items-center gap-2 text-sm font-semibold text-[var(--st-text)] px-2">
                 <Briefcase className="h-4 w-4" />
                 <span className="truncate">No Project Selected</span>
             </div>

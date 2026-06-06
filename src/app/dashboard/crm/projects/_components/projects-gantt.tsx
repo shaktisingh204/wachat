@@ -36,7 +36,7 @@ export function ProjectsGantt({ rows }: { rows: ProjectRow[] }) {
 
   if (withDates.length === 0) {
     return (
-      <Card className="p-6 text-center text-[13px] text-zoru-ink-muted">
+      <Card className="p-6 text-center text-[13px] text-[var(--st-text-secondary)]">
         No projects have both a start date and a deadline — set dates to see a
         timeline view.
       </Card>
@@ -45,7 +45,7 @@ export function ProjectsGantt({ rows }: { rows: ProjectRow[] }) {
 
   return (
     <Card className="overflow-x-auto p-4">
-      <div className="mb-3 flex items-center justify-between text-[11.5px] text-zoru-ink-muted">
+      <div className="mb-3 flex items-center justify-between text-[11.5px] text-[var(--st-text-secondary)]">
         <span>{new Date(min).toLocaleDateString()}</span>
         <span>{new Date(max).toLocaleDateString()}</span>
       </div>
@@ -58,31 +58,31 @@ export function ProjectsGantt({ rows }: { rows: ProjectRow[] }) {
           const tone = statusToTone(p.status || '');
           const colorClass =
             tone === 'green'
-              ? 'bg-zoru-ink'
+              ? 'bg-[var(--st-text)]'
               : tone === 'amber'
-                ? 'bg-zoru-ink'
+                ? 'bg-[var(--st-text)]'
                 : tone === 'red'
-                  ? 'bg-zoru-ink'
+                  ? 'bg-[var(--st-text)]'
                   : tone === 'blue'
-                    ? 'bg-zoru-ink'
-                    : 'bg-zoru-ink-muted';
+                    ? 'bg-[var(--st-text)]'
+                    : 'bg-[var(--st-text-secondary)]';
           return (
             <div key={p._id} className="flex items-center gap-3">
               <Link
                 href={`/dashboard/crm/projects/${p._id}`}
-                className="w-44 shrink-0 truncate text-[12.5px] text-zoru-ink hover:underline"
+                className="w-44 shrink-0 truncate text-[12.5px] text-[var(--st-text)] hover:underline"
                 title={p.name}
               >
                 {p.name}
               </Link>
-              <div className="relative h-5 flex-1 rounded bg-zoru-surface-2">
+              <div className="relative h-5 flex-1 rounded bg-[var(--st-bg-muted)]">
                 <div
                   className={`absolute top-0 h-5 rounded ${colorClass}`}
                   style={{ left: `${left}%`, width: `${width}%` }}
                   title={`${fmtDate(p.startDate)} → ${fmtDate(p.deadline ?? p.endDate)}`}
                 />
               </div>
-              <span className="w-12 shrink-0 text-right text-[11.5px] tabular-nums text-zoru-ink-muted">
+              <span className="w-12 shrink-0 text-right text-[11.5px] tabular-nums text-[var(--st-text-secondary)]">
                 {Number(p.completionPercent ?? p.progress ?? 0)}%
               </span>
             </div>

@@ -64,7 +64,7 @@ export function TasksFiltersRow(props: TasksFiltersRowProps) {
         <Card>
             <ZoruCardContent className="grid grid-cols-1 gap-3 pt-4 md:grid-cols-3 lg:grid-cols-6">
                 <div className="space-y-1">
-                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Status
                     </Label>
                     <EnumFilterField
@@ -76,7 +76,7 @@ export function TasksFiltersRow(props: TasksFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Priority
                     </Label>
                     <EnumFilterField
@@ -90,7 +90,7 @@ export function TasksFiltersRow(props: TasksFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Type
                     </Label>
                     <EnumFilterField
@@ -104,7 +104,7 @@ export function TasksFiltersRow(props: TasksFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Assignee
                     </Label>
                     <EntityFormField
@@ -117,7 +117,7 @@ export function TasksFiltersRow(props: TasksFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Linked to
                     </Label>
                     <EnumFilterField
@@ -133,7 +133,7 @@ export function TasksFiltersRow(props: TasksFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Due
                     </Label>
                     <ZoruDateRangePicker

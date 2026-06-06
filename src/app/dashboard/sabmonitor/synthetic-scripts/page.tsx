@@ -12,7 +12,7 @@ export default async function SyntheticScriptsPage(): Promise<React.JSX.Element>
     return (
         <div className="flex flex-col gap-4">
             <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-zoru-ink">Synthetic browser scripts</h2>
+                <h2 className="text-sm font-semibold text-[var(--st-text)]">Synthetic browser scripts</h2>
                 <Button asChild>
                     <Link href="/dashboard/sabmonitor/synthetic-scripts/new">New script</Link>
                 </Button>
@@ -20,18 +20,18 @@ export default async function SyntheticScriptsPage(): Promise<React.JSX.Element>
             <Card className="zoruui">
                 <CardContent className="p-0">
                     {res.items.length === 0 ? (
-                        <p className="p-4 text-sm text-zoru-ink-muted">No scripts yet.</p>
+                        <p className="p-4 text-sm text-[var(--st-text-secondary)]">No scripts yet.</p>
                     ) : (
-                        <ul className="divide-y divide-zoru-line">
+                        <ul className="divide-y divide-[var(--st-border)]">
                             {res.items.map((s) => (
                                 <li key={s._id} className="flex items-center justify-between p-3">
                                     <Link
-                                        className="text-sm font-medium text-zoru-ink hover:underline"
+                                        className="text-sm font-medium text-[var(--st-text)] hover:underline"
                                         href={`/dashboard/sabmonitor/synthetic-scripts/${s._id}`}
                                     >
                                         {s.name}
                                     </Link>
-                                    <span className="text-[12px] text-zoru-ink-muted">
+                                    <span className="text-[12px] text-[var(--st-text-secondary)]">
                                         {s.screenshotOnFailure ? 'screenshots on failure' : '—'}
                                     </span>
                                 </li>

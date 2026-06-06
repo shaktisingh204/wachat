@@ -109,12 +109,12 @@ export function StepTemplate({ draft, templates, onChange }: StepTemplateProps) 
 
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <p className="text-xs font-medium uppercase tracking-wide text-zoru-ink">
+          <p className="text-xs font-medium uppercase tracking-wide text-[var(--st-text)]">
             Templates ({filtered.length})
           </p>
-          <div className="max-h-80 space-y-2 overflow-y-auto rounded border border-zoru-line p-2">
+          <div className="max-h-80 space-y-2 overflow-y-auto rounded border border-[var(--st-border)] p-2">
             {filtered.length === 0 ? (
-              <p className="p-4 text-sm text-zoru-ink">
+              <p className="p-4 text-sm text-[var(--st-text)]">
                 No templates yet. Create one at{" "}
                 <code>/sabsms/templates/new</code>.
               </p>
@@ -133,17 +133,17 @@ export function StepTemplate({ draft, templates, onChange }: StepTemplateProps) 
                     }
                     className={`w-full rounded border p-3 text-left transition ${
                       active
-                        ? "border-zoru-line bg-zoru-surface-2"
-                        : "border-zoru-line hover:border-zoru-line"
+                        ? "border-[var(--st-border)] bg-[var(--st-bg-muted)]"
+                        : "border-[var(--st-border)] hover:border-[var(--st-border)]"
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-medium text-zoru-ink">
+                      <span className="font-medium text-[var(--st-text)]">
                         {t.name}
                       </span>
                       <Badge variant="secondary">{t.category}</Badge>
                     </div>
-                    <p className="mt-1 line-clamp-2 text-xs text-zoru-ink">
+                    <p className="mt-1 line-clamp-2 text-xs text-[var(--st-text)]">
                       {t.bodies[0]?.body}
                     </p>
                   </button>
@@ -183,7 +183,7 @@ export function StepTemplate({ draft, templates, onChange }: StepTemplateProps) 
                 </Select>
               </div>
             )}
-            <pre className="whitespace-pre-wrap rounded bg-zoru-surface-2 p-3 text-xs text-zoru-ink">
+            <pre className="whitespace-pre-wrap rounded bg-[var(--st-bg-muted)] p-3 text-xs text-[var(--st-text)]">
               {previewBody || "No template selected."}
             </pre>
             {selected?.variables && selected.variables.length > 0 && (

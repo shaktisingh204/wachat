@@ -218,7 +218,7 @@ export function PaymentAccountFormClient({
                                               aria-describedby={accountNumberError ? 'acctnum-error' : undefined}
                                           />
                                           {accountNumberError ? (
-                                              <p id="acctnum-error" className="text-[11.5px] text-zoru-danger-ink">
+                                              <p id="acctnum-error" className="text-[11.5px] text-[var(--st-danger)]">
                                                   {accountNumberError}
                                               </p>
                                           ) : null}
@@ -306,7 +306,7 @@ export function PaymentAccountFormClient({
                             </div>
                             <div className="space-y-2">
                                 <Label>As of *</Label>
-                                {mounted ? <DatePicker value={openingBalanceDate} onChange={setOpeningBalanceDate} /> : <div className="h-10 w-full animate-pulse rounded-md bg-zoru-surface-2" />}
+                                {mounted ? <DatePicker value={openingBalanceDate} onChange={setOpeningBalanceDate} /> : <div className="h-10 w-full animate-pulse rounded-md bg-[var(--st-bg-muted)]" />}
                             </div>
                         </div>
                     ),
@@ -317,19 +317,19 @@ export function PaymentAccountFormClient({
                     description: 'Defaults + activation.',
                     children: (
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                            <label className="flex items-center justify-between rounded-lg border border-zoru-line bg-zoru-surface-2 p-3">
+                            <label className="flex items-center justify-between rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3">
                                 <div>
-                                    <p className="text-[13px] font-medium text-zoru-ink">Default account</p>
-                                    <p className="text-[11.5px] text-zoru-ink-muted">
+                                    <p className="text-[13px] font-medium text-[var(--st-text)]">Default account</p>
+                                    <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                                         Selected by default on new payments / receipts.
                                     </p>
                                 </div>
                                 <Switch name="isDefault" defaultChecked={initial?.isDefault ?? false} />
                             </label>
-                            <label className="flex items-center justify-between rounded-lg border border-zoru-line bg-zoru-surface-2 p-3">
+                            <label className="flex items-center justify-between rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3">
                                 <div>
-                                    <p className="text-[13px] font-medium text-zoru-ink">Active</p>
-                                    <p className="text-[11.5px] text-zoru-ink-muted">
+                                    <p className="text-[13px] font-medium text-[var(--st-text)]">Active</p>
+                                    <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                                         Inactive accounts stay in history but hide from pickers.
                                     </p>
                                 </div>

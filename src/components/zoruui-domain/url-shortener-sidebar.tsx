@@ -156,7 +156,7 @@ export function UrlShortenerSidebar({
 
       {/* Status */}
       <div className="space-y-1.5">
-        <div className="px-3 text-[11px] uppercase tracking-wider text-zoru-ink-muted/60">
+        <div className="px-3 text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)]/60">
           Status
         </div>
         <nav className="flex flex-col gap-0.5">
@@ -170,17 +170,17 @@ export function UrlShortenerSidebar({
                 className={cn(
                   'flex items-center gap-2 px-3 py-1.5 text-[12.5px] rounded-md mx-2 transition-colors text-left',
                   active
-                    ? 'bg-zoru-surface-2 text-zoru-ink'
-                    : 'text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink',
+                    ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
+                    : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]',
                 )}
               >
                 <span
                   className={cn(
                     'inline-block h-1.5 w-1.5 rounded-full',
-                    opt.value === 'all' && 'bg-zoru-ink-muted/40',
-                    opt.value === 'active' && 'bg-zoru-success',
-                    opt.value === 'expiring-soon' && 'bg-zoru-warning',
-                    opt.value === 'expired' && 'bg-zoru-danger',
+                    opt.value === 'all' && 'bg-[var(--st-text-secondary)]/40',
+                    opt.value === 'active' && 'bg-[var(--st-status-ok)]',
+                    opt.value === 'expiring-soon' && 'bg-[var(--st-warn)]',
+                    opt.value === 'expired' && 'bg-[var(--st-danger)]',
                   )}
                 />
                 {opt.label}
@@ -194,7 +194,7 @@ export function UrlShortenerSidebar({
 
       {/* Sort */}
       <div className="space-y-1.5">
-        <div className="px-3 text-[11px] uppercase tracking-wider text-zoru-ink-muted/60">
+        <div className="px-3 text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)]/60">
           Sort by
         </div>
         <nav className="flex flex-col gap-0.5">
@@ -208,8 +208,8 @@ export function UrlShortenerSidebar({
                 className={cn(
                   'flex items-center gap-2 px-3 py-1.5 text-[12.5px] rounded-md mx-2 transition-colors text-left',
                   active
-                    ? 'bg-zoru-surface-2 text-zoru-ink'
-                    : 'text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink',
+                    ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
+                    : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]',
                 )}
               >
                 {opt.label}
@@ -225,14 +225,14 @@ export function UrlShortenerSidebar({
           <Separator />
           <div className="space-y-1.5">
             <div className="flex items-center justify-between px-3">
-              <span className="text-[11px] uppercase tracking-wider text-zoru-ink-muted/60">
+              <span className="text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)]/60">
                 Tags
               </span>
               {filterTagIds.length > 0 ? (
                 <button
                   type="button"
                   onClick={() => onFilterTagsChange([])}
-                  className="text-[10.5px] text-zoru-ink-muted hover:text-zoru-ink"
+                  className="text-[10.5px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                 >
                   Clear
                 </button>
@@ -249,8 +249,8 @@ export function UrlShortenerSidebar({
                     className={cn(
                       'flex items-center gap-2 px-3 py-1.5 text-[12.5px] rounded-md mx-2 transition-colors text-left',
                       active
-                        ? 'bg-zoru-surface-2 text-zoru-ink'
-                        : 'text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink',
+                        ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
+                        : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]',
                     )}
                   >
                     <span
@@ -272,7 +272,7 @@ export function UrlShortenerSidebar({
       {/* Collections */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between px-3">
-          <span className="text-[11px] uppercase tracking-wider text-zoru-ink-muted/60">
+          <span className="text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)]/60">
             Collections
           </span>
           <Button
@@ -291,8 +291,8 @@ export function UrlShortenerSidebar({
           className={cn(
             'flex items-center gap-2 px-3 py-1.5 text-[12.5px] rounded-md mx-2 transition-colors text-left w-[calc(100%-1rem)]',
             selectedCollectionId === null
-              ? 'bg-zoru-surface-2 text-zoru-ink'
-              : 'text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink',
+              ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
+              : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]',
           )}
         >
           <Folder className="h-3.5 w-3.5 flex-shrink-0" />
@@ -300,7 +300,7 @@ export function UrlShortenerSidebar({
         </button>
 
         {adding ? (
-          <div className="mx-2 p-2 rounded-md border border-zoru-line bg-zoru-surface-2 space-y-2">
+          <div className="mx-2 p-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] space-y-2">
             <Input
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
@@ -320,7 +320,7 @@ export function UrlShortenerSidebar({
                   onClick={() => setNewColor(c)}
                   className={cn(
                     'h-4 w-4 rounded-full border-2 transition-transform',
-                    newColor === c ? 'border-zoru-ink scale-110' : 'border-transparent',
+                    newColor === c ? 'border-[var(--st-text)] scale-110' : 'border-transparent',
                   )}
                   style={{ backgroundColor: c }}
                 />
@@ -350,8 +350,8 @@ export function UrlShortenerSidebar({
             className={cn(
               'group flex items-center gap-2 px-3 py-1.5 text-[12.5px] rounded-md mx-2 transition-colors text-left w-[calc(100%-1rem)]',
               selectedCollectionId === col._id
-                ? 'bg-zoru-surface-2 text-zoru-ink'
-                : 'text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink',
+                ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
+                : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]',
             )}
           >
             <span
@@ -361,7 +361,7 @@ export function UrlShortenerSidebar({
             <span className="truncate flex-1 text-left">{col.name}</span>
             <span
               onClick={(e) => handleDelete(col._id, e)}
-              className="opacity-0 group-hover:opacity-100 transition-opacity text-zoru-danger-ink hover:text-zoru-danger p-0.5 rounded"
+              className="opacity-0 group-hover:opacity-100 transition-opacity text-[var(--st-danger)] hover:text-[var(--st-danger)] p-0.5 rounded"
               role="button"
               title="Delete collection"
             >
@@ -372,8 +372,8 @@ export function UrlShortenerSidebar({
 
         {collections.length === 0 && !adding ? (
           <div className="px-3 py-4 text-center">
-            <FolderX className="h-5 w-5 mx-auto text-zoru-ink-muted/40 mb-1" />
-            <p className="text-[11px] text-zoru-ink-muted/60">No collections yet</p>
+            <FolderX className="h-5 w-5 mx-auto text-[var(--st-text-secondary)]/40 mb-1" />
+            <p className="text-[11px] text-[var(--st-text-secondary)]/60">No collections yet</p>
           </div>
         ) : null}
       </div>

@@ -222,7 +222,7 @@ export function KbHelpfulWidget({
 
   return (
     <Card className="flex flex-col gap-3 p-4">
-      <h3 className="text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+      <h3 className="text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
         Was this helpful?
       </h3>
       <div className="flex items-center gap-2">
@@ -243,7 +243,7 @@ export function KbHelpfulWidget({
           <ThumbsDown className="h-3.5 w-3.5" /> No
         </Button>
       </div>
-      <p className="text-[11.5px] text-zoru-ink-muted">
+      <p className="text-[11.5px] text-[var(--st-text-secondary)]">
         {total > 0
           ? `${pct}% of ${total} reader${total === 1 ? "" : "s"} found this helpful`
           : "Be the first to vote"}

@@ -137,7 +137,7 @@ export function ReceiptListClient({
       render: (row) => row.clientId ? (
         <EntityPickerChip entity="client" id={row.clientId} />
       ) : (
-        <span className="text-zoru-ink-muted">—</span>
+        <span className="text-[var(--st-text-secondary)]">—</span>
       ),
     },
     {
@@ -145,7 +145,7 @@ export function ReceiptListClient({
       header: 'Date',
       sortable: true,
       render: (row) => (
-        <span className="text-[12.5px] text-zoru-ink-muted">
+        <span className="text-[12.5px] text-[var(--st-text-secondary)]">
           {fmtDate(row.date)}
         </span>
       ),
@@ -167,14 +167,14 @@ export function ReceiptListClient({
       render: (row) => row.bankAccountId ? (
         <EntityPickerChip entity="bankAccount" id={row.bankAccountId} />
       ) : (
-        <span className="text-zoru-ink-muted">—</span>
+        <span className="text-[var(--st-text-secondary)]">—</span>
       ),
     },
     {
       key: 'reference',
       header: 'Cheque / Ref',
       render: (row) => (
-        <span className="text-[12.5px] text-zoru-ink-muted">
+        <span className="text-[12.5px] text-[var(--st-text-secondary)]">
           {row.chequeNo || row.txnId || row.reference || '—'}
         </span>
       ),
@@ -184,7 +184,7 @@ export function ReceiptListClient({
       header: 'Amount',
       sortable: true,
       render: (row) => (
-        <span className="text-[12.5px] font-mono font-semibold tabular-nums text-zoru-ink">
+        <span className="text-[12.5px] font-mono font-semibold tabular-nums text-[var(--st-text)]">
           {fmtMoney(row.amount, row.currency)}
         </span>
       ),
@@ -201,7 +201,7 @@ export function ReceiptListClient({
         const options = ['received', 'cleared', 'bounced'];
         return (
           <select
-            className="h-8 w-28 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg text-zoru-ink text-[12.5px] p-1 outline-none focus:ring-1 focus:ring-zoru-primary"
+            className="h-8 w-28 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)] text-[12.5px] p-1 outline-none focus:ring-1 focus:ring-[var(--st-text)]"
             value={value !== undefined ? String(value) : 'received'}
             onChange={(e) => onChange(e.target.value)}
           >
@@ -219,9 +219,9 @@ export function ReceiptListClient({
       header: 'Applied Invoices',
       render: (row) => {
         const count = row.applyTo?.length ?? 0;
-        if (count === 0) return <span className="text-[12.5px] text-zoru-ink-muted">—</span>;
+        if (count === 0) return <span className="text-[12.5px] text-[var(--st-text-secondary)]">—</span>;
         return (
-          <span className="inline-flex items-center gap-1 rounded bg-zoru-surface-2 px-2 py-0.5 text-[11px] font-bold text-zoru-ink border border-zoru-line">
+          <span className="inline-flex items-center gap-1 rounded bg-[var(--st-bg-muted)] px-2 py-0.5 text-[11px] font-bold text-[var(--st-text)] border border-[var(--st-border)]">
             {count} invoice{count > 1 ? 's' : ''}
           </span>
         );
@@ -243,7 +243,7 @@ export function ReceiptListClient({
               size="sm"
               variant="ghost"
               onClick={() => onDelete(id)}
-              className="text-zoru-danger-ink"
+              className="text-[var(--st-danger)]"
             >
               <Trash2 className="h-3.5 w-3.5" />
             </Button>
@@ -255,8 +255,8 @@ export function ReceiptListClient({
 
   return (
     <Card className="overflow-hidden p-0">
-      <div className="p-3 border-b border-zoru-line flex items-center justify-between gap-4 bg-zoru-surface-2">
-        <span className="text-[12px] font-medium text-zoru-ink-muted">
+      <div className="p-3 border-b border-[var(--st-border)] flex items-center justify-between gap-4 bg-[var(--st-bg-muted)]">
+        <span className="text-[12px] font-medium text-[var(--st-text-secondary)]">
           Double-click status to edit inline.
         </span>
         <div className="flex gap-1.5">

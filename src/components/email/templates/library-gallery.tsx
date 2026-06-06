@@ -57,7 +57,7 @@ export function LibraryGallery({ templates }: LibraryGalleryProps) {
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {templates.map((t) => (
         <Card key={t._id} className="flex flex-col overflow-hidden">
-          <div className="relative aspect-[4/3] w-full overflow-hidden bg-zoru-surface-2">
+          <div className="relative aspect-[4/3] w-full overflow-hidden bg-[var(--st-bg-muted)]">
             {t.thumbnailUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -66,18 +66,18 @@ export function LibraryGallery({ templates }: LibraryGalleryProps) {
                 className="h-full w-full object-cover"
               />
             ) : (
-              <div className="flex h-full items-center justify-center text-zoru-ink-muted">
+              <div className="flex h-full items-center justify-center text-[var(--st-text-secondary)]">
                 <FileText className="h-8 w-8" />
               </div>
             )}
-            <Badge variant="outline" className="absolute right-2 top-2 gap-1 bg-zoru-surface">
+            <Badge variant="outline" className="absolute right-2 top-2 gap-1 bg-[var(--st-bg-secondary)]">
               <Sparkles className="h-3 w-3" /> Library
             </Badge>
           </div>
           <ZoruCardHeader>
             <ZoruCardTitle className="line-clamp-1 text-sm">{t.name}</ZoruCardTitle>
           </ZoruCardHeader>
-          <ZoruCardContent className="flex-1 text-xs text-zoru-ink-muted">
+          <ZoruCardContent className="flex-1 text-xs text-[var(--st-text-secondary)]">
             {t.category ?? 'General'}
           </ZoruCardContent>
           <ZoruCardFooter>

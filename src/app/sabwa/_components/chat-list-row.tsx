@@ -84,8 +84,8 @@ export function ChatListRow({
       aria-pressed={selected}
       className={cn(
         "group flex w-full items-center gap-3 rounded-[var(--zoru-radius)] px-3 py-2 text-left transition-colors",
-        "hover:bg-zoru-surface-2 hover:text-zoru-ink",
-        selected && "bg-zoru-surface text-zoru-ink",
+        "hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]",
+        selected && "bg-[var(--st-bg-secondary)] text-[var(--st-text)]",
         className,
       )}
     >
@@ -99,7 +99,7 @@ export function ChatListRow({
         {isGroup ? (
           <span
             aria-hidden
-            className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full border border-zoru-bg bg-zoru-surface text-zoru-ink"
+            className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full border border-[var(--st-bg)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
           >
             <UsersRound className="h-3 w-3" />
           </span>
@@ -108,15 +108,15 @@ export function ChatListRow({
 
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <span className="truncate text-sm font-medium text-zoru-ink">{name}</span>
+          <span className="truncate text-sm font-medium text-[var(--st-text)]">{name}</span>
           {chat.muted ? (
             <VolumeX
-              className="h-3.5 w-3.5 shrink-0 text-zoru-ink-muted"
+              className="h-3.5 w-3.5 shrink-0 text-[var(--st-text-secondary)]"
               aria-label="Muted"
             />
           ) : null}
         </div>
-        <p className="truncate text-xs text-zoru-ink-muted">
+        <p className="truncate text-xs text-[var(--st-text-secondary)]">
           {previewPrefix}
           {previewBody}
         </p>
@@ -126,7 +126,7 @@ export function ChatListRow({
         <span
           className={cn(
             "text-[10px] tabular-nums",
-            unread > 0 ? "text-zoru-ink" : "text-zoru-ink-muted",
+            unread > 0 ? "text-[var(--st-text)]" : "text-[var(--st-text-secondary)]",
           )}
         >
           {tsLabel}
@@ -134,13 +134,13 @@ export function ChatListRow({
         <div className="flex items-center gap-1">
           {chat.pinned ? (
             <Pin
-              className="h-3 w-3 text-zoru-ink-muted"
+              className="h-3 w-3 text-[var(--st-text-secondary)]"
               aria-label="Pinned"
             />
           ) : null}
           {unread > 0 ? (
             <span
-              className="inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-zoru-primary px-1.5 text-[10px] font-semibold text-zoru-primary-foreground"
+              className="inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-[var(--st-text)] px-1.5 text-[10px] font-semibold text-[var(--st-text-inverted)]"
               aria-label={`${unread} unread`}
             >
               {unread > 99 ? "99+" : unread}

@@ -47,11 +47,11 @@ export function MergeTagPicker({ onPick }: MergeTagPickerProps) {
                 type="button"
                 role="option"
                 aria-selected="false"
-                className="flex w-full flex-col items-start gap-0.5 rounded-sm px-2 py-1.5 text-left text-sm hover:bg-zoru-surface-2 focus:bg-zoru-surface-2 focus:outline-none"
+                className="flex w-full flex-col items-start gap-0.5 rounded-sm px-2 py-1.5 text-left text-sm hover:bg-[var(--st-bg-muted)] focus:bg-[var(--st-bg-muted)] focus:outline-none"
                 onClick={() => onPick(`{{${tag.key}}}`)}
               >
                 <span className="font-medium">{tag.label}</span>
-                <span className="text-xs text-zoru-ink-muted">
+                <span className="text-xs text-[var(--st-text-secondary)]">
                   <code className="font-mono">{`{{${tag.key}}}`}</code>
                   {tag.description ? ` — ${tag.description}` : null}
                 </span>

@@ -63,7 +63,7 @@ export function BasesListClient({ workspace, initialItems }: Props) {
     <div className="px-6 py-8 space-y-8">
       <Link
         href="/dashboard/sabtables"
-        className="inline-flex items-center text-sm text-zoru-ink-muted hover:text-zoru-ink"
+        className="inline-flex items-center text-sm text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
       >
         <ChevronLeft className="w-4 h-4 mr-1" /> All workspaces
       </Link>
@@ -108,7 +108,7 @@ export function BasesListClient({ workspace, initialItems }: Props) {
                   <div className="min-w-0">
                     <div className="font-semibold truncate">{b.name}</div>
                     {b.description ? (
-                      <div className="text-sm text-zoru-ink-muted line-clamp-2">
+                      <div className="text-sm text-[var(--st-text-secondary)] line-clamp-2">
                         {b.description}
                       </div>
                     ) : null}

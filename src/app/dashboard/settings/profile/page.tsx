@@ -123,12 +123,12 @@ export default function ProfileSettingsPage() {
         <form action={formAction} className="flex flex-col gap-4">
           <Card className="p-6">
             <div className="mb-5 flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                 <UserIcon className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-sm text-zoru-ink">{user.name ?? t('settings.profile.unnamedUser')}</p>
-                <p className="text-xs text-zoru-ink-muted">{user.email}</p>
+                <p className="text-sm text-[var(--st-text)]">{user.name ?? t('settings.profile.unnamedUser')}</p>
+                <p className="text-xs text-[var(--st-text-secondary)]">{user.email}</p>
               </div>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -176,8 +176,8 @@ export default function ProfileSettingsPage() {
 
           <Card className="p-6">
             <div className="mb-4">
-              <p className="text-sm text-zoru-ink">{t('settings.profile.bio.title')}</p>
-              <p className="text-xs text-zoru-ink-muted">
+              <p className="text-sm text-[var(--st-text)]">{t('settings.profile.bio.title')}</p>
+              <p className="text-xs text-[var(--st-text-secondary)]">
                 {t('settings.profile.bio.description')}
               </p>
             </div>

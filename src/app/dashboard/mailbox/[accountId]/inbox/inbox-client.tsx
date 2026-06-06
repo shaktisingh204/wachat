@@ -184,7 +184,7 @@ export function InboxClient({
     return (
         <div className="grid h-[calc(100vh-7rem)] grid-cols-1 gap-3 p-3 md:grid-cols-[14rem_1fr] lg:grid-cols-[14rem_22rem_1fr]">
             {/* Folder tree */}
-            <aside className="flex min-h-0 flex-col gap-1 overflow-auto rounded-md border border-zoru-line bg-zoru-bg p-2">
+            <aside className="flex min-h-0 flex-col gap-1 overflow-auto rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] p-2">
                 <Button asChild size="sm" className="mb-2 w-full justify-start">
                     <Link href={`/dashboard/mailbox/${accountId}/compose`}>
                         <PencilLine className="mr-2 h-4 w-4" />
@@ -192,7 +192,7 @@ export function InboxClient({
                     </Link>
                 </Button>
                 {folders.length === 0 ? (
-                    <p className="px-2 py-3 text-xs text-zoru-ink-muted">
+                    <p className="px-2 py-3 text-xs text-[var(--st-text-secondary)]">
                         No folders yet — defaults appear on first sync.
                     </p>
                 ) : (
@@ -208,8 +208,8 @@ export function InboxClient({
                                 className={cn(
                                     'flex items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left text-sm',
                                     isActive
-                                        ? 'bg-zoru-surface-2 text-zoru-ink'
-                                        : 'text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink',
+                                        ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
+                                        : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]',
                                 )}
                             >
                                 <span className="flex items-center gap-2 truncate">
@@ -226,8 +226,8 @@ export function InboxClient({
             </aside>
 
             {/* Message list */}
-            <section className="flex min-h-0 flex-col gap-2 overflow-hidden rounded-md border border-zoru-line bg-zoru-bg">
-                <div className="flex items-center gap-2 border-b border-zoru-line p-2">
+            <section className="flex min-h-0 flex-col gap-2 overflow-hidden rounded-md border border-[var(--st-border)] bg-[var(--st-bg)]">
+                <div className="flex items-center gap-2 border-b border-[var(--st-border)] p-2">
                     <Input
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
@@ -268,7 +268,7 @@ export function InboxClient({
                             description="When mail arrives, it will land here."
                         />
                     ) : (
-                        <ul className="divide-y divide-zoru-line">
+                        <ul className="divide-y divide-[var(--st-border)]">
                             {filtered.map((m) => {
                                 const id = m._id!;
                                 const isSelected = id === selectedId;
@@ -276,8 +276,8 @@ export function InboxClient({
                                     <li
                                         key={id}
                                         className={cn(
-                                            'cursor-pointer px-3 py-2 text-sm hover:bg-zoru-surface-2',
-                                            isSelected && 'bg-zoru-surface-2',
+                                            'cursor-pointer px-3 py-2 text-sm hover:bg-[var(--st-bg-muted)]',
+                                            isSelected && 'bg-[var(--st-bg-muted)]',
                                         )}
                                         onClick={() => handleSelect(m)}
                                     >
@@ -286,26 +286,26 @@ export function InboxClient({
                                                 className={cn(
                                                     'truncate',
                                                     m.unread
-                                                        ? 'font-semibold text-zoru-ink'
-                                                        : 'text-zoru-ink-muted',
+                                                        ? 'font-semibold text-[var(--st-text)]'
+                                                        : 'text-[var(--st-text-secondary)]',
                                                 )}
                                             >
                                                 {m.fromAddr?.name ?? m.fromAddr?.email ?? 'Unknown'}
                                             </span>
-                                            <span className="shrink-0 text-xs text-zoru-ink-muted">
+                                            <span className="shrink-0 text-xs text-[var(--st-text-secondary)]">
                                                 {formatTime(m.receivedAt ?? m.createdAt)}
                                             </span>
                                         </div>
                                         <div
                                             className={cn(
                                                 'truncate',
-                                                m.unread ? 'font-medium text-zoru-ink' : 'text-zoru-ink-muted',
+                                                m.unread ? 'font-medium text-[var(--st-text)]' : 'text-[var(--st-text-secondary)]',
                                             )}
                                         >
                                             {m.subject || '(no subject)'}
                                         </div>
                                         {m.snippet && (
-                                            <div className="truncate text-xs text-zoru-ink-muted">
+                                            <div className="truncate text-xs text-[var(--st-text-secondary)]">
                                                 {m.snippet}
                                             </div>
                                         )}
@@ -318,7 +318,7 @@ export function InboxClient({
             </section>
 
             {/* Preview pane */}
-            <section className="hidden min-h-0 overflow-hidden rounded-md border border-zoru-line bg-zoru-bg lg:flex lg:flex-col">
+            <section className="hidden min-h-0 overflow-hidden rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] lg:flex lg:flex-col">
                 {!selected ? (
                     <EmptyState
                         icon={<Mail className="h-8 w-8" />}
@@ -327,13 +327,13 @@ export function InboxClient({
                     />
                 ) : (
                     <>
-                        <header className="flex flex-col gap-2 border-b border-zoru-line p-4">
+                        <header className="flex flex-col gap-2 border-b border-[var(--st-border)] p-4">
                             <div className="flex items-start justify-between gap-3">
                                 <div className="min-w-0">
                                     <h2 className="truncate text-base font-semibold">
                                         {selected.subject || '(no subject)'}
                                     </h2>
-                                    <p className="truncate text-sm text-zoru-ink-muted">
+                                    <p className="truncate text-sm text-[var(--st-text-secondary)]">
                                         From{' '}
                                         <span className="font-medium">
                                             {selected.fromAddr?.name ?? selected.fromAddr?.email}
@@ -352,7 +352,7 @@ export function InboxClient({
                                         <Star
                                             className={cn(
                                                 'h-4 w-4',
-                                                selected.starred && 'fill-zoru-ink-muted text-zoru-ink',
+                                                selected.starred && 'fill-[var(--st-text-secondary)] text-[var(--st-text)]',
                                             )}
                                         />
                                     </Button>
@@ -399,7 +399,7 @@ export function InboxClient({
                                     </Button>
                                 </div>
                             </div>
-                            <div className="flex flex-wrap gap-2 text-xs text-zoru-ink-muted">
+                            <div className="flex flex-wrap gap-2 text-xs text-[var(--st-text-secondary)]">
                                 <span>To:</span>
                                 {(selected.toAddrs ?? []).map((t, i) => (
                                     <Badge key={i} variant="secondary">
@@ -410,7 +410,7 @@ export function InboxClient({
                         </header>
                         <div className="flex-1 overflow-auto p-4 text-sm">
                             <Card className="max-w-3xl border-dashed">
-                                <div className="p-4 text-sm text-zoru-ink-muted">
+                                <div className="p-4 text-sm text-[var(--st-text-secondary)]">
                                     {selected.snippet ? (
                                         <p>{selected.snippet}</p>
                                     ) : (
@@ -432,7 +432,7 @@ export function InboxClient({
                                         {selected.attachmentFileIds.map((fid) => (
                                             <li
                                                 key={fid}
-                                                className="rounded-md border border-zoru-line px-2 py-1 font-mono text-zoru-ink-muted"
+                                                className="rounded-md border border-[var(--st-border)] px-2 py-1 font-mono text-[var(--st-text-secondary)]"
                                             >
                                                 {fid}
                                             </li>

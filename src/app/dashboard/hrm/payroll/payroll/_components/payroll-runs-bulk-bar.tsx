@@ -27,13 +27,13 @@ export function PayrollRunsBulkBar({
 }: PayrollRunsBulkBarProps): React.JSX.Element {
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <span className="text-[13px] text-zoru-ink">
+      <span className="text-[13px] text-[var(--st-text)]">
         <span className="font-medium tabular-nums">{count}</span>
         {count === 1 ? ' run' : ' runs'} selected
       </span>
-      <span className="mx-1 h-4 w-px bg-zoru-line" aria-hidden />
+      <span className="mx-1 h-4 w-px bg-[var(--st-border)]" aria-hidden />
       <Button size="sm" variant="outline" onClick={onApprove}>
-        <Check className="h-3.5 w-3.5 text-zoru-ink" /> Approve
+        <Check className="h-3.5 w-3.5 text-[var(--st-text)]" /> Approve
       </Button>
       <Button size="sm" variant="outline" onClick={onDisburse}>
         <Banknote className="h-3.5 w-3.5" /> Disburse

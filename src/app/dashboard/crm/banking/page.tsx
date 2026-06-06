@@ -173,7 +173,7 @@ async function BankingDashboardData() {
         primary: tx.description || 'Bank transaction',
         secondary: formatDate(tx.txnDate || tx.createdAt),
         trailing: (
-            <span className={tx.type === 'credit' ? 'text-zoru-success-ink' : 'text-zoru-ink'}>
+            <span className={tx.type === 'credit' ? 'text-[var(--st-status-ok)]' : 'text-[var(--st-text)]'}>
                 {tx.type === 'credit' ? (
                     <ArrowDownLeft className="mr-1 inline h-3 w-3" />
                 ) : (
@@ -190,7 +190,7 @@ async function BankingDashboardData() {
             <HubKpiGrid kpis={kpis} />
             
             <div className="flex flex-col gap-3">
-                <h2 className="text-[14px] font-medium text-zoru-ink px-1">Navigation</h2>
+                <h2 className="text-[14px] font-medium text-[var(--st-text)] px-1">Navigation</h2>
                 <HubQuickLinkGrid links={QUICK_LINKS} />
             </div>
 
@@ -205,20 +205,20 @@ async function BankingDashboardData() {
                 </div>
                 
                 <div className="flex flex-col gap-3 lg:col-span-1">
-                    <h2 className="text-[14px] font-medium text-zoru-ink px-1">Smart Features</h2>
+                    <h2 className="text-[14px] font-medium text-[var(--st-text)] px-1">Smart Features</h2>
                     {SMART_FEATURES.map((feat) => {
                         const Icon = feat.icon;
                         return (
                             <Card key={feat.title} className="p-4 flex flex-col gap-3">
                                 <div className="flex items-start gap-3">
-                                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink">
+                                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                                         <Icon className="h-4 w-4" strokeWidth={2} />
                                     </div>
                                     <div className="flex-1">
-                                        <h3 className="text-[13px] font-medium text-zoru-ink">
+                                        <h3 className="text-[13px] font-medium text-[var(--st-text)]">
                                             {feat.title}
                                         </h3>
-                                        <p className="mt-0.5 text-[12px] leading-relaxed text-zoru-ink-muted">
+                                        <p className="mt-0.5 text-[12px] leading-relaxed text-[var(--st-text-secondary)]">
                                             {feat.description}
                                         </p>
                                     </div>

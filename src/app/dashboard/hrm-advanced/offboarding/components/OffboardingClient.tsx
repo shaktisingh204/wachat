@@ -243,7 +243,7 @@ export function OffboardingClient({ initialTasks, onSaveTask, onDeleteTask }: Of
     >
       <div className="flex gap-4 items-center mb-4">
         <select 
-          className="h-10 rounded-md border border-zoru-line bg-transparent px-3 py-2 text-sm"
+          className="h-10 rounded-md border border-[var(--st-border)] bg-transparent px-3 py-2 text-sm"
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as any)}
         >
@@ -253,18 +253,18 @@ export function OffboardingClient({ initialTasks, onSaveTask, onDeleteTask }: Of
         </select>
         
         {selectedIds.size > 0 && (
-          <div className="flex gap-2 items-center bg-zoru-surface-2 text-zoru-ink px-3 py-1.5 rounded-md dark:bg-zoru-ink dark:text-white">
+          <div className="flex gap-2 items-center bg-[var(--st-bg-muted)] text-[var(--st-text)] px-3 py-1.5 rounded-md dark:bg-[var(--st-text)] dark:text-white">
             <span className="text-sm font-medium">{selectedIds.size} selected</span>
             <Button variant="ghost" size="sm" onClick={handleBulkComplete}>Mark Complete</Button>
-            <Button variant="ghost" size="sm" className="text-zoru-ink hover:text-zoru-ink dark:text-zoru-ink-muted" onClick={handleBulkDelete}>Delete</Button>
+            <Button variant="ghost" size="sm" className="text-[var(--st-text)] hover:text-[var(--st-text)] dark:text-[var(--st-text-secondary)]" onClick={handleBulkDelete}>Delete</Button>
           </div>
         )}
       </div>
 
-      <div className="rounded-md border border-zoru-line overflow-hidden flex flex-col h-[500px]">
+      <div className="rounded-md border border-[var(--st-border)] overflow-hidden flex flex-col h-[500px]">
         <div className="overflow-auto flex-1" ref={parentRef}>
           <Table>
-            <ZoruTableHeader className="sticky top-0 bg-white dark:bg-zoru-ink z-10">
+            <ZoruTableHeader className="sticky top-0 bg-white dark:bg-[var(--st-text)] z-10">
               <ZoruTableRow>
                 <ZoruTableHead className="w-[50px]">
                   <input 
@@ -304,7 +304,7 @@ export function OffboardingClient({ initialTasks, onSaveTask, onDeleteTask }: Of
                     <ZoruTableCell>{row.taskName}</ZoruTableCell>
                     <ZoruTableCell>{row.employeeId}</ZoruTableCell>
                     <ZoruTableCell>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${row.isCompleted ? 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink dark:text-white' : 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink dark:text-white'}`}>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${row.isCompleted ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)] dark:text-white' : 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)] dark:text-white'}`}>
                         {row.isCompleted ? 'Yes' : 'No'}
                       </span>
                     </ZoruTableCell>
@@ -314,7 +314,7 @@ export function OffboardingClient({ initialTasks, onSaveTask, onDeleteTask }: Of
                     <ZoruTableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         <Button variant="ghost" size="sm" onClick={() => { setEditingItem(row); setIsDialogOpen(true); }}>Edit</Button>
-                        <Button variant="ghost" size="sm" className="text-zoru-ink hover:text-zoru-ink hover:bg-zoru-surface-2" onClick={() => handleDelete(row._id!)}>Del</Button>
+                        <Button variant="ghost" size="sm" className="text-[var(--st-text)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]" onClick={() => handleDelete(row._id!)}>Del</Button>
                       </div>
                     </ZoruTableCell>
                   </ZoruTableRow>

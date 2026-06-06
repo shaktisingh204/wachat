@@ -115,29 +115,29 @@ export default async function InterviewDetailPage({ params }: PageProps) {
                 hint={candidate.email || ''}
               />
             ) : (
-              <p className="px-2 py-1.5 text-zoru-ink-muted">
+              <p className="px-2 py-1.5 text-[var(--st-text-secondary)]">
                 No linked candidate.
               </p>
             )}
           </RailCard>
           <RailCard title="Quick stats">
             <p>
-              <span className="text-zoru-ink-muted">Round: </span>
-              <span className="text-zoru-ink">R{i.roundNumber ?? '?'}</span>
+              <span className="text-[var(--st-text-secondary)]">Round: </span>
+              <span className="text-[var(--st-text)]">R{i.roundNumber ?? '?'}</span>
             </p>
             <p>
-              <span className="text-zoru-ink-muted">Type: </span>
-              <span className="text-zoru-ink">{i.type || '—'}</span>
+              <span className="text-[var(--st-text-secondary)]">Type: </span>
+              <span className="text-[var(--st-text)]">{i.type || '—'}</span>
             </p>
             <p>
-              <span className="text-zoru-ink-muted">Duration: </span>
-              <span className="text-zoru-ink">
+              <span className="text-[var(--st-text-secondary)]">Duration: </span>
+              <span className="text-[var(--st-text)]">
                 {i.durationMinutes ? `${i.durationMinutes} min` : '—'}
               </span>
             </p>
             <p>
-              <span className="text-zoru-ink-muted">Rating: </span>
-              <span className="text-zoru-ink">
+              <span className="text-[var(--st-text-secondary)]">Rating: </span>
+              <span className="text-[var(--st-text)]">
                 {i.rating != null ? `${i.rating}/5` : '—'}
               </span>
             </p>
@@ -154,7 +154,7 @@ export default async function InterviewDetailPage({ params }: PageProps) {
             value: i.candidateId ? (
               <Link
                 href={`/dashboard/hrm/hr/candidates/${i.candidateId}`}
-                className="text-zoru-ink hover:underline"
+                className="text-[var(--st-text)] hover:underline"
               >
                 {candidate?.name || String(i.candidateId)}
               </Link>
@@ -194,7 +194,7 @@ export default async function InterviewDetailPage({ params }: PageProps) {
               <Link
                 href={i.meetingLink}
                 target="_blank"
-                className="text-zoru-ink underline-offset-2 hover:underline"
+                className="text-[var(--st-text)] underline-offset-2 hover:underline"
               >
                 {i.meetingLink}
               </Link>

@@ -156,14 +156,14 @@ export function TicketConversation({
 
   return (
     <Card className="flex flex-col gap-4 p-6">
-      <h3 className="text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+      <h3 className="text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
         Conversation
       </h3>
 
       {children}
 
       <div className="flex flex-col gap-2">
-        <div className="inline-flex rounded-md border border-zoru-line p-0.5 self-start">
+        <div className="inline-flex rounded-md border border-[var(--st-border)] p-0.5 self-start">
           {(["note", "reply", "forward"] as const).map((m) => (
             <button
               key={m}
@@ -173,8 +173,8 @@ export function TicketConversation({
               className={[
                 "rounded-sm px-2 py-1 text-[12px] capitalize",
                 mode === m
-                  ? "bg-zoru-surface text-zoru-ink"
-                  : "text-zoru-ink-muted hover:text-zoru-ink",
+                  ? "bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
+                  : "text-[var(--st-text-secondary)] hover:text-[var(--st-text)]",
               ].join(" ")}
             >
               {m}
@@ -184,7 +184,7 @@ export function TicketConversation({
 
         <Label
           htmlFor="ticket-note-body"
-          className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle"
+          className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]"
         >
           Message
         </Label>
@@ -198,7 +198,7 @@ export function TicketConversation({
 
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-4">
-            <label className="inline-flex items-center gap-2 text-[12.5px] text-zoru-ink-muted">
+            <label className="inline-flex items-center gap-2 text-[12.5px] text-[var(--st-text-secondary)]">
               <input
                 type="checkbox"
                 checked={kind === "internal"}

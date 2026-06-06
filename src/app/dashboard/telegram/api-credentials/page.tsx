@@ -165,7 +165,7 @@ function MaskedCell({
     return (
         <button
             type="button"
-            className="inline-flex items-center gap-1 rounded-md border border-zoru-line bg-zoru-surface-2 px-2 py-1 font-mono text-[11px] text-zoru-ink hover:bg-zoru-surface-3"
+            className="inline-flex items-center gap-1 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2 py-1 font-mono text-[11px] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
             onClick={() => {
                 setShown((s) => !s);
                 if (!shown && onReveal) onReveal();
@@ -535,10 +535,10 @@ export default function TelegramApiCredentialsPage() {
                     <KeyRound className="h-6 w-6 text-white" strokeWidth={1.75} />
                 </div>
                 <div className="flex-1">
-                    <h1 className="text-[22px] leading-tight text-zoru-ink">
+                    <h1 className="text-[22px] leading-tight text-[var(--st-text)]">
                         Telegram API Credentials (MTProto)
                     </h1>
-                    <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-zoru-ink-muted">
+                    <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-[var(--st-text-secondary)]">
                         Store the <code className="font-mono text-[12px]">api_id</code>/
                         <code className="font-mono text-[12px]">api_hash</code> pair from{' '}
                         <a
@@ -587,8 +587,8 @@ export default function TelegramApiCredentialsPage() {
                     background: '#FEF6D7',
                 }}
             >
-                <AlertTriangle className="mt-0.5 h-4 w-4 text-zoru-ink" />
-                <div className="text-[12.5px] leading-relaxed text-zoru-ink">
+                <AlertTriangle className="mt-0.5 h-4 w-4 text-[var(--st-text)]" />
+                <div className="text-[12.5px] leading-relaxed text-[var(--st-text)]">
                     <strong>MTProto login flow is in preview.</strong> Credentials are stored
                     securely; live MTProto sessions are not yet running. Use Bot API on the
                     Bots page for standard automation.
@@ -605,10 +605,10 @@ export default function TelegramApiCredentialsPage() {
 
             {/* Table */}
             <Card className="p-0">
-                <div className="flex items-center justify-between border-b border-zoru-line px-4 py-3">
+                <div className="flex items-center justify-between border-b border-[var(--st-border)] px-4 py-3">
                     <div>
-                        <h2 className="text-[14px] text-zoru-ink">Credentials</h2>
-                        <p className="text-[12px] text-zoru-ink-muted">
+                        <h2 className="text-[14px] text-[var(--st-text)]">Credentials</h2>
+                        <p className="text-[12px] text-[var(--st-text-secondary)]">
                             One credential pair per user per project.
                         </p>
                     </div>
@@ -621,7 +621,7 @@ export default function TelegramApiCredentialsPage() {
                         ))}
                     </div>
                 ) : loadError ? (
-                    <div className="p-6 text-center text-[13px] text-zoru-danger-ink">
+                    <div className="p-6 text-center text-[13px] text-[var(--st-danger)]">
                         {loadError}
                     </div>
                 ) : rows.length === 0 ? (
@@ -645,7 +645,7 @@ export default function TelegramApiCredentialsPage() {
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="w-full text-[13px]">
-                            <thead className="bg-zoru-surface-2 text-[11.5px] uppercase tracking-[0.08em] text-zoru-ink-muted">
+                            <thead className="bg-[var(--st-bg-muted)] text-[11.5px] uppercase tracking-[0.08em] text-[var(--st-text-secondary)]">
                                 <tr>
                                     <th className="px-4 py-2 text-left">Label</th>
                                     <th className="px-4 py-2 text-left">Phone</th>
@@ -661,21 +661,21 @@ export default function TelegramApiCredentialsPage() {
                                 {rows.map((r) => (
                                     <tr
                                         key={r._id}
-                                        className="border-t border-zoru-line hover:bg-zoru-surface-2"
+                                        className="border-t border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]"
                                     >
                                         <td className="px-4 py-3">
                                             <button
                                                 type="button"
                                                 onClick={() => void openDetail(r)}
-                                                className="text-zoru-ink hover:underline"
+                                                className="text-[var(--st-text)] hover:underline"
                                             >
-                                                {r.label ?? <span className="italic text-zoru-ink-muted">unnamed</span>}
+                                                {r.label ?? <span className="italic text-[var(--st-text-secondary)]">unnamed</span>}
                                             </button>
                                         </td>
-                                        <td className="px-4 py-3 font-mono text-[12px] text-zoru-ink-muted">
+                                        <td className="px-4 py-3 font-mono text-[12px] text-[var(--st-text-secondary)]">
                                             {r.phoneNumberMasked}
                                         </td>
-                                        <td className="px-4 py-3 font-mono text-[12px] text-zoru-ink">
+                                        <td className="px-4 py-3 font-mono text-[12px] text-[var(--st-text)]">
                                             {r.apiId}
                                         </td>
                                         <td className="px-4 py-3">
@@ -695,7 +695,7 @@ export default function TelegramApiCredentialsPage() {
                                                 <Badge variant="ghost">Live</Badge>
                                             )}
                                         </td>
-                                        <td className="px-4 py-3 text-zoru-ink-muted">
+                                        <td className="px-4 py-3 text-[var(--st-text-secondary)]">
                                             {fmtDate(r.lastVerifiedAt)}
                                         </td>
                                         <td className="px-4 py-3 text-right">
@@ -856,7 +856,7 @@ export default function TelegramApiCredentialsPage() {
                         </Field>
 
                         {createErr ? (
-                            <div className="rounded-md border border-zoru-danger-line bg-zoru-danger-surface px-3 py-2 text-[12.5px] text-zoru-danger-ink">
+                            <div className="rounded-md border border-zoru-danger-line bg-zoru-danger-surface px-3 py-2 text-[12.5px] text-[var(--st-danger)]">
                                 {createErr}
                             </div>
                         ) : null}
@@ -922,7 +922,7 @@ export default function TelegramApiCredentialsPage() {
                             </section>
 
                             <section>
-                                <h3 className="mb-2 text-[12.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
+                                <h3 className="mb-2 text-[12.5px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
                                     Edit metadata
                                 </h3>
                                 <div className="flex flex-col gap-3">
@@ -982,11 +982,11 @@ export default function TelegramApiCredentialsPage() {
                             </section>
 
                             <section>
-                                <h3 className="mb-2 text-[12.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
+                                <h3 className="mb-2 text-[12.5px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
                                     Login sessions
                                 </h3>
                                 {sessions.length === 0 ? (
-                                    <p className="text-[12.5px] text-zoru-ink-muted">
+                                    <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                                         No login sessions yet.
                                     </p>
                                 ) : (
@@ -994,17 +994,17 @@ export default function TelegramApiCredentialsPage() {
                                         {sessions.map((s) => (
                                             <li
                                                 key={s._id}
-                                                className="rounded-lg border border-zoru-line bg-zoru-surface-2 p-3"
+                                                className="rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3"
                                             >
                                                 <div className="flex items-center justify-between">
-                                                    <span className="font-mono text-[11.5px] text-zoru-ink-muted">
+                                                    <span className="font-mono text-[11.5px] text-[var(--st-text-secondary)]">
                                                         {s._id}
                                                     </span>
                                                     <Badge variant="ghost">
                                                         {s.status}
                                                     </Badge>
                                                 </div>
-                                                <div className="mt-1 text-[11.5px] text-zoru-ink-muted">
+                                                <div className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">
                                                     Started {fmtDate(s.startedAt)} ·
                                                     {s.placeholder ? ' placeholder' : ' live'}
                                                 </div>
@@ -1015,11 +1015,11 @@ export default function TelegramApiCredentialsPage() {
                             </section>
 
                             <section>
-                                <h3 className="mb-2 text-[12.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
+                                <h3 className="mb-2 text-[12.5px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
                                     Audit log
                                 </h3>
                                 {auditItems.length === 0 ? (
-                                    <p className="text-[12.5px] text-zoru-ink-muted">
+                                    <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                                         No audit entries yet.
                                     </p>
                                 ) : (
@@ -1027,17 +1027,17 @@ export default function TelegramApiCredentialsPage() {
                                         {auditItems.map((a) => (
                                             <li
                                                 key={a._id}
-                                                className="rounded-md border border-zoru-line px-3 py-2 text-[12px]"
+                                                className="rounded-md border border-[var(--st-border)] px-3 py-2 text-[12px]"
                                             >
                                                 <div className="flex items-center justify-between">
-                                                    <span className="font-mono uppercase tracking-[0.08em] text-zoru-ink">
+                                                    <span className="font-mono uppercase tracking-[0.08em] text-[var(--st-text)]">
                                                         {a.action}
                                                     </span>
-                                                    <span className="text-zoru-ink-muted">
+                                                    <span className="text-[var(--st-text-secondary)]">
                                                         {fmtDate(a.at)}
                                                     </span>
                                                 </div>
-                                                <p className="mt-1 text-zoru-ink-muted">
+                                                <p className="mt-1 text-[var(--st-text-secondary)]">
                                                     {a.detail}
                                                 </p>
                                             </li>
@@ -1071,12 +1071,12 @@ export default function TelegramApiCredentialsPage() {
 
                     {loginStep === 'start' ? (
                         <div className="flex flex-col gap-3">
-                            <p className="text-[13px] text-zoru-ink">
+                            <p className="text-[13px] text-[var(--st-text)]">
                                 Click <strong>Open session</strong> to record a placeholder login
                                 session for{' '}
                                 <span className="font-mono">{loginRow?.phoneNumberMasked}</span>.
                             </p>
-                            <p className="text-[12px] text-zoru-ink-muted">
+                            <p className="text-[12px] text-[var(--st-text-secondary)]">
                                 A future MTProto worker will pick the session up and call
                                 Telegram's <code>sendCode</code> for real.
                             </p>
@@ -1084,7 +1084,7 @@ export default function TelegramApiCredentialsPage() {
                     ) : null}
                     {loginStep === 'code' ? (
                         <div className="flex flex-col gap-3">
-                            <p className="text-[12.5px] text-zoru-ink-muted">
+                            <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                                 Session id:{' '}
                                 <code className="font-mono">{loginSessionId}</code>
                             </p>
@@ -1102,7 +1102,7 @@ export default function TelegramApiCredentialsPage() {
                     ) : null}
                     {loginStep === 'password' ? (
                         <div className="flex flex-col gap-3">
-                            <p className="text-[12.5px] text-zoru-ink-muted">
+                            <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                                 Session id:{' '}
                                 <code className="font-mono">{loginSessionId}</code>
                             </p>
@@ -1120,11 +1120,11 @@ export default function TelegramApiCredentialsPage() {
                     ) : null}
                     {loginStep === 'done' ? (
                         <div className="flex flex-col items-center gap-2 py-2">
-                            <CheckCircle2 className="h-8 w-8 text-zoru-ink" />
-                            <p className="text-[13px] text-zoru-ink">
+                            <CheckCircle2 className="h-8 w-8 text-[var(--st-text)]" />
+                            <p className="text-[13px] text-[var(--st-text)]">
                                 Placeholder login complete.
                             </p>
-                            <p className="text-[12px] text-zoru-ink-muted">
+                            <p className="text-[12px] text-[var(--st-text-secondary)]">
                                 Credential marked active.
                             </p>
                         </div>
@@ -1231,12 +1231,12 @@ function Field({
 }) {
     return (
         <label className="flex flex-col gap-1.5">
-            <span className="text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
+            <span className="text-[11.5px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
                 {label}
             </span>
             {children}
             {hint ? (
-                <span className="text-[11px] text-zoru-ink-muted">{hint}</span>
+                <span className="text-[11px] text-[var(--st-text-secondary)]">{hint}</span>
             ) : null}
         </label>
     );
@@ -1245,10 +1245,10 @@ function Field({
 function Info({ label, value }: { label: string; value: string }) {
     return (
         <div>
-            <p className="text-[11px] uppercase tracking-[0.1em] text-zoru-ink-muted">
+            <p className="text-[11px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
                 {label}
             </p>
-            <p className="mt-0.5 text-[13px] text-zoru-ink">{value}</p>
+            <p className="mt-0.5 text-[13px] text-[var(--st-text)]">{value}</p>
         </div>
     );
 }
@@ -1264,16 +1264,16 @@ function KpiCard({
 }) {
     const color =
         accent === 'success'
-            ? 'text-zoru-ink'
+            ? 'text-[var(--st-text)]'
             : accent === 'info'
-              ? 'text-zoru-ink'
+              ? 'text-[var(--st-text)]'
               : accent === 'danger'
-                ? 'text-zoru-ink'
-                : 'text-zoru-ink';
+                ? 'text-[var(--st-text)]'
+                : 'text-[var(--st-text)]';
     return (
         <Card className="p-4">
             <TelegramProjectGate />
-            <p className="text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
+            <p className="text-[11.5px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
                 {label}
             </p>
             <p className={`mt-1 text-[24px] font-medium leading-none ${color}`}>{value}</p>

@@ -39,10 +39,10 @@ function ProductHistoryGraphSkeleton() {
       <ZoruCardHeader>
         <ZoruCardTitle className="text-lg">Price & Stock History</ZoruCardTitle>
       </ZoruCardHeader>
-      <ZoruCardContent className="h-64 flex items-center justify-center bg-zoru-surface-2 dark:bg-zoru-ink/50">
+      <ZoruCardContent className="h-64 flex items-center justify-center bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/50">
         <div className="flex flex-col items-center gap-2">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-zoru-line border-t-transparent" />
-          <span className="text-sm text-zoru-ink">Loading chart history...</span>
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-[var(--st-border)] border-t-transparent" />
+          <span className="text-sm text-[var(--st-text)]">Loading chart history...</span>
         </div>
       </ZoruCardContent>
     </Card>
@@ -142,20 +142,20 @@ export default async function ProductDetailPage({ params }: PageProps) {
           {product.supplierName ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <p className="text-sm text-zoru-ink-muted">Supplier Name</p>
+                <p className="text-sm text-[var(--st-text-secondary)]">Supplier Name</p>
                 <p className="font-medium">{String(product.supplierName)}</p>
               </div>
               <div>
-                <p className="text-sm text-zoru-ink-muted">Contact</p>
+                <p className="text-sm text-[var(--st-text-secondary)]">Contact</p>
                 <p className="font-medium">{product.supplierContact ? String(product.supplierContact) : '—'}</p>
               </div>
               <div>
-                <p className="text-sm text-zoru-ink-muted">Lead Time</p>
+                <p className="text-sm text-[var(--st-text-secondary)]">Lead Time</p>
                 <p className="font-medium">{product.supplierLeadTime ? `${product.supplierLeadTime} Days` : '—'}</p>
               </div>
             </div>
           ) : (
-            <p className="text-sm text-zoru-ink-muted">No supplier information available for this product.</p>
+            <p className="text-sm text-[var(--st-text-secondary)]">No supplier information available for this product.</p>
           )}
         </ZoruCardContent>
       </Card>

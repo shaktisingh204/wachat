@@ -234,20 +234,20 @@ export function AppraisalForm({ initialData }: AppraisalFormProps) {
                             Add KPI
                         </Button>
                     </div>
-                    <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
+                    <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
                         <Table>
                             <ZoruTableHeader>
-                                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                    <ZoruTableHead className="text-zoru-ink-muted">
+                                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                         Name
                                     </ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted w-[120px]">
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)] w-[120px]">
                                         Target
                                     </ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted w-[120px]">
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)] w-[120px]">
                                         Achieved
                                     </ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted w-[100px]">
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)] w-[100px]">
                                         Score
                                     </ZoruTableHead>
                                     <ZoruTableHead className="w-[40px]" />
@@ -255,7 +255,7 @@ export function AppraisalForm({ initialData }: AppraisalFormProps) {
                             </ZoruTableHeader>
                             <ZoruTableBody>
                                 {kpis.map((row, i) => (
-                                    <ZoruTableRow key={i} className="border-zoru-line">
+                                    <ZoruTableRow key={i} className="border-[var(--st-border)]">
                                         <ZoruTableCell>
                                             <Input
                                                 value={row.name}
@@ -308,7 +308,7 @@ export function AppraisalForm({ initialData }: AppraisalFormProps) {
                                                 size="icon"
                                                 onClick={() => removeKpi(i)}
                                             >
-                                                <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                                <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                             </Button>
                                         </ZoruTableCell>
                                     </ZoruTableRow>

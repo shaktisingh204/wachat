@@ -111,15 +111,15 @@ export function ApiKeyCreateDialog({
 
         {rawKey ? (
           <div className="space-y-3">
-            <div className="flex items-start gap-2 rounded-[var(--zoru-radius-sm)] border border-zoru-warning/30 bg-zoru-warning/10 p-3 text-sm text-zoru-warning-ink">
+            <div className="flex items-start gap-2 rounded-[var(--zoru-radius-sm)] border border-[var(--st-warn)]/30 bg-[var(--st-warn)]/10 p-3 text-sm text-[var(--st-warn)]">
               <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
               <p>
                 This is the only time SabNode will display the raw key. Store it
                 in your secret manager before closing this dialog.
               </p>
             </div>
-            <div className="flex items-center gap-2 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface-2 p-2">
-              <code className="flex-1 truncate text-xs text-zoru-ink">{rawKey}</code>
+            <div className="flex items-center gap-2 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2">
+              <code className="flex-1 truncate text-xs text-[var(--st-text)]">{rawKey}</code>
               <Button
                 type="button"
                 size="sm"
@@ -156,7 +156,7 @@ export function ApiKeyCreateDialog({
                     <label
                       key={s.value}
                       htmlFor={inputId}
-                      className="flex cursor-pointer items-start gap-2 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-2 text-sm hover:bg-zoru-surface-2"
+                      className="flex cursor-pointer items-start gap-2 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2 text-sm hover:bg-[var(--st-bg-muted)]"
                     >
                       <Checkbox
                         id={inputId}
@@ -164,9 +164,9 @@ export function ApiKeyCreateDialog({
                         onCheckedChange={() => toggleScope(s.value)}
                       />
                       <div className="flex-1">
-                        <div className="font-medium text-zoru-ink">{s.label}</div>
+                        <div className="font-medium text-[var(--st-text)]">{s.label}</div>
                         {s.hint ? (
-                          <div className="text-xs text-zoru-ink-muted">{s.hint}</div>
+                          <div className="text-xs text-[var(--st-text-secondary)]">{s.hint}</div>
                         ) : null}
                       </div>
                     </label>

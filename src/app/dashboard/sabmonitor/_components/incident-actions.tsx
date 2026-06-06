@@ -16,7 +16,7 @@ export function IncidentActions({ incident }: { incident: SabmonitorIncidentDoc 
     const [pending, startTransition] = useTransition();
     const router = useRouter();
     if (incident.status === 'resolved') {
-        return <span className="text-[12px] text-zoru-ink-muted">closed</span>;
+        return <span className="text-[12px] text-[var(--st-text-secondary)]">closed</span>;
     }
     return (
         <div className="flex items-center justify-end gap-2">

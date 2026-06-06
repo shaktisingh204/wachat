@@ -469,9 +469,9 @@ export default function MiniAppsPage() {
       </div>
 
       {/* Filter bar */}
-      <div className="flex flex-wrap items-center gap-2 rounded-md border border-zoru-line bg-zoru-bg p-2">
+      <div className="flex flex-wrap items-center gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] p-2">
         <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zoru-ink-muted" />
+          <Search className="absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--st-text-secondary)]" />
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -513,11 +513,11 @@ export default function MiniAppsPage() {
         ) : rows.length === 0 ? (
           <div className="flex flex-col items-center gap-3 p-10 text-center">
             <AppWindow
-              className="h-8 w-8 text-zoru-ink-muted"
+              className="h-8 w-8 text-[var(--st-text-secondary)]"
               aria-hidden
             />
-            <div className="text-[14px] text-zoru-ink">No mini apps yet</div>
-            <div className="text-[12px] text-zoru-ink-muted">
+            <div className="text-[14px] text-[var(--st-text)]">No mini apps yet</div>
+            <div className="text-[12px] text-[var(--st-text-secondary)]">
               Register your first Web App URL to share it from a chat or set
               it as the bot's menu button.
             </div>
@@ -555,7 +555,7 @@ export default function MiniAppsPage() {
                         setDetailApp(r);
                         setDetailOpen(true);
                       }}
-                      className="text-left text-zoru-ink hover:underline"
+                      className="text-left text-[var(--st-text)] hover:underline"
                     >
                       {r.name}
                     </button>
@@ -569,7 +569,7 @@ export default function MiniAppsPage() {
                   <ZoruTableCell>
                     <div className="flex items-center gap-1.5">
                       <span
-                        className="font-mono text-[11px] text-zoru-ink-muted"
+                        className="font-mono text-[11px] text-[var(--st-text-secondary)]"
                         title={r.webAppUrl}
                       >
                         {truncate(r.webAppUrl, 36)}
@@ -578,7 +578,7 @@ export default function MiniAppsPage() {
                         type="button"
                         aria-label="Copy URL"
                         onClick={() => copy(r.webAppUrl, 'URL copied')}
-                        className="rounded p-1 text-zoru-ink-muted hover:bg-zoru-bg-zoru-surface-2 hover:text-zoru-ink"
+                        className="rounded p-1 text-[var(--st-text-secondary)] hover:bg-zoru-bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
                       >
                         <Copy className="h-3 w-3" />
                       </button>
@@ -668,7 +668,7 @@ export default function MiniAppsPage() {
       {menuButtonApp && settingMenu && (
         <div
           role="status"
-          className="fixed bottom-4 right-4 z-50 inline-flex items-center gap-2 rounded-md border border-zoru-line bg-zoru-bg px-3 py-2 text-[12px] shadow"
+          className="fixed bottom-4 right-4 z-50 inline-flex items-center gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-[12px] shadow"
         >
           <Loader2 className="h-3.5 w-3.5 animate-spin" /> Updating menu
           button…

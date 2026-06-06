@@ -78,16 +78,16 @@ export function SabpublishProvidersTab({
             </CardHeader>
             <CardContent className="space-y-3">
               {row?.lastSyncAt ? (
-                <p className="text-sm text-zoru-ink-muted">
+                <p className="text-sm text-[var(--st-text-secondary)]">
                   Last sync: {new Date(row.lastSyncAt).toLocaleString()}
                 </p>
               ) : (
-                <p className="text-sm text-zoru-ink-muted">
+                <p className="text-sm text-[var(--st-text-secondary)]">
                   Never synced.
                 </p>
               )}
               {row?.errorMessage ? (
-                <p className="text-sm text-zoru-ink">{row.errorMessage}</p>
+                <p className="text-sm text-[var(--st-text)]">{row.errorMessage}</p>
               ) : null}
               <div className="flex flex-wrap gap-2">
                 {connected ? (

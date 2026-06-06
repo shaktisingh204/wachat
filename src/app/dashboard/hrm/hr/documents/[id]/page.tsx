@@ -75,7 +75,7 @@ export default async function DocumentDetailPage({
 
             <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
-                    <div className="text-[14px] font-medium text-zoru-ink">
+                    <div className="text-[14px] font-medium text-[var(--st-text)]">
                         Overview
                     </div>
                     <StatusPill label={pretty(status)} tone={tone} />
@@ -93,49 +93,49 @@ export default async function DocumentDetailPage({
                 </div>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
                     <div>
-                        <div className="text-zoru-ink-muted">Category</div>
-                        <div className="capitalize text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Category</div>
+                        <div className="capitalize text-[var(--st-text)]">
                             {pretty(doc.category as string | undefined)}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Document number</div>
-                        <div className="font-mono text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Document number</div>
+                        <div className="font-mono text-[var(--st-text)]">
                             {doc.documentNumber || '—'}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Entity</div>
-                        <div className="text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Entity</div>
+                        <div className="text-[var(--st-text)]">
                             {pretty(doc.entityKind)}{doc.entityId ? ` · ${doc.entityId}` : ''}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Employee</div>
-                        <div className="text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Employee</div>
+                        <div className="text-[var(--st-text)]">
                             {doc.employeeName ?? doc.employeeId ?? '—'}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Issue date</div>
-                        <div className="text-zoru-ink">{fmtDate(doc.issueDate)}</div>
+                        <div className="text-[var(--st-text-secondary)]">Issue date</div>
+                        <div className="text-[var(--st-text)]">{fmtDate(doc.issueDate)}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Expiry date</div>
-                        <div className="text-zoru-ink">{fmtDate(doc.expiryDate)}</div>
+                        <div className="text-[var(--st-text-secondary)]">Expiry date</div>
+                        <div className="text-[var(--st-text)]">{fmtDate(doc.expiryDate)}</div>
                     </div>
                     {doc.description ? (
                         <div className="sm:col-span-2">
-                            <div className="text-zoru-ink-muted">Description</div>
-                            <div className="whitespace-pre-wrap text-zoru-ink">
+                            <div className="text-[var(--st-text-secondary)]">Description</div>
+                            <div className="whitespace-pre-wrap text-[var(--st-text)]">
                                 {doc.description}
                             </div>
                         </div>
                     ) : null}
                     {doc.notes ? (
                         <div className="sm:col-span-2">
-                            <div className="text-zoru-ink-muted">Notes</div>
-                            <div className="whitespace-pre-wrap text-zoru-ink">
+                            <div className="text-[var(--st-text-secondary)]">Notes</div>
+                            <div className="whitespace-pre-wrap text-[var(--st-text)]">
                                 {doc.notes}
                             </div>
                         </div>
@@ -145,19 +145,19 @@ export default async function DocumentDetailPage({
 
             {doc.fileUrl ? (
                 <Card className="flex flex-col gap-4 p-4 mt-6">
-                    <div className="flex items-center gap-2 text-[13px] text-zoru-ink">
-                        <Paperclip className="h-4 w-4 text-zoru-ink-muted" />
+                    <div className="flex items-center gap-2 text-[13px] text-[var(--st-text)]">
+                        <Paperclip className="h-4 w-4 text-[var(--st-text-secondary)]" />
                         <span>Attached file: </span>
                         <a
                             href={doc.fileUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="max-w-full truncate text-[12.5px] text-zoru-ink underline-offset-2 hover:underline"
+                            className="max-w-full truncate text-[12.5px] text-[var(--st-text)] underline-offset-2 hover:underline"
                         >
                             {doc.fileUrl}
                         </a>
                     </div>
-                    <div className="w-full rounded-md border border-zoru-line overflow-hidden" style={{ height: '600px' }}>
+                    <div className="w-full rounded-md border border-[var(--st-border)] overflow-hidden" style={{ height: '600px' }}>
                         <iframe
                             src={doc.fileUrl}
                             title="Document Preview"

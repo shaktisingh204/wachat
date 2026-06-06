@@ -450,7 +450,7 @@ export default function ClientDocumentsPage() {
             </Select>
           </div>
           <div className="flex items-center gap-2">
-            <Label className="text-[12px] text-zoru-ink-muted">
+            <Label className="text-[12px] text-[var(--st-text-secondary)]">
               From
             </Label>
             <Input
@@ -459,7 +459,7 @@ export default function ClientDocumentsPage() {
               onChange={(e) => setFrom(e.target.value)}
               className="h-9 w-[160px]"
             />
-            <Label className="text-[12px] text-zoru-ink-muted">
+            <Label className="text-[12px] text-[var(--st-text-secondary)]">
               To
             </Label>
             <Input
@@ -474,7 +474,7 @@ export default function ClientDocumentsPage() {
       bulkBar={
         selected.size > 0 ? (
           <div className="flex items-center justify-between gap-3">
-            <span className="text-[12.5px] text-zoru-ink-muted">
+            <span className="text-[12.5px] text-[var(--st-text-secondary)]">
               {selected.size} selected
             </span>
             <div className="flex items-center gap-2">
@@ -509,7 +509,7 @@ export default function ClientDocumentsPage() {
                 disabled={isMutating}
               >
                 <Trash2
-                  className="h-3.5 w-3.5 text-zoru-ink"
+                  className="h-3.5 w-3.5 text-[var(--st-text)]"
                   strokeWidth={1.75}
                 />
                 Delete
@@ -553,20 +553,20 @@ export default function ClientDocumentsPage() {
 
         <Card className="p-0">
           {isLoading && rows.length === 0 ? (
-            <div className="py-12 text-center text-[13px] text-zoru-ink-muted">
+            <div className="py-12 text-center text-[13px] text-[var(--st-text-secondary)]">
               Loading…
             </div>
           ) : filtered.length === 0 ? (
-            <div className="py-12 text-center text-[13px] text-zoru-ink-muted">
+            <div className="py-12 text-center text-[13px] text-[var(--st-text-secondary)]">
               {rows.length === 0
                 ? 'No documents yet. Add one above.'
                 : 'No documents match the current filters.'}
             </div>
           ) : (
-            <div className="overflow-x-auto rounded-lg border border-zoru-line">
+            <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
               <table className="w-full text-left text-[13px]">
                 <thead>
-                  <tr className="border-b border-zoru-line bg-zoru-surface-2">
+                  <tr className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]">
                     <th className="w-10 px-3 py-3">
                       <Checkbox
                         checked={allOnPageSelected}
@@ -576,25 +576,25 @@ export default function ClientDocumentsPage() {
                         aria-label="Select all on page"
                       />
                     </th>
-                    <th className="px-4 py-3 font-medium text-zoru-ink-muted">
+                    <th className="px-4 py-3 font-medium text-[var(--st-text-secondary)]">
                       Filename
                     </th>
-                    <th className="px-4 py-3 font-medium text-zoru-ink-muted">
+                    <th className="px-4 py-3 font-medium text-[var(--st-text-secondary)]">
                       Client
                     </th>
-                    <th className="px-4 py-3 font-medium text-zoru-ink-muted">
+                    <th className="px-4 py-3 font-medium text-[var(--st-text-secondary)]">
                       Type
                     </th>
-                    <th className="px-4 py-3 font-medium text-zoru-ink-muted">
+                    <th className="px-4 py-3 font-medium text-[var(--st-text-secondary)]">
                       Size
                     </th>
-                    <th className="px-4 py-3 font-medium text-zoru-ink-muted">
+                    <th className="px-4 py-3 font-medium text-[var(--st-text-secondary)]">
                       Uploaded
                     </th>
-                    <th className="px-4 py-3 font-medium text-zoru-ink-muted">
+                    <th className="px-4 py-3 font-medium text-[var(--st-text-secondary)]">
                       Link
                     </th>
-                    <th className="px-4 py-3 text-right font-medium text-zoru-ink-muted">
+                    <th className="px-4 py-3 text-right font-medium text-[var(--st-text-secondary)]">
                       Actions
                     </th>
                   </tr>
@@ -608,7 +608,7 @@ export default function ClientDocumentsPage() {
                     return (
                       <tr
                         key={r._id}
-                        className="border-b border-zoru-line last:border-0"
+                        className="border-b border-[var(--st-border)] last:border-0"
                       >
                         <td className="px-3 py-3">
                           <Checkbox
@@ -646,10 +646,10 @@ export default function ClientDocumentsPage() {
                             {r.doc_type ?? 'other'}
                           </Badge>
                         </td>
-                        <td className="px-4 py-3 text-zoru-ink">
+                        <td className="px-4 py-3 text-[var(--st-text)]">
                           {formatBytes(r.size)}
                         </td>
-                        <td className="px-4 py-3 text-zoru-ink-muted">
+                        <td className="px-4 py-3 text-[var(--st-text-secondary)]">
                           {formatDate(r.uploaded_at ?? r.createdAt)}
                         </td>
                         <td className="px-4 py-3">
@@ -658,7 +658,7 @@ export default function ClientDocumentsPage() {
                               href={r.url}
                               target="_blank"
                               rel="noreferrer"
-                              className="inline-flex items-center gap-1 text-zoru-ink underline"
+                              className="inline-flex items-center gap-1 text-[var(--st-text)] underline"
                             >
                               <ExternalLink
                                 className="h-3 w-3"
@@ -696,7 +696,7 @@ export default function ClientDocumentsPage() {
                               disabled={isMutating}
                             >
                               <Trash2
-                                className="h-3.5 w-3.5 text-zoru-ink"
+                                className="h-3.5 w-3.5 text-[var(--st-text)]"
                                 strokeWidth={1.75}
                               />
                               Delete
@@ -712,7 +712,7 @@ export default function ClientDocumentsPage() {
           )}
 
           {filtered.length > PAGE_SIZE ? (
-            <div className="flex items-center justify-between gap-3 border-t border-zoru-line px-3 py-2.5 text-[12.5px] text-zoru-ink-muted">
+            <div className="flex items-center justify-between gap-3 border-t border-[var(--st-border)] px-3 py-2.5 text-[12.5px] text-[var(--st-text-secondary)]">
               <span>
                 Page {pageSafe} of {totalPages} · {filtered.length} documents
               </span>
@@ -746,7 +746,7 @@ export default function ClientDocumentsPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <Card className="w-full max-w-xl p-6">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-[16px] text-zoru-ink">
+              <h2 className="text-[16px] text-[var(--st-text)]">
                 {editing ? 'Edit Document' : 'Add Document'}
               </h2>
               <Button
@@ -914,16 +914,16 @@ function KpiCard({
 }) {
   return (
     <Card className="p-5">
-      <div className="flex items-center gap-2 text-zoru-ink-muted">
+      <div className="flex items-center gap-2 text-[var(--st-text-secondary)]">
         {icon}
         <p className="text-[12.5px] font-medium">{label}</p>
       </div>
-      <div className="mt-2 truncate text-2xl text-zoru-ink" title={value}>
+      <div className="mt-2 truncate text-2xl text-[var(--st-text)]" title={value}>
         {value}
       </div>
       {hint ? (
         <p
-          className="mt-1 truncate text-[11.5px] text-zoru-ink-muted"
+          className="mt-1 truncate text-[11.5px] text-[var(--st-text-secondary)]"
           title={hint}
         >
           {hint}

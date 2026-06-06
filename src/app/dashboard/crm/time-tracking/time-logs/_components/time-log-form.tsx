@@ -185,7 +185,7 @@ export function TimeLogForm({ initialData }: TimeLogFormProps) {
                             defaultValue={initialData?.durationMinutes ?? ''}
                             placeholder="auto"
                         />
-                        <p className="text-[11.5px] text-zoru-ink-muted">
+                        <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                             Auto-computed from start/end if blank.
                         </p>
                     </div>

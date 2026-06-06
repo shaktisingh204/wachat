@@ -55,14 +55,14 @@ function MetaFeatureLock() {
   return (
     <Card className="mt-6">
       <ZoruCardContent className="flex flex-col items-center justify-center gap-5 py-24 text-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-zoru-surface-2">
-          <Lock className="h-7 w-7 text-zoru-ink-muted" strokeWidth={1.75} />
+        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--st-bg-muted)]">
+          <Lock className="h-7 w-7 text-[var(--st-text-secondary)]" strokeWidth={1.75} />
         </div>
         <div>
-          <h2 className="text-[20px] font-semibold text-zoru-ink">
+          <h2 className="text-[20px] font-semibold text-[var(--st-text)]">
             Meta Ads Manager is locked
           </h2>
-          <p className="mt-1.5 max-w-md text-[13px] text-zoru-ink-muted leading-relaxed">
+          <p className="mt-1.5 max-w-md text-[13px] text-[var(--st-text-secondary)] leading-relaxed">
             Upgrade your plan to access Facebook & Instagram ad campaigns,
             audiences, creative library, and performance insights.
           </p>
@@ -115,8 +115,8 @@ function DateRangeBar({
                   className={cn(
                     'text-left text-sm px-2 py-1.5 rounded transition',
                     preset === p.id
-                      ? 'bg-zoru-ink/10 text-zoru-ink font-medium'
-                      : 'hover:bg-zoru-surface-2 text-zoru-ink-muted',
+                      ? 'bg-[var(--st-text)]/10 text-[var(--st-text)] font-medium'
+                      : 'hover:bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]',
                   )}
                 >
                   {p.label}
@@ -201,7 +201,7 @@ export default function AdManagerLayout({ children }: { children: React.ReactNod
 
           {/* Search */}
           <div className="relative hidden sm:block">
-            <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zoru-ink-subtle z-10" />
+            <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--st-text-tertiary)] z-10" />
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}

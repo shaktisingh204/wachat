@@ -92,24 +92,24 @@ export function FlowCard({ flow, onDelete, onDuplicate, onRename, onExport }: Pr
       onClick={handleCardClick}
       onKeyDown={(e) => e.key === 'Enter' && handleCardClick()}
       className={cn(
-        'group relative flex flex-col rounded-xl border border-zoru-line',
-        'bg-zoru-bg overflow-hidden cursor-pointer',
+        'group relative flex flex-col rounded-xl border border-[var(--st-border)]',
+        'bg-[var(--st-bg)] overflow-hidden cursor-pointer',
         'shadow-sm hover:shadow-md transition-all duration-200',
-        'hover:border-zoru-line-strong',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-ink/30',
+        'hover:border-[var(--st-border-strong)]',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]/30',
       )}
     >
       {/* ── Thumbnail ─────────────────────────────────────────────────── */}
-      <div className="relative flex h-[130px] items-center justify-center overflow-hidden border-b border-zoru-line bg-zoru-surface-2">
+      <div className="relative flex h-[130px] items-center justify-center overflow-hidden border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]">
         <div className="absolute inset-0 opacity-60 [background-image:linear-gradient(hsl(var(--zoru-line))_1px,transparent_1px),linear-gradient(90deg,hsl(var(--zoru-line))_1px,transparent_1px)] [background-size:22px_22px]" />
         <div className="relative flex w-44 items-center justify-between">
           {[0, 1, 2].map((node) => (
             <React.Fragment key={node}>
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-zoru-line bg-zoru-bg shadow-sm">
-                <LuWorkflow className="h-5 w-5 text-zoru-ink" strokeWidth={1.7} />
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--st-border)] bg-[var(--st-bg)] shadow-sm">
+                <LuWorkflow className="h-5 w-5 text-[var(--st-text)]" strokeWidth={1.7} />
               </div>
               {node < 2 ? (
-                <div className="h-px flex-1 bg-zoru-line-strong" />
+                <div className="h-px flex-1 bg-[var(--st-border-strong)]" />
               ) : null}
             </React.Fragment>
           ))}
@@ -120,12 +120,12 @@ export function FlowCard({ flow, onDelete, onDuplicate, onRename, onExport }: Pr
           className={cn(
             'absolute top-2.5 right-2.5 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold backdrop-blur-sm',
             isPublished
-              ? 'bg-zoru-success/10 text-zoru-success-ink border-zoru-success/30'
-              : 'bg-zoru-warning/15 text-zoru-warning-ink border-zoru-warning/30',
+              ? 'bg-[var(--st-status-ok)]/10 text-[var(--st-status-ok)] border-[var(--st-status-ok)]/30'
+              : 'bg-[var(--st-warn)]/15 text-[var(--st-warn)] border-[var(--st-warn)]/30',
           )}
         >
           <LuCircle
-            className={cn('h-1.5 w-1.5 fill-current', isPublished ? 'text-zoru-ink' : 'text-zoru-ink')}
+            className={cn('h-1.5 w-1.5 fill-current', isPublished ? 'text-[var(--st-text)]' : 'text-[var(--st-text)]')}
           />
           {isPublished ? 'Published' : 'Draft'}
         </span>
@@ -133,7 +133,7 @@ export function FlowCard({ flow, onDelete, onDuplicate, onRename, onExport }: Pr
         {/* Hover action overlay */}
         <div
           className={cn(
-            'absolute inset-0 bg-zoru-ink/55 opacity-0 group-hover:opacity-100 transition-opacity duration-200',
+            'absolute inset-0 bg-[var(--st-text)]/55 opacity-0 group-hover:opacity-100 transition-opacity duration-200',
             'flex items-center justify-center gap-2',
           )}
           onClick={(e) => e.stopPropagation()}
@@ -200,11 +200,11 @@ export function FlowCard({ flow, onDelete, onDuplicate, onRename, onExport }: Pr
             onBlur={commitRename}
             onKeyDown={handleKeyDown}
             onClick={(e) => e.stopPropagation()}
-            className="w-full rounded-md border border-zoru-line-strong bg-zoru-bg px-2 py-0.5 text-[13px] font-semibold text-zoru-ink outline-none ring-2 ring-zoru-ink/20"
+            className="w-full rounded-md border border-[var(--st-border-strong)] bg-[var(--st-bg)] px-2 py-0.5 text-[13px] font-semibold text-[var(--st-text)] outline-none ring-2 ring-[var(--st-text)]/20"
           />
         ) : (
           <p
-            className="truncate text-[13px] font-semibold leading-snug text-zoru-ink"
+            className="truncate text-[13px] font-semibold leading-snug text-[var(--st-text)]"
             title={flow.name}
             onDoubleClick={handleDoubleClick}
           >
@@ -213,11 +213,11 @@ export function FlowCard({ flow, onDelete, onDuplicate, onRename, onExport }: Pr
         )}
 
         <div className="flex items-center justify-between mt-0.5">
-          <span className="flex items-center gap-1 text-[10.5px] text-zoru-ink-muted">
+          <span className="flex items-center gap-1 text-[10.5px] text-[var(--st-text-secondary)]">
             <LuZap className="h-3 w-3" />
             {flow.groups?.length ?? 0} groups
           </span>
-          <span className="text-[10.5px] text-zoru-ink-muted">{updatedLabel}</span>
+          <span className="text-[10.5px] text-[var(--st-text-secondary)]">{updatedLabel}</span>
         </div>
       </div>
     </div>
@@ -250,8 +250,8 @@ function ActionIconBtn({
         'flex h-8 w-8 items-center justify-center rounded-full border shadow-sm',
         'backdrop-blur-sm transition-colors duration-150',
         danger
-          ? 'border-zoru-danger bg-zoru-danger text-zoru-on-danger hover:bg-zoru-danger/90'
-          : 'border-white/70 bg-white text-zoru-ink hover:bg-zoru-surface',
+          ? 'border-[var(--st-danger)] bg-[var(--st-danger)] text-[var(--st-text-inverted)] hover:bg-[var(--st-danger)]/90'
+          : 'border-white/70 bg-white text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]',
       )}
     >
       {icon}

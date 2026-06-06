@@ -22,7 +22,7 @@ export default async function NewPfEsiPage() {
             subtitle="Record an employee's monthly PF + ESI contributions and challan."
         >
             <PfEsiBulkImport />
-            <div className="mb-4 text-sm font-medium text-zoru-ink/70">Or create a record manually:</div>
+            <div className="mb-4 text-sm font-medium text-[var(--st-text)]/70">Or create a record manually:</div>
             <PfEsiForm />
         </EntityListShell>
     );

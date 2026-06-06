@@ -280,7 +280,7 @@ export function HrListShell<T>({
         bulkBar={
           selected.size > 0 ? (
             <div className="flex items-center justify-between">
-              <span className="text-sm text-zoru-ink">
+              <span className="text-sm text-[var(--st-text)]">
                 {selected.size} selected
               </span>
               <div className="flex gap-2">
@@ -307,8 +307,8 @@ export function HrListShell<T>({
         empty={
           !loading && filtered.length === 0 ? (
             <div className="flex flex-col items-center gap-3 p-4">
-              <Icon className="h-8 w-8 text-zoru-ink-muted" aria-hidden="true" />
-              <h3 className="text-base font-medium text-zoru-ink">
+              <Icon className="h-8 w-8 text-[var(--st-text-secondary)]" aria-hidden="true" />
+              <h3 className="text-base font-medium text-[var(--st-text)]">
                 {emptyText ?? 'Nothing here yet'}
               </h3>
               <Button asChild>
@@ -327,7 +327,7 @@ export function HrListShell<T>({
               {kpis.map((k) => (
                 <Card
                   key={k.label}
-                  className={`p-3 ${k.onClick ? 'cursor-pointer transition-colors hover:bg-zoru-surface-2' : ''} ${k.active ? 'ring-2 ring-zoru-ink' : ''}`}
+                  className={`p-3 ${k.onClick ? 'cursor-pointer transition-colors hover:bg-[var(--st-bg-muted)]' : ''} ${k.active ? 'ring-2 ring-[var(--st-text)]' : ''}`}
                   onClick={k.onClick}
                   role={k.onClick ? 'button' : undefined}
                   tabIndex={k.onClick ? 0 : undefined}
@@ -339,12 +339,12 @@ export function HrListShell<T>({
                       : undefined
                   }
                 >
-                  <p className="text-xs text-zoru-ink-muted">{k.label}</p>
-                  <p className="mt-1 text-xl font-semibold text-zoru-ink">
+                  <p className="text-xs text-[var(--st-text-secondary)]">{k.label}</p>
+                  <p className="mt-1 text-xl font-semibold text-[var(--st-text)]">
                     {k.value}
                   </p>
                   {k.hint ? (
-                    <p className="mt-0.5 text-[11px] text-zoru-ink-muted">{k.hint}</p>
+                    <p className="mt-0.5 text-[11px] text-[var(--st-text-secondary)]">{k.hint}</p>
                   ) : null}
                 </Card>
               ))}
@@ -410,7 +410,7 @@ export function HrListShell<T>({
                                 key={c.key}
                                 className={
                                   (c.numeric ? 'tabular-nums text-right ' : '') +
-                                  'text-[13px] text-zoru-ink'
+                                  'text-[13px] text-[var(--st-text)]'
                                 }
                               >
                                 {content}
@@ -430,7 +430,7 @@ export function HrListShell<T>({
                                 aria-label="Delete"
                                 onClick={() => setDeletingId(id)}
                               >
-                                <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                                <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                               </Button>
                             </div>
                           </ZoruTableCell>
@@ -469,26 +469,26 @@ export function HrListShell<T>({
 
 /** Convenience: render a status pill from a string with sensible defaults. */
 export function HrStatusCell({ value }: { value: string | undefined }) {
-  if (!value) return <span className="text-zoru-ink-muted">—</span>;
+  if (!value) return <span className="text-[var(--st-text-secondary)]">—</span>;
   return <StatusPill label={value} tone={statusToTone(value)} />;
 }
 
 /** Date cell — formats ISO/Date to YYYY-MM-DD or em dash. */
 export function HrDateCell({ value }: { value: unknown }) {
-  if (!value) return <span className="text-zoru-ink-muted">—</span>;
+  if (!value) return <span className="text-[var(--st-text-secondary)]">—</span>;
   const d = new Date(value as string | number | Date);
-  if (Number.isNaN(d.getTime())) return <span className="text-zoru-ink-muted">—</span>;
+  if (Number.isNaN(d.getTime())) return <span className="text-[var(--st-text-secondary)]">—</span>;
   return <span>{d.toISOString().slice(0, 10)}</span>;
 }
 
 /** Number cell with thousands separators. */
 export function HrNumCell({ value, suffix }: { value: unknown; suffix?: string }) {
   const n = Number(value);
-  if (!Number.isFinite(n)) return <span className="text-zoru-ink-muted">—</span>;
+  if (!Number.isFinite(n)) return <span className="text-[var(--st-text-secondary)]">—</span>;
   return (
     <span className="tabular-nums">
       {n.toLocaleString()}
-      {suffix ? <span className="ml-0.5 text-[11px] text-zoru-ink-muted">{suffix}</span> : null}
+      {suffix ? <span className="ml-0.5 text-[11px] text-[var(--st-text-secondary)]">{suffix}</span> : null}
     </span>
   );
 }
@@ -496,13 +496,13 @@ export function HrNumCell({ value, suffix }: { value: unknown; suffix?: string }
 /** Progress bar cell — value 0–100. */
 export function HrProgressCell({ value }: { value: unknown }) {
   const pct = Math.min(100, Math.max(0, Number(value) || 0));
-  const color = pct >= 100 ? 'bg-zoru-ink' : pct >= 60 ? 'bg-zoru-ink' : 'bg-zoru-line';
+  const color = pct >= 100 ? 'bg-[var(--st-text)]' : pct >= 60 ? 'bg-[var(--st-text)]' : 'bg-[var(--st-border)]';
   return (
     <div className="flex items-center gap-2">
-      <div className="h-1.5 w-20 overflow-hidden rounded-full bg-zoru-line">
+      <div className="h-1.5 w-20 overflow-hidden rounded-full bg-[var(--st-border)]">
         <div className={`h-full rounded-full ${color}`} style={{ width: `${pct}%` }} />
       </div>
-      <span className="text-[12px] tabular-nums text-zoru-ink-muted">{pct}%</span>
+      <span className="text-[12px] tabular-nums text-[var(--st-text-secondary)]">{pct}%</span>
     </div>
   );
 }

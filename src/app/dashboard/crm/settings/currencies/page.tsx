@@ -258,12 +258,12 @@ function CurrencyDialog({
                             </div>
                         </div>
 
-                        <div className="flex items-center justify-between rounded-lg border border-zoru-line px-3 py-2.5">
+                        <div className="flex items-center justify-between rounded-lg border border-[var(--st-border)] px-3 py-2.5">
                             <div className="flex flex-col">
                                 <Label htmlFor="isBase-switch" className="text-sm font-medium">
                                     Base currency
                                 </Label>
-                                <span className="text-xs text-zoru-ink-muted">
+                                <span className="text-xs text-[var(--st-text-secondary)]">
                                     Only one currency per tenant can be the base.
                                 </span>
                             </div>
@@ -277,7 +277,7 @@ function CurrencyDialog({
                         {wouldDemoteOthers ? (
                             <div
                                 role="alert"
-                                className="flex items-start gap-2 rounded-lg border border-zoru-line/30 bg-zoru-ink/10 px-3 py-2 text-xs text-zoru-ink dark:text-zoru-ink-muted"
+                                className="flex items-start gap-2 rounded-lg border border-[var(--st-border)]/30 bg-[var(--st-text)]/10 px-3 py-2 text-xs text-[var(--st-text)] dark:text-[var(--st-text-secondary)]"
                             >
                                 <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                                 <span>
@@ -286,12 +286,12 @@ function CurrencyDialog({
                             </div>
                         ) : null}
 
-                        <div className="flex items-center justify-between rounded-lg border border-zoru-line px-3 py-2.5">
+                        <div className="flex items-center justify-between rounded-lg border border-[var(--st-border)] px-3 py-2.5">
                             <div className="flex flex-col">
                                 <Label htmlFor="isActive-switch" className="text-sm font-medium">
                                     Active
                                 </Label>
-                                <span className="text-xs text-zoru-ink-muted">
+                                <span className="text-xs text-[var(--st-text-secondary)]">
                                     Inactive currencies stay in reports but hide from pickers.
                                 </span>
                             </div>
@@ -542,8 +542,8 @@ export default function CurrenciesPage() {
 
                 {/* Bulk bar */}
                 {hasSelection && (
-                    <div className="flex items-center gap-3 rounded-lg border border-zoru-line bg-zoru-surface-2/40 px-4 py-2.5 text-sm mb-3">
-                        <span className="font-medium text-zoru-ink">
+                    <div className="flex items-center gap-3 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)]/40 px-4 py-2.5 text-sm mb-3">
+                        <span className="font-medium text-[var(--st-text)]">
                             {selectedIds.length} selected
                         </span>
                         <Button
@@ -606,10 +606,10 @@ export default function CurrenciesPage() {
                     </div>
                 )}
 
-                <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                     <Table>
                         <ZoruTableHeader>
-                            <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                            <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                                 <ZoruTableHead className="w-10">
                                     <Checkbox
                                         checked={allChecked}
@@ -619,43 +619,43 @@ export default function CurrenciesPage() {
                                         disabled={filtered.length === 0}
                                     />
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Code</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Name</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Symbol</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted text-right">
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Code</ZoruTableHead>
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Name</ZoruTableHead>
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Symbol</ZoruTableHead>
+                                <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">
                                     Exchange rate
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted text-right">
+                                <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">
                                     Decimals
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted text-center">
+                                <ZoruTableHead className="text-[var(--st-text-secondary)] text-center">
                                     Base
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted text-right">
+                                <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
+                                <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">
                                     Actions
                                 </ZoruTableHead>
                             </ZoruTableRow>
                         </ZoruTableHeader>
                         <ZoruTableBody>
                             {isLoading ? (
-                                <ZoruTableRow className="border-zoru-line">
+                                <ZoruTableRow className="border-[var(--st-border)]">
                                     <ZoruTableCell colSpan={9} className="h-24 text-center">
-                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
+                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
                                     </ZoruTableCell>
                                 </ZoruTableRow>
                             ) : filtered.length === 0 ? (
-                                <ZoruTableRow className="border-zoru-line">
+                                <ZoruTableRow className="border-[var(--st-border)]">
                                     <ZoruTableCell
                                         colSpan={9}
-                                        className="h-24 text-center text-zoru-ink-muted"
+                                        className="h-24 text-center text-[var(--st-text-secondary)]"
                                     >
                                         No currencies match this filter.
                                     </ZoruTableCell>
                                 </ZoruTableRow>
                             ) : (
                                 filtered.map((r) => (
-                                    <ZoruTableRow key={r._id} className="border-zoru-line">
+                                    <ZoruTableRow key={r._id} className="border-[var(--st-border)]">
                                         <ZoruTableCell>
                                             <Checkbox
                                                 checked={selected.has(r._id)}
@@ -663,10 +663,10 @@ export default function CurrenciesPage() {
                                                 aria-label={`Select ${r.code}`}
                                             />
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="font-mono font-medium text-zoru-ink">
+                                        <ZoruTableCell className="font-mono font-medium text-[var(--st-text)]">
                                             {r.code}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-zoru-ink">
+                                        <ZoruTableCell className="text-[var(--st-text)]">
                                             <RowDrawer
                                                 label={r.name}
                                                 subtitle={`${r.code}${r.symbol ? ` · ${r.symbol}` : ''}`}
@@ -676,15 +676,15 @@ export default function CurrenciesPage() {
                                                 <div className="space-y-3 text-sm">
                                                     <div className="grid grid-cols-2 gap-3">
                                                         <div>
-                                                            <div className="text-zoru-ink-muted text-xs">Code</div>
+                                                            <div className="text-[var(--st-text-secondary)] text-xs">Code</div>
                                                             <div className="font-mono">{r.code}</div>
                                                         </div>
                                                         <div>
-                                                            <div className="text-zoru-ink-muted text-xs">Symbol</div>
+                                                            <div className="text-[var(--st-text-secondary)] text-xs">Symbol</div>
                                                             <div className="font-mono">{r.symbol ?? '—'}</div>
                                                         </div>
                                                         <div>
-                                                            <div className="text-zoru-ink-muted text-xs">Exchange rate</div>
+                                                            <div className="text-[var(--st-text-secondary)] text-xs">Exchange rate</div>
                                                             <div className="font-mono">
                                                                 {Number(r.exchangeRate).toLocaleString(undefined, {
                                                                     maximumFractionDigits: 6,
@@ -692,15 +692,15 @@ export default function CurrenciesPage() {
                                                             </div>
                                                         </div>
                                                         <div>
-                                                            <div className="text-zoru-ink-muted text-xs">Decimals</div>
+                                                            <div className="text-[var(--st-text-secondary)] text-xs">Decimals</div>
                                                             <div className="font-mono">{r.decimalPlaces}</div>
                                                         </div>
                                                         <div>
-                                                            <div className="text-zoru-ink-muted text-xs">Display</div>
+                                                            <div className="text-[var(--st-text-secondary)] text-xs">Display</div>
                                                             <div>{r.displayFormat}</div>
                                                         </div>
                                                         <div>
-                                                            <div className="text-zoru-ink-muted text-xs">Base</div>
+                                                            <div className="text-[var(--st-text-secondary)] text-xs">Base</div>
                                                             <div>{r.isBase ? 'Yes' : 'No'}</div>
                                                         </div>
                                                     </div>
@@ -716,25 +716,25 @@ export default function CurrenciesPage() {
                                                 </div>
                                             </RowDrawer>
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-zoru-ink">
+                                        <ZoruTableCell className="text-[var(--st-text)]">
                                             {r.symbol ?? '—'}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-right font-mono text-zoru-ink">
+                                        <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
                                             {Number(r.exchangeRate).toLocaleString(undefined, {
                                                 maximumFractionDigits: 6,
                                             })}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-right font-mono text-zoru-ink">
+                                        <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
                                             {r.decimalPlaces}
                                         </ZoruTableCell>
                                         <ZoruTableCell className="text-center">
                                             {r.isBase ? (
                                                 <Check
-                                                    className="mx-auto h-4 w-4 text-zoru-ink"
+                                                    className="mx-auto h-4 w-4 text-[var(--st-text)]"
                                                     aria-label="Base currency"
                                                 />
                                             ) : (
-                                                <span aria-hidden className="text-zoru-ink-muted">
+                                                <span aria-hidden className="text-[var(--st-text-secondary)]">
                                                     —
                                                 </span>
                                             )}
@@ -760,7 +760,7 @@ export default function CurrenciesPage() {
                                                 onClick={() => setPendingDelete(r)}
                                                 aria-label={`Delete ${r.code}`}
                                             >
-                                                <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                                <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                             </Button>
                                         </ZoruTableCell>
                                     </ZoruTableRow>
@@ -783,7 +783,7 @@ export default function CurrenciesPage() {
                             remove it from pickers. Existing documents that reference it will keep
                             the saved values.
                             {pendingDelete?.isBase ? (
-                                <span className="mt-2 block font-medium text-zoru-ink">
+                                <span className="mt-2 block font-medium text-[var(--st-text)]">
                                     Warning: this is your base currency.
                                 </span>
                             ) : null}

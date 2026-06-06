@@ -320,10 +320,10 @@ export function ScheduleClient({
       subtitle="Click a cell to assign the selected shift. Click again to clear."
       primaryAction={
         <>
-          <div className="flex items-center text-[12px] text-zoru-ink mr-4 print:hidden">
+          <div className="flex items-center text-[12px] text-[var(--st-text)] mr-4 print:hidden">
             <span className="relative flex h-2 w-2 mr-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-zoru-surface-2 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-zoru-ink"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--st-bg-muted)] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--st-text)]"></span>
             </span>
             {activeUsers} active user{activeUsers !== 1 ? 's' : ''}
           </div>
@@ -357,10 +357,10 @@ export function ScheduleClient({
       <Card className="p-6" id="printable-schedule">
         <div className="mb-4 flex flex-wrap items-end justify-between gap-4 print-hidden">
           <div>
-            <h2 className="text-[16px] text-zoru-ink">
+            <h2 className="text-[16px] text-[var(--st-text)]">
               Week of {format(weekStart, 'MMM d, yyyy')}
             </h2>
-            <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+            <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">
               {filteredEmployees.length} employees · {shifts.length} shifts
             </p>
           </div>
@@ -384,31 +384,31 @@ export function ScheduleClient({
         </div>
 
         {shifts.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-zoru-line bg-zoru-surface-2 p-6 text-center text-[13px] text-zoru-ink-muted">
+          <div className="rounded-lg border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] p-6 text-center text-[13px] text-[var(--st-text-secondary)]">
             Create a shift first to start scheduling.
           </div>
         ) : filteredEmployees.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-zoru-line bg-zoru-surface-2 p-6 text-center text-[13px] text-zoru-ink-muted">
+          <div className="rounded-lg border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] p-6 text-center text-[13px] text-[var(--st-text-secondary)]">
             <Users className="mx-auto mb-2 h-5 w-5" /> No employees found matching your filters.
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-lg border border-zoru-line" ref={parentRef} style={{ maxHeight: '600px', overflowY: 'auto' }}>
+          <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]" ref={parentRef} style={{ maxHeight: '600px', overflowY: 'auto' }}>
             <div
               className="grid min-w-[900px] sticky top-0 z-10"
               style={{
                 gridTemplateColumns: `minmax(200px, 1fr) repeat(${DAYS_IN_VIEW}, minmax(110px, 1fr))`,
               }}
             >
-              <div className="border-b border-zoru-line bg-zoru-surface-2 px-3 py-2 text-[12px] font-medium text-zoru-ink-muted">
+              <div className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-[12px] font-medium text-[var(--st-text-secondary)]">
                 Employee
               </div>
               {weekDays.map((d) => (
                 <div
                   key={`header-${d.toISOString()}`}
-                  className="border-b border-l border-zoru-line bg-zoru-surface-2 px-3 py-2 text-[12px] font-medium text-zoru-ink"
+                  className="border-b border-l border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-[12px] font-medium text-[var(--st-text)]"
                 >
                   <div>{format(d, 'EEE')}</div>
-                  <div className="text-[11px] text-zoru-ink-muted">{format(d, 'MMM d')}</div>
+                  <div className="text-[11px] text-[var(--st-text-secondary)]">{format(d, 'MMM d')}</div>
                 </div>
               ))}
             </div>
@@ -463,17 +463,17 @@ const ScheduleFilters = React.memo(function ScheduleFilters({
   return (
     <div className="flex flex-1 max-w-lg items-center gap-2 relative">
       <div className="relative flex-1">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zoru-ink-muted" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--st-text-secondary)]" />
         <input
           type="text"
           placeholder="Search employees..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="h-9 w-full rounded-lg border border-zoru-line bg-zoru-bg pl-9 pr-3 text-[13px] outline-none focus:border-zoru-line"
+          className="h-9 w-full rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] pl-9 pr-3 text-[13px] outline-none focus:border-[var(--st-border)]"
         />
       </div>
       <Select value={shiftFilter} onValueChange={setShiftFilter}>
-        <ZoruSelectTrigger className="h-9 w-[160px] rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+        <ZoruSelectTrigger className="h-9 w-[160px] rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
           <ZoruSelectValue placeholder="Filter by" />
         </ZoruSelectTrigger>
         <ZoruSelectContent>
@@ -500,9 +500,9 @@ const ScheduleToolbar = React.memo(function ScheduleToolbar({
 }: any) {
   return (
     <div className="flex items-center gap-2">
-      <span className="text-[12px] text-zoru-ink-muted">Action:</span>
+      <span className="text-[12px] text-[var(--st-text-secondary)]">Action:</span>
       <Select value={selectedShiftId} onValueChange={setSelectedShiftId}>
-        <ZoruSelectTrigger className="h-9 w-[180px] rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+        <ZoruSelectTrigger className="h-9 w-[180px] rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
           <ZoruSelectValue placeholder="Choose shift" />
         </ZoruSelectTrigger>
         <ZoruSelectContent>
@@ -511,7 +511,7 @@ const ScheduleToolbar = React.memo(function ScheduleToolbar({
               <span className="flex items-center gap-2">
                 <span
                   aria-hidden
-                  className="inline-block h-3 w-3 rounded-[3px] border border-zoru-line"
+                  className="inline-block h-3 w-3 rounded-[3px] border border-[var(--st-border)]"
                   style={{ backgroundColor: s.color_code || '#EAB308' }}
                 />
                 {s.name}
@@ -520,19 +520,19 @@ const ScheduleToolbar = React.memo(function ScheduleToolbar({
           ))}
         </ZoruSelectContent>
       </Select>
-      <div className="flex border border-zoru-line rounded-lg overflow-hidden h-9">
+      <div className="flex border border-[var(--st-border)] rounded-lg overflow-hidden h-9">
         <Button 
           variant="ghost" 
-          className="h-full rounded-none px-3 text-[12px] hover:bg-zoru-surface-2 disabled:opacity-50"
+          className="h-full rounded-none px-3 text-[12px] hover:bg-[var(--st-bg-muted)] disabled:opacity-50"
           onClick={onBulkAssign} 
           disabled={!selectedShiftId || shifts.length === 0 || pending}
         >
           <CheckSquare className="mr-1.5 h-3.5 w-3.5" /> Assign All
         </Button>
-        <div className="w-[1px] bg-zoru-line" />
+        <div className="w-[1px] bg-[var(--st-border)]" />
         <Button 
           variant="ghost" 
-          className="h-full rounded-none px-3 text-[12px] text-zoru-ink hover:bg-zoru-surface-2 hover:text-zoru-ink disabled:opacity-50"
+          className="h-full rounded-none px-3 text-[12px] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] disabled:opacity-50"
           onClick={onBulkClear} 
           disabled={pending}
         >
@@ -566,12 +566,12 @@ const Row = React.memo(function Row({
         gridTemplateColumns: `minmax(200px, 1fr) repeat(${DAYS_IN_VIEW}, minmax(110px, 1fr))`,
       }}
     >
-      <div className="flex items-center gap-2 border-b border-zoru-line px-3 py-2 text-[13px] text-zoru-ink h-full bg-zoru-bg">
+      <div className="flex items-center gap-2 border-b border-[var(--st-border)] px-3 py-2 text-[13px] text-[var(--st-text)] h-full bg-[var(--st-bg)]">
         <div className="min-w-0">
           <div className="truncate font-medium">
             {employee.firstName} {employee.lastName}
           </div>
-          <div className="truncate text-[11px] text-zoru-ink-muted">
+          <div className="truncate text-[11px] text-[var(--st-text-secondary)]">
             {employee.employeeId}
           </div>
         </div>
@@ -586,7 +586,7 @@ const Row = React.memo(function Row({
             type="button"
             disabled={pending}
             onClick={() => onClick(empId, day)}
-            className="flex h-full items-center justify-center border-l border-b border-zoru-line bg-zoru-bg px-2 py-1.5 text-left text-[12px] transition-colors hover:bg-zoru-surface-2 disabled:opacity-70"
+            className="flex h-full items-center justify-center border-l border-b border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-1.5 text-left text-[12px] transition-colors hover:bg-[var(--st-bg-muted)] disabled:opacity-70"
           >
             {shift ? (
               <span
@@ -601,7 +601,7 @@ const Row = React.memo(function Row({
                 {shift.name}
               </span>
             ) : (
-              <span className="text-[11px] text-zoru-ink-muted">—</span>
+              <span className="text-[11px] text-[var(--st-text-secondary)]">—</span>
             )}
           </button>
         );

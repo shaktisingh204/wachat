@@ -53,13 +53,13 @@ function SectionCard({
 }) {
   return (
     <Card className="p-0 overflow-hidden">
-      <div className="flex items-center gap-3 px-6 py-4 bg-zoru-surface-2 border-b border-zoru-line">
-        <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface [&_svg]:size-4 text-zoru-ink-muted">
+      <div className="flex items-center gap-3 px-6 py-4 bg-[var(--st-bg-muted)] border-b border-[var(--st-border)]">
+        <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-secondary)] [&_svg]:size-4 text-[var(--st-text-secondary)]">
           <Icon />
         </span>
         <div>
-          <div className="text-[14px] font-semibold text-zoru-ink">{title}</div>
-          <div className="text-[12px] text-zoru-ink-muted">{description}</div>
+          <div className="text-[14px] font-semibold text-[var(--st-text)]">{title}</div>
+          <div className="text-[12px] text-[var(--st-text-secondary)]">{description}</div>
         </div>
       </div>
       <div className="px-6 py-5 space-y-4">{children}</div>
@@ -78,12 +78,12 @@ function SaveFeedback({ state }: { state: SaveState | undefined }) {
   if (!state) return null;
   if (state.error) {
     return (
-      <span className="text-[12px] text-zoru-danger">{state.error}</span>
+      <span className="text-[12px] text-[var(--st-danger)]">{state.error}</span>
     );
   }
   if (state.message) {
     return (
-      <span className="text-[12px] text-zoru-success">{state.message}</span>
+      <span className="text-[12px] text-[var(--st-status-ok)]">{state.message}</span>
     );
   }
   return null;
@@ -105,9 +105,9 @@ function ToggleRow({
   return (
     <div className="flex items-start justify-between gap-4">
       <div>
-        <div className="text-[13px] font-medium text-zoru-ink">{label}</div>
+        <div className="text-[13px] font-medium text-[var(--st-text)]">{label}</div>
         {description ? (
-          <div className="text-[11.5px] text-zoru-ink-muted">{description}</div>
+          <div className="text-[11.5px] text-[var(--st-text-secondary)]">{description}</div>
         ) : null}
       </div>
       {/* Radix Switch does not reliably submit with FormData; use a hidden input */}
@@ -183,8 +183,8 @@ export function SettingsClient({ config, pipelines, leadStatuses }: Props) {
   return (
     <div className="space-y-6 w-full">
       <div>
-        <h1 className="text-2xl font-semibold text-zoru-ink">Sales CRM Settings</h1>
-        <p className="mt-1 text-sm text-zoru-ink-muted">
+        <h1 className="text-2xl font-semibold text-[var(--st-text)]">Sales CRM Settings</h1>
+        <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
           Configure pipeline behaviour, lead defaults, deal tracking and notification preferences.
         </p>
       </div>
@@ -222,7 +222,7 @@ export function SettingsClient({ config, pipelines, leadStatuses }: Props) {
                 ))}
               </ZoruSelectContent>
             </Select>
-            <p className="text-[11.5px] text-zoru-ink-muted">
+            <p className="text-[11.5px] text-[var(--st-text-secondary)]">
               New deals will be created in this pipeline by default.
             </p>
           </div>
@@ -292,7 +292,7 @@ export function SettingsClient({ config, pipelines, leadStatuses }: Props) {
                 ))}
               </ZoruSelectContent>
             </Select>
-            <p className="text-[11.5px] text-zoru-ink-muted">
+            <p className="text-[11.5px] text-[var(--st-text-secondary)]">
               Applied to every new lead created without an explicit status.
             </p>
           </div>
@@ -332,7 +332,7 @@ export function SettingsClient({ config, pipelines, leadStatuses }: Props) {
               defaultValue={String(config.dealRotDays ?? 30)}
               className="w-32"
             />
-            <p className="text-[11.5px] text-zoru-ink-muted">
+            <p className="text-[11.5px] text-[var(--st-text-secondary)]">
               Flag open deals as &quot;at-risk&quot; after this many days without activity.
             </p>
           </div>

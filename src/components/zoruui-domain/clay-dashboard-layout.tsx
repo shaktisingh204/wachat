@@ -2933,7 +2933,7 @@ export function ClayDashboardLayout({
                   <ZoruDropdownMenuSeparator />
                   <ZoruDropdownMenuItem
                     onSelect={() => (window.location.href = '/logout')}
-                    className="text-zoru-ink focus:text-zoru-ink"
+                    className="text-[var(--st-text)] focus:text-[var(--st-text)]"
                   >
                     <LuLogOut className="mr-2 h-4 w-4" /> Log out
                   </ZoruDropdownMenuItem>
@@ -2992,7 +2992,7 @@ export function ClayDashboardLayout({
               type="button"
               onClick={() => router.push('/dashboard/settings/billing')}
               aria-label={`Plan: ${plan?.name || 'Free'}`}
-              className="inline-flex h-8 items-center gap-1.5 rounded-full border border-zoru-line bg-[linear-gradient(180deg,rgba(236,72,153,0.08)_0%,rgba(236,72,153,0.02)_100%)] pl-2 pr-3 text-[12px] font-medium text-zoru-ink transition-colors hover:border-zoru-line"
+              className="inline-flex h-8 items-center gap-1.5 rounded-full border border-[var(--st-border)] bg-[linear-gradient(180deg,rgba(236,72,153,0.08)_0%,rgba(236,72,153,0.02)_100%)] pl-2 pr-3 text-[12px] font-medium text-[var(--st-text)] transition-colors hover:border-[var(--st-border)]"
             >
               <span
                 className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--zoru-ink)] text-white"
@@ -3000,7 +3000,7 @@ export function ClayDashboardLayout({
                 <LuStar className="h-3 w-3" strokeWidth={2.5} />
               </span>
               <span className="max-w-[90px] truncate">{plan?.name || 'Free'}</span>
-              <span className="hidden text-zoru-ink-muted sm:inline">plan</span>
+              <span className="hidden text-[var(--st-text-secondary)] sm:inline">plan</span>
             </button>
 
             {/* Credits badge — links to credits page */}
@@ -3008,13 +3008,13 @@ export function ClayDashboardLayout({
               type="button"
               onClick={() => router.push('/dashboard/settings/credits')}
               aria-label={`Credits: ${plan?.credits ?? 0}`}
-              className="inline-flex h-8 items-center gap-1.5 rounded-full border border-zoru-line bg-zoru-surface pl-2 pr-3 text-[12px] font-medium text-zoru-ink transition-colors hover:border-zoru-line"
+              className="inline-flex h-8 items-center gap-1.5 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] pl-2 pr-3 text-[12px] font-medium text-[var(--st-text)] transition-colors hover:border-[var(--st-border)]"
             >
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                 <LuZap className="h-3 w-3" strokeWidth={2.5} />
               </span>
               <span>{formatCredits(plan?.credits)}</span>
-              <span className="hidden text-zoru-ink-muted sm:inline">credits</span>
+              <span className="hidden text-[var(--st-text-secondary)] sm:inline">credits</span>
             </button>
 
             {/* Create dropdown — one-click entry into every creator */}
@@ -3378,7 +3378,7 @@ export function ClayDashboardLayout({
 
 function BrandGlyph() {
   return (
-    <div className="flex h-9 w-9 items-center justify-center rounded-full border border-zoru-line bg-zoru-surface shadow-sm">
+    <div className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] shadow-sm">
       <svg
         width="16"
         height="16"
@@ -3388,7 +3388,7 @@ function BrandGlyph() {
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className="text-zoru-ink"
+        className="text-[var(--st-text)]"
         aria-hidden
       >
         <path d="M3 3v10h3" />
@@ -3406,14 +3406,14 @@ function WabaHealthDot({ status }: { status?: string }) {
   const s = status.toLowerCase();
   const isGreen = s === 'available' || s === 'connected';
   const isAmber = s === 'limited' || s === 'flagged';
-  const color = isGreen ? 'bg-zoru-ink' : isAmber ? 'bg-zoru-ink' : 'bg-zoru-ink';
+  const color = isGreen ? 'bg-[var(--st-text)]' : isAmber ? 'bg-[var(--st-text)]' : 'bg-[var(--st-text)]';
   const label = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
   return (
     <span className={cn(
       'inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[8.5px] font-bold uppercase tracking-wider leading-none',
-      isGreen && 'bg-zoru-ink/10 text-zoru-ink',
-      isAmber && 'bg-zoru-ink/10 text-zoru-ink',
-      !isGreen && !isAmber && 'bg-zoru-ink/10 text-zoru-ink',
+      isGreen && 'bg-[var(--st-text)]/10 text-[var(--st-text)]',
+      isAmber && 'bg-[var(--st-text)]/10 text-[var(--st-text)]',
+      !isGreen && !isAmber && 'bg-[var(--st-text)]/10 text-[var(--st-text)]',
     )}>
       <span className={cn('h-1.5 w-1.5 rounded-full', color)} />
       {label}
@@ -3460,7 +3460,7 @@ function ClayWachatBrand() {
       <button
         type="button"
         onClick={() => router.push('/dashboard')}
-        className="inline-flex items-center gap-1.5 self-start rounded-full border border-zoru-line bg-zoru-surface px-2.5 py-1.5 text-[11.5px] font-medium text-zoru-ink-muted hover:text-zoru-ink hover:border-zoru-line transition-colors"
+        className="inline-flex items-center gap-1.5 self-start rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2.5 py-1.5 text-[11.5px] font-medium text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:border-[var(--st-border)] transition-colors"
       >
         <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
         Back to Apps
@@ -3471,29 +3471,29 @@ function ClayWachatBrand() {
         <ZoruDropdownMenuTrigger asChild>
           <button
             type="button"
-            className="flex w-full items-center gap-2 rounded-[12px] border border-zoru-line bg-zoru-surface px-2.5 py-2 text-left hover:border-zoru-line hover:bg-zoru-surface-2 transition-colors"
+            className="flex w-full items-center gap-2 rounded-[12px] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2.5 py-2 text-left hover:border-[var(--st-border)] hover:bg-[var(--st-bg-muted)] transition-colors"
           >
             <span
               className={cn(
                 'flex h-7 w-7 items-center justify-center rounded-[8px] text-[10.5px] font-semibold uppercase',
                 activeProject
-                  ? 'bg-zoru-surface-2 text-zoru-ink'
-                  : 'bg-zoru-surface-2 text-zoru-ink-muted',
+                  ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
+                  : 'bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]',
               )}
             >
               {(activeProject?.name || '—').slice(0, 2)}
             </span>
             <span className="min-w-0 flex-1">
-              <span className="flex items-center gap-1.5 text-[10.5px] uppercase tracking-wide text-zoru-ink-muted/70 font-medium">
+              <span className="flex items-center gap-1.5 text-[10.5px] uppercase tracking-wide text-[var(--st-text-secondary)]/70 font-medium">
                 Project
                 <WabaHealthDot status={healthStatus} />
               </span>
-              <span className="block truncate text-[12.5px] font-semibold text-zoru-ink leading-tight">
+              <span className="block truncate text-[12.5px] font-semibold text-[var(--st-text)] leading-tight">
                 {activeProject?.name || 'Select a project'}
               </span>
             </span>
             <LuChevronDown
-              className="h-3.5 w-3.5 shrink-0 text-zoru-ink-muted/70"
+              className="h-3.5 w-3.5 shrink-0 text-[var(--st-text-secondary)]/70"
               strokeWidth={2}
             />
           </button>
@@ -3515,9 +3515,9 @@ function ClayWachatBrand() {
                 <ZoruDropdownMenuItem
                   key={id}
                   onSelect={() => onSelect(id)}
-                  className={cn(isActive && 'bg-zoru-surface-2/50')}
+                  className={cn(isActive && 'bg-[var(--st-bg-muted)]/50')}
                 >
-                  <span className="flex h-5 w-5 items-center justify-center rounded-[6px] bg-zoru-surface-2 text-[9px] font-semibold uppercase text-zoru-ink mr-2">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-[6px] bg-[var(--st-bg-muted)] text-[9px] font-semibold uppercase text-[var(--st-text)] mr-2">
                     {(p.name || '?').slice(0, 2)}
                   </span>
                   <span className="truncate">{p.name}</span>
@@ -3546,7 +3546,7 @@ function ClayAdManagerBrand() {
       <button
         type="button"
         onClick={() => router.push('/dashboard')}
-        className="inline-flex items-center gap-1.5 self-start rounded-full border border-zoru-line bg-zoru-surface px-2.5 py-1.5 text-[11.5px] font-medium text-zoru-ink-muted hover:text-zoru-ink hover:border-zoru-line transition-colors"
+        className="inline-flex items-center gap-1.5 self-start rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2.5 py-1.5 text-[11.5px] font-medium text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:border-[var(--st-border)] transition-colors"
       >
         <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
         Back to Apps
@@ -3558,8 +3558,8 @@ function ClayAdManagerBrand() {
           <LuMegaphone className="h-4 w-4 text-white" strokeWidth={2} />
         </div>
         <div className="min-w-0">
-          <p className="truncate text-[13px] font-semibold leading-tight text-zoru-ink">Ad Manager</p>
-          <p className="text-[11px] text-zoru-ink-muted">Facebook & Instagram Ads</p>
+          <p className="truncate text-[13px] font-semibold leading-tight text-[var(--st-text)]">Ad Manager</p>
+          <p className="text-[11px] text-[var(--st-text-secondary)]">Facebook & Instagram Ads</p>
         </div>
       </div>
     </div>
@@ -3576,7 +3576,7 @@ function ClayInstagramBrand() {
       <button
         type="button"
         onClick={() => router.push('/dashboard')}
-        className="inline-flex items-center gap-1.5 self-start rounded-full border border-zoru-line bg-zoru-surface px-2.5 py-1.5 text-[11.5px] font-medium text-zoru-ink-muted hover:text-zoru-ink hover:border-zoru-line transition-colors"
+        className="inline-flex items-center gap-1.5 self-start rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2.5 py-1.5 text-[11.5px] font-medium text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:border-[var(--st-border)] transition-colors"
       >
         <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
         Back to Apps
@@ -3588,8 +3588,8 @@ function ClayInstagramBrand() {
           <LuImage className="h-4 w-4 text-white" strokeWidth={2} />
         </div>
         <div className="min-w-0">
-          <p className="truncate text-[13px] font-semibold leading-tight text-zoru-ink">Instagram</p>
-          <p className="text-[11px] text-zoru-ink-muted">Feed, Stories & Reels</p>
+          <p className="truncate text-[13px] font-semibold leading-tight text-[var(--st-text)]">Instagram</p>
+          <p className="text-[11px] text-[var(--st-text-secondary)]">Feed, Stories & Reels</p>
         </div>
       </div>
     </div>
@@ -3606,7 +3606,7 @@ function ClaySabFlowBrand() {
       <button
         type="button"
         onClick={() => router.push('/dashboard')}
-        className="inline-flex items-center gap-1.5 self-start rounded-full border border-zoru-line bg-zoru-surface px-2.5 py-1.5 text-[11.5px] font-medium text-zoru-ink-muted hover:text-zoru-ink hover:border-zoru-line transition-colors"
+        className="inline-flex items-center gap-1.5 self-start rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2.5 py-1.5 text-[11.5px] font-medium text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:border-[var(--st-border)] transition-colors"
       >
         <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
         Back to Apps
@@ -3618,8 +3618,8 @@ function ClaySabFlowBrand() {
           <LuWorkflow className="h-4 w-4 text-white" strokeWidth={2} />
         </div>
         <div className="min-w-0">
-          <p className="truncate text-[13px] font-semibold leading-tight text-zoru-ink">SabFlow</p>
-          <p className="text-[11px] text-zoru-ink-muted">Visual automation engine</p>
+          <p className="truncate text-[13px] font-semibold leading-tight text-[var(--st-text)]">SabFlow</p>
+          <p className="text-[11px] text-[var(--st-text-secondary)]">Visual automation engine</p>
         </div>
       </div>
     </div>
@@ -3636,7 +3636,7 @@ function ClaySettingsBrand() {
       <button
         type="button"
         onClick={() => router.push('/dashboard')}
-        className="inline-flex items-center gap-1.5 self-start rounded-full border border-zoru-line bg-zoru-surface px-2.5 py-1.5 text-[11.5px] font-medium text-zoru-ink-muted hover:text-zoru-ink hover:border-zoru-line transition-colors"
+        className="inline-flex items-center gap-1.5 self-start rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2.5 py-1.5 text-[11.5px] font-medium text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:border-[var(--st-border)] transition-colors"
       >
         <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
         Back to Apps
@@ -3648,8 +3648,8 @@ function ClaySettingsBrand() {
           <LuSettings className="h-4 w-4 text-white" strokeWidth={2} />
         </div>
         <div className="min-w-0">
-          <p className="truncate text-[13px] font-semibold leading-tight text-zoru-ink">Settings</p>
-          <p className="text-[11px] text-zoru-ink-muted">Account, billing & workspace</p>
+          <p className="truncate text-[13px] font-semibold leading-tight text-[var(--st-text)]">Settings</p>
+          <p className="text-[11px] text-[var(--st-text-secondary)]">Account, billing & workspace</p>
         </div>
       </div>
     </div>
@@ -3664,7 +3664,7 @@ function ClayTeamBrand() {
       <button
         type="button"
         onClick={() => router.push('/dashboard')}
-        className="inline-flex items-center gap-1.5 self-start rounded-full border border-zoru-line bg-zoru-surface px-2.5 py-1.5 text-[11.5px] font-medium text-zoru-ink-muted hover:text-zoru-ink hover:border-zoru-line transition-colors"
+        className="inline-flex items-center gap-1.5 self-start rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2.5 py-1.5 text-[11.5px] font-medium text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:border-[var(--st-border)] transition-colors"
       >
         <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
         Back to Apps
@@ -3676,8 +3676,8 @@ function ClayTeamBrand() {
           <LuUsers className="h-4 w-4 text-white" strokeWidth={2} />
         </div>
         <div className="min-w-0">
-          <p className="truncate text-[13px] font-semibold leading-tight text-zoru-ink">Team</p>
-          <p className="text-[11px] text-zoru-ink-muted">Members, Roles & Collaboration</p>
+          <p className="truncate text-[13px] font-semibold leading-tight text-[var(--st-text)]">Team</p>
+          <p className="text-[11px] text-[var(--st-text-secondary)]">Members, Roles & Collaboration</p>
         </div>
       </div>
     </div>
@@ -3692,7 +3692,7 @@ function ClayTelegramBrand() {
       <button
         type="button"
         onClick={() => router.push('/dashboard')}
-        className="inline-flex items-center gap-1.5 self-start rounded-full border border-zoru-line bg-zoru-surface px-2.5 py-1.5 text-[11.5px] font-medium text-zoru-ink-muted hover:text-zoru-ink hover:border-zoru-line transition-colors"
+        className="inline-flex items-center gap-1.5 self-start rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2.5 py-1.5 text-[11.5px] font-medium text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:border-[var(--st-border)] transition-colors"
       >
         <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
         Back to Apps
@@ -3704,8 +3704,8 @@ function ClayTelegramBrand() {
           <LuSend className="h-4 w-4 text-white" strokeWidth={2} />
         </div>
         <div className="min-w-0">
-          <p className="truncate text-[13px] font-semibold leading-tight text-zoru-ink">Telegram</p>
-          <p className="text-[11px] text-zoru-ink-muted">Bots, Channels & Business</p>
+          <p className="truncate text-[13px] font-semibold leading-tight text-[var(--st-text)]">Telegram</p>
+          <p className="text-[11px] text-[var(--st-text-secondary)]">Bots, Channels & Business</p>
         </div>
       </div>
     </div>
@@ -3722,7 +3722,7 @@ function ClayMetaBrand() {
       <button
         type="button"
         onClick={() => router.push('/dashboard')}
-        className="inline-flex items-center gap-1.5 self-start rounded-full border border-zoru-line bg-zoru-surface px-2.5 py-1.5 text-[11.5px] font-medium text-zoru-ink-muted hover:text-zoru-ink hover:border-zoru-line transition-colors"
+        className="inline-flex items-center gap-1.5 self-start rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2.5 py-1.5 text-[11.5px] font-medium text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:border-[var(--st-border)] transition-colors"
       >
         <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
         Back to Apps
@@ -3734,8 +3734,8 @@ function ClayMetaBrand() {
           <LuGlobe className="h-4 w-4 text-white" strokeWidth={2} />
         </div>
         <div className="min-w-0">
-          <p className="truncate text-[13px] font-semibold leading-tight text-zoru-ink">Meta Suite</p>
-          <p className="text-[11px] text-zoru-ink-muted">Facebook & Instagram</p>
+          <p className="truncate text-[13px] font-semibold leading-tight text-[var(--st-text)]">Meta Suite</p>
+          <p className="text-[11px] text-[var(--st-text-secondary)]">Facebook & Instagram</p>
         </div>
       </div>
     </div>
@@ -3752,7 +3752,7 @@ function ClayUrlShortenerBrand() {
       <button
         type="button"
         onClick={() => router.push('/dashboard')}
-        className="inline-flex items-center gap-1.5 self-start rounded-full border border-zoru-line bg-zoru-surface px-2.5 py-1.5 text-[11.5px] font-medium text-zoru-ink-muted hover:text-zoru-ink hover:border-zoru-line transition-colors"
+        className="inline-flex items-center gap-1.5 self-start rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2.5 py-1.5 text-[11.5px] font-medium text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:border-[var(--st-border)] transition-colors"
       >
         <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
         Back to Apps
@@ -3764,8 +3764,8 @@ function ClayUrlShortenerBrand() {
           <LuLink className="h-4 w-4 text-white" strokeWidth={2} />
         </div>
         <div className="min-w-0">
-          <p className="truncate text-[13px] font-semibold leading-tight text-zoru-ink">URL Shortener</p>
-          <p className="text-[11px] text-zoru-ink-muted">Trackable short links</p>
+          <p className="truncate text-[13px] font-semibold leading-tight text-[var(--st-text)]">URL Shortener</p>
+          <p className="text-[11px] text-[var(--st-text-secondary)]">Trackable short links</p>
         </div>
       </div>
     </div>
@@ -3782,7 +3782,7 @@ function ClayCrmBrand() {
       <button
         type="button"
         onClick={() => router.push('/dashboard')}
-        className="inline-flex items-center gap-1.5 self-start rounded-full border border-zoru-line bg-zoru-surface px-2.5 py-1.5 text-[11.5px] font-medium text-zoru-ink-muted hover:text-zoru-ink hover:border-zoru-line transition-colors"
+        className="inline-flex items-center gap-1.5 self-start rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2.5 py-1.5 text-[11.5px] font-medium text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:border-[var(--st-border)] transition-colors"
       >
         <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
         Back to Apps
@@ -3794,8 +3794,8 @@ function ClayCrmBrand() {
           <LuBriefcase className="h-4 w-4 text-white" strokeWidth={2} />
         </div>
         <div className="min-w-0">
-          <p className="truncate text-[13px] font-semibold leading-tight text-zoru-ink">CRM</p>
-          <p className="text-[11px] text-zoru-ink-muted">Sales, Ops & Accounting</p>
+          <p className="truncate text-[13px] font-semibold leading-tight text-[var(--st-text)]">CRM</p>
+          <p className="text-[11px] text-[var(--st-text-secondary)]">Sales, Ops & Accounting</p>
         </div>
       </div>
     </div>
@@ -3812,7 +3812,7 @@ function ClaySabFlowExtraBrand() {
       <button
         type="button"
         onClick={() => router.push('/dashboard')}
-        className="inline-flex items-center gap-1.5 self-start rounded-full border border-zoru-line bg-zoru-surface px-2.5 py-1.5 text-[11.5px] font-medium text-zoru-ink-muted hover:text-zoru-ink hover:border-zoru-line transition-colors"
+        className="inline-flex items-center gap-1.5 self-start rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2.5 py-1.5 text-[11.5px] font-medium text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:border-[var(--st-border)] transition-colors"
       >
         <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
         Back to Apps
@@ -3824,8 +3824,8 @@ function ClaySabFlowExtraBrand() {
           <LuZap className="h-4 w-4 text-white" strokeWidth={2} />
         </div>
         <div className="min-w-0">
-          <p className="truncate text-[13px] font-semibold leading-tight text-zoru-ink">SabFlow</p>
-          <p className="text-[11px] text-zoru-ink-muted">Workflow automation</p>
+          <p className="truncate text-[13px] font-semibold leading-tight text-[var(--st-text)]">SabFlow</p>
+          <p className="text-[11px] text-[var(--st-text-secondary)]">Workflow automation</p>
         </div>
       </div>
     </div>
@@ -3842,7 +3842,7 @@ function ClayQrCodeMakerBrand() {
       <button
         type="button"
         onClick={() => router.push('/dashboard')}
-        className="inline-flex items-center gap-1.5 self-start rounded-full border border-zoru-line bg-zoru-surface px-2.5 py-1.5 text-[11.5px] font-medium text-zoru-ink-muted hover:text-zoru-ink hover:border-zoru-line transition-colors"
+        className="inline-flex items-center gap-1.5 self-start rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2.5 py-1.5 text-[11.5px] font-medium text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:border-[var(--st-border)] transition-colors"
       >
         <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
         Back to Apps
@@ -3854,8 +3854,8 @@ function ClayQrCodeMakerBrand() {
           <LuQrCode className="h-4 w-4 text-white" strokeWidth={2} />
         </div>
         <div className="min-w-0">
-          <p className="truncate text-[13px] font-semibold leading-tight text-zoru-ink">QR Code Maker</p>
-          <p className="text-[11px] text-zoru-ink-muted">Customizable QR codes</p>
+          <p className="truncate text-[13px] font-semibold leading-tight text-[var(--st-text)]">QR Code Maker</p>
+          <p className="text-[11px] text-[var(--st-text-secondary)]">Customizable QR codes</p>
         </div>
       </div>
     </div>

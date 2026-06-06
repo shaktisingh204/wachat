@@ -82,19 +82,19 @@ export function EntityDetailShell({
                     {back ? (
                         <Link
                             href={back.href}
-                            className="inline-flex items-center gap-1 text-xs text-zoru-ink hover:text-zoru-ink dark:hover:text-white"
+                            className="inline-flex items-center gap-1 text-xs text-[var(--st-text)] hover:text-[var(--st-text)] dark:hover:text-white"
                         >
                             <ArrowLeft className="h-3 w-3" />
                             {back.label}
                         </Link>
                     ) : null}
                     {eyebrow ? (
-                        <p className="mt-2 text-xs font-medium uppercase tracking-wide text-zoru-ink">
+                        <p className="mt-2 text-xs font-medium uppercase tracking-wide text-[var(--st-text)]">
                             {eyebrow}
                         </p>
                     ) : null}
                     <div className="mt-1 flex flex-wrap items-center gap-3">
-                        <h1 className="truncate text-2xl font-semibold text-zoru-ink dark:text-white">
+                        <h1 className="truncate text-2xl font-semibold text-[var(--st-text)] dark:text-white">
                             {title}
                         </h1>
                         {status ? (

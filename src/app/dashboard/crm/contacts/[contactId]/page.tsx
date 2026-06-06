@@ -287,16 +287,16 @@ export default function CrmContactDetailPage() {
           
           {/* Profile Sidebar */}
           <div className="space-y-6 lg:col-span-1">
-            <Card className="p-6 border border-zoru-line bg-zoru-surface">
+            <Card className="p-6 border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
               <div className="flex flex-col items-center text-center">
-                <Avatar className="mb-3 h-24 w-24 border border-zoru-line">
+                <Avatar className="mb-3 h-24 w-24 border border-[var(--st-border)]">
                   <ZoruAvatarImage src={contact.avatarUrl || ''} data-ai-hint="person avatar" />
-                  <ZoruAvatarFallback className="bg-zoru-surface-2 text-[26px] text-zoru-ink">
+                  <ZoruAvatarFallback className="bg-[var(--st-bg-muted)] text-[26px] text-[var(--st-text)]">
                     {contact.name.charAt(0)}
                   </ZoruAvatarFallback>
                 </Avatar>
-                <h2 className="text-[16px] font-semibold text-zoru-ink">{contact.name}</h2>
-                <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+                <h2 className="text-[16px] font-semibold text-[var(--st-text)]">{contact.name}</h2>
+                <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">
                   {contact.jobTitle || 'N/A'}
                 </p>
               </div>
@@ -326,28 +326,28 @@ export default function CrmContactDetailPage() {
                 </Button>
               </div>
 
-              <Separator className="my-4 bg-zoru-line" />
+              <Separator className="my-4 bg-[var(--st-border)]" />
 
-              <div className="space-y-2.5 text-[13px] text-zoru-ink">
+              <div className="space-y-2.5 text-[13px] text-[var(--st-text)]">
                 <div className="flex items-center gap-3">
-                  <Mail className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
+                  <Mail className="h-4 w-4 text-[var(--st-text-secondary)]" strokeWidth={1.75} />
                   <a
                     href={`mailto:${contact.email}`}
-                    className="text-zoru-ink hover:underline"
+                    className="text-[var(--st-text)] hover:underline"
                   >
                     {contact.email}
                   </a>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Phone className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
+                  <Phone className="h-4 w-4 text-[var(--st-text-secondary)]" strokeWidth={1.75} />
                   <span>{contact.phone || 'N/A'}</span>
                 </div>
                 {account && (
                   <div className="flex items-center gap-3">
-                    <Briefcase className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
+                    <Briefcase className="h-4 w-4 text-[var(--st-text-secondary)]" strokeWidth={1.75} />
                     <Link
                       href={`/dashboard/crm/accounts/${account._id.toString()}`}
-                      className="text-zoru-ink hover:underline"
+                      className="text-[var(--st-text)] hover:underline"
                     >
                       {account.name}
                     </Link>
@@ -355,19 +355,19 @@ export default function CrmContactDetailPage() {
                 )}
                 {(contact.linkedinUrl || contact.twitterHandle) && (
                   <>
-                    <Separator className="my-4 bg-zoru-line" />
+                    <Separator className="my-4 bg-[var(--st-border)]" />
                     {contact.linkedinUrl && (
                       <div className="flex items-center gap-3">
-                        <Linkedin className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
-                        <a href={contact.linkedinUrl} target="_blank" rel="noreferrer" className="text-zoru-ink hover:underline truncate">
+                        <Linkedin className="h-4 w-4 text-[var(--st-text-secondary)]" strokeWidth={1.75} />
+                        <a href={contact.linkedinUrl} target="_blank" rel="noreferrer" className="text-[var(--st-text)] hover:underline truncate">
                           LinkedIn Profile
                         </a>
                       </div>
                     )}
                     {contact.twitterHandle && (
                       <div className="flex items-center gap-3">
-                        <Twitter className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
-                        <a href={`https://twitter.com/${contact.twitterHandle.replace('@', '')}`} target="_blank" rel="noreferrer" className="text-zoru-ink hover:underline truncate">
+                        <Twitter className="h-4 w-4 text-[var(--st-text-secondary)]" strokeWidth={1.75} />
+                        <a href={`https://twitter.com/${contact.twitterHandle.replace('@', '')}`} target="_blank" rel="noreferrer" className="text-[var(--st-text)] hover:underline truncate">
                           {contact.twitterHandle}
                         </a>
                       </div>
@@ -376,22 +376,22 @@ export default function CrmContactDetailPage() {
                 )}
               </div>
 
-              <Separator className="my-4 bg-zoru-line" />
+              <Separator className="my-4 bg-[var(--st-border)]" />
 
               <div className="space-y-3">
                 <div>
-                  <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted font-bold">
+                  <p className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-secondary)] font-bold">
                     Lead Score
                   </p>
                   <div className="mt-1.5 flex items-center gap-2">
                     <Badge variant={leadScoreVariant(contact.leadScore || 0)}>
                       {contact.leadScore || 0}
                     </Badge>
-                    <span className="text-[12.5px] text-zoru-ink-muted">Hot Lead Priority</span>
+                    <span className="text-[12.5px] text-[var(--st-text-secondary)]">Hot Lead Priority</span>
                   </div>
                 </div>
                 <div>
-                  <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted font-bold">
+                  <p className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-secondary)] font-bold">
                     Lifecycle Status
                   </p>
                   <div className="mt-1.5">
@@ -412,7 +412,7 @@ export default function CrmContactDetailPage() {
                 </div>
 
                 <div className="pt-2">
-                  <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted font-bold mb-2">
+                  <p className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-secondary)] font-bold mb-2">
                     Tags
                   </p>
                   <div className="flex flex-wrap gap-1.5 mb-2">
@@ -420,7 +420,7 @@ export default function CrmContactDetailPage() {
                       <Badge key={tag} variant="secondary" className="flex items-center gap-1 px-1.5 py-0">
                         {tag}
                         <X 
-                          className="h-3 w-3 cursor-pointer hover:text-zoru-ink" 
+                          className="h-3 w-3 cursor-pointer hover:text-[var(--st-text)]" 
                           onClick={() => handleRemoveTag(tag)} 
                         />
                       </Badge>
@@ -428,7 +428,7 @@ export default function CrmContactDetailPage() {
                   </div>
                   <Input 
                     placeholder="Add a tag and press Enter..." 
-                    className="h-7 text-xs bg-transparent border-zoru-line"
+                    className="h-7 text-xs bg-transparent border-[var(--st-border)]"
                     onKeyDown={handleAddTag}
                   />
                 </div>
@@ -488,20 +488,20 @@ export default function CrmContactDetailPage() {
             />
 
             {/* Associated Deals Table */}
-            <Card className="p-6 border border-zoru-line bg-zoru-surface">
+            <Card className="p-6 border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
               <div className="mb-4">
-                <h2 className="text-[16px] font-semibold text-zoru-ink">Associated Opportunities</h2>
-                <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+                <h2 className="text-[16px] font-semibold text-[var(--st-text)]">Associated Opportunities</h2>
+                <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">
                   Pipeline deals associated with this client record.
                 </p>
               </div>
-              <div className="overflow-x-auto rounded-lg border border-zoru-line bg-zoru-surface-2/10">
+              <div className="overflow-x-auto rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)]/10">
                 <Table>
                   <ZoruTableHeader>
-                    <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                      <ZoruTableHead className="text-zoru-ink-muted">Deal Name</ZoruTableHead>
-                      <ZoruTableHead className="text-zoru-ink-muted">Stage</ZoruTableHead>
-                      <ZoruTableHead className="text-right text-zoru-ink-muted">Pipeline Value</ZoruTableHead>
+                    <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                      <ZoruTableHead className="text-[var(--st-text-secondary)]">Deal Name</ZoruTableHead>
+                      <ZoruTableHead className="text-[var(--st-text-secondary)]">Stage</ZoruTableHead>
+                      <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Pipeline Value</ZoruTableHead>
                     </ZoruTableRow>
                   </ZoruTableHeader>
                   <ZoruTableBody>
@@ -512,15 +512,15 @@ export default function CrmContactDetailPage() {
                           onClick={() =>
                             router.push(`/dashboard/crm/deals/${deal._id.toString()}`)
                           }
-                          className="cursor-pointer border-zoru-line hover:bg-zoru-surface-2/30"
+                          className="cursor-pointer border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]/30"
                         >
-                          <ZoruTableCell className="text-[13px] font-medium text-zoru-ink">
+                          <ZoruTableCell className="text-[13px] font-medium text-[var(--st-text)]">
                             {deal.name}
                           </ZoruTableCell>
                           <ZoruTableCell>
                             <Badge variant={dealStageVariant(deal.stage)}>{deal.stage ?? '—'}</Badge>
                           </ZoruTableCell>
-                          <ZoruTableCell className="text-right font-medium text-zoru-ink">
+                          <ZoruTableCell className="text-right font-medium text-[var(--st-text)]">
                             {new Intl.NumberFormat('en-US', {
                               style: 'currency',
                               currency: deal.currency || 'USD',
@@ -529,10 +529,10 @@ export default function CrmContactDetailPage() {
                         </ZoruTableRow>
                       ))
                     ) : (
-                      <ZoruTableRow className="border-zoru-line">
+                      <ZoruTableRow className="border-[var(--st-border)]">
                         <ZoruTableCell
                           colSpan={3}
-                          className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                          className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                         >
                           No active deals currently associated with this client.
                         </ZoruTableCell>

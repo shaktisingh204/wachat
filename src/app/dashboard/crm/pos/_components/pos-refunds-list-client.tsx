@@ -86,26 +86,26 @@ function KpiTile({ label, value, icon: Icon, tone, hint }: KpiTileProps) {
         <Card className="overflow-hidden">
             <ZoruCardContent className="flex items-start justify-between gap-2 p-3.5">
                 <div className="min-w-0">
-                    <p className="text-[10.5px] uppercase tracking-wide text-zoru-ink-muted">
+                    <p className="text-[10.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                         {label}
                     </p>
                     <p
                         className={
                             tone === 'accent'
-                                ? 'mt-0.5 truncate text-xl font-semibold text-zoru-accent'
-                                : 'mt-0.5 truncate text-xl font-semibold text-zoru-ink'
+                                ? 'mt-0.5 truncate text-xl font-semibold text-[var(--st-accent)]'
+                                : 'mt-0.5 truncate text-xl font-semibold text-[var(--st-text)]'
                         }
                     >
                         {value}
                     </p>
                     {hint ? (
-                        <p className="mt-0.5 truncate text-[11px] text-zoru-ink-muted">
+                        <p className="mt-0.5 truncate text-[11px] text-[var(--st-text-secondary)]">
                             {hint}
                         </p>
                     ) : null}
                 </div>
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-zoru-surface-2">
-                    <Icon className="h-3.5 w-3.5 text-zoru-ink" strokeWidth={1.75} />
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-[var(--st-bg-muted)]">
+                    <Icon className="h-3.5 w-3.5 text-[var(--st-text)]" strokeWidth={1.75} />
                 </div>
             </ZoruCardContent>
         </Card>
@@ -320,7 +320,7 @@ export function PosRefundsListClient({ refunds }: Props) {
             {/* Filter row */}
             <div className="flex flex-wrap items-center gap-2">
                 <div className="relative max-w-sm flex-1">
-                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
                     <Input
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
@@ -393,9 +393,9 @@ export function PosRefundsListClient({ refunds }: Props) {
 
             {/* Bulk action bar */}
             {selected.size > 0 ? (
-                <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-3 py-2 shadow-[var(--zoru-shadow-sm)]">
-                    <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink">
-                        <ListChecks className="h-4 w-4 text-zoru-primary" />
+                <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 shadow-[var(--zoru-shadow-sm)]">
+                    <div className="flex items-center gap-2 text-[12.5px] text-[var(--st-text)]">
+                        <ListChecks className="h-4 w-4 text-[var(--st-text)]" />
                         {selected.size} selected
                     </div>
                     <div className="flex items-center gap-1">
@@ -422,7 +422,7 @@ export function PosRefundsListClient({ refunds }: Props) {
                 <div className="overflow-x-auto">
                     <Table>
                         <ZoruTableHeader>
-                            <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                            <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                                 <ZoruTableHead className="w-8">
                                     <Checkbox
                                         checked={headChecked}
@@ -447,7 +447,7 @@ export function PosRefundsListClient({ refunds }: Props) {
                                 <ZoruTableRow>
                                     <ZoruTableCell
                                         colSpan={7}
-                                        className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                                        className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                                     >
                                         {refunds.length === 0
                                             ? 'No refunds recorded yet.'
@@ -481,7 +481,7 @@ export function PosRefundsListClient({ refunds }: Props) {
                                                     }
                                                 />
                                             ) : (
-                                                <span className="font-mono text-[12px] text-zoru-ink">
+                                                <span className="font-mono text-[12px] text-[var(--st-text)]">
                                                     {r.originalTransactionNumber ||
                                                         r.originalTransactionId.slice(-8)}
                                                 </span>
@@ -514,8 +514,8 @@ export function PosRefundsListClient({ refunds }: Props) {
 
                 {/* Pagination */}
                 {filtered.length > 0 ? (
-                    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-zoru-line px-3 py-2.5">
-                        <div className="flex items-center gap-2 text-[12px] text-zoru-ink-muted">
+                    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--st-border)] px-3 py-2.5">
+                        <div className="flex items-center gap-2 text-[12px] text-[var(--st-text-secondary)]">
                             <span>Rows per page</span>
                             <Select
                                 value={String(pageSize)}
@@ -536,7 +536,7 @@ export function PosRefundsListClient({ refunds }: Props) {
                                 </ZoruSelectContent>
                             </Select>
                         </div>
-                        <div className="flex items-center gap-3 text-[12px] text-zoru-ink-muted">
+                        <div className="flex items-center gap-3 text-[12px] text-[var(--st-text-secondary)]">
                             <span>
                                 {pageStart + 1}–
                                 {Math.min(pageStart + pageSize, filtered.length)}{' '}

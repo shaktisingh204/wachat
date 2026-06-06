@@ -142,32 +142,32 @@ export function LeadsConversionView({
       {/* Filter row */}
       <form
         onSubmit={pushFilters}
-        className="flex flex-wrap items-end gap-2 rounded-lg border border-zoru-line bg-zoru-surface px-3 py-2"
+        className="flex flex-wrap items-end gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
       >
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
             From
           </span>
           <input
             type="date"
             name="from"
             defaultValue={from}
-            className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
+            className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
           />
         </label>
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
             To
           </span>
           <input
             type="date"
             name="to"
             defaultValue={to}
-            className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
+            className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
           />
         </label>
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
             Source
           </span>
           <input
@@ -175,11 +175,11 @@ export function LeadsConversionView({
             value={sourceInput}
             onChange={(e) => setSourceInput(e.target.value)}
             placeholder="Any"
-            className="h-9 w-28 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
+            className="h-9 w-28 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
           />
         </label>
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
             Owner
           </span>
           <input
@@ -187,7 +187,7 @@ export function LeadsConversionView({
             value={ownerInput}
             onChange={(e) => setOwnerInput(e.target.value)}
             placeholder="Any"
-            className="h-9 w-28 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
+            className="h-9 w-28 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
           />
         </label>
         <Button type="submit" size="sm" disabled={isPending}>
@@ -233,10 +233,10 @@ export function LeadsConversionView({
       {/* Funnel bar chart */}
       <Card>
         <div className="mb-3">
-          <h2 className="text-[16px] font-semibold text-zoru-ink">
+          <h2 className="text-[16px] font-semibold text-[var(--st-text)]">
             Funnel by stage
           </h2>
-          <p className="text-[12px] text-zoru-ink-muted">
+          <p className="text-[12px] text-[var(--st-text-secondary)]">
             Bar labels show stage-over-stage conversion %.
           </p>
         </div>
@@ -247,41 +247,41 @@ export function LeadsConversionView({
       {bySource.length > 0 && (
         <Card>
           <div className="mb-3">
-            <h2 className="text-[16px] font-semibold text-zoru-ink">
+            <h2 className="text-[16px] font-semibold text-[var(--st-text)]">
               Conversion by source
             </h2>
           </div>
-          <div className="overflow-x-auto rounded-lg border border-zoru-line">
+          <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
             <Table>
               <ZoruTableHeader>
-                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                  <ZoruTableHead className="text-zoru-ink-muted">
+                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
                     Source
                   </ZoruTableHead>
-                  <ZoruTableHead className="text-right text-zoru-ink-muted">
+                  <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                     Leads
                   </ZoruTableHead>
-                  <ZoruTableHead className="text-right text-zoru-ink-muted">
+                  <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                     Converted
                   </ZoruTableHead>
-                  <ZoruTableHead className="text-right text-zoru-ink-muted">
+                  <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                     Conv. rate
                   </ZoruTableHead>
                 </ZoruTableRow>
               </ZoruTableHeader>
               <ZoruTableBody>
                 {bySource.map((s) => (
-                  <ZoruTableRow key={s.source} className="border-zoru-line">
-                    <ZoruTableCell className="font-medium text-zoru-ink">
+                  <ZoruTableRow key={s.source} className="border-[var(--st-border)]">
+                    <ZoruTableCell className="font-medium text-[var(--st-text)]">
                       {s.source}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
+                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
                       {fmtNumber(s.total)}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
+                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
                       {fmtNumber(s.converted)}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] font-medium text-zoru-ink">
+                    <ZoruTableCell className="text-right text-[13px] font-medium text-[var(--st-text)]">
                       <Badge
                         variant={
                           s.conversionRate >= 20 ? 'default' : 'secondary'
@@ -300,48 +300,48 @@ export function LeadsConversionView({
 
       {/* Leads table */}
       <Card>
-        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+        <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <Table>
             <ZoruTableHeader>
-              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                <ZoruTableHead className="text-zoru-ink-muted">
+              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                   Lead
                 </ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                   Company
                 </ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                   Status
                 </ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                   Source
                 </ZoruTableHead>
-                <ZoruTableHead className="text-right text-zoru-ink-muted">
+                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                   Created
                 </ZoruTableHead>
               </ZoruTableRow>
             </ZoruTableHeader>
             <ZoruTableBody>
               {leads.length === 0 ? (
-                <ZoruTableRow className="border-zoru-line">
+                <ZoruTableRow className="border-[var(--st-border)]">
                   <ZoruTableCell
                     colSpan={5}
-                    className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                    className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     No leads.
                   </ZoruTableCell>
                 </ZoruTableRow>
               ) : (
                 leads.map((l) => (
-                  <ZoruTableRow key={l.id} className="border-zoru-line">
-                    <ZoruTableCell className="font-medium text-zoru-ink">
+                  <ZoruTableRow key={l.id} className="border-[var(--st-border)]">
+                    <ZoruTableCell className="font-medium text-[var(--st-text)]">
                       <EntityRowLink
                         href={`/dashboard/crm/sales-crm/leads?leadId=${l.id}`}
                         label={l.title}
                         subtitle={l.contactName}
                       />
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-zoru-ink">
+                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                       {l.company ?? '—'}
                     </ZoruTableCell>
                     <ZoruTableCell>
@@ -357,10 +357,10 @@ export function LeadsConversionView({
                         {l.status}
                       </Badge>
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                       {l.source}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-zoru-ink-muted">
+                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text-secondary)]">
                       {l.createdAt
                         ? new Date(l.createdAt).toLocaleDateString()
                         : '—'}

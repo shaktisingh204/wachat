@@ -19,7 +19,7 @@ export default function LegacyDealEditError({
   return (
     <div className="w-full px-6 pt-6 pb-10">
       <EmptyState
-        icon={<AlertTriangle className="h-8 w-8 text-zoru-ink" />}
+        icon={<AlertTriangle className="h-8 w-8 text-[var(--st-text)]" />}
         title="Redirection Failed"
         description={
           error?.message?.length && error.message.length < 200

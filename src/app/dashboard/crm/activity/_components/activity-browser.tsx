@@ -66,50 +66,50 @@ export function ActivityBrowser({ activities, initialFilters }: ActivityBrowserP
           aria-label="Filter activity"
         >
           <div>
-            <Label className="text-[11.5px] text-zoru-ink-muted">Actor</Label>
+            <Label className="text-[11.5px] text-[var(--st-text-secondary)]">Actor</Label>
             <Input
               value={filters.actor}
               onChange={(e) => setFilters((f) => ({ ...f, actor: e.target.value }))}
               placeholder="User id"
-              className="mt-1 h-9 rounded-lg border-zoru-line bg-zoru-bg text-[12.5px]"
+              className="mt-1 h-9 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[12.5px]"
             />
           </div>
           <div>
-            <Label className="text-[11.5px] text-zoru-ink-muted">Action</Label>
+            <Label className="text-[11.5px] text-[var(--st-text-secondary)]">Action</Label>
             <Input
               value={filters.action}
               onChange={(e) => setFilters((f) => ({ ...f, action: e.target.value }))}
               placeholder="e.g. created"
-              className="mt-1 h-9 rounded-lg border-zoru-line bg-zoru-bg text-[12.5px]"
+              className="mt-1 h-9 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[12.5px]"
             />
           </div>
           <div>
-            <Label className="text-[11.5px] text-zoru-ink-muted">Resource type</Label>
+            <Label className="text-[11.5px] text-[var(--st-text-secondary)]">Resource type</Label>
             <Input
               value={filters.resourceType}
               onChange={(e) =>
                 setFilters((f) => ({ ...f, resourceType: e.target.value }))
               }
               placeholder="task / lead / deal"
-              className="mt-1 h-9 rounded-lg border-zoru-line bg-zoru-bg text-[12.5px]"
+              className="mt-1 h-9 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[12.5px]"
             />
           </div>
           <div>
-            <Label className="text-[11.5px] text-zoru-ink-muted">From</Label>
+            <Label className="text-[11.5px] text-[var(--st-text-secondary)]">From</Label>
             <Input
               type="date"
               value={filters.from}
               onChange={(e) => setFilters((f) => ({ ...f, from: e.target.value }))}
-              className="mt-1 h-9 rounded-lg border-zoru-line bg-zoru-bg text-[12.5px]"
+              className="mt-1 h-9 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[12.5px]"
             />
           </div>
           <div>
-            <Label className="text-[11.5px] text-zoru-ink-muted">To</Label>
+            <Label className="text-[11.5px] text-[var(--st-text-secondary)]">To</Label>
             <Input
               type="date"
               value={filters.to}
               onChange={(e) => setFilters((f) => ({ ...f, to: e.target.value }))}
-              className="mt-1 h-9 rounded-lg border-zoru-line bg-zoru-bg text-[12.5px]"
+              className="mt-1 h-9 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[12.5px]"
             />
           </div>
           <div className="flex items-end gap-2 md:col-span-5">
@@ -138,30 +138,30 @@ export function ActivityBrowser({ activities, initialFilters }: ActivityBrowserP
 
       {activities.length === 0 ? (
         <Card className="flex items-center justify-center py-12">
-          <p className="text-[13px] text-zoru-ink-muted">No activity in this window.</p>
+          <p className="text-[13px] text-[var(--st-text-secondary)]">No activity in this window.</p>
         </Card>
       ) : (
         <Card className="p-0">
-          <ul className="divide-y divide-zoru-line">
+          <ul className="divide-y divide-[var(--st-border)]">
             {activities.map((a) => (
               <li key={a._id} className="px-4 py-3">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-[13px] font-medium text-zoru-ink">
+                  <span className="text-[13px] font-medium text-[var(--st-text)]">
                     {a.actor_user_id}
                   </span>
                   <Badge variant="ghost">{a.action}</Badge>
                   {a.resource_type ? (
                     <Badge variant="danger">{a.resource_type}</Badge>
                   ) : null}
-                  <span className="ml-auto text-[11.5px] text-zoru-ink-muted">
+                  <span className="ml-auto text-[11.5px] text-[var(--st-text-secondary)]">
                     {formatStamp(a.occurred_at)}
                   </span>
                 </div>
                 {a.description ? (
-                  <p className="mt-1 text-[13px] text-zoru-ink">{a.description}</p>
+                  <p className="mt-1 text-[13px] text-[var(--st-text)]">{a.description}</p>
                 ) : null}
                 {a.ip_address ? (
-                  <p className="mt-0.5 text-[11px] text-zoru-ink-muted">
+                  <p className="mt-0.5 text-[11px] text-[var(--st-text-secondary)]">
                     IP {a.ip_address}
                   </p>
                 ) : null}

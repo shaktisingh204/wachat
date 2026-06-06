@@ -54,13 +54,13 @@ export function PaymentLinkGenerator({
     };
 
     return (
-        <Card className="border-zoru-line bg-zoru-surface">
-            <ZoruCardHeader className="flex flex-row items-center justify-between border-b border-zoru-line pb-3">
+        <Card className="border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+            <ZoruCardHeader className="flex flex-row items-center justify-between border-b border-[var(--st-border)] pb-3">
                 <div className="flex flex-col gap-0.5">
-                    <ZoruCardTitle className="text-[14px] font-semibold text-zoru-ink">Payment Link & Gateway integrations</ZoruCardTitle>
-                    <p className="text-[12px] text-zoru-ink-muted">Create online payment paths via Stripe or Razorpay.</p>
+                    <ZoruCardTitle className="text-[14px] font-semibold text-[var(--st-text)]">Payment Link & Gateway integrations</ZoruCardTitle>
+                    <p className="text-[12px] text-[var(--st-text-secondary)]">Create online payment paths via Stripe or Razorpay.</p>
                 </div>
-                <CreditCard className="h-4 w-4 text-zoru-ink-muted" />
+                <CreditCard className="h-4 w-4 text-[var(--st-text-secondary)]" />
             </ZoruCardHeader>
             <ZoruCardContent className="pt-4 flex flex-col gap-4">
                 {!link ? (
@@ -68,7 +68,7 @@ export function PaymentLinkGenerator({
                         {/* Gateway and Amount Selection */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="flex flex-col gap-1.5">
-                                <label className="text-[11px] font-bold text-zoru-ink-muted uppercase tracking-wider">
+                                <label className="text-[11px] font-bold text-[var(--st-text-secondary)] uppercase tracking-wider">
                                     Preferred Provider
                                 </label>
                                 <div className="grid grid-cols-2 gap-2">
@@ -77,8 +77,8 @@ export function PaymentLinkGenerator({
                                         onClick={() => setGateway('stripe')}
                                         className={`flex items-center justify-center gap-1.5 p-2 rounded-lg border text-xs transition ${
                                             gateway === 'stripe'
-                                                ? 'border-primary bg-zoru-ink/5 text-zoru-ink font-medium'
-                                                : 'border-zoru-line hover:bg-zoru-surface-2 text-zoru-ink'
+                                                ? 'border-primary bg-[var(--st-text)]/5 text-[var(--st-text)] font-medium'
+                                                : 'border-[var(--st-border)] hover:bg-[var(--st-bg-muted)] text-[var(--st-text)]'
                                         }`}
                                     >
                                         <Landmark className="h-3.5 w-3.5" />
@@ -89,8 +89,8 @@ export function PaymentLinkGenerator({
                                         onClick={() => setGateway('razorpay')}
                                         className={`flex items-center justify-center gap-1.5 p-2 rounded-lg border text-xs transition ${
                                             gateway === 'razorpay'
-                                                ? 'border-primary bg-zoru-ink/5 text-zoru-ink font-medium'
-                                                : 'border-zoru-line hover:bg-zoru-surface-2 text-zoru-ink'
+                                                ? 'border-primary bg-[var(--st-text)]/5 text-[var(--st-text)] font-medium'
+                                                : 'border-[var(--st-border)] hover:bg-[var(--st-bg-muted)] text-[var(--st-text)]'
                                         }`}
                                     >
                                         <CreditCard className="h-3.5 w-3.5" />
@@ -100,14 +100,14 @@ export function PaymentLinkGenerator({
                             </div>
 
                             <div className="flex flex-col gap-1.5">
-                                <label className="text-[11px] font-bold text-zoru-ink-muted uppercase tracking-wider">
+                                <label className="text-[11px] font-bold text-[var(--st-text-secondary)] uppercase tracking-wider">
                                     Collectible Amount
                                 </label>
                                 <div className="flex gap-2">
                                     <select
                                         value={paymentMode}
                                         onChange={(e) => setPaymentMode(e.target.value as any)}
-                                        className="bg-zoru-surface border border-zoru-line rounded-lg px-2 py-1 text-xs text-zoru-ink focus:outline-none focus:ring-1 focus:ring-primary"
+                                        className="bg-[var(--st-bg-secondary)] border border-[var(--st-border)] rounded-lg px-2 py-1 text-xs text-[var(--st-text)] focus:outline-none focus:ring-1 focus:ring-primary"
                                     >
                                         <option value="full">Full Balance ({fmtINR(amount, currency)})</option>
                                         <option value="partial">Partial Payment</option>
@@ -117,7 +117,7 @@ export function PaymentLinkGenerator({
                                             type="number"
                                             value={partialAmount}
                                             onChange={(e) => setPartialAmount(e.target.value)}
-                                            className="w-24 bg-zoru-surface border border-zoru-line rounded-lg px-2 py-1 text-xs text-zoru-ink focus:outline-none"
+                                            className="w-24 bg-[var(--st-bg-secondary)] border border-[var(--st-border)] rounded-lg px-2 py-1 text-xs text-[var(--st-text)] focus:outline-none"
                                             placeholder="Amount"
                                         />
                                     )}
@@ -126,9 +126,9 @@ export function PaymentLinkGenerator({
                         </div>
 
                         {/* Supported Methods */}
-                        <div className="flex items-center gap-6 bg-zoru-surface-2 p-2 rounded-lg border border-zoru-line text-[11.5px]">
-                            <span className="font-medium text-zoru-ink-muted uppercase tracking-wider text-[10px]">Methods:</span>
-                            <label className="flex items-center gap-1.5 text-zoru-ink cursor-pointer">
+                        <div className="flex items-center gap-6 bg-[var(--st-bg-muted)] p-2 rounded-lg border border-[var(--st-border)] text-[11.5px]">
+                            <span className="font-medium text-[var(--st-text-secondary)] uppercase tracking-wider text-[10px]">Methods:</span>
+                            <label className="flex items-center gap-1.5 text-[var(--st-text)] cursor-pointer">
                                 <input
                                     type="checkbox"
                                     checked={allowCards}
@@ -137,7 +137,7 @@ export function PaymentLinkGenerator({
                                 />
                                 Credit/Debit Cards
                             </label>
-                            <label className="flex items-center gap-1.5 text-zoru-ink cursor-pointer">
+                            <label className="flex items-center gap-1.5 text-[var(--st-text)] cursor-pointer">
                                 <input
                                     type="checkbox"
                                     checked={allowUpi}
@@ -148,8 +148,8 @@ export function PaymentLinkGenerator({
                             </label>
                         </div>
 
-                        <div className="flex items-center justify-between border-t border-zoru-line pt-3 mt-1">
-                            <span className="text-[12px] text-zoru-ink-muted">
+                        <div className="flex items-center justify-between border-t border-[var(--st-border)] pt-3 mt-1">
+                            <span className="text-[12px] text-[var(--st-text-secondary)]">
                                 Link is secure, compliant, and tracked in audit log.
                             </span>
                             <Button size="sm" onClick={handleGenerate} disabled={loading || targetAmount <= 0}>
@@ -159,21 +159,21 @@ export function PaymentLinkGenerator({
                     </div>
                 ) : (
                     <div className="flex flex-col gap-3">
-                        <div className="flex items-center gap-2 bg-zoru-surface-2 dark:bg-zoru-ink/10 p-2 rounded-lg border border-zoru-line dark:border-zoru-line/30 text-zoru-ink dark:text-zoru-ink-muted text-xs">
-                            <ShieldCheck className="h-4 w-4 shrink-0 text-zoru-ink" />
+                        <div className="flex items-center gap-2 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/10 p-2 rounded-lg border border-[var(--st-border)] dark:border-[var(--st-border)]/30 text-[var(--st-text)] dark:text-[var(--st-text-secondary)] text-xs">
+                            <ShieldCheck className="h-4 w-4 shrink-0 text-[var(--st-text)]" />
                             <span>Gateway registration completed. Payment link generated for <strong>{fmtINR(targetAmount, currency)}</strong>.</span>
                         </div>
 
-                        <div className="flex items-center gap-2 bg-zoru-surface-2 p-2 rounded-lg border border-zoru-line">
-                            <LinkIcon className="h-3.5 w-3.5 text-zoru-ink-muted shrink-0" />
-                            <code className="text-xs font-mono text-zoru-ink flex-1 truncate">{link}</code>
+                        <div className="flex items-center gap-2 bg-[var(--st-bg-muted)] p-2 rounded-lg border border-[var(--st-border)]">
+                            <LinkIcon className="h-3.5 w-3.5 text-[var(--st-text-secondary)] shrink-0" />
+                            <code className="text-xs font-mono text-[var(--st-text)] flex-1 truncate">{link}</code>
                             <Button size="sm" variant="outline" onClick={handleCopy}>
                                 Copy
                             </Button>
                         </div>
 
-                        <div className="flex items-center justify-between mt-2 pt-2 border-t border-zoru-line">
-                            <Button size="sm" variant="ghost" className="text-zoru-ink-muted" onClick={handleClear}>
+                        <div className="flex items-center justify-between mt-2 pt-2 border-t border-[var(--st-border)]">
+                            <Button size="sm" variant="ghost" className="text-[var(--st-text-secondary)]" onClick={handleClear}>
                                 Reset / Change details
                             </Button>
                             <Button size="sm" variant="outline" asChild>

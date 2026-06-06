@@ -24,30 +24,30 @@ type Row = HrLearningPath & {
 
 function StepList({ steps }: { steps: Step[] }) {
   if (!steps.length) {
-    return <p className="text-sm text-zoru-ink-muted">No steps configured yet.</p>;
+    return <p className="text-sm text-[var(--st-text-secondary)]">No steps configured yet.</p>;
   }
   return (
     <ol className="space-y-2">
       {steps.map((s, i) => (
         <li
           key={i}
-          className="flex items-start gap-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-3"
+          className="flex items-start gap-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3"
         >
-          <span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-zoru-surface text-[11px] font-medium text-zoru-ink">
+          <span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--st-bg-secondary)] text-[11px] font-medium text-[var(--st-text)]">
             {i + 1}
           </span>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               {s.done ? (
-                <CircleCheck className="h-4 w-4 text-zoru-success-ink" />
+                <CircleCheck className="h-4 w-4 text-[var(--st-status-ok)]" />
               ) : (
-                <Circle className="h-4 w-4 text-zoru-ink-muted" />
+                <Circle className="h-4 w-4 text-[var(--st-text-secondary)]" />
               )}
-              <span className="truncate text-sm font-medium text-zoru-ink">
+              <span className="truncate text-sm font-medium text-[var(--st-text)]">
                 {s.title || '—'}
               </span>
             </div>
-            <div className="mt-0.5 text-[11px] text-zoru-ink-muted">
+            <div className="mt-0.5 text-[11px] text-[var(--st-text-secondary)]">
               {s.type ?? 'course'}
               {s.duration ? ` · ${s.duration}` : ''}
               {s.link ? (
@@ -80,7 +80,7 @@ export default async function LearningPathDetailPage({
   const list = (await getLearningPaths()) as Row[];
   const row = list.find((r) => String(r._id) === id) ?? null;
 
-  if (!row) return <div className="text-sm text-zoru-ink-muted">Path not found.</div>;
+  if (!row) return <div className="text-sm text-[var(--st-text-secondary)]">Path not found.</div>;
 
   const steps = (row.steps ?? []) as Step[];
 
@@ -119,14 +119,14 @@ export default async function LearningPathDetailPage({
                   <div className="relative h-16 w-16">
                     <svg className="h-full w-full" viewBox="0 0 36 36">
                       <path
-                        className="text-zoru-line"
+                        className="text-[var(--st-border)]"
                         d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                         fill="none"
                         stroke="currentColor"
                         strokeWidth="4"
                       />
                       <path
-                        className="text-zoru-ink transition-all duration-500 ease-in-out"
+                        className="text-[var(--st-text)] transition-all duration-500 ease-in-out"
                         strokeDasharray={`${steps.length > 0 ? (steps.filter(s => s.done).length / steps.length) * 100 : 0}, 100`}
                         d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                         fill="none"
@@ -134,20 +134,20 @@ export default async function LearningPathDetailPage({
                         strokeWidth="4"
                       />
                     </svg>
-                    <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-zoru-ink">
+                    <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-[var(--st-text)]">
                       {steps.length > 0 ? Math.round((steps.filter(s => s.done).length / steps.length) * 100) : 0}%
                     </div>
                   </div>
                   <div className="flex gap-2">
                     {steps.length > 0 && steps.every(s => s.done) ? (
-                      <div className="flex flex-col items-center p-2 border border-zoru-line bg-zoru-surface-2 rounded-md">
-                        <Trophy className="h-6 w-6 text-zoru-ink mb-1" />
-                        <span className="text-xs font-semibold text-zoru-ink">Mastery Badge</span>
+                      <div className="flex flex-col items-center p-2 border border-[var(--st-border)] bg-[var(--st-bg-muted)] rounded-md">
+                        <Trophy className="h-6 w-6 text-[var(--st-text)] mb-1" />
+                        <span className="text-xs font-semibold text-[var(--st-text)]">Mastery Badge</span>
                       </div>
                     ) : (
-                      <div className="flex flex-col items-center p-2 border border-zoru-line bg-zoru-surface-2 rounded-md opacity-50">
-                        <Award className="h-6 w-6 text-zoru-ink-muted mb-1" />
-                        <span className="text-xs font-semibold text-zoru-ink-muted">Keep Going</span>
+                      <div className="flex flex-col items-center p-2 border border-[var(--st-border)] bg-[var(--st-bg-muted)] rounded-md opacity-50">
+                        <Award className="h-6 w-6 text-[var(--st-text-secondary)] mb-1" />
+                        <span className="text-xs font-semibold text-[var(--st-text-secondary)]">Keep Going</span>
                       </div>
                     )}
                   </div>

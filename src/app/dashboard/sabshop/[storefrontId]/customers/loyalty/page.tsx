@@ -72,11 +72,11 @@ export default function LoyaltyProgramPage() {
     <div className="flex w-full flex-col gap-8 p-6">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-zoru-ink tracking-tight flex items-center gap-2">
+          <h1 className="text-2xl font-semibold text-[var(--st-text)] tracking-tight flex items-center gap-2">
             <Trophy className="w-6 h-6 text-amber-500" />
             Loyalty & Rewards
           </h1>
-          <p className="text-sm text-zoru-ink-muted mt-1">
+          <p className="text-sm text-[var(--st-text-secondary)] mt-1">
             Configure your points system and manage VIP tiers to maximize customer retention.
           </p>
         </div>
@@ -94,7 +94,7 @@ export default function LoyaltyProgramPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Points Configuration */}
         <Card className="flex flex-col">
-          <CardHeader className="border-b border-zoru-line pb-4 flex flex-row items-center justify-between">
+          <CardHeader className="border-b border-[var(--st-border)] pb-4 flex flex-row items-center justify-between">
             <div className="space-y-1">
               <CardTitle className="flex items-center gap-2">
                 <Gift className="w-5 h-5 text-indigo-500" />
@@ -108,67 +108,67 @@ export default function LoyaltyProgramPage() {
             <div className={`space-y-4 ${!pointsEnabled ? "opacity-50 pointer-events-none" : ""}`}>
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="font-medium text-sm text-zoru-ink">Earning Ratio</h4>
-                  <p className="text-xs text-zoru-ink-subtle mt-0.5">Points earned per dollar spent</p>
+                  <h4 className="font-medium text-sm text-[var(--st-text)]">Earning Ratio</h4>
+                  <p className="text-xs text-[var(--st-text-tertiary)] mt-0.5">Points earned per dollar spent</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-zoru-ink-muted">$1 = </span>
+                  <span className="text-sm text-[var(--st-text-secondary)]">$1 = </span>
                   <Input defaultValue="1" className="w-20 text-center" />
-                  <span className="text-sm text-zoru-ink-muted">pts</span>
+                  <span className="text-sm text-[var(--st-text-secondary)]">pts</span>
                 </div>
               </div>
 
-              <div className="w-full h-px bg-zoru-line" />
+              <div className="w-full h-px bg-[var(--st-border)]" />
 
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="font-medium text-sm text-zoru-ink">Redemption Value</h4>
-                  <p className="text-xs text-zoru-ink-subtle mt-0.5">Value of points at checkout</p>
+                  <h4 className="font-medium text-sm text-[var(--st-text)]">Redemption Value</h4>
+                  <p className="text-xs text-[var(--st-text-tertiary)] mt-0.5">Value of points at checkout</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <Input defaultValue="100" className="w-20 text-center" />
-                  <span className="text-sm text-zoru-ink-muted">pts = </span>
+                  <span className="text-sm text-[var(--st-text-secondary)]">pts = </span>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zoru-ink-muted text-sm">$</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--st-text-secondary)] text-sm">$</span>
                     <Input defaultValue="1.00" className="w-24 pl-6 text-center" />
                   </div>
                 </div>
               </div>
 
-              <div className="w-full h-px bg-zoru-line" />
+              <div className="w-full h-px bg-[var(--st-border)]" />
 
               <div>
-                <h4 className="font-medium text-sm text-zoru-ink mb-3">Bonus Earning Rules</h4>
+                <h4 className="font-medium text-sm text-[var(--st-text)] mb-3">Bonus Earning Rules</h4>
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between bg-zoru-surface p-3 rounded-[var(--zoru-radius)] border border-zoru-line">
+                  <div className="flex items-center justify-between bg-[var(--st-bg-secondary)] p-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-pink-500/10 rounded-md">
                         <Gift className="w-4 h-4 text-pink-500" />
                       </div>
                       <div>
                         <p className="text-sm font-medium">Account Creation</p>
-                        <p className="text-xs text-zoru-ink-subtle">Reward for signing up</p>
+                        <p className="text-xs text-[var(--st-text-tertiary)]">Reward for signing up</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <Input defaultValue="50" className="w-16 h-8 text-sm" />
-                      <span className="text-xs text-zoru-ink-muted">pts</span>
+                      <span className="text-xs text-[var(--st-text-secondary)]">pts</span>
                       <Switch defaultChecked />
                     </div>
                   </div>
-                  <div className="flex items-center justify-between bg-zoru-surface p-3 rounded-[var(--zoru-radius)] border border-zoru-line">
+                  <div className="flex items-center justify-between bg-[var(--st-bg-secondary)] p-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-blue-500/10 rounded-md">
                         <Star className="w-4 h-4 text-blue-500" />
                       </div>
                       <div>
                         <p className="text-sm font-medium">Leave a Review</p>
-                        <p className="text-xs text-zoru-ink-subtle">Reward per product review</p>
+                        <p className="text-xs text-[var(--st-text-tertiary)]">Reward per product review</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <Input defaultValue="25" className="w-16 h-8 text-sm" />
-                      <span className="text-xs text-zoru-ink-muted">pts</span>
+                      <span className="text-xs text-[var(--st-text-secondary)]">pts</span>
                       <Switch defaultChecked />
                     </div>
                   </div>
@@ -176,15 +176,15 @@ export default function LoyaltyProgramPage() {
               </div>
             </div>
           </CardContent>
-          <CardFooter className="bg-zoru-surface py-4 border-t border-zoru-line flex justify-between rounded-b-[var(--zoru-radius-lg)]">
-             <span className="text-xs text-zoru-ink-muted">Last modified: 2 days ago</span>
+          <CardFooter className="bg-[var(--st-bg-secondary)] py-4 border-t border-[var(--st-border)] flex justify-between rounded-b-[var(--zoru-radius-lg)]">
+             <span className="text-xs text-[var(--st-text-secondary)]">Last modified: 2 days ago</span>
              <Button variant="outline" size="sm">Manage Rules</Button>
           </CardFooter>
         </Card>
 
         {/* VIP Tiers Overview */}
         <Card className="flex flex-col">
-          <CardHeader className="border-b border-zoru-line pb-4 flex flex-row items-center justify-between">
+          <CardHeader className="border-b border-[var(--st-border)] pb-4 flex flex-row items-center justify-between">
             <div className="space-y-1">
               <CardTitle className="flex items-center gap-2">
                 <Crown className="w-5 h-5 text-amber-500" />
@@ -197,7 +197,7 @@ export default function LoyaltyProgramPage() {
           <CardContent className="pt-6 flex-1">
             <div className={`space-y-4 ${!vipEnabled ? "opacity-50 pointer-events-none" : ""}`}>
               {mockTiers.map((tier) => (
-                <div key={tier.id} className={`p-4 rounded-[var(--zoru-radius-lg)] border ${tier.borderColor} bg-zoru-bg transition-shadow hover:shadow-[var(--zoru-shadow-md)] relative overflow-hidden group`}>
+                <div key={tier.id} className={`p-4 rounded-[var(--zoru-radius-lg)] border ${tier.borderColor} bg-[var(--st-bg)] transition-shadow hover:shadow-[var(--zoru-shadow-md)] relative overflow-hidden group`}>
                   <div className={`absolute top-0 right-0 w-24 h-24 rounded-bl-full ${tier.bgColor} -z-0 opacity-50 group-hover:opacity-100 transition-opacity`} />
                   
                   <div className="relative z-10 flex flex-col sm:flex-row gap-4 sm:items-start justify-between">
@@ -207,16 +207,16 @@ export default function LoyaltyProgramPage() {
                       </div>
                       <div>
                         <div className="flex items-center gap-2 mb-1">
-                          <h4 className="font-semibold text-base text-zoru-ink">{tier.name}</h4>
+                          <h4 className="font-semibold text-base text-[var(--st-text)]">{tier.name}</h4>
                           <Badge variant="outline" className={`border-none ${tier.bgColor} ${tier.color}`}>
                             {tier.multiplier} Points
                           </Badge>
                         </div>
-                        <p className="text-sm text-zoru-ink-muted font-medium mb-3">{tier.requirements}</p>
+                        <p className="text-sm text-[var(--st-text-secondary)] font-medium mb-3">{tier.requirements}</p>
                         
                         <ul className="space-y-2">
                           {tier.benefits.map((benefit, i) => (
-                            <li key={i} className="flex items-start gap-2 text-sm text-zoru-ink-subtle">
+                            <li key={i} className="flex items-start gap-2 text-sm text-[var(--st-text-tertiary)]">
                               <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
                               <span>{benefit}</span>
                             </li>
@@ -226,14 +226,14 @@ export default function LoyaltyProgramPage() {
                     </div>
                     
                     <Button variant="ghost" size="icon" className="shrink-0">
-                      <Settings className="w-4 h-4 text-zoru-ink-muted" />
+                      <Settings className="w-4 h-4 text-[var(--st-text-secondary)]" />
                     </Button>
                   </div>
                 </div>
               ))}
             </div>
           </CardContent>
-          <CardFooter className="bg-zoru-surface py-4 border-t border-zoru-line flex justify-center rounded-b-[var(--zoru-radius-lg)]">
+          <CardFooter className="bg-[var(--st-bg-secondary)] py-4 border-t border-[var(--st-border)] flex justify-center rounded-b-[var(--zoru-radius-lg)]">
             <Button variant="ghost" className="w-full text-indigo-500 hover:text-indigo-600">
               + Add New VIP Tier
             </Button>

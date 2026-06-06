@@ -306,8 +306,8 @@ export function FacebookWebhookLogs({
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h3 className="text-[15px] text-zoru-ink">Webhook event endpoints</h3>
-          <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+          <h3 className="text-[15px] text-[var(--st-text)]">Webhook event endpoints</h3>
+          <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">
             {filterByProject
               ? 'Real-time log of events for the selected project.'
               : 'A log of all webhook events received by the system.'}
@@ -370,7 +370,7 @@ export function FacebookWebhookLogs({
         </Alert>
       ) : (
         <>
-          <div className="overflow-hidden rounded-[var(--zoru-radius-lg)] border border-zoru-line">
+          <div className="overflow-hidden rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)]">
             <Table>
               <ZoruTableHeader>
                 <ZoruTableRow>
@@ -423,7 +423,7 @@ export function FacebookWebhookLogs({
                   <ZoruTableRow>
                     <ZoruTableCell
                       colSpan={4}
-                      className="h-24 text-center text-zoru-ink-muted"
+                      className="h-24 text-center text-[var(--st-text-secondary)]"
                     >
                       No webhook logs found.
                     </ZoruTableCell>
@@ -433,7 +433,7 @@ export function FacebookWebhookLogs({
             </Table>
           </div>
           <div className="flex items-center justify-end gap-2 py-2">
-            <span className="text-[12px] text-zoru-ink-muted">
+            <span className="text-[12px] text-[var(--st-text-secondary)]">
               Page {currentPage} of {totalPages > 0 ? totalPages : 1}
             </span>
             <Button
@@ -488,14 +488,14 @@ export function FacebookWebhookLogs({
           <div className="mt-2 max-h-[60vh] overflow-y-auto text-[13px]">
             {loadingPayload ? (
               <div className="flex items-center justify-center p-8">
-                <Loader2 className="h-6 w-6 animate-spin text-zoru-ink-muted" />
+                <Loader2 className="h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
               </div>
             ) : selectedLogPayload ? (
-              <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] bg-zoru-surface p-4 font-mono text-[11.5px] text-zoru-ink">
+              <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] p-4 font-mono text-[11.5px] text-[var(--st-text)]">
                 {JSON.stringify(selectedLogPayload, null, 2)}
               </pre>
             ) : (
-              <div className="p-8 text-center text-zoru-ink-muted">
+              <div className="p-8 text-center text-[var(--st-text-secondary)]">
                 Could not load payload.
               </div>
             )}

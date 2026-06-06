@@ -292,7 +292,7 @@ export default function ManageUsersPage() {
                 title="Manage Users"
                 subtitle="Invite, role-manage and audit every member with access to your CRM workspace."
                 viewSwitcher={
-                    <div className="flex bg-zoru-surface-2/30 p-1 rounded-md border border-zoru-line">
+                    <div className="flex bg-[var(--st-bg-muted)]/30 p-1 rounded-md border border-[var(--st-border)]">
                         <Button
                             variant={viewMode === 'list' ? 'default' : 'ghost'}
                             size="sm"
@@ -384,11 +384,11 @@ export default function ManageUsersPage() {
                 empty={
                     !isLoading && filtered.length === 0 ? (
                         <div className="flex flex-col items-center gap-3 p-4">
-                            <Users className="h-8 w-8 text-zoru-ink-muted" />
-                            <h3 className="text-base font-medium text-zoru-ink">
+                            <Users className="h-8 w-8 text-[var(--st-text-secondary)]" />
+                            <h3 className="text-base font-medium text-[var(--st-text)]">
                                 {members.length === 0 ? 'No team members yet' : 'No matches'}
                             </h3>
-                            <p className="max-w-sm text-sm text-zoru-ink-muted">
+                            <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                                 {members.length === 0
                                     ? 'Invite teammates to collaborate on accounts, leads and deals.'
                                     : 'Try clearing filters to see every member of your workspace.'}
@@ -413,7 +413,7 @@ export default function ManageUsersPage() {
                         <KpiStrip {...kpis} />
 
                         <Card className="p-0 overflow-hidden">
-                            <div className="flex items-center gap-3 border-b border-zoru-line px-4 py-3 text-[12px] text-zoru-ink-muted">
+                            <div className="flex items-center gap-3 border-b border-[var(--st-border)] px-4 py-3 text-[12px] text-[var(--st-text-secondary)]">
                                 <Checkbox
                                     checked={allSelectedOnPage}
                                     onCheckedChange={(v) => toggleAll(Boolean(v))}
@@ -432,7 +432,7 @@ export default function ManageUsersPage() {
                                     <Skeleton className="h-14 w-full" />
                                 </div>
                             ) : (
-                                <ul role="list" className="divide-y divide-zoru-line">
+                                <ul role="list" className="divide-y divide-[var(--st-border)]">
                                     {paged.map((m) => {
                                         const id = m._id.toString();
                                         const role = deriveRole(m);
@@ -442,7 +442,7 @@ export default function ManageUsersPage() {
                                         return (
                                             <li
                                                 key={id}
-                                                className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-zoru-bg/60"
+                                                className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-[var(--st-bg)]/60"
                                             >
                                                 <Checkbox
                                                     checked={selected.has(id)}
@@ -467,7 +467,7 @@ export default function ManageUsersPage() {
                                                                 <span className="truncate">
                                                                     {m.name}
                                                                     {isSelf ? (
-                                                                        <span className="ml-2 text-[11px] text-zoru-ink-muted">
+                                                                        <span className="ml-2 text-[11px] text-[var(--st-text-secondary)]">
                                                                             (you)
                                                                         </span>
                                                                     ) : null}
@@ -482,13 +482,13 @@ export default function ManageUsersPage() {
                                                 <div className="hidden w-32 sm:block">
                                                     <RoleBadge role={role} />
                                                 </div>
-                                                <div className="hidden w-32 truncate text-[12.5px] text-zoru-ink-muted md:block">
+                                                <div className="hidden w-32 truncate text-[12.5px] text-[var(--st-text-secondary)] md:block">
                                                     {dept}
                                                 </div>
                                                 <div className="hidden w-24 md:block">
                                                     <StatusBadge status={status} />
                                                 </div>
-                                                <div className="w-24 text-right text-[12.5px] text-zoru-ink-muted">
+                                                <div className="w-24 text-right text-[12.5px] text-[var(--st-text-secondary)]">
                                                     {Object.keys(m.roles ?? {}).length}
                                                 </div>
                                             </li>
@@ -529,24 +529,24 @@ const KpiStrip = React.memo(function KpiStrip({
     adminCount,
 }: KpiProps) {
     const cards = [
-        { label: 'Total users', value: total, icon: Users, accent: 'text-zoru-ink' },
+        { label: 'Total users', value: total, icon: Users, accent: 'text-[var(--st-text)]' },
         {
             label: 'Active',
             value: activeCount,
             icon: Users,
-            accent: 'text-zoru-ink dark:text-zoru-ink-muted',
+            accent: 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',
         },
         {
             label: 'Pending invites',
             value: pendingCount,
             icon: UserPlus,
-            accent: 'text-zoru-ink dark:text-zoru-ink-muted',
+            accent: 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',
         },
         {
             label: 'Admins',
             value: adminCount,
             icon: Shield,
-            accent: 'text-zoru-ink dark:text-zoru-ink-muted',
+            accent: 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',
         },
     ];
     return (
@@ -557,12 +557,12 @@ const KpiStrip = React.memo(function KpiStrip({
                     <Card key={c.label} className="p-4">
                         <div className="flex items-start justify-between gap-2">
                             <div>
-                                <p className="text-[12px] text-zoru-ink-muted">{c.label}</p>
+                                <p className="text-[12px] text-[var(--st-text-secondary)]">{c.label}</p>
                                 <p className={`mt-1 text-2xl font-semibold ${c.accent}`}>
                                     {c.value.toLocaleString()}
                                 </p>
                             </div>
-                            <Icon className="h-4 w-4 text-zoru-ink-muted" />
+                            <Icon className="h-4 w-4 text-[var(--st-text-secondary)]" />
                         </div>
                     </Card>
                 );
@@ -672,7 +672,7 @@ function BulkBar({
 }: BulkBarProps) {
     return (
         <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[12.5px] font-medium text-zoru-ink">
+            <span className="text-[12.5px] font-medium text-[var(--st-text)]">
                 {count} selected
             </span>
             <Button variant="outline" size="sm" onClick={onInvite}>
@@ -845,23 +845,23 @@ function OrgChart({ members, pendingEmails }: { members: MemberRow[], pendingEma
     const roles = ['owner', 'admin', 'agent', 'member'];
     
     return (
-        <div className="flex flex-col items-center p-8 gap-8 bg-zoru-surface-2/10 rounded-lg border border-zoru-line mt-4">
+        <div className="flex flex-col items-center p-8 gap-8 bg-[var(--st-bg-muted)]/10 rounded-lg border border-[var(--st-border)] mt-4">
             {roles.map(role => {
                 const group = members.filter(m => deriveRole(m) === role);
                 if (group.length === 0) return null;
                 return (
                     <div key={role} className="flex flex-col items-center relative w-full">
-                        <div className="mb-4 font-semibold capitalize text-zoru-ink-muted text-sm tracking-widest">{role}s</div>
+                        <div className="mb-4 font-semibold capitalize text-[var(--st-text-secondary)] text-sm tracking-widest">{role}s</div>
                         <div className="flex flex-wrap justify-center gap-4">
                             {group.map(member => (
-                                <Card key={member._id.toString()} className="w-48 p-4 flex flex-col items-center gap-2 shadow-sm relative z-10 bg-zoru-surface">
+                                <Card key={member._id.toString()} className="w-48 p-4 flex flex-col items-center gap-2 shadow-sm relative z-10 bg-[var(--st-bg-secondary)]">
                                     <Avatar className="w-12 h-12">
                                         <ZoruAvatarImage src={`https://i.pravatar.cc/150?u=${member.email}`} />
                                         <ZoruAvatarFallback>{member.name?.slice(0, 2).toUpperCase() || 'UN'}</ZoruAvatarFallback>
                                     </Avatar>
                                     <div className="text-center">
                                         <p className="text-sm font-medium leading-none mb-1">{member.name || member.email.split('@')[0]}</p>
-                                        <p className="text-xs text-zoru-ink-muted truncate w-40" title={member.email}>{member.email}</p>
+                                        <p className="text-xs text-[var(--st-text-secondary)] truncate w-40" title={member.email}>{member.email}</p>
                                     </div>
                                     <StatusBadge status={deriveStatus(member, pendingEmails)} />
                                 </Card>

@@ -34,7 +34,7 @@ export function HeaderSection({
 }: HeaderSectionProps) {
   return (
     <Card className="p-6">
-      <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+      <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
         Header
       </h3>
       <div className="grid gap-4 md:grid-cols-2">
@@ -60,7 +60,7 @@ export function HeaderSection({
         </div>
         <div>
           <Label htmlFor="billDate">
-            Bill date <span className="text-zoru-danger-ink">*</span>
+            Bill date <span className="text-[var(--st-danger)]">*</span>
           </Label>
           <Input
             id="billDate"
@@ -119,13 +119,13 @@ export function VendorSection({
 }: VendorSectionProps) {
   return (
     <Card className="p-6">
-      <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+      <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
         Vendor
       </h3>
       <div className="grid gap-4 md:grid-cols-2">
         <div>
           <Label>
-            Vendor <span className="text-zoru-danger-ink">*</span>
+            Vendor <span className="text-[var(--st-danger)]">*</span>
           </Label>
           <div className="mt-1.5">
             <EntityFormField
@@ -163,7 +163,7 @@ export function TdsSection({
 }: TdsSectionProps) {
   return (
     <Card className="p-6">
-      <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+      <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
         TDS
       </h3>
       <div className="grid gap-4 md:grid-cols-2">
@@ -209,7 +209,7 @@ export function NotesSection({
 }: NotesSectionProps) {
   return (
     <Card className="p-6">
-      <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+      <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
         Status &amp; Notes
       </h3>
       <div className="grid gap-4 md:grid-cols-2">
@@ -264,7 +264,7 @@ export function RecurringSection({
     <Card className="p-6">
       <details open={enabled}>
         <summary className="cursor-pointer list-none">
-          <h3 className="inline text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          <h3 className="inline text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
             Recurring
           </h3>
           <label className="ml-3 inline-flex items-center gap-2 text-[13px]">
@@ -335,7 +335,7 @@ export function LinkedSection({
 }: LinkedSectionProps) {
   return (
     <Card className="p-6">
-      <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+      <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
         Linked documents
       </h3>
       <div className="grid gap-4 md:grid-cols-2">
@@ -348,7 +348,7 @@ export function LinkedSection({
             className="mt-1.5"
             placeholder="Purchase order id"
           />
-          <p className="mt-1 text-[11px] text-zoru-ink-muted">
+          <p className="mt-1 text-[11px] text-[var(--st-text-secondary)]">
             {/* TODO §1D: surface a proper PO picker once the entity is in
                 the lookup registry. */}
             Picker queued — paste an id for now.

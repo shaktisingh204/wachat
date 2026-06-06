@@ -48,21 +48,21 @@ export function BudgetLiveStats({ budgetId, planAmount, initialActual, alertAt }
       <ZoruCardContent>
         <div className="space-y-2 text-[12.5px]">
           <div className="flex items-center justify-between">
-            <span className="text-zoru-ink-muted">% of plan used</span>
+            <span className="text-[var(--st-text-secondary)]">% of plan used</span>
             <span className="font-mono tabular-nums">
               {fmtPct(planAmount, actual)}
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-zoru-ink-muted">Variance</span>
+            <span className="text-[var(--st-text-secondary)]">Variance</span>
             <span
-              className={`font-mono tabular-nums ${overrun ? 'text-zoru-danger-ink' : 'text-zoru-ink'}`}
+              className={`font-mono tabular-nums ${overrun ? 'text-[var(--st-danger)]' : 'text-[var(--st-text)]'}`}
             >
               {fmtMoney(variance)} ({variancePct}%)
             </span>
           </div>
-          <div className="flex items-center justify-between border-t border-zoru-line pt-2">
-            <span className="text-zoru-ink-muted">Plan</span>
+          <div className="flex items-center justify-between border-t border-[var(--st-border)] pt-2">
+            <span className="text-[var(--st-text-secondary)]">Plan</span>
             <span className="font-mono tabular-nums">
               {fmtMoney(planAmount)}
             </span>

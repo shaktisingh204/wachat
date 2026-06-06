@@ -27,7 +27,7 @@ export default async function SabFilesStoragePage() {
         <div className="flex flex-col gap-4">
             <div className="flex items-center gap-2">
                 <HardDrive className="h-5 w-5" />
-                <h1 className="text-xl font-semibold text-zoru-ink">Storage usage</h1>
+                <h1 className="text-xl font-semibold text-[var(--st-text)]">Storage usage</h1>
             </div>
 
             <Card>
@@ -40,15 +40,15 @@ export default async function SabFilesStoragePage() {
                 <ZoruCardContent className="flex flex-col gap-3">
                     <div className="flex items-baseline justify-between">
                         <div>
-                            <div className="text-2xl font-semibold text-zoru-ink">
+                            <div className="text-2xl font-semibold text-[var(--st-text)]">
                                 {fmt(used)}
                             </div>
-                            <div className="text-xs text-zoru-ink-muted">
+                            <div className="text-xs text-[var(--st-text-secondary)]">
                                 {count} file{count === 1 ? '' : 's'} stored
                             </div>
                         </div>
                         {quota !== undefined && quota !== null && (
-                            <div className="text-right text-sm text-zoru-ink-muted">
+                            <div className="text-right text-sm text-[var(--st-text-secondary)]">
                                 of {fmt(quota)}
                             </div>
                         )}

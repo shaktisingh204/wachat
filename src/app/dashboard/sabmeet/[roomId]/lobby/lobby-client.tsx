@@ -113,7 +113,7 @@ export function LobbyClient({ room }: LobbyClientProps) {
   };
 
   return (
-    <div className="min-h-screen bg-zoru-bg p-6">
+    <div className="min-h-screen bg-[var(--st-bg)] p-6">
       <div className="mx-auto max-w-4xl grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
@@ -188,14 +188,14 @@ export function LobbyClient({ room }: LobbyClientProps) {
                 />
               </div>
             ) : null}
-            <div className="text-xs text-zoru-ink-muted">
+            <div className="text-xs text-[var(--st-text-secondary)]">
               Join code: <code className="font-mono">{room.joinCode}</code>
               {room.lobbyEnabled ? (
                 <span className="ml-2">• Host will admit you from the lobby</span>
               ) : null}
             </div>
             {error ? (
-              <div className="rounded-md border border-zoru-line/40 bg-zoru-ink/5 text-sm text-zoru-ink px-3 py-2">
+              <div className="rounded-md border border-[var(--st-border)]/40 bg-[var(--st-text)]/5 text-sm text-[var(--st-text)] px-3 py-2">
                 {error}
               </div>
             ) : null}

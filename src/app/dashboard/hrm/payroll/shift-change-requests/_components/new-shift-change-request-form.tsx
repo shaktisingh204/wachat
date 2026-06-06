@@ -65,8 +65,8 @@ export function NewShiftChangeRequestForm({
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-2">
       <div className="flex flex-col gap-1.5">
-        <Label className="text-[12px] text-zoru-ink-muted">
-          Employee <span className="text-zoru-danger-ink">*</span>
+        <Label className="text-[12px] text-[var(--st-text-secondary)]">
+          Employee <span className="text-[var(--st-danger)]">*</span>
         </Label>
         <Select value={newUserId} onValueChange={setNewUserId}>
           <ZoruSelectTrigger>
@@ -83,8 +83,8 @@ export function NewShiftChangeRequestForm({
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <Label className="text-[12px] text-zoru-ink-muted">
-          Date <span className="text-zoru-danger-ink">*</span>
+        <Label className="text-[12px] text-[var(--st-text-secondary)]">
+          Date <span className="text-[var(--st-danger)]">*</span>
         </Label>
         <Input
           type="date"
@@ -96,8 +96,8 @@ export function NewShiftChangeRequestForm({
 
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1.5">
-          <Label className="text-[12px] text-zoru-ink-muted">
-            Current Shift <span className="text-zoru-danger-ink">*</span>
+          <Label className="text-[12px] text-[var(--st-text-secondary)]">
+            Current Shift <span className="text-[var(--st-danger)]">*</span>
           </Label>
           <Select value={newCurrentShiftId} onValueChange={setNewCurrentShiftId}>
             <ZoruSelectTrigger>
@@ -114,8 +114,8 @@ export function NewShiftChangeRequestForm({
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <Label className="text-[12px] text-zoru-ink-muted">
-            Requested Shift <span className="text-zoru-danger-ink">*</span>
+          <Label className="text-[12px] text-[var(--st-text-secondary)]">
+            Requested Shift <span className="text-[var(--st-danger)]">*</span>
           </Label>
           <Select value={newRequestedShiftId} onValueChange={setNewRequestedShiftId}>
             <ZoruSelectTrigger>
@@ -133,18 +133,18 @@ export function NewShiftChangeRequestForm({
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <Label className="text-[12px] text-zoru-ink-muted">Reason (optional)</Label>
+        <Label className="text-[12px] text-[var(--st-text-secondary)]">Reason (optional)</Label>
         <textarea
           value={newReason}
           onChange={(e) => setNewReason(e.target.value)}
           rows={3}
           placeholder="Explain the reason for the shift change…"
-          className="w-full resize-none rounded-lg border border-zoru-line bg-zoru-bg px-3 py-2 text-[13px] text-zoru-ink placeholder:text-zoru-ink-muted focus:outline-none focus:ring-1 focus:ring-zoru-line"
+          className="w-full resize-none rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-[13px] text-[var(--st-text)] placeholder:text-[var(--st-text-secondary)] focus:outline-none focus:ring-1 focus:ring-[var(--st-border)]"
         />
       </div>
 
       {formError ? (
-        <div className="rounded-lg border border-zoru-line bg-zoru-surface-2/50 px-3 py-2 text-[13px] text-zoru-danger-ink">
+        <div className="rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)]/50 px-3 py-2 text-[13px] text-[var(--st-danger)]">
           {formError}
         </div>
       ) : null}

@@ -141,7 +141,7 @@ export function LeadsKanban({ onAfterMove }: LeadsKanbanProps) {
 
     if (groups.length === 0) {
         return (
-            <Card className="flex min-h-[240px] items-center justify-center text-sm text-zoru-ink-muted">
+            <Card className="flex min-h-[240px] items-center justify-center text-sm text-[var(--st-text-secondary)]">
                 No leads to plot on the board.
             </Card>
         );
@@ -174,13 +174,13 @@ export function LeadsKanban({ onAfterMove }: LeadsKanbanProps) {
                         className={[
                             'flex w-72 shrink-0 flex-col gap-2 rounded-lg border p-3 transition-colors',
                             isActiveDrop
-                                ? 'border-zoru-primary bg-zoru-primary/5'
-                                : 'border-zoru-line bg-zoru-surface-2',
+                                ? 'border-[var(--st-text)] bg-[var(--st-text)]/5'
+                                : 'border-[var(--st-border)] bg-[var(--st-bg-muted)]',
                         ].join(' ')}
                     >
                         <header className="flex items-center justify-between">
                             <StatusPill label={group.key} tone={statusToTone(group.key)} />
-                            <span className="text-[11.5px] text-zoru-ink-muted">
+                            <span className="text-[11.5px] text-[var(--st-text-secondary)]">
                                 {group.rows.length} • {formatMoney(totalValue, currency)}
                             </span>
                         </header>
@@ -206,17 +206,17 @@ export function LeadsKanban({ onAfterMove }: LeadsKanbanProps) {
                                             setDragOverKey(null);
                                         }}
                                         className={[
-                                            'group block rounded-md border border-zoru-line bg-zoru-bg p-2.5 transition-all',
+                                            'group block rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] p-2.5 transition-all',
                                             isBusy
                                                 ? 'opacity-50'
-                                                : 'hover:border-zoru-line-strong active:cursor-grabbing',
+                                                : 'hover:border-[var(--st-border-strong)] active:cursor-grabbing',
                                             'cursor-grab',
                                         ].join(' ')}
                                         aria-grabbed={isBusy ? 'true' : 'false'}
                                     >
                                         <div className="flex items-start gap-2">
                                             <GripVertical
-                                                className="mt-0.5 h-3.5 w-3.5 shrink-0 text-zoru-ink-subtle opacity-0 transition-opacity group-hover:opacity-100"
+                                                className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--st-text-tertiary)] opacity-0 transition-opacity group-hover:opacity-100"
                                                 aria-hidden
                                             />
                                             <Link
@@ -227,10 +227,10 @@ export function LeadsKanban({ onAfterMove }: LeadsKanbanProps) {
                                                     if (currentDragId.current) e.preventDefault();
                                                 }}
                                             >
-                                                <div className="text-[13px] font-medium text-zoru-ink line-clamp-1">
+                                                <div className="text-[13px] font-medium text-[var(--st-text)] line-clamp-1">
                                                     {lead.title || lead.contactName || 'Untitled'}
                                                 </div>
-                                                <div className="mt-1 flex items-center gap-1.5 text-[11.5px] text-zoru-ink-muted">
+                                                <div className="mt-1 flex items-center gap-1.5 text-[11.5px] text-[var(--st-text-secondary)]">
                                                     {lead.company ? (
                                                         <span className="inline-flex items-center gap-1">
                                                             <Building className="h-3 w-3" />
@@ -245,10 +245,10 @@ export function LeadsKanban({ onAfterMove }: LeadsKanbanProps) {
                                                     ) : null}
                                                 </div>
                                                 <div className="mt-2 flex items-center justify-between text-[11.5px]">
-                                                    <span className="font-mono text-zoru-ink">
+                                                    <span className="font-mono text-[var(--st-text)]">
                                                         {formatMoney(lead.value, lead.currency)}
                                                     </span>
-                                                    <span className="text-zoru-ink-muted">
+                                                    <span className="text-[var(--st-text-secondary)]">
                                                         {(lead as any).leadScore != null
                                                             ? `Score ${(lead as any).leadScore}`
                                                             : ''}

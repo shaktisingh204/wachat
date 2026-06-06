@@ -80,7 +80,7 @@ export function LeadsFiltersRow(props: LeadsFiltersRowProps) {
         <Card>
             <ZoruCardContent className="grid grid-cols-1 gap-3 pt-4 md:grid-cols-3 lg:grid-cols-6">
                 <div className="space-y-1">
-                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Status
                     </Label>
                     <EnumFilterField
@@ -92,7 +92,7 @@ export function LeadsFiltersRow(props: LeadsFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Source
                     </Label>
                     <EntityFormField
@@ -105,7 +105,7 @@ export function LeadsFiltersRow(props: LeadsFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Pipeline
                     </Label>
                     <EntityFormField
@@ -118,7 +118,7 @@ export function LeadsFiltersRow(props: LeadsFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Owner
                     </Label>
                     <EntityFormField
@@ -131,7 +131,7 @@ export function LeadsFiltersRow(props: LeadsFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Created
                     </Label>
                     <ZoruDateRangePicker
@@ -141,7 +141,7 @@ export function LeadsFiltersRow(props: LeadsFiltersRowProps) {
                 </div>
 
                 <div className="space-y-1">
-                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Value
                     </Label>
                     <div className="flex items-center gap-1">
@@ -218,7 +218,7 @@ export function LeadsBulkBar({
                     </Button>
                 </ZoruPopoverTrigger>
                 <ZoruPopoverContent align="start" className="w-72 space-y-2">
-                    <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <p className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Assign to user
                     </p>
                     <EntityFormField
@@ -233,7 +233,7 @@ export function LeadsBulkBar({
                     />
                     <button
                         type="button"
-                        className="text-[12px] text-zoru-ink-muted hover:underline"
+                        className="text-[12px] text-[var(--st-text-secondary)] hover:underline"
                         onClick={() => {
                             setAssignOpen(false);
                             onAssign(null);
@@ -252,7 +252,7 @@ export function LeadsBulkBar({
                     </Button>
                 </ZoruPopoverTrigger>
                 <ZoruPopoverContent align="start" className="w-80 space-y-2">
-                    <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <p className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Add tags to selected
                     </p>
                     <BulkTagPicker
@@ -428,7 +428,7 @@ export function LeadsViewsMenu({ activePresetId, onSelect }: LeadsViewsMenuProps
             <ZoruDropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm">
                     <ListChecks className="h-3.5 w-3.5" /> {active.label}
-                    <ChevronDown className="h-3.5 w-3.5 text-zoru-ink-subtle" />
+                    <ChevronDown className="h-3.5 w-3.5 text-[var(--st-text-tertiary)]" />
                 </Button>
             </ZoruDropdownMenuTrigger>
             <ZoruDropdownMenuContent align="start" className="w-64">
@@ -442,7 +442,7 @@ export function LeadsViewsMenu({ activePresetId, onSelect }: LeadsViewsMenuProps
                         <div className="flex flex-col">
                             <span className="text-[13px] font-medium">{preset.label}</span>
                             {preset.description ? (
-                                <span className="text-[11.5px] text-zoru-ink-muted">
+                                <span className="text-[11.5px] text-[var(--st-text-secondary)]">
                                     {preset.description}
                                 </span>
                             ) : null}

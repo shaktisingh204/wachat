@@ -311,21 +311,21 @@ export function TimesheetDetailClient({
     >
       <div className="flex flex-wrap gap-4">
         <Card className="p-6 min-w-[200px]">
-          <p className="text-[12px] text-zoru-ink-muted">Status</p>
+          <p className="text-[12px] text-[var(--st-text-secondary)]">Status</p>
           <div className="mt-1">
             <Badge variant={STATUS_VARIANT[sheet.status]}>{sheet.status}</Badge>
           </div>
         </Card>
         <Card className="p-6 min-w-[200px]">
-          <p className="text-[12px] text-zoru-ink-muted">Total Hours</p>
-          <p className="mt-1 text-[22px] text-zoru-ink">
+          <p className="text-[12px] text-[var(--st-text-secondary)]">Total Hours</p>
+          <p className="mt-1 text-[22px] text-[var(--st-text)]">
             {grandTotal.toFixed(1)}h
           </p>
         </Card>
         {sheet.reason && (
           <Card className="p-6 flex-1 min-w-[200px]">
-            <p className="text-[12px] text-zoru-ink-muted">Rejection Reason</p>
-            <p className="mt-1 text-[13px] text-zoru-danger-ink">{sheet.reason}</p>
+            <p className="text-[12px] text-[var(--st-text-secondary)]">Rejection Reason</p>
+            <p className="mt-1 text-[13px] text-[var(--st-danger)]">{sheet.reason}</p>
           </Card>
         )}
       </div>

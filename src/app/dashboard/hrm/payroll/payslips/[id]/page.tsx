@@ -43,7 +43,7 @@ function fmtPeriod(p: string | undefined): string {
 
 function FormattedAmount({ amount }: { amount: number | null | undefined }) {
     if (amount === null || amount === undefined) {
-        return <span className="text-zoru-ink font-medium">N/A</span>;
+        return <span className="text-[var(--st-text)] font-medium">N/A</span>;
     }
     return <>{inr.format(amount)}</>;
 }
@@ -81,36 +81,36 @@ export default async function PayslipDetailPage({
         >
             <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
-                    <div className="text-[14px] font-medium text-zoru-ink">
+                    <div className="text-[14px] font-medium text-[var(--st-text)]">
                         Breakdown
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
                     <div>
-                        <div className="text-zoru-ink-muted">Employee</div>
-                        <div className="text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Employee</div>
+                        <div className="text-[var(--st-text)]">
                             {payslip.employeeName ?? '—'}
                         </div>
-                        <div className="font-mono text-[11.5px] text-zoru-ink-muted">
+                        <div className="font-mono text-[11.5px] text-[var(--st-text-secondary)]">
                             {payslip.employeeId}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Pay period</div>
-                        <div className="text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Pay period</div>
+                        <div className="text-[var(--st-text)]">
                             {fmtPeriod(payslip.payPeriod)}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Issued at</div>
-                        <div className="text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Issued at</div>
+                        <div className="text-[var(--st-text)]">
                             {fmtDate(payslip.issuedAt)}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Created at</div>
-                        <div className="text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Created at</div>
+                        <div className="text-[var(--st-text)]">
                             {fmtDate(payslip.createdAt)}
                         </div>
                     </div>
@@ -118,70 +118,70 @@ export default async function PayslipDetailPage({
 
                 {/* Earnings + Deductions */}
                 <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                    <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-4">
-                        <div className="mb-2 text-[13px] font-medium text-zoru-ink">
+                    <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4">
+                        <div className="mb-2 text-[13px] font-medium text-[var(--st-text)]">
                             Earnings
                         </div>
                         <dl className="space-y-1.5 text-[13px]">
                             <div className="flex items-center justify-between">
-                                <dt className="text-zoru-ink-muted">Basic</dt>
-                                <dd className="font-mono text-zoru-ink">
+                                <dt className="text-[var(--st-text-secondary)]">Basic</dt>
+                                <dd className="font-mono text-[var(--st-text)]">
                                     <FormattedAmount amount={payslip.basic} />
                                 </dd>
                             </div>
                             <div className="flex items-center justify-between">
-                                <dt className="text-zoru-ink-muted">HRA</dt>
-                                <dd className="font-mono text-zoru-ink">
+                                <dt className="text-[var(--st-text-secondary)]">HRA</dt>
+                                <dd className="font-mono text-[var(--st-text)]">
                                     <FormattedAmount amount={payslip.hra} />
                                 </dd>
                             </div>
                             <div className="flex items-center justify-between">
-                                <dt className="text-zoru-ink-muted">Allowances</dt>
-                                <dd className="font-mono text-zoru-ink">
+                                <dt className="text-[var(--st-text-secondary)]">Allowances</dt>
+                                <dd className="font-mono text-[var(--st-text)]">
                                     <FormattedAmount amount={payslip.allowances} />
                                 </dd>
                             </div>
-                            <div className="mt-2 flex items-center justify-between border-t border-zoru-line pt-2">
-                                <dt className="font-medium text-zoru-ink">Gross</dt>
-                                <dd className="font-mono font-medium text-zoru-ink">
+                            <div className="mt-2 flex items-center justify-between border-t border-[var(--st-border)] pt-2">
+                                <dt className="font-medium text-[var(--st-text)]">Gross</dt>
+                                <dd className="font-mono font-medium text-[var(--st-text)]">
                                     <FormattedAmount amount={payslip.gross} />
                                 </dd>
                             </div>
                         </dl>
                     </div>
 
-                    <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-4">
-                        <div className="mb-2 text-[13px] font-medium text-zoru-ink">
+                    <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4">
+                        <div className="mb-2 text-[13px] font-medium text-[var(--st-text)]">
                             Deductions
                         </div>
                         <dl className="space-y-1.5 text-[13px]">
                             <div className="flex items-center justify-between">
-                                <dt className="text-zoru-ink-muted">PF</dt>
-                                <dd className="font-mono text-zoru-ink">
+                                <dt className="text-[var(--st-text-secondary)]">PF</dt>
+                                <dd className="font-mono text-[var(--st-text)]">
                                     <FormattedAmount amount={payslip.pf} />
                                 </dd>
                             </div>
                             <div className="flex items-center justify-between">
-                                <dt className="text-zoru-ink-muted">ESI</dt>
-                                <dd className="font-mono text-zoru-ink">
+                                <dt className="text-[var(--st-text-secondary)]">ESI</dt>
+                                <dd className="font-mono text-[var(--st-text)]">
                                     <FormattedAmount amount={payslip.esi} />
                                 </dd>
                             </div>
                             <div className="flex items-center justify-between">
-                                <dt className="text-zoru-ink-muted">Tax</dt>
-                                <dd className="font-mono text-zoru-ink">
+                                <dt className="text-[var(--st-text-secondary)]">Tax</dt>
+                                <dd className="font-mono text-[var(--st-text)]">
                                     <FormattedAmount amount={payslip.tax} />
                                 </dd>
                             </div>
                             <div className="flex items-center justify-between">
-                                <dt className="text-zoru-ink-muted">Other</dt>
-                                <dd className="font-mono text-zoru-ink">
+                                <dt className="text-[var(--st-text-secondary)]">Other</dt>
+                                <dd className="font-mono text-[var(--st-text)]">
                                     <FormattedAmount amount={payslip.deductions} />
                                 </dd>
                             </div>
-                            <div className="mt-2 flex items-center justify-between border-t border-zoru-line pt-2">
-                                <dt className="font-medium text-zoru-ink">Total deductions</dt>
-                                <dd className="font-mono font-medium text-zoru-ink">
+                            <div className="mt-2 flex items-center justify-between border-t border-[var(--st-border)] pt-2">
+                                <dt className="font-medium text-[var(--st-text)]">Total deductions</dt>
+                                <dd className="font-mono font-medium text-[var(--st-text)]">
                                     <FormattedAmount amount={totalDeductions} />
                                 </dd>
                             </div>
@@ -189,11 +189,11 @@ export default async function PayslipDetailPage({
                     </div>
                 </div>
 
-                <div className="mt-6 flex items-center justify-between rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-4">
-                    <div className="text-[14px] font-medium text-zoru-ink">
+                <div className="mt-6 flex items-center justify-between rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4">
+                    <div className="text-[14px] font-medium text-[var(--st-text)]">
                         Net pay
                     </div>
-                    <div className="font-mono text-[18px] font-medium text-zoru-ink">
+                    <div className="font-mono text-[18px] font-medium text-[var(--st-text)]">
                         <FormattedAmount amount={payslip.net} />
                     </div>
                 </div>

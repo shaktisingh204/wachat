@@ -67,29 +67,29 @@ export default function DripsBuilderShell() {
 
 
   return (
-    <div className="flex h-screen w-full flex-col bg-zoru-ink text-zoru-ink-muted font-sans overflow-hidden">
+    <div className="flex h-screen w-full flex-col bg-[var(--st-text)] text-[var(--st-text-secondary)] font-sans overflow-hidden">
       {/* Header */}
-      <header className="flex h-14 shrink-0 items-center justify-between border-b border-white/10 bg-zoru-ink px-4 shadow-sm z-20">
+      <header className="flex h-14 shrink-0 items-center justify-between border-b border-white/10 bg-[var(--st-text)] px-4 shadow-sm z-20">
         <div className="flex items-center gap-4">
           <button className="rounded-md p-1.5 hover:bg-white/10 transition-colors">
-            <ArrowLeft className="h-4 w-4 text-zoru-ink-muted" />
+            <ArrowLeft className="h-4 w-4 text-[var(--st-text-secondary)]" />
           </button>
           <div className="flex items-center gap-2">
-            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-zoru-ink/20 text-zoru-ink-muted">
+            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-[var(--st-text)]/20 text-[var(--st-text-secondary)]">
               <Zap className="h-4 w-4" />
             </div>
             <h1 className="text-sm font-medium text-white">Onboarding Welcome Series</h1>
-            <span className="ml-2 rounded-full bg-zoru-ink/10 px-2 py-0.5 text-[10px] font-medium text-zoru-ink-muted border border-zoru-line/20">
+            <span className="ml-2 rounded-full bg-[var(--st-text)]/10 px-2 py-0.5 text-[10px] font-medium text-[var(--st-text-secondary)] border border-[var(--st-border)]/20">
               Live
             </span>
           </div>
         </div>
 
-        <div className="flex items-center rounded-lg bg-zoru-ink p-1 border border-white/5">
+        <div className="flex items-center rounded-lg bg-[var(--st-text)] p-1 border border-white/5">
           <button
             onClick={() => setActiveTab('build')}
             className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
-              activeTab === 'build' ? 'bg-zoru-ink text-white shadow' : 'text-zoru-ink-muted hover:text-white'
+              activeTab === 'build' ? 'bg-[var(--st-text)] text-white shadow' : 'text-[var(--st-text-secondary)] hover:text-white'
             }`}
           >
             Build
@@ -97,7 +97,7 @@ export default function DripsBuilderShell() {
           <button
             onClick={() => setActiveTab('test')}
             className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
-              activeTab === 'test' ? 'bg-zoru-ink text-white shadow' : 'text-zoru-ink-muted hover:text-white'
+              activeTab === 'test' ? 'bg-[var(--st-text)] text-white shadow' : 'text-[var(--st-text-secondary)] hover:text-white'
             }`}
           >
             Test
@@ -105,7 +105,7 @@ export default function DripsBuilderShell() {
           <button
             onClick={() => setActiveTab('analytics')}
             className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
-              activeTab === 'analytics' ? 'bg-zoru-ink text-white shadow' : 'text-zoru-ink-muted hover:text-white'
+              activeTab === 'analytics' ? 'bg-[var(--st-text)] text-white shadow' : 'text-[var(--st-text-secondary)] hover:text-white'
             }`}
           >
             Analytics
@@ -115,16 +115,16 @@ export default function DripsBuilderShell() {
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5 px-3 border-r border-white/10 mr-1">
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-zoru-surface-2 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-zoru-ink"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--st-bg-muted)] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--st-text)]"></span>
             </span>
-            <span className="text-xs text-zoru-ink-muted">Saved just now</span>
+            <span className="text-xs text-[var(--st-text-secondary)]">Saved just now</span>
           </div>
-          <button className="flex items-center gap-2 rounded-md bg-white/5 px-3 py-1.5 text-xs font-medium text-zoru-ink-muted hover:bg-white/10 transition-colors border border-white/5">
+          <button className="flex items-center gap-2 rounded-md bg-white/5 px-3 py-1.5 text-xs font-medium text-[var(--st-text-secondary)] hover:bg-white/10 transition-colors border border-white/5">
             <Play className="h-3.5 w-3.5" />
             Test Flow
           </button>
-          <button className="flex items-center gap-2 rounded-md bg-gradient-to-b from-zoru-ink to-zoru-ink px-4 py-1.5 text-xs font-medium text-white hover:from-zoru-surface-2 hover:to-zoru-ink transition-all shadow-[0_0_15px_rgba(59,130,246,0.3)] border border-zoru-line/30">
+          <button className="flex items-center gap-2 rounded-md bg-gradient-to-b from-[var(--st-text)] to-[var(--st-text)] px-4 py-1.5 text-xs font-medium text-white hover:from-[var(--st-bg-muted)] hover:to-[var(--st-text)] transition-all shadow-[0_0_15px_rgba(59,130,246,0.3)] border border-[var(--st-border)]/30">
             <Rocket className="h-3.5 w-3.5" />
             Deploy
           </button>
@@ -135,14 +135,14 @@ export default function DripsBuilderShell() {
       <div className="flex flex-1 overflow-hidden">
         
         {/* Left Sidebar - Node Palette */}
-        <aside className="w-72 shrink-0 flex flex-col border-r border-white/10 bg-zoru-ink z-10">
+        <aside className="w-72 shrink-0 flex flex-col border-r border-white/10 bg-[var(--st-text)] z-10">
           <div className="p-4 border-b border-white/10">
             <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink" />
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text)]" />
               <input
                 type="text"
                 placeholder="Search nodes..."
-                className="w-full rounded-md bg-zoru-ink border border-white/5 py-2 pl-9 pr-3 text-sm text-white placeholder-zoru-ink focus:outline-none focus:ring-1 focus:ring-zoru-line/50 transition-all"
+                className="w-full rounded-md bg-[var(--st-text)] border border-white/5 py-2 pl-9 pr-3 text-sm text-white placeholder-[var(--st-text)] focus:outline-none focus:ring-1 focus:ring-[var(--st-border)]/50 transition-all"
               />
             </div>
           </div>
@@ -151,8 +151,8 @@ export default function DripsBuilderShell() {
             {/* Category: Triggers */}
             <div className="space-y-2">
               <div className="flex items-center justify-between px-1">
-                <h3 className="text-[11px] font-semibold uppercase tracking-wider text-zoru-ink">Triggers</h3>
-                <span className="text-[10px] bg-white/5 px-1.5 py-0.5 rounded text-zoru-ink-muted">3</span>
+                <h3 className="text-[11px] font-semibold uppercase tracking-wider text-[var(--st-text)]">Triggers</h3>
+                <span className="text-[10px] bg-white/5 px-1.5 py-0.5 rounded text-[var(--st-text-secondary)]">3</span>
               </div>
               <div className="space-y-1.5">
                 <DraggableNode icon={<Globe />} title="Webhook Received" desc="Trigger on external event" color="purple" />
@@ -164,8 +164,8 @@ export default function DripsBuilderShell() {
             {/* Category: Actions */}
             <div className="space-y-2">
               <div className="flex items-center justify-between px-1">
-                <h3 className="text-[11px] font-semibold uppercase tracking-wider text-zoru-ink">Actions</h3>
-                <span className="text-[10px] bg-white/5 px-1.5 py-0.5 rounded text-zoru-ink-muted">4</span>
+                <h3 className="text-[11px] font-semibold uppercase tracking-wider text-[var(--st-text)]">Actions</h3>
+                <span className="text-[10px] bg-white/5 px-1.5 py-0.5 rounded text-[var(--st-text-secondary)]">4</span>
               </div>
               <div className="space-y-1.5">
                 <DraggableNode icon={<MessageSquare />} title="Send SMS" desc="Dispatch text message" color="blue" />
@@ -178,8 +178,8 @@ export default function DripsBuilderShell() {
             {/* Category: Logic */}
             <div className="space-y-2">
               <div className="flex items-center justify-between px-1">
-                <h3 className="text-[11px] font-semibold uppercase tracking-wider text-zoru-ink">Logic</h3>
-                <span className="text-[10px] bg-white/5 px-1.5 py-0.5 rounded text-zoru-ink-muted">3</span>
+                <h3 className="text-[11px] font-semibold uppercase tracking-wider text-[var(--st-text)]">Logic</h3>
+                <span className="text-[10px] bg-white/5 px-1.5 py-0.5 rounded text-[var(--st-text-secondary)]">3</span>
               </div>
               <div className="space-y-1.5">
                 <DraggableNode icon={<GitBranch />} title="If / Else" desc="Branch based on conditions" color="orange" />
@@ -191,7 +191,7 @@ export default function DripsBuilderShell() {
         </aside>
 
         {/* Center Canvas */}
-        <main className="flex-1 relative bg-zoru-ink overflow-hidden">
+        <main className="flex-1 relative bg-[var(--st-text)] overflow-hidden">
           {/* Grid Background */}
           <div className="absolute inset-0 z-0 pointer-events-none opacity-20" 
                style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '24px 24px' }}>
@@ -199,10 +199,10 @@ export default function DripsBuilderShell() {
 
           {/* Floating Controls */}
           <div className="absolute bottom-6 left-6 z-10 flex flex-col gap-2">
-            <div className="flex flex-col items-center rounded-lg bg-zoru-ink border border-white/10 p-1 shadow-xl">
-              <button className="p-2 text-zoru-ink-muted hover:text-white hover:bg-white/5 rounded-md transition-colors"><ZoomIn className="h-4 w-4" /></button>
-              <button className="p-2 text-zoru-ink-muted hover:text-white hover:bg-white/5 rounded-md transition-colors"><ZoomOut className="h-4 w-4" /></button>
-              <button className="p-2 text-zoru-ink-muted hover:text-white hover:bg-white/5 rounded-md transition-colors"><Maximize className="h-4 w-4" /></button>
+            <div className="flex flex-col items-center rounded-lg bg-[var(--st-text)] border border-white/10 p-1 shadow-xl">
+              <button className="p-2 text-[var(--st-text-secondary)] hover:text-white hover:bg-white/5 rounded-md transition-colors"><ZoomIn className="h-4 w-4" /></button>
+              <button className="p-2 text-[var(--st-text-secondary)] hover:text-white hover:bg-white/5 rounded-md transition-colors"><ZoomOut className="h-4 w-4" /></button>
+              <button className="p-2 text-[var(--st-text-secondary)] hover:text-white hover:bg-white/5 rounded-md transition-colors"><Maximize className="h-4 w-4" /></button>
             </div>
           </div>
 
@@ -212,30 +212,30 @@ export default function DripsBuilderShell() {
                 
                 {/* Node 1 */}
                 <CanvasNode 
-                  icon={<Zap className="h-5 w-5 text-zoru-ink-muted" />}
+                  icon={<Zap className="h-5 w-5 text-[var(--st-text-secondary)]" />}
                   title="App Event"
                   subtitle="User Signed Up"
-                  colorClass="bg-zoru-ink/10 border-zoru-line/30"
+                  colorClass="bg-[var(--st-text)]/10 border-[var(--st-border)]/30"
                   isActive={false}
                 />
 
                 {/* SVG Line */}
-                <svg className="w-10 h-16 my-2 text-zoru-ink" viewBox="0 0 40 64" fill="none" preserveAspectRatio="none">
+                <svg className="w-10 h-16 my-2 text-[var(--st-text)]" viewBox="0 0 40 64" fill="none" preserveAspectRatio="none">
                   <path d="M20 0 L20 64" stroke="currentColor" strokeWidth="2" strokeDasharray="4 4" />
                   <circle cx="20" cy="32" r="4" fill="#1e293b" stroke="currentColor" strokeWidth="2" />
                 </svg>
 
                 {/* Node 2 */}
                 <CanvasNode 
-                  icon={<Clock className="h-5 w-5 text-zoru-ink-muted" />}
+                  icon={<Clock className="h-5 w-5 text-[var(--st-text-secondary)]" />}
                   title="Delay"
                   subtitle="Wait 2 hours"
-                  colorClass="bg-zoru-ink/10 border-zoru-line/30"
+                  colorClass="bg-[var(--st-text)]/10 border-[var(--st-border)]/30"
                   isActive={false}
                 />
 
                 {/* SVG Path Fork */}
-                <svg className="w-[320px] h-20 my-2 text-zoru-ink" viewBox="0 0 320 80" fill="none" preserveAspectRatio="none">
+                <svg className="w-[320px] h-20 my-2 text-[var(--st-text)]" viewBox="0 0 320 80" fill="none" preserveAspectRatio="none">
                   <path d="M160 0 L160 20 C160 30 150 40 140 40 L40 40 C30 40 20 50 20 60 L20 80" stroke="currentColor" strokeWidth="2" />
                   <path d="M160 0 L160 20 C160 30 170 40 180 40 L280 40 C290 40 300 50 300 60 L300 80" stroke="currentColor" strokeWidth="2" />
                   <rect x="140" y="30" width="40" height="20" rx="10" fill="#1e293b" stroke="currentColor" strokeWidth="2" />
@@ -246,14 +246,14 @@ export default function DripsBuilderShell() {
                   {/* Left Fork Node */}
                   <div className="flex flex-col items-center cursor-pointer" onClick={() => setSelectedNodeId('blk_send_sms')}>
                     <CanvasNode 
-                      icon={<MessageSquare className="h-5 w-5 text-zoru-ink-muted" />}
+                      icon={<MessageSquare className="h-5 w-5 text-[var(--st-text-secondary)]" />}
                       title="Send SMS"
                       subtitle="Welcome Offer"
-                      colorClass={`bg-zoru-ink/10 border-zoru-line/50 shadow-[0_0_20px_rgba(59,130,246,0.15)] ring-1 ring-zoru-line ${selectedNodeId === 'blk_send_sms' ? 'ring-2' : ''}`}
+                      colorClass={`bg-[var(--st-text)]/10 border-[var(--st-border)]/50 shadow-[0_0_20px_rgba(59,130,246,0.15)] ring-1 ring-[var(--st-border)] ${selectedNodeId === 'blk_send_sms' ? 'ring-2' : ''}`}
                       isActive={true}
                     />
-                    <div className="mt-4 px-3 py-1 bg-zoru-ink/50 rounded-full border border-white/5 text-xs text-zoru-ink-muted flex items-center gap-2">
-                      <Activity className="h-3 w-3 text-zoru-ink-muted" />
+                    <div className="mt-4 px-3 py-1 bg-[var(--st-text)]/50 rounded-full border border-white/5 text-xs text-[var(--st-text-secondary)] flex items-center gap-2">
+                      <Activity className="h-3 w-3 text-[var(--st-text-secondary)]" />
                       45% conversion
                     </div>
                   </div>
@@ -261,10 +261,10 @@ export default function DripsBuilderShell() {
                   {/* Right Fork Node */}
                   <div className="flex flex-col items-center cursor-pointer" onClick={() => setSelectedNodeId('blk_inbound_sms')}>
                     <CanvasNode 
-                      icon={<Mail className="h-5 w-5 text-zoru-ink-muted" />}
+                      icon={<Mail className="h-5 w-5 text-[var(--st-text-secondary)]" />}
                       title="Send Email"
                       subtitle="Newsletter #1"
-                      colorClass={`bg-zoru-ink/10 border-zoru-line/30 hover:border-zoru-line/50 ${selectedNodeId === 'blk_inbound_sms' ? 'ring-1 ring-zoru-line/50' : ''}`}
+                      colorClass={`bg-[var(--st-text)]/10 border-[var(--st-border)]/30 hover:border-[var(--st-border)]/50 ${selectedNodeId === 'blk_inbound_sms' ? 'ring-1 ring-[var(--st-border)]/50' : ''}`}
                       isActive={false}
                     />
                   </div>
@@ -275,46 +275,46 @@ export default function DripsBuilderShell() {
         </main>
 
         {/* Right Sidebar - Properties Panel */}
-        <aside className="w-80 shrink-0 flex flex-col border-l border-white/10 bg-zoru-ink z-10 shadow-2xl relative">
+        <aside className="w-80 shrink-0 flex flex-col border-l border-white/10 bg-[var(--st-text)] z-10 shadow-2xl relative">
           {isLoading ? (
             <div className="flex h-full items-center justify-center">
-              <Loader2 className="h-6 w-6 animate-spin text-zoru-ink" />
+              <Loader2 className="h-6 w-6 animate-spin text-[var(--st-text)]" />
             </div>
           ) : activeBlock ? (
             <>
-              <div className="flex items-center justify-between p-4 border-b border-white/10 bg-zoru-ink">
+              <div className="flex items-center justify-between p-4 border-b border-white/10 bg-[var(--st-text)]">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-ink/20 text-zoru-ink-muted">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-text)]/20 text-[var(--st-text-secondary)]">
                     {React.createElement(activeIcon, { className: "h-4 w-4" })}
                   </div>
                   <div>
                     <h2 className="text-sm font-semibold text-white">
                       {activeBlock.name}
                     </h2>
-                    <p className="text-xs text-zoru-ink capitalize">{activeBlock.type} Node</p>
+                    <p className="text-xs text-[var(--st-text)] capitalize">{activeBlock.type} Node</p>
                   </div>
                 </div>
-                <button className="text-zoru-ink-muted hover:text-white"><MoreVertical className="h-4 w-4" /></button>
+                <button className="text-[var(--st-text-secondary)] hover:text-white"><MoreVertical className="h-4 w-4" /></button>
               </div>
 
               <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-track]:bg-transparent">
                 {/* Analytics Mini-widget */}
-                <div className="p-4 border-b border-white/5 bg-zoru-ink">
+                <div className="p-4 border-b border-white/5 bg-[var(--st-text)]">
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="rounded-lg bg-zoru-ink p-3 border border-white/5">
-                      <div className="text-[10px] text-zoru-ink uppercase font-medium mb-1">Cost</div>
+                    <div className="rounded-lg bg-[var(--st-text)] p-3 border border-white/5">
+                      <div className="text-[10px] text-[var(--st-text)] uppercase font-medium mb-1">Cost</div>
                       <div className="text-lg font-semibold text-white">
                         {activeBlock.creditCost} credits
                       </div>
                     </div>
-                    <div className="rounded-lg bg-zoru-ink p-3 border border-white/5">
-                      <div className="text-[10px] text-zoru-ink uppercase font-medium mb-1">
+                    <div className="rounded-lg bg-[var(--st-text)] p-3 border border-white/5">
+                      <div className="text-[10px] text-[var(--st-text)] uppercase font-medium mb-1">
                         Usage
                       </div>
                       <div className="text-lg font-semibold text-white">
                         {(activeBlock.usageCount / 1000).toFixed(1)}k
                       </div>
-                      <div className="text-xs text-zoru-ink-muted mt-1 flex items-center gap-1"><Activity className="h-3 w-3"/> Global</div>
+                      <div className="text-xs text-[var(--st-text-secondary)] mt-1 flex items-center gap-1"><Activity className="h-3 w-3"/> Global</div>
                     </div>
                   </div>
                 </div>
@@ -322,20 +322,20 @@ export default function DripsBuilderShell() {
                 <div className="p-5 space-y-6">
                   {/* General Settings */}
                   <div className="space-y-4">
-                    <h3 className="text-xs font-semibold text-zoru-ink-muted uppercase tracking-wider">Configuration</h3>
+                    <h3 className="text-xs font-semibold text-[var(--st-text-secondary)] uppercase tracking-wider">Configuration</h3>
                     
                     <div className="space-y-1.5">
-                      <label className="text-xs font-medium text-zoru-ink-muted">Node Name</label>
+                      <label className="text-xs font-medium text-[var(--st-text-secondary)]">Node Name</label>
                       <input 
                         type="text" 
                         defaultValue={activeBlock.name}
                         key={activeBlock.id}
-                        className="w-full rounded-md bg-zoru-ink border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-zoru-line/50" 
+                        className="w-full rounded-md bg-[var(--st-text)] border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-[var(--st-border)]/50" 
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-xs font-medium text-zoru-ink-muted">Description</label>
-                      <p className="text-[11px] text-zoru-ink-muted leading-relaxed">
+                      <label className="text-xs font-medium text-[var(--st-text-secondary)]">Description</label>
+                      <p className="text-[11px] text-[var(--st-text-secondary)] leading-relaxed">
                         {activeBlock.description}
                       </p>
                     </div>
@@ -346,8 +346,8 @@ export default function DripsBuilderShell() {
                   {/* Dynamic Schema Fields */}
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-xs font-semibold text-zoru-ink-muted uppercase tracking-wider">Properties</h3>
-                      <button className="text-xs text-zoru-ink-muted hover:text-zoru-ink-muted">Insert Variable</button>
+                      <h3 className="text-xs font-semibold text-[var(--st-text-secondary)] uppercase tracking-wider">Properties</h3>
+                      <button className="text-xs text-[var(--st-text-secondary)] hover:text-[var(--st-text-secondary)]">Insert Variable</button>
                     </div>
                     
                     {(() => {
@@ -362,19 +362,19 @@ export default function DripsBuilderShell() {
                         const isRequired = !typeStr.endsWith('?');
                         return (
                           <div key={key} className="space-y-1.5">
-                            <label className="text-xs font-medium text-zoru-ink-muted capitalize">
-                              {key} {isRequired ? <span className="text-zoru-ink-muted">*</span> : null}
+                            <label className="text-xs font-medium text-[var(--st-text-secondary)] capitalize">
+                              {key} {isRequired ? <span className="text-[var(--st-text-secondary)]">*</span> : null}
                             </label>
                             {key === 'body' || key === 'text' ? (
                               <textarea 
                                 rows={4} 
-                                className="w-full rounded-md bg-zoru-ink border border-white/10 p-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-zoru-line/50 resize-none"
+                                className="w-full rounded-md bg-[var(--st-text)] border border-white/10 p-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-[var(--st-border)]/50 resize-none"
                                 placeholder={`Enter ${key}...`}
                               />
                             ) : (
                               <input 
                                 type="text" 
-                                className="w-full rounded-md bg-zoru-ink border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-zoru-line/50"
+                                className="w-full rounded-md bg-[var(--st-text)] border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-[var(--st-border)]/50"
                                 placeholder={`Enter ${key}...`}
                               />
                             )}
@@ -387,15 +387,15 @@ export default function DripsBuilderShell() {
               </div>
               
               {/* Footer Save */}
-              <div className="p-4 border-t border-white/10 bg-zoru-ink">
-                <button className="w-full rounded-md bg-white text-black hover:bg-zoru-surface-2 transition-colors py-2 text-sm font-semibold shadow-lg">
+              <div className="p-4 border-t border-white/10 bg-[var(--st-text)]">
+                <button className="w-full rounded-md bg-white text-black hover:bg-[var(--st-bg-muted)] transition-colors py-2 text-sm font-semibold shadow-lg">
                   Save Changes
                 </button>
               </div>
             </>
           ) : (
             <div className="flex h-full items-center justify-center p-6 text-center">
-              <p className="text-sm text-zoru-ink">Select a node to view its properties.</p>
+              <p className="text-sm text-[var(--st-text)]">Select a node to view its properties.</p>
             </div>
           )}
         </aside>
@@ -408,19 +408,19 @@ export default function DripsBuilderShell() {
 // Subcomponents
 function DraggableNode({ icon, title, desc, color }: { icon: React.ReactNode, title: string, desc: string, color: 'blue' | 'purple' | 'orange' }) {
   const colorMap = {
-    blue: 'bg-zoru-ink/10 text-zoru-ink-muted border-zoru-line/20 group-hover:border-zoru-line/40',
-    purple: 'bg-zoru-ink/10 text-zoru-ink-muted border-zoru-line/20 group-hover:border-zoru-line/40',
-    orange: 'bg-zoru-ink/10 text-zoru-ink-muted border-zoru-line/20 group-hover:border-zoru-line/40',
+    blue: 'bg-[var(--st-text)]/10 text-[var(--st-text-secondary)] border-[var(--st-border)]/20 group-hover:border-[var(--st-border)]/40',
+    purple: 'bg-[var(--st-text)]/10 text-[var(--st-text-secondary)] border-[var(--st-border)]/20 group-hover:border-[var(--st-border)]/40',
+    orange: 'bg-[var(--st-text)]/10 text-[var(--st-text-secondary)] border-[var(--st-border)]/20 group-hover:border-[var(--st-border)]/40',
   };
 
   return (
-    <div className="group flex cursor-grab items-start gap-3 rounded-xl border border-white/5 bg-zoru-ink p-3 hover:bg-zoru-ink hover:shadow-lg transition-all active:cursor-grabbing">
+    <div className="group flex cursor-grab items-start gap-3 rounded-xl border border-white/5 bg-[var(--st-text)] p-3 hover:bg-[var(--st-text)] hover:shadow-lg transition-all active:cursor-grabbing">
       <div className={`mt-0.5 flex shrink-0 h-8 w-8 items-center justify-center rounded-lg border ${colorMap[color]} transition-colors`}>
         {React.cloneElement(icon as React.ReactElement<{ className?: string }>, { className: 'h-4 w-4' })}
       </div>
       <div>
         <h4 className="text-sm font-medium text-white group-hover:text-white transition-colors">{title}</h4>
-        <p className="mt-0.5 text-[11px] text-zoru-ink line-clamp-1">{desc}</p>
+        <p className="mt-0.5 text-[11px] text-[var(--st-text)] line-clamp-1">{desc}</p>
       </div>
     </div>
   );
@@ -428,16 +428,16 @@ function DraggableNode({ icon, title, desc, color }: { icon: React.ReactNode, ti
 
 function CanvasNode({ icon, title, subtitle, colorClass, isActive }: { icon: React.ReactNode, title: string, subtitle: string, colorClass: string, isActive: boolean }) {
   return (
-    <div className={`w-64 rounded-xl border bg-zoru-ink p-4 shadow-xl backdrop-blur-sm transition-all hover:border-white/20 ${isActive ? colorClass : 'border-white/10'}`}>
+    <div className={`w-64 rounded-xl border bg-[var(--st-text)] p-4 shadow-xl backdrop-blur-sm transition-all hover:border-white/20 ${isActive ? colorClass : 'border-white/10'}`}>
       <div className="flex items-center gap-3">
         <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border ${colorClass}`}>
           {icon}
         </div>
         <div className="flex-1 overflow-hidden">
           <h4 className="truncate text-sm font-semibold text-white">{title}</h4>
-          <p className="truncate text-xs text-zoru-ink-muted">{subtitle}</p>
+          <p className="truncate text-xs text-[var(--st-text-secondary)]">{subtitle}</p>
         </div>
-        <button className="text-zoru-ink hover:text-zoru-ink-muted transition-colors">
+        <button className="text-[var(--st-text)] hover:text-[var(--st-text-secondary)] transition-colors">
           <MoreVertical className="h-4 w-4" />
         </button>
       </div>

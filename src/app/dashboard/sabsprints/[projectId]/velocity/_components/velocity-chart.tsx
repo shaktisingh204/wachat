@@ -48,9 +48,9 @@ export function VelocityChart({ items }: Props) {
   return (
     <Card className="flex flex-col gap-3 p-4">
       <div className="flex items-end justify-between">
-        <h2 className="text-sm font-semibold text-zoru-ink">Velocity</h2>
-        <p className="text-xs text-zoru-ink-muted">
-          Avg completed: <span className="font-medium text-zoru-ink">{avg.toFixed(1)}</span> pts
+        <h2 className="text-sm font-semibold text-[var(--st-text)]">Velocity</h2>
+        <p className="text-xs text-[var(--st-text-secondary)]">
+          Avg completed: <span className="font-medium text-[var(--st-text)]">{avg.toFixed(1)}</span> pts
         </p>
       </div>
       <ZoruChartContainer height={320}>

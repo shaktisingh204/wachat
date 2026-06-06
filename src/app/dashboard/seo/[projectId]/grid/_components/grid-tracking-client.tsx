@@ -19,16 +19,16 @@ import GoogleMapReact from 'google-map-react';
 const Marker = ({ rank, lat, lng }: { rank: number; lat: number; lng: number }) => {
     const color =
         rank === 0
-            ? 'bg-zoru-ink-muted'
+            ? 'bg-[var(--st-text-secondary)]'
             : rank <= 3
-              ? 'bg-zoru-success'
+              ? 'bg-[var(--st-status-ok)]'
               : rank <= 10
-                ? 'bg-zoru-warning'
-                : 'bg-zoru-danger';
+                ? 'bg-[var(--st-warn)]'
+                : 'bg-[var(--st-danger)]';
 
     return (
         <div
-            className={`absolute h-10 w-10 -translate-x-1/2 -translate-y-1/2 transform cursor-pointer rounded-full border-2 border-zoru-bg text-white flex items-center justify-center text-sm shadow-[var(--zoru-shadow-sm)] transition-all hover:scale-110 ${color}`}
+            className={`absolute h-10 w-10 -translate-x-1/2 -translate-y-1/2 transform cursor-pointer rounded-full border-2 border-[var(--st-bg)] text-white flex items-center justify-center text-sm shadow-[var(--zoru-shadow-sm)] transition-all hover:scale-110 ${color}`}
             title={`Rank: ${rank || '>20'}`}
         >
             {rank || '-'}
@@ -39,14 +39,14 @@ const Marker = ({ rank, lat, lng }: { rank: number; lat: number; lng: number }) 
 function GridMap({ points, center, loading, onMapClick }: { points: any[], center: { lat: number, lng: number }, loading: boolean, onMapClick?: (e: { lat: number, lng: number }) => void }) {
     if (loading) {
         return (
-            <div className="flex h-[500px] w-full items-center justify-center rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2/50 text-zoru-ink-muted">
+            <div className="flex h-[500px] w-full items-center justify-center rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)]/50 text-[var(--st-text-secondary)]">
                 Scanning grid area...
             </div>
         );
     }
 
     return (
-        <div className="relative h-[500px] w-full overflow-hidden rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2">
+        <div className="relative h-[500px] w-full overflow-hidden rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)]">
             <GoogleMapReact
                 bootstrapURLKeys={{ key: '' }}
                 defaultCenter={center}
@@ -59,7 +59,7 @@ function GridMap({ points, center, loading, onMapClick }: { points: any[], cente
                     // @ts-ignore
                     lat={center.lat}
                     lng={center.lng}
-                    className="absolute h-4 w-4 -translate-x-1/2 -translate-y-1/2 transform rounded-full bg-zoru-ink border-2 border-white shadow z-10"
+                    className="absolute h-4 w-4 -translate-x-1/2 -translate-y-1/2 transform rounded-full bg-[var(--st-text)] border-2 border-white shadow z-10"
                     title="Center Coordinates"
                 />
 
@@ -68,19 +68,19 @@ function GridMap({ points, center, loading, onMapClick }: { points: any[], cente
                 ))}
             </GoogleMapReact>
             
-            <div className="absolute bottom-4 right-4 flex flex-col gap-1 rounded bg-zoru-bg p-3 text-xs shadow-[var(--zoru-shadow-sm)]">
-                <div className="mb-1 font-semibold text-zoru-ink">Rank Legend</div>
+            <div className="absolute bottom-4 right-4 flex flex-col gap-1 rounded bg-[var(--st-bg)] p-3 text-xs shadow-[var(--zoru-shadow-sm)]">
+                <div className="mb-1 font-semibold text-[var(--st-text)]">Rank Legend</div>
                 <div className="flex items-center gap-2">
-                    <div className="h-3 w-3 rounded-full bg-zoru-success"></div> 1-3 (Dominating)
+                    <div className="h-3 w-3 rounded-full bg-[var(--st-status-ok)]"></div> 1-3 (Dominating)
                 </div>
                 <div className="flex items-center gap-2">
-                    <div className="h-3 w-3 rounded-full bg-zoru-warning"></div> 4-10 (Visible)
+                    <div className="h-3 w-3 rounded-full bg-[var(--st-warn)]"></div> 4-10 (Visible)
                 </div>
                 <div className="flex items-center gap-2">
-                    <div className="h-3 w-3 rounded-full bg-zoru-danger"></div> 11+ (Invisible)
+                    <div className="h-3 w-3 rounded-full bg-[var(--st-danger)]"></div> 11+ (Invisible)
                 </div>
                 <div className="flex items-center gap-2">
-                    <div className="h-3 w-3 rounded-full bg-zoru-ink-muted"></div> Not Found
+                    <div className="h-3 w-3 rounded-full bg-[var(--st-text-secondary)]"></div> Not Found
                 </div>
             </div>
         </div>
@@ -124,11 +124,11 @@ export function GridTrackingClient({ projectId, initialProj }: { projectId: stri
         <div className="flex flex-col gap-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl text-zoru-ink flex items-center gap-3">
-                        <MapPin className="h-8 w-8 text-zoru-ink" />
+                    <h1 className="text-3xl text-[var(--st-text)] flex items-center gap-3">
+                        <MapPin className="h-8 w-8 text-[var(--st-text)]" />
                         Local Geo-Grid
                     </h1>
-                    <p className="text-zoru-ink-muted mt-1">Visualize and track your local rankings across specific neighborhoods.</p>
+                    <p className="text-[var(--st-text-secondary)] mt-1">Visualize and track your local rankings across specific neighborhoods.</p>
                 </div>
                 <Button onClick={handleScan} disabled={loading || !keyword}>
                     <Search className="mr-2 h-4 w-4" />
@@ -216,7 +216,7 @@ export function GridTrackingClient({ projectId, initialProj }: { projectId: stri
                             <ZoruCardTitle>How it works</ZoruCardTitle>
                         </ZoruCardHeader>
                         <ZoruCardContent>
-                            <p className="text-sm text-zoru-ink-muted">
+                            <p className="text-sm text-[var(--st-text-secondary)]">
                                 We simulate GPS coordinates at multiple points around your business location in a grid pattern. This reveals exactly where you rank in local search results across different neighborhoods.
                             </p>
                         </ZoruCardContent>

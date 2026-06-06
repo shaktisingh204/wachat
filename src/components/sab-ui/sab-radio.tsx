@@ -40,9 +40,9 @@ export const SabRadioItem = React.forwardRef<
       'peer h-[18px] w-[18px] shrink-0 rounded-full border transition-colors',
       'focus-visible:outline-none focus-visible:ring-[3px]',
       'disabled:cursor-not-allowed disabled:opacity-50',
-      'border-zoru-line bg-zoru-ink',
-      'hover:border-zoru-line',
-      'data-[state=checked]:border-zoru-line',
+      'border-[var(--st-border)] bg-[var(--st-text)]',
+      'hover:border-[var(--st-border)]',
+      'data-[state=checked]:border-[var(--st-border)]',
       className,
     )}
     style={{

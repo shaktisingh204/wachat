@@ -43,14 +43,14 @@ const fmt = (n: number) => `₹${n.toLocaleString('en-IN')}`;
 
 const DeltaBadge = ({ current, previous, invertColor }: { current: number, previous: number, invertColor?: boolean }) => {
     if (!previous || previous === 0) return null;
-    if (current === previous) return <span className="text-[11px] text-zoru-ink-muted ml-2">No change</span>;
+    if (current === previous) return <span className="text-[11px] text-[var(--st-text-secondary)] ml-2">No change</span>;
     
     const delta = ((current - previous) / previous) * 100;
     const isUp = delta > 0;
     const isGood = invertColor ? !isUp : isUp;
 
     return (
-        <span className={`text-[11px] font-medium ml-2 px-1.5 py-0.5 rounded-full ${isGood ? 'bg-zoru-surface-2 text-zoru-ink' : 'bg-zoru-surface-2 text-zoru-ink'}`}>
+        <span className={`text-[11px] font-medium ml-2 px-1.5 py-0.5 rounded-full ${isGood ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]' : 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'}`}>
             {isUp ? '↑' : '↓'} {Math.abs(delta).toFixed(1)}%
         </span>
     );
@@ -59,16 +59,16 @@ const DeltaBadge = ({ current, previous, invertColor }: { current: number, previ
 const StatCard = ({ title, value, icon: Icon, sub, current, previous, invertColor }: { title: string; value: string; icon: React.ElementType; sub?: string; current?: number; previous?: number; invertColor?: boolean }) => (
     <Card className="flex flex-col gap-1 p-6">
         <div className="flex items-center justify-between">
-            <p className="text-[12.5px] font-medium text-zoru-ink-muted">{title}</p>
-            <Icon className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
+            <p className="text-[12.5px] font-medium text-[var(--st-text-secondary)]">{title}</p>
+            <Icon className="h-4 w-4 text-[var(--st-text-secondary)]" strokeWidth={1.75} />
         </div>
         <div className="mt-1 flex items-end">
-            <p className="text-2xl text-zoru-ink">{value}</p>
+            <p className="text-2xl text-[var(--st-text)]">{value}</p>
             {current !== undefined && previous !== undefined && (
                 <DeltaBadge current={current} previous={previous} invertColor={invertColor} />
             )}
         </div>
-        {sub ? <p className="text-[11.5px] text-zoru-ink-muted">{sub}</p> : null}
+        {sub ? <p className="text-[11.5px] text-[var(--st-text-secondary)]">{sub}</p> : null}
     </Card>
 );
 
@@ -227,7 +227,7 @@ export default function PayrollSummaryPage() {
                                     <select
                                         value={selectedMonth}
                                         onChange={e => setSelectedMonth(Number(e.target.value))}
-                                        className="w-full rounded-lg border border-zoru-line bg-zoru-bg px-3 py-2 text-[13px] text-zoru-ink focus:outline-none focus:ring-2 focus:ring-primary/30"
+                                        className="w-full rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-[13px] text-[var(--st-text)] focus:outline-none focus:ring-2 focus:ring-primary/30"
                                     >
                                         {MONTHS.map((m, i) => <option key={m} value={i + 1}>{m}</option>)}
                                     </select>
@@ -237,7 +237,7 @@ export default function PayrollSummaryPage() {
                                     <select
                                         value={selectedYear}
                                         onChange={e => setSelectedYear(Number(e.target.value))}
-                                        className="w-full rounded-lg border border-zoru-line bg-zoru-bg px-3 py-2 text-[13px] text-zoru-ink focus:outline-none focus:ring-2 focus:ring-primary/30"
+                                        className="w-full rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-[13px] text-[var(--st-text)] focus:outline-none focus:ring-2 focus:ring-primary/30"
                                     >
                                         {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
                                     </select>
@@ -247,7 +247,7 @@ export default function PayrollSummaryPage() {
                                     <select
                                         value={selectedDept}
                                         onChange={e => setSelectedDept(e.target.value)}
-                                        className="w-full rounded-lg border border-zoru-line bg-zoru-bg px-3 py-2 text-[13px] text-zoru-ink focus:outline-none focus:ring-2 focus:ring-primary/30"
+                                        className="w-full rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-[13px] text-[var(--st-text)] focus:outline-none focus:ring-2 focus:ring-primary/30"
                                     >
                                         <option value="">All Departments</option>
                                         {departments.map(d => <option key={d._id} value={d._id}>{d.name}</option>)}
@@ -310,36 +310,36 @@ export default function PayrollSummaryPage() {
             <Card className="p-6">
                 <div className="mb-4 flex items-center justify-between">
                     <div>
-                        <h2 className="text-[16px] text-zoru-ink">Payroll Breakdown</h2>
-                        <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+                        <h2 className="text-[16px] text-[var(--st-text)]">Payroll Breakdown</h2>
+                        <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">
                             {MONTHS[selectedMonth - 1]} {selectedYear}
                         </p>
                     </div>
                     {rows.length > 0 && (
-                        <span className="text-[12.5px] text-zoru-ink-muted">{rows.length} employee{rows.length !== 1 ? 's' : ''}</span>
+                        <span className="text-[12.5px] text-[var(--st-text-secondary)]">{rows.length} employee{rows.length !== 1 ? 's' : ''}</span>
                     )}
                 </div>
 
-                <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                     <table className="w-full text-left text-[13px]">
                         <thead>
-                            <tr className="border-b border-zoru-line bg-zoru-surface-2">
-                                <th className="px-4 py-3 font-medium text-zoru-ink-muted">Employee</th>
-                                <th className="px-4 py-3 font-medium text-zoru-ink-muted">Department</th>
-                                <th className="px-4 py-3 text-right font-medium text-zoru-ink-muted">Gross Salary</th>
-                                <th className="px-4 py-3 text-right font-medium text-zoru-ink-muted">PF</th>
-                                <th className="px-4 py-3 text-right font-medium text-zoru-ink-muted">ESI</th>
-                                <th className="px-4 py-3 text-right font-medium text-zoru-ink-muted">TDS</th>
-                                <th className="px-4 py-3 text-right font-medium text-zoru-ink-muted">Prof. Tax</th>
-                                <th className="px-4 py-3 text-right font-medium text-zoru-ink">Total Deductions</th>
-                                <th className="px-4 py-3 text-right font-medium text-zoru-ink">Net Pay</th>
+                            <tr className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]">
+                                <th className="px-4 py-3 font-medium text-[var(--st-text-secondary)]">Employee</th>
+                                <th className="px-4 py-3 font-medium text-[var(--st-text-secondary)]">Department</th>
+                                <th className="px-4 py-3 text-right font-medium text-[var(--st-text-secondary)]">Gross Salary</th>
+                                <th className="px-4 py-3 text-right font-medium text-[var(--st-text-secondary)]">PF</th>
+                                <th className="px-4 py-3 text-right font-medium text-[var(--st-text-secondary)]">ESI</th>
+                                <th className="px-4 py-3 text-right font-medium text-[var(--st-text-secondary)]">TDS</th>
+                                <th className="px-4 py-3 text-right font-medium text-[var(--st-text-secondary)]">Prof. Tax</th>
+                                <th className="px-4 py-3 text-right font-medium text-[var(--st-text)]">Total Deductions</th>
+                                <th className="px-4 py-3 text-right font-medium text-[var(--st-text)]">Net Pay</th>
                             </tr>
                         </thead>
                         <tbody>
                             {isLoading ? (
                                 <tr>
                                     <td colSpan={9} className="h-48 text-center">
-                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-zoru-ink-muted" />
+                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-[var(--st-text-secondary)]" />
                                     </td>
                                 </tr>
                             ) : rows.length > 0 ? (
@@ -347,43 +347,43 @@ export default function PayrollSummaryPage() {
                                     {rows.map(row => {
                                         const prevRow = prevRows.find(pr => pr.employeeId === row.employeeId);
                                         return (
-                                        <tr key={row.employeeId} className="border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2/50">
-                                            <td className="px-4 py-3 font-medium text-zoru-ink">{row.employeeName}</td>
-                                            <td className="px-4 py-3 text-zoru-ink-muted">{row.department}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-zoru-ink">
+                                        <tr key={row.employeeId} className="border-b border-[var(--st-border)] last:border-0 hover:bg-[var(--st-bg-muted)]/50">
+                                            <td className="px-4 py-3 font-medium text-[var(--st-text)]">{row.employeeName}</td>
+                                            <td className="px-4 py-3 text-[var(--st-text-secondary)]">{row.department}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]">
                                                 {fmt(row.grossSalary)}
                                                 {prevRow && <><br/><DeltaBadge current={row.grossSalary} previous={prevRow.grossSalary} /></>}
                                             </td>
-                                            <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.pf)}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.esi)}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.tds)}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.professionalTax)}</td>
-                                            <td className="px-4 py-3 text-right font-mono font-semibold text-zoru-ink">
+                                            <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]">{fmt(row.pf)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]">{fmt(row.esi)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]">{fmt(row.tds)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]">{fmt(row.professionalTax)}</td>
+                                            <td className="px-4 py-3 text-right font-mono font-semibold text-[var(--st-text)]">
                                                 {fmt(row.totalDeductions)}
                                                 {prevRow && <><br/><DeltaBadge current={row.totalDeductions} previous={prevRow.totalDeductions} invertColor /></>}
                                             </td>
-                                            <td className="px-4 py-3 text-right font-mono font-bold text-zoru-ink">
+                                            <td className="px-4 py-3 text-right font-mono font-bold text-[var(--st-text)]">
                                                 {fmt(row.netPay)}
                                                 {prevRow && <><br/><DeltaBadge current={row.netPay} previous={prevRow.netPay} /></>}
                                             </td>
                                         </tr>
                                     )})}
                                     {/* Totals row */}
-                                    <tr className="border-t-2 border-zoru-line bg-zoru-surface-2 font-semibold">
-                                        <td className="px-4 py-3 text-zoru-ink">Totals</td>
+                                    <tr className="border-t-2 border-[var(--st-border)] bg-[var(--st-bg-muted)] font-semibold">
+                                        <td className="px-4 py-3 text-[var(--st-text)]">Totals</td>
                                         <td className="px-4 py-3" />
-                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(totals.grossSalary)}</td>
-                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(totals.pf)}</td>
-                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(totals.esi)}</td>
-                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(totals.tds)}</td>
-                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(totals.professionalTax)}</td>
-                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(totals.totalDeductions)}</td>
-                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(totals.netPay)}</td>
+                                        <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]">{fmt(totals.grossSalary)}</td>
+                                        <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]">{fmt(totals.pf)}</td>
+                                        <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]">{fmt(totals.esi)}</td>
+                                        <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]">{fmt(totals.tds)}</td>
+                                        <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]">{fmt(totals.professionalTax)}</td>
+                                        <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]">{fmt(totals.totalDeductions)}</td>
+                                        <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]">{fmt(totals.netPay)}</td>
                                     </tr>
                                 </>
                             ) : (
                                 <tr>
-                                    <td colSpan={9} className="h-24 text-center text-zoru-ink-muted">
+                                    <td colSpan={9} className="h-24 text-center text-[var(--st-text-secondary)]">
                                         No payroll data found for the selected period.
                                     </td>
                                 </tr>

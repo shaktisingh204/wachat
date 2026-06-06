@@ -31,7 +31,7 @@ const variantToCard: Record<Variant, ZoruCardProps['variant']> = {
 
 const variantExtra: Record<Variant, string> = {
   default: '',
-  soft: 'bg-zoru-surface-2',
+  soft: 'bg-[var(--st-bg-muted)]',
   floating: '',
   outline: '',
 };

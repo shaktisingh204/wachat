@@ -23,7 +23,7 @@ export default function EditVoucherBookError({
   return (
     <div className="w-full px-6 pt-6 pb-10">
       <EmptyState
-        icon={<AlertTriangle className="h-6 w-6 text-zoru-ink" />}
+        icon={<AlertTriangle className="h-6 w-6 text-[var(--st-text)]" />}
         title="Something went wrong"
         description={
           error?.message?.length && error.message.length < 200

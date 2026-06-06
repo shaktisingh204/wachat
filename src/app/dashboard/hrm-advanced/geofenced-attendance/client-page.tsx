@@ -180,7 +180,7 @@ export function GeofencedAttendanceClient({ initialData }: { initialData: Attend
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold">Geofenced Attendance</h1>
-          <p className="text-zoru-ink-muted text-sm">Track employee check-ins and check-outs</p>
+          <p className="text-[var(--st-text-secondary)] text-sm">Track employee check-ins and check-outs</p>
         </div>
         <div className="flex items-center gap-2">
           {selectedIds.size > 0 && (
@@ -196,7 +196,7 @@ export function GeofencedAttendanceClient({ initialData }: { initialData: Attend
         </div>
       </div>
 
-      <div className="flex items-center gap-4 bg-zoru-surface p-4 rounded-lg border border-zoru-line">
+      <div className="flex items-center gap-4 bg-[var(--st-bg-secondary)] p-4 rounded-lg border border-[var(--st-border)]">
         <Input 
           placeholder="Search records..." 
           value={search} 

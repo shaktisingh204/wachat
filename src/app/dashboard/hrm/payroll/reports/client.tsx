@@ -23,8 +23,8 @@ const REPORT_CATEGORIES = [
         icon: CalendarCheck,
         title: 'Attendance Report',
         description: 'Track employee attendance, absences, late arrivals, WFH days, and half-days across any date range.',
-        color: 'text-zoru-ink',
-        bg: 'bg-zoru-surface-2',
+        color: 'text-[var(--st-text)]',
+        bg: 'bg-[var(--st-bg-muted)]',
         stroke: '#10b981', // emerald-500
     },
     {
@@ -33,8 +33,8 @@ const REPORT_CATEGORIES = [
         icon: CalendarX,
         title: 'Leave Report',
         description: 'View leave allocation, usage, pending requests, and remaining balances by employee and leave type.',
-        color: 'text-zoru-ink',
-        bg: 'bg-zoru-surface-2',
+        color: 'text-[var(--st-text)]',
+        bg: 'bg-[var(--st-bg-muted)]',
         stroke: '#f59e0b', // amber-500
     },
     {
@@ -43,8 +43,8 @@ const REPORT_CATEGORIES = [
         icon: FileSpreadsheet,
         title: 'Payroll Summary',
         description: 'Monthly payroll breakdown with gross salary, PF, ESI, TDS, professional tax, and net pay per employee.',
-        color: 'text-zoru-ink',
-        bg: 'bg-zoru-surface-2',
+        color: 'text-[var(--st-text)]',
+        bg: 'bg-[var(--st-bg-muted)]',
         stroke: '#0ea5e9', // sky-500
     },
     {
@@ -53,8 +53,8 @@ const REPORT_CATEGORIES = [
         icon: BookOpen,
         title: 'Salary Register',
         description: 'Detailed salary component register — basic, HRA, allowances, and all deductions for any month.',
-        color: 'text-zoru-ink',
-        bg: 'bg-zoru-surface-2',
+        color: 'text-[var(--st-text)]',
+        bg: 'bg-[var(--st-bg-muted)]',
         stroke: '#52525b', // zinc-500
     },
 ];
@@ -115,17 +115,17 @@ export default function HrReportsIndexClient() {
                             <Card className="relative flex h-full flex-col p-6 transition-shadow duration-150 group-hover:shadow-md group-focus-visible:ring-2 group-focus-visible:ring-primary/30">
                                 <button
                                     onClick={(e) => toggleFavourite(e, id)}
-                                    className="absolute right-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-full text-zoru-ink-muted transition-colors hover:bg-zoru-surface-2 hover:text-zoru-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+                                    className="absolute right-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-full text-[var(--st-text-secondary)] transition-colors hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
                                     aria-label={isFav ? "Remove from favourites" : "Add to favourites"}
                                 >
-                                    <Star className={`h-4 w-4 ${isFav ? 'fill-zoru-ink text-zoru-ink' : ''}`} />
+                                    <Star className={`h-4 w-4 ${isFav ? 'fill-[var(--st-text)] text-[var(--st-text)]' : ''}`} />
                                 </button>
                                 
                                 <div className={`mb-4 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${bg}`}>
                                     <Icon className={`h-5 w-5 ${color}`} strokeWidth={1.75} />
                                 </div>
-                                <h2 className="mb-1.5 text-[15px] font-medium text-zoru-ink">{title}</h2>
-                                <p className="mb-6 flex-grow text-[12.5px] leading-relaxed text-zoru-ink-muted">{description}</p>
+                                <h2 className="mb-1.5 text-[15px] font-medium text-[var(--st-text)]">{title}</h2>
+                                <p className="mb-6 flex-grow text-[12.5px] leading-relaxed text-[var(--st-text-secondary)]">{description}</p>
                                 
                                 <div className="mt-auto">
                                     <div className="mb-4 h-12 w-full opacity-60 transition-opacity duration-300 group-hover:opacity-100">

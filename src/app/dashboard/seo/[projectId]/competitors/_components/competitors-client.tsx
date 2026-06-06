@@ -53,11 +53,11 @@ export function CompetitorsClient({ projectId, initialData }: { projectId: strin
         <div className="flex flex-col gap-6 pb-12">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl text-zoru-ink flex items-center gap-3">
-                        <Swords className="h-8 w-8 text-zoru-ink" />
+                    <h1 className="text-3xl text-[var(--st-text)] flex items-center gap-3">
+                        <Swords className="h-8 w-8 text-[var(--st-text)]" />
                         Competitor Gap
                     </h1>
-                    <p className="text-zoru-ink-muted mt-1">Analyze where competitors are beating you.</p>
+                    <p className="text-[var(--st-text-secondary)] mt-1">Analyze where competitors are beating you.</p>
                 </div>
                 <Link href={`/dashboard/seo/${projectId}`}>
                     <Button variant="outline">
@@ -68,8 +68,8 @@ export function CompetitorsClient({ projectId, initialData }: { projectId: strin
             </div>
 
             {competitorSummaries.length === 0 ? (
-                <div className="text-center py-12 border border-zoru-line border-dashed rounded-[var(--zoru-radius)] bg-zoru-surface">
-                    <p className="text-zoru-ink-muted text-sm">No competitors or keywords found. Add competitors and keywords in Project Settings.</p>
+                <div className="text-center py-12 border border-[var(--st-border)] border-dashed rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)]">
+                    <p className="text-[var(--st-text-secondary)] text-sm">No competitors or keywords found. Add competitors and keywords in Project Settings.</p>
                 </div>
             ) : (
                 <>
@@ -104,7 +104,7 @@ export function CompetitorsClient({ projectId, initialData }: { projectId: strin
                                 <TableBody>
                                     {gaps.length === 0 ? (
                                         <TableRow>
-                                            <TableCell colSpan={6} className="text-center py-8 text-zoru-ink-muted">
+                                            <TableCell colSpan={6} className="text-center py-8 text-[var(--st-text-secondary)]">
                                                 No gaps found. You might be outranking them!
                                             </TableCell>
                                         </TableRow>
@@ -115,7 +115,7 @@ export function CompetitorsClient({ projectId, initialData }: { projectId: strin
                                                 <TableCell>{gap.volume.toLocaleString()}</TableCell>
                                                 <TableCell>{gap.competitor}</TableCell>
                                                 <TableCell>#{gap.theirPosition}</TableCell>
-                                                <TableCell>{gap.ourPosition ? `#${gap.ourPosition}` : <span className="text-zoru-ink-muted">Not Ranked</span>}</TableCell>
+                                                <TableCell>{gap.ourPosition ? `#${gap.ourPosition}` : <span className="text-[var(--st-text-secondary)]">Not Ranked</span>}</TableCell>
                                                 <TableCell>
                                                     <Badge variant={gap.opportunity === 'easy' ? 'success' : gap.opportunity === 'medium' ? 'warning' : 'destructive'}>
                                                         {gap.opportunity.charAt(0).toUpperCase() + gap.opportunity.slice(1)}
@@ -134,13 +134,13 @@ export function CompetitorsClient({ projectId, initialData }: { projectId: strin
             {data.backlinkProfiles.length > 0 && (
                 <>
                     <div className="flex items-center gap-3 mt-4">
-                        <LinkIcon className="h-6 w-6 text-zoru-ink" />
-                        <h2 className="text-2xl text-zoru-ink font-semibold tracking-tight">Backlink & Velocity Comparison</h2>
+                        <LinkIcon className="h-6 w-6 text-[var(--st-text)]" />
+                        <h2 className="text-2xl text-[var(--st-text)] font-semibold tracking-tight">Backlink & Velocity Comparison</h2>
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {data.backlinkProfiles.map((profile, idx) => (
-                            <Card key={`${profile.domain}-${idx}`} className={idx === 0 ? 'border-zoru-primary bg-zoru-primary/5' : ''}>
+                            <Card key={`${profile.domain}-${idx}`} className={idx === 0 ? 'border-[var(--st-text)] bg-[var(--st-text)]/5' : ''}>
                                 <ZoruCardHeader>
                                     <ZoruCardTitle className="flex justify-between items-center text-lg">
                                         <span className="truncate max-w-[200px]" title={profile.domain}>{profile.domain}</span>
@@ -150,26 +150,26 @@ export function CompetitorsClient({ projectId, initialData }: { projectId: strin
                                 <ZoruCardContent>
                                     <div className="space-y-4">
                                         <div className="flex justify-between items-center">
-                                            <span className="text-zoru-ink-muted text-sm">Total Backlinks</span>
+                                            <span className="text-[var(--st-text-secondary)] text-sm">Total Backlinks</span>
                                             <span className="font-semibold">{profile.totalBacklinks.toLocaleString()}</span>
                                         </div>
                                         <div className="flex justify-between items-center">
-                                            <span className="text-zoru-ink-muted text-sm">Referring Domains</span>
+                                            <span className="text-[var(--st-text-secondary)] text-sm">Referring Domains</span>
                                             <span className="font-semibold">{profile.referringDomains.toLocaleString()}</span>
                                         </div>
                                         <div className="flex justify-between items-center">
-                                            <span className="text-zoru-ink-muted text-sm">Avg. DA</span>
+                                            <span className="text-[var(--st-text-secondary)] text-sm">Avg. DA</span>
                                             <span className="font-semibold">{profile.avgDomainAuthority}</span>
                                         </div>
                                         <div className="flex justify-between items-center">
-                                            <span className="text-zoru-ink-muted text-sm flex items-center gap-1">
+                                            <span className="text-[var(--st-text-secondary)] text-sm flex items-center gap-1">
                                                 <Activity className="h-3 w-3" /> Content Velocity
                                             </span>
                                             <span className="font-semibold">{profile.contentVelocity} pages/mo</span>
                                         </div>
                                         <Separator className="my-2" />
                                         <div>
-                                            <span className="text-xs font-medium text-zoru-ink-muted uppercase tracking-wider mb-3 block">Top Anchors</span>
+                                            <span className="text-xs font-medium text-[var(--st-text-secondary)] uppercase tracking-wider mb-3 block">Top Anchors</span>
                                             <div className="flex flex-wrap gap-2">
                                                 {profile.topAnchors.map((anchor: string) => (
                                                     <Badge key={anchor} variant="secondary" className="text-xs font-normal">{anchor}</Badge>

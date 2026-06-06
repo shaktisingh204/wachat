@@ -76,7 +76,7 @@ function Kpi({
         <Card>
             <ZoruCardContent className="flex items-center justify-between py-4">
                 <div className="flex flex-col gap-1">
-                    <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                    <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                         {label}
                     </span>
                     <span className="text-2xl font-semibold">{value}</span>

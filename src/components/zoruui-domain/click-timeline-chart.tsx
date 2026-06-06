@@ -43,9 +43,9 @@ interface CustomTooltipProps {
 function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
   if (!active || !payload || payload.length === 0) return null;
   return (
-    <div className="rounded-lg border border-zoru-line bg-zoru-surface px-3 py-2 text-[12px] shadow-lg">
-      <p className="text-zoru-ink-muted mb-0.5">{label ? formatAxisDate(label) : ''}</p>
-      <p className="text-zoru-ink font-medium">{payload[0].value} clicks</p>
+    <div className="rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-[12px] shadow-lg">
+      <p className="text-[var(--st-text-secondary)] mb-0.5">{label ? formatAxisDate(label) : ''}</p>
+      <p className="text-[var(--st-text)] font-medium">{payload[0].value} clicks</p>
     </div>
   );
 }
@@ -71,10 +71,10 @@ export function ClickTimelineChart({ data, isLoading, onGranularityChange }: Cli
     <Card className="p-5">
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-2">
-          <MousePointerClick className="h-4 w-4 text-zoru-ink-muted" />
-          <span className="text-[13px] text-zoru-ink">Click Activity</span>
+          <MousePointerClick className="h-4 w-4 text-[var(--st-text-secondary)]" />
+          <span className="text-[13px] text-[var(--st-text)]">Click Activity</span>
         </div>
-        <div className="flex items-center gap-1 rounded-lg border border-zoru-line p-0.5 bg-zoru-surface-2">
+        <div className="flex items-center gap-1 rounded-lg border border-[var(--st-border)] p-0.5 bg-[var(--st-bg-muted)]">
           {GRANULARITIES.map(({ label, days }) => (
             <button
               key={days}
@@ -83,8 +83,8 @@ export function ClickTimelineChart({ data, isLoading, onGranularityChange }: Cli
               className={cn(
                 'rounded px-2.5 py-1 text-[11px] transition-colors',
                 activeGranularity === days
-                  ? 'bg-zoru-bg text-zoru-ink shadow-sm'
-                  : 'text-zoru-ink-muted hover:text-zoru-ink',
+                  ? 'bg-[var(--st-bg)] text-[var(--st-text)] shadow-sm'
+                  : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
               )}
             >
               {label}
@@ -94,7 +94,7 @@ export function ClickTimelineChart({ data, isLoading, onGranularityChange }: Cli
       </div>
 
       {data.length === 0 ? (
-        <div className="flex h-[220px] items-center justify-center text-[13px] text-zoru-ink-muted">
+        <div className="flex h-[220px] items-center justify-center text-[13px] text-[var(--st-text-secondary)]">
           No click data yet
         </div>
       ) : (

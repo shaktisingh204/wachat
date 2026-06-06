@@ -111,7 +111,7 @@ export function ProjectForm({ initial }: ProjectFormProps = {}) {
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="md:col-span-2">
                 <Label htmlFor="name">
-                  Project name <span className="text-zoru-danger-ink">*</span>
+                  Project name <span className="text-[var(--st-danger)]">*</span>
                 </Label>
                 <Input
                   id="name"
@@ -202,7 +202,7 @@ export function ProjectForm({ initial }: ProjectFormProps = {}) {
               </div>
               <div>
                 <Label htmlFor="status">
-                  Status <span className="text-zoru-danger-ink">*</span>
+                  Status <span className="text-[var(--st-danger)]">*</span>
                 </Label>
                 <Select
                   name="status"

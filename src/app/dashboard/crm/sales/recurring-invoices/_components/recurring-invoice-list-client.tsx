@@ -122,12 +122,12 @@ function KpiCard({ label, value, active, onClick }: KpiCardProps) {
       className={[
         'flex flex-col items-start rounded-[var(--zoru-radius)] border px-4 py-3 text-left transition-colors',
         active
-          ? 'border-zoru-accent bg-zoru-accent/10'
-          : 'border-zoru-line bg-zoru-surface hover:bg-zoru-surface-hover',
+          ? 'border-[var(--st-accent)] bg-[var(--st-accent)]/10'
+          : 'border-[var(--st-border)] bg-[var(--st-bg-secondary)] hover:bg-[var(--st-hover)]',
       ].join(' ')}
     >
-      <span className="text-lg font-semibold tabular-nums text-zoru-ink">{value}</span>
-      <span className="text-[11.5px] text-zoru-ink-muted">{label}</span>
+      <span className="text-lg font-semibold tabular-nums text-[var(--st-text)]">{value}</span>
+      <span className="text-[11.5px] text-[var(--st-text-secondary)]">{label}</span>
     </button>
   );
 }
@@ -358,7 +358,7 @@ export function RecurringInvoiceListClient({
         bulkBar={
           selected.size > 0 ? (
             <div className="flex flex-wrap items-center gap-2 text-[13px]">
-              <span className="font-medium text-zoru-ink">{selected.size} selected</span>
+              <span className="font-medium text-[var(--st-text)]">{selected.size} selected</span>
               <Button
                 size="sm"
                 variant="outline"
@@ -384,7 +384,7 @@ export function RecurringInvoiceListClient({
               <Button
                 size="sm"
                 variant="ghost"
-                className="text-zoru-danger-ink"
+                className="text-[var(--st-danger)]"
                 onClick={() => setPendingBulkDelete(true)}
                 disabled={busy}
               >
@@ -399,9 +399,9 @@ export function RecurringInvoiceListClient({
         empty={
           filtered.length === 0 && !filtersActive && !query ? (
             <div className="flex flex-col items-center gap-3 p-4">
-              <RefreshCw className="h-8 w-8 text-zoru-ink-muted" />
-              <h3 className="text-base font-medium text-zoru-ink">No recurring invoices yet</h3>
-              <p className="max-w-sm text-sm text-zoru-ink-muted">
+              <RefreshCw className="h-8 w-8 text-[var(--st-text-secondary)]" />
+              <h3 className="text-base font-medium text-[var(--st-text)]">No recurring invoices yet</h3>
+              <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                 Set up a recurring schedule to automatically generate invoices for repeat billing.
               </p>
               <Button asChild>
@@ -425,14 +425,14 @@ export function RecurringInvoiceListClient({
           </div>
 
           {error ? (
-            <div className="rounded border border-zoru-line/40 bg-zoru-ink/10 px-3 py-2 text-[12.5px] text-zoru-ink dark:text-zoru-ink-muted">
+            <div className="rounded border border-[var(--st-border)]/40 bg-[var(--st-text)]/10 px-3 py-2 text-[12.5px] text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
               {error}
             </div>
           ) : null}
 
           <Card className="overflow-hidden p-0">
             {/* Filter bar */}
-            <div className="flex flex-wrap items-center gap-2 border-b border-zoru-line px-3 py-2">
+            <div className="flex flex-wrap items-center gap-2 border-b border-[var(--st-border)] px-3 py-2">
               <div className="w-44">
                 <EnumFilterField
                   enumName="invoiceStatus"
@@ -459,7 +459,7 @@ export function RecurringInvoiceListClient({
                     setFrequencyFilter(ALL);
                     applyStatusFilter(ALL);
                   }}
-                  className="text-[12px] text-zoru-ink-muted"
+                  className="text-[12px] text-[var(--st-text-secondary)]"
                 >
                   Clear filters
                 </Button>
@@ -490,7 +490,7 @@ export function RecurringInvoiceListClient({
                   <ZoruTableRow>
                     <ZoruTableCell
                       colSpan={8}
-                      className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                      className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                     >
                       {filtersActive || query
                         ? 'No recurring invoices match these filters.'
@@ -521,19 +521,19 @@ export function RecurringInvoiceListClient({
                           {inv.customerId ? (
                             <EntityPickerChip entity="client" id={inv.customerId} />
                           ) : (
-                            <span className="text-zoru-ink-muted">—</span>
+                            <span className="text-[var(--st-text-secondary)]">—</span>
                           )}
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                           {frequencyLabel(inv.frequency)}
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                           {fmtDate(inv.nextRunAt)}
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                           {fmtDate(inv.lastRunAt)}
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] tabular-nums text-zoru-ink-muted">
+                        <ZoruTableCell className="text-[12.5px] tabular-nums text-[var(--st-text-secondary)]">
                           {typeof inv.totalRuns === 'number' ? inv.totalRuns : '—'}
                         </ZoruTableCell>
                         <ZoruTableCell>

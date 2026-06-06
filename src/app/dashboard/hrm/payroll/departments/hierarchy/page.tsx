@@ -80,7 +80,7 @@ function TreeRow({
     return (
         <div>
             <div
-                className="flex items-center gap-2 border-b border-zoru-line py-2.5 last:border-b-0"
+                className="flex items-center gap-2 border-b border-[var(--st-border)] py-2.5 last:border-b-0"
                 style={{ paddingLeft: `${level * 20 + 8}px` }}
             >
                 <Button
@@ -103,9 +103,9 @@ function TreeRow({
                 </Button>
 
                 <div className="min-w-0 flex-1">
-                    <div className="text-[13px] text-zoru-ink">{node.name}</div>
+                    <div className="text-[13px] text-[var(--st-text)]">{node.name}</div>
                     {node.description ? (
-                        <div className="text-[11.5px] text-zoru-ink-muted">{node.description}</div>
+                        <div className="text-[11.5px] text-[var(--st-text-secondary)]">{node.description}</div>
                     ) : null}
                 </div>
 
@@ -116,7 +116,7 @@ function TreeRow({
                             onSetParent(node._id, v === '__none__' ? null : v)
                         }
                     >
-                        <ZoruSelectTrigger className="h-8 rounded-lg border-zoru-line bg-zoru-bg text-[12px]">
+                        <ZoruSelectTrigger className="h-8 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[12px]">
                             <ZoruSelectValue placeholder="No parent" />
                         </ZoruSelectTrigger>
                         <ZoruSelectContent>
@@ -146,7 +146,7 @@ function TreeRow({
                     onClick={() => onDelete(node._id)}
                     aria-label="Delete"
                 >
-                    <Trash2 className="h-3.5 w-3.5 text-zoru-ink" />
+                    <Trash2 className="h-3.5 w-3.5 text-[var(--st-text)]" />
                 </Button>
             </div>
             {hasChildren && isOpen ? (
@@ -275,11 +275,11 @@ export default function DepartmentsHierarchyPage() {
                 {isLoading && tree.length === 0 ? (
                     <Skeleton className="h-[240px] w-full" />
                 ) : tree.length === 0 ? (
-                    <div className="py-10 text-center text-[13px] text-zoru-ink-muted">
+                    <div className="py-10 text-center text-[13px] text-[var(--st-text-secondary)]">
                         No departments yet — click Add to get started.
                     </div>
                 ) : (
-                    <div className="rounded-lg border border-zoru-line bg-zoru-bg">
+                    <div className="rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)]">
                         {tree.map((n) => (
                             <TreeRow
                                 key={n._id}
@@ -300,10 +300,10 @@ export default function DepartmentsHierarchyPage() {
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                 <ZoruDialogContent>
                     <ZoruDialogHeader>
-                        <ZoruDialogTitle className="text-zoru-ink">
+                        <ZoruDialogTitle className="text-[var(--st-text)]">
                             {editing ? 'Edit Department' : 'Add Department'}
                         </ZoruDialogTitle>
-                        <ZoruDialogDescription className="text-zoru-ink-muted">
+                        <ZoruDialogDescription className="text-[var(--st-text-secondary)]">
                             Provide a name, optional description, and parent department.
                         </ZoruDialogDescription>
                     </ZoruDialogHeader>
@@ -312,19 +312,19 @@ export default function DepartmentsHierarchyPage() {
                             <input type="hidden" name="_id" value={String(editing._id)} />
                         ) : null}
                         <div>
-                            <Label htmlFor="name" className="text-[13px] text-zoru-ink">
-                                Name <span className="text-zoru-ink">*</span>
+                            <Label htmlFor="name" className="text-[13px] text-[var(--st-text)]">
+                                Name <span className="text-[var(--st-text)]">*</span>
                             </Label>
                             <Input
                                 id="name"
                                 name="name"
                                 required
                                 defaultValue={editing?.name ?? ''}
-                                className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                                className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                             />
                         </div>
                         <div>
-                            <Label htmlFor="description" className="text-[13px] text-zoru-ink">
+                            <Label htmlFor="description" className="text-[13px] text-[var(--st-text)]">
                                 Description
                             </Label>
                             <Textarea
@@ -332,13 +332,13 @@ export default function DepartmentsHierarchyPage() {
                                 name="description"
                                 rows={2}
                                 defaultValue={editing?.description ?? ''}
-                                className="mt-1.5 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                                className="mt-1.5 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                             />
                         </div>
                         <div>
                             <Label
                                 htmlFor="parent_department_id"
-                                className="text-[13px] text-zoru-ink"
+                                className="text-[13px] text-[var(--st-text)]"
                             >
                                 Parent Department
                             </Label>
@@ -348,7 +348,7 @@ export default function DepartmentsHierarchyPage() {
                             >
                                 <ZoruSelectTrigger
                                     id="parent_department_id"
-                                    className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                                    className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                                 >
                                     <ZoruSelectValue />
                                 </ZoruSelectTrigger>
@@ -363,7 +363,7 @@ export default function DepartmentsHierarchyPage() {
                                         ))}
                                 </ZoruSelectContent>
                             </Select>
-                            <p className="mt-1 text-[11px] text-zoru-ink-muted">
+                            <p className="mt-1 text-[11px] text-[var(--st-text-secondary)]">
                                 Select &quot;Root&quot; to make this a top-level department.
                             </p>
                         </div>

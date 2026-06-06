@@ -87,10 +87,10 @@ export function LeadsTable({
     const someSelected = !allSelected && leads.some((l) => selectedIds.has(String(l._id)));
 
     return (
-        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+        <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
             <Table>
                 <ZoruTableHeader>
-                    <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                    <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                         <ZoruTableHead className="w-[36px]">
                             <Checkbox
                                 aria-label="Select all leads on this page"
@@ -115,17 +115,17 @@ export function LeadsTable({
                 <ZoruTableBody>
                     {loading ? (
                         Array.from({ length: 6 }).map((_, i) => (
-                            <ZoruTableRow key={i} className="border-zoru-line">
+                            <ZoruTableRow key={i} className="border-[var(--st-border)]">
                                 <ZoruTableCell colSpan={13}>
                                     <Skeleton className="h-10 w-full" />
                                 </ZoruTableCell>
                             </ZoruTableRow>
                         ))
                     ) : leads.length === 0 ? (
-                        <ZoruTableRow className="border-zoru-line">
+                        <ZoruTableRow className="border-[var(--st-border)]">
                             <ZoruTableCell
                                 colSpan={13}
-                                className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                                className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                             >
                                 No leads match the current filters.
                             </ZoruTableCell>
@@ -141,9 +141,9 @@ export function LeadsTable({
                                 <ZoruTableRow
                                     key={id}
                                     className={[
-                                        'border-zoru-line transition-colors',
+                                        'border-[var(--st-border)] transition-colors',
                                         archived ? 'opacity-70' : '',
-                                        isSel ? 'bg-zoru-surface-2/70' : '',
+                                        isSel ? 'bg-[var(--st-bg-muted)]/70' : '',
                                     ].join(' ')}
                                 >
                                     <ZoruTableCell>
@@ -158,7 +158,7 @@ export function LeadsTable({
                                             href={`/dashboard/crm/sales-crm/all-leads/${id}`}
                                             label={
                                                 <span className="flex items-center gap-2">
-                                                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
+                                                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                                                         <Sparkles className="h-3.5 w-3.5" />
                                                     </span>
                                                     <span className="block truncate text-[13px]">
@@ -169,17 +169,17 @@ export function LeadsTable({
                                             subtitle={lead.contactName || undefined}
                                         />
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="text-[13px] text-zoru-ink">
+                                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                                         {lead.company ? (
                                             <span className="inline-flex items-center gap-1.5">
-                                                <Building className="h-3.5 w-3.5 text-zoru-ink-muted" />
+                                                <Building className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                                                 {lead.company}
                                             </span>
                                         ) : (
-                                            <span className="text-zoru-ink-muted">—</span>
+                                            <span className="text-[var(--st-text-secondary)]">—</span>
                                         )}
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                                         {lead.email ? (
                                             <a
                                                 href={`mailto:${lead.email}`}
@@ -192,7 +192,7 @@ export function LeadsTable({
                                             '—'
                                         )}
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                                         {lead.phone ? (
                                             <a
                                                 href={`tel:${lead.phone}`}
@@ -205,7 +205,7 @@ export function LeadsTable({
                                             '—'
                                         )}
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                                         {lead.source ? (
                                             <Badge variant="secondary">{lead.source}</Badge>
                                         ) : (
@@ -220,7 +220,7 @@ export function LeadsTable({
                                                 fallback={lead.pipelineId.slice(-6)}
                                             />
                                         ) : (
-                                            <span className="text-[12px] text-zoru-ink-muted">—</span>
+                                            <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
                                         )}
                                     </ZoruTableCell>
                                     <ZoruTableCell>
@@ -254,14 +254,14 @@ export function LeadsTable({
                                             }} 
                                         />
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="text-right font-mono text-[12.5px] text-zoru-ink">
+                                    <ZoruTableCell className="text-right font-mono text-[12.5px] text-[var(--st-text)]">
                                         {formatMoney(lead.value, lead.currency)}
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="text-right text-[12.5px] text-zoru-ink-muted">
+                                    <ZoruTableCell className="text-right text-[12.5px] text-[var(--st-text-secondary)]">
                                         {(lead as any).leadScore ?? '—'}
                                     </ZoruTableCell>
                                     <ZoruTableCell
-                                        className="text-[12.5px] text-zoru-ink-muted"
+                                        className="text-[12.5px] text-[var(--st-text-secondary)]"
                                         title={lead.createdAt ? new Date(lead.createdAt).toLocaleString() : ''}
                                     >
                                         {lead.createdAt
@@ -274,7 +274,7 @@ export function LeadsTable({
                                                 <button
                                                     type="button"
                                                     aria-label={`Actions for ${lead.title}`}
-                                                    className="inline-flex h-8 w-8 items-center justify-center rounded-md text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
+                                                    className="inline-flex h-8 w-8 items-center justify-center rounded-md text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
                                                 >
                                                     <MoreHorizontal className="h-4 w-4" />
                                                 </button>
@@ -308,7 +308,7 @@ export function LeadsTable({
                                                 </ZoruDropdownMenuItem>
                                                 <ZoruDropdownMenuItem
                                                     onClick={() => onDelete(id)}
-                                                    className="text-zoru-danger"
+                                                    className="text-[var(--st-danger)]"
                                                 >
                                                     <Trash2 className="mr-1.5 h-3.5 w-3.5" />
                                                     Delete

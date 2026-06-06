@@ -401,7 +401,7 @@ export function RecordDetail({
       </span>
       <CardHeader className="flex flex-row items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-xs font-medium uppercase tracking-wide text-zoru-ink-muted">
+          <p className="text-xs font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
             {object.labelSingular}
           </p>
           <CardTitle className="truncate">{title}</CardTitle>
@@ -428,7 +428,7 @@ export function RecordDetail({
               {deleting ? (
                 <Loader2 className="animate-spin" />
               ) : (
-                <Trash2 className="text-zoru-ink-muted" />
+                <Trash2 className="text-[var(--st-text-secondary)]" />
               )}
               Delete
             </Button>
@@ -441,14 +441,14 @@ export function RecordDetail({
           <div key={section.key}>
             {sectionIdx > 0 && <Separator />}
             <div className="px-5 pt-4">
-              <h3 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-zoru-ink-muted">
+              <h3 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                 {section.key === 'relationships' && (
                   <Link2 className="h-3.5 w-3.5" />
                 )}
                 {section.title}
               </h3>
             </div>
-            <dl className="divide-y divide-zoru-line">
+            <dl className="divide-y divide-[var(--st-border)]">
               {section.fields.map((field) => {
                 const value = record.data[field.key];
                 const isEditing = editingKey === field.key;
@@ -466,18 +466,18 @@ export function RecordDetail({
                     key={field.key}
                     className="grid grid-cols-1 gap-1 px-5 py-3 sm:grid-cols-[180px_1fr] sm:gap-4"
                   >
-                    <dt className="flex items-center gap-1 text-sm font-medium text-zoru-ink-muted">
+                    <dt className="flex items-center gap-1 text-sm font-medium text-[var(--st-text-secondary)]">
                       <label htmlFor={isEditing ? fieldId : undefined}>
                         {field.label}
                       </label>
                       {field.required && (
-                        <span className="text-zoru-danger" aria-hidden>
+                        <span className="text-[var(--st-danger)]" aria-hidden>
                           *
                         </span>
                       )}
                       {field.system && (
                         <Lock
-                          className="h-3 w-3 text-zoru-ink-muted/60"
+                          className="h-3 w-3 text-[var(--st-text-secondary)]/60"
                           aria-label="Read-only"
                         />
                       )}
@@ -541,10 +541,10 @@ export function RecordDetail({
                               className={cn(
                                 'min-w-0 flex-1 rounded-[var(--zoru-radius)] px-2 py-1 text-left transition-colors',
                                 editable
-                                  ? 'cursor-text hover:bg-zoru-surface'
+                                  ? 'cursor-text hover:bg-[var(--st-bg-secondary)]'
                                   : 'cursor-default',
                                 inlineError &&
-                                  'ring-1 ring-zoru-danger/50',
+                                  'ring-1 ring-[var(--st-danger)]/50',
                               )}
                               aria-label={
                                 editable
@@ -559,11 +559,11 @@ export function RecordDetail({
                               />
                             </button>
                             {isSaving && (
-                              <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin text-zoru-ink-muted" />
+                              <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin text-[var(--st-text-secondary)]" />
                             )}
                             {editable && !isSaving && (
                               <Pencil
-                                className="h-3.5 w-3.5 shrink-0 text-zoru-ink-muted opacity-0 transition-opacity group-hover:opacity-100"
+                                className="h-3.5 w-3.5 shrink-0 text-[var(--st-text-secondary)] opacity-0 transition-opacity group-hover:opacity-100"
                                 aria-hidden
                               />
                             )}
@@ -572,7 +572,7 @@ export function RecordDetail({
                             <p
                               id={fieldErrorId}
                               role="alert"
-                              className="flex items-center gap-1 px-2 text-xs text-zoru-danger"
+                              className="flex items-center gap-1 px-2 text-xs text-[var(--st-danger)]"
                             >
                               {inlineError}
                             </p>
@@ -590,7 +590,7 @@ export function RecordDetail({
         <Separator />
 
         {/* System metadata footer */}
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-1 px-5 py-3 text-xs text-zoru-ink-muted">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-1 px-5 py-3 text-xs text-[var(--st-text-secondary)]">
           <span className="inline-flex items-center gap-1">
             <Calendar className="h-3.5 w-3.5" />
             Created {record.createdAt ? fmt.dateTime(record.createdAt) : '—'}

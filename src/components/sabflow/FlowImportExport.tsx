@@ -128,10 +128,10 @@ export function FlowImportExport({ flowId }: { flowId?: string }) {
         onClick={() => fileInputRef.current?.click()}
         className={cn(
           'flex items-center gap-1.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-colors',
-          'border border-zoru-line dark:border-zoru-line',
-          'bg-white dark:bg-zoru-ink',
-          'text-zoru-ink dark:text-zoru-ink-muted',
-          'hover:bg-zoru-surface-2 dark:hover:bg-zoru-ink hover:border-zoru-line dark:hover:border-zoru-line',
+          'border border-[var(--st-border)] dark:border-[var(--st-border)]',
+          'bg-white dark:bg-[var(--st-text)]',
+          'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',
+          'hover:bg-[var(--st-bg-muted)] dark:hover:bg-[var(--st-text)] hover:border-[var(--st-border)] dark:hover:border-[var(--st-border)]',
           'disabled:opacity-50 disabled:cursor-not-allowed',
         )}
         aria-label="Import flow from JSON file"
@@ -151,10 +151,10 @@ export function FlowImportExport({ flowId }: { flowId?: string }) {
           onClick={handleExport}
           className={cn(
             'flex items-center gap-1.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-colors',
-            'border border-zoru-line dark:border-zoru-line',
-            'bg-white dark:bg-zoru-ink',
-            'text-zoru-ink dark:text-zoru-ink-muted',
-            'hover:bg-zoru-surface-2 dark:hover:bg-zoru-ink hover:border-zoru-line dark:hover:border-zoru-line',
+            'border border-[var(--st-border)] dark:border-[var(--st-border)]',
+            'bg-white dark:bg-[var(--st-text)]',
+            'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',
+            'hover:bg-[var(--st-bg-muted)] dark:hover:bg-[var(--st-text)] hover:border-[var(--st-border)] dark:hover:border-[var(--st-border)]',
           )}
           aria-label="Export flow as JSON file"
         >

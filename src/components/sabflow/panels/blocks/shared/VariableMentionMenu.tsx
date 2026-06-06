@@ -122,7 +122,7 @@ export const VariableMentionMenu = forwardRef<
                   'flex items-center gap-2 px-2.5 py-1.5 text-[12px] cursor-pointer select-none',
                   'transition-colors',
                   isActive
-                    ? 'bg-zoru-ink text-white'
+                    ? 'bg-[var(--st-text)] text-white'
                     : 'text-[var(--gray-12)] hover:bg-[var(--gray-3)]',
                 )}
               >
@@ -177,13 +177,13 @@ export const VariableMentionMenu = forwardRef<
           className={cn(
             'flex w-full items-center gap-1.5 border-t border-[var(--gray-4)]',
             'px-2.5 py-1.5 text-[11.5px] text-[var(--gray-10)]',
-            'hover:bg-zoru-ink/10 hover:text-zoru-ink transition-colors',
+            'hover:bg-[var(--st-text)]/10 hover:text-[var(--st-text)] transition-colors',
           )}
         >
           <LuPlus className="h-3 w-3 shrink-0" strokeWidth={2.5} />
           <span className="truncate">
             Create variable&nbsp;
-            <span className="font-mono text-zoru-ink">
+            <span className="font-mono text-[var(--st-text)]">
               {`{{${trimmedQuery}}}`}
             </span>
           </span>

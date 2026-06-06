@@ -40,7 +40,7 @@ export function TopContactsTile({
         <div className="flex items-center gap-2 text-xs">
           <Link
             href={drilldownHref}
-            className="text-zoru-ink-muted hover:text-zoru-ink"
+            className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
           >
             Open in logs
           </Link>
@@ -53,7 +53,7 @@ export function TopContactsTile({
       </ZoruCardHeader>
       <ZoruCardContent className="p-0">
         {rows.length === 0 ? (
-          <p className="px-6 py-8 text-center text-sm text-zoru-ink-muted">
+          <p className="px-6 py-8 text-center text-sm text-[var(--st-text-secondary)]">
             No inbound traffic yet.
           </p>
         ) : (
@@ -78,7 +78,7 @@ export function TopContactsTile({
                   <ZoruTableCell className="text-right text-xs">
                     {r.clicks.toLocaleString()}
                   </ZoruTableCell>
-                  <ZoruTableCell className="text-xs text-zoru-ink-muted">
+                  <ZoruTableCell className="text-xs text-[var(--st-text-secondary)]">
                     {r.lastSeen
                       ? new Date(r.lastSeen).toLocaleString(undefined, {
                           month: "short",

@@ -76,20 +76,20 @@ export function InlineOwnerEdit({
             <ZoruPopoverTrigger asChild>
                 <button
                     type="button"
-                    className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-sm hover:bg-zoru-surface-2 disabled:opacity-50"
+                    className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-sm hover:bg-[var(--st-bg-muted)] disabled:opacity-50"
                     aria-label="Change owner"
                     disabled={isPending}
                 >
                     {ownerId ? (
                         <EntityPickerChip entity="user" id={ownerId} fallback="Unassigned" />
                     ) : (
-                        <span className="text-zoru-ink-muted">Unassigned</span>
+                        <span className="text-[var(--st-text-secondary)]">Unassigned</span>
                     )}
-                    <ChevronDown className="h-3 w-3 text-zoru-ink-subtle" />
+                    <ChevronDown className="h-3 w-3 text-[var(--st-text-tertiary)]" />
                 </button>
             </ZoruPopoverTrigger>
             <ZoruPopoverContent align="end" className="w-64 space-y-2">
-                <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                <p className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                     Change owner
                 </p>
                 <EntityFormField
@@ -101,7 +101,7 @@ export function InlineOwnerEdit({
                 />
                 <button
                     type="button"
-                    className="text-[12px] text-zoru-ink-muted hover:underline"
+                    className="text-[12px] text-[var(--st-text-secondary)] hover:underline"
                     onClick={() => persist(null)}
                     disabled={isPending}
                 >
@@ -166,13 +166,13 @@ export function InlineStageEdit({
                     {stage ? (
                         <StatusPill label={stage} tone={statusToTone(stage)} />
                     ) : (
-                        <span className="text-zoru-ink-muted">—</span>
+                        <span className="text-[var(--st-text-secondary)]">—</span>
                     )}
-                    <ChevronDown className="h-3 w-3 text-zoru-ink-subtle" />
+                    <ChevronDown className="h-3 w-3 text-[var(--st-text-tertiary)]" />
                 </button>
             </ZoruPopoverTrigger>
             <ZoruPopoverContent align="end" className="w-56 space-y-2">
-                <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                <p className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                     Change stage
                 </p>
                 <Input
@@ -194,14 +194,14 @@ export function InlineStageEdit({
                 <div className="flex items-center justify-end gap-1.5">
                     <button
                         type="button"
-                        className="text-[12px] text-zoru-ink-muted hover:underline"
+                        className="text-[12px] text-[var(--st-text-secondary)] hover:underline"
                         onClick={() => setOpen(false)}
                     >
                         Cancel
                     </button>
                     <button
                         type="button"
-                        className="text-[12px] font-medium text-zoru-primary hover:underline disabled:opacity-50"
+                        className="text-[12px] font-medium text-[var(--st-text)] hover:underline disabled:opacity-50"
                         onClick={persist}
                         disabled={isPending}
                     >
@@ -271,7 +271,7 @@ export function InlineStatusEdit({
                     disabled={isPending}
                 >
                     <StatusPill label={current} tone={statusToTone(current)} />
-                    <ChevronDown className="h-3 w-3 text-zoru-ink-subtle" />
+                    <ChevronDown className="h-3 w-3 text-[var(--st-text-tertiary)]" />
                 </button>
             </ZoruPopoverTrigger>
             <ZoruPopoverContent align="end" className="w-48 space-y-1">
@@ -285,13 +285,13 @@ export function InlineStatusEdit({
                         className={[
                             'flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-[13px]',
                             s === current
-                                ? 'bg-zoru-surface-2 font-medium text-zoru-ink'
-                                : 'text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink',
+                                ? 'bg-[var(--st-bg-muted)] font-medium text-[var(--st-text)]'
+                                : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]',
                         ].join(' ')}
                     >
                         {s}
                         {s === current ? (
-                            <span className="text-[11.5px] text-zoru-ink-muted">current</span>
+                            <span className="text-[11.5px] text-[var(--st-text-secondary)]">current</span>
                         ) : null}
                     </button>
                 ))}

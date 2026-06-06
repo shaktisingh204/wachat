@@ -230,13 +230,13 @@ export function GrnForm({ initial, seed }: GrnFormProps) {
 
       {/* ─── Header ─────────────────────────────────────────────── */}
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Header
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <Label htmlFor="grnNo">
-              GRN number <span className="text-zoru-danger-ink">*</span>
+              GRN number <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <Input
               id="grnNo"
@@ -248,7 +248,7 @@ export function GrnForm({ initial, seed }: GrnFormProps) {
               className="mt-1.5"
             />
             {editing ? (
-              <p className="mt-1 text-[11px] text-zoru-ink-muted">
+              <p className="mt-1 text-[11px] text-[var(--st-text-secondary)]">
                 GRN numbers are immutable — they identify the receipt on
                 printed paperwork.
               </p>
@@ -256,7 +256,7 @@ export function GrnForm({ initial, seed }: GrnFormProps) {
           </div>
           <div>
             <Label htmlFor="date">
-              Receipt date <span className="text-zoru-danger-ink">*</span>
+              Receipt date <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <Input
               id="date"
@@ -269,7 +269,7 @@ export function GrnForm({ initial, seed }: GrnFormProps) {
           </div>
           <div>
             <Label>
-              Vendor <span className="text-zoru-danger-ink">*</span>
+              Vendor <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <div className="mt-1.5">
               <EntityFormField
@@ -282,7 +282,7 @@ export function GrnForm({ initial, seed }: GrnFormProps) {
           </div>
           <div>
             <Label>
-              Warehouse <span className="text-zoru-danger-ink">*</span>
+              Warehouse <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <div className="mt-1.5">
               <EntityFormField
@@ -311,12 +311,12 @@ export function GrnForm({ initial, seed }: GrnFormProps) {
                 />
               )}
               {(editing || seed?.poId) && (initial?.poId || seed?.poId) ? (
-                <p className="text-[12px] text-zoru-ink">
+                <p className="text-[12px] text-[var(--st-text)]">
                   Linked: <span className="font-mono">{initial?.poId ?? seed?.poId}</span>
                 </p>
               ) : null}
             </div>
-            <p className="mt-1 text-[11px] text-zoru-ink-muted">
+            <p className="mt-1 text-[11px] text-[var(--st-text-secondary)]">
               {editing
                 ? 'The PO link is set at create time and is not editable here.'
                 : seed?.poId
@@ -330,7 +330,7 @@ export function GrnForm({ initial, seed }: GrnFormProps) {
       {/* ─── Line Items ─────────────────────────────────────────── */}
       <Card className="p-6">
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          <h3 className="text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
             Line items
           </h3>
           <Button
@@ -348,10 +348,10 @@ export function GrnForm({ initial, seed }: GrnFormProps) {
           {lines.map((line, idx) => (
             <div
               key={line.key}
-              className="rounded-lg border border-zoru-line p-4"
+              className="rounded-lg border border-[var(--st-border)] p-4"
             >
               <div className="mb-3 flex items-center justify-between">
-                <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                   Line {String(idx + 1).padStart(2, '0')}
                 </span>
                 <Button
@@ -360,7 +360,7 @@ export function GrnForm({ initial, seed }: GrnFormProps) {
                   variant="ghost"
                   disabled={lines.length === 1}
                   onClick={() => removeLine(line.key)}
-                  className="text-zoru-danger-ink"
+                  className="text-[var(--st-danger)]"
                   aria-label="Remove line"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
@@ -477,7 +477,7 @@ export function GrnForm({ initial, seed }: GrnFormProps) {
 
       {/* ─── Inspector + Workflow ───────────────────────────────── */}
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Workflow
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
@@ -512,7 +512,7 @@ export function GrnForm({ initial, seed }: GrnFormProps) {
               className="mt-1.5"
               placeholder="Notes captured during inspection (optional, not persisted server-side yet)."
             />
-            <p className="mt-1 text-[11px] text-zoru-ink-muted">
+            <p className="mt-1 text-[11px] text-[var(--st-text-secondary)]">
               Free-text inspector notes — visible only on this form for now.
             </p>
           </div>

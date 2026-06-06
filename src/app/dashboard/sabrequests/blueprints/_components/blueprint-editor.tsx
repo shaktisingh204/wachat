@@ -170,7 +170,7 @@ export function BlueprintEditor({ mode, initial }: Props) {
             </header>
 
             <Card className="flex flex-col gap-3 p-4">
-                <h2 className="text-sm font-medium uppercase tracking-wide text-zoru-ink-muted">
+                <h2 className="text-sm font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                     Basics
                 </h2>
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -225,7 +225,7 @@ export function BlueprintEditor({ mode, initial }: Props) {
 
             <Card className="flex flex-col gap-3 p-4">
                 <div className="flex items-center justify-between">
-                    <h2 className="text-sm font-medium uppercase tracking-wide text-zoru-ink-muted">
+                    <h2 className="text-sm font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                         Approval stages
                     </h2>
                     <Button variant="outline" onClick={addStage}>
@@ -233,7 +233,7 @@ export function BlueprintEditor({ mode, initial }: Props) {
                     </Button>
                 </div>
                 {stages.length === 0 ? (
-                    <div className="text-sm text-zoru-ink-muted">
+                    <div className="text-sm text-[var(--st-text-secondary)]">
                         Add at least one stage so requests can be approved.
                     </div>
                 ) : (
@@ -368,10 +368,10 @@ export function BlueprintEditor({ mode, initial }: Props) {
             </Card>
 
             <Card className="flex flex-col gap-3 p-4">
-                <h2 className="text-sm font-medium uppercase tracking-wide text-zoru-ink-muted">
+                <h2 className="text-sm font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                     Form schema (JSON)
                 </h2>
-                <p className="text-xs text-zoru-ink-muted">
+                <p className="text-xs text-[var(--st-text-secondary)]">
                     {`Shape: { "fields": [{ "key", "label", "type" }] } — type ∈ text, number, textarea, select, date, file.`}
                 </p>
                 <Textarea
@@ -383,10 +383,10 @@ export function BlueprintEditor({ mode, initial }: Props) {
             </Card>
 
             <Card className="flex flex-col gap-3 p-4">
-                <h2 className="text-sm font-medium uppercase tracking-wide text-zoru-ink-muted">
+                <h2 className="text-sm font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                     Routing rules (JSON)
                 </h2>
-                <p className="text-xs text-zoru-ink-muted">
+                <p className="text-xs text-[var(--st-text-secondary)]">
                     Array of {`{ label, expr, startStageIdx }`}. Expression
                     evaluator is deferred — use `default:` prefix to pick a
                     default starting stage.
@@ -399,7 +399,7 @@ export function BlueprintEditor({ mode, initial }: Props) {
                 />
             </Card>
 
-            {err ? <div className="text-sm text-zoru-ink">{err}</div> : null}
+            {err ? <div className="text-sm text-[var(--st-text)]">{err}</div> : null}
         </div>
     );
 }

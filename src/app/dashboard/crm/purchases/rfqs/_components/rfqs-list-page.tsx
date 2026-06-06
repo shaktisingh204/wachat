@@ -137,30 +137,30 @@ export function RfqsListPage() {
                     }
                     loading={isLoading && rfqs.length === 0}
                 >
-                    <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                    <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                         <Table>
                             <ZoruTableHeader>
-                                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                    <ZoruTableHead className="text-zoru-ink-muted">Title</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Items</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Vendors</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Deadline</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted text-right">Actions</ZoruTableHead>
+                                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Title</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Items</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Vendors</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Deadline</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Actions</ZoruTableHead>
                                 </ZoruTableRow>
                             </ZoruTableHeader>
                             <ZoruTableBody>
                                 {isLoading ? (
-                                    <ZoruTableRow className="border-zoru-line">
+                                    <ZoruTableRow className="border-[var(--st-border)]">
                                         <ZoruTableCell colSpan={6} className="h-24 text-center">
-                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
+                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 ) : rfqs.length === 0 ? (
-                                    <ZoruTableRow className="border-zoru-line">
+                                    <ZoruTableRow className="border-[var(--st-border)]">
                                         <ZoruTableCell
                                             colSpan={6}
-                                            className="h-24 text-center text-zoru-ink-muted"
+                                            className="h-24 text-center text-[var(--st-text-secondary)]"
                                         >
                                             No RFQs match this filter.
                                         </ZoruTableCell>
@@ -170,8 +170,8 @@ export function RfqsListPage() {
                                         const status = (r.status ?? 'draft') as CrmRfqStatus;
                                         const tone = STATUS_TONE[status] ?? 'neutral';
                                         return (
-                                            <ZoruTableRow key={r._id} className="border-zoru-line">
-                                                <ZoruTableCell className="font-medium text-zoru-ink">
+                                            <ZoruTableRow key={r._id} className="border-[var(--st-border)]">
+                                                <ZoruTableCell className="font-medium text-[var(--st-text)]">
                                                     <Link
                                                         href={`${BASE}/${r._id}`}
                                                         className="hover:underline"
@@ -179,15 +179,15 @@ export function RfqsListPage() {
                                                         {r.title || 'Untitled'}
                                                     </Link>
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {Array.isArray(r.items) ? r.items.length : 0}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {Array.isArray(r.vendorsInvited)
                                                         ? r.vendorsInvited.length
                                                         : 0}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {fmtDate(r.deadline)}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
@@ -204,7 +204,7 @@ export function RfqsListPage() {
                                                         size="icon"
                                                         onClick={() => setPendingDelete(r)}
                                                     >
-                                                        <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                                        <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                                     </Button>
                                                 </ZoruTableCell>
                                             </ZoruTableRow>

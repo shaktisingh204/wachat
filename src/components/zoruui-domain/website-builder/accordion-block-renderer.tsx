@@ -72,7 +72,7 @@ export const AccordionBlockRenderer: React.FC<AccordionBlockRendererProps> = ({ 
     } = settings;
 
     if (items.length === 0) {
-        return <div className="p-4 text-center border-2 border-dashed rounded-lg text-zoru-ink-muted">Accordion Block: No items configured.</div>;
+        return <div className="p-4 text-center border-2 border-dashed rounded-lg text-[var(--st-text-secondary)]">Accordion Block: No items configured.</div>;
     }
     
     const wrapperStyle: React.CSSProperties = {

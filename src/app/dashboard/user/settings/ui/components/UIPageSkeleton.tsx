@@ -23,7 +23,7 @@ export function UIPageSkeleton() {
                     </div>
                 </div>
                 
-                <div className="space-y-4 pt-4 border-t border-zoru-line">
+                <div className="space-y-4 pt-4 border-t border-[var(--st-border)]">
                     <div className="space-y-2">
                         <Skeleton className="h-5 w-40" />
                         <Skeleton className="h-4 w-72" />

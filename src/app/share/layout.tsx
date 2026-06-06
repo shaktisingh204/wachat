@@ -80,7 +80,7 @@ async function loadCompanyBrand(): Promise<CompanyBrand> {
 async function BrandHeader() {
   const brand = await loadCompanyBrand();
   return (
-    <header className="border-b border-zoru-line bg-white">
+    <header className="border-b border-[var(--st-border)] bg-white">
       <div className="mx-auto flex max-w-5xl items-center gap-4 px-6 py-4">
         {brand.logo ? (
           <Image
@@ -94,7 +94,7 @@ async function BrandHeader() {
         ) : (
           <div
             aria-hidden
-            className="grid h-10 w-10 place-items-center rounded-md bg-zoru-ink text-sm font-semibold text-white"
+            className="grid h-10 w-10 place-items-center rounded-md bg-[var(--st-text)] text-sm font-semibold text-white"
           >
             {brand.name.slice(0, 1).toUpperCase()}
           </div>
@@ -102,7 +102,7 @@ async function BrandHeader() {
         <div className="min-w-0 flex-1">
           <div className="truncate text-base font-semibold">{brand.name}</div>
           {brand.address ? (
-            <div className="truncate text-xs text-zoru-ink">{brand.address}</div>
+            <div className="truncate text-xs text-[var(--st-text)]">{brand.address}</div>
           ) : null}
         </div>
       </div>
@@ -114,8 +114,8 @@ async function BrandFooter() {
   const brand = await loadCompanyBrand();
   const year = new Date().getFullYear();
   return (
-    <footer className="mt-auto border-t border-zoru-line bg-white">
-      <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-2 px-6 py-4 text-xs text-zoru-ink sm:flex-row">
+    <footer className="mt-auto border-t border-[var(--st-border)] bg-white">
+      <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-2 px-6 py-4 text-xs text-[var(--st-text)] sm:flex-row">
         <span>
           &copy; {year} {brand.name}. All rights reserved.
         </span>
@@ -127,8 +127,8 @@ async function BrandFooter() {
 
 export default function ShareLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen flex flex-col bg-zoru-surface-2 text-zoru-ink antialiased">
-      <React.Suspense fallback={<div className="h-[73px] border-b border-zoru-line bg-white" />}>
+    <div className="min-h-screen flex flex-col bg-[var(--st-bg-muted)] text-[var(--st-text)] antialiased">
+      <React.Suspense fallback={<div className="h-[73px] border-b border-[var(--st-border)] bg-white" />}>
         <BrandHeader />
       </React.Suspense>
 
@@ -136,7 +136,7 @@ export default function ShareLayout({ children }: { children: ReactNode }) {
         {children}
       </main>
 
-      <React.Suspense fallback={<div className="h-[53px] border-t border-zoru-line bg-white" />}>
+      <React.Suspense fallback={<div className="h-[53px] border-t border-[var(--st-border)] bg-white" />}>
         <BrandFooter />
       </React.Suspense>
     </div>

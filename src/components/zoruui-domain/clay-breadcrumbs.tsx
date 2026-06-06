@@ -40,7 +40,7 @@ export const ClayBreadcrumbs = React.forwardRef<
         return (
           <React.Fragment key={`${item.label}-${i}`}>
             {i > 0 ? (
-              <ZoruBreadcrumbSeparator className="text-zoru-ink-muted/60">
+              <ZoruBreadcrumbSeparator className="text-[var(--st-text-secondary)]/60">
                 /
               </ZoruBreadcrumbSeparator>
             ) : null}
@@ -54,7 +54,7 @@ export const ClayBreadcrumbs = React.forwardRef<
                   <Link href={item.href}>{item.label}</Link>
                 </ZoruBreadcrumbLink>
               ) : (
-                <span className="text-zoru-ink-muted">{item.label}</span>
+                <span className="text-[var(--st-text-secondary)]">{item.label}</span>
               )}
             </ZoruBreadcrumbItem>
           </React.Fragment>

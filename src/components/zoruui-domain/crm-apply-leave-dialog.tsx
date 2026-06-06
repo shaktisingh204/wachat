@@ -73,12 +73,12 @@ export function ApplyForLeaveDialog({ isOpen, onOpenChange, onSuccess }: ApplyFo
           <input type="hidden" name="startDate" value={startDate?.toISOString()} />
           <input type="hidden" name="endDate" value={endDate?.toISOString()} />
           <ZoruDialogHeader className="px-6 pt-6 pb-2">
-            <ZoruDialogTitle className="text-zoru-ink">Apply for Leave</ZoruDialogTitle>
+            <ZoruDialogTitle className="text-[var(--st-text)]">Apply for Leave</ZoruDialogTitle>
           </ZoruDialogHeader>
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="grid gap-4">
               <div className="space-y-2">
-                <Label htmlFor="leaveType" className="text-zoru-ink">Leave Type *</Label>
+                <Label htmlFor="leaveType" className="text-[var(--st-text)]">Leave Type *</Label>
                 <Select name="leaveType" required>
                   <ZoruSelectTrigger id="leaveType"><ZoruSelectValue placeholder="Select type..." /></ZoruSelectTrigger>
                   <ZoruSelectContent>
@@ -91,16 +91,16 @@ export function ApplyForLeaveDialog({ isOpen, onOpenChange, onSuccess }: ApplyFo
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-zoru-ink">Start Date *</Label>
+                  <Label className="text-[var(--st-text)]">Start Date *</Label>
                   <DatePicker value={startDate} onChange={setStartDate} />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-zoru-ink">End Date *</Label>
+                  <Label className="text-[var(--st-text)]">End Date *</Label>
                   <DatePicker value={endDate} onChange={setEndDate} />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="reason" className="text-zoru-ink">Reason *</Label>
+                <Label htmlFor="reason" className="text-[var(--st-text)]">Reason *</Label>
                 <Textarea id="reason" name="reason" required placeholder="Enter reason for leave..." />
               </div>
             </div>

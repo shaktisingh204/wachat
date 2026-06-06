@@ -188,10 +188,10 @@ export function SabsmsDataTable<T>({
           onClear={() => onSelectionChange?.([])}
         />
       )}
-      <div className="overflow-hidden rounded-md border border-zoru-line bg-white">
+      <div className="overflow-hidden rounded-md border border-[var(--st-border)] bg-white">
         <div className="max-h-[70vh] overflow-auto">
           <Table>
-            <ZoruTableHeader className="sticky top-0 z-10 bg-zoru-surface-2">
+            <ZoruTableHeader className="sticky top-0 z-10 bg-[var(--st-bg-muted)]">
               <ZoruTableRow>
                 {selectable && (
                   <ZoruTableHead className="w-[40px]">
@@ -232,8 +232,8 @@ export function SabsmsDataTable<T>({
                     data-state={isSelected ? "selected" : undefined}
                     className={
                       onRowClick
-                        ? "cursor-pointer hover:bg-zoru-surface-2"
-                        : "hover:bg-zoru-surface-2"
+                        ? "cursor-pointer hover:bg-[var(--st-bg-muted)]"
+                        : "hover:bg-[var(--st-bg-muted)]"
                     }
                   >
                     {selectable && (

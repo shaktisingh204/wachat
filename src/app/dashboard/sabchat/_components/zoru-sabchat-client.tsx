@@ -155,11 +155,11 @@ function ZoruConversationListPane({
   };
 
   return (
-    <div className="flex h-full flex-col overflow-hidden bg-zoru-bg">
+    <div className="flex h-full flex-col overflow-hidden bg-[var(--st-bg)]">
       {/* Search and Filter */}
-      <div className="shrink-0 border-b border-zoru-line p-3 space-y-3">
+      <div className="shrink-0 border-b border-[var(--st-border)] p-3 space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-zoru-ink flex items-center gap-2">
+          <h2 className="text-sm font-semibold text-[var(--st-text)] flex items-center gap-2">
             Inbox
             <Badge variant="secondary" className="px-1.5 py-0 min-w-[20px] text-center justify-center">
               {filteredConversations.length}
@@ -185,7 +185,7 @@ function ZoruConversationListPane({
         </div>
 
         <div className="relative">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
           <Input
             placeholder="Search by email or message..."
             className="pl-8 h-9 text-sm"
@@ -194,11 +194,11 @@ function ZoruConversationListPane({
         </div>
 
         {isBulkMode && (
-          <div className="flex items-center justify-between bg-zoru-surface-2 p-2 rounded-[var(--zoru-radius-sm)]">
+          <div className="flex items-center justify-between bg-[var(--st-bg-muted)] p-2 rounded-[var(--zoru-radius-sm)]">
             <span className="text-xs font-medium">{selectedBulk.length} selected</span>
             <div className="flex gap-1">
               <Button variant="outline" size="icon-sm" className="h-6 w-6"><CheckCircle2 className="h-3 w-3" /></Button>
-              <Button variant="outline" size="icon-sm" className="h-6 w-6 text-zoru-ink"><Trash2 className="h-3 w-3" /></Button>
+              <Button variant="outline" size="icon-sm" className="h-6 w-6 text-[var(--st-text)]"><Trash2 className="h-3 w-3" /></Button>
             </div>
           </div>
         )}
@@ -236,30 +236,30 @@ function ZoruConversationListPane({
                       "flex w-full items-start gap-3 rounded-[var(--zoru-radius)] p-3 text-left transition-colors",
                       isBulkMode && "pl-8",
                       selected
-                        ? "bg-zoru-surface-2 shadow-[var(--zoru-shadow-sm)] ring-1 ring-zoru-line"
-                        : "hover:bg-zoru-surface",
+                        ? "bg-[var(--st-bg-muted)] shadow-[var(--zoru-shadow-sm)] ring-1 ring-[var(--st-border)]"
+                        : "hover:bg-[var(--st-bg-secondary)]",
                     )}
                   >
-                    <Avatar className="h-10 w-10 border border-zoru-line bg-zoru-bg">
-                      <ZoruAvatarFallback className={cn("text-sm font-medium", isUnread && !selected ? "bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink dark:text-white" : "")}>
+                    <Avatar className="h-10 w-10 border border-[var(--st-border)] bg-[var(--st-bg)]">
+                      <ZoruAvatarFallback className={cn("text-sm font-medium", isUnread && !selected ? "bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)] dark:text-white" : "")}>
                         {initial}
                       </ZoruAvatarFallback>
                     </Avatar>
                     <div className="min-w-0 flex-1 pt-0.5">
                       <div className="flex items-center justify-between gap-2">
-                        <span className={cn("truncate text-sm", isUnread && !selected ? "font-semibold text-zoru-ink" : "font-medium text-zoru-ink")}>
+                        <span className={cn("truncate text-sm", isUnread && !selected ? "font-semibold text-[var(--st-text)]" : "font-medium text-[var(--st-text)]")}>
                           {visitorEmail}
                         </span>
-                        <span className="shrink-0 whitespace-nowrap text-[10px] text-zoru-ink-subtle">
+                        <span className="shrink-0 whitespace-nowrap text-[10px] text-[var(--st-text-tertiary)]">
                           {formatDistanceToNow(new Date(convo.updatedAt), { addSuffix: true })}
                         </span>
                       </div>
-                      <p className={cn("mt-0.5 block max-w-[220px] truncate text-xs", isUnread && !selected ? "font-medium text-zoru-ink" : "text-zoru-ink-muted")}>
+                      <p className={cn("mt-0.5 block max-w-[220px] truncate text-xs", isUnread && !selected ? "font-medium text-[var(--st-text)]" : "text-[var(--st-text-secondary)]")}>
                         {lastMessage?.sender === 'agent' ? 'You: ' : ''}{lastMessage?.content || "No messages yet."}
                       </p>
                     </div>
                     {isUnread && !selected && (
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full bg-zoru-ink" />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full bg-[var(--st-text)]" />
                     )}
                   </button>
                 </div>
@@ -267,8 +267,8 @@ function ZoruConversationListPane({
             })}
           </div>
         ) : (
-          <div className="flex flex-col items-center gap-2 p-8 text-center text-sm text-zoru-ink-muted">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-subtle">
+          <div className="flex flex-col items-center gap-2 p-8 text-center text-sm text-[var(--st-text-secondary)]">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-tertiary)]">
               <MessageSquare className="h-6 w-6" />
             </div>
             <div>No conversations found.</div>
@@ -300,7 +300,7 @@ function ChatMessageBubble({
       )}
     >
       {!isAgent && (
-        <Avatar className="h-8 w-8 self-end mb-1 border border-zoru-line shadow-sm">
+        <Avatar className="h-8 w-8 self-end mb-1 border border-[var(--st-border)] shadow-sm">
           <ZoruAvatarFallback className="text-[10px]">V</ZoruAvatarFallback>
         </Avatar>
       )}
@@ -308,7 +308,7 @@ function ChatMessageBubble({
       {/* Translation Button (Hover) */}
       {!isAgent && (
         <Button variant="ghost" size="icon-sm" className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => setTranslated(!translated)}>
-          <Languages className="h-3.5 w-3.5 text-zoru-ink-muted" />
+          <Languages className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
         </Button>
       )}
 
@@ -317,9 +317,9 @@ function ChatMessageBubble({
           "flex max-w-[70%] flex-col rounded-[var(--zoru-radius)] px-4 py-2.5 text-[13px] shadow-[var(--zoru-shadow-sm)]",
           isAgent
             ? isWhisper 
-              ? "bg-zoru-surface-2 dark:bg-zoru-ink/30 text-zoru-ink dark:text-white rounded-br-none border border-zoru-line dark:border-zoru-line" 
-              : "rounded-br-none bg-zoru-ink text-zoru-on-primary"
-            : "rounded-bl-none bg-zoru-surface border border-zoru-line text-zoru-ink",
+              ? "bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 text-[var(--st-text)] dark:text-white rounded-br-none border border-[var(--st-border)] dark:border-[var(--st-border)]" 
+              : "rounded-br-none bg-[var(--st-text)] text-[var(--st-text-inverted)]"
+            : "rounded-bl-none bg-[var(--st-bg-secondary)] border border-[var(--st-border)] text-[var(--st-text)]",
         )}
       >
         {isWhisper && <div className="flex items-center gap-1 mb-1 text-[10px] font-semibold uppercase opacity-70"><EyeOff className="h-3 w-3" /> Internal Note</div>}
@@ -330,8 +330,8 @@ function ChatMessageBubble({
           className={cn(
             "mt-1.5 flex items-center gap-1.5 self-end text-[10px]",
             isAgent 
-              ? isWhisper ? "text-zoru-ink dark:text-zoru-ink-muted" : "text-zoru-on-primary/70" 
-              : "text-zoru-ink-subtle",
+              ? isWhisper ? "text-[var(--st-text)] dark:text-[var(--st-text-secondary)]" : "text-[var(--st-text-inverted)]/70" 
+              : "text-[var(--st-text-tertiary)]",
           )}
         >
           <p>{format(new Date(message.timestamp), "p")}</p>
@@ -348,7 +348,7 @@ function SendButton({ isWhisper }: { isWhisper: boolean }) {
       type="submit" 
       size="sm" 
       disabled={pending} 
-      className={cn(isWhisper && "bg-zoru-ink hover:bg-zoru-ink text-white")}
+      className={cn(isWhisper && "bg-[var(--st-text)] hover:bg-[var(--st-text)] text-white")}
     >
       {pending ? (
         <LoaderCircle className="h-4 w-4 animate-spin" />
@@ -408,21 +408,21 @@ function ZoruSabChatWindow({
 
   return (
     <div className="flex h-full flex-row bg-transparent">
-      <div className="flex flex-1 flex-col border-r border-zoru-line min-w-0">
+      <div className="flex flex-1 flex-col border-r border-[var(--st-border)] min-w-0">
         {/* Header */}
-        <div className="flex h-16 shrink-0 items-center justify-between gap-3 border-b border-zoru-line bg-zoru-bg px-4">
+        <div className="flex h-16 shrink-0 items-center justify-between gap-3 border-b border-[var(--st-border)] bg-[var(--st-bg)] px-4">
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="icon-sm" className="md:hidden" onClick={onBack}>
               <ArrowLeft />
             </Button>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <h3 className="font-semibold text-zoru-ink truncate">{visitorEmail}</h3>
-                <Badge variant="outline" className="h-5 text-[10px] px-1.5 gap-1 border-zoru-line bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/50 dark:border-zoru-line">
-                  <span className="h-1.5 w-1.5 rounded-full bg-zoru-ink"></span> Online
+                <h3 className="font-semibold text-[var(--st-text)] truncate">{visitorEmail}</h3>
+                <Badge variant="outline" className="h-5 text-[10px] px-1.5 gap-1 border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/50 dark:border-[var(--st-border)]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--st-text)]"></span> Online
                 </Badge>
               </div>
-              <div className="flex items-center gap-2 text-xs text-zoru-ink-muted">
+              <div className="flex items-center gap-2 text-xs text-[var(--st-text-secondary)]">
                 <span>{session.status === 'open' ? 'Open' : 'Resolved'}</span>
                 <span>•</span>
                 <span className="flex items-center gap-1"><Clock className="h-3 w-3"/> 2m response time</span>
@@ -465,12 +465,12 @@ function ZoruSabChatWindow({
           <ScrollArea className="flex-1">
             {isLoading ? (
               <div className="flex h-full items-center justify-center py-16">
-                <LoaderCircle className="h-6 w-6 animate-spin text-zoru-ink-muted" />
+                <LoaderCircle className="h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
               </div>
             ) : (
               <div className="space-y-6 p-6">
                 <div className="flex justify-center">
-                  <Badge variant="secondary" className="text-[10px] font-normal uppercase tracking-wider text-zoru-ink-subtle bg-zoru-surface-2 border-zoru-line border">
+                  <Badge variant="secondary" className="text-[10px] font-normal uppercase tracking-wider text-[var(--st-text-tertiary)] bg-[var(--st-bg-muted)] border-[var(--st-border)] border">
                     {format(new Date(session.createdAt), "MMM d, yyyy")}
                   </Badge>
                 </div>
@@ -488,20 +488,20 @@ function ZoruSabChatWindow({
         </div>
 
         {/* Advanced Composer */}
-        <div className="shrink-0 border-t border-zoru-line bg-zoru-bg p-4">
-          <div className={cn("rounded-xl border border-zoru-line bg-zoru-surface overflow-hidden shadow-sm transition-colors focus-within:border-zoru-ink focus-within:ring-1 focus-within:ring-zoru-ink", isWhisper && "bg-zoru-surface-2/50 border-zoru-line focus-within:border-zoru-line focus-within:ring-zoru-line dark:bg-zoru-ink/10 dark:border-zoru-line")}>
+        <div className="shrink-0 border-t border-[var(--st-border)] bg-[var(--st-bg)] p-4">
+          <div className={cn("rounded-xl border border-[var(--st-border)] bg-[var(--st-bg-secondary)] overflow-hidden shadow-sm transition-colors focus-within:border-[var(--st-text)] focus-within:ring-1 focus-within:ring-[var(--st-text)]", isWhisper && "bg-[var(--st-bg-muted)]/50 border-[var(--st-border)] focus-within:border-[var(--st-border)] focus-within:ring-[var(--st-border)] dark:bg-[var(--st-text)]/10 dark:border-[var(--st-border)]")}>
             
             {/* Toolbar */}
-            <div className="flex items-center justify-between border-b border-zoru-line/50 px-2 py-1.5 bg-zoru-surface-2/50">
+            <div className="flex items-center justify-between border-b border-[var(--st-border)]/50 px-2 py-1.5 bg-[var(--st-bg-muted)]/50">
               <div className="flex items-center gap-0.5">
-                <Button variant="ghost" size="icon-sm" className="h-7 w-7 text-zoru-ink-muted"><Bold className="h-3.5 w-3.5" /></Button>
-                <Button variant="ghost" size="icon-sm" className="h-7 w-7 text-zoru-ink-muted"><Italic className="h-3.5 w-3.5" /></Button>
-                <Button variant="ghost" size="icon-sm" className="h-7 w-7 text-zoru-ink-muted"><List className="h-3.5 w-3.5" /></Button>
+                <Button variant="ghost" size="icon-sm" className="h-7 w-7 text-[var(--st-text-secondary)]"><Bold className="h-3.5 w-3.5" /></Button>
+                <Button variant="ghost" size="icon-sm" className="h-7 w-7 text-[var(--st-text-secondary)]"><Italic className="h-3.5 w-3.5" /></Button>
+                <Button variant="ghost" size="icon-sm" className="h-7 w-7 text-[var(--st-text-secondary)]"><List className="h-3.5 w-3.5" /></Button>
               </div>
               <div className="flex items-center gap-3 pr-2">
                 <div className="flex items-center gap-2">
                   <Switch id="whisper-mode" checked={isWhisper} onCheckedChange={setIsWhisper} className="h-4 w-7" />
-                  <Label htmlFor="whisper-mode" className="text-xs font-medium cursor-pointer flex items-center gap-1 text-zoru-ink-muted">
+                  <Label htmlFor="whisper-mode" className="text-xs font-medium cursor-pointer flex items-center gap-1 text-[var(--st-text-secondary)]">
                     <EyeOff className="h-3 w-3" /> Private Note
                   </Label>
                 </div>
@@ -524,13 +524,13 @@ function ZoruSabChatWindow({
               
               <div className="flex items-center justify-between p-2 pt-0">
                 <div className="flex items-center gap-1 pl-1">
-                  <Button type="button" variant="ghost" size="icon-sm" className="h-8 w-8 text-zoru-ink-muted rounded-full">
+                  <Button type="button" variant="ghost" size="icon-sm" className="h-8 w-8 text-[var(--st-text-secondary)] rounded-full">
                     <Paperclip className="h-4 w-4" />
                   </Button>
-                  <Button type="button" variant="ghost" size="icon-sm" className="h-8 w-8 text-zoru-ink-muted rounded-full">
+                  <Button type="button" variant="ghost" size="icon-sm" className="h-8 w-8 text-[var(--st-text-secondary)] rounded-full">
                     <Smile className="h-4 w-4" />
                   </Button>
-                  <Button type="button" variant="ghost" size="icon-sm" className="h-8 w-8 text-zoru-ink-muted rounded-full">
+                  <Button type="button" variant="ghost" size="icon-sm" className="h-8 w-8 text-[var(--st-text-secondary)] rounded-full">
                     <Zap className="h-4 w-4" />
                   </Button>
                 </div>
@@ -543,35 +543,35 @@ function ZoruSabChatWindow({
 
       {/* Right Sidebar - Contact Profile */}
       {showRightSidebar && (
-        <div className="w-[300px] shrink-0 bg-zoru-bg hidden lg:flex flex-col overflow-y-auto">
-          <div className="p-6 border-b border-zoru-line text-center flex flex-col items-center">
-            <Avatar className="h-20 w-20 mb-4 shadow-sm border border-zoru-line bg-zoru-surface">
-              <ZoruAvatarFallback className="text-2xl font-light text-zoru-ink-muted">{initial}</ZoruAvatarFallback>
+        <div className="w-[300px] shrink-0 bg-[var(--st-bg)] hidden lg:flex flex-col overflow-y-auto">
+          <div className="p-6 border-b border-[var(--st-border)] text-center flex flex-col items-center">
+            <Avatar className="h-20 w-20 mb-4 shadow-sm border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+              <ZoruAvatarFallback className="text-2xl font-light text-[var(--st-text-secondary)]">{initial}</ZoruAvatarFallback>
             </Avatar>
-            <h2 className="text-lg font-semibold text-zoru-ink">{visitorEmail}</h2>
-            <p className="text-sm text-zoru-ink-muted">Visitor</p>
+            <h2 className="text-lg font-semibold text-[var(--st-text)]">{visitorEmail}</h2>
+            <p className="text-sm text-[var(--st-text-secondary)]">Visitor</p>
           </div>
 
           <div className="p-5 space-y-6">
             <div className="space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-zoru-ink-subtle">About</h4>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--st-text-tertiary)]">About</h4>
               
               <div className="grid grid-cols-1 gap-3 text-sm">
-                <div className="flex items-start gap-3 text-zoru-ink">
-                  <MapPin className="h-4 w-4 text-zoru-ink-muted mt-0.5" />
+                <div className="flex items-start gap-3 text-[var(--st-text)]">
+                  <MapPin className="h-4 w-4 text-[var(--st-text-secondary)] mt-0.5" />
                   <div>
                     <p>New York, USA</p>
-                    <p className="text-xs text-zoru-ink-muted font-mono">{session.visitorInfo?.ip || "192.168.1.1"}</p>
+                    <p className="text-xs text-[var(--st-text-secondary)] font-mono">{session.visitorInfo?.ip || "192.168.1.1"}</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-3 text-zoru-ink">
-                  <Laptop className="h-4 w-4 text-zoru-ink-muted mt-0.5" />
+                <div className="flex items-start gap-3 text-[var(--st-text)]">
+                  <Laptop className="h-4 w-4 text-[var(--st-text-secondary)] mt-0.5" />
                   <div>
                     <p>Mac OS • Chrome</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-3 text-zoru-ink">
-                  <Globe className="h-4 w-4 text-zoru-ink-muted mt-0.5" />
+                <div className="flex items-start gap-3 text-[var(--st-text)]">
+                  <Globe className="h-4 w-4 text-[var(--st-text-secondary)] mt-0.5" />
                   <div className="min-w-0 flex-1">
                     <p className="truncate" title={session.visitorInfo?.page}>{session.visitorInfo?.page || "/"}</p>
                   </div>
@@ -580,23 +580,23 @@ function ZoruSabChatWindow({
             </div>
 
             <div className="space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-zoru-ink-subtle">Tags</h4>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--st-text-tertiary)]">Tags</h4>
               <div className="flex flex-wrap gap-2">
-                <Badge variant="outline" className="bg-zoru-surface-2 text-zoru-ink border-zoru-line dark:bg-zoru-ink/30 dark:border-zoru-line">Support</Badge>
-                <Badge variant="outline" className="bg-zoru-surface-2 text-zoru-ink border-zoru-line dark:bg-zoru-ink/30 dark:border-zoru-line">Premium</Badge>
-                <Button variant="ghost" size="sm" className="h-6 text-[10px] uppercase font-semibold text-zoru-ink-muted"><Plus className="h-3 w-3 mr-1" /> Add tag</Button>
+                <Badge variant="outline" className="bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)] dark:bg-[var(--st-text)]/30 dark:border-[var(--st-border)]">Support</Badge>
+                <Badge variant="outline" className="bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)] dark:bg-[var(--st-text)]/30 dark:border-[var(--st-border)]">Premium</Badge>
+                <Button variant="ghost" size="sm" className="h-6 text-[10px] uppercase font-semibold text-[var(--st-text-secondary)]"><Plus className="h-3 w-3 mr-1" /> Add tag</Button>
               </div>
             </div>
 
             <div className="space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-zoru-ink-subtle">Satisfaction</h4>
-              <div className="flex items-center gap-2 p-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface">
-                <Star className="h-5 w-5 text-zoru-ink-muted fill-zoru-ink-muted" />
-                <Star className="h-5 w-5 text-zoru-ink-muted fill-zoru-ink-muted" />
-                <Star className="h-5 w-5 text-zoru-ink-muted fill-zoru-ink-muted" />
-                <Star className="h-5 w-5 text-zoru-ink-muted fill-zoru-ink-muted" />
-                <Star className="h-5 w-5 text-zoru-line" />
-                <span className="text-sm font-semibold ml-auto text-zoru-ink">4/5</span>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--st-text-tertiary)]">Satisfaction</h4>
+              <div className="flex items-center gap-2 p-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+                <Star className="h-5 w-5 text-[var(--st-text-secondary)] fill-[var(--st-text-secondary)]" />
+                <Star className="h-5 w-5 text-[var(--st-text-secondary)] fill-[var(--st-text-secondary)]" />
+                <Star className="h-5 w-5 text-[var(--st-text-secondary)] fill-[var(--st-text-secondary)]" />
+                <Star className="h-5 w-5 text-[var(--st-text-secondary)] fill-[var(--st-text-secondary)]" />
+                <Star className="h-5 w-5 text-[var(--st-border)]" />
+                <span className="text-sm font-semibold ml-auto text-[var(--st-text)]">4/5</span>
               </div>
             </div>
           </div>
@@ -685,12 +685,12 @@ export function ZoruSabChatClient() {
   }
 
   return (
-    <Card className="flex h-[calc(100vh-210px)] min-h-[600px] w-full flex-col overflow-hidden p-0 shadow-lg border-zoru-line">
+    <Card className="flex h-[calc(100vh-210px)] min-h-[600px] w-full flex-col overflow-hidden p-0 shadow-lg border-[var(--st-border)]">
       <div className="flex flex-1 overflow-hidden">
         {/* Pane 1 — conversations list */}
         <div
           className={cn(
-            "w-full shrink-0 flex-col border-r border-zoru-line md:w-[320px] bg-zoru-surface/50",
+            "w-full shrink-0 flex-col border-r border-[var(--st-border)] md:w-[320px] bg-[var(--st-bg-secondary)]/50",
             selectedConversation ? "hidden md:flex" : "flex",
           )}
         >
@@ -718,12 +718,12 @@ export function ZoruSabChatClient() {
               onBack={() => setSelectedConversation(null)}
             />
           ) : (
-            <div className="hidden h-full flex-col items-center justify-center gap-4 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] dark:bg-[radial-gradient(#374151_1px,transparent_1px)] p-8 text-center text-zoru-ink-muted md:flex">
-              <div className="flex h-24 w-24 items-center justify-center rounded-full bg-zoru-surface shadow-sm border border-zoru-line">
-                <MessageSquare className="h-10 w-10 text-zoru-ink-subtle" />
+            <div className="hidden h-full flex-col items-center justify-center gap-4 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] dark:bg-[radial-gradient(#374151_1px,transparent_1px)] p-8 text-center text-[var(--st-text-secondary)] md:flex">
+              <div className="flex h-24 w-24 items-center justify-center rounded-full bg-[var(--st-bg-secondary)] shadow-sm border border-[var(--st-border)]">
+                <MessageSquare className="h-10 w-10 text-[var(--st-text-tertiary)]" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-zoru-ink mb-1">Select a conversation</h2>
+                <h2 className="text-xl font-semibold text-[var(--st-text)] mb-1">Select a conversation</h2>
                 <p className="max-w-xs text-sm">
                   Choose a chat from the left panel to start messaging with visitors.
                 </p>

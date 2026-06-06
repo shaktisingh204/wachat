@@ -90,10 +90,10 @@ function Field({
 }) {
   return (
     <div>
-      <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
         {label}
       </div>
-      <div className="mt-1 text-[13px] text-zoru-ink">{children}</div>
+      <div className="mt-1 text-[13px] text-[var(--st-text)]">{children}</div>
     </div>
   );
 }
@@ -110,7 +110,7 @@ export default async function FixedAssetDetailPage({
     if (error) {
       return (
         <div className="flex w-full flex-col gap-4 p-6">
-          <p className="text-[14px] text-zoru-ink">
+          <p className="text-[14px] text-[var(--st-text)]">
             Couldn&apos;t load this fixed asset — {error}
           </p>
           <Button variant="outline" asChild>
@@ -153,20 +153,20 @@ export default async function FixedAssetDetailPage({
             <ZoruCardContent>
               <div className="space-y-2 text-[12.5px]">
                 <div className="flex items-center justify-between">
-                  <span className="text-zoru-ink-muted">NBV</span>
-                  <span className="font-mono tabular-nums text-zoru-ink">
+                  <span className="text-[var(--st-text-secondary)]">NBV</span>
+                  <span className="font-mono tabular-nums text-[var(--st-text)]">
                     {fmtMoney(asset.netBookValue, asset.currency)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-zoru-ink-muted">Cost</span>
+                  <span className="text-[var(--st-text-secondary)]">Cost</span>
                   <span className="font-mono tabular-nums">
                     {fmtMoney(asset.cost, asset.currency)}
                   </span>
                 </div>
-                <div className="flex items-center justify-between border-t border-zoru-line pt-2">
-                  <span className="text-zoru-ink-muted">Accum. dep.</span>
-                  <span className="font-mono tabular-nums text-zoru-ink-muted">
+                <div className="flex items-center justify-between border-t border-[var(--st-border)] pt-2">
+                  <span className="text-[var(--st-text-secondary)]">Accum. dep.</span>
+                  <span className="font-mono tabular-nums text-[var(--st-text-secondary)]">
                     {fmtMoney(
                       asset.accumulatedDepreciation,
                       asset.currency,
@@ -188,12 +188,12 @@ export default async function FixedAssetDetailPage({
                   id={asset.custodianEmployeeId}
                 />
               ) : (
-                <span className="text-[12.5px] text-zoru-ink-muted">
+                <span className="text-[12.5px] text-[var(--st-text-secondary)]">
                   Unassigned
                 </span>
               )}
               <div className="mt-2 text-[12.5px]">
-                <span className="text-zoru-ink-muted">Location: </span>
+                <span className="text-[var(--st-text-secondary)]">Location: </span>
                 <span>{asset.location || '—'}</span>
               </div>
             </ZoruCardContent>
@@ -206,11 +206,11 @@ export default async function FixedAssetDetailPage({
             <ZoruCardContent>
               <div className="space-y-1.5 text-[12.5px]">
                 <div className="flex justify-between">
-                  <span className="text-zoru-ink-muted">Warranty</span>
+                  <span className="text-[var(--st-text-secondary)]">Warranty</span>
                   <span>{fmtDate(asset.warrantyUntil)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-zoru-ink-muted">Insurance</span>
+                  <span className="text-[var(--st-text-secondary)]">Insurance</span>
                   <span>{fmtDate(asset.insuranceUntil)}</span>
                 </div>
               </div>
@@ -225,19 +225,19 @@ export default async function FixedAssetDetailPage({
               <div className="flex flex-col gap-2 text-[12.5px]">
                 <Link
                   href={`/dashboard/crm/fixed-assets/${id}/maintenance`}
-                  className="text-zoru-primary hover:underline"
+                  className="text-[var(--st-text)] hover:underline"
                 >
                   Maintenance log →
                 </Link>
                 {asset.amcContractId ? (
                   <Link
                     href={`/dashboard/crm/service-contracts/${asset.amcContractId}`}
-                    className="text-zoru-primary hover:underline"
+                    className="text-[var(--st-text)] hover:underline"
                   >
                     AMC contract →
                   </Link>
                 ) : (
-                  <span className="text-zoru-ink-muted">No AMC linked</span>
+                  <span className="text-[var(--st-text-secondary)]">No AMC linked</span>
                 )}
               </div>
             </ZoruCardContent>
@@ -270,40 +270,40 @@ export default async function FixedAssetDetailPage({
         <ZoruCardContent>
           <table className="w-full text-[13px]">
             <tbody>
-              <tr className="border-b border-zoru-line/60">
-                <td className="py-2 text-zoru-ink-muted">Purchase date</td>
+              <tr className="border-b border-[var(--st-border)]/60">
+                <td className="py-2 text-[var(--st-text-secondary)]">Purchase date</td>
                 <td className="py-2 text-right">
                   {fmtDate(asset.purchaseDate)}
                 </td>
               </tr>
-              <tr className="border-b border-zoru-line/60">
-                <td className="py-2 text-zoru-ink-muted">Cost</td>
+              <tr className="border-b border-[var(--st-border)]/60">
+                <td className="py-2 text-[var(--st-text-secondary)]">Cost</td>
                 <td className="py-2 text-right font-mono tabular-nums">
                   {fmtMoney(asset.cost, asset.currency)}
                 </td>
               </tr>
-              <tr className="border-b border-zoru-line/60">
-                <td className="py-2 text-zoru-ink-muted">Method</td>
+              <tr className="border-b border-[var(--st-border)]/60">
+                <td className="py-2 text-[var(--st-text-secondary)]">Method</td>
                 <td className="py-2 text-right">
                   {methodLabel(asset.depreciationMethod)}
                 </td>
               </tr>
-              <tr className="border-b border-zoru-line/60">
-                <td className="py-2 text-zoru-ink-muted">
+              <tr className="border-b border-[var(--st-border)]/60">
+                <td className="py-2 text-[var(--st-text-secondary)]">
                   Useful life (months)
                 </td>
                 <td className="py-2 text-right">
                   {asset.usefulLifeMonths ?? '—'}
                 </td>
               </tr>
-              <tr className="border-b border-zoru-line/60">
-                <td className="py-2 text-zoru-ink-muted">Residual value</td>
+              <tr className="border-b border-[var(--st-border)]/60">
+                <td className="py-2 text-[var(--st-text-secondary)]">Residual value</td>
                 <td className="py-2 text-right font-mono tabular-nums">
                   {fmtMoney(asset.residualValue, asset.currency)}
                 </td>
               </tr>
-              <tr className="border-b border-zoru-line/60">
-                <td className="py-2 text-zoru-ink-muted">
+              <tr className="border-b border-[var(--st-border)]/60">
+                <td className="py-2 text-[var(--st-text-secondary)]">
                   Accumulated depreciation
                 </td>
                 <td className="py-2 text-right font-mono tabular-nums">
@@ -370,7 +370,7 @@ export default async function FixedAssetDetailPage({
 
       <MaintenanceLogCard assetId={id} currency={asset.currency} />
 
-      <p className="text-[11px] text-zoru-ink-muted">
+      <p className="text-[11px] text-[var(--st-text-secondary)]">
         Created {fmtDate(asset.createdAt || asset.audit?.createdAt)} · Updated{' '}
         {fmtDate(asset.updatedAt || asset.audit?.updatedAt)}
       </p>

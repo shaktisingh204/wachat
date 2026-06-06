@@ -16,9 +16,9 @@ export default function NewChartOfAccountError({
       title="Error Loading Form"
       back={{ href: '/dashboard/crm/accounting/charts', label: 'Chart of Accounts' }}
     >
-      <div className="flex flex-col items-center justify-center rounded-lg border border-zoru-line bg-zoru-surface py-12 text-center">
-        <h2 className="text-lg font-medium text-zoru-ink">Something went wrong!</h2>
-        <p className="mt-2 text-[13px] text-zoru-ink-muted">
+      <div className="flex flex-col items-center justify-center rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] py-12 text-center">
+        <h2 className="text-lg font-medium text-[var(--st-text)]">Something went wrong!</h2>
+        <p className="mt-2 text-[13px] text-[var(--st-text-secondary)]">
           {error.message || 'An unexpected error occurred while loading the new account form.'}
         </p>
         <Button onClick={() => reset()} className="mt-4">

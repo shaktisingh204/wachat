@@ -16,7 +16,7 @@ export default async function EditApiTxnPage({ params }: PageProps): Promise<Rea
     if (!txn) notFound();
     return (
         <div className="flex flex-col gap-4">
-            <h2 className="text-sm font-semibold text-zoru-ink">{txn.name}</h2>
+            <h2 className="text-sm font-semibold text-[var(--st-text)]">{txn.name}</h2>
             <ApiTransactionEditClient id={txnId} initialName={txn.name} initialSteps={txn.stepsJson} />
         </div>
     );

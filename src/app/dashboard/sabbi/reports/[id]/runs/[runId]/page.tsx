@@ -59,13 +59,13 @@ export default async function ReportRunViewerPage({ params }: PageProps) {
 
             <div className="flex items-center gap-3">
                 <Badge tone={tone}>{run.status}</Badge>
-                <span className="text-xs text-zoru-ink-muted">
+                <span className="text-xs text-[var(--st-text-secondary)]">
                     {result?.rows.length ?? 0} rows · trigger: {run.trigger}
                 </span>
                 <div className="ml-auto flex items-center gap-2">
                     <Link
                         href={`/dashboard/sabbi/reports/${id}/runs`}
-                        className="text-xs font-medium text-zoru-ink hover:underline"
+                        className="text-xs font-medium text-[var(--st-text)] hover:underline"
                     >
                         ← All runs
                     </Link>
@@ -75,10 +75,10 @@ export default async function ReportRunViewerPage({ params }: PageProps) {
 
             {result?.error && (
                 <Card className="border-destructive/50">
-                    <h2 className="mb-2 text-sm font-semibold text-zoru-ink">
+                    <h2 className="mb-2 text-sm font-semibold text-[var(--st-text)]">
                         Engine error
                     </h2>
-                    <pre className="overflow-x-auto rounded bg-zoru-surface-2 p-3 text-xs">
+                    <pre className="overflow-x-auto rounded bg-[var(--st-bg-muted)] p-3 text-xs">
                         {result.error}
                     </pre>
                 </Card>
@@ -90,7 +90,7 @@ export default async function ReportRunViewerPage({ params }: PageProps) {
                     <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
                         {Object.entries(result.summary).map(([k, v]) => (
                             <div key={k}>
-                                <dt className="text-xs uppercase tracking-wide text-zoru-ink-muted">
+                                <dt className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
                                     {k}
                                 </dt>
                                 <dd className="font-mono text-base font-semibold">

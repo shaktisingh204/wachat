@@ -42,10 +42,10 @@ type SelectItem = { _id: string; name: string };
 const StatCard = ({ title, value, icon: Icon }: { title: string; value: string | number; icon: React.ElementType }) => (
     <Card className="flex flex-col gap-1 p-6">
         <div className="flex items-center justify-between">
-            <p className="text-[12.5px] font-medium text-zoru-ink-muted">{title}</p>
-            <Icon className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
+            <p className="text-[12.5px] font-medium text-[var(--st-text-secondary)]">{title}</p>
+            <Icon className="h-4 w-4 text-[var(--st-text-secondary)]" strokeWidth={1.75} />
         </div>
-        <p className="mt-1 text-2xl text-zoru-ink">{value}</p>
+        <p className="mt-1 text-2xl text-[var(--st-text)]">{value}</p>
     </Card>
 );
 
@@ -183,7 +183,7 @@ export default function LeaveReportPage() {
                                     <select
                                         value={selectedYear}
                                         onChange={e => setSelectedYear(Number(e.target.value))}
-                                        className="w-full rounded-lg border border-zoru-line bg-zoru-bg px-3 py-2 text-[13px] text-zoru-ink focus:outline-none focus:ring-2 focus:ring-primary/30"
+                                        className="w-full rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-[13px] text-[var(--st-text)] focus:outline-none focus:ring-2 focus:ring-primary/30"
                                     >
                                         {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
                                     </select>
@@ -193,7 +193,7 @@ export default function LeaveReportPage() {
                                     <select
                                         value={selectedEmployee}
                                         onChange={e => setSelectedEmployee(e.target.value)}
-                                        className="w-full rounded-lg border border-zoru-line bg-zoru-bg px-3 py-2 text-[13px] text-zoru-ink focus:outline-none focus:ring-2 focus:ring-primary/30"
+                                        className="w-full rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-[13px] text-[var(--st-text)] focus:outline-none focus:ring-2 focus:ring-primary/30"
                                     >
                                         <option value="">All Employees</option>
                                         {employees.map(e => <option key={e._id} value={e._id}>{e.name}</option>)}
@@ -204,7 +204,7 @@ export default function LeaveReportPage() {
                                     <select
                                         value={selectedLeaveType}
                                         onChange={e => setSelectedLeaveType(e.target.value)}
-                                        className="w-full rounded-lg border border-zoru-line bg-zoru-bg px-3 py-2 text-[13px] text-zoru-ink focus:outline-none focus:ring-2 focus:ring-primary/30"
+                                        className="w-full rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-[13px] text-[var(--st-text)] focus:outline-none focus:ring-2 focus:ring-primary/30"
                                     >
                                         <option value="">All Types</option>
                                         {leaveTypes.map(t => <option key={t} value={t}>{t}</option>)}
@@ -240,8 +240,8 @@ export default function LeaveReportPage() {
                 <Card className="p-6 mb-4">
                     <div className="mb-4 flex items-center justify-between">
                         <div>
-                            <h2 className="text-[16px] text-zoru-ink">Leave Types Used</h2>
-                            <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">Breakdown of consumed leaves by type</p>
+                            <h2 className="text-[16px] text-[var(--st-text)]">Leave Types Used</h2>
+                            <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">Breakdown of consumed leaves by type</p>
                         </div>
                     </div>
                     <div className="h-[300px] w-full flex items-center justify-center">
@@ -276,31 +276,31 @@ export default function LeaveReportPage() {
             <Card className="p-6">
                 <div className="mb-4 flex items-center justify-between">
                     <div>
-                        <h2 className="text-[16px] text-zoru-ink">Leave Consumption Summary</h2>
-                        <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">Year {selectedYear}</p>
+                        <h2 className="text-[16px] text-[var(--st-text)]">Leave Consumption Summary</h2>
+                        <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">Year {selectedYear}</p>
                     </div>
                     {reportData.length > 0 && (
-                        <span className="text-[12.5px] text-zoru-ink-muted">{groupedData.length} employee{groupedData.length !== 1 ? 's' : ''}</span>
+                        <span className="text-[12.5px] text-[var(--st-text-secondary)]">{groupedData.length} employee{groupedData.length !== 1 ? 's' : ''}</span>
                     )}
                 </div>
 
-                <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                     <table className="w-full text-left text-[13px]">
                         <thead>
-                            <tr className="border-b border-zoru-line bg-zoru-surface-2">
-                                <th className="px-4 py-3 font-medium text-zoru-ink-muted">Employee</th>
-                                <th className="px-4 py-3 font-medium text-zoru-ink-muted">Leave Type</th>
-                                <th className="px-4 py-3 text-center font-medium text-zoru-ink-muted">Allocated</th>
-                                <th className="px-4 py-3 text-center font-medium text-zoru-ink">Used</th>
-                                <th className="px-4 py-3 text-center font-medium text-zoru-ink">Pending</th>
-                                <th className="px-4 py-3 text-center font-medium text-zoru-ink">Remaining</th>
+                            <tr className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]">
+                                <th className="px-4 py-3 font-medium text-[var(--st-text-secondary)]">Employee</th>
+                                <th className="px-4 py-3 font-medium text-[var(--st-text-secondary)]">Leave Type</th>
+                                <th className="px-4 py-3 text-center font-medium text-[var(--st-text-secondary)]">Allocated</th>
+                                <th className="px-4 py-3 text-center font-medium text-[var(--st-text)]">Used</th>
+                                <th className="px-4 py-3 text-center font-medium text-[var(--st-text)]">Pending</th>
+                                <th className="px-4 py-3 text-center font-medium text-[var(--st-text)]">Remaining</th>
                             </tr>
                         </thead>
                         <tbody>
                             {isLoading ? (
                                 <tr>
                                     <td colSpan={6} className="h-48 text-center">
-                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-zoru-ink-muted" />
+                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-[var(--st-text-secondary)]" />
                                     </td>
                                 </tr>
                             ) : groupedData.length > 0 ? (
@@ -309,24 +309,24 @@ export default function LeaveReportPage() {
                                         <Fragment key={group.employeeId}>
                                             <tr 
                                                 onClick={() => toggleRow(group.employeeId)} 
-                                                className="cursor-pointer border-b border-zoru-line hover:bg-zoru-surface-2/50"
+                                                className="cursor-pointer border-b border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]/50"
                                             >
-                                                <td className="px-4 py-3 font-medium text-zoru-ink flex items-center gap-2">
+                                                <td className="px-4 py-3 font-medium text-[var(--st-text)] flex items-center gap-2">
                                                     {expandedRows.has(group.employeeId) ? (
-                                                        <ChevronDown className="h-4 w-4 text-zoru-ink-muted" />
+                                                        <ChevronDown className="h-4 w-4 text-[var(--st-text-secondary)]" />
                                                     ) : (
-                                                        <ChevronRight className="h-4 w-4 text-zoru-ink-muted" />
+                                                        <ChevronRight className="h-4 w-4 text-[var(--st-text-secondary)]" />
                                                     )}
                                                     {group.employeeName}
                                                 </td>
                                                 <td className="px-4 py-3">
-                                                    <span className="text-zoru-ink-muted text-[12.5px]">
+                                                    <span className="text-[var(--st-text-secondary)] text-[12.5px]">
                                                         {group.breakdown.length} Type{group.breakdown.length !== 1 ? 's' : ''}
                                                     </span>
                                                 </td>
-                                                <td className="px-4 py-3 text-center text-zoru-ink">{group.allocated}</td>
-                                                <td className="px-4 py-3 text-center font-semibold text-zoru-ink">{group.used}</td>
-                                                <td className="px-4 py-3 text-center font-semibold text-zoru-ink">{group.pending}</td>
+                                                <td className="px-4 py-3 text-center text-[var(--st-text)]">{group.allocated}</td>
+                                                <td className="px-4 py-3 text-center font-semibold text-[var(--st-text)]">{group.used}</td>
+                                                <td className="px-4 py-3 text-center font-semibold text-[var(--st-text)]">{group.pending}</td>
                                                 <td className="px-4 py-3 text-center">
                                                     <Badge variant={group.remaining > 0 ? 'info' : 'danger'}>{group.remaining}</Badge>
                                                 </td>
@@ -334,33 +334,33 @@ export default function LeaveReportPage() {
                                             {expandedRows.has(group.employeeId) && group.breakdown.map((row, j) => (
                                                 <tr 
                                                     key={`${row.employeeId}-${row.leaveType}-${j}`} 
-                                                    className="border-b border-zoru-line/50 bg-zoru-surface-2/30 last:border-b-0 hover:bg-zoru-surface-2/70"
+                                                    className="border-b border-[var(--st-border)]/50 bg-[var(--st-bg-muted)]/30 last:border-b-0 hover:bg-[var(--st-bg-muted)]/70"
                                                 >
-                                                    <td className="px-4 py-2 pl-10 text-[12.5px] text-zoru-ink-muted"></td>
+                                                    <td className="px-4 py-2 pl-10 text-[12.5px] text-[var(--st-text-secondary)]"></td>
                                                     <td className="px-4 py-2">
                                                         <Badge variant="secondary" className="text-[11px] font-medium">{row.leaveType}</Badge>
                                                     </td>
-                                                    <td className="px-4 py-2 text-center text-zoru-ink-muted">{row.allocated}</td>
-                                                    <td className="px-4 py-2 text-center font-medium text-zoru-ink/80">{row.used}</td>
-                                                    <td className="px-4 py-2 text-center font-medium text-zoru-ink/80">{row.pending}</td>
-                                                    <td className="px-4 py-2 text-center text-zoru-ink-muted">{row.remaining}</td>
+                                                    <td className="px-4 py-2 text-center text-[var(--st-text-secondary)]">{row.allocated}</td>
+                                                    <td className="px-4 py-2 text-center font-medium text-[var(--st-text)]/80">{row.used}</td>
+                                                    <td className="px-4 py-2 text-center font-medium text-[var(--st-text)]/80">{row.pending}</td>
+                                                    <td className="px-4 py-2 text-center text-[var(--st-text-secondary)]">{row.remaining}</td>
                                                 </tr>
                                             ))}
                                         </Fragment>
                                     ))}
                                     {/* Totals row */}
-                                    <tr className="border-t-2 border-zoru-line bg-zoru-surface-2 font-semibold">
-                                        <td className="px-4 py-3 text-zoru-ink">Totals</td>
+                                    <tr className="border-t-2 border-[var(--st-border)] bg-[var(--st-bg-muted)] font-semibold">
+                                        <td className="px-4 py-3 text-[var(--st-text)]">Totals</td>
                                         <td className="px-4 py-3" />
-                                        <td className="px-4 py-3 text-center text-zoru-ink">{groupedData.reduce((s, r) => s + r.allocated, 0)}</td>
-                                        <td className="px-4 py-3 text-center text-zoru-ink">{groupedData.reduce((s, r) => s + r.used, 0)}</td>
-                                        <td className="px-4 py-3 text-center text-zoru-ink">{groupedData.reduce((s, r) => s + r.pending, 0)}</td>
-                                        <td className="px-4 py-3 text-center text-zoru-ink">{groupedData.reduce((s, r) => s + r.remaining, 0)}</td>
+                                        <td className="px-4 py-3 text-center text-[var(--st-text)]">{groupedData.reduce((s, r) => s + r.allocated, 0)}</td>
+                                        <td className="px-4 py-3 text-center text-[var(--st-text)]">{groupedData.reduce((s, r) => s + r.used, 0)}</td>
+                                        <td className="px-4 py-3 text-center text-[var(--st-text)]">{groupedData.reduce((s, r) => s + r.pending, 0)}</td>
+                                        <td className="px-4 py-3 text-center text-[var(--st-text)]">{groupedData.reduce((s, r) => s + r.remaining, 0)}</td>
                                     </tr>
                                 </>
                             ) : (
                                 <tr>
-                                    <td colSpan={6} className="h-24 text-center text-zoru-ink-muted">
+                                    <td colSpan={6} className="h-24 text-center text-[var(--st-text-secondary)]">
                                         No leave data found for the selected filters.
                                     </td>
                                 </tr>

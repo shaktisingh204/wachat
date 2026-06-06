@@ -90,7 +90,7 @@ function ConfirmDialog({ versionLabel, onConfirm, onCancel }: ConfirmDialogProps
       {/* Dialog */}
       <div className="relative z-10 w-full max-w-sm rounded-2xl border border-[var(--gray-5)] bg-[var(--gray-1)] p-5 shadow-xl">
         <div className="flex items-start gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
             <LuTriangleAlert className="h-4.5 w-4.5" strokeWidth={2} />
           </div>
           <div className="flex-1 min-w-0">
@@ -117,7 +117,7 @@ function ConfirmDialog({ versionLabel, onConfirm, onCancel }: ConfirmDialogProps
           <button
             type="button"
             onClick={onConfirm}
-            className="flex items-center gap-1.5 rounded-lg bg-zoru-ink px-3.5 py-1.5 text-[12.5px] font-medium text-white hover:bg-zoru-ink active:bg-zoru-ink transition-colors"
+            className="flex items-center gap-1.5 rounded-lg bg-[var(--st-text)] px-3.5 py-1.5 text-[12.5px] font-medium text-white hover:bg-[var(--st-text)] active:bg-[var(--st-text)] transition-colors"
           >
             <LuRotateCcw className="h-3.5 w-3.5" strokeWidth={2} />
             Yes, restore
@@ -281,7 +281,7 @@ export function VersionHistoryPanel({ flowId, onClose, onRestore }: Props) {
 
         {/* ── Panel header ─────────────────────────────────────── */}
         <div className="flex items-center gap-2.5 px-4 py-3 border-b border-[var(--gray-4)] shrink-0">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted shrink-0">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)] shrink-0">
             <LuHistory className="h-3.5 w-3.5" strokeWidth={2} />
           </div>
           <span className="flex-1 text-[13px] font-semibold text-[var(--gray-12)]">
@@ -322,7 +322,7 @@ export function VersionHistoryPanel({ flowId, onClose, onRestore }: Props) {
                 className={cn(
                   'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)]',
                   'pl-7 pr-2.5 py-1.5 text-[12px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)]',
-                  'outline-none focus:border-zoru-line focus:ring-1 focus:ring-zoru-line/20 transition-colors',
+                  'outline-none focus:border-[var(--st-border)] focus:ring-1 focus:ring-[var(--st-border)]/20 transition-colors',
                 )}
               />
             </div>
@@ -337,8 +337,8 @@ export function VersionHistoryPanel({ flowId, onClose, onRestore }: Props) {
                 isSaving
                   ? 'bg-[var(--gray-4)] text-[var(--gray-8)] cursor-wait'
                   : saveSuccess
-                    ? 'bg-zoru-ink text-white'
-                    : 'bg-zoru-ink text-white hover:bg-zoru-ink active:bg-zoru-ink',
+                    ? 'bg-[var(--st-text)] text-white'
+                    : 'bg-[var(--st-text)] text-white hover:bg-[var(--st-text)] active:bg-[var(--st-text)]',
               )}
             >
               {isSaving
@@ -350,7 +350,7 @@ export function VersionHistoryPanel({ flowId, onClose, onRestore }: Props) {
             </button>
           </div>
           {saveError && (
-            <p className="text-[11px] text-zoru-ink truncate" title={saveError}>{saveError}</p>
+            <p className="text-[11px] text-[var(--st-text)] truncate" title={saveError}>{saveError}</p>
           )}
         </div>
 
@@ -362,7 +362,7 @@ export function VersionHistoryPanel({ flowId, onClose, onRestore }: Props) {
             className={cn(
               'flex items-center gap-1.5 rounded-lg border px-2 py-1 text-[11.5px] font-medium transition-colors',
               compareMode
-                ? 'border-zoru-line bg-zoru-ink/10 text-zoru-ink'
+                ? 'border-[var(--st-border)] bg-[var(--st-text)]/10 text-[var(--st-text)]'
                 : 'border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-10)] hover:border-[var(--gray-7)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
             )}
             title={compareMode ? 'Exit compare mode' : 'Pick two versions to diff'}
@@ -382,7 +382,7 @@ export function VersionHistoryPanel({ flowId, onClose, onRestore }: Props) {
                 className={cn(
                   'rounded-lg px-2 py-1 text-[11.5px] font-semibold transition-colors',
                   picked.length === 2
-                    ? 'bg-zoru-ink text-white hover:bg-zoru-ink'
+                    ? 'bg-[var(--st-text)] text-white hover:bg-[var(--st-text)]'
                     : 'bg-[var(--gray-3)] text-[var(--gray-8)] cursor-not-allowed',
                 )}
               >
@@ -394,13 +394,13 @@ export function VersionHistoryPanel({ flowId, onClose, onRestore }: Props) {
 
         {/* ── Restore error banner ──────────────────────────────── */}
         {restoreError && (
-          <div className="mx-3 mt-2 flex items-center gap-2 rounded-lg border border-zoru-line bg-zoru-surface-2 px-3 py-2 dark:border-zoru-line dark:bg-zoru-ink/30 shrink-0">
-            <LuTriangleAlert className="h-3.5 w-3.5 shrink-0 text-zoru-ink" strokeWidth={2} />
-            <p className="text-[11.5px] text-zoru-ink dark:text-zoru-ink-muted flex-1 min-w-0 truncate">{restoreError}</p>
+          <div className="mx-3 mt-2 flex items-center gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 dark:border-[var(--st-border)] dark:bg-[var(--st-text)]/30 shrink-0">
+            <LuTriangleAlert className="h-3.5 w-3.5 shrink-0 text-[var(--st-text)]" strokeWidth={2} />
+            <p className="text-[11.5px] text-[var(--st-text)] dark:text-[var(--st-text-secondary)] flex-1 min-w-0 truncate">{restoreError}</p>
             <button
               type="button"
               onClick={() => setRestoreError(null)}
-              className="text-zoru-ink-muted hover:text-zoru-ink transition-colors"
+              className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)] transition-colors"
             >
               <LuX className="h-3 w-3" strokeWidth={2} />
             </button>
@@ -415,7 +415,7 @@ export function VersionHistoryPanel({ flowId, onClose, onRestore }: Props) {
             </div>
           ) : fetchError ? (
             <div className="flex flex-col items-center justify-center py-10 gap-3 text-center px-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30">
                 <LuTriangleAlert className="h-5 w-5" strokeWidth={1.5} />
               </div>
               <div>
@@ -522,9 +522,9 @@ function VersionRow({
         'group flex items-start gap-2.5 rounded-xl border px-3 py-2.5 transition-all',
         compareMode && 'cursor-pointer',
         isPicked
-          ? 'border-zoru-line bg-zoru-ink/10'
+          ? 'border-[var(--st-border)] bg-[var(--st-text)]/10'
           : isLatest
-          ? 'border-zoru-line bg-zoru-surface-2/60 dark:border-zoru-line/50 dark:bg-zoru-ink/20'
+          ? 'border-[var(--st-border)] bg-[var(--st-bg-muted)]/60 dark:border-[var(--st-border)]/50 dark:bg-[var(--st-text)]/20'
           : 'border-[var(--gray-5)] bg-[var(--gray-2)] hover:border-[var(--gray-7)] hover:bg-[var(--gray-1)]',
       )}
     >
@@ -535,14 +535,14 @@ function VersionRow({
           onChange={() => onTogglePick?.()}
           onClick={(e) => e.stopPropagation()}
           aria-label={`Select "${version.label}" for comparison`}
-          className="mt-1 h-3.5 w-3.5 shrink-0 accent-zoru-ink cursor-pointer"
+          className="mt-1 h-3.5 w-3.5 shrink-0 accent-[var(--st-text)] cursor-pointer"
         />
       )}
       {/* Clock icon */}
       <div className={cn(
         'flex h-6 w-6 shrink-0 items-center justify-center rounded-lg mt-0.5',
         isLatest
-          ? 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted'
+          ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]'
           : 'bg-[var(--gray-3)] text-[var(--gray-8)]',
       )}>
         <LuClock className="h-3 w-3" strokeWidth={2} />
@@ -555,7 +555,7 @@ function VersionRow({
             {version.label}
           </p>
           {isLatest && (
-            <span className="shrink-0 rounded-md bg-zoru-surface-2 px-1.5 py-0.5 text-[9.5px] font-semibold uppercase tracking-wide text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
+            <span className="shrink-0 rounded-md bg-[var(--st-bg-muted)] px-1.5 py-0.5 text-[9.5px] font-semibold uppercase tracking-wide text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
               Latest
             </span>
           )}
@@ -586,7 +586,7 @@ function VersionRow({
             'flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors',
             isLatest
               ? 'text-[var(--gray-7)] cursor-not-allowed opacity-40'
-              : 'text-[var(--gray-8)] opacity-0 group-hover:opacity-100 hover:bg-zoru-surface-2 hover:text-zoru-ink dark:hover:bg-zoru-ink/30 dark:hover:text-zoru-ink-muted',
+              : 'text-[var(--gray-8)] opacity-0 group-hover:opacity-100 hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] dark:hover:bg-[var(--st-text)]/30 dark:hover:text-[var(--st-text-secondary)]',
           )}
         >
           <LuGitCompare className="h-3.5 w-3.5" strokeWidth={2} />
@@ -603,7 +603,7 @@ function VersionRow({
             'flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors',
             isRestoring
               ? 'text-[var(--gray-8)] cursor-wait'
-              : 'text-[var(--gray-8)] opacity-0 group-hover:opacity-100 hover:bg-zoru-surface-2 hover:text-zoru-ink dark:hover:bg-zoru-ink/30 dark:hover:text-zoru-ink-muted',
+              : 'text-[var(--gray-8)] opacity-0 group-hover:opacity-100 hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] dark:hover:bg-[var(--st-text)]/30 dark:hover:text-[var(--st-text-secondary)]',
           )}
         >
           {isRestoring

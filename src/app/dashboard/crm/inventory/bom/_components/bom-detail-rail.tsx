@@ -38,19 +38,19 @@ export function BomDetailRail({ versions, productionOrders }: BomDetailRailProps
                 </ZoruCardHeader>
                 <ZoruCardContent className="p-0">
                     {versions.length === 0 ? (
-                        <p className="px-4 py-3 text-[12.5px] text-zoru-ink-muted">
+                        <p className="px-4 py-3 text-[12.5px] text-[var(--st-text-secondary)]">
                             No other versions for this finished good.
                         </p>
                     ) : (
-                        <ul className="divide-y divide-zoru-line">
+                        <ul className="divide-y divide-[var(--st-border)]">
                             {versions.map((v) => (
                                 <li key={v._id} className="flex items-center justify-between px-4 py-2">
                                     <Link
                                         href={`/dashboard/crm/inventory/bom/${v._id}`}
-                                        className="text-[13px] text-zoru-ink hover:underline"
+                                        className="text-[13px] text-[var(--st-text)] hover:underline"
                                     >
                                         <span className="font-mono">{v.bomNo}</span>
-                                        <span className="ml-2 text-zoru-ink-muted">v{v.version}</span>
+                                        <span className="ml-2 text-[var(--st-text-secondary)]">v{v.version}</span>
                                     </Link>
                                     <StatusPill label={v.status} tone={statusToTone(v.status)} />
                                 </li>
@@ -66,11 +66,11 @@ export function BomDetailRail({ versions, productionOrders }: BomDetailRailProps
                 </ZoruCardHeader>
                 <ZoruCardContent className="p-0">
                     {productionOrders.length === 0 ? (
-                        <p className="px-4 py-3 text-[12.5px] text-zoru-ink-muted">
+                        <p className="px-4 py-3 text-[12.5px] text-[var(--st-text-secondary)]">
                             No production orders yet.
                         </p>
                     ) : (
-                        <ul className="divide-y divide-zoru-line">
+                        <ul className="divide-y divide-[var(--st-border)]">
                             {productionOrders.map((p) => (
                                 <li
                                     key={p._id}
@@ -78,10 +78,10 @@ export function BomDetailRail({ versions, productionOrders }: BomDetailRailProps
                                 >
                                     <Link
                                         href={`/dashboard/crm/inventory/production-orders/${p._id}`}
-                                        className="text-zoru-ink hover:underline"
+                                        className="text-[var(--st-text)] hover:underline"
                                     >
                                         <span className="font-mono">{p.orderNo}</span>
-                                        <span className="ml-2 text-zoru-ink-muted">
+                                        <span className="ml-2 text-[var(--st-text-secondary)]">
                                             {p.plannedQty} units
                                         </span>
                                     </Link>

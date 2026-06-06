@@ -138,7 +138,7 @@ export default function TimeLogDetailPage({
       actions={
         log && !log.end_time ? (
           <Button
-            className="bg-zoru-ink text-white hover:bg-zoru-ink/90"
+            className="bg-[var(--st-text)] text-white hover:bg-[var(--st-text)]/90"
             disabled={isBusy}
             onClick={handleStopTimer}
           >
@@ -155,7 +155,7 @@ export default function TimeLogDetailPage({
         </Card>
       ) : !log ? (
         <Card className="p-6">
-          <p className="text-center text-[13px] text-zoru-ink-muted">
+          <p className="text-center text-[13px] text-[var(--st-text-secondary)]">
             Log not found.
           </p>
         </Card>
@@ -206,7 +206,7 @@ export default function TimeLogDetailPage({
               />
             </div>
             {log.reason ? (
-              <div className="mt-4 rounded-lg border border-zoru-line bg-zoru-surface-2/40 p-3 text-[12.5px] text-zoru-danger-ink">
+              <div className="mt-4 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)]/40 p-3 text-[12.5px] text-[var(--st-danger)]">
                 <span className="font-semibold">Reason: </span>
                 {log.reason}
               </div>
@@ -216,31 +216,31 @@ export default function TimeLogDetailPage({
           <Card className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-[16px] font-semibold text-zoru-ink">
+                <h2 className="text-[16px] font-semibold text-[var(--st-text)]">
                   Breaks
                 </h2>
-                <p className="text-[12.5px] text-zoru-ink-muted">
+                <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                   Record pauses during this session.
                 </p>
               </div>
             </div>
 
             {!log.end_time ? (
-              <div className="mt-4 flex flex-wrap items-end gap-3 rounded-lg border border-dashed border-zoru-line bg-zoru-surface-2 p-3">
+              <div className="mt-4 flex flex-wrap items-end gap-3 rounded-lg border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3">
                 <div className="min-w-[220px] flex-1">
-                  <Label className="text-[11px] uppercase tracking-[0.18em] text-zoru-ink-muted">
+                  <Label className="text-[11px] uppercase tracking-[0.18em] text-[var(--st-text-secondary)]">
                     Reason
                   </Label>
                   <Input
                     value={reason}
                     onChange={(e) => setReason(e.target.value)}
                     placeholder="Coffee, lunch…"
-                    className="mt-1 h-9 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                    className="mt-1 h-9 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                   />
                 </div>
                 {activeBreak ? (
                   <Button
-                    className="bg-zoru-ink text-white hover:bg-zoru-ink/90"
+                    className="bg-[var(--st-text)] text-white hover:bg-[var(--st-text)]/90"
                     disabled={isBusy}
                     onClick={() =>
                       activeBreak._id && handleStopBreak(activeBreak._id)
@@ -265,42 +265,42 @@ export default function TimeLogDetailPage({
               </div>
             ) : null}
 
-            <div className="mt-4 overflow-x-auto rounded-lg border border-zoru-line">
+            <div className="mt-4 overflow-x-auto rounded-lg border border-[var(--st-border)]">
               <Table>
                 <ZoruTableHeader>
-                  <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                    <ZoruTableHead className="text-zoru-ink-muted">Reason</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Start</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">End</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Duration</ZoruTableHead>
-                    <ZoruTableHead className="w-[100px] text-right text-zoru-ink-muted">
+                  <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Reason</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Start</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">End</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Duration</ZoruTableHead>
+                    <ZoruTableHead className="w-[100px] text-right text-[var(--st-text-secondary)]">
                       Actions
                     </ZoruTableHead>
                   </ZoruTableRow>
                 </ZoruTableHeader>
                 <ZoruTableBody>
                   {breaks.length === 0 ? (
-                    <ZoruTableRow className="border-zoru-line">
+                    <ZoruTableRow className="border-[var(--st-border)]">
                       <ZoruTableCell
                         colSpan={5}
-                        className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                        className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                       >
                         No breaks recorded.
                       </ZoruTableCell>
                     </ZoruTableRow>
                   ) : (
                     breaks.map((br) => (
-                      <ZoruTableRow key={br._id} className="border-zoru-line">
-                        <ZoruTableCell className="text-[13px] text-zoru-ink">
+                      <ZoruTableRow key={br._id} className="border-[var(--st-border)]">
+                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                           {br.reason || '—'}
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                        <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                           {fmt(br.start_time)}
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                        <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                           {br.end_time ? fmt(br.end_time) : '—'}
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-zoru-ink">
+                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                           {br.end_time
                             ? wsFormatDuration(br.start_time, br.end_time)
                             : '— running'}
@@ -310,7 +310,7 @@ export default function TimeLogDetailPage({
                             {!br.end_time ? (
                               <Button
                                 size="sm"
-                                className="bg-zoru-ink text-white hover:bg-zoru-ink/90"
+                                className="bg-[var(--st-text)] text-white hover:bg-[var(--st-text)]/90"
                                 onClick={() =>
                                   br._id && handleStopBreak(br._id)
                                 }
@@ -331,7 +331,7 @@ export default function TimeLogDetailPage({
                                 aria-label="Delete"
                               >
                                 <Trash2
-                                  className="h-3.5 w-3.5 text-zoru-danger-ink"
+                                  className="h-3.5 w-3.5 text-[var(--st-danger)]"
                                   strokeWidth={1.75}
                                 />
                               </Button>
@@ -360,10 +360,10 @@ function Field({
 }) {
   return (
     <div>
-      <p className="text-[11px] uppercase tracking-[0.18em] text-zoru-ink-muted">
+      <p className="text-[11px] uppercase tracking-[0.18em] text-[var(--st-text-secondary)]">
         {label}
       </p>
-      <div className="mt-1 text-[13.5px] text-zoru-ink">{value}</div>
+      <div className="mt-1 text-[13.5px] text-[var(--st-text)]">{value}</div>
     </div>
   );
 }

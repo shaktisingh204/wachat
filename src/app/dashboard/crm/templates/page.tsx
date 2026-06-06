@@ -15,21 +15,21 @@ export default async function CrmTemplatesPage() {
     const initialTemplates = await getCrmUnifiedTemplates();
 
     return (
-        <div className="flex-1 flex flex-col gap-6 p-6 bg-zoru-ink min-h-screen text-white">
+        <div className="flex-1 flex flex-col gap-6 p-6 bg-[var(--st-text)] min-h-screen text-white">
             
             {/* Header */}
             <PageHeader>
                 <ZoruPageHeading>
                     <ZoruPageEyebrow>CRM Suite</ZoruPageEyebrow>
                     <div className="flex items-center gap-3">
-                        <ZoruPageTitle className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-zoru-surface-2 via-zoru-surface-2 to-zoru-surface-2 bg-clip-text text-transparent">
+                        <ZoruPageTitle className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-[var(--st-bg-muted)] via-zoru-surface-2 to-[var(--st-bg-muted)] bg-clip-text text-transparent">
                             Visual Template Studio
                         </ZoruPageTitle>
-                        <Badge className="bg-zoru-ink/60 text-zoru-ink-muted border border-zoru-line/20 text-[10px] uppercase font-semibold tracking-wider px-2 py-0.5 animate-pulse">
+                        <Badge className="bg-[var(--st-text)]/60 text-[var(--st-text-secondary)] border border-[var(--st-border)]/20 text-[10px] uppercase font-semibold tracking-wider px-2 py-0.5 animate-pulse">
                             <Sparkles className="h-2.5 w-2.5 mr-1" /> Studio v2.0
                         </Badge>
                     </div>
-                    <ZoruPageDescription className="text-zoru-ink-muted mt-1 max-w-2xl">
+                    <ZoruPageDescription className="text-[var(--st-text-secondary)] mt-1 max-w-2xl">
                         Compose and manage ultra-advanced corporate templates. Design responsive drag-and-drop Emails, WhatsApp notifications with rich quick-replies, rapid SMS segment flows, and statutory compliance PDF documents.
                     </ZoruPageDescription>
                 </ZoruPageHeading>

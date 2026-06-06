@@ -130,7 +130,7 @@ export function ActivityLogsClient({
 
   const pagination = (
     <div className="flex items-center justify-between px-2 py-4">
-      <div className="text-sm text-zoru-ink-light">
+      <div className="text-sm text-[var(--st-text-tertiary)]">
         Showing {total === 0 ? 0 : ((page - 1) * pageSize) + 1} to {Math.min(page * pageSize, total)} of {total} entries
       </div>
       <div className="flex items-center gap-2">
@@ -142,7 +142,7 @@ export function ActivityLogsClient({
         >
           Previous
         </Button>
-        <span className="text-sm text-zoru-ink-light px-2">Page {page} of {totalPages}</span>
+        <span className="text-sm text-[var(--st-text-tertiary)] px-2">Page {page} of {totalPages}</span>
         <Button 
           variant="outline" 
           size="sm" 
@@ -164,7 +164,7 @@ export function ActivityLogsClient({
       pagination={pagination}
       loading={isPending}
     >
-      <Card className="border-zoru-line bg-zoru-bg overflow-hidden opacity-100 transition-opacity duration-200" style={{ opacity: isPending ? 0.5 : 1 }}>
+      <Card className="border-[var(--st-border)] bg-[var(--st-bg)] overflow-hidden opacity-100 transition-opacity duration-200" style={{ opacity: isPending ? 0.5 : 1 }}>
         <Table>
           <ZoruTableHeader>
             <ZoruTableRow>
@@ -178,13 +178,13 @@ export function ActivityLogsClient({
           <ZoruTableBody>
             {initialData.map(item => (
               <ZoruTableRow key={item.id}>
-                <ZoruTableCell className="text-sm text-zoru-ink-light">
+                <ZoruTableCell className="text-sm text-[var(--st-text-tertiary)]">
                   {fmtDate(item.timestamp)}
                 </ZoruTableCell>
-                <ZoruTableCell className="font-medium text-zoru-ink">{item.action}</ZoruTableCell>
+                <ZoruTableCell className="font-medium text-[var(--st-text)]">{item.action}</ZoruTableCell>
                 <ZoruTableCell className="text-sm">
                   <span className="bg-zoru-neutral-hover px-2 py-1 rounded-md mr-2">{item.entityType}</span>
-                  <span className="text-zoru-ink-light font-mono text-xs">{item.entityId}</span>
+                  <span className="text-[var(--st-text-tertiary)] font-mono text-xs">{item.entityId}</span>
                 </ZoruTableCell>
                 <ZoruTableCell className="font-mono text-xs">{item.userId || 'system'}</ZoruTableCell>
                 <ZoruTableCell className="text-sm">{item.ipAddress || '—'}</ZoruTableCell>
@@ -192,7 +192,7 @@ export function ActivityLogsClient({
             ))}
             {initialData.length === 0 && !isPending && (
               <ZoruTableRow>
-                <ZoruTableCell colSpan={5} className="text-center py-8 text-zoru-ink-light">No logs found.</ZoruTableCell>
+                <ZoruTableCell colSpan={5} className="text-center py-8 text-[var(--st-text-tertiary)]">No logs found.</ZoruTableCell>
               </ZoruTableRow>
             )}
           </ZoruTableBody>

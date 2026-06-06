@@ -79,7 +79,7 @@ export default async function SabsmsDripBuilderPage({
           { label: "Builder" },
         ]}
       >
-        <div className="rounded-md border border-dashed border-zoru-line bg-white p-10 text-center text-sm text-zoru-ink">
+        <div className="rounded-md border border-dashed border-[var(--st-border)] bg-white p-10 text-center text-sm text-[var(--st-text)]">
           Workspace not resolved.
         </div>
       </SabsmsPageShell>
@@ -110,7 +110,7 @@ export default async function SabsmsDripBuilderPage({
       description={
         <>
           Visual drip builder — every step compiles to the engine&rsquo;s{" "}
-          <code className="rounded bg-zoru-surface-2 px-1 py-0.5 text-[11px]">steps[]</code>{" "}
+          <code className="rounded bg-[var(--st-bg-muted)] px-1 py-0.5 text-[11px]">steps[]</code>{" "}
           format. Validate as you build; save with{" "}
           <span className="font-mono">⌘S</span>.
         </>

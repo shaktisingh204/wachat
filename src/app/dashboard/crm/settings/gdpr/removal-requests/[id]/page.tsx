@@ -245,7 +245,7 @@ export default function GdprEraseRequestDetailPage() {
             <div className="flex flex-wrap items-center gap-2">
                 <Badge variant={STATUS_TONE[row.status]}>{row.status}</Badge>
                 {row.legalHold ? (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-zoru-danger-bg px-3 py-1 text-xs text-zoru-danger-ink">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-[var(--st-danger-soft)] px-3 py-1 text-xs text-[var(--st-danger)]">
                         <ShieldOff className="h-3.5 w-3.5" />
                         Legal hold active — execution blocked
                     </span>
@@ -301,59 +301,59 @@ export default function GdprEraseRequestDetailPage() {
 
             {/* Metadata card */}
             <Card className="p-6">
-                <h2 className="mb-3 text-sm font-semibold text-zoru-ink">Request metadata</h2>
+                <h2 className="mb-3 text-sm font-semibold text-[var(--st-text)]">Request metadata</h2>
                 <dl className="grid grid-cols-1 gap-3 text-[13px] md:grid-cols-2">
                     <div>
-                        <dt className="text-zoru-ink-muted">Subject</dt>
-                        <dd className="text-zoru-ink">
+                        <dt className="text-[var(--st-text-secondary)]">Subject</dt>
+                        <dd className="text-[var(--st-text)]">
                             {row.subjectName}
                             {row.subjectEmail ? ` · ${row.subjectEmail}` : ''}
                         </dd>
                     </div>
                     <div>
-                        <dt className="text-zoru-ink-muted">Subject ID</dt>
-                        <dd className="font-mono text-zoru-ink">{row.subjectId}</dd>
+                        <dt className="text-[var(--st-text-secondary)]">Subject ID</dt>
+                        <dd className="font-mono text-[var(--st-text)]">{row.subjectId}</dd>
                     </div>
                     <div>
-                        <dt className="text-zoru-ink-muted">Requested by</dt>
-                        <dd className="text-zoru-ink">
+                        <dt className="text-[var(--st-text-secondary)]">Requested by</dt>
+                        <dd className="text-[var(--st-text)]">
                             {row.requestedByName ?? row.requestedBy}
                         </dd>
                     </div>
                     <div>
-                        <dt className="text-zoru-ink-muted">Requested at</dt>
-                        <dd className="text-zoru-ink">{fmtDate(row.requestedAt)}</dd>
+                        <dt className="text-[var(--st-text-secondary)]">Requested at</dt>
+                        <dd className="text-[var(--st-text)]">{fmtDate(row.requestedAt)}</dd>
                     </div>
                     {row.approverName ? (
                         <div>
-                            <dt className="text-zoru-ink-muted">
+                            <dt className="text-[var(--st-text-secondary)]">
                                 {row.status === 'rejected' ? 'Rejected by' : 'Approved by'}
                             </dt>
-                            <dd className="text-zoru-ink">{row.approverName}</dd>
+                            <dd className="text-[var(--st-text)]">{row.approverName}</dd>
                         </div>
                     ) : null}
                     {row.approvedAt ? (
                         <div>
-                            <dt className="text-zoru-ink-muted">Approved at</dt>
-                            <dd className="text-zoru-ink">{fmtDate(row.approvedAt)}</dd>
+                            <dt className="text-[var(--st-text-secondary)]">Approved at</dt>
+                            <dd className="text-[var(--st-text)]">{fmtDate(row.approvedAt)}</dd>
                         </div>
                     ) : null}
                     {row.rejectedAt ? (
                         <div>
-                            <dt className="text-zoru-ink-muted">Rejected at</dt>
-                            <dd className="text-zoru-ink">{fmtDate(row.rejectedAt)}</dd>
+                            <dt className="text-[var(--st-text-secondary)]">Rejected at</dt>
+                            <dd className="text-[var(--st-text)]">{fmtDate(row.rejectedAt)}</dd>
                         </div>
                     ) : null}
                     {row.executedAt ? (
                         <div>
-                            <dt className="text-zoru-ink-muted">Executed at</dt>
-                            <dd className="text-zoru-ink">{fmtDate(row.executedAt)}</dd>
+                            <dt className="text-[var(--st-text-secondary)]">Executed at</dt>
+                            <dd className="text-[var(--st-text)]">{fmtDate(row.executedAt)}</dd>
                         </div>
                     ) : null}
                     {row.executionMode ? (
                         <div>
-                            <dt className="text-zoru-ink-muted">Execution mode</dt>
-                            <dd className="text-zoru-ink">
+                            <dt className="text-[var(--st-text-secondary)]">Execution mode</dt>
+                            <dd className="text-[var(--st-text)]">
                                 {row.executionMode === 'mutated'
                                     ? 'Mutated (data changed)'
                                     : 'Env-gated (logged only)'}
@@ -362,14 +362,14 @@ export default function GdprEraseRequestDetailPage() {
                     ) : null}
                     {row.reason ? (
                         <div className="md:col-span-2">
-                            <dt className="text-zoru-ink-muted">Reason</dt>
-                            <dd className="text-zoru-ink">{row.reason}</dd>
+                            <dt className="text-[var(--st-text-secondary)]">Reason</dt>
+                            <dd className="text-[var(--st-text)]">{row.reason}</dd>
                         </div>
                     ) : null}
                     {row.rejectionReason ? (
                         <div className="md:col-span-2">
-                            <dt className="text-zoru-ink-muted">Rejection reason</dt>
-                            <dd className="text-zoru-ink">{row.rejectionReason}</dd>
+                            <dt className="text-[var(--st-text-secondary)]">Rejection reason</dt>
+                            <dd className="text-[var(--st-text)]">{row.rejectionReason}</dd>
                         </div>
                     ) : null}
                 </dl>
@@ -378,31 +378,31 @@ export default function GdprEraseRequestDetailPage() {
             {/* Dry-run report */}
             <Card className="p-6">
                 <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                    <h2 className="text-sm font-semibold text-zoru-ink">Dry-run report</h2>
+                    <h2 className="text-sm font-semibold text-[var(--st-text)]">Dry-run report</h2>
                     {row.dryRunReport ? (
-                        <span className="text-[12px] text-zoru-ink-muted">
+                        <span className="text-[12px] text-[var(--st-text-secondary)]">
                             Generated {fmtDate(row.dryRunReport.generatedAt)} ·{' '}
                             {row.dryRunReport.totalRows.toLocaleString()} row(s) across{' '}
                             {row.dryRunReport.collectionsScanned} collection(s)
                         </span>
                     ) : (
-                        <span className="text-[12px] text-zoru-ink-muted">
+                        <span className="text-[12px] text-[var(--st-text-secondary)]">
                             Not run yet — required before execution.
                         </span>
                     )}
                 </div>
                 {row.dryRunReport ? (
-                    <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                    <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                         <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow className="hover:bg-transparent">
-                                    <ZoruTableHead className="text-zoru-ink-muted">
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                         Collection
                                     </ZoruTableHead>
-                                    <ZoruTableHead className="text-right text-zoru-ink-muted">
+                                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                                         Rows
                                     </ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                         Sample IDs
                                     </ZoruTableHead>
                                 </ZoruTableRow>
@@ -410,13 +410,13 @@ export default function GdprEraseRequestDetailPage() {
                             <ZoruTableBody>
                                 {row.dryRunReport.rowsAffected.map((r) => (
                                     <ZoruTableRow key={r.collection}>
-                                        <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
+                                        <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
                                             {r.collection}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
+                                        <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
                                             {r.count.toLocaleString()}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="font-mono text-[11px] text-zoru-ink-muted">
+                                        <ZoruTableCell className="font-mono text-[11px] text-[var(--st-text-secondary)]">
                                             {r.sampleIds.length === 0
                                                 ? '—'
                                                 : r.sampleIds.join(', ')}
@@ -432,10 +432,10 @@ export default function GdprEraseRequestDetailPage() {
             {/* Execution log */}
             {row.executionLog && row.executionLog.length > 0 ? (
                 <Card className="p-6">
-                    <h2 className="mb-3 text-sm font-semibold text-zoru-ink">
+                    <h2 className="mb-3 text-sm font-semibold text-[var(--st-text)]">
                         Execution log
                     </h2>
-                    <pre className="max-h-96 overflow-auto rounded-lg border border-zoru-line bg-zoru-surface p-3 text-[11px] leading-relaxed text-zoru-ink">
+                    <pre className="max-h-96 overflow-auto rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 text-[11px] leading-relaxed text-[var(--st-text)]">
                         {row.executionLog.join('\n')}
                     </pre>
                 </Card>

@@ -87,7 +87,7 @@ export default async function ProbationDetailPage({
             {/* Summary card */}
             <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
-                    <div className="text-[14px] font-medium text-zoru-ink">Overview</div>
+                    <div className="text-[14px] font-medium text-[var(--st-text)]">Overview</div>
                     <StatusPill label={pretty(status)} tone={tone} />
                     {probation.recommendation ? (
                         <Badge variant="ghost">
@@ -97,44 +97,44 @@ export default async function ProbationDetailPage({
                 </div>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
                     <div>
-                        <div className="text-zoru-ink-muted">Employee</div>
-                        <div className="text-zoru-ink">{probation.employeeName || '—'}</div>
+                        <div className="text-[var(--st-text-secondary)]">Employee</div>
+                        <div className="text-[var(--st-text)]">{probation.employeeName || '—'}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Employee ID</div>
-                        <div className="font-mono text-[12px] text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Employee ID</div>
+                        <div className="font-mono text-[12px] text-[var(--st-text)]">
                             {probation.employeeId || '—'}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Evaluator</div>
-                        <div className="text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Evaluator</div>
+                        <div className="text-[var(--st-text)]">
                             {probation.evaluatorName || '—'}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Evaluator ID</div>
-                        <div className="font-mono text-[12px] text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Evaluator ID</div>
+                        <div className="font-mono text-[12px] text-[var(--st-text)]">
                             {probation.evaluatorId || '—'}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Start date</div>
-                        <div className="text-zoru-ink">{fmtDate(probation.startDate)}</div>
+                        <div className="text-[var(--st-text-secondary)]">Start date</div>
+                        <div className="text-[var(--st-text)]">{fmtDate(probation.startDate)}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">End date</div>
-                        <div className="text-zoru-ink">{fmtDate(probation.endDate)}</div>
+                        <div className="text-[var(--st-text-secondary)]">End date</div>
+                        <div className="text-[var(--st-text)]">{fmtDate(probation.endDate)}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Overall score</div>
-                        <div className="font-mono text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Overall score</div>
+                        <div className="font-mono text-[var(--st-text)]">
                             {probation.overallScore != null ? probation.overallScore : '—'}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Recommendation</div>
-                        <div className="capitalize text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Recommendation</div>
+                        <div className="capitalize text-[var(--st-text)]">
                             {pretty(probation.recommendation)}
                         </div>
                     </div>
@@ -143,15 +143,15 @@ export default async function ProbationDetailPage({
 
             {/* Criteria */}
             <Card className="p-6">
-                <div className="mb-3 text-[15px] font-medium text-zoru-ink">
+                <div className="mb-3 text-[15px] font-medium text-[var(--st-text)]">
                     Evaluation criteria
                 </div>
                 {criteria.length === 0 ? (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No criteria recorded.
                     </div>
                 ) : (
-                    <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
+                    <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
                         <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow>
@@ -164,10 +164,10 @@ export default async function ProbationDetailPage({
                             <ZoruTableBody>
                                 {criteria.map((c, i) => (
                                     <ZoruTableRow key={i}>
-                                        <ZoruTableCell className="text-zoru-ink">{c.name}</ZoruTableCell>
-                                        <ZoruTableCell className="text-zoru-ink">{c.target || '—'}</ZoruTableCell>
-                                        <ZoruTableCell className="text-zoru-ink">{c.achieved || '—'}</ZoruTableCell>
-                                        <ZoruTableCell className="text-right font-mono text-[12px] text-zoru-ink">
+                                        <ZoruTableCell className="text-[var(--st-text)]">{c.name}</ZoruTableCell>
+                                        <ZoruTableCell className="text-[var(--st-text)]">{c.target || '—'}</ZoruTableCell>
+                                        <ZoruTableCell className="text-[var(--st-text)]">{c.achieved || '—'}</ZoruTableCell>
+                                        <ZoruTableCell className="text-right font-mono text-[12px] text-[var(--st-text)]">
                                             {c.score != null ? c.score : '—'}
                                         </ZoruTableCell>
                                     </ZoruTableRow>
@@ -180,13 +180,13 @@ export default async function ProbationDetailPage({
 
             {/* Notes */}
             <Card className="p-6">
-                <div className="mb-3 text-[15px] font-medium text-zoru-ink">Notes</div>
+                <div className="mb-3 text-[15px] font-medium text-[var(--st-text)]">Notes</div>
                 {probation.notes ? (
-                    <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-4 font-sans text-[13px] text-zoru-ink">
+                    <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 font-sans text-[13px] text-[var(--st-text)]">
                         {probation.notes}
                     </pre>
                 ) : (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No notes recorded.
                     </div>
                 )}

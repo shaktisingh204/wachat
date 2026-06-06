@@ -68,8 +68,8 @@ export function EditHeaderActions({ id, data }: { id: string, data: any }) {
                 <FileText className="h-4 w-4 mr-2" />
                 PDF
             </Button>
-            <div className="flex items-center text-xs text-zoru-ink-muted ml-2 px-2 py-1 bg-zoru-surface-2 rounded-full border border-zoru-line" title="Real-time Collaborative Editing Active">
-                <span className="flex h-2 w-2 rounded-full bg-zoru-ink mr-2 animate-pulse"></span>
+            <div className="flex items-center text-xs text-[var(--st-text-secondary)] ml-2 px-2 py-1 bg-[var(--st-bg-muted)] rounded-full border border-[var(--st-border)]" title="Real-time Collaborative Editing Active">
+                <span className="flex h-2 w-2 rounded-full bg-[var(--st-text)] mr-2 animate-pulse"></span>
                 <Users className="h-3 w-3 mr-1" />
                 Live
             </div>

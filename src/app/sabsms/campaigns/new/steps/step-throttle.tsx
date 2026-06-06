@@ -74,7 +74,7 @@ export function StepThrottle({ draft, onChange }: StepThrottleProps) {
               onChange={(e) =>
                 onChange({ throttlePerSecond: Number(e.target.value) })
               }
-              className="w-full accent-zoru-ink"
+              className="w-full accent-[var(--st-text)]"
             />
           </div>
 
@@ -96,7 +96,7 @@ export function StepThrottle({ draft, onChange }: StepThrottleProps) {
                 })
               }
             />
-            <p className="text-xs text-zoru-ink">
+            <p className="text-xs text-[var(--st-text)]">
               Hard ceiling enforced before round-robin. Leave empty for no cap.
             </p>
           </div>
@@ -112,12 +112,12 @@ export function StepThrottle({ draft, onChange }: StepThrottleProps) {
         </ZoruCardHeader>
         <ZoruCardContent className="space-y-3">
           {draft.quietHours.length === 0 ? (
-            <p className="text-sm text-zoru-ink">No quiet-hours windows.</p>
+            <p className="text-sm text-[var(--st-text)]">No quiet-hours windows.</p>
           ) : (
             draft.quietHours.map((w, i) => (
               <div
                 key={i}
-                className="grid grid-cols-1 gap-2 rounded border border-zoru-line p-2 md:grid-cols-[100px_1fr_1fr_auto] md:items-center"
+                className="grid grid-cols-1 gap-2 rounded border border-[var(--st-border)] p-2 md:grid-cols-[100px_1fr_1fr_auto] md:items-center"
               >
                 <Input
                   value={w.country}
@@ -160,9 +160,9 @@ export function StepThrottle({ draft, onChange }: StepThrottleProps) {
           <Separator />
 
           <label className="flex items-center justify-between gap-3">
-            <span className="text-sm text-zoru-ink">
+            <span className="text-sm text-[var(--st-text)]">
               Per-recipient TZ-aware quiet hours
-              <span className="block text-xs text-zoru-ink">
+              <span className="block text-xs text-[var(--st-text)]">
                 Compute the window in the recipient&apos;s local timezone,
                 not the campaign country.
               </span>

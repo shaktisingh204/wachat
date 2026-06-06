@@ -51,12 +51,12 @@ export function GeoHeatmap({ data, isLoading }: GeoHeatmapProps) {
   return (
     <Card className="p-5">
       <div className="flex items-center gap-2 mb-4">
-        <Globe2 className="h-4 w-4 text-zoru-ink-muted" />
-        <span className="text-[13px] text-zoru-ink">Top Countries</span>
+        <Globe2 className="h-4 w-4 text-[var(--st-text-secondary)]" />
+        <span className="text-[13px] text-[var(--st-text)]">Top Countries</span>
       </div>
 
       {sorted.length === 0 ? (
-        <div className="py-10 text-center text-[13px] text-zoru-ink-muted">No geo data yet</div>
+        <div className="py-10 text-center text-[13px] text-[var(--st-text-secondary)]">No geo data yet</div>
       ) : (
         <div className="space-y-2">
           {sorted.map((row) => {
@@ -67,21 +67,21 @@ export function GeoHeatmap({ data, isLoading }: GeoHeatmapProps) {
                 <span className="w-7 text-center text-base leading-none shrink-0">
                   {getFlag(row.country)}
                 </span>
-                <span className="w-8 shrink-0 text-zoru-ink-muted font-mono uppercase">
+                <span className="w-8 shrink-0 text-[var(--st-text-secondary)] font-mono uppercase">
                   {row.country}
                 </span>
                 <div className="flex-1 min-w-0">
-                  <div className="h-1.5 w-full rounded-full bg-zoru-surface-2 overflow-hidden">
+                  <div className="h-1.5 w-full rounded-full bg-[var(--st-bg-muted)] overflow-hidden">
                     <div
-                      className="h-full rounded-full bg-zoru-ink transition-all"
+                      className="h-full rounded-full bg-[var(--st-text)] transition-all"
                       style={{ width: `${barWidth}%` }}
                     />
                   </div>
                 </div>
-                <span className="w-10 text-right tabular-nums text-zoru-ink shrink-0">
+                <span className="w-10 text-right tabular-nums text-[var(--st-text)] shrink-0">
                   {row.count.toLocaleString()}
                 </span>
-                <span className="w-10 text-right tabular-nums text-zoru-ink-muted shrink-0">
+                <span className="w-10 text-right tabular-nums text-[var(--st-text-secondary)] shrink-0">
                   {pct}%
                 </span>
               </div>

@@ -186,7 +186,7 @@ export function ApiKeysClient() {
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex flex-wrap items-center gap-3 border-b border-[var(--gray-4)] px-4 sm:px-6 py-4 shrink-0">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
           <LuKey className="h-4 w-4" strokeWidth={2} />
         </div>
         <div className="flex flex-col leading-tight min-w-0">
@@ -210,7 +210,7 @@ export function ApiKeysClient() {
           <button
             type="button"
             onClick={openCreate}
-            className="flex items-center gap-1.5 rounded-lg bg-zoru-ink px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-zoru-ink"
+            className="flex items-center gap-1.5 rounded-lg bg-[var(--st-text)] px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-[var(--st-text)]"
           >
             <LuPlus className="h-3.5 w-3.5" strokeWidth={2.5} />
             Create API key
@@ -226,7 +226,7 @@ export function ApiKeysClient() {
             <span className="text-[12px]">Loading keys…</span>
           </div>
         ) : error ? (
-          <div className="m-6 flex items-start gap-2 rounded-lg border border-zoru-line bg-zoru-surface-2 px-4 py-3 text-[12px] text-zoru-ink">
+          <div className="m-6 flex items-start gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-3 text-[12px] text-[var(--st-text)]">
             <LuTriangleAlert className="h-4 w-4 shrink-0 mt-0.5" />
             <span>{error}</span>
           </div>
@@ -246,7 +246,7 @@ export function ApiKeysClient() {
             <button
               type="button"
               onClick={openCreate}
-              className="mt-1 flex items-center gap-1.5 rounded-lg bg-zoru-ink px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-zoru-ink"
+              className="mt-1 flex items-center gap-1.5 rounded-lg bg-[var(--st-text)] px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-[var(--st-text)]"
             >
               <LuPlus className="h-3.5 w-3.5" strokeWidth={2.5} />
               Create your first key
@@ -310,7 +310,7 @@ export function ApiKeysClient() {
                       type="button"
                       onClick={() => handleRevoke(row)}
                       disabled={revokingId === row._id}
-                      className="inline-flex items-center gap-1 rounded-md border border-transparent px-2 py-1 text-[11.5px] font-medium text-zoru-ink hover:border-zoru-line hover:bg-zoru-surface-2 disabled:opacity-50 dark:hover:bg-zoru-ink/40"
+                      className="inline-flex items-center gap-1 rounded-md border border-transparent px-2 py-1 text-[11.5px] font-medium text-[var(--st-text)] hover:border-[var(--st-border)] hover:bg-[var(--st-bg-muted)] disabled:opacity-50 dark:hover:bg-[var(--st-text)]/40"
                     >
                       {revokingId === row._id ? (
                         <LuLoader className="h-3 w-3 animate-spin" />
@@ -358,7 +358,7 @@ export function ApiKeysClient() {
                 placeholder="e.g. Production backend"
                 maxLength={80}
                 disabled={creating}
-                className="rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-2.5 py-2 text-[12.5px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-zoru-line disabled:opacity-50"
+                className="rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-2.5 py-2 text-[12.5px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[var(--st-border)] disabled:opacity-50"
               />
               <p className="text-[10.5px] text-[var(--gray-9)]">
                 Used to identify the key in this list. Max 80 characters.
@@ -366,7 +366,7 @@ export function ApiKeysClient() {
             </div>
 
             {createError && (
-              <div className="flex items-start gap-2 rounded-lg border border-zoru-line bg-zoru-surface-2 px-3 py-2 text-[11.5px] text-zoru-ink">
+              <div className="flex items-start gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-[11.5px] text-[var(--st-text)]">
                 <LuTriangleAlert className="h-3.5 w-3.5 shrink-0 mt-0.5" />
                 <span>{createError}</span>
               </div>
@@ -384,7 +384,7 @@ export function ApiKeysClient() {
               <button
                 type="submit"
                 disabled={creating || !createLabel.trim()}
-                className="flex items-center gap-1.5 rounded-lg bg-zoru-ink px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-zoru-ink disabled:opacity-50"
+                className="flex items-center gap-1.5 rounded-lg bg-[var(--st-text)] px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-[var(--st-text)] disabled:opacity-50"
               >
                 {creating ? (
                   <LuLoader className="h-3.5 w-3.5 animate-spin" />
@@ -405,10 +405,10 @@ export function ApiKeysClient() {
           title="Save your API key"
           subtitle={`Created “${minted.label}”.`}
           icon={<LuShieldAlert className="h-4 w-4" strokeWidth={2} />}
-          iconClassName="bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted"
+          iconClassName="bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]"
         >
           <div className="flex flex-col gap-3">
-            <div className="flex items-start gap-2 rounded-lg border border-zoru-line bg-zoru-surface-2 px-3 py-2.5 text-[11.5px] text-zoru-ink dark:border-zoru-line/60 dark:bg-zoru-ink/30 dark:text-zoru-ink-muted">
+            <div className="flex items-start gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2.5 text-[11.5px] text-[var(--st-text)] dark:border-[var(--st-border)]/60 dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]">
               <LuTriangleAlert className="h-4 w-4 shrink-0 mt-0.5" />
               <div className="flex flex-col gap-0.5">
                 <span className="font-semibold">
@@ -431,7 +431,7 @@ export function ApiKeysClient() {
                 className={cn(
                   'flex items-center gap-1.5 border-l border-[var(--gray-5)] px-3 py-2 text-[11.5px] font-medium transition-colors',
                   copied
-                    ? 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted'
+                    ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]'
                     : 'text-[var(--gray-11)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
                 )}
                 aria-label="Copy API key"
@@ -454,7 +454,7 @@ export function ApiKeysClient() {
               <button
                 type="button"
                 onClick={dismissMinted}
-                className="rounded-lg bg-zoru-ink px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-zoru-ink"
+                className="rounded-lg bg-[var(--st-text)] px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-[var(--st-text)]"
               >
                 I&rsquo;ve saved it
               </button>
@@ -510,7 +510,7 @@ function ModalShell({
             className={cn(
               'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg',
               iconClassName ??
-                'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted',
+                'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]',
             )}
           >
             {icon}

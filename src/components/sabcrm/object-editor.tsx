@@ -268,7 +268,7 @@ function FieldOptionsEditor({ options, onChange, disabled }: FieldOptionsEditorP
 
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-xs font-medium text-zoru-ink-muted">Options</p>
+      <p className="text-xs font-medium text-[var(--st-text-secondary)]">Options</p>
       <div className="flex flex-col gap-1">
         {options.map((opt, idx) => (
           <div key={idx} className="flex items-center gap-1.5">
@@ -279,14 +279,14 @@ function FieldOptionsEditor({ options, onChange, disabled }: FieldOptionsEditorP
               className="h-7 flex-1 text-xs"
               placeholder="Option label"
             />
-            <span className="font-mono text-[10px] text-zoru-ink-muted min-w-[56px]">
+            <span className="font-mono text-[10px] text-[var(--st-text-secondary)] min-w-[56px]">
               {opt.value}
             </span>
             <button
               type="button"
               onClick={() => removeOption(idx)}
               disabled={disabled}
-              className="text-zoru-ink-muted hover:text-zoru-danger disabled:cursor-not-allowed"
+              className="text-[var(--st-text-secondary)] hover:text-[var(--st-danger)] disabled:cursor-not-allowed"
               aria-label={`Remove option ${opt.label}`}
             >
               <X className="h-3.5 w-3.5" />
@@ -481,7 +481,7 @@ function FieldEditorDialog({
         <form onSubmit={onSubmit} className="flex flex-col gap-4 pt-1">
           {/* Label */}
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="fe-label">Label <span className="text-zoru-danger" aria-hidden>*</span></Label>
+            <Label htmlFor="fe-label">Label <span className="text-[var(--st-danger)]" aria-hidden>*</span></Label>
             <Input
               id="fe-label"
               value={label}
@@ -496,7 +496,7 @@ function FieldEditorDialog({
             <Label htmlFor="fe-key">
               Field key
               {!isEdit && (
-                <span className="ml-1 text-xs text-zoru-ink-muted">(auto-derived, editable)</span>
+                <span className="ml-1 text-xs text-[var(--st-text-secondary)]">(auto-derived, editable)</span>
               )}
             </Label>
             <Input
@@ -505,10 +505,10 @@ function FieldEditorDialog({
               onChange={(e) => { setKey(e.target.value); setKeyTouched(true); }}
               disabled={saving || isEdit}
               placeholder="dealStage"
-              className={cn('font-mono text-xs', keyError && 'border-zoru-danger')}
+              className={cn('font-mono text-xs', keyError && 'border-[var(--st-danger)]')}
             />
             {keyError && (
-              <p className="text-[11px] text-zoru-danger">{keyError}</p>
+              <p className="text-[11px] text-[var(--st-danger)]">{keyError}</p>
             )}
           </div>
 
@@ -530,7 +530,7 @@ function FieldEditorDialog({
               </ZoruSelectContent>
             </Select>
             {isEdit && (
-              <p className="text-[11px] text-zoru-ink-muted">
+              <p className="text-[11px] text-[var(--st-text-secondary)]">
                 Type is immutable — remove and re-add the field to change it.
               </p>
             )}
@@ -547,7 +547,7 @@ function FieldEditorDialog({
 
           {/* RELATION config */}
           {needsRelation && (
-            <div className="flex flex-col gap-3 rounded-[var(--zoru-radius)] border border-zoru-line p-3">
+            <div className="flex flex-col gap-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-3">
               <p className="text-xs font-medium">Relation settings</p>
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="fe-rtarget">Target object</Label>
@@ -752,7 +752,7 @@ function RelationBuilderDialog({
         <form onSubmit={onSubmit} className="flex flex-col gap-4 pt-1">
           {/* Target */}
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="rb-target">Target object <span className="text-zoru-danger" aria-hidden>*</span></Label>
+            <Label htmlFor="rb-target">Target object <span className="text-[var(--st-danger)]" aria-hidden>*</span></Label>
             <Select value={targetSlug} onValueChange={(v) => { setTargetSlug(v); setFieldKeyTouched(false); }} disabled={saving}>
               <ZoruSelectTrigger id="rb-target">
                 <ZoruSelectValue placeholder="Pick an object" />
@@ -761,7 +761,7 @@ function RelationBuilderDialog({
                 {otherObjects.map((o) => (
                   <ZoruSelectItem key={o.slug} value={o.slug}>
                     <span className="flex items-center gap-2">
-                      <IconFor name={o.icon} className="h-3.5 w-3.5 text-zoru-ink-muted" />
+                      <IconFor name={o.icon} className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                       {o.labelPlural}
                     </span>
                   </ZoruSelectItem>
@@ -796,10 +796,10 @@ function RelationBuilderDialog({
               value={fieldKey}
               onChange={(e) => { setFieldKey(e.target.value); setFieldKeyTouched(true); }}
               disabled={saving}
-              className={cn('font-mono text-xs', keyError && 'border-zoru-danger')}
+              className={cn('font-mono text-xs', keyError && 'border-[var(--st-danger)]')}
               placeholder="companyId"
             />
-            {keyError && <p className="text-[11px] text-zoru-danger">{keyError}</p>}
+            {keyError && <p className="text-[11px] text-[var(--st-danger)]">{keyError}</p>}
           </div>
 
           {/* With inverse */}
@@ -842,8 +842,8 @@ function ToggleRow({ label, description, checked, onCheckedChange, disabled }: T
   return (
     <div className="flex items-start justify-between gap-4">
       <div className="flex flex-col gap-0.5">
-        <span className="text-sm font-medium text-zoru-ink">{label}</span>
-        {description && <span className="text-xs text-zoru-ink-muted">{description}</span>}
+        <span className="text-sm font-medium text-[var(--st-text)]">{label}</span>
+        {description && <span className="text-xs text-[var(--st-text-secondary)]">{description}</span>}
       </div>
       <Switch checked={checked} onCheckedChange={onCheckedChange} disabled={disabled} />
     </div>
@@ -881,16 +881,16 @@ function FieldListRow({
       onDragEnter={onDragEnter}
       onDragEnd={onDragEnd}
       className={cn(
-        'group flex items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 py-2 transition-opacity',
+        'group flex items-center gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 transition-opacity',
         dragging && 'opacity-40',
         !readonly && 'cursor-grab active:cursor-grabbing',
-        readonly && 'bg-zoru-surface/50',
+        readonly && 'bg-[var(--st-bg-secondary)]/50',
       )}
     >
       {/* Drag handle */}
       <span
         className={cn(
-          'shrink-0 text-zoru-ink-muted',
+          'shrink-0 text-[var(--st-text-secondary)]',
           readonly ? 'invisible' : 'invisible group-hover:visible',
         )}
         aria-hidden
@@ -899,7 +899,7 @@ function FieldListRow({
       </span>
 
       {/* Icon */}
-      <span className="shrink-0 text-zoru-ink-muted">
+      <span className="shrink-0 text-[var(--st-text-secondary)]">
         {field.icon
           ? <IconFor name={field.icon} className="h-4 w-4" />
           : <span className="h-4 w-4 inline-block" />}
@@ -907,16 +907,16 @@ function FieldListRow({
 
       {/* Label + key */}
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span className="truncate text-sm font-medium text-zoru-ink">
+        <span className="truncate text-sm font-medium text-[var(--st-text)]">
           {field.label}
           {field.isLabel && (
             <Badge variant="outline" className="ml-2 py-0 text-[10px]">label</Badge>
           )}
           {field.required && (
-            <span className="ml-1 text-zoru-danger text-xs" aria-label="required">*</span>
+            <span className="ml-1 text-[var(--st-danger)] text-xs" aria-label="required">*</span>
           )}
         </span>
-        <span className="font-mono text-[10px] text-zoru-ink-muted">
+        <span className="font-mono text-[10px] text-[var(--st-text-secondary)]">
           {field.key} · {field.type}
           {field.type === 'RELATION' && field.relation && (
             <> → {field.relation.targetObject} ({field.relation.kind})</>
@@ -951,7 +951,7 @@ function FieldListRow({
           <button
             type="button"
             onClick={onEdit}
-            className="rounded p-1 text-zoru-ink-muted hover:bg-zoru-surface hover:text-zoru-ink"
+            className="rounded p-1 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)] hover:text-[var(--st-text)]"
             aria-label={`Edit ${field.label}`}
           >
             <Pencil className="h-3.5 w-3.5" />
@@ -959,7 +959,7 @@ function FieldListRow({
           <button
             type="button"
             onClick={onRemove}
-            className="rounded p-1 text-zoru-ink-muted hover:bg-zoru-surface hover:text-zoru-danger"
+            className="rounded p-1 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)] hover:text-[var(--st-danger)]"
             aria-label={`Remove ${field.label}`}
           >
             <Trash2 className="h-3.5 w-3.5" />
@@ -1033,7 +1033,7 @@ function ObjectIdentityForm({
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="oe-singular">
-            Singular label <span className="text-zoru-danger" aria-hidden>*</span>
+            Singular label <span className="text-[var(--st-danger)]" aria-hidden>*</span>
           </Label>
           <Input
             id="oe-singular"
@@ -1045,7 +1045,7 @@ function ObjectIdentityForm({
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="oe-plural">
-            Plural label <span className="text-zoru-danger" aria-hidden>*</span>
+            Plural label <span className="text-[var(--st-danger)]" aria-hidden>*</span>
           </Label>
           <Input
             id="oe-plural"
@@ -1062,7 +1062,7 @@ function ObjectIdentityForm({
         <Label htmlFor="oe-slug">
           Slug
           {slugLocked && (
-            <span className="ml-1 text-xs text-zoru-ink-muted">(locked after creation)</span>
+            <span className="ml-1 text-xs text-[var(--st-text-secondary)]">(locked after creation)</span>
           )}
         </Label>
         <Input
@@ -1071,11 +1071,11 @@ function ObjectIdentityForm({
           onChange={(e) => onSlugChange(e.target.value.toLowerCase())}
           disabled={disabled || slugLocked}
           placeholder="support-tickets"
-          className={cn('font-mono text-xs', slugError && 'border-zoru-danger')}
+          className={cn('font-mono text-xs', slugError && 'border-[var(--st-danger)]')}
         />
-        {slugError && <p className="text-[11px] text-zoru-danger">{slugError}</p>}
+        {slugError && <p className="text-[11px] text-[var(--st-danger)]">{slugError}</p>}
         {!slugLocked && (
-          <p className="text-[11px] text-zoru-ink-muted">
+          <p className="text-[11px] text-[var(--st-text-secondary)]">
             Lowercase kebab-case. Used in URLs and as the collection key — cannot be changed after creation.
           </p>
         )}
@@ -1083,7 +1083,7 @@ function ObjectIdentityForm({
 
       {/* Icon */}
       <div className="flex flex-col gap-1.5">
-        <Label>Icon <span className="text-zoru-danger" aria-hidden>*</span></Label>
+        <Label>Icon <span className="text-[var(--st-danger)]" aria-hidden>*</span></Label>
         <ZoruIconPicker value={icon} onChange={onIconChange} disabled={disabled} />
       </div>
 
@@ -1111,7 +1111,7 @@ function ObjectIdentityForm({
       />
 
       {hasBoard && (
-        <div className="flex flex-col gap-1.5 pl-4 border-l-2 border-zoru-line">
+        <div className="flex flex-col gap-1.5 pl-4 border-l-2 border-[var(--st-border)]">
           <Label htmlFor="oe-groupby">Group by field</Label>
           <Select value={groupByField} onValueChange={onGroupByFieldChange} disabled={disabled}>
             <ZoruSelectTrigger id="oe-groupby">
@@ -1124,7 +1124,7 @@ function ObjectIdentityForm({
             </ZoruSelectContent>
           </Select>
           {selectFields.length === 0 && (
-            <p className="text-[11px] text-zoru-ink-muted">
+            <p className="text-[11px] text-[var(--st-text-secondary)]">
               Add a SELECT field first to enable the board view.
             </p>
           )}
@@ -1444,10 +1444,10 @@ export function ObjectEditor({
       <section aria-labelledby="oe-identity-heading" className="flex flex-col gap-4">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <h2 id="oe-identity-heading" className="text-base font-semibold text-zoru-ink">
+            <h2 id="oe-identity-heading" className="text-base font-semibold text-[var(--st-text)]">
               {isEdit ? 'Object settings' : 'New object'}
             </h2>
-            <p className="text-xs text-zoru-ink-muted">
+            <p className="text-xs text-[var(--st-text-secondary)]">
               {isEdit
                 ? isStandard
                   ? 'Standard objects are read-only. You can add custom fields below.'
@@ -1462,7 +1462,7 @@ export function ObjectEditor({
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="shrink-0 text-zoru-ink-muted hover:text-zoru-danger"
+                  className="shrink-0 text-[var(--st-text-secondary)] hover:text-[var(--st-danger)]"
                 >
                   <Trash2 className="h-4 w-4" />
                   Delete object
@@ -1482,7 +1482,7 @@ export function ObjectEditor({
                   <ZoruAlertDialogAction
                     onClick={confirmDelete}
                     disabled={deleting}
-                    className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
+                    className="bg-[var(--st-danger)] text-white hover:bg-[var(--st-danger)]/90"
                   >
                     {deleting && <Loader2 className="animate-spin" />}
                     Delete
@@ -1495,15 +1495,15 @@ export function ObjectEditor({
 
         {isStandard ? (
           /* Standard objects: read-only identity display */
-          <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface/50 p-4">
+          <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 p-4">
             <div className="flex items-center gap-3">
-              <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg">
-                <IconFor name={object?.icon} className="h-5 w-5 text-zoru-ink" />
+              <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)]">
+                <IconFor name={object?.icon} className="h-5 w-5 text-[var(--st-text)]" />
               </span>
               <div>
-                <p className="font-semibold text-zoru-ink">{object?.labelPlural}</p>
+                <p className="font-semibold text-[var(--st-text)]">{object?.labelPlural}</p>
                 {object?.description && (
-                  <p className="text-xs text-zoru-ink-muted">{object.description}</p>
+                  <p className="text-xs text-[var(--st-text-secondary)]">{object.description}</p>
                 )}
               </div>
               <Badge variant="secondary" className="ml-auto text-[10px]">standard</Badge>
@@ -1551,16 +1551,16 @@ export function ObjectEditor({
           <section aria-labelledby="oe-fields-heading" className="flex flex-col gap-4">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <h2 id="oe-fields-heading" className="text-base font-semibold text-zoru-ink">
+                <h2 id="oe-fields-heading" className="text-base font-semibold text-[var(--st-text)]">
                   Fields
                   <Badge variant="outline" className="ml-2 text-xs">
                     {liveObject.fields.length}
                   </Badge>
                   {reordering && (
-                    <Loader2 className="ml-2 inline h-3.5 w-3.5 animate-spin text-zoru-ink-muted" />
+                    <Loader2 className="ml-2 inline h-3.5 w-3.5 animate-spin text-[var(--st-text-secondary)]" />
                   )}
                 </h2>
-                <p className="text-xs text-zoru-ink-muted">
+                <p className="text-xs text-[var(--st-text-secondary)]">
                   Drag custom fields to reorder. Standard and system fields always appear first and are immutable.
                 </p>
               </div>
@@ -1615,7 +1615,7 @@ export function ObjectEditor({
                 })}
 
                 {liveObject.fields.length === 0 && (
-                  <p className="py-6 text-center text-sm text-zoru-ink-muted">
+                  <p className="py-6 text-center text-sm text-[var(--st-text-secondary)]">
                     No fields yet. Add your first field above.
                   </p>
                 )}
@@ -1690,7 +1690,7 @@ export function ObjectEditor({
             <ZoruAlertDialogAction
               onClick={confirmRemoveField}
               disabled={!!removingField}
-              className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
+              className="bg-[var(--st-danger)] text-white hover:bg-[var(--st-danger)]/90"
             >
               {removingField && <Loader2 className="animate-spin" />}
               Remove field

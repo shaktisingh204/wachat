@@ -201,7 +201,7 @@ export function OKRClient({ initialData }: OKRClientProps) {
       <div className="flex flex-col sm:flex-row justify-between gap-4">
         <div className="flex flex-1 items-center gap-2">
           <div className="relative w-64">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-text-muted" />
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
             <Input
               placeholder="Search OKRs..."
               className="pl-8"
@@ -210,7 +210,7 @@ export function OKRClient({ initialData }: OKRClientProps) {
             />
           </div>
           <select
-            className="h-10 rounded-md border border-zoru-line bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zoru-brand"
+            className="h-10 rounded-md border border-[var(--st-border)] bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--st-accent)]"
             value={quarterFilter}
             onChange={(e) => setQuarterFilter(e.target.value)}
           >
@@ -219,7 +219,7 @@ export function OKRClient({ initialData }: OKRClientProps) {
           </select>
           {quarterFilter || search ? (
             <Button variant="ghost" size="icon" onClick={() => { setSearch(''); setQuarterFilter(''); }} title="Clear Filters">
-              <Filter className="h-4 w-4 text-zoru-ink" />
+              <Filter className="h-4 w-4 text-[var(--st-text)]" />
             </Button>
           ) : null}
         </div>
@@ -243,8 +243,8 @@ export function OKRClient({ initialData }: OKRClientProps) {
       </div>
 
       {/* Data Table */}
-      <div className="rounded-md border border-zoru-line overflow-hidden bg-white dark:bg-zoru-background">
-        <div className="flex border-b border-zoru-line h-10 bg-zoru-surface items-center px-4 text-left align-middle text-[11px] font-medium uppercase tracking-wide text-zoru-text-muted">
+      <div className="rounded-md border border-[var(--st-border)] overflow-hidden bg-white dark:bg-[var(--st-bg)]">
+        <div className="flex border-b border-[var(--st-border)] h-10 bg-[var(--st-bg-secondary)] items-center px-4 text-left align-middle text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
           <div className="w-[50px] shrink-0">
             <input 
               type="checkbox" 
@@ -288,7 +288,7 @@ export function OKRClient({ initialData }: OKRClientProps) {
                       height: `${virtualRow.size}px`,
                       transform: `translateY(${virtualRow.start}px)`,
                     }}
-                    className="flex items-center border-b border-zoru-line px-4 hover:bg-zoru-muted/50 transition-colors bg-white dark:bg-zoru-background text-sm"
+                    className="flex items-center border-b border-[var(--st-border)] px-4 hover:bg-[var(--st-bg-muted)]/50 transition-colors bg-white dark:bg-[var(--st-bg)] text-sm"
                   >
                     <div className="w-[50px] flex items-center shrink-0">
                       <input 
@@ -298,20 +298,20 @@ export function OKRClient({ initialData }: OKRClientProps) {
                       />
                     </div>
                     <div className="flex-1 truncate pr-4 font-medium min-w-[200px]">{okr.objective}</div>
-                    <div className="flex-1 truncate pr-4 text-zoru-text-muted min-w-[200px]">{okr.keyResult}</div>
+                    <div className="flex-1 truncate pr-4 text-[var(--st-text-secondary)] min-w-[200px]">{okr.keyResult}</div>
                     <div className="flex-1 pr-4 min-w-[150px]">
                       <div className="flex items-center gap-2">
-                        <div className="w-full bg-zoru-muted rounded-full h-2.5 dark:bg-zoru-line">
-                          <div className="bg-zoru-ink h-2.5 rounded-full" style={{ width: `${okr.progress}%` }}></div>
+                        <div className="w-full bg-[var(--st-bg-muted)] rounded-full h-2.5 dark:bg-[var(--st-border)]">
+                          <div className="bg-[var(--st-text)] h-2.5 rounded-full" style={{ width: `${okr.progress}%` }}></div>
                         </div>
-                        <span className="text-sm text-zoru-text-muted w-8">{okr.progress}%</span>
+                        <span className="text-sm text-[var(--st-text-secondary)] w-8">{okr.progress}%</span>
                       </div>
                     </div>
                     <div className="flex-1 truncate pr-4 min-w-[100px]">{okr.ownerId}</div>
                     <div className="flex-1 truncate pr-4 min-w-[100px]">{okr.quarter}</div>
                     <div className="w-[120px] text-right flex justify-end gap-2 shrink-0">
                       <Button variant="ghost" size="sm" onClick={() => { setEditingItem(okr); setIsFormOpen(true); }}>Edit</Button>
-                      <Button variant="ghost" size="sm" className="text-zoru-ink hover:text-zoru-ink" onClick={() => okr._id && handleDelete(okr._id)}>Del</Button>
+                      <Button variant="ghost" size="sm" className="text-[var(--st-text)] hover:text-[var(--st-text)]" onClick={() => okr._id && handleDelete(okr._id)}>Del</Button>
                     </div>
                   </div>
                 );

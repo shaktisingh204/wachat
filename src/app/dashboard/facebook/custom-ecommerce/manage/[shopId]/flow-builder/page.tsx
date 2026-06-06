@@ -160,14 +160,14 @@ function NodePreview({ node }: { node: EcommFlowNode }) {
   const renderTextWithVariables = (text?: string) => {
     if (!text)
       return (
-        <span className="italic text-zoru-ink-subtle">Enter message…</span>
+        <span className="italic text-[var(--st-text-tertiary)]">Enter message…</span>
       );
     const parts = text.split(/({{\s*[\w\d._]+\s*}})/g);
     return parts.map((part, i) =>
       part.match(/^{{.*}}$/) ? (
         <span
           key={i}
-          className="rounded-sm bg-zoru-surface-2 px-1 font-medium text-zoru-ink"
+          className="rounded-sm bg-[var(--st-bg-muted)] px-1 font-medium text-[var(--st-text)]"
         >
           {part}
         </span>
@@ -190,8 +190,8 @@ function NodePreview({ node }: { node: EcommFlowNode }) {
       case "image":
         return (
           <div className="space-y-1">
-            <div className="flex aspect-video w-full items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-bg/50">
-              <ImageIcon className="h-8 w-8 text-zoru-ink-subtle" />
+            <div className="flex aspect-video w-full items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg)]/50">
+              <ImageIcon className="h-8 w-8 text-[var(--st-text-tertiary)]" />
             </div>
             {node.data.caption ? (
               <p className="whitespace-pre-wrap text-xs">
@@ -206,12 +206,12 @@ function NodePreview({ node }: { node: EcommFlowNode }) {
             <p className="whitespace-pre-wrap">
               {renderTextWithVariables(node.data.text)}
             </p>
-            <div className="mt-2 space-y-1 border-t border-zoru-line pt-2">
+            <div className="mt-2 space-y-1 border-t border-[var(--st-border)] pt-2">
               {(node.data.buttons || []).map(
                 (btn: ButtonConfig, index: number) => (
                   <div
                     key={btn.id || index}
-                    className="rounded-[var(--zoru-radius-sm)] bg-zoru-bg/50 py-1.5 text-center text-xs text-zoru-ink"
+                    className="rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg)]/50 py-1.5 text-center text-xs text-[var(--st-text)]"
                   >
                     {btn.text || `Button ${index + 1}`}
                   </div>
@@ -223,14 +223,14 @@ function NodePreview({ node }: { node: EcommFlowNode }) {
       case "carousel": {
         const elementCount = node.data.elements?.length || 0;
         return (
-          <p className="text-xs italic text-zoru-ink-muted">
+          <p className="text-xs italic text-[var(--st-text-secondary)]">
             Sends a carousel with {elementCount} card(s).
           </p>
         );
       }
       case "addToCart":
         return (
-          <p className="text-xs italic text-zoru-ink-muted">
+          <p className="text-xs italic text-[var(--st-text-secondary)]">
             Adds &ldquo;{node.data.productName || "product"}&rdquo; to cart.
           </p>
         );
@@ -243,7 +243,7 @@ function NodePreview({ node }: { node: EcommFlowNode }) {
 
   return (
     <ZoruCardContent className="p-2 pt-0">
-      <div className="rounded-[var(--zoru-radius)] bg-zoru-surface-2 p-2 text-sm text-zoru-ink">
+      <div className="rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)] p-2 text-sm text-[var(--st-text)]">
         {previewContent}
       </div>
     </ZoruCardContent>
@@ -287,7 +287,7 @@ function NodeComponent({
     <div
       id={id}
       style={style}
-      className="absolute z-10 h-4 w-4 rounded-full border-2 border-zoru-ink bg-zoru-bg transition-colors hover:bg-zoru-ink"
+      className="absolute z-10 h-4 w-4 rounded-full border-2 border-[var(--st-text)] bg-[var(--st-bg)] transition-colors hover:bg-[var(--st-text)]"
       onMouseDown={(e) => e.stopPropagation()}
       onClick={(e) => {
         e.stopPropagation();
@@ -309,18 +309,18 @@ function NodeComponent({
       <Card
         className={cn(
           "w-64 hover:-translate-y-0.5 hover:shadow-[var(--zoru-shadow-md)]",
-          isSelected && "ring-2 ring-zoru-ink",
+          isSelected && "ring-2 ring-[var(--st-text)]",
         )}
       >
         <ZoruCardHeader className="flex flex-row items-center gap-3 p-3">
-          <BlockIcon className="h-5 w-5 text-zoru-ink-muted" />
+          <BlockIcon className="h-5 w-5 text-[var(--st-text-secondary)]" />
           <ZoruCardTitle className="text-sm">
             {node.data.label}
           </ZoruCardTitle>
         </ZoruCardHeader>
         <NodePreview node={node} />
         {node.type === "condition" ? (
-          <ZoruCardContent className="p-3 pt-0 text-xs text-zoru-ink-muted">
+          <ZoruCardContent className="p-3 pt-0 text-xs text-[var(--st-text-secondary)]">
             <div className="flex items-center justify-between">
               <span>Yes</span>
             </div>
@@ -606,16 +606,16 @@ function PropertiesPanel({
                   handleDataChange("triggerKeywords", e.target.value)
                 }
               />
-              <p className="text-xs text-zoru-ink-muted">
+              <p className="text-xs text-[var(--st-text-secondary)]">
                 Comma-separated keywords to start this flow.
               </p>
             </div>
-            <div className="flex items-center justify-between gap-3 rounded-[var(--zoru-radius-lg)] border border-zoru-line p-4">
+            <div className="flex items-center justify-between gap-3 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] p-4">
               <div>
                 <Label htmlFor="isWelcomeFlow">
                   Set as welcome flow
                 </Label>
-                <p className="text-xs text-zoru-ink-muted">
+                <p className="text-xs text-[var(--st-text-secondary)]">
                   Automatically triggers for new users.
                 </p>
               </div>
@@ -655,7 +655,7 @@ function PropertiesPanel({
               onChange={(e) => handleDataChange("text", e.target.value)}
               className="h-32"
             />
-            <p className="text-xs text-zoru-ink-muted">
+            <p className="text-xs text-[var(--st-text-secondary)]">
               Use variables like {"`{{order_id}}`"} which you should get from
               a preceding API call block.
             </p>
@@ -765,7 +765,7 @@ function PropertiesPanel({
                   handleDataChange("variableToSave", e.target.value)
                 }
               />
-              <p className="text-xs text-zoru-ink-muted">
+              <p className="text-xs text-[var(--st-text-secondary)]">
                 Use {"{{user_name}}"} in later steps.
               </p>
             </div>
@@ -789,7 +789,7 @@ function PropertiesPanel({
                 }
               />
             </div>
-            <div className="flex items-center justify-between rounded-[var(--zoru-radius-lg)] border border-zoru-line p-3">
+            <div className="flex items-center justify-between rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] p-3">
               <Label htmlFor="typing-indicator" className="font-normal">
                 Show typing indicator
               </Label>
@@ -837,7 +837,7 @@ function PropertiesPanel({
                   </Label>
                 </div>
               </RadioGroup>
-              <p className="text-xs text-zoru-ink-muted">
+              <p className="text-xs text-[var(--st-text-secondary)]">
                 &ldquo;User response&rdquo; will pause the flow and wait for
                 the user&rsquo;s next message.
               </p>
@@ -943,7 +943,7 @@ function PropertiesPanel({
                 ) => (
                   <div
                     key={index}
-                    className="relative space-y-2 rounded-[var(--zoru-radius)] border border-zoru-line p-2"
+                    className="relative space-y-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-2"
                   >
                     <Button
                       type="button"
@@ -983,7 +983,7 @@ function PropertiesPanel({
               <Plus />
               Add mapping
             </Button>
-            <p className="text-xs text-zoru-ink-muted">
+            <p className="text-xs text-[var(--st-text-secondary)]">
               Use {"{{variable_name}}"} to access mapped values later.
             </p>
           </div>
@@ -997,7 +997,7 @@ function PropertiesPanel({
               {elements.map((el, elIndex) => (
                 <div
                   key={el.id}
-                  className="relative space-y-3 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-surface-2 p-3"
+                  className="relative space-y-3 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3"
                 >
                   <Button
                     type="button"
@@ -1009,7 +1009,7 @@ function PropertiesPanel({
                   >
                     <Trash2 />
                   </Button>
-                  <h4 className="text-sm tracking-tight text-zoru-ink">
+                  <h4 className="text-sm tracking-tight text-[var(--st-text)]">
                     Card {elIndex + 1}
                   </h4>
                   <ZoruFileInput
@@ -1044,7 +1044,7 @@ function PropertiesPanel({
                     {(el.buttons || []).map((btn, btnIndex) => (
                       <div
                         key={btnIndex}
-                        className="relative space-y-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-2"
+                        className="relative space-y-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2"
                       >
                         <Button
                           type="button"
@@ -1298,7 +1298,7 @@ function PropertiesPanel({
         );
       default:
         return (
-          <p className="text-sm italic text-zoru-ink-muted">
+          <p className="text-sm italic text-[var(--st-text-secondary)]">
             No properties to configure for this block type.
           </p>
         );
@@ -1328,7 +1328,7 @@ function PropertiesPanel({
         </ZoruCardContent>
       </ScrollArea>
       {selectedNode.type !== "start" ? (
-        <ZoruCardFooter className="border-t border-zoru-line pt-4">
+        <ZoruCardFooter className="border-t border-[var(--st-border)] pt-4">
           <Button
             variant="destructive"
             block
@@ -1887,7 +1887,7 @@ export default function EcommFlowBuilderPage() {
       {/* ── Save bar / chrome ── */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-2">
-          <Bot className="h-5 w-5 text-zoru-ink-muted" />
+          <Bot className="h-5 w-5 text-[var(--st-text-secondary)]" />
           <Input
             id="flow-name-input"
             key={currentFlow?._id.toString() || "new-flow"}
@@ -2000,7 +2000,7 @@ export default function EcommFlowBuilderPage() {
             >
               {isLoading && !currentFlow ? (
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <LoaderCircle className="h-8 w-8 animate-spin text-zoru-ink-muted" />
+                  <LoaderCircle className="h-8 w-8 animate-spin text-[var(--st-text-secondary)]" />
                 </div>
               ) : (
                 <>

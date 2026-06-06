@@ -169,88 +169,88 @@ export default async function DisciplinaryCaseDetailPage({
         >
 
             <Card className="p-6">
-                <div className="mb-4 text-[14px] font-medium text-zoru-ink">Case Details</div>
+                <div className="mb-4 text-[14px] font-medium text-[var(--st-text)]">Case Details</div>
 
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
                     {/* Case No / ID */}
                     <div>
-                        <div className="text-zoru-ink-muted">Case No / ID</div>
-                        <div className="font-mono text-zoru-ink">{shortId}</div>
+                        <div className="text-[var(--st-text-secondary)]">Case No / ID</div>
+                        <div className="font-mono text-[var(--st-text)]">{shortId}</div>
                     </div>
 
                     {/* Employee */}
                     <div>
-                        <div className="text-zoru-ink-muted">Employee</div>
-                        <div className="text-zoru-ink">{employeeName}</div>
+                        <div className="text-[var(--st-text-secondary)]">Employee</div>
+                        <div className="text-[var(--st-text)]">{employeeName}</div>
                     </div>
 
                     {/* Raised By */}
                     <div>
-                        <div className="text-zoru-ink-muted">Raised By</div>
-                        <div className="text-zoru-ink">{raisedBy}</div>
+                        <div className="text-[var(--st-text-secondary)]">Raised By</div>
+                        <div className="text-[var(--st-text)]">{raisedBy}</div>
                     </div>
 
                     {/* Type */}
                     <div>
-                        <div className="text-zoru-ink-muted">Type</div>
-                        <div className="text-zoru-ink capitalize">{type}</div>
+                        <div className="text-[var(--st-text-secondary)]">Type</div>
+                        <div className="text-[var(--st-text)] capitalize">{type}</div>
                     </div>
 
                     {/* Severity */}
                     <div>
-                        <div className="text-zoru-ink-muted">Severity</div>
+                        <div className="text-[var(--st-text-secondary)]">Severity</div>
                         {severity ? (
                             <Badge variant={severityVariant} className="mt-0.5">
                                 {severity}
                             </Badge>
                         ) : (
-                            <div className="text-zoru-ink">—</div>
+                            <div className="text-[var(--st-text)]">—</div>
                         )}
                     </div>
 
                     {/* Status */}
                     <div>
-                        <div className="text-zoru-ink-muted">Status</div>
+                        <div className="text-[var(--st-text-secondary)]">Status</div>
                         {status ? (
                             <Badge variant={statusVariant} className="mt-0.5">
                                 {status.replace('_', ' ')}
                             </Badge>
                         ) : (
-                            <div className="text-zoru-ink">—</div>
+                            <div className="text-[var(--st-text)]">—</div>
                         )}
                     </div>
 
                     {/* Date Opened */}
                     <div>
-                        <div className="text-zoru-ink-muted">Date Opened</div>
-                        <div className="text-zoru-ink">{fmtDate((c as any).createdAt)}</div>
+                        <div className="text-[var(--st-text-secondary)]">Date Opened</div>
+                        <div className="text-[var(--st-text)]">{fmtDate((c as any).createdAt)}</div>
                     </div>
 
                     {/* Evidence count */}
                     <div>
-                        <div className="text-zoru-ink-muted">Evidence</div>
-                        <div className="text-zoru-ink">{evidenceCount} item{evidenceCount === 1 ? '' : 's'}</div>
+                        <div className="text-[var(--st-text-secondary)]">Evidence</div>
+                        <div className="text-[var(--st-text)]">{evidenceCount} item{evidenceCount === 1 ? '' : 's'}</div>
                     </div>
 
                     {/* Hearings count */}
                     <div>
-                        <div className="text-zoru-ink-muted">Hearings</div>
-                        <div className="text-zoru-ink">{hearingsCount} hearing{hearingsCount === 1 ? '' : 's'}</div>
+                        <div className="text-[var(--st-text-secondary)]">Hearings</div>
+                        <div className="text-[var(--st-text)]">{hearingsCount} hearing{hearingsCount === 1 ? '' : 's'}</div>
                     </div>
 
                     {/* Decision — full width if present */}
                     {decision && (
                         <div className="sm:col-span-2">
-                            <div className="text-zoru-ink-muted">Decision</div>
-                            <div className="text-zoru-ink">{decision}</div>
+                            <div className="text-[var(--st-text-secondary)]">Decision</div>
+                            <div className="text-[var(--st-text)]">{decision}</div>
                         </div>
                     )}
 
                     {/* Notes — full width if present */}
                     {notes && (
                         <div className="sm:col-span-2">
-                            <div className="text-zoru-ink-muted">Notes</div>
-                            <div className="whitespace-pre-wrap text-zoru-ink">{notes}</div>
+                            <div className="text-[var(--st-text-secondary)]">Notes</div>
+                            <div className="whitespace-pre-wrap text-[var(--st-text)]">{notes}</div>
                         </div>
                     )}
                 </div>
@@ -259,13 +259,13 @@ export default async function DisciplinaryCaseDetailPage({
             {/* Hearings timeline */}
             <Card className="p-6">
                 <div className="mb-4 flex items-center justify-between">
-                    <h2 className="text-[15px] font-medium text-zoru-ink">Hearings</h2>
-                    <span className="text-[12px] text-zoru-ink-muted">
+                    <h2 className="text-[15px] font-medium text-[var(--st-text)]">Hearings</h2>
+                    <span className="text-[12px] text-[var(--st-text-secondary)]">
                         {hearingsCount} hearing{hearingsCount === 1 ? '' : 's'}
                     </span>
                 </div>
                 {hearingsList.length === 0 ? (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No hearings scheduled.
                     </div>
                 ) : (
@@ -273,14 +273,14 @@ export default async function DisciplinaryCaseDetailPage({
                         {hearingsList.map((h, i) => (
                             <li
                                 key={i}
-                                className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-3"
+                                className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3"
                             >
                                 <div className="flex flex-wrap items-baseline justify-between gap-2">
-                                    <div className="text-[13px] font-medium text-zoru-ink">
+                                    <div className="text-[13px] font-medium text-[var(--st-text)]">
                                         Hearing #{i + 1}
                                         {h.title ? ` · ${String(h.title)}` : ''}
                                     </div>
-                                    <div className="text-[12px] text-zoru-ink-muted">
+                                    <div className="text-[12px] text-[var(--st-text-secondary)]">
                                         {fmtDate(h.date || h.scheduledAt)}
                                     </div>
                                 </div>
@@ -290,12 +290,12 @@ export default async function DisciplinaryCaseDetailPage({
                                     </div>
                                 ) : null}
                                 {h.notes ? (
-                                    <div className="mt-1.5 whitespace-pre-wrap text-[12.5px] text-zoru-ink">
+                                    <div className="mt-1.5 whitespace-pre-wrap text-[12.5px] text-[var(--st-text)]">
                                         {String(h.notes)}
                                     </div>
                                 ) : null}
                                 {h.panelMembers ? (
-                                    <div className="mt-1.5 text-[11.5px] text-zoru-ink-muted">
+                                    <div className="mt-1.5 text-[11.5px] text-[var(--st-text-secondary)]">
                                         Panel: {String(h.panelMembers)}
                                     </div>
                                 ) : null}
@@ -308,13 +308,13 @@ export default async function DisciplinaryCaseDetailPage({
             {/* Evidence */}
             <Card className="p-6">
                 <div className="mb-4 flex items-center justify-between">
-                    <h2 className="text-[15px] font-medium text-zoru-ink">Evidence</h2>
-                    <span className="text-[12px] text-zoru-ink-muted">
+                    <h2 className="text-[15px] font-medium text-[var(--st-text)]">Evidence</h2>
+                    <span className="text-[12px] text-[var(--st-text-secondary)]">
                         {evidenceCount} item{evidenceCount === 1 ? '' : 's'}
                     </span>
                 </div>
                 {evidenceList.length === 0 ? (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No evidence attached.
                     </div>
                 ) : (
@@ -332,7 +332,7 @@ export default async function DisciplinaryCaseDetailPage({
                                     href={url}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="inline-flex items-center rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 px-2.5 py-1 text-[12px] text-zoru-ink hover:underline"
+                                    className="inline-flex items-center rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2.5 py-1 text-[12px] text-[var(--st-text)] hover:underline"
                                 >
                                     {label}
                                 </a>

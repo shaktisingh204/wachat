@@ -315,7 +315,7 @@ export function NewTimesheetClient({ employees }: { employees: EmployeeLite[] })
            )}
         </div>
 
-        <div className="flex items-center gap-4 px-4 py-2 bg-zoru-surface rounded-t-lg border-b border-zoru-line text-[13px] font-medium text-zoru-ink">
+        <div className="flex items-center gap-4 px-4 py-2 bg-[var(--st-bg-secondary)] rounded-t-lg border-b border-[var(--st-border)] text-[13px] font-medium text-[var(--st-text)]">
           <ZoruCheckbox 
             checked={selectedIds.size === filteredEntries.length && filteredEntries.length > 0} 
             onCheckedChange={toggleSelectAll} 
@@ -355,13 +355,13 @@ export function NewTimesheetClient({ employees }: { employees: EmployeeLite[] })
               })}
             </div>
             {filteredEntries.length === 0 && (
-              <div className="p-8 text-center text-sm text-zoru-ink-muted border-t border-zoru-line/50">
+              <div className="p-8 text-center text-sm text-[var(--st-text-secondary)] border-t border-[var(--st-border)]/50">
                 No entries found.
               </div>
             )}
           </div>
 
-          <div className="flex gap-2 justify-end mt-4 pt-4 border-t border-zoru-line">
+          <div className="flex gap-2 justify-end mt-4 pt-4 border-t border-[var(--st-border)]">
             <Button
               type="button"
               variant="outline"

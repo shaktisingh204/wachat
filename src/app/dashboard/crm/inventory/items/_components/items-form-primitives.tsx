@@ -23,11 +23,11 @@ export function SectionCard({
   return (
     <Card className="p-5">
       <div className="mb-4">
-        <h3 className="text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           {title}
         </h3>
         {description ? (
-          <p className="mt-0.5 text-[11.5px] text-zoru-ink-muted">{description}</p>
+          <p className="mt-0.5 text-[11.5px] text-[var(--st-text-secondary)]">{description}</p>
         ) : null}
       </div>
       {children}
@@ -48,7 +48,7 @@ export function Field({
     <div className="space-y-1">
       <Label>
         {label}
-        {required ? <span className="ml-0.5 text-zoru-danger">*</span> : null}
+        {required ? <span className="ml-0.5 text-[var(--st-danger)]">*</span> : null}
       </Label>
       {children}
     </div>
@@ -67,7 +67,7 @@ export function BoolToggle({
   name: string;
 }) {
   return (
-    <label className="flex h-9 cursor-pointer items-center gap-2 rounded border border-zoru-line bg-zoru-surface px-2 text-[12.5px]">
+    <label className="flex h-9 cursor-pointer items-center gap-2 rounded border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[12.5px]">
       <Checkbox
         checked={checked}
         onCheckedChange={(c) => onChange(Boolean(c))}

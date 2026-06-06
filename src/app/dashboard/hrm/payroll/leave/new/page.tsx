@@ -37,7 +37,7 @@ export default function ApplyLeavePage() {
       <Card className="p-6">
         <Suspense
           fallback={
-            <div className="py-12 text-center text-[13px] text-zoru-ink-muted">
+            <div className="py-12 text-center text-[13px] text-[var(--st-text-secondary)]">
               Loading form…
             </div>
           }

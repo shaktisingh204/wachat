@@ -424,15 +424,15 @@ export default function LeadAgentsPage(): React.JSX.Element {
                 empty={
                     !isPending && pageRows.length === 0 ? (
                         <div className="flex flex-col items-center gap-3 p-4">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-zoru-surface-2">
-                                <UserCog className="h-6 w-6 text-zoru-ink-muted" strokeWidth={1.75} />
+                            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[var(--st-bg-muted)]">
+                                <UserCog className="h-6 w-6 text-[var(--st-text-secondary)]" strokeWidth={1.75} />
                             </div>
-                            <h3 className="text-base font-medium text-zoru-ink">
+                            <h3 className="text-base font-medium text-[var(--st-text)]">
                                 {hasActiveFilters
                                     ? 'No agent assignments match your filters'
                                     : 'No agent assignments yet'}
                             </h3>
-                            <p className="max-w-sm text-sm text-zoru-ink-muted">
+                            <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                                 {hasActiveFilters
                                     ? 'Try clearing your filters or assigning a new agent.'
                                     : 'Assign an employee to a lead to give them ownership of the sales conversation.'}
@@ -556,7 +556,7 @@ function AgentsFiltersRow(props: AgentsFiltersRowProps): React.JSX.Element {
         <Card>
             <ZoruCardContent className="grid grid-cols-1 gap-3 pt-4 md:grid-cols-3 lg:grid-cols-4">
                 <div className="space-y-1">
-                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Agent
                     </Label>
                     <EntityFormField
@@ -569,7 +569,7 @@ function AgentsFiltersRow(props: AgentsFiltersRowProps): React.JSX.Element {
                 </div>
 
                 <div className="space-y-1">
-                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Lead
                     </Label>
                     <EntityFormField
@@ -582,7 +582,7 @@ function AgentsFiltersRow(props: AgentsFiltersRowProps): React.JSX.Element {
                 </div>
 
                 <div className="space-y-1 md:col-span-1 lg:col-span-2">
-                    <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Assigned
                     </Label>
                     <ZoruDateRangePicker
@@ -621,7 +621,7 @@ interface AgentsBulkBarProps {
 function AgentsBulkBar(props: AgentsBulkBarProps): React.JSX.Element {
     return (
         <div className="flex flex-wrap items-center gap-2">
-            <span className="text-sm font-medium text-zoru-ink">
+            <span className="text-sm font-medium text-[var(--st-text)]">
                 {props.count} selected
             </span>
             <span className="flex-1" />
@@ -711,12 +711,12 @@ function AgentsTable(props: AgentsTableProps): React.JSX.Element {
                                             subtitle={leadId !== leadLabel ? leadId : undefined}
                                         />
                                     ) : (
-                                        <span className="text-zoru-ink-muted">—</span>
+                                        <span className="text-[var(--st-text-secondary)]">—</span>
                                     )}
                                 </ZoruTableCell>
                                 <ZoruTableCell>
                                     <div className="flex flex-col gap-0.5">
-                                        <span className="text-sm font-medium text-zoru-ink">
+                                        <span className="text-sm font-medium text-[var(--st-text)]">
                                             {userLabel}
                                         </span>
                                         {userId && userId !== userLabel ? (
@@ -725,7 +725,7 @@ function AgentsTable(props: AgentsTableProps): React.JSX.Element {
                                     </div>
                                 </ZoruTableCell>
                                 <ZoruTableCell>
-                                    <span className="text-[12.5px] text-zoru-ink-muted">
+                                    <span className="text-[12.5px] text-[var(--st-text-secondary)]">
                                         {created ? created.toLocaleDateString() : '—'}
                                     </span>
                                 </ZoruTableCell>

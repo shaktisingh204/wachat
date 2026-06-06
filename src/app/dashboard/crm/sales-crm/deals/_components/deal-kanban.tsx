@@ -162,7 +162,7 @@ export function DealKanban({ deals, stages, currency }: DealKanbanProps) {
         return (
           <div
             key={stage}
-            className="flex w-72 shrink-0 flex-col gap-2 rounded-lg border border-zoru-line bg-zoru-surface-2 p-2"
+            className="flex w-72 shrink-0 flex-col gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2"
             onDragOver={(e) => {
               e.preventDefault();
               e.dataTransfer.dropEffect = 'move';
@@ -176,16 +176,16 @@ export function DealKanban({ deals, stages, currency }: DealKanbanProps) {
             <div className="flex items-center justify-between gap-2 px-1 py-1">
               <div className="flex items-center gap-2">
                 <StatusPill label={stage} tone={tone} />
-                <span className="text-[11.5px] text-zoru-ink-muted">{rows.length}</span>
+                <span className="text-[11.5px] text-[var(--st-text-secondary)]">{rows.length}</span>
               </div>
-              <span className="font-mono text-[11.5px] tabular-nums text-zoru-ink-muted">
+              <span className="font-mono text-[11.5px] tabular-nums text-[var(--st-text-secondary)]">
                 {fmtMoney(total, currency)}
               </span>
             </div>
 
             <div className="flex flex-col gap-2">
               {rows.length === 0 ? (
-                <div className="rounded border border-dashed border-zoru-line px-2 py-6 text-center text-[12px] text-zoru-ink-muted">
+                <div className="rounded border border-dashed border-[var(--st-border)] px-2 py-6 text-center text-[12px] text-[var(--st-text-secondary)]">
                   Drop deals here
                 </div>
               ) : (
@@ -209,25 +209,25 @@ export function DealKanban({ deals, stages, currency }: DealKanbanProps) {
                     >
                       <Link
                         href={`/dashboard/crm/sales-crm/deals/${deal._id}`}
-                        className="block min-w-0 flex-1 text-[13px] font-medium text-zoru-ink hover:underline"
+                        className="block min-w-0 flex-1 text-[13px] font-medium text-[var(--st-text)] hover:underline"
                         onClick={(e) => isPending && e.preventDefault()}
                       >
                         {deal.name || 'Untitled deal'}
                       </Link>
-                      <div className="mt-1.5 flex items-center justify-between gap-2 text-[12px] text-zoru-ink-muted">
+                      <div className="mt-1.5 flex items-center justify-between gap-2 text-[12px] text-[var(--st-text-secondary)]">
                         <span className="truncate">{deal.clientLabel ?? '—'}</span>
                         <div className="text-right">
-                          <span className="block font-mono tabular-nums text-zoru-ink">
+                          <span className="block font-mono tabular-nums text-[var(--st-text)]">
                             {fmtMoney(deal.amount, deal.currency ?? currency)}
                           </span>
                           {typeof deal.probability === 'number' && typeof deal.amount === 'number' ? (
-                            <span className="block text-[10px] font-mono tabular-nums text-zoru-ink-muted" title="Expected Value (Amount × Probability)">
+                            <span className="block text-[10px] font-mono tabular-nums text-[var(--st-text-secondary)]" title="Expected Value (Amount × Probability)">
                               EV: {fmtMoney(deal.amount * (deal.probability / 100), deal.currency ?? currency)}
                             </span>
                           ) : null}
                         </div>
                       </div>
-                      <div className="mt-1.5 flex items-center justify-between gap-2 text-[11.5px] text-zoru-ink-muted">
+                      <div className="mt-1.5 flex items-center justify-between gap-2 text-[11.5px] text-[var(--st-text-secondary)]">
                         <span className="inline-flex items-center gap-1">
                           <Clock className="h-3 w-3" />
                           {deal.expectedClose
@@ -255,7 +255,7 @@ export function DealKanban({ deals, stages, currency }: DealKanbanProps) {
                 variant="ghost"
                 size="sm"
                 asChild
-                className="mt-1 w-full justify-start text-zoru-ink-muted"
+                className="mt-1 w-full justify-start text-[var(--st-text-secondary)]"
               >
                 <Link href={`/dashboard/crm/sales-crm/deals/new?stage=${encodeURIComponent(stage)}`}>
                   <Trophy className="h-3 w-3" /> Add to {stage}

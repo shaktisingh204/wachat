@@ -149,7 +149,7 @@ export function ConfirmDialog({
           <div className="flex flex-col gap-2">
             <Label htmlFor="confirm-dialog-typed">
               Type{' '}
-              <span className="font-mono text-zoru-ink">{requireTyped}</span>{' '}
+              <span className="font-mono text-[var(--st-text)]">{requireTyped}</span>{' '}
               to confirm
             </Label>
             <Input

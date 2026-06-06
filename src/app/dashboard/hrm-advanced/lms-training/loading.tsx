@@ -15,12 +15,12 @@ export default function Loading() {
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-zoru-surface p-4 rounded-lg border">
+      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-[var(--st-bg-secondary)] p-4 rounded-lg border">
         <Skeleton className="h-10 w-full sm:max-w-xs" />
       </div>
 
-      <div className="bg-zoru-surface border rounded-lg overflow-hidden">
-        <div className="grid grid-cols-[auto_1fr_1fr_auto_auto_auto] gap-4 p-4 border-b bg-zoru-surface-2/50">
+      <div className="bg-[var(--st-bg-secondary)] border rounded-lg overflow-hidden">
+        <div className="grid grid-cols-[auto_1fr_1fr_auto_auto_auto] gap-4 p-4 border-b bg-[var(--st-bg-muted)]/50">
           <Skeleton className="h-4 w-4" />
           <Skeleton className="h-4 w-24" />
           <Skeleton className="h-4 w-32" />

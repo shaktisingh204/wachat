@@ -12,7 +12,7 @@ export default function SplitTestsError({
   return (
     <div className="space-y-4">
       <AmErrorAlert message={error.message || 'An unexpected error occurred in split tests.'} />
-      <button onClick={reset} className="text-sm text-zoru-ink hover:underline">
+      <button onClick={reset} className="text-sm text-[var(--st-text)] hover:underline">
         Try again
       </button>
     </div>

@@ -98,7 +98,7 @@ export function ProjectForm({ initial }: ProjectFormProps = {}) {
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div className="md:col-span-2">
                                 <Label htmlFor="name">
-                                    Project name <span className="text-zoru-danger-ink">*</span>
+                                    Project name <span className="text-[var(--st-danger)]">*</span>
                                 </Label>
                                 <Input
                                     id="name"
@@ -189,7 +189,7 @@ export function ProjectForm({ initial }: ProjectFormProps = {}) {
                             </div>
                             <div>
                                 <Label>
-                                    Status <span className="text-zoru-danger-ink">*</span>
+                                    Status <span className="text-[var(--st-danger)]">*</span>
                                 </Label>
                                 <EnumFormField
                                     enumName="projectStatus"
@@ -283,7 +283,7 @@ export function ProjectForm({ initial }: ProjectFormProps = {}) {
                                         <ZoruSelectItem value="assigned">Only assigned team members</ZoruSelectItem>
                                     </ZoruSelectContent>
                                 </Select>
-                                <p className="text-[11px] text-zoru-ink-muted mt-1">
+                                <p className="text-[11px] text-[var(--st-text-secondary)] mt-1">
                                     Admins will always see all projects. This setting controls visibility for regular employees.
                                 </p>
                             </div>

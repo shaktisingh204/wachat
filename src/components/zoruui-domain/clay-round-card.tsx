@@ -28,19 +28,19 @@ const statusTone: Record<
   { dot: string; label: string; text: string }
 > = {
   completed: {
-    dot: 'bg-zoru-ink',
+    dot: 'bg-[var(--st-text)]',
     label: 'Completed',
-    text: 'text-zoru-ink-muted',
+    text: 'text-[var(--st-text-secondary)]',
   },
   'in-progress': {
-    dot: 'bg-zoru-ink',
+    dot: 'bg-[var(--st-text)]',
     label: 'In progress',
-    text: 'text-zoru-ink-muted',
+    text: 'text-[var(--st-text-secondary)]',
   },
   draft: {
-    dot: 'bg-zoru-surface-2-foreground/70',
+    dot: 'bg-[var(--st-text)]/70',
     label: 'Draft',
-    text: 'text-zoru-ink-muted',
+    text: 'text-[var(--st-text-secondary)]',
   },
 };
 
@@ -69,17 +69,17 @@ export function ClayRoundCard({
       className={cn('rounded-[14px] p-4 min-w-[260px]', className)}
     >
       {/* meta row — subtle bullet-separated inline group */}
-      <div className="flex items-center gap-2.5 text-[11px] text-zoru-ink-muted whitespace-nowrap">
+      <div className="flex items-center gap-2.5 text-[11px] text-[var(--st-text-secondary)] whitespace-nowrap">
         <span className="inline-flex items-center gap-1">
           <LuCalendar className="h-3 w-3 opacity-75" strokeWidth={1.75} />
           {dateRange}
         </span>
-        <span aria-hidden className="text-zoru-ink-muted/70">·</span>
+        <span aria-hidden className="text-[var(--st-text-secondary)]/70">·</span>
         <span className="inline-flex items-center gap-1">
           <LuUsers className="h-3 w-3 opacity-75" strokeWidth={1.75} />
           {candidateCount} candidates
         </span>
-        <span aria-hidden className="text-zoru-ink-muted/70">·</span>
+        <span aria-hidden className="text-[var(--st-text-secondary)]/70">·</span>
         <span className={cn('inline-flex items-center gap-1', tone.text)}>
           <span className={cn('h-1.5 w-1.5 rounded-full', tone.dot)} />
           {tone.label}
@@ -88,11 +88,11 @@ export function ClayRoundCard({
 
       {/* title block */}
       <div className="mt-2.5">
-        <h3 className="text-lg font-semibold tracking-[-0.01em] text-zoru-ink leading-[1.1]">
+        <h3 className="text-lg font-semibold tracking-[-0.01em] text-[var(--st-text)] leading-[1.1]">
           {title}
         </h3>
         {subtitle ? (
-          <p className="mt-0.5 text-xs text-zoru-ink-muted leading-tight">
+          <p className="mt-0.5 text-xs text-[var(--st-text-secondary)] leading-tight">
             {subtitle}
           </p>
         ) : null}

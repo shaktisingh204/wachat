@@ -76,10 +76,10 @@ export default function AutomateForm({ rotations, employees, onRun, pending }: A
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <Card className="p-6">
-        <h2 className="mb-3 text-[16px] text-zoru-ink">Rotation &amp; Date Range</h2>
+        <h2 className="mb-3 text-[16px] text-[var(--st-text)]">Rotation &amp; Date Range</h2>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <div className="flex flex-col gap-1.5">
-            <Label className="text-[12px] text-zoru-ink-muted">Rotation</Label>
+            <Label className="text-[12px] text-[var(--st-text-secondary)]">Rotation</Label>
             <Select value={rotationId} onValueChange={setRotationId}>
               <ZoruSelectTrigger>
                 <ZoruSelectValue placeholder="Choose rotation" />
@@ -94,7 +94,7 @@ export default function AutomateForm({ rotations, employees, onRun, pending }: A
             </Select>
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label className="text-[12px] text-zoru-ink-muted">Start Date</Label>
+            <Label className="text-[12px] text-[var(--st-text-secondary)]">Start Date</Label>
             <Input
               type="date"
               value={startDate}
@@ -103,7 +103,7 @@ export default function AutomateForm({ rotations, employees, onRun, pending }: A
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label className="text-[12px] text-zoru-ink-muted">End Date</Label>
+            <Label className="text-[12px] text-[var(--st-text-secondary)]">End Date</Label>
             <Input
               type="date"
               value={endDate}
@@ -116,12 +116,12 @@ export default function AutomateForm({ rotations, employees, onRun, pending }: A
 
       <Card className="p-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-4">
-          <h2 className="text-[16px] text-zoru-ink">
+          <h2 className="text-[16px] text-[var(--st-text)]">
             Employees ({selectedEmps.size} selected)
           </h2>
           <div className="flex items-center gap-4">
             <div className="relative">
-              <Search className="absolute left-2.5 top-2 h-4 w-4 text-zoru-ink-muted" />
+              <Search className="absolute left-2.5 top-2 h-4 w-4 text-[var(--st-text-secondary)]" />
               <Input
                 placeholder="Search employees..."
                 value={searchQuery}
@@ -129,7 +129,7 @@ export default function AutomateForm({ rotations, employees, onRun, pending }: A
                 className="pl-8 h-8 w-[200px]"
               />
             </div>
-            <label className="flex items-center gap-2 text-[13px] text-zoru-ink cursor-pointer">
+            <label className="flex items-center gap-2 text-[13px] text-[var(--st-text)] cursor-pointer">
               <Checkbox
                 checked={isAllSelected}
                 onCheckedChange={(v) => handleSelectAll(Boolean(v))}
@@ -141,7 +141,7 @@ export default function AutomateForm({ rotations, employees, onRun, pending }: A
         
         <div 
           ref={parentRef}
-          className="h-[250px] overflow-auto rounded-lg border border-zoru-line bg-zoru-bg"
+          className="h-[250px] overflow-auto rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)]"
         >
           <div
             style={{
@@ -166,7 +166,7 @@ export default function AutomateForm({ rotations, employees, onRun, pending }: A
                     height: `${virtualRow.size}px`,
                     transform: `translateY(${virtualRow.start}px)`,
                   }}
-                  className="flex items-center px-4 py-2 border-b border-zoru-line hover:bg-zoru-surface-2 transition-colors"
+                  className="flex items-center px-4 py-2 border-b border-[var(--st-border)] hover:bg-[var(--st-bg-muted)] transition-colors"
                 >
                   <label className="flex items-center gap-3 w-full cursor-pointer">
                     <Checkbox
@@ -177,7 +177,7 @@ export default function AutomateForm({ rotations, employees, onRun, pending }: A
                       <div className="truncate font-medium text-[13px]">
                         {e.firstName} {e.lastName}
                       </div>
-                      <div className="truncate text-[11px] text-zoru-ink-muted">
+                      <div className="truncate text-[11px] text-[var(--st-text-secondary)]">
                         {e.employeeId}
                       </div>
                     </div>
@@ -186,7 +186,7 @@ export default function AutomateForm({ rotations, employees, onRun, pending }: A
               );
             })}
             {filteredEmployees.length === 0 && (
-              <div className="p-4 text-center text-[13px] text-zoru-ink-muted">
+              <div className="p-4 text-center text-[13px] text-[var(--st-text-secondary)]">
                 No employees found.
               </div>
             )}

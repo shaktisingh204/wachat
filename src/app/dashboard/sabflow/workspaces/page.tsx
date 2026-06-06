@@ -16,7 +16,7 @@ async function WorkspacesData() {
 
 export default function SabFlowWorkspacesPage() {
   return (
-    <div className="min-h-screen bg-zoru-ink text-white p-6">
+    <div className="min-h-screen bg-[var(--st-text)] text-white p-6">
       <Suspense fallback={<SabFlowWorkspacesLoading />}>
         <WorkspacesData />
       </Suspense>

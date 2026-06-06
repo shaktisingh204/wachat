@@ -286,7 +286,7 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                                 value={fromWarehouseName}
                             />
                         </div>
-                        <div className="hidden pb-2 text-zoru-ink-muted sm:block">
+                        <div className="hidden pb-2 text-[var(--st-text-secondary)] sm:block">
                             <ArrowRight className="h-5 w-5" />
                         </div>
                         <div className="space-y-1.5">
@@ -318,7 +318,7 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                     {warehousesMatch ? (
                         <p
                             role="alert"
-                            className="text-[11.5px] text-zoru-danger-ink"
+                            className="text-[11.5px] text-[var(--st-danger)]"
                         >
                             Source and destination must differ.
                         </p>
@@ -355,7 +355,7 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                                 id="reason"
                                 name="reason"
                                 defaultValue={(initial?.reason as string) ?? 'rebalance'}
-                                className="h-10 w-full rounded-md border border-zoru-line bg-zoru-bg px-3 text-[13px] text-zoru-ink"
+                                className="h-10 w-full rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-3 text-[13px] text-[var(--st-text)]"
                             >
                                 {REASON_OPTIONS.map((opt) => (
                                     <option key={opt.value} value={opt.value}>
@@ -373,9 +373,9 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                 <ZoruCardHeader className="flex flex-row items-center justify-between gap-2">
                     <div>
                         <ZoruCardTitle>Items</ZoruCardTitle>
-                        <p className="text-[12px] text-zoru-ink-muted">
+                        <p className="text-[12px] text-[var(--st-text-secondary)]">
                             One row per SKU being moved. Total units:{' '}
-                            <span className="font-mono tabular-nums text-zoru-ink">
+                            <span className="font-mono tabular-nums text-[var(--st-text)]">
                                 {totalUnits.toLocaleString()}
                             </span>
                         </p>
@@ -390,9 +390,9 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                     </Button>
                 </ZoruCardHeader>
                 <ZoruCardContent>
-                    <div className="overflow-x-auto rounded-md border border-zoru-line">
+                    <div className="overflow-x-auto rounded-md border border-[var(--st-border)]">
                         <table className="w-full text-[13px]">
-                            <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
+                            <thead className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                                 <tr>
                                     <th className="px-3 py-2 text-left font-medium">
                                         Item
@@ -410,7 +410,7 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                                 {lines.map((row, idx) => (
                                     <tr
                                         key={row.rowId}
-                                        className="border-t border-zoru-line align-top"
+                                        className="border-t border-[var(--st-border)] align-top"
                                     >
                                         <td className="min-w-[260px] px-2 py-2">
                                             <EntityFormField
@@ -488,7 +488,7 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                                                 disabled={lines.length === 1}
                                                 aria-label="Remove line"
                                             >
-                                                <Trash2 className="h-3.5 w-3.5 text-zoru-ink" />
+                                                <Trash2 className="h-3.5 w-3.5 text-[var(--st-text)]" />
                                             </Button>
                                         </td>
                                     </tr>
@@ -503,7 +503,7 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
             <Card className="p-0">
                 <ZoruCardHeader>
                     <ZoruCardTitle>Approval workflow</ZoruCardTitle>
-                    <p className="text-[12px] text-zoru-ink-muted">
+                    <p className="text-[12px] text-[var(--st-text-secondary)]">
                         Draft → Requested → Approved → In transit → Received.
                     </p>
                 </ZoruCardHeader>
@@ -625,7 +625,7 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                 <ZoruCardHeader className="flex flex-row items-center justify-between gap-2">
                     <div>
                         <ZoruCardTitle>Attachments</ZoruCardTitle>
-                        <p className="text-[12px] text-zoru-ink-muted">
+                        <p className="text-[12px] text-[var(--st-text-secondary)]">
                             Picking slips, delivery photos, signed receipts.
                         </p>
                     </div>
@@ -656,9 +656,9 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                             {attachments.map((a, idx) => (
                                 <li
                                     key={a.id}
-                                    className="flex items-center justify-between gap-2 rounded-md border border-zoru-line px-2.5 py-1.5 text-[12.5px]"
+                                    className="flex items-center justify-between gap-2 rounded-md border border-[var(--st-border)] px-2.5 py-1.5 text-[12.5px]"
                                 >
-                                    <span className="truncate text-zoru-ink">
+                                    <span className="truncate text-[var(--st-text)]">
                                         {a.name}
                                     </span>
                                     <Button
@@ -703,7 +703,7 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                             ))}
                         </ul>
                     ) : (
-                        <p className="rounded-md border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-3 text-center text-[12px] text-zoru-ink-muted">
+                        <p className="rounded-md border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-3 text-center text-[12px] text-[var(--st-text-secondary)]">
                             No attachments yet.
                         </p>
                     )}
@@ -727,7 +727,7 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
             </Card>
 
             {/* ── Sticky footer ───────────────────────────────────── */}
-            <div className="sticky bottom-0 -mx-4 -mb-4 mt-1 flex flex-wrap items-center justify-between gap-2 border-t border-zoru-line bg-zoru-bg px-4 py-3 md:-mx-6 md:px-6">
+            <div className="sticky bottom-0 -mx-4 -mb-4 mt-1 flex flex-wrap items-center justify-between gap-2 border-t border-[var(--st-border)] bg-[var(--st-bg)] px-4 py-3 md:-mx-6 md:px-6">
                 <Button variant="ghost" asChild>
                     <Link href={BASE}>
                         <ArrowLeft className="mr-2 h-4 w-4" /> Cancel

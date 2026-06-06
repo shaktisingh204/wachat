@@ -132,7 +132,7 @@ export default async function StockAdjustmentDetailPage({ params }: PageProps) {
                 </>
             }
             audit={
-                <Suspense fallback={<div className="p-4 text-sm text-zoru-ink-subtle">Loading activity...</div>}>
+                <Suspense fallback={<div className="p-4 text-sm text-[var(--st-text-tertiary)]">Loading activity...</div>}>
                     <EntityAuditTimeline entityKind="stock_adjustment" entityId={id} />
                 </Suspense>
             }
@@ -144,26 +144,26 @@ export default async function StockAdjustmentDetailPage({ params }: PageProps) {
                 <ZoruCardContent>
                     <dl className="grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-3">
                         <div>
-                            <dt className="text-xs text-zoru-ink">Adjustment #</dt>
-                            <dd className="font-mono text-zoru-ink dark:text-white">
+                            <dt className="text-xs text-[var(--st-text)]">Adjustment #</dt>
+                            <dd className="font-mono text-[var(--st-text)] dark:text-white">
                                 {number}
                             </dd>
                         </div>
                         <div>
-                            <dt className="text-xs text-zoru-ink">Date</dt>
-                            <dd className="text-zoru-ink dark:text-white">
+                            <dt className="text-xs text-[var(--st-text)]">Date</dt>
+                            <dd className="text-[var(--st-text)] dark:text-white">
                                 {fmtDate(adj.date)}
                             </dd>
                         </div>
                         <div>
-                            <dt className="text-xs text-zoru-ink">Reason</dt>
+                            <dt className="text-xs text-[var(--st-text)]">Reason</dt>
                             <dd>
                                 <Badge variant="secondary">{adj.reason}</Badge>
                             </dd>
                         </div>
                         <div>
-                            <dt className="text-xs text-zoru-ink">Warehouse</dt>
-                            <dd className="text-zoru-ink dark:text-white">
+                            <dt className="text-xs text-[var(--st-text)]">Warehouse</dt>
+                            <dd className="text-[var(--st-text)] dark:text-white">
                                 {adj.warehouseId ? (
                                     <EntityPickerChip
                                         entity="warehouse"
@@ -177,15 +177,15 @@ export default async function StockAdjustmentDetailPage({ params }: PageProps) {
                         </div>
                         {adj.referenceNumber ? (
                             <div>
-                                <dt className="text-xs text-zoru-ink">Reference</dt>
-                                <dd className="text-zoru-ink dark:text-white">
+                                <dt className="text-xs text-[var(--st-text)]">Reference</dt>
+                                <dd className="text-[var(--st-text)] dark:text-white">
                                     {adj.referenceNumber}
                                 </dd>
                             </div>
                         ) : null}
                         <div>
-                            <dt className="text-xs text-zoru-ink">Total impact</dt>
-                            <dd className="font-mono text-zoru-ink dark:text-white">
+                            <dt className="text-xs text-[var(--st-text)]">Total impact</dt>
+                            <dd className="font-mono text-[var(--st-text)] dark:text-white">
                                 {totalImpact.toLocaleString('en-IN', {
                                     maximumFractionDigits: 2,
                                 })}
@@ -202,7 +202,7 @@ export default async function StockAdjustmentDetailPage({ params }: PageProps) {
                 <ZoruCardContent className="p-0">
                     <div className="overflow-x-auto">
                         <table className="w-full text-[12.5px]">
-                            <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
+                            <thead className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                                 <tr>
                                     <th className="px-3 py-2 text-left font-medium">Item</th>
                                     <th className="px-3 py-2 text-right font-medium">
@@ -234,7 +234,7 @@ export default async function StockAdjustmentDetailPage({ params }: PageProps) {
                                         return (
                                             <tr
                                                 key={idx}
-                                                className="border-t border-zoru-line"
+                                                className="border-t border-[var(--st-border)]"
                                             >
                                                 <td className="px-3 py-2">
                                                     <Link href={`/dashboard/crm/inventory/products/${l.productId}/ledger`} className="hover:underline">
@@ -255,10 +255,10 @@ export default async function StockAdjustmentDetailPage({ params }: PageProps) {
                                                     className={[
                                                         'px-3 py-2 text-right font-mono',
                                                         delta > 0
-                                                            ? 'text-zoru-ink'
+                                                            ? 'text-[var(--st-text)]'
                                                             : delta < 0
-                                                              ? 'text-zoru-ink'
-                                                              : 'text-zoru-ink-muted',
+                                                              ? 'text-[var(--st-text)]'
+                                                              : 'text-[var(--st-text-secondary)]',
                                                     ].join(' ')}
                                                 >
                                                     {delta > 0 ? '+' : ''}
@@ -282,7 +282,7 @@ export default async function StockAdjustmentDetailPage({ params }: PageProps) {
                                         );
                                     })
                                 ) : (
-                                    <tr className="border-t border-zoru-line">
+                                    <tr className="border-t border-[var(--st-border)]">
                                         <td className="px-3 py-2">
                                             <Link href={`/dashboard/crm/inventory/products/${adj.productId}/ledger`} className="hover:underline">
                                                 <EntityPickerChip
@@ -298,10 +298,10 @@ export default async function StockAdjustmentDetailPage({ params }: PageProps) {
                                             className={[
                                                 'px-3 py-2 text-right font-mono',
                                                 qty > 0
-                                                    ? 'text-zoru-ink'
+                                                    ? 'text-[var(--st-text)]'
                                                     : qty < 0
-                                                      ? 'text-zoru-ink'
-                                                      : 'text-zoru-ink-muted',
+                                                      ? 'text-[var(--st-text)]'
+                                                      : 'text-[var(--st-text-secondary)]',
                                             ].join(' ')}
                                         >
                                             {qty > 0 ? '+' : ''}
@@ -331,7 +331,7 @@ export default async function StockAdjustmentDetailPage({ params }: PageProps) {
                 <ZoruCardContent>
                     <dl className="grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
                         <div>
-                            <dt className="text-xs text-zoru-ink">Status</dt>
+                            <dt className="text-xs text-[var(--st-text)]">Status</dt>
                             <dd>
                                 <Badge
                                     variant={
@@ -347,8 +347,8 @@ export default async function StockAdjustmentDetailPage({ params }: PageProps) {
                             </dd>
                         </div>
                         <div>
-                            <dt className="text-xs text-zoru-ink">Approver</dt>
-                            <dd className="text-zoru-ink dark:text-white">
+                            <dt className="text-xs text-[var(--st-text)]">Approver</dt>
+                            <dd className="text-[var(--st-text)] dark:text-white">
                                 {adj.approvedBy ? (
                                     <EntityPickerChip
                                         entity="user"
@@ -363,15 +363,15 @@ export default async function StockAdjustmentDetailPage({ params }: PageProps) {
                             </dd>
                         </div>
                         <div>
-                            <dt className="text-xs text-zoru-ink">Approved at</dt>
-                            <dd className="text-zoru-ink dark:text-white">
+                            <dt className="text-xs text-[var(--st-text)]">Approved at</dt>
+                            <dd className="text-[var(--st-text)] dark:text-white">
                                 {fmtDateOnly(adj.approvedAt)}
                             </dd>
                         </div>
                         {adj.approvalNotes ? (
                             <div className="sm:col-span-2">
-                                <dt className="text-xs text-zoru-ink">Notes</dt>
-                                <dd className="whitespace-pre-wrap text-zoru-ink dark:text-white">
+                                <dt className="text-xs text-[var(--st-text)]">Notes</dt>
+                                <dd className="whitespace-pre-wrap text-[var(--st-text)] dark:text-white">
                                     {adj.approvalNotes}
                                 </dd>
                             </div>
@@ -386,7 +386,7 @@ export default async function StockAdjustmentDetailPage({ params }: PageProps) {
                         <ZoruCardTitle>Notes</ZoruCardTitle>
                     </ZoruCardHeader>
                     <ZoruCardContent>
-                        <p className="whitespace-pre-wrap text-sm text-zoru-ink dark:text-white">
+                        <p className="whitespace-pre-wrap text-sm text-[var(--st-text)] dark:text-white">
                             {adj.notes}
                         </p>
                     </ZoruCardContent>

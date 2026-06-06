@@ -208,9 +208,9 @@ export function FacebookChatClient() {
                 project={project}
                 onSuccess={onSuccessfulReconnect}
             />
-            <Card className="h-full w-full flex flex-col overflow-hidden bg-zoru-surface-2/30 dark:bg-zoru-surface">
+            <Card className="h-full w-full flex flex-col overflow-hidden bg-[var(--st-bg-muted)]/30 dark:bg-[var(--st-bg-secondary)]">
                 <div className="flex flex-1 overflow-hidden">
-                    <div className={cn("w-full flex-col border-r bg-zoru-surface md:w-[320px] flex-shrink-0", selectedConversation ? "hidden md:flex" : "flex")}>
+                    <div className={cn("w-full flex-col border-r bg-[var(--st-bg-secondary)] md:w-[320px] flex-shrink-0", selectedConversation ? "hidden md:flex" : "flex")}>
                         <FacebookConversationList
                             sessionUser={sessionUser}
                             conversations={conversations}
@@ -232,7 +232,7 @@ export function FacebookChatClient() {
                                 onMessageSent={onMessageSent}
                             />
                         ) : (
-                            <div className="hidden md:flex flex-col items-center justify-center h-full text-zoru-ink-muted gap-4 p-8 text-center bg-chat-texture">
+                            <div className="hidden md:flex flex-col items-center justify-center h-full text-[var(--st-text-secondary)] gap-4 p-8 text-center bg-chat-texture">
                                 <MessageSquare className="h-16 w-16" />
                                 <h2 className="text-xl font-semibold">Select a conversation</h2>
                                 <p>Choose a conversation from the list to start messaging.</p>

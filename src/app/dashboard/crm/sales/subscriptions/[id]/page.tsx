@@ -90,10 +90,10 @@ function Field({
 }) {
   return (
     <div>
-      <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
         {label}
       </div>
-      <div className="mt-1 text-[13px] text-zoru-ink">{children}</div>
+      <div className="mt-1 text-[13px] text-[var(--st-text)]">{children}</div>
     </div>
   );
 }
@@ -110,7 +110,7 @@ export default async function SubscriptionDetailPage({
     if (error) {
       return (
         <div className="flex w-full flex-col gap-4 p-6">
-          <p className="text-[14px] text-zoru-ink">
+          <p className="text-[14px] text-[var(--st-text)]">
             Couldn&apos;t load this subscription — {error}
           </p>
           <Button variant="outline" asChild>
@@ -146,7 +146,7 @@ export default async function SubscriptionDetailPage({
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="p-6 lg:col-span-2">
-          <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
             Customer & Plan
           </h3>
           <div className="grid gap-4 md:grid-cols-2">
@@ -179,7 +179,7 @@ export default async function SubscriptionDetailPage({
             <Field label="Currency">{firstItem?.currency || '—'}</Field>
           </div>
 
-          <h3 className="mb-4 mt-8 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          <h3 className="mb-4 mt-8 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
             Billing cadence
           </h3>
           <div className="grid gap-4 md:grid-cols-2">
@@ -195,7 +195,7 @@ export default async function SubscriptionDetailPage({
         </Card>
 
         <Card className="p-6">
-          <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
             Lifecycle
           </h3>
           <div className="flex flex-col gap-4">
@@ -218,7 +218,7 @@ export default async function SubscriptionDetailPage({
         </Card>
       </div>
 
-      <div className="text-[11px] text-zoru-ink-muted">
+      <div className="text-[11px] text-[var(--st-text-secondary)]">
         Created {fmtDate(subscription.createdAt || subscription.audit?.createdAt)} ·
         Updated {fmtDate(subscription.updatedAt || subscription.audit?.updatedAt)}
       </div>

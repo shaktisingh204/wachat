@@ -68,7 +68,7 @@ export function TagsClient() {
                <Skeleton className="h-10 w-full" />
             </div>
           ) : tags.length === 0 ? (
-            <div className="py-8 text-center text-sm text-zoru-ink-muted">
+            <div className="py-8 text-center text-sm text-[var(--st-text-secondary)]">
               No tags found. Apply tags to subscribers to see them here.
             </div>
           ) : (

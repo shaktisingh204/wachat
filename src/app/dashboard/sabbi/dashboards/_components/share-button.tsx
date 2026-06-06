@@ -51,7 +51,7 @@ export function ShareButton({ dashboardId, visibility }: { dashboardId: string; 
                 </DialogHeader>
                 <div className="space-y-4 pt-4">
                     <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-zoru-ink">Public Access</span>
+                        <span className="text-sm font-medium text-[var(--st-text)]">Public Access</span>
                         <Button 
                             variant={isPublic ? 'default' : 'outline'} 
                             size="sm"
@@ -72,7 +72,7 @@ export function ShareButton({ dashboardId, visibility }: { dashboardId: string; 
                     )}
                     
                     {!isPublic && (
-                        <p className="text-[13px] text-zoru-ink-muted">
+                        <p className="text-[13px] text-[var(--st-text-secondary)]">
                             Enable public access to generate a shareable link that anyone can view.
                         </p>
                     )}

@@ -176,9 +176,9 @@ const ConversationListPane = React.memo(function ConversationListPane({
   );
 
   return (
-    <div className="flex h-full flex-col overflow-hidden bg-zoru-bg">
+    <div className="flex h-full flex-col overflow-hidden bg-[var(--st-bg)]">
       {/* Header: session user + new-chat */}
-      <div className="flex shrink-0 items-center justify-between border-b border-zoru-line p-3">
+      <div className="flex shrink-0 items-center justify-between border-b border-[var(--st-border)] p-3">
         {sessionUser ? (
           <div className="flex min-w-0 items-center gap-3">
             <Avatar>
@@ -190,7 +190,7 @@ const ConversationListPane = React.memo(function ConversationListPane({
                 {sessionUser.name.charAt(0)}
               </ZoruAvatarFallback>
             </Avatar>
-            <p className="truncate text-zoru-ink">{sessionUser.name}</p>
+            <p className="truncate text-[var(--st-text)]">{sessionUser.name}</p>
           </div>
         ) : (
           <div className="flex items-center gap-3">
@@ -209,9 +209,9 @@ const ConversationListPane = React.memo(function ConversationListPane({
       </div>
 
       {/* Search */}
-      <div className="shrink-0 border-b border-zoru-line p-3">
+      <div className="shrink-0 border-b border-[var(--st-border)] p-3">
         <div className="relative">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
           <Input
             placeholder="Search conversations…"
             className="pl-8"
@@ -222,15 +222,15 @@ const ConversationListPane = React.memo(function ConversationListPane({
       </div>
 
       {/* All / Unread filter */}
-      <div className="flex shrink-0 items-center gap-1.5 border-b border-zoru-line px-3 py-2">
+      <div className="flex shrink-0 items-center gap-1.5 border-b border-[var(--st-border)] px-3 py-2">
         <button
           type="button"
           onClick={() => setFilter("all")}
           className={cn(
             "rounded-full px-3 py-1 text-[11px] transition-colors",
             filter === "all"
-              ? "bg-zoru-ink text-zoru-on-primary"
-              : "bg-zoru-surface-2 text-zoru-ink-muted hover:bg-zoru-surface",
+              ? "bg-[var(--st-text)] text-[var(--st-text-inverted)]"
+              : "bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)]",
           )}
         >
           All
@@ -241,8 +241,8 @@ const ConversationListPane = React.memo(function ConversationListPane({
           className={cn(
             "rounded-full px-3 py-1 text-[11px] transition-colors",
             filter === "unread"
-              ? "bg-zoru-ink text-zoru-on-primary"
-              : "bg-zoru-surface-2 text-zoru-ink-muted hover:bg-zoru-surface",
+              ? "bg-[var(--st-text)] text-[var(--st-text-inverted)]"
+              : "bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)]",
           )}
         >
           Unread{unreadCount > 0 && ` (${unreadCount})`}
@@ -269,8 +269,8 @@ const ConversationListPane = React.memo(function ConversationListPane({
                 className={cn(
                   "mx-2 mb-1 flex w-[calc(100%-16px)] items-start gap-3 rounded-[var(--zoru-radius)] p-3 text-left transition-colors",
                   selected
-                    ? "bg-zoru-surface-2 shadow-[var(--zoru-shadow-sm)]"
-                    : "hover:bg-zoru-surface",
+                    ? "bg-[var(--st-bg-muted)] shadow-[var(--zoru-shadow-sm)]"
+                    : "hover:bg-[var(--st-bg-secondary)]",
                 )}
               >
                 <Avatar>
@@ -287,17 +287,17 @@ const ConversationListPane = React.memo(function ConversationListPane({
                     <span
                       className={cn(
                         "truncate",
-                        unread > 0 ? "text-zoru-ink" : "text-zoru-ink-muted",
+                        unread > 0 ? "text-[var(--st-text)]" : "text-[var(--st-text-secondary)]",
                       )}
                     >
                       {participant?.name || "Unknown user"}
                     </span>
-                    <span className="mt-0.5 shrink-0 whitespace-nowrap text-[10px] text-zoru-ink-subtle">
+                    <span className="mt-0.5 shrink-0 whitespace-nowrap text-[10px] text-[var(--st-text-tertiary)]">
                       {format(new Date(convo.updated_time), "p")}
                     </span>
                   </div>
                   <div className="mt-0.5 flex items-center justify-between gap-2">
-                    <span className="block max-w-[180px] truncate text-xs text-zoru-ink-muted">
+                    <span className="block max-w-[180px] truncate text-xs text-[var(--st-text-secondary)]">
                       {convo.snippet || "—"}
                     </span>
                     {unread > 0 && (
@@ -311,8 +311,8 @@ const ConversationListPane = React.memo(function ConversationListPane({
             );
           })
         ) : (
-          <div className="flex flex-col items-center gap-2 p-8 text-center text-sm text-zoru-ink-muted">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
+          <div className="flex flex-col items-center gap-2 p-8 text-center text-sm text-[var(--st-text-secondary)]">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
               <MessageCircle className="h-5 w-5" />
             </div>
             <div>No conversations found.</div>
@@ -438,15 +438,15 @@ const ChatMessageBubble = React.memo(function ChatMessageBubble({
         className={cn(
           "flex max-w-[70%] flex-col rounded-[var(--zoru-radius)] px-3 py-2 text-sm shadow-[var(--zoru-shadow-sm)]",
           isOutgoing
-            ? "rounded-br-none bg-zoru-ink text-zoru-on-primary"
-            : "rounded-bl-none bg-zoru-surface text-zoru-ink",
+            ? "rounded-br-none bg-[var(--st-text)] text-[var(--st-text-inverted)]"
+            : "rounded-bl-none bg-[var(--st-bg-secondary)] text-[var(--st-text)]",
         )}
       >
         <p className="whitespace-pre-wrap">{message.message}</p>
         <span
           className={cn(
             "mt-1 self-end text-[10.5px]",
-            isOutgoing ? "text-zoru-on-primary/70" : "text-zoru-ink-muted",
+            isOutgoing ? "text-[var(--st-text-inverted)]/70" : "text-[var(--st-text-secondary)]",
           )}
         >
           {format(new Date(message.created_time), "p")}
@@ -488,7 +488,7 @@ function ChatThreadPane({
   return (
     <div className="flex h-full flex-col">
       {/* Header */}
-      <div className="flex h-[73px] shrink-0 items-center justify-between gap-3 border-b border-zoru-line bg-zoru-bg p-3">
+      <div className="flex h-[73px] shrink-0 items-center justify-between gap-3 border-b border-[var(--st-border)] bg-[var(--st-bg)] p-3">
         <div className="flex min-w-0 items-center gap-3">
           <Button
             variant="ghost"
@@ -509,8 +509,8 @@ function ChatThreadPane({
             </ZoruAvatarFallback>
           </Avatar>
           <div className="min-w-0">
-            <p className="truncate text-zoru-ink">{participant?.name}</p>
-            <p className="text-xs text-zoru-ink-muted">online</p>
+            <p className="truncate text-[var(--st-text)]">{participant?.name}</p>
+            <p className="text-xs text-[var(--st-text-secondary)]">online</p>
           </div>
         </div>
         <div className="flex items-center gap-1">
@@ -542,14 +542,14 @@ function ChatThreadPane({
       </div>
 
       {/* Messages scroll area */}
-      <ScrollArea className="flex-1 bg-zoru-surface">
+      <ScrollArea className="flex-1 bg-[var(--st-bg-secondary)]">
         <div className="space-y-4 p-4">
           {isLoading ? (
             <div className="flex h-full items-center justify-center">
-              <LoaderCircle className="h-6 w-6 animate-spin text-zoru-ink-muted" />
+              <LoaderCircle className="h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
             </div>
           ) : messages.length === 0 ? (
-            <div className="flex flex-col items-center gap-2 py-12 text-center text-sm text-zoru-ink-muted">
+            <div className="flex flex-col items-center gap-2 py-12 text-center text-sm text-[var(--st-text-secondary)]">
               <MessageCircle className="h-6 w-6" />
               <span>No messages yet — say hello.</span>
             </div>
@@ -563,7 +563,7 @@ function ChatThreadPane({
       </ScrollArea>
 
       {/* Composer */}
-      <div className="flex shrink-0 items-center gap-2 border-t border-zoru-line bg-zoru-bg p-3">
+      <div className="flex shrink-0 items-center gap-2 border-t border-[var(--st-border)] bg-[var(--st-bg)] p-3">
         {participant && pageId ? (
           <MessageInput
             projectId={project._id.toString()}
@@ -590,7 +590,7 @@ function ContactInfoPanelBody({
 }: ContactInfoPanelProps) {
   if (!conversation) {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-2 p-6 text-center text-sm text-zoru-ink-muted">
+      <div className="flex h-full flex-col items-center justify-center gap-2 p-6 text-center text-sm text-[var(--st-text-secondary)]">
         <Info className="h-5 w-5" />
         <span>Select a conversation to see participant details.</span>
       </div>
@@ -609,37 +609,37 @@ function ContactInfoPanelBody({
             {(participant?.name || "U").charAt(0).toUpperCase()}
           </ZoruAvatarFallback>
         </Avatar>
-        <p className="text-[15px] text-zoru-ink">
+        <p className="text-[15px] text-[var(--st-text)]">
           {participant?.name || "Unknown user"}
         </p>
         {participant?.email && (
-          <p className="text-xs text-zoru-ink-muted">{participant.email}</p>
+          <p className="text-xs text-[var(--st-text-secondary)]">{participant.email}</p>
         )}
       </div>
 
-      <div className="space-y-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-4 text-sm">
+      <div className="space-y-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4 text-sm">
         <div className="flex items-center justify-between">
-          <span className="text-zoru-ink-muted">Last activity</span>
-          <span className="text-zoru-ink">
+          <span className="text-[var(--st-text-secondary)]">Last activity</span>
+          <span className="text-[var(--st-text)]">
             {formatDistanceToNow(new Date(conversation.updated_time), {
               addSuffix: true,
             })}
           </span>
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-zoru-ink-muted">Unread</span>
-          <span className="text-zoru-ink">{conversation.unread_count || 0}</span>
+          <span className="text-[var(--st-text-secondary)]">Unread</span>
+          <span className="text-[var(--st-text)]">{conversation.unread_count || 0}</span>
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-zoru-ink-muted">Can reply</span>
-          <span className="text-zoru-ink">
+          <span className="text-[var(--st-text-secondary)]">Can reply</span>
+          <span className="text-[var(--st-text)]">
             {conversation.can_reply ? "Yes" : "No (window expired)"}
           </span>
         </div>
         {conversation.status && (
           <div className="flex items-center justify-between">
-            <span className="text-zoru-ink-muted">Status</span>
-            <span className="text-zoru-ink">{conversation.status}</span>
+            <span className="text-[var(--st-text-secondary)]">Status</span>
+            <span className="text-[var(--st-text)]">{conversation.status}</span>
           </div>
         )}
       </div>
@@ -868,7 +868,7 @@ export function ZoruFacebookChatClient() {
       {/* Mobile contact info sheet */}
       <Sheet open={showInfoSheet} onOpenChange={setShowInfoSheet}>
         <ZoruSheetContent side="right" className="w-full sm:max-w-md p-0">
-          <ZoruSheetHeader className="border-b border-zoru-line p-5">
+          <ZoruSheetHeader className="border-b border-[var(--st-border)] p-5">
             <ZoruSheetTitle>Contact info</ZoruSheetTitle>
             <ZoruSheetDescription>
               Details for the selected conversation.
@@ -882,11 +882,11 @@ export function ZoruFacebookChatClient() {
       </Sheet>
 
       {/* Three-pane shell */}
-      <div className="flex h-full overflow-hidden rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg">
+      <div className="flex h-full overflow-hidden rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)]">
         {/* List */}
         <div
           className={cn(
-            "w-full flex-shrink-0 flex-col border-r border-zoru-line md:w-[320px]",
+            "w-full flex-shrink-0 flex-col border-r border-[var(--st-border)] md:w-[320px]",
             selectedConversation ? "hidden md:flex" : "flex",
           )}
         >
@@ -920,12 +920,12 @@ export function ZoruFacebookChatClient() {
               onMessageSent={onMessageSent}
             />
           ) : (
-            <div className="hidden h-full flex-col items-center justify-center gap-4 p-8 text-center text-zoru-ink-muted md:flex">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
+            <div className="hidden h-full flex-col items-center justify-center gap-4 p-8 text-center text-[var(--st-text-secondary)] md:flex">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                 <MessageSquare className="h-5 w-5" />
               </div>
               <div>
-                <h2 className="text-zoru-ink">Select a conversation</h2>
+                <h2 className="text-[var(--st-text)]">Select a conversation</h2>
                 <p className="mt-1 text-sm">
                   Choose a conversation from the list to start messaging.
                 </p>
@@ -935,7 +935,7 @@ export function ZoruFacebookChatClient() {
         </div>
 
         {/* Contact info — desktop fixed panel */}
-        <div className="hidden w-[300px] shrink-0 flex-col border-l border-zoru-line lg:flex">
+        <div className="hidden w-[300px] shrink-0 flex-col border-l border-[var(--st-border)] lg:flex">
           <ContactInfoPanelBody
             conversation={selectedConversation}
             pageId={project?.facebookPageId}

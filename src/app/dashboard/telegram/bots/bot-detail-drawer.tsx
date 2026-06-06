@@ -142,7 +142,7 @@ export function BotDetailDrawer({
                 side="right"
                 className="flex w-full max-w-[640px] flex-col gap-0 p-0 sm:max-w-[640px]"
             >
-                <ZoruSheetHeader className="border-b border-zoru-line p-6">
+                <ZoruSheetHeader className="border-b border-[var(--st-border)] p-6">
                     <div className="flex items-center gap-3">
                         <div
                             className="flex h-10 w-10 items-center justify-center rounded-xl text-base font-semibold text-white"
@@ -166,7 +166,7 @@ export function BotDetailDrawer({
                                         href={`https://t.me/${bot.username}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-1 text-[12px] text-zoru-ink-muted hover:underline"
+                                        className="inline-flex items-center gap-1 text-[12px] text-[var(--st-text-secondary)] hover:underline"
                                     >
                                         @{bot.username}
                                         <ExternalLink className="h-3 w-3" aria-hidden />
@@ -174,7 +174,7 @@ export function BotDetailDrawer({
                                 ) : loading ? (
                                     'Loading…'
                                 ) : (
-                                    <span className="text-[12px] text-zoru-ink-muted">
+                                    <span className="text-[12px] text-[var(--st-text-secondary)]">
                                         Bot details unavailable
                                     </span>
                                 )}
@@ -195,8 +195,8 @@ export function BotDetailDrawer({
                                     className={
                                         'rounded-full px-3 py-1 text-[12px] transition ' +
                                         (active
-                                            ? 'bg-zoru-ink text-zoru-bg'
-                                            : 'border border-zoru-line text-zoru-ink-muted hover:border-zoru-line-strong')
+                                            ? 'bg-[var(--st-text)] text-[var(--st-bg)]'
+                                            : 'border border-[var(--st-border)] text-[var(--st-text-secondary)] hover:border-[var(--st-border-strong)]')
                                     }
                                     aria-current={active ? 'page' : undefined}
                                 >
@@ -215,7 +215,7 @@ export function BotDetailDrawer({
                             <Skeleton className="h-32 w-full" />
                         </div>
                     ) : !bot ? (
-                        <div className="flex flex-col items-start gap-3 rounded-lg border border-zoru-danger-line bg-zoru-danger-bg p-4 text-[12.5px] text-zoru-danger-ink">
+                        <div className="flex flex-col items-start gap-3 rounded-lg border border-zoru-danger-line bg-[var(--st-danger-soft)] p-4 text-[12.5px] text-[var(--st-danger)]">
                             <div className="flex items-start gap-2">
                                 <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
                                 <div className="flex flex-col gap-1">
@@ -381,7 +381,7 @@ function OverviewPanel({
             <Separator />
 
             <div>
-                <h3 className="text-[13px] font-medium text-zoru-ink">Capabilities</h3>
+                <h3 className="text-[13px] font-medium text-[var(--st-text)]">Capabilities</h3>
                 <div className="mt-2 flex flex-wrap gap-2">
                     <Capability
                         label="Joins groups"
@@ -433,11 +433,11 @@ function Field({
     value: React.ReactNode;
 }) {
     return (
-        <div className="flex flex-col gap-0.5 rounded-lg border border-zoru-line bg-zoru-surface-2 px-3 py-2">
-            <span className="text-[10.5px] uppercase tracking-[0.1em] text-zoru-ink-subtle">
+        <div className="flex flex-col gap-0.5 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2">
+            <span className="text-[10.5px] uppercase tracking-[0.1em] text-[var(--st-text-tertiary)]">
                 {label}
             </span>
-            <span className="text-[13px] text-zoru-ink">{value}</span>
+            <span className="text-[13px] text-[var(--st-text)]">{value}</span>
         </div>
     );
 }
@@ -573,7 +573,7 @@ function CommandsPanel({
             ) : (
                 <>
                     {commands.length === 0 ? (
-                        <p className="rounded-lg border border-dashed border-zoru-line bg-zoru-surface-2 p-6 text-center text-[12.5px] text-zoru-ink-muted">
+                        <p className="rounded-lg border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] p-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                             No commands configured. Add one below — Telegram users will see
                             them in the chat menu.
                         </p>
@@ -582,7 +582,7 @@ function CommandsPanel({
                             {commands.map((c, idx) => (
                                 <div
                                     key={idx}
-                                    className="flex flex-wrap items-end gap-2 rounded-lg border border-zoru-line p-3"
+                                    className="flex flex-wrap items-end gap-2 rounded-lg border border-[var(--st-border)] p-3"
                                 >
                                     <div className="flex flex-col gap-1">
                                         <Label className="text-[10.5px] uppercase tracking-[0.1em]">
@@ -761,7 +761,7 @@ function ProfilePanel({
                     placeholder="leave empty for default"
                     className="max-w-[160px]"
                 />
-                <p className="text-[11.5px] text-zoru-ink-muted">
+                <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                     Two-letter ISO 639-1 code (e.g. <code>en</code>, <code>es</code>) — leave
                     blank to set the default profile.
                 </p>
@@ -978,19 +978,19 @@ function MenuButtonPanel({
             ) : null}
 
             <Separator />
-            <div className="rounded-lg border border-zoru-line bg-zoru-surface-2 p-4">
-                <p className="text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-subtle">
+            <div className="rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4">
+                <p className="text-[11.5px] uppercase tracking-[0.1em] text-[var(--st-text-tertiary)]">
                     Preview
                 </p>
                 <div className="mt-2 flex items-center justify-between">
-                    <span className="text-[13px] text-zoru-ink">
+                    <span className="text-[13px] text-[var(--st-text)]">
                         {type === 'web_app'
                             ? text || 'Open app'
                             : type === 'commands'
                               ? 'Commands'
                               : 'Menu'}
                     </span>
-                    <span className="text-[11.5px] text-zoru-ink-muted">
+                    <span className="text-[11.5px] text-[var(--st-text-secondary)]">
                         {type === 'web_app' ? 'Web app' : type}
                     </span>
                 </div>
@@ -1083,10 +1083,10 @@ function WebhookPanel({
     return (
         <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1">
-                <span className="text-[10.5px] uppercase tracking-[0.1em] text-zoru-ink-subtle">
+                <span className="text-[10.5px] uppercase tracking-[0.1em] text-[var(--st-text-tertiary)]">
                     Webhook URL
                 </span>
-                <code className="block truncate rounded-lg border border-zoru-line bg-zoru-surface-2 px-3 py-2 font-mono text-[12px] text-zoru-ink">
+                <code className="block truncate rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 font-mono text-[12px] text-[var(--st-text)]">
                     {bot.webhookUrl ?? 'Not registered'}
                 </code>
             </div>
@@ -1109,7 +1109,7 @@ function WebhookPanel({
 
             {info?.allowedUpdates?.length ? (
                 <div>
-                    <span className="text-[10.5px] uppercase tracking-[0.1em] text-zoru-ink-subtle">
+                    <span className="text-[10.5px] uppercase tracking-[0.1em] text-[var(--st-text-tertiary)]">
                         Allowed updates
                     </span>
                     <div className="mt-1 flex flex-wrap gap-1">
@@ -1123,7 +1123,7 @@ function WebhookPanel({
             ) : null}
 
             {info?.lastErrorMessage ? (
-                <div className="rounded-lg border border-zoru-danger-line bg-zoru-danger-bg p-3 text-[12.5px] text-zoru-danger-ink">
+                <div className="rounded-lg border border-zoru-danger-line bg-[var(--st-danger-soft)] p-3 text-[12.5px] text-[var(--st-danger)]">
                     <p className="font-medium">Last error</p>
                     <p className="mt-1">{info.lastErrorMessage}</p>
                     {info.lastErrorDate ? (
@@ -1306,9 +1306,9 @@ function AdminRightsPanel({
                     {fields.map((f) => (
                         <label
                             key={f.key as string}
-                            className="flex items-center justify-between gap-3 rounded-lg border border-zoru-line bg-zoru-surface-2 px-3 py-2"
+                            className="flex items-center justify-between gap-3 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2"
                         >
-                            <span className="text-[12.5px] text-zoru-ink">
+                            <span className="text-[12.5px] text-[var(--st-text)]">
                                 {f.label}
                             </span>
                             <Switch

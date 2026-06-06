@@ -291,10 +291,10 @@ export default function LiveStudioPage() {
 
               <Card variant="elevated">
                 <div className="flex flex-col gap-1.5 p-6 pb-4">
-                  <h2 className="text-base font-semibold tracking-tight text-zoru-ink">
+                  <h2 className="text-base font-semibold tracking-tight text-[var(--st-text)]">
                     Schedule a premiere
                   </h2>
-                  <p className="text-sm text-zoru-ink-muted">
+                  <p className="text-sm text-[var(--st-text-secondary)]">
                     Pick a video, set a title, and choose when it should go
                     live.
                   </p>
@@ -329,15 +329,15 @@ export default function LiveStudioPage() {
                     </Label>
                     <label
                       htmlFor="videoFile"
-                      className="flex flex-col items-center gap-2 rounded-[var(--zoru-radius-lg)] border border-dashed border-zoru-line bg-zoru-bg p-8 text-center transition-colors hover:border-zoru-line-strong hover:bg-zoru-surface focus-within:border-zoru-ink"
+                      className="flex flex-col items-center gap-2 rounded-[var(--zoru-radius-lg)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg)] p-8 text-center transition-colors hover:border-[var(--st-border-strong)] hover:bg-[var(--st-bg-secondary)] focus-within:border-[var(--st-text)]"
                     >
-                      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
+                      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                         <Upload className="h-5 w-5" />
                       </span>
-                      <span className="text-sm font-medium text-zoru-ink">
+                      <span className="text-sm font-medium text-[var(--st-text)]">
                         {videoFile ? videoFile.name : "Click to pick a video"}
                       </span>
-                      <span className="text-xs text-zoru-ink-muted">
+                      <span className="text-xs text-[var(--st-text-secondary)]">
                         MP4 / MOV — up to 50 MB
                       </span>
                       <input
@@ -432,12 +432,12 @@ export default function LiveStudioPage() {
             <ZoruAlertDialogDescription>
               SabNode will upload the selected video and schedule it as a live
               premiere on{" "}
-              <strong className="text-zoru-ink">
+              <strong className="text-[var(--st-text)]">
                 {scheduledDate
                   ? format(scheduledDate, "PPP")
                   : "the chosen date"}
               </strong>{" "}
-              at <strong className="text-zoru-ink">{scheduledTime || "—"}</strong>
+              at <strong className="text-[var(--st-text)]">{scheduledTime || "—"}</strong>
               . You can’t cancel from this dialog after upload starts.
             </ZoruAlertDialogDescription>
           </ZoruAlertDialogHeader>
@@ -467,7 +467,7 @@ export default function LiveStudioPage() {
               {stopConfirmTarget ? (
                 <>
                   This will stop{" "}
-                  <strong className="text-zoru-ink">
+                  <strong className="text-[var(--st-text)]">
                     {stopConfirmTarget.title}
                   </strong>{" "}
                   and convert it to a regular Page video. Viewers will be
@@ -529,15 +529,15 @@ function PreflightChecklist({
           {items.map((item) => (
             <li
               key={item.key}
-              className="flex items-center gap-2 text-[13px] text-zoru-ink"
+              className="flex items-center gap-2 text-[13px] text-[var(--st-text)]"
             >
               {item.ok ? (
-                <CheckCircle2 className="h-3.5 w-3.5 text-zoru-success" />
+                <CheckCircle2 className="h-3.5 w-3.5 text-[var(--st-status-ok)]" />
               ) : (
-                <Circle className="h-3.5 w-3.5 text-zoru-ink-subtle" />
+                <Circle className="h-3.5 w-3.5 text-[var(--st-text-tertiary)]" />
               )}
               <span
-                className={cn(item.ok ? "text-zoru-ink" : "text-zoru-ink-muted")}
+                className={cn(item.ok ? "text-[var(--st-text)]" : "text-[var(--st-text-secondary)]")}
               >
                 {item.label}
               </span>
@@ -568,14 +568,14 @@ function ActiveStreamsPanel({
       {live.length > 0 && (
         <Card variant="elevated" className="p-5">
           <div className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-zoru-success/15 text-zoru-success">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--st-status-ok)]/15 text-[var(--st-status-ok)]">
               <Radio className="h-4 w-4" />
             </span>
             <div>
-              <p className="text-[11px] uppercase tracking-wide text-zoru-success">
+              <p className="text-[11px] uppercase tracking-wide text-[var(--st-status-ok)]">
                 Live now
               </p>
-              <p className="text-sm text-zoru-ink">
+              <p className="text-sm text-[var(--st-text)]">
                 {live.length} active broadcast{live.length === 1 ? "" : "s"}
               </p>
             </div>
@@ -584,13 +584,13 @@ function ActiveStreamsPanel({
             {live.map((stream) => (
               <li
                 key={stream._id.toString()}
-                className="flex items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3"
+                className="flex items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3"
               >
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-zoru-ink">
+                  <p className="truncate text-sm font-medium text-[var(--st-text)]">
                     {stream.title}
                   </p>
-                  <p className="text-[11px] text-zoru-ink-muted">
+                  <p className="text-[11px] text-[var(--st-text-secondary)]">
                     Scheduled for {format(new Date(stream.scheduledTime), "PPp")}
                   </p>
                 </div>
@@ -610,18 +610,18 @@ function ActiveStreamsPanel({
       <Card variant="elevated">
         <div className="flex items-center justify-between gap-2 p-5 pb-3">
           <div>
-            <p className="text-[11px] uppercase tracking-wide text-zoru-ink-subtle">
+            <p className="text-[11px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
               Upcoming &amp; past
             </p>
-            <p className="text-sm text-zoru-ink-muted">
+            <p className="text-sm text-[var(--st-text-secondary)]">
               Most recent 50 streams from this Page
             </p>
           </div>
           {isLoading && (
-            <LoaderCircle className="h-4 w-4 animate-spin text-zoru-ink-subtle" />
+            <LoaderCircle className="h-4 w-4 animate-spin text-[var(--st-text-tertiary)]" />
           )}
         </div>
-        <div className="border-t border-zoru-line">
+        <div className="border-t border-[var(--st-border)]">
           {streams.length === 0 ? (
             <EmptyState
               compact
@@ -647,13 +647,13 @@ function ActiveStreamsPanel({
                         href={`https://www.facebook.com/${stream.facebookVideoId}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-zoru-ink hover:underline"
+                        className="inline-flex items-center gap-1 text-[var(--st-text)] hover:underline"
                       >
                         {stream.title}
-                        <ExternalLink className="h-3 w-3 text-zoru-ink-subtle" />
+                        <ExternalLink className="h-3 w-3 text-[var(--st-text-tertiary)]" />
                       </Link>
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[11.5px] text-zoru-ink-muted">
+                    <ZoruTableCell className="text-[11.5px] text-[var(--st-text-secondary)]">
                       {format(new Date(stream.scheduledTime), "PP p")}
                     </ZoruTableCell>
                     <ZoruTableCell>

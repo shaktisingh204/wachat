@@ -59,49 +59,49 @@ export function RecentActivityFeed() {
   }, []);
 
   return (
-    <div className="rounded-xl border border-zoru-line dark:border-zoru-line bg-white dark:bg-zoru-ink overflow-hidden">
+    <div className="rounded-xl border border-[var(--st-border)] dark:border-[var(--st-border)] bg-white dark:bg-[var(--st-text)] overflow-hidden">
       {/* Header */}
-      <div className="flex items-center gap-2.5 px-4 py-3 border-b border-zoru-line dark:border-zoru-line bg-zoru-surface-2 dark:bg-zoru-ink/50">
-        <LuInbox className="h-4 w-4 text-zoru-ink" strokeWidth={1.75} />
-        <span className="text-[13px] font-semibold text-zoru-ink dark:text-white mr-auto">
+      <div className="flex items-center gap-2.5 px-4 py-3 border-b border-[var(--st-border)] dark:border-[var(--st-border)] bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/50">
+        <LuInbox className="h-4 w-4 text-[var(--st-text)]" strokeWidth={1.75} />
+        <span className="text-[13px] font-semibold text-[var(--st-text)] dark:text-white mr-auto">
           Recent Submissions
         </span>
         {!loading && !error && rows.length > 0 && (
-          <span className="text-[11px] text-zoru-ink-muted tabular-nums">{rows.length} shown</span>
+          <span className="text-[11px] text-[var(--st-text-secondary)] tabular-nums">{rows.length} shown</span>
         )}
       </div>
 
       {/* Body */}
       <div className="max-h-72 overflow-y-auto">
         {loading ? (
-          <div className="flex items-center justify-center gap-2 py-10 text-zoru-ink-muted">
+          <div className="flex items-center justify-center gap-2 py-10 text-[var(--st-text-secondary)]">
             <LuLoader className="h-4 w-4 animate-spin" />
             <span className="text-[12px]">Loading…</span>
           </div>
         ) : error ? (
-          <div className="py-8 text-center text-[12px] text-zoru-ink dark:text-zoru-ink-muted">
+          <div className="py-8 text-center text-[12px] text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
             Could not load recent submissions.
           </div>
         ) : rows.length === 0 ? (
-          <div className="flex flex-col items-center gap-2 py-10 text-zoru-ink-muted">
+          <div className="flex flex-col items-center gap-2 py-10 text-[var(--st-text-secondary)]">
             <LuInbox className="h-7 w-7 opacity-40" strokeWidth={1.25} />
             <span className="text-[12px]">No submissions yet.</span>
           </div>
         ) : (
-          <ul className="divide-y divide-zoru-line dark:divide-zoru-line">
+          <ul className="divide-y divide-[var(--st-border)] dark:divide-[var(--st-border)]">
             {rows.map((row) => (
               <li
                 key={row.submissionId}
-                className="flex items-center gap-3 px-4 py-2.5 hover:bg-zoru-surface-2 dark:hover:bg-zoru-ink/40 transition-colors group"
+                className="flex items-center gap-3 px-4 py-2.5 hover:bg-[var(--st-bg-muted)] dark:hover:bg-[var(--st-text)]/40 transition-colors group"
               >
                 {/* Flow name */}
-                <span className="flex-1 truncate text-[12.5px] font-medium text-zoru-ink dark:text-white">
+                <span className="flex-1 truncate text-[12.5px] font-medium text-[var(--st-text)] dark:text-white">
                   {row.flowName}
                 </span>
 
                 {/* Time ago */}
                 <span className={cn(
-                  'flex shrink-0 items-center gap-1 text-[11px] text-zoru-ink-muted tabular-nums',
+                  'flex shrink-0 items-center gap-1 text-[11px] text-[var(--st-text-secondary)] tabular-nums',
                 )}>
                   <LuClock className="h-3 w-3" strokeWidth={1.75} />
                   {timeAgo(row.completedAt)}
@@ -112,7 +112,7 @@ export function RecentActivityFeed() {
                   href={`/dashboard/sabflow/logs?flowId=${row.flowId}`}
                   className={cn(
                     'shrink-0 flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-[11px] font-medium transition-colors',
-                    'text-zoru-ink-muted hover:text-zoru-ink hover:bg-zoru-surface-2 dark:hover:bg-zoru-ink/30',
+                    'text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] dark:hover:bg-[var(--st-text)]/30',
                     'opacity-0 group-hover:opacity-100 focus-visible:opacity-100',
                   )}
                 >

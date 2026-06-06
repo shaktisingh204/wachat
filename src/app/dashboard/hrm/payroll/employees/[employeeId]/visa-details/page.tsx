@@ -254,7 +254,7 @@ export default function EmployeeVisaDetailsSubPage() {
                 }
             >
 
-                <div className="flex flex-wrap gap-1 border-b border-zoru-line">
+                <div className="flex flex-wrap gap-1 border-b border-[var(--st-border)]">
                     {[
                         { href: BASE, label: 'Overview' },
                         { href: `${BASE}/profile`, label: 'Profile' },
@@ -275,8 +275,8 @@ export default function EmployeeVisaDetailsSubPage() {
                             href={tab.href}
                             className={`-mb-px border-b-2 px-3 py-2 text-[12.5px] transition-colors ${
                                 tab.active
-                                    ? 'border-zoru-ink text-zoru-ink'
-                                    : 'border-transparent text-zoru-ink-muted hover:text-zoru-ink'
+                                    ? 'border-[var(--st-text)] text-[var(--st-text)]'
+                                    : 'border-transparent text-[var(--st-text-secondary)] hover:text-[var(--st-text)]'
                             }`}
                         >
                             {tab.label}
@@ -286,21 +286,21 @@ export default function EmployeeVisaDetailsSubPage() {
 
                 {isLoading && rows.length === 0 ? (
                     <div className="flex items-center justify-center py-12">
-                        <LoaderCircle className="h-5 w-5 animate-spin text-zoru-ink-muted" />
+                        <LoaderCircle className="h-5 w-5 animate-spin text-[var(--st-text-secondary)]" />
                     </div>
                 ) : rows.length === 0 ? (
                     <Card className="flex flex-col items-start gap-3 p-8">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)]">
                             <Plane
-                                className="h-5 w-5 text-zoru-ink-muted"
+                                className="h-5 w-5 text-[var(--st-text-secondary)]"
                                 strokeWidth={1.75}
                             />
                         </div>
                         <div>
-                            <h3 className="text-[15px] text-zoru-ink">
+                            <h3 className="text-[15px] text-[var(--st-text)]">
                                 No visa records yet
                             </h3>
-                            <p className="mt-1 text-[13px] text-zoru-ink-muted">
+                            <p className="mt-1 text-[13px] text-[var(--st-text-secondary)]">
                                 Capture work-visa or travel-visa details for
                                 this employee. Attach the visa document from
                                 SabFiles.
@@ -323,14 +323,14 @@ export default function EmployeeVisaDetailsSubPage() {
                                 >
                                     <div className="flex items-start justify-between gap-2">
                                         <div className="min-w-0 flex-1">
-                                            <div className="text-[14px] font-medium text-zoru-ink">
+                                            <div className="text-[14px] font-medium text-[var(--st-text)]">
                                                 {v.country}
-                                                <span className="ml-1 text-zoru-ink-muted">
+                                                <span className="ml-1 text-[var(--st-text-secondary)]">
                                                     · {v.visaType}
                                                 </span>
                                             </div>
                                             {v.visaNumber ? (
-                                                <div className="mt-0.5 font-mono text-[12px] text-zoru-ink-muted">
+                                                <div className="mt-0.5 font-mono text-[12px] text-[var(--st-text-secondary)]">
                                                     {v.visaNumber}
                                                 </div>
                                             ) : null}
@@ -342,55 +342,55 @@ export default function EmployeeVisaDetailsSubPage() {
                                     </div>
                                     <dl className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-[12.5px]">
                                         <div>
-                                            <dt className="text-zoru-ink-muted">
+                                            <dt className="text-[var(--st-text-secondary)]">
                                                 Issued
                                             </dt>
-                                            <dd className="text-zoru-ink">
+                                            <dd className="text-[var(--st-text)]">
                                                 {fmtDate(v.issueDate)}
                                             </dd>
                                         </div>
                                         <div>
-                                            <dt className="text-zoru-ink-muted">
+                                            <dt className="text-[var(--st-text-secondary)]">
                                                 Expires
                                             </dt>
-                                            <dd className="text-zoru-ink">
+                                            <dd className="text-[var(--st-text)]">
                                                 {fmtDate(v.expiryDate)}
                                             </dd>
                                         </div>
                                         {v.sponsor ? (
                                             <div className="col-span-2">
-                                                <dt className="text-zoru-ink-muted">
+                                                <dt className="text-[var(--st-text-secondary)]">
                                                     Sponsor
                                                 </dt>
-                                                <dd className="text-zoru-ink">
+                                                <dd className="text-[var(--st-text)]">
                                                     {v.sponsor}
                                                 </dd>
                                             </div>
                                         ) : null}
                                         {v.notes ? (
                                             <div className="col-span-2">
-                                                <dt className="text-zoru-ink-muted">
+                                                <dt className="text-[var(--st-text-secondary)]">
                                                     Notes
                                                 </dt>
-                                                <dd className="text-zoru-ink">
+                                                <dd className="text-[var(--st-text)]">
                                                     {v.notes}
                                                 </dd>
                                             </div>
                                         ) : null}
                                     </dl>
-                                    <div className="mt-auto flex items-center justify-between gap-2 border-t border-zoru-line pt-2">
+                                    <div className="mt-auto flex items-center justify-between gap-2 border-t border-[var(--st-border)] pt-2">
                                         {v.documentUrl ? (
                                             <a
                                                 href={v.documentUrl}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="inline-flex items-center gap-1 text-[12px] text-zoru-ink hover:underline"
+                                                className="inline-flex items-center gap-1 text-[12px] text-[var(--st-text)] hover:underline"
                                             >
                                                 <ExternalLink className="h-3.5 w-3.5" />
                                                 Open document
                                             </a>
                                         ) : (
-                                            <span className="text-[12px] text-zoru-ink-muted">
+                                            <span className="text-[12px] text-[var(--st-text-secondary)]">
                                                 No document attached
                                             </span>
                                         )}
@@ -409,7 +409,7 @@ export default function EmployeeVisaDetailsSubPage() {
                                                     setPendingDelete(v)
                                                 }
                                             >
-                                                <Trash2 className="h-3.5 w-3.5 text-zoru-ink" />
+                                                <Trash2 className="h-3.5 w-3.5 text-[var(--st-text)]" />
                                             </Button>
                                         </div>
                                     </div>
@@ -586,7 +586,7 @@ export default function EmployeeVisaDetailsSubPage() {
                                             href={form.documentUrl}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="max-w-[240px] truncate text-[12.5px] text-zoru-ink underline-offset-2 hover:underline"
+                                            className="max-w-[240px] truncate text-[12.5px] text-[var(--st-text)] underline-offset-2 hover:underline"
                                         >
                                             {form.documentName ||
                                                 form.documentUrl}
@@ -607,7 +607,7 @@ export default function EmployeeVisaDetailsSubPage() {
                                         </Button>
                                     </>
                                 ) : (
-                                    <span className="text-[12px] text-zoru-ink-muted">
+                                    <span className="text-[12px] text-[var(--st-text-secondary)]">
                                         No document attached.
                                     </span>
                                 )}

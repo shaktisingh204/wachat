@@ -97,7 +97,7 @@ export default function AutomateRuns({ runs, onDeleteRuns }: AutomateRunsProps) 
   return (
     <Card className="p-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-4">
-        <h2 className="text-[16px] text-zoru-ink">Recent Runs</h2>
+        <h2 className="text-[16px] text-[var(--st-text)]">Recent Runs</h2>
         <div className="flex flex-wrap items-center gap-2">
           {selectedIds.size > 0 && (
             <Button variant="danger" size="sm" onClick={handleDeleteSelected}>
@@ -118,7 +118,7 @@ export default function AutomateRuns({ runs, onDeleteRuns }: AutomateRunsProps) 
       
       <div className="flex flex-col sm:flex-row gap-3 mb-4">
         <div className="relative flex-1">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
           <Input 
             placeholder="Search by ID..." 
             value={search} 
@@ -143,36 +143,36 @@ export default function AutomateRuns({ runs, onDeleteRuns }: AutomateRunsProps) 
       </div>
 
       {filteredRuns.length > 0 && (
-        <div className="flex items-center gap-3 px-3 py-2 mb-2 bg-zoru-surface-2 rounded-lg text-[13px]">
+        <div className="flex items-center gap-3 px-3 py-2 mb-2 bg-[var(--st-bg-muted)] rounded-lg text-[13px]">
           <Checkbox 
             checked={selectedIds.size === filteredRuns.length && filteredRuns.length > 0} 
             onCheckedChange={(v) => handleSelectAll(Boolean(v))}
           />
-          <span className="font-medium text-zoru-ink">Select All</span>
+          <span className="font-medium text-[var(--st-text)]">Select All</span>
         </div>
       )}
 
       <div className="flex flex-col gap-2">
         {filteredRuns.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-zoru-line bg-zoru-surface-2 p-4 text-center text-[13px] text-zoru-ink-muted">
+          <div className="rounded-lg border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 text-center text-[13px] text-[var(--st-text-secondary)]">
             No runs found.
           </div>
         ) : (
           filteredRuns.map((r) => (
             <div
               key={String(r._id)}
-              className="flex items-center gap-3 rounded-lg border border-zoru-line bg-zoru-bg px-3 py-2 text-[13px]"
+              className="flex items-center gap-3 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-[13px]"
             >
               <Checkbox 
                 checked={selectedIds.has(String(r._id))}
                 onCheckedChange={(v) => toggleSelect(String(r._id), Boolean(v))}
               />
-              <RotateCw className="h-4 w-4 text-zoru-ink-muted hidden sm:block" />
+              <RotateCw className="h-4 w-4 text-[var(--st-text-secondary)] hidden sm:block" />
               <div className="min-w-0 flex-1">
-                <div className="truncate font-medium text-zoru-ink">
+                <div className="truncate font-medium text-[var(--st-text)]">
                   {mounted ? new Date(r.start_date).toDateString() : ''} {mounted && '→'} {mounted ? new Date(r.end_date).toDateString() : ''}
                 </div>
-                <div className="truncate text-[11.5px] text-zoru-ink-muted">
+                <div className="truncate text-[11.5px] text-[var(--st-text-secondary)]">
                   ID: {String(r._id).substring(0, 8)}... • {r.user_ids.length} employee{r.user_ids.length === 1 ? '' : 's'}
                 </div>
               </div>

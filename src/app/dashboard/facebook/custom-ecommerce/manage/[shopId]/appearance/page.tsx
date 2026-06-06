@@ -170,7 +170,7 @@ export default function ShopAppearancePage() {
   if (!shop) {
     return (
       <div className="space-y-4">
-        <p className="text-zoru-ink-muted">
+        <p className="text-[var(--st-text-secondary)]">
           This shop could not be loaded.
         </p>
         <Button variant="outline" asChild>
@@ -187,10 +187,10 @@ export default function ShopAppearancePage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="text-[20px] tracking-tight text-zoru-ink">
+          <h2 className="text-[20px] tracking-tight text-[var(--st-text)]">
             Appearance
           </h2>
-          <p className="text-[13px] text-zoru-ink-muted">
+          <p className="text-[13px] text-[var(--st-text-secondary)]">
             Customize the storefront palette for {shop.name}. Saved themes
             stay attached to this shop; publishing re-applies the active
             theme to the live storefront.
@@ -209,10 +209,10 @@ export default function ShopAppearancePage() {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)]">
         <Card className="p-5">
-          <h3 className="text-[15px] tracking-tight text-zoru-ink">
+          <h3 className="text-[15px] tracking-tight text-[var(--st-text)]">
             Palette presets
           </h3>
-          <p className="mt-1 text-[12px] text-zoru-ink-muted">
+          <p className="mt-1 text-[12px] text-[var(--st-text-secondary)]">
             Neutral-only — choose how dark the primary surface should be.
           </p>
           <div className="mt-4 grid grid-cols-2 gap-2">
@@ -224,12 +224,12 @@ export default function ShopAppearancePage() {
                 className={
                   "flex items-center gap-2 rounded-[var(--zoru-radius)] border px-3 py-2 text-left text-[13px] transition-colors " +
                   (presetId === p.id
-                    ? "border-zoru-ink bg-zoru-surface-2 text-zoru-ink"
-                    : "border-zoru-line bg-zoru-bg text-zoru-ink-muted hover:bg-zoru-surface")
+                    ? "border-[var(--st-text)] bg-[var(--st-bg-muted)] text-[var(--st-text)]"
+                    : "border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)]")
                 }
               >
                 <span
-                  className="h-5 w-5 rounded-full border border-zoru-line"
+                  className="h-5 w-5 rounded-full border border-[var(--st-border)]"
                   style={{ backgroundColor: p.primary }}
                 />
                 {p.label}
@@ -247,7 +247,7 @@ export default function ShopAppearancePage() {
               }}
               presets={NEUTRAL_PRESETS}
             />
-            <p className="text-[11.5px] text-zoru-ink-muted">
+            <p className="text-[11.5px] text-[var(--st-text-secondary)]">
               Used for primary buttons, links, and selection states inside
               the live storefront.
             </p>
@@ -265,15 +265,15 @@ export default function ShopAppearancePage() {
         </Card>
 
         <Card className="p-5">
-          <div className="flex items-center gap-2 text-[12px] text-zoru-ink-muted">
+          <div className="flex items-center gap-2 text-[12px] text-[var(--st-text-secondary)]">
             <Brush className="h-3.5 w-3.5" />
             Live preview
           </div>
-          <h3 className="mt-2 text-[18px] tracking-tight text-zoru-ink">
+          <h3 className="mt-2 text-[18px] tracking-tight text-[var(--st-text)]">
             Storefront preview
           </h3>
           <div
-            className="mt-4 rounded-[var(--zoru-radius-lg)] border border-zoru-line p-6"
+            className="mt-4 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] p-6"
             style={{
               backgroundColor: "var(--zoru-bg)",
               color: "var(--zoru-ink)",
@@ -295,10 +295,10 @@ export default function ShopAppearancePage() {
               {[1, 2, 3].map((i) => (
                 <div
                   key={i}
-                  className="rounded-[var(--zoru-radius)] border border-zoru-line p-3"
+                  className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-3"
                 >
-                  <div className="aspect-square w-full rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2" />
-                  <p className="mt-2 truncate text-[12px] text-zoru-ink">
+                  <div className="aspect-square w-full rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)]" />
+                  <p className="mt-2 truncate text-[12px] text-[var(--st-text)]">
                     Sample product {i}
                   </p>
                   <p

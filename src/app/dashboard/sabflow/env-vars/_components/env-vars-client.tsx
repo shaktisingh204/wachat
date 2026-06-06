@@ -146,7 +146,7 @@ export function EnvVarsClient() {
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex flex-wrap items-center gap-3 border-b border-[var(--gray-4)] px-4 sm:px-6 py-4 shrink-0">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
           <LuKey className="h-4 w-4" strokeWidth={2} />
         </div>
         <div className="flex flex-col leading-tight min-w-0">
@@ -175,7 +175,7 @@ export function EnvVarsClient() {
           <button
             type="button"
             onClick={openCreate}
-            className="flex items-center gap-1.5 rounded-lg bg-zoru-ink px-2.5 py-1.5 text-[12px] font-semibold text-white hover:bg-zoru-ink"
+            className="flex items-center gap-1.5 rounded-lg bg-[var(--st-text)] px-2.5 py-1.5 text-[12px] font-semibold text-white hover:bg-[var(--st-text)]"
           >
             <LuPlus className="h-3.5 w-3.5" strokeWidth={2.5} />
             Add variable
@@ -192,7 +192,7 @@ export function EnvVarsClient() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by key…"
-            className="w-full sm:w-[260px] rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] py-1.5 pl-8 pr-2.5 text-[12.5px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-zoru-line"
+            className="w-full sm:w-[260px] rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] py-1.5 pl-8 pr-2.5 text-[12.5px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[var(--st-border)]"
           />
         </div>
         <span className="text-[10.5px] text-[var(--gray-9)] ml-auto tabular-nums">
@@ -202,13 +202,13 @@ export function EnvVarsClient() {
 
       {/* Error banner */}
       {error && (
-        <div className="mx-6 mt-4 flex items-start gap-2 rounded-lg border border-zoru-line bg-zoru-surface-2 px-4 py-3 text-[12px] text-zoru-ink dark:border-zoru-line/60 dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
+        <div className="mx-6 mt-4 flex items-start gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-3 text-[12px] text-[var(--st-text)] dark:border-[var(--st-border)]/60 dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
           <LuTriangleAlert className="h-4 w-4 shrink-0 mt-0.5" />
           <span className="flex-1">{error}</span>
           <button
             type="button"
             onClick={() => setError(null)}
-            className="text-zoru-ink hover:opacity-80 dark:text-zoru-ink-muted"
+            className="text-[var(--st-text)] hover:opacity-80 dark:text-[var(--st-text-secondary)]"
             aria-label="Dismiss error"
           >
             <LuX className="h-3.5 w-3.5" />
@@ -244,7 +244,7 @@ export function EnvVarsClient() {
               <button
                 type="button"
                 onClick={openCreate}
-                className="mt-2 flex items-center gap-1.5 rounded-lg bg-zoru-ink px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-zoru-ink"
+                className="mt-2 flex items-center gap-1.5 rounded-lg bg-[var(--st-text)] px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-[var(--st-text)]"
               >
                 <LuPlus className="h-3.5 w-3.5" strokeWidth={2.5} />
                 Add your first variable
@@ -271,7 +271,7 @@ export function EnvVarsClient() {
                     <span className="inline-flex items-center gap-1.5">
                       {row.isSecret && (
                         <LuLock
-                          className="h-3 w-3 text-zoru-ink dark:text-zoru-ink-muted"
+                          className="h-3 w-3 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]"
                           strokeWidth={2.5}
                           aria-label="Secret"
                         />
@@ -312,7 +312,7 @@ export function EnvVarsClient() {
                       <button
                         type="button"
                         onClick={() => setConfirmDelete(row)}
-                        className="inline-flex h-7 w-7 items-center justify-center rounded-md text-[var(--gray-10)] hover:bg-zoru-surface-2 hover:text-zoru-ink dark:hover:bg-zoru-ink/40 dark:hover:text-zoru-ink-muted"
+                        className="inline-flex h-7 w-7 items-center justify-center rounded-md text-[var(--gray-10)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] dark:hover:bg-[var(--st-text)]/40 dark:hover:text-[var(--st-text-secondary)]"
                         aria-label={`Delete ${row.key}`}
                         title="Delete"
                       >
@@ -465,14 +465,14 @@ function EnvVarModal({ editing, onClose, onSaved }: EnvVarModalProps) {
               className={cn(
                 'rounded-lg border bg-[var(--gray-2)] px-2.5 py-1.5 font-mono text-[12.5px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none disabled:opacity-60',
                 keyError
-                  ? 'border-zoru-line focus:border-zoru-line'
-                  : 'border-[var(--gray-5)] focus:border-zoru-line',
+                  ? 'border-[var(--st-border)] focus:border-[var(--st-border)]'
+                  : 'border-[var(--gray-5)] focus:border-[var(--st-border)]',
               )}
             />
             <p
               className={cn(
                 'text-[11px]',
-                keyError ? 'text-zoru-ink' : 'text-[var(--gray-9)]',
+                keyError ? 'text-[var(--st-text)]' : 'text-[var(--gray-9)]',
               )}
             >
               {keyError ?? KEY_HINT}
@@ -500,7 +500,7 @@ function EnvVarModal({ editing, onClose, onSaved }: EnvVarModalProps) {
               placeholder={
                 isSecret ? 'sk_live_…' : 'https://example.com/webhook'
               }
-              className="resize-y rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-2.5 py-1.5 font-mono text-[12.5px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-zoru-line"
+              className="resize-y rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-2.5 py-1.5 font-mono text-[12.5px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[var(--st-border)]"
             />
           </div>
 
@@ -513,7 +513,7 @@ function EnvVarModal({ editing, onClose, onSaved }: EnvVarModalProps) {
               type="checkbox"
               checked={isSecret}
               onChange={(e) => setIsSecret(e.target.checked)}
-              className="h-3.5 w-3.5 rounded border-[var(--gray-6)] accent-zoru-ink"
+              className="h-3.5 w-3.5 rounded border-[var(--gray-6)] accent-[var(--st-text)]"
             />
             <span className="flex items-center gap-1.5 text-[12.5px] text-[var(--gray-11)]">
               <LuLock className="h-3 w-3" />
@@ -522,7 +522,7 @@ function EnvVarModal({ editing, onClose, onSaved }: EnvVarModalProps) {
           </label>
 
           {formError && (
-            <div className="flex items-start gap-2 rounded-lg border border-zoru-line bg-zoru-surface-2 px-3 py-2 text-[11.5px] text-zoru-ink dark:border-zoru-line/60 dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
+            <div className="flex items-start gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-[11.5px] text-[var(--st-text)] dark:border-[var(--st-border)]/60 dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
               <LuTriangleAlert className="h-3.5 w-3.5 shrink-0 mt-0.5" />
               <span>{formError}</span>
             </div>
@@ -541,7 +541,7 @@ function EnvVarModal({ editing, onClose, onSaved }: EnvVarModalProps) {
           <button
             type="submit"
             disabled={submitting || !keyValid}
-            className="flex items-center gap-1.5 rounded-lg bg-zoru-ink px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-zoru-ink disabled:opacity-50"
+            className="flex items-center gap-1.5 rounded-lg bg-[var(--st-text)] px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-[var(--st-text)] disabled:opacity-50"
           >
             {submitting && <LuLoader className="h-3.5 w-3.5 animate-spin" />}
             {isEditing ? 'Save changes' : 'Add variable'}
@@ -580,7 +580,7 @@ function DeleteConfirmModal({
         className="mx-4 w-full max-w-sm rounded-xl border border-[var(--gray-5)] bg-[var(--gray-1)] shadow-2xl"
       >
         <div className="flex items-start gap-3 px-5 py-4">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
             <LuTriangleAlert className="h-4 w-4" />
           </div>
           <div className="flex flex-col gap-1">
@@ -612,7 +612,7 @@ function DeleteConfirmModal({
             type="button"
             onClick={onConfirm}
             disabled={deleting}
-            className="flex items-center gap-1.5 rounded-lg bg-zoru-ink px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-zoru-ink disabled:opacity-50"
+            className="flex items-center gap-1.5 rounded-lg bg-[var(--st-text)] px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-[var(--st-text)] disabled:opacity-50"
           >
             {deleting && <LuLoader className="h-3.5 w-3.5 animate-spin" />}
             Delete

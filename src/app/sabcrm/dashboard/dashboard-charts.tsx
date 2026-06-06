@@ -209,19 +209,19 @@ function TaskSummary({ tasks }: TaskSummaryProps) {
   ];
 
   return (
-    <div className="grid grid-cols-3 divide-x divide-zoru-line">
+    <div className="grid grid-cols-3 divide-x divide-[var(--st-border)]">
       {items.map(({ label, value, warn }) => (
         <div key={label} className="flex flex-col items-center gap-1 px-4 py-6">
           <span
             className={
               warn && value > 0
-                ? 'text-2xl font-semibold text-zoru-danger'
-                : 'text-2xl font-semibold text-zoru-ink'
+                ? 'text-2xl font-semibold text-[var(--st-danger)]'
+                : 'text-2xl font-semibold text-[var(--st-text)]'
             }
           >
             {value}
           </span>
-          <span className="text-xs text-zoru-ink-muted">{label}</span>
+          <span className="text-xs text-[var(--st-text-secondary)]">{label}</span>
         </div>
       ))}
     </div>
@@ -248,10 +248,10 @@ export function DashboardCharts({
       {/* Opportunities by stage */}
       <Card>
         <ZoruCardHeader className="pb-3">
-          <ZoruCardTitle className="text-sm font-semibold text-zoru-ink">
+          <ZoruCardTitle className="text-sm font-semibold text-[var(--st-text)]">
             Opportunities by Stage
           </ZoruCardTitle>
-          <ZoruCardDescription className="text-xs text-zoru-ink-muted">
+          <ZoruCardDescription className="text-xs text-[var(--st-text-secondary)]">
             Count of open opportunities in each pipeline stage
           </ZoruCardDescription>
         </ZoruCardHeader>
@@ -273,10 +273,10 @@ export function DashboardCharts({
       {/* Pipeline value by stage */}
       <Card>
         <ZoruCardHeader className="pb-3">
-          <ZoruCardTitle className="text-sm font-semibold text-zoru-ink">
+          <ZoruCardTitle className="text-sm font-semibold text-[var(--st-text)]">
             Pipeline Value by Stage
           </ZoruCardTitle>
-          <ZoruCardDescription className="text-xs text-zoru-ink-muted">
+          <ZoruCardDescription className="text-xs text-[var(--st-text-secondary)]">
             Sum of opportunity amounts in each stage
           </ZoruCardDescription>
         </ZoruCardHeader>
@@ -298,10 +298,10 @@ export function DashboardCharts({
       {/* Task status summary */}
       <Card>
         <ZoruCardHeader className="pb-3">
-          <ZoruCardTitle className="text-sm font-semibold text-zoru-ink">
+          <ZoruCardTitle className="text-sm font-semibold text-[var(--st-text)]">
             Task Status
           </ZoruCardTitle>
-          <ZoruCardDescription className="text-xs text-zoru-ink-muted">
+          <ZoruCardDescription className="text-xs text-[var(--st-text-secondary)]">
             Open tasks across the project
           </ZoruCardDescription>
         </ZoruCardHeader>

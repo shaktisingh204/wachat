@@ -99,7 +99,7 @@ export function VendorBidTable({
       render: (row) => row.vendorId ? (
         <EntityPickerChip entity="vendor" id={row.vendorId} />
       ) : (
-        <span className="text-zoru-ink-muted">{row.vendorName || '—'}</span>
+        <span className="text-[var(--st-text-secondary)]">{row.vendorName || '—'}</span>
       ),
     },
     {
@@ -108,31 +108,31 @@ export function VendorBidTable({
       render: (row) => row.rfqId ? (
         <Link
           href={`/dashboard/crm/purchases/rfqs/${row.rfqId}`}
-          className="font-mono text-[11.5px] text-zoru-ink-muted hover:underline font-semibold"
+          className="font-mono text-[11.5px] text-[var(--st-text-secondary)] hover:underline font-semibold"
         >
           {row.rfqId.slice(-8).toUpperCase()}
         </Link>
       ) : (
-        <span className="text-zoru-ink-muted">—</span>
+        <span className="text-[var(--st-text-secondary)]">—</span>
       ),
     },
     {
       key: 'submittedAt',
       header: 'Submitted',
       sortable: true,
-      render: (row) => <span className="text-zoru-ink-muted">{fmtDate(row.submittedAt)}</span>,
+      render: (row) => <span className="text-[var(--st-text-secondary)]">{fmtDate(row.submittedAt)}</span>,
     },
     {
       key: 'currency',
       header: 'Currency',
-      render: (row) => <span className="text-zoru-ink-muted">{row.currency || defaultCurrency}</span>,
+      render: (row) => <span className="text-[var(--st-text-secondary)]">{row.currency || defaultCurrency}</span>,
     },
     {
       key: 'total',
       header: 'Total',
       sortable: true,
       render: (row) => (
-        <span className="font-mono tabular-nums text-zoru-ink font-semibold">
+        <span className="font-mono tabular-nums text-[var(--st-text)] font-semibold">
           {fmtINR(row.total, row.currency ?? defaultCurrency)}
         </span>
       ),
@@ -141,16 +141,16 @@ export function VendorBidTable({
       key: 'budget',
       header: 'Budget vs Price',
       render: (row) => {
-        if (row.budget == null || row.total == null) return <span className="text-zoru-ink-muted">—</span>;
+        if (row.budget == null || row.total == null) return <span className="text-[var(--st-text-secondary)]">—</span>;
         const variance = row.budget - row.total;
         const variancePct = (variance / row.budget) * 100;
         const isOver = variance < 0;
         return (
           <div className="flex flex-col gap-0.5">
-            <span className="font-mono text-[12px] tabular-nums text-zoru-ink-muted line-through">
+            <span className="font-mono text-[12px] tabular-nums text-[var(--st-text-secondary)] line-through">
               {fmtINR(row.budget, row.currency ?? defaultCurrency)}
             </span>
-            <span className={`text-[10px] font-medium ${isOver ? 'text-zoru-danger-ink' : 'text-zoru-success-ink'}`}>
+            <span className={`text-[10px] font-medium ${isOver ? 'text-[var(--st-danger)]' : 'text-[var(--st-status-ok)]'}`}>
               {isOver ? '+' : '-'}{Math.abs(variancePct).toFixed(1)}% {isOver ? 'over' : 'under'}
             </span>
           </div>
@@ -162,7 +162,7 @@ export function VendorBidTable({
       header: 'Lead (days)',
       sortable: true,
       render: (row) => (
-        <span className="text-zoru-ink-muted tabular-nums">
+        <span className="text-[var(--st-text-secondary)] tabular-nums">
           {typeof row.leadTimeDays === 'number' ? row.leadTimeDays : '—'}
         </span>
       ),
@@ -177,13 +177,13 @@ export function VendorBidTable({
           tone={statusToTone(row.status)}
         />
       ) : (
-        <span className="text-zoru-ink-muted">—</span>
+        <span className="text-[var(--st-text-secondary)]">—</span>
       ),
       editRender: (row, value, onChange) => {
         const options = ['draft', 'submitted', 'under_review', 'awarded', 'declined', 'cancelled'];
         return (
           <select
-            className="h-8 w-36 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg text-zoru-ink text-[12.5px] p-1 outline-none focus:ring-1 focus:ring-zoru-primary"
+            className="h-8 w-36 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)] text-[12.5px] p-1 outline-none focus:ring-1 focus:ring-[var(--st-text)]"
             value={value !== undefined ? String(value) : 'draft'}
             onChange={(e) => onChange(e.target.value)}
           >

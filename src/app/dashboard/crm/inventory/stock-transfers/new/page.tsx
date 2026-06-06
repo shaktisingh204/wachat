@@ -29,7 +29,7 @@ export default async function NewStockTransferPage(props: Props) {
             title="New stock transfer"
             back={{ href: BASE, label: 'Stock transfers' }}
         >
-            <Suspense fallback={<div className="h-[500px] rounded-lg border border-zoru-line bg-zoru-surface p-6 animate-pulse" />}>
+            <Suspense fallback={<div className="h-[500px] rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-6 animate-pulse" />}>
                 <StockTransferForm initial={undefined} />
             </Suspense>
         </EntityDetailShell>

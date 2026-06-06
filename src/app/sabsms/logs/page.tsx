@@ -274,16 +274,16 @@ export default async function SabsmsLogsPage({
                 {rows.map((r) => (
                   <ZoruTableRow key={r.id}>
                     <ZoruTableCell>{statusBadge(r.status)}</ZoruTableCell>
-                    <ZoruTableCell className="text-xs uppercase text-zoru-ink">
+                    <ZoruTableCell className="text-xs uppercase text-[var(--st-text)]">
                       {r.direction === "outbound" ? "→ out" : "← in"}
                     </ZoruTableCell>
                     <ZoruTableCell className="font-mono text-xs">
                       {r.direction === "outbound" ? r.to : r.from}
                     </ZoruTableCell>
-                    <ZoruTableCell className="max-w-[420px] truncate text-sm text-zoru-ink">
+                    <ZoruTableCell className="max-w-[420px] truncate text-sm text-[var(--st-text)]">
                       {r.body}
                       {r.error && (
-                        <span className="ml-2 text-xs text-zoru-ink">
+                        <span className="ml-2 text-xs text-[var(--st-text)]">
                           ({r.error})
                         </span>
                       )}
@@ -297,7 +297,7 @@ export default async function SabsmsLogsPage({
                     <ZoruTableCell className="text-right text-xs">
                       {formatCost(r.cost, r.currency)}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-xs text-zoru-ink">
+                    <ZoruTableCell className="text-xs text-[var(--st-text)]">
                       {formatTimestamp(
                         r.deliveredAt || r.sentAt || r.queuedAt,
                       )}
@@ -313,7 +313,7 @@ export default async function SabsmsLogsPage({
                           <ZoruDialogHeader>
                             <ZoruDialogTitle>Message Payload</ZoruDialogTitle>
                           </ZoruDialogHeader>
-                          <div className="flex-1 overflow-auto bg-zoru-ink p-4 rounded-md mt-4">
+                          <div className="flex-1 overflow-auto bg-[var(--st-text)] p-4 rounded-md mt-4">
                             <pre className="text-xs text-white font-mono">
                               {r.rawJson}
                             </pre>
@@ -330,7 +330,7 @@ export default async function SabsmsLogsPage({
       </Card>
 
       {(hasPrev || hasNext) && (
-        <div className="flex items-center justify-end text-sm text-zoru-ink">
+        <div className="flex items-center justify-end text-sm text-[var(--st-text)]">
           <div className="flex gap-2">
             <Button
               asChild={hasPrev}

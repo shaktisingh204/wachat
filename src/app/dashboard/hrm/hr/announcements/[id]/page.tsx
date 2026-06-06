@@ -102,10 +102,10 @@ export default async function AnnouncementDetailPage({
             <Card className="p-6">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                     <div className="min-w-0">
-                        <h2 className="text-[20px] font-medium text-zoru-ink">
+                        <h2 className="text-[20px] font-medium text-[var(--st-text)]">
                             {announcement.title}
                         </h2>
-                        <div className="mt-2 flex flex-wrap items-center gap-2 text-[12.5px] text-zoru-ink-muted">
+                        <div className="mt-2 flex flex-wrap items-center gap-2 text-[12.5px] text-[var(--st-text-secondary)]">
                             <span>
                                 Category:{' '}
                                 {titleCase((announcement.category as string) || 'general')}
@@ -171,12 +171,12 @@ export default async function AnnouncementDetailPage({
 
             {/* Body */}
             <Card className="p-6">
-                <div className="mb-3 text-[14px] font-medium text-zoru-ink">
+                <div className="mb-3 text-[14px] font-medium text-[var(--st-text)]">
                     Announcement body
                 </div>
-                <div className="whitespace-pre-wrap text-[13.5px] leading-relaxed text-zoru-ink">
+                <div className="whitespace-pre-wrap text-[13.5px] leading-relaxed text-[var(--st-text)]">
                     {announcement.body || (
-                        <span className="text-zoru-ink-muted">
+                        <span className="text-[var(--st-text-secondary)]">
                             No body provided.
                         </span>
                     )}
@@ -186,18 +186,18 @@ export default async function AnnouncementDetailPage({
             {/* Audience */}
             <Card className="p-6">
                 <div className="mb-3 flex items-center gap-2">
-                    <Users className="h-4 w-4 text-zoru-ink-muted" />
-                    <span className="text-[14px] font-medium text-zoru-ink">
+                    <Users className="h-4 w-4 text-[var(--st-text-secondary)]" />
+                    <span className="text-[14px] font-medium text-[var(--st-text)]">
                         Audience
                     </span>
-                    <span className="ml-auto text-[12px] text-zoru-ink-muted">
+                    <span className="ml-auto text-[12px] text-[var(--st-text-secondary)]">
                         {titleCase((announcement.audience as string) || 'all')} ·{' '}
                         {audienceIds.length} explicit target
                         {audienceIds.length === 1 ? '' : 's'}
                     </span>
                 </div>
                 {audienceIds.length === 0 ? (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-4 text-center text-[12.5px] text-zoru-ink-muted">
+                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-4 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         {announcement.audience === 'all'
                             ? 'Published to all employees.'
                             : 'No explicit target list — resolved by audience.'}
@@ -216,49 +216,49 @@ export default async function AnnouncementDetailPage({
             {/* Schedule + engagement */}
             <Card className="p-6">
                 <div className="mb-3 flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-zoru-ink-muted" />
-                    <span className="text-[14px] font-medium text-zoru-ink">
+                    <Calendar className="h-4 w-4 text-[var(--st-text-secondary)]" />
+                    <span className="text-[14px] font-medium text-[var(--st-text)]">
                         Schedule & engagement
                     </span>
                 </div>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2 lg:grid-cols-4">
                     <div>
-                        <div className="text-zoru-ink-muted">Publish at</div>
-                        <div className="text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Publish at</div>
+                        <div className="text-[var(--st-text)]">
                             {fmtDate(announcement.publishAt)}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Expires at</div>
-                        <div className="text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Expires at</div>
+                        <div className="text-[var(--st-text)]">
                             {fmtDate(announcement.expiresAt)}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Published at</div>
-                        <div className="text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Published at</div>
+                        <div className="text-[var(--st-text)]">
                             {fmtDate(announcement.publishedAt)}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Updated</div>
-                        <div className="text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Updated</div>
+                        <div className="text-[var(--st-text)]">
                             {fmtDate(announcement.updatedAt)}
                         </div>
                     </div>
                 </div>
-                <div className="mt-4 flex flex-wrap gap-2 text-[12.5px] text-zoru-ink">
-                    <span className="inline-flex items-center gap-1.5 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 px-2.5 py-1">
-                        <Eye className="h-3.5 w-3.5 text-zoru-ink-muted" />
+                <div className="mt-4 flex flex-wrap gap-2 text-[12.5px] text-[var(--st-text)]">
+                    <span className="inline-flex items-center gap-1.5 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2.5 py-1">
+                        <Eye className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                         {viewCount} view{viewCount === 1 ? '' : 's'}
                     </span>
-                    <span className="inline-flex items-center gap-1.5 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 px-2.5 py-1">
-                        <CheckCircle2 className="h-3.5 w-3.5 text-zoru-ink-muted" />
+                    <span className="inline-flex items-center gap-1.5 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2.5 py-1">
+                        <CheckCircle2 className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                         {ackCount} acknowledgement
                         {ackCount === 1 ? '' : 's'}
                     </span>
-                    <span className="inline-flex items-center gap-1.5 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 px-2.5 py-1">
-                        <MessageSquare className="h-3.5 w-3.5 text-zoru-ink-muted" />
+                    <span className="inline-flex items-center gap-1.5 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2.5 py-1">
+                        <MessageSquare className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                         Comments{' '}
                         {announcement.allowComments ? 'enabled' : 'disabled'}
                     </span>

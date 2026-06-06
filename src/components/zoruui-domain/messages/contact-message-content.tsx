@@ -9,7 +9,7 @@ interface ContactMessageContentProps {
 
 export function ContactMessageContent({ contacts }: ContactMessageContentProps) {
   if (!contacts || contacts.length === 0) {
-    return <p className="text-sm italic text-zoru-ink-muted">[Empty contact message]</p>;
+    return <p className="text-sm italic text-[var(--st-text-secondary)]">[Empty contact message]</p>;
   }
 
   const mainContact = contacts[0];
@@ -22,13 +22,13 @@ export function ContactMessageContent({ contacts }: ContactMessageContentProps) 
       <Card className="shadow-none border-0 bg-transparent">
         <ZoruCardHeader className="p-2">
           <div className="flex items-center gap-2">
-            <User className="h-5 w-5 text-zoru-ink" />
+            <User className="h-5 w-5 text-[var(--st-text)]" />
             <ZoruCardTitle className="text-base">Contact Card</ZoruCardTitle>
           </div>
         </ZoruCardHeader>
         <ZoruCardContent className="p-2 space-y-2 text-sm">
           <p className="font-semibold">{name}</p>
-          <div className="text-zoru-ink-muted space-y-1">
+          <div className="text-[var(--st-text-secondary)] space-y-1">
             <p className="flex items-center gap-2"><Phone className="h-4 w-4" /> {phone}</p>
             <p className="flex items-center gap-2"><Briefcase className="h-4 w-4" /> {org}</p>
           </div>

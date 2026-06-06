@@ -269,7 +269,7 @@ export default function FacebookPostsPage() {
           const type = detectType(post);
           return (
             <div className="flex min-w-0 items-center gap-3">
-              <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2">
+              <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)]">
                 {post.full_picture ? (
                   <Image
                     src={post.full_picture}
@@ -279,7 +279,7 @@ export default function FacebookPostsPage() {
                     className="object-cover"
                   />
                 ) : (
-                  <span className="flex h-full w-full items-center justify-center text-zoru-ink-muted">
+                  <span className="flex h-full w-full items-center justify-center text-[var(--st-text-secondary)]">
                     {type === "video" ? (
                       <Video className="h-4 w-4" />
                     ) : (
@@ -289,11 +289,11 @@ export default function FacebookPostsPage() {
                 )}
               </div>
               <div className="min-w-0">
-                <p className="truncate text-sm font-medium text-zoru-ink">
+                <p className="truncate text-sm font-medium text-[var(--st-text)]">
                   {post.message ||
                     (type === "video" ? "Video post" : "Media post")}
                 </p>
-                <p className="text-[11px] text-zoru-ink-muted">
+                <p className="text-[11px] text-[var(--st-text-secondary)]">
                   {formatDistanceToNow(new Date(post.created_time), {
                     addSuffix: true,
                   })}
@@ -323,7 +323,7 @@ export default function FacebookPostsPage() {
           const comments = p.comments?.summary?.total_count ?? 0;
           const shares = p.shares?.count ?? 0;
           return (
-            <div className="flex items-center gap-3 text-[12px] text-zoru-ink-muted">
+            <div className="flex items-center gap-3 text-[12px] text-[var(--st-text-secondary)]">
               <span className="inline-flex items-center gap-1">
                 <ThumbsUp className="h-3 w-3" /> {reactions}
               </span>

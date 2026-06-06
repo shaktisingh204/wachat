@@ -220,7 +220,7 @@ export function ProvidersSection({
                 </Button>
             </div>
             {bots.length === 0 && (
-                <Card className="p-4 text-sm text-zoru-ink-muted">
+                <Card className="p-4 text-sm text-[var(--st-text-secondary)]">
                     Connect a Telegram bot to this project first — provider tokens
                     are attached to a specific bot.
                 </Card>
@@ -241,7 +241,7 @@ export function ProvidersSection({
                         {providers.length === 0 && (
                             <ZoruTableRow>
                                 <ZoruTableCell colSpan={6}>
-                                    <div className="py-10 text-center text-sm text-zoru-ink-muted">
+                                    <div className="py-10 text-center text-sm text-[var(--st-text-secondary)]">
                                         No provider tokens saved yet.
                                     </div>
                                 </ZoruTableCell>

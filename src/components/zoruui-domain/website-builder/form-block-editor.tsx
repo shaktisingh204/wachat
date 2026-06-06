@@ -110,8 +110,8 @@ export function FormBlockEditor({ settings, onUpdate }: { settings: any, onUpdat
                         <ZoruAccordionTrigger>Form Fields</ZoruAccordionTrigger>
                         <ZoruAccordionContent className="space-y-4 pt-2">
                             {fields.map((field: FormField, index: number) => (
-                                <Card key={field.id} className="relative bg-zoru-surface">
-                                    <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-7 w-7" onClick={() => removeField(index)}><Trash2 className="h-4 w-4 text-zoru-ink" /></Button>
+                                <Card key={field.id} className="relative bg-[var(--st-bg-secondary)]">
+                                    <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-7 w-7" onClick={() => removeField(index)}><Trash2 className="h-4 w-4 text-[var(--st-text)]" /></Button>
                                     <Accordion type="single" collapsible className="w-full">
                                         <ZoruAccordionItem value="field-content" className="border-b-0">
                                             <ZoruAccordionTrigger className="p-3 text-sm">{field.label || `Field ${index+1}`}</ZoruAccordionTrigger>
@@ -247,7 +247,7 @@ export function FormBlockEditor({ settings, onUpdate }: { settings: any, onUpdat
                         <ZoruAccordionTrigger>Attributes</ZoruAccordionTrigger>
                          <ZoruAccordionContent className="space-y-4 pt-2">
                              {(settings.customAttributes || []).map((attr: any, index: number) => (
-                                 <div key={attr.id} className="grid grid-cols-[1fr,1fr,auto] gap-2 items-center"><Input placeholder="Key" value={attr.key} onChange={e => handleAttributeChange(index, 'key', e.target.value)} /><Input placeholder="Value" value={attr.value} onChange={e => handleAttributeChange(index, 'value', e.target.value)} /><Button type="button" variant="ghost" size="icon" onClick={() => removeAttribute(index)}><Trash2 className="h-4 w-4 text-zoru-ink"/></Button></div>
+                                 <div key={attr.id} className="grid grid-cols-[1fr,1fr,auto] gap-2 items-center"><Input placeholder="Key" value={attr.key} onChange={e => handleAttributeChange(index, 'key', e.target.value)} /><Input placeholder="Value" value={attr.value} onChange={e => handleAttributeChange(index, 'value', e.target.value)} /><Button type="button" variant="ghost" size="icon" onClick={() => removeAttribute(index)}><Trash2 className="h-4 w-4 text-[var(--st-text)]"/></Button></div>
                              ))}
                              <Button type="button" variant="outline" className="w-full" onClick={addAttribute}><Plus className="mr-2 h-4 w-4"/>Add Attribute</Button>
                          </ZoruAccordionContent>

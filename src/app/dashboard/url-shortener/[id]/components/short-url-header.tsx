@@ -7,9 +7,9 @@ import type { ShortUrl } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 
 const statusStyles = {
-  active: 'border-zoru-success/40 bg-zoru-success/10 text-zoru-success-ink',
-  expired: 'border-zoru-danger/40 bg-zoru-danger/10 text-zoru-danger-ink',
-  scheduled: 'border-zoru-warning/40 bg-zoru-warning/10 text-zoru-warning-ink',
+  active: 'border-[var(--st-status-ok)]/40 bg-[var(--st-status-ok)]/10 text-[var(--st-status-ok)]',
+  expired: 'border-[var(--st-danger)]/40 bg-[var(--st-danger)]/10 text-[var(--st-danger)]',
+  scheduled: 'border-[var(--st-warn)]/40 bg-[var(--st-warn)]/10 text-[var(--st-warn)]',
 } as const;
 
 export function ShortUrlHeader({
@@ -26,8 +26,8 @@ export function ShortUrlHeader({
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2 mb-2">
-            <BarChart2 className="h-5 w-5 text-zoru-ink-muted shrink-0" />
-            <h1 className="text-[18px] text-zoru-ink font-medium leading-tight break-all">
+            <BarChart2 className="h-5 w-5 text-[var(--st-text-secondary)] shrink-0" />
+            <h1 className="text-[18px] text-[var(--st-text)] font-medium leading-tight break-all">
               {shortUrl.customSlug || shortUrl.shortCode}
             </h1>
             <span
@@ -42,17 +42,17 @@ export function ShortUrlHeader({
             href={shortUrlString}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-[13px] text-zoru-ink-muted hover:text-zoru-ink break-all"
+            className="inline-flex items-center gap-1.5 text-[13px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)] break-all"
           >
             <ExternalLink className="h-3.5 w-3.5 shrink-0" />
             {shortUrlString}
           </a>
 
-          <p className="mt-1.5 text-[12px] text-zoru-ink-muted truncate max-w-lg">
+          <p className="mt-1.5 text-[12px] text-[var(--st-text-secondary)] truncate max-w-lg">
             {shortUrl.originalUrl}
           </p>
 
-          <div className="flex flex-wrap items-center gap-3 mt-2 text-[11.5px] text-zoru-ink-muted">
+          <div className="flex flex-wrap items-center gap-3 mt-2 text-[11.5px] text-[var(--st-text-secondary)]">
             <span className="flex items-center gap-1">
               <Calendar className="h-3.5 w-3.5" />
               Created {new Date(shortUrl.createdAt).toLocaleDateString('en-US', { timeZone: 'UTC', year: 'numeric', month: 'short', day: 'numeric' })}

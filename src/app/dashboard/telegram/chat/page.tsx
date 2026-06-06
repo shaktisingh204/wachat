@@ -190,7 +190,7 @@ export default function Page() {
     }
 
     return (
-        <div className="flex h-[calc(100vh-7rem)] overflow-hidden rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg">
+        <div className="flex h-[calc(100vh-7rem)] overflow-hidden rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)]">
             <ChatSidebar
                 bots={bots}
                 selectedBotId={selectedBotId}
@@ -270,11 +270,11 @@ function ChatSidebar({
     projectName,
 }: ChatSidebarProps) {
     return (
-        <aside className="flex w-[320px] shrink-0 flex-col border-r border-zoru-line bg-zoru-surface">
-            <div className="flex items-center justify-between gap-2 border-b border-zoru-line px-4 py-3">
+        <aside className="flex w-[320px] shrink-0 flex-col border-r border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+            <div className="flex items-center justify-between gap-2 border-b border-[var(--st-border)] px-4 py-3">
                 <div>
-                    <div className="text-sm font-semibold text-zoru-ink">Telegram</div>
-                    <div className="truncate text-xs text-zoru-ink-muted">
+                    <div className="text-sm font-semibold text-[var(--st-text)]">Telegram</div>
+                    <div className="truncate text-xs text-[var(--st-text-secondary)]">
                         {projectName ?? 'Project'}
                     </div>
                 </div>
@@ -283,7 +283,7 @@ function ChatSidebar({
                 </Badge>
             </div>
 
-            <div className="flex flex-col gap-2 border-b border-zoru-line px-3 py-3">
+            <div className="flex flex-col gap-2 border-b border-[var(--st-border)] px-3 py-3">
                 <Select
                     value={selectedBotId}
                     onValueChange={(v) => onSelectBot(v as string | 'all')}
@@ -336,12 +336,12 @@ function ChatSidebar({
                         ))}
                     </div>
                 ) : chatsError ? (
-                    <div className="p-4 text-sm text-zoru-ink">{chatsError}</div>
+                    <div className="p-4 text-sm text-[var(--st-text)]">{chatsError}</div>
                 ) : chats.length === 0 ? (
                     <div className="flex flex-col items-center gap-2 p-8 text-center">
-                        <MessageCircle className="h-8 w-8 text-zoru-ink-muted" />
-                        <div className="text-sm text-zoru-ink-muted">No chats yet</div>
-                        <div className="text-xs text-zoru-ink-muted">
+                        <MessageCircle className="h-8 w-8 text-[var(--st-text-secondary)]" />
+                        <div className="text-sm text-[var(--st-text-secondary)]">No chats yet</div>
+                        <div className="text-xs text-[var(--st-text-secondary)]">
                             Once users message your bot, they'll show up here.
                         </div>
                     </div>
@@ -410,26 +410,26 @@ function ChatListItem({
                 type="button"
                 onClick={onClick}
                 className={cn(
-                    'flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors hover:bg-zoru-surface-2',
-                    active && 'bg-zoru-surface-2',
+                    'flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors hover:bg-[var(--st-bg-muted)]',
+                    active && 'bg-[var(--st-bg-muted)]',
                 )}
             >
                 <Avatar className="h-10 w-10 shrink-0">
-                    <ZoruAvatarFallback className="bg-zoru-ink text-zoru-on-primary">
+                    <ZoruAvatarFallback className="bg-[var(--st-text)] text-[var(--st-text-inverted)]">
                         {chatInitial(chat)}
                     </ZoruAvatarFallback>
                 </Avatar>
                 <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
-                        <span className="truncate text-sm font-medium text-zoru-ink">
+                        <span className="truncate text-sm font-medium text-[var(--st-text)]">
                             {name}
                         </span>
-                        <span className="shrink-0 text-[10px] text-zoru-ink-muted">
+                        <span className="shrink-0 text-[10px] text-[var(--st-text-secondary)]">
                             {formatChatTimestamp(chat.lastMessageAt)}
                         </span>
                     </div>
                     <div className="flex items-center justify-between gap-2">
-                        <span className="truncate text-xs text-zoru-ink-muted">
+                        <span className="truncate text-xs text-[var(--st-text-secondary)]">
                             {chat.lastMessagePreview || (
                                 <span className="italic">No messages yet</span>
                             )}
@@ -453,13 +453,13 @@ function ChatListItem({
 function EmptyPane() {
     return (
         <div className="flex h-full flex-col items-center justify-center gap-2 p-8 text-center">
-            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-zoru-surface-2">
-                <MessageCircle className="h-9 w-9 text-zoru-ink-muted" />
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[var(--st-bg-muted)]">
+                <MessageCircle className="h-9 w-9 text-[var(--st-text-secondary)]" />
             </div>
-            <div className="text-base font-medium text-zoru-ink">
+            <div className="text-base font-medium text-[var(--st-text)]">
                 Select a chat to start messaging
             </div>
-            <div className="max-w-sm text-sm text-zoru-ink-muted">
+            <div className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                 Pick a conversation on the left, or filter by bot and chat type
                 to narrow the list.
             </div>
@@ -844,8 +844,8 @@ function ChatWindow({ chat, projectId, onChatUpdated, onError }: ChatWindowProps
     return (
         <div
             className={cn(
-                'flex h-full flex-col bg-zoru-bg',
-                dragOver && 'ring-2 ring-inset ring-zoru-ink',
+                'flex h-full flex-col bg-[var(--st-bg)]',
+                dragOver && 'ring-2 ring-inset ring-[var(--st-text)]',
             )}
             {...dropHandlers}
         >
@@ -853,7 +853,7 @@ function ChatWindow({ chat, projectId, onChatUpdated, onError }: ChatWindowProps
 
             {/* Pinned banner */}
             {chat.pinnedMessageId ? (
-                <div className="flex items-center gap-2 border-b border-zoru-line bg-zoru-surface-2 px-4 py-2 text-xs text-zoru-ink-muted">
+                <div className="flex items-center gap-2 border-b border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-2 text-xs text-[var(--st-text-secondary)]">
                     <Pin className="h-3.5 w-3.5" />
                     <span>Pinned message #{chat.pinnedMessageId}</span>
                 </div>
@@ -867,7 +867,7 @@ function ChatWindow({ chat, projectId, onChatUpdated, onError }: ChatWindowProps
             >
                 <div ref={topSentinelRef} />
                 {loadingMore ? (
-                    <div className="flex items-center justify-center py-2 text-xs text-zoru-ink-muted">
+                    <div className="flex items-center justify-center py-2 text-xs text-[var(--st-text-secondary)]">
                         <Loader2 className="mr-1.5 h-3 w-3 animate-spin" /> Loading older…
                     </div>
                 ) : null}
@@ -885,11 +885,11 @@ function ChatWindow({ chat, projectId, onChatUpdated, onError }: ChatWindowProps
                         ))}
                     </div>
                 ) : historyError ? (
-                    <div className="rounded-[var(--zoru-radius)] border border-zoru-line/40 bg-zoru-ink/5 p-3 text-sm text-zoru-ink">
+                    <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)]/40 bg-[var(--st-text)]/5 p-3 text-sm text-[var(--st-text)]">
                         {historyError}
                     </div>
                 ) : messages.length === 0 ? (
-                    <div className="flex h-full items-center justify-center text-sm text-zoru-ink-muted">
+                    <div className="flex h-full items-center justify-center text-sm text-[var(--st-text-secondary)]">
                         Say hello — no messages yet.
                     </div>
                 ) : (
@@ -909,7 +909,7 @@ function ChatWindow({ chat, projectId, onChatUpdated, onError }: ChatWindowProps
                             />
                         ))}
                         {typingPreview ? (
-                            <li className="text-xs text-zoru-ink-muted">Bot is sending…</li>
+                            <li className="text-xs text-[var(--st-text-secondary)]">Bot is sending…</li>
                         ) : null}
                     </ul>
                 )}
@@ -980,16 +980,16 @@ function ChatHeader({
             : `${chat.type}${chat.memberCount ? ` · ${chat.memberCount} members` : ''}`;
 
     return (
-        <header className="flex items-center justify-between gap-3 border-b border-zoru-line bg-zoru-surface px-4 py-2.5">
+        <header className="flex items-center justify-between gap-3 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-2.5">
             <div className="flex min-w-0 items-center gap-3">
                 <Avatar className="h-10 w-10 shrink-0">
-                    <ZoruAvatarFallback className="bg-zoru-ink text-zoru-on-primary">
+                    <ZoruAvatarFallback className="bg-[var(--st-text)] text-[var(--st-text-inverted)]">
                         {chatInitial(chat)}
                     </ZoruAvatarFallback>
                 </Avatar>
                 <div className="min-w-0">
-                    <div className="truncate text-sm font-semibold text-zoru-ink">{name}</div>
-                    <div className="truncate text-xs text-zoru-ink-muted">{subtitle}</div>
+                    <div className="truncate text-sm font-semibold text-[var(--st-text)]">{name}</div>
+                    <div className="truncate text-xs text-[var(--st-text-secondary)]">{subtitle}</div>
                 </div>
             </div>
             <div className="flex items-center gap-1">
@@ -1075,7 +1075,7 @@ function MessageBubble({
             )}
         >
             {showHeader && !outbound && (msg.fromName || msg.fromUsername) && (
-                <span className="px-2 text-[11px] font-medium text-zoru-ink-muted">
+                <span className="px-2 text-[11px] font-medium text-[var(--st-text-secondary)]">
                     {msg.fromName || `@${msg.fromUsername}`}
                 </span>
             )}
@@ -1083,8 +1083,8 @@ function MessageBubble({
                 className={cn(
                     'relative max-w-[70%] rounded-[var(--zoru-radius)] px-3 py-2 text-sm shadow-sm',
                     outbound
-                        ? 'bg-zoru-ink text-zoru-on-primary'
-                        : 'bg-zoru-surface text-zoru-ink',
+                        ? 'bg-[var(--st-text)] text-[var(--st-text-inverted)]'
+                        : 'bg-[var(--st-bg-secondary)] text-[var(--st-text)]',
                     msg.isDeleted && 'opacity-60',
                 )}
             >
@@ -1093,8 +1093,8 @@ function MessageBubble({
                         className={cn(
                             'mb-1 rounded-[var(--zoru-radius-sm)] border-l-2 px-2 py-1 text-xs',
                             outbound
-                                ? 'border-zoru-on-primary/50 bg-white/10'
-                                : 'border-zoru-ink/50 bg-zoru-surface-2',
+                                ? 'border-[var(--st-text-inverted)]/50 bg-white/10'
+                                : 'border-[var(--st-text)]/50 bg-[var(--st-bg-muted)]',
                         )}
                     >
                         <div className="font-medium opacity-80">
@@ -1124,7 +1124,7 @@ function MessageBubble({
                 <div
                     className={cn(
                         'mt-1 flex items-center justify-end gap-1 text-[10px]',
-                        outbound ? 'text-zoru-on-primary/70' : 'text-zoru-ink-muted',
+                        outbound ? 'text-[var(--st-text-inverted)]/70' : 'text-[var(--st-text-secondary)]',
                     )}
                 >
                     {msg.editedAt && <span>edited</span>}
@@ -1135,7 +1135,7 @@ function MessageBubble({
                 {!msg.isDeleted && (
                     <div
                         className={cn(
-                            'absolute -top-3 hidden gap-0.5 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-0.5 shadow-md group-hover:flex',
+                            'absolute -top-3 hidden gap-0.5 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-0.5 shadow-md group-hover:flex',
                             outbound ? 'right-2' : 'left-2',
                         )}
                     >
@@ -1175,7 +1175,7 @@ function BubbleAction({
             onClick={onClick}
             aria-label={label}
             title={label}
-            className="flex h-6 w-6 items-center justify-center rounded-[var(--zoru-radius-sm)] text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
+            className="flex h-6 w-6 items-center justify-center rounded-[var(--zoru-radius-sm)] text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
         >
             <Icon className="h-3.5 w-3.5" />
         </button>
@@ -1212,8 +1212,8 @@ function MediaPreview({ msg, outbound }: { msg: MessageRow; outbound: boolean })
             className={cn(
                 'mb-1 flex items-center gap-2 rounded-[var(--zoru-radius-sm)] border px-2 py-1.5 text-xs',
                 outbound
-                    ? 'border-zoru-on-primary/30'
-                    : 'border-zoru-line',
+                    ? 'border-[var(--st-text-inverted)]/30'
+                    : 'border-[var(--st-border)]',
             )}
         >
             <Paperclip className="h-3.5 w-3.5" />
@@ -1263,14 +1263,14 @@ function Composer({
     const disabled = sending || !draft.trim();
 
     return (
-        <div className="border-t border-zoru-line bg-zoru-surface px-3 pb-3 pt-2">
+        <div className="border-t border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 pb-3 pt-2">
             {replyTo && (
-                <div className="mb-2 flex items-start justify-between gap-2 rounded-[var(--zoru-radius-sm)] border-l-4 border-zoru-ink bg-zoru-surface-2 px-2 py-1.5 text-xs">
+                <div className="mb-2 flex items-start justify-between gap-2 rounded-[var(--zoru-radius-sm)] border-l-4 border-[var(--st-text)] bg-[var(--st-bg-muted)] px-2 py-1.5 text-xs">
                     <div className="min-w-0">
-                        <div className="font-medium text-zoru-ink">
+                        <div className="font-medium text-[var(--st-text)]">
                             Replying to {replyTo.fromName || (replyTo.direction === 'outbound' ? 'you' : 'them')}
                         </div>
-                        <div className="truncate text-zoru-ink-muted">
+                        <div className="truncate text-[var(--st-text-secondary)]">
                             {replyTo.text ?? replyTo.caption ?? `[${replyTo.type}]`}
                         </div>
                     </div>
@@ -1278,7 +1278,7 @@ function Composer({
                         type="button"
                         onClick={onClearReply}
                         aria-label="Cancel reply"
-                        className="shrink-0 rounded-[var(--zoru-radius-sm)] p-1 text-zoru-ink-muted hover:bg-zoru-surface hover:text-zoru-ink"
+                        className="shrink-0 rounded-[var(--zoru-radius-sm)] p-1 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)] hover:text-[var(--st-text)]"
                     >
                         <X className="h-3.5 w-3.5" />
                     </button>
@@ -1332,7 +1332,7 @@ function Composer({
                     onKeyDown={onKeyDown}
                     placeholder="Type a message…"
                     rows={1}
-                    className="flex-1 resize-none rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 py-2 text-sm text-zoru-ink placeholder:text-zoru-ink-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-ink/30"
+                    className="flex-1 resize-none rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-sm text-[var(--st-text)] placeholder:text-[var(--st-text-secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]/30"
                 />
                 <Button
                     type="button"
@@ -1344,7 +1344,7 @@ function Composer({
                     {sending ? <Loader2 className="animate-spin" /> : <Send />}
                 </Button>
             </div>
-            <div className="mt-1 text-[10px] text-zoru-ink-muted">
+            <div className="mt-1 text-[10px] text-[var(--st-text-secondary)]">
                 Enter to send · Shift+Enter for new line · drag a file anywhere on this pane to attach
             </div>
             <Separator className="mt-2 opacity-0" />

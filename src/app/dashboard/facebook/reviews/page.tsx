@@ -126,8 +126,8 @@ function StarRating({
           height={size}
           className={cn(
             star <= rating
-              ? "fill-zoru-ink text-zoru-ink"
-              : "text-zoru-ink-subtle",
+              ? "fill-[var(--st-text)] text-[var(--st-text)]"
+              : "text-[var(--st-text-tertiary)]",
           )}
         />
       ))}
@@ -304,7 +304,7 @@ function ReportReviewAlert({
           <ZoruAlertDialogAction
             onClick={submit}
             disabled={pending}
-            className="bg-zoru-danger text-zoru-on-danger hover:opacity-90"
+            className="bg-[var(--st-danger)] text-[var(--st-text-inverted)] hover:opacity-90"
           >
             {pending ? <Loader2 className="animate-spin" /> : <Flag />}
             Report review
@@ -415,11 +415,11 @@ export default function ReviewsPage() {
                       </Avatar>
                       <div className="flex-1 space-y-2">
                         <div className="flex items-center justify-between gap-2">
-                          <p className="text-sm font-medium text-zoru-ink">
+                          <p className="text-sm font-medium text-[var(--st-text)]">
                             {author}
                           </p>
                           {review.created_time && (
-                            <span className="text-xs text-zoru-ink-muted">
+                            <span className="text-xs text-[var(--st-text-secondary)]">
                               {formatDistanceToNow(
                                 new Date(review.created_time),
                                 { addSuffix: true },
@@ -431,7 +431,7 @@ export default function ReviewsPage() {
                           <StarRating rating={review.rating} />
                         ) : null}
                         {review.review_text && (
-                          <p className="text-sm text-zoru-ink-muted">
+                          <p className="text-sm text-[var(--st-text-secondary)]">
                             {review.review_text}
                           </p>
                         )}
@@ -447,7 +447,7 @@ export default function ReviewsPage() {
                             variant="ghost"
                             size="sm"
                             onClick={() => setReportTarget(review)}
-                            className="text-zoru-ink-muted"
+                            className="text-[var(--st-text-secondary)]"
                           >
                             <Flag /> Report
                           </Button>

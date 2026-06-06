@@ -64,7 +64,7 @@ function AddSequenceForm({
       className="grid grid-cols-1 gap-3 md:grid-cols-[2fr_1fr_auto]"
     >
       <div className="flex flex-col gap-1.5">
-        <Label className="text-[12px] text-zoru-ink-muted">Shift</Label>
+        <Label className="text-[12px] text-[var(--st-text-secondary)]">Shift</Label>
         <Select value={newShiftId} onValueChange={setNewShiftId}>
           <SelectTrigger>
             <SelectValue placeholder="Choose shift" />
@@ -79,7 +79,7 @@ function AddSequenceForm({
         </Select>
       </div>
       <div className="flex flex-col gap-1.5">
-        <Label className="text-[12px] text-zoru-ink-muted">Duration (days)</Label>
+        <Label className="text-[12px] text-[var(--st-text-secondary)]">Duration (days)</Label>
         <Input
           type="number"
           min={1}
@@ -106,10 +106,10 @@ function RotationDetailsForm({
 }) {
   return (
     <Card className="p-6 mb-6">
-      <h2 className="mb-3 text-[16px] text-zoru-ink">Rotation Details</h2>
+      <h2 className="mb-3 text-[16px] text-[var(--st-text)]">Rotation Details</h2>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="flex flex-col gap-1.5">
-          <Label className="text-[12px] text-zoru-ink-muted">Name</Label>
+          <Label className="text-[12px] text-[var(--st-text-secondary)]">Name</Label>
           <Input
             defaultValue={rotation.name}
             onBlur={(e) =>
@@ -119,7 +119,7 @@ function RotationDetailsForm({
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label className="text-[12px] text-zoru-ink-muted">Description</Label>
+          <Label className="text-[12px] text-[var(--st-text-secondary)]">Description</Label>
           <Input
             defaultValue={rotation.description}
             onBlur={(e) =>
@@ -128,7 +128,7 @@ function RotationDetailsForm({
             }
           />
         </div>
-        <label className="flex items-center gap-2 rounded-lg border border-zoru-line bg-zoru-bg px-3 py-2 text-[13px] text-zoru-ink w-fit">
+        <label className="flex items-center gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-[13px] text-[var(--st-text)] w-fit">
           <Checkbox
             checked={rotation.is_active}
             onCheckedChange={(v) => saveRotationField({ is_active: Boolean(v) })}
@@ -377,8 +377,8 @@ export default function ShiftRotationClient({
       <Card className="p-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 className="text-[16px] text-zoru-ink">Sequence</h2>
-            <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+            <h2 className="text-[16px] text-[var(--st-text)]">Sequence</h2>
+            <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">
               Cycle length: {totalCycle} day{totalCycle === 1 ? '' : 's'}
             </p>
           </div>
@@ -392,10 +392,10 @@ export default function ShiftRotationClient({
           </div>
         </div>
 
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 bg-zoru-surface-2 p-3 rounded-lg border border-zoru-line">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 bg-[var(--st-bg-muted)] p-3 rounded-lg border border-[var(--st-border)]">
           <div className="flex flex-wrap items-center gap-3">
             <div className="relative w-full max-w-xs">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
               <Input 
                 placeholder="Filter by shift name..." 
                 value={searchQuery}
@@ -415,7 +415,7 @@ export default function ShiftRotationClient({
             </Select>
           </div>
           {selectedSequences.size > 0 && (
-            <Button variant="outline" className="text-zoru-danger-ink" onClick={bulkDelete} disabled={pending}>
+            <Button variant="outline" className="text-[var(--st-danger)]" onClick={bulkDelete} disabled={pending}>
               <Trash2 className="mr-2 h-4 w-4" /> Delete Selected ({selectedSequences.size})
             </Button>
           )}
@@ -424,7 +424,7 @@ export default function ShiftRotationClient({
         {/* Virtualized List Container */}
         <div 
           ref={parentRef} 
-          className="max-h-[400px] overflow-y-auto mb-6 rounded-lg border border-zoru-line"
+          className="max-h-[400px] overflow-y-auto mb-6 rounded-lg border border-[var(--st-border)]"
         >
           <div
             style={{
@@ -451,7 +451,7 @@ export default function ShiftRotationClient({
                   }}
                   className="px-2 py-1"
                 >
-                  <div className="flex h-full items-center gap-3 rounded-lg border border-zoru-line bg-zoru-bg px-3 py-1.5 transition-colors hover:bg-zoru-surface-2/50">
+                  <div className="flex h-full items-center gap-3 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-1.5 transition-colors hover:bg-[var(--st-bg-muted)]/50">
                     <Checkbox
                       checked={isSelected}
                       onCheckedChange={(checked) => {
@@ -462,15 +462,15 @@ export default function ShiftRotationClient({
                         setSelectedSequences(next);
                       }}
                     />
-                    <span className="w-6 text-[12px] font-medium text-zoru-ink-muted">
+                    <span className="w-6 text-[12px] font-medium text-[var(--st-text-secondary)]">
                       {virtualRow.index + 1}
                     </span>
                     <span
                       aria-hidden
-                      className="inline-block h-4 w-4 shrink-0 rounded-[4px] border border-zoru-line"
+                      className="inline-block h-4 w-4 shrink-0 rounded-[4px] border border-[var(--st-border)]"
                       style={{ backgroundColor: sh?.color_code || '#999' }}
                     />
-                    <span className="flex-1 truncate text-[13px] font-medium text-zoru-ink">
+                    <span className="flex-1 truncate text-[13px] font-medium text-[var(--st-text)]">
                       {sh?.name ?? 'Unknown shift'}
                     </span>
                     <Badge variant="info" className="shrink-0">
@@ -484,7 +484,7 @@ export default function ShiftRotationClient({
                       disabled={pending || !seq._id}
                       className="shrink-0"
                     >
-                      <Trash2 className="h-4 w-4 text-zoru-danger-ink" />
+                      <Trash2 className="h-4 w-4 text-[var(--st-danger)]" />
                     </Button>
                   </div>
                 </div>
@@ -492,7 +492,7 @@ export default function ShiftRotationClient({
             })}
             
             {filteredSequences.length === 0 && (
-              <div className="p-8 text-center text-[13px] text-zoru-ink-muted w-full h-full flex items-center justify-center">
+              <div className="p-8 text-center text-[13px] text-[var(--st-text-secondary)] w-full h-full flex items-center justify-center">
                 {searchQuery ? 'No sequences match your filter.' : 'No sequence entries yet.'}
               </div>
             )}
@@ -500,8 +500,8 @@ export default function ShiftRotationClient({
         </div>
 
         {/* Add Sequence Form */}
-        <div className="mt-4 border-t border-zoru-line pt-4">
-          <h3 className="mb-3 text-[14px] font-medium text-zoru-ink">Add to Sequence</h3>
+        <div className="mt-4 border-t border-[var(--st-border)] pt-4">
+          <h3 className="mb-3 text-[14px] font-medium text-[var(--st-text)]">Add to Sequence</h3>
           <AddSequenceForm shifts={shifts} onAdd={addSequence} disabled={pending} />
         </div>
       </Card>

@@ -87,7 +87,7 @@ export default async function UsagePage(): Promise<JSX.Element> {
       </div>
 
       <section className="space-y-3">
-        <h2 className="text-base font-semibold text-zoru-ink">Top endpoints</h2>
+        <h2 className="text-base font-semibold text-[var(--st-text)]">Top endpoints</h2>
         <Card>
           <Table>
             <ZoruTableHeader>
@@ -102,19 +102,19 @@ export default async function UsagePage(): Promise<JSX.Element> {
               {topRes.rows.length > 0 ? (
                 topRes.rows.map((r, i) => (
                   <ZoruTableRow key={i}>
-                    <ZoruTableCell className="font-mono text-xs text-zoru-ink">
+                    <ZoruTableCell className="font-mono text-xs text-[var(--st-text)]">
                       {r.method} {r.path}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-zoru-ink">{r.count.toLocaleString('en-US')}</ZoruTableCell>
-                    <ZoruTableCell className="text-zoru-ink-muted text-xs">
+                    <ZoruTableCell className="text-[var(--st-text)]">{r.count.toLocaleString('en-US')}</ZoruTableCell>
+                    <ZoruTableCell className="text-[var(--st-text-secondary)] text-xs">
                       {r.errorCount} ({pct(r.errorCount, r.count)})
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-zoru-ink-muted text-xs">{Math.round(r.avgLatencyMs)} ms</ZoruTableCell>
+                    <ZoruTableCell className="text-[var(--st-text-secondary)] text-xs">{Math.round(r.avgLatencyMs)} ms</ZoruTableCell>
                   </ZoruTableRow>
                 ))
               ) : (
                 <ZoruTableRow>
-                  <ZoruTableCell colSpan={4} className="text-center text-zoru-ink-muted py-6 text-sm">
+                  <ZoruTableCell colSpan={4} className="text-center text-[var(--st-text-secondary)] py-6 text-sm">
                     No data yet for the selected window.
                   </ZoruTableCell>
                 </ZoruTableRow>
@@ -125,7 +125,7 @@ export default async function UsagePage(): Promise<JSX.Element> {
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-base font-semibold text-zoru-ink">By key</h2>
+        <h2 className="text-base font-semibold text-[var(--st-text)]">By key</h2>
         <Card>
           <Table>
             <ZoruTableHeader>
@@ -142,19 +142,19 @@ export default async function UsagePage(): Promise<JSX.Element> {
               {keysRes.rows.length > 0 ? (
                 keysRes.rows.map((r) => (
                   <ZoruTableRow key={r.keyId}>
-                    <ZoruTableCell className="font-mono text-xs text-zoru-ink">{r.keyId}</ZoruTableCell>
-                    <ZoruTableCell className="text-xs text-zoru-ink-muted">{r.kind}</ZoruTableCell>
-                    <ZoruTableCell className="text-xs text-zoru-ink-muted">{r.env}</ZoruTableCell>
-                    <ZoruTableCell className="text-zoru-ink">{r.count.toLocaleString('en-US')}</ZoruTableCell>
-                    <ZoruTableCell className="text-zoru-ink-muted">{r.errorCount}</ZoruTableCell>
-                    <ZoruTableCell className="text-xs text-zoru-ink-muted">
+                    <ZoruTableCell className="font-mono text-xs text-[var(--st-text)]">{r.keyId}</ZoruTableCell>
+                    <ZoruTableCell className="text-xs text-[var(--st-text-secondary)]">{r.kind}</ZoruTableCell>
+                    <ZoruTableCell className="text-xs text-[var(--st-text-secondary)]">{r.env}</ZoruTableCell>
+                    <ZoruTableCell className="text-[var(--st-text)]">{r.count.toLocaleString('en-US')}</ZoruTableCell>
+                    <ZoruTableCell className="text-[var(--st-text-secondary)]">{r.errorCount}</ZoruTableCell>
+                    <ZoruTableCell className="text-xs text-[var(--st-text-secondary)]">
                       {r.lastUsedAt ? format(new Date(r.lastUsedAt), 'MMM d, yyyy HH:mm') : '—'}
                     </ZoruTableCell>
                   </ZoruTableRow>
                 ))
               ) : (
                 <ZoruTableRow>
-                  <ZoruTableCell colSpan={6} className="text-center text-zoru-ink-muted py-6 text-sm">
+                  <ZoruTableCell colSpan={6} className="text-center text-[var(--st-text-secondary)] py-6 text-sm">
                     No data yet.
                   </ZoruTableCell>
                 </ZoruTableRow>

@@ -338,7 +338,7 @@ export async function applyEcommShopTheme(shopId: string): Promise<{ message?: s
                         children: [
                             {id: uuidv4(), type: 'productBreadcrumbs', settings: {}},
                             {id: uuidv4(), type: 'heading', settings: {htmlTag: 'div'}, children: [{id: uuidv4(), type: 'productTitle', settings: {}}]},
-                            {id: uuidv4(), type: 'richText', settings: { htmlContent: '<div class="flex items-center gap-1"><span class="text-zoru-ink">★★★★☆</span><span class="text-sm text-zoru-ink-muted">(12 Reviews)</span></div>', margin: { bottom: '16' }}},
+                            {id: uuidv4(), type: 'richText', settings: { htmlContent: '<div class="flex items-center gap-1"><span class="text-[var(--st-text)]">★★★★☆</span><span class="text-sm text-[var(--st-text-secondary)]">(12 Reviews)</span></div>', margin: { bottom: '16' }}},
                             {id: uuidv4(), type: 'productPrice', settings: {}},
                             {id: uuidv4(), type: 'spacer', settings: {type: 'spacer', height: 16}},
                             {id: uuidv4(), type: 'productDescription', settings: {}},

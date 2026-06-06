@@ -40,8 +40,9 @@ use tracing::instrument;
 
 use crate::dto::{
     AddContactBody, AddContactResponse, CONTACTS_PER_PAGE, ImportContactsBody,
-    ImportContactsResponse, ListContactsQuery, ListContactsResponse, SuccessResponse,
-    UpdateContactDetailsBody, UpdateContactStatusBody, UpdateContactTagsBody,
+    ImportContactsResponse, KanbanColumn, KanbanQuery, KanbanResponse, ListContactsQuery,
+    ListContactsResponse, SaveKanbanStatusesBody, SuccessResponse, UpdateContactDetailsBody,
+    UpdateContactStatusBody, UpdateContactTagsBody,
 };
 use crate::state::WachatContactsState;
 
@@ -55,6 +56,13 @@ const PROJECTS_COLL: &str = "projects";
 /// behaviour, which built one big `bulkWrite` array — we slice it into
 /// 1k chunks to keep individual round trips bounded.
 const IMPORT_BATCH_SIZE: usize = 1_000;
+
+/// Default kanban column slugs, mirroring the native
+/// `getKanbanData`/`saveKanbanStatuses` `defaultStatuses` array exactly.
+/// These three are always present (and never persisted into
+/// `projects.kanbanStatuses`); any extra columns the user adds are
+/// appended from `project.kanbanStatuses`, deduped, in saved order.
+const DEFAULT_KANBAN_STATUSES: [&str; 3] = ["new", "open", "resolved"];
 
 // ===========================================================================
 // Tenancy guards
@@ -641,6 +649,181 @@ pub async fn delete_contact(
             "Failed to delete contact."
         )));
     }
+
+    Ok(Json(SuccessResponse::ok()))
+}
+
+// ===========================================================================
+// GET /v1/contacts/kanban — getKanbanData (contacts-domain board)
+// ===========================================================================
+
+/// `GET /v1/contacts/kanban` — group a project's contacts into status
+/// columns for the chat-kanban board.
+///
+/// This is the contacts-domain replacement for the native-mongo
+/// `getKanbanData` (`project.actions.ts`). It deliberately does **not**
+/// reuse the Facebook-domain `/v1/facebook/crm/.../kanban` endpoint,
+/// which returns Messenger *subscribers* keyed on PSID — a different
+/// shape from the `waId`-keyed `Contact` documents this board renders.
+///
+/// Column set mirrors the native action 1:1: the three
+/// [`DEFAULT_KANBAN_STATUSES`] first, then any custom `kanbanStatuses`
+/// saved on the project, deduped in order. Each contact lands in the
+/// column matching `status || "new"` (the same fallback the native code
+/// used), so contacts with no explicit status group under `new`.
+///
+/// Tenancy: the owner-or-agent [`load_project_with_membership`] guard —
+/// the same one the project-scoped mutations use — so an agent on the
+/// project sees the board but an unrelated user gets a 404.
+#[instrument(skip_all, fields(project_id = %query.project_id))]
+pub async fn get_kanban(
+    user: AuthUser,
+    State(state): State<WachatContactsState>,
+    Query(query): Query<KanbanQuery>,
+) -> Result<Json<KanbanResponse>> {
+    if query.project_id.trim().is_empty() {
+        return Err(ApiError::Validation("Project ID is required.".to_owned()));
+    }
+
+    // ---- Tenancy guard (owner-or-agent) --------------------------------
+    let project = load_project_with_membership(&user, &state.mongo, &query.project_id).await?;
+    let project_oid = project
+        .get_object_id("_id")
+        .map_err(|_| ApiError::Internal(anyhow::anyhow!("project missing _id")))?;
+
+    // ---- Resolve the column order (defaults + custom, deduped) ---------
+    let mut statuses: Vec<String> =
+        DEFAULT_KANBAN_STATUSES.iter().map(|s| (*s).to_owned()).collect();
+    if let Ok(custom) = project.get_array("kanbanStatuses") {
+        for entry in custom {
+            if let Bson::String(s) = entry {
+                let s = s.trim();
+                if !s.is_empty() && !statuses.iter().any(|existing| existing == s) {
+                    statuses.push(s.to_owned());
+                }
+            }
+        }
+    }
+
+    // ---- Load the project's contacts (optionally number-scoped) --------
+    let mut filter = doc! { "projectId": project_oid };
+    if let Some(pn) = query.phone_number_id.as_deref().filter(|s| !s.is_empty()) {
+        filter.insert("phoneNumberId", pn);
+    }
+
+    let opts = FindOptions::builder()
+        // Match the native sort so the most-recent conversation surfaces
+        // first inside each column.
+        .sort(doc! { "lastMessageTimestamp": -1, "updatedAt": -1 })
+        .build();
+
+    let coll = state.mongo.collection::<Document>(CONTACTS_COLL);
+    let cursor = coll
+        .find(filter)
+        .with_options(opts)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("contacts.find(kanban)")))?;
+    let docs: Vec<Document> = cursor
+        .try_collect()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("contacts.collect(kanban)")))?;
+
+    // ---- Bucket contacts by status -------------------------------------
+    //
+    // Pre-seed every known column so empty lists still render, then drop
+    // each contact into its bucket. A contact whose status is unknown
+    // (not one of the resolved columns) falls back to `new`, mirroring
+    // the native `(c.status || 'new')` behaviour for the common case and
+    // avoiding a contact silently vanishing from the board.
+    let mut buckets: Vec<(String, Vec<Value>)> =
+        statuses.iter().map(|s| (s.clone(), Vec::new())).collect();
+
+    for doc in docs {
+        let status = doc
+            .get_str("status")
+            .ok()
+            .map(str::trim)
+            .filter(|s| !s.is_empty())
+            .unwrap_or("new")
+            .to_owned();
+        let clean = document_to_clean_json(doc);
+        // Resolve the destination index with an immutable scan first
+        // (matching status → else the `new` fallback column), then take
+        // a single mutable borrow to push.
+        let idx = buckets
+            .iter()
+            .position(|(name, _)| *name == status)
+            .or_else(|| buckets.iter().position(|(name, _)| name == "new"));
+        if let Some(i) = idx {
+            buckets[i].1.push(clean);
+        }
+    }
+
+    let columns: Vec<KanbanColumn> = buckets
+        .into_iter()
+        .map(|(name, contacts)| KanbanColumn {
+            id: name.clone(),
+            title: name,
+            contacts,
+        })
+        .collect();
+
+    Ok(Json(KanbanResponse { columns }))
+}
+
+// ===========================================================================
+// POST /v1/contacts/kanban/statuses — saveKanbanStatuses
+// ===========================================================================
+
+/// `POST /v1/contacts/kanban/statuses` — persist the board's custom
+/// column list onto `projects.kanbanStatuses`.
+///
+/// Mirrors the native `saveKanbanStatuses`: the caller posts the full
+/// set of column names currently on the board; the three
+/// [`DEFAULT_KANBAN_STATUSES`] are stripped before writing so only the
+/// user-added lists are stored (and order/dedup is preserved). The
+/// per-card *status moves* are NOT handled here — those persist via the
+/// existing `PATCH /{id}/status`.
+///
+/// Tenancy: owner-or-agent [`load_project_with_membership`], matching
+/// the read path so anyone who can see the board can rename/reorder it.
+#[instrument(skip_all, fields(project_id = %body.project_id))]
+pub async fn save_kanban_statuses(
+    user: AuthUser,
+    State(state): State<WachatContactsState>,
+    Json(body): Json<SaveKanbanStatusesBody>,
+) -> Result<Json<SuccessResponse>> {
+    if body.project_id.trim().is_empty() {
+        return Err(ApiError::Validation("Project ID is required.".to_owned()));
+    }
+
+    let project = load_project_with_membership(&user, &state.mongo, &body.project_id).await?;
+    let project_oid = project
+        .get_object_id("_id")
+        .map_err(|_| ApiError::Internal(anyhow::anyhow!("project missing _id")))?;
+
+    // Strip defaults; preserve order and drop duplicates / blanks.
+    let mut custom: Vec<String> = Vec::with_capacity(body.statuses.len());
+    for raw in &body.statuses {
+        let s = raw.trim();
+        if s.is_empty() || DEFAULT_KANBAN_STATUSES.contains(&s) {
+            continue;
+        }
+        if !custom.iter().any(|existing| existing == s) {
+            custom.push(s.to_owned());
+        }
+    }
+
+    let projects = state.mongo.collection::<Document>(PROJECTS_COLL);
+    projects
+        .update_one(
+            doc! { "_id": project_oid },
+            doc! { "$set": { "kanbanStatuses": Bson::Array(custom.into_iter().map(Bson::String).collect()) } },
+        )
+        .await
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("projects.update_one(kanbanStatuses)"))
+        })?;
 
     Ok(Json(SuccessResponse::ok()))
 }

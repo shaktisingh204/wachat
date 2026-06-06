@@ -452,11 +452,11 @@ export default function LeaveListClient({
         empty={
           rows.length === 0 ? (
             <div className="flex flex-col items-center gap-3 p-4">
-              <CalendarPlus className="h-8 w-8 text-zoru-ink-muted" />
-              <h3 className="text-base font-medium text-zoru-ink">
+              <CalendarPlus className="h-8 w-8 text-[var(--st-text-secondary)]" />
+              <h3 className="text-base font-medium text-[var(--st-text)]">
                 No leave requests yet
               </h3>
-              <p className="max-w-sm text-sm text-zoru-ink-muted">
+              <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                 Apply for leave or wait for your team to submit requests.
               </p>
               <Button asChild>

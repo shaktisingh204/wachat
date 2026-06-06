@@ -69,7 +69,7 @@ export function FieldsClient() {
                <Skeleton className="h-10 w-full" />
             </div>
           ) : fields.length === 0 ? (
-            <div className="py-8 text-center text-sm text-zoru-ink-muted">
+            <div className="py-8 text-center text-sm text-[var(--st-text-secondary)]">
               No custom fields defined.
             </div>
           ) : (

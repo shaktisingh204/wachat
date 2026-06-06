@@ -59,14 +59,14 @@ export function CrmAddPipelineDialog({ onPipelineAdded, defaultOpen = false, def
             <ZoruDialogContent className="sm:max-w-md">
                 <form onSubmit={handleSubmit}>
                     <ZoruDialogHeader>
-                        <ZoruDialogTitle className="text-zoru-ink">Create New Pipeline</ZoruDialogTitle>
-                        <ZoruDialogDescription className="text-zoru-ink-muted">
+                        <ZoruDialogTitle className="text-[var(--st-text)]">Create New Pipeline</ZoruDialogTitle>
+                        <ZoruDialogDescription className="text-[var(--st-text-secondary)]">
                             Add a new sales pipeline to your CRM.
                         </ZoruDialogDescription>
                     </ZoruDialogHeader>
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
-                            <Label htmlFor="name" className="text-zoru-ink">Pipeline Name</Label>
+                            <Label htmlFor="name" className="text-[var(--st-text)]">Pipeline Name</Label>
                             <Input
                                 id="name"
                                 value={name}

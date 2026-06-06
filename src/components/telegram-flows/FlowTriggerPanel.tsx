@@ -58,7 +58,7 @@ export function FlowTriggerPanel({ trigger, onChange, disabled }: Props) {
             ))}
           </ZoruSelectContent>
         </Select>
-        <p className="text-xs text-zoru-ink-muted">
+        <p className="text-xs text-[var(--st-text-secondary)]">
           {TRIGGER_KINDS.find((t) => t.value === kind)?.hint ?? ''}
         </p>
       </div>

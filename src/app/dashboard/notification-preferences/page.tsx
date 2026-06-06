@@ -148,7 +148,7 @@ export default function NotificationPreferencesPage() {
   if (isLoading) {
     return (
       <div className="flex min-h-[300px] items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-zoru-ink-muted" />
+        <Loader2 className="h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
       </div>
     );
   }
@@ -190,18 +190,18 @@ export default function NotificationPreferencesPage() {
       <div className="flex flex-col gap-8">
         {Object.entries(groupedDefs).map(([moduleName, defs]) => (
           <div key={moduleName} className="flex flex-col gap-4">
-            <h3 className="text-sm font-medium text-zoru-ink">{moduleName}</h3>
-            <Card className="divide-y divide-zoru-line p-0">
+            <h3 className="text-sm font-medium text-[var(--st-text)]">{moduleName}</h3>
+            <Card className="divide-y divide-[var(--st-border)] p-0">
               {defs.map((def) => {
                 const Icon = def.icon;
                 return (
                   <div key={def.id} className="flex items-center gap-4 px-5 py-4">
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2">
-                      <Icon className="h-5 w-5 text-zoru-ink-muted" />
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)]">
+                      <Icon className="h-5 w-5 text-[var(--st-text-secondary)]" />
                     </span>
                     <div className="min-w-0 flex-1">
-                      <div className="text-sm text-zoru-ink">{def.label}</div>
-                      <div className="text-[12.5px] text-zoru-ink-muted">{def.description}</div>
+                      <div className="text-sm text-[var(--st-text)]">{def.label}</div>
+                      <div className="text-[12.5px] text-[var(--st-text-secondary)]">{def.description}</div>
                     </div>
                     <Switch
                       checked={!!prefs[def.id]}

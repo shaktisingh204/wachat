@@ -14,7 +14,7 @@ export default function CustomConversionsLoading() {
         actions={<Skeleton className="h-10 w-40" />}
       />
 
-      <div className="flex items-center gap-2 text-sm text-zoru-ink-muted">
+      <div className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
         <Skeleton className="h-4 w-4" />
         <Skeleton className="h-4 w-48" />
       </div>

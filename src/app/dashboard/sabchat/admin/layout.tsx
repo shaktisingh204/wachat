@@ -23,7 +23,7 @@ export default function SabchatAdminLayout({ children }: { children: React.React
                             <Link
                                 key={item.href}
                                 href={item.href}
-                                className="px-4 py-2 rounded-md hover:bg-zoru-surface-2 text-sm font-medium transition-colors"
+                                className="px-4 py-2 rounded-md hover:bg-[var(--st-bg-muted)] text-sm font-medium transition-colors"
                             >
                                 {item.label}
                             </Link>

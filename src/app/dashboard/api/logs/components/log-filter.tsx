@@ -58,7 +58,7 @@ function FilterForm() {
 
 export function LogFilter() {
   return (
-    <Suspense fallback={<div className="h-10 w-full animate-pulse bg-zoru-surface/50 rounded-md"></div>}>
+    <Suspense fallback={<div className="h-10 w-full animate-pulse bg-[var(--st-bg-secondary)]/50 rounded-md"></div>}>
       <FilterForm />
     </Suspense>
   );

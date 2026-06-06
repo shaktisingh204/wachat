@@ -108,7 +108,7 @@ export function HuddleDrawer({
                 </ZoruDrawerHeader>
 
                 <div className="mt-4 flex flex-col gap-4">
-                    <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink-muted">
+                    <div className="flex items-center gap-2 text-[12.5px] text-[var(--st-text-secondary)]">
                         <Users className="h-3.5 w-3.5" />
                         {huddle
                             ? `${huddle.participantIds.length} participant${huddle.participantIds.length === 1 ? '' : 's'}`
@@ -120,7 +120,7 @@ export function HuddleDrawer({
                             {huddle.participantIds.map((id) => (
                                 <span
                                     key={id}
-                                    className="inline-flex h-7 items-center gap-2 rounded-full border border-zoru-line bg-zoru-surface-2 px-3 text-[11.5px] text-zoru-ink"
+                                    className="inline-flex h-7 items-center gap-2 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 text-[11.5px] text-[var(--st-text)]"
                                 >
                                     <span
                                         className="h-2 w-2 rounded-full"

@@ -103,7 +103,7 @@ export function EpicsBoard({ projectId, initialEpics, stories }: Props) {
   return (
     <div className="grid gap-4 lg:grid-cols-[20rem_minmax(0,1fr)]">
       <Card className="flex flex-col gap-3 p-4">
-        <h2 className="text-sm font-semibold text-zoru-ink">New epic</h2>
+        <h2 className="text-sm font-semibold text-[var(--st-text)]">New epic</h2>
         <form className="flex flex-col gap-3" onSubmit={handleCreate}>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="epic-name">Name</Label>
@@ -160,7 +160,7 @@ export function EpicsBoard({ projectId, initialEpics, stories }: Props) {
       </Card>
 
       <Card className="flex flex-col gap-3 p-4">
-        <h2 className="text-sm font-semibold text-zoru-ink">Roadmap</h2>
+        <h2 className="text-sm font-semibold text-[var(--st-text)]">Roadmap</h2>
         {epics.length === 0 ? (
           <EmptyState
             title="No epics yet"
@@ -185,13 +185,13 @@ export function EpicsBoard({ projectId, initialEpics, stories }: Props) {
                       className="inline-block h-2.5 w-2.5 rounded-full"
                       style={{ backgroundColor: epic.color ?? '#94a3b8' }}
                     />
-                    <span className="text-sm font-medium text-zoru-ink">
+                    <span className="text-sm font-medium text-[var(--st-text)]">
                       {epic.name}
                     </span>
                     <Badge variant="ghost">{count} stories</Badge>
                     <Badge variant="ghost">{epic.status}</Badge>
                   </div>
-                  <div className="relative h-3 w-full rounded-full bg-zoru-line">
+                  <div className="relative h-3 w-full rounded-full bg-[var(--st-border)]">
                     <div
                       className="absolute h-3 rounded-full"
                       style={{

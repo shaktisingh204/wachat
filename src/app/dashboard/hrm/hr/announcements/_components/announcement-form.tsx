@@ -176,7 +176,7 @@ export function AnnouncementForm({ initialData }: AnnouncementFormProps) {
             <input type="hidden" name="bannerUrl" value={bannerUrl} />
 
             <Card className="p-6">
-                <div className="mb-4 text-[14px] font-medium text-zoru-ink">
+                <div className="mb-4 text-[14px] font-medium text-[var(--st-text)]">
                     Announcement
                 </div>
 
@@ -242,7 +242,7 @@ export function AnnouncementForm({ initialData }: AnnouncementFormProps) {
 
             {/* Audience */}
             <Card className="p-6">
-                <div className="mb-4 text-[14px] font-medium text-zoru-ink">
+                <div className="mb-4 text-[14px] font-medium text-[var(--st-text)]">
                     Audience
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -275,7 +275,7 @@ export function AnnouncementForm({ initialData }: AnnouncementFormProps) {
                                 placeholder="comma, separated, ids"
                                 defaultValue={audienceIdsInitial}
                             />
-                            <p className="text-[11.5px] text-zoru-ink-muted">
+                            <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                                 Leave blank to target everyone matching the audience type.
                             </p>
                         </div>
@@ -285,7 +285,7 @@ export function AnnouncementForm({ initialData }: AnnouncementFormProps) {
 
             {/* Schedule + Status */}
             <Card className="p-6">
-                <div className="mb-4 text-[14px] font-medium text-zoru-ink">
+                <div className="mb-4 text-[14px] font-medium text-[var(--st-text)]">
                     Schedule & status
                 </div>
                 <div className="grid gap-4 sm:grid-cols-3">
@@ -326,11 +326,11 @@ export function AnnouncementForm({ initialData }: AnnouncementFormProps) {
 
             {/* Flags */}
             <Card className="p-6">
-                <div className="mb-4 text-[14px] font-medium text-zoru-ink">
+                <div className="mb-4 text-[14px] font-medium text-[var(--st-text)]">
                     Options
                 </div>
                 <div className="grid gap-3 sm:grid-cols-3">
-                    <label className="flex items-center gap-2 text-[13px] text-zoru-ink">
+                    <label className="flex items-center gap-2 text-[13px] text-[var(--st-text)]">
                         <Checkbox
                             id="pinned"
                             name="pinned"
@@ -338,7 +338,7 @@ export function AnnouncementForm({ initialData }: AnnouncementFormProps) {
                         />
                         Pin to top of feed
                     </label>
-                    <label className="flex items-center gap-2 text-[13px] text-zoru-ink">
+                    <label className="flex items-center gap-2 text-[13px] text-[var(--st-text)]">
                         <Checkbox
                             id="allowComments"
                             name="allowComments"
@@ -346,7 +346,7 @@ export function AnnouncementForm({ initialData }: AnnouncementFormProps) {
                         />
                         Allow comments
                     </label>
-                    <label className="flex items-center gap-2 text-[13px] text-zoru-ink">
+                    <label className="flex items-center gap-2 text-[13px] text-[var(--st-text)]">
                         <Checkbox
                             id="requireAcknowledgement"
                             name="requireAcknowledgement"
@@ -359,23 +359,23 @@ export function AnnouncementForm({ initialData }: AnnouncementFormProps) {
 
             {/* Banner — SabFiles only */}
             <Card className="p-6">
-                <div className="mb-1 text-[14px] font-medium text-zoru-ink">
+                <div className="mb-1 text-[14px] font-medium text-[var(--st-text)]">
                     Banner image
                 </div>
-                <p className="mb-4 text-[12px] text-zoru-ink-muted">
+                <p className="mb-4 text-[12px] text-[var(--st-text-secondary)]">
                     Pick from your SabFiles library or upload a fresh image.
                     External URLs are not supported.
                 </p>
                 <div className="flex flex-wrap items-center gap-3">
                     {bannerUrl ? (
-                        <div className="flex items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface/40 p-2">
+                        <div className="flex items-center gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40 p-2">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                                 src={bannerUrl}
                                 alt=""
                                 className="h-12 w-20 rounded object-cover"
                             />
-                            <span className="max-w-[180px] truncate text-xs text-zoru-ink">
+                            <span className="max-w-[180px] truncate text-xs text-[var(--st-text)]">
                                 {bannerName || 'Banner image'}
                             </span>
                             <Button
@@ -389,7 +389,7 @@ export function AnnouncementForm({ initialData }: AnnouncementFormProps) {
                             </Button>
                         </div>
                     ) : (
-                        <div className="flex h-12 w-20 items-center justify-center rounded-[var(--zoru-radius)] border border-dashed border-zoru-line text-zoru-ink-muted">
+                        <div className="flex h-12 w-20 items-center justify-center rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] text-[var(--st-text-secondary)]">
                             <ImageIcon className="h-5 w-5" />
                         </div>
                     )}

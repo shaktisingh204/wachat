@@ -12,12 +12,12 @@ import { AdManagerProvider } from '@/context/ad-manager-context';
 import { AdminLayout } from '@/components/admin-panel/layout/admin-layout';
 
 const FullPageSkeleton = () => (
-    <div className="flex h-screen w-screen bg-zoru-surface p-2 gap-2">
-        <div className="w-16 rounded-lg bg-zoru-surface p-2"><Skeleton className="h-full w-full" /></div>
-        <div className="w-[70px] rounded-lg bg-zoru-surface p-2"><Skeleton className="h-full w-full" /></div>
+    <div className="flex h-screen w-screen bg-[var(--st-bg-secondary)] p-2 gap-2">
+        <div className="w-16 rounded-lg bg-[var(--st-bg-secondary)] p-2"><Skeleton className="h-full w-full" /></div>
+        <div className="w-[70px] rounded-lg bg-[var(--st-bg-secondary)] p-2"><Skeleton className="h-full w-full" /></div>
         <div className="flex-1 flex flex-col gap-2">
-            <div className="h-16 rounded-lg bg-zoru-surface p-4"><Skeleton className="h-full w-full" /></div>
-            <div className="flex-1 rounded-lg bg-zoru-surface p-4"><Skeleton className="h-full w-full" /></div>
+            <div className="h-16 rounded-lg bg-[var(--st-bg-secondary)] p-4"><Skeleton className="h-full w-full" /></div>
+            <div className="flex-1 rounded-lg bg-[var(--st-bg-secondary)] p-4"><Skeleton className="h-full w-full" /></div>
         </div>
     </div>
 );

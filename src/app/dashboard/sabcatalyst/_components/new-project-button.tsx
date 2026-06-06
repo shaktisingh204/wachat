@@ -112,7 +112,7 @@ export function NewProjectButton() {
                                 </SelectContent>
                             </Select>
                         </div>
-                        {err ? <p className="text-sm text-zoru-ink">{err}</p> : null}
+                        {err ? <p className="text-sm text-[var(--st-text)]">{err}</p> : null}
                     </div>
                     <DialogFooter>
                         <Button variant="ghost" onClick={() => setOpen(false)} disabled={busy}>

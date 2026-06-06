@@ -37,7 +37,7 @@ function previewIcon(mime?: string, className = 'h-14 w-14'): React.ReactElement
     if (mime?.startsWith('audio/')) return <FileAudio className={cn(className, 'text-emerald-500')} />;
     if (mime?.includes('text') || mime?.includes('pdf'))
         return <FileText className={cn(className, 'text-sky-500')} />;
-    return <FileIcon className={cn(className, 'text-zoru-ink-muted')} />;
+    return <FileIcon className={cn(className, 'text-[var(--st-text-secondary)]')} />;
 }
 
 function typeLabel(view: PublicShareView): string {
@@ -61,9 +61,9 @@ function officePreviewUrl(url: string): string {
 
 function ShareStat({ label, value }: { label: string; value: React.ReactNode }) {
     return (
-        <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3">
-            <dt className="text-xs text-zoru-ink-muted">{label}</dt>
-            <dd className="mt-1 min-w-0 break-words text-sm font-medium text-zoru-ink">{value}</dd>
+        <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+            <dt className="text-xs text-[var(--st-text-secondary)]">{label}</dt>
+            <dd className="mt-1 min-w-0 break-words text-sm font-medium text-[var(--st-text)]">{value}</dd>
         </div>
     );
 }
@@ -157,12 +157,12 @@ export function ShareLanding({
     };
 
     return (
-        <main className="zoruui min-h-screen bg-zoru-bg text-zoru-ink">
+        <main className="zoruui min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
             <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8">
-                <header className="flex flex-wrap items-center justify-between gap-3 border-b border-zoru-line bg-zoru-bg/95 pb-4">
+                <header className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--st-border)] bg-[var(--st-bg)]/95 pb-4">
                     <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2 text-sm">
-                            <span className="font-semibold text-zoru-ink">SabFiles</span>
+                            <span className="font-semibold text-[var(--st-text)]">SabFiles</span>
                             <Badge variant={view.password_protected ? 'warning' : 'success'}>
                                 {view.password_protected ? <KeyRound /> : <ShieldCheck />}
                                 {view.password_protected ? 'Password protected' : 'Ready to view'}
@@ -172,10 +172,10 @@ export function ShareLanding({
                                 {view.download_enabled ? 'Download enabled' : 'View only'}
                             </Badge>
                         </div>
-                        <h1 className="mt-2 break-words text-2xl font-semibold tracking-normal text-zoru-ink sm:text-3xl">
+                        <h1 className="mt-2 break-words text-2xl font-semibold tracking-normal text-[var(--st-text)] sm:text-3xl">
                             {view.name}
                         </h1>
-                        <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-zoru-ink-muted">
+                        <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-[var(--st-text-secondary)]">
                             <span>{typeLabel(view)}</span>
                             <span aria-hidden="true">/</span>
                             <span>{fileSize}</span>
@@ -198,17 +198,17 @@ export function ShareLanding({
                 </header>
 
                 <section className="grid flex-1 gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
-                    <section className="min-w-0 overflow-hidden rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg">
-                        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zoru-line px-4 py-3">
+                    <section className="min-w-0 overflow-hidden rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)]">
+                        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--st-border)] px-4 py-3">
                             <div className="flex min-w-0 items-center gap-3">
-                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface">
+                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)]">
                                     {previewIcon(view.mime, 'h-5 w-5')}
                                 </div>
                                 <div className="min-w-0">
-                                    <div className="truncate text-sm font-medium text-zoru-ink">
+                                    <div className="truncate text-sm font-medium text-[var(--st-text)]">
                                         File preview
                                     </div>
-                                    <div className="truncate text-xs text-zoru-ink-muted">
+                                    <div className="truncate text-xs text-[var(--st-text-secondary)]">
                                         {extension === 'Unknown' ? typeLabel(view) : extension}
                                     </div>
                                 </div>
@@ -230,7 +230,7 @@ export function ShareLanding({
                             </div>
                         </div>
 
-                        <div className="flex min-h-[56vh] items-center justify-center bg-zoru-surface p-4 sm:p-6">
+                        <div className="flex min-h-[56vh] items-center justify-center bg-[var(--st-bg-secondary)] p-4 sm:p-6">
                             {previewKind === 'image' && previewUrl ? (
                                 <img
                                     src={previewUrl}
@@ -246,7 +246,7 @@ export function ShareLanding({
                                 />
                             ) : previewKind === 'audio' && previewUrl ? (
                                 <div className="mx-auto flex w-full max-w-xl flex-col items-center gap-5 p-8">
-                                    <div className="flex h-24 w-24 items-center justify-center rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg">
+                                    <div className="flex h-24 w-24 items-center justify-center rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)]">
                                         {previewIcon(view.mime)}
                                     </div>
                                     <audio src={previewUrl} className="w-full" controls preload="metadata" />
@@ -265,14 +265,14 @@ export function ShareLanding({
                                 />
                             ) : (
                                 <div className="mx-auto flex max-w-md flex-col items-center gap-4 p-8 text-center">
-                                    <div className="flex h-24 w-24 items-center justify-center rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg">
+                                    <div className="flex h-24 w-24 items-center justify-center rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)]">
                                         {previewIcon(view.mime)}
                                     </div>
                                     <div>
-                                        <div className="text-base font-medium text-zoru-ink">
+                                        <div className="text-base font-medium text-[var(--st-text)]">
                                             {canLoadPreview ? 'Preview locked' : 'Preview unavailable'}
                                         </div>
-                                        <p className="mt-1 text-sm leading-6 text-zoru-ink-muted">
+                                        <p className="mt-1 text-sm leading-6 text-[var(--st-text-secondary)]">
                                             {view.password_protected && !password
                                                 ? 'Enter the share password to show the preview.'
                                                 : previewError || 'This file type does not have an inline preview. Use the action panel to download it when downloads are allowed.'}
@@ -282,7 +282,7 @@ export function ShareLanding({
                             )}
                         </div>
 
-                        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-zoru-line px-4 py-3 text-sm text-zoru-ink-muted">
+                        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--st-border)] px-4 py-3 text-sm text-[var(--st-text-secondary)]">
                             <span className="min-w-0 truncate">{view.name}</span>
                             <span>{fileSize}</span>
                         </div>
@@ -292,10 +292,10 @@ export function ShareLanding({
                         <Card className="p-0">
                             <ZoruCardContent className="flex flex-col gap-4 p-4">
                                 <div>
-                                    <div className="text-xs uppercase tracking-wide text-zoru-ink-muted">
+                                    <div className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
                                         Quick actions
                                     </div>
-                                    <div className="mt-1 text-base font-semibold text-zoru-ink">
+                                    <div className="mt-1 text-base font-semibold text-[var(--st-text)]">
                                         Shared file controls
                                     </div>
                                 </div>
@@ -313,7 +313,7 @@ export function ShareLanding({
                                             onKeyDown={onPasswordKeyDown}
                                             placeholder="Enter password"
                                         />
-                                        <p className="text-xs leading-5 text-zoru-ink-muted">
+                                        <p className="text-xs leading-5 text-[var(--st-text-secondary)]">
                                             Enter the owner-provided password before previewing or downloading.
                                         </p>
                                     </div>
@@ -348,7 +348,7 @@ export function ShareLanding({
 
                         <Card className="p-0">
                             <ZoruCardContent className="p-4">
-                                <div className="mb-3 text-xs uppercase tracking-wide text-zoru-ink-muted">
+                                <div className="mb-3 text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
                                     File details
                                 </div>
                                 <dl className="grid grid-cols-2 gap-3">
@@ -365,11 +365,11 @@ export function ShareLanding({
 
                         <div
                             className={cn(
-                                'rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-surface p-4',
-                                'text-sm leading-6 text-zoru-ink-muted',
+                                'rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4',
+                                'text-sm leading-6 text-[var(--st-text-secondary)]',
                             )}
                         >
-                            <div className="mb-1 flex items-center gap-2 font-medium text-zoru-ink">
+                            <div className="mb-1 flex items-center gap-2 font-medium text-[var(--st-text)]">
                                 <Info className="h-4 w-4" />
                                 Secure share note
                             </div>

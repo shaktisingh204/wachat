@@ -100,7 +100,7 @@ export default async function CustomFieldDetailPage({
         {/* Summary */}
         <Card className="p-6">
           <div className="mb-4 flex flex-wrap items-center gap-2">
-            <div className="text-[14px] font-medium text-zoru-ink">Overview</div>
+            <div className="text-[14px] font-medium text-[var(--st-text)]">Overview</div>
             <Badge variant="outline" className="capitalize">
               {field.fieldType}
             </Badge>
@@ -117,41 +117,41 @@ export default async function CustomFieldDetailPage({
 
           <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
             <div>
-              <div className="text-zoru-ink-muted">Internal name</div>
-              <div className="font-mono text-zoru-ink">{field.name}</div>
+              <div className="text-[var(--st-text-secondary)]">Internal name</div>
+              <div className="font-mono text-[var(--st-text)]">{field.name}</div>
             </div>
             <div>
-              <div className="text-zoru-ink-muted">Entity</div>
-              <div className="text-zoru-ink">{entityLabel(field.entityKind)}</div>
+              <div className="text-[var(--st-text-secondary)]">Entity</div>
+              <div className="text-[var(--st-text)]">{entityLabel(field.entityKind)}</div>
             </div>
             <div>
-              <div className="text-zoru-ink-muted">Display order</div>
-              <div className="text-zoru-ink">{field.displayOrder ?? 0}</div>
+              <div className="text-[var(--st-text-secondary)]">Display order</div>
+              <div className="text-[var(--st-text)]">{field.displayOrder ?? 0}</div>
             </div>
             <div>
-              <div className="text-zoru-ink-muted">Placeholder</div>
-              <div className="text-zoru-ink">{field.placeholder ?? '—'}</div>
+              <div className="text-[var(--st-text-secondary)]">Placeholder</div>
+              <div className="text-[var(--st-text)]">{field.placeholder ?? '—'}</div>
             </div>
             {field.helpText ? (
               <div className="sm:col-span-2">
-                <div className="text-zoru-ink-muted">Help text</div>
-                <div className="text-zoru-ink">{field.helpText}</div>
+                <div className="text-[var(--st-text-secondary)]">Help text</div>
+                <div className="text-[var(--st-text)]">{field.helpText}</div>
               </div>
             ) : null}
             <div>
-              <div className="text-zoru-ink-muted">Last updated</div>
-              <div className="text-zoru-ink">{fmtDate(field.updatedAt)}</div>
+              <div className="text-[var(--st-text-secondary)]">Last updated</div>
+              <div className="text-[var(--st-text)]">{fmtDate(field.updatedAt)}</div>
             </div>
             <div>
-              <div className="text-zoru-ink-muted">Created</div>
-              <div className="text-zoru-ink">{fmtDate(field.createdAt)}</div>
+              <div className="text-[var(--st-text-secondary)]">Created</div>
+              <div className="text-[var(--st-text)]">{fmtDate(field.createdAt)}</div>
             </div>
           </div>
         </Card>
 
         {/* Flags */}
         <Card className="p-6">
-          <div className="mb-3 text-[14px] font-medium text-zoru-ink">
+          <div className="mb-3 text-[14px] font-medium text-[var(--st-text)]">
             Display flags
           </div>
           <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-[13px] sm:grid-cols-3">
@@ -167,7 +167,7 @@ export default async function CustomFieldDetailPage({
         {/* Options */}
         {field.options && field.options.length > 0 ? (
           <Card className="p-6">
-            <div className="mb-3 text-[14px] font-medium text-zoru-ink">
+            <div className="mb-3 text-[14px] font-medium text-[var(--st-text)]">
               Options
             </div>
             <div className="flex flex-wrap gap-2">
@@ -197,25 +197,25 @@ export default async function CustomFieldDetailPage({
           field.validation.max !== undefined ||
           typeof field.validation.pattern === 'string') ? (
           <Card className="p-6">
-            <div className="mb-3 text-[14px] font-medium text-zoru-ink">
+            <div className="mb-3 text-[14px] font-medium text-[var(--st-text)]">
               Validation
             </div>
             <div className="grid grid-cols-3 gap-3 text-[13px]">
               <div>
-                <div className="text-zoru-ink-muted">Min</div>
-                <div className="text-zoru-ink">
+                <div className="text-[var(--st-text-secondary)]">Min</div>
+                <div className="text-[var(--st-text)]">
                   {field.validation.min ?? '—'}
                 </div>
               </div>
               <div>
-                <div className="text-zoru-ink-muted">Max</div>
-                <div className="text-zoru-ink">
+                <div className="text-[var(--st-text-secondary)]">Max</div>
+                <div className="text-[var(--st-text)]">
                   {field.validation.max ?? '—'}
                 </div>
               </div>
               <div>
-                <div className="text-zoru-ink-muted">Pattern</div>
-                <div className="font-mono text-zoru-ink">
+                <div className="text-[var(--st-text-secondary)]">Pattern</div>
+                <div className="font-mono text-[var(--st-text)]">
                   {field.validation.pattern ?? '—'}
                 </div>
               </div>
@@ -229,8 +229,8 @@ export default async function CustomFieldDetailPage({
 function FlagLine({ label, value }: { label: string; value: boolean }) {
   return (
     <div className="flex items-center justify-between gap-2">
-      <span className="text-zoru-ink-muted">{label}</span>
-      <span className={value ? 'text-zoru-ink' : 'text-zoru-ink-muted'}>
+      <span className="text-[var(--st-text-secondary)]">{label}</span>
+      <span className={value ? 'text-[var(--st-text)]' : 'text-[var(--st-text-secondary)]'}>
         {value ? 'Yes' : 'No'}
       </span>
     </div>

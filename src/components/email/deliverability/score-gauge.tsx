@@ -16,10 +16,10 @@ interface ScoreGaugeProps {
 }
 
 function scoreTone(score: number): { ring: string; label: string } {
-  if (score >= 85) return { ring: 'stroke-zoru-success', label: 'Excellent' };
-  if (score >= 70) return { ring: 'stroke-zoru-info', label: 'Good' };
-  if (score >= 50) return { ring: 'stroke-zoru-warning', label: 'Fair' };
-  return { ring: 'stroke-zoru-danger', label: 'At risk' };
+  if (score >= 85) return { ring: 'stroke-[var(--st-status-ok)]', label: 'Excellent' };
+  if (score >= 70) return { ring: 'stroke-[var(--st-text-secondary)]', label: 'Good' };
+  if (score >= 50) return { ring: 'stroke-[var(--st-warn)]', label: 'Fair' };
+  return { ring: 'stroke-[var(--st-danger)]', label: 'At risk' };
 }
 
 export function ScoreGauge({
@@ -50,7 +50,7 @@ export function ScoreGauge({
           cy={size / 2}
           r={radius}
           strokeWidth={stroke}
-          className="fill-none stroke-zoru-line"
+          className="fill-none stroke-[var(--st-border)]"
         />
         <circle
           cx={size / 2}
@@ -64,10 +64,10 @@ export function ScoreGauge({
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-4xl font-semibold tracking-tight text-zoru-ink">
+        <span className="text-4xl font-semibold tracking-tight text-[var(--st-text)]">
           {clamped}
         </span>
-        <span className="text-xs uppercase tracking-wide text-zoru-ink-muted">
+        <span className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
           {grade ?? description}
         </span>
       </div>

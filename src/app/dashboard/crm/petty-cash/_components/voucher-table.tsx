@@ -77,7 +77,7 @@ export function VoucherTable({ floatId, currency, vouchers }: VoucherTableProps)
   };
 
   if (vouchers.length === 0) {
-    return <p className="text-[13px] text-zoru-ink-muted">No vouchers recorded yet.</p>;
+    return <p className="text-[13px] text-[var(--st-text-secondary)]">No vouchers recorded yet.</p>;
   }
 
   return (
@@ -89,7 +89,7 @@ export function VoucherTable({ floatId, currency, vouchers }: VoucherTableProps)
       </div>
       <table className="w-full text-[13px]">
         <thead>
-          <tr className="border-b border-zoru-line/60 text-left text-[11px] uppercase text-zoru-ink-muted">
+          <tr className="border-b border-[var(--st-border)]/60 text-left text-[11px] uppercase text-[var(--st-text-secondary)]">
             <th className="py-2">Date</th>
             <th className="py-2">Category</th>
             <th className="py-2">GL Code</th>
@@ -102,7 +102,7 @@ export function VoucherTable({ floatId, currency, vouchers }: VoucherTableProps)
         </thead>
         <tbody>
           {vouchers.slice().reverse().map((v, idx) => (
-            <tr key={v._id ?? `${v.date}-${idx}`} className="border-b border-zoru-line/40 last:border-0">
+            <tr key={v._id ?? `${v.date}-${idx}`} className="border-b border-[var(--st-border)]/40 last:border-0">
               <td className="py-2">{fmtDate(v.date)}</td>
               <td className="py-2">
                 <Badge variant="outline">{(v.category || 'misc').replace(/_/g, ' ')}</Badge>
@@ -110,7 +110,7 @@ export function VoucherTable({ floatId, currency, vouchers }: VoucherTableProps)
               <td className="py-2">{v.glCode || '—'}</td>
               <td className="py-2">
                 <div>{v.payee || '—'}</div>
-                <div className="text-[11px] text-zoru-ink-muted">{v.requesterName}</div>
+                <div className="text-[11px] text-[var(--st-text-secondary)]">{v.requesterName}</div>
               </td>
               <td className="py-2 text-right font-mono tabular-nums">
                 {fmtMoney(v.amount, currency)}
@@ -122,17 +122,17 @@ export function VoucherTable({ floatId, currency, vouchers }: VoucherTableProps)
               </td>
               <td className="py-2 text-center">
                 {v.receiptUrl ? (
-                  <button onClick={() => setLightboxUrl(v.receiptUrl!)} className="text-zoru-primary hover:underline flex items-center justify-center w-full">
+                  <button onClick={() => setLightboxUrl(v.receiptUrl!)} className="text-[var(--st-text)] hover:underline flex items-center justify-center w-full">
                     <Eye className="h-4 w-4" />
                   </button>
                 ) : '—'}
               </td>
               <td className="py-2 text-right space-x-1">
                 <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={() => handleStatusChange(v._id!, 'approved')} disabled={isPending || v.status === 'approved'}>
-                  <Check className="h-4 w-4 text-zoru-ink" />
+                  <Check className="h-4 w-4 text-[var(--st-text)]" />
                 </Button>
                 <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={() => handleStatusChange(v._id!, 'rejected')} disabled={isPending || v.status === 'rejected'}>
-                  <X className="h-4 w-4 text-zoru-ink" />
+                  <X className="h-4 w-4 text-[var(--st-text)]" />
                 </Button>
               </td>
             </tr>
@@ -146,7 +146,7 @@ export function VoucherTable({ floatId, currency, vouchers }: VoucherTableProps)
             <ZoruDialogTitle>Receipt Image</ZoruDialogTitle>
           </ZoruDialogHeader>
           {lightboxUrl && (
-            <div className="mt-4 flex justify-center bg-zoru-surface-hover p-4 rounded-lg">
+            <div className="mt-4 flex justify-center bg-[var(--st-hover)] p-4 rounded-lg">
               <img 
                 src={lightboxUrl} 
                 alt="Receipt" 

@@ -9,7 +9,7 @@ import dynamic from 'next/dynamic';
 const DashboardGrid = dynamic(() => import('../dashboard-grid').then((mod) => mod.DashboardGrid), {
     
     loading: () => (
-        <div className="mt-4 flex h-64 items-center justify-center text-sm text-zoru-ink-muted">
+        <div className="mt-4 flex h-64 items-center justify-center text-sm text-[var(--st-text-secondary)]">
             Loading public dashboard widgets...
         </div>
     ),
@@ -64,8 +64,8 @@ export default async function PublicDashboardPage({ params }: PageProps) {
             <div className="flex h-screen w-full items-center justify-center p-4">
                 <Card className="w-full max-w-md">
                     <ZoruCardContent className="p-8 text-center">
-                        <h2 className="text-lg font-medium text-zoru-ink">Private Dashboard</h2>
-                        <p className="mt-2 text-sm text-zoru-ink-muted">
+                        <h2 className="text-lg font-medium text-[var(--st-text)]">Private Dashboard</h2>
+                        <p className="mt-2 text-sm text-[var(--st-text-secondary)]">
                             This dashboard is not publicly accessible. The owner must enable public access first.
                         </p>
                     </ZoruCardContent>
@@ -78,18 +78,18 @@ export default async function PublicDashboardPage({ params }: PageProps) {
     const resolved = await Promise.all(widgets.map((w) => resolveWidgetData(w.dataSource)));
     
     return (
-        <div className="min-h-screen bg-zoru-surface-1 p-6 sm:p-10">
+        <div className="min-h-screen bg-[var(--st-bg-secondary)] p-6 sm:p-10">
             <div className="mx-auto max-w-7xl">
                 <div className="mb-8">
-                    <h1 className="text-2xl font-semibold text-zoru-ink">{doc.name || 'Public Dashboard'}</h1>
+                    <h1 className="text-2xl font-semibold text-[var(--st-text)]">{doc.name || 'Public Dashboard'}</h1>
                     {doc.description && (
-                        <p className="mt-1 text-sm text-zoru-ink-muted">{doc.description}</p>
+                        <p className="mt-1 text-sm text-[var(--st-text-secondary)]">{doc.description}</p>
                     )}
                 </div>
                 
                 {widgets.length === 0 ? (
                     <Card>
-                        <ZoruCardContent className="p-10 text-center text-[13px] text-zoru-ink-muted">
+                        <ZoruCardContent className="p-10 text-center text-[13px] text-[var(--st-text-secondary)]">
                             No widgets configured for this dashboard.
                         </ZoruCardContent>
                     </Card>

@@ -271,9 +271,9 @@ export function RecruitmentListShell<T extends { _id: string }>({
             onPickKpi(activeKpi === k.filterValue ? undefined : k.filterValue);
           }}
           className={[
-            'text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-zoru-primary',
+            'text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]',
             activeKpi === k.filterValue
-              ? 'ring-1 ring-zoru-primary rounded-[var(--zoru-radius-lg)]'
+              ? 'ring-1 ring-[var(--st-text)] rounded-[var(--zoru-radius-lg)]'
               : '',
           ].join(' ')}
         >
@@ -287,7 +287,7 @@ export function RecruitmentListShell<T extends { _id: string }>({
   const viewSwitcher = views && views.length > 1 ? (
     <div
       role="tablist"
-      className="inline-flex rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-0.5"
+      className="inline-flex rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-0.5"
     >
       {views.map((v) => (
         <button
@@ -299,8 +299,8 @@ export function RecruitmentListShell<T extends { _id: string }>({
           className={[
             'inline-flex items-center gap-1 rounded-[calc(var(--zoru-radius)-2px)] px-2.5 py-1 text-[12px]',
             activeView === v.key
-              ? 'bg-zoru-surface text-zoru-ink shadow-[var(--zoru-shadow-xs)]'
-              : 'text-zoru-ink-muted hover:text-zoru-ink',
+              ? 'bg-[var(--st-bg-secondary)] text-[var(--st-text)] shadow-[var(--zoru-shadow-xs)]'
+              : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
           ].join(' ')}
         >
           {v.icon}
@@ -376,7 +376,7 @@ export function RecruitmentListShell<T extends { _id: string }>({
   /* ── Bulk bar ────────────────────────────────────────────────────── */
   const bulkBar = selected.size > 0 ? (
     <div className="flex flex-wrap items-center justify-between gap-2">
-      <span className="text-[12px] text-zoru-ink">
+      <span className="text-[12px] text-[var(--st-text)]">
         {selected.size} selected
       </span>
       <div className="flex flex-wrap items-center gap-1">
@@ -399,7 +399,7 @@ export function RecruitmentListShell<T extends { _id: string }>({
             variant="ghost"
             size="sm"
             onClick={() => setBulkDeleteOpen(true)}
-            className="text-zoru-danger-ink"
+            className="text-[var(--st-danger)]"
           >
             <Trash2 className="h-3.5 w-3.5" />
             Delete
@@ -450,7 +450,7 @@ export function RecruitmentListShell<T extends { _id: string }>({
                 <ZoruTableRow>
                   <ZoruTableCell
                     colSpan={columns.length + 2}
-                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                    className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     No {singular.toLowerCase()} matches the current filters.
                   </ZoruTableCell>
@@ -471,7 +471,7 @@ export function RecruitmentListShell<T extends { _id: string }>({
                       {columns.map((c) => (
                         <ZoruTableCell
                           key={c.key}
-                          className="text-[13px] text-zoru-ink"
+                          className="text-[13px] text-[var(--st-text)]"
                         >
                           {c.render
                             ? c.render(row)
@@ -495,7 +495,7 @@ export function RecruitmentListShell<T extends { _id: string }>({
                               aria-label="Delete"
                               onClick={() => setDeletingId(id)}
                             >
-                              <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                              <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                             </Button>
                           ) : null}
                         </div>

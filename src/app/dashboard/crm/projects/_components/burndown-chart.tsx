@@ -80,30 +80,30 @@ export function BurndownChart({ projectId }: BurndownChartProps) {
     <div>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-surface-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-bg-muted)]">
             <BarChart3
-              className="h-4 w-4 text-zoru-ink"
+              className="h-4 w-4 text-[var(--st-text)]"
               strokeWidth={1.75}
             />
           </div>
           <div>
-            <p className="text-[14px] font-medium text-zoru-ink">
+            <p className="text-[14px] font-medium text-[var(--st-text)]">
               Burndown Chart
             </p>
-            <p className="text-[11.5px] text-zoru-ink-muted">
+            <p className="text-[11.5px] text-[var(--st-text-secondary)]">
               Ideal vs actual remaining {unit} from start to deadline.
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-1">
+          <div className="flex rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1">
             <button
               type="button"
               onClick={() => setMode('tasks')}
               className={`rounded-[var(--zoru-radius-sm)] px-3 py-1 text-[12px] transition-colors ${
                 mode === 'tasks'
-                  ? 'bg-zoru-bg text-zoru-ink shadow-[var(--zoru-shadow-sm)]'
-                  : 'text-zoru-ink-muted hover:text-zoru-ink'
+                  ? 'bg-[var(--st-bg)] text-[var(--st-text)] shadow-[var(--zoru-shadow-sm)]'
+                  : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]'
               }`}
             >
               Tasks
@@ -113,8 +113,8 @@ export function BurndownChart({ projectId }: BurndownChartProps) {
               onClick={() => setMode('hours')}
               className={`rounded-[var(--zoru-radius-sm)] px-3 py-1 text-[12px] transition-colors ${
                 mode === 'hours'
-                  ? 'bg-zoru-bg text-zoru-ink shadow-[var(--zoru-shadow-sm)]'
-                  : 'text-zoru-ink-muted hover:text-zoru-ink'
+                  ? 'bg-[var(--st-bg)] text-[var(--st-text)] shadow-[var(--zoru-shadow-sm)]'
+                  : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]'
               }`}
             >
               Hours
@@ -138,8 +138,8 @@ export function BurndownChart({ projectId }: BurndownChartProps) {
       {isPending && !series ? (
         <Skeleton className="h-72 w-full" />
       ) : !hasData ? (
-        <div className="rounded-lg border border-dashed border-zoru-line p-12 text-center">
-          <p className="text-[13px] text-zoru-ink-muted">
+        <div className="rounded-lg border border-dashed border-[var(--st-border)] p-12 text-center">
+          <p className="text-[13px] text-[var(--st-text-secondary)]">
             This project has no start date / deadline, or no tasks yet — no
             burndown data to plot.
           </p>

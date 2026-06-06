@@ -114,22 +114,22 @@ export default function ExecutionsPage() {
   const getStatusBadge = (status: ExecutionStatus) => {
     switch (status) {
       case "success":
-        return <Badge variant="default" className="bg-zoru-ink/10 text-zoru-ink hover:bg-zoru-ink/20 border-zoru-line/20"><CheckCircle2 className="w-3 h-3 mr-1" /> Success</Badge>;
+        return <Badge variant="default" className="bg-[var(--st-text)]/10 text-[var(--st-text)] hover:bg-[var(--st-text)]/20 border-[var(--st-border)]/20"><CheckCircle2 className="w-3 h-3 mr-1" /> Success</Badge>;
       case "failed":
-        return <Badge variant="destructive" className="bg-zoru-ink/10 text-zoru-ink hover:bg-zoru-ink/20 border-zoru-line/20"><XCircle className="w-3 h-3 mr-1" /> Failed</Badge>;
+        return <Badge variant="destructive" className="bg-[var(--st-text)]/10 text-[var(--st-text)] hover:bg-[var(--st-text)]/20 border-[var(--st-border)]/20"><XCircle className="w-3 h-3 mr-1" /> Failed</Badge>;
       case "running":
-        return <Badge variant="secondary" className="bg-zoru-ink/10 text-zoru-ink hover:bg-zoru-ink/20 border-zoru-line/20"><RefreshCcw className="w-3 h-3 mr-1 animate-spin" /> Running</Badge>;
+        return <Badge variant="secondary" className="bg-[var(--st-text)]/10 text-[var(--st-text)] hover:bg-[var(--st-text)]/20 border-[var(--st-border)]/20"><RefreshCcw className="w-3 h-3 mr-1 animate-spin" /> Running</Badge>;
       case "pending":
-        return <Badge variant="outline" className="text-zoru-ink-muted"><Clock className="w-3 h-3 mr-1" /> Pending</Badge>;
+        return <Badge variant="outline" className="text-[var(--st-text-secondary)]"><Clock className="w-3 h-3 mr-1" /> Pending</Badge>;
     }
   };
 
   const getTriggerIcon = (trigger: TriggerType) => {
     switch (trigger) {
-      case "webhook": return <Globe className="w-4 h-4 text-zoru-ink" />;
-      case "schedule": return <Calendar className="w-4 h-4 text-zoru-ink" />;
-      case "manual": return <Zap className="w-4 h-4 text-zoru-ink" />;
-      case "api": return <Activity className="w-4 h-4 text-zoru-ink" />;
+      case "webhook": return <Globe className="w-4 h-4 text-[var(--st-text)]" />;
+      case "schedule": return <Calendar className="w-4 h-4 text-[var(--st-text)]" />;
+      case "manual": return <Zap className="w-4 h-4 text-[var(--st-text)]" />;
+      case "api": return <Activity className="w-4 h-4 text-[var(--st-text)]" />;
     }
   };
 
@@ -139,7 +139,7 @@ export default function ExecutionsPage() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Flow Executions</h1>
-          <p className="text-zoru-ink-muted mt-1">
+          <p className="text-[var(--st-text-secondary)] mt-1">
             Monitor and debug all your automated workflow runs in real-time.
           </p>
         </div>
@@ -157,68 +157,68 @@ export default function ExecutionsPage() {
 
       {/* Stats row */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-zoru-surface">
+        <Card className="bg-[var(--st-bg-secondary)]">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-zoru-ink-muted">Total Executions</CardTitle>
-            <Activity className="h-4 w-4 text-zoru-ink-muted" />
+            <CardTitle className="text-sm font-medium text-[var(--st-text-secondary)]">Total Executions</CardTitle>
+            <Activity className="h-4 w-4 text-[var(--st-text-secondary)]" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">12,453</div>
-            <p className="text-xs text-zoru-ink-muted mt-1">+14% from last month</p>
+            <p className="text-xs text-[var(--st-text-secondary)] mt-1">+14% from last month</p>
           </CardContent>
         </Card>
-        <Card className="bg-zoru-surface">
+        <Card className="bg-[var(--st-bg-secondary)]">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-zoru-ink-muted">Success Rate</CardTitle>
-            <CheckCircle2 className="h-4 w-4 text-zoru-ink" />
+            <CardTitle className="text-sm font-medium text-[var(--st-text-secondary)]">Success Rate</CardTitle>
+            <CheckCircle2 className="h-4 w-4 text-[var(--st-text)]" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">98.2%</div>
-            <p className="text-xs text-zoru-ink-muted mt-1">+0.2% from last week</p>
+            <p className="text-xs text-[var(--st-text-secondary)] mt-1">+0.2% from last week</p>
           </CardContent>
         </Card>
-        <Card className="bg-zoru-surface">
+        <Card className="bg-[var(--st-bg-secondary)]">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-zoru-ink-muted">Failed (24h)</CardTitle>
-            <XCircle className="h-4 w-4 text-zoru-ink" />
+            <CardTitle className="text-sm font-medium text-[var(--st-text-secondary)]">Failed (24h)</CardTitle>
+            <XCircle className="h-4 w-4 text-[var(--st-text)]" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">23</div>
-            <p className="text-xs text-zoru-ink-muted mt-1">Requires attention</p>
+            <p className="text-xs text-[var(--st-text-secondary)] mt-1">Requires attention</p>
           </CardContent>
         </Card>
-        <Card className="bg-zoru-surface">
+        <Card className="bg-[var(--st-bg-secondary)]">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-zoru-ink-muted">Avg Latency</CardTitle>
-            <Clock className="h-4 w-4 text-zoru-ink" />
+            <CardTitle className="text-sm font-medium text-[var(--st-text-secondary)]">Avg Latency</CardTitle>
+            <Clock className="h-4 w-4 text-[var(--st-text)]" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">1.2s</div>
-            <p className="text-xs text-zoru-ink-muted mt-1">-0.1s from last week</p>
+            <p className="text-xs text-[var(--st-text-secondary)] mt-1">-0.1s from last week</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Main Data Table */}
-      <Card className="border-zoru-line shadow-sm">
-        <CardHeader className="border-b bg-zoru-surface-2/20 pb-4">
+      <Card className="border-[var(--st-border)] shadow-sm">
+        <CardHeader className="border-b bg-[var(--st-bg-muted)]/20 pb-4">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <CardTitle className="text-lg">Execution Logs</CardTitle>
             
             {/* Filters */}
             <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
               <div className="relative w-full md:w-64">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
                 <Input
                   placeholder="Search execution ID or flow..."
-                  className="pl-9 bg-zoru-surface"
+                  className="pl-9 bg-[var(--st-bg-secondary)]"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
               
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[140px] bg-zoru-surface">
+                <SelectTrigger className="w-[140px] bg-[var(--st-bg-secondary)]">
                   <div className="flex items-center gap-2">
                     <Filter className="w-4 h-4" />
                     <SelectValue placeholder="Status" />
@@ -234,7 +234,7 @@ export default function ExecutionsPage() {
               </Select>
 
               <Select value={triggerFilter} onValueChange={setTriggerFilter}>
-                <SelectTrigger className="w-[140px] bg-zoru-surface">
+                <SelectTrigger className="w-[140px] bg-[var(--st-bg-secondary)]">
                   <div className="flex items-center gap-2">
                     <Zap className="w-4 h-4" />
                     <SelectValue placeholder="Trigger" />
@@ -254,7 +254,7 @@ export default function ExecutionsPage() {
         <CardContent className="p-0">
           <Table>
             <TableHeader>
-              <TableRow className="bg-zoru-surface-2/40 hover:bg-zoru-surface-2/40">
+              <TableRow className="bg-[var(--st-bg-muted)]/40 hover:bg-[var(--st-bg-muted)]/40">
                 <TableHead className="w-[120px]">Execution ID</TableHead>
                 <TableHead>Flow</TableHead>
                 <TableHead className="w-[150px]">Status</TableHead>
@@ -267,14 +267,14 @@ export default function ExecutionsPage() {
             <TableBody>
               {filteredData.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="h-48 text-center text-zoru-ink-muted">
+                  <TableCell colSpan={7} className="h-48 text-center text-[var(--st-text-secondary)]">
                     No executions found matching your filters.
                   </TableCell>
                 </TableRow>
               ) : (
                 filteredData.map((exe) => (
                   <TableRow key={exe.id} className="group">
-                    <TableCell className="font-mono text-xs text-zoru-ink-muted">
+                    <TableCell className="font-mono text-xs text-[var(--st-text-secondary)]">
                       {exe.id}
                     </TableCell>
                     <TableCell className="font-medium">
@@ -284,15 +284,15 @@ export default function ExecutionsPage() {
                       {getStatusBadge(exe.status)}
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-2 capitalize text-sm text-zoru-ink-muted">
+                      <div className="flex items-center gap-2 capitalize text-sm text-[var(--st-text-secondary)]">
                         {getTriggerIcon(exe.trigger)}
                         {exe.trigger}
                       </div>
                     </TableCell>
-                    <TableCell className="text-sm font-mono text-zoru-ink-muted">
+                    <TableCell className="text-sm font-mono text-[var(--st-text-secondary)]">
                       {exe.duration}
                     </TableCell>
-                    <TableCell className="text-sm text-zoru-ink-muted">
+                    <TableCell className="text-sm text-[var(--st-text-secondary)]">
                       {exe.startedAt}
                     </TableCell>
                     <TableCell>
@@ -315,12 +315,12 @@ export default function ExecutionsPage() {
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           {exe.status === "running" ? (
-                            <DropdownMenuItem className="text-zoru-ink">
+                            <DropdownMenuItem className="text-[var(--st-text)]">
                               <XCircle className="w-4 h-4 mr-2" />
                               Stop Execution
                             </DropdownMenuItem>
                           ) : (
-                            <DropdownMenuItem className="text-zoru-ink">
+                            <DropdownMenuItem className="text-[var(--st-text)]">
                               Delete Record
                             </DropdownMenuItem>
                           )}

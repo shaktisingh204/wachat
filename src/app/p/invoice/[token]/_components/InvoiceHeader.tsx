@@ -13,17 +13,17 @@ export function InvoiceHeader({ token, invoice }: { token: string, invoice: Invo
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div>
         <div className="flex items-center gap-3">
-          <span className="rounded bg-zoru-surface-2 border border-zoru-line px-2 py-0.5 font-mono text-[11px] font-bold text-zoru-ink uppercase">
+          <span className="rounded bg-[var(--st-bg-muted)] border border-[var(--st-border)] px-2 py-0.5 font-mono text-[11px] font-bold text-[var(--st-text)] uppercase">
             GET
           </span>
-          <span className="font-mono text-[13px] text-zoru-ink tracking-tight">
+          <span className="font-mono text-[13px] text-[var(--st-text)] tracking-tight">
             /v1/invoices/{token.slice(0, 8)}...
           </span>
         </div>
-        <h1 className="mt-2 text-2xl font-bold tracking-tight text-zoru-ink font-mono">
+        <h1 className="mt-2 text-2xl font-bold tracking-tight text-[var(--st-text)] font-mono">
           {String(invoice.invoiceNumber || invoice.invoice_number || 'INV-SPECIFICATION')}
         </h1>
-        <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
+        <p className="mt-1.5 text-[13px] text-[var(--st-text-secondary)]">
           Below are the financial balances and historical transaction states for invoice audit.
         </p>
       </div>

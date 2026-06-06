@@ -74,7 +74,7 @@ export function TasksCalendar({ tasks }: TasksCalendarProps) {
         <Card>
             <ZoruCardContent className="space-y-3 pt-4">
                 <header className="flex items-center justify-between">
-                    <h3 className="text-[15px] font-medium text-zoru-ink">{monthLabel}</h3>
+                    <h3 className="text-[15px] font-medium text-[var(--st-text)]">{monthLabel}</h3>
                     <div className="flex items-center gap-1">
                         <Button
                             size="sm"
@@ -110,11 +110,11 @@ export function TasksCalendar({ tasks }: TasksCalendarProps) {
                     </div>
                 </header>
 
-                <div className="grid grid-cols-7 gap-px overflow-hidden rounded-md border border-zoru-line bg-zoru-line">
+                <div className="grid grid-cols-7 gap-px overflow-hidden rounded-md border border-[var(--st-border)] bg-[var(--st-border)]">
                     {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d) => (
                         <div
                             key={d}
-                            className="bg-zoru-surface-2 px-2 py-1 text-[11px] uppercase tracking-wide text-zoru-ink-muted"
+                            className="bg-[var(--st-bg-muted)] px-2 py-1 text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]"
                         >
                             {d}
                         </div>
@@ -128,20 +128,20 @@ export function TasksCalendar({ tasks }: TasksCalendarProps) {
                             <div
                                 key={key}
                                 className={[
-                                    'min-h-[110px] bg-zoru-bg p-1.5 text-[11.5px]',
+                                    'min-h-[110px] bg-[var(--st-bg)] p-1.5 text-[11.5px]',
                                     inMonth ? '' : 'opacity-50',
-                                    isToday ? 'ring-1 ring-inset ring-zoru-primary' : '',
+                                    isToday ? 'ring-1 ring-inset ring-[var(--st-text)]' : '',
                                 ].join(' ')}
                             >
                                 <div
                                     className={[
                                         'mb-1 flex items-center justify-between',
-                                        isToday ? 'text-zoru-ink' : 'text-zoru-ink-muted',
+                                        isToday ? 'text-[var(--st-text)]' : 'text-[var(--st-text-secondary)]',
                                     ].join(' ')}
                                 >
                                     <span>{d.getDate()}</span>
                                     {rows.length > 0 ? (
-                                        <span className="rounded-full bg-zoru-surface-2 px-1.5 text-[10.5px]">
+                                        <span className="rounded-full bg-[var(--st-bg-muted)] px-1.5 text-[10.5px]">
                                             {rows.length}
                                         </span>
                                     ) : null}
@@ -155,7 +155,7 @@ export function TasksCalendar({ tasks }: TasksCalendarProps) {
                                                     href={`/dashboard/crm/sales-crm/tasks/${String(
                                                         t._id,
                                                     )}`}
-                                                    className="block truncate rounded bg-zoru-surface-2 px-1.5 py-0.5 hover:bg-zoru-surface"
+                                                    className="block truncate rounded bg-[var(--st-bg-muted)] px-1.5 py-0.5 hover:bg-[var(--st-bg-secondary)]"
                                                     title={t.title}
                                                 >
                                                     <span className="inline-flex items-center gap-1">
@@ -164,12 +164,12 @@ export function TasksCalendar({ tasks }: TasksCalendarProps) {
                                                             className={[
                                                                 'inline-block h-1.5 w-1.5 rounded-full',
                                                                 statusToTone(status) === 'red'
-                                                                    ? 'bg-zoru-danger'
+                                                                    ? 'bg-[var(--st-danger)]'
                                                                     : statusToTone(status) === 'green'
-                                                                    ? 'bg-zoru-success'
+                                                                    ? 'bg-[var(--st-status-ok)]'
                                                                     : statusToTone(status) === 'amber'
-                                                                    ? 'bg-zoru-warning'
-                                                                    : 'bg-zoru-ink-muted',
+                                                                    ? 'bg-[var(--st-warn)]'
+                                                                    : 'bg-[var(--st-text-secondary)]',
                                                             ].join(' ')}
                                                         />
                                                         <span className="truncate">{t.title}</span>
@@ -179,7 +179,7 @@ export function TasksCalendar({ tasks }: TasksCalendarProps) {
                                         );
                                     })}
                                     {rows.length > 3 ? (
-                                        <li className="px-1.5 text-[10.5px] text-zoru-ink-muted">
+                                        <li className="px-1.5 text-[10.5px] text-[var(--st-text-secondary)]">
                                             +{rows.length - 3} more
                                         </li>
                                     ) : null}
@@ -188,7 +188,7 @@ export function TasksCalendar({ tasks }: TasksCalendarProps) {
                         );
                     })}
                 </div>
-                <div className="flex flex-wrap items-center gap-2 text-[11.5px] text-zoru-ink-muted">
+                <div className="flex flex-wrap items-center gap-2 text-[11.5px] text-[var(--st-text-secondary)]">
                     Legend:
                     <StatusPill label="To-Do" tone={statusToTone('To-Do')} />
                     <StatusPill label="In Progress" tone={statusToTone('In Progress')} />

@@ -50,7 +50,7 @@ import dynamic from 'next/dynamic';
 const DashboardGrid = dynamic(() => import('./dashboard-grid').then((mod) => mod.DashboardGrid), {
     
     loading: () => (
-        <div className="mt-4 flex h-64 items-center justify-center text-sm text-zoru-ink-muted">
+        <div className="mt-4 flex h-64 items-center justify-center text-sm text-[var(--st-text-secondary)]">
             Loading widgets...
         </div>
     ),
@@ -94,8 +94,8 @@ export default async function DashboardDetailPage({ params }: PageProps) {
 
             {widgets.length === 0 ? (
                 <Card className="mt-4">
-                    <ZoruCardContent className="p-10 text-center text-[13px] text-zoru-ink-muted">
-                        No widgets yet. Click <span className="text-zoru-ink">Edit dashboard</span> to add some.
+                    <ZoruCardContent className="p-10 text-center text-[13px] text-[var(--st-text-secondary)]">
+                        No widgets yet. Click <span className="text-[var(--st-text)]">Edit dashboard</span> to add some.
                     </ZoruCardContent>
                 </Card>
             ) : (
@@ -108,8 +108,8 @@ export default async function DashboardDetailPage({ params }: PageProps) {
 function Row({ label, value }: { label: string; value?: string | null }) {
     return (
         <div className="flex items-baseline gap-3">
-            <span className="w-40 shrink-0 text-zoru-ink-muted">{label}</span>
-            <span className="text-zoru-ink">{value || '—'}</span>
+            <span className="w-40 shrink-0 text-[var(--st-text-secondary)]">{label}</span>
+            <span className="text-[var(--st-text)]">{value || '—'}</span>
         </div>
     );
 }

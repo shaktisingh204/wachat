@@ -35,19 +35,19 @@ function StatusStep({ status, current }: StatusStepProps) {
     <li
       className={`flex items-center gap-2 rounded px-2 py-1 text-[12.5px] ${
         isCurrent
-          ? 'bg-zoru-surface-2 font-medium text-zoru-ink'
-          : 'text-zoru-ink-muted'
+          ? 'bg-[var(--st-bg-muted)] font-medium text-[var(--st-text)]'
+          : 'text-[var(--st-text-secondary)]'
       }`}
     >
       <span
         className={`inline-block h-2 w-2 rounded-full ${
-          isCurrent ? 'bg-zoru-primary' : 'bg-zoru-line'
+          isCurrent ? 'bg-[var(--st-text)]' : 'bg-[var(--st-border)]'
         }`}
         aria-hidden
       />
       {status}
       {isCurrent ? (
-        <span className="ml-auto text-[10.5px] uppercase text-zoru-primary">
+        <span className="ml-auto text-[10.5px] uppercase text-[var(--st-text)]">
           current
         </span>
       ) : null}
@@ -64,10 +64,10 @@ function DetailField({
 }) {
   return (
     <div>
-      <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
         {label}
       </div>
-      <div className="mt-1 text-[13px] text-zoru-ink">{children}</div>
+      <div className="mt-1 text-[13px] text-[var(--st-text)]">{children}</div>
     </div>
   );
 }
@@ -82,7 +82,7 @@ export default async function VendorBidDetailPage({ params }: PageProps) {
     if (error) {
       return (
         <div className="flex w-full flex-col gap-4 p-6">
-          <p className="text-[14px] text-zoru-ink">
+          <p className="text-[14px] text-[var(--st-text)]">
             Couldn&apos;t load this vendor bid — {error}
           </p>
           <Button variant="outline" asChild>
@@ -147,21 +147,21 @@ export default async function VendorBidDetailPage({ params }: PageProps) {
             <ZoruCardContent>
               <div className="space-y-1.5 text-[12.5px]">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-zoru-ink-muted">Submitted</span>
+                  <span className="text-[var(--st-text-secondary)]">Submitted</span>
                   <span>{fmtDate(bid.submittedAt)}</span>
                 </div>
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-zoru-ink-muted">Total</span>
+                  <span className="text-[var(--st-text-secondary)]">Total</span>
                   <span className="font-mono tabular-nums">
                     {fmtINR(totals.total, currency)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-zoru-ink-muted">Created</span>
+                  <span className="text-[var(--st-text-secondary)]">Created</span>
                   <span>{fmtDate(bid.createdAt || bid.audit?.createdAt)}</span>
                 </div>
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-zoru-ink-muted">Updated</span>
+                  <span className="text-[var(--st-text-secondary)]">Updated</span>
                   <span>{fmtDate(bid.updatedAt || bid.audit?.updatedAt)}</span>
                 </div>
               </div>
@@ -194,7 +194,7 @@ export default async function VendorBidDetailPage({ params }: PageProps) {
         </Suspense>
       }
     >
-      <p className="text-[12.5px] text-zoru-ink-muted">
+      <p className="text-[12.5px] text-[var(--st-text-secondary)]">
         {fmtINR(totals.total, currency)}
       </p>
 
@@ -220,7 +220,7 @@ export default async function VendorBidDetailPage({ params }: PageProps) {
               {bid.rfqId ? (
                 <Link
                   href={`/dashboard/crm/purchases/rfqs/${bid.rfqId}`}
-                  className="font-mono text-[12px] text-zoru-ink hover:underline"
+                  className="font-mono text-[12px] text-[var(--st-text)] hover:underline"
                 >
                   {bid.rfqId}
                 </Link>
@@ -243,11 +243,11 @@ export default async function VendorBidDetailPage({ params }: PageProps) {
         </ZoruCardHeader>
         <ZoruCardContent>
           {items.length === 0 ? (
-            <p className="text-[13px] text-zoru-ink-muted">No line items.</p>
+            <p className="text-[13px] text-[var(--st-text-secondary)]">No line items.</p>
           ) : (
-            <div className="overflow-x-auto rounded border border-zoru-line">
+            <div className="overflow-x-auto rounded border border-[var(--st-border)]">
               <table className="w-full text-[12.5px]">
-                <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
+                <thead className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                   <tr>
                     <th className="p-2 text-left">Item</th>
                     <th className="p-2 text-right">Qty</th>
@@ -265,7 +265,7 @@ export default async function VendorBidDetailPage({ params }: PageProps) {
                     return (
                       <tr
                         key={idx}
-                        className="border-t border-zoru-line text-zoru-ink"
+                        className="border-t border-[var(--st-border)] text-[var(--st-text)]"
                       >
                         <td className="p-2">
                           {it.itemId ? (
@@ -274,7 +274,7 @@ export default async function VendorBidDetailPage({ params }: PageProps) {
                               {bid.rfqId && (
                                 <Link
                                   href={`/dashboard/crm/purchases/rfqs/${bid.rfqId}#item-${it.itemId}`}
-                                  className="text-[10px] text-zoru-primary hover:underline whitespace-nowrap"
+                                  className="text-[10px] text-[var(--st-text)] hover:underline whitespace-nowrap"
                                   title="View original RFQ item"
                                 >
                                   (RFQ item)
@@ -282,19 +282,19 @@ export default async function VendorBidDetailPage({ params }: PageProps) {
                               )}
                             </div>
                           ) : (
-                            <span className="text-zoru-ink-muted">—</span>
+                            <span className="text-[var(--st-text-secondary)]">—</span>
                           )}
                         </td>
                         <td className="p-2 text-right tabular-nums">{qty}</td>
                         <td className="p-2 text-right tabular-nums">
                           {fmtINR(rate, currency)}
                         </td>
-                        <td className="p-2 text-right tabular-nums text-zoru-ink-muted">
+                        <td className="p-2 text-right tabular-nums text-[var(--st-text-secondary)]">
                           {typeof it.leadTimeDays === 'number'
                             ? it.leadTimeDays
                             : '—'}
                         </td>
-                        <td className="p-2 text-zoru-ink-muted">
+                        <td className="p-2 text-[var(--st-text-secondary)]">
                           {it.notes || '—'}
                         </td>
                         <td className="p-2 text-right font-medium tabular-nums">
@@ -318,14 +318,14 @@ export default async function VendorBidDetailPage({ params }: PageProps) {
         <ZoruCardContent>
           <dl className="grid gap-2 md:grid-cols-2 text-[13px]">
             <div className="flex justify-between md:col-start-2">
-              <span className="text-zoru-ink-muted">Sub-total</span>
-              <span className="font-mono tabular-nums text-zoru-ink">
+              <span className="text-[var(--st-text-secondary)]">Sub-total</span>
+              <span className="font-mono tabular-nums text-[var(--st-text)]">
                 {fmtINR(totals.subTotal, currency)}
               </span>
             </div>
-            <div className="flex justify-between border-t border-zoru-line pt-2 md:col-start-2">
-              <span className="font-medium text-zoru-ink">Total</span>
-              <span className="font-medium font-mono tabular-nums text-zoru-ink">
+            <div className="flex justify-between border-t border-[var(--st-border)] pt-2 md:col-start-2">
+              <span className="font-medium text-[var(--st-text)]">Total</span>
+              <span className="font-medium font-mono tabular-nums text-[var(--st-text)]">
                 {fmtINR(totals.total, currency)}
               </span>
             </div>
@@ -340,7 +340,7 @@ export default async function VendorBidDetailPage({ params }: PageProps) {
             <ZoruCardTitle>Terms</ZoruCardTitle>
           </ZoruCardHeader>
           <ZoruCardContent>
-            <p className="whitespace-pre-wrap text-[13px] text-zoru-ink">
+            <p className="whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
               {bid.terms}
             </p>
           </ZoruCardContent>
@@ -358,9 +358,9 @@ export default async function VendorBidDetailPage({ params }: PageProps) {
               {attachments.map((a, idx) => (
                 <li
                   key={`${a.fileId ?? 'att'}-${idx}`}
-                  className="flex items-center justify-between gap-2 rounded-lg border border-zoru-line px-3 py-2 text-[12.5px]"
+                  className="flex items-center justify-between gap-2 rounded-lg border border-[var(--st-border)] px-3 py-2 text-[12.5px]"
                 >
-                  <span className="truncate text-zoru-ink">
+                  <span className="truncate text-[var(--st-text)]">
                     {a.name || a.fileId || 'Attachment'}
                   </span>
                   {a.url ? (
@@ -368,7 +368,7 @@ export default async function VendorBidDetailPage({ params }: PageProps) {
                       href={a.url}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-[12px] text-zoru-ink-muted hover:underline"
+                      className="text-[12px] text-[var(--st-text-secondary)] hover:underline"
                     >
                       Open
                     </Link>

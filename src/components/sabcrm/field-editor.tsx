@@ -151,7 +151,7 @@ function OptionListEditor({
       {options.map((opt, idx) => (
         <div key={idx} className="flex items-center gap-2">
           <GripVertical
-            className="h-4 w-4 shrink-0 text-zoru-ink-muted/40"
+            className="h-4 w-4 shrink-0 text-[var(--st-text-secondary)]/40"
             aria-hidden
           />
           <Input
@@ -188,7 +188,7 @@ function OptionListEditor({
             aria-label={`Remove option ${idx + 1}`}
             disabled={disabled}
             onClick={() => removeOption(idx)}
-            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--zoru-radius-sm)] text-zoru-ink-muted transition-colors hover:bg-zoru-danger/10 hover:text-zoru-danger disabled:pointer-events-none disabled:opacity-40"
+            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--zoru-radius-sm)] text-[var(--st-text-secondary)] transition-colors hover:bg-[var(--st-danger)]/10 hover:text-[var(--st-danger)] disabled:pointer-events-none disabled:opacity-40"
           >
             <Trash2 className="h-3.5 w-3.5" />
           </button>
@@ -595,7 +595,7 @@ export function FieldEditorDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="flex max-h-[90vh] max-w-xl flex-col gap-0 overflow-hidden p-0">
-        <DialogHeader className="border-b border-zoru-line p-5">
+        <DialogHeader className="border-b border-[var(--st-border)] p-5">
           <DialogTitle>
             {isEditing ? `Edit field — ${field!.label}` : 'Add custom field'}
           </DialogTitle>
@@ -617,7 +617,7 @@ export function FieldEditorDialog({
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="fe-label">
                   Label
-                  <span className="text-zoru-danger ml-0.5" aria-hidden>
+                  <span className="text-[var(--st-danger)] ml-0.5" aria-hidden>
                     *
                   </span>
                 </Label>
@@ -628,10 +628,10 @@ export function FieldEditorDialog({
                   disabled={saving}
                   aria-invalid={!!errors.label}
                   onChange={(e) => onLabelChange(e.target.value)}
-                  className={cn(errors.label && 'border-zoru-danger')}
+                  className={cn(errors.label && 'border-[var(--st-danger)]')}
                 />
                 {errors.label && (
-                  <p className="text-xs text-zoru-danger">{errors.label}</p>
+                  <p className="text-xs text-[var(--st-danger)]">{errors.label}</p>
                 )}
               </div>
 
@@ -640,7 +640,7 @@ export function FieldEditorDialog({
                 <Label htmlFor="fe-key">
                   Field key
                   {!isEditing && (
-                    <span className="text-zoru-danger ml-0.5" aria-hidden>
+                    <span className="text-[var(--st-danger)] ml-0.5" aria-hidden>
                       *
                     </span>
                   )}
@@ -648,7 +648,7 @@ export function FieldEditorDialog({
                 {isEditing ? (
                   <div
                     id="fe-key"
-                    className="flex h-9 w-full items-center rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-3 font-mono text-sm text-zoru-ink-muted"
+                    className="flex h-9 w-full items-center rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 font-mono text-sm text-[var(--st-text-secondary)]"
                     aria-readonly="true"
                   >
                     {field!.key}
@@ -661,14 +661,14 @@ export function FieldEditorDialog({
                     disabled={saving}
                     aria-invalid={!!errors.key}
                     onChange={(e) => onKeyChange(e.target.value)}
-                    className={cn('font-mono', errors.key && 'border-zoru-danger')}
+                    className={cn('font-mono', errors.key && 'border-[var(--st-danger)]')}
                   />
                 )}
                 {errors.key && (
-                  <p className="text-xs text-zoru-danger">{errors.key}</p>
+                  <p className="text-xs text-[var(--st-danger)]">{errors.key}</p>
                 )}
                 {!isEditing && !errors.key && (
-                  <p className="text-[11px] text-zoru-ink-subtle">
+                  <p className="text-[11px] text-[var(--st-text-tertiary)]">
                     camelCase, starting with a lowercase letter. Immutable after
                     save.
                   </p>
@@ -681,7 +681,7 @@ export function FieldEditorDialog({
               <Label htmlFor="fe-type">
                 Type
                 {!isEditing && (
-                  <span className="text-zoru-danger ml-0.5" aria-hidden>
+                  <span className="text-[var(--st-danger)] ml-0.5" aria-hidden>
                     *
                   </span>
                 )}
@@ -689,7 +689,7 @@ export function FieldEditorDialog({
               {isEditing ? (
                 <div
                   id="fe-type"
-                  className="flex h-9 w-full items-center rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-3 text-sm text-zoru-ink-muted"
+                  className="flex h-9 w-full items-center rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 text-sm text-[var(--st-text-secondary)]"
                   aria-readonly="true"
                 >
                   {FIELD_TYPES.find((t) => t.value === field!.type)?.label ??
@@ -714,7 +714,7 @@ export function FieldEditorDialog({
                 </Select>
               )}
               {isEditing && (
-                <p className="text-[11px] text-zoru-ink-subtle">
+                <p className="text-[11px] text-[var(--st-text-tertiary)]">
                   Type is immutable. To change it, remove this field and add a
                   new one.
                 </p>
@@ -739,12 +739,12 @@ export function FieldEditorDialog({
                 <Separator />
                 <Label>
                   Options
-                  <span className="text-zoru-danger ml-0.5" aria-hidden>
+                  <span className="text-[var(--st-danger)] ml-0.5" aria-hidden>
                     *
                   </span>
                 </Label>
                 {errors.options && (
-                  <p className="text-xs text-zoru-danger">{errors.options}</p>
+                  <p className="text-xs text-[var(--st-danger)]">{errors.options}</p>
                 )}
                 <OptionListEditor
                   options={draft.options}
@@ -761,7 +761,7 @@ export function FieldEditorDialog({
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="fe-rel-target">
                     Target object
-                    <span className="text-zoru-danger ml-0.5" aria-hidden>
+                    <span className="text-[var(--st-danger)] ml-0.5" aria-hidden>
                       *
                     </span>
                   </Label>
@@ -775,7 +775,7 @@ export function FieldEditorDialog({
                       <SelectTrigger
                         id="fe-rel-target"
                         className={cn(
-                          errors.relationTarget && 'border-zoru-danger',
+                          errors.relationTarget && 'border-[var(--st-danger)]',
                         )}
                       >
                         <SelectValue placeholder="Select target object…" />
@@ -803,7 +803,7 @@ export function FieldEditorDialog({
                       <SelectTrigger
                         id="fe-rel-target"
                         className={cn(
-                          errors.relationTarget && 'border-zoru-danger',
+                          errors.relationTarget && 'border-[var(--st-danger)]',
                         )}
                       >
                         <SelectValue placeholder="Select target object…" />
@@ -818,7 +818,7 @@ export function FieldEditorDialog({
                     </Select>
                   )}
                   {errors.relationTarget && (
-                    <p className="text-xs text-zoru-danger">
+                    <p className="text-xs text-[var(--st-danger)]">
                       {errors.relationTarget}
                     </p>
                   )}
@@ -851,15 +851,15 @@ export function FieldEditorDialog({
             {/* ── Flags ────────────────────────────────────────────────── */}
             <div className="flex flex-col gap-3">
               <Separator />
-              <p className="text-xs font-medium uppercase tracking-wider text-zoru-ink-muted">
+              <p className="text-xs font-medium uppercase tracking-wider text-[var(--st-text-secondary)]">
                 Field behaviour
               </p>
 
               {/* required */}
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-sm font-medium text-zoru-ink">Required</p>
-                  <p className="text-xs text-zoru-ink-muted">
+                  <p className="text-sm font-medium text-[var(--st-text)]">Required</p>
+                  <p className="text-xs text-[var(--st-text-secondary)]">
                     Records cannot be saved without a value for this field.
                   </p>
                 </div>
@@ -874,10 +874,10 @@ export function FieldEditorDialog({
               {/* inTable */}
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-sm font-medium text-zoru-ink">
+                  <p className="text-sm font-medium text-[var(--st-text)]">
                     Show in table
                   </p>
-                  <p className="text-xs text-zoru-ink-muted">
+                  <p className="text-xs text-[var(--st-text-secondary)]">
                     Displayed as a column in the default table view.
                   </p>
                 </div>
@@ -896,13 +896,13 @@ export function FieldEditorDialog({
                     className={cn(
                       'text-sm font-medium',
                       hasExistingLabel && !draft.isLabel
-                        ? 'text-zoru-ink-muted'
-                        : 'text-zoru-ink',
+                        ? 'text-[var(--st-text-secondary)]'
+                        : 'text-[var(--st-text)]',
                     )}
                   >
                     Record title (isLabel)
                   </p>
-                  <p className="text-xs text-zoru-ink-muted">
+                  <p className="text-xs text-[var(--st-text-secondary)]">
                     {hasExistingLabel && !draft.isLabel
                       ? 'Another field is already the record title. Remove that designation first.'
                       : 'Used as the human-readable title everywhere this record appears.'}
@@ -919,7 +919,7 @@ export function FieldEditorDialog({
           </div>
 
           {/* ── Footer ──────────────────────────────────────────────────── */}
-          <DialogFooter className="border-t border-zoru-line bg-zoru-surface/40 p-4">
+          <DialogFooter className="border-t border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40 p-4">
             <Button
               type="button"
               variant="ghost"

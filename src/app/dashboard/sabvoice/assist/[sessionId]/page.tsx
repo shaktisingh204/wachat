@@ -191,7 +191,7 @@ export default function SabassistTechnicianConsolePage() {
       <div className="mb-4 flex items-center justify-between">
         <Link
           href="/dashboard/sabvoice/assist"
-          className="text-sm text-zoru-ink-muted inline-flex items-center gap-1"
+          className="text-sm text-[var(--st-text-secondary)] inline-flex items-center gap-1"
         >
           <ArrowLeft className="h-4 w-4" /> All sessions
         </Link>
@@ -210,10 +210,10 @@ export default function SabassistTechnicianConsolePage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <Card className="lg:col-span-2 p-4">
-          <div className="aspect-video bg-zoru-surface-2 rounded-lg border border-zoru-border flex items-center justify-center text-zoru-ink-muted">
+          <div className="aspect-video bg-[var(--st-bg-muted)] rounded-lg border border-[var(--st-border)] flex items-center justify-center text-[var(--st-text-secondary)]">
             {streaming ? (
               <div className="flex flex-col items-center gap-2">
-                <ScreenShare className="h-12 w-12 text-zoru-brand" />
+                <ScreenShare className="h-12 w-12 text-[var(--st-accent)]" />
                 <div className="font-medium">Live (mock) — customer screen</div>
                 <div className="text-xs">
                   Replace with WebRTC &lt;video&gt; when the real transport ships.
@@ -269,19 +269,19 @@ export default function SabassistTechnicianConsolePage() {
         <Card className="p-4">
           <div className="font-medium mb-2">Action log</div>
           {actions.length === 0 ? (
-            <div className="text-sm text-zoru-ink-muted">No actions yet.</div>
+            <div className="text-sm text-[var(--st-text-secondary)]">No actions yet.</div>
           ) : (
             <ol className="text-sm space-y-2 max-h-[480px] overflow-y-auto">
               {actions.map((a) => (
-                <li key={a._id} className="border-l-2 border-zoru-border pl-2">
+                <li key={a._id} className="border-l-2 border-[var(--st-border)] pl-2">
                   <div className="flex items-center gap-2">
                     <Badge variant="outline">{a.action}</Badge>
-                    <span className="text-xs text-zoru-ink-muted">
+                    <span className="text-xs text-[var(--st-text-secondary)]">
                       {new Date(a.ts).toLocaleTimeString()}
                     </span>
                   </div>
                   {a.payloadJson != null && (
-                    <pre className="text-xs text-zoru-ink-muted mt-1 whitespace-pre-wrap">
+                    <pre className="text-xs text-[var(--st-text-secondary)] mt-1 whitespace-pre-wrap">
                       {JSON.stringify(a.payloadJson, null, 2)}
                     </pre>
                   )}
@@ -295,16 +295,16 @@ export default function SabassistTechnicianConsolePage() {
       <Card className="p-4 mt-4">
         <div className="font-medium mb-1">Session metadata</div>
         <dl className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-          <dt className="text-zoru-ink-muted">Customer</dt>
+          <dt className="text-[var(--st-text-secondary)]">Customer</dt>
           <dd>{session.customerName || session.customerEmail || '—'}</dd>
-          <dt className="text-zoru-ink-muted">Mode</dt>
+          <dt className="text-[var(--st-text-secondary)]">Mode</dt>
           <dd>{session.mode}</dd>
-          <dt className="text-zoru-ink-muted">Linked call</dt>
+          <dt className="text-[var(--st-text-secondary)]">Linked call</dt>
           <dd>
             {session.callId ? (
               <Link
                 href={`/dashboard/sabvoice/calls`}
-                className="text-zoru-brand"
+                className="text-[var(--st-accent)]"
               >
                 {session.callId}
               </Link>
@@ -312,7 +312,7 @@ export default function SabassistTechnicianConsolePage() {
               '—'
             )}
           </dd>
-          <dt className="text-zoru-ink-muted">Started</dt>
+          <dt className="text-[var(--st-text-secondary)]">Started</dt>
           <dd>{session.startedAt ? new Date(session.startedAt).toLocaleString() : '—'}</dd>
         </dl>
       </Card>

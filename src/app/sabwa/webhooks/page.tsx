@@ -255,14 +255,14 @@ export default function WebhooksPage() {
 
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex items-start gap-3">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface text-zoru-ink">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
               <WebhookIcon className="h-5 w-5" />
             </div>
             <div>
-              <h1 className="text-[24px] leading-[1.2] tracking-[-0.015em] text-zoru-ink">
+              <h1 className="text-[24px] leading-[1.2] tracking-[-0.015em] text-[var(--st-text)]">
                 Webhooks
               </h1>
-              <p className="mt-1 text-[13px] text-zoru-ink-muted">
+              <p className="mt-1 text-[13px] text-[var(--st-text-secondary)]">
                 Stream SabWa events to your own systems over HTTPS with HMAC
                 signing.
               </p>
@@ -312,7 +312,7 @@ export default function WebhooksPage() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-1 items-center gap-2 sm:max-w-md">
             <div className="relative w-full">
-              <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+              <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
               <Input
                 placeholder="Search webhooks..."
                 value={searchQuery}
@@ -322,9 +322,9 @@ export default function WebhooksPage() {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex items-center gap-2 rounded-md border border-zoru-line bg-zoru-bg px-2 py-1">
-              <Filter className="h-4 w-4 text-zoru-ink-muted" />
-              <span className="text-xs text-zoru-ink-muted">Status</span>
+            <div className="flex items-center gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-1">
+              <Filter className="h-4 w-4 text-[var(--st-text-secondary)]" />
+              <span className="text-xs text-[var(--st-text-secondary)]">Status</span>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="h-7 w-[120px] border-none bg-transparent px-2 py-0 text-xs focus:ring-0 focus:ring-offset-0">
                   <SelectValue placeholder="Status" />
@@ -336,9 +336,9 @@ export default function WebhooksPage() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex items-center gap-2 rounded-md border border-zoru-line bg-zoru-bg px-2 py-1">
-              <Filter className="h-4 w-4 text-zoru-ink-muted" />
-              <span className="text-xs text-zoru-ink-muted">Event</span>
+            <div className="flex items-center gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-1">
+              <Filter className="h-4 w-4 text-[var(--st-text-secondary)]" />
+              <span className="text-xs text-[var(--st-text-secondary)]">Event</span>
               <Select value={eventFilter} onValueChange={setEventFilter}>
                 <SelectTrigger className="h-7 w-[160px] border-none bg-transparent px-2 py-0 text-xs focus:ring-0 focus:ring-offset-0">
                   <SelectValue placeholder="Event" />
@@ -471,7 +471,7 @@ export default function WebhooksPage() {
                                 : ''}
                             </span>
                           ) : (
-                            <span className="text-zoru-ink-muted">—</span>
+                            <span className="text-[var(--st-text-secondary)]">—</span>
                           )}
                         </ZoruTableCell>
                         <ZoruTableCell>
@@ -505,7 +505,7 @@ export default function WebhooksPage() {
                                 <Button
                                   size="icon-sm"
                                   variant="ghost"
-                                  className="text-zoru-danger hover:text-zoru-danger"
+                                  className="text-[var(--st-danger)] hover:text-[var(--st-danger)]"
                                   onClick={() => setPendingDelete(row)}
                                 >
                                   <Trash2 className="h-3.5 w-3.5" />
@@ -547,7 +547,7 @@ export default function WebhooksPage() {
               <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
               <ZoruAlertDialogAction
                 onClick={() => void handleDelete()}
-                className="bg-zoru-danger text-zoru-danger-foreground hover:bg-zoru-danger/90"
+                className="bg-[var(--st-danger)] text-zoru-danger-foreground hover:bg-[var(--st-danger)]/90"
               >
                 Delete
               </ZoruAlertDialogAction>
@@ -662,7 +662,7 @@ function CreateWebhookDialogContent({
               <Label
                 key={ev.value}
                 htmlFor={`wh-ev-${ev.value}`}
-                className="flex cursor-pointer items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-2.5 py-1.5 text-sm text-zoru-ink hover:bg-zoru-surface"
+                className="flex cursor-pointer items-center gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2.5 py-1.5 text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]"
               >
                 <Checkbox
                   id={`wh-ev-${ev.value}`}
@@ -698,10 +698,10 @@ function SecretRevealCard({
 }) {
   const toast = useZoruToast();
   return (
-    <Card className="border-zoru-warning/40 bg-zoru-warning/5">
+    <Card className="border-[var(--st-warn)]/40 bg-[var(--st-warn)]/5">
       <ZoruCardHeader>
-        <ZoruCardTitle className="flex items-center gap-2 text-base text-zoru-ink">
-          <AlertTriangle className="h-4 w-4 text-zoru-warning-ink" />
+        <ZoruCardTitle className="flex items-center gap-2 text-base text-[var(--st-text)]">
+          <AlertTriangle className="h-4 w-4 text-[var(--st-warn)]" />
           Signing secret — copy now
         </ZoruCardTitle>
         <ZoruCardDescription>
@@ -711,7 +711,7 @@ function SecretRevealCard({
         </ZoruCardDescription>
       </ZoruCardHeader>
       <ZoruCardContent className="flex items-center gap-2">
-        <code className="flex-1 truncate rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-2.5 py-1.5 text-xs text-zoru-ink">
+        <code className="flex-1 truncate rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2.5 py-1.5 text-xs text-[var(--st-text)]">
           {secret}
         </code>
         <Button
@@ -793,7 +793,7 @@ function DeliveriesSheet({
         <div className="mt-4">
           {loading ? (
             <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-5 w-5 animate-spin text-zoru-ink-muted" />
+              <Loader2 className="h-5 w-5 animate-spin text-[var(--st-text-secondary)]" />
             </div>
           ) : deliveries.length === 0 ? (
             <EmptyState
@@ -806,16 +806,16 @@ function DeliveriesSheet({
               {deliveries.map((d) => (
                 <li
                   key={d.id}
-                  className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3 text-xs text-zoru-ink"
+                  className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 text-xs text-[var(--st-text)]"
                 >
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
                       {d.statusCode &&
                       d.statusCode >= 200 &&
                       d.statusCode < 300 ? (
-                        <CheckCircle2 className="h-4 w-4 text-zoru-success-ink" />
+                        <CheckCircle2 className="h-4 w-4 text-[var(--st-status-ok)]" />
                       ) : (
-                        <XCircle className="h-4 w-4 text-zoru-danger-ink" />
+                        <XCircle className="h-4 w-4 text-[var(--st-danger)]" />
                       )}
                       <span className="font-mono">
                         {d.statusCode ?? '—'} · {d.latencyMs ?? '—'}ms
@@ -832,17 +832,17 @@ function DeliveriesSheet({
                       Resend
                     </Button>
                   </div>
-                  <div className="mt-1 text-zoru-ink-muted">
+                  <div className="mt-1 text-[var(--st-text-secondary)]">
                     {d.event} ·{' '}
                     {formatDistanceToNow(new Date(d.ts), { addSuffix: true })}
                   </div>
                   {d.responseExcerpt ? (
-                    <pre className="mt-2 max-h-24 overflow-auto rounded-[var(--zoru-radius-sm)] bg-zoru-surface p-2 text-[11px]">
+                    <pre className="mt-2 max-h-24 overflow-auto rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-secondary)] p-2 text-[11px]">
                       {d.responseExcerpt}
                     </pre>
                   ) : null}
                   {d.error ? (
-                    <p className="mt-1 text-zoru-danger-ink">{d.error}</p>
+                    <p className="mt-1 text-[var(--st-danger)]">{d.error}</p>
                   ) : null}
                 </li>
               ))}

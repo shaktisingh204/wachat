@@ -222,20 +222,20 @@ export default function SabWaStarredPage() {
       <header className="flex items-start gap-3">
         <div
           aria-hidden
-          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface text-zoru-ink"
+          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
         >
           <Star className="h-6 w-6" />
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-[24px] tracking-[-0.015em] text-zoru-ink leading-[1.2]">
+            <h1 className="text-[24px] tracking-[-0.015em] text-[var(--st-text)] leading-[1.2]">
               Starred Messages
             </h1>
             <Badge variant="ghost" className="text-[10.5px]">
               {totalCount} total
             </Badge>
           </div>
-          <p className="mt-1 text-[13px] text-zoru-ink-muted">
+          <p className="mt-1 text-[13px] text-[var(--st-text-secondary)]">
             Every message you’ve starred across chats, grouped by
             conversation.
           </p>
@@ -244,7 +244,7 @@ export default function SabWaStarredPage() {
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between max-w-2xl">
         <div className="relative max-w-xl flex-1">
-          <Search className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+          <Search className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
           <Input
             type="search"
             value={query}
@@ -256,7 +256,7 @@ export default function SabWaStarredPage() {
         </div>
         {selectedIds.size > 0 && (
           <div className="flex items-center gap-2 shrink-0">
-            <span className="text-[13px] text-zoru-ink-muted">{selectedIds.size} selected</span>
+            <span className="text-[13px] text-[var(--st-text-secondary)]">{selectedIds.size} selected</span>
             <Button
               type="button"
               variant="outline"
@@ -282,14 +282,14 @@ export default function SabWaStarredPage() {
       </div>
 
       {error ? (
-        <Card className="border-zoru-danger/50">
+        <Card className="border-[var(--st-danger)]/50">
           <ZoruCardHeader>
-            <ZoruCardTitle className="text-zoru-danger">
+            <ZoruCardTitle className="text-[var(--st-danger)]">
               Couldn’t load starred messages
             </ZoruCardTitle>
           </ZoruCardHeader>
           <ZoruCardContent className="space-y-3">
-            <p className="text-[13px] text-zoru-ink-muted">{error}</p>
+            <p className="text-[13px] text-[var(--st-text-secondary)]">{error}</p>
             <Button type="button" size="sm" variant="outline" onClick={refetch}>
               Retry
             </Button>
@@ -315,7 +315,7 @@ export default function SabWaStarredPage() {
                       <ZoruCardTitle className="truncate text-base">
                         {group.chatName || group.chatJid}
                       </ZoruCardTitle>
-                      <p className="mt-0.5 truncate text-[11.5px] text-zoru-ink-muted">
+                      <p className="mt-0.5 truncate text-[11.5px] text-[var(--st-text-secondary)]">
                         {group.entries.length} starred message
                         {group.entries.length === 1 ? "" : "s"}
                       </p>
@@ -412,14 +412,14 @@ function StarredPreview({
               type="button"
               variant="ghost"
               size="sm"
-              className="h-7 px-2 text-zoru-ink-muted hover:text-zoru-danger hover:bg-zoru-danger/10"
+              className="h-7 px-2 text-[var(--st-text-secondary)] hover:text-[var(--st-danger)] hover:bg-[var(--st-danger)]/10"
               onClick={onUnstar}
             >
               <StarOff className="mr-1.5 h-3.5 w-3.5" />
               <span className="text-[12px] font-medium">Unstar</span>
             </Button>
           )}
-          <Button asChild variant="ghost" size="sm" className="h-7 px-2 text-zoru-ink-muted hover:text-zoru-ink hover:bg-zoru-surface-hover">
+          <Button asChild variant="ghost" size="sm" className="h-7 px-2 text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:bg-[var(--st-hover)]">
             <Link href={jumpHref}>
               <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
               <span className="text-[12px] font-medium">Jump to message</span>
@@ -459,14 +459,14 @@ function StarredEmptyState({ filtered }: { filtered: boolean }) {
       <ZoruCardContent className="flex flex-col items-center gap-3 py-12 text-center">
         <div
           aria-hidden
-          className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface text-zoru-ink"
+          className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
         >
           <Star className="h-6 w-6" />
         </div>
-        <h2 className="text-base font-semibold text-zoru-ink">
+        <h2 className="text-base font-semibold text-[var(--st-text)]">
           {filtered ? "No matches" : "No starred messages yet"}
         </h2>
-        <p className="max-w-sm text-[13px] text-zoru-ink-muted">
+        <p className="max-w-sm text-[13px] text-[var(--st-text-secondary)]">
           {filtered
             ? "Try a different search term."
             : "Star messages in the Inbox by right-clicking them. They’ll all show up here, neatly grouped by chat."}

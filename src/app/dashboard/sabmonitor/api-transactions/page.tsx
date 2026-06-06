@@ -12,7 +12,7 @@ export default async function ApiTransactionsPage(): Promise<React.JSX.Element> 
     return (
         <div className="flex flex-col gap-4">
             <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-zoru-ink">API transactions</h2>
+                <h2 className="text-sm font-semibold text-[var(--st-text)]">API transactions</h2>
                 <Button asChild>
                     <Link href="/dashboard/sabmonitor/api-transactions/new">New transaction</Link>
                 </Button>
@@ -20,18 +20,18 @@ export default async function ApiTransactionsPage(): Promise<React.JSX.Element> 
             <Card className="zoruui">
                 <CardContent className="p-0">
                     {res.items.length === 0 ? (
-                        <p className="p-4 text-sm text-zoru-ink-muted">No transactions yet.</p>
+                        <p className="p-4 text-sm text-[var(--st-text-secondary)]">No transactions yet.</p>
                     ) : (
-                        <ul className="divide-y divide-zoru-line">
+                        <ul className="divide-y divide-[var(--st-border)]">
                             {res.items.map((t) => (
                                 <li key={t._id} className="flex items-center justify-between p-3">
                                     <Link
-                                        className="text-sm font-medium text-zoru-ink hover:underline"
+                                        className="text-sm font-medium text-[var(--st-text)] hover:underline"
                                         href={`/dashboard/sabmonitor/api-transactions/${t._id}`}
                                     >
                                         {t.name}
                                     </Link>
-                                    <span className="text-[12px] text-zoru-ink-muted">
+                                    <span className="text-[12px] text-[var(--st-text-secondary)]">
                                         {Array.isArray(t.stepsJson) ? `${(t.stepsJson as unknown[]).length} steps` : '—'}
                                     </span>
                                 </li>

@@ -21,7 +21,7 @@ async function EditShell({ id }: { id: string }) {
                 title="Error"
                 subtitle="Failed to load structure"
             >
-                <div className="flex flex-col items-center justify-center p-8 space-y-4 rounded-xl border border-zoru-line bg-zoru-surface-2 text-zoru-ink">
+                <div className="flex flex-col items-center justify-center p-8 space-y-4 rounded-xl border border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                     <p className="font-medium text-lg">Data fetching failed.</p>
                     <p className="text-sm">We could not retrieve the requested salary structure. It might not exist or there is a network issue.</p>
                 </div>
@@ -48,7 +48,7 @@ async function EditShell({ id }: { id: string }) {
 
 function FormSkeleton() {
     return (
-        <div className="space-y-4 rounded-xl border border-zoru-line bg-zoru-surface p-6 shadow-sm">
+        <div className="space-y-4 rounded-xl border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-6 shadow-sm">
             <div className="grid gap-4 sm:grid-cols-2">
                 <Skeleton className="h-10 w-full" />
                 <Skeleton className="h-10 w-full" />

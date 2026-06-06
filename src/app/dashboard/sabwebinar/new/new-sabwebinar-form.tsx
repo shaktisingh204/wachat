@@ -138,7 +138,7 @@ export function NewSabwebinarForm() {
                 />
               </div>
             </div>
-            {error ? <p className="text-sm text-zoru-ink">{error}</p> : null}
+            {error ? <p className="text-sm text-[var(--st-text)]">{error}</p> : null}
             <div className="flex items-center gap-3">
               <Button type="submit" disabled={pending}>
                 {pending ? 'Creating…' : 'Create webinar'}

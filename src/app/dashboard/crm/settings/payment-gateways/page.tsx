@@ -70,14 +70,14 @@ interface GatewayRow {
 }
 
 const COLORS: Record<string, string> = {
-  razorpay: 'bg-zoru-info/10 text-zoru-info-ink',
-  stripe: 'bg-zoru-surface-2 text-zoru-ink',
-  paypal: 'bg-zoru-warning/15 text-zoru-warning-ink',
-  payfast: 'bg-zoru-success/10 text-zoru-success-ink',
-  paytm: 'bg-zoru-info/10 text-zoru-info-ink',
-  mollie: 'bg-zoru-danger/10 text-zoru-danger-ink',
-  authorize_net: 'bg-zoru-surface-2 text-zoru-ink',
-  square: 'bg-zoru-ink text-white',
+  razorpay: 'bg-[var(--st-text-secondary)]/10 text-[var(--st-text-secondary)]',
+  stripe: 'bg-[var(--st-bg-muted)] text-[var(--st-text)]',
+  paypal: 'bg-[var(--st-warn)]/15 text-[var(--st-warn)]',
+  payfast: 'bg-[var(--st-status-ok)]/10 text-[var(--st-status-ok)]',
+  paytm: 'bg-[var(--st-text-secondary)]/10 text-[var(--st-text-secondary)]',
+  mollie: 'bg-[var(--st-danger)]/10 text-[var(--st-danger)]',
+  authorize_net: 'bg-[var(--st-bg-muted)] text-[var(--st-text)]',
+  square: 'bg-[var(--st-text)] text-white',
 };
 
 function SecretInput({
@@ -102,7 +102,7 @@ function SecretInput({
       <button
         type="button"
         onClick={() => setShow((s) => !s)}
-        className="absolute right-2 top-1/2 -translate-y-1/2 text-zoru-ink-muted hover:text-zoru-ink"
+        className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
         aria-label={show ? 'Hide' : 'Show'}
       >
         {show ? (
@@ -246,22 +246,22 @@ export default function PaymentGatewaysPage() {
       <Card className="p-6">
         {isLoading && rows.length === 0 ? (
           <div className="flex justify-center py-10">
-            <LoaderCircle className="h-5 w-5 animate-spin text-zoru-ink-muted" />
+            <LoaderCircle className="h-5 w-5 animate-spin text-[var(--st-text-secondary)]" />
           </div>
         ) : rows.length === 0 ? (
-          <div className="py-10 text-center text-[13px] text-zoru-ink-muted">
+          <div className="py-10 text-center text-[13px] text-[var(--st-text-secondary)]">
             No gateway credentials configured yet.
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-lg border border-zoru-line">
+          <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
             <Table>
               <ZoruTableHeader>
                 <ZoruTableRow className="hover:bg-transparent">
-                  <ZoruTableHead className="text-zoru-ink-muted">Gateway</ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">Mode</ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">API Key</ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">Active</ZoruTableHead>
-                  <ZoruTableHead className="text-right text-zoru-ink-muted">
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">Gateway</ZoruTableHead>
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">Mode</ZoruTableHead>
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">API Key</ZoruTableHead>
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">Active</ZoruTableHead>
+                  <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                     &nbsp;
                   </ZoruTableHead>
                 </ZoruTableRow>
@@ -275,12 +275,12 @@ export default function PaymentGatewaysPage() {
                         <div className="flex items-center gap-2">
                           <span
                             className={`flex h-7 w-7 items-center justify-center rounded-lg text-[12px] ${
-                              COLORS[r.gateway] || 'bg-zoru-surface-2 text-zoru-ink'
+                              COLORS[r.gateway] || 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
                             }`}
                           >
                             {letter}
                           </span>
-                          <span className="text-zoru-ink">{r.gateway}</span>
+                          <span className="text-[var(--st-text)]">{r.gateway}</span>
                         </div>
                       </ZoruTableCell>
                       <ZoruTableCell>
@@ -288,7 +288,7 @@ export default function PaymentGatewaysPage() {
                           {r.mode}
                         </Badge>
                       </ZoruTableCell>
-                      <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
+                      <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
                         {r.api_key ? `${String(r.api_key).slice(0, 6)}…` : '—'}
                       </ZoruTableCell>
                       <ZoruTableCell>
@@ -323,7 +323,7 @@ export default function PaymentGatewaysPage() {
                           title="Delete"
                           onClick={() => setConfirmDelete(r)}
                         >
-                          <Trash2 className="h-4 w-4 text-zoru-danger-ink" />
+                          <Trash2 className="h-4 w-4 text-[var(--st-danger)]" />
                         </Button>
                       </ZoruTableCell>
                     </ZoruTableRow>
@@ -388,23 +388,23 @@ export default function PaymentGatewaysPage() {
                 defaultValue={editing?.webhook_secret}
               />
             </div>
-            <div className="flex items-center gap-3 rounded-lg border border-zoru-line bg-zoru-surface px-4 py-3">
+            <div className="flex items-center gap-3 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-3">
               <ActiveSwitch
                 name="is_active"
                 initialChecked={editing?.is_active ?? false}
               />
-              <Label htmlFor="is_active" className="text-[13px] text-zoru-ink">
+              <Label htmlFor="is_active" className="text-[13px] text-[var(--st-text)]">
                 Active
               </Label>
             </div>
-            <div className="flex items-center gap-3 rounded-lg border border-zoru-line bg-zoru-surface px-4 py-3">
+            <div className="flex items-center gap-3 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-3">
               <ActiveSwitch
                 name="show_on_public"
                 initialChecked={editing?.show_on_public ?? false}
               />
               <Label
                 htmlFor="show_on_public"
-                className="text-[13px] text-zoru-ink"
+                className="text-[13px] text-[var(--st-text)]"
               >
                 Show on public invoice/proposal pay pages
               </Label>

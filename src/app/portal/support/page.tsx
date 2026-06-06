@@ -55,8 +55,8 @@ export default async function SupportPortalLandingPage() {
         <Card>
           <ZoruCardContent className="flex items-start justify-between gap-3 p-4">
             <div>
-              <p className="text-[12px] text-zoru-ink-muted">Open a request</p>
-              <p className="mt-1 text-[14px] font-medium text-zoru-ink">Tell us what's wrong</p>
+              <p className="text-[12px] text-[var(--st-text-secondary)]">Open a request</p>
+              <p className="mt-1 text-[14px] font-medium text-[var(--st-text)]">Tell us what's wrong</p>
             </div>
             <Button asChild size="sm">
               <Link href="/portal/support/new">
@@ -68,8 +68,8 @@ export default async function SupportPortalLandingPage() {
         <Card>
           <ZoruCardContent className="flex items-start justify-between gap-3 p-4">
             <div>
-              <p className="text-[12px] text-zoru-ink-muted">Knowledge base</p>
-              <p className="mt-1 text-[14px] font-medium text-zoru-ink">Browse public articles</p>
+              <p className="text-[12px] text-[var(--st-text-secondary)]">Knowledge base</p>
+              <p className="mt-1 text-[14px] font-medium text-[var(--st-text)]">Browse public articles</p>
             </div>
             <Button asChild size="sm" variant="outline">
               <Link href="/portal/support/kb">
@@ -81,12 +81,12 @@ export default async function SupportPortalLandingPage() {
         <Card>
           <ZoruCardContent className="flex items-start justify-between gap-3 p-4">
             <div>
-              <p className="text-[12px] text-zoru-ink-muted">Your tickets</p>
-              <p className="mt-1 text-[14px] font-medium text-zoru-ink">
+              <p className="text-[12px] text-[var(--st-text-secondary)]">Your tickets</p>
+              <p className="mt-1 text-[14px] font-medium text-[var(--st-text)]">
                 {tickets.length} on file
               </p>
             </div>
-            <MessageSquare className="h-5 w-5 text-zoru-ink-muted" />
+            <MessageSquare className="h-5 w-5 text-[var(--st-text-secondary)]" />
           </ZoruCardContent>
         </Card>
       </div>
@@ -94,7 +94,7 @@ export default async function SupportPortalLandingPage() {
       <Card>
         <ZoruCardContent className="p-0">
           {error ? (
-            <div className="p-6 text-[13px] text-zoru-danger">{error}</div>
+            <div className="p-6 text-[13px] text-[var(--st-danger)]">{error}</div>
           ) : tickets.length === 0 ? (
             <div className="p-8">
               <EmptyState
@@ -128,7 +128,7 @@ export default async function SupportPortalLandingPage() {
                       <ZoruTableCell>
                         <Link
                           href={`/portal/support/${t._id}`}
-                          className="font-medium text-zoru-ink hover:underline"
+                          className="font-medium text-[var(--st-text)] hover:underline"
                         >
                           {t.subject}
                         </Link>
@@ -149,7 +149,7 @@ export default async function SupportPortalLandingPage() {
                           {sla.label}
                         </Badge>
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-[12px] text-zoru-ink-muted">
+                      <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
                         {t.updatedAt ? new Date(t.updatedAt).toLocaleString() : '—'}
                       </ZoruTableCell>
                     </ZoruTableRow>

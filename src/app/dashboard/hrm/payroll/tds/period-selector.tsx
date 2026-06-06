@@ -18,7 +18,7 @@ export function TdsPeriodSelector({
   return (
     <>
       <Select value={String(month)} onValueChange={val => onMonthChange(Number(val))}>
-          <ZoruSelectTrigger className="w-36 h-9 rounded-full border-zoru-line bg-zoru-bg text-[13px]">
+          <ZoruSelectTrigger className="w-36 h-9 rounded-full border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
               <ZoruSelectValue />
           </ZoruSelectTrigger>
           <ZoruSelectContent>
@@ -26,7 +26,7 @@ export function TdsPeriodSelector({
           </ZoruSelectContent>
       </Select>
       <Select value={String(year)} onValueChange={val => onYearChange(Number(val))}>
-          <ZoruSelectTrigger className="w-28 h-9 rounded-full border-zoru-line bg-zoru-bg text-[13px]">
+          <ZoruSelectTrigger className="w-28 h-9 rounded-full border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
               <ZoruSelectValue />
           </ZoruSelectTrigger>
           <ZoruSelectContent>

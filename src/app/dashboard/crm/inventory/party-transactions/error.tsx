@@ -18,9 +18,9 @@ export default function PartyTransactionsError({
             subtitle="Inventory + receivable exposure for every customer and vendor."
         >
             <Card className="mt-4 flex flex-col items-center justify-center p-12 text-center">
-                <AlertCircle className="mb-4 h-12 w-12 text-zoru-ink" />
+                <AlertCircle className="mb-4 h-12 w-12 text-[var(--st-text)]" />
                 <h2 className="text-xl font-semibold">Something went wrong!</h2>
-                <p className="mt-2 text-sm text-zoru-ink-muted">
+                <p className="mt-2 text-sm text-[var(--st-text-secondary)]">
                     {error.message || 'Failed to load party transactions data.'}
                 </p>
                 <Button onClick={reset} variant="outline" className="mt-6">

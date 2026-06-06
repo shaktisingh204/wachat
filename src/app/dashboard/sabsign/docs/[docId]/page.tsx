@@ -227,7 +227,7 @@ export default function SabwriterDocEditorPage() {
 
   if (!doc) {
     return (
-      <div className="p-6 text-sm text-zoru-ink-muted">Loading document…</div>
+      <div className="p-6 text-sm text-[var(--st-text-secondary)]">Loading document…</div>
     );
   }
 
@@ -236,7 +236,7 @@ export default function SabwriterDocEditorPage() {
   return (
     <div className="flex flex-col h-full">
       {/* Top bar */}
-      <div className="flex items-center justify-between gap-3 border-b border-zoru-line px-4 py-3">
+      <div className="flex items-center justify-between gap-3 border-b border-[var(--st-border)] px-4 py-3">
         <div className="flex items-center gap-2 min-w-0">
           <Button asChild variant="ghost" size="sm">
             <Link href="/dashboard/sabsign/docs" aria-label="Back to documents">
@@ -255,7 +255,7 @@ export default function SabwriterDocEditorPage() {
           <Badge variant="outline" className="capitalize">
             {doc.status.replace(/_/g, ' ')}
           </Badge>
-          <span className="text-xs text-zoru-ink-muted whitespace-nowrap">
+          <span className="text-xs text-[var(--st-text-secondary)] whitespace-nowrap">
             v{doc.version ?? 0}
           </span>
         </div>
@@ -265,7 +265,7 @@ export default function SabwriterDocEditorPage() {
             {presence.slice(0, 5).map((p) => (
               <Avatar
                 key={p.userId}
-                className="h-7 w-7 ring-2 ring-zoru-surface"
+                className="h-7 w-7 ring-2 ring-[var(--st-bg-secondary)]"
                 style={{ background: p.color }}
                 title={p.displayName ?? p.userId}
               >
@@ -323,24 +323,24 @@ export default function SabwriterDocEditorPage() {
           />
         </div>
 
-        <aside className="border-l border-zoru-line overflow-auto">
+        <aside className="border-l border-[var(--st-border)] overflow-auto">
           {/* Suggestions panel */}
-          <section className="p-4 border-b border-zoru-line">
+          <section className="p-4 border-b border-[var(--st-border)]">
             <header className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-medium text-zoru-ink inline-flex items-center gap-2">
+              <h3 className="text-sm font-medium text-[var(--st-text)] inline-flex items-center gap-2">
                 <Sparkles className="h-4 w-4" /> Suggestions
               </h3>
               <Badge variant="outline">{suggestions.length}</Badge>
             </header>
             {suggestions.length === 0 ? (
-              <p className="text-xs text-zoru-ink-muted">
+              <p className="text-xs text-[var(--st-text-secondary)]">
                 No pending suggestions.
               </p>
             ) : (
               <ul className="flex flex-col gap-2">
                 {suggestions.map((s) => (
-                  <li key={s._id} className="rounded-lg border border-zoru-line p-2">
-                    <p className="text-xs text-zoru-ink-muted mb-2">
+                  <li key={s._id} className="rounded-lg border border-[var(--st-border)] p-2">
+                    <p className="text-xs text-[var(--st-text-secondary)] mb-2">
                       Range {s.anchor.from}–{s.anchor.to}
                     </p>
                     <div className="flex gap-2">
@@ -367,7 +367,7 @@ export default function SabwriterDocEditorPage() {
           {/* Comments panel */}
           <section className="p-4">
             <header className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-medium text-zoru-ink inline-flex items-center gap-2">
+              <h3 className="text-sm font-medium text-[var(--st-text)] inline-flex items-center gap-2">
                 <MessageCircle className="h-4 w-4" /> Comments
               </h3>
               <Badge variant="outline">{openComments.length}</Badge>
@@ -391,7 +391,7 @@ export default function SabwriterDocEditorPage() {
               {comments.map((c) => (
                 <li
                   key={c._id}
-                  className={`rounded-lg border border-zoru-line p-2 ${
+                  className={`rounded-lg border border-[var(--st-border)] p-2 ${
                     c.resolved ? 'opacity-60' : ''
                   }`}
                 >
@@ -399,12 +399,12 @@ export default function SabwriterDocEditorPage() {
                     href={`/dashboard/sabsign/docs/${doc._id}/comments/${c._id}`}
                     className="block"
                   >
-                    <p className="text-sm text-zoru-ink line-clamp-3">
+                    <p className="text-sm text-[var(--st-text)] line-clamp-3">
                       {c.body}
                     </p>
                   </Link>
                   <div className="flex items-center justify-between mt-1">
-                    <span className="text-xs text-zoru-ink-muted">
+                    <span className="text-xs text-[var(--st-text-secondary)]">
                       {new Date(c.createdAt).toLocaleString()}
                     </span>
                     {!c.resolved ? (

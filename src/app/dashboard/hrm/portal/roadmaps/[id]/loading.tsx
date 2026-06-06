@@ -3,7 +3,7 @@ import { Skeleton } from '@/components/sabcrm/20ui/compat';
 export default function RoadmapLoading() {
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center gap-3 border-b border-zoru-line px-6 py-4">
+      <div className="flex items-center gap-3 border-b border-[var(--st-border)] px-6 py-4">
         <Skeleton className="h-6 w-48" />
         <Skeleton className="h-5 w-16" />
         <Skeleton className="ml-auto h-8 w-20" />

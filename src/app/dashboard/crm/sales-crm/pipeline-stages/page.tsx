@@ -67,9 +67,9 @@ function buildStageFormData(input: {
 function StatCard({ title, value, accent }: { title: string; value: number; accent?: string }) {
     return (
         <Card>
-            <p className="text-[13px] font-medium text-zoru-ink-muted">{title}</p>
-            <p className="mt-1 text-[28px] font-semibold text-zoru-ink">{value.toLocaleString()}</p>
-            {accent ? <p className="mt-1 text-[11.5px] text-zoru-ink-muted">{accent}</p> : null}
+            <p className="text-[13px] font-medium text-[var(--st-text-secondary)]">{title}</p>
+            <p className="mt-1 text-[28px] font-semibold text-[var(--st-text)]">{value.toLocaleString()}</p>
+            {accent ? <p className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">{accent}</p> : null}
         </Card>
     );
 }
@@ -133,7 +133,7 @@ function StageEditForm({ initial, pipelines, defaultPipelineId, onSaved, onCance
     return (
         <div className="space-y-3">
             <div className="space-y-1">
-                <Label className="text-zoru-ink">Pipeline</Label>
+                <Label className="text-[var(--st-text)]">Pipeline</Label>
                 <Select value={pipelineId} onValueChange={setPipelineId}>
                     <ZoruSelectTrigger>
                         <ZoruSelectValue placeholder="Select…" />
@@ -148,15 +148,15 @@ function StageEditForm({ initial, pipelines, defaultPipelineId, onSaved, onCance
                 </Select>
             </div>
             <div className="space-y-1">
-                <Label className="text-zoru-ink">Stage name</Label>
+                <Label className="text-[var(--st-text)]">Stage name</Label>
                 <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Qualified" />
             </div>
             <div className="space-y-1">
-                <Label className="text-zoru-ink">Slug</Label>
+                <Label className="text-[var(--st-text)]">Slug</Label>
                 <Input value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="qualified" />
             </div>
             <div className="space-y-1">
-                <Label className="text-zoru-ink">Order</Label>
+                <Label className="text-[var(--st-text)]">Order</Label>
                 <Input
                     type="number"
                     value={String(priority)}
@@ -164,7 +164,7 @@ function StageEditForm({ initial, pipelines, defaultPipelineId, onSaved, onCance
                 />
             </div>
             <div className="space-y-1">
-                <Label className="text-zoru-ink">Label color</Label>
+                <Label className="text-[var(--st-text)]">Label color</Label>
                 <div className="flex items-center gap-2">
                     <Input
                         value={labelColor}
@@ -173,7 +173,7 @@ function StageEditForm({ initial, pipelines, defaultPipelineId, onSaved, onCance
                         className="font-mono"
                     />
                     <span
-                        className="inline-block h-7 w-7 rounded-full border border-zoru-line"
+                        className="inline-block h-7 w-7 rounded-full border border-[var(--st-border)]"
                         style={{ backgroundColor: labelColor || DEFAULT_COLOR }}
                     />
                 </div>
@@ -355,7 +355,7 @@ export default function LeadPipelineStagesPage() {
             <Card>
                 <div className="flex flex-wrap items-end gap-3">
                     <div className="min-w-[220px]">
-                        <Label className="text-zoru-ink">Pipeline</Label>
+                        <Label className="text-[var(--st-text)]">Pipeline</Label>
                         <Select value={pipelineFilter} onValueChange={setPipelineFilter}>
                             <ZoruSelectTrigger>
                                 <ZoruSelectValue placeholder="All pipelines" />
@@ -376,7 +376,7 @@ export default function LeadPipelineStagesPage() {
                         </Button>
                     ) : null}
                     {reorderPending ? (
-                        <span className="text-[12px] text-zoru-ink-muted">Saving order…</span>
+                        <span className="text-[12px] text-[var(--st-text-secondary)]">Saving order…</span>
                     ) : null}
                 </div>
             </Card>
@@ -391,9 +391,9 @@ export default function LeadPipelineStagesPage() {
                     </div>
                 ) : filteredStages.length === 0 ? (
                     <div className="flex flex-col items-center gap-3 p-12 text-center">
-                        <Columns3 className="h-8 w-8 text-zoru-ink-muted" />
-                        <h3 className="text-base font-medium text-zoru-ink">No stages yet</h3>
-                        <p className="max-w-sm text-sm text-zoru-ink-muted">
+                        <Columns3 className="h-8 w-8 text-[var(--st-text-secondary)]" />
+                        <h3 className="text-base font-medium text-[var(--st-text)]">No stages yet</h3>
+                        <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                             Create your first stage to start organising leads inside this pipeline.
                         </p>
                         <Button size="sm" onClick={() => setCreateOpen(true)}>
@@ -404,14 +404,14 @@ export default function LeadPipelineStagesPage() {
                     <div className="overflow-x-auto">
                         <Table>
                             <ZoruTableHeader>
-                                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                                     <ZoruTableHead className="w-[40px]" />
-                                    <ZoruTableHead className="text-zoru-ink-muted">Stage</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Pipeline</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Slug</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Order</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Color</ZoruTableHead>
-                                    <ZoruTableHead className="w-[140px] text-right text-zoru-ink-muted">
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Stage</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Pipeline</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Slug</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Order</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Color</ZoruTableHead>
+                                    <ZoruTableHead className="w-[140px] text-right text-[var(--st-text-secondary)]">
                                         Actions
                                     </ZoruTableHead>
                                 </ZoruTableRow>
@@ -425,7 +425,7 @@ export default function LeadPipelineStagesPage() {
                                     return (
                                         <ZoruTableRow
                                             key={stage._id}
-                                            className="border-zoru-line"
+                                            className="border-[var(--st-border)]"
                                             draggable={Boolean(pipelineFilter)}
                                             onDragStart={() => handleDragStart(idx)}
                                             onDragOver={handleDragOver}
@@ -435,8 +435,8 @@ export default function LeadPipelineStagesPage() {
                                                 <GripVertical
                                                     className={`h-4 w-4 ${
                                                         pipelineFilter
-                                                            ? 'cursor-grab text-zoru-ink-muted'
-                                                            : 'text-zoru-ink-muted/40'
+                                                            ? 'cursor-grab text-[var(--st-text-secondary)]'
+                                                            : 'text-[var(--st-text-secondary)]/40'
                                                     }`}
                                                     aria-label="Drag to reorder"
                                                 />
@@ -460,19 +460,19 @@ export default function LeadPipelineStagesPage() {
                                                     />
                                                 </RowDrawer>
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                                            <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                                                 {pipelineNameById.get(String(stage.pipeline_id)) ?? '—'}
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="font-mono text-[12px] text-zoru-ink-muted">
+                                            <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text-secondary)]">
                                                 {stage.slug || '—'}
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="text-[13px] text-zoru-ink">
+                                            <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                                                 {stage.priority ?? 0}
                                             </ZoruTableCell>
                                             <ZoruTableCell>
                                                 <span className="inline-flex items-center gap-2">
                                                     <span
-                                                        className="inline-block h-3 w-3 rounded-full border border-zoru-line"
+                                                        className="inline-block h-3 w-3 rounded-full border border-[var(--st-border)]"
                                                         style={{ backgroundColor: color }}
                                                     />
                                                     <Badge
@@ -512,7 +512,7 @@ export default function LeadPipelineStagesPage() {
                     </div>
                 )}
                 {!pipelineFilter && filteredStages.length > 0 ? (
-                    <div className="border-t border-zoru-line bg-zoru-surface-2/40 px-4 py-2 text-[11.5px] text-zoru-ink-muted">
+                    <div className="border-t border-[var(--st-border)] bg-[var(--st-bg-muted)]/40 px-4 py-2 text-[11.5px] text-[var(--st-text-secondary)]">
                         Drag-reorder requires picking a single pipeline first.
                     </div>
                 ) : null}
@@ -521,7 +521,7 @@ export default function LeadPipelineStagesPage() {
             {/* Create — inline drawer-like using RowDrawer trigger button */}
             {createOpen ? (
                 <Card>
-                    <h2 className="mb-3 text-[14px] font-semibold text-zoru-ink">New stage</h2>
+                    <h2 className="mb-3 text-[14px] font-semibold text-[var(--st-text)]">New stage</h2>
                     <StageEditForm
                         initial={null}
                         pipelines={pipelines}
@@ -538,7 +538,7 @@ export default function LeadPipelineStagesPage() {
             {/* Edit (inline panel — drawer trigger is on the row label) */}
             {editing ? (
                 <Card>
-                    <h2 className="mb-3 text-[14px] font-semibold text-zoru-ink">
+                    <h2 className="mb-3 text-[14px] font-semibold text-[var(--st-text)]">
                         Edit stage: {editing.name}
                     </h2>
                     <StageEditForm

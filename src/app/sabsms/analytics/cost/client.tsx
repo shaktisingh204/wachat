@@ -130,7 +130,7 @@ export default function CostAnalyticsPage({ spendTrendsData, providerPerformance
     >
       <div className="flex flex-col gap-8 p-6 lg:p-8 max-w-[1600px] mx-auto">
         {/* Top Controls */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-zoru-surface p-4 rounded-xl border shadow-sm">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-[var(--st-bg-secondary)] p-4 rounded-xl border shadow-sm">
           <SabsmsFilterBar
             filters={[
               {
@@ -185,26 +185,26 @@ export default function CostAnalyticsPage({ spendTrendsData, providerPerformance
         </div>
 
         {/* AI Recommendations */}
-        <Card className="border-zoru-line/40 bg-gradient-to-r from-zoru-ink/10 to-transparent shadow-sm dark:from-zoru-ink/40 relative overflow-hidden">
+        <Card className="border-[var(--st-border)]/40 bg-gradient-to-r from-[var(--st-text)]/10 to-transparent shadow-sm dark:from-[var(--st-text)]/40 relative overflow-hidden">
           <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
-            <Sparkles className="w-32 h-32 text-zoru-ink" />
+            <Sparkles className="w-32 h-32 text-[var(--st-text)]" />
           </div>
           <div className="flex flex-col sm:flex-row items-start gap-4 p-5">
-            <div className="p-3 bg-zoru-ink/20 rounded-xl text-zoru-ink dark:text-zoru-ink-muted shrink-0">
+            <div className="p-3 bg-[var(--st-text)]/20 rounded-xl text-[var(--st-text)] dark:text-[var(--st-text-secondary)] shrink-0">
               <Sparkles className="w-6 h-6" />
             </div>
             <div className="flex-1 space-y-1">
-              <h4 className="text-base font-semibold text-zoru-ink dark:text-white flex items-center gap-3">
+              <h4 className="text-base font-semibold text-[var(--st-text)] dark:text-white flex items-center gap-3">
                 AI Optimization Discovered
-                <Badge variant="secondary" className="bg-zoru-ink/20 text-zoru-ink dark:text-zoru-ink-muted border-zoru-line/30 font-medium">
+                <Badge variant="secondary" className="bg-[var(--st-text)]/20 text-[var(--st-text)] dark:text-[var(--st-text-secondary)] border-[var(--st-border)]/30 font-medium">
                   Est. Savings: $450/mo
                 </Badge>
               </h4>
-              <p className="text-sm text-zoru-ink dark:text-white/80 leading-relaxed max-w-4xl">
+              <p className="text-sm text-[var(--st-text)] dark:text-white/80 leading-relaxed max-w-4xl">
                 We've analyzed your traffic over the past 30 days. Shifting 15% of your UK traffic from <strong>Provider A</strong> to <strong>Provider B</strong> could reduce operational costs by 12% while maintaining a 98.9% deliverability rate.
               </p>
             </div>
-            <Button className="bg-zoru-ink hover:bg-zoru-ink text-white shrink-0 shadow-sm mt-2 sm:mt-0">
+            <Button className="bg-[var(--st-text)] hover:bg-[var(--st-text)] text-white shrink-0 shadow-sm mt-2 sm:mt-0">
               Apply Routing Rules
             </Button>
           </div>
@@ -242,7 +242,7 @@ export default function CostAnalyticsPage({ spendTrendsData, providerPerformance
               <div className="h-12 w-full mt-3 -mb-2">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={spendTrendsData}>
-                    <Area type="monotone" dataKey="revenue" stroke="currentColor" fill="currentColor" fillOpacity={0.15} strokeWidth={2} className="text-zoru-ink dark:text-zoru-ink-muted" />
+                    <Area type="monotone" dataKey="revenue" stroke="currentColor" fill="currentColor" fillOpacity={0.15} strokeWidth={2} className="text-[var(--st-text)] dark:text-[var(--st-text-secondary)]" />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
@@ -260,7 +260,7 @@ export default function CostAnalyticsPage({ spendTrendsData, providerPerformance
               <div className="h-12 w-full mt-3 -mb-2">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={spendTrendsData}>
-                    <Area type="step" dataKey="margin" stroke="currentColor" fill="currentColor" fillOpacity={0.15} strokeWidth={2} className="text-zoru-ink dark:text-zoru-ink-muted" />
+                    <Area type="step" dataKey="margin" stroke="currentColor" fill="currentColor" fillOpacity={0.15} strokeWidth={2} className="text-[var(--st-text)] dark:text-[var(--st-text-secondary)]" />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
@@ -278,7 +278,7 @@ export default function CostAnalyticsPage({ spendTrendsData, providerPerformance
               <div className="h-12 w-full mt-3 -mb-2">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={spendTrendsData}>
-                    <Bar dataKey="messages" fill="currentColor" radius={[2, 2, 0, 0]} className="fill-zoru-ink dark:fill-zoru-ink-muted" opacity={0.5} />
+                    <Bar dataKey="messages" fill="currentColor" radius={[2, 2, 0, 0]} className="fill-[var(--st-text)] dark:fill-[var(--st-text-secondary)]" opacity={0.5} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -296,7 +296,7 @@ export default function CostAnalyticsPage({ spendTrendsData, providerPerformance
               <div className="h-12 w-full mt-3 -mb-2">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={spendTrendsData}>
-                    <Line type="monotone" dataKey="cpc" stroke="currentColor" strokeWidth={2} dot={false} className="text-zoru-ink dark:text-zoru-ink-muted" />
+                    <Line type="monotone" dataKey="cpc" stroke="currentColor" strokeWidth={2} dot={false} className="text-[var(--st-text)] dark:text-[var(--st-text-secondary)]" />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -312,7 +312,7 @@ export default function CostAnalyticsPage({ spendTrendsData, providerPerformance
             className="shadow-sm"
             sparkline={
               <div className="h-12 w-full mt-3 -mb-2 flex items-end">
-                 <div className="w-full text-xs text-zoru-ink-muted pb-2">Applied to 14 sub-workspaces</div>
+                 <div className="w-full text-xs text-[var(--st-text-secondary)] pb-2">Applied to 14 sub-workspaces</div>
               </div>
             }
           />
@@ -320,14 +320,14 @@ export default function CostAnalyticsPage({ spendTrendsData, providerPerformance
 
         <Tabs defaultValue="overview" className="w-full">
           <div className="flex items-center justify-between mb-6">
-            <TabsList className="h-11 bg-zoru-surface-2/50 p-1">
+            <TabsList className="h-11 bg-[var(--st-bg-muted)]/50 p-1">
               <TabsTrigger value="overview" className="h-9 px-4 text-sm"><BarChart3 className="w-4 h-4 mr-2" /> Overview</TabsTrigger>
               <TabsTrigger value="providers" className="h-9 px-4 text-sm"><Layers className="w-4 h-4 mr-2" /> Providers</TabsTrigger>
               <TabsTrigger value="campaigns" className="h-9 px-4 text-sm"><Target className="w-4 h-4 mr-2" /> Campaigns</TabsTrigger>
               <TabsTrigger value="security" className="h-9 px-4 text-sm"><AlertTriangle className="w-4 h-4 mr-2" /> Caps & Alerts</TabsTrigger>
             </TabsList>
-            <div className="text-sm text-zoru-ink-muted hidden md:block">
-              Data syncs every 15 minutes. Last sync: <strong className="text-zoru-ink">2 mins ago</strong>
+            <div className="text-sm text-[var(--st-text-secondary)] hidden md:block">
+              Data syncs every 15 minutes. Last sync: <strong className="text-[var(--st-text)]">2 mins ago</strong>
             </div>
           </div>
 
@@ -360,14 +360,14 @@ export default function CostAnalyticsPage({ spendTrendsData, providerPerformance
                       axisLine={false} 
                       tickMargin={12}
                       minTickGap={20}
-                      className="text-xs text-zoru-ink-muted" 
+                      className="text-xs text-[var(--st-text-secondary)]" 
                     />
                     <YAxis 
                       yAxisId="left"
                       tickLine={false} 
                       axisLine={false} 
                       tickFormatter={(val) => `$${val}`}
-                      className="text-xs text-zoru-ink-muted"
+                      className="text-xs text-[var(--st-text-secondary)]"
                     />
                     <YAxis 
                       yAxisId="right"
@@ -375,7 +375,7 @@ export default function CostAnalyticsPage({ spendTrendsData, providerPerformance
                       tickLine={false} 
                       axisLine={false} 
                       tickFormatter={(val) => `$${val}`}
-                      className="text-xs text-zoru-ink-muted"
+                      className="text-xs text-[var(--st-text-secondary)]"
                     />
                     <ChartTooltip 
                       cursor={{ fill: 'hsl(var(--muted)/0.4)' }} 
@@ -417,15 +417,15 @@ export default function CostAnalyticsPage({ spendTrendsData, providerPerformance
               {/* Country Breakdown */}
               <Card className="shadow-sm">
                 <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2"><Globe className="w-5 h-5 text-zoru-ink" /> Spend by Region</CardTitle>
+                  <CardTitle className="text-lg flex items-center gap-2"><Globe className="w-5 h-5 text-[var(--st-text)]" /> Spend by Region</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="h-[320px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={countrySpend} layout="vertical" margin={{ top: 0, right: 30, left: 40, bottom: 0 }}>
                         <CartesianGrid horizontal={false} strokeDasharray="3 3" className="stroke-muted" />
-                        <XAxis type="number" axisLine={false} tickLine={false} tickFormatter={(val) => `$${val}`} className="text-xs text-zoru-ink-muted" />
-                        <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} className="text-xs font-medium text-zoru-ink" />
+                        <XAxis type="number" axisLine={false} tickLine={false} tickFormatter={(val) => `$${val}`} className="text-xs text-[var(--st-text-secondary)]" />
+                        <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} className="text-xs font-medium text-[var(--st-text)]" />
                         <Tooltip 
                           cursor={{fill: 'hsl(var(--muted)/0.5)'}} 
                           contentStyle={{ borderRadius: '8px', border: '1px solid hsl(var(--border))', backgroundColor: 'hsl(var(--background))' }}
@@ -445,7 +445,7 @@ export default function CostAnalyticsPage({ spendTrendsData, providerPerformance
               {/* Provider Spend Pie */}
               <Card className="shadow-sm">
                 <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2"><PieChartIcon className="w-5 h-5 text-zoru-ink" /> Provider Distribution</CardTitle>
+                  <CardTitle className="text-lg flex items-center gap-2"><PieChartIcon className="w-5 h-5 text-[var(--st-text)]" /> Provider Distribution</CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-col md:flex-row items-center gap-8">
                   <div className="h-[280px] flex-1 w-full relative">
@@ -474,8 +474,8 @@ export default function CostAnalyticsPage({ spendTrendsData, providerPerformance
                       </PieChart>
                     </ResponsiveContainer>
                     <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                      <span className="text-3xl font-bold text-zoru-ink">${(totalSpend).toLocaleString()}</span>
-                      <span className="text-xs text-zoru-ink-muted uppercase tracking-wider">Total SMS Spend</span>
+                      <span className="text-3xl font-bold text-[var(--st-text)]">${(totalSpend).toLocaleString()}</span>
+                      <span className="text-xs text-[var(--st-text-secondary)] uppercase tracking-wider">Total SMS Spend</span>
                     </div>
                   </div>
                   <div className="w-full md:w-[200px] space-y-3">
@@ -483,9 +483,9 @@ export default function CostAnalyticsPage({ spendTrendsData, providerPerformance
                       <div key={p.name} className="flex items-center justify-between text-sm">
                         <div className="flex items-center gap-2">
                           <div className="w-3 h-3 rounded-full" style={{ backgroundColor: p.fill }} />
-                          <span className="font-medium text-zoru-ink-muted">{p.name}</span>
+                          <span className="font-medium text-[var(--st-text-secondary)]">{p.name}</span>
                         </div>
-                        <span className="font-semibold text-zoru-ink">${p.value.toLocaleString()}</span>
+                        <span className="font-semibold text-[var(--st-text)]">${p.value.toLocaleString()}</span>
                       </div>
                     ))}
                   </div>
@@ -518,28 +518,28 @@ export default function CostAnalyticsPage({ spendTrendsData, providerPerformance
                   </ResponsiveContainer>
                 </div>
                 <div className="w-full lg:w-1/2 space-y-4">
-                  <h4 className="font-semibold text-zoru-ink mb-4">Provider Metrics Breakdown</h4>
+                  <h4 className="font-semibold text-[var(--st-text)] mb-4">Provider Metrics Breakdown</h4>
                   {providerPerformance.map(p => (
-                    <div key={p.provider} className="p-4 rounded-xl border bg-zoru-surface/50 hover:bg-zoru-surface-2/30 transition-colors">
+                    <div key={p.provider} className="p-4 rounded-xl border bg-[var(--st-bg-secondary)]/50 hover:bg-[var(--st-bg-muted)]/30 transition-colors">
                       <div className="flex items-center justify-between mb-3">
                         <span className="font-bold text-base">{p.provider}</span>
                         <Badge variant="outline" className="font-mono text-xs">${p.spend.toLocaleString()} spend</Badge>
                       </div>
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
-                          <div className="text-zoru-ink-muted text-xs mb-1">Delivery Rate</div>
+                          <div className="text-[var(--st-text-secondary)] text-xs mb-1">Delivery Rate</div>
                           <div className="flex items-center gap-2">
-                            <div className="h-2 w-full bg-zoru-surface-2 rounded-full overflow-hidden">
-                              <div className="h-full bg-zoru-ink rounded-full" style={{ width: `${p.delivery}%` }} />
+                            <div className="h-2 w-full bg-[var(--st-bg-muted)] rounded-full overflow-hidden">
+                              <div className="h-full bg-[var(--st-text)] rounded-full" style={{ width: `${p.delivery}%` }} />
                             </div>
                             <span className="font-medium">{p.delivery}%</span>
                           </div>
                         </div>
                         <div>
-                          <div className="text-zoru-ink-muted text-xs mb-1">Latency Score</div>
+                          <div className="text-[var(--st-text-secondary)] text-xs mb-1">Latency Score</div>
                           <div className="flex items-center gap-2">
-                            <div className="h-2 w-full bg-zoru-surface-2 rounded-full overflow-hidden">
-                              <div className="h-full bg-zoru-ink rounded-full" style={{ width: `${p.latency}%` }} />
+                            <div className="h-2 w-full bg-[var(--st-bg-muted)] rounded-full overflow-hidden">
+                              <div className="h-full bg-[var(--st-text)] rounded-full" style={{ width: `${p.latency}%` }} />
                             </div>
                             <span className="font-medium">{p.latency}/100</span>
                           </div>
@@ -562,8 +562,8 @@ export default function CostAnalyticsPage({ spendTrendsData, providerPerformance
                 <ChartContainer config={campaignChartConfig} className="h-[400px] w-full">
                   <ComposedChart data={campaignSpend} layout="vertical" margin={{ top: 20, right: 20, bottom: 20, left: 40 }}>
                     <CartesianGrid horizontal={false} strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis type="number" tickFormatter={(val) => `$${val}`} className="text-xs text-zoru-ink-muted" />
-                    <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} className="text-sm font-medium text-zoru-ink" />
+                    <XAxis type="number" tickFormatter={(val) => `$${val}`} className="text-xs text-[var(--st-text-secondary)]" />
+                    <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} className="text-sm font-medium text-[var(--st-text)]" />
                     <ChartTooltip 
                       cursor={{fill: 'hsl(var(--muted)/0.5)'}} 
                       content={<ChartTooltipContent indicator="dashed" />}
@@ -581,29 +581,29 @@ export default function CostAnalyticsPage({ spendTrendsData, providerPerformance
           <TabsContent value="security" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Cost Caps */}
-              <Card className="shadow-sm border-zoru-line/20">
-                <CardHeader className="bg-zoru-ink/5 border-b border-zoru-line/10">
-                  <CardTitle className="text-lg flex items-center gap-2 text-zoru-ink dark:text-zoru-ink">
+              <Card className="shadow-sm border-[var(--st-border)]/20">
+                <CardHeader className="bg-[var(--st-text)]/5 border-b border-[var(--st-border)]/10">
+                  <CardTitle className="text-lg flex items-center gap-2 text-[var(--st-text)] dark:text-[var(--st-text)]">
                     <Settings className="w-5 h-5" />
                     Budget Enforcements
                   </CardTitle>
                   <CardDescription>Hard limits to prevent accidental overspending</CardDescription>
                 </CardHeader>
                 <CardContent className="pt-6 space-y-5">
-                  <div className="flex flex-col p-4 rounded-xl border bg-zoru-surface hover:border-zoru-line/30 transition-colors">
+                  <div className="flex flex-col p-4 rounded-xl border bg-[var(--st-bg-secondary)] hover:border-[var(--st-border)]/30 transition-colors">
                     <div className="flex items-center justify-between mb-2">
                       <div>
                         <div className="font-semibold text-base">Workspace Monthly Cap</div>
-                        <div className="text-sm text-zoru-ink-muted">Hard stop at $10,000.00</div>
+                        <div className="text-sm text-[var(--st-text-secondary)]">Hard stop at $10,000.00</div>
                       </div>
-                      <span className="text-zoru-ink dark:text-zoru-ink-muted font-bold text-lg">${totalSpend.toLocaleString()} / $10k</span>
+                      <span className="text-[var(--st-text)] dark:text-[var(--st-text-secondary)] font-bold text-lg">${totalSpend.toLocaleString()} / $10k</span>
                     </div>
-                    <div className="h-3 bg-zoru-surface-2 rounded-full overflow-hidden mb-3">
-                      <div className="h-full bg-gradient-to-r from-zoru-surface-2 to-zoru-ink rounded-full" style={{ width: `${(totalSpend/10000)*100}%` }} />
+                    <div className="h-3 bg-[var(--st-bg-muted)] rounded-full overflow-hidden mb-3">
+                      <div className="h-full bg-gradient-to-r from-[var(--st-bg-muted)] to-[var(--st-text)] rounded-full" style={{ width: `${(totalSpend/10000)*100}%` }} />
                     </div>
                     <div className="flex items-center justify-between mt-1">
-                      <div className="flex items-center gap-2 text-xs text-zoru-ink-muted font-medium">
-                        <PauseCircle className="w-4 h-4 text-zoru-ink" />
+                      <div className="flex items-center gap-2 text-xs text-[var(--st-text-secondary)] font-medium">
+                        <PauseCircle className="w-4 h-4 text-[var(--st-text)]" />
                         Auto-pauses all sending when reached
                       </div>
                       <Button variant="outline" size="sm" className="h-8">Adjust Cap</Button>
@@ -611,15 +611,15 @@ export default function CostAnalyticsPage({ spendTrendsData, providerPerformance
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="p-4 rounded-xl border bg-zoru-surface">
+                    <div className="p-4 rounded-xl border bg-[var(--st-bg-secondary)]">
                       <div className="font-semibold text-sm mb-1">Campaign Level Caps</div>
-                      <div className="text-3xl font-bold text-zoru-ink mb-1">3</div>
-                      <div className="text-xs text-zoru-ink-muted">Campaigns have active limits</div>
+                      <div className="text-3xl font-bold text-[var(--st-text)] mb-1">3</div>
+                      <div className="text-xs text-[var(--st-text-secondary)]">Campaigns have active limits</div>
                     </div>
-                    <div className="p-4 rounded-xl border bg-zoru-surface">
+                    <div className="p-4 rounded-xl border bg-[var(--st-bg-secondary)]">
                       <div className="font-semibold text-sm mb-1">Sender Restrictions</div>
-                      <div className="text-3xl font-bold text-zoru-ink mb-1">12</div>
-                      <div className="text-xs text-zoru-ink-muted">Numbers locked from Int'l</div>
+                      <div className="text-3xl font-bold text-[var(--st-text)] mb-1">12</div>
+                      <div className="text-xs text-[var(--st-text-secondary)]">Numbers locked from Int'l</div>
                     </div>
                   </div>
                 </CardContent>
@@ -629,20 +629,20 @@ export default function CostAnalyticsPage({ spendTrendsData, providerPerformance
               <Card className="shadow-sm">
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
-                    <AlertTriangle className="w-5 h-5 text-zoru-ink" />
+                    <AlertTriangle className="w-5 h-5 text-[var(--st-text)]" />
                     Anomaly & Burn-rate Alerts
                   </CardTitle>
                   <CardDescription>Machine learning driven notifications for unexpected spend</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4 pt-4">
-                  <div className="group flex items-center justify-between p-4 rounded-xl border border-muted hover:border-foreground/20 transition-all bg-zoru-surface hover:shadow-sm">
+                  <div className="group flex items-center justify-between p-4 rounded-xl border border-muted hover:border-foreground/20 transition-all bg-[var(--st-bg-secondary)] hover:shadow-sm">
                     <div className="flex items-start gap-3">
-                      <div className="p-2 bg-zoru-surface-2 dark:bg-zoru-ink/30 rounded-lg text-zoru-ink dark:text-zoru-ink-muted mt-0.5">
+                      <div className="p-2 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 rounded-lg text-[var(--st-text)] dark:text-[var(--st-text-secondary)] mt-0.5">
                         <TrendingUp className="w-4 h-4" />
                       </div>
                       <div>
                         <div className="font-semibold text-sm">Velocity Spike Detection</div>
-                        <div className="text-xs text-zoru-ink-muted mt-1 leading-relaxed max-w-[280px]">
+                        <div className="text-xs text-[var(--st-text-secondary)] mt-1 leading-relaxed max-w-[280px]">
                           Alerts immediately when hourly spend exceeds the 7-day moving average by 50%.
                         </div>
                         <div className="flex gap-2 mt-2">
@@ -656,14 +656,14 @@ export default function CostAnalyticsPage({ spendTrendsData, providerPerformance
                     </Button>
                   </div>
 
-                  <div className="group flex items-center justify-between p-4 rounded-xl border border-muted hover:border-foreground/20 transition-all bg-zoru-surface hover:shadow-sm">
+                  <div className="group flex items-center justify-between p-4 rounded-xl border border-muted hover:border-foreground/20 transition-all bg-[var(--st-bg-secondary)] hover:shadow-sm">
                     <div className="flex items-start gap-3">
-                      <div className="p-2 bg-zoru-surface-2 dark:bg-zoru-ink/30 rounded-lg text-zoru-ink dark:text-zoru-ink-muted mt-0.5">
+                      <div className="p-2 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 rounded-lg text-[var(--st-text)] dark:text-[var(--st-text-secondary)] mt-0.5">
                         <DollarSign className="w-4 h-4" />
                       </div>
                       <div>
                         <div className="font-semibold text-sm">Low Prepaid Balance</div>
-                        <div className="text-xs text-zoru-ink-muted mt-1 leading-relaxed max-w-[280px]">
+                        <div className="text-xs text-[var(--st-text-secondary)] mt-1 leading-relaxed max-w-[280px]">
                           Alerts when prepaid balance falls below $500 to prevent service interruption.
                         </div>
                         <div className="flex gap-2 mt-2">

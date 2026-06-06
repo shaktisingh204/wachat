@@ -34,8 +34,8 @@ export default async function AnalyticsWorkspacePage() {
     <div className="zoruui flex flex-col gap-6 p-6">
       <header className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-zoru-ink">Analytics workspace</h1>
-          <p className="text-sm text-zoru-ink-muted">
+          <h1 className="text-2xl font-semibold text-[var(--st-text)]">Analytics workspace</h1>
+          <p className="text-sm text-[var(--st-text-secondary)]">
             Build workbooks, charts, and scheduled reports across any data source.
           </p>
         </div>
@@ -78,7 +78,7 @@ export default async function AnalyticsWorkspacePage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-xs text-zoru-ink-muted">
+                  <p className="text-xs text-[var(--st-text-secondary)]">
                     Updated {wb.updatedAt ?? wb.createdAt ?? '—'}
                   </p>
                 </CardContent>

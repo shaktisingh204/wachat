@@ -23,12 +23,12 @@ async function PortalLoginSuccessPageContent({ params }: PageProps) {
     const { tenantSlug } = await params;
     
     return (
-        <main className="flex min-h-screen items-center justify-center bg-zoru-surface-2 p-6 font-sans">
+        <main className="flex min-h-screen items-center justify-center bg-[var(--st-bg-muted)] p-6 font-sans">
             <section className="w-full max-w-[420px] rounded-2xl bg-white p-8 text-center shadow-[0_1px_3px_rgba(0,0,0,0.08),0_8px_24px_rgba(0,0,0,0.04)]">
-                <h1 className="m-0 text-[22px] font-bold text-zoru-ink">
+                <h1 className="m-0 text-[22px] font-bold text-[var(--st-text)]">
                     Check your email
                 </h1>
-                <p className="mt-3 text-sm text-zoru-ink">
+                <p className="mt-3 text-sm text-[var(--st-text)]">
                     If your address is on file, we&apos;ve sent you a sign-in link. It will
                     expire in 15 minutes and can only be used once.
                 </p>

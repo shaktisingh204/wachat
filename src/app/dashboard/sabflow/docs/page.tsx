@@ -60,7 +60,7 @@ export default function SabFlowDocsPage() {
       {/* ── Left rail ──────────────────────────────────────────────────── */}
       <aside className="w-64 shrink-0 border-r border-[var(--gray-5)] bg-[var(--gray-2)] p-4 overflow-y-auto">
         <div className="mb-4 flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-ink/10 text-zoru-ink">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-text)]/10 text-[var(--st-text)]">
             <LuBookOpen className="h-4 w-4" />
           </span>
           <div>
@@ -75,7 +75,7 @@ export default function SabFlowDocsPage() {
           className={cn(
             'mb-1 w-full rounded-md px-2 py-1.5 text-left text-[12px] font-medium transition-colors',
             activeSection === 'all'
-              ? 'bg-zoru-ink/10 text-zoru-ink'
+              ? 'bg-[var(--st-text)]/10 text-[var(--st-text)]'
               : 'text-[var(--gray-11)] hover:bg-[var(--gray-3)]',
           )}
         >
@@ -94,7 +94,7 @@ export default function SabFlowDocsPage() {
               className={cn(
                 'w-full rounded-md px-2 py-1.5 text-left text-[12px] transition-colors',
                 activeSection === section.id
-                  ? 'bg-zoru-ink/10 text-zoru-ink'
+                  ? 'bg-[var(--st-text)]/10 text-[var(--st-text)]'
                   : 'text-[var(--gray-11)] hover:bg-[var(--gray-3)]',
               )}
             >
@@ -115,7 +115,7 @@ export default function SabFlowDocsPage() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search nodes — try 'whatsapp', 'condition', 'deal'…"
-              className="w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] py-2 pl-10 pr-3 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-zoru-line"
+              className="w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] py-2 pl-10 pr-3 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[var(--st-border)]"
             />
           </div>
         </div>
@@ -166,7 +166,7 @@ function DocCard({ docKey, doc }: { docKey: string; doc: NodeDoc }) {
             <code className="rounded bg-[var(--gray-3)] px-1.5 py-0.5 font-mono text-[10.5px] text-[var(--gray-10)]">
               {docKey}
             </code>
-            <span className="rounded-full bg-zoru-ink/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-zoru-ink">
+            <span className="rounded-full bg-[var(--st-text)]/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--st-text)]">
               {isTrigger ? 'Trigger' : 'Block'}
             </span>
           </div>
@@ -190,7 +190,7 @@ function DocCard({ docKey, doc }: { docKey: string; doc: NodeDoc }) {
                 {doc.fields.map((f) => (
                   <li key={f.name} className="text-[12.5px] leading-snug text-[var(--gray-11)]">
                     <span className="font-semibold text-[var(--gray-12)]">{f.name}</span>
-                    {f.required ? <span className="ml-1 text-zoru-ink">*</span> : null}
+                    {f.required ? <span className="ml-1 text-[var(--st-text)]">*</span> : null}
                     {f.defaultValue ? (
                       <span className="ml-2 rounded bg-[var(--gray-3)] px-1.5 py-0.5 font-mono text-[11px] text-[var(--gray-10)]">
                         default: {f.defaultValue}
@@ -208,7 +208,7 @@ function DocCard({ docKey, doc }: { docKey: string; doc: NodeDoc }) {
               <ul className="space-y-1.5">
                 {filters.map((f) => (
                   <li key={f.path} className="flex items-start gap-2 text-[12.5px]">
-                    <code className="shrink-0 rounded bg-[var(--gray-3)] px-1.5 py-0.5 font-mono text-[11px] text-zoru-ink">
+                    <code className="shrink-0 rounded bg-[var(--gray-3)] px-1.5 py-0.5 font-mono text-[11px] text-[var(--st-text)]">
                       {f.path}
                     </code>
                     <span className="text-[var(--gray-10)]">
@@ -225,7 +225,7 @@ function DocCard({ docKey, doc }: { docKey: string; doc: NodeDoc }) {
               <ul className="space-y-1.5">
                 {doc.outputs.map((o) => (
                   <li key={o.token} className="flex items-start gap-2 text-[12.5px]">
-                    <code className="shrink-0 rounded bg-[var(--gray-3)] px-1.5 py-0.5 font-mono text-[11px] text-zoru-ink">
+                    <code className="shrink-0 rounded bg-[var(--gray-3)] px-1.5 py-0.5 font-mono text-[11px] text-[var(--st-text)]">
                       {o.token}
                     </code>
                     <span className="text-[var(--gray-10)]">{o.description}</span>
@@ -243,7 +243,7 @@ function DocCard({ docKey, doc }: { docKey: string; doc: NodeDoc }) {
                     key={ex}
                     className="flex items-start gap-2 text-[12.5px] text-[var(--gray-11)]"
                   >
-                    <LuCircleCheck className="mt-[3px] h-3.5 w-3.5 shrink-0 text-zoru-ink" />
+                    <LuCircleCheck className="mt-[3px] h-3.5 w-3.5 shrink-0 text-[var(--st-text)]" />
                     <span>{ex}</span>
                   </li>
                 ))}

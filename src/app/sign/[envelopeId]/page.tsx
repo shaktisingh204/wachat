@@ -126,8 +126,8 @@ export default function PublicSignPage() {
     return (
       <div className="min-h-screen flex items-center justify-center p-6">
         <Card className="p-6 max-w-md">
-          <h2 className="text-lg font-semibold text-zoru-ink">Unable to load envelope</h2>
-          <p className="text-sm text-zoru-ink-muted mt-2">{error}</p>
+          <h2 className="text-lg font-semibold text-[var(--st-text)]">Unable to load envelope</h2>
+          <p className="text-sm text-[var(--st-text-secondary)] mt-2">{error}</p>
         </Card>
       </div>
     );
@@ -135,7 +135,7 @@ export default function PublicSignPage() {
 
   if (!payload) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 text-sm text-zoru-ink-muted">
+      <div className="min-h-screen flex items-center justify-center p-6 text-sm text-[var(--st-text-secondary)]">
         Loading envelope…
       </div>
     );
@@ -145,8 +145,8 @@ export default function PublicSignPage() {
     return (
       <div className="min-h-screen flex items-center justify-center p-6">
         <Card className="p-6 max-w-md text-center">
-          <h2 className="text-lg font-semibold text-zoru-ink">All set</h2>
-          <p className="text-sm text-zoru-ink-muted mt-2">{done}</p>
+          <h2 className="text-lg font-semibold text-[var(--st-text)]">All set</h2>
+          <p className="text-sm text-[var(--st-text-secondary)] mt-2">{done}</p>
         </Card>
       </div>
     );
@@ -155,9 +155,9 @@ export default function PublicSignPage() {
   const fields = payload.fields.filter((f) => f.recipientRole === payload.signer.role);
 
   return (
-    <div className="min-h-screen bg-zoru-bg p-4">
+    <div className="min-h-screen bg-[var(--st-bg)] p-4">
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-4">
-        <Card className="overflow-hidden border border-zoru-line">
+        <Card className="overflow-hidden border border-[var(--st-border)]">
           {payload.docUrl ? (
             <iframe
               src={payload.docUrl}
@@ -165,20 +165,20 @@ export default function PublicSignPage() {
               className="w-full h-[80vh] block"
             />
           ) : (
-            <div className="p-8 text-sm text-zoru-ink-muted">No document URL.</div>
+            <div className="p-8 text-sm text-[var(--st-text-secondary)]">No document URL.</div>
           )}
         </Card>
         <div className="space-y-3">
-          <Card className="p-4 border border-zoru-line">
-            <h2 className="text-lg font-semibold text-zoru-ink">{payload.name}</h2>
-            <p className="text-sm text-zoru-ink-muted">
+          <Card className="p-4 border border-[var(--st-border)]">
+            <h2 className="text-lg font-semibold text-[var(--st-text)]">{payload.name}</h2>
+            <p className="text-sm text-[var(--st-text-secondary)]">
               {payload.signer.name} ({payload.signer.email}) — role{' '}
               <strong>{payload.signer.role}</strong>
             </p>
           </Card>
 
           {payload.signer.authMethod === 'sms_otp' && (
-            <Card className="p-4 border border-zoru-line space-y-2">
+            <Card className="p-4 border border-[var(--st-border)] space-y-2">
               <Label>SMS code</Label>
               <div className="flex gap-2">
                 <Input value={otp} onChange={(e) => setOtp(e.target.value)} />
@@ -190,15 +190,15 @@ export default function PublicSignPage() {
           )}
 
           {payload.signer.authMethod === 'pin' && (
-            <Card className="p-4 border border-zoru-line space-y-2">
+            <Card className="p-4 border border-[var(--st-border)] space-y-2">
               <Label>PIN</Label>
               <Input type="password" value={pin} onChange={(e) => setPin(e.target.value)} />
             </Card>
           )}
 
           {payload.signer.authMethod === 'kba' && payload.signer.kbaQuestions && (
-            <Card className="p-4 border border-zoru-line space-y-3">
-              <h3 className="text-sm font-medium text-zoru-ink">Identity questions</h3>
+            <Card className="p-4 border border-[var(--st-border)] space-y-3">
+              <h3 className="text-sm font-medium text-[var(--st-text)]">Identity questions</h3>
               {payload.signer.kbaQuestions.map((q, i) => (
                 <div key={i}>
                   <Label className="text-xs">{q.question}</Label>
@@ -215,10 +215,10 @@ export default function PublicSignPage() {
             </Card>
           )}
 
-          <Card className="p-4 border border-zoru-line space-y-3">
-            <h3 className="text-sm font-medium text-zoru-ink">Your fields</h3>
+          <Card className="p-4 border border-[var(--st-border)] space-y-3">
+            <h3 className="text-sm font-medium text-[var(--st-text)]">Your fields</h3>
             {fields.length === 0 ? (
-              <p className="text-xs text-zoru-ink-muted">
+              <p className="text-xs text-[var(--st-text-secondary)]">
                 Nothing to fill — only your signature is required.
               </p>
             ) : (
@@ -235,7 +235,7 @@ export default function PublicSignPage() {
                     />
                   ) : f.fieldType === 'dropdown' ? (
                     <select
-                      className="w-full h-9 rounded-md border border-zoru-line bg-zoru-bg px-2 text-sm"
+                      className="w-full h-9 rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-2 text-sm"
                       value={values[f.id] || ''}
                       onChange={(e) => setValues({ ...values, [f.id]: e.target.value })}
                     >

@@ -26,18 +26,18 @@ export default function NewProductionOrderError({
 
   return (
     <div className="flex min-h-[400px] items-center justify-center p-6">
-      <ZoruCard className="w-full max-w-md border-zoru-line bg-zoru-surface-2/50 dark:border-zoru-line/50 dark:bg-zoru-ink/10">
+      <ZoruCard className="w-full max-w-md border-[var(--st-border)] bg-[var(--st-bg-muted)]/50 dark:border-[var(--st-border)]/50 dark:bg-[var(--st-text)]/10">
         <ZoruCardHeader>
-          <div className="flex items-center gap-2 text-zoru-ink dark:text-zoru-ink-muted">
+          <div className="flex items-center gap-2 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
             <AlertCircle className="h-5 w-5" />
             <ZoruCardTitle>Something went wrong!</ZoruCardTitle>
           </div>
-          <ZoruCardDescription className="text-zoru-ink/80 dark:text-zoru-ink-muted/80">
+          <ZoruCardDescription className="text-[var(--st-text)]/80 dark:text-[var(--st-text-secondary)]/80">
             An error occurred while loading the production order form.
           </ZoruCardDescription>
         </ZoruCardHeader>
         <ZoruCardContent>
-          <p className="text-sm text-zoru-ink/80 dark:text-zoru-ink-muted/80">
+          <p className="text-sm text-[var(--st-text)]/80 dark:text-[var(--st-text-secondary)]/80">
             {error.message || 'Unknown error occurred. Please try again later.'}
           </p>
         </ZoruCardContent>

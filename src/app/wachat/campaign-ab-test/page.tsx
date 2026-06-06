@@ -464,28 +464,48 @@ export default function CampaignAbTestPage() {
                               {detailVariants.map((v) => {
                                 const templateName =
                                   v.variant === 'A' ? t.variantA.name : t.variantB.name;
+                                const launched = v.broadcastId !== null;
                                 return (
                                   <Card key={v.variant} variant="outlined" padding="md">
                                     <CardHeader>
                                       <CardTitle className="flex items-center justify-between text-sm">
-                                        Variant {v.variant}: {templateName}
+                                        <span className="flex items-center gap-2">
+                                          Variant {v.variant}: {templateName}
+                                          {!launched && (
+                                            <Badge tone="neutral">Not launched</Badge>
+                                          )}
+                                        </span>
                                         {t.winnerVariant === v.variant && (
                                           <Badge tone="success">Winner</Badge>
                                         )}
                                       </CardTitle>
                                     </CardHeader>
                                     <CardBody>
-                                      <div className="grid grid-cols-3 gap-2">
-                                        <StatCard label="Sent" value={v.sent} />
-                                        <StatCard
-                                          label="Open rate"
-                                          value={v.sent > 0 ? rateLabel(v.openRate) : pct(0, 0)}
-                                        />
-                                        <StatCard
-                                          label="Reply rate"
-                                          value={v.sent > 0 ? rateLabel(v.replyRate) : pct(0, 0)}
-                                        />
-                                      </div>
+                                      {!launched ? (
+                                        <Alert tone="info">
+                                          Not launched yet — no broadcast is linked to
+                                          this variant, so there are no metrics to show.
+                                        </Alert>
+                                      ) : (
+                                        <div className="flex flex-col gap-3">
+                                          <div className="grid grid-cols-2 gap-2">
+                                            <StatCard label="Sent" value={v.sent} />
+                                            <StatCard label="Delivered" value={v.delivered} />
+                                            <StatCard label="Read" value={v.read} />
+                                            <StatCard label="Failed" value={v.failed} />
+                                          </div>
+                                          <div className="grid grid-cols-2 gap-2">
+                                            <StatCard
+                                              label="Open rate"
+                                              value={v.sent > 0 ? rateLabel(v.openRate) : pct(0, 0)}
+                                            />
+                                            <StatCard
+                                              label="Reply rate"
+                                              value={v.sent > 0 ? rateLabel(v.replyRate) : pct(0, 0)}
+                                            />
+                                          </div>
+                                        </div>
+                                      )}
                                     </CardBody>
                                   </Card>
                                 );

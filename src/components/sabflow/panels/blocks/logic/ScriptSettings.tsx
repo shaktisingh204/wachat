@@ -237,7 +237,7 @@ export function ScriptSettings({ block, onBlockChange, variables }: Props) {
             className="flex items-center gap-1 text-[11px] text-[var(--gray-8)] hover:text-[var(--gray-12)] transition-colors"
           >
             {copied ? (
-              <LuCheck className="h-3 w-3 text-zoru-ink" strokeWidth={2} />
+              <LuCheck className="h-3 w-3 text-[var(--st-text)]" strokeWidth={2} />
             ) : (
               <LuCopy className="h-3 w-3" strokeWidth={1.8} />
             )}
@@ -245,7 +245,7 @@ export function ScriptSettings({ block, onBlockChange, variables }: Props) {
           </button>
         </div>
         {/* Line-number gutter via CSS counter on the wrapping div. */}
-        <div className="relative rounded-lg border border-[var(--gray-5)] bg-zoru-ink overflow-hidden focus-within:border-zoru-line transition-colors">
+        <div className="relative rounded-lg border border-[var(--gray-5)] bg-[var(--st-text)] overflow-hidden focus-within:border-[var(--st-border)] transition-colors">
           <LineGutter lineCount={lineCount} />
           <textarea
             id={codeFieldId}
@@ -260,7 +260,7 @@ export function ScriptSettings({ block, onBlockChange, variables }: Props) {
             className={cn(
               'w-full resize-y min-h-[220px] bg-transparent',
               'pl-10 pr-3 py-3 outline-none',
-              'font-mono text-[12px] leading-[1.55] text-zoru-ink-muted',
+              'font-mono text-[12px] leading-[1.55] text-[var(--st-text-secondary)]',
               'placeholder:text-[var(--gray-7)]',
             )}
             aria-describedby={`${codeFieldId}-hint`}
@@ -284,7 +284,7 @@ export function ScriptSettings({ block, onBlockChange, variables }: Props) {
                 className={cn(
                   'flex items-center gap-1 rounded-md border border-[var(--gray-5)]',
                   'bg-[var(--gray-2)] px-2 py-1 text-[11px] text-[var(--gray-11)]',
-                  'hover:border-zoru-line/40 hover:bg-zoru-ink/5 hover:text-zoru-ink',
+                  'hover:border-[var(--st-border)]/40 hover:bg-[var(--st-text)]/5 hover:text-[var(--st-text)]',
                   'transition-colors',
                 )}
                 title={`Insert variables['${v.name}']`}
@@ -387,7 +387,7 @@ export function ScriptSettings({ block, onBlockChange, variables }: Props) {
                     'shrink-0 flex items-center gap-1 rounded-lg px-3 py-2 text-[12px] font-medium',
                     'transition-colors',
                     newDomain.trim()
-                      ? 'bg-zoru-ink text-white hover:bg-zoru-ink'
+                      ? 'bg-[var(--st-text)] text-white hover:bg-[var(--st-text)]'
                       : 'bg-[var(--gray-4)] text-[var(--gray-7)] cursor-not-allowed',
                   )}
                 >
@@ -413,7 +413,7 @@ export function ScriptSettings({ block, onBlockChange, variables }: Props) {
                         type="button"
                         onClick={() => removeDomain(d)}
                         title="Remove domain"
-                        className="flex h-5 w-5 items-center justify-center rounded text-[var(--gray-8)] hover:bg-[var(--gray-4)] hover:text-zoru-ink transition-colors"
+                        className="flex h-5 w-5 items-center justify-center rounded text-[var(--gray-8)] hover:bg-[var(--gray-4)] hover:text-[var(--st-text)] transition-colors"
                       >
                         <LuX className="h-3 w-3" strokeWidth={2.2} />
                       </button>
@@ -436,7 +436,7 @@ export function ScriptSettings({ block, onBlockChange, variables }: Props) {
           'text-[12px] font-semibold transition-colors',
           !code.trim() || isRunning
             ? 'bg-[var(--gray-4)] text-[var(--gray-7)] cursor-not-allowed'
-            : 'bg-zoru-ink text-white hover:bg-zoru-ink',
+            : 'bg-[var(--st-text)] text-white hover:bg-[var(--st-text)]',
         )}
       >
         <LuPlay className="h-3.5 w-3.5" strokeWidth={2.2} />
@@ -476,7 +476,7 @@ function RunOnButton({
         'flex-1 flex items-center justify-center gap-1.5 rounded-md px-2 py-1.5',
         'text-[12px] font-medium transition-colors',
         active
-          ? 'bg-zoru-ink text-white shadow-sm'
+          ? 'bg-[var(--st-text)] text-white shadow-sm'
           : 'text-[var(--gray-9)] hover:text-[var(--gray-12)]',
       )}
     >
@@ -502,7 +502,7 @@ function LineGutter({ lineCount }: { lineCount: number }) {
       aria-hidden
       className={cn(
         'pointer-events-none absolute left-0 top-0 bottom-0 w-8',
-        'border-r border-[var(--gray-5)] bg-zoru-ink',
+        'border-r border-[var(--gray-5)] bg-[var(--st-text)]',
         'py-3 text-right pr-1.5',
         'font-mono text-[11px] leading-[1.55] text-[var(--gray-7)]',
         'select-none overflow-hidden',

@@ -59,20 +59,20 @@ export function QrScanStatsModal({ qrCodeId, qrName, isDynamic, open, onOpenChan
       <ZoruDialogContent className="sm:max-w-sm">
         <ZoruDialogHeader>
           <ZoruDialogTitle className="flex items-center gap-2">
-            <BarChart2 className="h-5 w-5 text-zoru-ink" />
+            <BarChart2 className="h-5 w-5 text-[var(--st-text)]" />
             Scan Analytics
           </ZoruDialogTitle>
         </ZoruDialogHeader>
 
         <div className="space-y-4 py-2">
-          <p className="text-sm text-zoru-ink-muted truncate" title={qrName}>
+          <p className="text-sm text-[var(--st-text-secondary)] truncate" title={qrName}>
             {qrName}
           </p>
 
           {!isDynamic && (
-            <div className="flex items-start gap-3 p-4 bg-zoru-surface-2 border border-zoru-line rounded-lg">
-              <Info className="h-5 w-5 text-zoru-ink shrink-0 mt-0.5" />
-              <p className="text-sm text-zoru-ink">
+            <div className="flex items-start gap-3 p-4 bg-[var(--st-bg-muted)] border border-[var(--st-border)] rounded-lg">
+              <Info className="h-5 w-5 text-[var(--st-text)] shrink-0 mt-0.5" />
+              <p className="text-sm text-[var(--st-text)]">
                 Scan analytics are only available for dynamic QR codes. Convert this QR to dynamic to start tracking scans.
               </p>
             </div>
@@ -92,22 +92,22 @@ export function QrScanStatsModal({ qrCodeId, qrName, isDynamic, open, onOpenChan
           )}
 
           {isDynamic && !isLoading && error && (
-            <div className="p-4 bg-zoru-surface-2 border border-zoru-line rounded-lg">
-              <p className="text-sm text-zoru-ink">{error}</p>
+            <div className="p-4 bg-[var(--st-bg-muted)] border border-[var(--st-border)] rounded-lg">
+              <p className="text-sm text-[var(--st-text)]">{error}</p>
             </div>
           )}
 
           {isDynamic && !isLoading && !error && stats && (
             <div className="grid grid-cols-2 gap-4">
               <div className="p-4 border rounded-lg space-y-1 text-center">
-                <div className="flex items-center justify-center gap-1.5 text-xs text-zoru-ink-muted mb-2">
+                <div className="flex items-center justify-center gap-1.5 text-xs text-[var(--st-text-secondary)] mb-2">
                   <MousePointerClick className="h-3.5 w-3.5" />
                   Total Scans
                 </div>
                 <p className="text-3xl font-bold tabular-nums">{stats.clickCount.toLocaleString()}</p>
               </div>
               <div className="p-4 border rounded-lg space-y-1 text-center">
-                <div className="flex items-center justify-center gap-1.5 text-xs text-zoru-ink-muted mb-2">
+                <div className="flex items-center justify-center gap-1.5 text-xs text-[var(--st-text-secondary)] mb-2">
                   <Users className="h-3.5 w-3.5" />
                   Unique Scans
                 </div>
@@ -119,7 +119,7 @@ export function QrScanStatsModal({ qrCodeId, qrName, isDynamic, open, onOpenChan
           )}
 
           {isDynamic && !isLoading && !error && stats === null && !error && (
-            <div className="text-center py-6 text-sm text-zoru-ink-muted">
+            <div className="text-center py-6 text-sm text-[var(--st-text-secondary)]">
               No scan data available yet.
             </div>
           )}

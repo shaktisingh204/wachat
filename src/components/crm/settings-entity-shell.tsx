@@ -383,17 +383,17 @@ export function SettingsEntityShell<T extends { _id: string; [k: string]: any }>
                 bulkBar={
                     selected.size > 0 ? (
                         <div className="flex flex-wrap items-center gap-2 text-[13px]">
-                            <span className="font-medium text-zoru-ink">
+                            <span className="font-medium text-[var(--st-text)]">
                                 {selected.size} selected
                             </span>
-                            <span className="text-zoru-ink-muted">·</span>
+                            <span className="text-[var(--st-text-secondary)]">·</span>
                             <Button
                                 variant="ghost"
                                 size="sm"
                                 disabled={bulkDeleting}
                                 onClick={handleBulkDelete}
                             >
-                                <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                                <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                                 Delete
                             </Button>
                             <Button
@@ -435,7 +435,7 @@ export function SettingsEntityShell<T extends { _id: string; [k: string]: any }>
                                         icon={kpi.icon}
                                         className={
                                             kpi.active
-                                                ? 'ring-1 ring-zoru-primary rounded-[var(--zoru-radius-lg)]'
+                                                ? 'ring-1 ring-[var(--st-text)] rounded-[var(--zoru-radius-lg)]'
                                                 : undefined
                                         }
                                     />
@@ -446,7 +446,7 @@ export function SettingsEntityShell<T extends { _id: string; [k: string]: any }>
                                             key={i}
                                             type="button"
                                             onClick={() => onKpiClick?.(kpi.filterKey!)}
-                                            className="text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-zoru-primary"
+                                            className="text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]"
                                         >
                                             {card}
                                         </button>

@@ -22,16 +22,16 @@ export default async function SabmonitorIncidentsPage({
     return (
         <div className="flex flex-col gap-4">
             <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-zoru-ink">Incidents</h2>
+                <h2 className="text-sm font-semibold text-[var(--st-text)]">Incidents</h2>
                 <form className="flex items-center gap-2 text-[12px]">
-                    <label htmlFor="status" className="text-zoru-ink-muted">
+                    <label htmlFor="status" className="text-[var(--st-text-secondary)]">
                         Filter
                     </label>
                     <select
                         id="status"
                         name="status"
                         defaultValue={status}
-                        className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-2 py-1 text-sm"
+                        className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1 text-sm"
                     >
                         <option value="all">All</option>
                         <option value="ongoing">Ongoing</option>
@@ -39,7 +39,7 @@ export default async function SabmonitorIncidentsPage({
                     </select>
                     <button
                         type="submit"
-                        className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-2 py-1 text-sm"
+                        className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1 text-sm"
                     >
                         Apply
                     </button>
@@ -48,11 +48,11 @@ export default async function SabmonitorIncidentsPage({
             <Card className="zoruui">
                 <CardContent className="p-0">
                     {res.items.length === 0 ? (
-                        <p className="p-4 text-sm text-zoru-ink-muted">No incidents.</p>
+                        <p className="p-4 text-sm text-[var(--st-text-secondary)]">No incidents.</p>
                     ) : (
                         <table className="w-full text-sm">
-                            <thead className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
-                                <tr className="border-b border-zoru-line">
+                            <thead className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
+                                <tr className="border-b border-[var(--st-border)]">
                                     <th className="p-3 text-left font-medium">Started</th>
                                     <th className="p-3 text-left font-medium">Check</th>
                                     <th className="p-3 text-left font-medium">Severity</th>
@@ -63,16 +63,16 @@ export default async function SabmonitorIncidentsPage({
                             </thead>
                             <tbody>
                                 {res.items.map((i) => (
-                                    <tr key={i._id} className="border-b border-zoru-line">
-                                        <td className="p-3 text-zoru-ink-muted">
+                                    <tr key={i._id} className="border-b border-[var(--st-border)]">
+                                        <td className="p-3 text-[var(--st-text-secondary)]">
                                             {new Date(i.startedAt).toLocaleString()}
                                         </td>
-                                        <td className="p-3 text-zoru-ink-muted">{i.checkId}</td>
-                                        <td className="p-3 uppercase text-zoru-ink-muted">{i.severity}</td>
+                                        <td className="p-3 text-[var(--st-text-secondary)]">{i.checkId}</td>
+                                        <td className="p-3 uppercase text-[var(--st-text-secondary)]">{i.severity}</td>
                                         <td className="p-3">
                                             <StatusBadge status={i.status} />
                                         </td>
-                                        <td className="p-3 text-zoru-ink-muted">
+                                        <td className="p-3 text-[var(--st-text-secondary)]">
                                             {i.downtimeSecs ? `${i.downtimeSecs}s` : '—'}
                                         </td>
                                         <td className="p-3 text-right">

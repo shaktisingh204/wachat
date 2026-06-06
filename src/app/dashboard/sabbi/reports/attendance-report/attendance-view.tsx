@@ -71,55 +71,55 @@ export function AttendanceView({
 
       {view === 'list' ? (
         <Card className="p-0">
-          <div className="overflow-x-auto rounded-lg border border-zoru-line">
+          <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
             <Table>
               <ZoruTableHeader>
-                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                  <ZoruTableHead className="text-zoru-ink-muted">Employee</ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">Department</ZoruTableHead>
-                  <ZoruTableHead className="text-right text-zoru-ink-muted">Present</ZoruTableHead>
-                  <ZoruTableHead className="text-right text-zoru-ink-muted">Absent</ZoruTableHead>
-                  <ZoruTableHead className="text-right text-zoru-ink-muted">Late</ZoruTableHead>
-                  <ZoruTableHead className="text-right text-zoru-ink-muted">Leave</ZoruTableHead>
-                  <ZoruTableHead className="text-right text-zoru-ink-muted">Attendance %</ZoruTableHead>
+                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">Employee</ZoruTableHead>
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">Department</ZoruTableHead>
+                  <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Present</ZoruTableHead>
+                  <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Absent</ZoruTableHead>
+                  <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Late</ZoruTableHead>
+                  <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Leave</ZoruTableHead>
+                  <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Attendance %</ZoruTableHead>
                 </ZoruTableRow>
               </ZoruTableHeader>
               <ZoruTableBody>
                 {pageRows.length === 0 ? (
-                  <ZoruTableRow className="border-zoru-line">
+                  <ZoruTableRow className="border-[var(--st-border)]">
                     <ZoruTableCell
                       colSpan={7}
-                      className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                      className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                     >
                       No attendance data.
                     </ZoruTableCell>
                   </ZoruTableRow>
                 ) : (
                   pageRows.map((r) => (
-                    <ZoruTableRow key={r.employeeId} className="border-zoru-line">
+                    <ZoruTableRow key={r.employeeId} className="border-[var(--st-border)]">
                       <ZoruTableCell>
                         <EntityRowLink
                           href={`/dashboard/crm/hr-payroll/employees/${r.employeeId}`}
                           label={r.employeeName}
                         />
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-zoru-ink">
+                      <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                         <Badge variant="outline">{r.department}</Badge>
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
+                      <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
                         {r.present}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
+                      <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
                         {r.absent}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
+                      <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
                         {r.late}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
+                      <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
                         {r.leave}
                       </ZoruTableCell>
                       <ZoruTableCell
-                        className={`text-right text-[13px] font-medium ${r.attendancePct >= 90 ? 'text-zoru-ink' : r.attendancePct >= 75 ? 'text-zoru-ink' : 'text-zoru-ink'}`}
+                        className={`text-right text-[13px] font-medium ${r.attendancePct >= 90 ? 'text-[var(--st-text)]' : r.attendancePct >= 75 ? 'text-[var(--st-text)]' : 'text-[var(--st-text)]'}`}
                       >
                         {r.attendancePct.toFixed(1)}%
                       </ZoruTableCell>
@@ -140,26 +140,26 @@ export function AttendanceView({
         <Card className="p-6">
           <div className="grid grid-cols-7 gap-px rounded-lg bg-border overflow-hidden">
             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d) => (
-              <div key={d} className="bg-zoru-surface-2 p-2 text-center text-[12px] font-medium text-zoru-ink-muted">
+              <div key={d} className="bg-[var(--st-bg-muted)] p-2 text-center text-[12px] font-medium text-[var(--st-text-secondary)]">
                 {d}
               </div>
             ))}
             {calendarCells.map((cell, i) => (
-              <div key={i} className="min-h-[100px] bg-zoru-surface p-2">
+              <div key={i} className="min-h-[100px] bg-[var(--st-bg-secondary)] p-2">
                 {cell && (
                   <div className="flex h-full flex-col">
-                    <span className="text-[13px] font-medium text-zoru-ink">{cell.day}</span>
+                    <span className="text-[13px] font-medium text-[var(--st-text)]">{cell.day}</span>
                     {cell.data && (
                       <div className="mt-auto flex flex-col gap-1 text-[11px]">
-                        <div className="flex justify-between text-zoru-ink">
+                        <div className="flex justify-between text-[var(--st-text)]">
                           <span>Present</span>
                           <span>{cell.data.present}</span>
                         </div>
-                        <div className="flex justify-between text-zoru-ink">
+                        <div className="flex justify-between text-[var(--st-text)]">
                           <span>Absent</span>
                           <span>{cell.data.absent}</span>
                         </div>
-                        <div className="flex justify-between text-zoru-ink">
+                        <div className="flex justify-between text-[var(--st-text)]">
                           <span>Leave</span>
                           <span>{cell.data.leave}</span>
                         </div>

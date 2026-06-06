@@ -34,24 +34,24 @@ export function ChatAttachmentMenu({
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0 rounded-full" disabled={disabled}>
-                    <Plus className="h-5 w-5 text-zoru-ink-muted" />
+                    <Plus className="h-5 w-5 text-[var(--st-text-secondary)]" />
                     <span className="sr-only">Attach</span>
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" side="top" className="w-56 p-2" sideOffset={10}>
-                <DropdownMenuLabel className="text-xs text-zoru-ink-muted font-normal px-2 py-1.5 uppercase tracking-wider">
+                <DropdownMenuLabel className="text-xs text-[var(--st-text-secondary)] font-normal px-2 py-1.5 uppercase tracking-wider">
                     Attachments
                 </DropdownMenuLabel>
 
                 <DropdownMenuItem onClick={() => onMediaSelect('image/*,video/*')} className="gap-3 py-2 cursor-pointer">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
                         <ImageIcon className="h-4 w-4" />
                     </div>
                     <span className="flex-1">Photos & Videos</span>
                 </DropdownMenuItem>
 
                 <DropdownMenuItem onClick={() => onMediaSelect('application/pdf')} className="gap-3 py-2 cursor-pointer">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
                         <FileText className="h-4 w-4" />
                     </div>
                     <span className="flex-1">Document</span>
@@ -60,7 +60,7 @@ export function ChatAttachmentMenu({
                 <DropdownMenuSeparator />
 
                 <DropdownMenuItem onClick={onTemplateSelect} className="gap-3 py-2 cursor-pointer">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
                         <ClipboardList className="h-4 w-4" />
                     </div>
                     <span className="flex-1">Template</span>
@@ -68,7 +68,7 @@ export function ChatAttachmentMenu({
 
                 {project?.catalogs && project.catalogs.length > 0 && (
                     <DropdownMenuItem onClick={onCatalogSelect} className="gap-3 py-2 cursor-pointer">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
                             <ShoppingBag className="h-4 w-4" />
                         </div>
                         <span className="flex-1">Catalog</span>
@@ -76,19 +76,19 @@ export function ChatAttachmentMenu({
                 )}
 
                 <DropdownMenuSeparator />
-                <DropdownMenuLabel className="text-xs text-zoru-ink-muted font-normal px-2 py-1.5 uppercase tracking-wider">
+                <DropdownMenuLabel className="text-xs text-[var(--st-text-secondary)] font-normal px-2 py-1.5 uppercase tracking-wider">
                     Payments
                 </DropdownMenuLabel>
 
                 <DropdownMenuItem onClick={onRazorpaySelect} className="gap-3 py-2 cursor-pointer">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
                         <IndianRupee className="h-4 w-4" />
                     </div>
                     <span className="flex-1">Razorpay Link</span>
                 </DropdownMenuItem>
 
                 <DropdownMenuItem onClick={onWaPaySelect} className="gap-3 py-2 cursor-pointer">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
                         <WaPayIcon className="h-4 w-4" />
                     </div>
                     <span className="flex-1">WhatsApp Pay</span>

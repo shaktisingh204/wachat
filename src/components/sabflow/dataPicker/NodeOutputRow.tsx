@@ -4,13 +4,13 @@ import type { NodeOutputField, NodeOutputFieldType } from '@/lib/sabflow/nodeOut
 import { cn } from '@/lib/utils';
 
 const TYPE_STYLES: Record<NodeOutputFieldType, { bg: string; text: string; label: string }> = {
-  string:  { bg: 'bg-zoru-surface-2 dark:bg-zoru-ink/40',    text: 'text-zoru-ink dark:text-zoru-ink-muted',     label: 'Str' },
-  number:  { bg: 'bg-zoru-surface-2 dark:bg-zoru-ink/40', text: 'text-zoru-ink dark:text-zoru-ink-muted', label: 'Num' },
-  boolean: { bg: 'bg-zoru-surface-2 dark:bg-zoru-ink/40',  text: 'text-zoru-ink dark:text-zoru-ink-muted',   label: 'Bool' },
-  object:  { bg: 'bg-zoru-surface-2 dark:bg-zoru-ink/40',  text: 'text-zoru-ink dark:text-zoru-ink-muted',   label: 'Obj' },
-  array:   { bg: 'bg-zoru-surface-2 dark:bg-zoru-ink/40',    text: 'text-zoru-ink dark:text-zoru-ink-muted',     label: 'Arr' },
-  date:    { bg: 'bg-zoru-surface-2 dark:bg-zoru-ink/40',    text: 'text-zoru-ink dark:text-zoru-ink-muted',     label: 'Date' },
-  binary:  { bg: 'bg-zoru-surface-2 dark:bg-zoru-ink/40', text: 'text-zoru-ink dark:text-zoru-ink-muted',   label: 'Bin' },
+  string:  { bg: 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/40',    text: 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',     label: 'Str' },
+  number:  { bg: 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/40', text: 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]', label: 'Num' },
+  boolean: { bg: 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/40',  text: 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',   label: 'Bool' },
+  object:  { bg: 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/40',  text: 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',   label: 'Obj' },
+  array:   { bg: 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/40',    text: 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',     label: 'Arr' },
+  date:    { bg: 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/40',    text: 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',     label: 'Date' },
+  binary:  { bg: 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/40', text: 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',   label: 'Bin' },
 };
 
 type Props = {
@@ -41,7 +41,7 @@ export function NodeOutputRow({ field, focused, castHint, onInsert, onFocus }: P
       onClick={() => onInsert(field)}
       className={cn(
         'group flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5',
-        focused ? 'bg-zoru-ink/10' : 'hover:bg-[var(--gray-3)]',
+        focused ? 'bg-[var(--st-text)]/10' : 'hover:bg-[var(--gray-3)]',
       )}
     >
       <span
@@ -77,7 +77,7 @@ export function NodeOutputRow({ field, focused, castHint, onInsert, onFocus }: P
             onInsert(field, castHint);
           }}
           title={`Insert and cast to ${castHint}`}
-          className="shrink-0 rounded border border-[var(--gray-5)] bg-[var(--gray-2)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--gray-11)] hover:border-zoru-line hover:text-zoru-ink"
+          className="shrink-0 rounded border border-[var(--gray-5)] bg-[var(--gray-2)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--gray-11)] hover:border-[var(--st-border)] hover:text-[var(--st-text)]"
         >
           .to{castHint === 'number' ? 'Number' : 'String'}()
         </button>

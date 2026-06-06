@@ -244,7 +244,7 @@ function RecordCountCards({
 }): React.ReactElement {
   if (recordCounts.length === 0) {
     return (
-      <div className="rounded-[var(--zoru-radius-md)] border border-zoru-border bg-zoru-surface-1 px-4 py-8 text-center text-sm text-zoru-ink-muted">
+      <div className="rounded-[var(--zoru-radius-md)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-8 text-center text-sm text-[var(--st-text-secondary)]">
         No objects found
       </div>
     );
@@ -319,7 +319,7 @@ export function KpiCards({
     <div className={cn('space-y-6', className)}>
       {/* Record counts per object */}
       <div>
-        <h3 className="mb-3 text-sm font-semibold text-zoru-ink">Records</h3>
+        <h3 className="mb-3 text-sm font-semibold text-[var(--st-text)]">Records</h3>
         <RecordCountCards recordCounts={kpis.recordCounts} fmt={fmt} />
       </div>
 

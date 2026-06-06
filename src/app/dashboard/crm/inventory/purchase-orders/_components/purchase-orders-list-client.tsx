@@ -94,12 +94,12 @@ function KpiCard({
       type="button"
       onClick={onClick}
       className={[
-        'flex flex-col gap-1 rounded-lg border border-zoru-line bg-zoru-surface p-3 text-left transition hover:border-zoru-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-zoru-primary',
-        active ? 'border-zoru-primary ring-1 ring-zoru-primary' : '',
+        'flex flex-col gap-1 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 text-left transition hover:border-[var(--st-text)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]',
+        active ? 'border-[var(--st-text)] ring-1 ring-[var(--st-text)]' : '',
       ].join(' ')}
     >
-      <span className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">{label}</span>
-      <span className="text-xl font-semibold text-zoru-ink">{value}</span>
+      <span className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">{label}</span>
+      <span className="text-xl font-semibold text-[var(--st-text)]">{value}</span>
     </button>
   );
 }
@@ -360,7 +360,7 @@ export function PurchaseOrdersListClient({
         filters={
           <div className="flex flex-wrap items-end gap-3">
             <div className="space-y-1">
-              <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+              <Label className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Status
               </Label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -381,7 +381,7 @@ export function PurchaseOrdersListClient({
               </Select>
             </div>
             <div className="space-y-1">
-              <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+              <Label className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Date from
               </Label>
               <Input
@@ -392,7 +392,7 @@ export function PurchaseOrdersListClient({
               />
             </div>
             <div className="space-y-1">
-              <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+              <Label className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Date to
               </Label>
               <Input
@@ -497,7 +497,7 @@ export function PurchaseOrdersListClient({
         </div>
 
         {error ? (
-          <div className="rounded border border-zoru-line/40 bg-zoru-ink/10 px-3 py-2 text-[12.5px] text-zoru-ink dark:text-zoru-ink-muted">
+          <div className="rounded border border-[var(--st-border)]/40 bg-[var(--st-text)]/10 px-3 py-2 text-[12.5px] text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
             {error}
           </div>
         ) : null}
@@ -516,7 +516,7 @@ export function PurchaseOrdersListClient({
           <div className="overflow-x-auto">
             <Table>
               <ZoruTableHeader>
-                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                   <ZoruTableHead className="w-10 pl-3">
                     <Checkbox
                       checked={allSelectedOnPage}
@@ -538,7 +538,7 @@ export function PurchaseOrdersListClient({
                   <ZoruTableRow>
                     <ZoruTableCell
                       colSpan={8}
-                      className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                      className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                     >
                       {filtersActive
                         ? 'No purchase orders match the current filters.'
@@ -547,7 +547,7 @@ export function PurchaseOrdersListClient({
                   </ZoruTableRow>
                 ) : (
                   filtered.map((po) => (
-                    <ZoruTableRow key={po._id} className="border-zoru-line">
+                    <ZoruTableRow key={po._id} className="border-[var(--st-border)]">
                       <ZoruTableCell className="pl-3">
                         <Checkbox
                           checked={selected.has(po._id)}
@@ -561,16 +561,16 @@ export function PurchaseOrdersListClient({
                           label={po.poNo}
                         />
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-zoru-ink">
+                      <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                         {po.vendorLabel ?? po.vendorId ?? '—'}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                      <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                         {fmtDate(po.date)}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                      <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                         {fmtDate(po.expectedDelivery)}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-[13px] font-medium text-zoru-ink">
+                      <ZoruTableCell className="text-right text-[13px] font-medium text-[var(--st-text)]">
                         {fmt(po.total, po.currency ?? 'INR')}
                       </ZoruTableCell>
                       <ZoruTableCell>
@@ -593,7 +593,7 @@ export function PurchaseOrdersListClient({
                             <ZoruDropdownMenuItem onClick={() => { setSelected(new Set([po._id])); setCancelPending(true); }}>
                               Cancel
                             </ZoruDropdownMenuItem>
-                            <ZoruDropdownMenuItem className="text-zoru-ink" onClick={() => { setSelected(new Set([po._id])); setDeletePending(true); }}>
+                            <ZoruDropdownMenuItem className="text-[var(--st-text)]" onClick={() => { setSelected(new Set([po._id])); setDeletePending(true); }}>
                               Delete
                             </ZoruDropdownMenuItem>
                           </ZoruDropdownMenuContent>

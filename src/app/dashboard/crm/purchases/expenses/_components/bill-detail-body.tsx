@@ -58,7 +58,7 @@ export function BillDetailBody({ bill, vendorContact }: BillDetailBodyProps) {
     <>
       {/* Overview */}
       <Card className="p-6">
-        <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Overview
         </h2>
         <div className="grid gap-4 md:grid-cols-2">
@@ -90,7 +90,7 @@ export function BillDetailBody({ bill, vendorContact }: BillDetailBodyProps) {
 
       {/* Vendor */}
       <Card className="p-6">
-        <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Vendor
         </h2>
         <div className="grid gap-4 md:grid-cols-2">
@@ -113,28 +113,28 @@ export function BillDetailBody({ bill, vendorContact }: BillDetailBodyProps) {
       {/* Line items */}
       {items.length > 0 ? (
         <Card className="p-6">
-          <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
             Line items
           </h2>
-          <div className="overflow-x-auto rounded-md border border-zoru-line">
+          <div className="overflow-x-auto rounded-md border border-[var(--st-border)]">
             <table className="w-full text-[13px]">
-              <thead className="bg-zoru-surface-2">
-                <tr className="border-b border-zoru-line text-left">
-                  <th className="p-2 font-medium text-zoru-ink">Item</th>
-                  <th className="p-2 font-medium text-zoru-ink">Description</th>
-                  <th className="p-2 text-right font-medium text-zoru-ink">
+              <thead className="bg-[var(--st-bg-muted)]">
+                <tr className="border-b border-[var(--st-border)] text-left">
+                  <th className="p-2 font-medium text-[var(--st-text)]">Item</th>
+                  <th className="p-2 font-medium text-[var(--st-text)]">Description</th>
+                  <th className="p-2 text-right font-medium text-[var(--st-text)]">
                     Qty
                   </th>
-                  <th className="p-2 text-right font-medium text-zoru-ink">
+                  <th className="p-2 text-right font-medium text-[var(--st-text)]">
                     Rate
                   </th>
-                  <th className="p-2 text-right font-medium text-zoru-ink">
+                  <th className="p-2 text-right font-medium text-[var(--st-text)]">
                     Disc %
                   </th>
-                  <th className="p-2 text-right font-medium text-zoru-ink">
+                  <th className="p-2 text-right font-medium text-[var(--st-text)]">
                     Tax %
                   </th>
-                  <th className="p-2 text-right font-medium text-zoru-ink">
+                  <th className="p-2 text-right font-medium text-[var(--st-text)]">
                     Amount
                   </th>
                 </tr>
@@ -143,38 +143,38 @@ export function BillDetailBody({ bill, vendorContact }: BillDetailBodyProps) {
                 {items.map((li, idx) => (
                   <tr
                     key={idx}
-                    className="border-b border-zoru-line last:border-b-0"
+                    className="border-b border-[var(--st-border)] last:border-b-0"
                   >
                     <td className="p-2 align-top">
                       {li.itemId ? (
                         <EntityPickerChip entity="item" id={li.itemId} />
                       ) : (
-                        <span className="text-zoru-ink-muted">—</span>
+                        <span className="text-[var(--st-text-secondary)]">—</span>
                       )}
                     </td>
-                    <td className="p-2 align-top text-zoru-ink">
+                    <td className="p-2 align-top text-[var(--st-text)]">
                       {li.description || '—'}
                     </td>
-                    <td className="p-2 text-right align-top tabular-nums text-zoru-ink">
+                    <td className="p-2 text-right align-top tabular-nums text-[var(--st-text)]">
                       {li.qty}
                     </td>
-                    <td className="p-2 text-right align-top tabular-nums text-zoru-ink">
+                    <td className="p-2 text-right align-top tabular-nums text-[var(--st-text)]">
                       {fmtMoney(li.rate, currency)}
                     </td>
-                    <td className="p-2 text-right align-top tabular-nums text-zoru-ink-muted">
+                    <td className="p-2 text-right align-top tabular-nums text-[var(--st-text-secondary)]">
                       {li.discountPct != null ? `${li.discountPct}%` : '—'}
                     </td>
-                    <td className="p-2 text-right align-top tabular-nums text-zoru-ink-muted">
+                    <td className="p-2 text-right align-top tabular-nums text-[var(--st-text-secondary)]">
                       {li.taxRatePct != null ? `${li.taxRatePct}%` : '—'}
                     </td>
-                    <td className="p-2 text-right align-top tabular-nums text-zoru-ink">
+                    <td className="p-2 text-right align-top tabular-nums text-[var(--st-text)]">
                       {fmtMoney(li.total, currency)}
                     </td>
                   </tr>
                 ))}
               </tbody>
               <tfoot>
-                <tr className="bg-zoru-surface-2/50 font-medium">
+                <tr className="bg-[var(--st-bg-muted)]/50 font-medium">
                   <td className="p-2" colSpan={6}>
                     Subtotal
                   </td>
@@ -191,19 +191,19 @@ export function BillDetailBody({ bill, vendorContact }: BillDetailBodyProps) {
       {/* Expense lines */}
       {expenseLines.length > 0 ? (
         <Card className="p-6">
-          <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
             Expense lines
           </h2>
-          <div className="overflow-x-auto rounded-md border border-zoru-line">
+          <div className="overflow-x-auto rounded-md border border-[var(--st-border)]">
             <table className="w-full text-[13px]">
-              <thead className="bg-zoru-surface-2">
-                <tr className="border-b border-zoru-line text-left">
-                  <th className="p-2 font-medium text-zoru-ink">Account</th>
-                  <th className="p-2 font-medium text-zoru-ink">Description</th>
-                  <th className="p-2 text-right font-medium text-zoru-ink">
+              <thead className="bg-[var(--st-bg-muted)]">
+                <tr className="border-b border-[var(--st-border)] text-left">
+                  <th className="p-2 font-medium text-[var(--st-text)]">Account</th>
+                  <th className="p-2 font-medium text-[var(--st-text)]">Description</th>
+                  <th className="p-2 text-right font-medium text-[var(--st-text)]">
                     Tax %
                   </th>
-                  <th className="p-2 text-right font-medium text-zoru-ink">
+                  <th className="p-2 text-right font-medium text-[var(--st-text)]">
                     Amount
                   </th>
                 </tr>
@@ -212,22 +212,22 @@ export function BillDetailBody({ bill, vendorContact }: BillDetailBodyProps) {
                 {expenseLines.map((li, idx) => (
                   <tr
                     key={idx}
-                    className="border-b border-zoru-line last:border-b-0"
+                    className="border-b border-[var(--st-border)] last:border-b-0"
                   >
                     <td className="p-2 align-top">
                       {li.accountId ? (
                         <EntityPickerChip entity="account" id={li.accountId} />
                       ) : (
-                        <span className="text-zoru-ink-muted">—</span>
+                        <span className="text-[var(--st-text-secondary)]">—</span>
                       )}
                     </td>
-                    <td className="p-2 align-top text-zoru-ink">
+                    <td className="p-2 align-top text-[var(--st-text)]">
                       {li.description || '—'}
                     </td>
-                    <td className="p-2 text-right align-top tabular-nums text-zoru-ink-muted">
+                    <td className="p-2 text-right align-top tabular-nums text-[var(--st-text-secondary)]">
                       {li.taxRatePct != null ? `${li.taxRatePct}%` : '—'}
                     </td>
-                    <td className="p-2 text-right align-top tabular-nums text-zoru-ink">
+                    <td className="p-2 text-right align-top tabular-nums text-[var(--st-text)]">
                       {fmtMoney(li.amount, currency)}
                     </td>
                   </tr>
@@ -240,7 +240,7 @@ export function BillDetailBody({ bill, vendorContact }: BillDetailBodyProps) {
 
       {/* Money summary */}
       <Card className="p-6">
-        <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Money summary
         </h2>
         <div className="ml-auto max-w-sm space-y-2 text-[13px]">
@@ -266,9 +266,9 @@ export function BillDetailBody({ bill, vendorContact }: BillDetailBodyProps) {
               value={`-${fmtMoney(bill.tdsAmount, currency)}`}
             />
           ) : null}
-          <div className="flex justify-between border-t border-zoru-line pt-2">
-            <span className="font-medium text-zoru-ink">Total</span>
-            <span className="text-base font-semibold tabular-nums text-zoru-ink">
+          <div className="flex justify-between border-t border-[var(--st-border)] pt-2">
+            <span className="font-medium text-[var(--st-text)]">Total</span>
+            <span className="text-base font-semibold tabular-nums text-[var(--st-text)]">
               {fmtMoney(totals.total, currency)}
             </span>
           </div>
@@ -287,10 +287,10 @@ export function BillDetailBody({ bill, vendorContact }: BillDetailBodyProps) {
       {/* Notes */}
       {bill.notes ? (
         <Card className="p-6">
-          <h2 className="mb-2 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          <h2 className="mb-2 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
             Notes
           </h2>
-          <p className="whitespace-pre-wrap text-[13px] text-zoru-ink">
+          <p className="whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
             {bill.notes}
           </p>
         </Card>
@@ -299,7 +299,7 @@ export function BillDetailBody({ bill, vendorContact }: BillDetailBodyProps) {
       {/* Tags */}
       {Array.isArray(bill.tags) && bill.tags.length > 0 ? (
         <Card className="p-6">
-          <h2 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          <h2 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
             Tags
           </h2>
           <div className="flex flex-wrap gap-2">
@@ -324,10 +324,10 @@ function DetailField({
 }) {
   return (
     <div>
-      <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
         {label}
       </div>
-      <div className="mt-1 text-[13px] text-zoru-ink">{children}</div>
+      <div className="mt-1 text-[13px] text-[var(--st-text)]">{children}</div>
     </div>
   );
 }
@@ -343,10 +343,10 @@ function SummaryLine({
 }) {
   return (
     <div className="flex justify-between">
-      <span className="text-zoru-ink-muted">{label}</span>
+      <span className="text-[var(--st-text-secondary)]">{label}</span>
       <span
         className={`font-mono tabular-nums ${
-          tone === 'danger' ? 'text-zoru-danger-ink' : 'text-zoru-ink'
+          tone === 'danger' ? 'text-[var(--st-danger)]' : 'text-[var(--st-text)]'
         }`}
       >
         {value}

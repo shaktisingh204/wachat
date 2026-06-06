@@ -149,9 +149,9 @@ export default function SabassistSessionsListPage() {
       </Card>
 
       {rows.length === 0 ? (
-        <Card className="p-8 text-center text-zoru-ink-muted">
+        <Card className="p-8 text-center text-[var(--st-text-secondary)]">
           No SabAssist sessions yet. Start one from{' '}
-          <Link className="text-zoru-brand" href="/dashboard/sabvoice/assist/new">
+          <Link className="text-[var(--st-accent)]" href="/dashboard/sabvoice/assist/new">
             New session
           </Link>
           .
@@ -164,8 +164,8 @@ export default function SabassistSessionsListPage() {
               href={`/dashboard/sabvoice/assist/${s._id}`}
               className="group"
             >
-              <Card className="p-4 flex items-center gap-4 hover:border-zoru-brand transition-colors">
-                <div className="w-10 h-10 rounded-lg bg-zoru-surface-2 flex items-center justify-center text-zoru-brand">
+              <Card className="p-4 flex items-center gap-4 hover:border-[var(--st-accent)] transition-colors">
+                <div className="w-10 h-10 rounded-lg bg-[var(--st-bg-muted)] flex items-center justify-center text-[var(--st-accent)]">
                   <ScreenShare className="h-5 w-5" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -179,11 +179,11 @@ export default function SabassistSessionsListPage() {
                       <Badge variant="outline">linked to call</Badge>
                     )}
                   </div>
-                  <div className="text-xs text-zoru-ink-muted mt-1">
+                  <div className="text-xs text-[var(--st-text-secondary)] mt-1">
                     Started {fmtWhen(s.startedAt)} · Duration {fmtDuration(s.durationSecs)}
                   </div>
                 </div>
-                <ChevronRight className="h-4 w-4 text-zoru-ink-muted group-hover:text-zoru-brand" />
+                <ChevronRight className="h-4 w-4 text-[var(--st-text-secondary)] group-hover:text-[var(--st-accent)]" />
               </Card>
             </Link>
           ))}

@@ -21,15 +21,15 @@ export function OnboardingBanner({
   const totalSteps = ONBOARDING_STEPS.length;
 
   return (
-    <div className="mt-6 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-5">
+    <div className="mt-6 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-5">
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)]">
             <Rocket className="h-5 w-5" />
           </div>
           <div>
-            <h3 className="text-[15px] text-zoru-ink">Complete your setup</h3>
-            <p className="mt-0.5 text-[13px] text-zoru-ink-muted">
+            <h3 className="text-[15px] text-[var(--st-text)]">Complete your setup</h3>
+            <p className="mt-0.5 text-[13px] text-[var(--st-text-secondary)]">
               {completedCount} of {totalSteps} steps done — finish setting up to
               unlock your full workspace.
             </p>
@@ -51,18 +51,18 @@ export function OnboardingBanner({
               key={step.key}
               className={cn(
                 "flex items-center gap-2 rounded-[var(--zoru-radius)] border px-3 py-2 text-[13px]",
-                isDone && "border-zoru-line-strong bg-zoru-surface text-zoru-ink",
-                isCurrent && "border-zoru-ink bg-zoru-surface-2 text-zoru-ink",
-                !isDone && !isCurrent && "border-zoru-line text-zoru-ink-muted"
+                isDone && "border-[var(--st-border-strong)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]",
+                isCurrent && "border-[var(--st-text)] bg-[var(--st-bg-muted)] text-[var(--st-text)]",
+                !isDone && !isCurrent && "border-[var(--st-border)] text-[var(--st-text-secondary)]"
               )}
             >
               {isDone ? (
-                <CircleCheck className="h-4 w-4 shrink-0 text-zoru-ink" />
+                <CircleCheck className="h-4 w-4 shrink-0 text-[var(--st-text)]" />
               ) : (
                 <CircleDashed
                   className={cn(
                     "h-4 w-4 shrink-0",
-                    isCurrent ? "text-zoru-ink" : "text-zoru-ink-subtle"
+                    isCurrent ? "text-[var(--st-text)]" : "text-[var(--st-text-tertiary)]"
                   )}
                 />
               )}

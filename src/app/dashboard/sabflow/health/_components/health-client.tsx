@@ -63,25 +63,25 @@ type CardStatus = 'ok' | 'degraded' | 'down';
 const OVERALL_PILL: Record<HealthOverall, { label: string; cls: string; dot: string }> = {
   green:  {
     label: 'All systems operational',
-    cls:   'bg-zoru-surface-2 text-zoru-ink border-zoru-line dark:bg-zoru-ink/40 dark:text-zoru-ink-muted dark:border-zoru-line',
-    dot:   'bg-zoru-ink',
+    cls:   'bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)] dark:border-[var(--st-border)]',
+    dot:   'bg-[var(--st-text)]',
   },
   yellow: {
     label: 'Degraded — optional services unavailable',
-    cls:   'bg-zoru-surface-2 text-zoru-ink border-zoru-line dark:bg-zoru-ink/40 dark:text-zoru-ink-muted dark:border-zoru-line',
-    dot:   'bg-zoru-ink',
+    cls:   'bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)] dark:border-[var(--st-border)]',
+    dot:   'bg-[var(--st-text)]',
   },
   red: {
     label: 'Outage — critical dependency unreachable',
-    cls:   'bg-zoru-surface-2 text-zoru-ink border-zoru-line dark:bg-zoru-ink/40 dark:text-zoru-ink-muted dark:border-zoru-line',
-    dot:   'bg-zoru-ink',
+    cls:   'bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)] dark:border-[var(--st-border)]',
+    dot:   'bg-[var(--st-text)]',
   },
 };
 
 const STATUS_STYLES: Record<CardStatus, string> = {
-  ok:       'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/50 dark:text-zoru-ink-muted',
-  degraded: 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/50 dark:text-zoru-ink-muted',
-  down:     'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/50 dark:text-zoru-ink-muted',
+  ok:       'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/50 dark:text-[var(--st-text-secondary)]',
+  degraded: 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/50 dark:text-[var(--st-text-secondary)]',
+  down:     'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/50 dark:text-[var(--st-text-secondary)]',
 };
 
 const STATUS_ICON: Record<CardStatus, typeof LuCircleCheck> = {
@@ -204,7 +204,7 @@ export function HealthClient() {
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex flex-wrap items-center gap-3 border-b border-[var(--gray-4)] px-4 sm:px-6 py-4 shrink-0">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
           <LuActivity className="h-4 w-4" strokeWidth={2} />
         </div>
         <div className="flex flex-col leading-tight min-w-0">
@@ -242,7 +242,7 @@ export function HealthClient() {
             <span className="text-[12px]">Running health checks…</span>
           </div>
         ) : error && !data ? (
-          <div className="m-6 flex items-start gap-2 rounded-lg border border-zoru-line bg-zoru-surface-2 px-4 py-3 text-[12px] text-zoru-ink">
+          <div className="m-6 flex items-start gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-3 text-[12px] text-[var(--st-text)]">
             <LuTriangleAlert className="h-4 w-4 shrink-0 mt-0.5" />
             <span>{error}</span>
           </div>
@@ -317,7 +317,7 @@ export function HealthClient() {
 
                     {c.error && (
                       <p
-                        className="rounded-md bg-zoru-surface-2 px-2 py-1.5 text-[11px] text-zoru-ink break-words dark:bg-zoru-ink/40 dark:text-zoru-ink-muted"
+                        className="rounded-md bg-[var(--st-bg-muted)] px-2 py-1.5 text-[11px] text-[var(--st-text)] break-words dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]"
                         title={c.error}
                       >
                         {c.error}
@@ -330,7 +330,7 @@ export function HealthClient() {
 
             {/* Non-blocking re-fetch error */}
             {error && (
-              <div className="flex items-start gap-2 rounded-lg border border-zoru-line bg-zoru-surface-2 px-3 py-2 text-[11.5px] text-zoru-ink dark:border-zoru-line dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
+              <div className="flex items-start gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-[11.5px] text-[var(--st-text)] dark:border-[var(--st-border)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
                 <LuTriangleAlert className="h-3.5 w-3.5 shrink-0 mt-0.5" />
                 <span>Last refresh failed: {error}</span>
               </div>

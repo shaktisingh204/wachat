@@ -66,13 +66,13 @@ function LiveTerminalSkeleton() {
                 {/* Left 60% — item picker skeleton */}
                 <Card className="md:col-span-3">
                     <ZoruCardContent className="flex flex-col gap-3 p-4">
-                        <div className="h-10 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-full animate-pulse" />
+                        <div className="h-10 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded w-full animate-pulse" />
                         <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4">
                             {[...Array(8)].map((_, i) => (
-                                <div key={i} className="h-[90px] rounded-md border border-zoru-line bg-zoru-surface p-3 flex flex-col justify-between">
-                                    <div className="h-3 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-5/6 animate-pulse" />
-                                    <div className="h-2 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-1/2 animate-pulse" />
-                                    <div className="h-3 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-2/3 animate-pulse" />
+                                <div key={i} className="h-[90px] rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 flex flex-col justify-between">
+                                    <div className="h-3 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded w-5/6 animate-pulse" />
+                                    <div className="h-2 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded w-1/2 animate-pulse" />
+                                    <div className="h-3 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded w-2/3 animate-pulse" />
                                 </div>
                             ))}
                         </div>
@@ -83,45 +83,45 @@ function LiveTerminalSkeleton() {
                 <Card className="md:col-span-2">
                     <ZoruCardContent className="flex flex-col gap-4 p-4">
                         <div className="flex items-center justify-between">
-                            <div className="h-4 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-1/4 animate-pulse" />
-                            <div className="h-4 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-12 animate-pulse" />
+                            <div className="h-4 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded w-1/4 animate-pulse" />
+                            <div className="h-4 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded w-12 animate-pulse" />
                         </div>
                         <div className="space-y-1.5">
-                            <div className="h-3 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-16 animate-pulse" />
-                            <div className="h-9 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-full animate-pulse" />
+                            <div className="h-3 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded w-16 animate-pulse" />
+                            <div className="h-9 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded w-full animate-pulse" />
                         </div>
-                        <div className="h-[120px] rounded-md border border-dashed border-zoru-line p-6 flex items-center justify-center">
-                            <div className="h-3 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-1/2 animate-pulse" />
+                        <div className="h-[120px] rounded-md border border-dashed border-[var(--st-border)] p-6 flex items-center justify-center">
+                            <div className="h-3 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded w-1/2 animate-pulse" />
                         </div>
-                        <div className="space-y-2 border-t border-zoru-line pt-3">
+                        <div className="space-y-2 border-t border-[var(--st-border)] pt-3">
                             <div className="flex justify-between">
-                                <div className="h-3 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-12 animate-pulse" />
-                                <div className="h-3 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-16 animate-pulse" />
+                                <div className="h-3 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded w-12 animate-pulse" />
+                                <div className="h-3 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded w-16 animate-pulse" />
                             </div>
                             <div className="flex justify-between">
-                                <div className="h-3 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-10 animate-pulse" />
-                                <div className="h-3 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-16 animate-pulse" />
+                                <div className="h-3 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded w-10 animate-pulse" />
+                                <div className="h-3 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded w-16 animate-pulse" />
                             </div>
                             <div className="flex justify-between">
-                                <div className="h-4 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-12 animate-pulse" />
-                                <div className="h-4 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-20 animate-pulse" />
+                                <div className="h-4 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded w-12 animate-pulse" />
+                                <div className="h-4 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded w-20 animate-pulse" />
                             </div>
                         </div>
                         <div className="space-y-1.5">
-                            <div className="h-3 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-24 animate-pulse" />
+                            <div className="h-3 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded w-24 animate-pulse" />
                             <div className="grid grid-cols-4 gap-1">
                                 {[...Array(4)].map((_, i) => (
-                                    <div key={i} className="h-12 bg-zoru-surface-2 dark:bg-zoru-ink rounded animate-pulse" />
+                                    <div key={i} className="h-12 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded animate-pulse" />
                                 ))}
                             </div>
                         </div>
                         <div className="space-y-1.5">
-                            <div className="h-3 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-32 animate-pulse" />
-                            <div className="h-12 bg-zoru-surface-2 dark:bg-zoru-ink rounded animate-pulse" />
+                            <div className="h-3 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded w-32 animate-pulse" />
+                            <div className="h-12 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded animate-pulse" />
                         </div>
                         <div className="flex gap-2 pt-2">
-                            <div className="h-10 bg-zoru-surface-2 dark:bg-zoru-ink rounded flex-1 animate-pulse" />
-                            <div className="h-10 bg-zoru-surface-2 dark:bg-zoru-ink rounded flex-1 animate-pulse" />
+                            <div className="h-10 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded flex-1 animate-pulse" />
+                            <div className="h-10 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded flex-1 animate-pulse" />
                         </div>
                     </ZoruCardContent>
                 </Card>
@@ -139,10 +139,10 @@ function TerminalManagerSkeleton() {
                     <Card key={i}>
                         <ZoruCardContent className="flex items-start justify-between p-3.5 h-[68px]">
                             <div className="space-y-1.5 w-full">
-                                <div className="h-3 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-16 animate-pulse" />
-                                <div className="h-5 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-8 animate-pulse" />
+                                <div className="h-3 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded w-16 animate-pulse" />
+                                <div className="h-5 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded w-8 animate-pulse" />
                             </div>
-                            <div className="h-4 w-4 rounded bg-zoru-surface-2 dark:bg-zoru-ink animate-pulse" />
+                            <div className="h-4 w-4 rounded bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] animate-pulse" />
                         </ZoruCardContent>
                     </Card>
                 ))}
@@ -151,48 +151,48 @@ function TerminalManagerSkeleton() {
             {/* Filter and table skeleton */}
             <div className="flex flex-col gap-4">
                 <div className="flex flex-wrap items-center gap-2">
-                    <div className="h-9 bg-zoru-surface-2 dark:bg-zoru-ink rounded max-w-sm flex-1 animate-pulse" />
-                    <div className="h-9 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-[150px] animate-pulse" />
+                    <div className="h-9 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded max-w-sm flex-1 animate-pulse" />
+                    <div className="h-9 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded w-[150px] animate-pulse" />
                     <div className="ml-auto flex items-center gap-1">
-                        <div className="h-8 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-20 animate-pulse" />
-                        <div className="h-8 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-14 animate-pulse" />
-                        <div className="h-8 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-16 animate-pulse" />
+                        <div className="h-8 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded w-20 animate-pulse" />
+                        <div className="h-8 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded w-14 animate-pulse" />
+                        <div className="h-8 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded w-16 animate-pulse" />
                     </div>
                 </div>
 
                 <Card className="p-0">
                     <div className="overflow-x-auto">
-                        <div className="min-w-full divide-y divide-zoru-line">
+                        <div className="min-w-full divide-y divide-[var(--st-border)]">
                             {/* Table Header */}
-                            <div className="flex items-center px-4 py-3 bg-zoru-surface-2 text-zoru-ink-muted">
-                                <div className="h-4 w-4 rounded bg-zoru-surface-2 dark:bg-zoru-ink mr-4 animate-pulse" />
+                            <div className="flex items-center px-4 py-3 bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
+                                <div className="h-4 w-4 rounded bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] mr-4 animate-pulse" />
                                 <div className="flex-1 grid grid-cols-6 gap-4">
-                                    <div className="h-4 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-16 animate-pulse" />
-                                    <div className="h-4 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-12 animate-pulse" />
-                                    <div className="h-4 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-24 animate-pulse" />
-                                    <div className="h-4 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-28 animate-pulse" />
-                                    <div className="h-4 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-16 text-right justify-self-end animate-pulse" />
-                                    <div className="h-4 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-20 text-right justify-self-end animate-pulse" />
+                                    <div className="h-4 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded w-16 animate-pulse" />
+                                    <div className="h-4 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded w-12 animate-pulse" />
+                                    <div className="h-4 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded w-24 animate-pulse" />
+                                    <div className="h-4 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded w-28 animate-pulse" />
+                                    <div className="h-4 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded w-16 text-right justify-self-end animate-pulse" />
+                                    <div className="h-4 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded w-20 text-right justify-self-end animate-pulse" />
                                 </div>
-                                <div className="h-4 w-20 rounded bg-zoru-surface-2 dark:bg-zoru-ink ml-4 animate-pulse" />
+                                <div className="h-4 w-20 rounded bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] ml-4 animate-pulse" />
                             </div>
 
                             {/* Table Rows */}
                             {[...Array(5)].map((_, rowIndex) => (
-                                <div key={rowIndex} className="flex items-center px-4 py-4 border-t border-zoru-line">
-                                    <div className="h-4 w-4 rounded bg-zoru-surface-2 dark:bg-zoru-ink mr-4 animate-pulse" />
+                                <div key={rowIndex} className="flex items-center px-4 py-4 border-t border-[var(--st-border)]">
+                                    <div className="h-4 w-4 rounded bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] mr-4 animate-pulse" />
                                     <div className="flex-1 grid grid-cols-6 gap-4">
                                         <div className="space-y-1">
-                                            <div className="h-4 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-20 animate-pulse" />
-                                            <div className="h-3 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-12 animate-pulse" />
+                                            <div className="h-4 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded w-20 animate-pulse" />
+                                            <div className="h-3 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded w-12 animate-pulse" />
                                         </div>
-                                        <div className="h-5 bg-zoru-surface-2 dark:bg-zoru-ink rounded-full w-14 animate-pulse" />
-                                        <div className="h-4 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-24 animate-pulse" />
-                                        <div className="h-4 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-16 animate-pulse" />
-                                        <div className="h-4 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-8 text-right justify-self-end animate-pulse" />
-                                        <div className="h-4 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-16 text-right justify-self-end animate-pulse" />
+                                        <div className="h-5 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded-full w-14 animate-pulse" />
+                                        <div className="h-4 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded w-24 animate-pulse" />
+                                        <div className="h-4 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded w-16 animate-pulse" />
+                                        <div className="h-4 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded w-8 text-right justify-self-end animate-pulse" />
+                                        <div className="h-4 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded w-16 text-right justify-self-end animate-pulse" />
                                     </div>
-                                    <div className="h-8 w-24 bg-zoru-surface-2 dark:bg-zoru-ink rounded ml-4 animate-pulse" />
+                                    <div className="h-8 w-24 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded ml-4 animate-pulse" />
                                 </div>
                             ))}
                         </div>
@@ -225,10 +225,10 @@ async function LiveTerminalContainer({ sp }: { sp: { holdId?: string; live?: str
             >
                 <Card>
                     <ZoruCardContent className="flex flex-col items-center justify-center gap-3 p-10 text-center">
-                        <p className="text-sm font-medium text-zoru-ink">
+                        <p className="text-sm font-medium text-[var(--st-text)]">
                             No open POS session
                         </p>
-                        <p className="text-[13px] text-zoru-ink-muted">
+                        <p className="text-[13px] text-[var(--st-text-secondary)]">
                             Open a session before ringing up sales — that
                             ensures every transaction is auditable against
                             a cashier shift.
@@ -398,55 +398,55 @@ async function TerminalManagerContainer() {
                 <Card>
                     <ZoruCardContent className="flex items-start justify-between p-3.5">
                         <div>
-                            <p className="text-[10.5px] uppercase tracking-wide text-zoru-ink-muted">
+                            <p className="text-[10.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                                 Total terminals
                             </p>
-                            <p className="mt-0.5 text-xl font-semibold text-zoru-ink">
+                            <p className="mt-0.5 text-xl font-semibold text-[var(--st-text)]">
                                 {terminals.length}
                             </p>
                         </div>
-                        <Store className="h-4 w-4 text-zoru-ink-muted" />
+                        <Store className="h-4 w-4 text-[var(--st-text-secondary)]" />
                     </ZoruCardContent>
                 </Card>
                 <Card>
                     <ZoruCardContent className="flex items-start justify-between p-3.5">
                         <div>
-                            <p className="text-[10.5px] uppercase tracking-wide text-zoru-ink-muted">
+                            <p className="text-[10.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                                 Online
                             </p>
-                            <p className="mt-0.5 text-xl font-semibold text-zoru-ink">
+                            <p className="mt-0.5 text-xl font-semibold text-[var(--st-text)]">
                                 {onlineCount}
                             </p>
                         </div>
-                        <span className="inline-block h-2.5 w-2.5 rounded-full bg-zoru-ink" />
+                        <span className="inline-block h-2.5 w-2.5 rounded-full bg-[var(--st-text)]" />
                     </ZoruCardContent>
                 </Card>
                 <Card>
                     <ZoruCardContent className="flex items-start justify-between p-3.5">
                         <div>
-                            <p className="text-[10.5px] uppercase tracking-wide text-zoru-ink-muted">
+                            <p className="text-[10.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                                 Offline
                             </p>
-                            <p className="mt-0.5 text-xl font-semibold text-zoru-ink">
+                            <p className="mt-0.5 text-xl font-semibold text-[var(--st-text)]">
                                 {terminals.length - onlineCount}
                             </p>
                         </div>
-                        <span className="inline-block h-2.5 w-2.5 rounded-full bg-zoru-surface-2" />
+                        <span className="inline-block h-2.5 w-2.5 rounded-full bg-[var(--st-bg-muted)]" />
                     </ZoruCardContent>
                 </Card>
                 <Card>
                     <ZoruCardContent className="flex items-start justify-between p-3.5">
                         <div>
-                            <p className="text-[10.5px] uppercase tracking-wide text-zoru-ink-muted">
+                            <p className="text-[10.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                                 Last sync
                             </p>
-                            <p className="mt-0.5 text-[13px] font-medium text-zoru-ink">
+                            <p className="mt-0.5 text-[13px] font-medium text-[var(--st-text)]">
                                 {lastSync
                                     ? formatUtcDateTime(lastSync)
                                     : 'No activity yet'}
                             </p>
                         </div>
-                        <Store className="h-4 w-4 text-zoru-ink-muted" />
+                        <Store className="h-4 w-4 text-[var(--st-text-secondary)]" />
                     </ZoruCardContent>
                 </Card>
             </div>

@@ -451,7 +451,7 @@ export default function AppreciationsPage(): React.JSX.Element {
         bulkBar={
           selected.size > 0 ? (
             <div className="flex items-center justify-between gap-3">
-              <span className="text-[13px] text-zoru-ink">
+              <span className="text-[13px] text-[var(--st-text)]">
                 {selected.size} selected
               </span>
               <div className="flex gap-2">
@@ -476,8 +476,8 @@ export default function AppreciationsPage(): React.JSX.Element {
         empty={
           !loading && apps.length === 0 ? (
             <div className="flex flex-col items-center gap-2 p-4">
-              <Heart className="h-6 w-6 text-zoru-ink-muted" />
-              <p className="text-sm text-zoru-ink-muted">
+              <Heart className="h-6 w-6 text-[var(--st-text-secondary)]" />
+              <p className="text-sm text-[var(--st-text-secondary)]">
                 No appreciations yet — celebrate a teammate with the +&nbsp;New
                 appreciation button.
               </p>
@@ -511,11 +511,11 @@ export default function AppreciationsPage(): React.JSX.Element {
           </div>
 
           {/* Select-all bar */}
-          <div className="flex items-center justify-between text-[12.5px] text-zoru-ink-muted">
+          <div className="flex items-center justify-between text-[12.5px] text-[var(--st-text-secondary)]">
             <button
               type="button"
               onClick={toggleAll}
-              className="inline-flex items-center gap-2 rounded-md border border-zoru-line bg-zoru-bg px-2 py-1 hover:text-zoru-ink"
+              className="inline-flex items-center gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-1 hover:text-[var(--st-text)]"
             >
               <Checkbox
                 checked={
@@ -536,7 +536,7 @@ export default function AppreciationsPage(): React.JSX.Element {
           {/* Feed */}
           <div className="flex flex-col gap-3">
             {visible.length === 0 ? (
-              <Card className="flex min-h-[120px] items-center justify-center text-sm text-zoru-ink-muted">
+              <Card className="flex min-h-[120px] items-center justify-center text-sm text-[var(--st-text-secondary)]">
                 No appreciations match the current filters.
               </Card>
             ) : null}
@@ -548,7 +548,7 @@ export default function AppreciationsPage(): React.JSX.Element {
                 <Card
                   key={a._id}
                   className={`flex flex-col gap-2 p-4 ${
-                    isSelected ? 'ring-2 ring-zoru-primary' : ''
+                    isSelected ? 'ring-2 ring-[var(--st-text)]' : ''
                   }`}
                 >
                   <div className="flex items-start gap-3">
@@ -573,7 +573,7 @@ export default function AppreciationsPage(): React.JSX.Element {
                           }
                           label={
                             <span className="inline-flex items-center gap-1.5">
-                              <Trophy className="h-3.5 w-3.5 text-zoru-ink" />
+                              <Trophy className="h-3.5 w-3.5 text-[var(--st-text)]" />
                               {award?.title ?? 'Appreciation'}
                             </span>
                           }
@@ -594,12 +594,12 @@ export default function AppreciationsPage(): React.JSX.Element {
                             {award.frequency}
                           </Badge>
                         ) : null}
-                        <span className="ml-auto inline-flex items-center gap-1 text-[12px] text-zoru-ink-muted">
+                        <span className="ml-auto inline-flex items-center gap-1 text-[12px] text-[var(--st-text-secondary)]">
                           <Calendar className="h-3 w-3" /> {fmtDate(a.given_on)}
                         </span>
                       </div>
                       {a.summary ? (
-                        <p className="mt-1 text-[13px] leading-relaxed text-zoru-ink">
+                        <p className="mt-1 text-[13px] leading-relaxed text-[var(--st-text)]">
                           {a.summary}
                         </p>
                       ) : null}

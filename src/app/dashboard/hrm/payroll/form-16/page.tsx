@@ -116,77 +116,77 @@ export default function Form16Page() {
 
             <div className="grid gap-4 md:grid-cols-3">
                 <Card className="p-6">
-                    <p className="text-[12.5px] text-zoru-ink-muted">Total Tax Deducted (FY {selectedFY.label})</p>
-                    <div className="mt-2 text-2xl text-zoru-ink">₹{totalTaxDeducted.toLocaleString('en-IN')}</div>
-                    <p className="mt-1 text-[11.5px] text-zoru-ink-muted">Across {mockForm16Data.length} employees</p>
+                    <p className="text-[12.5px] text-[var(--st-text-secondary)]">Total Tax Deducted (FY {selectedFY.label})</p>
+                    <div className="mt-2 text-2xl text-[var(--st-text)]">₹{totalTaxDeducted.toLocaleString('en-IN')}</div>
+                    <p className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">Across {mockForm16Data.length} employees</p>
                 </Card>
                 <Card className="p-6">
-                    <p className="text-[12.5px] text-zoru-ink-muted">Form 16 Generated</p>
-                    <div className="mt-2 text-2xl text-zoru-ink">{generated} / {mockForm16Data.length}</div>
-                    <p className="mt-1 text-[11.5px] text-zoru-ink-muted">employees</p>
+                    <p className="text-[12.5px] text-[var(--st-text-secondary)]">Form 16 Generated</p>
+                    <div className="mt-2 text-2xl text-[var(--st-text)]">{generated} / {mockForm16Data.length}</div>
+                    <p className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">employees</p>
                 </Card>
                 <Card className="p-6">
-                    <p className="text-[12.5px] text-zoru-ink-muted">Financial Year</p>
-                    <div className="mt-2 text-2xl text-zoru-ink">FY {selectedFY.label}</div>
-                    <p className="mt-1 text-[11.5px] text-zoru-ink-muted">{selectedFY.period}</p>
+                    <p className="text-[12.5px] text-[var(--st-text-secondary)]">Financial Year</p>
+                    <div className="mt-2 text-2xl text-[var(--st-text)]">FY {selectedFY.label}</div>
+                    <p className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">{selectedFY.period}</p>
                 </Card>
             </div>
 
             <Card className="p-6">
                 <div className="mb-4">
-                    <h2 className="text-[16px] text-zoru-ink">Select Financial Year</h2>
-                    <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">Expand a year to view and download individual Form 16 certificates.</p>
+                    <h2 className="text-[16px] text-[var(--st-text)]">Select Financial Year</h2>
+                    <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">Expand a year to view and download individual Form 16 certificates.</p>
                 </div>
                 <div className="space-y-2">
                     {financialYears.map(fy => (
-                        <div key={fy.label} className="rounded-lg border border-zoru-line overflow-hidden">
+                        <div key={fy.label} className="rounded-lg border border-[var(--st-border)] overflow-hidden">
                             <button
                                 type="button"
                                 onClick={() => {
                                     setSelectedFY(fy);
                                     setExpandedFY(prev => prev === fy.label ? '' : fy.label);
                                 }}
-                                className="flex w-full items-center justify-between bg-zoru-surface-2 px-4 py-3 text-left hover:bg-zoru-bg transition-colors"
+                                className="flex w-full items-center justify-between bg-[var(--st-bg-muted)] px-4 py-3 text-left hover:bg-[var(--st-bg)] transition-colors"
                             >
                                 <div>
-                                    <span className="text-[14px] text-zoru-ink">Financial Year {fy.label}</span>
-                                    <span className="ml-3 text-[12.5px] text-zoru-ink-muted">{fy.period}</span>
+                                    <span className="text-[14px] text-[var(--st-text)]">Financial Year {fy.label}</span>
+                                    <span className="ml-3 text-[12.5px] text-[var(--st-text-secondary)]">{fy.period}</span>
                                 </div>
                                 <div className="flex items-center gap-3">
                                     {fy.label === financialYears[0].label && (
                                         <Badge variant="info">Current FY</Badge>
                                     )}
-                                    <ChevronDown className={`h-4 w-4 text-zoru-ink-muted transition-transform ${expandedFY === fy.label ? 'rotate-180' : ''}`} />
+                                    <ChevronDown className={`h-4 w-4 text-[var(--st-text-secondary)] transition-transform ${expandedFY === fy.label ? 'rotate-180' : ''}`} />
                                 </div>
                             </button>
 
                             {expandedFY === fy.label && (
-                                <div className="border-t border-zoru-line">
+                                <div className="border-t border-[var(--st-border)]">
                                     <table className="w-full text-left text-[13px]">
                                         <thead>
-                                            <tr className="border-b border-zoru-line bg-zoru-bg">
-                                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">Employee</th>
-                                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">PAN Number</th>
-                                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">Gross Salary</th>
-                                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">Total Deductions</th>
-                                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">Taxable Income</th>
-                                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">Tax Deducted</th>
-                                                <th className="px-4 py-3 text-center text-[12px] uppercase text-zoru-ink-muted">Status</th>
-                                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">Download</th>
+                                            <tr className="border-b border-[var(--st-border)] bg-[var(--st-bg)]">
+                                                <th className="px-4 py-3 text-[12px] uppercase text-[var(--st-text-secondary)]">Employee</th>
+                                                <th className="px-4 py-3 text-[12px] uppercase text-[var(--st-text-secondary)]">PAN Number</th>
+                                                <th className="px-4 py-3 text-right text-[12px] uppercase text-[var(--st-text-secondary)]">Gross Salary</th>
+                                                <th className="px-4 py-3 text-right text-[12px] uppercase text-[var(--st-text-secondary)]">Total Deductions</th>
+                                                <th className="px-4 py-3 text-right text-[12px] uppercase text-[var(--st-text-secondary)]">Taxable Income</th>
+                                                <th className="px-4 py-3 text-right text-[12px] uppercase text-[var(--st-text-secondary)]">Tax Deducted</th>
+                                                <th className="px-4 py-3 text-center text-[12px] uppercase text-[var(--st-text-secondary)]">Status</th>
+                                                <th className="px-4 py-3 text-right text-[12px] uppercase text-[var(--st-text-secondary)]">Download</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {mockForm16Data.map(emp => (
-                                                <tr key={emp.id} className="border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2/50 transition-colors">
+                                                <tr key={emp.id} className="border-b border-[var(--st-border)] last:border-0 hover:bg-[var(--st-bg-muted)]/50 transition-colors">
                                                     <td className="px-4 py-3">
-                                                        <div className="text-zoru-ink">{emp.employeeName}</div>
-                                                        <div className="text-[11.5px] text-zoru-ink-muted">{emp.designation}</div>
+                                                        <div className="text-[var(--st-text)]">{emp.employeeName}</div>
+                                                        <div className="text-[11.5px] text-[var(--st-text-secondary)]">{emp.designation}</div>
                                                     </td>
-                                                    <td className="px-4 py-3 font-mono text-[12px] text-zoru-ink">{emp.pan}</td>
-                                                    <td className="px-4 py-3 text-right font-mono text-zoru-ink">₹{emp.grossSalary.toLocaleString('en-IN')}</td>
-                                                    <td className="px-4 py-3 text-right font-mono text-zoru-ink">₹{emp.totalDeductions.toLocaleString('en-IN')}</td>
-                                                    <td className="px-4 py-3 text-right font-mono text-zoru-ink">₹{emp.taxableIncome.toLocaleString('en-IN')}</td>
-                                                    <td className="px-4 py-3 text-right font-mono text-zoru-ink">₹{emp.taxDeducted.toLocaleString('en-IN')}</td>
+                                                    <td className="px-4 py-3 font-mono text-[12px] text-[var(--st-text)]">{emp.pan}</td>
+                                                    <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]">₹{emp.grossSalary.toLocaleString('en-IN')}</td>
+                                                    <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]">₹{emp.totalDeductions.toLocaleString('en-IN')}</td>
+                                                    <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]">₹{emp.taxableIncome.toLocaleString('en-IN')}</td>
+                                                    <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]">₹{emp.taxDeducted.toLocaleString('en-IN')}</td>
                                                     <td className="px-4 py-3 text-center">{statusBadge(emp.status)}</td>
                                                     <td className="px-4 py-3 text-right">
                                                         <Button
@@ -202,9 +202,9 @@ export default function Form16Page() {
                                             ))}
                                         </tbody>
                                         <tfoot>
-                                            <tr className="border-t-2 border-zoru-line bg-zoru-surface-2">
-                                                <td colSpan={5} className="px-4 py-3 text-[12.5px] text-zoru-ink">Total Tax Deducted</td>
-                                                <td className="px-4 py-3 text-right font-mono text-[12.5px] text-zoru-ink">₹{totalTaxDeducted.toLocaleString('en-IN')}</td>
+                                            <tr className="border-t-2 border-[var(--st-border)] bg-[var(--st-bg-muted)]">
+                                                <td colSpan={5} className="px-4 py-3 text-[12.5px] text-[var(--st-text)]">Total Tax Deducted</td>
+                                                <td className="px-4 py-3 text-right font-mono text-[12.5px] text-[var(--st-text)]">₹{totalTaxDeducted.toLocaleString('en-IN')}</td>
                                                 <td colSpan={2} />
                                             </tr>
                                         </tfoot>
@@ -215,8 +215,8 @@ export default function Form16Page() {
                     ))}
                 </div>
 
-                <div className="mt-4 rounded-lg border border-dashed border-zoru-line bg-zoru-surface-2 p-4 text-center">
-                    <p className="text-[12.5px] text-zoru-ink-muted">
+                <div className="mt-4 rounded-lg border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 text-center">
+                    <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                         Payroll data must be finalized for the complete financial year before generating Form 16.
                         Currently showing sample data — connect to live payroll actions to enable actual generation.
                     </p>

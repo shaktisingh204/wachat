@@ -68,10 +68,10 @@ function FieldRow({
 }): React.JSX.Element {
     return (
         <div>
-            <dt className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+            <dt className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                 {label}
             </dt>
-            <dd className="mt-1 text-[13px] text-zoru-ink">{children}</dd>
+            <dd className="mt-1 text-[13px] text-[var(--st-text)]">{children}</dd>
         </div>
     );
 }
@@ -154,13 +154,13 @@ export default function AttendanceDetailPage({
 
             {isLoading && !record ? (
                 <Card className="p-6">
-                    <p className="py-10 text-center text-[13px] text-zoru-ink-muted">
+                    <p className="py-10 text-center text-[13px] text-[var(--st-text-secondary)]">
                         Loading…
                     </p>
                 </Card>
             ) : !record ? (
                 <Card className="p-6">
-                    <p className="py-10 text-center text-[13px] text-zoru-ink-muted">
+                    <p className="py-10 text-center text-[13px] text-[var(--st-text-secondary)]">
                         Attendance record not found.
                     </p>
                 </Card>
@@ -168,10 +168,10 @@ export default function AttendanceDetailPage({
                 <Card className="p-6">
                     <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
                         <div>
-                            <div className="text-[11px] uppercase text-zoru-ink-muted">
+                            <div className="text-[11px] uppercase text-[var(--st-text-secondary)]">
                                 Employee
                             </div>
-                            <div className="mt-1 text-[18px] text-zoru-ink">
+                            <div className="mt-1 text-[18px] text-[var(--st-text)]">
                                 {record.employeeName}
                             </div>
                         </div>

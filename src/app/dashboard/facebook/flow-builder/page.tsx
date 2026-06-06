@@ -209,8 +209,8 @@ export default function FacebookFlowBuilderPage(): React.JSX.Element {
 
       <header className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl text-zoru-ink">Flow Builder</h1>
-          <p className="mt-1 text-sm text-zoru-ink-muted">
+          <h1 className="text-2xl text-[var(--st-text)]">Flow Builder</h1>
+          <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
             Messenger flows for the connected Page. Pick a flow to open it in
             the SabFlow editor.
           </p>
@@ -266,14 +266,14 @@ export default function FacebookFlowBuilderPage(): React.JSX.Element {
                     onClick={() => router.push(editorHref(id))}
                     className="flex flex-1 items-center gap-3 text-left"
                   >
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-zoru-surface-2 text-zoru-ink-muted">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                       <Workflow className="h-5 w-5" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="line-clamp-1 text-base text-zoru-ink">
+                      <p className="line-clamp-1 text-base text-[var(--st-text)]">
                         {f.name}
                       </p>
-                      <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-zoru-ink-muted">
+                      <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-[var(--st-text-secondary)]">
                         <span>{msgCount} steps</span>
                         {f.triggerKeywords?.length ? (
                           <span>
@@ -302,7 +302,7 @@ export default function FacebookFlowBuilderPage(): React.JSX.Element {
                       </ZoruDropdownMenuItem>
                       <ZoruDropdownMenuItem
                         onSelect={() => setConfirmDelete(f)}
-                        className="text-zoru-danger-ink"
+                        className="text-[var(--st-danger)]"
                       >
                         <Trash2 className="mr-2 h-4 w-4" /> Delete flow
                       </ZoruDropdownMenuItem>

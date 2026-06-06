@@ -34,8 +34,8 @@ export default async function DatasetsPage() {
     <div className="zoruui flex flex-col gap-6 p-6">
       <header className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-zoru-ink">Datasets</h1>
-          <p className="text-sm text-zoru-ink-muted">
+          <h1 className="text-2xl font-semibold text-[var(--st-text)]">Datasets</h1>
+          <p className="text-sm text-[var(--st-text-secondary)]">
             Bring tabular data from SabFiles, system collections, or a REST URL.
           </p>
         </div>
@@ -60,7 +60,7 @@ export default async function DatasetsPage() {
         </CardHeader>
         <CardContent>
           {items.length === 0 ? (
-            <p className="text-sm text-zoru-ink-muted">No datasets yet.</p>
+            <p className="text-sm text-[var(--st-text-secondary)]">No datasets yet.</p>
           ) : (
             <Table>
               <TableHeader>
@@ -73,11 +73,11 @@ export default async function DatasetsPage() {
               </TableHeader>
               <TableBody>
                 {items.map((d) => (
-                  <tr key={d._id} className="border-t border-zoru-line">
+                  <tr key={d._id} className="border-t border-[var(--st-border)]">
                     <td className="py-2">
                       <Link
                         href={`/dashboard/analytics-workspace/datasets/${d._id}`}
-                        className="text-zoru-ink hover:underline"
+                        className="text-[var(--st-text)] hover:underline"
                       >
                         {d.name}
                       </Link>
@@ -86,7 +86,7 @@ export default async function DatasetsPage() {
                       <Badge variant="outline">{d.source}</Badge>
                     </td>
                     <td className="py-2 text-right">{d.rowCount ?? '—'}</td>
-                    <td className="py-2 text-zoru-ink-muted">{d.lastRefreshAt ?? '—'}</td>
+                    <td className="py-2 text-[var(--st-text-secondary)]">{d.lastRefreshAt ?? '—'}</td>
                   </tr>
                 ))}
               </TableBody>

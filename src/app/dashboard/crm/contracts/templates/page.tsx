@@ -321,7 +321,7 @@ export default function ContractTemplatesPage() {
         filters={
           <div className="flex flex-wrap items-end gap-3">
             <div className="space-y-1">
-              <Label className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+              <Label className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Status
               </Label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -393,13 +393,13 @@ export default function ContractTemplatesPage() {
           ).map((k) => (
             <div
               key={k.label}
-              className="flex flex-col gap-1 rounded-lg border border-zoru-line bg-zoru-surface p-3"
+              className="flex flex-col gap-1 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3"
             >
-              <div className="flex items-center gap-1.5 text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
+              <div className="flex items-center gap-1.5 text-[11.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                 <FileText className="h-3.5 w-3.5" />
                 {k.label}
               </div>
-              <span className="text-xl font-semibold text-zoru-ink">
+              <span className="text-xl font-semibold text-[var(--st-text)]">
                 {k.value.toLocaleString()}
               </span>
             </div>
@@ -417,7 +417,7 @@ export default function ContractTemplatesPage() {
           <div className="overflow-x-auto">
             <Table>
               <ZoruTableHeader>
-                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                   <ZoruTableHead className="w-10 pl-3">
                     <Checkbox
                       checked={allSelectedOnPage}
@@ -434,17 +434,17 @@ export default function ContractTemplatesPage() {
               <ZoruTableBody>
                 {isLoading && rows.length === 0 ? (
                   [...Array(3)].map((_, i) => (
-                    <ZoruTableRow key={i} className="border-zoru-line">
+                    <ZoruTableRow key={i} className="border-[var(--st-border)]">
                       <ZoruTableCell colSpan={5}>
                         <Skeleton className="h-8 w-full" />
                       </ZoruTableCell>
                     </ZoruTableRow>
                   ))
                 ) : filtered.length === 0 ? (
-                  <ZoruTableRow className="border-zoru-line">
+                  <ZoruTableRow className="border-[var(--st-border)]">
                     <ZoruTableCell
                       colSpan={5}
-                      className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                      className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                     >
                       {filtersActive
                         ? 'No templates match the current filters.'
@@ -453,7 +453,7 @@ export default function ContractTemplatesPage() {
                   </ZoruTableRow>
                 ) : (
                   filtered.map((row) => (
-                    <ZoruTableRow key={row._id} className="border-zoru-line gsap-row">
+                    <ZoruTableRow key={row._id} className="border-[var(--st-border)] gsap-row">
                       <ZoruTableCell className="pl-3">
                         <Checkbox
                           checked={selected.has(row._id)}
@@ -470,7 +470,7 @@ export default function ContractTemplatesPage() {
                       <ZoruTableCell>
                         <TemplateBadge status={row.status} />
                       </ZoruTableCell>
-                      <ZoruTableCell className="max-w-[360px] truncate text-[13px] text-zoru-ink-muted">
+                      <ZoruTableCell className="max-w-[360px] truncate text-[13px] text-[var(--st-text-secondary)]">
                         {(row.body || '').slice(0, 120)}
                       </ZoruTableCell>
                       <ZoruTableCell className="text-right">
@@ -507,7 +507,7 @@ export default function ContractTemplatesPage() {
                             aria-label="Delete"
                             onClick={() => setDeletingId(row._id)}
                           >
-                            <Trash2 className="h-3.5 w-3.5 text-zoru-ink" />
+                            <Trash2 className="h-3.5 w-3.5 text-[var(--st-text)]" />
                           </Button>
                         </div>
                       </ZoruTableCell>
@@ -525,29 +525,29 @@ export default function ContractTemplatesPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <ZoruDialogContent className="max-w-2xl">
           <ZoruDialogHeader>
-            <ZoruDialogTitle className="text-zoru-ink">
+            <ZoruDialogTitle className="text-[var(--st-text)]">
               {editing ? 'Edit Template' : 'Add Template'}
             </ZoruDialogTitle>
-            <ZoruDialogDescription className="text-zoru-ink-muted">
+            <ZoruDialogDescription className="text-[var(--st-text-secondary)]">
               Placeholders like {'{{client_name}}'} are supported.
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <form action={saveFormAction} className="space-y-4">
             {editing?._id ? <input type="hidden" name="_id" value={editing._id} /> : null}
             <div>
-              <Label htmlFor="name" className="text-zoru-ink">
-                Template Name <span className="text-zoru-ink">*</span>
+              <Label htmlFor="name" className="text-[var(--st-text)]">
+                Template Name <span className="text-[var(--st-text)]">*</span>
               </Label>
               <Input
                 id="name"
                 name="name"
                 required
                 defaultValue={editing?.name || ''}
-                className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-surface text-[13px]"
+                className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px]"
               />
             </div>
             <div>
-              <Label htmlFor="status" className="text-zoru-ink">
+              <Label htmlFor="status" className="text-[var(--st-text)]">
                 Status
               </Label>
               <Select
@@ -565,8 +565,8 @@ export default function ContractTemplatesPage() {
               </Select>
             </div>
             <div>
-              <Label htmlFor="body" className="text-zoru-ink">
-                Body <span className="text-zoru-ink">*</span>
+              <Label htmlFor="body" className="text-[var(--st-text)]">
+                Body <span className="text-[var(--st-text)]">*</span>
               </Label>
               <Textarea
                 id="body"
@@ -574,7 +574,7 @@ export default function ContractTemplatesPage() {
                 required
                 rows={10}
                 defaultValue={editing?.body || ''}
-                className="mt-1.5 rounded-lg border-zoru-line bg-zoru-surface text-[13px]"
+                className="mt-1.5 rounded-lg border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[13px]"
                 placeholder="Contract body with placeholders like {{client_name}}, {{start_date}}…"
               />
             </div>
@@ -601,8 +601,8 @@ export default function ContractTemplatesPage() {
       >
         <ZoruAlertDialogContent>
           <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle className="text-zoru-ink">Delete Template?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription className="text-zoru-ink-muted">
+            <ZoruAlertDialogTitle className="text-[var(--st-text)]">Delete Template?</ZoruAlertDialogTitle>
+            <ZoruAlertDialogDescription className="text-[var(--st-text-secondary)]">
               This action cannot be undone.
             </ZoruAlertDialogDescription>
           </ZoruAlertDialogHeader>

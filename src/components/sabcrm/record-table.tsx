@@ -164,7 +164,7 @@ const RecordRow = React.memo(function RecordRow({
       aria-disabled={isDeleting}
       className={cn(
         isInteractive &&
-          'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-ink focus-visible:ring-inset',
+          'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)] focus-visible:ring-inset',
         isBusy && 'opacity-50 pointer-events-none',
       )}
       onClick={() => {
@@ -174,7 +174,7 @@ const RecordRow = React.memo(function RecordRow({
         if (!isBusy) onRowKeyDown(record, e);
       }}
     >
-      <TableCell className="font-medium text-zoru-ink">
+      <TableCell className="font-medium text-[var(--st-text)]">
         {title}
       </TableCell>
       {columns.map((col) => (
@@ -203,7 +203,7 @@ const RecordRow = React.memo(function RecordRow({
               }
             }}
           >
-            <Trash2 className="text-zoru-ink-muted" aria-hidden />
+            <Trash2 className="text-[var(--st-text-secondary)]" aria-hidden />
           </Button>
         </TableCell>
       )}
@@ -549,7 +549,7 @@ export function RecordTable({
 
       {/* Table */}
       <div
-        className="overflow-hidden rounded-[var(--zoru-radius)] border border-zoru-line"
+        className="overflow-hidden rounded-[var(--zoru-radius)] border border-[var(--st-border)]"
         role="region"
         aria-label={`${object.labelPlural} table`}
         aria-busy={loading}
@@ -666,7 +666,7 @@ export function RecordTable({
       {/* Pagination footer */}
       {!loading && !error && total > 0 && (
         <div
-          className="flex items-center justify-between text-sm text-zoru-ink-muted"
+          className="flex items-center justify-between text-sm text-[var(--st-text-secondary)]"
           aria-label="Pagination"
         >
           <span aria-live="polite" aria-atomic="true">
@@ -724,7 +724,7 @@ function SortHeader({
     <button
       type="button"
       onClick={onClick}
-      className="-ml-1 inline-flex items-center gap-1 rounded px-1 py-0.5 text-left text-xs font-semibold uppercase tracking-wide text-zoru-ink-muted transition-colors hover:text-zoru-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-ink"
+      className="-ml-1 inline-flex items-center gap-1 rounded px-1 py-0.5 text-left text-xs font-semibold uppercase tracking-wide text-[var(--st-text-secondary)] transition-colors hover:text-[var(--st-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]"
     >
       {label}
       {active ? (

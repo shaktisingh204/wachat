@@ -81,7 +81,7 @@ export default function GiftCardsPage({ params }: { params: { storefrontId: stri
       header: "Gift Card Code",
       cell: ({ row }: any) => (
         <div className="flex items-center gap-2">
-          <Gift className="h-4 w-4 text-zoru-text-muted" />
+          <Gift className="h-4 w-4 text-[var(--st-text-secondary)]" />
           <span className="font-medium font-mono">{row.original.code}</span>
         </div>
       ),
@@ -118,7 +118,7 @@ export default function GiftCardsPage({ params }: { params: { storefrontId: stri
       accessorKey: "initialBalance",
       header: "Initial Balance",
       cell: ({ row }: any) => (
-        <span className="text-zoru-text-muted">{row.original.initialBalance}</span>
+        <span className="text-[var(--st-text-secondary)]">{row.original.initialBalance}</span>
       ),
     },
     {
@@ -199,8 +199,8 @@ export default function GiftCardsPage({ params }: { params: { storefrontId: stri
         />
       </div>
 
-      <div className="mt-4 rounded-xl border border-zoru-line bg-zoru-background">
-        <div className="p-4 border-b border-zoru-line flex items-center justify-between">
+      <div className="mt-4 rounded-xl border border-[var(--st-border)] bg-[var(--st-bg)]">
+        <div className="p-4 border-b border-[var(--st-border)] flex items-center justify-between">
           <h3 className="font-semibold">All Gift Cards</h3>
         </div>
         <DataTable

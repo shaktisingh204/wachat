@@ -153,22 +153,22 @@ function StatusPill({ status }: { status: PlaybackStatus }) {
       },
       playing: {
         label: 'Playing',
-        className: 'bg-zoru-ink/60 text-zoru-ink-muted border border-zoru-line/40',
+        className: 'bg-[var(--st-text)]/60 text-[var(--st-text-secondary)] border border-[var(--st-border)]/40',
         icon: <LuPlay className="h-3 w-3" strokeWidth={2} />,
       },
       paused: {
         label: 'Paused',
-        className: 'bg-zoru-ink/50 text-zoru-ink-muted border border-zoru-line/40',
+        className: 'bg-[var(--st-text)]/50 text-[var(--st-text-secondary)] border border-[var(--st-border)]/40',
         icon: <LuPause className="h-3 w-3" strokeWidth={2} />,
       },
       done: {
         label: 'Done',
-        className: 'bg-zoru-ink/50 text-zoru-ink-muted border border-zoru-line/40',
+        className: 'bg-[var(--st-text)]/50 text-[var(--st-text-secondary)] border border-[var(--st-border)]/40',
         icon: <LuCheck className="h-3 w-3" strokeWidth={2} />,
       },
       error: {
         label: 'Error',
-        className: 'bg-zoru-ink/50 text-zoru-ink-muted border border-zoru-line/40',
+        className: 'bg-[var(--st-text)]/50 text-[var(--st-text-secondary)] border border-[var(--st-border)]/40',
         icon: <LuCircleAlert className="h-3 w-3" strokeWidth={2} />,
       },
     };
@@ -234,7 +234,7 @@ function TimelineRow({
       className={cn(
         'group flex items-center gap-3 px-3 py-1.5 rounded-md transition-colors',
         isSelected
-          ? 'bg-zoru-ink/10 border border-zoru-line/30'
+          ? 'bg-[var(--st-text)]/10 border border-[var(--st-border)]/30'
           : 'hover:bg-[var(--gray-2)]',
       )}
     >
@@ -465,7 +465,7 @@ export function PlaybackInspector({
     >
       {/* ── Header ─────────────────────────────────────────────────── */}
       <div className="flex items-center gap-2 shrink-0 border-b border-[var(--gray-5)] px-3 py-2">
-        <LuBraces className="h-4 w-4 text-zoru-ink shrink-0" strokeWidth={2} />
+        <LuBraces className="h-4 w-4 text-[var(--st-text)] shrink-0" strokeWidth={2} />
         <span className="text-[13px] font-semibold text-[var(--gray-12)]">
           Replay
         </span>
@@ -489,7 +489,7 @@ export function PlaybackInspector({
               className={cn(
                 'rounded px-2 py-0.5 text-[11px] font-semibold transition-colors',
                 speed === s
-                  ? 'bg-zoru-ink text-white'
+                  ? 'bg-[var(--st-text)] text-white'
                   : 'text-[var(--gray-9)] hover:text-[var(--gray-12)] hover:bg-[var(--gray-3)]',
               )}
             >
@@ -515,7 +515,7 @@ export function PlaybackInspector({
           onClick={handlePlayPause}
           disabled={events.length === 0}
           aria-label={isPlaying ? 'Pause' : 'Play'}
-          className="flex h-7 w-7 items-center justify-center rounded-md bg-zoru-ink text-white hover:bg-zoru-ink disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="flex h-7 w-7 items-center justify-center rounded-md bg-[var(--st-text)] text-white hover:bg-[var(--st-text)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
           {isPlaying ? (
             <LuPause className="h-3.5 w-3.5" strokeWidth={2.5} />
@@ -558,15 +558,15 @@ export function PlaybackInspector({
           >
             {status === 'loading' || status === 'buffering' ? (
               <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
-                <LuLoader className="h-5 w-5 text-zoru-ink animate-spin" strokeWidth={1.75} />
+                <LuLoader className="h-5 w-5 text-[var(--st-text)] animate-spin" strokeWidth={1.75} />
                 <p className="text-[12px] text-[var(--gray-9)]">
                   {status === 'loading' ? 'Connecting to replay stream…' : 'Waiting for events…'}
                 </p>
               </div>
             ) : status === 'error' ? (
               <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
-                <LuCircleAlert className="h-5 w-5 text-zoru-ink-muted" strokeWidth={1.75} />
-                <p className="text-[12px] text-zoru-ink-muted">
+                <LuCircleAlert className="h-5 w-5 text-[var(--st-text-secondary)]" strokeWidth={1.75} />
+                <p className="text-[12px] text-[var(--st-text-secondary)]">
                   {sseError ?? 'Replay stream error'}
                 </p>
               </div>
@@ -622,7 +622,7 @@ export function PlaybackInspector({
               }}
               disabled={events.length === 0}
               aria-label="Playback position"
-              className="flex-1 h-1 accent-zoru-ink cursor-pointer disabled:opacity-40"
+              className="flex-1 h-1 accent-[var(--st-text)] cursor-pointer disabled:opacity-40"
             />
             <span className="text-[10.5px] tabular-nums text-[var(--gray-8)] w-14">
               {events.length > 0 ? formatTs(maxTs, minTs) : '—'}
@@ -663,12 +663,12 @@ export function PlaybackInspector({
               {/* Panel body */}
               <div className="flex-1 min-h-0 overflow-y-auto px-3 py-3 space-y-4">
                 {selected.error ? (
-                  <div className="rounded-md border border-zoru-line/30 bg-zoru-ink/30 p-3">
-                    <div className="flex items-center gap-1.5 text-[12px] font-semibold text-zoru-ink-muted mb-2">
+                  <div className="rounded-md border border-[var(--st-border)]/30 bg-[var(--st-text)]/30 p-3">
+                    <div className="flex items-center gap-1.5 text-[12px] font-semibold text-[var(--st-text-secondary)] mb-2">
                       <LuCircleAlert className="h-3.5 w-3.5" strokeWidth={2} />
                       Error
                     </div>
-                    <pre className="text-[11px] font-mono leading-relaxed whitespace-pre-wrap break-words text-zoru-ink-muted">
+                    <pre className="text-[11px] font-mono leading-relaxed whitespace-pre-wrap break-words text-[var(--st-text-secondary)]">
                       {selected.error}
                     </pre>
                   </div>

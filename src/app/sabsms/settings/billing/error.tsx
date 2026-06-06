@@ -23,9 +23,9 @@ export default function ErrorBoundary({
       eyebrow="Settings"
       breadcrumbs={[{ label: "Settings" }, { label: "Billing" }]}
     >
-      <Card className="mt-6 border-zoru-danger/50 bg-zoru-danger/5">
+      <Card className="mt-6 border-[var(--st-danger)]/50 bg-[var(--st-danger)]/5">
         <ZoruCardHeader>
-          <ZoruCardTitle className="text-zoru-danger flex items-center gap-2">
+          <ZoruCardTitle className="text-[var(--st-danger)] flex items-center gap-2">
             <AlertTriangle className="h-5 w-5" />
             Payment Service Unavailable
           </ZoruCardTitle>
@@ -34,10 +34,10 @@ export default function ErrorBoundary({
           </ZoruCardDescription>
         </ZoruCardHeader>
         <ZoruCardContent className="space-y-4">
-          <p className="text-sm text-zoru-ink">
+          <p className="text-sm text-[var(--st-text)]">
             Error details: {error?.message || "Unknown network error"}
           </p>
-          <p className="text-sm text-zoru-ink-muted">
+          <p className="text-sm text-[var(--st-text-secondary)]">
             Your existing credits and messaging capabilities remain unaffected. Please try again later.
           </p>
         </ZoruCardContent>

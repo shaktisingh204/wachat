@@ -209,7 +209,7 @@ export function PerformanceReviewsClient({ initialData }: { initialData: Perform
       <div className="flex justify-between items-center bg-white p-4 rounded-lg shadow-sm border">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Performance 360 Reviews</h1>
-          <p className="text-sm text-zoru-ink">Manage, evaluate, and track employee performance.</p>
+          <p className="text-sm text-[var(--st-text)]">Manage, evaluate, and track employee performance.</p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={() => setIsPolling(!isPolling)} title="Toggle Real-time Updates">
@@ -233,9 +233,9 @@ export function PerformanceReviewsClient({ initialData }: { initialData: Perform
 
       <div className="flex gap-4 bg-white p-4 rounded-lg shadow-sm border items-end">
         <div className="flex-1">
-          <label className="text-xs font-medium text-zoru-ink mb-1 block">Search</label>
+          <label className="text-xs font-medium text-[var(--st-text)] mb-1 block">Search</label>
           <div className="relative">
-            <Search className="w-4 h-4 absolute left-3 top-2.5 text-zoru-ink-muted" />
+            <Search className="w-4 h-4 absolute left-3 top-2.5 text-[var(--st-text-secondary)]" />
             <input 
               type="text" 
               placeholder="Search by ID or comments..." 
@@ -246,7 +246,7 @@ export function PerformanceReviewsClient({ initialData }: { initialData: Perform
           </div>
         </div>
         <div className="w-32">
-          <label className="text-xs font-medium text-zoru-ink mb-1 block">Min Score</label>
+          <label className="text-xs font-medium text-[var(--st-text)] mb-1 block">Min Score</label>
           <input 
             type="number" 
             min="0" max="5" step="0.1"
@@ -256,7 +256,7 @@ export function PerformanceReviewsClient({ initialData }: { initialData: Perform
           />
         </div>
         <div className="w-32">
-          <label className="text-xs font-medium text-zoru-ink mb-1 block">Max Score</label>
+          <label className="text-xs font-medium text-[var(--st-text)] mb-1 block">Max Score</label>
           <input 
             type="number" 
             min="0" max="5" step="0.1"
@@ -287,13 +287,13 @@ export function PerformanceReviewsClient({ initialData }: { initialData: Perform
       )}
 
       <div className="flex-1 bg-white border rounded-lg shadow-sm overflow-hidden flex flex-col">
-        <div className="grid grid-cols-[40px_1fr_1fr_80px_120px_1fr_100px] gap-4 p-4 border-b bg-zoru-surface-2 font-medium text-sm text-zoru-ink">
+        <div className="grid grid-cols-[40px_1fr_1fr_80px_120px_1fr_100px] gap-4 p-4 border-b bg-[var(--st-bg-muted)] font-medium text-sm text-[var(--st-text)]">
           <div className="flex items-center justify-center">
             <input 
               type="checkbox" 
               checked={filteredData.length > 0 && selectedIds.size === filteredData.length}
               onChange={toggleAll}
-              className="rounded border-zoru-line"
+              className="rounded border-[var(--st-border)]"
             />
           </div>
           <div>Employee ID</div>
@@ -330,7 +330,7 @@ export function PerformanceReviewsClient({ initialData }: { initialData: Perform
               return (
                 <div
                   key={review._id || `temp-${virtualRow.index}`}
-                  className={`absolute top-0 left-0 w-full grid grid-cols-[40px_1fr_1fr_80px_120px_1fr_100px] gap-4 p-4 items-center border-b hover:bg-zoru-surface-2 transition-colors text-sm ${isSelected ? 'bg-zoru-surface-2' : ''}`}
+                  className={`absolute top-0 left-0 w-full grid grid-cols-[40px_1fr_1fr_80px_120px_1fr_100px] gap-4 p-4 items-center border-b hover:bg-[var(--st-bg-muted)] transition-colors text-sm ${isSelected ? 'bg-[var(--st-bg-muted)]' : ''}`}
                   style={{
                     height: `${virtualRow.size}px`,
                     transform: `translateY(${virtualRow.start}px)`,
@@ -341,33 +341,33 @@ export function PerformanceReviewsClient({ initialData }: { initialData: Perform
                       type="checkbox"
                       checked={isSelected}
                       onChange={() => review._id && toggleSelection(review._id)}
-                      className="rounded border-zoru-line"
+                      className="rounded border-[var(--st-border)]"
                     />
                   </div>
-                  <div className="font-medium text-zoru-ink truncate">{review.employeeId}</div>
-                  <div className="text-zoru-ink truncate">{review.reviewerId}</div>
+                  <div className="font-medium text-[var(--st-text)] truncate">{review.employeeId}</div>
+                  <div className="text-[var(--st-text)] truncate">{review.reviewerId}</div>
                   <div>
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      review.score >= 4 ? 'bg-zoru-surface-2 text-zoru-ink' : 
-                      review.score >= 3 ? 'bg-zoru-surface-2 text-zoru-ink' : 
-                      'bg-zoru-surface-2 text-zoru-ink'
+                      review.score >= 4 ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]' : 
+                      review.score >= 3 ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]' : 
+                      'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
                     }`}>
                       {review.score.toFixed(1)}
                     </span>
                   </div>
-                  <div className="text-zoru-ink whitespace-nowrap">{displayDate}</div>
-                  <div className="text-zoru-ink truncate" title={review.comments}>{review.comments}</div>
+                  <div className="text-[var(--st-text)] whitespace-nowrap">{displayDate}</div>
+                  <div className="text-[var(--st-text)] truncate" title={review.comments}>{review.comments}</div>
                   <div className="flex items-center justify-end gap-2">
                     <button 
                       onClick={() => { setEditingReview(review); setIsFormOpen(true); }}
-                      className="p-1 text-zoru-ink-muted hover:text-zoru-ink transition-colors"
+                      className="p-1 text-[var(--st-text-secondary)] hover:text-[var(--st-text)] transition-colors"
                       title="Edit"
                     >
                       <Edit className="w-4 h-4" />
                     </button>
                     <button 
                       onClick={() => review._id && handleDelete(review._id)}
-                      className="p-1 text-zoru-ink-muted hover:text-zoru-ink transition-colors"
+                      className="p-1 text-[var(--st-text-secondary)] hover:text-[var(--st-text)] transition-colors"
                       title="Delete"
                     >
                       <Trash className="w-4 h-4" />
@@ -378,7 +378,7 @@ export function PerformanceReviewsClient({ initialData }: { initialData: Perform
             })}
           </div>
           {filteredData.length === 0 && (
-            <div className="absolute inset-0 flex items-center justify-center text-zoru-ink">
+            <div className="absolute inset-0 flex items-center justify-center text-[var(--st-text)]">
               No performance reviews found.
             </div>
           )}

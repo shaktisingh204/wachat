@@ -103,7 +103,7 @@ function EditableFlowName({ name, onChange, onCommit }: EditableFlowNameProps) {
         onChange={(e) => setDraft(e.target.value)}
         onBlur={commit}
         onKeyDown={handleKeyDown}
-        className="text-[14px] font-semibold text-[var(--gray-12)] bg-[var(--gray-3)] border border-[var(--gray-6)] rounded px-1.5 py-0.5 outline-none focus:ring-2 focus:ring-zoru-line/60 min-w-0 w-[200px] truncate"
+        className="text-[14px] font-semibold text-[var(--gray-12)] bg-[var(--gray-3)] border border-[var(--gray-6)] rounded px-1.5 py-0.5 outline-none focus:ring-2 focus:ring-[var(--st-border)]/60 min-w-0 w-[200px] truncate"
         aria-label="Flow name"
         autoFocus
       />
@@ -224,12 +224,12 @@ export function FlowEditorHeader({
 
         {/* Save status indicator */}
         {saveError ? (
-          <span className="text-[11px] text-zoru-ink max-w-[140px] truncate" title={saveError}>
+          <span className="text-[11px] text-[var(--st-text)] max-w-[140px] truncate" title={saveError}>
             {saveError}
           </span>
         ) : lastSaved ? (
           <span className="text-[11px] text-[var(--gray-9)] flex items-center gap-1">
-            <LuCheck className="h-3 w-3 text-zoru-ink shrink-0" strokeWidth={2.5} />
+            <LuCheck className="h-3 w-3 text-[var(--st-text)] shrink-0" strokeWidth={2.5} />
             Saved
           </span>
         ) : null}
@@ -245,7 +245,7 @@ export function FlowEditorHeader({
             'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12.5px] font-medium transition-colors',
             isSaving
               ? 'bg-[var(--gray-4)] text-[var(--gray-9)] cursor-wait'
-              : 'bg-zoru-ink text-white hover:bg-zoru-ink active:bg-zoru-ink',
+              : 'bg-[var(--st-text)] text-white hover:bg-[var(--st-text)] active:bg-[var(--st-text)]',
           )}
         >
           {isSaving ? (
@@ -266,7 +266,7 @@ export function FlowEditorHeader({
           className={cn(
             'flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[12.5px] font-medium transition-colors',
             isPublished
-              ? 'border-zoru-line bg-zoru-surface-2 text-zoru-ink hover:bg-zoru-surface-2 dark:border-zoru-line dark:bg-zoru-ink/40 dark:text-zoru-ink-muted dark:hover:bg-zoru-ink/60'
+              ? 'border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] dark:border-[var(--st-border)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)] dark:hover:bg-[var(--st-text)]/60'
               : 'border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-11)] hover:bg-[var(--gray-3)]',
           )}
         >
@@ -304,12 +304,12 @@ export function FlowEditorHeader({
               </button>
               {/* Badge: red if errors, yellow if only warnings */}
               {(validationErrorCount !== undefined && validationErrorCount > 0) && (
-                <span className="pointer-events-none absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-zoru-ink px-0.5 text-[9px] font-bold text-white tabular-nums">
+                <span className="pointer-events-none absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--st-text)] px-0.5 text-[9px] font-bold text-white tabular-nums">
                   {validationErrorCount > 99 ? '99+' : validationErrorCount}
                 </span>
               )}
               {(validationErrorCount === 0 && validationWarningCount !== undefined && validationWarningCount > 0) && (
-                <span className="pointer-events-none absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-zoru-surface-2 px-0.5 text-[9px] font-bold text-white tabular-nums">
+                <span className="pointer-events-none absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--st-bg-muted)] px-0.5 text-[9px] font-bold text-white tabular-nums">
                   {validationWarningCount > 99 ? '99+' : validationWarningCount}
                 </span>
               )}

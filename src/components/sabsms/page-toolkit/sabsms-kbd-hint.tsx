@@ -67,7 +67,7 @@ export function SabsmsKbdHint({ shortcuts, triggerLabel }: SabsmsKbdHintProps) {
           <ul className="space-y-2">
             {shortcuts.map((s, i) => (
               <li key={i} className="flex items-center justify-between text-sm">
-                <span className="text-zoru-ink">{s.description}</span>
+                <span className="text-[var(--st-text)]">{s.description}</span>
                 <span className="flex items-center gap-1">
                   {s.keys.map((k, ki) => (
                     <ZoruKbd key={ki}>{k}</ZoruKbd>

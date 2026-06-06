@@ -128,14 +128,14 @@ export default function SerpPreviewPage() {
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <Label>Title Tag</Label>
-                  <span className={`text-xs ${titleWidth > MAX_TITLE_WIDTH ? 'text-zoru-ink' : 'text-zoru-ink-muted'}`}>
+                  <span className={`text-xs ${titleWidth > MAX_TITLE_WIDTH ? 'text-[var(--st-text)]' : 'text-[var(--st-text-secondary)]'}`}>
                     {Math.round(titleWidth)} / {MAX_TITLE_WIDTH}px
                   </span>
                 </div>
                 <Input value={title} onChange={e => setTitle(e.target.value)} />
-                <div className="h-1.5 w-full bg-zoru-surface-2 rounded overflow-hidden">
+                <div className="h-1.5 w-full bg-[var(--st-bg-muted)] rounded overflow-hidden">
                   <div 
-                    className={`h-full ${titleWidth > MAX_TITLE_WIDTH ? 'bg-zoru-ink' : 'bg-zoru-ink'}`} 
+                    className={`h-full ${titleWidth > MAX_TITLE_WIDTH ? 'bg-[var(--st-text)]' : 'bg-[var(--st-text)]'}`} 
                     style={{ width: `${Math.min(100, (titleWidth / MAX_TITLE_WIDTH) * 100)}%` }}
                   />
                 </div>
@@ -149,7 +149,7 @@ export default function SerpPreviewPage() {
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <Label>Meta Description</Label>
-                  <span className={`text-xs ${descWidth > MAX_DESC_WIDTH ? 'text-zoru-ink' : 'text-zoru-ink-muted'}`}>
+                  <span className={`text-xs ${descWidth > MAX_DESC_WIDTH ? 'text-[var(--st-text)]' : 'text-[var(--st-text-secondary)]'}`}>
                     {Math.round(descWidth)} / {MAX_DESC_WIDTH}px
                   </span>
                 </div>
@@ -158,9 +158,9 @@ export default function SerpPreviewPage() {
                   onChange={e => setDescription(e.target.value)} 
                   rows={4} 
                 />
-                <div className="h-1.5 w-full bg-zoru-surface-2 rounded overflow-hidden">
+                <div className="h-1.5 w-full bg-[var(--st-bg-muted)] rounded overflow-hidden">
                   <div 
-                    className={`h-full ${descWidth > MAX_DESC_WIDTH ? 'bg-zoru-ink' : 'bg-zoru-ink'}`} 
+                    className={`h-full ${descWidth > MAX_DESC_WIDTH ? 'bg-[var(--st-text)]' : 'bg-[var(--st-text)]'}`} 
                     style={{ width: `${Math.min(100, (descWidth / MAX_DESC_WIDTH) * 100)}%` }}
                   />
                 </div>
@@ -206,37 +206,37 @@ export default function SerpPreviewPage() {
         {/* Preview Panel */}
         <div>
           <Label className="mb-4 block text-lg font-semibold">Google Desktop Preview</Label>
-          <Card className="bg-white overflow-hidden p-6 rounded-lg shadow-sm border-zoru-line">
+          <Card className="bg-white overflow-hidden p-6 rounded-lg shadow-sm border-[var(--st-border)]">
             <div className="font-[arial,sans-serif] text-[14px]">
               
               {/* URL & Breadcrumb */}
-              <div className="flex items-center text-zoru-ink text-[14px] leading-tight mb-1">
-                <div className="w-7 h-7 bg-zoru-surface-2 rounded-full flex items-center justify-center mr-3 overflow-hidden">
+              <div className="flex items-center text-[var(--st-text)] text-[14px] leading-tight mb-1">
+                <div className="w-7 h-7 bg-[var(--st-bg-muted)] rounded-full flex items-center justify-center mr-3 overflow-hidden">
                   {hostname !== 'example.com' ? (
                     <img src={`https://s2.googleusercontent.com/s2/favicons?domain=${hostname}&sz=32`} alt="Favicon" className="w-4 h-4" />
                   ) : (
-                    <svg className="w-4 h-4 text-zoru-ink" fill="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 text-[var(--st-text)]" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
                     </svg>
                   )}
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-zoru-ink text-[14px]">{hostname}</span>
-                  <span className="text-zoru-ink text-[12px] mt-0.5">{truncatedUrl}</span>
+                  <span className="text-[var(--st-text)] text-[14px]">{hostname}</span>
+                  <span className="text-[var(--st-text)] text-[12px] mt-0.5">{truncatedUrl}</span>
                 </div>
               </div>
               
               {/* Title */}
               <a href="#" className="group block mb-1">
-                <h3 className="text-zoru-ink group-hover:underline text-[20px] leading-[1.3] font-normal m-0 p-0 break-words max-w-[600px]">
+                <h3 className="text-[var(--st-text)] group-hover:underline text-[20px] leading-[1.3] font-normal m-0 p-0 break-words max-w-[600px]">
                   {truncatedTitle || 'Please enter a title'}
                 </h3>
               </a>
 
               {/* Rich Snippets (Stars) */}
               {showStars && (
-                <div className="flex items-center text-[14px] text-zoru-ink mb-1">
-                  <span className="text-zoru-ink-muted mr-1">
+                <div className="flex items-center text-[14px] text-[var(--st-text)] mb-1">
+                  <span className="text-[var(--st-text-secondary)] mr-1">
                     {'★'.repeat(Math.round(Number(rating)))}{'☆'.repeat(5 - Math.round(Number(rating)))}
                   </span>
                   <span>Rating: {rating} · {votes} votes</span>
@@ -244,16 +244,16 @@ export default function SerpPreviewPage() {
               )}
 
               {/* Description */}
-              <div className="text-zoru-ink text-[14px] leading-[1.58] max-w-[600px] break-words">
-                {showDate && <span className="text-zoru-ink font-bold mr-1">{dateStr} —</span>}
+              <div className="text-[var(--st-text)] text-[14px] leading-[1.58] max-w-[600px] break-words">
+                {showDate && <span className="text-[var(--st-text)] font-bold mr-1">{dateStr} —</span>}
                 <span>{truncatedDesc}</span>
               </div>
 
             </div>
           </Card>
           
-          <div className="mt-8 text-sm text-zoru-ink-muted bg-zoru-surface-2/50 p-4 rounded-md">
-            <h4 className="font-semibold text-zoru-ink mb-2">Why Pixel Width?</h4>
+          <div className="mt-8 text-sm text-[var(--st-text-secondary)] bg-[var(--st-bg-muted)]/50 p-4 rounded-md">
+            <h4 className="font-semibold text-[var(--st-text)] mb-2">Why Pixel Width?</h4>
             <p className="mb-2">
               Google truncates SERP snippets based on the actual pixel width of characters, not strict character counts. For example, a "W" is much wider than an "i". 
             </p>

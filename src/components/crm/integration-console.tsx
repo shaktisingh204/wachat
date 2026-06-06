@@ -132,17 +132,17 @@ export function ConnectionHeader(props: ConnectionHeaderProps): React.ReactEleme
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-start gap-3">
             {Icon ? (
-              <span className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink">
+              <span className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                 <Icon className="h-5 w-5" />
               </span>
             ) : null}
             <div className="space-y-1">
               <div className="flex flex-wrap items-center gap-2">
-                <h2 className="text-base font-semibold text-zoru-ink">{name}</h2>
+                <h2 className="text-base font-semibold text-[var(--st-text)]">{name}</h2>
                 {stateBadge(state)}
               </div>
               {description ? (
-                <p className="text-[13px] text-zoru-ink-muted">{description}</p>
+                <p className="text-[13px] text-[var(--st-text-secondary)]">{description}</p>
               ) : null}
             </div>
           </div>
@@ -192,23 +192,23 @@ export function ConnectionHeader(props: ConnectionHeaderProps): React.ReactEleme
             <Separator className="my-4" />
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 text-sm">
               <div>
-                <p className="text-xs uppercase tracking-wide text-zoru-ink-subtle">
+                <p className="text-xs uppercase tracking-wide text-[var(--st-text-tertiary)]">
                   Connected as
                 </p>
-                <p className="mt-1 font-medium text-zoru-ink">
+                <p className="mt-1 font-medium text-[var(--st-text)]">
                   {connectedAs || '—'}
                 </p>
               </div>
               <div>
-                <p className="text-xs uppercase tracking-wide text-zoru-ink-subtle">
+                <p className="text-xs uppercase tracking-wide text-[var(--st-text-tertiary)]">
                   Connected at
                 </p>
-                <p className="mt-1 font-medium text-zoru-ink">
+                <p className="mt-1 font-medium text-[var(--st-text)]">
                   {formatDateTime(connectedAt)}
                 </p>
               </div>
               <div>
-                <p className="text-xs uppercase tracking-wide text-zoru-ink-subtle">
+                <p className="text-xs uppercase tracking-wide text-[var(--st-text-tertiary)]">
                   Scopes granted
                 </p>
                 <div className="mt-1 flex flex-wrap gap-1">
@@ -219,7 +219,7 @@ export function ConnectionHeader(props: ConnectionHeaderProps): React.ReactEleme
                       </Badge>
                     ))
                   ) : (
-                    <span className="text-zoru-ink-muted">—</span>
+                    <span className="text-[var(--st-text-secondary)]">—</span>
                   )}
                 </div>
               </div>
@@ -259,12 +259,12 @@ export function IntegrationKpiGrid({
 
 function statusDot(status: IntegrationEvent['status']) {
   if (status === 'success') {
-    return <span className="h-2 w-2 rounded-full bg-zoru-success" />;
+    return <span className="h-2 w-2 rounded-full bg-[var(--st-status-ok)]" />;
   }
   if (status === 'failure') {
-    return <span className="h-2 w-2 rounded-full bg-zoru-danger" />;
+    return <span className="h-2 w-2 rounded-full bg-[var(--st-danger)]" />;
   }
-  return <span className="h-2 w-2 rounded-full bg-zoru-warning" />;
+  return <span className="h-2 w-2 rounded-full bg-[var(--st-warn)]" />;
 }
 
 export interface IntegrationActivityFeedProps {
@@ -285,14 +285,14 @@ export function IntegrationActivityFeed({
     <Card>
       <ZoruCardContent className="p-5">
         <div className="mb-3 flex items-center gap-2">
-          <Activity className="h-4 w-4 text-zoru-ink-muted" />
+          <Activity className="h-4 w-4 text-[var(--st-text-secondary)]" />
           <div>
-            <h3 className="text-sm font-semibold text-zoru-ink">{title}</h3>
-            <p className="text-xs text-zoru-ink-muted">{description}</p>
+            <h3 className="text-sm font-semibold text-[var(--st-text)]">{title}</h3>
+            <p className="text-xs text-[var(--st-text-secondary)]">{description}</p>
           </div>
         </div>
         {events.length === 0 ? (
-          <div className="rounded-[var(--zoru-radius-sm)] border border-dashed border-zoru-line bg-zoru-bg p-6 text-center text-sm text-zoru-ink-muted">
+          <div className="rounded-[var(--zoru-radius-sm)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg)] p-6 text-center text-sm text-[var(--st-text-secondary)]">
             {emptyMessage}
           </div>
         ) : (
@@ -301,12 +301,12 @@ export function IntegrationActivityFeed({
               {events.map((e) => (
                 <li
                   key={e._id}
-                  className="flex items-start gap-3 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface px-3 py-2"
+                  className="flex items-start gap-3 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
                 >
                   <div className="mt-2">{statusDot(e.status)}</div>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-[13px] font-medium text-zoru-ink capitalize">
+                      <span className="text-[13px] font-medium text-[var(--st-text)] capitalize">
                         {e.kind}
                       </span>
                       <Badge
@@ -328,13 +328,13 @@ export function IntegrationActivityFeed({
                       ) : null}
                     </div>
                     {e.message ? (
-                      <p className="mt-0.5 break-words text-[12.5px] text-zoru-ink-muted">
+                      <p className="mt-0.5 break-words text-[12.5px] text-[var(--st-text-secondary)]">
                         {e.message}
                       </p>
                     ) : null}
                   </div>
                   <span
-                    className="shrink-0 text-[11.5px] text-zoru-ink-subtle"
+                    className="shrink-0 text-[11.5px] text-[var(--st-text-tertiary)]"
                     title={formatDateTime(e.createdAt)}
                   >
                     {formatRelative(e.createdAt)}
@@ -411,9 +411,9 @@ export function IntegrationSection({
       <ZoruCardContent className="p-5">
         <div className="mb-4 flex flex-wrap items-start justify-between gap-2">
           <div>
-            <h3 className="text-sm font-semibold text-zoru-ink">{title}</h3>
+            <h3 className="text-sm font-semibold text-[var(--st-text)]">{title}</h3>
             {description ? (
-              <p className="mt-0.5 text-xs text-zoru-ink-muted">{description}</p>
+              <p className="mt-0.5 text-xs text-[var(--st-text-secondary)]">{description}</p>
             ) : null}
           </div>
           {actions}

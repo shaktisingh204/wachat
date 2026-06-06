@@ -35,7 +35,7 @@ export const StylePanel = () => {
         : null;
 
     if (!selectedElement) {
-        return <div className="p-4 text-center text-zoru-ink">Select an element to edit styles</div>;
+        return <div className="p-4 text-center text-[var(--st-text)]">Select an element to edit styles</div>;
     }
 
     const handleUpdate = (styleProp: string, value: string) => {
@@ -55,7 +55,7 @@ export const StylePanel = () => {
         <div className="h-full overflow-y-auto pr-2">
             <div className="mb-4 pb-4 border-b">
                 <h3 className="font-semibold text-lg">{selectedElement.type} Styles</h3>
-                <p className="text-xs text-zoru-ink">ID: {selectedElement.id.slice(0, 8)}</p>
+                <p className="text-xs text-[var(--st-text)]">ID: {selectedElement.id.slice(0, 8)}</p>
             </div>
 
             <Accordion type="multiple" defaultValue={['typography', 'background', 'layout']}>
@@ -107,7 +107,7 @@ export const StylePanel = () => {
                                         <button
                                             key={align}
                                             onClick={() => handleUpdate('textAlign', align)}
-                                            className={`flex-1 hover:bg-zoru-surface-2 text-xs ${getStyle('textAlign') === align ? 'bg-zoru-surface-2' : ''}`}
+                                            className={`flex-1 hover:bg-[var(--st-bg-muted)] text-xs ${getStyle('textAlign') === align ? 'bg-[var(--st-bg-muted)]' : ''}`}
                                         >
                                             {align[0].toUpperCase()}
                                         </button>

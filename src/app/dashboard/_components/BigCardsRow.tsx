@@ -135,10 +135,10 @@ export function BigCardsRow({ data, derived }: { data: any, derived: any }) {
         <button
           type="button"
           onClick={() => router.push("/dashboard/notifications")}
-          className="mt-1.5 flex items-center justify-between px-2 text-[11.5px] text-zoru-ink-muted transition-colors hover:text-zoru-ink"
+          className="mt-1.5 flex items-center justify-between px-2 text-[11.5px] text-[var(--st-text-secondary)] transition-colors hover:text-[var(--st-text)]"
         >
           <span>See all notifications</span>
-          <span className="inline-flex items-center gap-1 rounded-full border border-zoru-line bg-zoru-surface px-1.5 py-0.5 text-[10px]">
+          <span className="inline-flex items-center gap-1 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-1.5 py-0.5 text-[10px]">
             <Bell className="h-2.5 w-2.5" />
             {unreadNotifications?.length || "Zero"}
           </span>

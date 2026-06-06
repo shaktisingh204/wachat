@@ -52,10 +52,10 @@ const SORT_OPTIONS: SabsmsSortOption[] = [
 ];
 
 const SCOPE_COLORS: Record<string, string> = {
-  "read-only": "bg-zoru-surface-2 text-zoru-ink border-zoru-line",
-  "send-only": "bg-zoru-surface-2 text-zoru-ink border-zoru-line",
-  "admin": "bg-zoru-surface-2 text-zoru-ink border-zoru-line",
-  "full": "bg-zoru-surface-2 text-zoru-ink border-zoru-line",
+  "read-only": "bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]",
+  "send-only": "bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]",
+  "admin": "bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]",
+  "full": "bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]",
 };
 
 function CopyableKeyDisplay({ keyValue }: { keyValue: string }) {
@@ -72,24 +72,24 @@ function CopyableKeyDisplay({ keyValue }: { keyValue: string }) {
   const masked = keyValue.substring(0, 8) + "••••••••••••••••";
 
   return (
-    <div className="flex items-center justify-between gap-1.5 bg-zoru-surface-2 border border-zoru-line rounded-md px-2 py-1 w-[220px]">
-      <span className="font-mono text-xs text-zoru-ink truncate">
+    <div className="flex items-center justify-between gap-1.5 bg-[var(--st-bg-muted)] border border-[var(--st-border)] rounded-md px-2 py-1 w-[220px]">
+      <span className="font-mono text-xs text-[var(--st-text)] truncate">
         {revealed ? keyValue : masked}
       </span>
-      <div className="flex items-center gap-0.5 border-l border-zoru-line pl-1.5 ml-1 shrink-0">
+      <div className="flex items-center gap-0.5 border-l border-[var(--st-border)] pl-1.5 ml-1 shrink-0">
         <button 
           onClick={(e) => { e.stopPropagation(); setRevealed(!revealed); }}
-          className="p-1 hover:bg-zoru-surface-2 rounded text-zoru-ink-muted hover:text-zoru-ink transition-colors"
+          className="p-1 hover:bg-[var(--st-bg-muted)] rounded text-[var(--st-text-secondary)] hover:text-[var(--st-text)] transition-colors"
           title={revealed ? "Hide key" : "Reveal key"}
         >
           {revealed ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
         </button>
         <button 
           onClick={handleCopy}
-          className="p-1 hover:bg-zoru-surface-2 rounded text-zoru-ink-muted hover:text-zoru-ink transition-colors"
+          className="p-1 hover:bg-[var(--st-bg-muted)] rounded text-[var(--st-text-secondary)] hover:text-[var(--st-text)] transition-colors"
           title="Copy key"
         >
-          {copied ? <Check className="h-3 w-3 text-zoru-ink" /> : <Copy className="h-3 w-3" />}
+          {copied ? <Check className="h-3 w-3 text-[var(--st-text)]" /> : <Copy className="h-3 w-3" />}
         </button>
       </div>
     </div>
@@ -138,17 +138,17 @@ function ApiKeysPageContent() {
       header: "Key Name",
       render: (row) => (
         <div>
-          <div className="font-semibold text-zoru-ink flex items-center gap-2">
-            <Key className="h-3.5 w-3.5 text-zoru-ink-muted" />
+          <div className="font-semibold text-[var(--st-text)] flex items-center gap-2">
+            <Key className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
             {row.name}
           </div>
-          <div className="text-xs text-zoru-ink mt-1.5 flex gap-1.5 flex-wrap">
+          <div className="text-xs text-[var(--st-text)] mt-1.5 flex gap-1.5 flex-wrap">
             {row.scopes.map(s => (
-              <Badge key={s} variant="outline" className={`text-[10px] px-1.5 py-0 font-medium ${SCOPE_COLORS[s] || "bg-zoru-surface-2 text-zoru-ink border-zoru-line"}`}>
+              <Badge key={s} variant="outline" className={`text-[10px] px-1.5 py-0 font-medium ${SCOPE_COLORS[s] || "bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]"}`}>
                 {s}
               </Badge>
             ))}
-            {row.isWebhookOnly && <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-medium text-zoru-ink border-zoru-line bg-zoru-surface-2">webhook-only</Badge>}
+            {row.isWebhookOnly && <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-medium text-[var(--st-text)] border-[var(--st-border)] bg-[var(--st-bg-muted)]">webhook-only</Badge>}
           </div>
         </div>
       )
@@ -172,11 +172,11 @@ function ApiKeysPageContent() {
       header: "Last Used",
       render: (row) => (
         <div className="text-sm">
-          <div className="font-medium text-zoru-ink flex items-center gap-1.5">
-            <Clock className="h-3 w-3 text-zoru-ink-muted" />
+          <div className="font-medium text-[var(--st-text)] flex items-center gap-1.5">
+            <Clock className="h-3 w-3 text-[var(--st-text-secondary)]" />
             {row.lastUsedAt !== "Never" ? new Date(row.lastUsedAt).toLocaleDateString() : "Never"}
           </div>
-          <div className="text-xs text-zoru-ink mt-0.5">IP: {row.lastUsedIp}</div>
+          <div className="text-xs text-[var(--st-text)] mt-0.5">IP: {row.lastUsedIp}</div>
         </div>
       )
     },
@@ -186,12 +186,12 @@ function ApiKeysPageContent() {
       render: (row) => (
         <div className="text-sm space-y-1">
           <div className="flex items-center gap-1.5">
-            <Shield className="h-3 w-3 text-zoru-ink-muted" />
-            <span className="text-zoru-ink truncate max-w-[120px]">{row.ipAllowlist.join(", ")}</span>
+            <Shield className="h-3 w-3 text-[var(--st-text-secondary)]" />
+            <span className="text-[var(--st-text)] truncate max-w-[120px]">{row.ipAllowlist.join(", ")}</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <UserCog className="h-3 w-3 text-zoru-ink-muted" />
-            <span className="text-zoru-ink truncate max-w-[120px]">{row.owner}</span>
+            <UserCog className="h-3 w-3 text-[var(--st-text-secondary)]" />
+            <span className="text-[var(--st-text)] truncate max-w-[120px]">{row.owner}</span>
           </div>
         </div>
       )
@@ -202,12 +202,12 @@ function ApiKeysPageContent() {
       render: (row) => (
         <div className="text-sm space-y-1">
           <div className="flex items-center gap-1.5">
-            <Activity className="h-3 w-3 text-zoru-ink-muted" />
-            <span className="text-zoru-ink">{row.rateLimit}</span>
+            <Activity className="h-3 w-3 text-[var(--st-text-secondary)]" />
+            <span className="text-[var(--st-text)]">{row.rateLimit}</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <Calendar className="h-3 w-3 text-zoru-ink-muted" />
-            <span className="text-zoru-ink">{row.expiryDate}</span>
+            <Calendar className="h-3 w-3 text-[var(--st-text-secondary)]" />
+            <span className="text-[var(--st-text)]">{row.expiryDate}</span>
           </div>
         </div>
       )
@@ -288,7 +288,7 @@ function ApiKeysPageContent() {
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="md:col-span-3 space-y-6">
-          <Card className="shadow-sm border-zoru-line overflow-hidden">
+          <Card className="shadow-sm border-[var(--st-border)] overflow-hidden">
             <SabsmsDataTable
               columns={columns}
               visibleColumnIds={visibleCols}
@@ -311,12 +311,12 @@ function ApiKeysPageContent() {
                 { label: "Revoke Key", onSelect: (r) => handleRevoke(r.id), destructive: true }
               ]}
             />
-            <div className="p-4 border-t border-zoru-line flex justify-between items-center bg-zoru-surface-2/50">
+            <div className="p-4 border-t border-[var(--st-border)] flex justify-between items-center bg-[var(--st-bg-muted)]/50">
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-medium text-zoru-ink">Density:</span>
+                  <span className="text-xs font-medium text-[var(--st-text)]">Density:</span>
                   <select 
-                    className="text-xs border-zoru-line rounded p-1.5 bg-white shadow-sm"
+                    className="text-xs border-[var(--st-border)] rounded p-1.5 bg-white shadow-sm"
                     value={density}
                     onChange={(e) => setDensity(e.target.value as any)}
                   >
@@ -336,12 +336,12 @@ function ApiKeysPageContent() {
             </div>
           </Card>
 
-          <Card className="shadow-sm border-zoru-line">
-            <ZoruCardHeader className="bg-zoru-surface-2/80 border-b border-zoru-line py-4 px-5">
+          <Card className="shadow-sm border-[var(--st-border)]">
+            <ZoruCardHeader className="bg-[var(--st-bg-muted)]/80 border-b border-[var(--st-border)] py-4 px-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <ZoruCardTitle className="text-base font-semibold flex items-center gap-2 text-zoru-ink">
-                    <Server className="h-4 w-4 text-zoru-ink" /> Recent Executions
+                  <ZoruCardTitle className="text-base font-semibold flex items-center gap-2 text-[var(--st-text)]">
+                    <Server className="h-4 w-4 text-[var(--st-text)]" /> Recent Executions
                   </ZoruCardTitle>
                   <ZoruCardDescription className="text-xs mt-1">Real-time view of API requests made across all your keys.</ZoruCardDescription>
                 </div>
@@ -350,7 +350,7 @@ function ApiKeysPageContent() {
             </ZoruCardHeader>
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-left whitespace-nowrap">
-                <thead className="text-xs text-zoru-ink bg-white border-b border-zoru-line">
+                <thead className="text-xs text-[var(--st-text)] bg-white border-b border-[var(--st-border)]">
                   <tr>
                     <th className="px-5 py-3 font-medium">Timestamp</th>
                     <th className="px-5 py-3 font-medium">Endpoint</th>
@@ -359,18 +359,18 @@ function ApiKeysPageContent() {
                     <th className="px-5 py-3 font-medium">Latency</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zoru-line">
+                <tbody className="divide-y divide-[var(--st-border)]">
                   {logs.map(log => (
-                    <tr key={log.id} className="hover:bg-zoru-surface-2/50 transition-colors group">
-                      <td className="px-5 py-3 font-mono text-xs text-zoru-ink">{new Date(log.timestamp).toLocaleTimeString()}</td>
-                      <td className="px-5 py-3 font-mono text-xs text-zoru-ink font-medium group-hover:text-zoru-ink transition-colors">{log.endpoint}</td>
-                      <td className="px-5 py-3 text-zoru-ink text-xs flex items-center gap-1.5"><Key className="h-3 w-3 text-zoru-ink-muted" /> {log.keyName}</td>
+                    <tr key={log.id} className="hover:bg-[var(--st-bg-muted)]/50 transition-colors group">
+                      <td className="px-5 py-3 font-mono text-xs text-[var(--st-text)]">{new Date(log.timestamp).toLocaleTimeString()}</td>
+                      <td className="px-5 py-3 font-mono text-xs text-[var(--st-text)] font-medium group-hover:text-[var(--st-text)] transition-colors">{log.endpoint}</td>
+                      <td className="px-5 py-3 text-[var(--st-text)] text-xs flex items-center gap-1.5"><Key className="h-3 w-3 text-[var(--st-text-secondary)]" /> {log.keyName}</td>
                       <td className="px-5 py-3">
-                        <Badge variant={log.status === 200 ? "outline" : "destructive"} className={log.status === 200 ? "bg-zoru-surface-2 text-zoru-ink border-zoru-line text-[10px] px-2 py-0.5" : "text-[10px] px-2 py-0.5"}>
+                        <Badge variant={log.status === 200 ? "outline" : "destructive"} className={log.status === 200 ? "bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)] text-[10px] px-2 py-0.5" : "text-[10px] px-2 py-0.5"}>
                           {log.status}
                         </Badge>
                       </td>
-                      <td className="px-5 py-3 text-zoru-ink text-xs">{log.latency}</td>
+                      <td className="px-5 py-3 text-[var(--st-text)] text-xs">{log.latency}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -380,14 +380,14 @@ function ApiKeysPageContent() {
         </div>
 
         <div className="space-y-6">
-          <Card className="shadow-sm border-zoru-line">
-            <ZoruCardHeader className="bg-zoru-surface-2/80 border-b border-zoru-line py-4 px-5">
+          <Card className="shadow-sm border-[var(--st-border)]">
+            <ZoruCardHeader className="bg-[var(--st-bg-muted)]/80 border-b border-[var(--st-border)] py-4 px-5">
               <ZoruCardTitle className="text-sm font-semibold flex items-center gap-2">
-                <Terminal className="h-4 w-4 text-zoru-ink" /> CLI Tools
+                <Terminal className="h-4 w-4 text-[var(--st-text)]" /> CLI Tools
               </ZoruCardTitle>
             </ZoruCardHeader>
             <ZoruCardContent className="space-y-4 p-5">
-              <div className="text-sm text-zoru-ink">Generate CLI snippets or configure your local environment instantly.</div>
+              <div className="text-sm text-[var(--st-text)]">Generate CLI snippets or configure your local environment instantly.</div>
               <Button variant="outline" className="w-full shadow-sm text-xs font-medium">Generate Configuration</Button>
             </ZoruCardContent>
           </Card>
@@ -400,7 +400,7 @@ function ApiKeysPageContent() {
         title={selectedKeyId === "new" ? "Create API Key" : "Edit API Key"}
         description={selectedKeyId === "new" ? "Create a new API key with specific scopes." : "Manage key settings, rate limits, and view usage."}
         footer={
-          <div className="flex gap-2 justify-end w-full border-t border-zoru-line pt-4">
+          <div className="flex gap-2 justify-end w-full border-t border-[var(--st-border)] pt-4">
             <Button variant="outline" onClick={() => setSelectedKeyId(null)}>Cancel</Button>
             <Button onClick={selectedKeyId === "new" ? handleCreate : () => setSelectedKeyId(null)} className="shadow-sm">{selectedKeyId === "new" ? "Create Key" : "Save Changes"}</Button>
           </div>
@@ -409,73 +409,73 @@ function ApiKeysPageContent() {
         <div className="space-y-6 py-4">
           <div className="space-y-4">
             {selectedKeyId !== "new" && (
-              <div className="p-4 bg-zoru-surface-2 border border-zoru-line rounded-lg flex flex-col gap-2">
-                <span className="text-xs font-medium text-zoru-ink uppercase tracking-wider">Secret Key</span>
+              <div className="p-4 bg-[var(--st-bg-muted)] border border-[var(--st-border)] rounded-lg flex flex-col gap-2">
+                <span className="text-xs font-medium text-[var(--st-text)] uppercase tracking-wider">Secret Key</span>
                 <CopyableKeyDisplay keyValue={keys.find(k => k.id === selectedKeyId)?.keyValue || ""} />
-                <p className="text-[10px] text-zoru-ink-muted mt-1">This key grants access based on its assigned scopes. Keep it secure.</p>
+                <p className="text-[10px] text-[var(--st-text-secondary)] mt-1">This key grants access based on its assigned scopes. Keep it secure.</p>
               </div>
             )}
             <div>
-              <label className="text-sm font-medium text-zoru-ink">Key Name</label>
-              <input type="text" className="flex h-10 w-full rounded-md border border-zoru-line bg-white px-3 py-2 text-sm shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-zoru-line focus:border-transparent mt-1.5" defaultValue={selectedKeyId !== "new" ? keys.find(k => k.id === selectedKeyId)?.name : ""} placeholder="e.g. Production Webhook Integration" />
+              <label className="text-sm font-medium text-[var(--st-text)]">Key Name</label>
+              <input type="text" className="flex h-10 w-full rounded-md border border-[var(--st-border)] bg-white px-3 py-2 text-sm shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--st-border)] focus:border-transparent mt-1.5" defaultValue={selectedKeyId !== "new" ? keys.find(k => k.id === selectedKeyId)?.name : ""} placeholder="e.g. Production Webhook Integration" />
             </div>
             
-            <div className="pt-5 border-t border-zoru-line">
-              <h4 className="text-sm font-semibold text-zoru-ink mb-3 flex items-center gap-2"><Shield className="h-4 w-4 text-zoru-ink-muted" /> Scopes & Permissions</h4>
+            <div className="pt-5 border-t border-[var(--st-border)]">
+              <h4 className="text-sm font-semibold text-[var(--st-text)] mb-3 flex items-center gap-2"><Shield className="h-4 w-4 text-[var(--st-text-secondary)]" /> Scopes & Permissions</h4>
               <div className="space-y-3">
-                <select className="flex h-10 w-full rounded-md border border-zoru-line bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-zoru-line focus:border-transparent">
+                <select className="flex h-10 w-full rounded-md border border-[var(--st-border)] bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--st-border)] focus:border-transparent">
                   <option value="read-only">Read-Only</option>
                   <option value="send-only">Send-Only</option>
                   <option value="full">Full Access</option>
                   <option value="admin">Admin</option>
                 </select>
 
-                <div className="flex items-center gap-3 mt-4 p-3 border border-zoru-line rounded-md bg-zoru-surface-2/50">
+                <div className="flex items-center gap-3 mt-4 p-3 border border-[var(--st-border)] rounded-md bg-[var(--st-bg-muted)]/50">
                   <Switch id="webhook-only" checked={selectedKeyId !== "new" ? keys.find(k => k.id === selectedKeyId)?.isWebhookOnly : false} onCheckedChange={() => {}} />
                   <div className="flex flex-col">
-                    <label htmlFor="webhook-only" className="text-sm font-medium text-zoru-ink">Restrict to webhooks only</label>
-                    <span className="text-xs text-zoru-ink">Key will only be valid for webhook subscriptions.</span>
+                    <label htmlFor="webhook-only" className="text-sm font-medium text-[var(--st-text)]">Restrict to webhooks only</label>
+                    <span className="text-xs text-[var(--st-text)]">Key will only be valid for webhook subscriptions.</span>
                   </div>
                 </div>
               </div>
 
               {selectedKeyId !== "new" && (
-                <div className="mt-4 p-3 bg-zoru-surface-2 rounded-md border border-zoru-line">
-                  <div className="flex items-center gap-2 text-sm font-medium text-zoru-ink mb-1">
+                <div className="mt-4 p-3 bg-[var(--st-bg-muted)] rounded-md border border-[var(--st-border)]">
+                  <div className="flex items-center gap-2 text-sm font-medium text-[var(--st-text)] mb-1">
                     <AlertTriangle className="h-4 w-4" />
                     Permission Diff vs Role
                   </div>
-                  <p className="text-xs text-zoru-ink/80">This key has fewer privileges than your user account (missing: billing_write, team_write).</p>
+                  <p className="text-xs text-[var(--st-text)]/80">This key has fewer privileges than your user account (missing: billing_write, team_write).</p>
                 </div>
               )}
             </div>
 
-            <div className="pt-5 border-t border-zoru-line">
-              <h4 className="text-sm font-semibold text-zoru-ink mb-3 flex items-center gap-2"><UserCog className="h-4 w-4 text-zoru-ink-muted" /> Security & Limits</h4>
+            <div className="pt-5 border-t border-[var(--st-border)]">
+              <h4 className="text-sm font-semibold text-[var(--st-text)] mb-3 flex items-center gap-2"><UserCog className="h-4 w-4 text-[var(--st-text-secondary)]" /> Security & Limits</h4>
               
               <div className="space-y-4">
                 <div>
-                  <label className="text-xs font-medium text-zoru-ink">IP Allow-list (CIDR notation)</label>
-                  <textarea className="flex min-h-[80px] w-full rounded-md border border-zoru-line bg-white px-3 py-2 text-sm shadow-sm mt-1.5 focus:outline-none focus:ring-2 focus:ring-zoru-line focus:border-transparent" defaultValue={selectedKeyId !== "new" ? keys.find(k => k.id === selectedKeyId)?.ipAllowlist.join("\n") : ""} placeholder="0.0.0.0/0 (Any)" />
-                  <p className="text-[10px] text-zoru-ink-muted mt-1">One IP or CIDR per line.</p>
+                  <label className="text-xs font-medium text-[var(--st-text)]">IP Allow-list (CIDR notation)</label>
+                  <textarea className="flex min-h-[80px] w-full rounded-md border border-[var(--st-border)] bg-white px-3 py-2 text-sm shadow-sm mt-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--st-border)] focus:border-transparent" defaultValue={selectedKeyId !== "new" ? keys.find(k => k.id === selectedKeyId)?.ipAllowlist.join("\n") : ""} placeholder="0.0.0.0/0 (Any)" />
+                  <p className="text-[10px] text-[var(--st-text-secondary)] mt-1">One IP or CIDR per line.</p>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-xs font-medium text-zoru-ink">Rate Limit Override (req/s)</label>
-                    <input type="number" className="flex h-10 w-full rounded-md border border-zoru-line bg-white px-3 py-2 text-sm shadow-sm mt-1.5 focus:outline-none focus:ring-2 focus:ring-zoru-line focus:border-transparent" placeholder="Default (100)" defaultValue={selectedKeyId !== "new" ? parseInt(keys.find(k => k.id === selectedKeyId)?.rateLimit.replace('/s', '') || "100") : ""} />
+                    <label className="text-xs font-medium text-[var(--st-text)]">Rate Limit Override (req/s)</label>
+                    <input type="number" className="flex h-10 w-full rounded-md border border-[var(--st-border)] bg-white px-3 py-2 text-sm shadow-sm mt-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--st-border)] focus:border-transparent" placeholder="Default (100)" defaultValue={selectedKeyId !== "new" ? parseInt(keys.find(k => k.id === selectedKeyId)?.rateLimit.replace('/s', '') || "100") : ""} />
                   </div>
                   <div>
-                    <label className="text-xs font-medium text-zoru-ink">Expiry Date</label>
-                    <input type="date" className="flex h-10 w-full rounded-md border border-zoru-line bg-white px-3 py-2 text-sm shadow-sm mt-1.5 focus:outline-none focus:ring-2 focus:ring-zoru-line focus:border-transparent" defaultValue={selectedKeyId !== "new" && keys.find(k => k.id === selectedKeyId)?.expiryDate !== "Never" ? keys.find(k => k.id === selectedKeyId)?.expiryDate : ""} />
+                    <label className="text-xs font-medium text-[var(--st-text)]">Expiry Date</label>
+                    <input type="date" className="flex h-10 w-full rounded-md border border-[var(--st-border)] bg-white px-3 py-2 text-sm shadow-sm mt-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--st-border)] focus:border-transparent" defaultValue={selectedKeyId !== "new" && keys.find(k => k.id === selectedKeyId)?.expiryDate !== "Never" ? keys.find(k => k.id === selectedKeyId)?.expiryDate : ""} />
                   </div>
                 </div>
 
                 {selectedKeyId !== "new" && (
                   <div>
-                    <label className="text-xs font-medium text-zoru-ink">Owner Reassignment</label>
+                    <label className="text-xs font-medium text-[var(--st-text)]">Owner Reassignment</label>
                     <div className="flex gap-2 mt-1.5">
-                      <input type="email" className="flex h-10 w-full rounded-md border border-zoru-line bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-zoru-line focus:border-transparent" defaultValue={keys.find(k => k.id === selectedKeyId)?.owner} />
+                      <input type="email" className="flex h-10 w-full rounded-md border border-[var(--st-border)] bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--st-border)] focus:border-transparent" defaultValue={keys.find(k => k.id === selectedKeyId)?.owner} />
                       <Button variant="outline" size="sm" className="h-10 px-4">Transfer</Button>
                     </div>
                   </div>
@@ -484,32 +484,32 @@ function ApiKeysPageContent() {
             </div>
 
             {selectedKeyId !== "new" && (
-              <div className="pt-5 border-t border-zoru-line">
-                <h4 className="text-sm font-semibold text-zoru-ink mb-3 flex items-center gap-2"><Activity className="h-4 w-4 text-zoru-ink-muted" /> Analytics & Usage</h4>
+              <div className="pt-5 border-t border-[var(--st-border)]">
+                <h4 className="text-sm font-semibold text-[var(--st-text)] mb-3 flex items-center gap-2"><Activity className="h-4 w-4 text-[var(--st-text-secondary)]" /> Analytics & Usage</h4>
                 <div className="grid grid-cols-3 gap-3 mb-5">
-                  <div className="p-3 border border-zoru-line rounded-lg bg-white shadow-sm">
-                    <div className="text-[10px] font-medium uppercase tracking-wider text-zoru-ink mb-2 flex items-center gap-1.5"><Activity className="h-3 w-3" /> Usage (24h)</div>
-                    <div className="h-12 bg-zoru-surface-2 flex items-end gap-1 px-1.5 pb-1 pt-2 rounded-md border border-zoru-line">
+                  <div className="p-3 border border-[var(--st-border)] rounded-lg bg-white shadow-sm">
+                    <div className="text-[10px] font-medium uppercase tracking-wider text-[var(--st-text)] mb-2 flex items-center gap-1.5"><Activity className="h-3 w-3" /> Usage (24h)</div>
+                    <div className="h-12 bg-[var(--st-bg-muted)] flex items-end gap-1 px-1.5 pb-1 pt-2 rounded-md border border-[var(--st-border)]">
                       {[4, 7, 3, 8, 2, 9, 5].map((h, i) => (
-                        <div key={i} className="flex-1 bg-zoru-surface-2 rounded-sm hover:bg-zoru-ink transition-colors cursor-pointer" style={{ height: `${h * 10}%` }}></div>
+                        <div key={i} className="flex-1 bg-[var(--st-bg-muted)] rounded-sm hover:bg-[var(--st-text)] transition-colors cursor-pointer" style={{ height: `${h * 10}%` }}></div>
                       ))}
                     </div>
                   </div>
-                  <div className="p-3 border border-zoru-line rounded-lg bg-white shadow-sm flex flex-col justify-center">
-                    <div className="text-[10px] font-medium uppercase tracking-wider text-zoru-ink mb-1 flex items-center gap-1.5"><XCircle className="h-3 w-3" /> Errors (24h)</div>
-                    <div className="text-xl font-bold text-zoru-ink">0.05%</div>
-                    <div className="text-[10px] text-zoru-ink-muted mt-1">Avg 4xx/5xx</div>
+                  <div className="p-3 border border-[var(--st-border)] rounded-lg bg-white shadow-sm flex flex-col justify-center">
+                    <div className="text-[10px] font-medium uppercase tracking-wider text-[var(--st-text)] mb-1 flex items-center gap-1.5"><XCircle className="h-3 w-3" /> Errors (24h)</div>
+                    <div className="text-xl font-bold text-[var(--st-text)]">0.05%</div>
+                    <div className="text-[10px] text-[var(--st-text-secondary)] mt-1">Avg 4xx/5xx</div>
                   </div>
-                  <div className="p-3 border border-zoru-line rounded-lg bg-white shadow-sm flex flex-col justify-center">
-                    <div className="text-[10px] font-medium uppercase tracking-wider text-zoru-ink mb-1 flex items-center gap-1.5"><Code className="h-3 w-3" /> Idempotency</div>
-                    <div className="text-xl font-bold text-zoru-ink">{keys.find(k => k.id === selectedKeyId)?.idempotencySize}</div>
-                    <div className="text-[10px] text-zoru-ink-muted mt-1">Store size</div>
+                  <div className="p-3 border border-[var(--st-border)] rounded-lg bg-white shadow-sm flex flex-col justify-center">
+                    <div className="text-[10px] font-medium uppercase tracking-wider text-[var(--st-text)] mb-1 flex items-center gap-1.5"><Code className="h-3 w-3" /> Idempotency</div>
+                    <div className="text-xl font-bold text-[var(--st-text)]">{keys.find(k => k.id === selectedKeyId)?.idempotencySize}</div>
+                    <div className="text-[10px] text-[var(--st-text-secondary)] mt-1">Store size</div>
                   </div>
                 </div>
 
                 <div className="flex gap-3">
-                  <Button variant="outline" size="sm" className="w-full shadow-sm"><Terminal className="h-4 w-4 mr-2 text-zoru-ink-muted" /> CLI Snippet</Button>
-                  <Button variant="outline" size="sm" className="w-full shadow-sm"><History className="h-4 w-4 mr-2 text-zoru-ink-muted" /> Key Audit</Button>
+                  <Button variant="outline" size="sm" className="w-full shadow-sm"><Terminal className="h-4 w-4 mr-2 text-[var(--st-text-secondary)]" /> CLI Snippet</Button>
+                  <Button variant="outline" size="sm" className="w-full shadow-sm"><History className="h-4 w-4 mr-2 text-[var(--st-text-secondary)]" /> Key Audit</Button>
                 </div>
               </div>
             )}

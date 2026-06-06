@@ -16,19 +16,19 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="flex items-center justify-center h-[calc(100vh-8rem)] w-full rounded-xl border border-zoru-line bg-zoru-surface-2/50">
+    <div className="flex items-center justify-center h-[calc(100vh-8rem)] w-full rounded-xl border border-[var(--st-border)] bg-[var(--st-bg-muted)]/50">
       <div className="flex flex-col items-center space-y-4 max-w-md text-center p-6">
-        <div className="h-12 w-12 rounded-full bg-zoru-surface-2 flex items-center justify-center">
-          <AlertCircle className="h-6 w-6 text-zoru-ink" />
+        <div className="h-12 w-12 rounded-full bg-[var(--st-bg-muted)] flex items-center justify-center">
+          <AlertCircle className="h-6 w-6 text-[var(--st-text)]" />
         </div>
         <div className="space-y-2">
-          <h2 className="text-lg font-semibold text-zoru-ink">Something went wrong!</h2>
-          <p className="text-sm text-zoru-ink">Failed to load Universal Inbox data. Please try again.</p>
+          <h2 className="text-lg font-semibold text-[var(--st-text)]">Something went wrong!</h2>
+          <p className="text-sm text-[var(--st-text)]">Failed to load Universal Inbox data. Please try again.</p>
         </div>
         <Button 
           variant="outline" 
           onClick={() => reset()}
-          className="border-zoru-line text-zoru-ink hover:bg-zoru-surface-2"
+          className="border-[var(--st-border)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
         >
           Try again
         </Button>

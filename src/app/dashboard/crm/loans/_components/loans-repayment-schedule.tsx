@@ -91,7 +91,7 @@ export function LoansRepaymentSchedule({ schedule }: LoansRepaymentScheduleProps
 
   if (schedule.length === 0) {
     return (
-      <p className="text-[13px] text-zoru-ink-muted">
+      <p className="text-[13px] text-[var(--st-text-secondary)]">
         No schedule generated yet. Use <strong>Generate EMI schedule</strong> in the header.
       </p>
     );
@@ -128,10 +128,10 @@ export function LoansRepaymentSchedule({ schedule }: LoansRepaymentScheduleProps
         </Button>
       </div>
 
-      <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
+      <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
         <Table>
           <ZoruTableHeader>
-            <ZoruTableRow className="bg-zoru-surface/50">
+            <ZoruTableRow className="bg-[var(--st-bg-secondary)]/50">
               <ZoruTableHead className="w-16">#</ZoruTableHead>
               <ZoruTableHead>Due date</ZoruTableHead>
               <ZoruTableHead className="text-right">Amount</ZoruTableHead>
@@ -141,14 +141,14 @@ export function LoansRepaymentSchedule({ schedule }: LoansRepaymentScheduleProps
           <ZoruTableBody>
             {filteredAndSorted.length === 0 ? (
               <ZoruTableRow>
-                <ZoruTableCell colSpan={4} className="h-24 text-center text-[13px] text-zoru-ink-muted">
+                <ZoruTableCell colSpan={4} className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]">
                   No schedule rows match the selected filter.
                 </ZoruTableCell>
               </ZoruTableRow>
             ) : (
               filteredAndSorted.map((row) => (
                 <ZoruTableRow key={row.no}>
-                  <ZoruTableCell className="text-zoru-ink-muted">{row.no}</ZoruTableCell>
+                  <ZoruTableCell className="text-[var(--st-text-secondary)]">{row.no}</ZoruTableCell>
                   <ZoruTableCell>{fmtDate(row.dueDate)}</ZoruTableCell>
                   <ZoruTableCell className="text-right font-mono tabular-nums">
                     {fmtMoney(row.amount)}

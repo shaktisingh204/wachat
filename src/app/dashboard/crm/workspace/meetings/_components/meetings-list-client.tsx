@@ -274,67 +274,67 @@ export function MeetingsListClient({ initialMeetings }: MeetingsListClientProps)
                 {/* KPI Strip */}
                 <div className="grid gap-3 sm:grid-cols-4">
                     <Card className="flex items-center gap-3 p-4">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-zoru-surface-2 text-zoru-ink">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                             <CalendarDays className="h-5 w-5" />
                         </div>
                         <div>
-                            <span className="text-[12px] text-zoru-ink-muted">Total Scheduled</span>
-                            <h4 className="text-[18px] font-bold text-zoru-ink">{stats.total}</h4>
+                            <span className="text-[12px] text-[var(--st-text-secondary)]">Total Scheduled</span>
+                            <h4 className="text-[18px] font-bold text-[var(--st-text)]">{stats.total}</h4>
                         </div>
                     </Card>
                     <Card className="flex items-center gap-3 p-4">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-zoru-surface-2 text-zoru-ink">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                             <Clock className="h-5 w-5" />
                         </div>
                         <div>
-                            <span className="text-[12px] text-zoru-ink-muted">Upcoming</span>
-                            <h4 className="text-[18px] font-bold text-zoru-ink">{stats.scheduled}</h4>
+                            <span className="text-[12px] text-[var(--st-text-secondary)]">Upcoming</span>
+                            <h4 className="text-[18px] font-bold text-[var(--st-text)]">{stats.scheduled}</h4>
                         </div>
                     </Card>
                     <Card className="flex items-center gap-3 p-4">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-zoru-surface-2 text-zoru-ink">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                             <CheckCircle className="h-5 w-5" />
                         </div>
                         <div>
-                            <span className="text-[12px] text-zoru-ink-muted">Completed</span>
-                            <h4 className="text-[18px] font-bold text-zoru-ink">{stats.completed}</h4>
+                            <span className="text-[12px] text-[var(--st-text-secondary)]">Completed</span>
+                            <h4 className="text-[18px] font-bold text-[var(--st-text)]">{stats.completed}</h4>
                         </div>
                     </Card>
                     <Card className="flex items-center gap-3 p-4">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-zoru-surface-2 text-zoru-ink">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                             <XCircle className="h-5 w-5" />
                         </div>
                         <div>
-                            <span className="text-[12px] text-zoru-ink-muted">Canceled</span>
-                            <h4 className="text-[18px] font-bold text-zoru-ink">{stats.canceled}</h4>
+                            <span className="text-[12px] text-[var(--st-text-secondary)]">Canceled</span>
+                            <h4 className="text-[18px] font-bold text-[var(--st-text)]">{stats.canceled}</h4>
                         </div>
                     </Card>
                 </div>
 
                 {/* Meetings table */}
                 <Card className="p-0">
-                    <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                    <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                         <Table>
                             <ZoruTableHeader>
-                                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                    <ZoruTableHead className="text-zoru-ink-muted">Meeting Details</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Scheduled Time</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Attendees</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Video Link</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted text-right">Actions</ZoruTableHead>
+                                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Meeting Details</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Scheduled Time</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Attendees</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Video Link</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Actions</ZoruTableHead>
                                 </ZoruTableRow>
                             </ZoruTableHeader>
                             <ZoruTableBody>
                                 {isLoading ? (
-                                    <ZoruTableRow className="border-zoru-line">
+                                    <ZoruTableRow className="border-[var(--st-border)]">
                                         <ZoruTableCell colSpan={6} className="h-24 text-center">
-                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
+                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 ) : filteredMeetings.length === 0 ? (
-                                    <ZoruTableRow className="border-zoru-line">
-                                        <ZoruTableCell colSpan={6} className="h-24 text-center text-zoru-ink-muted">
+                                    <ZoruTableRow className="border-[var(--st-border)]">
+                                        <ZoruTableCell colSpan={6} className="h-24 text-center text-[var(--st-text-secondary)]">
                                             No meetings scheduled.
                                         </ZoruTableCell>
                                     </ZoruTableRow>
@@ -346,30 +346,30 @@ export function MeetingsListClient({ initialMeetings }: MeetingsListClientProps)
                                         const dur = (m as any).duration ?? 30;
 
                                         return (
-                                            <ZoruTableRow key={m._id} className="border-zoru-line">
-                                                <ZoruTableCell className="font-semibold text-zoru-ink">
+                                            <ZoruTableRow key={m._id} className="border-[var(--st-border)]">
+                                                <ZoruTableCell className="font-semibold text-[var(--st-text)]">
                                                     <div className="flex flex-col">
                                                         <span>{m.meetingTitle}</span>
                                                         {(m as any).notes && (
-                                                            <span className="text-[11.5px] font-normal text-zoru-ink-muted line-clamp-1">
+                                                            <span className="text-[11.5px] font-normal text-[var(--st-text-secondary)] line-clamp-1">
                                                                 {(m as any).notes}
                                                             </span>
                                                         )}
                                                     </div>
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     <div className="flex flex-col">
                                                         <span className="flex items-center gap-1">
-                                                            <Calendar className="h-3 w-3 text-zoru-ink-muted" /> {dateStr}
+                                                            <Calendar className="h-3 w-3 text-[var(--st-text-secondary)]" /> {dateStr}
                                                         </span>
-                                                        <span className="flex items-center gap-1 text-[11.5px] text-zoru-ink-muted">
+                                                        <span className="flex items-center gap-1 text-[11.5px] text-[var(--st-text-secondary)]">
                                                             <Clock className="h-3 w-3" /> {timeStr} ({dur}m)
                                                         </span>
                                                     </div>
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     <div className="flex items-center gap-1">
-                                                        <Users className="h-3 w-3 text-zoru-ink-muted" />
+                                                        <Users className="h-3 w-3 text-[var(--st-text-secondary)]" />
                                                         <span className="max-w-[200px] truncate" title={m.attendees}>
                                                             {m.attendees}
                                                         </span>
@@ -379,11 +379,11 @@ export function MeetingsListClient({ initialMeetings }: MeetingsListClientProps)
                                                     {(m as any).videoLink ? (
                                                         <Button variant="outline" size="sm" asChild className="h-8">
                                                             <a href={(m as any).videoLink} target="_blank" rel="noopener noreferrer">
-                                                                <Video className="mr-1.5 h-3.5 w-3.5 text-zoru-primary" /> Join Call
+                                                                <Video className="mr-1.5 h-3.5 w-3.5 text-[var(--st-text)]" /> Join Call
                                                             </a>
                                                         </Button>
                                                     ) : (
-                                                        <span className="text-[12px] text-zoru-ink-muted">No video call</span>
+                                                        <span className="text-[12px] text-[var(--st-text-secondary)]">No video call</span>
                                                     )}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
@@ -394,18 +394,18 @@ export function MeetingsListClient({ initialMeetings }: MeetingsListClientProps)
                                                         {m.status === 'scheduled' && (
                                                             <>
                                                                 <Button variant="ghost" size="icon" onClick={() => updateStatus(m, 'completed')} title="Mark Completed">
-                                                                    <CheckCircle className="h-4 w-4 text-zoru-ink" />
+                                                                    <CheckCircle className="h-4 w-4 text-[var(--st-text)]" />
                                                                 </Button>
                                                                 <Button variant="ghost" size="icon" onClick={() => updateStatus(m, 'canceled')} title="Cancel Meeting">
-                                                                    <XCircle className="h-4 w-4 text-zoru-ink-muted" />
+                                                                    <XCircle className="h-4 w-4 text-[var(--st-text-secondary)]" />
                                                                 </Button>
                                                             </>
                                                         )}
                                                         <Button variant="ghost" size="icon" onClick={() => openEdit(m)}>
-                                                            <Edit2 className="h-4 w-4 text-zoru-ink" />
+                                                            <Edit2 className="h-4 w-4 text-[var(--st-text)]" />
                                                         </Button>
                                                         <Button variant="ghost" size="icon" onClick={() => handleDelete(m._id)} disabled={isMutating}>
-                                                            <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                                            <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                                         </Button>
                                                     </div>
                                                 </ZoruTableCell>
@@ -424,7 +424,7 @@ export function MeetingsListClient({ initialMeetings }: MeetingsListClientProps)
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
                     <Card className="w-full max-w-xl p-6 max-h-[90vh] overflow-y-auto">
                         <div className="mb-4 flex items-center justify-between">
-                            <h2 className="text-[16px] font-bold text-zoru-ink">
+                            <h2 className="text-[16px] font-bold text-[var(--st-text)]">
                                 {editingMeeting ? 'Modify Scheduled Meeting' : 'Schedule Meeting'}
                             </h2>
                             <Button variant="outline" size="sm" onClick={() => setIsDialogOpen(false)}>
@@ -459,9 +459,9 @@ export function MeetingsListClient({ initialMeetings }: MeetingsListClientProps)
 
                             {/* Slot Availability Checker */}
                             {!editingMeeting && (
-                                <div className="rounded-lg border border-zoru-line p-3 bg-zoru-surface-2">
-                                    <span className="text-[12px] font-semibold text-zoru-ink flex items-center gap-1.5 mb-2">
-                                        <Calendar className="h-3.5 w-3.5 text-zoru-primary" /> Live Slot Availability Suggestion
+                                <div className="rounded-lg border border-[var(--st-border)] p-3 bg-[var(--st-bg-muted)]">
+                                    <span className="text-[12px] font-semibold text-[var(--st-text)] flex items-center gap-1.5 mb-2">
+                                        <Calendar className="h-3.5 w-3.5 text-[var(--st-text)]" /> Live Slot Availability Suggestion
                                     </span>
                                     <div className="flex items-center gap-2 mb-2">
                                         <Input
@@ -470,7 +470,7 @@ export function MeetingsListClient({ initialMeetings }: MeetingsListClientProps)
                                             onChange={(e) => setSlotDate(e.target.value)}
                                             className="h-9 text-[12px]"
                                         />
-                                        <span className="text-[11.5px] text-zoru-ink-muted">Checks working hours (9-17)</span>
+                                        <span className="text-[11.5px] text-[var(--st-text-secondary)]">Checks working hours (9-17)</span>
                                     </div>
                                     {availableSlots.length > 0 ? (
                                         <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pt-1">
@@ -482,16 +482,16 @@ export function MeetingsListClient({ initialMeetings }: MeetingsListClientProps)
                                                         setMeetingDate(slotDate);
                                                         setMeetingTime(slot.start);
                                                     }}
-                                                    className="rounded bg-zoru-bg border border-zoru-line px-2 py-1 text-[11px] font-mono hover:bg-zoru-primary hover:text-white"
+                                                    className="rounded bg-[var(--st-bg)] border border-[var(--st-border)] px-2 py-1 text-[11px] font-mono hover:bg-[var(--st-text)] hover:text-white"
                                                 >
                                                     {slot.start}
                                                 </button>
                                             ))}
                                         </div>
                                     ) : slotDate ? (
-                                        <span className="text-[11px] text-zoru-ink-muted">No free slots found.</span>
+                                        <span className="text-[11px] text-[var(--st-text-secondary)]">No free slots found.</span>
                                     ) : (
-                                        <span className="text-[11px] text-zoru-ink-muted">Select a date to check slots.</span>
+                                        <span className="text-[11px] text-[var(--st-text-secondary)]">Select a date to check slots.</span>
                                     )}
                                 </div>
                             )}
@@ -552,7 +552,7 @@ export function MeetingsListClient({ initialMeetings }: MeetingsListClientProps)
                                         id="meeting-status"
                                         value={status}
                                         onChange={(e) => setStatus(e.target.value as any)}
-                                        className="w-full rounded-md border border-zoru-line bg-zoru-bg px-3 py-2 text-[13px] text-zoru-ink"
+                                        className="w-full rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-[13px] text-[var(--st-text)]"
                                     >
                                         <option value="scheduled">Scheduled</option>
                                         <option value="completed">Completed</option>

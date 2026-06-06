@@ -61,32 +61,32 @@ export function CustomObjectClient({ initialData }: { initialData: CustomObjectD
     >
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {filteredData.map(item => (
-          <Card key={item.id} className="p-6 flex flex-col justify-between hover:border-zoru-accent transition-all group">
+          <Card key={item.id} className="p-6 flex flex-col justify-between hover:border-[var(--st-accent)] transition-all group">
             <div>
-              <div className="w-12 h-12 bg-zoru-accent/10 rounded-xl flex items-center justify-center mb-4 text-zoru-accent">
+              <div className="w-12 h-12 bg-[var(--st-accent)]/10 rounded-xl flex items-center justify-center mb-4 text-[var(--st-accent)]">
                 <Database className="w-6 h-6" />
               </div>
-              <h3 className="font-bold text-xl text-zoru-ink">{item.pluralName}</h3>
-              <p className="text-sm font-mono text-zoru-ink-light mt-1">{item.apiIdentifier}</p>
+              <h3 className="font-bold text-xl text-[var(--st-text)]">{item.pluralName}</h3>
+              <p className="text-sm font-mono text-[var(--st-text-tertiary)] mt-1">{item.apiIdentifier}</p>
               <div className="mt-4">
-                <p className="text-xs text-zoru-ink-light uppercase font-semibold mb-2">Fields</p>
+                <p className="text-xs text-[var(--st-text-tertiary)] uppercase font-semibold mb-2">Fields</p>
                 <div className="flex flex-wrap gap-1">
                   {item.fields.map(f => (
-                    <span key={f.name} className="px-2 py-1 bg-zoru-neutral-hover rounded text-xs text-zoru-ink">{f.name}</span>
+                    <span key={f.name} className="px-2 py-1 bg-zoru-neutral-hover rounded text-xs text-[var(--st-text)]">{f.name}</span>
                   ))}
-                  {item.fields.length === 0 && <span className="text-xs text-zoru-ink-light italic">No custom fields</span>}
+                  {item.fields.length === 0 && <span className="text-xs text-[var(--st-text-tertiary)] italic">No custom fields</span>}
                 </div>
               </div>
             </div>
             <div className="mt-6 flex justify-end">
               <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)} className="opacity-0 group-hover:opacity-100 transition-opacity" disabled={isPending}>
-                <Trash2 className="w-4 h-4 text-zoru-ink" />
+                <Trash2 className="w-4 h-4 text-[var(--st-text)]" />
               </Button>
             </div>
           </Card>
         ))}
         {filteredData.length === 0 && (
-          <div className="col-span-full py-12 text-center text-zoru-ink-light">No custom objects found.</div>
+          <div className="col-span-full py-12 text-center text-[var(--st-text-tertiary)]">No custom objects found.</div>
         )}
       </div>
 

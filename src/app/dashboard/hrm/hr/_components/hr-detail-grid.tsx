@@ -30,7 +30,7 @@ export function HrDetailGrid({ title, titleSlot, children }: HrDetailGridProps) 
       {title || titleSlot ? (
         <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
           {title ? (
-            <h2 className="text-[15px] font-medium text-zoru-ink">{title}</h2>
+            <h2 className="text-[15px] font-medium text-[var(--st-text)]">{title}</h2>
           ) : (
             <span />
           )}
@@ -52,8 +52,8 @@ export interface HrDetailRowProps {
 export function HrDetailRow({ label, children, fullWidth }: HrDetailRowProps) {
   return (
     <div className={fullWidth ? 'sm:col-span-2' : undefined}>
-      <div className="text-[12px] text-zoru-ink-muted">{label}</div>
-      <div className="mt-0.5 text-[13px] text-zoru-ink whitespace-pre-line">
+      <div className="text-[12px] text-[var(--st-text-secondary)]">{label}</div>
+      <div className="mt-0.5 text-[13px] text-[var(--st-text)] whitespace-pre-line">
         {children === null || children === undefined || children === '' ? '—' : children}
       </div>
     </div>

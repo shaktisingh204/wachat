@@ -29,7 +29,7 @@ export default async function Feedback360DetailPage({
   const list = (await getFeedback360()) as Row[];
   const row = list.find((r) => String(r._id) === id) ?? null;
 
-  if (!row) return <div className="text-sm text-zoru-ink-muted">Review not found.</div>;
+  if (!row) return <div className="text-sm text-[var(--st-text-secondary)]">Review not found.</div>;
 
   return (
     <HrDetailPage

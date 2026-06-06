@@ -310,7 +310,7 @@ export function ServiceContractsListClient({
       {/* Filter row */}
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative max-w-sm flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -367,9 +367,9 @@ export function ServiceContractsListClient({
 
       {/* Bulk bar */}
       {selected.size > 0 ? (
-        <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-3 py-2 shadow-sm">
-          <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink">
-            <ListChecks className="h-4 w-4 text-zoru-primary" />
+        <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 shadow-sm">
+          <div className="flex items-center gap-2 text-[12.5px] text-[var(--st-text)]">
+            <ListChecks className="h-4 w-4 text-[var(--st-text)]" />
             {selected.size} selected
           </div>
           <div className="flex flex-wrap items-center gap-1">
@@ -455,7 +455,7 @@ export function ServiceContractsListClient({
                 <ZoruTableRow>
                   <ZoruTableCell
                     colSpan={9}
-                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                    className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     {contracts.length === 0 ? (
                       <span className="inline-flex items-center gap-2">
@@ -479,26 +479,26 @@ export function ServiceContractsListClient({
                           aria-label={`Select ${c.contractNo ?? c._id}`}
                         />
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink">
+                      <ZoruTableCell className="text-[var(--st-text)]">
                         <EntityRowLink
                           href={`/dashboard/crm/service-contracts/${c._id}`}
                           label={c.contractNo || '—'}
                           subtitle={c.customerName || undefined}
                         />
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink">
+                      <ZoruTableCell className="text-[var(--st-text)]">
                         {c.customerName || c.customerId || '—'}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink">
+                      <ZoruTableCell className="text-[var(--st-text)]">
                         {c.coverage || '—'}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink">
+                      <ZoruTableCell className="text-[var(--st-text)]">
                         {formatDate(c.periodStart)}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink">
+                      <ZoruTableCell className="text-[var(--st-text)]">
                         {formatDate(c.periodEnd)}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink">
+                      <ZoruTableCell className="text-[var(--st-text)]">
                         {c.technicianName || c.technicianId || '—'}
                       </ZoruTableCell>
                       <ZoruTableCell>

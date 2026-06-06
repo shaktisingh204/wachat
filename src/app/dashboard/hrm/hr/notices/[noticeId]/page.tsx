@@ -118,13 +118,13 @@ export default async function NoticeDetailPage({
             <Card className="p-6">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                     <div className="min-w-0">
-                        <div className="font-mono text-[12px] uppercase tracking-wide text-zoru-ink-muted">
+                        <div className="font-mono text-[12px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                             {notice.noticeNumber || notice._id.slice(-8)}
                         </div>
-                        <h2 className="mt-1 text-[20px] font-medium text-zoru-ink">
+                        <h2 className="mt-1 text-[20px] font-medium text-[var(--st-text)]">
                             {notice.title}
                         </h2>
-                        <div className="mt-2 flex flex-wrap items-center gap-2 text-[12.5px] text-zoru-ink-muted">
+                        <div className="mt-2 flex flex-wrap items-center gap-2 text-[12.5px] text-[var(--st-text-secondary)]">
                             <span>
                                 Category: {titleCase(notice.category as string)}
                             </span>
@@ -137,7 +137,7 @@ export default async function NoticeDetailPage({
                                     <span aria-hidden>·</span>
                                     <span>
                                         Ref:{' '}
-                                        <span className="font-mono text-zoru-ink">
+                                        <span className="font-mono text-[var(--st-text)]">
                                             {notice.referenceNumber}
                                         </span>
                                     </span>
@@ -165,12 +165,12 @@ export default async function NoticeDetailPage({
 
             {/* Body */}
             <Card className="p-6">
-                <div className="mb-3 text-[14px] font-medium text-zoru-ink">
+                <div className="mb-3 text-[14px] font-medium text-[var(--st-text)]">
                     Notice body
                 </div>
-                <div className="whitespace-pre-wrap text-[13.5px] leading-relaxed text-zoru-ink">
+                <div className="whitespace-pre-wrap text-[13.5px] leading-relaxed text-[var(--st-text)]">
                     {notice.body || (
-                        <span className="text-zoru-ink-muted">
+                        <span className="text-[var(--st-text-secondary)]">
                             No body provided.
                         </span>
                     )}
@@ -180,18 +180,18 @@ export default async function NoticeDetailPage({
             {/* Recipients */}
             <Card className="p-6">
                 <div className="mb-3 flex items-center gap-2">
-                    <Users className="h-4 w-4 text-zoru-ink-muted" />
-                    <span className="text-[14px] font-medium text-zoru-ink">
+                    <Users className="h-4 w-4 text-[var(--st-text-secondary)]" />
+                    <span className="text-[14px] font-medium text-[var(--st-text)]">
                         Recipients
                     </span>
-                    <span className="ml-auto text-[12px] text-zoru-ink-muted">
+                    <span className="ml-auto text-[12px] text-[var(--st-text-secondary)]">
                         {titleCase(notice.issuedTo as string)} ·{' '}
                         {recipients.length} explicit recipient
                         {recipients.length === 1 ? '' : 's'}
                     </span>
                 </div>
                 {recipients.length === 0 ? (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-4 text-center text-[12.5px] text-zoru-ink-muted">
+                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-4 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         {notice.issuedTo === 'all'
                             ? 'Notice is published to all employees.'
                             : 'No explicit recipient list — resolved by audience.'}
@@ -210,37 +210,37 @@ export default async function NoticeDetailPage({
             {/* Effective dates + acknowledgement */}
             <Card className="p-6">
                 <div className="mb-3 flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-zoru-ink-muted" />
-                    <span className="text-[14px] font-medium text-zoru-ink">
+                    <Calendar className="h-4 w-4 text-[var(--st-text-secondary)]" />
+                    <span className="text-[14px] font-medium text-[var(--st-text)]">
                         Effective dates
                     </span>
                 </div>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-3">
                     <div>
-                        <div className="text-zoru-ink-muted">Effective from</div>
-                        <div className="text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Effective from</div>
+                        <div className="text-[var(--st-text)]">
                             {fmtDate(notice.effectiveFrom)}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Effective until</div>
-                        <div className="text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Effective until</div>
+                        <div className="text-[var(--st-text)]">
                             {fmtDate(notice.effectiveUntil)}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Issued at</div>
-                        <div className="text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Issued at</div>
+                        <div className="text-[var(--st-text)]">
                             {fmtDate(notice.issuedAt ?? notice.createdAt)}
                         </div>
                     </div>
                 </div>
-                <div className="mt-4 flex items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 px-3 py-2 text-[13px]">
-                    <CheckCircle2 className="h-4 w-4 text-zoru-ink-muted" />
-                    <span className="text-zoru-ink-muted">
+                <div className="mt-4 flex items-center gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-[13px]">
+                    <CheckCircle2 className="h-4 w-4 text-[var(--st-text-secondary)]" />
+                    <span className="text-[var(--st-text-secondary)]">
                         Acknowledgements:
                     </span>
-                    <span className="font-medium text-zoru-ink">
+                    <span className="font-medium text-[var(--st-text)]">
                         {ackCount} recipient{ackCount === 1 ? '' : 's'}
                     </span>
                 </div>
@@ -249,17 +249,17 @@ export default async function NoticeDetailPage({
             {/* Attachments */}
             <Card className="p-6">
                 <div className="mb-3 flex items-center gap-2">
-                    <Paperclip className="h-4 w-4 text-zoru-ink-muted" />
-                    <span className="text-[14px] font-medium text-zoru-ink">
+                    <Paperclip className="h-4 w-4 text-[var(--st-text-secondary)]" />
+                    <span className="text-[14px] font-medium text-[var(--st-text)]">
                         Attachments
                     </span>
-                    <span className="ml-auto text-[12px] text-zoru-ink-muted">
+                    <span className="ml-auto text-[12px] text-[var(--st-text-secondary)]">
                         {attachments.length} file
                         {attachments.length === 1 ? '' : 's'}
                     </span>
                 </div>
                 {attachments.length === 0 ? (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-4 text-center text-[12.5px] text-zoru-ink-muted">
+                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-4 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No attachments.
                     </div>
                 ) : (
@@ -267,15 +267,15 @@ export default async function NoticeDetailPage({
                         {attachments.map((url, i) => (
                             <li
                                 key={`${url}-${i}`}
-                                className="flex items-center gap-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 py-2"
+                                className="flex items-center gap-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2"
                             >
-                                <Paperclip className="h-4 w-4 shrink-0 text-zoru-ink-muted" />
+                                <Paperclip className="h-4 w-4 shrink-0 text-[var(--st-text-secondary)]" />
                                 <a
                                     href={url}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     download
-                                    className="min-w-0 flex-1 truncate text-[13px] text-zoru-ink hover:underline"
+                                    className="min-w-0 flex-1 truncate text-[13px] text-[var(--st-text)] hover:underline"
                                 >
                                     {fileNameFromUrl(url)}
                                 </a>
@@ -287,10 +287,10 @@ export default async function NoticeDetailPage({
 
             {notice.notes ? (
                 <Card className="p-6">
-                    <div className="mb-2 text-[14px] font-medium text-zoru-ink">
+                    <div className="mb-2 text-[14px] font-medium text-[var(--st-text)]">
                         Internal notes
                     </div>
-                    <div className="whitespace-pre-wrap text-[13px] text-zoru-ink">
+                    <div className="whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
                         {notice.notes}
                     </div>
                 </Card>

@@ -83,7 +83,7 @@ export default async function PolicyDetailPage({
             {/* Summary card */}
             <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
-                    <div className="text-[14px] font-medium text-zoru-ink">
+                    <div className="text-[14px] font-medium text-[var(--st-text)]">
                         Overview
                     </div>
                     <StatusPill label={pretty(status)} tone={tone} />
@@ -95,41 +95,41 @@ export default async function PolicyDetailPage({
                 </div>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
                     <div>
-                        <div className="text-zoru-ink-muted">Version</div>
-                        <div className="font-mono text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Version</div>
+                        <div className="font-mono text-[var(--st-text)]">
                             {policy.version || '—'}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Category</div>
-                        <div className="capitalize text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Category</div>
+                        <div className="capitalize text-[var(--st-text)]">
                             {pretty(policy.category as string | undefined)}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Effective date</div>
-                        <div className="text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Effective date</div>
+                        <div className="text-[var(--st-text)]">
                             {fmtDate(policy.effectiveDate)}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Review date</div>
-                        <div className="text-zoru-ink">{fmtDate(policy.reviewDate)}</div>
+                        <div className="text-[var(--st-text-secondary)]">Review date</div>
+                        <div className="text-[var(--st-text)]">{fmtDate(policy.reviewDate)}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Expiry date</div>
-                        <div className="text-zoru-ink">{fmtDate(policy.expiryDate)}</div>
+                        <div className="text-[var(--st-text-secondary)]">Expiry date</div>
+                        <div className="text-[var(--st-text)]">{fmtDate(policy.expiryDate)}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Owner</div>
-                        <div className="font-mono text-[12px] text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Owner</div>
+                        <div className="font-mono text-[12px] text-[var(--st-text)]">
                             {policy.ownerId || '—'}
                         </div>
                     </div>
                     {policy.summary ? (
                         <div className="sm:col-span-2">
-                            <div className="text-zoru-ink-muted">Summary</div>
-                            <div className="whitespace-pre-wrap text-zoru-ink">
+                            <div className="text-[var(--st-text-secondary)]">Summary</div>
+                            <div className="whitespace-pre-wrap text-[var(--st-text)]">
                                 {policy.summary}
                             </div>
                         </div>
@@ -140,15 +140,15 @@ export default async function PolicyDetailPage({
             {/* Attached document */}
             {policy.documentUrl ? (
                 <Card className="flex flex-wrap items-center justify-between gap-2 p-4">
-                    <div className="flex items-center gap-2 text-[13px] text-zoru-ink">
-                        <Paperclip className="h-4 w-4 text-zoru-ink-muted" />
+                    <div className="flex items-center gap-2 text-[13px] text-[var(--st-text)]">
+                        <Paperclip className="h-4 w-4 text-[var(--st-text-secondary)]" />
                         Attached document
                     </div>
                     <a
                         href={policy.documentUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="max-w-full truncate text-[12.5px] text-zoru-ink underline-offset-2 hover:underline"
+                        className="max-w-full truncate text-[12.5px] text-[var(--st-text)] underline-offset-2 hover:underline"
                     >
                         {policy.documentUrl}
                     </a>
@@ -158,12 +158,12 @@ export default async function PolicyDetailPage({
             {/* Acknowledgement strip */}
             {ackRequired ? (
                 <Card className="flex flex-wrap items-center justify-between gap-2 p-4">
-                    <div className="flex items-center gap-2 text-[13px] text-zoru-ink">
-                        <CheckSquare className="h-4 w-4 text-zoru-ink-muted" />
+                    <div className="flex items-center gap-2 text-[13px] text-[var(--st-text)]">
+                        <CheckSquare className="h-4 w-4 text-[var(--st-text-secondary)]" />
                         Employee acknowledgement required
                     </div>
-                    <div className="text-[12.5px] text-zoru-ink-muted">
-                        <span className="font-mono text-zoru-ink">{ackCount}</span>{' '}
+                    <div className="text-[12.5px] text-[var(--st-text-secondary)]">
+                        <span className="font-mono text-[var(--st-text)]">{ackCount}</span>{' '}
                         acknowledgement{ackCount === 1 ? '' : 's'} recorded
                     </div>
                 </Card>
@@ -171,15 +171,15 @@ export default async function PolicyDetailPage({
 
             {/* Inline content */}
             <Card className="p-6">
-                <div className="mb-3 text-[15px] font-medium text-zoru-ink">
+                <div className="mb-3 text-[15px] font-medium text-[var(--st-text)]">
                     Content
                 </div>
                 {policy.content ? (
-                    <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-4 font-sans text-[13px] text-zoru-ink">
+                    <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 font-sans text-[13px] text-[var(--st-text)]">
                         {policy.content}
                     </pre>
                 ) : (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No inline content for this policy.
                     </div>
                 )}

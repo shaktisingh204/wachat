@@ -18,9 +18,9 @@ export default function EstimatesError({
 
     return (
         <div className="flex h-[50vh] items-center justify-center">
-            <Card className="max-w-md w-full border-zoru-line">
+            <Card className="max-w-md w-full border-[var(--st-border)]">
                 <ZoruCardHeader>
-                    <div className="flex items-center gap-2 text-zoru-ink">
+                    <div className="flex items-center gap-2 text-[var(--st-text)]">
                         <AlertCircle className="h-5 w-5" />
                         <ZoruCardTitle>Something went wrong!</ZoruCardTitle>
                     </div>

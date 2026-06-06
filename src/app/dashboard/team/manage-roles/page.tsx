@@ -91,8 +91,8 @@ const permissionCategories = Object.entries(moduleCategories).reduce((acc, [labe
 function SaveBar() {
     const { pending } = useFormStatus();
     return (
-        <div className="sticky bottom-4 z-20 mt-6 flex items-center justify-between rounded-2xl border border-zoru-line bg-zoru-bg/95 p-3 shadow-md backdrop-blur">
-            <p className="pl-2 text-[12.5px] text-zoru-ink-muted">
+        <div className="sticky bottom-4 z-20 mt-6 flex items-center justify-between rounded-2xl border border-[var(--st-border)] bg-[var(--st-bg)]/95 p-3 shadow-md backdrop-blur">
+            <p className="pl-2 text-[12.5px] text-[var(--st-text-secondary)]">
                 Toggle permissions for every role, then save to sync all members.
             </p>
             <Button type="submit" size="md" disabled={pending}>
@@ -157,7 +157,7 @@ function AddRoleDialog({ onRoleAdded }: { onRoleAdded: () => void }) {
                     </ZoruDialogDescription>
                 </ZoruDialogHeader>
                 <div className="py-2">
-                    <Label htmlFor="roleName" className="mb-1.5 block text-[12.5px] text-zoru-ink">
+                    <Label htmlFor="roleName" className="mb-1.5 block text-[12.5px] text-[var(--st-text)]">
                         Role name
                     </Label>
                     <Input
@@ -206,7 +206,7 @@ function DeleteRoleButton({ role, onRoleDeleted }: { role: { id: string; name: s
             <ZoruAlertDialogTrigger asChild>
                 <button
                     type="button"
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-zoru-line bg-zoru-bg text-zoru-ink-muted transition-colors hover:border-zoru-danger hover:text-zoru-danger-ink"
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text-secondary)] transition-colors hover:border-[var(--st-danger)] hover:text-[var(--st-danger)]"
                     aria-label={`Delete ${role.name}`}
                     onClick={(e) => e.stopPropagation()}
                 >
@@ -226,7 +226,7 @@ function DeleteRoleButton({ role, onRoleDeleted }: { role: { id: string; name: s
                     <ZoruAlertDialogAction
                         onClick={handleDelete}
                         disabled={isPending}
-                        className="bg-zoru-danger text-zoru-danger-foreground hover:bg-zoru-danger/90"
+                        className="bg-[var(--st-danger)] text-zoru-danger-foreground hover:bg-[var(--st-danger)]/90"
                     >
                         {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />} Delete
                     </ZoruAlertDialogAction>
@@ -270,16 +270,16 @@ function RoleCard({
                 onClick={() => setOpen((v) => !v)}
                 className={cn(
                     'flex w-full items-center justify-between gap-4 px-5 py-4 text-left transition-colors',
-                    open ? 'bg-zoru-surface-2/50' : 'hover:bg-zoru-surface-2/40',
+                    open ? 'bg-[var(--st-bg-muted)]/50' : 'hover:bg-[var(--st-bg-muted)]/40',
                 )}
             >
                 <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                         <ShieldCheck className="h-4 w-4" />
                     </div>
                     <div>
-                        <p className="text-[14px] text-zoru-ink">{role.name}</p>
-                        <p className="text-[12px] text-zoru-ink-muted">
+                        <p className="text-[14px] text-[var(--st-text)]">{role.name}</p>
+                        <p className="text-[12px] text-[var(--st-text-secondary)]">
                             {enabledCount} permission{enabledCount === 1 ? '' : 's'} granted
                         </p>
                     </div>
@@ -288,16 +288,16 @@ function RoleCard({
                 <div className="flex items-center gap-2">
                     <DeleteRoleButton role={role} onRoleDeleted={onRoleDeleted} />
                     <ChevronDown
-                        className={cn('h-5 w-5 text-zoru-ink-muted transition-transform', open && 'rotate-180')}
+                        className={cn('h-5 w-5 text-[var(--st-text-secondary)] transition-transform', open && 'rotate-180')}
                     />
                 </div>
             </button>
 
             {open && (
-                <div className="border-t border-zoru-line bg-zoru-bg">
+                <div className="border-t border-[var(--st-border)] bg-[var(--st-bg)]">
                     <input type="hidden" name="roleId" value={role.id} />
                     <div className="grid grid-cols-1 md:grid-cols-[200px_1fr]">
-                        <aside className="border-b border-zoru-line bg-zoru-surface-2/50 p-2 md:border-b-0 md:border-r">
+                        <aside className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]/50 p-2 md:border-b-0 md:border-r">
                             <div className="flex gap-2 overflow-x-auto md:flex-col">
                                 {Object.entries(permissionCategories).map(([key, cat]) => (
                                     <button
@@ -307,8 +307,8 @@ function RoleCard({
                                         className={cn(
                                             'shrink-0 rounded-lg px-3 py-2 text-left text-[12.5px] transition-colors md:w-full',
                                             activeCategory === key
-                                                ? 'bg-zoru-ink text-zoru-bg'
-                                                : 'text-zoru-ink-muted hover:bg-zoru-bg hover:text-zoru-ink',
+                                                ? 'bg-[var(--st-text)] text-[var(--st-bg)]'
+                                                : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg)] hover:text-[var(--st-text)]',
                                         )}
                                     >
                                         {cat.label}
@@ -322,15 +322,15 @@ function RoleCard({
                                 return (
                                     <div key={key} className="space-y-3">
                                         <div className="flex items-center justify-between">
-                                            <h3 className="text-[13.5px] text-zoru-ink">
+                                            <h3 className="text-[13.5px] text-[var(--st-text)]">
                                                 {cat.label} permissions
                                             </h3>
                                             <Badge variant="ghost">
                                                 {cat.modules.length} modules
                                             </Badge>
                                         </div>
-                                        <div className="overflow-hidden rounded-xl border border-zoru-line">
-                                            <div className="grid grid-cols-[minmax(180px,2fr)_repeat(4,80px)] gap-0 bg-zoru-surface-2/50 px-4 py-2.5 text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
+                                        <div className="overflow-hidden rounded-xl border border-[var(--st-border)]">
+                                            <div className="grid grid-cols-[minmax(180px,2fr)_repeat(4,80px)] gap-0 bg-[var(--st-bg-muted)]/50 px-4 py-2.5 text-[11.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                                                 <span>Module</span>
                                                 {actions.map((a) => {
                                                     const allChecked = cat.modules.every(m => perms[m.id]?.[a]);
@@ -354,11 +354,11 @@ function RoleCard({
                                                     </div>
                                                 )})}
                                             </div>
-                                            <div className="divide-y divide-zoru-line">
+                                            <div className="divide-y divide-[var(--st-border)]">
                                                 {cat.modules.map((mod) => (
                                                     <div
                                                         key={mod.id}
-                                                        className="grid grid-cols-[minmax(180px,2fr)_repeat(4,80px)] items-center px-4 py-2.5 text-[13px] text-zoru-ink hover:bg-zoru-surface-2/40"
+                                                        className="grid grid-cols-[minmax(180px,2fr)_repeat(4,80px)] items-center px-4 py-2.5 text-[13px] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]/40"
                                                     >
                                                         <span>{mod.name}</span>
                                                         {actions.map((action) => (
@@ -472,20 +472,20 @@ export default function ManageRolesPage() {
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <Card variant="soft" className="p-6">
-                    <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">Roles</p>
-                    <p className="mt-1 text-[22px] text-zoru-ink">{allRoles.length}</p>
+                    <p className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">Roles</p>
+                    <p className="mt-1 text-[22px] text-[var(--st-text)]">{allRoles.length}</p>
                 </Card>
                 <Card variant="soft" className="p-6">
-                    <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
+                    <p className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                         Permissions granted
                     </p>
-                    <p className="mt-1 text-[22px] text-zoru-ink">{totalGranted}</p>
+                    <p className="mt-1 text-[22px] text-[var(--st-text)]">{totalGranted}</p>
                 </Card>
                 <Card variant="soft" className="p-6">
-                    <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
+                    <p className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                         Modules covered
                     </p>
-                    <p className="mt-1 text-[22px] text-zoru-ink">
+                    <p className="mt-1 text-[22px] text-[var(--st-text)]">
                         {Object.values(permissionCategories).reduce((n, c) => n + c.modules.length, 0)}
                     </p>
                 </Card>
@@ -506,12 +506,12 @@ export default function ManageRolesPage() {
             </form>
 
             <Card variant="soft" className="flex items-start gap-3 p-6">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zoru-ink text-zoru-bg">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--st-text)] text-[var(--st-bg)]">
                     <Check className="h-4 w-4" />
                 </div>
                 <div>
-                    <p className="text-[13px] text-zoru-ink">How permissions apply</p>
-                    <p className="mt-1 text-[12.5px] text-zoru-ink-muted">
+                    <p className="text-[13px] text-[var(--st-text)]">How permissions apply</p>
+                    <p className="mt-1 text-[12.5px] text-[var(--st-text-secondary)]">
                         Changes take effect immediately. Members with a role pick up the updated module
                         access on their next navigation. System roles (e.g. Agent) cannot be deleted,
                         but their permissions can still be tuned per module.

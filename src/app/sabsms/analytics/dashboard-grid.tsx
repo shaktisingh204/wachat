@@ -108,8 +108,8 @@ export function DashboardGrid({ items, workspaceId }: DashboardGridProps) {
               : "";
         return (
           <div key={id} className={`relative ${colSpan}`}>
-            <div className="absolute -top-1 right-2 z-10 flex items-center gap-0.5 rounded border border-zoru-line bg-zoru-bg/90 px-1 py-0.5 opacity-0 shadow-sm transition-opacity hover:opacity-100 focus-within:opacity-100">
-              <GripVertical className="h-3 w-3 text-zoru-ink-muted" />
+            <div className="absolute -top-1 right-2 z-10 flex items-center gap-0.5 rounded border border-[var(--st-border)] bg-[var(--st-bg)]/90 px-1 py-0.5 opacity-0 shadow-sm transition-opacity hover:opacity-100 focus-within:opacity-100">
+              <GripVertical className="h-3 w-3 text-[var(--st-text-secondary)]" />
               <Button
                 variant="ghost"
                 size="icon"

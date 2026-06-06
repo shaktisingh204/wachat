@@ -234,17 +234,17 @@ export default function FlowBuilderDocsPage() {
       {/* Variables intro */}
       <Card className="mt-6 p-5">
         <div className="flex items-start gap-3">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink [&_svg]:size-4">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)] [&_svg]:size-4">
             <BookOpen />
           </span>
           <div className="min-w-0">
-            <h3 className="text-[15px] text-zoru-ink">Using Variables</h3>
-            <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+            <h3 className="text-[15px] text-[var(--st-text)]">Using Variables</h3>
+            <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">
               Variables let you personalise flows and use data dynamically.
             </p>
           </div>
         </div>
-        <div className="mt-4 flex flex-col gap-3 text-[13px] leading-relaxed text-zoru-ink">
+        <div className="mt-4 flex flex-col gap-3 text-[13px] leading-relaxed text-[var(--st-text)]">
           <p>
             Variables are placeholders for data that can change, such as a
             user&apos;s name or their answer to a question. In the Flow
@@ -284,10 +284,10 @@ export default function FlowBuilderDocsPage() {
 
       {/* Blocks reference */}
       <div>
-        <h2 className="text-[20px] tracking-tight text-zoru-ink leading-none">
+        <h2 className="text-[20px] tracking-tight text-[var(--st-text)] leading-none">
           Flow Blocks
         </h2>
-        <p className="mt-1.5 text-[12.5px] text-zoru-ink-muted">
+        <p className="mt-1.5 text-[12.5px] text-[var(--st-text-secondary)]">
           An overview of every available block and its configuration.
         </p>
       </div>
@@ -298,7 +298,7 @@ export default function FlowBuilderDocsPage() {
             <ZoruAccordionItem value={`item-${index}`} key={doc.title}>
               <ZoruAccordionTrigger className="text-[14px]">
                 <span className="flex items-center gap-2">
-                  <span className="inline-flex h-6 w-6 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-[11px] text-zoru-ink-muted">
+                  <span className="inline-flex h-6 w-6 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[11px] text-[var(--st-text-secondary)]">
                     {index + 1}
                   </span>
                   {doc.title}
@@ -306,34 +306,34 @@ export default function FlowBuilderDocsPage() {
               </ZoruAccordionTrigger>
               <ZoruAccordionContent>
                 <div className="flex flex-col gap-4 pb-2 pt-1">
-                  <p className="text-[13px] text-zoru-ink">{doc.description}</p>
+                  <p className="text-[13px] text-[var(--st-text)]">{doc.description}</p>
 
                   <div className="flex flex-col gap-1.5">
-                    <h4 className="text-[12px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <h4 className="text-[12px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                       Properties
                     </h4>
                     <ul className="flex flex-col gap-1.5 pl-4">
                       {doc.properties.map((prop) => (
                         <li
                           key={prop.name}
-                          className="list-disc text-[13px] text-zoru-ink"
+                          className="list-disc text-[13px] text-[var(--st-text)]"
                         >
-                          <span className="text-zoru-ink">{prop.name}:</span>{' '}
-                          <span className="text-zoru-ink-muted">{prop.desc}</span>
+                          <span className="text-[var(--st-text)]">{prop.name}:</span>{' '}
+                          <span className="text-[var(--st-text-secondary)]">{prop.desc}</span>
                         </li>
                       ))}
                     </ul>
                   </div>
 
                   <div className="flex flex-col gap-1.5">
-                    <h4 className="text-[12px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <h4 className="text-[12px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                       Outputs
                     </h4>
                     <ul className="flex flex-col gap-1.5 pl-4">
                       {doc.outputs.map((out) => (
                         <li
                           key={out}
-                          className="list-disc text-[13px] text-zoru-ink-muted"
+                          className="list-disc text-[13px] text-[var(--st-text-secondary)]"
                         >
                           {out}
                         </li>
@@ -342,10 +342,10 @@ export default function FlowBuilderDocsPage() {
                   </div>
 
                   {doc.notes && (
-                    <div className="flex items-start gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-3 py-2.5 text-[12.5px] text-zoru-ink-muted">
-                      <ChevronRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-zoru-ink-subtle" />
+                    <div className="flex items-start gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2.5 text-[12.5px] text-[var(--st-text-secondary)]">
+                      <ChevronRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--st-text-tertiary)]" />
                       <span>
-                        <span className="text-zoru-ink">Note:</span> {doc.notes}
+                        <span className="text-[var(--st-text)]">Note:</span> {doc.notes}
                       </span>
                     </div>
                   )}

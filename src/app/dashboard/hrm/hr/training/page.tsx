@@ -109,7 +109,7 @@ export default function TrainingPage() {
         {
           key: 'format',
           label: 'Mode',
-          render: (r) => (r.format ? <HrChip>{r.format}</HrChip> : <span className="text-zoru-ink-muted">—</span>),
+          render: (r) => (r.format ? <HrChip>{r.format}</HrChip> : <span className="text-[var(--st-text-secondary)]">—</span>),
         },
         { key: 'trainer', label: 'Trainer', render: (r) => r.trainer ?? '—' },
         { key: 'start', label: 'Start', render: (r) => <HrDateCell value={r.startDate} /> },
@@ -121,7 +121,7 @@ export default function TrainingPage() {
             r.maxParticipants != null ? (
               <span className="tabular-nums">{r.maxParticipants}</span>
             ) : (
-              <span className="text-zoru-ink-muted">—</span>
+              <span className="text-[var(--st-text-secondary)]">—</span>
             ),
         },
         {
@@ -131,7 +131,7 @@ export default function TrainingPage() {
             r.durationHours != null ? (
               <span className="tabular-nums">{r.durationHours}h</span>
             ) : (
-              <span className="text-zoru-ink-muted">—</span>
+              <span className="text-[var(--st-text-secondary)]">—</span>
             ),
         },
         {

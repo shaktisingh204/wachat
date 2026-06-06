@@ -50,18 +50,18 @@ export function ContractSignForm({ token }: { token: string }) {
     <Card className="shadow-md border-foreground/10">
       <ZoruCardContent className="flex flex-col gap-4 p-5">
         <div className="flex items-center justify-between">
-          <h2 className="text-[13px] font-mono uppercase tracking-wider text-zoru-ink flex items-center gap-1.5">
-            <Terminal className="h-4 w-4 text-zoru-ink-muted" />
+          <h2 className="text-[13px] font-mono uppercase tracking-wider text-[var(--st-text)] flex items-center gap-1.5">
+            <Terminal className="h-4 w-4 text-[var(--st-text-secondary)]" />
             Payload parameters
           </h2>
-          <span className="text-[10px] font-mono bg-zoru-surface-2 px-1.5 py-0.5 rounded text-zoru-ink-muted">
+          <span className="text-[10px] font-mono bg-[var(--st-bg-muted)] px-1.5 py-0.5 rounded text-[var(--st-text-secondary)]">
             multipart/form-data
           </span>
         </div>
 
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="signer_name" className="text-[12px] font-mono uppercase tracking-tight text-zoru-ink-muted">
+            <Label htmlFor="signer_name" className="text-[12px] font-mono uppercase tracking-tight text-[var(--st-text-secondary)]">
               signer_name <span className="text-danger">*</span>
             </Label>
             <Input
@@ -75,8 +75,8 @@ export function ContractSignForm({ token }: { token: string }) {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="signer_email" className="text-[12px] font-mono uppercase tracking-tight text-zoru-ink-muted">
-              signer_email <span className="text-zoru-ink-muted font-normal">(optional)</span>
+            <Label htmlFor="signer_email" className="text-[12px] font-mono uppercase tracking-tight text-[var(--st-text-secondary)]">
+              signer_email <span className="text-[var(--st-text-secondary)] font-normal">(optional)</span>
             </Label>
             <Input
               id="signer_email"
@@ -91,13 +91,13 @@ export function ContractSignForm({ token }: { token: string }) {
         </div>
 
         <div className="flex flex-col gap-1.5 mt-2">
-          <Label className="text-[12px] font-mono uppercase tracking-tight text-zoru-ink-muted">
+          <Label className="text-[12px] font-mono uppercase tracking-tight text-[var(--st-text-secondary)]">
             signature_pad <span className="text-danger">*</span>
           </Label>
-          <div className="rounded-lg border border-zoru-line bg-zoru-surface p-1.5 shadow-inner">
+          <div className="rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1.5 shadow-inner">
             <SignaturePad ref={padRef} />
           </div>
-          <p className="text-[11px] font-mono text-zoru-ink-muted tracking-tight">
+          <p className="text-[11px] font-mono text-[var(--st-text-secondary)] tracking-tight">
             // Draw inside the zone to verify cryptographically
           </p>
         </div>
@@ -112,7 +112,7 @@ export function ContractSignForm({ token }: { token: string }) {
           />
           <Label 
             htmlFor="identity_verified" 
-            className="text-[11.5px] leading-tight font-medium text-zoru-ink-muted cursor-pointer"
+            className="text-[11.5px] leading-tight font-medium text-[var(--st-text-secondary)] cursor-pointer"
           >
             I verify my identity and agree that this signature is legally binding. I authorize the storage of this signature along with my IP and request metadata for audit purposes.
           </Label>
@@ -159,10 +159,10 @@ export function ContractSignForm({ token }: { token: string }) {
         </div>
 
         {/* CODE BLOCK PREVIEW */}
-        <div className="mt-2 border-t border-zoru-line pt-4">
-          <div className="rounded-lg bg-zoru-surface-2/40 border border-zoru-line p-3">
-            <p className="text-[10px] font-mono uppercase tracking-wider text-zoru-ink-muted mb-1.5">// Curl representation</p>
-            <pre className="text-[10.5px] font-mono text-zoru-ink whitespace-pre-wrap leading-tight bg-zoru-surface-2/80 p-2.5 rounded border border-zoru-line/50">
+        <div className="mt-2 border-t border-[var(--st-border)] pt-4">
+          <div className="rounded-lg bg-[var(--st-bg-muted)]/40 border border-[var(--st-border)] p-3">
+            <p className="text-[10px] font-mono uppercase tracking-wider text-[var(--st-text-secondary)] mb-1.5">// Curl representation</p>
+            <pre className="text-[10.5px] font-mono text-[var(--st-text)] whitespace-pre-wrap leading-tight bg-[var(--st-bg-muted)]/80 p-2.5 rounded border border-[var(--st-border)]/50">
               {`curl -X POST https://api.sabnode.com/v1/contracts/${token.slice(0, 6)}/sign \\
   -H "Content-Type: application/json" \\
   -d '{"name": "${name || '...'}", "email": "${email || '...'}"}'`}

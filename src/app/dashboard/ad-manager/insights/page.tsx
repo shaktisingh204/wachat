@@ -196,7 +196,7 @@ export default function InsightsPage() {
                         className={cn("h-8 w-40 text-xs", form.formState.errors.since && "border-destructive")}
                     />
                     {form.formState.errors.since && (
-                        <p className="text-[10px] text-zoru-ink">{form.formState.errors.since.message}</p>
+                        <p className="text-[10px] text-[var(--st-text)]">{form.formState.errors.since.message}</p>
                     )}
                 </div>
                 <div className="space-y-1">
@@ -207,7 +207,7 @@ export default function InsightsPage() {
                         className={cn("h-8 w-40 text-xs", form.formState.errors.until && "border-destructive")}
                     />
                     {form.formState.errors.until && (
-                        <p className="text-[10px] text-zoru-ink">{form.formState.errors.until.message}</p>
+                        <p className="text-[10px] text-[var(--st-text)]">{form.formState.errors.until.message}</p>
                     )}
                 </div>
                 <div className="pt-5">
@@ -228,8 +228,8 @@ export default function InsightsPage() {
                     : kpis.map((k) => (
                           <Card key={k.label}>
                               <ZoruCardContent className="p-4">
-                                  <k.icon className="h-4 w-4 text-zoru-ink-muted" />
-                                  <div className="mt-2 text-xs text-zoru-ink-muted">{k.label}</div>
+                                  <k.icon className="h-4 w-4 text-[var(--st-text-secondary)]" />
+                                  <div className="mt-2 text-xs text-[var(--st-text-secondary)]">{k.label}</div>
                                   <div className="text-2xl font-bold tabular-nums">{k.value}</div>
                               </ZoruCardContent>
                           </Card>
@@ -237,14 +237,14 @@ export default function InsightsPage() {
             </div>
 
             {/* Segmented buttons replace Tabs */}
-            <div className="flex flex-wrap gap-1 rounded-lg border bg-zoru-surface-2/40 p-1 w-fit">
+            <div className="flex flex-wrap gap-1 rounded-lg border bg-[var(--st-bg-muted)]/40 p-1 w-fit">
                 {TABS.map((t) => (
                     <Button
                         key={t.value}
                         type="button"
                         size="sm"
                         variant={activeTab === t.value ? 'default' : 'ghost'}
-                        className={cn('h-8', activeTab === t.value ? '' : 'text-zoru-ink-muted')}
+                        className={cn('h-8', activeTab === t.value ? '' : 'text-[var(--st-text-secondary)]')}
                         onClick={() => setActiveTab(t.value)}
                     >
                         {t.label}
@@ -343,7 +343,7 @@ function BreakdownTable({
         <Card className="mt-3">
             <div className="p-3 border-b flex items-center justify-between gap-4">
                 <div className="relative w-64 max-w-sm">
-                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
                     <Input
                         type="search"
                         placeholder="Search breakdown..."
@@ -365,7 +365,7 @@ function BreakdownTable({
                                     <button 
                                         type="button"
                                         onClick={() => handleSort(c)}
-                                        className="flex items-center gap-1 hover:text-zoru-ink font-medium"
+                                        className="flex items-center gap-1 hover:text-[var(--st-text)] font-medium"
                                     >
                                         {c.replace(/_/g, ' ')}
                                         <ArrowUpDown className="h-3 w-3" />
@@ -377,7 +377,7 @@ function BreakdownTable({
                     <ZoruTableBody>
                         {sortedRows.length === 0 ? (
                             <ZoruTableRow>
-                                <ZoruTableCell colSpan={columns.length} className="h-24 text-center text-zoru-ink-muted">
+                                <ZoruTableCell colSpan={columns.length} className="h-24 text-center text-[var(--st-text-secondary)]">
                                     No data for this breakdown.
                                 </ZoruTableCell>
                             </ZoruTableRow>

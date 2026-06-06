@@ -78,7 +78,7 @@ export function EditGiftCardForm({
 
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <Label className="text-zoru-ink">Issued To</Label>
+                        <Label className="text-[var(--st-text)]">Issued To</Label>
                         <EntityFormField
                             entity="client"
                             name="clientId"
@@ -88,7 +88,7 @@ export function EditGiftCardForm({
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <Label htmlFor="issuedToEmail" className="text-zoru-ink">
+                        <Label htmlFor="issuedToEmail" className="text-[var(--st-text)]">
                             Customer Email
                         </Label>
                         <Input
@@ -103,7 +103,7 @@ export function EditGiftCardForm({
 
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <Label htmlFor="expiryDate" className="text-zoru-ink">
+                        <Label htmlFor="expiryDate" className="text-[var(--st-text)]">
                             Expiry Date
                         </Label>
                         <Input
@@ -114,7 +114,7 @@ export function EditGiftCardForm({
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <Label htmlFor="status" className="text-zoru-ink">
+                        <Label htmlFor="status" className="text-[var(--st-text)]">
                             Status
                         </Label>
                         <EnumFormField
@@ -130,16 +130,16 @@ export function EditGiftCardForm({
                         id="transferable"
                         name="transferable"
                         type="checkbox"
-                        className="h-4 w-4 rounded border-zoru-line accent-zoru-ink"
+                        className="h-4 w-4 rounded border-[var(--st-border)] accent-[var(--st-text)]"
                         defaultChecked={initial.transferable === true}
                     />
-                    <Label htmlFor="transferable" className="cursor-pointer text-zoru-ink">
+                    <Label htmlFor="transferable" className="cursor-pointer text-[var(--st-text)]">
                         Transferable
                     </Label>
                 </div>
 
                 <div className="space-y-1.5">
-                    <Label htmlFor="notes" className="text-zoru-ink">
+                    <Label htmlFor="notes" className="text-[var(--st-text)]">
                         Notes
                     </Label>
                     <Textarea

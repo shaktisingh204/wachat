@@ -53,7 +53,7 @@ export function BookingSingleDeleteDialog({
               onConfirm();
             }}
             disabled={busy}
-            className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
+            className="bg-[var(--st-danger)] text-white hover:bg-[var(--st-danger)]/90"
           >
             {busy ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : null}
             Delete permanently
@@ -99,7 +99,7 @@ export function BookingBulkDeleteDialog({
               onConfirm();
             }}
             disabled={busy}
-            className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
+            className="bg-[var(--st-danger)] text-white hover:bg-[var(--st-danger)]/90"
           >
             {busy ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : null}
             Delete all

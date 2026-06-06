@@ -232,7 +232,7 @@ export default function NotificationsPage() {
             }}
           >
             <ZoruSelectTrigger className="w-[160px]">
-              <Globe className="h-4 w-4 text-zoru-ink-muted" />
+              <Globe className="h-4 w-4 text-[var(--st-text-secondary)]" />
               <ZoruSelectValue placeholder="App source" />
             </ZoruSelectTrigger>
             <ZoruSelectContent>
@@ -248,7 +248,7 @@ export default function NotificationsPage() {
 
           <Select defaultValue="ALL" onValueChange={handleEventFilterChange}>
             <ZoruSelectTrigger className="w-[150px]">
-              <Filter className="h-4 w-4 text-zoru-ink-muted" />
+              <Filter className="h-4 w-4 text-[var(--st-text-secondary)]" />
               <ZoruSelectValue placeholder="Event type" />
             </ZoruSelectTrigger>
             <ZoruSelectContent>
@@ -269,7 +269,7 @@ export default function NotificationsPage() {
             }}
           >
             <ZoruSelectTrigger className="w-[140px]">
-              <Bell className="h-4 w-4 text-zoru-ink-muted" />
+              <Bell className="h-4 w-4 text-[var(--st-text-secondary)]" />
               <ZoruSelectValue placeholder="Read status" />
             </ZoruSelectTrigger>
             <ZoruSelectContent>
@@ -317,7 +317,7 @@ export default function NotificationsPage() {
       </PageHeader>
 
       <Card className="overflow-hidden p-0">
-        <ul className="divide-y divide-zoru-line">
+        <ul className="divide-y divide-[var(--st-border)]">
           {loading ? (
             [...Array(5)].map((_, i) => (
               <li key={i} className="p-4">
@@ -329,34 +329,34 @@ export default function NotificationsPage() {
               <li
                 key={n._id.toString()}
                 className={cn(
-                  "flex items-start gap-4 p-4 transition-colors hover:bg-zoru-surface",
-                  !n.isRead && "bg-zoru-surface/60",
+                  "flex items-start gap-4 p-4 transition-colors hover:bg-[var(--st-bg-secondary)]",
+                  !n.isRead && "bg-[var(--st-bg-secondary)]/60",
                 )}
               >
                 <div className="mt-1">
                   {n.isRead ? (
-                    <Bell className="h-5 w-5 text-zoru-ink-muted" />
+                    <Bell className="h-5 w-5 text-[var(--st-text-secondary)]" />
                   ) : (
-                    <BellRing className="h-5 w-5 text-zoru-ink" />
+                    <BellRing className="h-5 w-5 text-[var(--st-text)]" />
                   )}
                 </div>
                 <div className="flex-1 space-y-1.5">
                   <div className="flex items-center justify-between gap-2">
                     <p
                       className={cn(
-                        "text-sm leading-none text-zoru-ink",
-                        !n.isRead && "text-zoru-ink-strong",
+                        "text-sm leading-none text-[var(--st-text)]",
+                        !n.isRead && "text-[var(--st-text)]",
                       )}
                     >
                       {n.projectName
                         ? `Project: ${n.projectName}`
                         : "System Notification"}
                     </p>
-                    <p className="text-[11px] text-zoru-ink-muted">
+                    <p className="text-[11px] text-[var(--st-text-secondary)]">
                       {fmtDate(n.createdAt)}
                     </p>
                   </div>
-                  <p className="text-sm leading-snug text-zoru-ink-muted">
+                  <p className="text-sm leading-snug text-[var(--st-text-secondary)]">
                     {n.message}
                   </p>
                   <div className="flex flex-wrap items-center gap-1.5">
@@ -400,7 +400,7 @@ export default function NotificationsPage() {
 
       {totalPages > 1 && (
         <div className="flex items-center justify-end gap-3">
-          <span className="text-xs text-zoru-ink-muted">
+          <span className="text-xs text-[var(--st-text-secondary)]">
             Page {currentPage} of {Math.max(totalPages, 1)}
           </span>
           <Button

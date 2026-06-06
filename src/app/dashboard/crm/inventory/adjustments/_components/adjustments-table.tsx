@@ -80,10 +80,10 @@ export function AdjustmentsTable({
         !allSelected && rows.some((r) => selected.has(String(r._id)));
 
     return (
-        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+        <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
             <Table>
                 <ZoruTableHeader>
-                    <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                    <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                         <ZoruTableHead className="w-[36px]">
                             <Checkbox
                                 aria-label="Select all"
@@ -111,17 +111,17 @@ export function AdjustmentsTable({
                 <ZoruTableBody>
                     {loading ? (
                         Array.from({ length: 6 }).map((_, i) => (
-                            <ZoruTableRow key={i} className="border-zoru-line">
+                            <ZoruTableRow key={i} className="border-[var(--st-border)]">
                                 <ZoruTableCell colSpan={10}>
                                     <Skeleton className="h-10 w-full" />
                                 </ZoruTableCell>
                             </ZoruTableRow>
                         ))
                     ) : rows.length === 0 ? (
-                        <ZoruTableRow className="border-zoru-line">
+                        <ZoruTableRow className="border-[var(--st-border)]">
                             <ZoruTableCell
                                 colSpan={10}
-                                className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                                className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                             >
                                 No adjustments match the current filters.
                             </ZoruTableCell>
@@ -171,8 +171,8 @@ function AdjustmentRow({
     return (
         <ZoruTableRow
             className={[
-                'border-zoru-line transition-colors',
-                selected ? 'bg-zoru-surface-2/70' : '',
+                'border-[var(--st-border)] transition-colors',
+                selected ? 'bg-[var(--st-bg-muted)]/70' : '',
             ].join(' ')}
         >
             <ZoruTableCell>
@@ -189,7 +189,7 @@ function AdjustmentRow({
                     subtitle={a.reason ? String(a.reason) : undefined}
                 />
             </ZoruTableCell>
-            <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+            <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                 {fmtDate(a.date)}
             </ZoruTableCell>
             <ZoruTableCell className="text-[12.5px]">
@@ -200,23 +200,23 @@ function AdjustmentRow({
                         fallback={a.warehouseName || 'Warehouse'}
                     />
                 ) : (
-                    <span className="text-zoru-ink-muted">—</span>
+                    <span className="text-[var(--st-text-secondary)]">—</span>
                 )}
             </ZoruTableCell>
             <ZoruTableCell className="text-[12.5px]">
                 <Badge variant="secondary">{a.reason}</Badge>
             </ZoruTableCell>
-            <ZoruTableCell className="text-right font-mono text-[12.5px] text-zoru-ink">
+            <ZoruTableCell className="text-right font-mono text-[12.5px] text-[var(--st-text)]">
                 {linesCount}
             </ZoruTableCell>
             <ZoruTableCell
                 className={[
                     'text-right font-mono text-[12.5px]',
                     a.quantity > 0
-                        ? 'text-zoru-ink'
+                        ? 'text-[var(--st-text)]'
                         : a.quantity < 0
-                          ? 'text-zoru-ink'
-                          : 'text-zoru-ink',
+                          ? 'text-[var(--st-text)]'
+                          : 'text-[var(--st-text)]',
                 ].join(' ')}
             >
                 {impact
@@ -236,7 +236,7 @@ function AdjustmentRow({
                         fallback={a.approvedByName || 'Approver'}
                     />
                 ) : (
-                    <span className="text-zoru-ink-muted">—</span>
+                    <span className="text-[var(--st-text-secondary)]">—</span>
                 )}
             </ZoruTableCell>
             <ZoruTableCell className="text-right">
@@ -245,7 +245,7 @@ function AdjustmentRow({
                         <button
                             type="button"
                             aria-label={`Actions for ${num}`}
-                            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
                         >
                             <MoreHorizontal className="h-4 w-4" />
                         </button>
@@ -283,7 +283,7 @@ function AdjustmentRow({
                         <ZoruDropdownMenuSeparator />
                         <ZoruDropdownMenuItem
                             onClick={() => onDelete(id)}
-                            className="text-zoru-danger"
+                            className="text-[var(--st-danger)]"
                         >
                             <Trash2 className="mr-1.5 h-3.5 w-3.5" />
                             Delete

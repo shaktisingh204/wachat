@@ -40,11 +40,11 @@ class ErrorBoundary extends React.Component<{children: React.ReactNode, title?: 
   render() {
     if (this.state.hasError) {
       return (
-        <Card className="border-zoru-line mt-4">
+        <Card className="border-[var(--st-border)] mt-4">
           <ZoruCardContent className="p-4 flex flex-col items-center justify-center space-y-4">
-            <AlertCircle className="w-8 h-8 text-zoru-ink" />
-            <div className="text-zoru-ink font-semibold text-center">{this.props.title || 'Something went wrong rendering the results!'}</div>
-            <p className="text-sm text-zoru-ink text-center max-w-md break-all">{this.state.error?.message}</p>
+            <AlertCircle className="w-8 h-8 text-[var(--st-text)]" />
+            <div className="text-[var(--st-text)] font-semibold text-center">{this.props.title || 'Something went wrong rendering the results!'}</div>
+            <p className="text-sm text-[var(--st-text)] text-center max-w-md break-all">{this.state.error?.message}</p>
             <Button onClick={() => {
               this.setState({ hasError: false });
               this.props.onReset?.();
@@ -163,20 +163,20 @@ export default function HttpHeadersPage() {
                       <div key={idx} className="flex items-start gap-3 text-sm">
                         <div className="flex flex-col items-center gap-1 min-w-[50px] mt-0.5">
                           <span className={cn("px-2 py-0.5 rounded text-xs font-semibold", 
-                            step.status >= 300 && step.status < 400 ? "bg-zoru-surface-2 text-zoru-ink" :
-                            step.status >= 200 && step.status < 300 ? "bg-zoru-surface-2 text-zoru-ink" :
-                            "bg-zoru-surface-2 text-zoru-ink"
+                            step.status >= 300 && step.status < 400 ? "bg-[var(--st-bg-muted)] text-[var(--st-text)]" :
+                            step.status >= 200 && step.status < 300 ? "bg-[var(--st-bg-muted)] text-[var(--st-text)]" :
+                            "bg-[var(--st-bg-muted)] text-[var(--st-text)]"
                           )}>
                             {step.status}
                           </span>
                           {idx < data.redirectChain.length - 1 && (
-                            <ArrowRightIcon className="w-4 h-4 text-zoru-ink-muted rotate-90" />
+                            <ArrowRightIcon className="w-4 h-4 text-[var(--st-text-secondary)] rotate-90" />
                           )}
                         </div>
                         <div className="flex flex-col break-all pt-0.5">
-                          <span className="font-mono text-zoru-ink font-medium">{step.url}</span>
+                          <span className="font-mono text-[var(--st-text)] font-medium">{step.url}</span>
                           {step.location && (
-                            <span className="text-zoru-ink text-xs mt-1">↳ {step.location}</span>
+                            <span className="text-[var(--st-text)] text-xs mt-1">↳ {step.location}</span>
                           )}
                         </div>
                       </div>
@@ -191,9 +191,9 @@ export default function HttpHeadersPage() {
                 <div className="flex items-center gap-2 mb-4">
                   <span className="font-semibold">Final Status:</span> 
                   <span className={cn("px-2 py-0.5 rounded text-sm font-semibold", 
-                    data.status >= 200 && data.status < 300 ? "bg-zoru-surface-2 text-zoru-ink" :
-                    data.status >= 400 ? "bg-zoru-surface-2 text-zoru-ink" :
-                    "bg-zoru-surface-2 text-zoru-ink"
+                    data.status >= 200 && data.status < 300 ? "bg-[var(--st-bg-muted)] text-[var(--st-text)]" :
+                    data.status >= 400 ? "bg-[var(--st-bg-muted)] text-[var(--st-text)]" :
+                    "bg-[var(--st-bg-muted)] text-[var(--st-text)]"
                   )}>
                     {data.status}
                   </span>
@@ -204,9 +204,9 @@ export default function HttpHeadersPage() {
                   <table className="w-full text-xs text-left">
                     <tbody>
                       {Object.entries(data.headers || {}).map(([k, v]) => (
-                        <tr key={k} className="border-t border-zoru-line hover:bg-zoru-surface-2/50 transition-colors">
-                          <td className="py-2 pr-4 font-mono w-48 sm:w-60 align-top text-zoru-ink">{k}</td>
-                          <td className="py-2 break-all font-mono text-zoru-ink">{String(v)}</td>
+                        <tr key={k} className="border-t border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]/50 transition-colors">
+                          <td className="py-2 pr-4 font-mono w-48 sm:w-60 align-top text-[var(--st-text)]">{k}</td>
+                          <td className="py-2 break-all font-mono text-[var(--st-text)]">{String(v)}</td>
                         </tr>
                       ))}
                     </tbody>

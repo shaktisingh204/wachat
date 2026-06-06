@@ -114,8 +114,8 @@ export function PipelinesClient({ pipelines: initialPipelines, kpi }: Props) {
   const bulkBar =
     selected.size > 0 ? (
       <div className="flex flex-wrap items-center justify-between gap-2 text-[12.5px]">
-        <div className="flex items-center gap-2 text-zoru-ink">
-          <ListChecks className="h-4 w-4 text-zoru-primary" />
+        <div className="flex items-center gap-2 text-[var(--st-text)]">
+          <ListChecks className="h-4 w-4 text-[var(--st-text)]" />
           {selected.size} selected
         </div>
         <div className="flex items-center gap-1">
@@ -135,11 +135,11 @@ export function PipelinesClient({ pipelines: initialPipelines, kpi }: Props) {
   const empty =
     filtered.length === 0 ? (
       <div className="flex flex-col items-center gap-3 py-16 text-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-zoru-surface-2">
-          <Columns3 className="h-6 w-6 text-zoru-ink" strokeWidth={1.75} />
+        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[var(--st-bg-muted)]">
+          <Columns3 className="h-6 w-6 text-[var(--st-text)]" strokeWidth={1.75} />
         </div>
-        <h3 className="text-[15px] font-semibold text-zoru-ink">No Pipelines Found</h3>
-        <p className="text-[12.5px] text-zoru-ink-muted">
+        <h3 className="text-[15px] font-semibold text-[var(--st-text)]">No Pipelines Found</h3>
+        <p className="text-[12.5px] text-[var(--st-text-secondary)]">
           {search ? 'No pipelines match your search.' : "You haven't created any pipelines yet."}
         </p>
         {!search ? (
@@ -204,7 +204,7 @@ export function PipelinesClient({ pipelines: initialPipelines, kpi }: Props) {
         >
           <div className="space-y-4">
             {/* Table summary */}
-            <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
+            <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
               <Table>
                 <ZoruTableHeader>
                   <ZoruTableRow>
@@ -214,7 +214,7 @@ export function PipelinesClient({ pipelines: initialPipelines, kpi }: Props) {
                         checked={allSelectedOnPage}
                         onChange={toggleAll}
                         aria-label="Select all"
-                        className="rounded border-zoru-line"
+                        className="rounded border-[var(--st-border)]"
                       />
                     </ZoruTableHead>
                     <ZoruTableHead>Pipeline Name</ZoruTableHead>
@@ -231,16 +231,16 @@ export function PipelinesClient({ pipelines: initialPipelines, kpi }: Props) {
                           checked={selected.has(p.id)}
                           onChange={() => toggleRow(p.id)}
                           aria-label={`Select ${p.name}`}
-                          className="rounded border-zoru-line"
+                          className="rounded border-[var(--st-border)]"
                         />
                       </ZoruTableCell>
-                      <ZoruTableCell className="font-medium text-zoru-ink">
+                      <ZoruTableCell className="font-medium text-[var(--st-text)]">
                         <EntityRowLink
                           href={`${BASE}/${p.id}`}
                           label={p.name}
                         />
                       </ZoruTableCell>
-                      <ZoruTableCell className="font-mono text-[12px] text-zoru-ink-muted">
+                      <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text-secondary)]">
                         {p.stages?.length ?? 0}
                       </ZoruTableCell>
                       <ZoruTableCell>
@@ -265,11 +265,11 @@ export function PipelinesClient({ pipelines: initialPipelines, kpi }: Props) {
                   <ZoruAccordionItem
                     key={pipeline.id}
                     value={pipeline.id}
-                    className="rounded-xl border border-zoru-line bg-zoru-surface"
+                    className="rounded-xl border border-[var(--st-border)] bg-[var(--st-bg-secondary)]"
                   >
-                    <ZoruAccordionTrigger className="px-4 py-3 text-[13.5px] font-semibold text-zoru-ink hover:no-underline">
+                    <ZoruAccordionTrigger className="px-4 py-3 text-[13.5px] font-semibold text-[var(--st-text)] hover:no-underline">
                       {pipeline.name}
-                      <span className="ml-auto mr-2 font-normal text-[11.5px] text-zoru-ink-muted">
+                      <span className="ml-auto mr-2 font-normal text-[11.5px] text-[var(--st-text-secondary)]">
                         {pipeline.stages?.length ?? 0} stage{(pipeline.stages?.length ?? 0) === 1 ? '' : 's'}
                       </span>
                     </ZoruAccordionTrigger>
@@ -278,12 +278,12 @@ export function PipelinesClient({ pipelines: initialPipelines, kpi }: Props) {
                         {(pipeline.stages ?? []).map((stage) => (
                           <div
                             key={stage.id}
-                            className="rounded-lg border border-zoru-line bg-zoru-surface-2 p-3 text-center"
+                            className="rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-center"
                           >
-                            <p className="text-[13px] font-medium text-zoru-ink">
+                            <p className="text-[13px] font-medium text-[var(--st-text)]">
                               {stage.name}
                             </p>
-                            <p className="mt-1 text-[11px] text-zoru-ink-muted">
+                            <p className="mt-1 text-[11px] text-[var(--st-text-secondary)]">
                               {stage.chance}% chance
                             </p>
                           </div>

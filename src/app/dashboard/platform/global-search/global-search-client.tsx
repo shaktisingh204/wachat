@@ -65,11 +65,11 @@ export function GlobalSearchClient({
       empty={
         data.length === 0 ? (
           initialQuery ? (
-            <div className="text-center py-12 text-zoru-ink-light">
+            <div className="text-center py-12 text-[var(--st-text-tertiary)]">
               No results found for "{initialQuery}". Try searching for something else.
             </div>
           ) : (
-            <div className="text-center py-12 text-zoru-ink-light">
+            <div className="text-center py-12 text-[var(--st-text-tertiary)]">
               Enter a search term to begin.
             </div>
           )
@@ -78,7 +78,7 @@ export function GlobalSearchClient({
       pagination={
         total > 0 ? (
           <div className="flex items-center justify-between pt-4 mt-6">
-            <span className="text-sm text-zoru-ink-light">
+            <span className="text-sm text-[var(--st-text-tertiary)]">
               Showing {(currentPage - 1) * limit + 1} to {Math.min(currentPage * limit, total)} of {total} results
             </span>
             <div className="flex items-center space-x-2">
@@ -91,7 +91,7 @@ export function GlobalSearchClient({
                 <ChevronLeft className="w-4 h-4 mr-1" />
                 Previous
               </Button>
-              <span className="text-sm px-2 text-zoru-ink-light">
+              <span className="text-sm px-2 text-[var(--st-text-tertiary)]">
                 Page {currentPage} of {totalPages}
               </span>
               <Button
@@ -112,15 +112,15 @@ export function GlobalSearchClient({
         <div className="space-y-4">
           {data.map(item => (
             <Link key={item.id} href={item.url} className="block">
-              <Card className="p-4 flex items-center justify-between hover:border-zoru-accent transition-colors group cursor-pointer shadow-none">
+              <Card className="p-4 flex items-center justify-between hover:border-[var(--st-accent)] transition-colors group cursor-pointer shadow-none">
                 <div>
                   <div className="flex items-center space-x-2">
-                    <span className="text-xs uppercase font-bold tracking-wider text-zoru-accent">{item.type}</span>
+                    <span className="text-xs uppercase font-bold tracking-wider text-[var(--st-accent)]">{item.type}</span>
                   </div>
-                  <h3 className="font-semibold text-lg text-zoru-ink mt-1 group-hover:text-zoru-accent transition-colors">{item.title}</h3>
-                  <p className="text-zoru-ink-light mt-1">{item.subtitle}</p>
+                  <h3 className="font-semibold text-lg text-[var(--st-text)] mt-1 group-hover:text-[var(--st-accent)] transition-colors">{item.title}</h3>
+                  <p className="text-[var(--st-text-tertiary)] mt-1">{item.subtitle}</p>
                 </div>
-                <ArrowRight className="w-5 h-5 text-zoru-ink-light group-hover:text-zoru-accent transition-colors opacity-0 group-hover:opacity-100" />
+                <ArrowRight className="w-5 h-5 text-[var(--st-text-tertiary)] group-hover:text-[var(--st-accent)] transition-colors opacity-0 group-hover:opacity-100" />
               </Card>
             </Link>
           ))}

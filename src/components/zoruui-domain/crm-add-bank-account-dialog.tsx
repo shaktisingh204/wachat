@@ -54,39 +54,39 @@ export function CrmAddBankAccountDialog({ isOpen, onOpenChange, onSave }: CrmAdd
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <ZoruDialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
                 <ZoruDialogHeader className="px-6 pt-6 pb-2">
-                    <ZoruDialogTitle className="text-zoru-ink">Add New Bank Account</ZoruDialogTitle>
-                    <ZoruDialogDescription className="text-zoru-ink-muted">
+                    <ZoruDialogTitle className="text-[var(--st-text)]">Add New Bank Account</ZoruDialogTitle>
+                    <ZoruDialogDescription className="text-[var(--st-text-secondary)]">
                         Enter the vendor's bank details for payouts.
                     </ZoruDialogDescription>
                 </ZoruDialogHeader>
                 <div className="flex-1 overflow-y-auto px-6 py-2">
                     <div className="space-y-4">
                         <div className="space-y-2">
-                            <Label className="text-zoru-ink">Country *</Label>
+                            <Label className="text-[var(--st-text)]">Country *</Label>
                             <Select defaultValue="India"><ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="India">India</ZoruSelectItem></ZoruSelectContent></Select>
                         </div>
                         <div className="space-y-2">
-                            <Label className="text-zoru-ink">Bank Name *</Label>
+                            <Label className="text-[var(--st-text)]">Bank Name *</Label>
                             <Input placeholder="e.g. HDFC Bank" value={details.bankName || ''} onChange={e => setDetails(prev => ({ ...prev, bankName: e.target.value }))} required maxLength={100} />
                         </div>
                         <div className="space-y-2">
-                            <Label className="text-zoru-ink">Account Number *</Label>
+                            <Label className="text-[var(--st-text)]">Account Number *</Label>
                             <Input value={details.accountNumber || ''} inputMode="numeric" pattern="[0-9]*" onChange={e => setDetails(prev => ({ ...prev, accountNumber: digitsOnly(e.target.value) }))} required maxLength={30} />
                         </div>
                         <div className="space-y-2">
-                            <Label className="text-zoru-ink">Confirm Account Number *</Label>
+                            <Label className="text-[var(--st-text)]">Confirm Account Number *</Label>
                             <Input value={confirmAccountNumber} inputMode="numeric" pattern="[0-9]*" onChange={e => setConfirmAccountNumber(digitsOnly(e.target.value))} required maxLength={30} />
                         </div>
                         <div className="space-y-2">
-                            <Label className="text-zoru-ink">IFSC Code *</Label>
+                            <Label className="text-[var(--st-text)]">IFSC Code *</Label>
                             <Input value={details.ifsc || ''} onChange={e => setDetails(prev => ({ ...prev, ifsc: e.target.value }))} required maxLength={20} />
                         </div>
                         <div className="space-y-2">
-                            <Label className="text-zoru-ink">Account Holder Name *</Label>
+                            <Label className="text-[var(--st-text)]">Account Holder Name *</Label>
                             <Input value={details.accountHolder || ''} pattern="[A-Za-z\\s'.-]+" onChange={e => setDetails(prev => ({ ...prev, accountHolder: nameOnly(e.target.value) }))} required maxLength={100} />
                         </div>
                         <div className="space-y-2">
-                            <Label className="text-zoru-ink">Account Type *</Label>
+                            <Label className="text-[var(--st-text)]">Account Type *</Label>
                             <Select value={details.accountType || ''} onValueChange={val => setDetails(prev => ({ ...prev, accountType: val as any }))} required>
                                 <ZoruSelectTrigger><ZoruSelectValue placeholder="Select account type..." /></ZoruSelectTrigger>
                                 <ZoruSelectContent>
@@ -96,7 +96,7 @@ export function CrmAddBankAccountDialog({ isOpen, onOpenChange, onSave }: CrmAdd
                             </Select>
                         </div>
                         <div className="space-y-2">
-                            <Label className="text-zoru-ink">Currency *</Label>
+                            <Label className="text-[var(--st-text)]">Currency *</Label>
                             <Select value={details.currency || 'INR'} onValueChange={val => setDetails(prev => ({ ...prev, currency: val }))} required>
                                 <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
                                 <ZoruSelectContent>
@@ -106,17 +106,17 @@ export function CrmAddBankAccountDialog({ isOpen, onOpenChange, onSave }: CrmAdd
                         </div>
                         <div className="flex items-center space-x-2 pt-2">
                             <Switch id="show-swift" checked={showSwift} onCheckedChange={setShowSwift} />
-                            <Label htmlFor="show-swift" className="text-zoru-ink">Add SWIFT Code</Label>
+                            <Label htmlFor="show-swift" className="text-[var(--st-text)]">Add SWIFT Code</Label>
                         </div>
                         {showSwift && <div className="space-y-2"><Input value={details.swiftCode || ''} onChange={e => setDetails(prev => ({ ...prev, swiftCode: e.target.value }))} maxLength={20} /></div>}
                         <div className="flex items-center space-x-2">
                             <Switch id="show-iban" checked={showIban} onCheckedChange={setShowIban} />
-                            <Label htmlFor="show-iban" className="text-zoru-ink">Add IBAN Code</Label>
+                            <Label htmlFor="show-iban" className="text-[var(--st-text)]">Add IBAN Code</Label>
                         </div>
                         {showIban && <div className="space-y-2"><Input value={details.ibanCode || ''} onChange={e => setDetails(prev => ({ ...prev, ibanCode: e.target.value }))} maxLength={34} /></div>}
                     </div>
                 </div>
-                <ZoruDialogFooter className="shrink-0 border-t border-zoru-line bg-zoru-bg px-6 pb-6 pt-4">
+                <ZoruDialogFooter className="shrink-0 border-t border-[var(--st-border)] bg-[var(--st-bg)] px-6 pb-6 pt-4">
                     <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
                     <Button type="button" onClick={handleSave}>Add Account</Button>
                 </ZoruDialogFooter>

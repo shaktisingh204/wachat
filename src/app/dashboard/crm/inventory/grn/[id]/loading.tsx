@@ -17,7 +17,7 @@ export default function GrnDetailLoading() {
 
             <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
                 <div className="flex flex-col gap-6">
-                    <div className="rounded-lg border border-zoru-line p-6">
+                    <div className="rounded-lg border border-[var(--st-border)] p-6">
                         <Skeleton className="mb-4 h-4 w-24" />
                         <div className="grid gap-4 md:grid-cols-2">
                             {Array.from({ length: 8 }).map((_, i) => (
@@ -28,14 +28,14 @@ export default function GrnDetailLoading() {
                             ))}
                         </div>
                     </div>
-                    <div className="rounded-lg border border-zoru-line p-6">
+                    <div className="rounded-lg border border-[var(--st-border)] p-6">
                         <Skeleton className="mb-4 h-4 w-24" />
                         <Skeleton className="h-40 w-full" />
                     </div>
                 </div>
 
                 <div className="flex flex-col gap-4">
-                    <div className="rounded-lg border border-zoru-line p-6">
+                    <div className="rounded-lg border border-[var(--st-border)] p-6">
                         <Skeleton className="mb-4 h-4 w-32" />
                         <div className="space-y-3">
                             <div className="space-y-1">
@@ -48,7 +48,7 @@ export default function GrnDetailLoading() {
                             </div>
                         </div>
                     </div>
-                    <div className="rounded-lg border border-zoru-line p-6">
+                    <div className="rounded-lg border border-[var(--st-border)] p-6">
                         <Skeleton className="mb-4 h-4 w-32" />
                         <div className="space-y-4">
                             {Array.from({ length: 3 }).map((_, i) => (

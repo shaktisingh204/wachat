@@ -34,13 +34,13 @@ function ToggleRow({
 }) {
   const [checked, setChecked] = useState<boolean>(!!defaultChecked);
   return (
-    <div className="flex items-start justify-between gap-4 rounded-lg border border-zoru-line bg-zoru-surface px-4 py-3">
+    <div className="flex items-start justify-between gap-4 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-3">
       <div className="flex-1">
-        <Label htmlFor={name} className="text-[13px] text-zoru-ink">
+        <Label htmlFor={name} className="text-[13px] text-[var(--st-text)]">
           {label}
         </Label>
         {description ? (
-          <p className="mt-0.5 text-[12px] text-zoru-ink-muted">{description}</p>
+          <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">{description}</p>
         ) : null}
       </div>
       <Switch id={name} checked={checked} onCheckedChange={setChecked} />
@@ -120,7 +120,7 @@ export default function TaskSettingsPage() {
         <Card className="p-6">
           <form action={formAction} className="space-y-6">
             <section className="space-y-3">
-              <h3 className="text-[13px] uppercase tracking-wide text-zoru-ink-muted">
+              <h3 className="text-[13px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Feature Toggles
               </h3>
               <div className="grid gap-3 md:grid-cols-2">
@@ -164,12 +164,12 @@ export default function TaskSettingsPage() {
             </section>
 
             <section className="space-y-4">
-              <h3 className="text-[13px] uppercase tracking-wide text-zoru-ink-muted">
+              <h3 className="text-[13px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Defaults
               </h3>
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
-                  <Label htmlFor="default_priority" className="text-[13px] text-zoru-ink">
+                  <Label htmlFor="default_priority" className="text-[13px] text-[var(--st-text)]">
                     Default Priority
                   </Label>
                   <div className="mt-1.5">

@@ -105,8 +105,8 @@ export function WebhookTable({ webhooks, onEdit, onChanged }: WebhookTableProps)
           {webhooks.map((w) => (
             <ZoruTableRow key={w._id}>
               <ZoruTableCell>
-                <div className="font-medium text-zoru-ink">{w.name ?? '—'}</div>
-                <code className="block max-w-[320px] truncate text-xs text-zoru-ink-muted">
+                <div className="font-medium text-[var(--st-text)]">{w.name ?? '—'}</div>
+                <code className="block max-w-[320px] truncate text-xs text-[var(--st-text-secondary)]">
                   {w.url}
                 </code>
               </ZoruTableCell>
@@ -134,7 +134,7 @@ export function WebhookTable({ webhooks, onEdit, onChanged }: WebhookTableProps)
                   </Badge>
                 ) : null}
               </ZoruTableCell>
-              <ZoruTableCell className="text-sm text-zoru-ink-muted">
+              <ZoruTableCell className="text-sm text-[var(--st-text-secondary)]">
                 {w.lastDeliveryAt ? (
                   <>
                     {formatDistanceToNow(new Date(w.lastDeliveryAt), { addSuffix: true })}
@@ -167,7 +167,7 @@ export function WebhookTable({ webhooks, onEdit, onChanged }: WebhookTableProps)
                       <ZoruAlertDialogTrigger asChild>
                         <ZoruDropdownMenuItem
                           onSelect={(e) => e.preventDefault()}
-                          className="text-zoru-ink"
+                          className="text-[var(--st-text)]"
                         >
                           <Trash2 className="h-4 w-4" /> Delete
                         </ZoruDropdownMenuItem>

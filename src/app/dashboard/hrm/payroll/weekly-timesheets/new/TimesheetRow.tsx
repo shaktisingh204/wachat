@@ -50,7 +50,7 @@ export const TimesheetRow = memo(({
         height: `${virtualItem.size}px`,
         transform: `translateY(${virtualItem.start}px)`,
       }}
-      className={`flex items-center gap-4 px-4 border-b border-zoru-line/50 transition-colors ${entry.status === 'saving' ? 'opacity-70 bg-zoru-surface' : 'hover:bg-zoru-bg/50'}`}
+      className={`flex items-center gap-4 px-4 border-b border-[var(--st-border)]/50 transition-colors ${entry.status === 'saving' ? 'opacity-70 bg-[var(--st-bg-secondary)]' : 'hover:bg-[var(--st-bg)]/50'}`}
     >
       <ZoruCheckbox 
         checked={isSelected}
@@ -64,7 +64,7 @@ export const TimesheetRow = memo(({
           onValueChange={(val) => onUpdate(entry.id, 'userId', val)}
           disabled={entry.status === 'saving'}
         >
-          <ZoruSelectTrigger className="h-9 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+          <ZoruSelectTrigger className="h-9 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
             <ZoruSelectValue placeholder="Select employee" />
           </ZoruSelectTrigger>
           <ZoruSelectContent>
@@ -84,7 +84,7 @@ export const TimesheetRow = memo(({
           onChange={(e) => onUpdate(entry.id, 'weekStart', e.target.value)}
           required
           disabled={entry.status === 'saving'}
-          className="h-9 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+          className="h-9 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
         />
       </div>
 
@@ -93,19 +93,19 @@ export const TimesheetRow = memo(({
           type="date"
           value={entry.weekEnd}
           readOnly
-          className="h-9 rounded-lg border-zoru-line bg-zoru-bg text-[13px] opacity-60"
+          className="h-9 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px] opacity-60"
         />
       </div>
 
       <div className="w-[15%] flex justify-end items-center gap-2">
-        {entry.status === 'saving' && <LoaderCircle className="h-4 w-4 animate-spin text-zoru-ink-muted" />}
-        {entry.status === 'saved' && <CheckCircle2 className="h-4 w-4 text-zoru-ink" />}
-        {entry.status === 'error' && <AlertCircle className="h-4 w-4 text-zoru-ink" />}
+        {entry.status === 'saving' && <LoaderCircle className="h-4 w-4 animate-spin text-[var(--st-text-secondary)]" />}
+        {entry.status === 'saved' && <CheckCircle2 className="h-4 w-4 text-[var(--st-text)]" />}
+        {entry.status === 'error' && <AlertCircle className="h-4 w-4 text-[var(--st-text)]" />}
         <Button
           type="button"
           variant="ghost"
           size="icon"
-          className="text-zoru-danger-ink hover:bg-zoru-danger-bg hover:text-zoru-danger-ink"
+          className="text-[var(--st-danger)] hover:bg-[var(--st-danger-soft)] hover:text-[var(--st-danger)]"
           onClick={() => onRemove(entry.id)}
           disabled={entry.status === 'saving'}
         >

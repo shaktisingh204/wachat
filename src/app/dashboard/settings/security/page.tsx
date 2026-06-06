@@ -162,12 +162,12 @@ export default function SecuritySettingsPage() {
             {/* Password */}
             <Card className="p-6">
                 <div className="mb-4 flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                         <Lock className="h-4 w-4" />
                     </div>
                     <div>
-                        <p className="text-sm text-zoru-ink">{t('settings.security.password.title')}</p>
-                        <p className="text-xs text-zoru-ink-muted">
+                        <p className="text-sm text-[var(--st-text)]">{t('settings.security.password.title')}</p>
+                        <p className="text-xs text-[var(--st-text-secondary)]">
                             {t('settings.security.password.hint')}
                         </p>
                     </div>
@@ -191,28 +191,28 @@ export default function SecuritySettingsPage() {
             {/* 2FA */}
             <Card className="p-6">
                 <div className="mb-4 flex items-start gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                         <Shield className="h-4 w-4" />
                     </div>
                     <div className="flex-1">
                         <div className="flex items-center gap-2">
-                            <p className="text-sm text-zoru-ink">
+                            <p className="text-sm text-[var(--st-text)]">
                                 {t('settings.security.twoFactor.title')}
                             </p>
                             <Badge variant={twoFactor ? 'success' : 'ghost'}>
                                 {twoFactor ? t('common.enabled') : t('common.disabled')}
                             </Badge>
                         </div>
-                        <p className="text-xs text-zoru-ink-muted">
+                        <p className="text-xs text-[var(--st-text-secondary)]">
                             {t('settings.security.twoFactor.hint')}
                         </p>
                     </div>
                     <Switch checked={twoFactor} onCheckedChange={persistTwoFactor} />
                 </div>
-                <div className="flex items-start justify-between gap-4 rounded-xl border border-zoru-line bg-zoru-surface-2 p-3">
+                <div className="flex items-start justify-between gap-4 rounded-xl border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3">
                     <div>
                         <Label className="text-[13px]">{t('settings.security.alerts.label')}</Label>
-                        <p className="mt-0.5 text-xs text-zoru-ink-muted">
+                        <p className="mt-0.5 text-xs text-[var(--st-text-secondary)]">
                             {t('settings.security.alerts.hint')}
                         </p>
                     </div>
@@ -227,12 +227,12 @@ export default function SecuritySettingsPage() {
             {/* Active sessions */}
             <Card className="p-6">
                 <div className="mb-4 flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                         <Laptop className="h-4 w-4" />
                     </div>
                     <div className="flex-1">
-                        <p className="text-sm text-zoru-ink">{t('settings.security.sessions.title')}</p>
-                        <p className="text-xs text-zoru-ink-muted">
+                        <p className="text-sm text-[var(--st-text)]">{t('settings.security.sessions.title')}</p>
+                        <p className="text-xs text-[var(--st-text-secondary)]">
                             {t('settings.security.sessions.hint')}
                         </p>
                     </div>
@@ -250,7 +250,7 @@ export default function SecuritySettingsPage() {
                         {t('settings.security.sessions.signOutEverywhere')}
                     </Button>
                 </div>
-                <div className="divide-y divide-zoru-line rounded-xl border border-zoru-line">
+                <div className="divide-y divide-[var(--st-border)] rounded-xl border border-[var(--st-border)]">
                     {sessions.length === 0 ? (
                         <SessionRow label={t('settings.security.sessions.current')} device={t('settings.security.sessions.thisBrowser')} location="—" current />
                     ) : (
@@ -270,12 +270,12 @@ export default function SecuritySettingsPage() {
             {/* Recovery */}
             <Card className="p-6">
                 <div className="flex items-start gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                         <Key className="h-4 w-4" />
                     </div>
                     <div className="flex-1">
-                        <p className="text-sm text-zoru-ink">{t('settings.security.recovery.title')}</p>
-                        <p className="text-xs text-zoru-ink-muted">
+                        <p className="text-sm text-[var(--st-text)]">{t('settings.security.recovery.title')}</p>
+                        <p className="text-xs text-[var(--st-text-secondary)]">
                             {t('settings.security.recovery.hint')}
                         </p>
                     </div>
@@ -313,10 +313,10 @@ function SessionRow({
         <div className="flex items-center justify-between px-4 py-3 text-[13px]">
             <div>
                 <div className="flex items-center gap-2">
-                    <p className="text-zoru-ink">{label}</p>
+                    <p className="text-[var(--st-text)]">{label}</p>
                     {current && <Badge variant="success">{t('settings.security.sessions.thisDevice')}</Badge>}
                 </div>
-                <p className="mt-0.5 text-xs text-zoru-ink-muted">
+                <p className="mt-0.5 text-xs text-[var(--st-text-secondary)]">
                     {device} · {location}
                 </p>
             </div>

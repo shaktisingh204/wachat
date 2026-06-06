@@ -61,7 +61,7 @@ export default async function AnnouncementDetailPage({
                 }
                 rightRail={
                     <Card>
-                        <h3 className="mb-3 text-[13.5px] font-semibold text-zoru-ink">
+                        <h3 className="mb-3 text-[13.5px] font-semibold text-[var(--st-text)]">
                             Reach
                         </h3>
                         <AnnouncementStats
@@ -91,7 +91,7 @@ export default async function AnnouncementDetailPage({
                             className="mb-4 max-h-64 w-full rounded-md object-cover"
                         />
                     ) : null}
-                    <div className="whitespace-pre-wrap text-[14px] leading-relaxed text-zoru-ink">
+                    <div className="whitespace-pre-wrap text-[14px] leading-relaxed text-[var(--st-text)]">
                         {announcement.body}
                     </div>
                     {announcement.tags && announcement.tags.length > 0 ? (

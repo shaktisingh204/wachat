@@ -486,13 +486,13 @@ export default function VendorLeadsPage() {
       key: 'contactName',
       header: 'Contact',
       sortable: true,
-      render: (row) => <span className="text-[13px] text-zoru-ink">{row.contactName || 'N/A'}</span>,
+      render: (row) => <span className="text-[13px] text-[var(--st-text)]">{row.contactName || 'N/A'}</span>,
     },
     {
       key: 'company',
       header: 'Company',
       sortable: true,
-      render: (row) => <span className="text-[13px] text-zoru-ink">{row.company || 'N/A'}</span>,
+      render: (row) => <span className="text-[13px] text-[var(--st-text)]">{row.company || 'N/A'}</span>,
     },
     {
       key: 'status',
@@ -505,7 +505,7 @@ export default function VendorLeadsPage() {
       ),
       editRender: (row, value, onChange) => (
         <select
-          className="bg-zoru-surface-2 border border-zoru-line rounded px-1.5 py-0.5 text-xs text-zoru-ink focus:outline-none"
+          className="bg-[var(--st-bg-muted)] border border-[var(--st-border)] rounded px-1.5 py-0.5 text-xs text-[var(--st-text)] focus:outline-none"
           value={value || 'New'}
           onChange={(e) => onChange(e.target.value)}
         >
@@ -522,7 +522,7 @@ export default function VendorLeadsPage() {
       key: 'source',
       header: 'Source',
       sortable: true,
-      render: (row) => <span className="text-[13px] text-zoru-ink">{row.source || '—'}</span>,
+      render: (row) => <span className="text-[13px] text-[var(--st-text)]">{row.source || '—'}</span>,
     },
     {
       key: 'actions',
@@ -540,7 +540,7 @@ export default function VendorLeadsPage() {
             variant="ghost"
             size="sm"
             onClick={() => setDeleteTargetId(String(row._id))}
-            className="text-zoru-ink"
+            className="text-[var(--st-text)]"
           >
             Delete
           </Button>
@@ -624,11 +624,11 @@ export default function VendorLeadsPage() {
         empty={
           !isPending && leads.length === 0 && !hasActiveFilters && !search ? (
             <div className="flex flex-col items-center gap-3 p-4">
-              <Target className="h-8 w-8 text-zoru-ink-muted" />
-              <h3 className="text-base font-medium text-zoru-ink">
+              <Target className="h-8 w-8 text-[var(--st-text-secondary)]" />
+              <h3 className="text-base font-medium text-[var(--st-text)]">
                 No vendor leads yet
               </h3>
-              <p className="max-w-sm text-sm text-zoru-ink-muted">
+              <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                 Track potential suppliers in your pipeline. Capture them via
                 form, import a CSV, or add manually below.
               </p>
@@ -670,7 +670,7 @@ export default function VendorLeadsPage() {
 
           <Card>
             <div className="flex items-center justify-between">
-              <h2 className="text-[16px] font-semibold text-zoru-ink">
+              <h2 className="text-[16px] font-semibold text-[var(--st-text)]">
                 All Vendor Leads
                 {total > 0 ? (
                   <Badge variant="secondary" className="ml-2">
@@ -679,7 +679,7 @@ export default function VendorLeadsPage() {
                 ) : null}
               </h2>
             </div>
-            <div className="mt-4 overflow-hidden rounded-lg border border-zoru-line bg-zoru-surface">
+            <div className="mt-4 overflow-hidden rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
               <CrmBulkyGrid<WithId<CrmLead>>
                 columns={columns}
                 data={filtered}
@@ -754,13 +754,13 @@ export default function VendorLeadsPage() {
             </SabFileToFileButton>
 
             {importResults.length > 0 ? (
-              <div className="max-h-64 overflow-y-auto rounded border border-zoru-line text-xs">
+              <div className="max-h-64 overflow-y-auto rounded border border-[var(--st-border)] text-xs">
                 {importResults.map((r) => (
                   <div
                     key={r.row}
                     className={
                       'flex justify-between px-3 py-1.5 ' +
-                      (r.ok ? 'text-zoru-fg' : 'text-zoru-danger')
+                      (r.ok ? 'text-[var(--st-text)]' : 'text-[var(--st-danger)]')
                     }
                   >
                     <span>Row {r.row}</span>

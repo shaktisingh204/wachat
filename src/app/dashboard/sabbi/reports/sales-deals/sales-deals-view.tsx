@@ -142,8 +142,8 @@ export function SalesDealsView({
   return (
     <div className="flex flex-col gap-4">
       {/* Draggable Stages for Interactive Filtering */}
-      <div className="flex flex-wrap gap-2 items-center rounded-lg border border-zoru-line bg-zoru-surface p-3">
-        <span className="text-[12px] font-medium text-zoru-ink-muted mr-2">
+      <div className="flex flex-wrap gap-2 items-center rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+        <span className="text-[12px] font-medium text-[var(--st-text-secondary)] mr-2">
           Drag stage to filter:
         </span>
         {funnel.map((f) => (
@@ -163,32 +163,32 @@ export function SalesDealsView({
       {/* Filter row */}
       <form
         onSubmit={pushFilters}
-        className="flex flex-wrap items-end gap-2 rounded-lg border border-zoru-line bg-zoru-surface px-3 py-2"
+        className="flex flex-wrap items-end gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
       >
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
             From
           </span>
           <input
             type="date"
             name="from"
             defaultValue={from}
-            className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
+            className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
           />
         </label>
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
             To
           </span>
           <input
             type="date"
             name="to"
             defaultValue={to}
-            className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
+            className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
           />
         </label>
         <label 
-          className={`flex flex-col gap-1 rounded-lg p-1 transition-colors ${isDragOver ? 'bg-zoru-ink/20 ring-1 ring-primary' : ''}`}
+          className={`flex flex-col gap-1 rounded-lg p-1 transition-colors ${isDragOver ? 'bg-[var(--st-text)]/20 ring-1 ring-primary' : ''}`}
           onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
           onDragLeave={() => setIsDragOver(false)}
           onDrop={(e) => {
@@ -198,7 +198,7 @@ export function SalesDealsView({
             if (dropped) setStageInput(dropped);
           }}
         >
-          <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
             Stage
           </span>
           <input
@@ -206,11 +206,11 @@ export function SalesDealsView({
             value={stageInput}
             onChange={(e) => setStageInput(e.target.value)}
             placeholder="Drop here or type"
-            className="h-9 w-32 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
+            className="h-9 w-32 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
           />
         </label>
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
             Pipeline
           </span>
           <input
@@ -218,7 +218,7 @@ export function SalesDealsView({
             value={pipelineInput}
             onChange={(e) => setPipelineInput(e.target.value)}
             placeholder="Any"
-            className="h-9 w-28 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
+            className="h-9 w-28 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
           />
         </label>
         <Button type="submit" size="sm" disabled={isPending}>
@@ -265,7 +265,7 @@ export function SalesDealsView({
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <div className="mb-3">
-            <h2 className="text-[16px] font-semibold text-zoru-ink">
+            <h2 className="text-[16px] font-semibold text-[var(--st-text)]">
               Won vs lost by month
             </h2>
           </div>
@@ -274,7 +274,7 @@ export function SalesDealsView({
 
         <Card>
           <div className="mb-3">
-            <h2 className="text-[16px] font-semibold text-zoru-ink">
+            <h2 className="text-[16px] font-semibold text-[var(--st-text)]">
               Stage distribution
             </h2>
           </div>
@@ -284,44 +284,44 @@ export function SalesDealsView({
 
       {/* Data table */}
       <Card>
-        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+        <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <Table>
             <ZoruTableHeader>
-              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                <ZoruTableHead className="text-zoru-ink-muted">
+              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                   Deal
                 </ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                   Stage
                 </ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                   Owner
                 </ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                   Pipeline
                 </ZoruTableHead>
-                <ZoruTableHead className="text-right text-zoru-ink-muted">
+                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                   Value
                 </ZoruTableHead>
-                <ZoruTableHead className="text-right text-zoru-ink-muted">
+                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                   Created
                 </ZoruTableHead>
               </ZoruTableRow>
             </ZoruTableHeader>
             <ZoruTableBody>
               {deals.length === 0 ? (
-                <ZoruTableRow className="border-zoru-line">
+                <ZoruTableRow className="border-[var(--st-border)]">
                   <ZoruTableCell
                     colSpan={6}
-                    className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                    className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     No deals.
                   </ZoruTableCell>
                 </ZoruTableRow>
               ) : (
                 deals.map((d) => (
-                  <ZoruTableRow key={d.id} className="border-zoru-line">
-                    <ZoruTableCell className="font-medium text-zoru-ink">
+                  <ZoruTableRow key={d.id} className="border-[var(--st-border)]">
+                    <ZoruTableCell className="font-medium text-[var(--st-text)]">
                       <EntityRowLink
                         href={`/dashboard/crm/sales-crm/deals/${d.id}`}
                         label={d.name}
@@ -340,16 +340,16 @@ export function SalesDealsView({
                         {d.stage}
                       </Badge>
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                       {d.owner}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                       {d.pipeline}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] font-medium text-zoru-ink">
+                    <ZoruTableCell className="text-right text-[13px] font-medium text-[var(--st-text)]">
                       {fmtMoney(d.value)}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-zoru-ink-muted">
+                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text-secondary)]">
                       {d.createdAt
                         ? new Date(d.createdAt).toLocaleDateString()
                         : '—'}

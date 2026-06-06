@@ -131,8 +131,8 @@ export default function InternalLinkAnalyzerPage() {
       </div>
 
       {error && (
-        <Card className="border-zoru-line/50">
-          <ZoruCardContent className="p-4 text-sm text-zoru-ink">{error}</ZoruCardContent>
+        <Card className="border-[var(--st-border)]/50">
+          <ZoruCardContent className="p-4 text-sm text-[var(--st-text)]">{error}</ZoruCardContent>
         </Card>
       )}
 
@@ -149,25 +149,25 @@ export default function InternalLinkAnalyzerPage() {
               {links.map((l, i) => (
                 <div key={i} className="text-sm border-b pb-2">
                   <div className="font-mono text-xs break-all flex items-center flex-wrap gap-2 mb-1">
-                    <span className="font-semibold text-zoru-ink">{l.resolvedUrl}</span>
+                    <span className="font-semibold text-[var(--st-text)]">{l.resolvedUrl}</span>
                     <span className={cn(
                       "px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider whitespace-nowrap",
-                      l.isAbsolute ? "bg-zoru-ink/20 text-zoru-ink" : "bg-zoru-ink/20 text-zoru-ink"
+                      l.isAbsolute ? "bg-[var(--st-text)]/20 text-[var(--st-text)]" : "bg-[var(--st-text)]/20 text-[var(--st-text)]"
                     )}>
                       {l.isAbsolute ? 'Absolute' : 'Relative'}
                     </span>
                     {l.nofollow && (
-                      <span className="bg-zoru-ink/20 text-zoru-ink px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider whitespace-nowrap">
+                      <span className="bg-[var(--st-text)]/20 text-[var(--st-text)] px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider whitespace-nowrap">
                         Nofollow
                       </span>
                     )}
                   </div>
                   {l.href !== l.resolvedUrl && (
-                    <div className="text-xs text-zoru-ink-muted font-mono mb-1">
+                    <div className="text-xs text-[var(--st-text-secondary)] font-mono mb-1">
                       Raw: {l.href}
                     </div>
                   )}
-                  {l.text && <div className="text-zoru-ink-muted">{l.text}</div>}
+                  {l.text && <div className="text-[var(--st-text-secondary)]">{l.text}</div>}
                 </div>
               ))}
             </div>

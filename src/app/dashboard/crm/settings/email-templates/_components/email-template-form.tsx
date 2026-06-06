@@ -150,7 +150,7 @@ export function EmailTemplateForm({
                         defaultValue={initialData?.body ?? ''}
                         className="font-mono text-[12.5px]"
                     />
-                    <p className="text-[12px] text-zoru-ink-muted">
+                    <p className="text-[12px] text-[var(--st-text-secondary)]">
                         Use <code className="font-mono">{`{{contact.name}}`}</code>,{' '}
                         <code className="font-mono">{`{{contact.email}}`}</code>,{' '}
                         <code className="font-mono">{`{{contact.company}}`}</code>,{' '}
@@ -181,7 +181,7 @@ export function EmailTemplateForm({
                             placeholder="contact.name, contact.email"
                             defaultValue={variablesInitial}
                         />
-                        <p className="text-[11.5px] text-zoru-ink-muted">
+                        <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                             Comma-separated. Used for validation when sending.
                         </p>
                     </div>

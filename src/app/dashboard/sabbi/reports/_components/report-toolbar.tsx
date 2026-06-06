@@ -18,28 +18,28 @@ export function ReportToolbar({
   return (
     <form
       method="get"
-      className="flex flex-wrap items-end gap-2 rounded-lg border border-zoru-line bg-zoru-surface px-3 py-2"
+      className="flex flex-wrap items-end gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
     >
       <label className="flex flex-col gap-1">
-        <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+        <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
           From
         </span>
         <input
           type="date"
           name="from"
           defaultValue={from}
-          className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
+          className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
         />
       </label>
       <label className="flex flex-col gap-1">
-        <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+        <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
           To
         </span>
         <input
           type="date"
           name="to"
           defaultValue={to}
-          className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
+          className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
         />
       </label>
       {extra}
@@ -65,15 +65,15 @@ export function StatCard({
   tone?: 'default' | 'green' | 'red' | 'amber' | 'blue';
 }) {
   const toneClass: Record<NonNullable<typeof tone>, string> = {
-    default: 'text-zoru-ink',
-    green: 'text-zoru-ink',
-    red: 'text-zoru-ink',
-    amber: 'text-zoru-ink',
-    blue: 'text-zoru-ink',
+    default: 'text-[var(--st-text)]',
+    green: 'text-[var(--st-text)]',
+    red: 'text-[var(--st-text)]',
+    amber: 'text-[var(--st-text)]',
+    blue: 'text-[var(--st-text)]',
   };
   return (
-    <div className="rounded-xl border border-zoru-line bg-zoru-surface p-4 shadow-sm">
-      <div className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
+    <div className="rounded-xl border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4 shadow-sm">
+      <div className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
         {label}
       </div>
       <div
@@ -82,7 +82,7 @@ export function StatCard({
         {value}
       </div>
       {hint ? (
-        <div className="mt-1 text-[12px] text-zoru-ink-muted">{hint}</div>
+        <div className="mt-1 text-[12px] text-[var(--st-text-secondary)]">{hint}</div>
       ) : null}
     </div>
   );
@@ -104,22 +104,22 @@ export function BarRow({
 }) {
   const pct = max > 0 ? Math.max(1, Math.round((value / max) * 100)) : 0;
   const toneBg: Record<string, string> = {
-    rose: 'bg-zoru-ink',
-    obsidian: 'bg-zoru-ink',
-    green: 'bg-zoru-ink',
-    amber: 'bg-zoru-ink',
-    red: 'bg-zoru-ink',
-    blue: 'bg-zoru-ink',
+    rose: 'bg-[var(--st-text)]',
+    obsidian: 'bg-[var(--st-text)]',
+    green: 'bg-[var(--st-text)]',
+    amber: 'bg-[var(--st-text)]',
+    red: 'bg-[var(--st-text)]',
+    blue: 'bg-[var(--st-text)]',
   };
   return (
     <div className="py-2">
       <div className="flex items-center justify-between gap-3 text-[13px]">
-        <span className="truncate text-zoru-ink">{label}</span>
-        <span className="font-medium text-zoru-ink">
+        <span className="truncate text-[var(--st-text)]">{label}</span>
+        <span className="font-medium text-[var(--st-text)]">
           {rightLabel ?? value}
         </span>
       </div>
-      <div className="mt-1 h-2 w-full overflow-hidden rounded-full bg-zoru-surface-2">
+      <div className="mt-1 h-2 w-full overflow-hidden rounded-full bg-[var(--st-bg-muted)]">
         <div
           className={`h-full rounded-full ${toneBg[tone] || toneBg.rose}`}
           style={{ width: `${pct}%` }}

@@ -78,8 +78,8 @@ async function ClientProjectsPageContent(props: {
     return (
         <div className="flex flex-col gap-6">
             <div>
-                <h1 className="text-2xl font-semibold text-zoru-ink">My Projects</h1>
-                <p className="text-sm text-zoru-ink-muted">
+                <h1 className="text-2xl font-semibold text-[var(--st-text)]">My Projects</h1>
+                <p className="text-sm text-[var(--st-text-secondary)]">
                     Read-only view of projects assigned to you.
                 </p>
             </div>
@@ -144,7 +144,7 @@ async function ClientProjectsPageContent(props: {
                                                     <ZoruTableCell>
                                                         <Link
                                                             href={`/portal/client/projects/${p._id}`}
-                                                            className="font-medium text-zoru-ink hover:underline"
+                                                            className="font-medium text-[var(--st-text)] hover:underline"
                                                         >
                                                             {p.name}
                                                         </Link>
@@ -158,7 +158,7 @@ async function ClientProjectsPageContent(props: {
                                                     <ZoruTableCell>{fmtDate(p.endDate)}</ZoruTableCell>
                                                     <ZoruTableCell>
                                                         <div className="flex flex-col gap-1 w-32">
-                                                            <div className="flex items-center justify-between text-xs text-zoru-ink-muted">
+                                                            <div className="flex items-center justify-between text-xs text-[var(--st-text-secondary)]">
                                                                 <span>Progress</span>
                                                                 <span>{p.progress}%</span>
                                                             </div>

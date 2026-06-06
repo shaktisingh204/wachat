@@ -195,8 +195,8 @@ export default function FormsPage() {
   return (
     <div className="mx-auto max-w-6xl px-5 py-8 sm:px-8 lg:py-12">
       <div className="mb-8">
-        <h1 className="text-3xl font-semibold tracking-tight text-zoru-ink capitalize">forms</h1>
-        <p className="mt-2 text-base text-zoru-ink-muted">Explore forms components</p>
+        <h1 className="text-3xl font-semibold tracking-tight text-[var(--st-text)] capitalize">forms</h1>
+        <p className="mt-2 text-base text-[var(--st-text-secondary)]">Explore forms components</p>
       </div>
       <Section step="Step 2" title="Text inputs">
 <SnippetDemo code={`
@@ -275,7 +275,7 @@ export default function FormsPage() {
 <SnippetDemo code={`
           <div className="grid gap-8 sm:grid-cols-2">
             <div className="space-y-4">
-              <p className="text-sm font-medium text-zoru-ink">Checkboxes</p>
+              <p className="text-sm font-medium text-[var(--st-text)]">Checkboxes</p>
               <div className="flex items-center gap-3">
                 <Checkbox id="zoru-cb-1" defaultChecked />
                 <Label htmlFor="zoru-cb-1">Receive product updates</Label>
@@ -290,7 +290,7 @@ export default function FormsPage() {
               </div>
             </div>
             <div className="space-y-4">
-              <p className="text-sm font-medium text-zoru-ink">Switches</p>
+              <p className="text-sm font-medium text-[var(--st-text)]">Switches</p>
               <div className="flex items-center gap-3">
                 <Switch id="zoru-sw-1" defaultChecked />
                 <Label htmlFor="zoru-sw-1">Enable notifications</Label>
@@ -306,7 +306,7 @@ export default function FormsPage() {
 
           <div className="grid gap-8 sm:grid-cols-2">
             <div className="space-y-4">
-              <p className="text-sm font-medium text-zoru-ink">Checkboxes</p>
+              <p className="text-sm font-medium text-[var(--st-text)]">Checkboxes</p>
               <div className="flex items-center gap-3">
                 <Checkbox id="zoru-cb-1" defaultChecked />
                 <Label htmlFor="zoru-cb-1">Receive product updates</Label>
@@ -321,7 +321,7 @@ export default function FormsPage() {
               </div>
             </div>
             <div className="space-y-4">
-              <p className="text-sm font-medium text-zoru-ink">Switches</p>
+              <p className="text-sm font-medium text-[var(--st-text)]">Switches</p>
               <div className="flex items-center gap-3">
                 <Switch id="zoru-sw-1" defaultChecked />
                 <Label htmlFor="zoru-sw-1">Enable notifications</Label>
@@ -340,7 +340,7 @@ export default function FormsPage() {
 <SnippetDemo code={`
           <div className="grid gap-8 sm:grid-cols-2">
             <div className="space-y-3">
-              <p className="text-sm font-medium text-zoru-ink">Inline</p>
+              <p className="text-sm font-medium text-[var(--st-text)]">Inline</p>
               <RadioGroup defaultValue="monthly">
                 <div className="flex items-center gap-3">
                   <ZoruRadioGroupItem value="monthly" id="zoru-r-1" />
@@ -353,7 +353,7 @@ export default function FormsPage() {
               </RadioGroup>
             </div>
             <div className="space-y-3">
-              <p className="text-sm font-medium text-zoru-ink">Cards</p>
+              <p className="text-sm font-medium text-[var(--st-text)]">Cards</p>
               <RadioGroup defaultValue="pro">
                 <ZoruRadioCard
                   value="starter"
@@ -372,7 +372,7 @@ export default function FormsPage() {
 
           <div className="grid gap-8 sm:grid-cols-2">
             <div className="space-y-3">
-              <p className="text-sm font-medium text-zoru-ink">Inline</p>
+              <p className="text-sm font-medium text-[var(--st-text)]">Inline</p>
               <RadioGroup defaultValue="monthly">
                 <div className="flex items-center gap-3">
                   <ZoruRadioGroupItem value="monthly" id="zoru-r-1" />
@@ -385,7 +385,7 @@ export default function FormsPage() {
               </RadioGroup>
             </div>
             <div className="space-y-3">
-              <p className="text-sm font-medium text-zoru-ink">Cards</p>
+              <p className="text-sm font-medium text-[var(--st-text)]">Cards</p>
               <RadioGroup defaultValue="pro">
                 <ZoruRadioCard
                   value="starter"

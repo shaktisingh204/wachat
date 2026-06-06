@@ -57,26 +57,26 @@ export function ClayPromoCard({
       </div>
 
       <div className="p-4">
-        <h4 className="text-sm font-semibold tracking-tight text-zoru-ink leading-tight">
+        <h4 className="text-sm font-semibold tracking-tight text-[var(--st-text)] leading-tight">
           {title}
         </h4>
         {description ? (
-          <p className="mt-1 text-[11.5px] leading-[1.45] text-zoru-ink-muted">
+          <p className="mt-1 text-[11.5px] leading-[1.45] text-[var(--st-text-secondary)]">
             {description}
           </p>
         ) : null}
 
         {discountLabel ? (
-          <div className="mt-3 flex items-center gap-2 rounded-lg bg-zoru-surface-2 px-2.5 py-1.5">
+          <div className="mt-3 flex items-center gap-2 rounded-lg bg-[var(--st-bg-muted)] px-2.5 py-1.5">
             <LuTag
-              className="h-3 w-3 text-zoru-ink"
+              className="h-3 w-3 text-[var(--st-text)]"
               strokeWidth={2.25}
             />
-            <span className="text-[11px] font-semibold text-zoru-ink">
+            <span className="text-[11px] font-semibold text-[var(--st-text)]">
               {discountLabel}
             </span>
             {discountNote ? (
-              <span className="text-[10.5px] text-zoru-ink-muted">
+              <span className="text-[10.5px] text-[var(--st-text-secondary)]">
                 {discountNote}
               </span>
             ) : null}

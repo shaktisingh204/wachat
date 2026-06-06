@@ -52,14 +52,14 @@ export default function KeywordRankCheckerPage() {
 
   return (
     <ToolShell title="Keyword Rank Checker" description="Check true keyword ranking for a domain using a SERP API.">
-      <Card className="border-zoru-line bg-zoru-surface-2 dark:bg-zoru-ink/30">
+      <Card className="border-[var(--st-border)] bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30">
         <ZoruCardContent className="p-3 text-xs">
           Rank data requires a SERP API provider (DataForSEO, SerpApi, or ScaleSERP). Set DATAFORSEO_LOGIN and DATAFORSEO_PASSWORD, SERPAPI_KEY, or SCALESERP_KEY environment variables. If no keys are provided, it will fallback to scraping a free SERP provider.
         </ZoruCardContent>
       </Card>
       
       {error && (
-        <Card className="border-zoru-line bg-zoru-surface-2 dark:bg-zoru-ink/30 text-zoru-ink dark:text-white">
+        <Card className="border-[var(--st-border)] bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 text-[var(--st-text)] dark:text-white">
           <ZoruCardContent className="p-3 text-sm">
             {error}
           </ZoruCardContent>
@@ -91,15 +91,15 @@ export default function KeywordRankCheckerPage() {
             <ZoruCardContent className="p-6 text-center">
               {result.rank > 0 ? (
                 <>
-                  <div className="text-5xl font-bold text-zoru-ink dark:text-zoru-ink-muted">
+                  <div className="text-5xl font-bold text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
                     #{result.rank}
                   </div>
-                  <div className="text-sm text-zoru-ink-muted mt-2">
+                  <div className="text-sm text-[var(--st-text-secondary)] mt-2">
                     {result.keyword} → {result.domain}
                   </div>
                   {result.url && (
-                    <div className="text-xs text-zoru-ink-muted mt-4 truncate px-4">
-                      <a href={result.url} target="_blank" rel="noopener noreferrer" className="hover:underline text-zoru-ink">
+                    <div className="text-xs text-[var(--st-text-secondary)] mt-4 truncate px-4">
+                      <a href={result.url} target="_blank" rel="noopener noreferrer" className="hover:underline text-[var(--st-text)]">
                         {result.url}
                       </a>
                     </div>
@@ -108,10 +108,10 @@ export default function KeywordRankCheckerPage() {
                 </>
               ) : (
                 <>
-                  <div className="text-3xl font-semibold text-zoru-ink-muted">
+                  <div className="text-3xl font-semibold text-[var(--st-text-secondary)]">
                     Not found in results
                   </div>
-                  <div className="text-sm text-zoru-ink-muted mt-2">
+                  <div className="text-sm text-[var(--st-text-secondary)] mt-2">
                     {result.keyword} → {result.domain}
                   </div>
                 </>
@@ -130,12 +130,12 @@ export default function KeywordRankCheckerPage() {
                     <div 
                       key={idx} 
                       className={cn(
-                        "p-4 hover:bg-zoru-surface-2/50 transition-colors",
-                        item.url.includes(result.domain) && "bg-zoru-surface-2/50 dark:bg-zoru-ink/20"
+                        "p-4 hover:bg-[var(--st-bg-muted)]/50 transition-colors",
+                        item.url.includes(result.domain) && "bg-[var(--st-bg-muted)]/50 dark:bg-[var(--st-text)]/20"
                       )}
                     >
                       <div className="flex items-start gap-4">
-                        <div className="text-lg font-bold text-zoru-ink-muted w-8 text-center shrink-0">
+                        <div className="text-lg font-bold text-[var(--st-text-secondary)] w-8 text-center shrink-0">
                           {item.rank}
                         </div>
                         <div className="min-w-0 flex-1">
@@ -143,15 +143,15 @@ export default function KeywordRankCheckerPage() {
                             href={item.url} 
                             target="_blank" 
                             rel="noopener noreferrer" 
-                            className="text-base font-medium text-zoru-ink dark:text-zoru-ink-muted hover:underline line-clamp-1"
+                            className="text-base font-medium text-[var(--st-text)] dark:text-[var(--st-text-secondary)] hover:underline line-clamp-1"
                           >
                             {item.title}
                           </a>
-                          <div className="text-xs text-zoru-ink dark:text-zoru-ink mt-1 truncate">
+                          <div className="text-xs text-[var(--st-text)] dark:text-[var(--st-text)] mt-1 truncate">
                             {item.url}
                           </div>
                           {item.snippet && (
-                            <p className="text-sm text-zoru-ink-muted mt-1 line-clamp-2">
+                            <p className="text-sm text-[var(--st-text-secondary)] mt-1 line-clamp-2">
                               {item.snippet}
                             </p>
                           )}

@@ -100,28 +100,28 @@ export default async function SabbiginHomePage() {
                 <Card className="p-5">
                     <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-2">
-                            <Layers className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
-                            <h2 className="text-sm font-semibold text-zoru-ink">Your pipeline</h2>
+                            <Layers className="h-4 w-4 text-[var(--st-text-secondary)]" strokeWidth={1.75} />
+                            <h2 className="text-sm font-semibold text-[var(--st-text)]">Your pipeline</h2>
                         </div>
                         <Button asChild variant="outline" size="sm">
                             <Link href="/dashboard/sabbigin/pipeline">Open board</Link>
                         </Button>
                     </div>
                     {topDeals.length === 0 ? (
-                        <p className="mt-3 text-sm text-zoru-ink-muted">No open deals yet. Create your first deal from the pipeline board.</p>
+                        <p className="mt-3 text-sm text-[var(--st-text-secondary)]">No open deals yet. Create your first deal from the pipeline board.</p>
                     ) : (
-                        <ul className="mt-3 divide-y divide-zoru-border">
+                        <ul className="mt-3 divide-y divide-[var(--st-border)]">
                             {topDeals.map((d) => (
                                 <li key={d._id} className="flex items-center justify-between py-2 text-sm">
                                     <div className="min-w-0">
-                                        <p className="truncate font-medium text-zoru-ink">
+                                        <p className="truncate font-medium text-[var(--st-text)]">
                                             {d.name ?? d.title ?? 'Untitled deal'}
                                         </p>
-                                        <p className="truncate text-xs text-zoru-ink-muted">
+                                        <p className="truncate text-xs text-[var(--st-text-secondary)]">
                                             {d.stage ?? '—'}
                                         </p>
                                     </div>
-                                    <p className="shrink-0 text-sm font-medium text-zoru-ink">
+                                    <p className="shrink-0 text-sm font-medium text-[var(--st-text)]">
                                         {formatCurrency(d.value ?? 0)}
                                     </p>
                                 </li>
@@ -190,14 +190,14 @@ function KpiTile({
         <Link href={href} className="block">
             <Card className="h-full p-4">
                 <div className="flex items-start justify-between gap-3">
-                    <p className="text-[12px] font-medium uppercase tracking-wide text-zoru-ink-subtle">
+                    <p className="text-[12px] font-medium uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         {label}
                     </p>
-                    <span className="flex h-7 w-7 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                         <Icon className="h-3.5 w-3.5" strokeWidth={1.75} />
                     </span>
                 </div>
-                <p className="mt-2 text-[22px] font-semibold leading-none tracking-tight text-zoru-ink">
+                <p className="mt-2 text-[22px] font-semibold leading-none tracking-tight text-[var(--st-text)]">
                     {value}
                 </p>
             </Card>
@@ -219,26 +219,26 @@ function ListCard({
     return (
         <Card className="p-5">
             <div className="flex items-center justify-between gap-3">
-                <h2 className="text-sm font-semibold text-zoru-ink">{title}</h2>
+                <h2 className="text-sm font-semibold text-[var(--st-text)]">{title}</h2>
                 {viewAllHref ? (
                     <Link
                         href={viewAllHref}
-                        className="text-xs font-medium text-zoru-ink-muted hover:text-zoru-ink"
+                        className="text-xs font-medium text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                     >
                         View all
                     </Link>
                 ) : null}
             </div>
             {rows.length === 0 ? (
-                <p className="mt-3 text-sm text-zoru-ink-muted">{emptyHint}</p>
+                <p className="mt-3 text-sm text-[var(--st-text-secondary)]">{emptyHint}</p>
             ) : (
-                <ul className="mt-3 divide-y divide-zoru-border">
+                <ul className="mt-3 divide-y divide-[var(--st-border)]">
                     {rows.map((row) => {
                         const inner = (
                             <div className="flex items-center justify-between gap-3 py-2 text-sm">
                                 <div className="min-w-0">
-                                    <p className="truncate font-medium text-zoru-ink">{row.primary}</p>
-                                    <p className="truncate text-xs text-zoru-ink-muted">{row.secondary}</p>
+                                    <p className="truncate font-medium text-[var(--st-text)]">{row.primary}</p>
+                                    <p className="truncate text-xs text-[var(--st-text-secondary)]">{row.secondary}</p>
                                 </div>
                             </div>
                         );

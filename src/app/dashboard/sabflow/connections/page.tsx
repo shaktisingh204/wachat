@@ -69,7 +69,7 @@ const mockConnections: Connection[] = [
     account: "harsh@example.com",
     lastSync: "10 mins ago",
     icon: Cloud,
-    color: "text-zoru-ink",
+    color: "text-[var(--st-text)]",
     usage: 15,
     metrics: [
       { label: "Storage", value: "15GB / 100GB" },
@@ -85,7 +85,7 @@ const mockConnections: Connection[] = [
     account: "sabnode-workspace",
     lastSync: "2 days ago",
     icon: MessageSquare,
-    color: "text-zoru-ink",
+    color: "text-[var(--st-text)]",
     metrics: [
       { label: "Active Channels", value: "12" },
       { label: "Messages Processed", value: "45k" }
@@ -101,7 +101,7 @@ const mockConnections: Connection[] = [
     account: "admin@company.com",
     lastSync: "Failed 1 hr ago",
     icon: CloudCog,
-    color: "text-zoru-ink-muted",
+    color: "text-[var(--st-text-secondary)]",
     metrics: [
       { label: "Leads", value: "12,400" },
       { label: "API Calls", value: "940/10k" }
@@ -117,7 +117,7 @@ const mockConnections: Connection[] = [
     account: "@harshkhandelwal",
     lastSync: "Just now",
     icon: Github,
-    color: "text-zoru-ink dark:text-white",
+    color: "text-[var(--st-text)] dark:text-white",
     metrics: [
       { label: "Synced Repos", value: "45" },
       { label: "Webhooks", value: "8 Active" }
@@ -132,7 +132,7 @@ const mockConnections: Connection[] = [
     account: "acct_1H2x...",
     lastSync: "1 hr ago",
     icon: CreditCard,
-    color: "text-zoru-ink",
+    color: "text-[var(--st-text)]",
     metrics: [
       { label: "Mode", value: "Live" },
       { label: "Events/hr", value: "342" }
@@ -147,7 +147,7 @@ const mockConnections: Connection[] = [
     account: "us-east-1",
     lastSync: "5 mins ago",
     icon: Database,
-    color: "text-zoru-ink",
+    color: "text-[var(--st-text)]",
     metrics: [
       { label: "Buckets", value: "8" },
       { label: "Transfer", value: "4.2 TB" }
@@ -229,10 +229,10 @@ export default function ConnectionsPage() {
 
       <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
         <div className="relative w-full sm:max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zoru-ink-muted" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--st-text-secondary)]" />
           <Input 
             placeholder="Search connections..." 
-            className="pl-9 bg-zoru-surface shadow-sm border-muted"
+            className="pl-9 bg-[var(--st-bg-secondary)] shadow-sm border-muted"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -260,19 +260,19 @@ export default function ConnectionsPage() {
             <Card variant="interactive" className="h-full flex flex-col group relative overflow-hidden">
               {/* Top Accent Line */}
               <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${
-                conn.status === "Connected" ? "from-zoru-surface-2 to-zoru-surface-2" :
-                conn.status === "Expired" ? "from-zoru-surface-2 to-zoru-surface-2" :
-                "from-zoru-surface-2 to-zoru-ink"
+                conn.status === "Connected" ? "from-[var(--st-bg-muted)] to-[var(--st-bg-muted)]" :
+                conn.status === "Expired" ? "from-[var(--st-bg-muted)] to-[var(--st-bg-muted)]" :
+                "from-[var(--st-bg-muted)] to-[var(--st-text)]"
               }`} />
               
               <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-4">
                 <div className="flex items-center gap-4">
-                  <div className={`w-12 h-12 rounded-xl bg-zoru-surface-2/50 flex items-center justify-center border ${conn.color} shadow-sm group-hover:scale-105 transition-transform`}>
+                  <div className={`w-12 h-12 rounded-xl bg-[var(--st-bg-muted)]/50 flex items-center justify-center border ${conn.color} shadow-sm group-hover:scale-105 transition-transform`}>
                     <conn.icon className="w-6 h-6" />
                   </div>
                   <div>
                     <h3 className="font-semibold text-base leading-tight tracking-tight">{conn.name}</h3>
-                    <div className="flex items-center gap-2 text-sm text-zoru-ink-muted mt-1">
+                    <div className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)] mt-1">
                       <Key className="w-3.5 h-3.5" />
                       <span>{conn.type}</span>
                     </div>
@@ -280,7 +280,7 @@ export default function ConnectionsPage() {
                 </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="-mr-2 text-zoru-ink-muted">
+                    <Button variant="ghost" size="icon" className="-mr-2 text-[var(--st-text-secondary)]">
                       <MoreVertical className="w-4 h-4" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -311,24 +311,24 @@ export default function ConnectionsPage() {
               <CardContent className="flex-1 space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
-                    <p className="text-xs text-zoru-ink-muted font-medium uppercase tracking-wider">Account</p>
+                    <p className="text-xs text-[var(--st-text-secondary)] font-medium uppercase tracking-wider">Account</p>
                     <p className="text-sm font-medium">{conn.account}</p>
                   </div>
                   {getStatusBadge(conn.status)}
                 </div>
 
                 {conn.errorMessage && (
-                  <div className="bg-zoru-ink/10 text-zoru-ink text-sm p-3 rounded-lg border border-destructive/20 flex gap-2 items-start">
+                  <div className="bg-[var(--st-text)]/10 text-[var(--st-text)] text-sm p-3 rounded-lg border border-destructive/20 flex gap-2 items-start">
                     <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
                     <p className="leading-snug">{conn.errorMessage}</p>
                   </div>
                 )}
 
                 {(conn.metrics || conn.usage !== undefined) && (
-                  <div className="pt-4 border-t border-zoru-line/50 grid grid-cols-2 gap-4">
+                  <div className="pt-4 border-t border-[var(--st-border)]/50 grid grid-cols-2 gap-4">
                     {conn.metrics?.map((m, idx) => (
                       <div key={idx}>
-                        <p className="text-xs text-zoru-ink-muted mb-1">{m.label}</p>
+                        <p className="text-xs text-[var(--st-text-secondary)] mb-1">{m.label}</p>
                         <p className="text-sm font-semibold">{m.value}</p>
                       </div>
                     ))}
@@ -338,7 +338,7 @@ export default function ConnectionsPage() {
                 {conn.usage !== undefined && (
                   <div className="space-y-1.5 pt-2">
                     <div className="flex justify-between text-xs">
-                      <span className="text-zoru-ink-muted">Storage Usage</span>
+                      <span className="text-[var(--st-text-secondary)]">Storage Usage</span>
                       <span className="font-medium">{conn.usage}%</span>
                     </div>
                     <Progress value={conn.usage} className="h-1.5" />
@@ -346,8 +346,8 @@ export default function ConnectionsPage() {
                 )}
               </CardContent>
 
-              <CardFooter className="bg-zoru-surface-2/30 pt-4 pb-4 border-t border-zoru-line/50 flex items-center justify-between mt-auto">
-                <div className="text-xs text-zoru-ink-muted flex items-center gap-1.5">
+              <CardFooter className="bg-[var(--st-bg-muted)]/30 pt-4 pb-4 border-t border-[var(--st-border)]/50 flex items-center justify-between mt-auto">
+                <div className="text-xs text-[var(--st-text-secondary)] flex items-center gap-1.5">
                   <RefreshCcw className="w-3.5 h-3.5" />
                   Last sync: {conn.lastSync}
                 </div>
@@ -372,9 +372,9 @@ export default function ConnectionsPage() {
       </m.div>
 
       {filteredConnections.length === 0 && (
-        <div className="py-24 text-center text-zoru-ink-muted flex flex-col items-center justify-center border-2 border-dashed border-muted rounded-2xl">
-          <Box className="w-12 h-12 mb-4 text-zoru-ink-muted/50" />
-          <h3 className="text-lg font-semibold text-zoru-ink mb-1">No connections found</h3>
+        <div className="py-24 text-center text-[var(--st-text-secondary)] flex flex-col items-center justify-center border-2 border-dashed border-muted rounded-2xl">
+          <Box className="w-12 h-12 mb-4 text-[var(--st-text-secondary)]/50" />
+          <h3 className="text-lg font-semibold text-[var(--st-text)] mb-1">No connections found</h3>
           <p>Try adjusting your search or filters to find what you're looking for.</p>
           <Button variant="outline" className="mt-6" onClick={() => setSearchTerm("")}>
             Clear Search
@@ -396,8 +396,8 @@ export default function ConnectionsPage() {
           </ZoruDialogHeader>
           <div className="mt-2 space-y-3 max-h-[360px] overflow-y-auto">
             {connections.map((conn) => (
-              <div key={conn.id} className="flex items-start gap-3 rounded-lg border border-zoru-line p-3">
-                <div className={`w-8 h-8 rounded-lg bg-zoru-surface-2/50 flex items-center justify-center shrink-0 ${conn.color}`}>
+              <div key={conn.id} className="flex items-start gap-3 rounded-lg border border-[var(--st-border)] p-3">
+                <div className={`w-8 h-8 rounded-lg bg-[var(--st-bg-muted)]/50 flex items-center justify-center shrink-0 ${conn.color}`}>
                   <conn.icon className="w-4 h-4" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -405,7 +405,7 @@ export default function ConnectionsPage() {
                     <p className="text-sm font-medium truncate">{conn.name}</p>
                     {getStatusBadge(conn.status)}
                   </div>
-                  <p className="text-xs text-zoru-ink-muted mt-0.5">
+                  <p className="text-xs text-[var(--st-text-secondary)] mt-0.5">
                     {conn.status === "Connected"
                       ? `Last synced ${conn.lastSync}`
                       : conn.errorMessage ?? `Last sync ${conn.lastSync}`}
@@ -430,7 +430,7 @@ export default function ConnectionsPage() {
             <>
               <ZoruDialogHeader>
                 <ZoruDialogTitle className="flex items-center gap-3">
-                  <div className={`w-9 h-9 rounded-xl bg-zoru-surface-2/50 flex items-center justify-center border ${detailConn.color}`}>
+                  <div className={`w-9 h-9 rounded-xl bg-[var(--st-bg-muted)]/50 flex items-center justify-center border ${detailConn.color}`}>
                     <detailConn.icon className="w-5 h-5" />
                   </div>
                   {detailConn.name}
@@ -438,26 +438,26 @@ export default function ConnectionsPage() {
                 <ZoruDialogDescription>{detailConn.provider} · {detailConn.type}</ZoruDialogDescription>
               </ZoruDialogHeader>
               <div className="mt-3 space-y-3 text-sm">
-                <div className="flex justify-between items-center py-2 border-b border-zoru-line/50">
-                  <span className="text-zoru-ink-muted">Status</span>
+                <div className="flex justify-between items-center py-2 border-b border-[var(--st-border)]/50">
+                  <span className="text-[var(--st-text-secondary)]">Status</span>
                   {getStatusBadge(detailConn.status)}
                 </div>
-                <div className="flex justify-between items-center py-2 border-b border-zoru-line/50">
-                  <span className="text-zoru-ink-muted">Account</span>
+                <div className="flex justify-between items-center py-2 border-b border-[var(--st-border)]/50">
+                  <span className="text-[var(--st-text-secondary)]">Account</span>
                   <span className="font-medium">{detailConn.account}</span>
                 </div>
-                <div className="flex justify-between items-center py-2 border-b border-zoru-line/50">
-                  <span className="text-zoru-ink-muted">Last Sync</span>
+                <div className="flex justify-between items-center py-2 border-b border-[var(--st-border)]/50">
+                  <span className="text-[var(--st-text-secondary)]">Last Sync</span>
                   <span className="font-medium">{detailConn.lastSync}</span>
                 </div>
                 {detailConn.metrics?.map((m, i) => (
-                  <div key={i} className="flex justify-between items-center py-2 border-b border-zoru-line/50 last:border-0">
-                    <span className="text-zoru-ink-muted">{m.label}</span>
+                  <div key={i} className="flex justify-between items-center py-2 border-b border-[var(--st-border)]/50 last:border-0">
+                    <span className="text-[var(--st-text-secondary)]">{m.label}</span>
                     <span className="font-medium">{m.value}</span>
                   </div>
                 ))}
                 {detailConn.errorMessage && (
-                  <div className="bg-zoru-ink/10 text-zoru-ink text-sm p-3 rounded-lg border border-destructive/20 flex gap-2 items-start">
+                  <div className="bg-[var(--st-text)]/10 text-[var(--st-text)] text-sm p-3 rounded-lg border border-destructive/20 flex gap-2 items-start">
                     <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
                     <p className="leading-snug">{detailConn.errorMessage}</p>
                   </div>

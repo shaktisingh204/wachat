@@ -120,7 +120,7 @@ export function DatabaseBackupClient({
   if (loadError) {
     return (
       <Card className="p-8 text-center">
-        <p className="text-sm text-zoru-danger">{loadError}</p>
+        <p className="text-sm text-[var(--st-danger)]">{loadError}</p>
       </Card>
     );
   }
@@ -146,32 +146,32 @@ export function DatabaseBackupClient({
       <div className="grid gap-4 md:grid-cols-3">
         <Card className="p-6">
           <div className="flex items-center justify-between">
-            <p className="text-[12.5px] text-zoru-ink-muted">Total backups</p>
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-surface-2">
+            <p className="text-[12.5px] text-[var(--st-text-secondary)]">Total backups</p>
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-bg-muted)]">
               <Database className="h-4 w-4" strokeWidth={1.75} />
             </div>
           </div>
-          <p className="mt-3 text-[26px] leading-none text-zoru-ink">{kpis.total}</p>
+          <p className="mt-3 text-[26px] leading-none text-[var(--st-text)]">{kpis.total}</p>
         </Card>
         <Card className="p-6">
           <div className="flex items-center justify-between">
-            <p className="text-[12.5px] text-zoru-ink-muted">Last backup</p>
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-surface-2">
+            <p className="text-[12.5px] text-[var(--st-text-secondary)]">Last backup</p>
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-bg-muted)]">
               <Clock className="h-4 w-4" strokeWidth={1.75} />
             </div>
           </div>
-          <p className="mt-3 text-sm leading-none text-zoru-ink">
+          <p className="mt-3 text-sm leading-none text-[var(--st-text)]">
             {kpis.lastAt ? new Date(kpis.lastAt).toLocaleString() : 'Never'}
           </p>
         </Card>
         <Card className="p-6">
           <div className="flex items-center justify-between">
-            <p className="text-[12.5px] text-zoru-ink-muted">Total size</p>
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-surface-2">
+            <p className="text-[12.5px] text-[var(--st-text-secondary)]">Total size</p>
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-bg-muted)]">
               <HardDrive className="h-4 w-4" strokeWidth={1.75} />
             </div>
           </div>
-          <p className="mt-3 text-[26px] leading-none text-zoru-ink">
+          <p className="mt-3 text-[26px] leading-none text-[var(--st-text)]">
             {formatBytes(kpis.totalSizeBytes)}
           </p>
         </Card>
@@ -191,7 +191,7 @@ export function DatabaseBackupClient({
           <ZoruTableBody>
             {rows.length === 0 ? (
               <ZoruTableRow>
-                <ZoruTableCell colSpan={5} className="py-12 text-center text-sm text-zoru-ink-muted">
+                <ZoruTableCell colSpan={5} className="py-12 text-center text-sm text-[var(--st-text-secondary)]">
                   No backups yet. Click "Create backup now" to start.
                 </ZoruTableCell>
               </ZoruTableRow>
@@ -200,7 +200,7 @@ export function DatabaseBackupClient({
                 <ZoruTableRow key={row._id}>
                   <ZoruTableCell className="font-mono text-[12.5px]">{row.filename}</ZoruTableCell>
                   <ZoruTableCell>{formatBytes(row.sizeBytes)}</ZoruTableCell>
-                  <ZoruTableCell className="text-zoru-ink-muted">
+                  <ZoruTableCell className="text-[var(--st-text-secondary)]">
                     {new Date(row.createdAt).toLocaleString()}
                   </ZoruTableCell>
                   <ZoruTableCell>
@@ -250,8 +250,8 @@ export function DatabaseBackupClient({
       </Card>
 
       <Card className="p-6">
-        <h2 className="text-base text-zoru-ink">Settings</h2>
-        <p className="text-[12.5px] text-zoru-ink-muted">
+        <h2 className="text-base text-[var(--st-text)]">Settings</h2>
+        <p className="text-[12.5px] text-[var(--st-text-secondary)]">
           Where backups are written and how long they're kept.
         </p>
         <div className="mt-4 grid gap-4 md:grid-cols-3">

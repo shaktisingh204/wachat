@@ -237,7 +237,7 @@ function SettingsEditDialog<T extends SettingsRow>({
                   <Label htmlFor={field.name}>
                     {field.label}
                     {field.required ? (
-                      <span className="text-zoru-danger-ink"> *</span>
+                      <span className="text-[var(--st-danger)]"> *</span>
                     ) : null}
                   </Label>
                   {field.type === 'textarea' ? (
@@ -248,7 +248,7 @@ function SettingsEditDialog<T extends SettingsRow>({
                       defaultValue={initialValue}
                       placeholder={field.placeholder}
                       required={field.required}
-                      className="flex min-h-[60px] w-full rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 py-2 text-sm text-zoru-ink"
+                      className="flex min-h-[60px] w-full rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-sm text-[var(--st-text)]"
                     />
                   ) : field.type === 'select' ? (
                     <Select
@@ -607,14 +607,14 @@ export function SettingsDeepPage<T extends SettingsRow>({
         bulkBar={
           selected.size > 0 ? (
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink">
+              <div className="flex items-center gap-2 text-[12.5px] text-[var(--st-text)]">
                 <Badge variant="default">
                   {selected.size} selected
                 </Badge>
                 <button
                   type="button"
                   onClick={() => setSelected(new Set())}
-                  className="text-zoru-ink-muted hover:text-zoru-ink"
+                  className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                 >
                   Clear
                 </button>
@@ -715,10 +715,10 @@ export function SettingsDeepPage<T extends SettingsRow>({
 
           {/* Table */}
           <Card className="p-0">
-            <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
+            <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
               <Table>
                 <ZoruTableHeader>
-                  <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                  <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                     <ZoruTableHead className="w-10">
                       <Checkbox
                         checked={
@@ -737,12 +737,12 @@ export function SettingsDeepPage<T extends SettingsRow>({
                     {columns.map((c) => (
                       <ZoruTableHead
                         key={c.key}
-                        className={c.className ?? 'text-zoru-ink-muted'}
+                        className={c.className ?? 'text-[var(--st-text-secondary)]'}
                       >
                         {c.label}
                       </ZoruTableHead>
                     ))}
-                    <ZoruTableHead className="text-right text-zoru-ink-muted">
+                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                       Actions
                     </ZoruTableHead>
                   </ZoruTableRow>
@@ -760,7 +760,7 @@ export function SettingsDeepPage<T extends SettingsRow>({
                     <ZoruTableRow>
                       <ZoruTableCell
                         colSpan={columns.length + 2}
-                        className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                        className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                       >
                         No {singular.toLowerCase()}s match this filter.
                       </ZoruTableCell>
@@ -769,7 +769,7 @@ export function SettingsDeepPage<T extends SettingsRow>({
                     pageRows.map((row) => {
                       const id = row._id;
                       return (
-                        <ZoruTableRow key={id} className="border-zoru-line">
+                        <ZoruTableRow key={id} className="border-[var(--st-border)]">
                           <ZoruTableCell>
                             <Checkbox
                               checked={selected.has(id)}
@@ -790,7 +790,7 @@ export function SettingsDeepPage<T extends SettingsRow>({
                               return (
                                 <ZoruTableCell
                                   key={c.key}
-                                  className="font-medium text-zoru-ink"
+                                  className="font-medium text-[var(--st-text)]"
                                 >
                                   <RowDrawer
                                     label={content}
@@ -808,7 +808,7 @@ export function SettingsDeepPage<T extends SettingsRow>({
                                             : String(raw);
                                         return (
                                           <div key={cc.key}>
-                                            <div className="text-zoru-ink-muted text-xs">
+                                            <div className="text-[var(--st-text-secondary)] text-xs">
                                               {cc.label}
                                             </div>
                                             <div>{display}</div>
@@ -816,7 +816,7 @@ export function SettingsDeepPage<T extends SettingsRow>({
                                         );
                                       })}
                                       <div>
-                                        <div className="text-zoru-ink-muted text-xs">
+                                        <div className="text-[var(--st-text-secondary)] text-xs">
                                           Created
                                         </div>
                                         <div>
@@ -835,7 +835,7 @@ export function SettingsDeepPage<T extends SettingsRow>({
                             return (
                               <ZoruTableCell
                                 key={c.key}
-                                className="text-[13px] text-zoru-ink"
+                                className="text-[13px] text-[var(--st-text)]"
                               >
                                 {content}
                               </ZoruTableCell>
@@ -860,7 +860,7 @@ export function SettingsDeepPage<T extends SettingsRow>({
                                 onClick={() => setPendingDelete(row)}
                                 aria-label={`Delete ${displayName(row)}`}
                               >
-                                <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                                <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                               </Button>
                             </div>
                           </ZoruTableCell>

@@ -54,22 +54,22 @@ export function MaintenanceLogCard({ assetId, currency }: { assetId: string, cur
       </ZoruCardHeader>
       <ZoruCardContent>
         {loading ? (
-          <p className="text-[13px] text-zoru-ink-muted">Loading logs...</p>
+          <p className="text-[13px] text-[var(--st-text-secondary)]">Loading logs...</p>
         ) : logs.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-zoru-line bg-zoru-surface-2/50 p-6 text-center">
-            <p className="text-[13px] text-zoru-ink-muted">No maintenance history recorded.</p>
+          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)]/50 p-6 text-center">
+            <p className="text-[13px] text-[var(--st-text-secondary)]">No maintenance history recorded.</p>
           </div>
         ) : (
           <div className="space-y-4">
             {logs.map((log) => (
-              <div key={log._id} className="flex justify-between border-b border-zoru-line pb-3 last:border-0 last:pb-0">
+              <div key={log._id} className="flex justify-between border-b border-[var(--st-border)] pb-3 last:border-0 last:pb-0">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="font-medium text-[13px]">{log.type}</span>
-                    <span className="text-[12px] text-zoru-ink-muted">{new Date(log.date).toLocaleDateString()}</span>
+                    <span className="text-[12px] text-[var(--st-text-secondary)]">{new Date(log.date).toLocaleDateString()}</span>
                   </div>
-                  <p className="text-[12px] text-zoru-ink-muted">{log.description}</p>
-                  {log.provider && <p className="text-[12px] text-zoru-ink-muted">Provider: {log.provider}</p>}
+                  <p className="text-[12px] text-[var(--st-text-secondary)]">{log.description}</p>
+                  {log.provider && <p className="text-[12px] text-[var(--st-text-secondary)]">Provider: {log.provider}</p>}
                 </div>
                 <div className="text-[13px] font-mono font-medium">
                   {new Intl.NumberFormat('en-IN', { style: 'currency', currency: currency || 'INR' }).format(log.cost)}

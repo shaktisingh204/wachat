@@ -96,14 +96,14 @@ export default function DeveloperApiHubPage(): JSX.Element {
           return (
             <Link key={card.href} href={card.href} className="group">
               <Card className="h-full p-5 transition-shadow group-hover:shadow-[var(--zoru-shadow-md)]">
-                <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink">
+                <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                   <Icon className="h-[18px] w-[18px]" />
                 </div>
                 <div className="flex items-start justify-between gap-2">
-                  <p className="text-[14px] font-medium text-zoru-ink">{card.title}</p>
-                  <ArrowUpRight className="h-4 w-4 text-zoru-ink-muted transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-zoru-ink" />
+                  <p className="text-[14px] font-medium text-[var(--st-text)]">{card.title}</p>
+                  <ArrowUpRight className="h-4 w-4 text-[var(--st-text-secondary)] transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[var(--st-text)]" />
                 </div>
-                <p className="mt-1 text-[12.5px] leading-relaxed text-zoru-ink-muted">
+                <p className="mt-1 text-[12.5px] leading-relaxed text-[var(--st-text-secondary)]">
                   {card.description}
                 </p>
               </Card>

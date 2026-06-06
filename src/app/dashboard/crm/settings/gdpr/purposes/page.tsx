@@ -312,7 +312,7 @@ export default function PurposeConsentsPage() {
               {s === 'all' ? 'All' : s === 'active' ? 'Active' : 'Inactive'}
             </Button>
           ))}
-          <span className="mx-1 h-4 w-px bg-zoru-line" />
+          <span className="mx-1 h-4 w-px bg-[var(--st-border)]" />
           {(['all', 'both', 'lead', 'user'] as AppliesFilter[]).map((a) => (
             <Button
               key={a}
@@ -333,17 +333,17 @@ export default function PurposeConsentsPage() {
       bulkBar={
         selected.size > 0 ? (
           <div className="flex flex-wrap items-center gap-2 text-[13px]">
-            <span className="font-medium text-zoru-ink">
+            <span className="font-medium text-[var(--st-text)]">
               {selected.size} selected
             </span>
-            <span className="text-zoru-ink-muted">·</span>
+            <span className="text-[var(--st-text-secondary)]">·</span>
             <Button
               variant="ghost"
               size="sm"
               disabled={bulkDeleting}
               onClick={() => setBulkDeleteOpen(true)}
             >
-              <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+              <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
               Delete
             </Button>
             <Button
@@ -412,22 +412,22 @@ export default function PurposeConsentsPage() {
                       aria-label="Select all on page"
                     />
                   </ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
                     Title
                   </ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
                     Applies to
                   </ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
                     Required
                   </ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
                     Status
                   </ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
                     Order
                   </ZoruTableHead>
-                  <ZoruTableHead className="w-[140px] text-right text-zoru-ink-muted">
+                  <ZoruTableHead className="w-[140px] text-right text-[var(--st-text-secondary)]">
                     Actions
                   </ZoruTableHead>
                 </ZoruTableRow>
@@ -437,7 +437,7 @@ export default function PurposeConsentsPage() {
                   <ZoruTableRow>
                     <ZoruTableCell
                       colSpan={7}
-                      className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                      className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                     >
                       <LoaderCircle className="mx-auto h-4 w-4 animate-spin" />
                     </ZoruTableCell>
@@ -446,7 +446,7 @@ export default function PurposeConsentsPage() {
                   <ZoruTableRow>
                     <ZoruTableCell
                       colSpan={7}
-                      className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                      className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                     >
                       No purposes match the current filters.
                     </ZoruTableCell>
@@ -461,7 +461,7 @@ export default function PurposeConsentsPage() {
                           aria-label={`Select ${row.title}`}
                         />
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-zoru-ink">
+                      <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                         <RowDrawer
                           label={row.title}
                           subtitle={row.description || undefined}
@@ -470,13 +470,13 @@ export default function PurposeConsentsPage() {
                         >
                           <div className="space-y-3 text-sm">
                             <div>
-                              <div className="text-zoru-ink-muted text-xs">
+                              <div className="text-[var(--st-text-secondary)] text-xs">
                                 Title
                               </div>
                               <div>{row.title}</div>
                             </div>
                             <div>
-                              <div className="text-zoru-ink-muted text-xs">
+                              <div className="text-[var(--st-text-secondary)] text-xs">
                                 Description
                               </div>
                               <div className="whitespace-pre-wrap">
@@ -485,19 +485,19 @@ export default function PurposeConsentsPage() {
                             </div>
                             <div className="grid grid-cols-2 gap-3">
                               <div>
-                                <div className="text-zoru-ink-muted text-xs">
+                                <div className="text-[var(--st-text-secondary)] text-xs">
                                   Applies to
                                 </div>
                                 <div>{row.applies_to || 'both'}</div>
                               </div>
                               <div>
-                                <div className="text-zoru-ink-muted text-xs">
+                                <div className="text-[var(--st-text-secondary)] text-xs">
                                   Required
                                 </div>
                                 <div>{row.is_required ? 'Yes' : 'No'}</div>
                               </div>
                               <div>
-                                <div className="text-zoru-ink-muted text-xs">
+                                <div className="text-[var(--st-text-secondary)] text-xs">
                                   Active
                                 </div>
                                 <div>
@@ -505,7 +505,7 @@ export default function PurposeConsentsPage() {
                                 </div>
                               </div>
                               <div>
-                                <div className="text-zoru-ink-muted text-xs">
+                                <div className="text-[var(--st-text-secondary)] text-xs">
                                   Sort order
                                 </div>
                                 <div>{row.sort_order ?? 0}</div>
@@ -549,7 +549,7 @@ export default function PurposeConsentsPage() {
                           {row.is_active === false ? 'Inactive' : 'Active'}
                         </Badge>
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-[12px] text-zoru-ink-muted">
+                      <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
                         {row.sort_order ?? 0}
                       </ZoruTableCell>
                       <ZoruTableCell className="text-right">
@@ -571,7 +571,7 @@ export default function PurposeConsentsPage() {
                             onClick={() => setDeletingId(row._id)}
                             aria-label="Delete"
                           >
-                            <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                            <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                           </Button>
                         </div>
                       </ZoruTableCell>
@@ -612,7 +612,7 @@ export default function PurposeConsentsPage() {
             ) : null}
             <div>
               <Label htmlFor="title">
-                Title <span className="text-zoru-danger-ink">*</span>
+                Title <span className="text-[var(--st-danger)]">*</span>
               </Label>
               <Input
                 id="title"
@@ -639,7 +639,7 @@ export default function PurposeConsentsPage() {
                   id="applies_to"
                   name="applies_to"
                   defaultValue={editing?.applies_to || 'both'}
-                  className="h-10 w-full rounded-lg border border-zoru-line bg-zoru-bg px-3 text-[13px] text-zoru-ink"
+                  className="h-10 w-full rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] px-3 text-[13px] text-[var(--st-text)]"
                 >
                   <option value="both">Both leads and users</option>
                   <option value="lead">Leads only</option>
@@ -661,7 +661,7 @@ export default function PurposeConsentsPage() {
                   id="is_required"
                   name="is_required"
                   defaultValue={editing?.is_required ? 'true' : 'false'}
-                  className="h-10 w-full rounded-lg border border-zoru-line bg-zoru-bg px-3 text-[13px] text-zoru-ink"
+                  className="h-10 w-full rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] px-3 text-[13px] text-[var(--st-text)]"
                 >
                   <option value="false">Optional</option>
                   <option value="true">Required</option>
@@ -673,7 +673,7 @@ export default function PurposeConsentsPage() {
                   id="is_active"
                   name="is_active"
                   defaultValue={editing?.is_active === false ? 'false' : 'true'}
-                  className="h-10 w-full rounded-lg border border-zoru-line bg-zoru-bg px-3 text-[13px] text-zoru-ink"
+                  className="h-10 w-full rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] px-3 text-[13px] text-[var(--st-text)]"
                 >
                   <option value="true">Active</option>
                   <option value="false">Inactive</option>

@@ -134,7 +134,7 @@ export function InviteClient({
         // TODO(zoru): port ClayCard floating variant accent header to Zoru
         <Card className="w-full max-w-[480px] overflow-hidden p-0">
             {/* Rose accent header */}
-            <div className="relative h-[6px] w-full bg-zoru-primary" />
+            <div className="relative h-[6px] w-full bg-[var(--st-text)]" />
 
             <div className="flex flex-col gap-6 p-7 sm:p-9">
                 <HeaderSection invitation={invitation} statusTone={statusTone} />
@@ -149,7 +149,7 @@ export function InviteClient({
                     <MetaRow
                         icon={<LuClock className="h-3.5 w-3.5" strokeWidth={1.75} />}
                         label="Expires"
-                        value={mounted ? expiresIn : <span className="inline-block h-3 w-16 animate-pulse rounded bg-zoru-line" />}
+                        value={mounted ? expiresIn : <span className="inline-block h-3 w-16 animate-pulse rounded bg-[var(--st-border)]" />}
                     />
                     <MetaRow
                         icon={<LuUserPlus className="h-3.5 w-3.5" strokeWidth={1.75} />}
@@ -169,9 +169,9 @@ export function InviteClient({
                     <LoggedOutAuthBlock pending={pending} onCarryToken={onCarryToken} />
                 )}
 
-                <div className="border-t border-zoru-line pt-4 text-[11.5px] leading-relaxed text-zoru-ink-muted">
+                <div className="border-t border-[var(--st-border)] pt-4 text-[11.5px] leading-relaxed text-[var(--st-text-secondary)]">
                     By accepting you agree to SabNode's terms. Only admins in{' '}
-                    <span className="text-zoru-ink">{invitation.projectName || 'this workspace'}</span> can see your
+                    <span className="text-[var(--st-text)]">{invitation.projectName || 'this workspace'}</span> can see your
                     role and activity within the team.
                 </div>
             </div>
@@ -200,14 +200,14 @@ function HeaderSection({
             </div>
 
             <div className="flex flex-col gap-2">
-                <h1 className="text-[26px] font-semibold tracking-[-0.015em] text-zoru-ink">
+                <h1 className="text-[26px] font-semibold tracking-[-0.015em] text-[var(--st-text)]">
                     You're invited to {invitation.projectName || 'the team'}
                 </h1>
-                <p className="text-[13.5px] leading-relaxed text-zoru-ink-muted">
-                    <span className="font-medium text-zoru-ink">
+                <p className="text-[13.5px] leading-relaxed text-[var(--st-text-secondary)]">
+                    <span className="font-medium text-[var(--st-text)]">
                         {invitation.inviterName || invitation.inviterEmail || 'A SabNode user'}
                     </span>{' '}
-                    invited <span className="font-medium text-zoru-ink">{invitation.inviteeEmail}</span> to join
+                    invited <span className="font-medium text-[var(--st-text)]">{invitation.inviteeEmail}</span> to join
                     as a{' '}
                     <Badge tone="neutral" className="align-middle">
                         {prettyRole(invitation.role)}
@@ -274,8 +274,8 @@ function MismatchAuthBlock({
     invitation: InvitationView;
 }) {
     return (
-        <div className="flex flex-col gap-4 rounded-lg border border-zoru-warning/30 bg-zoru-warning/10 p-4">
-            <p className="text-[13px] leading-relaxed text-zoru-ink">
+        <div className="flex flex-col gap-4 rounded-lg border border-[var(--st-warn)]/30 bg-[var(--st-warn)]/10 p-4">
+            <p className="text-[13px] leading-relaxed text-[var(--st-text)]">
                 This invitation was sent to{' '}
                 <span className="font-medium">{invitation.inviteeEmail}</span>, but you're signed in as{' '}
                 <span className="font-medium">{auth.loggedInEmail}</span>.
@@ -346,15 +346,15 @@ function MetaRow({
     value: React.ReactNode;
 }) {
     return (
-        <div className="flex items-center gap-2 rounded-lg border border-zoru-line bg-zoru-surface px-3 py-2.5">
-            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-zoru-bg text-zoru-ink-muted">
+        <div className="flex items-center gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2.5">
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--st-bg)] text-[var(--st-text-secondary)]">
                 {icon}
             </span>
             <div className="flex min-w-0 flex-col">
-                <span className="text-[10.5px] font-medium uppercase tracking-[0.06em] text-zoru-ink-muted">
+                <span className="text-[10.5px] font-medium uppercase tracking-[0.06em] text-[var(--st-text-secondary)]">
                     {label}
                 </span>
-                <span className="truncate text-[12.5px] text-zoru-ink">{value}</span>
+                <span className="truncate text-[12.5px] text-[var(--st-text)]">{value}</span>
             </div>
         </div>
     );
@@ -375,7 +375,7 @@ function ActionBlock({
                 {primary}
                 {secondary}
             </div>
-            {hint ? <p className="text-[11.5px] text-zoru-ink-muted">{hint}</p> : null}
+            {hint ? <p className="text-[11.5px] text-[var(--st-text-secondary)]">{hint}</p> : null}
         </div>
     );
 }
@@ -399,14 +399,14 @@ function StatusBlock({ invitation }: { invitation: InvitationView }) {
                 tone: 'neutral' as const,
             };
     return (
-        <div className="flex flex-col gap-3 rounded-lg border border-zoru-line bg-zoru-surface p-4">
+        <div className="flex flex-col gap-3 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4">
             <div className="flex items-center gap-2">
                 <Badge tone={copy.tone}>
                     {capitalize(invitation.status)}
                 </Badge>
-                <span className="text-[13px] font-medium text-zoru-ink">{copy.title}</span>
+                <span className="text-[13px] font-medium text-[var(--st-text)]">{copy.title}</span>
             </div>
-            <p className="text-[12.5px] text-zoru-ink-muted">{copy.body}</p>
+            <p className="text-[12.5px] text-[var(--st-text-secondary)]">{copy.body}</p>
             <Link href="/">
                 <Button variant="outline">
                     Back to SabNode

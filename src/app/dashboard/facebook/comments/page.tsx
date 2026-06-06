@@ -235,8 +235,8 @@ export default function FacebookCommentsPage(): React.JSX.Element {
 
       <header className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl text-zoru-ink">Comments</h1>
-          <p className="mt-1 text-sm text-zoru-ink-muted">
+          <h1 className="text-2xl text-[var(--st-text)]">Comments</h1>
+          <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
             Read and reply to comments on this page&rsquo;s Facebook posts.
           </p>
         </div>
@@ -256,7 +256,7 @@ export default function FacebookCommentsPage(): React.JSX.Element {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[320px_1fr]">
         <Card className="flex flex-col gap-2 p-3">
-          <p className="px-2 pt-1 text-xs uppercase tracking-wider text-zoru-ink-muted">
+          <p className="px-2 pt-1 text-xs uppercase tracking-wider text-[var(--st-text-secondary)]">
             Recent posts
           </p>
           <ScrollArea className="h-[640px] pr-1">
@@ -285,12 +285,12 @@ export default function FacebookCommentsPage(): React.JSX.Element {
                         className={
                           'w-full rounded-md px-3 py-2 text-left text-sm transition ' +
                           (isActive
-                            ? 'bg-zoru-surface-2 text-zoru-ink'
-                            : 'text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink')
+                            ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
+                            : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]')
                         }
                       >
                         <div className="line-clamp-2">{previewText(post)}</div>
-                        <div className="mt-1 text-[11px] text-zoru-ink-muted">
+                        <div className="mt-1 text-[11px] text-[var(--st-text-secondary)]">
                           {safeDistance((post as { created_time?: string }).created_time)}
                         </div>
                       </button>
@@ -311,13 +311,13 @@ export default function FacebookCommentsPage(): React.JSX.Element {
             />
           ) : (
             <>
-              <header className="flex items-start justify-between gap-3 border-b border-zoru-line pb-3">
+              <header className="flex items-start justify-between gap-3 border-b border-[var(--st-border)] pb-3">
                 <div className="flex-1">
-                  <p className="text-xs uppercase tracking-wider text-zoru-ink-muted">
+                  <p className="text-xs uppercase tracking-wider text-[var(--st-text-secondary)]">
                     Selected post
                   </p>
-                  <p className="mt-1 text-sm text-zoru-ink">{previewText(selectedPost)}</p>
-                  <p className="mt-1 text-[11px] text-zoru-ink-muted">
+                  <p className="mt-1 text-sm text-[var(--st-text)]">{previewText(selectedPost)}</p>
+                  <p className="mt-1 text-[11px] text-[var(--st-text-secondary)]">
                     {safeDistance((selectedPost as { created_time?: string }).created_time)}
                   </p>
                 </div>
@@ -371,9 +371,9 @@ export default function FacebookCommentsPage(): React.JSX.Element {
                     {comments.map((c) => (
                       <li
                         key={c.id}
-                        className="flex items-start gap-3 rounded-lg border border-zoru-line bg-zoru-bg p-3"
+                        className="flex items-start gap-3 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] p-3"
                       >
-                        <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full bg-zoru-surface-2">
+                        <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full bg-[var(--st-bg-muted)]">
                           {c.from?.picture?.data?.url ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
@@ -385,17 +385,17 @@ export default function FacebookCommentsPage(): React.JSX.Element {
                         </div>
                         <div className="flex-1">
                           <div className="flex items-baseline gap-2">
-                            <span className="text-sm text-zoru-ink">
+                            <span className="text-sm text-[var(--st-text)]">
                               {c.from?.name || 'Unknown'}
                             </span>
-                            <span className="text-[11px] text-zoru-ink-muted">
+                            <span className="text-[11px] text-[var(--st-text-secondary)]">
                               {safeDistance(c.created_time)}
                             </span>
                           </div>
-                          <p className="mt-1 text-sm text-zoru-ink">
+                          <p className="mt-1 text-sm text-[var(--st-text)]">
                             {c.message ?? '(no message)'}
                           </p>
-                          <div className="mt-2 flex items-center gap-3 text-[11px] text-zoru-ink-muted">
+                          <div className="mt-2 flex items-center gap-3 text-[11px] text-[var(--st-text-secondary)]">
                             <span>{c.like_count ?? 0} likes</span>
                             <span>{c.comment_count ?? 0} replies</span>
                           </div>
@@ -424,7 +424,7 @@ export default function FacebookCommentsPage(): React.JSX.Element {
                 )}
               </div>
 
-              <footer className="mt-auto flex items-center gap-2 border-t border-zoru-line pt-3">
+              <footer className="mt-auto flex items-center gap-2 border-t border-[var(--st-border)] pt-3">
                 <Input
                   value={replyText}
                   onChange={(e) => setReplyText(e.target.value)}

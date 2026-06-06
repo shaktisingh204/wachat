@@ -132,7 +132,7 @@ export default function ProviderConfigPage({ params }: { params: { id: string } 
               <div className="flex justify-start pt-2">
                 <Button variant="secondary" onClick={handleTestConnection} disabled={isTesting}>
                   {isTesting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : (
-                    testResult === "success" ? <CheckCircle2 className="w-4 h-4 mr-2 text-zoru-ink" /> : null
+                    testResult === "success" ? <CheckCircle2 className="w-4 h-4 mr-2 text-[var(--st-text)]" /> : null
                   )}
                   {isTesting ? "Verifying..." : testResult === "success" ? "Verified" : "Verify Credentials"}
                 </Button>
@@ -143,7 +143,7 @@ export default function ProviderConfigPage({ params }: { params: { id: string } 
               <div className="flex items-center justify-between pt-2">
                 <div className="space-y-0.5">
                   <Label>Sender-ID Whitelist</Label>
-                  <div className="text-sm text-zoru-ink">
+                  <div className="text-sm text-[var(--st-text)]">
                     Restrict outbound alphas (Feature 8).
                   </div>
                 </div>
@@ -162,7 +162,7 @@ export default function ProviderConfigPage({ params }: { params: { id: string } 
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>Webhook Signature Secret</Label>
-                  <div className="text-sm text-zoru-ink">
+                  <div className="text-sm text-[var(--st-text)]">
                     5. Used to verify incoming requests.
                   </div>
                 </div>
@@ -225,14 +225,14 @@ export default function ProviderConfigPage({ params }: { params: { id: string } 
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>10. Lookup API (HLR)</Label>
-                  <div className="text-sm text-zoru-ink">Enable number validation (adds cost).</div>
+                  <div className="text-sm text-[var(--st-text)]">Enable number validation (adds cost).</div>
                 </div>
                 <Switch defaultChecked />
               </div>
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>9. Number Purchase Delegation</Label>
-                  <div className="text-sm text-zoru-ink">Allow engine to provision numbers automatically.</div>
+                  <div className="text-sm text-[var(--st-text)]">Allow engine to provision numbers automatically.</div>
                 </div>
                 <Switch />
               </div>
@@ -255,7 +255,7 @@ export default function ProviderConfigPage({ params }: { params: { id: string } 
               <ZoruCardDescription>Read-only sync from provider API.</ZoruCardDescription>
             </ZoruCardHeader>
             <ZoruCardContent>
-              <div className="border rounded-md p-4 text-sm text-zoru-ink bg-zoru-surface-2">
+              <div className="border rounded-md p-4 text-sm text-[var(--st-text)] bg-[var(--st-bg-muted)]">
                 <div className="flex justify-between font-medium border-b pb-2 mb-2">
                   <span>Country</span>
                   <span>Outbound SMS</span>
@@ -298,14 +298,14 @@ export default function ProviderConfigPage({ params }: { params: { id: string } 
             </ZoruCardHeader>
             <ZoruCardContent className="space-y-4">
               <div className="space-y-1">
-                <Label className="text-xs text-zoru-ink">18. SDK Version</Label>
+                <Label className="text-xs text-[var(--st-text)]">18. SDK Version</Label>
                 <div className="font-mono text-sm">sabsms-engine/1.4.2 (Rust)</div>
               </div>
               <Separator />
               <Button variant="outline" className="w-full">
                 19. View Connection Log (100)
               </Button>
-              <Button variant="ghost" className="w-full text-zoru-ink">
+              <Button variant="ghost" className="w-full text-[var(--st-text)]">
                 20. View Audit Trail
               </Button>
             </ZoruCardContent>

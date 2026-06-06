@@ -107,7 +107,7 @@ function ReadonlyField({
 
   return (
     <div className="grid gap-1.5">
-      <Label htmlFor={id} className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+      <Label htmlFor={id} className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
         {label}
       </Label>
       <div className="flex gap-2">
@@ -130,7 +130,7 @@ function ReadonlyField({
         ) : null}
       </div>
       {hint ? (
-        <p className="text-[11px] text-zoru-ink-muted">{hint}</p>
+        <p className="text-[11px] text-[var(--st-text-secondary)]">{hint}</p>
       ) : null}
     </div>
   );
@@ -232,7 +232,7 @@ export default function FacebookSettingsPage() {
 
       <PageHeader className="mt-5" bordered={false}>
         <ZoruPageHeading>
-          <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-zoru-ink-subtle">
+          <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--st-text-tertiary)]">
             Project · {project.name}
           </p>
           <ZoruPageTitle>Facebook connection</ZoruPageTitle>
@@ -259,21 +259,21 @@ export default function FacebookSettingsPage() {
         <Card className="p-6 lg:col-span-2">
           <div className="flex items-start justify-between gap-2">
             <div>
-              <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-zoru-ink-subtle">
+              <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--st-text-tertiary)]">
                 Connected accounts
               </p>
-              <h3 className="mt-1 text-[16px] text-zoru-ink">
+              <h3 className="mt-1 text-[16px] text-[var(--st-text)]">
                 Page &amp; ad account IDs
               </h3>
             </div>
             {hasMarketingSetup ? (
               <Badge variant="outline" className="gap-1">
-                <CheckCircle2 className="h-3 w-3 text-zoru-success" />
+                <CheckCircle2 className="h-3 w-3 text-[var(--st-status-ok)]" />
                 Connected
               </Badge>
             ) : (
               <Badge variant="secondary" className="gap-1">
-                <XCircle className="h-3 w-3 text-zoru-ink-subtle" />
+                <XCircle className="h-3 w-3 text-[var(--st-text-tertiary)]" />
                 Not connected
               </Badge>
             )}
@@ -342,10 +342,10 @@ export default function FacebookSettingsPage() {
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-[12.5px] text-zoru-ink">
+              <p className="text-[12.5px] text-[var(--st-text)]">
                 Re-authorize whenever permissions change
               </p>
-              <p className="mt-0.5 text-[11.5px] text-zoru-ink-muted">
+              <p className="mt-0.5 text-[11.5px] text-[var(--st-text-secondary)]">
                 If you grant new Facebook permissions or rotate tokens, run a
                 fresh connect.
               </p>
@@ -360,7 +360,7 @@ export default function FacebookSettingsPage() {
 
         {/* ── Linked assets ── */}
         <Card className="p-5">
-          <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-zoru-ink-subtle">
+          <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--st-text-tertiary)]">
             Linked assets
           </p>
           <div className="mt-3 flex flex-col gap-2">
@@ -392,7 +392,7 @@ export default function FacebookSettingsPage() {
 
           <Separator className="my-5" />
 
-          <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-zoru-ink-subtle">
+          <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--st-text-tertiary)]">
             Quick links
           </p>
           <div className="mt-3 flex flex-col gap-2">
@@ -445,19 +445,19 @@ function LinkedAsset({
   detail: string;
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3">
-      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink">
+    <div className="flex items-center gap-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3">
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
         {icon}
       </span>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-[12.5px] text-zoru-ink">{label}</p>
-        <p className="mt-0.5 truncate font-mono text-[11px] text-zoru-ink-muted">
+        <p className="truncate text-[12.5px] text-[var(--st-text)]">{label}</p>
+        <p className="mt-0.5 truncate font-mono text-[11px] text-[var(--st-text-secondary)]">
           {detail}
         </p>
       </div>
       {status === "connected" ? (
         <Badge variant="outline" className="gap-1">
-          <CheckCircle2 className="h-3 w-3 text-zoru-success" />
+          <CheckCircle2 className="h-3 w-3 text-[var(--st-status-ok)]" />
           OK
         </Badge>
       ) : status === "missing" ? (

@@ -98,7 +98,7 @@ export default async function OkrDetailPage({
             {/* Summary card */}
             <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
-                    <div className="text-[14px] font-medium text-zoru-ink">Overview</div>
+                    <div className="text-[14px] font-medium text-[var(--st-text)]">Overview</div>
                     <StatusPill label={pretty(status)} tone={tone} />
                     {tags.map((t) => (
                         <Badge key={t} variant="ghost">
@@ -108,48 +108,48 @@ export default async function OkrDetailPage({
                 </div>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
                     <div>
-                        <div className="text-zoru-ink-muted">Period</div>
-                        <div className="font-mono text-zoru-ink">{okr.period || '—'}</div>
+                        <div className="text-[var(--st-text-secondary)]">Period</div>
+                        <div className="font-mono text-[var(--st-text)]">{okr.period || '—'}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Owner</div>
-                        <div className="text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Owner</div>
+                        <div className="text-[var(--st-text)]">
                             {okr.ownerName ?? okr.ownerId ?? '—'}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Team / Department</div>
-                        <div className="text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Team / Department</div>
+                        <div className="text-[var(--st-text)]">
                             {okr.teamId ?? okr.departmentId ?? '—'}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Parent OKR</div>
-                        <div className="font-mono text-[12px] text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Parent OKR</div>
+                        <div className="font-mono text-[12px] text-[var(--st-text)]">
                             {okr.parentOkrId || '—'}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Start date</div>
-                        <div className="text-zoru-ink">{fmtDate(okr.startDate)}</div>
+                        <div className="text-[var(--st-text-secondary)]">Start date</div>
+                        <div className="text-[var(--st-text)]">{fmtDate(okr.startDate)}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">End date</div>
-                        <div className="text-zoru-ink">{fmtDate(okr.endDate)}</div>
+                        <div className="text-[var(--st-text-secondary)]">End date</div>
+                        <div className="text-[var(--st-text)]">{fmtDate(okr.endDate)}</div>
                     </div>
                 </div>
             </Card>
 
             {/* Progress strip */}
             <Card className="p-6">
-                <div className="mb-3 text-[14px] font-medium text-zoru-ink">
+                <div className="mb-3 text-[14px] font-medium text-[var(--st-text)]">
                     Progress
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div>
                         <div className="mb-1.5 flex items-center justify-between text-[12.5px]">
-                            <span className="text-zoru-ink-muted">Overall progress</span>
-                            <span className="font-mono tabular-nums text-zoru-ink">
+                            <span className="text-[var(--st-text-secondary)]">Overall progress</span>
+                            <span className="font-mono tabular-nums text-[var(--st-text)]">
                                 {progress}%
                             </span>
                         </div>
@@ -158,8 +158,8 @@ export default async function OkrDetailPage({
                     {confidence != null ? (
                         <div>
                             <div className="mb-1.5 flex items-center justify-between text-[12.5px]">
-                                <span className="text-zoru-ink-muted">Confidence</span>
-                                <span className="font-mono tabular-nums text-zoru-ink">
+                                <span className="text-[var(--st-text-secondary)]">Confidence</span>
+                                <span className="font-mono tabular-nums text-[var(--st-text)]">
                                     {confidence}%
                                 </span>
                             </div>
@@ -171,11 +171,11 @@ export default async function OkrDetailPage({
 
             {/* Key results */}
             <Card className="p-6">
-                <div className="mb-3 text-[15px] font-medium text-zoru-ink">
+                <div className="mb-3 text-[15px] font-medium text-[var(--st-text)]">
                     Key results ({krs.length})
                 </div>
                 {krs.length === 0 ? (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No key results yet.
                     </div>
                 ) : (
@@ -192,43 +192,43 @@ export default async function OkrDetailPage({
                             return (
                                 <div
                                     key={kr.id}
-                                    className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-3"
+                                    className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3"
                                 >
                                     <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                                        <div className="font-medium text-zoru-ink">{kr.title}</div>
+                                        <div className="font-medium text-[var(--st-text)]">{kr.title}</div>
                                         <StatusPill label={pretty(krStatus)} tone={krTone} />
                                     </div>
                                     <div className="grid gap-3 text-[12.5px] sm:grid-cols-4">
                                         <div>
-                                            <div className="text-zoru-ink-muted">Metric</div>
-                                            <div className="text-zoru-ink">{kr.metric ?? '—'}</div>
+                                            <div className="text-[var(--st-text-secondary)]">Metric</div>
+                                            <div className="text-[var(--st-text)]">{kr.metric ?? '—'}</div>
                                         </div>
                                         <div>
-                                            <div className="text-zoru-ink-muted">Target</div>
-                                            <div className="font-mono tabular-nums text-zoru-ink">
+                                            <div className="text-[var(--st-text-secondary)]">Target</div>
+                                            <div className="font-mono tabular-nums text-[var(--st-text)]">
                                                 {tgt != null ? `${tgt}${kr.unit ? ` ${kr.unit}` : ''}` : '—'}
                                             </div>
                                         </div>
                                         <div>
-                                            <div className="text-zoru-ink-muted">Current</div>
-                                            <div className="font-mono tabular-nums text-zoru-ink">
+                                            <div className="text-[var(--st-text-secondary)]">Current</div>
+                                            <div className="font-mono tabular-nums text-[var(--st-text)]">
                                                 {cur != null ? `${cur}${kr.unit ? ` ${kr.unit}` : ''}` : '—'}
                                             </div>
                                         </div>
                                         <div>
-                                            <div className="text-zoru-ink-muted">Progress</div>
+                                            <div className="text-[var(--st-text-secondary)]">Progress</div>
                                             {krProgress != null ? (
                                                 <div className="flex items-center gap-2">
                                                     <Progress
                                                         value={krProgress}
                                                         className="h-2 w-20"
                                                     />
-                                                    <span className="font-mono tabular-nums text-zoru-ink">
+                                                    <span className="font-mono tabular-nums text-[var(--st-text)]">
                                                         {krProgress}%
                                                     </span>
                                                 </div>
                                             ) : (
-                                                <div className="text-zoru-ink">—</div>
+                                                <div className="text-[var(--st-text)]">—</div>
                                             )}
                                         </div>
                                     </div>

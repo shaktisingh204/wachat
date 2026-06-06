@@ -34,7 +34,7 @@ export class LocalErrorBoundary extends React.Component<Props, State> {
       }
       return (
         <div className="p-8 text-center flex flex-col items-center gap-4">
-          <p className="text-sm text-zoru-danger-ink">Failed to load data.</p>
+          <p className="text-sm text-[var(--st-danger)]">Failed to load data.</p>
           <Button variant="outline" onClick={() => this.setState({ hasError: false })}>
             Try again
           </Button>

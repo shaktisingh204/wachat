@@ -129,32 +129,32 @@ export function TopClientsReport({
       {/* Date range + filters */}
       <form
         onSubmit={pushFilters}
-        className="flex flex-wrap items-end gap-2 rounded-lg border border-zoru-line bg-zoru-surface px-3 py-2"
+        className="flex flex-wrap items-end gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
       >
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
             From
           </span>
           <input
             type="date"
             name="from"
             defaultValue={from}
-            className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
+            className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
           />
         </label>
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
             To
           </span>
           <input
             type="date"
             name="to"
             defaultValue={to}
-            className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
+            className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
           />
         </label>
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
             Min revenue
           </span>
           <input
@@ -163,11 +163,11 @@ export function TopClientsReport({
             value={minRevInput}
             onChange={(e) => setMinRevInput(e.target.value)}
             placeholder="0"
-            className="h-9 w-28 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
+            className="h-9 w-28 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
           />
         </label>
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
             Industry
           </span>
           <input
@@ -175,7 +175,7 @@ export function TopClientsReport({
             value={industryInput}
             onChange={(e) => setIndustryInput(e.target.value)}
             placeholder="Any"
-            className="h-9 w-32 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
+            className="h-9 w-32 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
           />
         </label>
         <Button type="submit" size="sm" disabled={isPending}>
@@ -221,12 +221,12 @@ export function TopClientsReport({
       {/* Bar chart: top 10 by revenue */}
       <Card>
         <div className="mb-3">
-          <h2 className="text-[16px] font-semibold text-zoru-ink">
+          <h2 className="text-[16px] font-semibold text-[var(--st-text)]">
             Top 10 clients by revenue
           </h2>
         </div>
         {chartData.length === 0 ? (
-          <div className="py-8 text-center text-[13px] text-zoru-ink-muted">
+          <div className="py-8 text-center text-[13px] text-[var(--st-text-secondary)]">
             No revenue in this range.
           </div>
         ) : (
@@ -276,39 +276,39 @@ export function TopClientsReport({
 
       {/* Data table */}
       <Card>
-        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+        <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <Table>
             <ZoruTableHeader>
-              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                <ZoruTableHead className="w-10 text-zoru-ink-muted">
+              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                <ZoruTableHead className="w-10 text-[var(--st-text-secondary)]">
                   #
                 </ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                   Client
                 </ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                   Industry
                 </ZoruTableHead>
-                <ZoruTableHead className="text-right text-zoru-ink-muted">
+                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                   Orders
                 </ZoruTableHead>
-                <ZoruTableHead className="text-right text-zoru-ink-muted">
+                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                   Revenue
                 </ZoruTableHead>
-                <ZoruTableHead className="text-right text-zoru-ink-muted">
+                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                   Avg order
                 </ZoruTableHead>
-                <ZoruTableHead className="text-right text-zoru-ink-muted">
+                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                   Last order
                 </ZoruTableHead>
               </ZoruTableRow>
             </ZoruTableHeader>
             <ZoruTableBody>
               {pageRows.length === 0 ? (
-                <ZoruTableRow className="border-zoru-line">
+                <ZoruTableRow className="border-[var(--st-border)]">
                   <ZoruTableCell
                     colSpan={7}
-                    className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                    className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     No clients in this range.
                   </ZoruTableCell>
@@ -317,12 +317,12 @@ export function TopClientsReport({
                 pageRows.map((r, i) => (
                   <ZoruTableRow
                     key={`${r.clientId || 'none'}-${start + i}`}
-                    className="border-zoru-line"
+                    className="border-[var(--st-border)]"
                   >
-                    <ZoruTableCell className="text-zoru-ink-muted">
+                    <ZoruTableCell className="text-[var(--st-text-secondary)]">
                       {start + i + 1}
                     </ZoruTableCell>
-                    <ZoruTableCell className="font-medium text-zoru-ink">
+                    <ZoruTableCell className="font-medium text-[var(--st-text)]">
                       {r.clientId ? (
                         <EntityRowLink
                           href={`/dashboard/crm/accounts/${r.clientId}`}
@@ -332,19 +332,19 @@ export function TopClientsReport({
                         r.clientName
                       )}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                       {r.industry}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
+                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
                       {fmtNumber(r.invoices)}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] font-medium text-zoru-ink">
+                    <ZoruTableCell className="text-right text-[13px] font-medium text-[var(--st-text)]">
                       {fmtMoney(r.revenue)}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
+                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">
                       {fmtMoney(r.avgOrderValue)}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-zoru-ink-muted">
+                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text-secondary)]">
                       {r.lastOrderDate || '—'}
                     </ZoruTableCell>
                   </ZoruTableRow>

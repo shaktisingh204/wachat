@@ -75,19 +75,19 @@ export default async function EventDetailPage({
                 audit={<EntityAuditTimeline entityKind="event" entityId={ev._id} />}
                 rightRail={
                     <Card>
-                        <h3 className="mb-3 text-[13.5px] font-semibold text-zoru-ink">
+                        <h3 className="mb-3 text-[13.5px] font-semibold text-[var(--st-text)]">
                             Attendees ({attendees.length})
                         </h3>
                         {attendees.length === 0 ? (
-                            <p className="text-[12.5px] text-zoru-ink-muted">No attendees yet.</p>
+                            <p className="text-[12.5px] text-[var(--st-text-secondary)]">No attendees yet.</p>
                         ) : (
-                            <ul className="divide-y divide-zoru-line">
+                            <ul className="divide-y divide-[var(--st-border)]">
                                 {attendees.map((a) => (
                                     <li
                                         key={String(a._id)}
                                         className="flex items-center justify-between py-2 text-[12.5px]"
                                     >
-                                        <span className="text-zoru-ink">{a.user_name || a.user_id}</span>
+                                        <span className="text-[var(--st-text)]">{a.user_name || a.user_id}</span>
                                         <Badge
                                             variant={
                                                 a.status === 'yes'
@@ -133,12 +133,12 @@ export default async function EventDetailPage({
                         ) : null}
                     </div>
                     {ev.where ? (
-                        <p className="mb-1 flex items-center gap-1 text-[13px] text-zoru-ink-muted">
+                        <p className="mb-1 flex items-center gap-1 text-[13px] text-[var(--st-text-secondary)]">
                             <MapPin className="h-3.5 w-3.5" /> {ev.where}
                         </p>
                     ) : null}
                     {ev.online_link ? (
-                        <p className="flex items-center gap-1 text-[13px] text-zoru-ink-muted">
+                        <p className="flex items-center gap-1 text-[13px] text-[var(--st-text-secondary)]">
                             <ExternalLink className="h-3.5 w-3.5" />
                             <a
                                 href={ev.online_link}
@@ -151,7 +151,7 @@ export default async function EventDetailPage({
                         </p>
                     ) : null}
                     {ev.description ? (
-                        <p className="mt-3 whitespace-pre-wrap text-[14px] leading-relaxed text-zoru-ink">
+                        <p className="mt-3 whitespace-pre-wrap text-[14px] leading-relaxed text-[var(--st-text)]">
                             {ev.description}
                         </p>
                     ) : null}

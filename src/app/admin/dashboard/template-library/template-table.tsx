@@ -111,7 +111,7 @@ export function TemplateTable({
     const isSelected = selectedIds.has(id);
 
     return (
-      <ZoruTableRow ref={setNodeRef} style={style} className="hover:bg-zoru-surface transition-colors">
+      <ZoruTableRow ref={setNodeRef} style={style} className="hover:bg-[var(--st-bg-secondary)] transition-colors">
         <ZoruTableCell className="w-10">
           <Checkbox
             checked={isSelected}
@@ -119,17 +119,17 @@ export function TemplateTable({
           />
         </ZoruTableCell>
         {type === 'premade' && (
-          <ZoruTableCell className="w-10 text-zoru-ink-muted cursor-grab active:cursor-grabbing" {...attributes} {...listeners}>
+          <ZoruTableCell className="w-10 text-[var(--st-text-secondary)] cursor-grab active:cursor-grabbing" {...attributes} {...listeners}>
             <GripVertical className="h-4 w-4" />
           </ZoruTableCell>
         )}
-        <ZoruTableCell className="font-medium text-zoru-ink">{template.name}</ZoruTableCell>
+        <ZoruTableCell className="font-medium text-[var(--st-text)]">{template.name}</ZoruTableCell>
         <ZoruTableCell>
-          <span className="inline-flex items-center rounded-full border border-zoru-line bg-zoru-surface px-2 py-0.5 text-[10px] font-medium text-zoru-ink-muted">
+          <span className="inline-flex items-center rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-0.5 text-[10px] font-medium text-[var(--st-text-secondary)]">
             {template.category}
           </span>
         </ZoruTableCell>
-        <ZoruTableCell className="text-zoru-ink-muted">{template.language}</ZoruTableCell>
+        <ZoruTableCell className="text-[var(--st-text-secondary)]">{template.language}</ZoruTableCell>
       </ZoruTableRow>
     );
   };
@@ -138,7 +138,7 @@ export function TemplateTable({
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="relative max-w-sm w-full">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
           <Input
             placeholder="Search templates..."
             value={search}
@@ -190,7 +190,7 @@ export function TemplateTable({
             paginatedData.map((t) => {
               const id = t._id!.toString();
               return (
-                <ZoruTableRow key={id} className="hover:bg-zoru-surface transition-colors">
+                <ZoruTableRow key={id} className="hover:bg-[var(--st-bg-secondary)] transition-colors">
                   <ZoruTableCell className="w-10">
                     <Checkbox
                       checked={selectedIds.has(id)}
@@ -198,24 +198,24 @@ export function TemplateTable({
                     />
                   </ZoruTableCell>
                   {type === 'premade' && (
-                    <ZoruTableCell className="w-10 text-zoru-ink-muted cursor-not-allowed">
+                    <ZoruTableCell className="w-10 text-[var(--st-text-secondary)] cursor-not-allowed">
                       <GripVertical className="h-4 w-4 opacity-50" />
                     </ZoruTableCell>
                   )}
-                  <ZoruTableCell className="font-medium text-zoru-ink">{t.name}</ZoruTableCell>
+                  <ZoruTableCell className="font-medium text-[var(--st-text)]">{t.name}</ZoruTableCell>
                   <ZoruTableCell>
-                    <span className="inline-flex items-center rounded-full border border-zoru-line bg-zoru-surface px-2 py-0.5 text-[10px] font-medium text-zoru-ink-muted">
+                    <span className="inline-flex items-center rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-0.5 text-[10px] font-medium text-[var(--st-text-secondary)]">
                       {t.category}
                     </span>
                   </ZoruTableCell>
-                  <ZoruTableCell className="text-zoru-ink-muted">{t.language}</ZoruTableCell>
+                  <ZoruTableCell className="text-[var(--st-text-secondary)]">{t.language}</ZoruTableCell>
                 </ZoruTableRow>
               );
             })
           )}
           {paginatedData.length === 0 && (
             <ZoruTableRow>
-              <ZoruTableCell colSpan={type === 'premade' ? 5 : 4} className="h-24 text-center text-zoru-ink-muted">
+              <ZoruTableCell colSpan={type === 'premade' ? 5 : 4} className="h-24 text-center text-[var(--st-text-secondary)]">
                 No templates found.
               </ZoruTableCell>
             </ZoruTableRow>
@@ -224,7 +224,7 @@ export function TemplateTable({
       </Table>
 
       <div className="flex items-center justify-between px-1">
-        <div className="text-xs text-zoru-ink-muted">
+        <div className="text-xs text-[var(--st-text-secondary)]">
           Showing {paginatedData.length > 0 ? page * pageSize + 1 : 0} to {Math.min((page + 1) * pageSize, filteredData.length)} of {filteredData.length} entries
         </div>
         <div className="flex items-center gap-2">

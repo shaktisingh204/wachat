@@ -34,7 +34,7 @@ export function ItemsGrid({
 }: ItemsGridProps) {
   if (items.length === 0) {
     return (
-      <div className="p-12 text-center text-[13px] text-zoru-ink-muted">
+      <div className="p-12 text-center text-[13px] text-[var(--st-text-secondary)]">
         {filtersActive
           ? 'No items match the current filters.'
           : 'No items yet — click "New item" to add the first one.'}
@@ -47,10 +47,10 @@ export function ItemsGrid({
         const low = isLowStock(item);
         const out = isOutOfStock(item);
         const stockClass = out
-          ? 'text-zoru-danger-ink'
+          ? 'text-[var(--st-danger)]'
           : low
-            ? 'text-zoru-warning-ink'
-            : 'text-zoru-ink';
+            ? 'text-[var(--st-warn)]'
+            : 'text-[var(--st-text)]';
         const status = item.status ?? 'active';
         return (
           <Card
@@ -76,13 +76,13 @@ export function ItemsGrid({
               <div className="flex items-start justify-between gap-2">
                 <Link
                   href={`/dashboard/crm/inventory/items/${item._id}`}
-                  className="line-clamp-2 text-[13px] font-medium text-zoru-ink hover:underline"
+                  className="line-clamp-2 text-[13px] font-medium text-[var(--st-text)] hover:underline"
                 >
                   {item.name}
                 </Link>
                 <StatusPill label={status} tone={statusToTone(status)} />
               </div>
-              <div className="flex items-center justify-between gap-2 text-[11.5px] text-zoru-ink-muted">
+              <div className="flex items-center justify-between gap-2 text-[11.5px] text-[var(--st-text-secondary)]">
                 <span className="truncate font-mono">{item.sku || '—'}</span>
                 <span className="capitalize">{item.itemType ?? 'goods'}</span>
               </div>
@@ -94,8 +94,8 @@ export function ItemsGrid({
                   <EntityPickerChip entity="brand" id={item.brandId} />
                 ) : null}
               </div>
-              <div className="flex items-baseline justify-between border-t border-zoru-line pt-2">
-                <span className="text-[13px] font-semibold text-zoru-ink">
+              <div className="flex items-baseline justify-between border-t border-[var(--st-border)] pt-2">
+                <span className="text-[13px] font-semibold text-[var(--st-text)]">
                   {fmtINR(item.sellingPrice, item.currency)}
                 </span>
                 <span className={`text-[11.5px] font-mono tabular-nums ${stockClass}`}>
@@ -115,7 +115,7 @@ function GridThumbnail({ src, alt }: { src?: string; alt: string }) {
   const isData = typeof src === 'string' && src.startsWith('data:');
   if (!src || errored) {
     return (
-      <div className="flex h-32 w-full items-center justify-center bg-zoru-surface-2 text-zoru-ink-muted">
+      <div className="flex h-32 w-full items-center justify-center bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
         <Package className="h-10 w-10" />
       </div>
     );

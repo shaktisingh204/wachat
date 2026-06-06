@@ -507,10 +507,10 @@ export function TicketsListClient({
           visibleTickets.length === 0 &&
           initialError === undefined ? (
             <div className="flex flex-col items-center gap-3 p-4">
-              <h3 className="text-base font-medium text-zoru-ink">
+              <h3 className="text-base font-medium text-[var(--st-text)]">
                 No tickets match
               </h3>
-              <p className="max-w-sm text-sm text-zoru-ink-muted">
+              <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                 Clear filters or log a new ticket to get started.
               </p>
               <Button asChild>

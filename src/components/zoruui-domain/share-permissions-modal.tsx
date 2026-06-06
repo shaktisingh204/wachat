@@ -85,10 +85,10 @@ export function SharePermissionsModal({ resourceType, resourceId, resourceName }
 
                     {/* Invite row */}
                     <div className="space-y-2">
-                        <Label className="text-[12.5px] text-zoru-ink-muted">Invite by email</Label>
+                        <Label className="text-[12.5px] text-[var(--st-text-secondary)]">Invite by email</Label>
                         <div className="flex gap-2">
                             <div className="relative flex-1">
-                                <Mail className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zoru-ink-muted" />
+                                <Mail className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                                 <Input
                                     type="email"
                                     value={email}
@@ -123,7 +123,7 @@ export function SharePermissionsModal({ resourceType, resourceId, resourceName }
                                 {isPending ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : <UserPlus className="h-3.5 w-3.5" />}
                             </Button>
                         </div>
-                        <p className="text-[11px] text-zoru-ink-muted/70">
+                        <p className="text-[11px] text-[var(--st-text-secondary)]/70">
                             <strong>Viewer</strong> can see analytics only. <strong>Editor</strong> can change the destination URL and settings.
                         </p>
                     </div>
@@ -132,7 +132,7 @@ export function SharePermissionsModal({ resourceType, resourceId, resourceName }
 
                     {/* People with access */}
                     <div className="space-y-2">
-                        <p className="text-[11px] font-medium uppercase tracking-wider text-zoru-ink-muted/60">
+                        <p className="text-[11px] font-medium uppercase tracking-wider text-[var(--st-text-secondary)]/60">
                             {shares.length > 0 ? `${shares.length} ${shares.length === 1 ? 'person' : 'people'} with access` : 'No one else has access'}
                         </p>
                         {loading ? (
@@ -144,14 +144,14 @@ export function SharePermissionsModal({ resourceType, resourceId, resourceName }
                                 {shares.map((share) => (
                                     <div
                                         key={share._id}
-                                        className="flex items-center gap-2.5 px-2.5 py-2 rounded-md border border-zoru-border hover:bg-zoru-ink transition-colors"
+                                        className="flex items-center gap-2.5 px-2.5 py-2 rounded-md border border-[var(--st-border)] hover:bg-[var(--st-text)] transition-colors"
                                     >
-                                        <div className="h-7 w-7 rounded-full bg-zoru-ink flex items-center justify-center flex-shrink-0">
-                                            <span className="text-[11px] font-medium text-zoru-ink">
+                                        <div className="h-7 w-7 rounded-full bg-[var(--st-text)] flex items-center justify-center flex-shrink-0">
+                                            <span className="text-[11px] font-medium text-[var(--st-text)]">
                                                 {share.sharedWithEmail[0].toUpperCase()}
                                             </span>
                                         </div>
-                                        <span className="flex-1 text-[12.5px] text-zoru-ink truncate">
+                                        <span className="flex-1 text-[12.5px] text-[var(--st-text)] truncate">
                                             {share.sharedWithEmail}
                                         </span>
                                         <Select
@@ -173,7 +173,7 @@ export function SharePermissionsModal({ resourceType, resourceId, resourceName }
                                             disabled={isPending}
                                             title="Revoke access"
                                         >
-                                            <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                                            <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                                         </Button>
                                     </div>
                                 ))}

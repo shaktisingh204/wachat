@@ -105,7 +105,7 @@ export default async function InvoiceAgingPage(props: {
           }}>
             <button
               type="submit"
-              className="h-9 rounded-lg bg-zoru-danger-surface px-4 text-[13px] font-medium text-zoru-danger-ink border border-zoru-danger-border hover:bg-zoru-danger-border/20"
+              className="h-9 rounded-lg bg-zoru-danger-surface px-4 text-[13px] font-medium text-[var(--st-danger)] border border-zoru-danger-border hover:bg-zoru-danger-border/20"
             >
               Send Dunning (90+)
             </button>
@@ -124,28 +124,28 @@ export default async function InvoiceAgingPage(props: {
       {/* Filter row */}
       <form
         method="get"
-        className="flex flex-wrap items-end gap-2 rounded-lg border border-zoru-line bg-zoru-surface px-3 py-2"
+        className="flex flex-wrap items-end gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
       >
         {sp.from && <input type="hidden" name="from" value={sp.from} />}
         {sp.to && <input type="hidden" name="to" value={sp.to} />}
 
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">Client search</span>
+          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">Client search</span>
           <input
             type="text"
             name="client"
             defaultValue={sp.client ?? ''}
             placeholder="Client name..."
-            className="h-9 w-48 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
+            className="h-9 w-48 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
           />
         </label>
 
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">Aging bucket</span>
+          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">Aging bucket</span>
           <select
             name="bucket"
             defaultValue={sp.bucket ?? ''}
-            className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
+            className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
           >
             <option value="">All buckets</option>
             <option value="0-30">0–30 days</option>
@@ -156,11 +156,11 @@ export default async function InvoiceAgingPage(props: {
         </label>
 
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">Currency</span>
+          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">Currency</span>
           <select
             name="currency"
             defaultValue={sp.currency ?? ''}
-            className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
+            className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
           >
             <option value="">INR (default)</option>
             <option value="USD">USD</option>
@@ -171,13 +171,13 @@ export default async function InvoiceAgingPage(props: {
 
         <button
           type="submit"
-          className="h-9 rounded-lg bg-zoru-ink px-4 text-[13px] font-medium text-white"
+          className="h-9 rounded-lg bg-[var(--st-text)] px-4 text-[13px] font-medium text-white"
         >
           Apply
         </button>
         <a
           href="?"
-          className="inline-flex h-9 items-center rounded-lg border border-zoru-line px-3 text-[13px] text-zoru-ink-muted"
+          className="inline-flex h-9 items-center rounded-lg border border-[var(--st-border)] px-3 text-[13px] text-[var(--st-text-secondary)]"
         >
           Reset
         </a>
@@ -199,13 +199,13 @@ export default async function InvoiceAgingPage(props: {
       {/* Chart */}
       <Card className="p-6">
         <div className="mb-3">
-          <h2 className="text-[16px] font-semibold text-zoru-ink">By client</h2>
-          <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+          <h2 className="text-[16px] font-semibold text-[var(--st-text)]">By client</h2>
+          <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">
             Top 10 clients by outstanding amount across aging buckets.
           </p>
         </div>
         {byClient.length === 0 ? (
-          <div className="py-8 text-center text-[13px] text-zoru-ink-muted">No outstanding invoices.</div>
+          <div className="py-8 text-center text-[13px] text-[var(--st-text-secondary)]">No outstanding invoices.</div>
         ) : (
           <AgingStackedBar data={byClient.slice(0, 10)} />
         )}
@@ -213,26 +213,26 @@ export default async function InvoiceAgingPage(props: {
 
       {/* Table with summary row */}
       <Card className="p-0">
-        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+        <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <Table>
             <ZoruTableHeader>
-              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                <ZoruTableHead className="text-zoru-ink-muted">Invoice</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Client</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Invoice date</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Due date</ZoruTableHead>
-                <ZoruTableHead className="text-right text-zoru-ink-muted">Days overdue</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Bucket</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                <ZoruTableHead className="text-right text-zoru-ink-muted">Outstanding</ZoruTableHead>
+              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Invoice</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Client</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Invoice date</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Due date</ZoruTableHead>
+                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Days overdue</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Bucket</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
+                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Outstanding</ZoruTableHead>
               </ZoruTableRow>
             </ZoruTableHeader>
             <ZoruTableBody>
               {pageRows.length === 0 ? (
-                <ZoruTableRow className="border-zoru-line">
+                <ZoruTableRow className="border-[var(--st-border)]">
                   <ZoruTableCell
                     colSpan={8}
-                    className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                    className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     No overdue invoices matching filters.
                   </ZoruTableCell>
@@ -240,7 +240,7 @@ export default async function InvoiceAgingPage(props: {
               ) : (
                 <>
                   {pageRows.map((r: InvoiceAgingDetailRow) => (
-                    <ZoruTableRow key={r.id} className="border-zoru-line">
+                    <ZoruTableRow key={r.id} className="border-[var(--st-border)]">
                       <ZoruTableCell>
                         <EntityRowLink
                           href={`/dashboard/crm/sales/invoices/${r.id}`}
@@ -254,12 +254,12 @@ export default async function InvoiceAgingPage(props: {
                             label={r.clientName}
                           />
                         ) : (
-                          <span className="text-[13px] text-zoru-ink">{r.clientName}</span>
+                          <span className="text-[13px] text-[var(--st-text)]">{r.clientName}</span>
                         )}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-zoru-ink-muted">{r.invoiceDate}</ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-zoru-ink-muted">{r.dueDate}</ZoruTableCell>
-                      <ZoruTableCell className="text-right text-[13px] text-zoru-ink">{r.daysOverdue}</ZoruTableCell>
+                      <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">{r.invoiceDate}</ZoruTableCell>
+                      <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">{r.dueDate}</ZoruTableCell>
+                      <ZoruTableCell className="text-right text-[13px] text-[var(--st-text)]">{r.daysOverdue}</ZoruTableCell>
                       <ZoruTableCell>
                         <Badge variant={bucketVariant[r.bucket]}>{r.bucket}</Badge>
                       </ZoruTableCell>
@@ -270,27 +270,27 @@ export default async function InvoiceAgingPage(props: {
                           <Badge variant="secondary">Active</Badge>
                         )}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-[13px] font-medium text-zoru-danger-ink">
+                      <ZoruTableCell className="text-right text-[13px] font-medium text-[var(--st-danger)]">
                         {fmtMoney(r.outstanding)}
                       </ZoruTableCell>
                     </ZoruTableRow>
                   ))}
 
                   {/* Summary totals row */}
-                  <ZoruTableRow className="border-t-2 border-zoru-line bg-zoru-surface-elevated font-semibold">
-                    <ZoruTableCell colSpan={3} className="text-[13px] text-zoru-ink">
+                  <ZoruTableRow className="border-t-2 border-[var(--st-border)] bg-zoru-surface-elevated font-semibold">
+                    <ZoruTableCell colSpan={3} className="text-[13px] text-[var(--st-text)]">
                       Totals ({filtered.length} invoice{filtered.length === 1 ? '' : 's'})
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                       0-30: {fmtMoney(totals.current)}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-zoru-ink-muted">
+                    <ZoruTableCell className="text-right text-[13px] text-[var(--st-text-secondary)]">
                       31-60: {fmtMoney(totals.d3160)}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                       61-90: {fmtMoney(totals.d6190)} · 90+: {fmtMoney(totals.over90)}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] font-bold text-zoru-danger-ink">
+                    <ZoruTableCell className="text-right text-[13px] font-bold text-[var(--st-danger)]">
                       {fmtMoney(totals.outstanding)}
                     </ZoruTableCell>
                   </ZoruTableRow>

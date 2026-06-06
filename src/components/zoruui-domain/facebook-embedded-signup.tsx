@@ -47,7 +47,7 @@ export function FacebookEmbeddedSignup({ appId, state, reauthorize = false }: Fa
     }
 
     return (
-        <Button asChild size="lg" className="bg-zoru-ink hover:bg-zoru-ink/90 w-full">
+        <Button asChild size="lg" className="bg-[var(--st-text)] hover:bg-[var(--st-text)]/90 w-full">
             <a href={facebookLoginUrl.toString()}>
                 <FacebookIcon className="mr-2 h-5 w-5" />
                 {reauthorize ? 'Re-authorize Connection' : 'Connect with Facebook'}

@@ -182,11 +182,11 @@ export function HireEditForm({ hireId, initial }: HireEditFormProps) {
           />
         </div>
 
-        <div className="flex items-center justify-between border-t border-zoru-line pt-4">
+        <div className="flex items-center justify-between border-t border-[var(--st-border)] pt-4">
           <Button
             type="button"
             variant="ghost"
-            className="text-zoru-ink-muted hover:text-zoru-ink"
+            className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
             asChild
           >
             <Link href={`/dashboard/crm/purchases/hire/${hireId}`}>

@@ -106,18 +106,18 @@ export default async function TaxReportPage(props: {
       {/* Supplementary filter bar — URL-driven GET form */}
       <form
         method="get"
-        className="flex flex-wrap items-end gap-2 rounded-lg border border-zoru-line bg-zoru-surface px-3 py-2"
+        className="flex flex-wrap items-end gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
       >
         {/* Preserve FY range */}
         {sp.from && <input type="hidden" name="from" value={sp.from} />}
         {sp.to && <input type="hidden" name="to" value={sp.to} />}
 
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">Tax type</span>
+          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">Tax type</span>
           <select
             name="taxType"
             defaultValue={sp.taxType ?? ''}
-            className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
+            className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
           >
             <option value="">All</option>
             <option value="GST">GST</option>
@@ -127,21 +127,21 @@ export default async function TaxReportPage(props: {
         </label>
 
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">Period (YYYY-MM)</span>
+          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">Period (YYYY-MM)</span>
           <input
             type="month"
             name="period"
             defaultValue={sp.period ?? ''}
-            className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
+            className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
           />
         </label>
 
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">Status</span>
+          <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">Status</span>
           <select
             name="status"
             defaultValue={sp.status ?? ''}
-            className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
+            className="h-9 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[13px] text-[var(--st-text)]"
           >
             <option value="">All</option>
             <option value="Filed">Filed</option>
@@ -152,13 +152,13 @@ export default async function TaxReportPage(props: {
 
         <button
           type="submit"
-          className="h-9 rounded-lg bg-zoru-ink px-4 text-[13px] font-medium text-white"
+          className="h-9 rounded-lg bg-[var(--st-text)] px-4 text-[13px] font-medium text-white"
         >
           Apply
         </button>
         <a
           href="?"
-          className="inline-flex h-9 items-center rounded-lg border border-zoru-line px-3 text-[13px] text-zoru-ink-muted"
+          className="inline-flex h-9 items-center rounded-lg border border-[var(--st-border)] px-3 text-[13px] text-[var(--st-text-secondary)]"
         >
           Reset
         </a>
@@ -195,13 +195,13 @@ export default async function TaxReportPage(props: {
       {/* Chart */}
       <Card className="p-6">
         <div className="mb-3">
-          <h2 className="text-[16px] font-semibold text-zoru-ink">Monthly collected vs paid</h2>
-          <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+          <h2 className="text-[16px] font-semibold text-[var(--st-text)]">Monthly collected vs paid</h2>
+          <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">
             Compare output tax against input credit each month.
           </p>
         </div>
         {monthly.length === 0 ? (
-          <div className="py-8 text-center text-[13px] text-zoru-ink-muted">No tax data for this FY.</div>
+          <div className="py-8 text-center text-[13px] text-[var(--st-text-secondary)]">No tax data for this FY.</div>
         ) : (
           <TaxBar data={monthly} />
         )}
@@ -209,25 +209,25 @@ export default async function TaxReportPage(props: {
 
       {/* Table */}
       <Card className="p-0">
-        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+        <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <Table>
             <ZoruTableHeader>
-              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                <ZoruTableHead className="text-zoru-ink-muted">Period</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Tax type</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                <ZoruTableHead className="text-right text-zoru-ink-muted">Collected</ZoruTableHead>
-                <ZoruTableHead className="text-right text-zoru-ink-muted">Paid</ZoruTableHead>
-                <ZoruTableHead className="text-right text-zoru-ink-muted">Net</ZoruTableHead>
-                <ZoruTableHead className="text-right text-zoru-ink-muted">Action</ZoruTableHead>
+              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Period</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Tax type</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
+                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Collected</ZoruTableHead>
+                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Paid</ZoruTableHead>
+                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Net</ZoruTableHead>
+                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Action</ZoruTableHead>
               </ZoruTableRow>
             </ZoruTableHeader>
             <ZoruTableBody>
               {pageRows.length === 0 ? (
-                <ZoruTableRow className="border-zoru-line">
+                <ZoruTableRow className="border-[var(--st-border)]">
                   <ZoruTableCell
                     colSpan={7}
-                    className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                    className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     No data for selected filters.
                   </ZoruTableCell>
@@ -237,26 +237,26 @@ export default async function TaxReportPage(props: {
                   const taxType = labelTaxType(r);
                   const taxStatus = labelTaxStatus(r);
                   return (
-                    <ZoruTableRow key={r.period} className="border-zoru-line">
+                    <ZoruTableRow key={r.period} className="border-[var(--st-border)]">
                       <ZoruTableCell>
                         <EntityRowLink
                           href={`/dashboard/sabbi/reports/gstr-1?period=${r.period}`}
                           label={r.period}
                         />
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-zoru-ink">{taxType}</ZoruTableCell>
+                      <ZoruTableCell className="text-[13px] text-[var(--st-text)]">{taxType}</ZoruTableCell>
                       <ZoruTableCell>
                         <Badge variant={statusVariant[taxStatus]}>{taxStatus}</Badge>
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-[13px] text-zoru-success-ink">
+                      <ZoruTableCell className="text-right text-[13px] text-[var(--st-status-ok)]">
                         {fmtMoney(r.collected)}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-[13px] text-zoru-danger-ink">
+                      <ZoruTableCell className="text-right text-[13px] text-[var(--st-danger)]">
                         {fmtMoney(r.paid)}
                       </ZoruTableCell>
                       <ZoruTableCell
                         className={`text-right text-[13px] font-medium ${
-                          r.net >= 0 ? 'text-zoru-warning-ink' : 'text-zoru-success-ink'
+                          r.net >= 0 ? 'text-[var(--st-warn)]' : 'text-[var(--st-status-ok)]'
                         }`}
                       >
                         {fmtMoney(r.net)}
@@ -273,13 +273,13 @@ export default async function TaxReportPage(props: {
         </div>
       </Card>
 
-      <p className="text-[13px] text-zoru-ink-muted">
+      <p className="text-[13px] text-[var(--st-text-secondary)]">
         For line-item compliance reports see{' '}
-        <a href="/dashboard/sabbi/reports/gstr-1" className="text-zoru-primary underline">
+        <a href="/dashboard/sabbi/reports/gstr-1" className="text-[var(--st-text)] underline">
           GSTR-1
         </a>{' '}
         and{' '}
-        <a href="/dashboard/sabbi/reports/gstr-2b" className="text-zoru-primary underline">
+        <a href="/dashboard/sabbi/reports/gstr-2b" className="text-[var(--st-text)] underline">
           GSTR-2B
         </a>
         .

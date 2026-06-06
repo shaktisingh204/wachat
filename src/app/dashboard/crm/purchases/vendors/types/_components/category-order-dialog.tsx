@@ -37,13 +37,13 @@ function SortableItem({ id, item }: { id: string, item: any }) {
     };
 
     return (
-        <div ref={setNodeRef} style={style} className="flex items-center gap-2 p-2 border border-zoru-line rounded-md bg-zoru-surface-2 mb-2">
-            <button {...attributes} {...listeners} className="cursor-grab text-zoru-ink-muted hover:text-zoru-ink focus:outline-none">
+        <div ref={setNodeRef} style={style} className="flex items-center gap-2 p-2 border border-[var(--st-border)] rounded-md bg-[var(--st-bg-muted)] mb-2">
+            <button {...attributes} {...listeners} className="cursor-grab text-[var(--st-text-secondary)] hover:text-[var(--st-text)] focus:outline-none">
                 <GripVertical className="h-4 w-4" />
             </button>
-            <span className="text-[13px] text-zoru-ink font-medium">{item.name}</span>
-            {item.code && <span className="text-xs text-zoru-ink-muted">({item.code})</span>}
-            {item.parentName && <span className="text-xs text-zoru-ink-subtle ml-auto">Parent: {item.parentName}</span>}
+            <span className="text-[13px] text-[var(--st-text)] font-medium">{item.name}</span>
+            {item.code && <span className="text-xs text-[var(--st-text-secondary)]">({item.code})</span>}
+            {item.parentName && <span className="text-xs text-[var(--st-text-tertiary)] ml-auto">Parent: {item.parentName}</span>}
         </div>
     );
 }

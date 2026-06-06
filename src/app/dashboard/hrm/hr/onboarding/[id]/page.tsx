@@ -118,7 +118,7 @@ async function OnboardingDetailContainer({ id }: { id: string }) {
                 hint={String(o.employeeId)}
               />
             ) : (
-              <p className="px-2 py-1.5 text-zoru-ink-muted">No employee.</p>
+              <p className="px-2 py-1.5 text-[var(--st-text-secondary)]">No employee.</p>
             )}
           </RailCard>
           <RailCard title="Chain — next step">
@@ -132,10 +132,10 @@ async function OnboardingDetailContainer({ id }: { id: string }) {
           </RailCard>
           {Array.isArray(o.checklist) && o.checklist.length > 0 ? (
             <RailCard title="Checklist">
-              <p className="text-zoru-ink-muted">
+              <p className="text-[var(--st-text-secondary)]">
                 {o.checklist.length} item{o.checklist.length === 1 ? '' : 's'}
               </p>
-              <ul className="space-y-1 text-zoru-ink">
+              <ul className="space-y-1 text-[var(--st-text)]">
                 {o.checklist.slice(0, 6).map((t: any, i: number) => (
                   <li key={i}>• {t.title}</li>
                 ))}
@@ -155,7 +155,7 @@ async function OnboardingDetailContainer({ id }: { id: string }) {
             value: o.employeeId ? (
               <Link
                 href={`/dashboard/hrm/hr/directory/${o.employeeId}`}
-                className="text-zoru-ink hover:underline"
+                className="text-[var(--st-text)] hover:underline"
               >
                 {String(o.employeeId)}
               </Link>
@@ -183,12 +183,12 @@ async function OnboardingDetailContainer({ id }: { id: string }) {
             {o.checklist.map((t: any, i: number) => (
               <li
                 key={i}
-                className="flex items-start gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-2"
+                className="flex items-start gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2"
               >
-                <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 text-zoru-ink-muted" />
+                <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                 <span className="flex min-w-0 flex-col">
-                  <span className="text-zoru-ink">{t.title}</span>
-                  <span className="text-[11.5px] text-zoru-ink-muted">
+                  <span className="text-[var(--st-text)]">{t.title}</span>
+                  <span className="text-[11.5px] text-[var(--st-text-secondary)]">
                     {t.dueDate ? `Due ${fmtDate(t.dueDate)}` : '—'}
                     {t.assigneeId ? ` · ${t.assigneeId}` : ''}
                     {t.category ? ` · ${t.category}` : ''}

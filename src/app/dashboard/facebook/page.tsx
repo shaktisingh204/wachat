@@ -152,16 +152,16 @@ function StatTile({
   trend?: { value: number; label: string };
 }) {
   return (
-    <div className="rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-4 flex flex-col justify-between">
+    <div className="rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4 flex flex-col justify-between">
       <div>
         <div className="flex items-start justify-between">
-          <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink [&_svg]:size-4">
+          <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)] [&_svg]:size-4">
             {icon}
           </span>
           {trend ? (
             <span
               className={`text-[11px] font-medium ${
-                trend.value >= 0 ? "text-zoru-success" : "text-zoru-danger"
+                trend.value >= 0 ? "text-[var(--st-status-ok)]" : "text-[var(--st-danger)]"
               }`}
             >
               {trend.value >= 0 ? "+" : ""}
@@ -169,15 +169,15 @@ function StatTile({
             </span>
           ) : null}
         </div>
-        <div className="mt-3 text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+        <div className="mt-3 text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
           {label}
         </div>
-        <div className="mt-1 text-[22px] tracking-[-0.01em] text-zoru-ink leading-none">
+        <div className="mt-1 text-[22px] tracking-[-0.01em] text-[var(--st-text)] leading-none">
           {value}
         </div>
       </div>
       {hint ? (
-        <div className="mt-2 truncate text-[11px] text-zoru-ink-muted">
+        <div className="mt-2 truncate text-[11px] text-[var(--st-text-secondary)]">
           {hint}
         </div>
       ) : null}
@@ -196,7 +196,7 @@ function PostItemCard({ post }: { post: FacebookPost }) {
   return (
     <Card className="overflow-hidden p-0">
       <div className="flex items-start justify-between gap-2 p-3">
-        <p className="line-clamp-3 text-[13px] text-zoru-ink leading-snug">
+        <p className="line-clamp-3 text-[13px] text-[var(--st-text)] leading-snug">
           {post.message || "Media Post"}
         </p>
         <DropdownMenu>
@@ -247,7 +247,7 @@ function PostItemCard({ post }: { post: FacebookPost }) {
           />
         </div>
       ) : null}
-      <div className="flex items-center justify-between p-3 text-[11px] text-zoru-ink-muted">
+      <div className="flex items-center justify-between p-3 text-[11px] text-[var(--st-text-secondary)]">
         <span className="font-mono">
           {new Date(post.created_time).toLocaleDateString(undefined, {
             day: "2-digit",
@@ -286,16 +286,16 @@ function CommentItemCard({ comment }: { comment: FacebookComment }) {
         </Avatar>
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2">
-            <p className="truncate text-[13px] text-zoru-ink">
+            <p className="truncate text-[13px] text-[var(--st-text)]">
               {comment.from.name}
             </p>
-            <p className="shrink-0 text-[10.5px] text-zoru-ink-subtle">
+            <p className="shrink-0 text-[10.5px] text-[var(--st-text-tertiary)]">
               {formatDistanceToNow(new Date(comment.created_time), {
                 addSuffix: true,
               })}
             </p>
           </div>
-          <p className="mt-0.5 line-clamp-2 text-[12.5px] text-zoru-ink-muted">
+          <p className="mt-0.5 line-clamp-2 text-[12.5px] text-[var(--st-text-secondary)]">
             “{comment.message}”
           </p>
         </div>
@@ -316,7 +316,7 @@ function PostColumn({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between px-1">
-        <h3 className="text-[13px] text-zoru-ink">{title}</h3>
+        <h3 className="text-[13px] text-[var(--st-text)]">{title}</h3>
         <Badge variant="secondary">{count}</Badge>
       </div>
       <div className="flex flex-col gap-3">{children}</div>
@@ -575,11 +575,11 @@ function FacebookOverviewContent() {
         </Breadcrumb>
         <div className="mt-6 flex justify-center">
           <Card className="max-w-xl p-6 text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-zoru-danger/10 text-zoru-danger">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-danger)]/10 text-[var(--st-danger)]">
               <AlertCircle className="h-6 w-6" />
             </div>
-            <h2 className="mt-4 text-[18px] text-zoru-ink">Connection issue</h2>
-            <p className="mt-1 text-[12.5px] text-zoru-ink-muted">
+            <h2 className="mt-4 text-[18px] text-[var(--st-text)]">Connection issue</h2>
+            <p className="mt-1 text-[12.5px] text-[var(--st-text-secondary)]">
               We couldn’t fetch details for this page. This is usually because
               the necessary permissions were not granted during the initial
               connection, or the token has expired.
@@ -654,7 +654,7 @@ function FacebookOverviewContent() {
 
         <PageHeader className="mt-5" bordered={false}>
           <ZoruPageHeading>
-            <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-zoru-ink-subtle">
+            <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--st-text-tertiary)]">
               Page overview
             </p>
             <div className="flex items-center gap-3">
@@ -662,7 +662,7 @@ function FacebookOverviewContent() {
               {activeProject?.wabaId ? (
                 <span
                   title="WhatsApp linked"
-                  className="flex h-6 w-6 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted"
+                  className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]"
                 >
                   <WhatsAppGlyph className="h-3.5 w-3.5" />
                 </span>
@@ -670,7 +670,7 @@ function FacebookOverviewContent() {
               {igAccount?.id ? (
                 <span
                   title="Instagram linked"
-                  className="flex h-6 w-6 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted"
+                  className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]"
                 >
                   <InstagramGlyph className="h-3.5 w-3.5" />
                 </span>
@@ -683,7 +683,7 @@ function FacebookOverviewContent() {
 
           <div className="flex items-center gap-2">
             <div className="relative">
-              <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zoru-ink-subtle" />
+              <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--st-text-tertiary)]" />
               <Input placeholder="Search posts…" className="h-9 w-56 pl-8" />
             </div>
             <DropdownMenu>
@@ -800,7 +800,7 @@ function FacebookOverviewContent() {
           </PostColumn>
 
           <PostColumn title="Quick links" count={4}>
-            <Card className="divide-y divide-zoru-line p-0">
+            <Card className="divide-y divide-[var(--st-border)] p-0">
               {[
                 {
                   href: "/dashboard/facebook/posts",
@@ -826,22 +826,22 @@ function FacebookOverviewContent() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="flex items-center gap-3 px-3 py-2.5 text-[13px] text-zoru-ink transition-colors hover:bg-zoru-surface"
+                  className="flex items-center gap-3 px-3 py-2.5 text-[13px] text-[var(--st-text)] transition-colors hover:bg-[var(--st-bg-secondary)]"
                 >
-                  <span className="flex h-7 w-7 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 [&_svg]:size-3.5">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] [&_svg]:size-3.5">
                     <link.icon />
                   </span>
                   <span className="flex-1">{link.title}</span>
-                  <ArrowRight className="h-3.5 w-3.5 text-zoru-ink-subtle" />
+                  <ArrowRight className="h-3.5 w-3.5 text-[var(--st-text-tertiary)]" />
                 </Link>
               ))}
             </Card>
 
             <Card className="p-3">
-              <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+              <p className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                 Run a campaign
               </p>
-              <p className="mt-1 text-[12.5px] text-zoru-ink-muted">
+              <p className="mt-1 text-[12.5px] text-[var(--st-text-secondary)]">
                 Reach new audiences with Meta Ads.
               </p>
               <Button asChild size="sm" variant="outline" className="mt-3">

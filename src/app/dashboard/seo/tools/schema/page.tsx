@@ -12,10 +12,10 @@ export default function SchemaToolPage() {
         <div className="flex flex-col gap-6">
             <div>
                 <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                    <Code2 className="h-8 w-8 text-zoru-ink" />
+                    <Code2 className="h-8 w-8 text-[var(--st-text)]" />
                     Schema Markup Generator
                 </h1>
-                <p className="text-zoru-ink-muted mt-1">
+                <p className="text-[var(--st-text-secondary)] mt-1">
                     Create structured data to help search engines understand your content.
                 </p>
             </div>

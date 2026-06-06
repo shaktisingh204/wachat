@@ -15,7 +15,7 @@ import {
 export function LeadsBarChart({ chartData }: { chartData: any[] }) {
   if (chartData.length === 0) {
     return (
-      <div className="py-8 text-center text-[13px] text-zoru-ink-muted">
+      <div className="py-8 text-center text-[13px] text-[var(--st-text-secondary)]">
         No leads in this range.
       </div>
     );

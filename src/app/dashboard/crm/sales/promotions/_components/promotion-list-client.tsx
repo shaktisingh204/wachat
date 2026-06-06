@@ -130,20 +130,20 @@ interface KpiCardProps {
 function KpiCard({ label, value, tone }: KpiCardProps) {
   const ring =
     tone === 'amber'
-      ? 'border-zoru-line/40'
+      ? 'border-[var(--st-border)]/40'
       : tone === 'green'
-        ? 'border-zoru-line/40'
+        ? 'border-[var(--st-border)]/40'
         : tone === 'red'
-          ? 'border-zoru-line/40'
-          : 'border-zoru-line';
+          ? 'border-[var(--st-border)]/40'
+          : 'border-[var(--st-border)]';
   return (
     <div
-      className={`flex flex-1 flex-col gap-1 rounded-md border bg-zoru-surface-2 px-3 py-2.5 ${ring}`}
+      className={`flex flex-1 flex-col gap-1 rounded-md border bg-[var(--st-bg-muted)] px-3 py-2.5 ${ring}`}
     >
-      <span className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+      <span className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
         {label}
       </span>
-      <span className="text-[18px] font-semibold tabular-nums text-zoru-ink">
+      <span className="text-[18px] font-semibold tabular-nums text-[var(--st-text)]">
         {value}
       </span>
     </div>
@@ -340,9 +340,9 @@ export function PromotionListClient({
 
       <Card className="overflow-hidden p-0">
         {/* Filters bar */}
-        <div className="flex flex-wrap items-center gap-3 border-b border-zoru-line p-3">
+        <div className="flex flex-wrap items-center gap-3 border-b border-[var(--st-border)] p-3">
           <div className="relative max-w-sm flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -390,8 +390,8 @@ export function PromotionListClient({
                 <CalendarRange className="h-3.5 w-3.5" /> Validity range
               </Button>
             </summary>
-            <div className="absolute right-0 z-20 mt-2 grid w-[280px] gap-2 rounded-md border border-zoru-line bg-zoru-surface p-3 shadow-md">
-              <label className="text-[11px] text-zoru-ink-muted">Valid from</label>
+            <div className="absolute right-0 z-20 mt-2 grid w-[280px] gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 shadow-md">
+              <label className="text-[11px] text-[var(--st-text-secondary)]">Valid from</label>
               <Input
                 type="date"
                 value={initialDateFrom}
@@ -400,7 +400,7 @@ export function PromotionListClient({
                 }
                 className="h-8 text-[12.5px]"
               />
-              <label className="text-[11px] text-zoru-ink-muted">Valid to</label>
+              <label className="text-[11px] text-[var(--st-text-secondary)]">Valid to</label>
               <Input
                 type="date"
                 value={initialDateTo}
@@ -416,7 +416,7 @@ export function PromotionListClient({
               variant="ghost"
               size="sm"
               onClick={clearAllFilters}
-              className="ml-auto text-[12px] text-zoru-ink-muted"
+              className="ml-auto text-[12px] text-[var(--st-text-secondary)]"
             >
               <X className="h-3.5 w-3.5" /> Clear
             </Button>
@@ -424,7 +424,7 @@ export function PromotionListClient({
         </div>
 
         {error ? (
-          <div className="flex items-center gap-2 border-b border-zoru-line/40 bg-zoru-ink/10 px-4 py-2.5 text-[13px] text-zoru-ink">
+          <div className="flex items-center gap-2 border-b border-[var(--st-border)]/40 bg-[var(--st-text)]/10 px-4 py-2.5 text-[13px] text-[var(--st-text)]">
             <AlertCircle className="h-4 w-4 shrink-0" />
             {error}
           </div>
@@ -432,12 +432,12 @@ export function PromotionListClient({
 
         {/* Bulk-action bar */}
         {selected.size > 0 ? (
-          <div className="sticky top-0 z-10 flex flex-wrap items-center gap-2 border-b border-zoru-line bg-zoru-surface px-3 py-2 text-[12.5px]">
-            <span className="font-medium text-zoru-ink">{selected.size} selected</span>
+          <div className="sticky top-0 z-10 flex flex-wrap items-center gap-2 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-[12.5px]">
+            <span className="font-medium text-[var(--st-text)]">{selected.size} selected</span>
             <Button variant="ghost" size="sm" onClick={clearSelection}>
               <X className="h-3.5 w-3.5" /> Clear
             </Button>
-            <span className="mx-1 h-4 w-px bg-zoru-line" />
+            <span className="mx-1 h-4 w-px bg-[var(--st-border)]" />
             <Select onValueChange={(v) => bulkStatus(v as CrmPromotionStatus)}>
               <ZoruSelectTrigger className="h-8 w-[150px] text-[12px]">
                 <ZoruSelectValue placeholder="Change status…" />
@@ -459,7 +459,7 @@ export function PromotionListClient({
               variant="outline"
               size="sm"
               onClick={() => setPendingBulkDelete(true)}
-              className="text-zoru-danger-ink"
+              className="text-[var(--st-danger)]"
             >
               <Trash2 className="h-3.5 w-3.5" /> Delete
             </Button>
@@ -489,7 +489,7 @@ export function PromotionListClient({
           <ZoruTableBody>
             {promotions.length === 0 ? (
               <ZoruTableRow>
-                <ZoruTableCell colSpan={9} className="h-24 text-center text-[13px] text-zoru-ink-muted">
+                <ZoruTableCell colSpan={9} className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]">
                   {initialQuery || hasActive
                     ? 'No promotions match these filters.'
                     : 'No promotions yet — click "New promotion" to add one.'}
@@ -516,19 +516,19 @@ export function PromotionListClient({
                         subtitle={row.description ?? undefined}
                       />
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[12.5px] font-mono text-zoru-ink-muted">
+                    <ZoruTableCell className="text-[12.5px] font-mono text-[var(--st-text-secondary)]">
                       {row.code ?? '—'}
                     </ZoruTableCell>
                     <ZoruTableCell>
                       <Badge variant="outline">{row.type}</Badge>
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-zoru-ink">
+                    <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-[var(--st-text)]">
                       {fmtValue(row)}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                    <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                       {fmtDate(row.validFrom)} → {fmtDate(row.validTo)}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-zoru-ink-muted">
+                    <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-[var(--st-text-secondary)]">
                       {(row.usedCount ?? 0).toLocaleString()}
                       {row.maxUses ? ` / ${row.maxUses}` : ''}
                     </ZoruTableCell>
@@ -546,7 +546,7 @@ export function PromotionListClient({
                           size="sm"
                           variant="ghost"
                           onClick={() => setPendingDelete(row)}
-                          className="text-zoru-danger-ink"
+                          className="text-[var(--st-danger)]"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                         </Button>
@@ -582,7 +582,7 @@ export function PromotionListClient({
                 confirmDelete();
               }}
               disabled={busy}
-              className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
+              className="bg-[var(--st-danger)] text-white hover:bg-[var(--st-danger)]/90"
             >
               {busy ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : null}
               Delete permanently
@@ -611,7 +611,7 @@ export function PromotionListClient({
                 confirmBulkDelete();
               }}
               disabled={busy}
-              className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
+              className="bg-[var(--st-danger)] text-white hover:bg-[var(--st-danger)]/90"
             >
               {busy ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : null}
               Delete permanently

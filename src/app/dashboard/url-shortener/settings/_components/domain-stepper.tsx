@@ -56,9 +56,9 @@ function StepIndicator({ current }: { current: 1 | 2 | 3 }) {
               <div
                 className={cn(
                   'w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all',
-                  done && 'bg-zoru-success text-white',
-                  active && 'bg-zoru-ink text-white ring-4 ring-zoru-line/20',
-                  !done && !active && 'bg-zoru-surface-2 text-zoru-ink-muted border border-zoru-line',
+                  done && 'bg-[var(--st-status-ok)] text-white',
+                  active && 'bg-[var(--st-text)] text-white ring-4 ring-[var(--st-border)]/20',
+                  !done && !active && 'bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] border border-[var(--st-border)]',
                 )}
               >
                 {done ? <Check className="h-4 w-4" /> : s.n}
@@ -66,9 +66,9 @@ function StepIndicator({ current }: { current: 1 | 2 | 3 }) {
               <span
                 className={cn(
                   'text-xs whitespace-nowrap',
-                  active && 'text-zoru-ink-muted font-medium',
-                  done && 'text-zoru-success-ink',
-                  !done && !active && 'text-zoru-ink-muted',
+                  active && 'text-[var(--st-text-secondary)] font-medium',
+                  done && 'text-[var(--st-status-ok)]',
+                  !done && !active && 'text-[var(--st-text-secondary)]',
                 )}
               >
                 {s.label}
@@ -78,7 +78,7 @@ function StepIndicator({ current }: { current: 1 | 2 | 3 }) {
               <div
                 className={cn(
                   'h-px flex-1 mx-3 mb-5 transition-all',
-                  current > s.n ? 'bg-zoru-success' : 'bg-zoru-line',
+                  current > s.n ? 'bg-[var(--st-status-ok)]' : 'bg-[var(--st-border)]',
                 )}
               />
             )}
@@ -112,21 +112,21 @@ function DnsRecordCard({
   onCopy: (v: string) => void;
 }) {
   return (
-    <div className="border border-zoru-line rounded-lg overflow-hidden bg-zoru-surface-2">
-      <div className="grid grid-cols-[80px,1fr,80px,1fr,auto] divide-x divide-zoru-line">
-        <div className="px-3 py-2 bg-zoru-bg">
-          <p className="text-xs text-zoru-ink-muted uppercase tracking-wide mb-0.5">Type</p>
-          <p className="text-sm font-mono text-zoru-ink">{type}</p>
+    <div className="border border-[var(--st-border)] rounded-lg overflow-hidden bg-[var(--st-bg-muted)]">
+      <div className="grid grid-cols-[80px,1fr,80px,1fr,auto] divide-x divide-[var(--st-border)]">
+        <div className="px-3 py-2 bg-[var(--st-bg)]">
+          <p className="text-xs text-[var(--st-text-secondary)] uppercase tracking-wide mb-0.5">Type</p>
+          <p className="text-sm font-mono text-[var(--st-text)]">{type}</p>
         </div>
-        <div className="px-3 py-2 bg-zoru-bg">
-          <p className="text-xs text-zoru-ink-muted uppercase tracking-wide mb-0.5">Host</p>
-          <p className="text-sm font-mono text-zoru-ink">{host}</p>
+        <div className="px-3 py-2 bg-[var(--st-bg)]">
+          <p className="text-xs text-[var(--st-text-secondary)] uppercase tracking-wide mb-0.5">Host</p>
+          <p className="text-sm font-mono text-[var(--st-text)]">{host}</p>
         </div>
-        <div className="px-3 py-2 col-span-2 bg-zoru-bg">
-          <p className="text-xs text-zoru-ink-muted uppercase tracking-wide mb-0.5">Value</p>
-          <p className="text-sm font-mono text-zoru-ink break-all">{value}</p>
+        <div className="px-3 py-2 col-span-2 bg-[var(--st-bg)]">
+          <p className="text-xs text-[var(--st-text-secondary)] uppercase tracking-wide mb-0.5">Value</p>
+          <p className="text-sm font-mono text-[var(--st-text)] break-all">{value}</p>
         </div>
-        <div className="px-3 py-2 flex items-center justify-center bg-zoru-bg">
+        <div className="px-3 py-2 flex items-center justify-center bg-[var(--st-bg)]">
           <Button
             variant="ghost"
             size="icon"
@@ -138,8 +138,8 @@ function DnsRecordCard({
           </Button>
         </div>
       </div>
-      <div className="px-3 py-1.5 border-t border-zoru-line bg-zoru-surface-2">
-        <span className="text-xs text-zoru-ink-muted">TTL: Auto</span>
+      <div className="px-3 py-1.5 border-t border-[var(--st-border)] bg-[var(--st-bg-muted)]">
+        <span className="text-xs text-[var(--st-text-secondary)]">TTL: Auto</span>
       </div>
     </div>
   );
@@ -217,13 +217,13 @@ export function DomainStepper({
 
   if (stepper.step === 'idle') {
     return (
-      <div className="border-2 border-dashed border-zoru-line rounded-xl p-8 flex flex-col items-center gap-3 text-center bg-zoru-surface-2/40">
-        <div className="w-12 h-12 rounded-full bg-zoru-surface-2 flex items-center justify-center border border-zoru-line">
-          <Globe className="h-6 w-6 text-zoru-ink-muted" />
+      <div className="border-2 border-dashed border-[var(--st-border)] rounded-xl p-8 flex flex-col items-center gap-3 text-center bg-[var(--st-bg-muted)]/40">
+        <div className="w-12 h-12 rounded-full bg-[var(--st-bg-muted)] flex items-center justify-center border border-[var(--st-border)]">
+          <Globe className="h-6 w-6 text-[var(--st-text-secondary)]" />
         </div>
         <div>
-          <p className="text-base font-medium text-zoru-ink">Connect a custom domain</p>
-          <p className="text-sm text-zoru-ink-muted mt-1">Use your own domain for branded short links</p>
+          <p className="text-base font-medium text-[var(--st-text)]">Connect a custom domain</p>
+          <p className="text-sm text-[var(--st-text-secondary)] mt-1">Use your own domain for branded short links</p>
         </div>
         <Button
           type="button"
@@ -237,7 +237,7 @@ export function DomainStepper({
   }
 
   return (
-    <div className="border border-zoru-line rounded-xl p-6 bg-zoru-surface-2/30">
+    <div className="border border-[var(--st-border)] rounded-xl p-6 bg-[var(--st-bg-muted)]/30">
       <StepIndicator current={stepper.step} />
 
       {stepper.step === 1 && (
@@ -251,8 +251,8 @@ export function DomainStepper({
           className="space-y-5"
         >
           <div>
-            <h3 className="text-lg font-medium text-zoru-ink mb-1">Enter your domain</h3>
-            <p className="text-sm text-zoru-ink-muted">
+            <h3 className="text-lg font-medium text-[var(--st-text)] mb-1">Enter your domain</h3>
+            <p className="text-sm text-[var(--st-text-secondary)]">
               Use a subdomain like links.yourbrand.com (recommended) or an apex domain.
             </p>
           </div>
@@ -268,12 +268,12 @@ export function DomainStepper({
               autoFocus
             />
             <div className="space-y-1 pt-1">
-              <p className="text-xs text-zoru-ink-muted flex items-center gap-1.5">
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-zoru-surface-2" />
+              <p className="text-xs text-[var(--st-text-secondary)] flex items-center gap-1.5">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-[var(--st-bg-muted)]" />
                 Subdomain (CNAME): links.yourbrand.com — easier to set up
               </p>
-              <p className="text-xs text-zoru-ink-muted flex items-center gap-1.5">
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-zoru-ink-muted/40" />
+              <p className="text-xs text-[var(--st-text-secondary)] flex items-center gap-1.5">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-[var(--st-text-secondary)]/40" />
                 Apex domain (A record): yourbrand.com — requires root DNS access
               </p>
             </div>
@@ -295,14 +295,14 @@ export function DomainStepper({
       {stepper.step === 2 && (
         <div className="space-y-5">
           <div>
-            <h3 className="text-lg font-medium text-zoru-ink mb-1">Configure DNS</h3>
-            <p className="text-sm text-zoru-ink-muted">
+            <h3 className="text-lg font-medium text-[var(--st-text)] mb-1">Configure DNS</h3>
+            <p className="text-sm text-[var(--st-text-secondary)]">
               Add the following records to your DNS provider (Cloudflare, Namecheap, GoDaddy, etc.).
             </p>
           </div>
 
           <div className="space-y-3">
-            <p className="text-xs font-medium text-zoru-ink-muted uppercase tracking-wide">
+            <p className="text-xs font-medium text-[var(--st-text-secondary)] uppercase tracking-wide">
               Record 1 — Domain Ownership Verification
             </p>
             <DnsRecordCard
@@ -314,7 +314,7 @@ export function DomainStepper({
           </div>
 
           <div className="space-y-3">
-            <p className="text-xs font-medium text-zoru-ink-muted uppercase tracking-wide">
+            <p className="text-xs font-medium text-[var(--st-text-secondary)] uppercase tracking-wide">
               Record 2 — Routing
             </p>
             {getSubdomainPart(stepper.hostname) ? (
@@ -334,10 +334,10 @@ export function DomainStepper({
             )}
           </div>
 
-          <Alert className="border-zoru-line/30 bg-zoru-ink/10">
-            <AlertTriangle className="h-4 w-4 text-zoru-ink-muted" />
-            <ZoruAlertTitle className="text-zoru-ink-muted">DNS Propagation</ZoruAlertTitle>
-            <ZoruAlertDescription className="text-zoru-ink-muted/80">
+          <Alert className="border-[var(--st-border)]/30 bg-[var(--st-text)]/10">
+            <AlertTriangle className="h-4 w-4 text-[var(--st-text-secondary)]" />
+            <ZoruAlertTitle className="text-[var(--st-text-secondary)]">DNS Propagation</ZoruAlertTitle>
+            <ZoruAlertDescription className="text-[var(--st-text-secondary)]/80">
               DNS changes typically propagate within 5–30 minutes. You can verify once the records are live.
             </ZoruAlertDescription>
           </Alert>
@@ -372,20 +372,20 @@ export function DomainStepper({
       {stepper.step === 3 && (
         <div className="space-y-5">
           <div>
-            <h3 className="text-lg font-medium text-zoru-ink mb-1">Verify ownership</h3>
-            <p className="text-sm text-zoru-ink-muted">
+            <h3 className="text-lg font-medium text-[var(--st-text)] mb-1">Verify ownership</h3>
+            <p className="text-sm text-[var(--st-text-secondary)]">
               Click verify to confirm your DNS records are live.
             </p>
           </div>
 
           {stepper.verifySuccess ? (
             <div className="flex flex-col items-center gap-4 py-6 text-center">
-              <div className="w-14 h-14 rounded-full bg-zoru-success/20 flex items-center justify-center border border-zoru-success/40">
-                <CheckCircle className="h-7 w-7 text-zoru-success-ink" />
+              <div className="w-14 h-14 rounded-full bg-[var(--st-status-ok)]/20 flex items-center justify-center border border-[var(--st-status-ok)]/40">
+                <CheckCircle className="h-7 w-7 text-[var(--st-status-ok)]" />
               </div>
               <div>
-                <p className="text-base font-semibold text-zoru-success-ink">Domain verified!</p>
-                <p className="text-sm text-zoru-ink-muted mt-1">
+                <p className="text-base font-semibold text-[var(--st-status-ok)]">Domain verified!</p>
+                <p className="text-sm text-[var(--st-text-secondary)] mt-1">
                   {stepper.hostname} is now active and ready for short links.
                 </p>
               </div>
@@ -396,22 +396,22 @@ export function DomainStepper({
           ) : (
             <>
               <div className="flex items-center gap-2">
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-zoru-line bg-zoru-surface-2 text-sm text-zoru-ink">
-                  <Globe className="h-4 w-4 text-zoru-ink-muted" />
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-muted)] text-sm text-[var(--st-text)]">
+                  <Globe className="h-4 w-4 text-[var(--st-text-secondary)]" />
                   {stepper.hostname}
                 </div>
                 {isVerifying && (
-                  <span className="text-xs text-zoru-ink-muted flex items-center gap-1.5">
+                  <span className="text-xs text-[var(--st-text-secondary)] flex items-center gap-1.5">
                     <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> Checking DNS records...
                   </span>
                 )}
               </div>
 
               {stepper.verifyError && (
-                <Alert className="border-zoru-danger/40 bg-zoru-danger/10">
-                  <AlertTriangle className="h-4 w-4 text-zoru-danger-ink" />
-                  <ZoruAlertTitle className="text-zoru-danger-ink">Verification failed</ZoruAlertTitle>
-                  <ZoruAlertDescription className="text-zoru-danger-ink/80">
+                <Alert className="border-[var(--st-danger)]/40 bg-[var(--st-danger)]/10">
+                  <AlertTriangle className="h-4 w-4 text-[var(--st-danger)]" />
+                  <ZoruAlertTitle className="text-[var(--st-danger)]">Verification failed</ZoruAlertTitle>
+                  <ZoruAlertDescription className="text-[var(--st-danger)]/80">
                     DNS records may not have propagated yet. Wait a few minutes and try again.
                   </ZoruAlertDescription>
                 </Alert>

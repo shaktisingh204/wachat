@@ -222,7 +222,7 @@ export function TemplatesSection({
                         {templates.length === 0 && (
                             <ZoruTableRow>
                                 <ZoruTableCell colSpan={5}>
-                                    <div className="py-10 text-center text-sm text-zoru-ink-muted">
+                                    <div className="py-10 text-center text-sm text-[var(--st-text-secondary)]">
                                         No templates yet. Create one to send invoices.
                                     </div>
                                 </ZoruTableCell>
@@ -525,7 +525,7 @@ export function TemplateDrawer({
                     </Field>
 
                     {/* Prices */}
-                    <div className="rounded-md border border-zoru-line p-3">
+                    <div className="rounded-md border border-[var(--st-border)] p-3">
                         <div className="mb-2 flex items-center justify-between">
                             <Label>Price lines</Label>
                             <Button
@@ -682,7 +682,7 @@ export function SendInvoiceDialog({
                         directly to a chat, or get a shareable invoice link.
                     </ZoruDialogDescription>
                 </ZoruDialogHeader>
-                <div className="flex gap-1 rounded-full border border-zoru-line bg-zoru-bg p-1">
+                <div className="flex gap-1 rounded-full border border-[var(--st-border)] bg-[var(--st-bg)] p-1">
                     {(['send', 'link'] as const).map((m) => (
                         <button
                             key={m}
@@ -691,8 +691,8 @@ export function SendInvoiceDialog({
                             className={cn(
                                 'h-7 flex-1 rounded-full text-xs',
                                 mode === m
-                                    ? 'bg-zoru-ink text-white'
-                                    : 'text-zoru-ink-muted',
+                                    ? 'bg-[var(--st-text)] text-white'
+                                    : 'text-[var(--st-text-secondary)]',
                             )}
                         >
                             {m === 'send' ? (
@@ -736,8 +736,8 @@ export function SendInvoiceDialog({
                         </Field>
                     ) : null}
                     {linkResult ? (
-                        <div className="rounded border border-zoru-line bg-zoru-surface-2/40 p-2 text-xs">
-                            <div className="mb-1 text-zoru-ink-muted">Invoice link:</div>
+                        <div className="rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)]/40 p-2 text-xs">
+                            <div className="mb-1 text-[var(--st-text-secondary)]">Invoice link:</div>
                             <a
                                 href={linkResult}
                                 target="_blank"

@@ -162,14 +162,14 @@ export default function CrmSetupPage(): React.JSX.Element {
     <div className="flex w-full flex-col gap-6">
       {/* Header */}
       <div className="flex flex-col items-center gap-3 text-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-zoru-surface-2">
-          <Wrench className="h-6 w-6 text-zoru-ink" strokeWidth={1.75} />
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--st-bg-muted)]">
+          <Wrench className="h-6 w-6 text-[var(--st-text)]" strokeWidth={1.75} />
         </div>
         <div>
-          <h1 className="text-[28px] font-semibold leading-tight tracking-tight text-zoru-ink">
+          <h1 className="text-[28px] font-semibold leading-tight tracking-tight text-[var(--st-text)]">
             Welcome to the CRM Suite
           </h1>
-          <p className="mt-2 max-w-2xl text-[13.5px] text-zoru-ink-muted">
+          <p className="mt-2 max-w-2xl text-[13.5px] text-[var(--st-text-secondary)]">
             Step {step + 1} of {totalSteps} — {STEPS[step].label}. Most defaults can be edited
             later from Settings.
           </p>
@@ -191,13 +191,13 @@ export default function CrmSetupPage(): React.JSX.Element {
                 onClick={() => setStep(i)}
                 className={cn(
                   'flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11.5px] transition-colors',
-                  active && 'bg-zoru-primary/10 text-zoru-ink',
-                  done && !active && 'text-zoru-ink-muted',
-                  !done && !active && 'text-zoru-ink-muted',
+                  active && 'bg-[var(--st-text)]/10 text-[var(--st-text)]',
+                  done && !active && 'text-[var(--st-text-secondary)]',
+                  !done && !active && 'text-[var(--st-text-secondary)]',
                 )}
               >
                 {done ? (
-                  <Check className="h-3 w-3 text-zoru-success" />
+                  <Check className="h-3 w-3 text-[var(--st-status-ok)]" />
                 ) : (
                   <Icon className="h-3 w-3" />
                 )}
@@ -300,7 +300,7 @@ function StepIndustry({
     <div className="flex flex-col gap-4">
       <div>
         <Label>Industry</Label>
-        <p className="mb-2 text-[12px] text-zoru-ink-muted">
+        <p className="mb-2 text-[12px] text-[var(--st-text-secondary)]">
           Choose the closest match — we&rsquo;ll tailor stages, templates, and reports.
         </p>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -312,15 +312,15 @@ function StepIndustry({
                 type="button"
                 onClick={() => update('industry', i)}
                 className={cn(
-                  'rounded-xl border bg-zoru-bg p-3 text-left text-[12.5px]',
+                  'rounded-xl border bg-[var(--st-bg)] p-3 text-left text-[12.5px]',
                   selected
-                    ? 'border-zoru-primary ring-2 ring-zoru-primary/30'
-                    : 'border-zoru-line hover:border-zoru-ink-muted',
+                    ? 'border-[var(--st-text)] ring-2 ring-[var(--st-text)]/30'
+                    : 'border-[var(--st-border)] hover:border-[var(--st-text-secondary)]',
                 )}
               >
                 {i}
                 {selected ? (
-                  <Check className="ml-2 inline h-3 w-3 text-zoru-primary" />
+                  <Check className="ml-2 inline h-3 w-3 text-[var(--st-text)]" />
                 ) : null}
               </button>
             );
@@ -368,7 +368,7 @@ function StepInvites({
           placeholder="One email per line. Default role: Sales User."
         />
       </div>
-      <p className="text-[12px] text-zoru-ink-muted">
+      <p className="text-[12px] text-[var(--st-text-secondary)]">
         Invites send after setup completes. You can refine roles in{' '}
         <Badge variant="secondary">Settings → Team</Badge>.
       </p>
@@ -482,7 +482,7 @@ function StepFirstRecords({
           placeholder="Acme — Q1 implementation"
         />
       </div>
-      <p className="md:col-span-2 text-[12px] text-zoru-ink-muted">
+      <p className="md:col-span-2 text-[12px] text-[var(--st-text-secondary)]">
         These will be created after setup completes (skip if you don&rsquo;t need example
         records). You can always create new ones from the All Leads / Deals lists.
       </p>

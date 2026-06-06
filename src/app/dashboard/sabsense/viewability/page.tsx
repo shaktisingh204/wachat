@@ -29,7 +29,7 @@ export default function ViewabilityPage() {
       <Card className="flex flex-col overflow-hidden">
         <ZoruCardContent className="p-0">
           <div className="flex flex-col items-center justify-center p-12 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted mb-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] mb-4">
               <Target className="h-6 w-6" />
             </div>
             <ZoruCardTitle className="text-lg">No records found</ZoruCardTitle>

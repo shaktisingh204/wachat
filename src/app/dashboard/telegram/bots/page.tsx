@@ -141,12 +141,12 @@ function CopyableText({ value }: { value: string }) {
         <button
             type="button"
             onClick={handle}
-            className="inline-flex max-w-[260px] items-center gap-1.5 rounded-md border border-zoru-line bg-zoru-surface-2 px-2 py-1 font-mono text-[11px] text-zoru-ink-muted hover:border-zoru-line-strong"
+            className="inline-flex max-w-[260px] items-center gap-1.5 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2 py-1 font-mono text-[11px] text-[var(--st-text-secondary)] hover:border-[var(--st-border-strong)]"
             aria-label={copied ? 'Copied' : 'Copy webhook URL'}
         >
             <span className="truncate">{value}</span>
             {copied ? (
-                <CheckCircle2 className="h-3 w-3 shrink-0 text-zoru-ink" aria-hidden />
+                <CheckCircle2 className="h-3 w-3 shrink-0 text-[var(--st-text)]" aria-hidden />
             ) : (
                 <Copy className="h-3 w-3 shrink-0" aria-hidden />
             )}
@@ -433,10 +433,10 @@ export default function TelegramBotsPage() {
                     <Bot className="h-6 w-6 text-white" strokeWidth={1.75} aria-hidden />
                 </div>
                 <div className="flex-1">
-                    <h1 className="text-[22px] leading-tight text-zoru-ink">
+                    <h1 className="text-[22px] leading-tight text-[var(--st-text)]">
                         Telegram Bots
                     </h1>
-                    <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-zoru-ink-muted">
+                    <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-[var(--st-text-secondary)]">
                         Manage Telegram bots — health, commands, profile, menu button, and
                         webhook secrets — all in one place.
                     </p>
@@ -490,7 +490,7 @@ export default function TelegramBotsPage() {
                 <div className="flex flex-1 items-center gap-2">
                     <div className="relative flex-1 max-w-sm">
                         <Search
-                            className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zoru-ink-muted"
+                            className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--st-text-secondary)]"
                             aria-hidden
                         />
                         <Input
@@ -519,7 +519,7 @@ export default function TelegramBotsPage() {
                 </div>
                 {someSelected ? (
                     <div className="flex items-center gap-2">
-                        <span className="text-[12.5px] text-zoru-ink-muted">
+                        <span className="text-[12.5px] text-[var(--st-text-secondary)]">
                             {selected.size} selected
                         </span>
                         <Button
@@ -621,10 +621,10 @@ export default function TelegramBotsPage() {
                                             >
                                                 <BotAvatar bot={bot} />
                                                 <div className="flex flex-col">
-                                                    <span className="text-[13px] font-medium text-zoru-ink">
+                                                    <span className="text-[13px] font-medium text-[var(--st-text)]">
                                                         {bot.name || bot.username || 'Untitled bot'}
                                                     </span>
-                                                    <span className="text-[11.5px] text-zoru-ink-muted">
+                                                    <span className="text-[11.5px] text-[var(--st-text-secondary)]">
                                                         #{bot.botId}
                                                     </span>
                                                 </div>
@@ -636,13 +636,13 @@ export default function TelegramBotsPage() {
                                                     href={`https://t.me/${bot.username}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="inline-flex items-center gap-1 text-[12.5px] text-zoru-ink hover:underline"
+                                                    className="inline-flex items-center gap-1 text-[12.5px] text-[var(--st-text)] hover:underline"
                                                 >
                                                     @{bot.username}
                                                     <ExternalLink className="h-3 w-3" aria-hidden />
                                                 </a>
                                             ) : (
-                                                <span className="text-[12.5px] text-zoru-ink-muted">
+                                                <span className="text-[12.5px] text-[var(--st-text-secondary)]">
                                                     —
                                                 </span>
                                             )}
@@ -654,15 +654,15 @@ export default function TelegramBotsPage() {
                                             {bot.webhookUrl ? (
                                                 <CopyableText value={bot.webhookUrl} />
                                             ) : (
-                                                <span className="text-[12.5px] text-zoru-ink-muted">
+                                                <span className="text-[12.5px] text-[var(--st-text-secondary)]">
                                                     Not registered
                                                 </span>
                                             )}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                                        <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                                             {formatRelative(bot.lastSeenAt)}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-right text-[12.5px] text-zoru-ink-muted">
+                                        <ZoruTableCell className="text-right text-[12.5px] text-[var(--st-text-secondary)]">
                                             {typeof bot.latencyMs === 'number'
                                                 ? `${bot.latencyMs} ms`
                                                 : '—'}
@@ -720,7 +720,7 @@ export default function TelegramBotsPage() {
                                                     <ZoruDropdownMenuSeparator />
                                                     <ZoruDropdownMenuItem
                                                         onSelect={() => handleDisconnect(bot)}
-                                                        className="text-zoru-danger-ink focus:bg-zoru-danger-bg"
+                                                        className="text-[var(--st-danger)] focus:bg-[var(--st-danger-soft)]"
                                                     >
                                                         <Trash2 className="h-3 w-3" aria-hidden />
                                                         Disconnect
@@ -735,7 +735,7 @@ export default function TelegramBotsPage() {
                     </ZoruTableBody>
                 </Table>
                 {totalPages > 1 ? (
-                    <div className="flex items-center justify-between border-t border-zoru-line px-4 py-3 text-[12.5px] text-zoru-ink-muted">
+                    <div className="flex items-center justify-between border-t border-[var(--st-border)] px-4 py-3 text-[12.5px] text-[var(--st-text-secondary)]">
                         <span>
                             Page {page} of {totalPages} · {total} bot{total === 1 ? '' : 's'}
                         </span>

@@ -27,7 +27,7 @@ export default async function CertificationDetailPage({
   const { id } = await params;
   const row = (await getCertification(id)) as Row | null;
 
-  if (!row) return <div className="text-sm text-zoru-ink-muted">Certification not found.</div>;
+  if (!row) return <div className="text-sm text-[var(--st-text-secondary)]">Certification not found.</div>;
 
   const expiresAt = row.expiresAt ? new Date(row.expiresAt) : null;
   const now = Date.now();
@@ -85,7 +85,7 @@ export default async function CertificationDetailPage({
                   href={row.credentialUrl}
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="text-zoru-ink underline-offset-2 hover:underline"
+                  className="text-[var(--st-text)] underline-offset-2 hover:underline"
                 >
                   {row.credentialUrl}
                 </a>
@@ -99,7 +99,7 @@ export default async function CertificationDetailPage({
                   href={row.attachmentUrl}
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="text-zoru-ink underline-offset-2 hover:underline"
+                  className="text-[var(--st-text)] underline-offset-2 hover:underline"
                 >
                   {row.attachmentUrl}
                 </a>

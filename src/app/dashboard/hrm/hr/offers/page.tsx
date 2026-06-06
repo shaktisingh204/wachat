@@ -154,30 +154,30 @@ export default function OffersListPage() {
                     }
                     loading={isLoading && offers.length === 0}
                 >
-                    <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                    <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                         <Table>
                             <ZoruTableHeader>
-                                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                    <ZoruTableHead className="text-zoru-ink-muted">Candidate</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Job</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Salary</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Sent</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted text-right">Actions</ZoruTableHead>
+                                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Candidate</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Job</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Salary</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Sent</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Actions</ZoruTableHead>
                                 </ZoruTableRow>
                             </ZoruTableHeader>
                             <ZoruTableBody>
                                 {isLoading ? (
-                                    <ZoruTableRow className="border-zoru-line">
+                                    <ZoruTableRow className="border-[var(--st-border)]">
                                         <ZoruTableCell colSpan={6} className="h-24 text-center">
-                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
+                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 ) : offers.length === 0 ? (
-                                    <ZoruTableRow className="border-zoru-line">
+                                    <ZoruTableRow className="border-[var(--st-border)]">
                                         <ZoruTableCell
                                             colSpan={6}
-                                            className="h-24 text-center text-zoru-ink-muted"
+                                            className="h-24 text-center text-[var(--st-text-secondary)]"
                                         >
                                             No offers match this filter.
                                         </ZoruTableCell>
@@ -187,8 +187,8 @@ export default function OffersListPage() {
                                         const status = (o.status ?? 'draft') as CrmOfferStatus;
                                         const tone = STATUS_TONE[status] ?? 'neutral';
                                         return (
-                                            <ZoruTableRow key={o._id} className="border-zoru-line">
-                                                <ZoruTableCell className="font-medium text-zoru-ink">
+                                            <ZoruTableRow key={o._id} className="border-[var(--st-border)]">
+                                                <ZoruTableCell className="font-medium text-[var(--st-text)]">
                                                     <Link
                                                         href={`${BASE}/${o._id}`}
                                                         className="hover:underline"
@@ -196,19 +196,19 @@ export default function OffersListPage() {
                                                         {o.candidateName || o.candidateId}
                                                     </Link>
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {o.jobTitle || o.jobId || '—'}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
+                                                <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
                                                     {fmtINR(o.salaryAmount, o.salaryCurrency)}{' '}
-                                                    <span className="text-zoru-ink-muted">
+                                                    <span className="text-[var(--st-text-secondary)]">
                                                         / {pretty(o.salaryPeriod)}
                                                     </span>
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
                                                     <StatusPill label={pretty(status)} tone={tone} />
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {fmtDate(o.sentAt)}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="text-right">
@@ -222,7 +222,7 @@ export default function OffersListPage() {
                                                         size="icon"
                                                         onClick={() => setPendingDelete(o)}
                                                     >
-                                                        <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                                        <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                                     </Button>
                                                 </ZoruTableCell>
                                             </ZoruTableRow>

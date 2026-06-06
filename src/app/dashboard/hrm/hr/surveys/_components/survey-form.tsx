@@ -172,7 +172,7 @@ export function SurveyForm({ initialData }: SurveyFormProps) {
 
             {/* Basics */}
             <Card className="p-6">
-                <div className="mb-4 text-[14px] font-medium text-zoru-ink">
+                <div className="mb-4 text-[14px] font-medium text-[var(--st-text)]">
                     Survey
                 </div>
                 <div className="flex flex-col gap-4">
@@ -249,7 +249,7 @@ export function SurveyForm({ initialData }: SurveyFormProps) {
 
             {/* Audience */}
             <Card className="p-6">
-                <div className="mb-4 text-[14px] font-medium text-zoru-ink">
+                <div className="mb-4 text-[14px] font-medium text-[var(--st-text)]">
                     Audience
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -296,7 +296,7 @@ export function SurveyForm({ initialData }: SurveyFormProps) {
                         </div>
                     ) : null}
                 </div>
-                <label className="mt-4 flex items-center gap-2 text-[13px] text-zoru-ink">
+                <label className="mt-4 flex items-center gap-2 text-[13px] text-[var(--st-text)]">
                     <Checkbox
                         id="anonymous"
                         name="anonymous"
@@ -308,7 +308,7 @@ export function SurveyForm({ initialData }: SurveyFormProps) {
 
             {/* Schedule */}
             <Card className="p-6">
-                <div className="mb-4 text-[14px] font-medium text-zoru-ink">
+                <div className="mb-4 text-[14px] font-medium text-[var(--st-text)]">
                     Schedule
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -335,10 +335,10 @@ export function SurveyForm({ initialData }: SurveyFormProps) {
 
             {/* Questions */}
             <Card className="p-6">
-                <div className="mb-1 text-[14px] font-medium text-zoru-ink">
+                <div className="mb-1 text-[14px] font-medium text-[var(--st-text)]">
                     Questions
                 </div>
-                <p className="mb-4 text-[12px] text-zoru-ink-muted">
+                <p className="mb-4 text-[12px] text-[var(--st-text-secondary)]">
                     Build your survey one question at a time. Reorder with the
                     arrows; choice questions show an inline option editor.
                 </p>

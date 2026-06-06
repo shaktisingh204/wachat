@@ -206,7 +206,7 @@ export default function PayrollRunsListPage() {
                 return (
                     <Link
                         href={`${BASE}/${id}`}
-                        className="hover:underline font-medium text-zoru-ink"
+                        className="hover:underline font-medium text-[var(--st-text)]"
                     >
                         {periodLabel(row)}
                     </Link>
@@ -217,14 +217,14 @@ export default function PayrollRunsListPage() {
             key: 'run_date',
             header: 'Run date',
             sortable: true,
-            render: (row) => <span className="text-zoru-ink">{fmtDate(row.run_date)}</span>,
+            render: (row) => <span className="text-[var(--st-text)]">{fmtDate(row.run_date)}</span>,
         },
         {
             key: 'total_employees',
             header: 'Employees',
             sortable: true,
             render: (row) => (
-                <span className="font-mono text-zoru-ink">{row.total_employees ?? 0}</span>
+                <span className="font-mono text-[var(--st-text)]">{row.total_employees ?? 0}</span>
             ),
         },
         {
@@ -232,7 +232,7 @@ export default function PayrollRunsListPage() {
             header: 'Gross',
             sortable: true,
             render: (row) => (
-                <span className="font-mono text-zoru-ink">{inr.format(row.total_gross ?? 0)}</span>
+                <span className="font-mono text-[var(--st-text)]">{inr.format(row.total_gross ?? 0)}</span>
             ),
         },
         {
@@ -240,7 +240,7 @@ export default function PayrollRunsListPage() {
             header: 'Deductions',
             sortable: true,
             render: (row) => (
-                <span className="font-mono text-zoru-ink">{inr.format(row.total_deductions ?? 0)}</span>
+                <span className="font-mono text-[var(--st-text)]">{inr.format(row.total_deductions ?? 0)}</span>
             ),
         },
         {
@@ -248,7 +248,7 @@ export default function PayrollRunsListPage() {
             header: 'Net',
             sortable: true,
             render: (row) => (
-                <span className="font-mono text-zoru-ink">{inr.format(row.total_net ?? 0)}</span>
+                <span className="font-mono text-[var(--st-text)]">{inr.format(row.total_net ?? 0)}</span>
             ),
         },
         {
@@ -262,7 +262,7 @@ export default function PayrollRunsListPage() {
             },
             editRender: (row, value, onChange) => (
                 <select
-                    className="bg-zoru-surface-2 border border-zoru-line rounded px-1.5 py-0.5 text-xs text-zoru-ink focus:outline-none"
+                    className="bg-[var(--st-bg-muted)] border border-[var(--st-border)] rounded px-1.5 py-0.5 text-xs text-[var(--st-text)] focus:outline-none"
                     value={value || 'draft'}
                     onChange={(e) => onChange(e.target.value as any)}
                 >
@@ -290,7 +290,7 @@ export default function PayrollRunsListPage() {
                             size="icon"
                             onClick={() => setPendingDelete(row)}
                         >
-                            <Trash2 className="h-4 w-4 text-zoru-ink" />
+                            <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                         </Button>
                     </div>
                 );
@@ -346,8 +346,8 @@ export default function PayrollRunsListPage() {
                 loading={isLoading && bulky.data.length === 0}
             >
                 {chartData.length > 0 && (
-                    <div className="mb-6 rounded-lg border border-zoru-line bg-zoru-surface p-4">
-                        <h3 className="mb-4 text-sm font-medium text-zoru-ink">Payroll Expenses Overview</h3>
+                    <div className="mb-6 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4">
+                        <h3 className="mb-4 text-sm font-medium text-[var(--st-text)]">Payroll Expenses Overview</h3>
                         <div className="h-64 w-full text-xs">
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
@@ -368,7 +368,7 @@ export default function PayrollRunsListPage() {
                     </div>
                 )}
 
-                <div className="overflow-hidden rounded-lg border border-zoru-line bg-zoru-surface">
+                <div className="overflow-hidden rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
                     <CrmBulkyGrid<CrmPayrollRunDoc>
                         columns={columns}
                         data={filtered}

@@ -78,27 +78,27 @@ export default async function EditBudgetPage({ params }: PageProps) {
                         <ZoruCardContent>
                             <div className="space-y-2 text-[12.5px]">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-zoru-ink-muted">Plan</span>
+                                    <span className="text-[var(--st-text-secondary)]">Plan</span>
                                     <span className="font-mono tabular-nums">
                                         {fmtMoney(plan)}
                                     </span>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <span className="text-zoru-ink-muted">Actual</span>
+                                    <span className="text-[var(--st-text-secondary)]">Actual</span>
                                     <span className="font-mono tabular-nums">
                                         {fmtMoney(actual)}
                                     </span>
                                 </div>
-                                <div className="flex items-center justify-between border-t border-zoru-line pt-2">
-                                    <span className="text-zoru-ink-muted">Variance</span>
+                                <div className="flex items-center justify-between border-t border-[var(--st-border)] pt-2">
+                                    <span className="text-[var(--st-text-secondary)]">Variance</span>
                                     <span
-                                        className={`font-mono tabular-nums ${variance < 0 ? 'text-zoru-danger-ink' : 'text-zoru-success-ink'}`}
+                                        className={`font-mono tabular-nums ${variance < 0 ? 'text-[var(--st-danger)]' : 'text-[var(--st-status-ok)]'}`}
                                     >
                                         {fmtMoney(variance)}
                                     </span>
                                 </div>
                                 <BudgetProgressBar utilisation={utilisation} />
-                                <div className="text-right text-[11px] text-zoru-ink-muted mt-1">
+                                <div className="text-right text-[11px] text-[var(--st-text-secondary)] mt-1">
                                     {utilisation}% utilised
                                 </div>
                             </div>
@@ -109,11 +109,11 @@ export default async function EditBudgetPage({ params }: PageProps) {
                             <ZoruCardTitle>Owner</ZoruCardTitle>
                         </ZoruCardHeader>
                         <ZoruCardContent>
-                            <div className="text-[12.5px] text-zoru-ink">
+                            <div className="text-[12.5px] text-[var(--st-text)]">
                                 {budget.ownerName || '—'}
                             </div>
                             {budget.approverName ? (
-                                <div className="mt-2 text-[12px] text-zoru-ink-muted">
+                                <div className="mt-2 text-[12px] text-[var(--st-text-secondary)]">
                                     Approver: {budget.approverName}
                                 </div>
                             ) : null}

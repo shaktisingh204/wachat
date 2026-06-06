@@ -116,7 +116,7 @@ export function AssignedEmployeesTable({
     <Card className="flex flex-col gap-4 p-5 print:shadow-none print:border-none print:p-0">
       <div className="flex flex-wrap items-center justify-between gap-4 print:hidden">
         <div className="flex items-center gap-2">
-          <h2 className="text-sm font-semibold text-zoru-ink">Assigned Employees</h2>
+          <h2 className="text-sm font-semibold text-[var(--st-text)]">Assigned Employees</h2>
           <Badge variant="secondary">{employees.length}</Badge>
         </div>
         <div className="flex items-center gap-2">
@@ -133,7 +133,7 @@ export function AssignedEmployeesTable({
 
       <div className="flex flex-wrap items-center gap-4 justify-between print:hidden">
         <div className="relative w-full max-w-sm">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
           <Input
             placeholder="Filter by name or email..."
             className="pl-9"
@@ -143,7 +143,7 @@ export function AssignedEmployeesTable({
         </div>
         {selectedIds.size > 0 && (
           <div className="flex items-center gap-3">
-            <span className="text-sm text-zoru-ink-muted">{selectedIds.size} selected</span>
+            <span className="text-sm text-[var(--st-text-secondary)]">{selectedIds.size} selected</span>
             <Button
               variant="destructive"
               size="sm"
@@ -157,7 +157,7 @@ export function AssignedEmployeesTable({
       </div>
 
       {filteredEmployees.length === 0 ? (
-        <p className="py-8 text-center text-[13px] text-zoru-ink-muted">
+        <p className="py-8 text-center text-[13px] text-[var(--st-text-secondary)]">
           {employees.length === 0
             ? 'No employees are assigned to this group yet.'
             : 'No employees match your filter.'}
@@ -165,11 +165,11 @@ export function AssignedEmployeesTable({
       ) : (
         <div
           ref={parentRef}
-          className="overflow-x-auto rounded-md border border-zoru-line max-h-[500px] overflow-y-auto print:overflow-visible print:max-h-none print:border-none"
+          className="overflow-x-auto rounded-md border border-[var(--st-border)] max-h-[500px] overflow-y-auto print:overflow-visible print:max-h-none print:border-none"
         >
           <table className="w-full text-sm caption-bottom">
-            <ZoruTableHeader className="sticky top-0 bg-zoru-surface z-10 print:static">
-              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+            <ZoruTableHeader className="sticky top-0 bg-[var(--st-bg-secondary)] z-10 print:static">
+              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                 <ZoruTableHead className="w-12 print:hidden">
                   <Checkbox
                     checked={
@@ -197,7 +197,7 @@ export function AssignedEmployeesTable({
                 return (
                   <ZoruTableRow
                     key={e.employeeId}
-                    className="border-zoru-line absolute w-full print:static print:transform-none"
+                    className="border-[var(--st-border)] absolute w-full print:static print:transform-none"
                     style={{
                       top: 0,
                       left: 0,
@@ -210,13 +210,13 @@ export function AssignedEmployeesTable({
                         onCheckedChange={(c) => handleSelectOne(e.employeeId, !!c)}
                       />
                     </ZoruTableCell>
-                    <ZoruTableCell className="font-medium text-zoru-ink">
+                    <ZoruTableCell className="font-medium text-[var(--st-text)]">
                       {e.name}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                       {e.email ?? '—'}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                       {mounted ? fmtDate(e.assignedAt) : ''}
                     </ZoruTableCell>
                     <ZoruTableCell className="text-right print:hidden">
@@ -228,9 +228,9 @@ export function AssignedEmployeesTable({
                         onClick={() => void onRemove(e.employeeId)}
                       >
                         {removingId === e.employeeId ? (
-                          <span className="h-3.5 w-3.5 border-2 border-zoru-danger-ink border-t-transparent rounded-full animate-spin" />
+                          <span className="h-3.5 w-3.5 border-2 border-[var(--st-danger)] border-t-transparent rounded-full animate-spin" />
                         ) : (
-                          <UserMinus className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                          <UserMinus className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                         )}
                       </Button>
                     </ZoruTableCell>

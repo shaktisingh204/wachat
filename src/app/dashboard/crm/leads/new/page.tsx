@@ -26,12 +26,12 @@ export default async function NewLeadPage() {
                 subtitle="Create a new prospective customer"
                 icon={UserPlus}
                 breadcrumb={
-                    <div className="flex items-center gap-2 text-sm text-zoru-ink-muted">
-                        <Link href="/dashboard/crm/leads" className="hover:text-zoru-ink transition-colors">
+                    <div className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
+                        <Link href="/dashboard/crm/leads" className="hover:text-[var(--st-text)] transition-colors">
                             Leads
                         </Link>
                         <span>/</span>
-                        <span className="text-zoru-ink font-medium">New</span>
+                        <span className="text-[var(--st-text)] font-medium">New</span>
                     </div>
                 }
             />

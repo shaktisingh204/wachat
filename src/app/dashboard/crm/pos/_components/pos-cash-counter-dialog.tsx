@@ -104,9 +104,9 @@ export function PosCashCounterDialog({ open, onOpenChange, onConfirm }: Props) {
                     )}
                 </div>
 
-                <div className="flex items-center justify-between border-t border-zoru-line pt-4 mt-2">
-                    <span className="text-sm text-zoru-ink-muted">Total counted:</span>
-                    <span className="text-lg font-bold text-zoru-ink">
+                <div className="flex items-center justify-between border-t border-[var(--st-border)] pt-4 mt-2">
+                    <span className="text-sm text-[var(--st-text-secondary)]">Total counted:</span>
+                    <span className="text-lg font-bold text-[var(--st-text)]">
                         ₹{mode === 'manual' ? (Number(manualTotal) || 0) : totalFromCounter}
                     </span>
                 </div>

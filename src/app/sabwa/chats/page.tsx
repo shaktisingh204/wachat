@@ -252,9 +252,9 @@ export default function SabWaChatsPage() {
   }
 
   return (
-    <div className="flex h-full min-h-[60vh] flex-col bg-zoru-bg">
+    <div className="flex h-full min-h-[60vh] flex-col bg-[var(--st-bg)]">
       {/* ── Breadcrumb ─────────────────────────────────────────────── */}
-      <div className="shrink-0 border-b border-zoru-line px-4 py-2 md:px-6">
+      <div className="shrink-0 border-b border-[var(--st-border)] px-4 py-2 md:px-6">
         <Breadcrumb>
           <ZoruBreadcrumbList>
             <ZoruBreadcrumbItem>
@@ -273,30 +273,30 @@ export default function SabWaChatsPage() {
       </div>
 
       {/* ── Header ─────────────────────────────────────────────────── */}
-      <header className="flex items-start gap-3 border-b border-zoru-line px-4 py-4 md:px-6">
+      <header className="flex items-start gap-3 border-b border-[var(--st-border)] px-4 py-4 md:px-6">
         <div
           aria-hidden
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface text-zoru-ink"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
         >
           <MessageSquare className="h-5 w-5" />
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-[24px] font-semibold tracking-[-0.015em] text-zoru-ink leading-[1.2] md:text-2xl">
+            <h1 className="text-[24px] font-semibold tracking-[-0.015em] text-[var(--st-text)] leading-[1.2] md:text-2xl">
               Chats
             </h1>
             <Badge variant="secondary" className="text-xs">
               {filtered.length} of {chats?.length ?? 0}
             </Badge>
           </div>
-          <p className="mt-0.5 text-xs text-zoru-ink-muted">
+          <p className="mt-0.5 text-xs text-[var(--st-text-secondary)]">
             One-on-one conversations. Toggle bulk-select for sweeping actions.
           </p>
         </div>
       </header>
 
       {/* ── Desktop toolbar ────────────────────────────────────────── */}
-      <div className="hidden items-center gap-2 border-b border-zoru-line px-4 py-2 md:flex md:px-6">
+      <div className="hidden items-center gap-2 border-b border-[var(--st-border)] px-4 py-2 md:flex md:px-6">
         <Toolbar
           query={query}
           setQuery={setQuery}
@@ -311,7 +311,7 @@ export default function SabWaChatsPage() {
       </div>
 
       {/* ── Mobile toolbar: hamburger collapses controls ───────────── */}
-      <div className="flex items-center gap-2 border-b border-zoru-line px-4 py-2 md:hidden">
+      <div className="flex items-center gap-2 border-b border-[var(--st-border)] px-4 py-2 md:hidden">
         <Button
           type="button"
           variant="outline"
@@ -323,7 +323,7 @@ export default function SabWaChatsPage() {
           <MenuIcon className="h-4 w-4" />
         </Button>
         <div className="relative flex-1">
-          <Search className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+          <Search className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
           <Input
             type="search"
             value={query}
@@ -334,12 +334,12 @@ export default function SabWaChatsPage() {
         </div>
       </div>
       {mobileToolbarOpen ? (
-        <div className="flex flex-col gap-2 border-b border-zoru-line px-4 py-2 md:hidden">
+        <div className="flex flex-col gap-2 border-b border-[var(--st-border)] px-4 py-2 md:hidden">
           {/* Segmented filter — replaces Tabs UI */}
           <div
             role="group"
             aria-label="Filter chats"
-            className="grid w-full grid-cols-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-1"
+            className="grid w-full grid-cols-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1"
           >
             {(["all", "unread", "read"] as const).map((value) => (
               <Button
@@ -380,7 +380,7 @@ export default function SabWaChatsPage() {
 
       {/* ── Bulk header (visible when bulk mode is on) ─────────────── */}
       {bulkMode ? (
-        <div className="flex items-center gap-2 border-b border-zoru-line bg-zoru-surface/60 px-4 py-2 md:px-6">
+        <div className="flex items-center gap-2 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)]/60 px-4 py-2 md:px-6">
           <Checkbox
             id="select-all"
             checked={allVisibleSelected}
@@ -389,7 +389,7 @@ export default function SabWaChatsPage() {
           />
           <label
             htmlFor="select-all"
-            className="text-xs text-zoru-ink-muted"
+            className="text-xs text-[var(--st-text-secondary)]"
           >
             {selectionCount > 0
               ? `${selectionCount} selected`
@@ -503,7 +503,7 @@ function Toolbar({
   return (
     <>
       <div className="relative flex-1 max-w-md">
-        <Search className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+        <Search className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
         <Input
           type="search"
           value={query}
@@ -518,7 +518,7 @@ function Toolbar({
       <div
         role="group"
         aria-label="Filter chats"
-        className="hidden rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-1 lg:inline-flex"
+        className="hidden rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1 lg:inline-flex"
       >
         {(["all", "unread", "read"] as const).map((value) => (
           <Button
@@ -580,8 +580,8 @@ function BulkFooter({
   labels,
 }: BulkFooterProps) {
   return (
-    <footer className="sticky bottom-0 z-10 flex flex-wrap items-center gap-2 border-t border-zoru-line bg-zoru-bg/95 px-4 py-2 backdrop-blur md:px-6">
-      <span className="text-xs font-medium text-zoru-ink-muted">
+    <footer className="sticky bottom-0 z-10 flex flex-wrap items-center gap-2 border-t border-[var(--st-border)] bg-[var(--st-bg)]/95 px-4 py-2 backdrop-blur md:px-6">
+      <span className="text-xs font-medium text-[var(--st-text-secondary)]">
         {selectionCount} selected
       </span>
       <Button
@@ -636,7 +636,7 @@ function BulkFooter({
               <li key={d.label}>
                 <button
                   type="button"
-                  className="w-full rounded-[var(--zoru-radius)] px-2 py-1.5 text-left text-sm text-zoru-ink hover:bg-zoru-surface-2"
+                  className="w-full rounded-[var(--zoru-radius)] px-2 py-1.5 text-left text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
                   onClick={() =>
                     onMute(d.seconds === null ? 100 * 365 * 24 * 3600 : d.seconds)
                   }
@@ -663,7 +663,7 @@ function BulkFooter({
         </ZoruPopoverTrigger>
         <ZoruPopoverContent align="end" className="w-56 p-1">
           {labels.length === 0 ? (
-            <p className="px-2 py-2 text-xs text-zoru-ink-muted">
+            <p className="px-2 py-2 text-xs text-[var(--st-text-secondary)]">
               No labels yet. Create one in Labels.
             </p>
           ) : (
@@ -672,7 +672,7 @@ function BulkFooter({
                 <li key={l.id}>
                   <button
                     type="button"
-                    className="flex w-full items-center gap-2 rounded-[var(--zoru-radius)] px-2 py-1.5 text-left text-sm text-zoru-ink hover:bg-zoru-surface-2"
+                    className="flex w-full items-center gap-2 rounded-[var(--zoru-radius)] px-2 py-1.5 text-left text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
                     onClick={() => onAddLabel(l.id)}
                   >
                     <span
@@ -753,12 +753,12 @@ function ErrorState({
   onRetry: () => void;
 }) {
   return (
-    <Card className="m-4 border-zoru-danger/50">
+    <Card className="m-4 border-[var(--st-danger)]/50">
       <ZoruCardContent className="flex flex-col items-start gap-2 py-6">
-        <p className="text-sm font-semibold text-zoru-danger">
+        <p className="text-sm font-semibold text-[var(--st-danger)]">
           Couldn’t load chats
         </p>
-        <p className="text-xs text-zoru-ink-muted">{message}</p>
+        <p className="text-xs text-[var(--st-text-secondary)]">{message}</p>
         <Button type="button" size="sm" variant="outline" onClick={onRetry}>
           Retry
         </Button>

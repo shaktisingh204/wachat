@@ -148,7 +148,7 @@ export default function EditRoadmapForm({ initialRoadmap, id }: EditRoadmapFormP
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
       {collaborators > 0 && (
-        <div className="flex items-center gap-2 rounded-md bg-zoru-brand/10 p-3 text-sm text-zoru-brand">
+        <div className="flex items-center gap-2 rounded-md bg-[var(--st-accent)]/10 p-3 text-sm text-[var(--st-accent)]">
           <Users className="h-4 w-4" />
           <span>
             {collaborators} other user{collaborators > 1 ? 's are' : ' is'} currently viewing or editing this roadmap.
@@ -171,7 +171,7 @@ export default function EditRoadmapForm({ initialRoadmap, id }: EditRoadmapFormP
       <PhaseList phases={phases} setPhases={setPhases} />
 
       {/* Error */}
-      {error && <p className="text-sm text-zoru-danger">{error}</p>}
+      {error && <p className="text-sm text-[var(--st-danger)]">{error}</p>}
 
       {/* Submit */}
       <div className="flex justify-end gap-3 print:hidden">

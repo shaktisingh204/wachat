@@ -154,7 +154,7 @@ export default function NewContractPage() {
                 id="autoRenew"
                 name="autoRenew"
                 type="checkbox"
-                className="h-4 w-4 rounded border-zoru-line"
+                className="h-4 w-4 rounded border-[var(--st-border)]"
                 checked={autoRenew}
                 onChange={(e) => setAutoRenew(e.target.checked)}
               />

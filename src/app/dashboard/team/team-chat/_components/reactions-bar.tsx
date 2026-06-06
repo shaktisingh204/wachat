@@ -47,8 +47,8 @@ export function ReactionsBar({
                         className={
                             'inline-flex h-6 items-center gap-1 rounded-full border px-2 text-[11px] transition-colors ' +
                             (mine
-                                ? 'border-zoru-ink/40 bg-zoru-surface-2 text-zoru-ink'
-                                : 'border-zoru-line bg-zoru-bg text-zoru-ink-muted hover:border-zoru-ink/30')
+                                ? 'border-[var(--st-text)]/40 bg-[var(--st-bg-muted)] text-[var(--st-text)]'
+                                : 'border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text-secondary)] hover:border-[var(--st-text)]/30')
                         }
                         aria-pressed={mine}
                     >
@@ -80,7 +80,7 @@ export function ReactionsBar({
                                     key={e}
                                     type="button"
                                     onClick={() => onToggle(e)}
-                                    className="h-7 w-7 rounded-md border border-zoru-line text-[14px] hover:bg-zoru-surface-2"
+                                    className="h-7 w-7 rounded-md border border-[var(--st-border)] text-[14px] hover:bg-[var(--st-bg-muted)]"
                                 >
                                     {e}
                                 </button>
@@ -93,7 +93,7 @@ export function ReactionsBar({
                                 key={e}
                                 type="button"
                                 onClick={() => onToggle(e)}
-                                className="h-7 w-7 rounded-md text-[14px] hover:bg-zoru-surface-2"
+                                className="h-7 w-7 rounded-md text-[14px] hover:bg-[var(--st-bg-muted)]"
                             >
                                 {e}
                             </button>

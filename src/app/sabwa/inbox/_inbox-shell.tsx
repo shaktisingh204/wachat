@@ -205,8 +205,8 @@ export function InboxShell() {
   const showPanelOnDesktop = panelOpenLocal && activeChat;
 
   return (
-    <div className="flex h-full min-h-0 w-full flex-col bg-zoru-bg">
-      <div className="shrink-0 border-b border-zoru-line px-4 py-2">
+    <div className="flex h-full min-h-0 w-full flex-col bg-[var(--st-bg)]">
+      <div className="shrink-0 border-b border-[var(--st-border)] px-4 py-2">
         <Breadcrumb>
           <ZoruBreadcrumbList>
             <ZoruBreadcrumbItem>
@@ -224,9 +224,9 @@ export function InboxShell() {
         </Breadcrumb>
       </div>
       {showOfflineBanner ? (
-        <div className="flex shrink-0 items-center gap-3 border-b border-zoru-line bg-zoru-warning/10 px-3 py-2 text-xs">
+        <div className="flex shrink-0 items-center gap-3 border-b border-[var(--st-border)] bg-[var(--st-warn)]/10 px-3 py-2 text-xs">
           <StatusBadge status={status} size="sm" />
-          <span className="text-zoru-warning-ink">
+          <span className="text-[var(--st-warn)]">
             This session isn&apos;t connected. New messages will queue until you
             reconnect.
           </span>

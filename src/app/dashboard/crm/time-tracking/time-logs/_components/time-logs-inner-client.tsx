@@ -473,9 +473,9 @@ export function TimeLogsInnerClient({ rows, initialFilters }: TimeLogsInnerClien
         empty={
           !transitioning && filtered.length === 0 ? (
             <div className="flex flex-col items-center gap-3 p-4">
-              <PlayCircle className="h-8 w-8 text-zoru-ink-muted" />
-              <h3 className="text-base font-medium text-zoru-ink">No time logged</h3>
-              <p className="max-w-sm text-sm text-zoru-ink-muted">
+              <PlayCircle className="h-8 w-8 text-[var(--st-text-secondary)]" />
+              <h3 className="text-base font-medium text-[var(--st-text)]">No time logged</h3>
+              <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                 Start a timer or import logs from your project pages to see them
                 here.
               </p>
@@ -527,18 +527,18 @@ export function TimeLogsInnerClient({ rows, initialFilters }: TimeLogsInnerClien
             <Card className="p-4">
               <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
-                  <p className="text-[11px] uppercase tracking-[0.18em] text-zoru-ink-muted">
+                  <p className="text-[11px] uppercase tracking-[0.18em] text-[var(--st-text-secondary)]">
                     Currently tracking
                   </p>
-                  <p className="mt-1 text-[14.5px] font-semibold text-zoru-ink">
+                  <p className="mt-1 text-[14.5px] font-semibold text-[var(--st-text)]">
                     {runningLog.memo || 'Untitled session'}
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-[11px] uppercase tracking-[0.18em] text-zoru-ink-muted">
+                  <p className="text-[11px] uppercase tracking-[0.18em] text-[var(--st-text-secondary)]">
                     Elapsed
                   </p>
-                  <p className="mt-1 font-mono text-[28px] font-semibold leading-none tabular-nums text-zoru-ink">
+                  <p className="mt-1 font-mono text-[28px] font-semibold leading-none tabular-nums text-[var(--st-text)]">
                     <LiveElapsed start={runningLog.start_time} />
                   </p>
                 </div>
@@ -549,7 +549,7 @@ export function TimeLogsInnerClient({ rows, initialFilters }: TimeLogsInnerClien
           {/* Bulk selection header */}
           {filtered.length > 0 && (
             <div className="flex items-center gap-2">
-              <label className="flex cursor-pointer items-center gap-2 text-sm text-zoru-ink-muted select-none">
+              <label className="flex cursor-pointer items-center gap-2 text-sm text-[var(--st-text-secondary)] select-none">
                 <Checkbox
                   checked={allChecked}
                   aria-checked={someChecked && !allChecked ? 'mixed' : allChecked}
@@ -563,8 +563,8 @@ export function TimeLogsInnerClient({ rows, initialFilters }: TimeLogsInnerClien
 
           {/* Bulk action bar */}
           {hasSelection && (
-            <div className="flex items-center gap-3 rounded-lg border border-zoru-line bg-zoru-surface-2/40 px-4 py-2.5 text-sm">
-              <span className="font-medium text-zoru-ink">
+            <div className="flex items-center gap-3 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)]/40 px-4 py-2.5 text-sm">
+              <span className="font-medium text-[var(--st-text)]">
                 {selectedIds.length} selected
               </span>
               <Button

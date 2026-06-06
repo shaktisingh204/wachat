@@ -76,10 +76,10 @@ import Loading from './loading';
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <div className="text-[11px] font-bold uppercase tracking-wider text-zoru-ink-muted">
+      <div className="text-[11px] font-bold uppercase tracking-wider text-[var(--st-text-secondary)]">
         {label}
       </div>
-      <div className="mt-1.5 text-[13px] text-zoru-ink font-medium">{children}</div>
+      <div className="mt-1.5 text-[13px] text-[var(--st-text)] font-medium">{children}</div>
     </div>
   );
 }
@@ -242,15 +242,15 @@ export default function LeadDetailPage() {
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
           {/* Profile Sidebar */}
           <div className="space-y-6 lg:col-span-1">
-            <Card className="p-6 border border-zoru-line bg-zoru-surface">
+            <Card className="p-6 border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
               <div className="flex flex-col items-center text-center">
-                <Avatar className="mb-3 h-20 w-20 border border-zoru-line">
-                  <ZoruAvatarFallback className="bg-zoru-surface-2 text-[24px] text-zoru-ink font-semibold">
+                <Avatar className="mb-3 h-20 w-20 border border-[var(--st-border)]">
+                  <ZoruAvatarFallback className="bg-[var(--st-bg-muted)] text-[24px] text-[var(--st-text)] font-semibold">
                     {fullName.charAt(0)}
                   </ZoruAvatarFallback>
                 </Avatar>
-                <h2 className="text-[16px] font-bold text-zoru-ink leading-tight">{fullName}</h2>
-                <p className="mt-1 text-[12px] text-zoru-ink-muted font-medium">
+                <h2 className="text-[16px] font-bold text-[var(--st-text)] leading-tight">{fullName}</h2>
+                <p className="mt-1 text-[12px] text-[var(--st-text-secondary)] font-medium">
                   {lead.title || lead.company || 'Lead Scaffolding'}
                 </p>
               </div>
@@ -280,45 +280,45 @@ export default function LeadDetailPage() {
                 </Button>
               </div>
 
-              <Separator className="my-4 bg-zoru-line" />
+              <Separator className="my-4 bg-[var(--st-border)]" />
 
-              <div className="space-y-3 text-[13px] text-zoru-ink font-medium">
+              <div className="space-y-3 text-[13px] text-[var(--st-text)] font-medium">
                 <div className="flex items-center gap-3">
-                  <Mail className="h-4 w-4 text-zoru-ink-muted" strokeWidth={2} />
-                  <a href={`mailto:${lead.email}`} className="text-zoru-ink hover:underline truncate">
+                  <Mail className="h-4 w-4 text-[var(--st-text-secondary)]" strokeWidth={2} />
+                  <a href={`mailto:${lead.email}`} className="text-[var(--st-text)] hover:underline truncate">
                     {lead.email || 'No email registered'}
                   </a>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Phone className="h-4 w-4 text-zoru-ink-muted" strokeWidth={2} />
+                  <Phone className="h-4 w-4 text-[var(--st-text-secondary)]" strokeWidth={2} />
                   <span>{lead.phone || 'No phone registered'}</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Briefcase className="h-4 w-4 text-zoru-ink-muted" strokeWidth={2} />
+                  <Briefcase className="h-4 w-4 text-[var(--st-text-secondary)]" strokeWidth={2} />
                   <span>{lead.company || 'No company info'}</span>
                 </div>
               </div>
 
-              <Separator className="my-4 bg-zoru-line" />
+              <Separator className="my-4 bg-[var(--st-border)]" />
 
               <div className="space-y-4">
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider text-zoru-ink-muted font-extrabold">
+                  <p className="text-[10px] uppercase tracking-wider text-[var(--st-text-secondary)] font-extrabold">
                     Lead Priority / Score
                   </p>
                   <div className="mt-1.5 flex items-center gap-2">
                     <Badge variant={leadScoreVariant(lead.leadScore || 0)}>
                       {lead.leadScore || 0}
                     </Badge>
-                    <span className="text-[12px] text-zoru-ink-muted font-medium">Hot Lead Priority</span>
+                    <span className="text-[12px] text-[var(--st-text-secondary)] font-medium">Hot Lead Priority</span>
                   </div>
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider text-zoru-ink-muted font-extrabold">
+                  <p className="text-[10px] uppercase tracking-wider text-[var(--st-text-secondary)] font-extrabold">
                     Lifecycle Status
                   </p>
                   <div className="mt-1.5">
-                    <Badge variant="ghost" className="bg-zoru-surface-2 border border-zoru-line text-[11px] h-5.5 font-semibold text-zoru-ink">
+                    <Badge variant="ghost" className="bg-[var(--st-bg-muted)] border border-[var(--st-border)] text-[11px] h-5.5 font-semibold text-[var(--st-text)]">
                       {lead.status?.name || lead.status || 'New'}
                     </Badge>
                   </div>
@@ -359,9 +359,9 @@ export default function LeadDetailPage() {
           {/* Main Content Area */}
           <div className="space-y-6 lg:col-span-2">
             {/* Identity & Basic Profile card */}
-            <Card className="p-6 border border-zoru-line bg-zoru-surface">
-              <h3 className="mb-4 text-[12px] font-extrabold uppercase tracking-widest text-zoru-ink-muted flex items-center gap-1.5">
-                <Layers className="h-4 w-4 text-zoru-ink" /> Profile Identity & CRM Attributes
+            <Card className="p-6 border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+              <h3 className="mb-4 text-[12px] font-extrabold uppercase tracking-widest text-[var(--st-text-secondary)] flex items-center gap-1.5">
+                <Layers className="h-4 w-4 text-[var(--st-text)]" /> Profile Identity & CRM Attributes
               </h3>
               <div className="grid gap-5 sm:grid-cols-2">
                 <Field label="Full name">{fullName}</Field>
@@ -372,8 +372,8 @@ export default function LeadDetailPage() {
                 <Field label="Industry">{lead.industry || '—'}</Field>
               </div>
 
-              <h3 className="mb-4 mt-8 text-[12px] font-extrabold uppercase tracking-widest text-zoru-ink-muted flex items-center gap-1.5">
-                <Activity className="h-4 w-4 text-zoru-ink" /> Attribution & Workflows
+              <h3 className="mb-4 mt-8 text-[12px] font-extrabold uppercase tracking-widest text-[var(--st-text-secondary)] flex items-center gap-1.5">
+                <Activity className="h-4 w-4 text-[var(--st-text)]" /> Attribution & Workflows
               </h3>
               <div className="grid gap-5 sm:grid-cols-2">
                 <Field label="Lead Source">{lead.attribution?.source || lead.source || '—'}</Field>
@@ -400,9 +400,9 @@ export default function LeadDetailPage() {
             </Card>
 
             {/* Financial Details */}
-            <Card className="p-6 border border-zoru-line bg-zoru-surface">
-              <h3 className="mb-4 text-[12px] font-extrabold uppercase tracking-widest text-zoru-ink-muted flex items-center gap-1.5">
-                <Receipt className="h-4 w-4 text-zoru-ink" /> Estimated Values & Forecaster
+            <Card className="p-6 border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+              <h3 className="mb-4 text-[12px] font-extrabold uppercase tracking-widest text-[var(--st-text-secondary)] flex items-center gap-1.5">
+                <Receipt className="h-4 w-4 text-[var(--st-text)]" /> Estimated Values & Forecaster
               </h3>
               <div className="grid gap-5 sm:grid-cols-2">
                 <Field label="Estimated value">{fmtMoney(lead.estimatedValue || lead.value, lead.currency)}</Field>
@@ -416,9 +416,9 @@ export default function LeadDetailPage() {
 
             {/* Custom fields if present */}
             {customFields.length > 0 && (
-              <Card className="p-6 border border-zoru-line bg-zoru-surface">
-                <h3 className="mb-4 text-[12px] font-extrabold uppercase tracking-widest text-zoru-ink-muted flex items-center gap-1.5">
-                  <Layers className="h-4 w-4 text-zoru-ink" /> Tenant custom fields
+              <Card className="p-6 border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+                <h3 className="mb-4 text-[12px] font-extrabold uppercase tracking-widest text-[var(--st-text-secondary)] flex items-center gap-1.5">
+                  <Layers className="h-4 w-4 text-[var(--st-text)]" /> Tenant custom fields
                 </h3>
                 <div className="grid gap-5 sm:grid-cols-2">
                   {customFields.map((f) => (
@@ -441,20 +441,20 @@ export default function LeadDetailPage() {
             />
 
             {/* Opportunities (Deals) related */}
-            <Card className="p-6 border border-zoru-line bg-zoru-surface">
+            <Card className="p-6 border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
               <div className="mb-4">
-                <h2 className="text-[16px] font-bold text-zoru-ink">Associated Opportunities</h2>
-                <p className="mt-1 text-[12px] text-zoru-ink-muted font-medium">
+                <h2 className="text-[16px] font-bold text-[var(--st-text)]">Associated Opportunities</h2>
+                <p className="mt-1 text-[12px] text-[var(--st-text-secondary)] font-medium">
                   Pipeline deals associated with this lead.
                 </p>
               </div>
-              <div className="overflow-x-auto rounded-lg border border-zoru-line bg-zoru-surface-2/10">
+              <div className="overflow-x-auto rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)]/10">
                 <Table>
                   <ZoruTableHeader>
-                    <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                      <ZoruTableHead className="text-zoru-ink-muted font-semibold text-[12px]">Deal Name</ZoruTableHead>
-                      <ZoruTableHead className="text-zoru-ink-muted font-semibold text-[12px]">Stage</ZoruTableHead>
-                      <ZoruTableHead className="text-right text-zoru-ink-muted font-semibold text-[12px]">Pipeline Value</ZoruTableHead>
+                    <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                      <ZoruTableHead className="text-[var(--st-text-secondary)] font-semibold text-[12px]">Deal Name</ZoruTableHead>
+                      <ZoruTableHead className="text-[var(--st-text-secondary)] font-semibold text-[12px]">Stage</ZoruTableHead>
+                      <ZoruTableHead className="text-right text-[var(--st-text-secondary)] font-semibold text-[12px]">Pipeline Value</ZoruTableHead>
                       <ZoruTableHead className="w-[50px]"></ZoruTableHead>
                     </ZoruTableRow>
                   </ZoruTableHeader>
@@ -466,9 +466,9 @@ export default function LeadDetailPage() {
                           onClick={() =>
                             router.push(`/dashboard/crm/deals/${deal._id.toString()}`)
                           }
-                          className="cursor-pointer border-zoru-line hover:bg-zoru-surface-2/30"
+                          className="cursor-pointer border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]/30"
                         >
-                          <ZoruTableCell className="text-[13px] font-semibold text-zoru-ink">
+                          <ZoruTableCell className="text-[13px] font-semibold text-[var(--st-text)]">
                             {deal.name}
                           </ZoruTableCell>
                           <ZoruTableCell>
@@ -476,7 +476,7 @@ export default function LeadDetailPage() {
                               {deal.stage ?? '—'}
                             </Badge>
                           </ZoruTableCell>
-                          <ZoruTableCell className="text-right font-semibold text-zoru-ink">
+                          <ZoruTableCell className="text-right font-semibold text-[var(--st-text)]">
                             {fmtMoney(deal.value, deal.currency)}
                           </ZoruTableCell>
                           <ZoruTableCell onClick={(e) => e.stopPropagation()}>
@@ -502,10 +502,10 @@ export default function LeadDetailPage() {
                         </ZoruTableRow>
                       ))
                     ) : (
-                      <ZoruTableRow className="border-zoru-line">
+                      <ZoruTableRow className="border-[var(--st-border)]">
                         <ZoruTableCell
                           colSpan={4}
-                          className="h-24 text-center text-[12.5px] text-zoru-ink-muted font-medium"
+                          className="h-24 text-center text-[12.5px] text-[var(--st-text-secondary)] font-medium"
                         >
                           No active deals currently associated with this lead.
                         </ZoruTableCell>
@@ -516,7 +516,7 @@ export default function LeadDetailPage() {
               </div>
             </Card>
 
-            <div className="text-[11px] text-zoru-ink-subtle font-mono mt-4">
+            <div className="text-[11px] text-[var(--st-text-tertiary)] font-mono mt-4">
               Created {fmtDate(lead.createdAt || lead.audit?.createdAt)} · Updated{' '}
               {fmtDate(lead.updatedAt || lead.audit?.updatedAt)}
             </div>

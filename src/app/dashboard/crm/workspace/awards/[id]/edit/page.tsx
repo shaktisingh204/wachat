@@ -74,10 +74,10 @@ export default async function EditAwardPage({
                                 {recentAppreciations.map((appreciation) => (
                                     <li key={appreciation._id?.toString() || Math.random().toString()} className="flex justify-between items-start gap-2">
                                         <div className="flex flex-col overflow-hidden">
-                                            <span className="font-medium text-zoru-ink truncate">{appreciation.given_to_user_name || 'Unknown User'}</span>
-                                            {appreciation.summary ? <span className="text-xs text-zoru-ink-muted line-clamp-2">{appreciation.summary}</span> : null}
+                                            <span className="font-medium text-[var(--st-text)] truncate">{appreciation.given_to_user_name || 'Unknown User'}</span>
+                                            {appreciation.summary ? <span className="text-xs text-[var(--st-text-secondary)] line-clamp-2">{appreciation.summary}</span> : null}
                                         </div>
-                                        <span className="text-xs text-zoru-ink-subtle whitespace-nowrap pt-1">
+                                        <span className="text-xs text-[var(--st-text-tertiary)] whitespace-nowrap pt-1">
                                             {new Date(appreciation.given_on as string).toISOString().slice(0, 10)}
                                         </span>
                                     </li>
@@ -85,7 +85,7 @@ export default async function EditAwardPage({
                             </ul>
                         ) : (
                             <div className="flex flex-col items-center justify-center py-6 text-center">
-                                <span className="text-zoru-ink-muted text-sm">No one has received this award yet.</span>
+                                <span className="text-[var(--st-text-secondary)] text-sm">No one has received this award yet.</span>
                             </div>
                         )}
                     </ZoruCardContent>

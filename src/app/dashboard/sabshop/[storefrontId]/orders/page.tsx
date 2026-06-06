@@ -66,8 +66,8 @@ export default function OrdersPage({ params }: { params: { storefrontId: string 
     <div className="p-6 max-w-7xl mx-auto space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-zoru-ink">Orders</h1>
-          <p className="text-zoru-ink-muted mt-1 text-sm">Manage and track your storefront orders.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-[var(--st-text)]">Orders</h1>
+          <p className="text-[var(--st-text-secondary)] mt-1 text-sm">Manage and track your storefront orders.</p>
         </div>
         <Button onClick={() => console.log("Export")} variant="outline" className="gap-2">
           <Filter className="w-4 h-4" /> Export
@@ -89,9 +89,9 @@ export default function OrdersPage({ params }: { params: { storefrontId: string 
               </TabsList>
             </div>
             
-            <div className="rounded-md border border-zoru-line overflow-hidden">
+            <div className="rounded-md border border-[var(--st-border)] overflow-hidden">
               <Table>
-                <TableHeader className="bg-zoru-surface">
+                <TableHeader className="bg-[var(--st-bg-secondary)]">
                   <TableRow>
                     <TableHead className="w-[100px]">Order</TableHead>
                     <TableHead>Date</TableHead>
@@ -107,11 +107,11 @@ export default function OrdersPage({ params }: { params: { storefrontId: string 
                     filteredOrders.map((order) => (
                       <TableRow 
                         key={order.id} 
-                        className="hover:bg-zoru-surface-2 cursor-pointer transition-colors" 
+                        className="hover:bg-[var(--st-bg-muted)] cursor-pointer transition-colors" 
                         onClick={() => router.push(`/dashboard/sabshop/${params.storefrontId}/orders/${order.id}`)}
                       >
-                        <TableCell className="font-medium text-zoru-brand">{order.id}</TableCell>
-                        <TableCell className="text-zoru-ink-muted">{order.date}</TableCell>
+                        <TableCell className="font-medium text-[var(--st-accent)]">{order.id}</TableCell>
+                        <TableCell className="text-[var(--st-text-secondary)]">{order.date}</TableCell>
                         <TableCell className="font-medium">{order.customer}</TableCell>
                         <TableCell>
                           <Badge variant={getStatusBadgeVariant(order.status) as any}>{order.status}</Badge>
@@ -121,18 +121,18 @@ export default function OrdersPage({ params }: { params: { storefrontId: string 
                         </TableCell>
                         <TableCell className="text-right font-medium">{order.total}</TableCell>
                         <TableCell>
-                          <Button variant="ghost" size="icon" className="hover:bg-zoru-surface" onClick={(e) => { 
+                          <Button variant="ghost" size="icon" className="hover:bg-[var(--st-bg-secondary)]" onClick={(e) => { 
                             e.stopPropagation(); 
                             router.push(`/dashboard/sabshop/${params.storefrontId}/orders/${order.id}`)
                           }}>
-                            <Eye className="w-4 h-4 text-zoru-ink-muted" />
+                            <Eye className="w-4 h-4 text-[var(--st-text-secondary)]" />
                           </Button>
                         </TableCell>
                       </TableRow>
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={7} className="h-32 text-center text-zoru-ink-muted">
+                      <TableCell colSpan={7} className="h-32 text-center text-[var(--st-text-secondary)]">
                         No orders found.
                       </TableCell>
                     </TableRow>
@@ -143,8 +143,8 @@ export default function OrdersPage({ params }: { params: { storefrontId: string 
           </Tabs>
 
           <div className="flex items-center justify-between mt-4">
-            <div className="text-sm text-zoru-ink-muted">
-              Showing <strong className="text-zoru-ink">1</strong> to <strong className="text-zoru-ink">{filteredOrders.length}</strong> of <strong className="text-zoru-ink">{filteredOrders.length}</strong> orders
+            <div className="text-sm text-[var(--st-text-secondary)]">
+              Showing <strong className="text-[var(--st-text)]">1</strong> to <strong className="text-[var(--st-text)]">{filteredOrders.length}</strong> of <strong className="text-[var(--st-text)]">{filteredOrders.length}</strong> orders
             </div>
             <div className="flex gap-2">
               <Button variant="outline" size="icon" disabled>

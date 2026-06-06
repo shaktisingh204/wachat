@@ -68,7 +68,7 @@ export function AttendanceTable({
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-[12.5px]">
-        <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
+        <thead className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
           <tr>
             <th className="p-2 text-left">
               <input
@@ -96,7 +96,7 @@ export function AttendanceTable({
             <tr>
               <td
                 colSpan={12}
-                className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
               >
                 {filtersActive
                   ? 'No attendance entries match the current filters.'
@@ -109,7 +109,7 @@ export function AttendanceTable({
               return (
                 <tr
                   key={id}
-                  className="border-t border-zoru-line hover:bg-zoru-surface-2/60"
+                  className="border-t border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]/60"
                 >
                   <td className="p-2 align-middle">
                     <input
@@ -122,31 +122,31 @@ export function AttendanceTable({
                   <td className="p-2 align-middle">
                     <EntityPickerChip entity="employee" id={row.employeeId} />
                   </td>
-                  <td className="p-2 align-middle text-zoru-ink-muted">—</td>
+                  <td className="p-2 align-middle text-[var(--st-text-secondary)]">—</td>
                   <td className="p-2 align-middle">
                     <Link
                       href={`/dashboard/hrm/payroll/attendance/${id}`}
-                      className="text-zoru-ink hover:underline"
+                      className="text-[var(--st-text)] hover:underline"
                     >
                       {fmtDate(row.date)}
                     </Link>
                   </td>
-                  <td className="p-2 align-middle font-mono text-[11px] text-zoru-ink-muted">
+                  <td className="p-2 align-middle font-mono text-[11px] text-[var(--st-text-secondary)]">
                     {row.shiftId || '—'}
                   </td>
-                  <td className="p-2 align-middle text-zoru-ink">
+                  <td className="p-2 align-middle text-[var(--st-text)]">
                     {fmtTime(row.punchInAt)}
                   </td>
-                  <td className="p-2 align-middle text-zoru-ink">
+                  <td className="p-2 align-middle text-[var(--st-text)]">
                     {fmtTime(row.punchOutAt)}
                   </td>
-                  <td className="p-2 text-right align-middle font-mono tabular-nums text-zoru-ink">
+                  <td className="p-2 text-right align-middle font-mono tabular-nums text-[var(--st-text)]">
                     {fmtHours(row.totalHours)}
                   </td>
-                  <td className="p-2 text-right align-middle text-zoru-ink-muted">
+                  <td className="p-2 text-right align-middle text-[var(--st-text-secondary)]">
                     {fmtHours(row.overtimeHours)}
                   </td>
-                  <td className="p-2 text-right align-middle text-zoru-ink-muted">
+                  <td className="p-2 text-right align-middle text-[var(--st-text-secondary)]">
                     {row.lateByMinutes ?? 0} m
                   </td>
                   <td className="p-2 align-middle">

@@ -116,7 +116,7 @@ function AddListInline({ onAddList }: { onAddList: (name: string) => void }) {
   }
 
   return (
-    <div className="flex h-fit w-72 shrink-0 flex-col gap-2 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-surface p-3">
+    <div className="flex h-fit w-72 shrink-0 flex-col gap-2 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
       <Input
         autoFocus
         placeholder="Enter list title..."
@@ -177,7 +177,7 @@ function ZoruFacebookKanbanCard({
         </Avatar>
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
-            <p className="truncate text-[13px] text-zoru-ink leading-tight">
+            <p className="truncate text-[13px] text-[var(--st-text)] leading-tight">
               {subscriber.name || subscriber.psid}
             </p>
             <div className="flex shrink-0 items-center gap-1">
@@ -191,7 +191,7 @@ function ZoruFacebookKanbanCard({
                   <button
                     type="button"
                     aria-label="Card actions"
-                    className="flex h-6 w-6 items-center justify-center rounded-[var(--zoru-radius-sm)] text-zoru-ink-muted transition-colors hover:bg-zoru-surface-2 hover:text-zoru-ink focus-visible:outline-none"
+                    className="flex h-6 w-6 items-center justify-center rounded-[var(--zoru-radius-sm)] text-[var(--st-text-secondary)] transition-colors hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] focus-visible:outline-none"
                   >
                     <MoreHorizontal className="h-3.5 w-3.5" />
                   </button>
@@ -215,10 +215,10 @@ function ZoruFacebookKanbanCard({
               </DropdownMenu>
             </div>
           </div>
-          <p className="mt-0.5 truncate text-[11px] text-zoru-ink-muted font-mono">
+          <p className="mt-0.5 truncate text-[11px] text-[var(--st-text-secondary)] font-mono">
             {subscriber.psid}
           </p>
-          <p className="mt-1.5 line-clamp-2 text-[11.5px] text-zoru-ink-muted">
+          <p className="mt-1.5 line-clamp-2 text-[11.5px] text-[var(--st-text-secondary)]">
             {subscriber.snippet || "No recent activity."}
           </p>
         </div>
@@ -254,7 +254,7 @@ function ZoruFacebookKanbanColumn({ title, count, children }: KanbanColumnProps)
       )}
       variant="soft"
     >
-      <ZoruCardHeader className="shrink-0 border-b border-zoru-line">
+      <ZoruCardHeader className="shrink-0 border-b border-[var(--st-border)]">
         <ZoruCardTitle className="flex items-center gap-2 text-[14px] capitalize">
           <span>{title.replace(/_/g, " ")}</span>
           <Badge variant="secondary" className="h-5 px-2 text-[10px]">
@@ -402,7 +402,7 @@ export function ZoruFacebookKanbanBoard() {
               count={column.conversations.length}
             >
               {column.conversations.length === 0 ? (
-                <p className="px-1 py-4 text-center text-[11.5px] text-zoru-ink-subtle">
+                <p className="px-1 py-4 text-center text-[11.5px] text-[var(--st-text-tertiary)]">
                   No conversations.
                 </p>
               ) : (

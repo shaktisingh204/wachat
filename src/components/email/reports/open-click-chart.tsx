@@ -56,7 +56,7 @@ export function OpenClickChart({
         {hasData ? (
           <ZoruChartContainer height={280}>
             <RechartsLineChart data={points} margin={{ top: 5, right: 8, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-zoru-line" />
+              <CartesianGrid strokeDasharray="3 3" className="stroke-[var(--st-border)]" />
               <XAxis
                 dataKey="t"
                 tickFormatter={formatTick}

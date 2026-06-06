@@ -402,7 +402,7 @@ export default function DashboardWidgetsPage() {
               {t === 'all' ? 'All types' : t}
             </Button>
           ))}
-          <span className="mx-1 h-4 w-px bg-zoru-line" />
+          <span className="mx-1 h-4 w-px bg-[var(--st-border)]" />
           {(['all', 'visible', 'hidden'] as VisibilityFilter[]).map((v) => (
             <Button
               key={v}
@@ -421,17 +421,17 @@ export default function DashboardWidgetsPage() {
       bulkBar={
         selected.size > 0 ? (
           <div className="flex flex-wrap items-center gap-2 text-[13px]">
-            <span className="font-medium text-zoru-ink">
+            <span className="font-medium text-[var(--st-text)]">
               {selected.size} selected
             </span>
-            <span className="text-zoru-ink-muted">·</span>
+            <span className="text-[var(--st-text-secondary)]">·</span>
             <Button
               variant="ghost"
               size="sm"
               disabled={bulkDeleting}
               onClick={() => setBulkDeleteOpen(true)}
             >
-              <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+              <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
               Delete
             </Button>
             <Button
@@ -502,22 +502,22 @@ export default function DashboardWidgetsPage() {
                       aria-label="Select all on page"
                     />
                   </ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
                     Name
                   </ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
                     Type
                   </ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
                     Width
                   </ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
                     Position
                   </ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
                     Visible
                   </ZoruTableHead>
-                  <ZoruTableHead className="w-[180px] text-right text-zoru-ink-muted">
+                  <ZoruTableHead className="w-[180px] text-right text-[var(--st-text-secondary)]">
                     Actions
                   </ZoruTableHead>
                 </ZoruTableRow>
@@ -527,7 +527,7 @@ export default function DashboardWidgetsPage() {
                   <ZoruTableRow>
                     <ZoruTableCell
                       colSpan={7}
-                      className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                      className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                     >
                       No widgets match the current filters.
                     </ZoruTableCell>
@@ -542,7 +542,7 @@ export default function DashboardWidgetsPage() {
                           aria-label={`Select ${w.widget_name}`}
                         />
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-zoru-ink">
+                      <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                         <RowDrawer
                           label={w.widget_name}
                           subtitle={w.config?.data_source || undefined}
@@ -551,26 +551,26 @@ export default function DashboardWidgetsPage() {
                         >
                           <div className="space-y-3 text-sm">
                             <div>
-                              <div className="text-zoru-ink-muted text-xs">
+                              <div className="text-[var(--st-text-secondary)] text-xs">
                                 Type
                               </div>
                               <div>{w.type}</div>
                             </div>
                             <div className="grid grid-cols-2 gap-3">
                               <div>
-                                <div className="text-zoru-ink-muted text-xs">
+                                <div className="text-[var(--st-text-secondary)] text-xs">
                                   Width
                                 </div>
                                 <div>{w.width}</div>
                               </div>
                               <div>
-                                <div className="text-zoru-ink-muted text-xs">
+                                <div className="text-[var(--st-text-secondary)] text-xs">
                                   Position
                                 </div>
                                 <div>{w.position ?? 0}</div>
                               </div>
                               <div>
-                                <div className="text-zoru-ink-muted text-xs">
+                                <div className="text-[var(--st-text-secondary)] text-xs">
                                   Visible
                                 </div>
                                 <div>
@@ -578,7 +578,7 @@ export default function DashboardWidgetsPage() {
                                 </div>
                               </div>
                               <div>
-                                <div className="text-zoru-ink-muted text-xs">
+                                <div className="text-[var(--st-text-secondary)] text-xs">
                                   Data source
                                 </div>
                                 <div className="font-mono text-xs">
@@ -588,10 +588,10 @@ export default function DashboardWidgetsPage() {
                             </div>
                             {w.config && Object.keys(w.config).length > 0 ? (
                               <div>
-                                <div className="text-zoru-ink-muted text-xs">
+                                <div className="text-[var(--st-text-secondary)] text-xs">
                                   Config
                                 </div>
-                                <pre className="rounded bg-zoru-surface-2 p-2 text-[11px]">
+                                <pre className="rounded bg-[var(--st-bg-muted)] p-2 text-[11px]">
                                   {JSON.stringify(w.config, null, 2)}
                                 </pre>
                               </div>
@@ -612,10 +612,10 @@ export default function DashboardWidgetsPage() {
                       <ZoruTableCell>
                         <Badge variant="default">{w.type}</Badge>
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-[12px] text-zoru-ink-muted">
+                      <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
                         {w.width}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-[12px] text-zoru-ink-muted">
+                      <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
                         {w.position ?? 0}
                       </ZoruTableCell>
                       <ZoruTableCell>
@@ -667,7 +667,7 @@ export default function DashboardWidgetsPage() {
                             onClick={() => setDeletingId(w._id)}
                             aria-label="Delete"
                           >
-                            <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                            <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                           </Button>
                         </div>
                       </ZoruTableCell>

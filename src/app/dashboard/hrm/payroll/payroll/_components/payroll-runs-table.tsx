@@ -99,7 +99,7 @@ export function PayrollRunsTable({
     rows.length > 0 && rows.every((r) => selected.has(r._id));
 
   return (
-    <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
+    <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
       <Table>
         <ZoruTableHeader>
           <ZoruTableRow className="hover:bg-transparent">
@@ -126,7 +126,7 @@ export function PayrollRunsTable({
             <ZoruTableRow>
               <ZoruTableCell
                 colSpan={10}
-                className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
               >
                 {hasActiveFilters
                   ? 'No payroll runs match the current filters.'
@@ -140,7 +140,7 @@ export function PayrollRunsTable({
               const status = (r.status ?? 'draft') as CrmPayrollRunStatus;
               const approvals = r.approvals?.length ?? 0;
               return (
-                <ZoruTableRow key={r._id} className="border-zoru-line">
+                <ZoruTableRow key={r._id} className="border-[var(--st-border)]">
                   <ZoruTableCell>
                     <Checkbox
                       aria-label={`Select run for ${periodLabel(r)}`}
@@ -148,28 +148,28 @@ export function PayrollRunsTable({
                       onCheckedChange={() => onToggleOne(r._id)}
                     />
                   </ZoruTableCell>
-                  <ZoruTableCell className="text-[13px] text-zoru-ink">
+                  <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                     {periodLabel(r)}
                   </ZoruTableCell>
-                  <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                  <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                     {fmtDate(r.payDate)}
                   </ZoruTableCell>
-                  <ZoruTableCell className="text-right text-[13px] tabular-nums text-zoru-ink">
+                  <ZoruTableCell className="text-right text-[13px] tabular-nums text-[var(--st-text)]">
                     {employeeCount}
                   </ZoruTableCell>
-                  <ZoruTableCell className="text-right font-mono text-[12.5px] text-zoru-ink">
+                  <ZoruTableCell className="text-right font-mono text-[12.5px] text-[var(--st-text)]">
                     {fmtMoney(r.totals?.gross ?? 0, 'INR')}
                   </ZoruTableCell>
-                  <ZoruTableCell className="text-right font-mono text-[12.5px] text-zoru-ink">
+                  <ZoruTableCell className="text-right font-mono text-[12.5px] text-[var(--st-text)]">
                     {fmtMoney(r.totals?.net ?? 0, 'INR')}
                   </ZoruTableCell>
                   <ZoruTableCell>
                     <StatusPill label={status} tone={statusToTone(status)} />
                   </ZoruTableCell>
-                  <ZoruTableCell className="text-right text-[13px] tabular-nums text-zoru-ink-muted">
+                  <ZoruTableCell className="text-right text-[13px] tabular-nums text-[var(--st-text-secondary)]">
                     {approvals}
                   </ZoruTableCell>
-                  <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                  <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                     {status === 'disbursed' || status === 'closed'
                       ? fmtDate(r.updatedAt)
                       : '—'}
@@ -195,7 +195,7 @@ export function PayrollRunsTable({
                           disabled={actionBusy}
                           title="Approve"
                         >
-                          <Check className="h-3.5 w-3.5 text-zoru-ink" />{' '}
+                          <Check className="h-3.5 w-3.5 text-[var(--st-text)]" />{' '}
                           Approve
                         </Button>
                       )}
@@ -227,7 +227,7 @@ export function PayrollRunsTable({
                           status === 'disbursed' || status === 'closed'
                         }
                       >
-                        <Trash2 className="h-3.5 w-3.5 text-zoru-ink" />
+                        <Trash2 className="h-3.5 w-3.5 text-[var(--st-text)]" />
                       </Button>
                     </div>
                   </ZoruTableCell>

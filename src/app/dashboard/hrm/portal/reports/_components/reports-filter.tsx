@@ -29,14 +29,14 @@ export function ReportsFilter({
     <div className="flex flex-wrap items-center gap-3">
       {/* Date range */}
       <div className="flex items-center gap-2">
-        <label className="text-[12px] text-zoru-ink-muted whitespace-nowrap">From</label>
+        <label className="text-[12px] text-[var(--st-text-secondary)] whitespace-nowrap">From</label>
         <Input
           type="date"
           className="h-8 text-[13px] w-36"
           value={fromDate}
           onChange={(e) => setFromDate(e.target.value)}
         />
-        <label className="text-[12px] text-zoru-ink-muted whitespace-nowrap">To</label>
+        <label className="text-[12px] text-[var(--st-text-secondary)] whitespace-nowrap">To</label>
         <Input
           type="date"
           className="h-8 text-[13px] w-36"

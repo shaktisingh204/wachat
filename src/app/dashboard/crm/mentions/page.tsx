@@ -12,14 +12,14 @@ async function MentionsList() {
   if (mentions.length === 0) {
     return (
       <Card className="flex items-center justify-center p-6 py-12">
-        <p className="text-[13px] text-zoru-ink-muted">No mentions yet.</p>
+        <p className="text-[13px] text-[var(--st-text-secondary)]">No mentions yet.</p>
       </Card>
     );
   }
 
   return (
     <Card className="p-0">
-      <ul className="divide-y divide-zoru-line">
+      <ul className="divide-y divide-[var(--st-border)]">
         {mentions.map((m) => (
           <MentionRow key={m._id} mention={m} />
         ))}
@@ -44,7 +44,7 @@ export default async function MentionsPage() {
     >
       <React.Suspense fallback={
         <Card className="flex items-center justify-center p-6 py-12">
-          <p className="text-[13px] text-zoru-ink-muted">Loading...</p>
+          <p className="text-[13px] text-[var(--st-text-secondary)]">Loading...</p>
         </Card>
       }>
         <MentionsList />

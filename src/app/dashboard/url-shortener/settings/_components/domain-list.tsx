@@ -68,7 +68,7 @@ function DeleteButton({ domainId, onActionComplete }: { domainId: string; onActi
 
   return (
     <Button variant="ghost" size="icon" onClick={onDelete} disabled={isPending}>
-      {isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4 text-zoru-danger-ink" />}
+      {isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4 text-[var(--st-danger)]" />}
     </Button>
   );
 }
@@ -111,11 +111,11 @@ export function DomainList({
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h4 className="text-zoru-ink font-semibold">Your Domains</h4>
+        <h4 className="text-[var(--st-text)] font-semibold">Your Domains</h4>
         
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <div className="relative flex-1 sm:w-64">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
             <Input
               type="text"
               placeholder="Search domains..."
@@ -125,7 +125,7 @@ export function DomainList({
             />
           </div>
           <select
-            className="h-10 px-3 py-2 rounded-md border border-zoru-line bg-transparent text-sm"
+            className="h-10 px-3 py-2 rounded-md border border-[var(--st-border)] bg-transparent text-sm"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as any)}
           >
@@ -145,11 +145,11 @@ export function DomainList({
         filteredDomains.map((domain) => (
           <div
             key={domain._id.toString()}
-            className="p-4 border border-zoru-line rounded-lg space-y-4 bg-zoru-bg"
+            className="p-4 border border-[var(--st-border)] rounded-lg space-y-4 bg-[var(--st-bg)]"
           >
             <div className="flex justify-between items-start">
               <div className="flex items-center gap-2">
-                <p className="text-lg text-zoru-ink font-medium">{domain.hostname}</p>
+                <p className="text-lg text-[var(--st-text)] font-medium">{domain.hostname}</p>
                 {domain.verified ? (
                   <Badge variant="success">
                     <CheckCircle className="mr-1 h-3 w-3" /> Verified
@@ -162,12 +162,12 @@ export function DomainList({
             </div>
 
             {!domain.verified && (
-              <Alert className="border-zoru-warning/40 bg-zoru-warning/10">
-                <AlertTriangle className="h-4 w-4 text-zoru-warning-ink" />
-                <ZoruAlertTitle className="text-zoru-warning-ink">Action Required: Verify Domain Ownership</ZoruAlertTitle>
-                <ZoruAlertDescription className="text-zoru-warning-ink mt-2">
+              <Alert className="border-[var(--st-warn)]/40 bg-[var(--st-warn)]/10">
+                <AlertTriangle className="h-4 w-4 text-[var(--st-warn)]" />
+                <ZoruAlertTitle className="text-[var(--st-warn)]">Action Required: Verify Domain Ownership</ZoruAlertTitle>
+                <ZoruAlertDescription className="text-[var(--st-warn)] mt-2">
                   Please add a <strong>TXT record</strong> to your DNS configuration to verify you own this domain.
-                  <div className="mt-3 p-3 bg-zoru-bg rounded border border-zoru-warning/40 flex items-center justify-between gap-4">
+                  <div className="mt-3 p-3 bg-[var(--st-bg)] rounded border border-[var(--st-warn)]/40 flex items-center justify-between gap-4">
                     <code className="font-mono text-xs break-all">{domain.verificationCode}</code>
                     <Button variant="ghost" size="sm" onClick={() => copy(domain.verificationCode)}>
                       <Copy className="h-3 w-3" />
@@ -179,11 +179,11 @@ export function DomainList({
             )}
 
             {domain.verified ? (
-              <div className="p-3 bg-zoru-success/10 rounded-md text-sm space-y-3 border border-zoru-success/40">
+              <div className="p-3 bg-[var(--st-status-ok)]/10 rounded-md text-sm space-y-3 border border-[var(--st-status-ok)]/40">
                 <div className="grid grid-cols-[auto,1fr] gap-x-4 gap-y-1 font-mono text-xs">
-                  <span className="text-zoru-ink-muted">DNS Status:</span>{' '}
-                  <span className="text-zoru-success-ink">Active & Verified</span>
-                  <span className="text-zoru-ink-muted">Usage:</span>{' '}
+                  <span className="text-[var(--st-text-secondary)]">DNS Status:</span>{' '}
+                  <span className="text-[var(--st-status-ok)]">Active & Verified</span>
+                  <span className="text-[var(--st-text-secondary)]">Usage:</span>{' '}
                   <span>Use this domain when creating new short links.</span>
                 </div>
               </div>
@@ -195,10 +195,10 @@ export function DomainList({
           </div>
         ))
       ) : (
-        <div className="text-center py-10 bg-zoru-surface-2 rounded-lg border border-dashed border-zoru-line">
-          <Globe className="h-10 w-10 mx-auto text-zoru-ink-muted mb-3" />
-          <p className="text-sm font-medium text-zoru-ink">No domains found</p>
-          <p className="text-xs text-zoru-ink-muted mt-1">
+        <div className="text-center py-10 bg-[var(--st-bg-muted)] rounded-lg border border-dashed border-[var(--st-border)]">
+          <Globe className="h-10 w-10 mx-auto text-[var(--st-text-secondary)] mb-3" />
+          <p className="text-sm font-medium text-[var(--st-text)]">No domains found</p>
+          <p className="text-xs text-[var(--st-text-secondary)] mt-1">
             {search || statusFilter !== 'all'
               ? 'Try adjusting your filters.'
               : 'Add a custom domain to get started.'}

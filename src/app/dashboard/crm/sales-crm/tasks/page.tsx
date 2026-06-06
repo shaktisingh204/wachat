@@ -315,8 +315,8 @@ export default function CrmTasksPage() {
             type="button"
             onClick={onClick}
             className={[
-                'text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-zoru-primary',
-                active ? 'ring-1 ring-zoru-primary rounded-[var(--zoru-radius-lg)]' : '',
+                'text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]',
+                active ? 'ring-1 ring-[var(--st-text)] rounded-[var(--zoru-radius-lg)]' : '',
             ].join(' ')}
         >
             <StatCard label={label} value={value} icon={icon} />
@@ -331,7 +331,7 @@ export default function CrmTasksPage() {
                 title="Tasks"
                 subtitle="Calls, meetings, follow-ups, and to-dos across your CRM."
                 viewSwitcher={
-                    <div className="inline-flex rounded-md border border-zoru-line p-0.5">
+                    <div className="inline-flex rounded-md border border-[var(--st-border)] p-0.5">
                         <button
                             type="button"
                             onClick={() => setView('table')}
@@ -339,8 +339,8 @@ export default function CrmTasksPage() {
                             className={[
                                 'inline-flex items-center gap-1 rounded-sm px-2 py-1 text-[12px]',
                                 view === 'table'
-                                    ? 'bg-zoru-surface text-zoru-ink'
-                                    : 'text-zoru-ink-muted hover:text-zoru-ink',
+                                    ? 'bg-[var(--st-bg-secondary)] text-[var(--st-text)]'
+                                    : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
                             ].join(' ')}
                         >
                             <List className="h-3.5 w-3.5" /> Table
@@ -352,8 +352,8 @@ export default function CrmTasksPage() {
                             className={[
                                 'inline-flex items-center gap-1 rounded-sm px-2 py-1 text-[12px]',
                                 view === 'kanban'
-                                    ? 'bg-zoru-surface text-zoru-ink'
-                                    : 'text-zoru-ink-muted hover:text-zoru-ink',
+                                    ? 'bg-[var(--st-bg-secondary)] text-[var(--st-text)]'
+                                    : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
                             ].join(' ')}
                         >
                             <LayoutGrid className="h-3.5 w-3.5" /> Kanban
@@ -365,8 +365,8 @@ export default function CrmTasksPage() {
                             className={[
                                 'inline-flex items-center gap-1 rounded-sm px-2 py-1 text-[12px]',
                                 view === 'calendar'
-                                    ? 'bg-zoru-surface text-zoru-ink'
-                                    : 'text-zoru-ink-muted hover:text-zoru-ink',
+                                    ? 'bg-[var(--st-bg-secondary)] text-[var(--st-text)]'
+                                    : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
                             ].join(' ')}
                         >
                             <CalendarDays className="h-3.5 w-3.5" /> Calendar
@@ -438,11 +438,11 @@ export default function CrmTasksPage() {
                 empty={
                     !isPending && tasks.length === 0 ? (
                         <div className="flex flex-col items-center gap-3 p-4">
-                            <ListChecks className="h-8 w-8 text-zoru-ink-muted" />
-                            <h3 className="text-base font-medium text-zoru-ink">
+                            <ListChecks className="h-8 w-8 text-[var(--st-text-secondary)]" />
+                            <h3 className="text-base font-medium text-[var(--st-text)]">
                                 No tasks yet
                             </h3>
-                            <p className="max-w-sm text-sm text-zoru-ink-muted">
+                            <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                                 Track calls, meetings, follow-ups, and to-dos linked to leads,
                                 deals, clients, tickets, and invoices.
                             </p>

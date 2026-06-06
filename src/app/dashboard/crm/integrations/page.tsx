@@ -14,11 +14,11 @@ export const dynamic = 'force-dynamic';
 
 const btnBase =
     'inline-flex h-9 w-full items-center justify-center gap-2 rounded-full px-4 text-[13px] font-medium leading-none transition-colors';
-const btnObsidian = 'bg-zoru-ink text-white hover:bg-zoru-ink/90';
+const btnObsidian = 'bg-[var(--st-text)] text-white hover:bg-[var(--st-text)]/90';
 const btnRoseSoft =
-    'bg-zoru-surface-2 text-zoru-ink border border-accent hover:brightness-[0.97]';
+    'bg-[var(--st-bg-muted)] text-[var(--st-text)] border border-accent hover:brightness-[0.97]';
 const btnDisabled =
-    'bg-zoru-bg text-zoru-ink-muted border border-zoru-line opacity-60 pointer-events-none';
+    'bg-[var(--st-bg)] text-[var(--st-text-secondary)] border border-[var(--st-border)] opacity-60 pointer-events-none';
 
 function fmtDateTime(value: unknown): string {
     if (!value) return '—';
@@ -112,7 +112,7 @@ async function IntegrationsDashboard({ q }: { q?: string }) {
 
             {filteredBuiltIn.length > 0 && (
                 <div className="mb-8">
-                    <h2 className="mb-4 text-lg font-semibold text-zoru-ink">Built-in Integrations</h2>
+                    <h2 className="mb-4 text-lg font-semibold text-[var(--st-text)]">Built-in Integrations</h2>
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                         {filteredBuiltIn.map((integration) => {
                             const Icon = integration.icon;
@@ -125,29 +125,29 @@ async function IntegrationsDashboard({ q }: { q?: string }) {
                                             className={
                                                 'flex h-11 w-11 shrink-0 items-center justify-center rounded-lg ' +
                                                 (connected
-                                                    ? 'bg-zoru-surface-2 text-zoru-ink'
-                                                    : 'bg-zoru-surface-2 text-zoru-ink')
+                                                    ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
+                                                    : 'bg-[var(--st-bg-muted)] text-[var(--st-text)]')
                                             }
                                         >
                                             <Icon className="h-5 w-5" strokeWidth={1.75} />
                                         </div>
                                         <div className="min-w-0 flex-1">
                                             <div className="flex items-center gap-2">
-                                                <h3 className="text-[14.5px] font-semibold text-zoru-ink">
+                                                <h3 className="text-[14.5px] font-semibold text-[var(--st-text)]">
                                                     {integration.name}
                                                 </h3>
                                                 {connected ? (
                                                     <Badge variant="success">Connected</Badge>
                                                 ) : null}
                                             </div>
-                                            <p className="mt-1 text-[12.5px] leading-snug text-zoru-ink-muted">
+                                            <p className="mt-1 text-[12.5px] leading-snug text-[var(--st-text-secondary)]">
                                                 {integration.description}
                                             </p>
                                         </div>
                                     </div>
 
                                     {connected && (integration.lastSyncAt || integration.syncStatus) ? (
-                                        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-zoru-ink-muted">
+                                        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-[var(--st-text-secondary)]">
                                             {integration.syncStatus ? <span>sync: {integration.syncStatus}</span> : null}
                                             {integration.lastSyncAt ? <span suppressHydrationWarning>last sync: {fmtDateTime(integration.lastSyncAt)}</span> : null}
                                         </div>
@@ -174,7 +174,7 @@ async function IntegrationsDashboard({ q }: { q?: string }) {
             )}
 
             <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-zoru-ink">Custom Integrations</h2>
+                <h2 className="text-lg font-semibold text-[var(--st-text)]">Custom Integrations</h2>
                 <Link href="/dashboard/crm/integrations/new" className={cn(btnBase, btnObsidian, "w-auto")}>
                     <Plus className="mr-1 h-4 w-4" /> Add Custom
                 </Link>
@@ -183,7 +183,7 @@ async function IntegrationsDashboard({ q }: { q?: string }) {
             {(filteredCustom.length > 0 || q) ? (
                 <IntegrationsList items={filteredCustom} />
             ) : (
-                <div className="text-sm text-zoru-ink-muted">No custom integrations configured.</div>
+                <div className="text-sm text-[var(--st-text-secondary)]">No custom integrations configured.</div>
             )}
         </>
     );

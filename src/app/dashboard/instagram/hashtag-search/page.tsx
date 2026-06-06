@@ -85,7 +85,7 @@ function MediaGrid({
             href={m.permalink ?? '#'}
             target="_blank"
             rel="noopener noreferrer"
-            className="block overflow-hidden rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2"
+            className="block overflow-hidden rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)]"
           >
             <div className="aspect-square w-full">
               {src ? (
@@ -97,8 +97,8 @@ function MediaGrid({
                 />
               ) : null}
             </div>
-            <div className="p-2 text-[11px] text-zoru-ink-muted">
-              <p className="line-clamp-2 text-zoru-ink">{m.caption ?? '(no caption)'}</p>
+            <div className="p-2 text-[11px] text-[var(--st-text-secondary)]">
+              <p className="line-clamp-2 text-[var(--st-text)]">{m.caption ?? '(no caption)'}</p>
               <div className="mt-1 flex gap-3">
                 {typeof m.like_count === 'number' ? <span>♥ {m.like_count}</span> : null}
                 {typeof m.comments_count === 'number' ? <span>💬 {m.comments_count}</span> : null}
@@ -193,8 +193,8 @@ export default function HashtagSearchPage(): React.JSX.Element {
 
       <header className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl text-zoru-ink">Hashtag search</h1>
-          <p className="mt-1 text-sm text-zoru-ink-muted">
+          <h1 className="text-2xl text-[var(--st-text)]">Hashtag search</h1>
+          <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
             Explore top-performing and recent public media for any hashtag.
           </p>
         </div>
@@ -255,11 +255,11 @@ export default function HashtagSearchPage(): React.JSX.Element {
       ) : (
         <>
           <section className="flex flex-col gap-2">
-            <h2 className="text-sm text-zoru-ink">Top media</h2>
+            <h2 className="text-sm text-[var(--st-text)]">Top media</h2>
             <MediaGrid items={top} emptyTitle="No top media" />
           </section>
           <section className="mt-4 flex flex-col gap-2">
-            <h2 className="text-sm text-zoru-ink">Recent media</h2>
+            <h2 className="text-sm text-[var(--st-text)]">Recent media</h2>
             <MediaGrid items={recent} emptyTitle="No recent media" />
           </section>
         </>

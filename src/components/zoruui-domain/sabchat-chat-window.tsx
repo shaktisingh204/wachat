@@ -40,12 +40,12 @@ function ChatMessage({ message, isAgent }: { message: SabChatMessage, isAgent: b
                 className={cn(
                     "max-w-[70%] rounded-lg p-2 px-3 text-sm flex flex-col shadow-sm",
                     isAgent
-                        ? "bg-zoru-ink text-white rounded-br-none"
-                        : "bg-white dark:bg-zoru-surface-2 rounded-bl-none"
+                        ? "bg-[var(--st-text)] text-white rounded-br-none"
+                        : "bg-white dark:bg-[var(--st-bg-muted)] rounded-bl-none"
                 )}
             >
                 <p className="whitespace-pre-wrap">{message.content}</p>
-                <div className={cn("flex items-center gap-1.5 self-end mt-1 text-xs", isAgent ? 'text-white/80' : 'text-zoru-ink-muted/80')}>
+                <div className={cn("flex items-center gap-1.5 self-end mt-1 text-xs", isAgent ? 'text-white/80' : 'text-[var(--st-text-secondary)]/80')}>
                     <p>
                         {format(new Date(message.timestamp), 'p')}
                     </p>
@@ -83,7 +83,7 @@ export function SabChatWindow({ session, isLoading, onMessageSent }: SabChatWind
 
     return (
         <div className="flex flex-col h-full bg-transparent">
-            <div className="flex items-center justify-between gap-3 p-3 border-b bg-zoru-surface h-[73px] flex-shrink-0">
+            <div className="flex items-center justify-between gap-3 p-3 border-b bg-[var(--st-bg-secondary)] h-[73px] flex-shrink-0">
                 <div className="flex items-center gap-3">
                     <Avatar>
                         <ZoruAvatarFallback>{session.visitorInfo?.email?.charAt(0).toUpperCase() || 'V'}</ZoruAvatarFallback>
@@ -97,7 +97,7 @@ export function SabChatWindow({ session, isLoading, onMessageSent }: SabChatWind
             <ScrollArea className="flex-1 bg-chat-texture" viewportClassName="scroll-container">
                 {isLoading ? (
                     <div className="flex items-center justify-center h-full">
-                        <LoaderCircle className="h-6 w-6 animate-spin text-zoru-ink-muted" />
+                        <LoaderCircle className="h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
                     </div>
                 ) : (
                     <div className="p-4 space-y-4">
@@ -109,7 +109,7 @@ export function SabChatWindow({ session, isLoading, onMessageSent }: SabChatWind
                 )}
             </ScrollArea>
 
-            <div className="flex items-center p-3 border-t bg-zoru-surface flex-shrink-0">
+            <div className="flex items-center p-3 border-t bg-[var(--st-bg-secondary)] flex-shrink-0">
                 <form ref={formRef} action={sendFormAction} className="w-full flex items-center gap-2">
                     <input type="hidden" name="sessionId" value={session._id.toString()} />
                     <input type="hidden" name="sender" value="agent" />

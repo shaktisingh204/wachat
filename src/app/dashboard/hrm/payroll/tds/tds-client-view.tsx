@@ -179,30 +179,30 @@ export function TdsDataView({ dataPromise, periodLabel }: { dataPromise: Promise
     return (
         <div className="space-y-6">
             <div className="grid gap-4 md:grid-cols-3">
-                <Card className="p-6 transition-all hover:border-zoru-brand">
-                    <p className="text-[12.5px] font-medium text-zoru-ink-muted">Total TDS Collected</p>
-                    <div className="mt-2 text-2xl text-zoru-ink font-medium">{fmtINR(totalTDS)}</div>
-                    <p className="mt-1 text-[11.5px] text-zoru-ink-muted">{periodLabel}</p>
+                <Card className="p-6 transition-all hover:border-[var(--st-accent)]">
+                    <p className="text-[12.5px] font-medium text-[var(--st-text-secondary)]">Total TDS Collected</p>
+                    <div className="mt-2 text-2xl text-[var(--st-text)] font-medium">{fmtINR(totalTDS)}</div>
+                    <p className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">{periodLabel}</p>
                 </Card>
-                <Card className="p-6 transition-all hover:border-zoru-brand">
-                    <p className="text-[12.5px] font-medium text-zoru-ink-muted">Applicable Employees</p>
-                    <div className="mt-2 text-2xl text-zoru-ink font-medium">{filteredRows.filter(r => r.tds > 0).length}</div>
-                    <p className="mt-1 text-[11.5px] text-zoru-ink-muted">out of {filteredRows.length} total</p>
+                <Card className="p-6 transition-all hover:border-[var(--st-accent)]">
+                    <p className="text-[12.5px] font-medium text-[var(--st-text-secondary)]">Applicable Employees</p>
+                    <div className="mt-2 text-2xl text-[var(--st-text)] font-medium">{filteredRows.filter(r => r.tds > 0).length}</div>
+                    <p className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">out of {filteredRows.length} total</p>
                 </Card>
-                <Card className="p-6 transition-all hover:border-zoru-brand">
-                    <p className="text-[12.5px] font-medium text-zoru-ink-muted">Avg. TDS per Employee</p>
-                    <div className="mt-2 text-2xl text-zoru-ink font-medium">
+                <Card className="p-6 transition-all hover:border-[var(--st-accent)]">
+                    <p className="text-[12.5px] font-medium text-[var(--st-text-secondary)]">Avg. TDS per Employee</p>
+                    <div className="mt-2 text-2xl text-[var(--st-text)] font-medium">
                         {fmtINR(avgTds)}
                     </div>
-                    <p className="mt-1 text-[11.5px] text-zoru-ink-muted">among applicable employees</p>
+                    <p className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">among applicable employees</p>
                 </Card>
             </div>
 
             <Card className="flex flex-col overflow-hidden">
-                <div className="p-4 border-b border-zoru-line flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="p-4 border-b border-[var(--st-border)] flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
                         <div className="relative w-full md:w-64">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zoru-ink-muted" />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--st-text-secondary)]" />
                             <Input 
                                 placeholder="Search by name or PAN..." 
                                 value={searchQuery}
@@ -249,11 +249,11 @@ export function TdsDataView({ dataPromise, periodLabel }: { dataPromise: Promise
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                                 <DropdownMenuItem onClick={exportCSV} className="text-[13px]">
-                                    <FileText className="w-4 h-4 mr-2 text-zoru-ink-muted" />
+                                    <FileText className="w-4 h-4 mr-2 text-[var(--st-text-secondary)]" />
                                     Export as CSV
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onClick={exportPDF} className="text-[13px]">
-                                    <FileText className="w-4 h-4 mr-2 text-zoru-ink-muted" />
+                                    <FileText className="w-4 h-4 mr-2 text-[var(--st-text-secondary)]" />
                                     Export as PDF
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
@@ -263,7 +263,7 @@ export function TdsDataView({ dataPromise, periodLabel }: { dataPromise: Promise
 
                 <div ref={parentRef} className="max-h-[600px] overflow-auto relative">
                     <table className="w-full text-left text-[13px]">
-                        <thead className="sticky top-0 bg-zoru-surface-2 z-10 border-b border-zoru-line shadow-sm">
+                        <thead className="sticky top-0 bg-[var(--st-bg-muted)] z-10 border-b border-[var(--st-border)] shadow-sm">
                             <tr>
                                 <th className="px-4 py-3 w-12 text-center">
                                     <ZoruCheckbox 
@@ -271,18 +271,18 @@ export function TdsDataView({ dataPromise, periodLabel }: { dataPromise: Promise
                                         onCheckedChange={toggleAll}
                                     />
                                 </th>
-                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted font-medium">Employee</th>
-                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted font-medium">PAN Number</th>
-                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted font-medium">Tax Regime</th>
-                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted font-medium">Gross Salary</th>
-                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted font-medium">TDS Amount</th>
-                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted font-medium text-center">Action</th>
+                                <th className="px-4 py-3 text-[12px] uppercase text-[var(--st-text-secondary)] font-medium">Employee</th>
+                                <th className="px-4 py-3 text-[12px] uppercase text-[var(--st-text-secondary)] font-medium">PAN Number</th>
+                                <th className="px-4 py-3 text-[12px] uppercase text-[var(--st-text-secondary)] font-medium">Tax Regime</th>
+                                <th className="px-4 py-3 text-right text-[12px] uppercase text-[var(--st-text-secondary)] font-medium">Gross Salary</th>
+                                <th className="px-4 py-3 text-right text-[12px] uppercase text-[var(--st-text-secondary)] font-medium">TDS Amount</th>
+                                <th className="px-4 py-3 text-[12px] uppercase text-[var(--st-text-secondary)] font-medium text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             {filteredRows.length === 0 ? (
                                 <tr>
-                                    <td colSpan={7} className="h-32 text-center text-[13px] text-zoru-ink-muted">
+                                    <td colSpan={7} className="h-32 text-center text-[13px] text-[var(--st-text-secondary)]">
                                         No TDS records found.
                                     </td>
                                 </tr>
@@ -292,7 +292,7 @@ export function TdsDataView({ dataPromise, periodLabel }: { dataPromise: Promise
                                     {virtualizer.getVirtualItems().map((virtualRow) => {
                                         const row = filteredRows[virtualRow.index];
                                         return (
-                                            <tr key={row._id?.toString() ?? virtualRow.index} className="border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2/50 transition-colors group">
+                                            <tr key={row._id?.toString() ?? virtualRow.index} className="border-b border-[var(--st-border)] last:border-0 hover:bg-[var(--st-bg-muted)]/50 transition-colors group">
                                                 <td className="px-4 py-3 text-center">
                                                     <ZoruCheckbox 
                                                         checked={selectedIds.has(row._id.toString())}
@@ -300,17 +300,17 @@ export function TdsDataView({ dataPromise, periodLabel }: { dataPromise: Promise
                                                     />
                                                 </td>
                                                 <td className="px-4 py-3">
-                                                    <div className="font-medium text-zoru-ink">
+                                                    <div className="font-medium text-[var(--st-text)]">
                                                         {row.employee?.firstName} {row.employee?.lastName}
                                                     </div>
-                                                    <div className="text-[11.5px] text-zoru-ink-muted truncate max-w-[150px]">{row.employee?.designationName ?? '—'}</div>
+                                                    <div className="text-[11.5px] text-[var(--st-text-secondary)] truncate max-w-[150px]">{row.employee?.designationName ?? '—'}</div>
                                                 </td>
-                                                <td className="px-4 py-3 font-mono text-[12px] text-zoru-ink">{row.pan}</td>
+                                                <td className="px-4 py-3 font-mono text-[12px] text-[var(--st-text)]">{row.pan}</td>
                                                 <td className="px-4 py-3">{regimeBadge(row.taxRegime)}</td>
-                                                <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmtINR(row.grossSalary ?? 0)}</td>
+                                                <td className="px-4 py-3 text-right font-mono text-[var(--st-text)]">{fmtINR(row.grossSalary ?? 0)}</td>
                                                 <td className="px-4 py-3 text-right font-mono">
                                                     {row.tds > 0 ? (
-                                                        <span className="text-zoru-brand font-medium">{fmtINR(row.tds)}</span>
+                                                        <span className="text-[var(--st-accent)] font-medium">{fmtINR(row.tds)}</span>
                                                     ) : (
                                                         <Badge variant="secondary" className="font-normal">Nil</Badge>
                                                     )}
@@ -333,11 +333,11 @@ export function TdsDataView({ dataPromise, periodLabel }: { dataPromise: Promise
                             )}
                         </tbody>
                         {filteredRows.length > 0 && (
-                            <tfoot className="sticky bottom-0 bg-zoru-surface-2 shadow-[0_-1px_0_var(--zoru-line)]">
+                            <tfoot className="sticky bottom-0 bg-[var(--st-bg-muted)] shadow-[0_-1px_0_var(--zoru-line)]">
                                 <tr>
-                                    <td colSpan={4} className="px-4 py-3 text-[12.5px] text-zoru-ink font-medium">Total for view</td>
-                                    <td className="px-4 py-3 text-right text-[12.5px] text-zoru-ink font-medium">--</td>
-                                    <td className="px-4 py-3 text-right font-mono text-[13.5px] text-zoru-brand font-semibold">{fmtINR(totalTDS)}</td>
+                                    <td colSpan={4} className="px-4 py-3 text-[12.5px] text-[var(--st-text)] font-medium">Total for view</td>
+                                    <td className="px-4 py-3 text-right text-[12.5px] text-[var(--st-text)] font-medium">--</td>
+                                    <td className="px-4 py-3 text-right font-mono text-[13.5px] text-[var(--st-accent)] font-semibold">{fmtINR(totalTDS)}</td>
                                     <td />
                                 </tr>
                             </tfoot>

@@ -60,7 +60,7 @@ export function CrmFormFieldEditor({ field, onUpdate, onRemove }: CrmFormFieldEd
                 </Select>
             </div>
             <div className="space-y-2">
-                <Label htmlFor="field-label">Label {field.required && <span className="text-zoru-ink">*</span>}</Label>
+                <Label htmlFor="field-label">Label {field.required && <span className="text-[var(--st-text)]">*</span>}</Label>
                 <Input id="field-label" value={field.label} onChange={(e) => handleUpdate('label', e.target.value)} />
             </div>
              <div className="space-y-2">
@@ -74,7 +74,7 @@ export function CrmFormFieldEditor({ field, onUpdate, onRemove }: CrmFormFieldEd
                         ))}
                     </ZoruSelectContent>
                 </Select>
-                 <p className="text-xs text-zoru-ink-muted">Select which lead property this input should save to.</p>
+                 <p className="text-xs text-[var(--st-text-secondary)]">Select which lead property this input should save to.</p>
             </div>
              <div className="space-y-2">
                 <Label htmlFor="field-placeholder">Placeholder</Label>

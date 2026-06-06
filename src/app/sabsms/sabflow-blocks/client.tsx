@@ -129,7 +129,7 @@ export function SabflowBlocksClient({ workspaceId }: { workspaceId: string }) {
       render: (b) => (
         <div className="flex flex-col">
           <span className="font-medium">{b.name}</span>
-          <span className="text-xs text-zoru-ink">{b.description}</span>
+          <span className="text-xs text-[var(--st-text)]">{b.description}</span>
         </div>
       ),
     },
@@ -168,7 +168,7 @@ export function SabflowBlocksClient({ workspaceId }: { workspaceId: string }) {
       id: "downloads",
       header: "Downloads",
       render: (b: SabflowBlock) => (
-        <span className="text-sm text-zoru-ink flex items-center gap-1">
+        <span className="text-sm text-[var(--st-text)] flex items-center gap-1">
           <Download className="h-3 w-3" /> {b.downloads || 0}
         </span>
       ),
@@ -184,7 +184,7 @@ export function SabflowBlocksClient({ workspaceId }: { workspaceId: string }) {
       id: "compatibility",
       header: "Compatible",
       render: (b) => (
-        <div className="flex gap-1 text-xs text-zoru-ink">
+        <div className="flex gap-1 text-xs text-[var(--st-text)]">
           {b.compatibility.wachat && <span title="Wachat">Wa</span>}
           {b.compatibility.sabwa && <span title="SabWa">Sa</span>}
           {b.compatibility.crm && <span title="CRM">Cr</span>}
@@ -235,16 +235,16 @@ export function SabflowBlocksClient({ workspaceId }: { workspaceId: string }) {
       ]}
       toolbar={
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-          <div className="flex bg-zoru-surface-2 p-1 rounded-md">
+          <div className="flex bg-[var(--st-bg-muted)] p-1 rounded-md">
             <button
               onClick={() => setViewMode("local")}
-              className={`px-3 py-1.5 text-sm font-medium rounded ${viewMode === "local" ? "bg-white shadow-sm text-zoru-ink" : "text-zoru-ink hover:text-zoru-ink"}`}
+              className={`px-3 py-1.5 text-sm font-medium rounded ${viewMode === "local" ? "bg-white shadow-sm text-[var(--st-text)]" : "text-[var(--st-text)] hover:text-[var(--st-text)]"}`}
             >
               My Workspace
             </button>
             <button
               onClick={() => setViewMode("marketplace")}
-              className={`px-3 py-1.5 text-sm font-medium rounded ${viewMode === "marketplace" ? "bg-white shadow-sm text-zoru-ink" : "text-zoru-ink hover:text-zoru-ink"}`}
+              className={`px-3 py-1.5 text-sm font-medium rounded ${viewMode === "marketplace" ? "bg-white shadow-sm text-[var(--st-text)]" : "text-[var(--st-text)] hover:text-[var(--st-text)]"}`}
             >
               Marketplace
             </button>
@@ -310,14 +310,14 @@ export function SabflowBlocksClient({ workspaceId }: { workspaceId: string }) {
               {MOCK_TEMPLATES.map(tpl => (
                 <div 
                   key={tpl.id} 
-                  className="border rounded-md p-4 flex flex-col gap-2 hover:border-zoru-line cursor-pointer transition-colors"
+                  className="border rounded-md p-4 flex flex-col gap-2 hover:border-[var(--st-border)] cursor-pointer transition-colors"
                   onClick={() => setSelectedTemplate(tpl)}
                 >
                   <div className="flex items-center gap-2 font-medium">
-                    <Workflow className="h-4 w-4 text-zoru-ink" />
+                    <Workflow className="h-4 w-4 text-[var(--st-text)]" />
                     {tpl.name}
                   </div>
-                  <p className="text-sm text-zoru-ink">{tpl.description}</p>
+                  <p className="text-sm text-[var(--st-text)]">{tpl.description}</p>
                 </div>
               ))}
             </div>
@@ -345,7 +345,7 @@ export function SabflowBlocksClient({ workspaceId }: { workspaceId: string }) {
         {selectedBlock && (
           <div className="space-y-6">
             {selectedBlock.status === "deprecated" && (
-              <div className="bg-zoru-surface-2 text-zoru-ink p-3 rounded-md text-sm flex items-start gap-2 border border-zoru-line">
+              <div className="bg-[var(--st-bg-muted)] text-[var(--st-text)] p-3 rounded-md text-sm flex items-start gap-2 border border-[var(--st-border)]">
                 <AlertTriangle className="h-4 w-4 mt-0.5" />
                 <div>
                   <strong>Deprecated</strong>
@@ -356,33 +356,33 @@ export function SabflowBlocksClient({ workspaceId }: { workspaceId: string }) {
 
             <div>
               <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
-                <FileCode2 className="h-4 w-4 text-zoru-ink" /> Schema Viewer
+                <FileCode2 className="h-4 w-4 text-[var(--st-text)]" /> Schema Viewer
               </h4>
-              <pre className="bg-zoru-ink text-white p-3 rounded-md text-xs overflow-auto">
+              <pre className="bg-[var(--st-text)] text-white p-3 rounded-md text-xs overflow-auto">
                 {selectedBlock.schema}
               </pre>
             </div>
 
             <div>
               <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
-                <Workflow className="h-4 w-4 text-zoru-ink" /> Example Workflow
+                <Workflow className="h-4 w-4 text-[var(--st-text)]" /> Example Workflow
               </h4>
-              <div className="text-sm bg-zoru-surface-2 p-3 rounded border border-zoru-line">
+              <div className="text-sm bg-[var(--st-bg-muted)] p-3 rounded border border-[var(--st-border)]">
                 {selectedBlock.exampleWorkflow}
               </div>
             </div>
 
             <div>
               <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
-                <Activity className="h-4 w-4 text-zoru-ink" /> Dependency Graph
+                <Activity className="h-4 w-4 text-[var(--st-text)]" /> Dependency Graph
               </h4>
               <div className="text-sm">
                 {selectedBlock.dependencies.length > 0 ? (
-                  <ul className="list-disc pl-5 text-zoru-ink">
+                  <ul className="list-disc pl-5 text-[var(--st-text)]">
                     {selectedBlock.dependencies.map(dep => <li key={dep}>{dep}</li>)}
                   </ul>
                 ) : (
-                  <span className="text-zoru-ink">No external dependencies.</span>
+                  <span className="text-[var(--st-text)]">No external dependencies.</span>
                 )}
               </div>
             </div>
@@ -390,7 +390,7 @@ export function SabflowBlocksClient({ workspaceId }: { workspaceId: string }) {
             <div>
               <h4 className="text-sm font-medium mb-2">Embed Snippet</h4>
               <div className="relative">
-                <pre className="bg-zoru-surface-2 p-3 rounded-md text-xs border border-zoru-line overflow-x-auto">
+                <pre className="bg-[var(--st-bg-muted)] p-3 rounded-md text-xs border border-[var(--st-border)] overflow-x-auto">
                   {selectedBlock.copySnippet}
                 </pre>
                 <Button 
@@ -406,7 +406,7 @@ export function SabflowBlocksClient({ workspaceId }: { workspaceId: string }) {
 
             <div>
               <h4 className="text-sm font-medium mb-1">Changelog</h4>
-              <p className="text-sm text-zoru-ink">{selectedBlock.changelog}</p>
+              <p className="text-sm text-[var(--st-text)]">{selectedBlock.changelog}</p>
             </div>
           </div>
         )}
@@ -422,11 +422,11 @@ export function SabflowBlocksClient({ workspaceId }: { workspaceId: string }) {
             <div className="space-y-4">
               <div>
                 <h4 className="font-medium text-sm">Installation Guide</h4>
-                <p className="text-sm text-zoru-ink">{selectedTemplate.installGuide}</p>
+                <p className="text-sm text-[var(--st-text)]">{selectedTemplate.installGuide}</p>
               </div>
               <div>
                 <h4 className="font-medium text-sm">Test Data Generator</h4>
-                <pre className="bg-zoru-surface-2 p-2 rounded text-xs mt-1 border">
+                <pre className="bg-[var(--st-bg-muted)] p-2 rounded text-xs mt-1 border">
                   {selectedTemplate.testData}
                 </pre>
                 <Button variant="outline" size="sm" className="mt-2 text-xs">
@@ -435,7 +435,7 @@ export function SabflowBlocksClient({ workspaceId }: { workspaceId: string }) {
               </div>
               <div>
                 <h4 className="font-medium text-sm">Audit Details</h4>
-                <p className="text-sm text-zoru-ink">{selectedTemplate.auditInfo}</p>
+                <p className="text-sm text-[var(--st-text)]">{selectedTemplate.auditInfo}</p>
               </div>
             </div>
           )}
@@ -454,7 +454,7 @@ export function SabflowBlocksClient({ workspaceId }: { workspaceId: string }) {
             <Textarea
               value={flowJson}
               onChange={(e) => setFlowJson(e.target.value)}
-              className="font-mono text-sm h-48 bg-zoru-surface-2 border-zoru-line"
+              className="font-mono text-sm h-48 bg-[var(--st-bg-muted)] border-[var(--st-border)]"
               placeholder="Enter JSON block configuration..."
             />
             <Button onClick={analyzeFlow} className="w-full">
@@ -462,7 +462,7 @@ export function SabflowBlocksClient({ workspaceId }: { workspaceId: string }) {
             </Button>
             
             {analysis && (
-              <div className={`p-4 rounded-md border ${analysis.valid ? 'bg-zoru-surface-2 border-zoru-line text-zoru-ink' : 'bg-zoru-surface-2 border-zoru-line text-zoru-ink'}`}>
+              <div className={`p-4 rounded-md border ${analysis.valid ? 'bg-[var(--st-bg-muted)] border-[var(--st-border)] text-[var(--st-text)]' : 'bg-[var(--st-bg-muted)] border-[var(--st-border)] text-[var(--st-text)]'}`}>
                 <div className="font-semibold flex items-center gap-2">
                   {!analysis.valid && <AlertTriangle className="h-4 w-4" />}
                   {analysis.message}

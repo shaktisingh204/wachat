@@ -154,7 +154,7 @@ export default function CssMinifierPage() {
           <Card>
             <CardContent className="p-4 flex flex-col gap-4">
               <div className="flex justify-between items-center">
-                <div className="text-sm text-zoru-ink-muted">
+                <div className="text-sm text-[var(--st-text-secondary)]">
                   <strong>Stats:</strong> {stats.original} → {stats.minified} bytes ({stats.percent}% saved)
                 </div>
                 <div className="flex gap-2">

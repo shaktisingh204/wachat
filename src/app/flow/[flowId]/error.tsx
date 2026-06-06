@@ -17,7 +17,7 @@ export default function ErrorPage({
   return (
     <div className="min-h-screen flex items-center justify-center bg-[var(--gray-2)] p-6">
       <div className="flex flex-col items-center gap-4 text-center max-w-sm bg-white p-8 rounded-2xl shadow-xl">
-        <div className="h-12 w-12 rounded-full bg-zoru-surface-2 flex items-center justify-center">
+        <div className="h-12 w-12 rounded-full bg-[var(--st-bg-muted)] flex items-center justify-center">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="24"
@@ -28,7 +28,7 @@ export default function ErrorPage({
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="text-zoru-ink"
+            className="text-[var(--st-text)]"
           >
             <circle cx="12" cy="12" r="10" />
             <line x1="12" y1="8" x2="12" y2="12" />

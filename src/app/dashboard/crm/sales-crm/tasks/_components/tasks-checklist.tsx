@@ -54,7 +54,7 @@ export function TaskChecklist({ taskId, items: initialItems }: TaskChecklistProp
 
     if (items.length === 0) {
         return (
-            <p className="text-sm text-zoru-ink-muted">
+            <p className="text-sm text-[var(--st-text-secondary)]">
                 No checklist items yet — add some from the Edit page.
             </p>
         );
@@ -65,7 +65,7 @@ export function TaskChecklist({ taskId, items: initialItems }: TaskChecklistProp
             {items.map((item, i) => (
                 <li
                     key={`${item.label}-${i}`}
-                    className="flex items-start gap-2 rounded-md border border-zoru-line bg-zoru-bg p-2"
+                    className="flex items-start gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] p-2"
                 >
                     <Checkbox
                         aria-label={`Toggle ${item.label}`}
@@ -76,8 +76,8 @@ export function TaskChecklist({ taskId, items: initialItems }: TaskChecklistProp
                         className={[
                             'text-sm',
                             item.done
-                                ? 'text-zoru-ink-muted line-through'
-                                : 'text-zoru-ink',
+                                ? 'text-[var(--st-text-secondary)] line-through'
+                                : 'text-[var(--st-text)]',
                         ].join(' ')}
                     >
                         {item.label}

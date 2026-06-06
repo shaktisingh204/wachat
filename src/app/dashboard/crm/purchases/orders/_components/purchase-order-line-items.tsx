@@ -51,7 +51,7 @@ export function PurchaseOrderLineItems({
   return (
     <Card className="p-6">
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Line items
         </h3>
         <Button
@@ -64,20 +64,20 @@ export function PurchaseOrderLineItems({
         </Button>
       </div>
 
-      <div className="overflow-x-auto rounded-md border border-zoru-line">
+      <div className="overflow-x-auto rounded-md border border-[var(--st-border)]">
         <table className="w-full text-[13px]">
-          <thead className="bg-zoru-surface-2">
-            <tr className="border-b border-zoru-line text-left">
-              <th className="p-2 font-medium text-zoru-ink">Item</th>
-              <th className="p-2 font-medium text-zoru-ink">HSN/SAC</th>
-              <th className="p-2 text-right font-medium text-zoru-ink">Qty</th>
-              <th className="p-2 text-right font-medium text-zoru-ink">Rate</th>
-              <th className="p-2 text-right font-medium text-zoru-ink">
+          <thead className="bg-[var(--st-bg-muted)]">
+            <tr className="border-b border-[var(--st-border)] text-left">
+              <th className="p-2 font-medium text-[var(--st-text)]">Item</th>
+              <th className="p-2 font-medium text-[var(--st-text)]">HSN/SAC</th>
+              <th className="p-2 text-right font-medium text-[var(--st-text)]">Qty</th>
+              <th className="p-2 text-right font-medium text-[var(--st-text)]">Rate</th>
+              <th className="p-2 text-right font-medium text-[var(--st-text)]">
                 Disc %
               </th>
-              <th className="p-2 font-medium text-zoru-ink">Tax</th>
-              <th className="p-2 font-medium text-zoru-ink">Warehouse</th>
-              <th className="p-2 text-right font-medium text-zoru-ink">
+              <th className="p-2 font-medium text-[var(--st-text)]">Tax</th>
+              <th className="p-2 font-medium text-[var(--st-text)]">Warehouse</th>
+              <th className="p-2 text-right font-medium text-[var(--st-text)]">
                 Amount
               </th>
               <th className="w-[40px] p-2" />
@@ -87,7 +87,7 @@ export function PurchaseOrderLineItems({
             {rows.map((row) => (
               <tr
                 key={row._key}
-                className="border-b border-zoru-line last:border-b-0"
+                className="border-b border-[var(--st-border)] last:border-b-0"
               >
                 <td className="min-w-[180px] p-2 align-top">
                   <EntityFormField
@@ -219,7 +219,7 @@ export function PurchaseOrderLineItems({
                     }
                   />
                 </td>
-                <td className="p-2 text-right align-top tabular-nums text-zoru-ink">
+                <td className="p-2 text-right align-top tabular-nums text-[var(--st-text)]">
                   {fmtMoney(Number(row.total) || 0, currency)}
                 </td>
                 <td className="p-2 align-top">
@@ -229,7 +229,7 @@ export function PurchaseOrderLineItems({
                     variant="ghost"
                     onClick={() => onRemoveRow(row._key)}
                     disabled={rows.length <= 1}
-                    className="text-zoru-danger-ink"
+                    className="text-[var(--st-danger)]"
                     aria-label="Remove line"
                   >
                     <Trash2 className="h-3.5 w-3.5" />

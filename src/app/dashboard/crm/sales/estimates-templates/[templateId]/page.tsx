@@ -90,7 +90,7 @@ export default async function EstimateTemplateDetailPage({
             {/* Summary */}
             <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
-                    <div className="text-[14px] font-medium text-zoru-ink">
+                    <div className="text-[14px] font-medium text-[var(--st-text)]">
                         Overview
                     </div>
                     <StatusPill label={status} tone={tone} />
@@ -102,14 +102,14 @@ export default async function EstimateTemplateDetailPage({
                 </div>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
                     <div>
-                        <div className="text-zoru-ink-muted">Name</div>
-                        <div className="text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Name</div>
+                        <div className="text-[var(--st-text)]">
                             {(tpl.name as string) || '—'}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Category</div>
-                        <div className="capitalize text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Category</div>
+                        <div className="capitalize text-[var(--st-text)]">
                             {(tpl.category as string) || '—'}
                         </div>
                     </div>
@@ -118,15 +118,15 @@ export default async function EstimateTemplateDetailPage({
 
             {/* Body */}
             <Card className="p-6">
-                <div className="mb-3 text-[15px] font-medium text-zoru-ink">
+                <div className="mb-3 text-[15px] font-medium text-[var(--st-text)]">
                     Template body
                 </div>
                 {tpl.templateBody ? (
-                    <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-4 font-sans text-[13px] text-zoru-ink">
+                    <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 font-sans text-[13px] text-[var(--st-text)]">
                         {String(tpl.templateBody)}
                     </pre>
                 ) : (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No template body. Add markdown when editing.
                     </div>
                 )}
@@ -134,17 +134,17 @@ export default async function EstimateTemplateDetailPage({
 
             {/* Line items */}
             <Card className="p-6">
-                <div className="mb-3 text-[15px] font-medium text-zoru-ink">
+                <div className="mb-3 text-[15px] font-medium text-[var(--st-text)]">
                     Default line items
                 </div>
                 {items.length === 0 ? (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No default line items configured.
                     </div>
                 ) : (
-                    <div className="overflow-hidden rounded-[var(--zoru-radius)] border border-zoru-line">
+                    <div className="overflow-hidden rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
                         <table className="w-full text-[13px]">
-                            <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
+                            <thead className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                                 <tr>
                                     <th className="px-3 py-2 text-left font-medium">
                                         Description
@@ -177,31 +177,31 @@ export default async function EstimateTemplateDetailPage({
                                     return (
                                         <tr
                                             key={idx}
-                                            className="border-t border-zoru-line"
+                                            className="border-t border-[var(--st-border)]"
                                         >
-                                            <td className="px-3 py-2 text-zoru-ink">
+                                            <td className="px-3 py-2 text-[var(--st-text)]">
                                                 {it.description || '—'}
                                             </td>
-                                            <td className="px-3 py-2 text-right font-mono text-zoru-ink">
+                                            <td className="px-3 py-2 text-right font-mono text-[var(--st-text)]">
                                                 {fmt(q)}
                                             </td>
-                                            <td className="px-3 py-2 text-right font-mono text-zoru-ink">
+                                            <td className="px-3 py-2 text-right font-mono text-[var(--st-text)]">
                                                 {fmt(r)}
                                             </td>
-                                            <td className="px-3 py-2 text-right font-mono text-zoru-ink">
+                                            <td className="px-3 py-2 text-right font-mono text-[var(--st-text)]">
                                                 {fmt(q * r)}
                                             </td>
                                         </tr>
                                     );
                                 })}
-                                <tr className="border-t border-zoru-line bg-zoru-surface-2">
+                                <tr className="border-t border-[var(--st-border)] bg-[var(--st-bg-muted)]">
                                     <td
                                         colSpan={3}
-                                        className="px-3 py-2 text-right text-zoru-ink-muted"
+                                        className="px-3 py-2 text-right text-[var(--st-text-secondary)]"
                                     >
                                         Subtotal
                                     </td>
-                                    <td className="px-3 py-2 text-right font-mono font-medium text-zoru-ink">
+                                    <td className="px-3 py-2 text-right font-mono font-medium text-[var(--st-text)]">
                                         {fmt(subtotal)}
                                     </td>
                                 </tr>
@@ -214,10 +214,10 @@ export default async function EstimateTemplateDetailPage({
             {/* Default terms */}
             {tpl.defaultTerms ? (
                 <Card className="p-6">
-                    <div className="mb-3 text-[15px] font-medium text-zoru-ink">
+                    <div className="mb-3 text-[15px] font-medium text-[var(--st-text)]">
                         Default terms
                     </div>
-                    <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-4 font-sans text-[13px] text-zoru-ink">
+                    <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 font-sans text-[13px] text-[var(--st-text)]">
                         {String(tpl.defaultTerms)}
                     </pre>
                 </Card>

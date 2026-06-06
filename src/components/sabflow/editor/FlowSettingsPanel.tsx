@@ -131,7 +131,7 @@ function CopyButton({ text }: { text: string }) {
       className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] transition-colors"
     >
       {copied ? (
-        <LuCheck className="h-3.5 w-3.5 text-zoru-ink" strokeWidth={2} />
+        <LuCheck className="h-3.5 w-3.5 text-[var(--st-text)]" strokeWidth={2} />
       ) : (
         <LuCopy className="h-3.5 w-3.5" strokeWidth={2} />
       )}

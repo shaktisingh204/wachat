@@ -65,9 +65,9 @@ export function EventsTable({
 }: EventsTableProps): React.JSX.Element {
     const allSelected = events.length > 0 && events.every((e) => selectedIds.has(e._id));
     return (
-        <div className="overflow-x-auto rounded-[var(--zoru-radius-lg)] border border-zoru-line">
+        <div className="overflow-x-auto rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)]">
             <table className="w-full min-w-[800px] text-[13px]">
-                <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
+                <thead className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                     <tr>
                         {COL_HEADERS.map((c) => (
                             <th
@@ -87,10 +87,10 @@ export function EventsTable({
                         ))}
                     </tr>
                 </thead>
-                <tbody className="divide-y divide-zoru-line bg-zoru-bg">
+                <tbody className="divide-y divide-[var(--st-border)] bg-[var(--st-bg)]">
                     {events.length === 0 && !loading ? (
                         <tr>
-                            <td colSpan={COL_HEADERS.length} className="p-6 text-center text-zoru-ink-muted">
+                            <td colSpan={COL_HEADERS.length} className="p-6 text-center text-[var(--st-text-secondary)]">
                                 No events match the current filters.
                             </td>
                         </tr>
@@ -100,7 +100,7 @@ export function EventsTable({
                         const tone = statusTone(s);
                         const checked = selectedIds.has(e._id);
                         return (
-                            <tr key={e._id} className="hover:bg-zoru-surface">
+                            <tr key={e._id} className="hover:bg-[var(--st-bg-secondary)]">
                                 <td className="px-3 py-2">
                                     <Checkbox
                                         aria-label={`Select ${e.event_name}`}
@@ -118,15 +118,15 @@ export function EventsTable({
                                             href={e.online_link}
                                             target="_blank"
                                             rel="noreferrer"
-                                            className="ml-2 inline-flex items-center gap-1 text-[11.5px] text-zoru-ink-muted hover:underline"
+                                            className="ml-2 inline-flex items-center gap-1 text-[11.5px] text-[var(--st-text-secondary)] hover:underline"
                                         >
                                             <ExternalLink className="h-3 w-3" /> link
                                         </a>
                                     ) : null}
                                 </td>
-                                <td className="px-3 py-2 text-zoru-ink-muted">{fmtDateTime(e.start_date_time)}</td>
-                                <td className="px-3 py-2 text-zoru-ink-muted">{fmtDateTime(e.end_date_time)}</td>
-                                <td className="px-3 py-2 text-zoru-ink-muted">
+                                <td className="px-3 py-2 text-[var(--st-text-secondary)]">{fmtDateTime(e.start_date_time)}</td>
+                                <td className="px-3 py-2 text-[var(--st-text-secondary)]">{fmtDateTime(e.end_date_time)}</td>
+                                <td className="px-3 py-2 text-[var(--st-text-secondary)]">
                                     {e.where ? (
                                         <span className="inline-flex items-center gap-1">
                                             <MapPin className="h-3 w-3" /> {e.where}

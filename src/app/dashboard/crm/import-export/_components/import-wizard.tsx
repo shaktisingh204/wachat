@@ -353,18 +353,18 @@ function StepIndicator({ current }: { current: WizardStep }): React.ReactElement
                             className={
                                 'flex items-center gap-2 rounded-full border px-3 py-1 ' +
                                 (isActive
-                                    ? 'border-zoru-accent bg-zoru-accent/10 text-zoru-ink'
+                                    ? 'border-[var(--st-accent)] bg-[var(--st-accent)]/10 text-[var(--st-text)]'
                                     : isDone
-                                      ? 'border-zoru-line bg-zoru-surface-2 text-zoru-ink-muted'
-                                      : 'border-zoru-line text-zoru-ink-muted')
+                                      ? 'border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]'
+                                      : 'border-[var(--st-border)] text-[var(--st-text-secondary)]')
                             }
                         >
                             <span
                                 className={
                                     'flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-medium ' +
                                     (isActive || isDone
-                                        ? 'bg-zoru-accent text-zoru-on-accent'
-                                        : 'bg-zoru-surface-2 text-zoru-ink-muted')
+                                        ? 'bg-[var(--st-accent)] text-zoru-on-accent'
+                                        : 'bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]')
                                 }
                             >
                                 {isDone ? <CheckCircle2 className="h-3 w-3" /> : i + 1}
@@ -373,7 +373,7 @@ function StepIndicator({ current }: { current: WizardStep }): React.ReactElement
                         </li>
                         {i < steps.length - 1 && (
                             <li
-                                className="h-px w-4 bg-zoru-line"
+                                className="h-px w-4 bg-[var(--st-border)]"
                                 aria-hidden="true"
                             />
                         )}
@@ -421,18 +421,18 @@ function PickStep({
                     </ZoruSelectContent>
                 </Select>
                 {schema && (
-                    <p className="text-[12.5px] text-zoru-ink-muted">
+                    <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                         {schema.description}
                     </p>
                 )}
             </div>
 
             <Card className="flex flex-col items-start gap-3 p-4">
-                <div className="flex items-center gap-2 text-sm font-medium text-zoru-ink">
-                    <UploadCloud className="h-4 w-4 text-zoru-accent" />
+                <div className="flex items-center gap-2 text-sm font-medium text-[var(--st-text)]">
+                    <UploadCloud className="h-4 w-4 text-[var(--st-accent)]" />
                     Upload a CSV or Excel file
                 </div>
-                <p className="text-[12.5px] text-zoru-ink-muted">
+                <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                     First row should be a header. Max 5 MB. Supported formats:
                     .csv, .xlsx, .xls.
                 </p>
@@ -443,13 +443,13 @@ function PickStep({
                     disabled={isParsing}
                 />
                 {file && (
-                    <p className="text-[12.5px] text-zoru-ink-muted">
-                        Selected: <span className="text-zoru-ink">{file.name}</span> (
+                    <p className="text-[12.5px] text-[var(--st-text-secondary)]">
+                        Selected: <span className="text-[var(--st-text)]">{file.name}</span> (
                         {(file.size / 1024).toFixed(1)} KB)
                     </p>
                 )}
                 {isParsing && (
-                    <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink-muted">
+                    <div className="flex items-center gap-2 text-[12.5px] text-[var(--st-text-secondary)]">
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
                         Parsing file…
                     </div>
@@ -458,7 +458,7 @@ function PickStep({
 
             {schema && (
                 <Card className="p-4">
-                    <p className="text-[12.5px] font-medium text-zoru-ink">
+                    <p className="text-[12.5px] font-medium text-[var(--st-text)]">
                         Expected fields for {schema.label}
                     </p>
                     <div className="mt-2 flex flex-wrap gap-1.5">
@@ -520,10 +520,10 @@ function MapStep({
         <div className="flex flex-col gap-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
-                    <p className="text-sm font-medium text-zoru-ink">
+                    <p className="text-sm font-medium text-[var(--st-text)]">
                         Map columns to {schema.label} fields
                     </p>
-                    <p className="text-[12.5px] text-zoru-ink-muted">
+                    <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                         {totalRows.toLocaleString()} rows detected ·{' '}
                         {mappedCount}/{schema.fields.length} fields mapped
                     </p>
@@ -561,7 +561,7 @@ function MapStep({
 
             {sampleRows.length > 0 && (
                 <Card className="overflow-hidden">
-                    <div className="border-b border-zoru-line bg-zoru-surface-2 px-4 py-2 text-[12.5px] font-medium text-zoru-ink">
+                    <div className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-2 text-[12.5px] font-medium text-[var(--st-text)]">
                         Preview (first {Math.min(sampleRows.length, 5)} rows after
                         mapping)
                     </div>
@@ -589,7 +589,7 @@ function MapStep({
                                                 return (
                                                     <ZoruTableCell
                                                         key={f.name}
-                                                        className="max-w-[200px] truncate text-[12.5px] text-zoru-ink-muted"
+                                                        className="max-w-[200px] truncate text-[12.5px] text-[var(--st-text-secondary)]"
                                                     >
                                                         {cell || '—'}
                                                     </ZoruTableCell>
@@ -646,13 +646,13 @@ function FieldMappingRow({
         <ZoruTableRow>
             <ZoruTableCell>
                 <div className="flex flex-col">
-                    <span className="text-[12.5px] font-medium text-zoru-ink">
+                    <span className="text-[12.5px] font-medium text-[var(--st-text)]">
                         {field.label}
                         {field.required && (
-                            <span className="ml-1 text-zoru-danger">*</span>
+                            <span className="ml-1 text-[var(--st-danger)]">*</span>
                         )}
                     </span>
-                    <span className="text-[11px] text-zoru-ink-muted">
+                    <span className="text-[11px] text-[var(--st-text-secondary)]">
                         {field.name}
                         {field.example ? ` · e.g. ${field.example}` : ''}
                     </span>
@@ -699,7 +699,7 @@ function ProgressStep({
 }: ProgressStepProps): React.ReactElement {
     if (!jobStatus) {
         return (
-            <div className="flex items-center gap-2 text-sm text-zoru-ink-muted">
+            <div className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
                 <Loader2 className="h-4 w-4 animate-spin" />
                 Starting import…
             </div>
@@ -722,21 +722,21 @@ function ProgressStep({
                 <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
                         {isDone ? (
-                            <CheckCircle2 className="h-5 w-5 text-zoru-success" />
+                            <CheckCircle2 className="h-5 w-5 text-[var(--st-status-ok)]" />
                         ) : isFailed ? (
-                            <XCircle className="h-5 w-5 text-zoru-danger" />
+                            <XCircle className="h-5 w-5 text-[var(--st-danger)]" />
                         ) : (
-                            <Loader2 className="h-5 w-5 animate-spin text-zoru-accent" />
+                            <Loader2 className="h-5 w-5 animate-spin text-[var(--st-accent)]" />
                         )}
                         <div>
-                            <p className="text-sm font-medium text-zoru-ink">
+                            <p className="text-sm font-medium text-[var(--st-text)]">
                                 {isDone
                                     ? 'Import complete'
                                     : isFailed
                                       ? 'Import failed'
                                       : 'Importing…'}
                             </p>
-                            <p className="text-[12.5px] text-zoru-ink-muted">
+                            <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                                 {jobStatus.filename}
                             </p>
                         </div>
@@ -750,25 +750,25 @@ function ProgressStep({
 
                 <div className="grid grid-cols-3 gap-3 text-[12.5px]">
                     <div>
-                        <p className="text-zoru-ink-muted">Processed</p>
-                        <p className="text-sm font-medium text-zoru-ink">
+                        <p className="text-[var(--st-text-secondary)]">Processed</p>
+                        <p className="text-sm font-medium text-[var(--st-text)]">
                             {jobStatus.processed.toLocaleString()} /{' '}
                             {jobStatus.totalRows.toLocaleString()}
                         </p>
                     </div>
                     <div>
-                        <p className="text-zoru-ink-muted">Succeeded</p>
-                        <p className="text-sm font-medium text-zoru-success">
+                        <p className="text-[var(--st-text-secondary)]">Succeeded</p>
+                        <p className="text-sm font-medium text-[var(--st-status-ok)]">
                             {jobStatus.succeeded.toLocaleString()}
                         </p>
                     </div>
                     <div>
-                        <p className="text-zoru-ink-muted">Failed</p>
+                        <p className="text-[var(--st-text-secondary)]">Failed</p>
                         <p
                             className={
                                 jobStatus.failed > 0
-                                    ? 'text-sm font-medium text-zoru-danger'
-                                    : 'text-sm font-medium text-zoru-ink'
+                                    ? 'text-sm font-medium text-[var(--st-danger)]'
+                                    : 'text-sm font-medium text-[var(--st-text)]'
                             }
                         >
                             {jobStatus.failed.toLocaleString()}
@@ -782,18 +782,18 @@ function ProgressStep({
                     <button
                         type="button"
                         onClick={onToggleErrors}
-                        className="flex w-full items-center justify-between border-b border-zoru-line bg-zoru-surface-2 px-4 py-2 text-left text-[12.5px] font-medium text-zoru-ink hover:bg-zoru-surface-3"
+                        className="flex w-full items-center justify-between border-b border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-2 text-left text-[12.5px] font-medium text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
                     >
                         <span>
                             {jobStatus.errors.length} row error
                             {jobStatus.errors.length === 1 ? '' : 's'}
                         </span>
                         <div className="flex items-center gap-3">
-                            <a href={`/api/import-jobs/${jobId}/errors`} className="text-zoru-accent hover:underline flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                            <a href={`/api/import-jobs/${jobId}/errors`} className="text-[var(--st-accent)] hover:underline flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                                 <Download className="h-3.5 w-3.5" />
                                 Download log
                             </a>
-                            <span className="text-zoru-ink-muted">
+                            <span className="text-[var(--st-text-secondary)]">
                                 {showAllErrors ? 'Show less' : 'Show all'}
                             </span>
                         </div>
@@ -808,10 +808,10 @@ function ProgressStep({
                         <ZoruTableBody>
                             {visibleErrors.map((e, i) => (
                                 <ZoruTableRow key={`${e.row}-${i}`}>
-                                    <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                                    <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                                         {e.row}
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="text-[12.5px] text-zoru-ink">
+                                    <ZoruTableCell className="text-[12.5px] text-[var(--st-text)]">
                                         {e.message}
                                     </ZoruTableCell>
                                 </ZoruTableRow>

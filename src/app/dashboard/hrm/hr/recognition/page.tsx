@@ -108,14 +108,14 @@ export default function RecognitionPage() {
             r.points != null ? (
               <span className="tabular-nums">{r.points}</span>
             ) : (
-              <span className="text-zoru-ink-muted">—</span>
+              <span className="text-[var(--st-text-secondary)]">—</span>
             ),
         },
         {
           key: 'message',
           label: 'Message',
           render: (r) => (
-            <span className="block max-w-[260px] truncate text-zoru-ink-muted">
+            <span className="block max-w-[260px] truncate text-[var(--st-text-secondary)]">
               {r.message ?? '—'}
             </span>
           ),
@@ -131,7 +131,7 @@ export default function RecognitionPage() {
                 tone={r.visibility === 'public' ? 'green' : 'neutral'}
               />
             ) : (
-              <span className="text-zoru-ink-muted">—</span>
+              <span className="text-[var(--st-text-secondary)]">—</span>
             ),
         },
         { key: 'givenAt', label: 'Date', render: (r) => <HrDateCell value={r.givenAt} /> },

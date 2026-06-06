@@ -6,8 +6,8 @@ export default function AnalyticsLoading() {
         <div className="flex w-full flex-col gap-6">
             <PageHeader>
                 <div className="flex items-start gap-3">
-                    <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-zoru-surface-2">
-                        <BarChart className="h-5 w-5 text-zoru-ink" strokeWidth={1.75} />
+                    <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--st-bg-muted)]">
+                        <BarChart className="h-5 w-5 text-[var(--st-text)]" strokeWidth={1.75} />
                     </div>
                     <ZoruPageHeading>
                         <ZoruPageTitle>

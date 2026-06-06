@@ -149,7 +149,7 @@ export function BlockNodeContextMenu({
 
       <button
         type="button"
-        className="flex w-full items-center gap-2.5 px-3 py-2 text-[12.5px] text-zoru-ink hover:bg-zoru-surface-2 dark:hover:bg-zoru-ink/30 transition-colors"
+        className="flex w-full items-center gap-2.5 px-3 py-2 text-[12.5px] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] dark:hover:bg-[var(--st-text)]/30 transition-colors"
         onClick={handleDelete}
       >
         <LuTrash2 className="h-3.5 w-3.5 shrink-0" />

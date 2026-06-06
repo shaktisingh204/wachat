@@ -64,7 +64,7 @@ export function EcommProductCard({ product, shopSettings, onEdit, onDelete, shop
         <Card className="flex flex-col">
            <CardContentWrapper>
                 <ZoruCardHeader className="p-0">
-                    <div className="relative aspect-[4/5] bg-zoru-surface-2">
+                    <div className="relative aspect-[4/5] bg-[var(--st-bg-muted)]">
                         <Image src={product.imageUrl || 'https://placehold.co/400x500.png'} alt={product.name} layout="fill" objectFit="cover" className="rounded-t-lg transition-transform group-hover:scale-105" data-ai-hint="product photo"/>
                     </div>
                      <div className="p-4">
@@ -72,7 +72,7 @@ export function EcommProductCard({ product, shopSettings, onEdit, onDelete, shop
                     </div>
                 </ZoruCardHeader>
                 <ZoruCardContent className="p-4 pt-0 flex-grow">
-                    <p className="text-sm text-zoru-ink-muted line-clamp-2 h-10">{product.description}</p>
+                    <p className="text-sm text-[var(--st-text-secondary)] line-clamp-2 h-10">{product.description}</p>
                     <div className="flex justify-between items-center mt-4">
                         <p className="text-lg font-semibold">{new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(product.price)}</p>
                         <Badge variant={product.stock && product.stock > 0 ? 'default' : 'destructive'}>

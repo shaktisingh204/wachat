@@ -71,7 +71,7 @@ export function EditLinkDrawer({ shortUrl }: EditLinkDrawerProps) {
           </ZoruDialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-1.5">
-              <Label className="text-[12.5px] text-zoru-ink-muted">Destination URL</Label>
+              <Label className="text-[12.5px] text-[var(--st-text-secondary)]">Destination URL</Label>
               <Input
                 value={originalUrl}
                 onChange={(e) => setOriginalUrl(e.target.value)}
@@ -79,7 +79,7 @@ export function EditLinkDrawer({ shortUrl }: EditLinkDrawerProps) {
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[12.5px] text-zoru-ink-muted">Expiry Date</Label>
+              <Label className="text-[12.5px] text-[var(--st-text-secondary)]">Expiry Date</Label>
               <Input
                 type="datetime-local"
                 value={expiresAt}
@@ -87,7 +87,7 @@ export function EditLinkDrawer({ shortUrl }: EditLinkDrawerProps) {
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[12.5px] text-zoru-ink-muted">Click Limit</Label>
+              <Label className="text-[12.5px] text-[var(--st-text-secondary)]">Click Limit</Label>
               <Input
                 type="number"
                 min={1}
@@ -97,7 +97,7 @@ export function EditLinkDrawer({ shortUrl }: EditLinkDrawerProps) {
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[12.5px] text-zoru-ink-muted">UTM Source / Medium / Campaign</Label>
+              <Label className="text-[12.5px] text-[var(--st-text-secondary)]">UTM Source / Medium / Campaign</Label>
               <div className="grid grid-cols-3 gap-2">
                 <Input
                   value={utmSource}

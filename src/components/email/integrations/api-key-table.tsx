@@ -75,14 +75,14 @@ export function ApiKeyTable({ keys, onChanged }: ApiKeyTableProps) {
         <ZoruTableBody>
           {keys.map((k) => (
             <ZoruTableRow key={k._id}>
-              <ZoruTableCell className="font-medium text-zoru-ink">
+              <ZoruTableCell className="font-medium text-[var(--st-text)]">
                 {k.name}
                 {k.revokedAt ? (
                   <Badge variant="destructive" className="ml-2">Revoked</Badge>
                 ) : null}
               </ZoruTableCell>
               <ZoruTableCell>
-                <code className="rounded bg-zoru-surface-2 px-1.5 py-0.5 text-xs text-zoru-ink">
+                <code className="rounded bg-[var(--st-bg-muted)] px-1.5 py-0.5 text-xs text-[var(--st-text)]">
                   {k.prefix}…
                 </code>
               </ZoruTableCell>
@@ -93,7 +93,7 @@ export function ApiKeyTable({ keys, onChanged }: ApiKeyTableProps) {
                   ))}
                 </div>
               </ZoruTableCell>
-              <ZoruTableCell className="text-sm text-zoru-ink-muted">
+              <ZoruTableCell className="text-sm text-[var(--st-text-secondary)]">
                 {k.lastUsedAt
                   ? formatDistanceToNow(new Date(k.lastUsedAt), { addSuffix: true })
                   : 'Never'}

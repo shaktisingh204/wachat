@@ -106,7 +106,7 @@ export function RelationValue({
 
   if (ids.length === 0) {
     return (
-      <span className="text-zoru-ink-muted/60" aria-label="Empty">
+      <span className="text-[var(--st-text-secondary)]/60" aria-label="Empty">
         <Minus className="h-3.5 w-3.5" />
       </span>
     );
@@ -142,7 +142,7 @@ export function RelationValue({
           <a
             key={id}
             href={href}
-            className="rounded-full transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-ink/30"
+            className="rounded-full transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]/30"
             aria-label={`Open ${targetLabel}: ${label}`}
             onClick={(e) => e.stopPropagation()}
           >
@@ -331,8 +331,8 @@ export function RelationInput({
   }, [filtered.length]);
 
   const invalidRing = invalid
-    ? 'border-zoru-danger focus-within:ring-zoru-danger/30'
-    : 'border-zoru-line';
+    ? 'border-[var(--st-danger)] focus-within:ring-[var(--st-danger)]/30'
+    : 'border-[var(--st-border)]';
 
   const activeOptionId =
     activeIndex >= 0 && activeIndex < filtered.length
@@ -345,7 +345,7 @@ export function RelationInput({
   const triggerLabel = (() => {
     if (selected.length === 0) {
       return (
-        <span className="text-zoru-ink-muted">
+        <span className="text-[var(--st-text-secondary)]">
           {isMany
             ? `Select ${field.label.toLowerCase()}`
             : `Select a ${targetNoun}`}
@@ -366,7 +366,7 @@ export function RelationInput({
                 <button
                   type="button"
                   aria-label={`Remove ${labelFor(options, sid)}`}
-                  className="-mr-0.5 ml-0.5 rounded-full p-0.5 text-zoru-ink-muted hover:text-zoru-ink"
+                  className="-mr-0.5 ml-0.5 rounded-full p-0.5 text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                   onClick={(e) => {
                     e.stopPropagation();
                     removeOne(sid);
@@ -381,7 +381,7 @@ export function RelationInput({
       );
     }
     return (
-      <span className="truncate text-zoru-ink">
+      <span className="truncate text-[var(--st-text)]">
         {labelFor(options, selected[0])}
       </span>
     );
@@ -401,8 +401,8 @@ export function RelationInput({
         aria-label={id ? undefined : field.label}
         onClick={() => setOpen((v) => !v)}
         className={cn(
-          'flex min-h-9 w-full items-center justify-between gap-2 rounded-[var(--zoru-radius)] border bg-zoru-bg px-3 py-1.5 text-left text-sm transition-colors',
-          'focus-within:ring-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-ink/30',
+          'flex min-h-9 w-full items-center justify-between gap-2 rounded-[var(--zoru-radius)] border bg-[var(--st-bg)] px-3 py-1.5 text-left text-sm transition-colors',
+          'focus-within:ring-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]/30',
           invalidRing,
           disabled && 'cursor-not-allowed opacity-60',
         )}
@@ -411,15 +411,15 @@ export function RelationInput({
         <ChevronDown
           aria-hidden="true"
           className={cn(
-            'h-4 w-4 shrink-0 text-zoru-ink-muted transition-transform',
+            'h-4 w-4 shrink-0 text-[var(--st-text-secondary)] transition-transform',
             open && 'rotate-180',
           )}
         />
       </button>
 
       {open && !disabled && (
-        <div className="absolute z-50 mt-1 w-full overflow-hidden rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg shadow-[var(--zoru-shadow,0_8px_24px_rgba(0,0,0,0.12))]">
-          <div className="border-b border-zoru-line p-1.5">
+        <div className="absolute z-50 mt-1 w-full overflow-hidden rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] shadow-[var(--zoru-shadow,0_8px_24px_rgba(0,0,0,0.12))]">
+          <div className="border-b border-[var(--st-border)] p-1.5">
             <Input
               id={searchId}
               autoFocus
@@ -443,7 +443,7 @@ export function RelationInput({
             className="max-h-56 overflow-y-auto p-1"
           >
             {filtered.length === 0 && (
-              <p className="px-2 py-3 text-center text-xs text-zoru-ink-muted" role="status">
+              <p className="px-2 py-3 text-center text-xs text-[var(--st-text-secondary)]" role="status">
                 {options.length === 0
                   ? 'No related records available.'
                   : 'No matches.'}
@@ -467,9 +467,9 @@ export function RelationInput({
                   }
                   onMouseEnter={() => setActiveIndex(idx)}
                   className={cn(
-                    'flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm transition-colors hover:bg-zoru-surface',
-                    on && 'bg-zoru-surface/60',
-                    isActive && 'ring-1 ring-inset ring-zoru-ink/20',
+                    'flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm transition-colors hover:bg-[var(--st-bg-secondary)]',
+                    on && 'bg-[var(--st-bg-secondary)]/60',
+                    isActive && 'ring-1 ring-inset ring-[var(--st-text)]/20',
                   )}
                 >
                   {isMany ? (
@@ -483,24 +483,24 @@ export function RelationInput({
                       aria-hidden="true"
                       className={cn(
                         'h-4 w-4 shrink-0',
-                        on ? 'text-zoru-ink' : 'text-transparent',
+                        on ? 'text-[var(--st-text)]' : 'text-transparent',
                       )}
                     />
                   )}
-                  <span className="truncate text-zoru-ink">{opt.label}</span>
+                  <span className="truncate text-[var(--st-text)]">{opt.label}</span>
                 </button>
               );
             })}
           </div>
 
           {isMany && selected.length > 0 && (
-            <div className="flex items-center justify-between border-t border-zoru-line px-2 py-1.5 text-xs text-zoru-ink-muted">
+            <div className="flex items-center justify-between border-t border-[var(--st-border)] px-2 py-1.5 text-xs text-[var(--st-text-secondary)]">
               <span aria-live="polite">
                 {selected.length} selected
               </span>
               <button
                 type="button"
-                className="font-medium text-zoru-ink hover:underline"
+                className="font-medium text-[var(--st-text)] hover:underline"
                 onClick={() => onChange([])}
               >
                 Clear all

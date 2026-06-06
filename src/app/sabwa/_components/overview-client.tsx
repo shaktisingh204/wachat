@@ -58,7 +58,7 @@ import { formatDistanceToNow } from "date-fns";
  *
  * Rebuilt on ZoruUI primitives. The session-switcher popover, KPI grid,
  * ban-risk gauge, quick actions and plan-usage rows now use Zoru tokens
- * (`text-zoru-ink`, `bg-zoru-surface`, `text-zoru-success`, etc.) and
+ * (`text-[var(--st-text)]`, `bg-[var(--st-bg-secondary)]`, `text-[var(--st-status-ok)]`, etc.) and
  * the neutral `--zoru-radius` / `--zoru-radius-lg` design language.
  *
  * Source of truth: SABWA_PLAN.md § 6 page 1.
@@ -154,24 +154,24 @@ function bandFromScore(score: number): {
     return {
       label: "Healthy",
       tone: "healthy",
-      className: "text-zoru-success",
+      className: "text-[var(--st-status-ok)]",
     };
   if (score < 50)
     return {
       label: "Caution",
       tone: "caution",
-      className: "text-zoru-warning",
+      className: "text-[var(--st-warn)]",
     };
   if (score < 75)
     return {
       label: "Elevated",
       tone: "elevated",
-      className: "text-zoru-warning",
+      className: "text-[var(--st-warn)]",
     };
   return {
     label: "Critical",
     tone: "critical",
-    className: "text-zoru-danger",
+    className: "text-[var(--st-danger)]",
   };
 }
 
@@ -201,19 +201,19 @@ function OverviewBreadcrumb() {
 
 function DisconnectedHero() {
   return (
-    <Card className="overflow-hidden border-zoru-line bg-zoru-surface">
+    <Card className="overflow-hidden border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
       <ZoruCardContent className="flex flex-col gap-6 p-6 md:flex-row md:items-center md:gap-8 md:p-8">
         <div
           aria-hidden
-          className="flex h-20 w-20 flex-none items-center justify-center rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg text-zoru-ink"
+          className="flex h-20 w-20 flex-none items-center justify-center rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)]"
         >
           <QrCode className="h-10 w-10" />
         </div>
         <div className="min-w-0 flex-1 space-y-2">
-          <h1 className="text-xl font-semibold tracking-tight text-zoru-ink md:text-2xl">
+          <h1 className="text-xl font-semibold tracking-tight text-[var(--st-text)] md:text-2xl">
             Connect your personal WhatsApp in 30 seconds
           </h1>
-          <p className="text-sm text-zoru-ink-muted">
+          <p className="text-sm text-[var(--st-text-secondary)]">
             Scan a QR with the WhatsApp app on your phone and SabNode will
             mirror your chats, groups and broadcasts here. By connecting, you
             agree to follow WhatsApp&apos;s terms of service — unsolicited bulk
@@ -267,7 +267,7 @@ function SessionHeaderCard({
         <div className="flex min-w-0 flex-1 items-center gap-4">
           <div
             aria-hidden
-            className="relative h-14 w-14 flex-none overflow-hidden rounded-full bg-zoru-surface-2 text-zoru-ink"
+            className="relative h-14 w-14 flex-none overflow-hidden rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)]"
           >
             {active.profilePicUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -284,12 +284,12 @@ function SessionHeaderCard({
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="truncate text-lg font-semibold tracking-tight text-zoru-ink md:text-xl">
+              <h1 className="truncate text-lg font-semibold tracking-tight text-[var(--st-text)] md:text-xl">
                 {active.pushName || active.label || "Linked WhatsApp"}
               </h1>
               <StatusBadge status={displayStatus} size="sm" />
             </div>
-            <p className="mt-0.5 truncate text-sm text-zoru-ink-muted">
+            <p className="mt-0.5 truncate text-sm text-[var(--st-text-secondary)]">
               {active.phoneE164 ?? maskedPhone(active.phoneE164)}
             </p>
           </div>
@@ -308,7 +308,7 @@ function SessionHeaderCard({
               </Button>
             </ZoruPopoverTrigger>
             <ZoruPopoverContent align="end" className="w-72 p-2">
-              <p className="px-2 pb-1 pt-1 text-[10px] font-semibold uppercase tracking-wider text-zoru-ink-muted">
+              <p className="px-2 pb-1 pt-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--st-text-secondary)]">
                 Paired sessions
               </p>
               <ul className="flex flex-col gap-0.5">
@@ -323,15 +323,15 @@ function SessionHeaderCard({
                           setOpen(false);
                         }}
                         className={cn(
-                          "flex w-full items-center justify-between gap-2 rounded-[var(--zoru-radius)] px-2 py-2 text-left text-sm text-zoru-ink hover:bg-zoru-surface-2",
-                          isActive && "bg-zoru-surface-2",
+                          "flex w-full items-center justify-between gap-2 rounded-[var(--zoru-radius)] px-2 py-2 text-left text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]",
+                          isActive && "bg-[var(--st-bg-muted)]",
                         )}
                       >
                         <span className="flex min-w-0 flex-col leading-tight">
-                          <span className="truncate text-xs font-medium text-zoru-ink">
+                          <span className="truncate text-xs font-medium text-[var(--st-text)]">
                             {s.pushName || s.label || "Linked WhatsApp"}
                           </span>
-                          <span className="truncate text-[11px] text-zoru-ink-muted">
+                          <span className="truncate text-[11px] text-[var(--st-text-secondary)]">
                             {s.phoneE164 ?? maskedPhone(s.phoneE164)}
                           </span>
                         </span>
@@ -341,7 +341,7 @@ function SessionHeaderCard({
                   );
                 })}
               </ul>
-              <div className="my-2 h-px bg-zoru-line" aria-hidden />
+              <div className="my-2 h-px bg-[var(--st-border)]" aria-hidden />
               <Button
                 asChild
                 variant="ghost"
@@ -432,13 +432,13 @@ function KpiCardShell({
     >
       <ZoruCardContent className="flex h-full flex-col gap-3 p-4">
         <div className="flex items-center justify-between gap-2">
-          <span className="flex items-center gap-2 text-xs font-medium text-zoru-ink-muted">
+          <span className="flex items-center gap-2 text-xs font-medium text-[var(--st-text-secondary)]">
             <Icon className="h-3.5 w-3.5" />
             {label}
           </span>
           {href ? (
             <ArrowRight
-              className="h-3.5 w-3.5 text-zoru-ink-muted"
+              className="h-3.5 w-3.5 text-[var(--st-text-secondary)]"
               aria-hidden
             />
           ) : null}
@@ -453,7 +453,7 @@ function KpiCardShell({
       <Link
         href={href}
         aria-label={label}
-        className="block rounded-[var(--zoru-radius-lg)] focus:outline-none focus-visible:ring-2 focus-visible:ring-zoru-ink focus-visible:ring-offset-2"
+        className="block rounded-[var(--zoru-radius-lg)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)] focus-visible:ring-offset-2"
       >
         {body}
       </Link>
@@ -487,19 +487,19 @@ function KpiRow({
         ) : (
           <div className="flex items-end justify-between gap-3">
             <div>
-              <p className="text-2xl font-semibold tabular-nums leading-none text-zoru-ink">
+              <p className="text-2xl font-semibold tabular-nums leading-none text-[var(--st-text)]">
                 {todayOut.toLocaleString()}
-                <span className="ml-1 text-sm font-normal text-zoru-ink-muted">
+                <span className="ml-1 text-sm font-normal text-[var(--st-text-secondary)]">
                   out
                 </span>
               </p>
-              <p className="mt-1 text-xs text-zoru-ink-muted tabular-nums">
+              <p className="mt-1 text-xs text-[var(--st-text-secondary)] tabular-nums">
                 {todayIn.toLocaleString()} in
               </p>
             </div>
             <Sparkline
               series={analytics?.messagesByDay ?? []}
-              className="text-zoru-ink"
+              className="text-[var(--st-text)]"
             />
           </div>
         )}
@@ -514,10 +514,10 @@ function KpiRow({
           <Skeleton className="h-8 w-20" />
         ) : (
           <div>
-            <p className="text-2xl font-semibold tabular-nums leading-none text-zoru-ink">
+            <p className="text-2xl font-semibold tabular-nums leading-none text-[var(--st-text)]">
               {scheduled?.pendingCount.toLocaleString() ?? 0}
             </p>
-            <p className="mt-1 truncate text-xs text-zoru-ink-muted">
+            <p className="mt-1 truncate text-xs text-[var(--st-text-secondary)]">
               {scheduled?.nextFireAt
                 ? `Next: ${formatDistanceToNow(scheduled.nextFireAt, {
                     addSuffix: true,
@@ -533,10 +533,10 @@ function KpiRow({
           <Skeleton className="h-8 w-20" />
         ) : (
           <div>
-            <p className="text-2xl font-semibold tabular-nums leading-none text-zoru-ink">
+            <p className="text-2xl font-semibold tabular-nums leading-none text-[var(--st-text)]">
               {(activeGroups?.total ?? 0).toLocaleString()}
             </p>
-            <p className="mt-1 text-xs text-zoru-ink-muted tabular-nums">
+            <p className="mt-1 text-xs text-[var(--st-text-secondary)] tabular-nums">
               {(activeGroups?.last24h ?? 0).toLocaleString()} active in 24h
             </p>
           </div>
@@ -552,10 +552,10 @@ function KpiRow({
           <Skeleton className="h-8 w-20" />
         ) : (
           <div>
-            <p className="text-2xl font-semibold tabular-nums leading-none text-zoru-ink">
+            <p className="text-2xl font-semibold tabular-nums leading-none text-[var(--st-text)]">
               {responseSec ? `${responseSec}s` : "—"}
             </p>
-            <p className="mt-1 text-xs text-zoru-ink-muted">
+            <p className="mt-1 text-xs text-[var(--st-text-secondary)]">
               Median, last 7 days
             </p>
           </div>
@@ -639,14 +639,14 @@ function BanRiskGauge({
                 >
                   {clamped}
                 </span>
-                <span className="text-[10px] uppercase tracking-wider text-zoru-ink-muted">
+                <span className="text-[10px] uppercase tracking-wider text-[var(--st-text-secondary)]">
                   / 100
                 </span>
               </div>
             </div>
           )}
           <div className="min-w-0 space-y-2">
-            <p className="text-xs font-medium uppercase tracking-wider text-zoru-ink-muted">
+            <p className="text-xs font-medium uppercase tracking-wider text-[var(--st-text-secondary)]">
               Top risk reasons
             </p>
             {loading ? (
@@ -656,7 +656,7 @@ function BanRiskGauge({
                 <Skeleton className="h-3 w-1/2" />
               </div>
             ) : reasons.length === 0 ? (
-              <p className="text-sm text-zoru-ink-muted">
+              <p className="text-sm text-[var(--st-text-secondary)]">
                 No risk signals in the last 24 hours.
               </p>
             ) : (
@@ -664,7 +664,7 @@ function BanRiskGauge({
                 {reasons.slice(0, 3).map((r) => (
                   <li
                     key={r}
-                    className="flex items-start gap-2 text-zoru-ink-muted"
+                    className="flex items-start gap-2 text-[var(--st-text-secondary)]"
                   >
                     <Circle
                       className="mt-1.5 h-1.5 w-1.5 flex-none fill-current"
@@ -725,7 +725,7 @@ function QuickActions({
               </>
             );
             const className =
-              "flex h-auto flex-col items-center justify-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3 text-center text-zoru-ink transition-colors hover:border-zoru-line-strong hover:bg-zoru-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-ink focus-visible:ring-offset-2";
+              "flex h-auto flex-col items-center justify-center gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 text-center text-[var(--st-text)] transition-colors hover:border-[var(--st-border-strong)] hover:bg-[var(--st-bg-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)] focus-visible:ring-offset-2";
             if (href) {
               return (
                 <Link key={label} href={href} className={className}>
@@ -803,16 +803,16 @@ function RecentActivity({
         ) : entries.length === 0 ? (
           <div className="flex flex-col items-center gap-2 py-8 text-center">
             <Activity
-              className="h-8 w-8 text-zoru-ink-muted"
+              className="h-8 w-8 text-[var(--st-text-secondary)]"
               aria-hidden
             />
-            <p className="text-sm font-medium text-zoru-ink">No activity yet</p>
-            <p className="text-xs text-zoru-ink-muted">
+            <p className="text-sm font-medium text-[var(--st-text)]">No activity yet</p>
+            <p className="text-xs text-[var(--st-text-secondary)]">
               Send a message or schedule something — it&apos;ll show up here.
             </p>
           </div>
         ) : (
-          <ul className="divide-y divide-zoru-line">
+          <ul className="divide-y divide-[var(--st-border)]">
             {entries.slice(0, 10).map((e) => {
               const id = e.id ?? `${e.action}-${String(e.ts)}`;
               const when = safeDate(e.ts);
@@ -822,17 +822,17 @@ function RecentActivity({
                 <li key={id}>
                   <Link
                     href={href}
-                    className="-mx-2 flex items-center gap-3 rounded-[var(--zoru-radius)] px-2 py-2 text-sm text-zoru-ink hover:bg-zoru-surface-2"
+                    className="-mx-2 flex items-center gap-3 rounded-[var(--zoru-radius)] px-2 py-2 text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
                   >
                     <span
                       aria-hidden
-                      className="h-2 w-2 flex-none rounded-full bg-zoru-ink"
+                      className="h-2 w-2 flex-none rounded-full bg-[var(--st-text)]"
                     />
                     <span className="min-w-0 flex-1 truncate">
                       <span className="font-medium">{actor}</span>{" "}
-                      <span className="text-zoru-ink-muted">{e.action}</span>
+                      <span className="text-[var(--st-text-secondary)]">{e.action}</span>
                       {e.target ? (
-                        <span className="text-zoru-ink-muted">
+                        <span className="text-[var(--st-text-secondary)]">
                           {" "}
                           · {e.target}
                         </span>
@@ -840,7 +840,7 @@ function RecentActivity({
                     </span>
                     <time
                       dateTime={when?.toISOString() ?? ""}
-                      className="flex-none text-xs text-zoru-ink-muted tabular-nums"
+                      className="flex-none text-xs text-[var(--st-text-secondary)] tabular-nums"
                     >
                       {when
                         ? formatDistanceToNow(when, { addSuffix: true })
@@ -882,7 +882,7 @@ function OnboardingChecklist({ items }: { items: ChecklistItem[] }) {
               {completed} of {items.length} steps complete.
             </ZoruCardDescription>
           </div>
-          <ListChecks className="h-5 w-5 text-zoru-ink-muted" aria-hidden />
+          <ListChecks className="h-5 w-5 text-[var(--st-text-secondary)]" aria-hidden />
         </div>
       </ZoruCardHeader>
       <ZoruCardContent>
@@ -892,18 +892,18 @@ function OnboardingChecklist({ items }: { items: ChecklistItem[] }) {
               <Link
                 href={href}
                 className={cn(
-                  "-mx-2 flex items-center gap-2 rounded-[var(--zoru-radius)] px-2 py-1.5 text-sm text-zoru-ink hover:bg-zoru-surface-2",
-                  done && "text-zoru-ink-muted",
+                  "-mx-2 flex items-center gap-2 rounded-[var(--zoru-radius)] px-2 py-1.5 text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]",
+                  done && "text-[var(--st-text-secondary)]",
                 )}
               >
                 {done ? (
                   <CheckCircle2
-                    className="h-4 w-4 flex-none text-zoru-success"
+                    className="h-4 w-4 flex-none text-[var(--st-status-ok)]"
                     aria-hidden
                   />
                 ) : (
                   <Circle
-                    className="h-4 w-4 flex-none text-zoru-ink-muted"
+                    className="h-4 w-4 flex-none text-[var(--st-text-secondary)]"
                     aria-hidden
                   />
                 )}
@@ -978,14 +978,14 @@ function PlanUsageCard({
               return (
                 <li key={label} className="space-y-1.5">
                   <div className="flex items-baseline justify-between gap-2">
-                    <span className="text-xs font-medium text-zoru-ink-muted">
+                    <span className="text-xs font-medium text-[var(--st-text-secondary)]">
                       {label}
                     </span>
                     <Tooltip>
                       <ZoruTooltipTrigger asChild>
-                        <span className="text-xs tabular-nums text-zoru-ink">
+                        <span className="text-xs tabular-nums text-[var(--st-text)]">
                           {used.toLocaleString()}{" "}
-                          <span className="text-zoru-ink-muted">
+                          <span className="text-[var(--st-text-secondary)]">
                             / {formatQuota(cap)}
                           </span>
                         </span>
@@ -1002,22 +1002,22 @@ function PlanUsageCard({
                     aria-valuemin={0}
                     aria-valuemax={capNum ?? 0}
                     aria-valuenow={used}
-                    className="h-1.5 w-full overflow-hidden rounded-full bg-zoru-surface-2"
+                    className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--st-bg-muted)]"
                   >
                     {capNum ? (
                       <div
                         className={cn(
                           "h-full rounded-full transition-all",
                           danger
-                            ? "bg-zoru-danger"
+                            ? "bg-[var(--st-danger)]"
                             : warn
-                              ? "bg-zoru-warning"
-                              : "bg-zoru-ink",
+                              ? "bg-[var(--st-warn)]"
+                              : "bg-[var(--st-text)]",
                         )}
                         style={{ width: `${percent}%` }}
                       />
                     ) : (
-                      <div className="h-full w-full bg-zoru-ink/40" />
+                      <div className="h-full w-full bg-[var(--st-text)]/40" />
                     )}
                   </div>
                 </li>

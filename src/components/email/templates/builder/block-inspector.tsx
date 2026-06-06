@@ -44,11 +44,11 @@ export function BlockInspector({
 }: BlockInspectorProps) {
   return (
     <aside
-      className="flex h-full w-80 shrink-0 flex-col border-l border-zoru-line bg-zoru-surface"
+      className="flex h-full w-80 shrink-0 flex-col border-l border-[var(--st-border)] bg-[var(--st-bg-secondary)]"
       aria-label="Block inspector"
     >
       <header className="px-4 py-3">
-        <p className="text-xs font-semibold uppercase tracking-wider text-zoru-ink-muted">
+        <p className="text-xs font-semibold uppercase tracking-wider text-[var(--st-text-secondary)]">
           {selected ? `Edit ${selected.type}` : 'Document'}
         </p>
       </header>
@@ -177,7 +177,7 @@ function Field({
     <div className="space-y-1.5">
       <Label>{label}</Label>
       {children}
-      {hint ? <p className="text-xs text-zoru-ink-muted">{hint}</p> : null}
+      {hint ? <p className="text-xs text-[var(--st-text-secondary)]">{hint}</p> : null}
     </div>
   );
 }
@@ -275,7 +275,7 @@ function ImageFields({ props, setProp }: { props: Record<string, unknown>; setPr
     <div className="space-y-4">
       <Field label="Image source" hint="Pick a file from SabFiles.">
         {src ? (
-          <div className="overflow-hidden rounded border border-zoru-line">
+          <div className="overflow-hidden rounded border border-[var(--st-border)]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={src} alt="" className="block max-h-32 w-full object-contain" />
           </div>
@@ -440,7 +440,7 @@ function ColumnsFields({
         />
       </Field>
       <Separator />
-      <p className="text-xs font-semibold uppercase tracking-wider text-zoru-ink-muted">
+      <p className="text-xs font-semibold uppercase tracking-wider text-[var(--st-text-secondary)]">
         Column content
       </p>
       {Array.from({ length: columns }).map((_, idx) => (
@@ -527,11 +527,11 @@ function SocialFields({ props, setProp }: { props: Record<string, unknown>; setP
         />
       </Field>
       <Separator />
-      <p className="text-xs font-semibold uppercase tracking-wider text-zoru-ink-muted">
+      <p className="text-xs font-semibold uppercase tracking-wider text-[var(--st-text-secondary)]">
         Networks
       </p>
       {networks.map((n, idx) => (
-        <div key={idx} className="space-y-2 rounded border border-zoru-line p-2">
+        <div key={idx} className="space-y-2 rounded border border-[var(--st-border)] p-2">
           <div className="flex items-center justify-between">
             <Label>Network {idx + 1}</Label>
             <Button

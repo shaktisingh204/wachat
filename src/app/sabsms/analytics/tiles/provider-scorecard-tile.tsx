@@ -49,7 +49,7 @@ export function ProviderScorecardTile({
         <div className="flex items-center gap-2 text-xs">
           <Link
             href={drilldownHref}
-            className="text-zoru-ink-muted hover:text-zoru-ink"
+            className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
           >
             Open in logs
           </Link>
@@ -62,7 +62,7 @@ export function ProviderScorecardTile({
       </ZoruCardHeader>
       <ZoruCardContent className="p-0">
         {rows.length === 0 ? (
-          <p className="px-6 py-8 text-center text-sm text-zoru-ink-muted">
+          <p className="px-6 py-8 text-center text-sm text-[var(--st-text-secondary)]">
             No data yet.
           </p>
         ) : (
@@ -101,7 +101,7 @@ export function ProviderScorecardTile({
                       {r.errorRate}%
                     </Badge>
                   </ZoruTableCell>
-                  <ZoruTableCell className="text-right text-xs text-zoru-ink-muted">
+                  <ZoruTableCell className="text-right text-xs text-[var(--st-text-secondary)]">
                     {r.latencyP95Ms.toLocaleString()}
                   </ZoruTableCell>
                 </ZoruTableRow>

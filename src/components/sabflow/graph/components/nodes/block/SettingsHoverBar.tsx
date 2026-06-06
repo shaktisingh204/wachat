@@ -54,7 +54,7 @@ export function SettingsHoverBar({
       <HoverBarButton
         label="Delete block"
         onClick={onDeleteClick}
-        className="rounded-r-md rounded-l-none text-zoru-ink hover:text-zoru-ink dark:text-zoru-ink-muted"
+        className="rounded-r-md rounded-l-none text-[var(--st-text)] hover:text-[var(--st-text)] dark:text-[var(--st-text-secondary)]"
       >
         <LuTrash2 className="h-3 w-3" />
       </HoverBarButton>

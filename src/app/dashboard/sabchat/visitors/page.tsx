@@ -156,7 +156,7 @@ export default function SabChatVisitorsPage() {
         <ZoruPageHeading>
           <div className="flex items-center gap-3">
             <ZoruPageTitle>Live visitors</ZoruPageTitle>
-            <Badge variant="secondary" className="px-2 py-0.5 animate-pulse bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
+            <Badge variant="secondary" className="px-2 py-0.5 animate-pulse bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
               {filteredVisitors.length} Online
             </Badge>
           </div>
@@ -192,7 +192,7 @@ export default function SabChatVisitorsPage() {
 
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <div className="relative w-full sm:w-64">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
             <Input 
               placeholder="Search visitors..." 
               className="pl-9 h-9" 
@@ -232,7 +232,7 @@ export default function SabChatVisitorsPage() {
       ) : (
         <Card className="overflow-hidden p-0 shadow-sm">
           <Table>
-            <ZoruTableHeader className="bg-zoru-surface-2/50">
+            <ZoruTableHeader className="bg-[var(--st-bg-muted)]/50">
               <ZoruTableRow>
                 <ZoruTableHead>Visitor</ZoruTableHead>
                 <ZoruTableHead>Status & Time</ZoruTableHead>
@@ -259,15 +259,15 @@ export default function SabChatVisitorsPage() {
                     <ZoruTableCell>
                       <div className="flex flex-col gap-1.5">
                         <div className="flex items-center gap-2">
-                          <span className="font-semibold text-zoru-ink">{name}</span>
+                          <span className="font-semibold text-[var(--st-text)]">{name}</span>
                           {isReturning && (
-                            <Badge variant="outline" className="h-4 px-1 text-[9px] uppercase tracking-wider text-zoru-ink border-zoru-line bg-zoru-surface-2">
+                            <Badge variant="outline" className="h-4 px-1 text-[9px] uppercase tracking-wider text-[var(--st-text)] border-[var(--st-border)] bg-[var(--st-bg-muted)]">
                               Returning
                             </Badge>
                           )}
                         </div>
                         <div className="flex items-center gap-1.5">
-                          <span className="text-xs text-zoru-ink-muted">
+                          <span className="text-xs text-[var(--st-text-secondary)]">
                             {email || `ID: ${visitor._id.toString().slice(-6)}`}
                           </span>
                         </div>
@@ -277,18 +277,18 @@ export default function SabChatVisitorsPage() {
                       <div className="flex flex-col gap-2">
                         <Badge
                           variant={isOnline ? "success" : "secondary"}
-                          className={cn("w-fit gap-1.5", !isOnline && "text-zoru-ink-muted")}
+                          className={cn("w-fit gap-1.5", !isOnline && "text-[var(--st-text-secondary)]")}
                         >
                           <span
                             aria-hidden
                             className={cn(
                               "h-1.5 w-1.5 rounded-full",
-                              isOnline ? "bg-zoru-success" : "bg-zoru-ink-subtle",
+                              isOnline ? "bg-[var(--st-status-ok)]" : "bg-[var(--st-text-tertiary)]",
                             )}
                           />
                           {isOnline ? "Online Now" : "Idle"}
                         </Badge>
-                        <div className="flex items-center gap-1 text-xs text-zoru-ink-muted">
+                        <div className="flex items-center gap-1 text-xs text-[var(--st-text-secondary)]">
                           <Clock className="h-3 w-3" />
                           <span>{timeOnSite}m on site</span>
                         </div>
@@ -296,11 +296,11 @@ export default function SabChatVisitorsPage() {
                     </ZoruTableCell>
                     <ZoruTableCell>
                       <div className="flex flex-col gap-1.5">
-                        <div className="flex items-center gap-1.5 text-sm text-zoru-ink">
-                          <MapPin className="h-3.5 w-3.5 text-zoru-ink-muted" />
+                        <div className="flex items-center gap-1.5 text-sm text-[var(--st-text)]">
+                          <MapPin className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                           New York, US
                         </div>
-                        <div className="flex items-center gap-3 text-xs text-zoru-ink-muted">
+                        <div className="flex items-center gap-3 text-xs text-[var(--st-text-secondary)]">
                           <span className="flex items-center gap-1">
                             {isMobile ? <Smartphone className="h-3 w-3" /> : <Laptop className="h-3 w-3" />}
                             {isMobile ? "iOS" : "Mac OS"}
@@ -312,17 +312,17 @@ export default function SabChatVisitorsPage() {
                     <ZoruTableCell>
                       <div className="flex flex-col gap-1.5">
                         <div className="flex items-center gap-1.5">
-                          <Globe className="h-3.5 w-3.5 text-zoru-ink-muted" />
+                          <Globe className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                           <span
-                            className="max-w-[200px] truncate text-sm text-zoru-ink font-medium"
+                            className="max-w-[200px] truncate text-sm text-[var(--st-text)] font-medium"
                             title={visitor.visitorInfo?.page}
                           >
                             {visitor.visitorInfo?.page || "/"}
                           </span>
-                          <ExternalLink className="h-3 w-3 text-zoru-ink-muted opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer" />
+                          <ExternalLink className="h-3 w-3 text-[var(--st-text-secondary)] opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer" />
                         </div>
-                        <div className="flex items-center gap-1 text-xs text-zoru-ink-muted">
-                          <span className="px-1.5 py-0.5 bg-zoru-surface-2 rounded text-[10px]">Source</span>
+                        <div className="flex items-center gap-1 text-xs text-[var(--st-text-secondary)]">
+                          <span className="px-1.5 py-0.5 bg-[var(--st-bg-muted)] rounded text-[10px]">Source</span>
                           {source}
                         </div>
                       </div>
@@ -332,7 +332,7 @@ export default function SabChatVisitorsPage() {
                         <ZoruTooltipProvider>
                           <ZoruTooltip>
                             <ZoruTooltipTrigger asChild>
-                              <Button variant="ghost" size="icon-sm" className="h-8 w-8 text-zoru-ink-muted hover:text-zoru-ink">
+                              <Button variant="ghost" size="icon-sm" className="h-8 w-8 text-[var(--st-text-secondary)] hover:text-[var(--st-text)]">
                                 <History className="h-4 w-4" />
                               </Button>
                             </ZoruTooltipTrigger>
@@ -354,7 +354,7 @@ export default function SabChatVisitorsPage() {
 
                         <ZoruDropdownMenu>
                           <ZoruDropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon-sm" className="h-8 w-8 text-zoru-ink-muted">
+                            <Button variant="ghost" size="icon-sm" className="h-8 w-8 text-[var(--st-text-secondary)]">
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
                           </ZoruDropdownMenuTrigger>
@@ -362,7 +362,7 @@ export default function SabChatVisitorsPage() {
                             <ZoruDropdownMenuItem>View full profile</ZoruDropdownMenuItem>
                             <ZoruDropdownMenuItem>Block IP Address</ZoruDropdownMenuItem>
                             <ZoruDropdownMenuSeparator />
-                            <ZoruDropdownMenuItem className="text-zoru-ink">Delete session</ZoruDropdownMenuItem>
+                            <ZoruDropdownMenuItem className="text-[var(--st-text)]">Delete session</ZoruDropdownMenuItem>
                           </ZoruDropdownMenuContent>
                         </ZoruDropdownMenu>
                       </div>

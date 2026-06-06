@@ -17,12 +17,12 @@ export default function AnalyticsError({
 
     return (
         <div className="flex min-h-[400px] w-full flex-col items-center justify-center gap-4 rounded-xl border border-dashed p-8 text-center animate-in fade-in-50">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-ink/10 text-zoru-ink">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-text)]/10 text-[var(--st-text)]">
                 <AlertCircle className="h-6 w-6" />
             </div>
             <div className="space-y-1">
                 <h3 className="text-lg font-semibold tracking-tight">Analytics Error</h3>
-                <p className="text-sm text-zoru-ink-muted max-w-[400px]">
+                <p className="text-sm text-[var(--st-text-secondary)] max-w-[400px]">
                     {error.message || 'We encountered a problem loading the analytics dashboard.'}
                 </p>
             </div>

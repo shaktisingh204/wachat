@@ -118,14 +118,14 @@ export function SabcheckoutPlansClient({
     <div className="space-y-6">
       {/* Create row */}
       <Card>
-        <ZoruCardHeader className="pb-4 border-b border-zoru-line">
+        <ZoruCardHeader className="pb-4 border-b border-[var(--st-border)]">
           <ZoruCardTitle>New plan</ZoruCardTitle>
           <ZoruCardDescription>Create a new recurring subscription tier</ZoruCardDescription>
         </ZoruCardHeader>
         <ZoruCardContent className="pt-6">
           <div className="grid gap-4 sm:grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_auto] items-end">
             <div className="space-y-2">
-              <Label className="text-xs font-medium text-zoru-ink-subtle uppercase tracking-wider">Name</Label>
+              <Label className="text-xs font-medium text-[var(--st-text-tertiary)] uppercase tracking-wider">Name</Label>
               <Input
                 placeholder="e.g. Pro Monthly"
                 value={draft.name}
@@ -133,7 +133,7 @@ export function SabcheckoutPlansClient({
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-xs font-medium text-zoru-ink-subtle uppercase tracking-wider">Interval</Label>
+              <Label className="text-xs font-medium text-[var(--st-text-tertiary)] uppercase tracking-wider">Interval</Label>
               <Select
                 value={draft.intervalUnit}
                 onValueChange={(v) =>
@@ -155,7 +155,7 @@ export function SabcheckoutPlansClient({
               </Select>
             </div>
             <div className="space-y-2">
-              <Label className="text-xs font-medium text-zoru-ink-subtle uppercase tracking-wider">Every</Label>
+              <Label className="text-xs font-medium text-[var(--st-text-tertiary)] uppercase tracking-wider">Every</Label>
               <Input
                 type="number"
                 min={1}
@@ -166,7 +166,7 @@ export function SabcheckoutPlansClient({
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-xs font-medium text-zoru-ink-subtle uppercase tracking-wider">Amount</Label>
+              <Label className="text-xs font-medium text-[var(--st-text-tertiary)] uppercase tracking-wider">Amount</Label>
               <Input
                 type="number"
                 placeholder="e.g. 99900"
@@ -177,7 +177,7 @@ export function SabcheckoutPlansClient({
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-xs font-medium text-zoru-ink-subtle uppercase tracking-wider">Cur</Label>
+              <Label className="text-xs font-medium text-[var(--st-text-tertiary)] uppercase tracking-wider">Cur</Label>
               <Input
                 value={draft.currency}
                 onChange={(e) =>
@@ -187,7 +187,7 @@ export function SabcheckoutPlansClient({
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-xs font-medium text-zoru-ink-subtle uppercase tracking-wider">Trial</Label>
+              <Label className="text-xs font-medium text-[var(--st-text-tertiary)] uppercase tracking-wider">Trial</Label>
               <Input
                 type="number"
                 placeholder="Days"
@@ -212,29 +212,29 @@ export function SabcheckoutPlansClient({
 
       {/* List */}
       <Card className="overflow-hidden">
-        <div className="bg-zoru-surface border-b border-zoru-line px-6 py-4 flex justify-between items-center">
-          <h3 className="font-semibold text-zoru-ink">Available Plans</h3>
+        <div className="bg-[var(--st-bg-secondary)] border-b border-[var(--st-border)] px-6 py-4 flex justify-between items-center">
+          <h3 className="font-semibold text-[var(--st-text)]">Available Plans</h3>
           <Badge variant="secondary" className="font-mono">{initial.length} total</Badge>
         </div>
         <ZoruCardContent className="p-0">
           {initial.length === 0 ? (
             <div className="flex flex-col items-center justify-center p-12 text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted mb-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] mb-4">
                 <RefreshCw className="h-6 w-6" />
               </div>
-              <p className="text-sm font-medium text-zoru-ink">No plans found</p>
-              <p className="text-xs text-zoru-ink-muted mt-1">Add your first subscription plan above.</p>
+              <p className="text-sm font-medium text-[var(--st-text)]">No plans found</p>
+              <p className="text-xs text-[var(--st-text-secondary)] mt-1">Add your first subscription plan above.</p>
             </div>
           ) : (
             <ul className="divide-y divide-[var(--zoru-border)]">
               {initial.map((p) => (
                 <li
                   key={p._id}
-                  className="group flex items-center justify-between gap-4 px-6 py-4 hover:bg-zoru-surface-hover/50 transition-colors"
+                  className="group flex items-center justify-between gap-4 px-6 py-4 hover:bg-[var(--st-hover)]/50 transition-colors"
                 >
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-3">
-                      <span className="truncate text-[15px] font-medium text-zoru-ink">
+                      <span className="truncate text-[15px] font-medium text-[var(--st-text)]">
                         {p.name}
                       </span>
                       <Badge
@@ -245,7 +245,7 @@ export function SabcheckoutPlansClient({
                       </Badge>
                     </div>
                     <div className="mt-1 flex items-center gap-3 text-sm text-[var(--zoru-muted-fg)]">
-                      <span className="font-semibold text-zoru-ink">
+                      <span className="font-semibold text-[var(--st-text)]">
                         {p.currency} {(p.amountMinor / 100).toFixed(2)}
                       </span>
                       <span>
@@ -253,7 +253,7 @@ export function SabcheckoutPlansClient({
                       </span>
                       {p.trialDays && (
                         <>
-                          <span className="h-1 w-1 rounded-full bg-zoru-ink-subtle"></span>
+                          <span className="h-1 w-1 rounded-full bg-[var(--st-text-tertiary)]"></span>
                           <span>{p.trialDays} days trial</span>
                         </>
                       )}
@@ -284,7 +284,7 @@ export function SabcheckoutPlansClient({
                               <Copy className="mr-2 h-4 w-4" /> Duplicate
                             </DropdownMenuItem>
                             <DropdownMenuItem 
-                              className="text-zoru-danger focus:text-zoru-danger"
+                              className="text-[var(--st-danger)] focus:text-[var(--st-danger)]"
                               onClick={() => onArchive(p._id)}
                             >
                               <Trash2 className="mr-2 h-4 w-4" /> Archive

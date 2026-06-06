@@ -361,8 +361,8 @@ export default function CrmApiTokensPage() {
 
             {/* Bulk action bar */}
             {hasSelection && (
-                <div className="flex items-center gap-3 rounded-lg border border-zoru-line bg-zoru-surface-2/40 px-4 py-2.5 text-sm">
-                    <span className="font-medium text-zoru-ink">
+                <div className="flex items-center gap-3 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)]/40 px-4 py-2.5 text-sm">
+                    <span className="font-medium text-[var(--st-text)]">
                         {selectedIds.length} selected
                     </span>
                     <div className="flex items-center gap-2">
@@ -467,7 +467,7 @@ export default function CrmApiTokensPage() {
                             <ZoruTableRow>
                                 <ZoruTableCell
                                     colSpan={8}
-                                    className="text-center text-zoru-ink-muted py-12"
+                                    className="text-center text-[var(--st-text-secondary)] py-12"
                                 >
                                     {rows.length === 0
                                         ? 'No tokens yet. Create one to access the CRM API.'
@@ -494,15 +494,15 @@ export default function CrmApiTokensPage() {
                                             >
                                                 <div className="space-y-3 text-sm">
                                                     <div>
-                                                        <div className="text-zoru-ink-muted text-xs">Prefix</div>
+                                                        <div className="text-[var(--st-text-secondary)] text-xs">Prefix</div>
                                                         <div className="font-mono">{row.prefix}…</div>
                                                     </div>
                                                     <div>
-                                                        <div className="text-zoru-ink-muted text-xs">Scopes</div>
+                                                        <div className="text-[var(--st-text-secondary)] text-xs">Scopes</div>
                                                         <div>{row.scopes.length} scope{row.scopes.length === 1 ? '' : 's'}</div>
                                                     </div>
                                                     <div>
-                                                        <div className="text-zoru-ink-muted text-xs">Status</div>
+                                                        <div className="text-[var(--st-text-secondary)] text-xs">Status</div>
                                                         <div>{row.revoked ? 'Revoked' : 'Active'}</div>
                                                     </div>
                                                 </div>
@@ -535,7 +535,7 @@ export default function CrmApiTokensPage() {
                                                 onClick={() => handleTestToken(row._id)}
                                                 title="Test Token"
                                             >
-                                                <Check className="size-4 text-zoru-ink" />
+                                                <Check className="size-4 text-[var(--st-text)]" />
                                             </Button>
                                             {!row.revoked && (
                                                 <ZoruAlertDialog>

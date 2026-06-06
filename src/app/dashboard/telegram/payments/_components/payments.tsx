@@ -243,7 +243,7 @@ export function PaymentsSection(props: PaymentsSectionProps) {
                 <div className="mb-3 flex items-center justify-between">
                     <div>
                         <div className="text-sm font-medium">Daily volume</div>
-                        <div className="text-xs text-zoru-ink-muted">
+                        <div className="text-xs text-[var(--st-text-secondary)]">
                             Revenue is summed across successful payments. Drag the
                             range above to focus.
                         </div>
@@ -280,7 +280,7 @@ export function PaymentsSection(props: PaymentsSectionProps) {
                             </BarChart>
                         </ResponsiveContainer>
                     ) : (
-                        <div className="flex h-full items-center justify-center text-xs text-zoru-ink-muted">
+                        <div className="flex h-full items-center justify-center text-xs text-[var(--st-text-secondary)]">
                             No payments in this range yet.
                         </div>
                     )}
@@ -292,7 +292,7 @@ export function PaymentsSection(props: PaymentsSectionProps) {
                 <div className="flex min-w-[200px] flex-1 flex-col gap-1">
                     <Label className="text-xs">Search</Label>
                     <div className="relative">
-                        <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zoru-ink-muted" />
+                        <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--st-text-secondary)]" />
                         <Input
                             placeholder="chat id, user id, or charge id"
                             value={props.search}
@@ -392,7 +392,7 @@ export function PaymentsSection(props: PaymentsSectionProps) {
                         {props.payments.length === 0 && (
                             <ZoruTableRow>
                                 <ZoruTableCell colSpan={6}>
-                                    <div className="py-10 text-center text-sm text-zoru-ink-muted">
+                                    <div className="py-10 text-center text-sm text-[var(--st-text-secondary)]">
                                         No payments match these filters yet.
                                     </div>
                                 </ZoruTableCell>
@@ -402,7 +402,7 @@ export function PaymentsSection(props: PaymentsSectionProps) {
                             <ZoruTableRow key={p._id}>
                                 <ZoruTableCell>
                                     <div className="text-sm">{p.username ?? '—'}</div>
-                                    <div className="text-xs text-zoru-ink-muted">
+                                    <div className="text-xs text-[var(--st-text-secondary)]">
                                         {p.chatId ?? p.userId ?? '—'}
                                     </div>
                                 </ZoruTableCell>
@@ -442,8 +442,8 @@ export function PaymentsSection(props: PaymentsSectionProps) {
                         ))}
                     </ZoruTableBody>
                 </Table>
-                <div className="flex items-center justify-between border-t border-zoru-line px-3 py-2 text-xs">
-                    <div className="text-zoru-ink-muted">
+                <div className="flex items-center justify-between border-t border-[var(--st-border)] px-3 py-2 text-xs">
+                    <div className="text-[var(--st-text-secondary)]">
                         Page {props.page} of {totalPages} • {props.paymentsTotal} total
                     </div>
                     <div className="flex gap-2">
@@ -520,7 +520,7 @@ export function PaymentsSection(props: PaymentsSectionProps) {
                             {detail.orderInfo ? (
                                 <div>
                                     <Label className="text-xs">Order info</Label>
-                                    <pre className="max-h-40 overflow-auto rounded bg-zoru-surface-2/40 p-2 text-[11px]">
+                                    <pre className="max-h-40 overflow-auto rounded bg-[var(--st-bg-muted)]/40 p-2 text-[11px]">
                                         {JSON.stringify(detail.orderInfo, null, 2)}
                                     </pre>
                                 </div>
@@ -528,7 +528,7 @@ export function PaymentsSection(props: PaymentsSectionProps) {
                             {detail.shippingAddress ? (
                                 <div>
                                     <Label className="text-xs">Shipping address</Label>
-                                    <pre className="max-h-40 overflow-auto rounded bg-zoru-surface-2/40 p-2 text-[11px]">
+                                    <pre className="max-h-40 overflow-auto rounded bg-[var(--st-bg-muted)]/40 p-2 text-[11px]">
                                         {JSON.stringify(detail.shippingAddress, null, 2)}
                                     </pre>
                                 </div>

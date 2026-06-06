@@ -32,7 +32,7 @@ const SECTIONS: DocSection[] = [
     {
         title: 'Get started',
         icon: BookOpen,
-        accent: 'from-zoru-surface-2 to-zoru-ink',
+        accent: 'from-[var(--st-bg-muted)] to-[var(--st-text)]',
         blurb: 'Sign up, invite your team, ship your first automation.',
         pages: [
             { title: 'Sign up + workspace setup', href: '#' },
@@ -45,7 +45,7 @@ const SECTIONS: DocSection[] = [
     {
         title: 'SabFlow · automation',
         icon: Workflow,
-        accent: 'from-zoru-surface-2 to-zoru-ink',
+        accent: 'from-[var(--st-bg-muted)] to-[var(--st-text)]',
         blurb: 'Build cross-module workflows. Branch, loop, retry, replay.',
         pages: [
             { title: 'Your first flow', href: '#' },
@@ -59,7 +59,7 @@ const SECTIONS: DocSection[] = [
     {
         title: 'Wachat · WhatsApp',
         icon: MessageSquare,
-        accent: 'from-zoru-surface-2 to-zoru-ink',
+        accent: 'from-[var(--st-bg-muted)] to-[var(--st-text)]',
         blurb: 'WABA, templates, broadcasts, chatbot, catalog, payments.',
         pages: [
             { title: 'Connect a WABA number', href: '#' },
@@ -72,7 +72,7 @@ const SECTIONS: DocSection[] = [
     {
         title: 'CRM · sales',
         icon: Users,
-        accent: 'from-zoru-surface-2 to-zoru-ink',
+        accent: 'from-[var(--st-bg-muted)] to-[var(--st-text)]',
         blurb: 'Pipelines, deals, quotes, invoices, accounting.',
         pages: [
             { title: 'Setting up pipelines', href: '#' },
@@ -85,7 +85,7 @@ const SECTIONS: DocSection[] = [
     {
         title: 'HRM · people',
         icon: Briefcase,
-        accent: 'from-zoru-surface-2 to-zoru-ink',
+        accent: 'from-[var(--st-bg-muted)] to-[var(--st-text)]',
         blurb: 'Roster, attendance, leaves, payroll, performance.',
         pages: [
             { title: 'Onboard your team', href: '#' },
@@ -98,7 +98,7 @@ const SECTIONS: DocSection[] = [
     {
         title: 'API & SDKs',
         icon: Code,
-        accent: 'from-zoru-ink to-zoru-ink',
+        accent: 'from-[var(--st-text)] to-[var(--st-text)]',
         blurb: 'REST + webhooks + Node/Python/Go/Bun SDKs.',
         pages: [
             { title: 'Auth & API keys', href: '/api-docs' },
@@ -111,7 +111,7 @@ const SECTIONS: DocSection[] = [
     {
         title: 'AI & RAG',
         icon: Bot,
-        accent: 'from-zoru-surface-2 to-zoru-ink',
+        accent: 'from-[var(--st-bg-muted)] to-[var(--st-text)]',
         blurb: 'Bring your own key, build RAG pipelines, tool use.',
         pages: [
             { title: 'Configure AI providers', href: '#' },
@@ -123,7 +123,7 @@ const SECTIONS: DocSection[] = [
     {
         title: 'Security & admin',
         icon: Shield,
-        accent: 'from-zoru-ink to-zoru-ink',
+        accent: 'from-[var(--st-text)] to-[var(--st-text)]',
         blurb: 'SSO, SCIM, audit log, region pinning, BYO-KMS.',
         pages: [
             { title: 'SSO · Google + SAML', href: '#' },
@@ -136,7 +136,7 @@ const SECTIONS: DocSection[] = [
     {
         title: 'Recipes',
         icon: Layers,
-        accent: 'from-zoru-surface-2 to-zoru-ink',
+        accent: 'from-[var(--st-bg-muted)] to-[var(--st-text)]',
         blurb: 'Copy-paste flows for common jobs.',
         pages: [
             { title: 'Abandoned cart → WhatsApp + 10% off', href: '#' },
@@ -163,11 +163,11 @@ export function DocsClient({ session }: { session?: { user?: unknown } | null })
         <MarketingShell session={session}>
             <PageHero
                 kicker="Docs · guides + references"
-                title={<>Everything you need to <span className="bg-gradient-to-r from-zoru-ink via-zoru-ink to-zoru-ink bg-clip-text text-transparent">ship faster.</span></>}
+                title={<>Everything you need to <span className="bg-gradient-to-r from-[var(--st-text)] via-zoru-ink to-[var(--st-text)] bg-clip-text text-transparent">ship faster.</span></>}
                 subtitle="Set up SabNode, build automations, integrate via API, or just learn how the platform works."
                 extra={
-                    <div className="mx-auto flex max-w-md items-center gap-2 rounded-full border border-zoru-line bg-white px-4 py-2 shadow-sm">
-                        <Search className="h-4 w-4 text-zoru-ink-muted" />
+                    <div className="mx-auto flex max-w-md items-center gap-2 rounded-full border border-[var(--st-border)] bg-white px-4 py-2 shadow-sm">
+                        <Search className="h-4 w-4 text-[var(--st-text-secondary)]" />
                         <input
                             value={q}
                             onChange={(e) => setQ(e.target.value)}
@@ -189,19 +189,19 @@ export function DocsClient({ session }: { session?: { user?: unknown } | null })
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: i * 0.04 }}
-                                className="rounded-2xl border border-zoru-line bg-white p-6"
+                                className="rounded-2xl border border-[var(--st-border)] bg-white p-6"
                             >
                                 <div className={`grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br ${s.accent} shadow-md`}>
                                     <Icon className="h-5 w-5 text-white" />
                                 </div>
-                                <h3 className="mt-4 text-lg font-semibold text-zoru-ink">{s.title}</h3>
-                                <p className="mt-1 text-[13px] leading-relaxed text-zoru-ink">{s.blurb}</p>
+                                <h3 className="mt-4 text-lg font-semibold text-[var(--st-text)]">{s.title}</h3>
+                                <p className="mt-1 text-[13px] leading-relaxed text-[var(--st-text)]">{s.blurb}</p>
                                 <ul className="mt-4 space-y-1.5">
                                     {s.pages.map((p) => (
                                         <li key={p.title}>
                                             <Link
                                                 href={p.href}
-                                                className="group flex items-center justify-between rounded-md px-2 py-1.5 text-[13px] text-zoru-ink transition hover:bg-zoru-surface-2 hover:text-zoru-ink"
+                                                className="group flex items-center justify-between rounded-md px-2 py-1.5 text-[13px] text-[var(--st-text)] transition hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
                                             >
                                                 <span>{p.title}</span>
                                                 <ArrowUpRight className="h-3 w-3 opacity-0 transition group-hover:opacity-100" />
@@ -231,10 +231,10 @@ export function DocsClient({ session }: { session?: { user?: unknown } | null })
                                 viewport={{ once: true }}
                                 transition={{ delay: i * 0.05 }}
                             >
-                                <Link href={c.href} className="block rounded-2xl border border-zoru-line bg-zoru-surface p-6 transition hover:-translate-y-1 hover:border-zoru-line">
-                                    <Icon className="h-5 w-5 text-zoru-ink" />
-                                    <p className="mt-3 text-lg font-semibold text-zoru-ink">{c.t}</p>
-                                    <p className="mt-1 text-[13px] text-zoru-ink">{c.d}</p>
+                                <Link href={c.href} className="block rounded-2xl border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-6 transition hover:-translate-y-1 hover:border-[var(--st-border)]">
+                                    <Icon className="h-5 w-5 text-[var(--st-text)]" />
+                                    <p className="mt-3 text-lg font-semibold text-[var(--st-text)]">{c.t}</p>
+                                    <p className="mt-1 text-[13px] text-[var(--st-text)]">{c.d}</p>
                                 </Link>
                             </m.div>
                         );

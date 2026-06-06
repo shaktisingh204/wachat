@@ -162,7 +162,7 @@ export function SuppressionsTable({
         id: "phoneHash",
         header: "Phone hash",
         render: (r) => (
-          <span className="font-mono text-xs text-zoru-ink">
+          <span className="font-mono text-xs text-[var(--st-text)]">
             {r.phoneHash.slice(0, 12)}…{r.phoneHash.slice(-4)}
           </span>
         ),
@@ -180,14 +180,14 @@ export function SuppressionsTable({
         render: (r) => (
           <button
             type="button"
-            className="text-left text-sm text-zoru-ink hover:text-zoru-ink"
+            className="text-left text-sm text-[var(--st-text)] hover:text-[var(--st-text)]"
             onClick={() => {
               setEditingRow(r);
               setEditingReason(r.reason ?? "");
             }}
           >
-            {r.reason ?? <span className="italic text-zoru-ink-muted">add reason…</span>}
-            <Edit3 className="ml-1.5 inline h-3 w-3 text-zoru-ink-muted" />
+            {r.reason ?? <span className="italic text-[var(--st-text-secondary)]">add reason…</span>}
+            <Edit3 className="ml-1.5 inline h-3 w-3 text-[var(--st-text-secondary)]" />
           </button>
         ),
       },
@@ -197,13 +197,13 @@ export function SuppressionsTable({
         render: (r) => (
           <button
             type="button"
-            className="text-xs text-zoru-ink hover:text-zoru-ink"
+            className="text-xs text-[var(--st-text)] hover:text-[var(--st-text)]"
             onClick={() => {
               setTagRow(r);
               setTagValue(r.tag ?? "");
             }}
           >
-            {r.tag ?? <span className="italic text-zoru-ink-muted">+ tag</span>}
+            {r.tag ?? <span className="italic text-[var(--st-text-secondary)]">+ tag</span>}
           </button>
         ),
         width: "140px",
@@ -217,7 +217,7 @@ export function SuppressionsTable({
               {formatUTC(r.createdAt, true)}
             </div>
             {r.expiresAt && (
-              <div className="text-xs text-zoru-ink mt-0.5">
+              <div className="text-xs text-[var(--st-text)] mt-0.5">
                 Expires: {formatUTC(r.expiresAt, true)}
               </div>
             )}
@@ -782,25 +782,25 @@ export function SuppressionsTable({
         }
       >
         {auditLoading ? (
-          <p className="text-sm text-zoru-ink">Loading…</p>
+          <p className="text-sm text-[var(--st-text)]">Loading…</p>
         ) : auditEntries.length === 0 ? (
-          <p className="text-sm text-zoru-ink">No events recorded yet.</p>
+          <p className="text-sm text-[var(--st-text)]">No events recorded yet.</p>
         ) : (
           <ol className="space-y-3">
             {auditEntries.map((e) => (
               <li
                 key={e.id}
-                className="rounded-md border border-zoru-line bg-zoru-surface-2 px-3 py-2 text-xs"
+                className="rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-xs"
               >
                 <div className="flex items-center justify-between">
                   <Badge variant="secondary">{e.kind}</Badge>
-                  <span className="text-zoru-ink">
+                  <span className="text-[var(--st-text)]">
                     {formatUTC(e.at, true)}
                   </span>
                 </div>
-                {e.reason && <p className="mt-1.5 text-zoru-ink">{e.reason}</p>}
+                {e.reason && <p className="mt-1.5 text-[var(--st-text)]">{e.reason}</p>}
                 {e.source && (
-                  <p className="mt-0.5 text-zoru-ink">source: {e.source}</p>
+                  <p className="mt-0.5 text-[var(--st-text)]">source: {e.source}</p>
                 )}
               </li>
             ))}
@@ -833,7 +833,7 @@ export function SuppressionsTable({
             </ZoruSelectContent>
           </Select>
           {overlapResult && (
-            <div className="rounded-md border border-zoru-line bg-zoru-surface-2 p-3 text-sm">
+            <div className="rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-sm">
               <p>
                 <span className="font-medium">{overlapResult.suppressed}</span>{" "}
                 of {overlapResult.recipients} recipients are suppressed (
@@ -937,13 +937,13 @@ function AutoRulesEditor({
   return (
     <div className="space-y-3">
       {rules.length === 0 ? (
-        <p className="text-sm text-zoru-ink">No rules configured.</p>
+        <p className="text-sm text-[var(--st-text)]">No rules configured.</p>
       ) : (
         <ul className="space-y-1.5">
           {rules.map((r) => (
             <li
               key={r.id}
-              className="flex items-center justify-between rounded-md border border-zoru-line bg-zoru-surface-2 px-3 py-2 text-sm"
+              className="flex items-center justify-between rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-sm"
             >
               <span>
                 {r.metric} {r.op} {r.threshold} in last {r.windowDays}d
@@ -1051,7 +1051,7 @@ function TaxonomyEditor({
         {labels.map((l) => (
           <li
             key={l}
-            className="flex items-center justify-between rounded-md border border-zoru-line px-3 py-1.5 text-sm"
+            className="flex items-center justify-between rounded-md border border-[var(--st-border)] px-3 py-1.5 text-sm"
           >
             <span>{l}</span>
             <Button variant="ghost" size="sm" onClick={() => remove(l)}>

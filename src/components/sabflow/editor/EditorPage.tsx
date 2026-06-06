@@ -288,13 +288,13 @@ function EditorContent({ flow: initialFlow }: Props) {
     >
       {/* ── Webhook URL banner (shown after activation) ────────────── */}
       {webhookBanner && webhookBanner.length > 0 && (
-        <div className="relative bg-zoru-ink border-b border-zoru-line/30 px-4 py-2.5 flex items-start gap-3 text-[12px]">
-          <LuLink className="h-3.5 w-3.5 text-zoru-ink shrink-0 mt-0.5" strokeWidth={1.8} />
+        <div className="relative bg-[var(--st-text)] border-b border-[var(--st-border)]/30 px-4 py-2.5 flex items-start gap-3 text-[12px]">
+          <LuLink className="h-3.5 w-3.5 text-[var(--st-text)] shrink-0 mt-0.5" strokeWidth={1.8} />
           <div className="flex-1 space-y-1.5">
             <p className="text-[var(--gray-11)] font-medium">Webhook URL{webhookBanner.length > 1 ? 's' : ''} registered</p>
             {webhookBanner.map((w) => (
               <div key={w.webhookId ?? w.webhookUrl} className="flex items-center gap-2">
-                <span className="font-mono text-zoru-ink break-all">{w.webhookUrl}</span>
+                <span className="font-mono text-[var(--st-text)] break-all">{w.webhookUrl}</span>
                 <button
                   type="button"
                   title="Copy URL"
@@ -356,7 +356,7 @@ function EditorContent({ flow: initialFlow }: Props) {
           className={cn(
             'flex h-8 w-8 items-center justify-center rounded-lg transition-colors',
             activePanel === 'variables'
-              ? 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40'
+              ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40'
               : 'text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
           )}
         >
@@ -372,7 +372,7 @@ function EditorContent({ flow: initialFlow }: Props) {
           className={cn(
             'flex h-8 w-8 items-center justify-center rounded-lg transition-colors',
             activePanel === 'theme'
-              ? 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted'
+              ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]'
               : 'text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
           )}
         >
@@ -388,7 +388,7 @@ function EditorContent({ flow: initialFlow }: Props) {
           className={cn(
             'flex h-8 w-8 items-center justify-center rounded-lg transition-colors',
             activePanel === 'preview'
-              ? 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted'
+              ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]'
               : 'text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
           )}
         >
@@ -420,7 +420,7 @@ function EditorContent({ flow: initialFlow }: Props) {
           className={cn(
             'flex h-8 w-8 items-center justify-center rounded-lg transition-colors',
             activePanel === 'versions'
-              ? 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted'
+              ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]'
               : 'text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
           )}
         >

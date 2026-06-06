@@ -41,7 +41,7 @@ export default async function PrintBulkChallansPage({
           </div>
 
           <div className="mb-8">
-            <h3 className="font-semibold text-sm uppercase text-zoru-ink mb-2 border-b pb-1">Transport Details</h3>
+            <h3 className="font-semibold text-sm uppercase text-[var(--st-text)] mb-2 border-b pb-1">Transport Details</h3>
             <div className="text-sm grid grid-cols-2 gap-4">
               <p><strong>Vehicle Number:</strong> {challan.transportDetails?.vehicleNumber || '—'}</p>
               <p><strong>Driver Name:</strong> {challan.transportDetails?.driverName || '—'}</p>
@@ -51,7 +51,7 @@ export default async function PrintBulkChallansPage({
 
           <table className="w-full text-sm mb-8 border-collapse">
             <thead>
-              <tr className="bg-zoru-surface-2">
+              <tr className="bg-[var(--st-bg-muted)]">
                 <th className="border p-2 text-left font-semibold">Item</th>
                 <th className="border p-2 text-right font-semibold">Qty</th>
                 <th className="border p-2 text-right font-semibold">Rate</th>

@@ -126,7 +126,7 @@ export function SubscriptionDrawer({
                 </ZoruSelectContent>
               </Select>
               {subs.length === 0 && (
-                <p className="mt-1 text-xs text-zoru-ink-muted">
+                <p className="mt-1 text-xs text-[var(--st-text-secondary)]">
                   No bots configured yet — connect one under Telegram → Bots
                   first.
                 </p>
@@ -173,7 +173,7 @@ export function SubscriptionDrawer({
               {TELEGRAM_ALLOWED_UPDATES.map((u) => (
                 <label
                   key={u}
-                  className="flex items-center gap-2 rounded px-1 text-xs hover:bg-zoru-surface-2/50"
+                  className="flex items-center gap-2 rounded px-1 text-xs hover:bg-[var(--st-bg-muted)]/50"
                 >
                   <Checkbox
                     checked={allowed.includes(u)}
@@ -192,13 +192,13 @@ export function SubscriptionDrawer({
               max={100}
               value={maxConns}
               onChange={(e) => setMaxConns(parseInt(e.target.value, 10))}
-              className="w-full accent-zoru-ink"
+              className="w-full accent-[var(--st-text)]"
             />
           </div>
           <label className="flex items-center justify-between rounded-md border p-3">
             <div>
               <div className="text-sm font-medium">Drop pending updates</div>
-              <p className="text-xs text-zoru-ink-muted">
+              <p className="text-xs text-[var(--st-text-secondary)]">
                 Discard updates Telegram queued before the new webhook was set.
               </p>
             </div>

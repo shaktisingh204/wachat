@@ -167,7 +167,7 @@ export default function SubscribersPage() {
                   {sub.name?.charAt(0)?.toUpperCase() || '?'}
                 </ZoruAvatarFallback>
               </Avatar>
-              <span className="text-[13px] text-zoru-ink">{sub.name}</span>
+              <span className="text-[13px] text-[var(--st-text)]">{sub.name}</span>
             </div>
           );
         },
@@ -176,7 +176,7 @@ export default function SubscribersPage() {
         accessorKey: 'psid',
         header: 'Page-Scoped ID',
         cell: ({ row }) => (
-          <span className="font-mono text-[11.5px] text-zoru-ink-muted">
+          <span className="font-mono text-[11.5px] text-[var(--st-text-secondary)]">
             {row.original.psid}
           </span>
         ),
@@ -188,7 +188,7 @@ export default function SubscribersPage() {
           row.original.status ? (
             <Badge variant="outline">{row.original.status}</Badge>
           ) : (
-            <span className="text-[11.5px] text-zoru-ink-subtle">—</span>
+            <span className="text-[11.5px] text-[var(--st-text-tertiary)]">—</span>
           ),
       },
       {
@@ -196,11 +196,11 @@ export default function SubscribersPage() {
         header: 'Subscribed',
         cell: ({ row }) =>
           row.original.createdAt ? (
-            <span className="text-[11.5px] text-zoru-ink-muted">
+            <span className="text-[11.5px] text-[var(--st-text-secondary)]">
               {new Date(row.original.createdAt).toLocaleDateString()}
             </span>
           ) : (
-            <span className="text-[11.5px] text-zoru-ink-subtle">—</span>
+            <span className="text-[11.5px] text-[var(--st-text-tertiary)]">—</span>
           ),
       },
       {

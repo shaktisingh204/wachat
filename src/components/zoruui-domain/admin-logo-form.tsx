@@ -63,7 +63,7 @@ export function AppLogoForm() {
                             <span className="w-full border-t" />
                         </div>
                         <div className="relative flex justify-center text-xs uppercase">
-                            <span className="bg-zoru-surface px-2 text-zoru-ink-muted">Or</span>
+                            <span className="bg-[var(--st-bg-secondary)] px-2 text-[var(--st-text-secondary)]">Or</span>
                         </div>
                     </div>
                     <div className="space-y-2">

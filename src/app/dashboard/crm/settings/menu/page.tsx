@@ -181,12 +181,12 @@ export default function MenuSettingsPage() {
           <Table>
             <ZoruTableHeader>
               <ZoruTableRow className="hover:bg-transparent">
-                <ZoruTableHead className="text-zoru-ink-muted">Label</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Route</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Icon</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Position</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Visible</ZoruTableHead>
-                <ZoruTableHead className="w-[200px] text-right text-zoru-ink-muted">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Label</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Route</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Icon</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Position</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Visible</ZoruTableHead>
+                <ZoruTableHead className="w-[200px] text-right text-[var(--st-text-secondary)]">
                   Actions
                 </ZoruTableHead>
               </ZoruTableRow>
@@ -196,7 +196,7 @@ export default function MenuSettingsPage() {
                 <ZoruTableRow>
                   <ZoruTableCell
                     colSpan={6}
-                    className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                    className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     <LoaderCircle className="mx-auto h-4 w-4 animate-spin" />
                   </ZoruTableCell>
@@ -205,7 +205,7 @@ export default function MenuSettingsPage() {
                 <ZoruTableRow>
                   <ZoruTableCell
                     colSpan={6}
-                    className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                    className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     No menu entries yet.
                   </ZoruTableCell>
@@ -213,13 +213,13 @@ export default function MenuSettingsPage() {
               ) : (
                 rows.map((row, idx) => (
                   <ZoruTableRow key={row._id}>
-                    <ZoruTableCell className="text-[13px] text-zoru-ink">
+                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                       {row.label}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[12px] text-zoru-ink-muted">
+                    <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
                       <code>{row.route || '—'}</code>
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[12px] text-zoru-ink-muted">
+                    <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
                       {row.icon || '—'}
                     </ZoruTableCell>
                     <ZoruTableCell>
@@ -270,7 +270,7 @@ export default function MenuSettingsPage() {
                           onClick={() => setDeletingId(row._id)}
                           aria-label="Delete"
                         >
-                          <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                          <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                         </Button>
                       </div>
                     </ZoruTableCell>
@@ -299,7 +299,7 @@ export default function MenuSettingsPage() {
             ) : null}
             <div>
               <Label htmlFor="label">
-                Label <span className="text-zoru-danger-ink">*</span>
+                Label <span className="text-[var(--st-danger)]">*</span>
               </Label>
               <Input
                 id="label"
@@ -338,9 +338,9 @@ export default function MenuSettingsPage() {
                 name="is_visible"
                 value="true"
                 defaultChecked={editing?.is_visible ?? true}
-                className="h-4 w-4 accent-zoru-ink"
+                className="h-4 w-4 accent-[var(--st-text)]"
               />
-              <Label htmlFor="is_visible" className="text-[13px] text-zoru-ink">
+              <Label htmlFor="is_visible" className="text-[13px] text-[var(--st-text)]">
                 Visible
               </Label>
             </div>

@@ -15,9 +15,9 @@ export default function EditShiftRotationError({
     }, [error]);
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-[400px] rounded-lg border border-zoru-line bg-zoru-surface p-8 text-center">
-            <h2 className="mb-2 text-xl font-semibold text-zoru-ink">Something went wrong!</h2>
-            <p className="mb-6 text-[14px] text-zoru-ink-muted">
+        <div className="flex flex-col items-center justify-center min-h-[400px] rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-8 text-center">
+            <h2 className="mb-2 text-xl font-semibold text-[var(--st-text)]">Something went wrong!</h2>
+            <p className="mb-6 text-[14px] text-[var(--st-text-secondary)]">
                 {error.message || 'Failed to load shift rotation data.'}
             </p>
             <Button onClick={() => reset()} variant="default">

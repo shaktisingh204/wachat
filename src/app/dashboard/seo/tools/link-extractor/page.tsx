@@ -167,8 +167,8 @@ export default function LinkExtractorPage() {
       </div>
 
       {error && (
-        <Card className="border-zoru-line/50 mt-4">
-          <ZoruCardContent className="p-4 text-sm text-zoru-ink">{error}</ZoruCardContent>
+        <Card className="border-[var(--st-border)]/50 mt-4">
+          <ZoruCardContent className="p-4 text-sm text-[var(--st-text)]">{error}</ZoruCardContent>
         </Card>
       )}
 
@@ -207,7 +207,7 @@ export default function LinkExtractorPage() {
             </div>
             <div className="overflow-auto max-h-[600px]">
               <table className="w-full text-sm">
-                <thead className="text-xs text-zoru-ink-muted uppercase">
+                <thead className="text-xs text-[var(--st-text-secondary)] uppercase">
                   <tr className="border-b">
                     <th className="text-left p-2">Href</th>
                     <th className="text-left p-2">Text</th>
@@ -220,7 +220,7 @@ export default function LinkExtractorPage() {
                   {filteredRows.map((r, i) => (
                     <tr key={i} className="border-b">
                       <td className="p-2 font-mono text-xs break-all max-w-xs">
-                        <a href={r.href} target="_blank" rel="noreferrer" className="text-zoru-ink hover:underline">
+                        <a href={r.href} target="_blank" rel="noreferrer" className="text-[var(--st-text)] hover:underline">
                           {r.href}
                         </a>
                       </td>

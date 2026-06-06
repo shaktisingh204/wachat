@@ -70,12 +70,12 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
 
   // Colors for heatmap
   function getHeatmapColor(percentage: number) {
-    if (percentage === 100) return "bg-zoru-ink/5 text-white";
-    if (percentage > 80) return "bg-zoru-ink text-white";
-    if (percentage > 60) return "bg-zoru-ink/80 text-white";
-    if (percentage > 40) return "bg-zoru-ink/60 text-white";
-    if (percentage > 20) return "bg-zoru-ink/40 text-white";
-    return "bg-zoru-ink/20 text-zoru-ink";
+    if (percentage === 100) return "bg-[var(--st-text)]/5 text-white";
+    if (percentage > 80) return "bg-[var(--st-text)] text-white";
+    if (percentage > 60) return "bg-[var(--st-text)]/80 text-white";
+    if (percentage > 40) return "bg-[var(--st-text)]/60 text-white";
+    if (percentage > 20) return "bg-[var(--st-text)]/40 text-white";
+    return "bg-[var(--st-text)]/20 text-[var(--st-text)]";
   }
 
   // Derive chart data
@@ -147,12 +147,12 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
         </div>
       </div>
 
-      <div className="flex flex-col gap-4 md:flex-row md:items-center bg-zoru-surface shadow-sm p-4 rounded-xl border border-zoru-line">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center bg-[var(--st-bg-secondary)] shadow-sm p-4 rounded-xl border border-[var(--st-border)]">
         {/* Definition */}
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-zoru-ink-muted">Definition:</span>
+          <span className="text-sm font-medium text-[var(--st-text-secondary)]">Definition:</span>
           <select
-            className="text-sm bg-transparent border-none outline-none cursor-pointer font-medium focus:text-zoru-ink"
+            className="text-sm bg-transparent border-none outline-none cursor-pointer font-medium focus:text-[var(--st-text)]"
             value={urlState.params.get("definition") || "first-message"}
             onChange={(e) => urlState.setParam("definition", e.target.value)}
           >
@@ -164,9 +164,9 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
 
         {/* Metric */}
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-zoru-ink-muted">Metric:</span>
+          <span className="text-sm font-medium text-[var(--st-text-secondary)]">Metric:</span>
           <select
-            className="text-sm bg-transparent border-none outline-none cursor-pointer font-medium focus:text-zoru-ink"
+            className="text-sm bg-transparent border-none outline-none cursor-pointer font-medium focus:text-[var(--st-text)]"
             value={urlState.params.get("metric") || "sends"}
             onChange={(e) => urlState.setParam("metric", e.target.value)}
           >
@@ -179,9 +179,9 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
 
         {/* Splits */}
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-zoru-ink-muted">Split by:</span>
+          <span className="text-sm font-medium text-[var(--st-text-secondary)]">Split by:</span>
           <select
-            className="text-sm bg-transparent border-none outline-none cursor-pointer font-medium focus:text-zoru-ink"
+            className="text-sm bg-transparent border-none outline-none cursor-pointer font-medium focus:text-[var(--st-text)]"
             value={urlState.params.get("splitBy") || "none"}
             onChange={(e) => urlState.setParam("splitBy", e.target.value)}
           >
@@ -213,38 +213,38 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card variant="interactive">
           <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
-            <CardTitle className="text-sm font-medium text-zoru-ink-muted">Total Cohorted Contacts</CardTitle>
-            <div className="h-8 w-8 rounded-full bg-zoru-ink/10 flex items-center justify-center text-zoru-ink">
+            <CardTitle className="text-sm font-medium text-[var(--st-text-secondary)]">Total Cohorted Contacts</CardTitle>
+            <div className="h-8 w-8 rounded-full bg-[var(--st-text)]/10 flex items-center justify-center text-[var(--st-text)]">
               <Users className="h-4 w-4" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">{totalContacts.toLocaleString()}</div>
-            <p className="text-xs text-zoru-ink-muted mt-1">Across {data.totalCohorts} active cohorts</p>
+            <p className="text-xs text-[var(--st-text-secondary)] mt-1">Across {data.totalCohorts} active cohorts</p>
           </CardContent>
         </Card>
         <Card variant="interactive">
           <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
-            <CardTitle className="text-sm font-medium text-zoru-ink-muted">Avg. Month 1 Retention</CardTitle>
-            <div className="h-8 w-8 rounded-full bg-zoru-ink/10 flex items-center justify-center text-zoru-ink">
+            <CardTitle className="text-sm font-medium text-[var(--st-text-secondary)]">Avg. Month 1 Retention</CardTitle>
+            <div className="h-8 w-8 rounded-full bg-[var(--st-text)]/10 flex items-center justify-center text-[var(--st-text)]">
               <TrendingUp className="h-4 w-4" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">{avgM1Retention}%</div>
-            <p className="text-xs text-zoru-ink-muted mt-1">Industry avg is ~35%</p>
+            <p className="text-xs text-[var(--st-text-secondary)] mt-1">Industry avg is ~35%</p>
           </CardContent>
         </Card>
         <Card variant="interactive">
           <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
-            <CardTitle className="text-sm font-medium text-zoru-ink-muted">Top Performing Cohort</CardTitle>
-            <div className="h-8 w-8 rounded-full bg-zoru-ink/10 flex items-center justify-center text-zoru-ink">
+            <CardTitle className="text-sm font-medium text-[var(--st-text-secondary)]">Top Performing Cohort</CardTitle>
+            <div className="h-8 w-8 rounded-full bg-[var(--st-text)]/10 flex items-center justify-center text-[var(--st-text)]">
               <Target className="h-4 w-4" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">{bestCohort.id}</div>
-            <p className="text-xs text-zoru-ink-muted mt-1">{bestCohort.val}% retained in M1</p>
+            <p className="text-xs text-[var(--st-text-secondary)] mt-1">{bestCohort.val}% retained in M1</p>
           </CardContent>
         </Card>
       </div>
@@ -368,7 +368,7 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
             </TableHeader>
             <TableBody>
               {data.rows.map((row) => (
-                <TableRow key={row.id} className="group border-b border-zoru-line/50 hover:bg-zoru-surface-2/30">
+                <TableRow key={row.id} className="group border-b border-[var(--st-border)]/50 hover:bg-[var(--st-bg-muted)]/30">
                   <TableCell className="font-medium pl-6">
                     <div className="flex items-center">
                       <span>{row.id}</span>
@@ -393,13 +393,13 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
                   {Array.from({ length: 6 }).map((_, i) => {
                     const cell = row.cells.find((c) => c.period === i);
                     if (!cell) {
-                      return <TableCell key={i} className="bg-zoru-surface-2/10 border-r border-zoru-line/10 last:border-r-0" />;
+                      return <TableCell key={i} className="bg-[var(--st-bg-muted)]/10 border-r border-[var(--st-border)]/10 last:border-r-0" />;
                     }
                     const isSelected = selectedCell?.rowId === row.id && selectedCell?.period === i;
                     return (
                       <TableCell
                         key={i}
-                        className={`text-center p-0 border-r border-zoru-line/10 last:border-r-0`}
+                        className={`text-center p-0 border-r border-[var(--st-border)]/10 last:border-r-0`}
                       >
                         <div 
                           className={`h-full w-full m-1 p-2 rounded-md cursor-pointer transition-all hover:scale-[0.98] ${getHeatmapColor(cell.value)} ${isSelected ? "ring-2 ring-primary ring-offset-2 ring-offset-zoru-surface scale-[0.98]" : ""}`}
@@ -433,14 +433,14 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
         icon={<Eye className="h-4 w-4" />}
       >
         <div className="space-y-6 py-4">
-          <p className="text-sm text-zoru-ink-muted">
+          <p className="text-sm text-[var(--st-text-secondary)]">
             Detailed breakdown of the contacts in this cohort cell.
           </p>
           <div className="grid grid-cols-3 gap-4">
-            <Card variant="default" className="bg-zoru-surface-2/30">
+            <Card variant="default" className="bg-[var(--st-bg-muted)]/30">
               <CardContent className="p-4 flex flex-col items-center justify-center text-center h-full">
-                <p className="text-xs text-zoru-ink-muted font-medium uppercase tracking-wider mb-2">Active Contacts</p>
-                <p className="text-2xl font-bold font-mono text-zoru-ink">
+                <p className="text-xs text-[var(--st-text-secondary)] font-medium uppercase tracking-wider mb-2">Active Contacts</p>
+                <p className="text-2xl font-bold font-mono text-[var(--st-text)]">
                   {selectedCell &&
                     data.rows
                       .find((r) => r.id === selectedCell.rowId)
@@ -448,10 +448,10 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
                 </p>
               </CardContent>
             </Card>
-            <Card variant="default" className="bg-zoru-surface-2/30">
+            <Card variant="default" className="bg-[var(--st-bg-muted)]/30">
               <CardContent className="p-4 flex flex-col items-center justify-center text-center h-full">
-                <p className="text-xs text-zoru-ink-muted font-medium uppercase tracking-wider mb-2">Retention Rate</p>
-                <p className="text-2xl font-bold font-mono text-zoru-ink">
+                <p className="text-xs text-[var(--st-text-secondary)] font-medium uppercase tracking-wider mb-2">Retention Rate</p>
+                <p className="text-2xl font-bold font-mono text-[var(--st-text)]">
                   {selectedCell &&
                     data.rows
                       .find((r) => r.id === selectedCell.rowId)
@@ -459,10 +459,10 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
                 </p>
               </CardContent>
             </Card>
-            <Card variant="default" className="bg-zoru-surface-2/30">
+            <Card variant="default" className="bg-[var(--st-bg-muted)]/30">
               <CardContent className="p-4 flex flex-col items-center justify-center text-center h-full">
-                <p className="text-xs text-zoru-ink-muted font-medium uppercase tracking-wider mb-2">LTV</p>
-                <p className="text-2xl font-bold font-mono text-zoru-ink">
+                <p className="text-xs text-[var(--st-text-secondary)] font-medium uppercase tracking-wider mb-2">LTV</p>
+                <p className="text-2xl font-bold font-mono text-[var(--st-text)]">
                   ${selectedCell &&
                     data.rows
                       .find((r) => r.id === selectedCell.rowId)
@@ -472,7 +472,7 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
             </Card>
           </div>
           
-          <div className="flex gap-3 pt-4 border-t border-zoru-line/50">
+          <div className="flex gap-3 pt-4 border-t border-[var(--st-border)]/50">
             <Button variant="default" className="flex-1 shadow-md">
               View Contacts List
             </Button>

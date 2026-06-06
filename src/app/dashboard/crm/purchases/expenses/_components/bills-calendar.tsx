@@ -84,7 +84,7 @@ export function BillsCalendar({ bills }: BillsCalendarProps) {
   return (
     <div className="flex w-full flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
-        <h3 className="text-[14px] font-medium text-zoru-ink">{monthLabel}</h3>
+        <h3 className="text-[14px] font-medium text-[var(--st-text)]">{monthLabel}</h3>
         <div className="flex items-center gap-1">
           <Button
             type="button"
@@ -115,11 +115,11 @@ export function BillsCalendar({ bills }: BillsCalendarProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-7 gap-px overflow-hidden rounded-lg border border-zoru-line bg-zoru-line text-[12px]">
+      <div className="grid grid-cols-7 gap-px overflow-hidden rounded-lg border border-[var(--st-border)] bg-[var(--st-border)] text-[12px]">
         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d) => (
           <div
             key={d}
-            className="bg-zoru-surface-2 px-2 py-1 text-center text-[11px] font-medium text-zoru-ink-muted"
+            className="bg-[var(--st-bg-muted)] px-2 py-1 text-center text-[11px] font-medium text-[var(--st-text-secondary)]"
           >
             {d}
           </div>
@@ -133,22 +133,22 @@ export function BillsCalendar({ bills }: BillsCalendarProps) {
           return (
             <div
               key={i}
-              className={`min-h-[88px] bg-zoru-surface p-1 ${
-                inMonth ? '' : 'bg-zoru-surface-2/60 text-zoru-ink-muted'
+              className={`min-h-[88px] bg-[var(--st-bg-secondary)] p-1 ${
+                inMonth ? '' : 'bg-[var(--st-bg-muted)]/60 text-[var(--st-text-secondary)]'
               }`}
             >
               <div className="flex items-center justify-between">
                 <span
                   className={`text-[11px] ${
                     isToday
-                      ? 'inline-flex h-4 w-4 items-center justify-center rounded-full bg-zoru-primary text-white'
-                      : 'text-zoru-ink-muted'
+                      ? 'inline-flex h-4 w-4 items-center justify-center rounded-full bg-[var(--st-text)] text-white'
+                      : 'text-[var(--st-text-secondary)]'
                   }`}
                 >
                   {cell.getDate()}
                 </span>
                 {items.length > 0 ? (
-                  <span className="text-[10px] text-zoru-ink-muted">
+                  <span className="text-[10px] text-[var(--st-text-secondary)]">
                     {items.length}
                   </span>
                 ) : null}
@@ -162,8 +162,8 @@ export function BillsCalendar({ bills }: BillsCalendarProps) {
                       href={`/dashboard/crm/purchases/expenses/${bill._id}`}
                       className={`truncate rounded px-1.5 py-0.5 text-[11px] ${
                         overdue
-                          ? 'bg-zoru-danger/15 text-zoru-danger-ink hover:bg-zoru-danger/25'
-                          : 'bg-zoru-surface-2 text-zoru-ink hover:bg-zoru-line'
+                          ? 'bg-[var(--st-danger)]/15 text-[var(--st-danger)] hover:bg-[var(--st-danger)]/25'
+                          : 'bg-[var(--st-bg-muted)] text-[var(--st-text)] hover:bg-[var(--st-border)]'
                       }`}
                       title={`${bill.billNo} · ${fmtMoney(bill.balance, bill.currency)}`}
                     >
@@ -172,7 +172,7 @@ export function BillsCalendar({ bills }: BillsCalendarProps) {
                   );
                 })}
                 {overflow > 0 ? (
-                  <span className="text-[10px] text-zoru-ink-muted">
+                  <span className="text-[10px] text-[var(--st-text-secondary)]">
                     +{overflow} more
                   </span>
                 ) : null}
@@ -182,7 +182,7 @@ export function BillsCalendar({ bills }: BillsCalendarProps) {
         })}
       </div>
 
-      <p className="text-[11px] text-zoru-ink-muted">
+      <p className="text-[11px] text-[var(--st-text-secondary)]">
         Bills plotted by due date. Overdue items appear in red.
       </p>
     </div>

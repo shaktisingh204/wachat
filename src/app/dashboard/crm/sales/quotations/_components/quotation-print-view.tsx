@@ -32,10 +32,10 @@ function fmtDate(v?: string | Date | null): string {
 function PrintField({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div>
-      <div className="text-[10.5px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+      <div className="text-[10.5px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
         {label}
       </div>
-      <div className="text-[12.5px] text-zoru-ink">{value}</div>
+      <div className="text-[12.5px] text-[var(--st-text)]">{value}</div>
     </div>
   );
 }
@@ -48,17 +48,17 @@ export function QuotationPrintView({ quotation }: QuotationPrintViewProps) {
 
   return (
     <div className="mx-auto w-full max-w-3xl space-y-6 p-6 print:p-0">
-      <header className="border-b border-zoru-line pb-4">
-        <h1 className="text-2xl font-semibold text-zoru-ink">
+      <header className="border-b border-[var(--st-border)] pb-4">
+        <h1 className="text-2xl font-semibold text-[var(--st-text)]">
           Quotation {quotation.quotationNo}
         </h1>
-        <p className="mt-1 text-[13px] text-zoru-ink-muted">
+        <p className="mt-1 text-[13px] text-[var(--st-text-secondary)]">
           {quotation.subject || ''} · {fmtMoney(totals.total, currency)} · {status}
         </p>
       </header>
 
       <section>
-        <h2 className="mb-2 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h2 className="mb-2 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Header
         </h2>
         <dl className="grid grid-cols-2 gap-3 text-[13px]">
@@ -74,12 +74,12 @@ export function QuotationPrintView({ quotation }: QuotationPrintViewProps) {
       </section>
 
       <section>
-        <h2 className="mb-2 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h2 className="mb-2 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Line items
         </h2>
         <table className="w-full text-[12.5px]">
           <thead>
-            <tr className="border-b border-zoru-line">
+            <tr className="border-b border-[var(--st-border)]">
               <th className="p-2 text-left">Item</th>
               <th className="p-2 text-right">Qty</th>
               <th className="p-2 text-right">Rate</th>
@@ -89,7 +89,7 @@ export function QuotationPrintView({ quotation }: QuotationPrintViewProps) {
           </thead>
           <tbody>
             {items.map((li, i) => (
-              <tr key={i} className="border-b border-zoru-line last:border-b-0">
+              <tr key={i} className="border-b border-[var(--st-border)] last:border-b-0">
                 <td className="p-2">{li.description ?? li.itemId ?? '—'}</td>
                 <td className="p-2 text-right font-mono tabular-nums">{li.qty}</td>
                 <td className="p-2 text-right font-mono tabular-nums">
@@ -108,7 +108,7 @@ export function QuotationPrintView({ quotation }: QuotationPrintViewProps) {
       </section>
 
       <section>
-        <h2 className="mb-2 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h2 className="mb-2 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Totals
         </h2>
         <dl className="grid grid-cols-2 gap-1 text-[13px]">
@@ -125,7 +125,7 @@ export function QuotationPrintView({ quotation }: QuotationPrintViewProps) {
 
       {quotation.termsAndConditions ? (
         <section>
-          <h2 className="mb-2 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          <h2 className="mb-2 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
             Terms &amp; conditions
           </h2>
           <p className="whitespace-pre-wrap text-[13px]">
@@ -136,7 +136,7 @@ export function QuotationPrintView({ quotation }: QuotationPrintViewProps) {
 
       {quotation.customerNotes ? (
         <section>
-          <h2 className="mb-2 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          <h2 className="mb-2 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
             Notes
           </h2>
           <p className="whitespace-pre-wrap text-[13px]">{quotation.customerNotes}</p>

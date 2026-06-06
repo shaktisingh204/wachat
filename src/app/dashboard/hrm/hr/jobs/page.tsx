@@ -217,30 +217,30 @@ export default function JobsListPage() {
                     }
                     loading={isLoading && jobs.length === 0}
                 >
-                    <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                    <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                         <Table>
                             <ZoruTableHeader>
-                                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                    <ZoruTableHead className="text-zoru-ink-muted">Title</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Department</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Type</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Openings</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted text-right">Actions</ZoruTableHead>
+                                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Title</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Department</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Type</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Openings</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Actions</ZoruTableHead>
                                 </ZoruTableRow>
                             </ZoruTableHeader>
                             <ZoruTableBody>
                                 {isLoading ? (
-                                    <ZoruTableRow className="border-zoru-line">
+                                    <ZoruTableRow className="border-[var(--st-border)]">
                                         <ZoruTableCell colSpan={6} className="h-24 text-center">
-                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
+                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 ) : jobs.length === 0 ? (
-                                    <ZoruTableRow className="border-zoru-line">
+                                    <ZoruTableRow className="border-[var(--st-border)]">
                                         <ZoruTableCell
                                             colSpan={6}
-                                            className="h-24 text-center text-zoru-ink-muted"
+                                            className="h-24 text-center text-[var(--st-text-secondary)]"
                                         >
                                             No jobs match this filter.
                                         </ZoruTableCell>
@@ -252,8 +252,8 @@ export default function JobsListPage() {
                                         const openings = j.openings ?? 0;
                                         const filled = j.filled ?? 0;
                                         return (
-                                            <ZoruTableRow key={j._id} className="border-zoru-line">
-                                                <ZoruTableCell className="font-medium text-zoru-ink">
+                                            <ZoruTableRow key={j._id} className="border-[var(--st-border)]">
+                                                <ZoruTableCell className="font-medium text-[var(--st-text)]">
                                                     <Link
                                                         href={`${BASE}/${j._id}`}
                                                         className="hover:underline"
@@ -261,13 +261,13 @@ export default function JobsListPage() {
                                                         {j.title}
                                                     </Link>
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {j.departmentName || j.departmentId || '—'}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="capitalize text-zoru-ink">
+                                                <ZoruTableCell className="capitalize text-[var(--st-text)]">
                                                     {pretty(j.employmentType as string)}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
+                                                <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
                                                     {filled}/{openings}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
@@ -284,7 +284,7 @@ export default function JobsListPage() {
                                                         size="icon"
                                                         onClick={() => setPendingDelete(j)}
                                                     >
-                                                        <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                                        <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                                     </Button>
                                                 </ZoruTableCell>
                                             </ZoruTableRow>

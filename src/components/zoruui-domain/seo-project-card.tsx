@@ -63,25 +63,25 @@ export const SeoProjectCard = React.memo(function SeoProjectCard({ project, onTo
         <Card
             className={cn(
                 "group relative flex flex-col transition-all duration-300",
-                "border-zoru-line/50 bg-zoru-surface/50 backdrop-blur-sm",
-                "hover:shadow-xl hover:-translate-y-1 hover:border-zoru-line/50", // Orange for SEO
+                "border-[var(--st-border)]/50 bg-[var(--st-bg-secondary)]/50 backdrop-blur-sm",
+                "hover:shadow-xl hover:-translate-y-1 hover:border-[var(--st-border)]/50", // Orange for SEO
                 "cursor-pointer overflow-hidden rounded-xl"
             )}
             onClick={handleCardClick}
         >
             {/* Gradient Accent Line */}
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-zoru-ink to-zoru-ink" />
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[var(--st-text)] to-[var(--st-text)]" />
 
             <ZoruCardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 pt-5">
                 <div className="flex-1 min-w-0 flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-zoru-surface-2 dark:bg-zoru-ink/20 flex items-center justify-center flex-shrink-0">
-                        <BarChart className="h-5 w-5 text-zoru-ink dark:text-zoru-ink-muted" />
+                    <div className="h-10 w-10 rounded-full bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/20 flex items-center justify-center flex-shrink-0">
+                        <BarChart className="h-5 w-5 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]" />
                     </div>
                     <div>
-                        <ZoruCardTitle className="font-bold text-lg truncate group-hover:text-zoru-ink transition-colors">
+                        <ZoruCardTitle className="font-bold text-lg truncate group-hover:text-[var(--st-text)] transition-colors">
                             {displayName}
                         </ZoruCardTitle>
-                        <p className="text-xs text-zoru-ink-muted font-mono mt-0.5">
+                        <p className="text-xs text-[var(--st-text-secondary)] font-mono mt-0.5">
                             SEO Monitoring
                         </p>
                     </div>
@@ -91,7 +91,7 @@ export const SeoProjectCard = React.memo(function SeoProjectCard({ project, onTo
                     <Button
                         variant="ghost"
                         size="icon"
-                        className={cn("h-8 w-8 rounded-full", project.isFavorite ? "text-zoru-ink hover:text-zoru-ink" : "text-zoru-ink-muted hover:text-zoru-ink")}
+                        className={cn("h-8 w-8 rounded-full", project.isFavorite ? "text-[var(--st-text)] hover:text-[var(--st-text)]" : "text-[var(--st-text-secondary)] hover:text-[var(--st-text)]")}
                         onClick={async (e) => {
                             e.preventDefault();
                             e.stopPropagation();
@@ -113,14 +113,14 @@ export const SeoProjectCard = React.memo(function SeoProjectCard({ project, onTo
                     </Button>
                     <DropdownMenu>
                         <ZoruDropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-zoru-ink-muted hover:text-zoru-ink rounded-full">
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-[var(--st-text-secondary)] hover:text-[var(--st-text)] rounded-full">
                                 <MoreVertical className="h-4 w-4" />
                                 <span className="sr-only">Open menu</span>
                             </Button>
                         </ZoruDropdownMenuTrigger>
                         <ZoruDropdownMenuContent align="end">
                             <ZoruDropdownMenuItem
-                                className="text-zoru-ink focus:text-zoru-ink"
+                                className="text-[var(--st-text)] focus:text-[var(--st-text)]"
                                 onSelect={async (e) => {
                                     e.preventDefault();
                                     if (!window.confirm(`Delete "${displayName}"? This cannot be undone.`)) return;
@@ -146,14 +146,14 @@ export const SeoProjectCard = React.memo(function SeoProjectCard({ project, onTo
 
             <ZoruCardContent className="space-y-4 pb-4">
                 <div className="grid grid-cols-2 gap-4 my-2">
-                    <div className="flex flex-col gap-1.5 p-2 rounded-lg bg-zoru-surface-2/30 border border-zoru-line/20">
-                        <span className="text-[10px] uppercase tracking-wider text-zoru-ink-muted font-bold">Health Score</span>
+                    <div className="flex flex-col gap-1.5 p-2 rounded-lg bg-[var(--st-bg-muted)]/30 border border-[var(--st-border)]/20">
+                        <span className="text-[10px] uppercase tracking-wider text-[var(--st-text-secondary)] font-bold">Health Score</span>
                         <div className="flex items-center gap-2">
-                            <div className="h-2 w-full bg-zoru-surface-2 rounded-full overflow-hidden">
+                            <div className="h-2 w-full bg-[var(--st-bg-muted)] rounded-full overflow-hidden">
                                 <div
                                     className={cn(
                                         "h-full transition-all duration-500",
-                                        healthScore >= 90 ? 'bg-zoru-ink' : healthScore >= 70 ? 'bg-zoru-ink' : 'bg-zoru-ink'
+                                        healthScore >= 90 ? 'bg-[var(--st-text)]' : healthScore >= 70 ? 'bg-[var(--st-text)]' : 'bg-[var(--st-text)]'
                                     )}
                                     style={{ width: `${healthScore}%` }}
                                 />
@@ -162,26 +162,26 @@ export const SeoProjectCard = React.memo(function SeoProjectCard({ project, onTo
                         </div>
                     </div>
 
-                    <div className="flex flex-col gap-1.5 p-2 rounded-lg bg-zoru-surface-2/30 border border-zoru-line/20">
-                        <span className="text-[10px] uppercase tracking-wider text-zoru-ink-muted font-bold">Last Audit</span>
+                    <div className="flex flex-col gap-1.5 p-2 rounded-lg bg-[var(--st-bg-muted)]/30 border border-[var(--st-border)]/20">
+                        <span className="text-[10px] uppercase tracking-wider text-[var(--st-text-secondary)] font-bold">Last Audit</span>
                         <div className="flex items-center gap-1.5 text-sm font-medium">
-                            <Calendar className="h-3.5 w-3.5 text-zoru-ink-muted" />
+                            <Calendar className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                             <span className="truncate">{lastAuditText}</span>
                         </div>
                     </div>
                 </div>
 
                 <div className="flex flex-col gap-2">
-                    <span className="text-[10px] uppercase tracking-wider text-zoru-ink-muted font-bold">Competitors</span>
+                    <span className="text-[10px] uppercase tracking-wider text-[var(--st-text-secondary)] font-bold">Competitors</span>
                     <div className="flex flex-wrap gap-2 min-h-[1.5rem]">
                         {project.competitors && project.competitors.length > 0 ? (
                             project.competitors.slice(0, 3).map((comp: string) => (
-                                <Badge key={comp} variant="outline" className="text-[10px] font-normal px-1.5 h-5 bg-zoru-surface/50">
+                                <Badge key={comp} variant="outline" className="text-[10px] font-normal px-1.5 h-5 bg-[var(--st-bg-secondary)]/50">
                                     {comp}
                                 </Badge>
                             ))
                         ) : (
-                            <span className="text-xs text-zoru-ink-muted italic">None added</span>
+                            <span className="text-xs text-[var(--st-text-secondary)] italic">None added</span>
                         )}
                     </div>
                 </div>
@@ -189,7 +189,7 @@ export const SeoProjectCard = React.memo(function SeoProjectCard({ project, onTo
                 <div className="pt-2">
                     <Link href={`/dashboard/seo/${project._id}`} className="block">
                         <Button
-                            className="w-full bg-gradient-to-r from-zoru-ink to-zoru-ink hover:from-zoru-ink hover:to-zoru-ink text-white shadow-md shadow-zoru-line/10 border-0"
+                            className="w-full bg-gradient-to-r from-[var(--st-text)] to-[var(--st-text)] hover:from-[var(--st-text)] hover:to-[var(--st-text)] text-white shadow-md shadow-zoru-line/10 border-0"
                             size="sm"
                         >
                             View Dashboard <ArrowRight className="ml-2 h-4 w-4" />

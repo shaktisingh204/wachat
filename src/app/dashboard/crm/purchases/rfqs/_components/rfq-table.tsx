@@ -97,7 +97,7 @@ export function RfqTable({
       key: 'scope',
       header: 'Scope / Title',
       sortable: true,
-      render: (row) => <span className="text-zoru-ink-muted">{row.scope || row.title || '—'}</span>,
+      render: (row) => <span className="text-[var(--st-text-secondary)]">{row.scope || row.title || '—'}</span>,
     },
     {
       key: 'vendorsInvitedCount',
@@ -114,7 +114,7 @@ export function RfqTable({
       sortable: true,
       render: (row) => {
         const isPast = row.deadlinePassed;
-        const colorClass = isPast ? 'text-zoru-danger-ink font-semibold' : 'text-zoru-ink-muted';
+        const colorClass = isPast ? 'text-[var(--st-danger)] font-semibold' : 'text-[var(--st-text-secondary)]';
         return (
           <span className={colorClass}>
             {fmtDate(row.deadline)}
@@ -126,14 +126,14 @@ export function RfqTable({
     {
       key: 'currency',
       header: 'Currency',
-      render: (row) => <span className="text-zoru-ink-muted">{row.currency || defaultCurrency}</span>,
+      render: (row) => <span className="text-[var(--st-text-secondary)]">{row.currency || defaultCurrency}</span>,
     },
     {
       key: 'estimatedValue',
       header: 'Est. Value',
       sortable: true,
       render: (row) => (
-        <span className="font-mono tabular-nums text-zoru-ink font-semibold">
+        <span className="font-mono tabular-nums text-[var(--st-text)] font-semibold">
           {fmtINR(row.estimatedValue, row.currency ?? defaultCurrency)}
         </span>
       ),
@@ -148,13 +148,13 @@ export function RfqTable({
           tone={statusToTone(row.status)}
         />
       ) : (
-        <span className="text-zoru-ink-muted">—</span>
+        <span className="text-[var(--st-text-secondary)]">—</span>
       ),
       editRender: (row, value, onChange) => {
         const options = ['draft', 'sent', 'closed', 'awarded', 'cancelled'];
         return (
           <select
-            className="h-8 w-36 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg text-zoru-ink text-[12.5px] p-1 outline-none focus:ring-1 focus:ring-zoru-primary"
+            className="h-8 w-36 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)] text-[12.5px] p-1 outline-none focus:ring-1 focus:ring-[var(--st-text)]"
             value={value !== undefined ? String(value) : 'draft'}
             onChange={(e) => onChange(e.target.value)}
           >
@@ -173,14 +173,14 @@ export function RfqTable({
       render: (row) => row.ownerId ? (
         <EntityPickerChip entity="user" id={row.ownerId} />
       ) : (
-        <span className="text-zoru-ink-muted">—</span>
+        <span className="text-[var(--st-text-secondary)]">—</span>
       ),
     },
     {
       key: 'createdAt',
       header: 'Created',
       sortable: true,
-      render: (row) => <span className="text-zoru-ink-muted">{fmtDate(row.createdAt)}</span>,
+      render: (row) => <span className="text-[var(--st-text-secondary)]">{fmtDate(row.createdAt)}</span>,
     },
     {
       key: 'actions',

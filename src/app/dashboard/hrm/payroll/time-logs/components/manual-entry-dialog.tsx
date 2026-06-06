@@ -60,56 +60,56 @@ export function ManualEntryDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="bg-zoru-bg sm:max-w-[440px]">
+      <ZoruDialogContent className="bg-[var(--st-bg)] sm:max-w-[440px]">
         <ZoruDialogHeader>
-          <ZoruDialogTitle className="text-[16px] text-zoru-ink">
+          <ZoruDialogTitle className="text-[16px] text-[var(--st-text)]">
             Add Manual Entry
           </ZoruDialogTitle>
         </ZoruDialogHeader>
 
         <div className="flex flex-col gap-4 py-2">
           <div className="flex flex-col gap-1.5">
-            <label className="text-[12.5px] font-medium text-zoru-ink-muted">
-              Start Time <span className="text-zoru-danger-ink">*</span>
+            <label className="text-[12.5px] font-medium text-[var(--st-text-secondary)]">
+              Start Time <span className="text-[var(--st-danger)]">*</span>
             </label>
             <Input
               type="datetime-local"
               value={manualStart}
               onChange={(e) => setManualStart(e.target.value)}
-              className="h-9 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+              className="h-9 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
             />
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-[12.5px] font-medium text-zoru-ink-muted">
-              End Time <span className="text-zoru-danger-ink">*</span>
+            <label className="text-[12.5px] font-medium text-[var(--st-text-secondary)]">
+              End Time <span className="text-[var(--st-danger)]">*</span>
             </label>
             <Input
               type="datetime-local"
               value={manualEnd}
               onChange={(e) => setManualEnd(e.target.value)}
-              className="h-9 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+              className="h-9 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
             />
           </div>
 
           {manualStart && manualEnd && new Date(manualEnd) > new Date(manualStart) && (
-            <p className="text-[12px] text-zoru-ink-muted">
+            <p className="text-[12px] text-[var(--st-text-secondary)]">
               Duration:{' '}
-              <span className="font-mono font-medium text-zoru-ink">
+              <span className="font-mono font-medium text-[var(--st-text)]">
                 {wsFormatDuration(manualStart, manualEnd)}
               </span>
             </p>
           )}
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-[12.5px] font-medium text-zoru-ink-muted">
+            <label className="text-[12.5px] font-medium text-[var(--st-text-secondary)]">
               Memo
             </label>
             <Input
               placeholder="What did you work on?"
               value={manualMemo}
               onChange={(e) => setManualMemo(e.target.value)}
-              className="h-9 rounded-lg border-zoru-line bg-zoru-bg text-[13px] placeholder:text-zoru-ink-muted"
+              className="h-9 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px] placeholder:text-[var(--st-text-secondary)]"
             />
           </div>
         </div>

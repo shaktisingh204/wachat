@@ -172,7 +172,7 @@ export default function TrialBalancePage(): React.JSX.Element {
     if (isLoading && entries.length === 0) {
         return (
             <div className="flex h-full items-center justify-center py-16">
-                <LoaderCircle className="h-8 w-8 animate-spin text-zoru-ink-muted" />
+                <LoaderCircle className="h-8 w-8 animate-spin text-[var(--st-text-secondary)]" />
             </div>
         );
     }
@@ -283,7 +283,7 @@ export default function TrialBalancePage(): React.JSX.Element {
             </Select>
             <div className="flex items-center gap-2">
                 <Switch id="hide-zero-tb" checked={hideZero} onCheckedChange={setHideZero} />
-                <Label htmlFor="hide-zero-tb" className="text-[12.5px] text-zoru-ink">
+                <Label htmlFor="hide-zero-tb" className="text-[12.5px] text-[var(--st-text)]">
                     Hide zero-entry accounts
                 </Label>
             </div>
@@ -292,13 +292,13 @@ export default function TrialBalancePage(): React.JSX.Element {
 
     const chart = (
         <div>
-            <h2 className="text-[15px] font-semibold text-zoru-ink">Top accounts by closing balance</h2>
-            <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+            <h2 className="text-[15px] font-semibold text-[var(--st-text)]">Top accounts by closing balance</h2>
+            <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">
                 Horizontal bars — positive values are Dr balances, negative are Cr.
             </p>
             <div className="mt-4 h-72 w-full">
                 {chartData.length === 0 ? (
-                    <div className="flex h-full items-center justify-center text-[13px] text-zoru-ink-muted">
+                    <div className="flex h-full items-center justify-center text-[13px] text-[var(--st-text-secondary)]">
                         No balances to plot.
                     </div>
                 ) : (
@@ -327,24 +327,24 @@ export default function TrialBalancePage(): React.JSX.Element {
     const table = (
         <Table>
             <ZoruTableHeader>
-                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                    <ZoruTableHead className="text-zoru-ink-muted">Account</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted text-right">Opening</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted text-right">Debit</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted text-right">Credit</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted text-right">Closing</ZoruTableHead>
+                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Account</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Opening</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Debit</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Credit</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Closing</ZoruTableHead>
                 </ZoruTableRow>
             </ZoruTableHeader>
             <ZoruTableBody>
                 {pageRows.length === 0 ? (
-                    <ZoruTableRow className="border-zoru-line">
-                        <ZoruTableCell colSpan={5} className="h-24 text-center text-zoru-ink-muted">
+                    <ZoruTableRow className="border-[var(--st-border)]">
+                        <ZoruTableCell colSpan={5} className="h-24 text-center text-[var(--st-text-secondary)]">
                             No accounts to display.
                         </ZoruTableCell>
                     </ZoruTableRow>
                 ) : (
                     pageRows.map((e) => (
-                        <ZoruTableRow key={e.accountId} className="border-zoru-line">
+                        <ZoruTableRow key={e.accountId} className="border-[var(--st-border)]">
                             <ZoruTableCell>
                                 <div className="flex items-center gap-2">
                                     <EntityRowLink
@@ -354,7 +354,7 @@ export default function TrialBalancePage(): React.JSX.Element {
                                     <Button
                                         variant="outline"
                                         size="sm"
-                                        className="h-6 w-6 p-0 shrink-0 text-zoru-ink-muted hover:text-zoru-ink"
+                                        className="h-6 w-6 p-0 shrink-0 text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                                         onClick={() => setSelectedAccount(e)}
                                         title="View General Ledger"
                                     >
@@ -362,33 +362,33 @@ export default function TrialBalancePage(): React.JSX.Element {
                                     </Button>
                                 </div>
                             </ZoruTableCell>
-                            <ZoruTableCell className="text-right font-mono text-zoru-ink">
+                            <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
                                 {Math.abs(e.openingBalance).toFixed(2)} {e.openingBalanceType}
                             </ZoruTableCell>
-                            <ZoruTableCell className="text-right font-mono text-zoru-ink">
+                            <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
                                 {fmtMoney(e.totalDebit)}
                             </ZoruTableCell>
-                            <ZoruTableCell className="text-right font-mono text-zoru-ink">
+                            <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
                                 {fmtMoney(e.totalCredit)}
                             </ZoruTableCell>
-                            <ZoruTableCell className="text-right font-mono font-semibold text-zoru-ink">
+                            <ZoruTableCell className="text-right font-mono font-semibold text-[var(--st-text)]">
                                 {Math.abs(e.closingBalance).toFixed(2)} {e.closingBalanceType}
                             </ZoruTableCell>
                         </ZoruTableRow>
                     ))
                 )}
-                <ZoruTableRow className="border-zoru-line bg-zoru-surface-2 font-semibold">
-                    <ZoruTableCell className="text-zoru-ink">Total</ZoruTableCell>
-                    <ZoruTableCell className="text-right font-mono text-zoru-ink">
+                <ZoruTableRow className="border-[var(--st-border)] bg-[var(--st-bg-muted)] font-semibold">
+                    <ZoruTableCell className="text-[var(--st-text)]">Total</ZoruTableCell>
+                    <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
                         {Math.abs(totals.totalOpening).toFixed(2)} {totals.totalOpening >= 0 ? 'Dr' : 'Cr'}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right font-mono text-zoru-ink">
+                    <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
                         {fmtMoney(totals.totalDebit)}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right font-mono text-zoru-ink">
+                    <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
                         {fmtMoney(totals.totalCredit)}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right font-mono text-zoru-ink">
+                    <ZoruTableCell className="text-right font-mono text-[var(--st-text)]">
                         {Math.abs(totals.totalClosing).toFixed(2)} {totals.totalClosing >= 0 ? 'Dr' : 'Cr'}
                     </ZoruTableCell>
                 </ZoruTableRow>
@@ -431,13 +431,13 @@ export default function TrialBalancePage(): React.JSX.Element {
 
             {/* General Ledger Sliding Drawer */}
             <Sheet open={!!selectedAccount} onOpenChange={(open) => { if (!open) setSelectedAccount(null); }}>
-                <ZoruSheetContent side="right" className="sm:max-w-md md:max-w-lg w-full flex flex-col h-full bg-zoru-surface border-l border-zoru-line p-0">
-                    <div className="p-6 border-b border-zoru-line">
+                <ZoruSheetContent side="right" className="sm:max-w-md md:max-w-lg w-full flex flex-col h-full bg-[var(--st-bg-secondary)] border-l border-[var(--st-border)] p-0">
+                    <div className="p-6 border-b border-[var(--st-border)]">
                         <ZoruSheetHeader className="pr-8">
-                            <ZoruSheetTitle className="text-[16px] font-bold text-zoru-ink flex flex-wrap items-center gap-2">
+                            <ZoruSheetTitle className="text-[16px] font-bold text-[var(--st-text)] flex flex-wrap items-center gap-2">
                                 <span>{selectedAccount?.accountName}</span>
                             </ZoruSheetTitle>
-                            <ZoruSheetDescription className="text-[12.5px] text-zoru-ink-muted mt-1">
+                            <ZoruSheetDescription className="text-[12.5px] text-[var(--st-text-secondary)] mt-1">
                                 General Ledger Vouchers &amp; Transaction Entries
                             </ZoruSheetDescription>
                         </ZoruSheetHeader>
@@ -445,10 +445,10 @@ export default function TrialBalancePage(): React.JSX.Element {
 
                     <div className="flex-1 overflow-y-auto p-6 space-y-6">
                         {selectedAccount && (
-                            <div className="bg-zoru-surface-2 p-4 rounded-lg border border-zoru-line flex justify-between items-center">
+                            <div className="bg-[var(--st-bg-muted)] p-4 rounded-lg border border-[var(--st-border)] flex justify-between items-center">
                                 <div>
-                                    <div className="text-[10px] font-bold text-zoru-ink-muted uppercase tracking-wider">Current Balance</div>
-                                    <div className="text-[18px] font-mono font-bold text-zoru-ink mt-0.5">
+                                    <div className="text-[10px] font-bold text-[var(--st-text-secondary)] uppercase tracking-wider">Current Balance</div>
+                                    <div className="text-[18px] font-mono font-bold text-[var(--st-text)] mt-0.5">
                                         {fmtMoney(selectedAccount.closingBalance)} {selectedAccount.closingBalanceType ?? 'Dr'}
                                     </div>
                                 </div>
@@ -456,7 +456,7 @@ export default function TrialBalancePage(): React.JSX.Element {
                         )}
 
                         <div className="space-y-4">
-                            <h4 className="text-[11px] font-bold uppercase tracking-wider text-zoru-ink-muted flex items-center justify-between">
+                            <h4 className="text-[11px] font-bold uppercase tracking-wider text-[var(--st-text-secondary)] flex items-center justify-between">
                                 <span>Voucher Entries Feed</span>
                                 {!isLoadingEntries && (
                                     <Badge variant="ghost">
@@ -467,42 +467,42 @@ export default function TrialBalancePage(): React.JSX.Element {
                             
                             {isLoadingEntries ? (
                                 <div className="flex justify-center p-8">
-                                    <span className="text-[12px] text-zoru-ink-muted font-medium">Fetching general ledger...</span>
+                                    <span className="text-[12px] text-[var(--st-text-secondary)] font-medium">Fetching general ledger...</span>
                                 </div>
                             ) : voucherEntries.length === 0 ? (
-                                <Card className="p-8 text-center text-[12.5px] text-zoru-ink-muted">
+                                <Card className="p-8 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                                     No voucher entries found for this account.
                                 </Card>
                             ) : (
                                 <div className="space-y-3">
                                     {voucherEntries.map((entry) => (
-                                        <Card key={entry._id} className="p-3 bg-zoru-surface hover:bg-zoru-surface-2 transition-colors border border-zoru-line">
+                                        <Card key={entry._id} className="p-3 bg-[var(--st-bg-secondary)] hover:bg-[var(--st-bg-muted)] transition-colors border border-[var(--st-border)]">
                                             <div className="flex justify-between items-start mb-2">
-                                                <div className="font-mono text-[11px] font-medium text-zoru-ink-muted">
+                                                <div className="font-mono text-[11px] font-medium text-[var(--st-text-secondary)]">
                                                     {new Date(entry.date).toLocaleDateString()}
                                                 </div>
-                                                <div className="font-mono text-[10px] bg-zoru-surface-2 border border-zoru-line px-1.5 py-0.5 rounded text-zoru-ink">
+                                                <div className="font-mono text-[10px] bg-[var(--st-bg-muted)] border border-[var(--st-border)] px-1.5 py-0.5 rounded text-[var(--st-text)]">
                                                     {entry.voucherNumber}
                                                 </div>
                                             </div>
-                                            <div className="text-[13px] text-zoru-ink font-medium leading-tight mb-2">
+                                            <div className="text-[13px] text-[var(--st-text)] font-medium leading-tight mb-2">
                                                 {entry.note || 'No description provided'}
                                             </div>
-                                            <div className="flex items-center justify-between border-t border-zoru-line pt-2 mt-2">
-                                                <div className="text-[11px] text-zoru-ink-muted">
+                                            <div className="flex items-center justify-between border-t border-[var(--st-border)] pt-2 mt-2">
+                                                <div className="text-[11px] text-[var(--st-text-secondary)]">
                                                     Amount
                                                 </div>
                                                 <div className="flex gap-4">
                                                     {entry.debit > 0 && (
                                                         <div className="text-right">
-                                                            <span className="text-[10px] text-zoru-ink-muted mr-1.5 uppercase font-bold">Dr</span>
-                                                            <span className="font-mono text-[13px] text-zoru-ink font-bold">{fmtMoney(entry.debit)}</span>
+                                                            <span className="text-[10px] text-[var(--st-text-secondary)] mr-1.5 uppercase font-bold">Dr</span>
+                                                            <span className="font-mono text-[13px] text-[var(--st-text)] font-bold">{fmtMoney(entry.debit)}</span>
                                                         </div>
                                                     )}
                                                     {entry.credit > 0 && (
                                                         <div className="text-right">
-                                                            <span className="text-[10px] text-zoru-ink-muted mr-1.5 uppercase font-bold">Cr</span>
-                                                            <span className="font-mono text-[13px] text-zoru-ink font-bold">{fmtMoney(entry.credit)}</span>
+                                                            <span className="text-[10px] text-[var(--st-text-secondary)] mr-1.5 uppercase font-bold">Cr</span>
+                                                            <span className="font-mono text-[13px] text-[var(--st-text)] font-bold">{fmtMoney(entry.credit)}</span>
                                                         </div>
                                                     )}
                                                 </div>

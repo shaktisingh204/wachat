@@ -12,7 +12,7 @@ export function ShopHeader({ shopName }: { shopName: string }) {
     const params = useParams();
     
     return (
-        <header className="sticky top-0 z-40 w-full border-b bg-zoru-surface">
+        <header className="sticky top-0 z-40 w-full border-b bg-[var(--st-bg-secondary)]">
             <div className="container mx-auto flex h-16 items-center justify-between px-4">
                 <Link href={`/shop/${params.slug}`} className="text-xl font-bold" style={{ color: 'var(--shop-primary-color)' }}>
                     {shopName}
@@ -22,7 +22,7 @@ export function ShopHeader({ shopName }: { shopName: string }) {
                         <Link href={`/shop/${params.slug}/cart`}>
                             <ShoppingCart className="h-5 w-5" />
                             {itemCount > 0 && (
-                                <span className="ml-2 bg-zoru-ink text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                                <span className="ml-2 bg-[var(--st-text)] text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
                                     {itemCount}
                                 </span>
                             )}

@@ -11,7 +11,7 @@ export default async function AdminLoginPage() {
     }
 
     return (
-        <div className="zoruui min-h-screen bg-zoru-ink text-white">
+        <div className="zoruui min-h-screen bg-[var(--st-text)] text-white">
             <AdminLoginClient initialMode={configured ? 'login' : 'setup'} />
         </div>
     );

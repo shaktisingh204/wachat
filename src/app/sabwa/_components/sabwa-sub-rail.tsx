@@ -215,11 +215,11 @@ function NavBody({ pathname, collapsed = false, onNavigate }: NavBodyProps) {
         {NAV_SECTIONS.map((section) => (
           <div key={section.id} className="flex flex-col gap-1">
             {!collapsed ? (
-              <p className="px-2 pt-1 text-[10px] font-semibold uppercase tracking-wider text-zoru-ink-muted/80">
+              <p className="px-2 pt-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--st-text-secondary)]/80">
                 {section.label}
               </p>
             ) : (
-              <div className="mx-2 my-1 h-px bg-zoru-line/60" aria-hidden />
+              <div className="mx-2 my-1 h-px bg-[var(--st-border)]/60" aria-hidden />
             )}
             <ul className="flex flex-col gap-0.5">
               {section.items.map((item) => {
@@ -234,17 +234,17 @@ function NavBody({ pathname, collapsed = false, onNavigate }: NavBodyProps) {
                       title={collapsed ? item.label : undefined}
                       className={cn(
                         "group flex items-center gap-3 rounded-[var(--zoru-radius)] px-2 py-1.5 text-sm font-medium outline-none transition-colors",
-                        "text-zoru-ink-muted hover:bg-zoru-surface hover:text-zoru-ink",
-                        "focus-visible:ring-2 focus-visible:ring-zoru-ink focus-visible:ring-offset-2",
+                        "text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)] hover:text-[var(--st-text)]",
+                        "focus-visible:ring-2 focus-visible:ring-[var(--st-text)] focus-visible:ring-offset-2",
                         active &&
-                          "bg-zoru-ink/10 text-zoru-ink hover:bg-zoru-ink/15 hover:text-zoru-ink",
+                          "bg-[var(--st-text)]/10 text-[var(--st-text)] hover:bg-[var(--st-text)]/15 hover:text-[var(--st-text)]",
                         collapsed && "justify-center px-0 py-2",
                       )}
                     >
                       <Icon
                         className={cn(
                           "h-4 w-4 shrink-0",
-                          active && "text-zoru-ink",
+                          active && "text-[var(--st-text)]",
                         )}
                       />
                       {!collapsed && <span className="truncate">{item.label}</span>}
@@ -264,17 +264,17 @@ function RailBrand({ collapsed }: { collapsed: boolean }) {
   return (
     <div
       className={cn(
-        "flex h-14 items-center gap-2 border-b border-zoru-line px-3",
+        "flex h-14 items-center gap-2 border-b border-[var(--st-border)] px-3",
         collapsed && "justify-center px-0",
       )}
     >
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-ink/10 text-zoru-ink">
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-text)]/10 text-[var(--st-text)]">
         <MessageCircle className="h-4 w-4" />
       </div>
       {!collapsed && (
         <div className="min-w-0">
-          <p className="truncate text-sm font-semibold leading-tight text-zoru-ink">SabWa</p>
-          <p className="truncate text-[11px] text-zoru-ink-muted">
+          <p className="truncate text-sm font-semibold leading-tight text-[var(--st-text)]">SabWa</p>
+          <p className="truncate text-[11px] text-[var(--st-text-secondary)]">
             Personal WhatsApp
           </p>
         </div>
@@ -327,14 +327,14 @@ export function SabWaSubRail() {
         aria-label="SabWa sub navigation"
         data-collapsed={collapsed || undefined}
         className={cn(
-          "sticky top-0 hidden h-screen shrink-0 flex-col border-r border-zoru-line bg-zoru-surface/40 md:flex",
+          "sticky top-0 hidden h-screen shrink-0 flex-col border-r border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40 md:flex",
           "transition-[width] duration-200 ease-out",
           collapsed ? "w-14" : "w-60",
         )}
       >
         <RailBrand collapsed={collapsed} />
         <NavBody pathname={pathname} collapsed={collapsed} />
-        <div className="border-t border-zoru-line p-2">
+        <div className="border-t border-[var(--st-border)] p-2">
           <Button
             type="button"
             variant="ghost"
@@ -343,7 +343,7 @@ export function SabWaSubRail() {
             aria-label={collapsed ? "Expand navigation" : "Collapse navigation"}
             aria-expanded={!collapsed}
             className={cn(
-              "w-full justify-start gap-2 text-zoru-ink-muted",
+              "w-full justify-start gap-2 text-[var(--st-text-secondary)]",
               collapsed && "justify-center",
             )}
           >

@@ -16,7 +16,7 @@ export default function ErrorPage({
             subtitle="Failed to load stock valuation data."
         >
             <div className="flex flex-col items-center justify-center space-y-4 py-12">
-                <p className="text-sm text-zoru-ink">{error.message || 'An unexpected error occurred.'}</p>
+                <p className="text-sm text-[var(--st-text)]">{error.message || 'An unexpected error occurred.'}</p>
                 <Button variant="outline" onClick={reset}>
                     Try again
                 </Button>

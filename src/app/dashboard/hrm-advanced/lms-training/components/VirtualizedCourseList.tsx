@@ -35,7 +35,7 @@ export function VirtualizedCourseList({
 
   if (courses.length === 0) {
     return (
-      <div className="p-8 text-center text-zoru-ink-muted">
+      <div className="p-8 text-center text-[var(--st-text-secondary)]">
         No courses found. Adjust your search or create a new course.
       </div>
     );
@@ -63,8 +63,8 @@ export function VirtualizedCourseList({
           return (
             <div
               key={course._id || virtualRow.index}
-              className={`absolute top-0 left-0 w-full grid grid-cols-[auto_1fr_1fr_auto_auto_auto] gap-4 p-4 border-b items-center transition-colors hover:bg-zoru-surface-2/30 ${
-                isSelected ? 'bg-zoru-ink/5' : ''
+              className={`absolute top-0 left-0 w-full grid grid-cols-[auto_1fr_1fr_auto_auto_auto] gap-4 p-4 border-b items-center transition-colors hover:bg-[var(--st-bg-muted)]/30 ${
+                isSelected ? 'bg-[var(--st-text)]/5' : ''
               }`}
               style={{
                 height: `${virtualRow.size}px`,
@@ -81,7 +81,7 @@ export function VirtualizedCourseList({
               <div className="font-medium truncate" title={course.title}>
                 {course.title}
               </div>
-              <div className="text-zoru-ink-muted truncate text-sm" title={course.description || ''}>
+              <div className="text-[var(--st-text-secondary)] truncate text-sm" title={course.description || ''}>
                 {course.description || '-'}
               </div>
               <div className="text-right tabular-nums">
@@ -97,7 +97,7 @@ export function VirtualizedCourseList({
                   onClick={() => onEdit(course)}
                   disabled={isPending}
                 >
-                  <Edit2 className="w-4 h-4 text-zoru-ink-muted" />
+                  <Edit2 className="w-4 h-4 text-[var(--st-text-secondary)]" />
                   <span className="sr-only">Edit</span>
                 </Button>
                 <Button 
@@ -105,7 +105,7 @@ export function VirtualizedCourseList({
                   size="icon" 
                   onClick={() => course._id && onDelete(course._id)}
                   disabled={isPending}
-                  className="hover:text-zoru-ink hover:bg-zoru-ink/10"
+                  className="hover:text-[var(--st-text)] hover:bg-[var(--st-text)]/10"
                 >
                   <Trash2 className="w-4 h-4" />
                   <span className="sr-only">Delete</span>

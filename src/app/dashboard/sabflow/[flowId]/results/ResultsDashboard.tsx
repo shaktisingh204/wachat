@@ -31,7 +31,7 @@ export function ResultsDashboard({ stats, dailyCounts, sessions }: Props) {
     {
       label: 'Completed',
       value: stats.completedSessions,
-      icon: <CheckCircle className="w-4 h-4 text-zoru-success" />,
+      icon: <CheckCircle className="w-4 h-4 text-[var(--st-status-ok)]" />,
     },
     {
       label: 'Completion Rate',
@@ -69,7 +69,7 @@ export function ResultsDashboard({ stats, dailyCounts, sessions }: Props) {
       accessorKey: 'createdAt',
       header: 'Started At',
       cell: (info) => (
-        <span className="text-zoru-ink whitespace-nowrap">
+        <span className="text-[var(--st-text)] whitespace-nowrap">
           {format(new Date(info.getValue<string>()), 'MMM dd, HH:mm')}
         </span>
       ),
@@ -91,7 +91,7 @@ export function ResultsDashboard({ stats, dailyCounts, sessions }: Props) {
       id: 'status',
       header: 'Status',
       cell: () => (
-        <Badge variant="destructive" className="bg-zoru-ink/10 text-zoru-ink hover:bg-zoru-ink/20 border-0">
+        <Badge variant="destructive" className="bg-[var(--st-text)]/10 text-[var(--st-text)] hover:bg-[var(--st-text)]/20 border-0">
           <XCircle className="mr-1 h-3 w-3" />
           Failed/Abandoned
         </Badge>
@@ -113,10 +113,10 @@ export function ResultsDashboard({ stats, dailyCounts, sessions }: Props) {
         ))}
       </div>
 
-      <div className="flex flex-col gap-4 rounded-xl border border-zoru-line bg-zoru-bg p-6 shadow-sm">
+      <div className="flex flex-col gap-4 rounded-xl border border-[var(--st-border)] bg-[var(--st-bg)] p-6 shadow-sm">
           <div>
-            <h3 className="text-lg font-semibold text-zoru-ink">Success vs Failure Rate</h3>
-            <p className="text-sm text-zoru-ink-muted">Aggregate statistics per flow over the last 30 days.</p>
+            <h3 className="text-lg font-semibold text-[var(--st-text)]">Success vs Failure Rate</h3>
+            <p className="text-sm text-[var(--st-text-secondary)]">Aggregate statistics per flow over the last 30 days.</p>
           </div>
           <ZoruChartContainer height={300}>
             <ZoruChart.BarChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
@@ -144,8 +144,8 @@ export function ResultsDashboard({ stats, dailyCounts, sessions }: Props) {
       {/* Data Table */}
       <div className="flex flex-col gap-4">
         <div>
-          <h3 className="text-lg font-semibold text-zoru-ink">Recent Errors</h3>
-          <p className="text-sm text-zoru-ink-muted">List of recent failed or abandoned sessions.</p>
+          <h3 className="text-lg font-semibold text-[var(--st-text)]">Recent Errors</h3>
+          <p className="text-sm text-[var(--st-text-secondary)]">List of recent failed or abandoned sessions.</p>
         </div>
         <DataTable
           columns={columns}

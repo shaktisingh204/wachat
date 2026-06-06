@@ -18,9 +18,9 @@ export default function ErrorBoundary({
       description="Manage webhooks"
       breadcrumbs={[{ label: "Webhooks" }]}
     >
-      <Card className="mt-6 border-zoru-danger/50 bg-zoru-danger/5">
+      <Card className="mt-6 border-[var(--st-danger)]/50 bg-[var(--st-danger)]/5">
         <ZoruCardHeader>
-          <ZoruCardTitle className="text-zoru-danger flex items-center gap-2">
+          <ZoruCardTitle className="text-[var(--st-danger)] flex items-center gap-2">
             <AlertTriangle className="h-5 w-5" />
             Error Loading Webhooks
           </ZoruCardTitle>

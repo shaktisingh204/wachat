@@ -123,14 +123,14 @@ export default function ConversionFunnelPage() {
                     {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-14" />)}
                 </div>
             ) : !funnel ? (
-                <Card><ZoruCardContent className="p-8 text-center text-zoru-ink-muted">No funnel data available.</ZoruCardContent></Card>
+                <Card><ZoruCardContent className="p-8 text-center text-[var(--st-text-secondary)]">No funnel data available.</ZoruCardContent></Card>
             ) : (
                 <>
                     <Card>
                         <ZoruCardContent className="p-4 flex items-center gap-3">
-                            <DollarSign className="h-5 w-5 text-zoru-ink-muted" />
+                            <DollarSign className="h-5 w-5 text-[var(--st-text-secondary)]" />
                             <div>
-                                <div className="text-sm text-zoru-ink-muted">Total spend (30d)</div>
+                                <div className="text-sm text-[var(--st-text-secondary)]">Total spend (30d)</div>
                                 <div className="text-2xl font-bold tabular-nums">${funnel.spend.toFixed(2)}</div>
                             </div>
                         </ZoruCardContent>
@@ -153,16 +153,16 @@ export default function ConversionFunnelPage() {
                                             <div className="flex items-center gap-3 text-sm">
                                                 <span className="tabular-nums font-semibold">{count.toLocaleString()}</span>
                                                 {dropOff && (
-                                                    <span className="text-zoru-ink text-xs">-{dropOff}%</span>
+                                                    <span className="text-[var(--st-text)] text-xs">-{dropOff}%</span>
                                                 )}
-                                                <span className="text-zoru-ink-muted text-xs tabular-nums">
+                                                <span className="text-[var(--st-text-secondary)] text-xs tabular-nums">
                                                     ${costPer}/ea
                                                 </span>
                                             </div>
                                         </div>
-                                        <div className="w-full bg-zoru-surface-2 rounded-full h-6">
+                                        <div className="w-full bg-[var(--st-bg-muted)] rounded-full h-6">
                                             <div
-                                                className="bg-zoru-ink h-6 rounded-full transition-all duration-500"
+                                                className="bg-[var(--st-text)] h-6 rounded-full transition-all duration-500"
                                                 style={{ width: `${widthPct}%` }}
                                             />
                                         </div>
@@ -181,7 +181,7 @@ export default function ConversionFunnelPage() {
                                     const cost = count > 0 ? (funnel.spend / count).toFixed(2) : '—';
                                     return (
                                         <div key={step.key} className="text-center">
-                                            <div className="text-xs text-zoru-ink-muted">{step.label}</div>
+                                            <div className="text-xs text-[var(--st-text-secondary)]">{step.label}</div>
                                             <div className="text-lg font-bold tabular-nums">${cost}</div>
                                         </div>
                                     );

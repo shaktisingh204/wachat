@@ -71,10 +71,10 @@ function Field({
 }) {
   return (
     <div>
-      <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
         {label}
       </div>
-      <div className="mt-1 text-[13px] text-zoru-ink">{value ?? '—'}</div>
+      <div className="mt-1 text-[13px] text-[var(--st-text)]">{value ?? '—'}</div>
     </div>
   );
 }
@@ -102,7 +102,7 @@ export default async function PortalDetailPage({ params }: PageProps) {
       back={{ href: '/dashboard/crm/portal', label: 'All portal users' }}
       actions={<PortalDetailActions portalUserId={id} status={status} />}
       audit={
-        <React.Suspense fallback={<div className="h-64 w-full animate-pulse bg-zoru-surface-2 rounded-md" />}>
+        <React.Suspense fallback={<div className="h-64 w-full animate-pulse bg-[var(--st-bg-muted)] rounded-md" />}>
           <EntityAuditTimeline entityKind="portal_user" entityId={id} />
         </React.Suspense>
       }
@@ -115,17 +115,17 @@ export default async function PortalDetailPage({ params }: PageProps) {
             <ZoruCardContent>
               <div className="space-y-2 text-[12.5px]">
                 <div className="flex items-center justify-between">
-                  <span className="text-zoru-ink-muted">Status</span>
+                  <span className="text-[var(--st-text-secondary)]">Status</span>
                   <Badge variant="outline">{status}</Badge>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-zoru-ink-muted">Last login</span>
+                  <span className="text-[var(--st-text-secondary)]">Last login</span>
                   <span className="font-mono tabular-nums text-[12px]">
                     {fmtDateTime(user.lastLoginAt)}
                   </span>
                 </div>
-                <div className="flex items-center justify-between border-t border-zoru-line pt-2">
-                  <span className="text-zoru-ink-muted">Active sessions</span>
+                <div className="flex items-center justify-between border-t border-[var(--st-border)] pt-2">
+                  <span className="text-[var(--st-text-secondary)]">Active sessions</span>
                   <span>{user.activeSessions ?? 0}</span>
                 </div>
               </div>
@@ -144,12 +144,12 @@ export default async function PortalDetailPage({ params }: PageProps) {
                       ? `/dashboard/crm/vendors/${user.linkedEntityId}`
                       : `/dashboard/crm/accounts/${user.linkedEntityId}`
                   }
-                  className="text-[12.5px] text-zoru-primary hover:underline"
+                  className="text-[12.5px] text-[var(--st-text)] hover:underline"
                 >
                   Open {user.linkedEntityKind || 'account'} →
                 </Link>
               ) : (
-                <span className="text-[12.5px] text-zoru-ink-muted">
+                <span className="text-[12.5px] text-[var(--st-text-secondary)]">
                   Not linked
                 </span>
               )}
@@ -161,7 +161,7 @@ export default async function PortalDetailPage({ params }: PageProps) {
               <ZoruCardTitle>Last invite</ZoruCardTitle>
             </ZoruCardHeader>
             <ZoruCardContent>
-              <div className="text-[12.5px] text-zoru-ink">
+              <div className="text-[12.5px] text-[var(--st-text)]">
                 {fmtDateTime(user.lastMagicLinkAt)}
               </div>
             </ZoruCardContent>
@@ -197,7 +197,7 @@ export default async function PortalDetailPage({ params }: PageProps) {
         </ZoruCardHeader>
         <ZoruCardContent>
           {capabilities.length === 0 ? (
-            <p className="text-[13px] text-zoru-ink-muted">
+            <p className="text-[13px] text-[var(--st-text-secondary)]">
               No capabilities granted.
             </p>
           ) : (
@@ -218,14 +218,14 @@ export default async function PortalDetailPage({ params }: PageProps) {
         </ZoruCardHeader>
         <ZoruCardContent>
           {loginHistory.length === 0 ? (
-            <p className="text-[13px] text-zoru-ink-muted">
+            <p className="text-[13px] text-[var(--st-text-secondary)]">
               {/* TODO 1D.2: portal login-history collection not yet wired */}
               No login activity yet.
             </p>
           ) : (
             <table className="w-full text-[13px]">
               <thead>
-                <tr className="border-b border-zoru-line/60 text-left text-[11px] uppercase text-zoru-ink-muted">
+                <tr className="border-b border-[var(--st-border)]/60 text-left text-[11px] uppercase text-[var(--st-text-secondary)]">
                   <th className="py-2">When</th>
                   <th className="py-2">IP</th>
                   <th className="py-2">User agent</th>
@@ -235,13 +235,13 @@ export default async function PortalDetailPage({ params }: PageProps) {
                 {loginHistory.slice(0, 50).map((row, idx) => (
                   <tr
                     key={row._id ?? `${row.at}-${idx}`}
-                    className="border-b border-zoru-line/40 last:border-0"
+                    className="border-b border-[var(--st-border)]/40 last:border-0"
                   >
                     <td className="py-2">{fmtDateTime(row.at)}</td>
-                    <td className="py-2 text-zoru-ink-muted">
+                    <td className="py-2 text-[var(--st-text-secondary)]">
                       {row.ip || '—'}
                     </td>
-                    <td className="py-2 text-zoru-ink-muted text-[12px]">
+                    <td className="py-2 text-[var(--st-text-secondary)] text-[12px]">
                       {row.userAgent || '—'}
                     </td>
                   </tr>
@@ -264,12 +264,12 @@ export default async function PortalDetailPage({ params }: PageProps) {
                   ? `/dashboard/crm/vendors/${user.linkedEntityId}`
                   : `/dashboard/crm/accounts/${user.linkedEntityId}`
               }
-              className="text-[13px] text-zoru-primary hover:underline"
+              className="text-[13px] text-[var(--st-text)] hover:underline"
             >
               Open {user.linkedEntityKind || 'account'} →
             </Link>
           ) : (
-            <p className="text-[13px] text-zoru-ink-muted">
+            <p className="text-[13px] text-[var(--st-text-secondary)]">
               No entity linked yet. Edit the portal user to attach an account
               or vendor.
             </p>
@@ -283,7 +283,7 @@ export default async function PortalDetailPage({ params }: PageProps) {
             <ZoruCardTitle>Notes</ZoruCardTitle>
           </ZoruCardHeader>
           <ZoruCardContent>
-            <p className="whitespace-pre-wrap text-[13px] text-zoru-ink">
+            <p className="whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
               {user.notes}
             </p>
           </ZoruCardContent>

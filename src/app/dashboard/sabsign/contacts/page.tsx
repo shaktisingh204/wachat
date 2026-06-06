@@ -10,9 +10,9 @@ export default function ContactsPage() {
       title="Address Book"
       subtitle="Manage address book for your e-signature workflows."
     >
-      <Card className="p-8 border border-dashed border-zoru-line flex flex-col items-center justify-center text-center">
-        <h3 className="text-lg font-medium text-zoru-ink">Address Book feature coming soon.</h3>
-        <p className="text-sm text-zoru-ink-muted mt-2 max-w-md">
+      <Card className="p-8 border border-dashed border-[var(--st-border)] flex flex-col items-center justify-center text-center">
+        <h3 className="text-lg font-medium text-[var(--st-text)]">Address Book feature coming soon.</h3>
+        <p className="text-sm text-[var(--st-text-secondary)] mt-2 max-w-md">
           This module is part of the 100+ feature expansion. You will be able to configure advanced settings, view metrics, and manage integrations here.
         </p>
         <Button className="mt-4" variant="outline">Learn More</Button>

@@ -170,7 +170,7 @@ export function RecognitionForm({ initialData }: RecognitionFormProps) {
 
             {/* Recipient */}
             <Card className="p-6">
-                <div className="mb-4 text-[14px] font-medium text-zoru-ink">
+                <div className="mb-4 text-[14px] font-medium text-[var(--st-text)]">
                     Recipient
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -202,7 +202,7 @@ export function RecognitionForm({ initialData }: RecognitionFormProps) {
 
             {/* From */}
             <Card className="p-6">
-                <div className="mb-4 text-[14px] font-medium text-zoru-ink">
+                <div className="mb-4 text-[14px] font-medium text-[var(--st-text)]">
                     From
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -233,7 +233,7 @@ export function RecognitionForm({ initialData }: RecognitionFormProps) {
 
             {/* Recognition body */}
             <Card className="p-6">
-                <div className="mb-4 text-[14px] font-medium text-zoru-ink">
+                <div className="mb-4 text-[14px] font-medium text-[var(--st-text)]">
                     Recognition
                 </div>
                 <div className="flex flex-col gap-4">
@@ -304,23 +304,23 @@ export function RecognitionForm({ initialData }: RecognitionFormProps) {
 
             {/* Badge — SabFiles only */}
             <Card className="p-6">
-                <div className="mb-1 text-[14px] font-medium text-zoru-ink">
+                <div className="mb-1 text-[14px] font-medium text-[var(--st-text)]">
                     Badge image
                 </div>
-                <p className="mb-4 text-[12px] text-zoru-ink-muted">
+                <p className="mb-4 text-[12px] text-[var(--st-text-secondary)]">
                     Pick from your SabFiles library or upload a new image.
                     External URLs are not supported.
                 </p>
                 <div className="flex flex-wrap items-center gap-3">
                     {badgeUrl ? (
-                        <div className="flex items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface/40 p-2">
+                        <div className="flex items-center gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40 p-2">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                                 src={badgeUrl}
                                 alt=""
                                 className="h-12 w-12 rounded object-cover"
                             />
-                            <span className="max-w-[180px] truncate text-xs text-zoru-ink">
+                            <span className="max-w-[180px] truncate text-xs text-[var(--st-text)]">
                                 {badgeName || 'Badge image'}
                             </span>
                             <Button
@@ -334,7 +334,7 @@ export function RecognitionForm({ initialData }: RecognitionFormProps) {
                             </Button>
                         </div>
                     ) : (
-                        <div className="flex h-12 w-12 items-center justify-center rounded-[var(--zoru-radius)] border border-dashed border-zoru-line text-zoru-ink-muted">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] text-[var(--st-text-secondary)]">
                             <Award className="h-5 w-5" />
                         </div>
                     )}
@@ -351,11 +351,11 @@ export function RecognitionForm({ initialData }: RecognitionFormProps) {
 
             {/* Visibility + status */}
             <Card className="p-6">
-                <div className="mb-4 text-[14px] font-medium text-zoru-ink">
+                <div className="mb-4 text-[14px] font-medium text-[var(--st-text)]">
                     Visibility & status
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
-                    <label className="flex items-center gap-2 pt-7 text-[13px] text-zoru-ink">
+                    <label className="flex items-center gap-2 pt-7 text-[13px] text-[var(--st-text)]">
                         <Checkbox
                             id="isPublic"
                             name="isPublic"

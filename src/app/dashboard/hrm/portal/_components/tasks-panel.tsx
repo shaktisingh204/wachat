@@ -195,7 +195,7 @@ export function MyTasksTable({ tasks, onRefresh }: MyTasksTableProps) {
             <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
                 <div className="flex gap-2 items-center flex-1 w-full sm:w-auto">
                     <div className="relative w-full sm:w-64">
-                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
                         <Input
                             placeholder="Search tasks..."
                             value={search}
@@ -243,12 +243,12 @@ export function MyTasksTable({ tasks, onRefresh }: MyTasksTableProps) {
                     description={tasks.length === 0 ? "No open tasks are assigned to you right now." : "Try adjusting your search or filters."}
                 />
             ) : (
-                <div className="rounded-lg border border-zoru-line overflow-hidden">
-                    <div className="bg-zoru-surface-2 border-b border-zoru-line grid grid-cols-[40px_2fr_1fr_1fr_1fr_100px] px-4 py-3 text-[12px] uppercase text-zoru-ink-muted font-medium">
+                <div className="rounded-lg border border-[var(--st-border)] overflow-hidden">
+                    <div className="bg-[var(--st-bg-muted)] border-b border-[var(--st-border)] grid grid-cols-[40px_2fr_1fr_1fr_1fr_100px] px-4 py-3 text-[12px] uppercase text-[var(--st-text-secondary)] font-medium">
                         <div className="flex items-center">
                             <input 
                                 type="checkbox" 
-                                className="rounded border-zoru-line text-zoru-primary focus:ring-zoru-primary"
+                                className="rounded border-[var(--st-border)] text-[var(--st-text)] focus:ring-[var(--st-text)]"
                                 checked={selectedTasks.size === filteredTasks.length && filteredTasks.length > 0}
                                 onChange={toggleAll}
                             />
@@ -284,23 +284,23 @@ export function MyTasksTable({ tasks, onRefresh }: MyTasksTableProps) {
                                             height: `${virtualRow.size}px`,
                                             transform: `translateY(${virtualRow.start}px)`,
                                         }}
-                                        className="grid grid-cols-[40px_2fr_1fr_1fr_1fr_100px] items-center px-4 border-b border-zoru-line/50 hover:bg-zoru-surface-2/50 transition-colors bg-zoru-bg"
+                                        className="grid grid-cols-[40px_2fr_1fr_1fr_1fr_100px] items-center px-4 border-b border-[var(--st-border)]/50 hover:bg-[var(--st-bg-muted)]/50 transition-colors bg-[var(--st-bg)]"
                                     >
                                         <div className="flex items-center">
                                             <input 
                                                 type="checkbox" 
-                                                className="rounded border-zoru-line text-zoru-primary focus:ring-zoru-primary"
+                                                className="rounded border-[var(--st-border)] text-[var(--st-text)] focus:ring-[var(--st-text)]"
                                                 checked={selectedTasks.has(task._id)}
                                                 onChange={() => toggleSelection(task._id)}
                                             />
                                         </div>
-                                        <div className="font-medium text-zoru-ink pr-4">
+                                        <div className="font-medium text-[var(--st-text)] pr-4">
                                             <span className="line-clamp-2 text-[13px]">{task.title}</span>
                                         </div>
-                                        <div className="text-[13px] text-zoru-ink-muted">
+                                        <div className="text-[13px] text-[var(--st-text-secondary)]">
                                             {task.createdByName ?? '—'}
                                         </div>
-                                        <div className="text-[13px] text-zoru-ink-muted whitespace-nowrap">
+                                        <div className="text-[13px] text-[var(--st-text-secondary)] whitespace-nowrap">
                                             <ClientDate iso={task.dueDate} />
                                         </div>
                                         <div className="flex gap-2">
@@ -375,7 +375,7 @@ export function MyCreatedTasksTable({ tasks }: MyCreatedTasksTableProps) {
             <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
                 <div className="flex gap-2 items-center flex-1 w-full sm:w-auto">
                     <div className="relative w-full sm:w-64">
-                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
                         <Input
                             placeholder="Search assigned tasks..."
                             value={search}
@@ -412,8 +412,8 @@ export function MyCreatedTasksTable({ tasks }: MyCreatedTasksTableProps) {
                     description={tasks.length === 0 ? "Tasks you assign to your team members will appear here." : "Try adjusting your search or filters."}
                 />
             ) : (
-                <div className="rounded-lg border border-zoru-line overflow-hidden">
-                    <div className="bg-zoru-surface-2 border-b border-zoru-line grid grid-cols-6 px-4 py-3 text-[12px] uppercase text-zoru-ink-muted font-medium">
+                <div className="rounded-lg border border-[var(--st-border)] overflow-hidden">
+                    <div className="bg-[var(--st-bg-muted)] border-b border-[var(--st-border)] grid grid-cols-6 px-4 py-3 text-[12px] uppercase text-[var(--st-text-secondary)] font-medium">
                         <div className="col-span-2">Title</div>
                         <div>Assignee</div>
                         <div>Due</div>
@@ -444,15 +444,15 @@ export function MyCreatedTasksTable({ tasks }: MyCreatedTasksTableProps) {
                                             height: `${virtualRow.size}px`,
                                             transform: `translateY(${virtualRow.start}px)`,
                                         }}
-                                        className="grid grid-cols-6 items-center px-4 border-b border-zoru-line/50 hover:bg-zoru-surface-2/50 transition-colors bg-zoru-bg"
+                                        className="grid grid-cols-6 items-center px-4 border-b border-[var(--st-border)]/50 hover:bg-[var(--st-bg-muted)]/50 transition-colors bg-[var(--st-bg)]"
                                     >
-                                        <div className="col-span-2 font-medium text-zoru-ink pr-4">
+                                        <div className="col-span-2 font-medium text-[var(--st-text)] pr-4">
                                             <span className="line-clamp-2 text-[13px]">{task.title}</span>
                                         </div>
-                                        <div className="text-[13px] text-zoru-ink-muted">
+                                        <div className="text-[13px] text-[var(--st-text-secondary)]">
                                             {task.assignedToName ?? '—'}
                                         </div>
-                                        <div className="text-[13px] text-zoru-ink-muted whitespace-nowrap">
+                                        <div className="text-[13px] text-[var(--st-text-secondary)] whitespace-nowrap">
                                             <ClientDate iso={task.dueDate} />
                                         </div>
                                         <div className="flex gap-2 col-span-2">

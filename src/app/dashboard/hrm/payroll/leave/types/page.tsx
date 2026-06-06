@@ -20,7 +20,7 @@ export default function LeaveTypesPage() {
           subtitle="Loading leave types..."
         >
           <Card className="p-6">
-            <div className="py-12 text-center text-[13px] text-zoru-ink-muted">Loading…</div>
+            <div className="py-12 text-center text-[13px] text-[var(--st-text-secondary)]">Loading…</div>
           </Card>
         </EntityListShell>
       }

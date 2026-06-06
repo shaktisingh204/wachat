@@ -87,10 +87,10 @@ export function QuotationLineItemsEditor({
     <>
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-[15px] font-semibold text-zoru-ink">
-            Line items <span className="text-zoru-danger-ink">*</span>
+          <h2 className="text-[15px] font-semibold text-[var(--st-text)]">
+            Line items <span className="text-[var(--st-danger)]">*</span>
           </h2>
-          <p className="text-[12.5px] text-zoru-ink-muted">
+          <p className="text-[12.5px] text-[var(--st-text-secondary)]">
             Pick an item per row, or leave the picker blank and use the description.
           </p>
         </div>
@@ -100,9 +100,9 @@ export function QuotationLineItemsEditor({
         </Button>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-zoru-line">
+      <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
         <table className="w-full text-[12.5px]">
-          <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
+          <thead className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
             <tr>
               <th className="p-2 text-left">Item / Description</th>
               <th className="p-2 text-right">Qty</th>
@@ -129,7 +129,7 @@ export function QuotationLineItemsEditor({
               return (
                 <tr
                   key={row.rowKey}
-                  className="border-t border-zoru-line align-top"
+                  className="border-t border-[var(--st-border)] align-top"
                 >
                   <td className="space-y-1.5 p-2">
                     <EntityPicker
@@ -204,7 +204,7 @@ export function QuotationLineItemsEditor({
                     value={row.cessAmount ?? 0}
                     onChange={(v) => onPatch(row.rowKey, { cessAmount: v })}
                   />
-                  <td className="p-2 text-right text-zoru-ink tabular-nums">
+                  <td className="p-2 text-right text-[var(--st-text)] tabular-nums">
                     {fmtMoney(lineTotal)}
                   </td>
                   <td className="p-2">
@@ -215,7 +215,7 @@ export function QuotationLineItemsEditor({
                       onClick={() => onRemove(row.rowKey)}
                       aria-label="Remove line"
                     >
-                      <Trash2 className="h-4 w-4 text-zoru-danger-ink" />
+                      <Trash2 className="h-4 w-4 text-[var(--st-danger)]" />
                     </Button>
                   </td>
                 </tr>
@@ -225,7 +225,7 @@ export function QuotationLineItemsEditor({
         </table>
       </div>
 
-      <Label className="block text-[11px] text-zoru-ink-muted">
+      <Label className="block text-[11px] text-[var(--st-text-secondary)]">
         Discount / shipping / adjustment / round-off — captured in the Summary card below.
       </Label>
     </>

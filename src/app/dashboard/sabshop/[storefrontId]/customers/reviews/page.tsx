@@ -133,7 +133,7 @@ const RatingStars = ({ rating }: { rating: number }) => {
       {[1, 2, 3, 4, 5].map((star) => (
         <Star 
           key={star} 
-          className={`w-3.5 h-3.5 ${star <= rating ? "fill-amber-400 text-amber-400" : "fill-zoru-surface-2 text-zoru-line-strong"}`} 
+          className={`w-3.5 h-3.5 ${star <= rating ? "fill-amber-400 text-amber-400" : "fill-[var(--st-bg-muted)] text-[var(--st-border-strong)]"}`} 
         />
       ))}
     </div>
@@ -149,11 +149,11 @@ export default function ReviewsModerationPage() {
     <div className="flex w-full flex-col gap-6 p-6">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-zoru-ink tracking-tight flex items-center gap-2">
+          <h1 className="text-2xl font-semibold text-[var(--st-text)] tracking-tight flex items-center gap-2">
             <MessageSquare className="w-6 h-6 text-pink-500" />
             Reviews Moderation
           </h1>
-          <p className="text-sm text-zoru-ink-muted mt-1">
+          <p className="text-sm text-[var(--st-text-secondary)] mt-1">
             Centralized hub for monitoring, approving, and replying to product reviews.
           </p>
         </div>
@@ -166,9 +166,9 @@ export default function ReviewsModerationPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="shadow-none border-zoru-line">
+        <Card className="shadow-none border-[var(--st-border)]">
           <CardContent className="pt-6">
-            <p className="text-sm font-medium text-zoru-ink-muted mb-1">Pending Review</p>
+            <p className="text-sm font-medium text-[var(--st-text-secondary)] mb-1">Pending Review</p>
             <div className="flex items-center gap-2">
               <h2 className="text-3xl font-bold text-amber-500">24</h2>
               <span className="text-xs font-medium px-2 py-1 bg-amber-500/10 text-amber-600 rounded-full flex items-center gap-1">
@@ -177,25 +177,25 @@ export default function ReviewsModerationPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="shadow-none border-zoru-line">
+        <Card className="shadow-none border-[var(--st-border)]">
           <CardContent className="pt-6">
-            <p className="text-sm font-medium text-zoru-ink-muted mb-1">Approved Today</p>
+            <p className="text-sm font-medium text-[var(--st-text-secondary)] mb-1">Approved Today</p>
             <div className="flex items-center gap-2">
-              <h2 className="text-3xl font-bold text-zoru-ink">142</h2>
+              <h2 className="text-3xl font-bold text-[var(--st-text)]">142</h2>
               <span className="text-xs font-medium text-emerald-500">+12%</span>
             </div>
           </CardContent>
         </Card>
-        <Card className="shadow-none border-zoru-line">
+        <Card className="shadow-none border-[var(--st-border)]">
           <CardContent className="pt-6">
-            <p className="text-sm font-medium text-zoru-ink-muted mb-1">Average Rating</p>
+            <p className="text-sm font-medium text-[var(--st-text-secondary)] mb-1">Average Rating</p>
             <div className="flex items-center gap-2">
-              <h2 className="text-3xl font-bold text-zoru-ink">4.8</h2>
+              <h2 className="text-3xl font-bold text-[var(--st-text)]">4.8</h2>
               <RatingStars rating={5} />
             </div>
           </CardContent>
         </Card>
-        <Card className="shadow-none border-zoru-line bg-gradient-to-br from-indigo-500/5 to-purple-500/5">
+        <Card className="shadow-none border-[var(--st-border)] bg-gradient-to-br from-indigo-500/5 to-purple-500/5">
           <CardContent className="pt-6">
             <p className="text-sm font-medium text-indigo-600 mb-1">AI Sentiment</p>
             <div className="flex items-center gap-2">
@@ -207,7 +207,7 @@ export default function ReviewsModerationPage() {
       </div>
 
       <Card className="flex-1 overflow-hidden flex flex-col">
-        <CardHeader className="border-b border-zoru-line pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <CardHeader className="border-b border-[var(--st-border)] pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0 hide-scrollbar">
             {["All", "Pending", "Approved", "Rejected"].map((status) => (
               <Button
@@ -215,11 +215,11 @@ export default function ReviewsModerationPage() {
                 variant={filter === status ? "default" : "outline"}
                 size="sm"
                 onClick={() => setFilter(status)}
-                className={`rounded-full h-8 ${filter === status ? "bg-zoru-ink text-zoru-bg" : "border-zoru-line"}`}
+                className={`rounded-full h-8 ${filter === status ? "bg-[var(--st-text)] text-[var(--st-bg)]" : "border-[var(--st-border)]"}`}
               >
                 {status}
                 {status === "Pending" && (
-                  <span className={`ml-2 px-1.5 py-0.5 rounded-full text-[10px] ${filter === status ? "bg-zoru-bg text-zoru-ink" : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-500"}`}>
+                  <span className={`ml-2 px-1.5 py-0.5 rounded-full text-[10px] ${filter === status ? "bg-[var(--st-bg)] text-[var(--st-text)]" : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-500"}`}>
                     24
                   </span>
                 )}
@@ -228,7 +228,7 @@ export default function ReviewsModerationPage() {
           </div>
           <div className="flex items-center gap-3">
             <div className="relative w-full sm:w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zoru-ink-muted" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--st-text-secondary)]" />
               <Input placeholder="Search reviews..." className="pl-9 h-9" />
             </div>
             <Button variant="outline" size="icon" className="h-9 w-9 shrink-0">
@@ -256,19 +256,19 @@ export default function ReviewsModerationPage() {
                         <img 
                           src={review.product.image} 
                           alt={review.product.name} 
-                          className="w-8 h-8 rounded-[var(--zoru-radius-sm)] object-cover border border-zoru-line"
+                          className="w-8 h-8 rounded-[var(--zoru-radius-sm)] object-cover border border-[var(--st-border)]"
                         />
-                        <span className="text-xs font-medium text-zoru-ink-muted truncate w-48">
+                        <span className="text-xs font-medium text-[var(--st-text-secondary)] truncate w-48">
                           {review.product.name}
                         </span>
                       </div>
                       <div>
-                        <h4 className="text-sm font-semibold text-zoru-ink mb-1">{review.title}</h4>
-                        <p className="text-sm text-zoru-ink-subtle line-clamp-2 leading-relaxed">
+                        <h4 className="text-sm font-semibold text-[var(--st-text)] mb-1">{review.title}</h4>
+                        <p className="text-sm text-[var(--st-text-tertiary)] line-clamp-2 leading-relaxed">
                           "{review.content}"
                         </p>
                       </div>
-                      <span className="text-xs text-zoru-ink-muted">{review.date}</span>
+                      <span className="text-xs text-[var(--st-text-secondary)]">{review.date}</span>
                     </div>
                   </TableCell>
                   
@@ -279,13 +279,13 @@ export default function ReviewsModerationPage() {
                         <AvatarFallback>{review.customer.name.charAt(0)}</AvatarFallback>
                       </Avatar>
                       <div className="flex flex-col">
-                        <span className="text-sm font-medium text-zoru-ink flex items-center gap-1">
+                        <span className="text-sm font-medium text-[var(--st-text)] flex items-center gap-1">
                           {review.customer.name}
                           {review.verified && (
                             <CheckCircle className="w-3 h-3 text-indigo-500" />
                           )}
                         </span>
-                        <span className="text-xs text-zoru-ink-muted">{review.customer.email}</span>
+                        <span className="text-xs text-[var(--st-text-secondary)]">{review.customer.email}</span>
                       </div>
                     </div>
                   </TableCell>
@@ -323,10 +323,10 @@ export default function ReviewsModerationPage() {
                         </>
                       )}
                       <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <MessageSquare className="w-4 h-4 text-zoru-ink-subtle" />
+                        <MessageSquare className="w-4 h-4 text-[var(--st-text-tertiary)]" />
                       </Button>
                       <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <MoreVertical className="w-4 h-4 text-zoru-ink-subtle" />
+                        <MoreVertical className="w-4 h-4 text-[var(--st-text-tertiary)]" />
                       </Button>
                     </div>
                   </TableCell>

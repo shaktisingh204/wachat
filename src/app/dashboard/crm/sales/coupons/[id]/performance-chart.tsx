@@ -59,7 +59,7 @@ export function PerformanceChart({ usedCount, createdAt }: PerformanceChartProps
 
   return (
     <Card className="p-6 mt-6">
-      <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+      <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
         Performance (Redemptions over time)
       </h2>
       <div className="h-64 w-full">
@@ -100,7 +100,7 @@ export function PerformanceChart({ usedCount, createdAt }: PerformanceChartProps
             </LineChart>
           </ResponsiveContainer>
         ) : (
-          <div className="flex h-full items-center justify-center text-[13px] text-zoru-ink-muted">
+          <div className="flex h-full items-center justify-center text-[13px] text-[var(--st-text-secondary)]">
             No redemptions yet.
           </div>
         )}

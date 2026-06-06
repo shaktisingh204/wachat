@@ -63,7 +63,7 @@ function AccountSwitcher() {
             >
                 <div className="flex items-center gap-2 truncate">
                     <Avatar className="h-6 w-6 border">
-                        <ZoruAvatarFallback className="text-[10px] bg-zoru-ink text-white">
+                        <ZoruAvatarFallback className="text-[10px] bg-[var(--st-text)] text-white">
                             {(activeAccount?.name || 'AD').slice(0, 2).toUpperCase()}
                         </ZoruAvatarFallback>
                     </Avatar>
@@ -72,13 +72,13 @@ function AccountSwitcher() {
                             {activeAccount?.name || 'Select ad account'}
                         </div>
                         {activeAccount?.account_id && (
-                            <div className="text-[10px] font-mono text-zoru-ink-muted">
+                            <div className="text-[10px] font-mono text-[var(--st-text-secondary)]">
                                 {activeAccount.account_id}
                             </div>
                         )}
                     </div>
                 </div>
-                <ChevronsUpDown className="h-4 w-4 text-zoru-ink-muted shrink-0" />
+                <ChevronsUpDown className="h-4 w-4 text-[var(--st-text-secondary)] shrink-0" />
             </Button>
         </Link>
     );
@@ -116,8 +116,8 @@ function DateRangeBar({
                                     type="button"
                                     onClick={() => setPreset(p.id)}
                                     className={cn(
-                                        'text-left text-sm px-2 py-1.5 rounded hover:bg-zoru-surface-2',
-                                        preset === p.id && 'bg-zoru-ink/10 text-zoru-ink font-medium',
+                                        'text-left text-sm px-2 py-1.5 rounded hover:bg-[var(--st-bg-muted)]',
+                                        preset === p.id && 'bg-[var(--st-text)]/10 text-[var(--st-text)] font-medium',
                                     )}
                                 >
                                     {p.label}
@@ -173,11 +173,11 @@ export function AdManagerShell({ children }: { children: React.ReactNode }) {
         <AdManagerShellContext.Provider value={state}>
             <div className="flex flex-col gap-4">
                 {/* In-page Meta toolbar — two rows on narrow, one on wide */}
-                <div className="rounded-xl border bg-zoru-surface shadow-sm p-2 space-y-2 md:space-y-0">
+                <div className="rounded-xl border bg-[var(--st-bg-secondary)] shadow-sm p-2 space-y-2 md:space-y-0">
                     {/* Row 1: logo + account + search (always on top on narrow) */}
                     <div className="flex items-center gap-2 md:flex-1 md:min-w-0">
-                        <div className="flex items-center gap-2 font-semibold text-zoru-ink pr-2 border-r mr-1 shrink-0">
-                            <div className="h-7 w-7 rounded-md bg-zoru-ink text-white flex items-center justify-center">
+                        <div className="flex items-center gap-2 font-semibold text-[var(--st-text)] pr-2 border-r mr-1 shrink-0">
+                            <div className="h-7 w-7 rounded-md bg-[var(--st-text)] text-white flex items-center justify-center">
                                 <Facebook className="h-4 w-4" />
                             </div>
                             <span className="hidden md:inline text-sm tracking-tight">Ads Manager</span>
@@ -186,12 +186,12 @@ export function AdManagerShell({ children }: { children: React.ReactNode }) {
                         <AccountSwitcher />
 
                         <div className="relative flex-1 min-w-0 max-w-xl">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zoru-ink-muted" />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--st-text-secondary)]" />
                             <Input
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 placeholder="Search by name, ID or metric"
-                                className="h-10 pl-9 rounded-lg bg-zoru-surface-2/60 border-0 focus-visible:ring-2 focus-visible:ring-zoru-line/40"
+                                className="h-10 pl-9 rounded-lg bg-[var(--st-bg-muted)]/60 border-0 focus-visible:ring-2 focus-visible:ring-[var(--st-border)]/40"
                             />
                         </div>
 
@@ -200,7 +200,7 @@ export function AdManagerShell({ children }: { children: React.ReactNode }) {
                             <DateRangeBar date={date} setDate={setDate} preset={preset} setPreset={setPreset} />
                             <Button
                                 size="sm"
-                                className="h-10 bg-zoru-ink hover:bg-zoru-ink/90 text-white rounded-lg"
+                                className="h-10 bg-[var(--st-text)] hover:bg-[var(--st-text)]/90 text-white rounded-lg"
                                 onClick={() => router.push('/dashboard/ad-manager/create')}
                             >
                                 <Plus className="h-4 w-4 mr-1" /> Create
@@ -239,7 +239,7 @@ export function AdManagerShell({ children }: { children: React.ReactNode }) {
                         </div>
                         <Button
                             size="sm"
-                            className="h-10 bg-zoru-ink hover:bg-zoru-ink/90 text-white rounded-lg"
+                            className="h-10 bg-[var(--st-text)] hover:bg-[var(--st-text)]/90 text-white rounded-lg"
                             onClick={() => router.push('/dashboard/ad-manager/create')}
                         >
                             <Plus className="h-4 w-4 mr-1" /> Create

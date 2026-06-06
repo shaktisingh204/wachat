@@ -17,7 +17,7 @@ export default function WeeklyTimesheetsPage() {
       <LocalErrorBoundary>
         <Suspense 
           fallback={
-            <div className="p-12 text-center text-sm text-zoru-ink-muted">
+            <div className="p-12 text-center text-sm text-[var(--st-text-secondary)]">
               Loading timesheets...
             </div>
           }

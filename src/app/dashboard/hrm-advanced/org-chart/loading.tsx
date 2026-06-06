@@ -8,7 +8,7 @@ export default function Loading() {
       loading={true}
     >
       <div className="h-96 flex items-center justify-center">
-        <p className="text-zoru-ink-muted">Loading chart...</p>
+        <p className="text-[var(--st-text-secondary)]">Loading chart...</p>
       </div>
     </EntityListShell>
   );

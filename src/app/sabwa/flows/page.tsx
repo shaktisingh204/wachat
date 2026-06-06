@@ -226,20 +226,20 @@ export default function SabWaFlowsPage() {
       <div className="flex flex-wrap items-start gap-3">
         <div
           aria-hidden
-          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface text-zoru-ink"
+          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
         >
           <Workflow className="h-5 w-5" />
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-[24px] tracking-[-0.015em] text-zoru-ink leading-[1.2]">
+            <h1 className="text-[24px] tracking-[-0.015em] text-[var(--st-text)] leading-[1.2]">
               Chatbot Flows
             </h1>
             <Badge variant="secondary">SabFlow-powered</Badge>
           </div>
-          <p className="mt-1 max-w-2xl text-[13px] text-zoru-ink-muted">
+          <p className="mt-1 max-w-2xl text-[13px] text-[var(--st-text-secondary)]">
             Chatbot flows for your personal WhatsApp use{" "}
-            <strong className="font-medium text-zoru-ink">SabFlow</strong>{" "}
+            <strong className="font-medium text-[var(--st-text)]">SabFlow</strong>{" "}
             under the hood. Build once with the visual editor, route every
             inbound to the right reply — labels, webhooks, branches included.
           </p>
@@ -285,11 +285,11 @@ export default function SabWaFlowsPage() {
         {!loading && error && (
           <Card>
             <ZoruCardContent className="flex flex-col items-start gap-2 p-4 text-[13px]">
-              <div className="flex items-center gap-2 text-zoru-danger">
+              <div className="flex items-center gap-2 text-[var(--st-danger)]">
                 <CircleSlash className="h-4 w-4" />
                 <span className="font-medium">Couldn&apos;t load flows</span>
               </div>
-              <p className="text-zoru-ink-muted">{error}</p>
+              <p className="text-[var(--st-text-secondary)]">{error}</p>
               <Button
                 type="button"
                 variant="outline"
@@ -310,14 +310,14 @@ export default function SabWaFlowsPage() {
             <ZoruCardContent className="flex flex-col items-center gap-3 p-8 text-center">
               <div
                 aria-hidden
-                className="flex h-12 w-12 items-center justify-center rounded-[var(--zoru-radius-lg)] bg-zoru-surface text-zoru-ink"
+                className="flex h-12 w-12 items-center justify-center rounded-[var(--zoru-radius-lg)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
               >
                 <Workflow className="h-6 w-6" />
               </div>
-              <h3 className="text-[15px] font-semibold text-zoru-ink">
+              <h3 className="text-[15px] font-semibold text-[var(--st-text)]">
                 No flows yet
               </h3>
-              <p className="max-w-md text-[13px] text-zoru-ink-muted">
+              <p className="max-w-md text-[13px] text-[var(--st-text-secondary)]">
                 Spin up your first chatbot for personal WhatsApp. The builder
                 opens scoped to SabWa — only triggers and actions that work
                 on personal WhatsApp accounts are shown.
@@ -347,10 +347,10 @@ export default function SabWaFlowsPage() {
                   <ZoruCardContent className="flex flex-col gap-3 p-4">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <h3 className="truncate text-[15px] font-semibold text-zoru-ink">
+                        <h3 className="truncate text-[15px] font-semibold text-[var(--st-text)]">
                           {flow.name || "Untitled flow"}
                         </h3>
-                        <p className="mt-1 truncate text-[11.5px] text-zoru-ink-muted">
+                        <p className="mt-1 truncate text-[11.5px] text-[var(--st-text-secondary)]">
                           Trigger: {triggerSummary(flow)}
                         </p>
                       </div>
@@ -361,13 +361,13 @@ export default function SabWaFlowsPage() {
                         {isActive ? "Active" : "Inactive"}
                       </Badge>
                     </div>
-                    <dl className="grid grid-cols-2 gap-2 text-[11.5px] text-zoru-ink-muted">
+                    <dl className="grid grid-cols-2 gap-2 text-[11.5px] text-[var(--st-text-secondary)]">
                       <div>
-                        <dt className="font-medium text-zoru-ink">Runs</dt>
+                        <dt className="font-medium text-[var(--st-text)]">Runs</dt>
                         <dd>{flow.runsCount ?? 0}</dd>
                       </div>
                       <div>
-                        <dt className="font-medium text-zoru-ink">
+                        <dt className="font-medium text-[var(--st-text)]">
                           Last run
                         </dt>
                         <dd>{timeAgo(flow.lastRunAt)}</dd>
@@ -397,11 +397,11 @@ export default function SabWaFlowsPage() {
       <section aria-labelledby="catalogue-heading" className="space-y-3">
         <h2
           id="catalogue-heading"
-          className="text-[15px] font-semibold tracking-[-0.01em] text-zoru-ink"
+          className="text-[15px] font-semibold tracking-[-0.01em] text-[var(--st-text)]"
         >
           SabWa builder catalogue
         </h2>
-        <p className="text-[13px] text-zoru-ink-muted">
+        <p className="text-[13px] text-[var(--st-text-secondary)]">
           Reference for the triggers and actions the SabFlow builder exposes
           when scoped to SabWa.
         </p>
@@ -411,7 +411,7 @@ export default function SabWaFlowsPage() {
             <ZoruCollapsibleTrigger asChild>
               <button
                 type="button"
-                className="flex w-full items-center justify-between rounded-t-[var(--zoru-radius-lg)] p-4 text-left transition hover:bg-zoru-surface-2"
+                className="flex w-full items-center justify-between rounded-t-[var(--zoru-radius-lg)] p-4 text-left transition hover:bg-[var(--st-bg-muted)]"
                 aria-label="Toggle SabWa triggers reference"
               >
                 <ZoruCardHeader className="p-0">
@@ -430,17 +430,17 @@ export default function SabWaFlowsPage() {
                 {SABWA_TRIGGERS.map((trigger) => (
                   <div
                     key={trigger.id}
-                    className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3"
+                    className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3"
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-[13px] font-medium text-zoru-ink">
+                      <span className="text-[13px] font-medium text-[var(--st-text)]">
                         {trigger.title}
                       </span>
-                      <code className="rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 px-1.5 py-0.5 text-[10px] text-zoru-ink-muted">
+                      <code className="rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] px-1.5 py-0.5 text-[10px] text-[var(--st-text-secondary)]">
                         {trigger.id}
                       </code>
                     </div>
-                    <p className="mt-1 text-[11.5px] text-zoru-ink-muted">
+                    <p className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">
                       {trigger.description}
                     </p>
                   </div>
@@ -455,7 +455,7 @@ export default function SabWaFlowsPage() {
             <ZoruCollapsibleTrigger asChild>
               <button
                 type="button"
-                className="flex w-full items-center justify-between rounded-t-[var(--zoru-radius-lg)] p-4 text-left transition hover:bg-zoru-surface-2"
+                className="flex w-full items-center justify-between rounded-t-[var(--zoru-radius-lg)] p-4 text-left transition hover:bg-[var(--st-bg-muted)]"
                 aria-label="Toggle SabWa actions reference"
               >
                 <ZoruCardHeader className="p-0">
@@ -474,17 +474,17 @@ export default function SabWaFlowsPage() {
                 {SABWA_ACTIONS.map((action) => (
                   <div
                     key={action.id}
-                    className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3"
+                    className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3"
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-[13px] font-medium text-zoru-ink">
+                      <span className="text-[13px] font-medium text-[var(--st-text)]">
                         {action.title}
                       </span>
-                      <code className="rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 px-1.5 py-0.5 text-[10px] text-zoru-ink-muted">
+                      <code className="rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] px-1.5 py-0.5 text-[10px] text-[var(--st-text-secondary)]">
                         {action.id}
                       </code>
                     </div>
-                    <p className="mt-1 text-[11.5px] text-zoru-ink-muted">
+                    <p className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">
                       {action.description}
                     </p>
                   </div>

@@ -67,7 +67,7 @@ export function JourneyTemplateGallery({ onCreated }: { onCreated?: () => void }
 
   if (templates.length === 0) {
     return (
-      <p className="text-sm text-zoru-ink-muted">No prebuilt templates available.</p>
+      <p className="text-sm text-[var(--st-text-secondary)]">No prebuilt templates available.</p>
     );
   }
 
@@ -76,13 +76,13 @@ export function JourneyTemplateGallery({ onCreated }: { onCreated?: () => void }
       {templates.map((tpl) => (
         <Card key={tpl.id} className="p-4 flex flex-col gap-3">
           <div className="flex items-start gap-2">
-            <Sparkles className="h-4 w-4 mt-0.5 text-zoru-ink-muted" />
+            <Sparkles className="h-4 w-4 mt-0.5 text-[var(--st-text-secondary)]" />
             <div className="min-w-0 flex-1">
               <p className="font-medium">{tpl.name}</p>
               <Badge variant="outline" className="mt-1">{tpl.category}</Badge>
             </div>
           </div>
-          <p className="text-xs text-zoru-ink-muted line-clamp-3 flex-1">{tpl.description}</p>
+          <p className="text-xs text-[var(--st-text-secondary)] line-clamp-3 flex-1">{tpl.description}</p>
           <Button size="sm" disabled={pending} onClick={() => useTemplate(tpl)}>
             {pending ? 'Creating…' : 'Use template'}
           </Button>

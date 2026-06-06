@@ -118,7 +118,7 @@ export function IntegrationForm({
 
     const renderWizardStep1 = () => (
         <div className="space-y-6">
-            <h3 className="text-lg font-medium text-zoru-ink">Step 1: Choose Provider</h3>
+            <h3 className="text-lg font-medium text-[var(--st-text)]">Step 1: Choose Provider</h3>
             <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
                     <Label htmlFor="provider-trigger">Provider *</Label>
@@ -155,7 +155,7 @@ export function IntegrationForm({
 
     const renderWizardStep2 = () => (
         <div className="space-y-6">
-            <h3 className="text-lg font-medium text-zoru-ink">Step 2: API & Webhook Configuration</h3>
+            <h3 className="text-lg font-medium text-[var(--st-text)]">Step 2: API & Webhook Configuration</h3>
             <div className="space-y-4">
                 <div className="space-y-1.5">
                     <Label htmlFor="webhookUrl">Webhook URL</Label>
@@ -178,7 +178,7 @@ export function IntegrationForm({
                         className="font-mono text-[12.5px]"
                         placeholder='{"channelId":"C123","region":"eu-west-1"}'
                     />
-                    <p className="text-[12px] text-zoru-ink-muted">
+                    <p className="text-[12px] text-[var(--st-text-secondary)]">
                         Non-secret configuration. JSON object. Channel ids, region, feature flags, etc.
                     </p>
                 </div>
@@ -196,10 +196,10 @@ export function IntegrationForm({
 
     const renderWizardStep3 = () => (
         <div className="space-y-6">
-            <h3 className="text-lg font-medium text-zoru-ink">Step 3: Secure Credentials</h3>
+            <h3 className="text-lg font-medium text-[var(--st-text)]">Step 3: Secure Credentials</h3>
             <div className="space-y-1.5">
                 <Label htmlFor="credentials" className="flex items-center gap-1.5">
-                    <ShieldAlert className="h-3.5 w-3.5 text-zoru-ink" />
+                    <ShieldAlert className="h-3.5 w-3.5 text-[var(--st-text)]" />
                     Credentials (JSON)
                 </Label>
                 <Textarea
@@ -212,16 +212,16 @@ export function IntegrationForm({
                     className="font-mono text-[12.5px]"
                     placeholder='{"apiKey":"…","signingSecret":"…"}'
                 />
-                <p className="text-[12px] text-zoru-ink-muted">
+                <p className="text-[12px] text-[var(--st-text-secondary)]">
                     Stored encrypted at rest. Never displayed back to the UI.
                 </p>
             </div>
-            <div className="flex items-center justify-between rounded-md border border-zoru-line bg-zoru-surface-2 px-3 py-2">
+            <div className="flex items-center justify-between rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2">
                 <div>
                     <Label htmlFor="isActive-toggle" className="cursor-pointer">
                         Activate Immediately
                     </Label>
-                    <p className="text-[12px] text-zoru-ink-muted">
+                    <p className="text-[12px] text-[var(--st-text-secondary)]">
                         Toggle on to enable this integration as soon as it is created.
                     </p>
                 </div>
@@ -247,10 +247,10 @@ export function IntegrationForm({
                 <div className="mb-8 flex items-center justify-center space-x-4">
                     {[1, 2, 3].map(i => (
                         <div key={i} className="flex items-center">
-                            <div className={`flex h-8 w-8 items-center justify-center rounded-full border-2 ${step === i ? 'border-primary text-zoru-ink' : step > i ? 'border-primary bg-zoru-ink text-white' : 'border-zoru-line text-zoru-ink-muted'}`}>
+                            <div className={`flex h-8 w-8 items-center justify-center rounded-full border-2 ${step === i ? 'border-primary text-[var(--st-text)]' : step > i ? 'border-primary bg-[var(--st-text)] text-white' : 'border-[var(--st-border)] text-[var(--st-text-secondary)]'}`}>
                                 {step > i ? <CheckCircle2 className="h-5 w-5" /> : <span className="text-sm font-semibold">{i}</span>}
                             </div>
-                            {i < 3 && <div className={`h-1 w-12 mx-2 rounded ${step > i ? 'bg-zoru-ink' : 'bg-zoru-line'}`} />}
+                            {i < 3 && <div className={`h-1 w-12 mx-2 rounded ${step > i ? 'bg-[var(--st-text)]' : 'bg-[var(--st-border)]'}`} />}
                         </div>
                     ))}
                 </div>
@@ -311,7 +311,7 @@ export function IntegrationForm({
 
                         <div className="space-y-1.5">
                             <Label htmlFor="credentials" className="flex items-center gap-1.5">
-                                <ShieldAlert className="h-3.5 w-3.5 text-zoru-ink" />
+                                <ShieldAlert className="h-3.5 w-3.5 text-[var(--st-text)]" />
                                 Credentials (JSON)
                             </Label>
                             <Textarea
@@ -326,7 +326,7 @@ export function IntegrationForm({
                             />
                         </div>
 
-                        <div className="flex items-center justify-between rounded-md border border-zoru-line bg-zoru-surface-2 px-3 py-2">
+                        <div className="flex items-center justify-between rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2">
                             <div>
                                 <Label htmlFor="isActive-toggle" className="cursor-pointer">Active</Label>
                             </div>

@@ -111,7 +111,7 @@ export function AdjustmentDetailActions({
                         </Button>
                     </ZoruPopoverTrigger>
                     <ZoruPopoverContent align="end" className="w-72 space-y-2">
-                        <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                        <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                             Approval notes (optional)
                         </Label>
                         <Input
@@ -148,7 +148,7 @@ export function AdjustmentDetailActions({
                         </Button>
                     </ZoruPopoverTrigger>
                     <ZoruPopoverContent align="end" className="w-72 space-y-2">
-                        <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                        <Label className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                             Rejection reason
                         </Label>
                         <Input
@@ -177,7 +177,7 @@ export function AdjustmentDetailActions({
                 size="sm"
                 onClick={() => setDeleteOpen(true)}
                 disabled={pending}
-                className="text-zoru-danger-ink"
+                className="text-[var(--st-danger)]"
             >
                 <Archive className="h-3.5 w-3.5" strokeWidth={1.75} />
                 Delete

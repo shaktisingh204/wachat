@@ -162,21 +162,21 @@ function ProjectRow({
       type="button"
       onClick={() => onOpen(project.id)}
       className={cn(
-        'group flex w-full items-center gap-4 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-4 text-left transition',
-        'hover:border-zoru-line-strong hover:shadow-[var(--zoru-shadow-sm)]',
+        'group flex w-full items-center gap-4 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4 text-left transition',
+        'hover:border-[var(--st-border-strong)] hover:shadow-[var(--zoru-shadow-sm)]',
       )}
     >
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface text-zoru-ink">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
         <MessageSquare className="h-4 w-4" />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-[14px] text-zoru-ink">{project.name}</p>
-        <p className="mt-0.5 truncate text-[12px] text-zoru-ink-muted">
+        <p className="truncate text-[14px] text-[var(--st-text)]">{project.name}</p>
+        <p className="mt-0.5 truncate text-[12px] text-[var(--st-text-secondary)]">
           SabWa workspace
           {project.groupName ? ` · ${project.groupName}` : ''}
         </p>
       </div>
-      <ChevronRight className="h-4 w-4 shrink-0 text-zoru-ink-subtle transition group-hover:translate-x-0.5 group-hover:text-zoru-ink" />
+      <ChevronRight className="h-4 w-4 shrink-0 text-[var(--st-text-tertiary)] transition group-hover:translate-x-0.5 group-hover:text-[var(--st-text)]" />
     </button>
   );
 }
@@ -227,10 +227,10 @@ export function AllProjectsClient({ bootstrap }: AllProjectsClientProps) {
 
       <div className="mt-5 flex flex-wrap items-end justify-between gap-3">
         <div className="min-w-0">
-          <h1 className="text-[26px] leading-[1.15] tracking-[-0.015em] text-zoru-ink">
+          <h1 className="text-[26px] leading-[1.15] tracking-[-0.015em] text-[var(--st-text)]">
             Your SabWa projects
           </h1>
-          <p className="mt-1 text-[13px] text-zoru-ink-muted">
+          <p className="mt-1 text-[13px] text-[var(--st-text-secondary)]">
             Open a project to link WhatsApp accounts and start chatting.
           </p>
         </div>

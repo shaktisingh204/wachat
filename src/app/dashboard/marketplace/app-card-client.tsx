@@ -110,10 +110,10 @@ export function AppCardClient({ app, isInstalled }: { app: App; isInstalled?: bo
                     <img
                       src={app.manifest.iconUrl}
                       alt=""
-                      className="h-10 w-10 rounded-md border border-zoru-line object-cover"
+                      className="h-10 w-10 rounded-md border border-[var(--st-border)] object-cover"
                     />
                   ) : (
-                    <div className="flex h-10 w-10 items-center justify-center rounded-md border border-zoru-line bg-zoru-surface-2 text-base font-semibold text-zoru-ink-muted">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] text-base font-semibold text-[var(--st-text-secondary)]">
                       {app.manifest.name.slice(0, 1).toUpperCase()}
                     </div>
                   )}
@@ -121,7 +121,7 @@ export function AppCardClient({ app, isInstalled }: { app: App; isInstalled?: bo
                     <ZoruCardTitle className="text-base">
                       {app.manifest.name}
                     </ZoruCardTitle>
-                    <span className="text-xs text-zoru-ink-muted">
+                    <span className="text-xs text-[var(--st-text-secondary)]">
                       by {app.manifest.publisher.name}
                     </span>
                   </div>
@@ -135,7 +135,7 @@ export function AppCardClient({ app, isInstalled }: { app: App; isInstalled?: bo
                   {app.manifest.description}
                 </ZoruCardDescription>
               ) : (
-                <ZoruCardDescription className="italic text-zoru-ink-muted">
+                <ZoruCardDescription className="italic text-[var(--st-text-secondary)]">
                   No description provided.
                 </ZoruCardDescription>
               )}
@@ -146,7 +146,7 @@ export function AppCardClient({ app, isInstalled }: { app: App; isInstalled?: bo
                   </Badge>
                 ))}
               </div>
-              <div className="mt-2 flex items-center justify-between text-xs text-zoru-ink-muted">
+              <div className="mt-2 flex items-center justify-between text-xs text-[var(--st-text-secondary)]">
                 <div className="flex items-center gap-2">
                   <span>v{app.manifest.version}</span>
                   <span>•</span>
@@ -156,9 +156,9 @@ export function AppCardClient({ app, isInstalled }: { app: App; isInstalled?: bo
                 </div>
                 {app.averageRating !== null && app.averageRating !== undefined && (
                   <div className="flex items-center gap-1">
-                    <Star className="w-3 h-3 fill-zoru-warning text-zoru-warning" />
+                    <Star className="w-3 h-3 fill-[var(--st-warn)] text-[var(--st-warn)]" />
                     <span>{app.averageRating.toFixed(1)}</span>
-                    <span className="text-zoru-ink-muted/70">({app.reviewCount})</span>
+                    <span className="text-[var(--st-text-secondary)]/70">({app.reviewCount})</span>
                   </div>
                 )}
               </div>
@@ -175,28 +175,28 @@ export function AppCardClient({ app, isInstalled }: { app: App; isInstalled?: bo
               <img
                 src={app.manifest.iconUrl}
                 alt=""
-                className="h-16 w-16 rounded-lg border border-zoru-line object-cover"
+                className="h-16 w-16 rounded-lg border border-[var(--st-border)] object-cover"
               />
             ) : (
-              <div className="flex h-16 w-16 items-center justify-center rounded-lg border border-zoru-line bg-zoru-surface-2 text-2xl font-semibold text-zoru-ink-muted">
+              <div className="flex h-16 w-16 items-center justify-center rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] text-2xl font-semibold text-[var(--st-text-secondary)]">
                 {app.manifest.name.slice(0, 1).toUpperCase()}
               </div>
             )}
             <div>
               <ZoruDialogTitle className="text-xl mb-1">{app.manifest.name}</ZoruDialogTitle>
-              <div className="flex items-center gap-3 text-sm text-zoru-ink-muted">
+              <div className="flex items-center gap-3 text-sm text-[var(--st-text-secondary)]">
                 <span>by {app.manifest.publisher.name}</span>
                 {app.averageRating !== null && app.averageRating !== undefined && (
                   <div className="flex items-center gap-1">
-                    <Star className="w-4 h-4 fill-zoru-warning text-zoru-warning" />
-                    <span className="font-medium text-zoru-ink">{app.averageRating.toFixed(1)}</span>
+                    <Star className="w-4 h-4 fill-[var(--st-warn)] text-[var(--st-warn)]" />
+                    <span className="font-medium text-[var(--st-text)]">{app.averageRating.toFixed(1)}</span>
                     <span>({app.reviewCount} reviews)</span>
                   </div>
                 )}
               </div>
             </div>
           </div>
-          <ZoruDialogDescription className="text-base text-zoru-ink whitespace-pre-wrap mt-2">
+          <ZoruDialogDescription className="text-base text-[var(--st-text)] whitespace-pre-wrap mt-2">
             {app.manifest.description || "No description provided."}
           </ZoruDialogDescription>
         </ZoruDialogHeader>
@@ -212,10 +212,10 @@ export function AppCardClient({ app, isInstalled }: { app: App; isInstalled?: bo
               ))}
             </div>
           </div>
-          <div className="flex justify-between items-center bg-zoru-surface-1 p-3 rounded-lg border border-zoru-line">
+          <div className="flex justify-between items-center bg-[var(--st-bg-secondary)] p-3 rounded-lg border border-[var(--st-border)]">
             <div>
               <div className="text-sm font-medium">Pricing</div>
-              <div className="text-sm text-zoru-ink-muted capitalize">
+              <div className="text-sm text-[var(--st-text-secondary)] capitalize">
                 {app.manifest.pricing.type.replace("-", " ")}
               </div>
             </div>
@@ -223,7 +223,7 @@ export function AppCardClient({ app, isInstalled }: { app: App; isInstalled?: bo
           </div>
 
           {isInstalled && (
-            <div className="flex items-center justify-between bg-zoru-surface-1 p-3 rounded-lg border border-zoru-line">
+            <div className="flex items-center justify-between bg-[var(--st-bg-secondary)] p-3 rounded-lg border border-[var(--st-border)]">
               <div className="text-sm font-medium">Rate this App</div>
               <div className="flex items-center gap-1" onMouseLeave={() => setHoverRating(0)}>
                 {[1, 2, 3, 4, 5].map((star) => (
@@ -238,8 +238,8 @@ export function AppCardClient({ app, isInstalled }: { app: App; isInstalled?: bo
                     <Star
                       className={`w-5 h-5 ${
                         (hoverRating || rating) >= star
-                          ? "fill-zoru-warning text-zoru-warning"
-                          : "text-zoru-line"
+                          ? "fill-[var(--st-warn)] text-[var(--st-warn)]"
+                          : "text-[var(--st-border)]"
                       }`}
                     />
                   </button>
@@ -248,7 +248,7 @@ export function AppCardClient({ app, isInstalled }: { app: App; isInstalled?: bo
             </div>
           )}
 
-          <div className="flex justify-between text-sm text-zoru-ink-muted pt-2 border-t border-zoru-line">
+          <div className="flex justify-between text-sm text-[var(--st-text-secondary)] pt-2 border-t border-[var(--st-border)]">
             <span>Version {app.manifest.version}</span>
             <span>{app.installCount.toLocaleString()} total installs</span>
           </div>

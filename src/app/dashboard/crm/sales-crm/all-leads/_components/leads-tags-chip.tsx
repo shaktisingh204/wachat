@@ -76,18 +76,18 @@ export function LeadTagsChips({ leadId, tags, onTagsChanged }: LeadTagsChipsProp
     return (
         <div className="flex flex-wrap items-center gap-1.5">
             {localTags.length === 0 ? (
-                <span className="text-[12px] text-zoru-ink-muted">No tags</span>
+                <span className="text-[12px] text-[var(--st-text-secondary)]">No tags</span>
             ) : (
                 localTags.map((tagId) => (
                     <span
                         key={tagId}
-                        className="inline-flex items-center gap-1 rounded-full border border-zoru-line bg-zoru-surface-2 px-2 py-0.5 text-[11.5px] text-zoru-ink"
+                        className="inline-flex items-center gap-1 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2 py-0.5 text-[11.5px] text-[var(--st-text)]"
                     >
                         <EntityPickerChip entity="tag" id={tagId} fallback={tagId.slice(-6)} />
                         <button
                             type="button"
                             aria-label="Remove tag"
-                            className="text-zoru-ink-muted hover:text-zoru-ink"
+                            className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                             onClick={() => handleRemove(tagId)}
                             disabled={isPending}
                         >
@@ -103,7 +103,7 @@ export function LeadTagsChips({ leadId, tags, onTagsChanged }: LeadTagsChipsProp
                     </Button>
                 </ZoruPopoverTrigger>
                 <ZoruPopoverContent align="start" className="w-64 space-y-2">
-                    <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <p className="text-[11.5px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                         Add a tag
                     </p>
                     <EntityFormField

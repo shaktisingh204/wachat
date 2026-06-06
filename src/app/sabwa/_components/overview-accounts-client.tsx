@@ -223,8 +223,8 @@ function AccountRow({
       className={cn(
         'flex flex-wrap items-start gap-x-4 gap-y-2 rounded-[var(--zoru-radius-lg)] border p-4 transition',
         isActive
-          ? 'border-zoru-ink bg-zoru-surface shadow-[var(--zoru-shadow-sm)]'
-          : 'border-zoru-line bg-zoru-bg hover:border-zoru-line-strong',
+          ? 'border-[var(--st-text)] bg-[var(--st-bg-secondary)] shadow-[var(--zoru-shadow-sm)]'
+          : 'border-[var(--st-border)] bg-[var(--st-bg)] hover:border-[var(--st-border-strong)]',
       )}
     >
       <button
@@ -233,8 +233,8 @@ function AccountRow({
         className={cn(
           'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition',
           isActive
-            ? 'border-zoru-ink bg-zoru-ink text-zoru-on-primary'
-            : 'border-zoru-line-strong bg-zoru-bg text-transparent hover:border-zoru-ink',
+            ? 'border-[var(--st-text)] bg-[var(--st-text)] text-[var(--st-text-inverted)]'
+            : 'border-[var(--st-border-strong)] bg-[var(--st-bg)] text-transparent hover:border-[var(--st-text)]',
         )}
         aria-pressed={isActive}
         aria-label={isActive ? 'Active account' : 'Set as active account'}
@@ -244,7 +244,7 @@ function AccountRow({
 
       <div className="min-w-0 flex-1 basis-[200px]">
         <div className="flex flex-wrap items-center gap-2">
-          <p className="truncate text-[14px] text-zoru-ink">{label}</p>
+          <p className="truncate text-[14px] text-[var(--st-text)]">{label}</p>
           <Badge
             variant={statusVariant(session.status)}
             className="text-[10px]"
@@ -257,7 +257,7 @@ function AccountRow({
             </Badge>
           )}
         </div>
-        <p className="mt-0.5 truncate text-[12px] text-zoru-ink-muted">
+        <p className="mt-0.5 truncate text-[12px] text-[var(--st-text-secondary)]">
           {phone}
         </p>
       </div>
@@ -420,14 +420,14 @@ export function OverviewAccountsClient() {
 
       <div className="mt-5 flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className="text-[11px] uppercase tracking-[0.12em] text-zoru-ink-muted">
+          <p className="text-[11px] uppercase tracking-[0.12em] text-[var(--st-text-secondary)]">
             <Briefcase className="-mt-0.5 mr-1 inline h-3 w-3" />
             {activeProject?.name ?? 'Project'}
           </p>
-          <h1 className="mt-1 text-[26px] leading-[1.15] tracking-[-0.015em] text-zoru-ink">
+          <h1 className="mt-1 text-[26px] leading-[1.15] tracking-[-0.015em] text-[var(--st-text)]">
             WhatsApp accounts
           </h1>
-          <p className="mt-1 text-[13px] text-zoru-ink-muted">
+          <p className="mt-1 text-[13px] text-[var(--st-text-secondary)]">
             Pick one account to activate it across SabWa. Inbox, Chats,
             Broadcasts, and AI all use whichever account is active.
           </p>
@@ -449,10 +449,10 @@ export function OverviewAccountsClient() {
 
       {/* Active-account ready banner — confirms the rest of SabWa works */}
       {current && current.status === 'connected' && (
-        <div className="mt-5 flex items-start gap-3 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-surface p-4">
-          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-zoru-success" />
+        <div className="mt-5 flex items-start gap-3 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4">
+          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[var(--st-status-ok)]" />
           <div className="min-w-0 flex-1">
-            <p className="text-[13px] text-zoru-ink">
+            <p className="text-[13px] text-[var(--st-text)]">
               <strong>{current.label ?? current.pushName ?? 'This account'}</strong>{' '}
               is active. Inbox, Chats, Groups, Broadcasts and AI assistant
               now operate on this number.
@@ -490,12 +490,12 @@ export function OverviewAccountsClient() {
           <StatCard
             label="Ready to Use"
             value={sessions.filter(s => s.status === 'connected').length.toString()}
-            icon={<CheckCircle2 className="text-zoru-success" />}
+            icon={<CheckCircle2 className="text-[var(--st-status-ok)]" />}
           />
           <StatCard
             label="Needs Attention"
             value={sessions.filter(s => s.status !== 'connected').length.toString()}
-            icon={<AlertCircle className={sessions.filter(s => s.status !== 'connected').length > 0 ? "text-zoru-warning" : "text-zoru-ink-muted"} />}
+            icon={<AlertCircle className={sessions.filter(s => s.status !== 'connected').length > 0 ? "text-[var(--st-warn)]" : "text-[var(--st-text-secondary)]"} />}
           />
         </div>
       )}
@@ -503,8 +503,8 @@ export function OverviewAccountsClient() {
       {/* Accounts list */}
       <div className="mt-6">
         <div className="mb-3 flex items-end justify-between">
-          <h2 className="text-[16px] text-zoru-ink">Linked accounts</h2>
-          <p className="text-[12px] text-zoru-ink-muted">
+          <h2 className="text-[16px] text-[var(--st-text)]">Linked accounts</h2>
+          <p className="text-[12px] text-[var(--st-text-secondary)]">
             {sessions.length}{' '}
             {sessions.length === 1 ? 'account' : 'accounts'}
           </p>
@@ -559,7 +559,7 @@ export function OverviewAccountsClient() {
             <Link href="/sabwa/connect" className="mt-1">
               <button
                 type="button"
-                className="flex w-full items-center justify-center gap-2 rounded-[var(--zoru-radius-lg)] border border-dashed border-zoru-line p-4 text-[13px] text-zoru-ink-muted transition hover:border-zoru-ink hover:text-zoru-ink"
+                className="flex w-full items-center justify-center gap-2 rounded-[var(--zoru-radius-lg)] border border-dashed border-[var(--st-border)] p-4 text-[13px] text-[var(--st-text-secondary)] transition hover:border-[var(--st-text)] hover:text-[var(--st-text)]"
               >
                 <Plus className="h-4 w-4" />
                 Connect another WhatsApp account
@@ -571,9 +571,9 @@ export function OverviewAccountsClient() {
 
       {/* Hint when accounts exist but none active */}
       {sessions.length > 0 && !current && (
-        <div className="mt-5 flex items-start gap-3 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-4">
-          <Smartphone className="mt-0.5 h-4 w-4 shrink-0 text-zoru-ink-muted" />
-          <p className="text-[13px] text-zoru-ink-muted">
+        <div className="mt-5 flex items-start gap-3 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4">
+          <Smartphone className="mt-0.5 h-4 w-4 shrink-0 text-[var(--st-text-secondary)]" />
+          <p className="text-[13px] text-[var(--st-text-secondary)]">
             Pick an account above to activate it. Other SabWa features
             (Inbox, Chats, Broadcasts) need an active account to work.
           </p>

@@ -213,7 +213,7 @@ export function CandidatesView({ initial, kpis }: CandidatesViewProps) {
       render: (row) => (
         <Link
           href={`/dashboard/hrm/hr/candidates/${row._id}`}
-          className="inline-flex items-center gap-2 text-zoru-ink hover:underline"
+          className="inline-flex items-center gap-2 text-[var(--st-text)] hover:underline"
         >
           <Avatar className="h-6 w-6 text-[10px]">
             <ZoruAvatarFallback>
@@ -231,7 +231,7 @@ export function CandidatesView({ initial, kpis }: CandidatesViewProps) {
         row.jobTitle ? (
           <Link
             href={`/dashboard/hrm/hr/jobs/${row.jobId}`}
-            className="text-zoru-ink hover:underline"
+            className="text-[var(--st-text)] hover:underline"
           >
             {row.jobTitle}
           </Link>
@@ -309,13 +309,13 @@ export function CandidatesView({ initial, kpis }: CandidatesViewProps) {
         value={minScore}
         onChange={(e) => setMinScore(e.target.value)}
         placeholder="Min score"
-        className="h-8 w-[120px] rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-2 text-[12px] text-zoru-ink"
+        className="h-8 w-[120px] rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[12px] text-[var(--st-text)]"
       />
       <input
         type="date"
         value={appliedFrom}
         onChange={(e) => setAppliedFrom(e.target.value)}
-        className="h-8 w-[148px] rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-2 text-[12px] text-zoru-ink"
+        className="h-8 w-[148px] rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[12px] text-[var(--st-text)]"
       />
     </>
   );

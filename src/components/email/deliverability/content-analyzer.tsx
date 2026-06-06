@@ -62,16 +62,16 @@ export function ContentAnalyzer() {
         </Button>
 
         {spamScore !== null && (
-          <div className="pt-4 border-t border-zoru-line grid gap-4 md:grid-cols-2">
+          <div className="pt-4 border-t border-[var(--st-border)] grid gap-4 md:grid-cols-2">
             <div>
               <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
                 Spam Score 
-                {spamScore < 3 ? <CheckCircle2 className="h-4 w-4 text-zoru-ink" /> : <AlertTriangle className="h-4 w-4 text-zoru-ink" />}
+                {spamScore < 3 ? <CheckCircle2 className="h-4 w-4 text-[var(--st-text)]" /> : <AlertTriangle className="h-4 w-4 text-[var(--st-text)]" />}
               </h4>
               <div className="text-2xl font-bold">
-                {spamScore} <span className="text-sm text-zoru-ink-muted font-normal">/ 10</span>
+                {spamScore} <span className="text-sm text-[var(--st-text-secondary)] font-normal">/ 10</span>
               </div>
-              <p className="text-xs text-zoru-ink-muted mt-1">
+              <p className="text-xs text-[var(--st-text-secondary)] mt-1">
                 {spamScore < 3 ? 'Looking good! Unlikely to trigger spam filters.' : 'Some spam words detected. Consider revising.'}
               </p>
             </div>
@@ -81,7 +81,7 @@ export function ContentAnalyzer() {
               </h4>
               <ul className="space-y-2">
                 {aiSuggestions.map((s, i) => (
-                  <li key={i} className="text-sm p-2 bg-zoru-surface-2 rounded border border-zoru-line">
+                  <li key={i} className="text-sm p-2 bg-[var(--st-bg-muted)] rounded border border-[var(--st-border)]">
                     {s}
                   </li>
                 ))}

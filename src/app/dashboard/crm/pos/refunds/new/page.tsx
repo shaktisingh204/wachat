@@ -57,10 +57,10 @@ export default async function NewPosRefundPage({ searchParams }: PageProps) {
             >
                 <Card>
                     <ZoruCardContent className="flex flex-col items-center gap-2 p-8 text-center animate-in fade-in-50">
-                        <p className="text-sm text-zoru-ink">
+                        <p className="text-sm text-[var(--st-text)]">
                             Provide a transaction id to start a refund.
                         </p>
-                        <p className="text-[12px] text-zoru-ink-muted">
+                        <p className="text-[12px] text-[var(--st-text-secondary)]">
                             Open the session detail page and use "Start refund" on a transaction.
                         </p>
                         <Button size="sm" variant="outline" asChild>

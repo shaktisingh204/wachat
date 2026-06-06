@@ -59,7 +59,7 @@ export function DepartmentForm({ initial }: Props) {
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <Label htmlFor="name">
-              Name <span className="text-zoru-danger-ink">*</span>
+              Name <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <Input id="name" name="name" required defaultValue={initial?.name ?? ''} className="mt-1.5" placeholder="Engineering" />
           </div>
@@ -115,10 +115,10 @@ export function DepartmentForm({ initial }: Props) {
               className="mt-1.5"
             />
           </div>
-          <div className="flex items-center gap-3 rounded-lg border border-zoru-line bg-zoru-bg px-4 py-3">
+          <div className="flex items-center gap-3 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] px-4 py-3">
             <div className="flex-1">
-              <div className="text-[13px] text-zoru-ink">Active</div>
-              <div className="text-[12px] text-zoru-ink-muted">
+              <div className="text-[13px] text-[var(--st-text)]">Active</div>
+              <div className="text-[12px] text-[var(--st-text-secondary)]">
                 Inactive departments are hidden from new employee selectors.
               </div>
             </div>

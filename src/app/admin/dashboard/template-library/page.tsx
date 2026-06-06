@@ -94,10 +94,10 @@ export default function AdminTemplateLibraryPage() {
             {/* Header */}
             <div className="flex flex-wrap items-end justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-zoru-ink">Template Library</h1>
-                    <p className="text-sm text-zoru-ink-muted mt-1">Manage global templates available to all users.</p>
+                    <h1 className="text-2xl font-bold text-[var(--st-text)]">Template Library</h1>
+                    <p className="text-sm text-[var(--st-text-secondary)] mt-1">Manage global templates available to all users.</p>
                 </div>
-                <Button asChild className="bg-zoru-ink hover:bg-zoru-surface-2 text-zoru-ink shadow-lg shadow-zoru-line/25">
+                <Button asChild className="bg-[var(--st-text)] hover:bg-[var(--st-bg-muted)] text-[var(--st-text)] shadow-lg shadow-zoru-line/25">
                     <Link href="/admin/dashboard/template-library/create">
                         <PlusCircle className="mr-2 h-4 w-4" />
                         Add Template
@@ -106,21 +106,21 @@ export default function AdminTemplateLibraryPage() {
             </div>
 
             {/* Category manager */}
-            <div className="rounded-2xl border border-zoru-line bg-zoru-bg p-5">
-                <h2 className="text-sm font-semibold text-zoru-ink mb-3">Category Manager</h2>
+            <div className="rounded-2xl border border-[var(--st-border)] bg-[var(--st-bg)] p-5">
+                <h2 className="text-sm font-semibold text-[var(--st-text)] mb-3">Category Manager</h2>
                 <AdminTemplateCategoryManager />
             </div>
 
             <div className="grid gap-5 xl:grid-cols-2">
                 {/* Custom templates */}
-                <div className="rounded-2xl border border-zoru-line bg-zoru-bg p-5 flex flex-col min-w-0">
+                <div className="rounded-2xl border border-[var(--st-border)] bg-[var(--st-bg)] p-5 flex flex-col min-w-0">
                     <div className="flex items-center gap-2 mb-4">
-                        <BookCopy className="h-4 w-4 text-zoru-ink" />
-                        <h2 className="font-semibold text-zoru-ink text-sm">Custom Templates</h2>
-                        <span className="ml-auto text-xs text-zoru-ink-muted">{customTemplates.length} total</span>
+                        <BookCopy className="h-4 w-4 text-[var(--st-text)]" />
+                        <h2 className="font-semibold text-[var(--st-text)] text-sm">Custom Templates</h2>
+                        <span className="ml-auto text-xs text-[var(--st-text-secondary)]">{customTemplates.length} total</span>
                     </div>
                     {isLoading ? (
-                        <div className="flex justify-center p-10"><LoaderCircle className="animate-spin text-zoru-ink-muted h-6 w-6" /></div>
+                        <div className="flex justify-center p-10"><LoaderCircle className="animate-spin text-[var(--st-text-secondary)] h-6 w-6" /></div>
                     ) : (
                         <TemplateTable
                             data={customTemplates}
@@ -132,14 +132,14 @@ export default function AdminTemplateLibraryPage() {
                 </div>
 
                 {/* Pre-made templates */}
-                <div className="rounded-2xl border border-zoru-line bg-zoru-bg p-5 flex flex-col min-w-0">
+                <div className="rounded-2xl border border-[var(--st-border)] bg-[var(--st-bg)] p-5 flex flex-col min-w-0">
                     <div className="flex items-center gap-2 mb-4">
-                        <Lock className="h-4 w-4 text-zoru-ink-muted" />
-                        <h2 className="font-semibold text-zoru-ink text-sm">Pre-made Templates</h2>
-                        <span className="ml-auto text-xs text-zoru-ink-muted">{premadeTemplates.length} total</span>
+                        <Lock className="h-4 w-4 text-[var(--st-text-secondary)]" />
+                        <h2 className="font-semibold text-[var(--st-text)] text-sm">Pre-made Templates</h2>
+                        <span className="ml-auto text-xs text-[var(--st-text-secondary)]">{premadeTemplates.length} total</span>
                     </div>
                     {isLoading ? (
-                        <div className="flex justify-center p-10"><LoaderCircle className="animate-spin text-zoru-ink-muted h-6 w-6" /></div>
+                        <div className="flex justify-center p-10"><LoaderCircle className="animate-spin text-[var(--st-text-secondary)] h-6 w-6" /></div>
                     ) : (
                         <TemplateTable
                             data={premadeTemplates}

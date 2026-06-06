@@ -192,7 +192,7 @@ function FaqFormDialog({
               <div className="flex items-center justify-between">
                 <Label htmlFor="answer">Answer Body</Label>
                 <Button type="button" variant="outline" size="sm" onClick={handleAIGenerate} disabled={isGenerating}>
-                  {isGenerating ? <LoaderCircle className="h-3 w-3 mr-1 animate-spin" /> : <Wand2 className="h-3 w-3 mr-1 text-zoru-ink" />}
+                  {isGenerating ? <LoaderCircle className="h-3 w-3 mr-1 animate-spin" /> : <Wand2 className="h-3 w-3 mr-1 text-[var(--st-text)]" />}
                   {isGenerating ? "Drafting..." : "AI Draft Answer"}
                 </Button>
               </div>
@@ -204,7 +204,7 @@ function FaqFormDialog({
                 required
                 className="min-h-[160px]"
               />
-              <p className="text-[10px] text-zoru-ink-muted">Markdown formatting is supported (bold, italics, links, lists).</p>
+              <p className="text-[10px] text-[var(--st-text-secondary)]">Markdown formatting is supported (bold, italics, links, lists).</p>
             </div>
           </div>
           <ZoruDialogFooter>
@@ -320,7 +320,7 @@ export default function SabChatFaqPage() {
         <div className="flex flex-col sm:flex-row justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="relative w-72">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
               <Input 
                 placeholder="Search articles..." 
                 className="pl-9 h-9" 
@@ -341,9 +341,9 @@ export default function SabChatFaqPage() {
           </div>
           
           {selectedBulk.length > 0 && (
-            <div className="flex items-center gap-3 bg-zoru-surface-2 px-3 py-1.5 rounded-[var(--zoru-radius-sm)] border border-zoru-line">
+            <div className="flex items-center gap-3 bg-[var(--st-bg-muted)] px-3 py-1.5 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)]">
               <span className="text-xs font-medium">{selectedBulk.length} selected</span>
-              <Button variant="outline" size="sm" className="h-7 text-xs text-zoru-ink border-zoru-line hover:bg-zoru-surface-2 hover:text-zoru-ink">
+              <Button variant="outline" size="sm" className="h-7 text-xs text-[var(--st-text)] border-[var(--st-border)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]">
                 <Trash2 className="h-3 w-3 mr-1.5" /> Delete
               </Button>
             </div>
@@ -366,7 +366,7 @@ export default function SabChatFaqPage() {
       ) : (
         <Card className="overflow-hidden p-0 shadow-sm">
           <Table>
-            <ZoruTableHeader className="bg-zoru-surface-2/50">
+            <ZoruTableHeader className="bg-[var(--st-bg-muted)]/50">
               <ZoruTableRow>
                 <ZoruTableHead className="w-12 text-center">
                   <Checkbox checked={selectedBulk.length === filteredFaqs.length && filteredFaqs.length > 0} 
@@ -393,30 +393,30 @@ export default function SabChatFaqPage() {
                       <Checkbox checked={selectedBulk.includes(faq._id.toString())} onCheckedChange={() => toggleBulk(faq._id.toString())} />
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <Button variant="ghost" size="icon-sm" className="h-6 w-6 cursor-grab active:cursor-grabbing text-zoru-ink-subtle hover:text-zoru-ink">
+                      <Button variant="ghost" size="icon-sm" className="h-6 w-6 cursor-grab active:cursor-grabbing text-[var(--st-text-tertiary)] hover:text-[var(--st-text)]">
                         <GripVertical className="h-4 w-4" />
                       </Button>
                     </ZoruTableCell>
                     <ZoruTableCell>
                       <div className="flex flex-col gap-1 pr-4">
-                        <span className="font-medium text-sm text-zoru-ink line-clamp-1">{faq.question}</span>
-                        <span className="text-xs text-zoru-ink-muted line-clamp-1">{faq.answer}</span>
+                        <span className="font-medium text-sm text-[var(--st-text)] line-clamp-1">{faq.question}</span>
+                        <span className="text-xs text-[var(--st-text-secondary)] line-clamp-1">{faq.answer}</span>
                       </div>
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <Badge variant="outline" className="bg-zoru-surface-2 text-zoru-ink-muted">
+                      <Badge variant="outline" className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                         {isGeneral ? "General" : "Billing"}
                       </Badge>
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <Badge variant="success" className="bg-zoru-surface-2 text-zoru-ink border-zoru-line">
+                      <Badge variant="success" className="bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]">
                         Published
                       </Badge>
                     </ZoruTableCell>
                     <ZoruTableCell className="text-right">
-                      <div className="flex flex-col items-end gap-1 text-xs text-zoru-ink-muted">
+                      <div className="flex flex-col items-end gap-1 text-xs text-[var(--st-text-secondary)]">
                         <span className="flex items-center gap-1.5"><Eye className="h-3 w-3" /> {views}</span>
-                        <span className="flex items-center gap-1.5 text-zoru-ink"><ThumbsUp className="h-3 w-3" /> {helpful}%</span>
+                        <span className="flex items-center gap-1.5 text-[var(--st-text)]"><ThumbsUp className="h-3 w-3" /> {helpful}%</span>
                       </div>
                     </ZoruTableCell>
                     <ZoruTableCell className="text-right">
@@ -426,7 +426,7 @@ export default function SabChatFaqPage() {
                         </Button>
                         <ZoruAlertDialog>
                           <ZoruAlertDialogTrigger asChild>
-                            <Button variant="ghost" size="icon-sm" className="text-zoru-ink hover:text-zoru-ink hover:bg-zoru-surface-2">
+                            <Button variant="ghost" size="icon-sm" className="text-[var(--st-text)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]">
                               <Trash2 />
                             </Button>
                           </ZoruAlertDialogTrigger>

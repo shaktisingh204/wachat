@@ -40,7 +40,7 @@ export function ProjectsKanban({ rows }: { rows: ProjectRow[] }) {
             className="flex w-[280px] shrink-0 flex-col gap-2"
           >
             <header className="flex items-center justify-between px-2 py-1.5">
-              <span className="text-[12px] font-medium uppercase tracking-wider text-zoru-ink-muted">
+              <span className="text-[12px] font-medium uppercase tracking-wider text-[var(--st-text-secondary)]">
                 {stage.label}
               </span>
               <Badge variant="secondary">{cards.length}</Badge>
@@ -50,15 +50,15 @@ export function ProjectsKanban({ rows }: { rows: ProjectRow[] }) {
                 <Link
                   key={p._id}
                   href={`/dashboard/crm/projects/${p._id}`}
-                  className="block rounded-md border border-zoru-line bg-zoru-surface p-3 text-[13px] transition hover:border-zoru-primary"
+                  className="block rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 text-[13px] transition hover:border-[var(--st-text)]"
                 >
-                  <p className="font-medium text-zoru-ink">{p.name}</p>
+                  <p className="font-medium text-[var(--st-text)]">{p.name}</p>
                   {p.clientName ? (
-                    <p className="mt-0.5 text-[11.5px] text-zoru-ink-muted">
+                    <p className="mt-0.5 text-[11.5px] text-[var(--st-text-secondary)]">
                       {p.clientName}
                     </p>
                   ) : null}
-                  <div className="mt-2 flex items-center justify-between gap-2 text-[11.5px] text-zoru-ink-muted">
+                  <div className="mt-2 flex items-center justify-between gap-2 text-[11.5px] text-[var(--st-text-secondary)]">
                     <span>
                       {fmtMoney(
                         Number(p.projectBudget ?? p.budget) || null,
@@ -70,7 +70,7 @@ export function ProjectsKanban({ rows }: { rows: ProjectRow[] }) {
                 </Link>
               ))}
               {cards.length === 0 ? (
-                <p className="rounded-md border border-dashed border-zoru-line p-3 text-center text-[11.5px] text-zoru-ink-muted">
+                <p className="rounded-md border border-dashed border-[var(--st-border)] p-3 text-center text-[11.5px] text-[var(--st-text-secondary)]">
                   No projects
                 </p>
               ) : null}

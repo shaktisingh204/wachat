@@ -71,7 +71,7 @@ export function OptInOutForm({ project }: OptInOutFormProps) {
         </ZoruCardHeader>
         <ZoruCardContent className="grid md:grid-cols-2 gap-6">
             <div className="space-y-4">
-                <h4 className="font-semibold text-zoru-ink">Opt-in Settings</h4>
+                <h4 className="font-semibold text-[var(--st-text)]">Opt-in Settings</h4>
                 <div className="space-y-2">
                     <Label htmlFor="optInKeywords">Opt-in Keywords</Label>
                     <Textarea id="optInKeywords" name="optInKeywords" defaultValue={settings?.optInKeywords?.join(', ')} placeholder="start, subscribe, yes" />
@@ -82,7 +82,7 @@ export function OptInOutForm({ project }: OptInOutFormProps) {
                 </div>
             </div>
             <div className="space-y-4">
-                <h4 className="font-semibold text-zoru-ink">Opt-out Settings</h4>
+                <h4 className="font-semibold text-[var(--st-text)]">Opt-out Settings</h4>
                  <div className="space-y-2">
                     <Label htmlFor="optOutKeywords">Opt-out Keywords</Label>
                     <Textarea id="optOutKeywords" name="optOutKeywords" defaultValue={settings?.optOutKeywords?.join(', ')} placeholder="stop, unsubscribe, cancel" />

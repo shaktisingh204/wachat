@@ -172,16 +172,16 @@ export function PublicCheckoutForm({
             {page.displayName}
           </h1>
           {page.headline ? (
-            <p className="text-base text-zoru-ink">{page.headline}</p>
+            <p className="text-base text-[var(--st-text)]">{page.headline}</p>
           ) : null}
           {page.description ? (
-            <p className="text-sm text-zoru-ink">{page.description}</p>
+            <p className="text-sm text-[var(--st-text)]">{page.description}</p>
           ) : null}
         </header>
 
         <form
           onSubmit={onSubmit}
-          className="space-y-6 rounded-xl border border-zoru-line bg-white p-6 shadow-sm"
+          className="space-y-6 rounded-xl border border-[var(--st-border)] bg-white p-6 shadow-sm"
         >
           {/* Items */}
           <fieldset className="space-y-3">
@@ -191,7 +191,7 @@ export function PublicCheckoutForm({
               return (
                 <label
                   key={i}
-                  className="flex items-center gap-3 rounded-lg border border-zoru-line p-3 transition-colors"
+                  className="flex items-center gap-3 rounded-lg border border-[var(--st-border)] p-3 transition-colors"
                   style={{
                     borderColor: rows[i]?.selected ? accent : undefined,
                   }}
@@ -204,7 +204,7 @@ export function PublicCheckoutForm({
                   />
                   <div className="flex-1">
                     <div className="text-sm font-medium">{it.label}</div>
-                    <div className="text-xs text-zoru-ink">
+                    <div className="text-xs text-[var(--st-text)]">
                       {it.type === 'amount'
                         ? `${page.currency} ${(unit / 100).toFixed(2)}`
                         : 'Subscription plan'}
@@ -220,7 +220,7 @@ export function PublicCheckoutForm({
                           quantity: Math.max(1, Number(e.target.value)),
                         })
                       }
-                      className="w-16 rounded-md border border-zoru-line px-2 py-1 text-sm"
+                      className="w-16 rounded-md border border-[var(--st-border)] px-2 py-1 text-sm"
                     />
                   ) : null}
                 </label>
@@ -235,7 +235,7 @@ export function PublicCheckoutForm({
               if (f.custom) {
                 return (
                   <label key={f.name} className="block space-y-1">
-                    <span className="text-xs text-zoru-ink">{f.label}</span>
+                    <span className="text-xs text-[var(--st-text)]">{f.label}</span>
                     <input
                       value={customValues[f.name] ?? ''}
                       onChange={(e) =>
@@ -245,7 +245,7 @@ export function PublicCheckoutForm({
                         }))
                       }
                       required={!!f.required}
-                      className="w-full rounded-md border border-zoru-line px-3 py-2 text-sm"
+                      className="w-full rounded-md border border-[var(--st-border)] px-3 py-2 text-sm"
                     />
                   </label>
                 );
@@ -253,7 +253,7 @@ export function PublicCheckoutForm({
               if (f.name === 'email') {
                 return (
                   <label key={f.name} className="block space-y-1">
-                    <span className="text-xs text-zoru-ink">{f.label}</span>
+                    <span className="text-xs text-[var(--st-text)]">{f.label}</span>
                     <input
                       type="email"
                       value={payer.email}
@@ -261,7 +261,7 @@ export function PublicCheckoutForm({
                         setPayer({ ...payer, email: e.target.value })
                       }
                       required={!!f.required}
-                      className="w-full rounded-md border border-zoru-line px-3 py-2 text-sm"
+                      className="w-full rounded-md border border-[var(--st-border)] px-3 py-2 text-sm"
                     />
                   </label>
                 );
@@ -269,7 +269,7 @@ export function PublicCheckoutForm({
               if (f.name === 'phone') {
                 return (
                   <label key={f.name} className="block space-y-1">
-                    <span className="text-xs text-zoru-ink">{f.label}</span>
+                    <span className="text-xs text-[var(--st-text)]">{f.label}</span>
                     <input
                       type="tel"
                       value={payer.phone}
@@ -277,21 +277,21 @@ export function PublicCheckoutForm({
                         setPayer({ ...payer, phone: e.target.value })
                       }
                       required={!!f.required}
-                      className="w-full rounded-md border border-zoru-line px-3 py-2 text-sm"
+                      className="w-full rounded-md border border-[var(--st-border)] px-3 py-2 text-sm"
                     />
                   </label>
                 );
               }
               return (
                 <label key={f.name} className="block space-y-1">
-                  <span className="text-xs text-zoru-ink">{f.label}</span>
+                  <span className="text-xs text-[var(--st-text)]">{f.label}</span>
                   <input
                     value={payer.name}
                     onChange={(e) =>
                       setPayer({ ...payer, name: e.target.value })
                     }
                     required={!!f.required}
-                    className="w-full rounded-md border border-zoru-line px-3 py-2 text-sm"
+                    className="w-full rounded-md border border-[var(--st-border)] px-3 py-2 text-sm"
                   />
                 </label>
               );
@@ -299,15 +299,15 @@ export function PublicCheckoutForm({
           </fieldset>
 
           {/* Total + submit */}
-          <div className="flex items-center justify-between border-t border-zoru-line pt-4">
-            <span className="text-sm text-zoru-ink">Total</span>
+          <div className="flex items-center justify-between border-t border-[var(--st-border)] pt-4">
+            <span className="text-sm text-[var(--st-text)]">Total</span>
             <span className="text-lg font-semibold tabular-nums">
               {page.currency} {(subtotal / 100).toFixed(2)}
             </span>
           </div>
 
           {error ? (
-            <p className="text-sm text-zoru-ink" role="alert">
+            <p className="text-sm text-[var(--st-text)]" role="alert">
               {error}
             </p>
           ) : null}
@@ -322,7 +322,7 @@ export function PublicCheckoutForm({
           </button>
         </form>
 
-        <p className="text-center text-xs text-zoru-ink-muted">
+        <p className="text-center text-xs text-[var(--st-text-secondary)]">
           Powered by SabCheckout
         </p>
       </div>

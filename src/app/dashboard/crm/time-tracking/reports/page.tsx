@@ -166,11 +166,11 @@ export default function TimeTrackingReportsPage() {
       <Card className="p-6">
         <div className="flex flex-wrap items-end gap-3">
           <div className="min-w-[180px] flex-1">
-            <Label className="text-[11px] uppercase tracking-[0.18em] text-zoru-ink-muted">
+            <Label className="text-[11px] uppercase tracking-[0.18em] text-[var(--st-text-secondary)]">
               Group by
             </Label>
             <Select value={group} onValueChange={(v) => setGroup(v as Group)}>
-              <ZoruSelectTrigger className="mt-1 h-9 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+              <ZoruSelectTrigger className="mt-1 h-9 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
                 <ZoruSelectValue />
               </ZoruSelectTrigger>
               <ZoruSelectContent>
@@ -181,25 +181,25 @@ export default function TimeTrackingReportsPage() {
             </Select>
           </div>
           <div className="min-w-[140px] flex-1">
-            <Label className="text-[11px] uppercase tracking-[0.18em] text-zoru-ink-muted">
+            <Label className="text-[11px] uppercase tracking-[0.18em] text-[var(--st-text-secondary)]">
               From
             </Label>
             <Input
               type="date"
               value={from}
               onChange={(e) => setFrom(e.target.value)}
-              className="mt-1 h-9 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+              className="mt-1 h-9 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
             />
           </div>
           <div className="min-w-[140px] flex-1">
-            <Label className="text-[11px] uppercase tracking-[0.18em] text-zoru-ink-muted">
+            <Label className="text-[11px] uppercase tracking-[0.18em] text-[var(--st-text-secondary)]">
               To
             </Label>
             <Input
               type="date"
               value={to}
               onChange={(e) => setTo(e.target.value)}
-              className="mt-1 h-9 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+              className="mt-1 h-9 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
             />
           </div>
           <Button variant="outline" onClick={refresh}>
@@ -222,47 +222,47 @@ export default function TimeTrackingReportsPage() {
 
       {/* Results table */}
       <Card className="p-6">
-        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+        <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <Table>
             <ZoruTableHeader>
-              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                <ZoruTableHead className="text-zoru-ink-muted">{groupLabel}</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Entries</ZoruTableHead>
-                <ZoruTableHead className="text-right text-zoru-ink-muted">Hours</ZoruTableHead>
+              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">{groupLabel}</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Entries</ZoruTableHead>
+                <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Hours</ZoruTableHead>
               </ZoruTableRow>
             </ZoruTableHeader>
             <ZoruTableBody>
               {isLoading && rows.length === 0 ? (
                 [0, 1, 2].map((i) => (
-                  <ZoruTableRow key={i} className="border-zoru-line">
+                  <ZoruTableRow key={i} className="border-[var(--st-border)]">
                     <ZoruTableCell colSpan={3}>
                       <Skeleton className="h-8 w-full" />
                     </ZoruTableCell>
                   </ZoruTableRow>
                 ))
               ) : rows.length === 0 ? (
-                <ZoruTableRow className="border-zoru-line">
+                <ZoruTableRow className="border-[var(--st-border)]">
                   <ZoruTableCell
                     colSpan={3}
-                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                    className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     No logged time for the selected range.
                   </ZoruTableCell>
                 </ZoruTableRow>
               ) : (
                 rows.map((r) => (
-                  <ZoruTableRow key={r.key} className="border-zoru-line">
-                    <ZoruTableCell className="text-[13px] text-zoru-ink">
+                  <ZoruTableRow key={r.key} className="border-[var(--st-border)]">
+                    <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                       {r.label === 'unknown' ? (
-                        <span className="text-zoru-ink-muted">(unassigned)</span>
+                        <span className="text-[var(--st-text-secondary)]">(unassigned)</span>
                       ) : (
                         <span className="font-mono text-[12.5px]">{r.label}</span>
                       )}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                    <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                       {r.entries}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right font-mono tabular-nums text-[13px] text-zoru-ink">
+                    <ZoruTableCell className="text-right font-mono tabular-nums text-[13px] text-[var(--st-text)]">
                       {r.totalHours}h {String(r.totalMinutes).padStart(2, '0')}m
                     </ZoruTableCell>
                   </ZoruTableRow>
@@ -271,11 +271,11 @@ export default function TimeTrackingReportsPage() {
             </ZoruTableBody>
           </Table>
           {rows.length > 0 ? (
-            <div className="flex items-center justify-between border-t border-zoru-line bg-zoru-surface-2 px-4 py-3 text-[13px]">
-              <span className="text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
+            <div className="flex items-center justify-between border-t border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-3 text-[13px]">
+              <span className="text-[11.5px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
                 Total
               </span>
-              <span className="font-mono font-semibold tabular-nums text-zoru-ink">
+              <span className="font-mono font-semibold tabular-nums text-[var(--st-text)]">
                 {Math.floor(grandMinutes / 60)}h{' '}
                 {String(grandMinutes % 60).padStart(2, '0')}m
               </span>

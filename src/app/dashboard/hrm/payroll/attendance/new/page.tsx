@@ -176,7 +176,7 @@ export default function BulkMarkAttendancePage(): React.JSX.Element {
                             type="date"
                             value={dateIso}
                             onChange={(e) => setDateIso(e.target.value)}
-                            className="mt-1.5 h-10 w-[180px] rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                            className="mt-1.5 h-10 w-[180px] rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                         />
                     </div>
                     <div>
@@ -201,13 +201,13 @@ export default function BulkMarkAttendancePage(): React.JSX.Element {
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             placeholder="Search employees…"
-                            className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                            className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                         />
                     </div>
                 </div>
 
                 <div className="mt-4 flex flex-wrap items-center gap-2">
-                    <span className="text-[12px] text-zoru-ink-muted">Apply to all visible:</span>
+                    <span className="text-[12px] text-[var(--st-text-secondary)]">Apply to all visible:</span>
                     {STATUS_OPTIONS.map((s) => (
                         <Button
                             key={s}
@@ -222,27 +222,27 @@ export default function BulkMarkAttendancePage(): React.JSX.Element {
                 </div>
             </Card>
 
-            <div className="overflow-x-auto rounded-lg border border-zoru-line">
+            <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                 <Table>
                     <ZoruTableHeader>
-                        <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                            <ZoruTableHead className="text-zoru-ink-muted">Employee</ZoruTableHead>
-                            <ZoruTableHead className="text-zoru-ink-muted">Department</ZoruTableHead>
-                            <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
+                        <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                            <ZoruTableHead className="text-[var(--st-text-secondary)]">Employee</ZoruTableHead>
+                            <ZoruTableHead className="text-[var(--st-text-secondary)]">Department</ZoruTableHead>
+                            <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
                         </ZoruTableRow>
                     </ZoruTableHeader>
                     <ZoruTableBody>
                         {isLoading && employees.length === 0 ? (
-                            <ZoruTableRow className="border-zoru-line">
+                            <ZoruTableRow className="border-[var(--st-border)]">
                                 <ZoruTableCell colSpan={3} className="h-24 text-center">
-                                    <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
+                                    <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
                                 </ZoruTableCell>
                             </ZoruTableRow>
                         ) : filtered.length === 0 ? (
-                            <ZoruTableRow className="border-zoru-line">
+                            <ZoruTableRow className="border-[var(--st-border)]">
                                 <ZoruTableCell
                                     colSpan={3}
-                                    className="h-24 text-center text-zoru-ink-muted"
+                                    className="h-24 text-center text-[var(--st-text-secondary)]"
                                 >
                                     No employees match this filter.
                                 </ZoruTableCell>
@@ -252,11 +252,11 @@ export default function BulkMarkAttendancePage(): React.JSX.Element {
                                 const id = e._id;
                                 const current = statuses[id] ?? 'Present';
                                 return (
-                                    <ZoruTableRow key={id} className="border-zoru-line">
-                                        <ZoruTableCell className="font-medium text-zoru-ink">
+                                    <ZoruTableRow key={id} className="border-[var(--st-border)]">
+                                        <ZoruTableCell className="font-medium text-[var(--st-text)]">
                                             {employeeName(e)}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-zoru-ink">
+                                        <ZoruTableCell className="text-[var(--st-text)]">
                                             {e.departmentId ?? '—'}
                                         </ZoruTableCell>
                                         <ZoruTableCell>

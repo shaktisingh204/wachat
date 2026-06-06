@@ -117,13 +117,13 @@ export function FixedAssetForm({ initial }: FixedAssetFormProps) {
       <input type="hidden" name="condition" value={condition} />
 
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Header
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <Label htmlFor="code">
-              Asset code <span className="text-zoru-danger-ink">*</span>
+              Asset code <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <Input
               id="code"
@@ -136,7 +136,7 @@ export function FixedAssetForm({ initial }: FixedAssetFormProps) {
           </div>
           <div>
             <Label htmlFor="name">
-              Asset name <span className="text-zoru-danger-ink">*</span>
+              Asset name <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <Input
               id="name"
@@ -162,14 +162,14 @@ export function FixedAssetForm({ initial }: FixedAssetFormProps) {
       </Card>
 
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Purchase
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <Label htmlFor="purchaseDate">
               Purchase date{' '}
-              {!editing ? <span className="text-zoru-danger-ink">*</span> : null}
+              {!editing ? <span className="text-[var(--st-danger)]">*</span> : null}
             </Label>
             <Input
               id="purchaseDate"
@@ -183,7 +183,7 @@ export function FixedAssetForm({ initial }: FixedAssetFormProps) {
           <div>
             <Label htmlFor="cost">
               Purchase value{' '}
-              {!editing ? <span className="text-zoru-danger-ink">*</span> : null}
+              {!editing ? <span className="text-[var(--st-danger)]">*</span> : null}
             </Label>
             <Input
               id="cost"
@@ -220,7 +220,7 @@ export function FixedAssetForm({ initial }: FixedAssetFormProps) {
       </Card>
 
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Assignment
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
@@ -286,7 +286,7 @@ export function FixedAssetForm({ initial }: FixedAssetFormProps) {
       </Card>
 
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Depreciation
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
@@ -308,7 +308,7 @@ export function FixedAssetForm({ initial }: FixedAssetFormProps) {
           <div>
             <Label htmlFor="usefulLifeMonths">
               Useful life (months){' '}
-              {!editing ? <span className="text-zoru-danger-ink">*</span> : null}
+              {!editing ? <span className="text-[var(--st-danger)]">*</span> : null}
             </Label>
             <Input
               id="usefulLifeMonths"
@@ -338,7 +338,7 @@ export function FixedAssetForm({ initial }: FixedAssetFormProps) {
       </Card>
 
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Status
         </h3>
         <div className="grid gap-4 md:grid-cols-2">

@@ -128,7 +128,7 @@ export function DealCalendar({ deals: serverDeals }: DealCalendarProps) {
   return (
     <div className="flex w-full flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
-        <h3 className="text-[14px] font-medium text-zoru-ink">{monthLabel}</h3>
+        <h3 className="text-[14px] font-medium text-[var(--st-text)]">{monthLabel}</h3>
         <div className="flex items-center gap-1">
           <Button
             type="button"
@@ -159,11 +159,11 @@ export function DealCalendar({ deals: serverDeals }: DealCalendarProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-7 gap-px overflow-hidden rounded-lg border border-zoru-line bg-zoru-line text-[12px]">
+      <div className="grid grid-cols-7 gap-px overflow-hidden rounded-lg border border-[var(--st-border)] bg-[var(--st-border)] text-[12px]">
         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d) => (
           <div
             key={d}
-            className="bg-zoru-surface-2 px-2 py-1 text-center text-[11px] font-medium text-zoru-ink-muted"
+            className="bg-[var(--st-bg-muted)] px-2 py-1 text-center text-[11px] font-medium text-[var(--st-text-secondary)]"
           >
             {d}
           </div>
@@ -186,22 +186,22 @@ export function DealCalendar({ deals: serverDeals }: DealCalendarProps) {
                 if (dragOverKey === key) setDragOverKey(null);
               }}
               onDrop={(e) => handleDrop(key, e)}
-              className={`min-h-[88px] bg-zoru-surface p-1 ${
-                inMonth ? '' : 'bg-zoru-surface-2/60 text-zoru-ink-muted'
-              } ${isDropTarget ? 'ring-1 ring-zoru-primary' : ''}`}
+              className={`min-h-[88px] bg-[var(--st-bg-secondary)] p-1 ${
+                inMonth ? '' : 'bg-[var(--st-bg-muted)]/60 text-[var(--st-text-secondary)]'
+              } ${isDropTarget ? 'ring-1 ring-[var(--st-text)]' : ''}`}
             >
               <div className="flex items-center justify-between">
                 <span
                   className={`text-[11px] ${
                     isToday
-                      ? 'inline-flex h-4 w-4 items-center justify-center rounded-full bg-zoru-primary text-white'
-                      : 'text-zoru-ink-muted'
+                      ? 'inline-flex h-4 w-4 items-center justify-center rounded-full bg-[var(--st-text)] text-white'
+                      : 'text-[var(--st-text-secondary)]'
                   }`}
                 >
                   {cell.getDate()}
                 </span>
                 {items.length > 0 ? (
-                  <span className="text-[10px] text-zoru-ink-muted">{items.length}</span>
+                  <span className="text-[10px] text-[var(--st-text-secondary)]">{items.length}</span>
                 ) : null}
               </div>
               <div className="mt-1 flex flex-col gap-0.5">
@@ -209,7 +209,7 @@ export function DealCalendar({ deals: serverDeals }: DealCalendarProps) {
                   <Link
                     key={deal._id}
                     href={`/dashboard/crm/sales-crm/deals/${deal._id}`}
-                    className="truncate rounded bg-zoru-surface-2 px-1.5 py-0.5 text-[11px] text-zoru-ink hover:bg-zoru-line"
+                    className="truncate rounded bg-[var(--st-bg-muted)] px-1.5 py-0.5 text-[11px] text-[var(--st-text)] hover:bg-[var(--st-border)]"
                     title={`${deal.name} (drag to reschedule)`}
                     draggable
                     onDragStart={(e) => {
@@ -221,7 +221,7 @@ export function DealCalendar({ deals: serverDeals }: DealCalendarProps) {
                   </Link>
                 ))}
                 {overflow > 0 ? (
-                  <span className="text-[10px] text-zoru-ink-muted">+{overflow} more</span>
+                  <span className="text-[10px] text-[var(--st-text-secondary)]">+{overflow} more</span>
                 ) : null}
               </div>
             </div>
@@ -229,7 +229,7 @@ export function DealCalendar({ deals: serverDeals }: DealCalendarProps) {
         })}
       </div>
 
-      <p className="text-[11px] text-zoru-ink-muted">
+      <p className="text-[11px] text-[var(--st-text-secondary)]">
         Deals plotted by expected close date. Drag a chip onto another day to reschedule.
       </p>
     </div>

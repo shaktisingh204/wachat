@@ -305,25 +305,25 @@ export function FlowListClient({ initialFlows, initialError }: Props) {
       {/* ── Hero strip ────────────────────────────────────────────────── */}
       <div className="flex flex-col gap-4 mb-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-xs font-medium uppercase tracking-widest text-zoru-ink mb-1">
+          <p className="text-xs font-medium uppercase tracking-widest text-[var(--st-text)] mb-1">
             SabFlow
           </p>
           <h1 className="text-2xl font-bold text-white">Flows</h1>
-          <p className="text-sm text-zoru-ink-muted mt-1">
+          <p className="text-sm text-[var(--st-text-secondary)] mt-1">
             Build, schedule, and monitor automation workflows across your stack.
           </p>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={() => setTemplatesOpen(true)}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-lg border border-zoru-line bg-zoru-ink text-sm font-medium text-white hover:bg-zoru-ink transition-colors"
+            className="flex items-center gap-2 px-3.5 py-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-text)] text-sm font-medium text-white hover:bg-[var(--st-text)] transition-colors"
           >
             <LuSparkles className="w-4 h-4" />
             Browse templates
           </button>
           <button
             onClick={handleNewFlow}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zoru-surface-2 text-zoru-ink text-sm font-medium hover:bg-white transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text)] text-sm font-medium hover:bg-white transition-colors"
           >
             <LuPlus className="w-4 h-4" />
             New flow
@@ -360,13 +360,13 @@ export function FlowListClient({ initialFlows, initialError }: Props) {
         <div className="flex flex-wrap items-center gap-2">
           {/* Search */}
           <div className="relative">
-            <LuSearch className="w-3.5 h-3.5 text-zoru-ink absolute left-3 top-1/2 -translate-y-1/2" />
+            <LuSearch className="w-3.5 h-3.5 text-[var(--st-text)] absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search flows…"
-              className="w-64 bg-zoru-ink border border-zoru-line/60 rounded-lg pl-9 pr-3 py-1.5 text-sm text-white placeholder:text-zoru-ink focus:outline-none focus:border-zoru-line"
+              className="w-64 bg-[var(--st-text)] border border-[var(--st-border)]/60 rounded-lg pl-9 pr-3 py-1.5 text-sm text-white placeholder:text-[var(--st-text)] focus:outline-none focus:border-[var(--st-border)]"
             />
           </div>
 
@@ -379,8 +379,8 @@ export function FlowListClient({ initialFlows, initialError }: Props) {
                 className={cn(
                   'px-2.5 py-1 rounded-full text-xs font-medium border transition-colors',
                   statusFilter === chip.id
-                    ? 'bg-zoru-surface-2 text-zoru-ink border-zoru-line'
-                    : 'bg-zoru-ink/60 text-zoru-ink-muted border-zoru-line/60 hover:bg-zoru-ink/60',
+                    ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]'
+                    : 'bg-[var(--st-text)]/60 text-[var(--st-text-secondary)] border-[var(--st-border)]/60 hover:bg-[var(--st-text)]/60',
                 )}
               >
                 {chip.label}
@@ -393,7 +393,7 @@ export function FlowListClient({ initialFlows, initialError }: Props) {
             <select
               value={folderFilter}
               onChange={(e) => setFolderFilter(e.target.value)}
-              className="rounded-lg border border-zoru-line/60 bg-zoru-ink px-2.5 py-1 text-xs font-medium text-zoru-ink-muted hover:bg-zoru-ink focus:outline-none focus:border-zoru-line"
+              className="rounded-lg border border-[var(--st-border)]/60 bg-[var(--st-text)] px-2.5 py-1 text-xs font-medium text-[var(--st-text-secondary)] hover:bg-[var(--st-text)] focus:outline-none focus:border-[var(--st-border)]"
               aria-label="Filter by folder"
             >
               <option value="">All folders</option>
@@ -414,7 +414,7 @@ export function FlowListClient({ initialFlows, initialError }: Props) {
               e.stopPropagation();
               setSortOpen((v) => !v);
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-zoru-line/60 bg-zoru-ink text-xs font-medium text-zoru-ink-muted hover:bg-zoru-ink transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--st-border)]/60 bg-[var(--st-text)] text-xs font-medium text-[var(--st-text-secondary)] hover:bg-[var(--st-text)] transition-colors"
           >
             <LuArrowDownUp className="w-3.5 h-3.5" />
             {currentSortLabel}
@@ -424,7 +424,7 @@ export function FlowListClient({ initialFlows, initialError }: Props) {
             <div
               role="menu"
               onClick={(e) => e.stopPropagation()}
-              className="absolute right-0 mt-1 z-20 w-48 rounded-lg border border-zoru-line/60 bg-zoru-ink shadow-xl py-1"
+              className="absolute right-0 mt-1 z-20 w-48 rounded-lg border border-[var(--st-border)]/60 bg-[var(--st-text)] shadow-xl py-1"
             >
               {SORT_OPTIONS.map((opt) => (
                 <button
@@ -436,8 +436,8 @@ export function FlowListClient({ initialFlows, initialError }: Props) {
                   className={cn(
                     'flex w-full items-center justify-between px-3 py-1.5 text-xs text-left transition-colors',
                     sortKey === opt.id
-                      ? 'text-white bg-zoru-ink'
-                      : 'text-zoru-ink-muted hover:bg-zoru-ink',
+                      ? 'text-white bg-[var(--st-text)]'
+                      : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-text)]',
                   )}
                 >
                   {opt.label}
@@ -452,7 +452,7 @@ export function FlowListClient({ initialFlows, initialError }: Props) {
       {/* ── Tag-chip row ───────────────────────────────────────────────── */}
       {tagCounts.length > 0 && (
         <div className="mb-4 flex flex-wrap items-center gap-1.5">
-          <span className="text-[10.5px] uppercase tracking-wide text-zoru-ink mr-1">
+          <span className="text-[10.5px] uppercase tracking-wide text-[var(--st-text)] mr-1">
             Tags:
           </span>
           {tagCounts.map(([tag, count]) => {
@@ -465,8 +465,8 @@ export function FlowListClient({ initialFlows, initialError }: Props) {
                 className={cn(
                   'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium transition-colors',
                   active
-                    ? 'border-zoru-line bg-zoru-surface-2/10 text-zoru-ink-muted'
-                    : 'border-zoru-line/60 bg-zoru-ink/60 text-zoru-ink-muted hover:bg-zoru-ink/60',
+                    ? 'border-[var(--st-border)] bg-[var(--st-bg-muted)]/10 text-[var(--st-text-secondary)]'
+                    : 'border-[var(--st-border)]/60 bg-[var(--st-text)]/60 text-[var(--st-text-secondary)] hover:bg-[var(--st-text)]/60',
                 )}
               >
                 <span>#{tag}</span>
@@ -480,7 +480,7 @@ export function FlowListClient({ initialFlows, initialError }: Props) {
             <button
               type="button"
               onClick={() => setTagFilter([])}
-              className="ml-1 rounded-full border border-zoru-line/60 px-2 py-0.5 text-[10.5px] text-zoru-ink-muted hover:text-white"
+              className="ml-1 rounded-full border border-[var(--st-border)]/60 px-2 py-0.5 text-[10.5px] text-[var(--st-text-secondary)] hover:text-white"
             >
               Clear
             </button>
@@ -490,7 +490,7 @@ export function FlowListClient({ initialFlows, initialError }: Props) {
 
       {/* ── Error ──────────────────────────────────────────────────────── */}
       {error && (
-        <div className="mb-4 px-3 py-2 rounded-lg border border-zoru-line/40 bg-zoru-ink/10 text-xs text-zoru-ink-muted">
+        <div className="mb-4 px-3 py-2 rounded-lg border border-[var(--st-border)]/40 bg-[var(--st-text)]/10 text-xs text-[var(--st-text-secondary)]">
           {error}
         </div>
       )}
@@ -498,7 +498,7 @@ export function FlowListClient({ initialFlows, initialError }: Props) {
       {/* ── Grid / empty ───────────────────────────────────────────────── */}
       {refreshing && flows.length === 0 ? (
         <div className="flex items-center justify-center py-24">
-          <LuLoader className="w-6 h-6 text-zoru-ink animate-spin" />
+          <LuLoader className="w-6 h-6 text-[var(--st-text)] animate-spin" />
         </div>
       ) : filtered.length === 0 ? (
         <EmptyState
@@ -593,17 +593,17 @@ function MetadataModal({
     >
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
       <div
-        className="relative z-10 w-full max-w-sm rounded-2xl border border-zoru-line/60 bg-zoru-ink p-5 shadow-xl"
+        className="relative z-10 w-full max-w-sm rounded-2xl border border-[var(--st-border)]/60 bg-[var(--st-text)] p-5 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <h3 className="text-sm font-semibold text-white mb-1">
           Edit metadata
         </h3>
-        <p className="text-[11.5px] text-zoru-ink-muted mb-4 truncate">
+        <p className="text-[11.5px] text-[var(--st-text-secondary)] mb-4 truncate">
           {flow.name}
         </p>
 
-        <label className="block text-[11px] font-medium text-zoru-ink-muted mb-1 uppercase tracking-wide">
+        <label className="block text-[11px] font-medium text-[var(--st-text-secondary)] mb-1 uppercase tracking-wide">
           Folder
         </label>
         <input
@@ -612,7 +612,7 @@ function MetadataModal({
           value={folder}
           onChange={(e) => setFolder(e.target.value)}
           placeholder="e.g. Onboarding, Internal, Demo"
-          className="w-full mb-4 rounded-lg border border-zoru-line/60 bg-zoru-ink px-3 py-2 text-xs text-white placeholder:text-zoru-ink focus:outline-none focus:border-zoru-line"
+          className="w-full mb-4 rounded-lg border border-[var(--st-border)]/60 bg-[var(--st-text)] px-3 py-2 text-xs text-white placeholder:text-[var(--st-text)] focus:outline-none focus:border-[var(--st-border)]"
         />
         <datalist id="folder-suggestions">
           {existingFolders.map((f) => (
@@ -620,7 +620,7 @@ function MetadataModal({
           ))}
         </datalist>
 
-        <label className="block text-[11px] font-medium text-zoru-ink-muted mb-1 uppercase tracking-wide">
+        <label className="block text-[11px] font-medium text-[var(--st-text-secondary)] mb-1 uppercase tracking-wide">
           Tags (comma-separated)
         </label>
         <input
@@ -628,9 +628,9 @@ function MetadataModal({
           value={tags}
           onChange={(e) => setTags(e.target.value)}
           placeholder="lead-gen, onboarding, beta"
-          className="w-full rounded-lg border border-zoru-line/60 bg-zoru-ink px-3 py-2 text-xs text-white placeholder:text-zoru-ink focus:outline-none focus:border-zoru-line"
+          className="w-full rounded-lg border border-[var(--st-border)]/60 bg-[var(--st-text)] px-3 py-2 text-xs text-white placeholder:text-[var(--st-text)] focus:outline-none focus:border-[var(--st-border)]"
         />
-        <p className="mt-1 text-[10.5px] text-zoru-ink">
+        <p className="mt-1 text-[10.5px] text-[var(--st-text)]">
           Lower-case letters, digits, dashes only — separated by commas.
         </p>
 
@@ -638,7 +638,7 @@ function MetadataModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-zoru-line/60 px-3 py-1.5 text-xs text-zoru-ink-muted hover:bg-zoru-ink"
+            className="rounded-lg border border-[var(--st-border)]/60 px-3 py-1.5 text-xs text-[var(--st-text-secondary)] hover:bg-[var(--st-text)]"
           >
             Cancel
           </button>
@@ -646,7 +646,7 @@ function MetadataModal({
             type="button"
             onClick={commit}
             disabled={saving}
-            className="rounded-lg bg-zoru-ink px-3 py-1.5 text-xs font-medium text-zoru-ink hover:bg-zoru-surface-2 disabled:opacity-50"
+            className="rounded-lg bg-[var(--st-text)] px-3 py-1.5 text-xs font-medium text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] disabled:opacity-50"
           >
             {saving ? 'Saving…' : 'Save'}
           </button>
@@ -668,13 +668,13 @@ function StatCard({
   icon: React.ReactNode;
 }) {
   return (
-    <div className="rounded-xl border border-zoru-line bg-zoru-ink/50 p-4">
-      <div className="flex items-center gap-1.5 text-zoru-ink text-[10.5px] font-medium uppercase tracking-wider mb-2">
+    <div className="rounded-xl border border-[var(--st-border)] bg-[var(--st-text)]/50 p-4">
+      <div className="flex items-center gap-1.5 text-[var(--st-text)] text-[10.5px] font-medium uppercase tracking-wider mb-2">
         {icon}
         {label}
       </div>
       <p className="text-2xl font-semibold text-white tabular-nums">
-        {value === null ? <span className="text-zoru-ink">—</span> : value}
+        {value === null ? <span className="text-[var(--st-text)]">—</span> : value}
       </p>
     </div>
   );
@@ -696,11 +696,11 @@ function EmptyState({
   if (hasFlows) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        <div className="w-12 h-12 rounded-xl bg-zoru-ink flex items-center justify-center mb-4">
-          <LuSearch className="w-5 h-5 text-zoru-ink-muted" />
+        <div className="w-12 h-12 rounded-xl bg-[var(--st-text)] flex items-center justify-center mb-4">
+          <LuSearch className="w-5 h-5 text-[var(--st-text-secondary)]" />
         </div>
-        <p className="text-zoru-ink-muted font-medium">No matching flows</p>
-        <p className="text-sm text-zoru-ink mt-1">
+        <p className="text-[var(--st-text-secondary)] font-medium">No matching flows</p>
+        <p className="text-sm text-[var(--st-text)] mt-1">
           {query ? `Nothing matched "${query}".` : 'No flows in this filter.'}
         </p>
       </div>
@@ -708,24 +708,24 @@ function EmptyState({
   }
   return (
     <div className="flex flex-col items-center justify-center py-20 text-center">
-      <div className="w-12 h-12 rounded-xl bg-zoru-ink flex items-center justify-center mb-4">
-        <LuWorkflow className="w-5 h-5 text-zoru-ink-muted" />
+      <div className="w-12 h-12 rounded-xl bg-[var(--st-text)] flex items-center justify-center mb-4">
+        <LuWorkflow className="w-5 h-5 text-[var(--st-text-secondary)]" />
       </div>
-      <p className="text-zoru-ink-muted font-medium">No flows yet</p>
-      <p className="text-sm text-zoru-ink mt-1 max-w-sm">
+      <p className="text-[var(--st-text-secondary)] font-medium">No flows yet</p>
+      <p className="text-sm text-[var(--st-text)] mt-1 max-w-sm">
         Create a flow from scratch, or start from a battle-tested template.
       </p>
       <div className="flex items-center gap-2 mt-4">
         <button
           onClick={onBrowseTemplates}
-          className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-zoru-line bg-zoru-ink text-sm font-medium text-white hover:bg-zoru-ink transition-colors"
+          className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-text)] text-sm font-medium text-white hover:bg-[var(--st-text)] transition-colors"
         >
           <LuSparkles className="w-4 h-4" />
           Browse templates
         </button>
         <button
           onClick={onNewFlow}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-zoru-surface-2 text-zoru-ink text-sm font-medium hover:bg-white transition-colors"
+          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text)] text-sm font-medium hover:bg-white transition-colors"
         >
           <LuPlus className="w-4 h-4" />
           New flow
@@ -770,10 +770,10 @@ function FlowCardLite({
       onClick={onOpen}
       onKeyDown={(e) => e.key === 'Enter' && onOpen()}
       className={cn(
-        'group relative flex flex-col rounded-xl border border-zoru-line',
-        'bg-zoru-ink/50 overflow-hidden cursor-pointer',
-        'hover:border-zoru-line hover:bg-zoru-ink transition-colors',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-line/40',
+        'group relative flex flex-col rounded-xl border border-[var(--st-border)]',
+        'bg-[var(--st-text)]/50 overflow-hidden cursor-pointer',
+        'hover:border-[var(--st-border)] hover:bg-[var(--st-text)] transition-colors',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-border)]/40',
       )}
     >
       {/* Top strip — status + menu */}
@@ -782,20 +782,20 @@ function FlowCardLite({
           className={cn(
             'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold',
             isPublished
-              ? 'bg-zoru-ink/10 text-zoru-ink-muted border-zoru-line/30'
+              ? 'bg-[var(--st-text)]/10 text-[var(--st-text-secondary)] border-[var(--st-border)]/30'
               : flow.status === 'ARCHIVED'
-                ? 'bg-zoru-ink/10 text-zoru-ink-muted border-zoru-line/30'
-                : 'bg-zoru-ink/10 text-zoru-ink-muted border-zoru-line/30',
+                ? 'bg-[var(--st-text)]/10 text-[var(--st-text-secondary)] border-[var(--st-border)]/30'
+                : 'bg-[var(--st-text)]/10 text-[var(--st-text-secondary)] border-[var(--st-border)]/30',
           )}
         >
           <LuCircle
             className={cn(
               'h-1.5 w-1.5 fill-current',
               isPublished
-                ? 'text-zoru-ink-muted'
+                ? 'text-[var(--st-text-secondary)]'
                 : flow.status === 'ARCHIVED'
-                  ? 'text-zoru-ink-muted'
-                  : 'text-zoru-ink-muted',
+                  ? 'text-[var(--st-text-secondary)]'
+                  : 'text-[var(--st-text-secondary)]',
             )}
           />
           {isPublished ? 'Enabled' : flow.status === 'ARCHIVED' ? 'Disabled' : 'Draft'}
@@ -808,14 +808,14 @@ function FlowCardLite({
               onMenuToggle();
             }}
             aria-label="Flow actions"
-            className="opacity-0 group-hover:opacity-100 transition-opacity text-zoru-ink-muted hover:text-white p-1 -mr-1 rounded"
+            className="opacity-0 group-hover:opacity-100 transition-opacity text-[var(--st-text-secondary)] hover:text-white p-1 -mr-1 rounded"
           >
             <LuEllipsis className="w-4 h-4" />
           </button>
           {menuOpen && (
             <div
               onClick={(e) => e.stopPropagation()}
-              className="absolute right-0 mt-1 z-20 w-40 rounded-lg border border-zoru-line/60 bg-zoru-ink shadow-xl py-1"
+              className="absolute right-0 mt-1 z-20 w-40 rounded-lg border border-[var(--st-border)]/60 bg-[var(--st-text)] shadow-xl py-1"
             >
               <MenuItem
                 icon={<LuPencil className="w-3.5 h-3.5" />}
@@ -849,7 +849,7 @@ function FlowCardLite({
                   onEditMetadata();
                 }}
               />
-              <div className="my-1 h-px bg-zoru-ink" />
+              <div className="my-1 h-px bg-[var(--st-text)]" />
               <MenuItem
                 icon={<LuTrash2 className="w-3.5 h-3.5" />}
                 label="Delete"
@@ -873,10 +873,10 @@ function FlowCardLite({
           {flow.name}
         </p>
 
-        <div className="flex items-center gap-1.5 text-[11px] text-zoru-ink">
+        <div className="flex items-center gap-1.5 text-[11px] text-[var(--st-text)]">
           <LuZap className="w-3 h-3" />
           <span>{flow.groups?.length ?? 0} groups</span>
-          <span className="text-zoru-ink">·</span>
+          <span className="text-[var(--st-text)]">·</span>
           <LuPlay className="w-3 h-3" />
           <span>—</span>
         </div>
@@ -892,13 +892,13 @@ function FlowCardLite({
                   e.stopPropagation();
                   onTagClick(tag);
                 }}
-                className="rounded-full border border-zoru-line/60 bg-zoru-ink/60 px-1.5 py-0.5 text-[10px] font-medium text-zoru-ink-muted hover:border-zoru-line/60 hover:text-zoru-ink-muted transition-colors"
+                className="rounded-full border border-[var(--st-border)]/60 bg-[var(--st-text)]/60 px-1.5 py-0.5 text-[10px] font-medium text-[var(--st-text-secondary)] hover:border-[var(--st-border)]/60 hover:text-[var(--st-text-secondary)] transition-colors"
               >
                 #{tag}
               </button>
             ))}
             {flow.tags.length > 5 && (
-              <span className="text-[10px] text-zoru-ink">
+              <span className="text-[10px] text-[var(--st-text)]">
                 +{flow.tags.length - 5}
               </span>
             )}
@@ -907,15 +907,15 @@ function FlowCardLite({
 
         <div className="flex items-center justify-between mt-1">
           {flow.folderId ? (
-            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-zoru-ink/10 text-zoru-ink-muted border border-zoru-line/30">
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-[var(--st-text)]/10 text-[var(--st-text-secondary)] border border-[var(--st-border)]/30">
               📁 {flow.folderId}
             </span>
           ) : (
-            <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-zoru-ink/80 text-zoru-ink-muted border border-zoru-line/60">
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-[var(--st-text)]/80 text-[var(--st-text-secondary)] border border-[var(--st-border)]/60">
               Default workspace
             </span>
           )}
-          <span className="text-[10.5px] text-zoru-ink" title={format(new Date(flow.updatedAt), 'PPpp')}>
+          <span className="text-[10.5px] text-[var(--st-text)]" title={format(new Date(flow.updatedAt), 'PPpp')}>
             {updatedRel}
           </span>
         </div>
@@ -941,8 +941,8 @@ function MenuItem({
       className={cn(
         'flex w-full items-center gap-2 px-3 py-1.5 text-xs transition-colors',
         danger
-          ? 'text-zoru-ink-muted hover:bg-zoru-ink/10'
-          : 'text-zoru-ink-muted hover:bg-zoru-ink',
+          ? 'text-[var(--st-text-secondary)] hover:bg-[var(--st-text)]/10'
+          : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-text)]',
       )}
     >
       {icon}

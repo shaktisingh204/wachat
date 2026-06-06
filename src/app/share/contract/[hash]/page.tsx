@@ -30,12 +30,12 @@ async function PublicContractContainer({ hash }: { hash: string }) {
         <ZoruCardHeader className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <ZoruCardTitle>{contract.name || 'Contract'}</ZoruCardTitle>
-            <p className="mt-1 text-sm text-zoru-ink">
+            <p className="mt-1 text-sm text-[var(--st-text)]">
               {contract.partyFirst && contract.partySecond
                 ? `${contract.partyFirst} ⇄ ${contract.partySecond}`
                 : null}
             </p>
-            <p className="text-xs text-zoru-ink">
+            <p className="text-xs text-[var(--st-text)]">
               Start {fmtDate(contract.startDate)} &middot; End {fmtDate(contract.endDate)}
               {typeof contract.amount === 'number'
                 ? ` · ${fmtINR(contract.amount)}`
@@ -50,7 +50,7 @@ async function PublicContractContainer({ hash }: { hash: string }) {
               href={`/share/contract/${hash}/download`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-md border border-zoru-line bg-white px-3 py-1.5 text-xs font-medium text-zoru-ink shadow-sm hover:bg-zoru-surface-2"
+              className="inline-flex items-center gap-1.5 rounded-md border border-[var(--st-border)] bg-white px-3 py-1.5 text-xs font-medium text-[var(--st-text)] shadow-sm hover:bg-[var(--st-bg-muted)]"
             >
               Download PDF
             </a>
@@ -58,7 +58,7 @@ async function PublicContractContainer({ hash }: { hash: string }) {
         </ZoruCardHeader>
         <ZoruCardContent>
           <article
-            className="prose prose-sm max-w-none text-zoru-ink"
+            className="prose prose-sm max-w-none text-[var(--st-text)]"
             dangerouslySetInnerHTML={{ __html: sanitiseHtml(contract.contractDetail || '') }}
           />
         </ZoruCardContent>

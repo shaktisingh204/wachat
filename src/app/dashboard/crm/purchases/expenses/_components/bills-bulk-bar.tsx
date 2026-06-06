@@ -53,9 +53,9 @@ export function BillsBulkBar({
 }: BillsBulkBarProps) {
   if (count === 0) return null;
   return (
-    <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 border-b border-zoru-line bg-zoru-surface px-3 py-2 shadow-sm">
-      <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink">
-        <ListChecks className="h-4 w-4 text-zoru-primary" />
+    <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 shadow-sm">
+      <div className="flex items-center gap-2 text-[12.5px] text-[var(--st-text)]">
+        <ListChecks className="h-4 w-4 text-[var(--st-text)]" />
         {count} selected
       </div>
       <div className="flex flex-wrap items-center gap-1">

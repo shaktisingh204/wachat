@@ -47,8 +47,8 @@ export default function RemoveExtraSpacesPage() {
         />
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="flex flex-col gap-4 border p-4 rounded-[var(--zoru-radius-lg)] border-zoru-line">
-            <h3 className="font-semibold text-sm text-zoru-ink">Space Options</h3>
+          <div className="flex flex-col gap-4 border p-4 rounded-[var(--zoru-radius-lg)] border-[var(--st-border)]">
+            <h3 className="font-semibold text-sm text-[var(--st-text)]">Space Options</h3>
             <div className="flex items-center justify-between gap-4">
               <Label htmlFor="collapse-spaces" className="flex-1 cursor-pointer">
                 Collapse multiple spaces
@@ -71,8 +71,8 @@ export default function RemoveExtraSpacesPage() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-4 border p-4 rounded-[var(--zoru-radius-lg)] border-zoru-line">
-            <h3 className="font-semibold text-sm text-zoru-ink">Blank Line Action</h3>
+          <div className="flex flex-col gap-4 border p-4 rounded-[var(--zoru-radius-lg)] border-[var(--st-border)]">
+            <h3 className="font-semibold text-sm text-[var(--st-text)]">Blank Line Action</h3>
             <RadioGroup 
               value={blankLineAction} 
               onValueChange={(val) => setBlankLineAction(val as any)}

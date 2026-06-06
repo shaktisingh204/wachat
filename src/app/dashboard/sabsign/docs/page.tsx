@@ -145,14 +145,14 @@ export default function SabwriterDocumentsListPage() {
       loading={loading}
       empty={
         !loading && data.length === 0 ? (
-          <div className="flex flex-col items-center justify-center p-12 text-center border rounded-xl border-dashed border-zoru-line">
-            <div className="w-12 h-12 bg-zoru-surface rounded-full flex items-center justify-center mb-4">
-              <FileText className="h-6 w-6 text-zoru-ink-muted" />
+          <div className="flex flex-col items-center justify-center p-12 text-center border rounded-xl border-dashed border-[var(--st-border)]">
+            <div className="w-12 h-12 bg-[var(--st-bg-secondary)] rounded-full flex items-center justify-center mb-4">
+              <FileText className="h-6 w-6 text-[var(--st-text-secondary)]" />
             </div>
-            <h3 className="text-lg font-medium text-zoru-ink">
+            <h3 className="text-lg font-medium text-[var(--st-text)]">
               No documents yet
             </h3>
-            <p className="text-sm text-zoru-ink-muted mt-1">
+            <p className="text-sm text-[var(--st-text-secondary)] mt-1">
               Draft a document, collaborate with reviewers, then send it for
               signature.
             </p>
@@ -183,7 +183,7 @@ export default function SabwriterDocumentsListPage() {
               <div className="flex items-start justify-between gap-2">
                 <Link
                   href={`/dashboard/sabsign/docs/${doc._id}`}
-                  className="font-medium text-zoru-ink hover:underline line-clamp-1"
+                  className="font-medium text-[var(--st-text)] hover:underline line-clamp-1"
                 >
                   {doc.title}
                 </Link>
@@ -194,7 +194,7 @@ export default function SabwriterDocumentsListPage() {
                   </span>
                 </Badge>
               </div>
-              <div className="text-xs text-zoru-ink-muted flex items-center justify-between">
+              <div className="text-xs text-[var(--st-text-secondary)] flex items-center justify-between">
                 <span>
                   v{doc.version ?? 0} ·{' '}
                   {doc.updatedAt
@@ -204,7 +204,7 @@ export default function SabwriterDocumentsListPage() {
                 <button
                   type="button"
                   onClick={() => handleDelete(doc._id)}
-                  className="text-zoru-ink-muted hover:text-zoru-danger inline-flex items-center gap-1"
+                  className="text-[var(--st-text-secondary)] hover:text-[var(--st-danger)] inline-flex items-center gap-1"
                   aria-label="Delete document"
                 >
                   <Trash2 className="h-3.5 w-3.5" />

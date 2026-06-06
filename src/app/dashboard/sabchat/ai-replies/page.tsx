@@ -155,7 +155,7 @@ export default function SabChatAiRepliesPage() {
         <ZoruPageHeading>
           <div className="flex items-center gap-3">
             <ZoruPageTitle>AI Assistant Engine</ZoruPageTitle>
-            <Badge variant="secondary" className="bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted">
+            <Badge variant="secondary" className="bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]">
               <Sparkles className="h-3 w-3 mr-1" /> Premium
             </Badge>
           </div>
@@ -196,7 +196,7 @@ export default function SabChatAiRepliesPage() {
             <Card>
               <ZoruCardHeader>
                 <div className="flex items-center gap-3">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]">
                     <Bot className="h-5 w-5" />
                   </span>
                   <div>
@@ -208,7 +208,7 @@ export default function SabChatAiRepliesPage() {
                       id="aiEnabled"
                       name="aiEnabled"
                       defaultChecked={settings.aiEnabled}
-                      className="data-[state=checked]:bg-zoru-ink"
+                      className="data-[state=checked]:bg-[var(--st-text)]"
                     />
                   </div>
                 </div>
@@ -217,9 +217,9 @@ export default function SabChatAiRepliesPage() {
 
             <Tabs defaultValue="context" className="w-full">
               <ZoruTabsList className="w-full justify-start border-b rounded-none px-4 h-12 bg-transparent">
-                <ZoruTabsTrigger value="context" className="data-[state=active]:bg-zoru-surface data-[state=active]:shadow-none">Knowledge Context</ZoruTabsTrigger>
-                <ZoruTabsTrigger value="persona" className="data-[state=active]:bg-zoru-surface data-[state=active]:shadow-none">Persona & Tone</ZoruTabsTrigger>
-                <ZoruTabsTrigger value="behavior" className="data-[state=active]:bg-zoru-surface data-[state=active]:shadow-none">Routing Behavior</ZoruTabsTrigger>
+                <ZoruTabsTrigger value="context" className="data-[state=active]:bg-[var(--st-bg-secondary)] data-[state=active]:shadow-none">Knowledge Context</ZoruTabsTrigger>
+                <ZoruTabsTrigger value="persona" className="data-[state=active]:bg-[var(--st-bg-secondary)] data-[state=active]:shadow-none">Persona & Tone</ZoruTabsTrigger>
+                <ZoruTabsTrigger value="behavior" className="data-[state=active]:bg-[var(--st-bg-secondary)] data-[state=active]:shadow-none">Routing Behavior</ZoruTabsTrigger>
               </ZoruTabsList>
               
               <Card className="border-t-0 rounded-tl-none">
@@ -235,7 +235,7 @@ export default function SabChatAiRepliesPage() {
                       className="min-h-[160px] font-mono text-sm leading-relaxed"
                       placeholder="We are Acme Corp. We sell widgets. Our refund policy is 30 days..."
                     />
-                    <p className="text-xs text-zoru-ink-muted">
+                    <p className="text-xs text-[var(--st-text-secondary)]">
                       This is the foundational prompt injected into every AI conversation.
                     </p>
                   </div>
@@ -246,7 +246,7 @@ export default function SabChatAiRepliesPage() {
                       <Input placeholder="https://example.com/docs" />
                       <Button type="button" variant="outline"><Globe className="h-4 w-4 mr-2" /> Crawl & Sync</Button>
                     </div>
-                    <p className="text-xs text-zoru-ink-muted">Automatically update the AI's knowledge by crawling your documentation site daily.</p>
+                    <p className="text-xs text-[var(--st-text-secondary)]">Automatically update the AI's knowledge by crawling your documentation site daily.</p>
                   </div>
                 </ZoruTabsContent>
 
@@ -265,7 +265,7 @@ export default function SabChatAiRepliesPage() {
                           <ZoruSelectItem value="humorous">Humorous & Witty</ZoruSelectItem>
                         </ZoruSelectContent>
                       </Select>
-                      <p className="text-xs text-zoru-ink-muted mt-2 block">
+                      <p className="text-xs text-[var(--st-text-secondary)] mt-2 block">
                         Preview: <span className="italic">
                           {persona === 'professional' && "Hello, how may I assist you today?"}
                           {persona === 'friendly' && "Hi there! I'd love to help you out with that!"}
@@ -292,7 +292,7 @@ export default function SabChatAiRepliesPage() {
                   <div className="space-y-3">
                     <Label>Supported Languages</Label>
                     <div className="flex flex-wrap gap-2">
-                      <Badge variant="secondary" className="bg-zoru-surface-2 text-zoru-ink">English (Primary)</Badge>
+                      <Badge variant="secondary" className="bg-[var(--st-bg-muted)] text-[var(--st-text)]">English (Primary)</Badge>
                       <Badge variant="outline">Spanish</Badge>
                       <Badge variant="outline">French</Badge>
                       <Badge variant="outline">German</Badge>
@@ -314,7 +314,7 @@ export default function SabChatAiRepliesPage() {
                       onValueChange={setConfidence}
                       className="py-4"
                     />
-                    <p className="text-xs text-zoru-ink-muted">
+                    <p className="text-xs text-[var(--st-text-secondary)]">
                       If the AI is less than {confidence}% confident in its answer, it will trigger the fallback rule.
                     </p>
                   </div>
@@ -336,7 +336,7 @@ export default function SabChatAiRepliesPage() {
                   <div className="space-y-2">
                     <Label>Handoff Message</Label>
                     <Input defaultValue="I'm transferring you to a human agent who can better assist you with this request. Please hold on." />
-                    <p className="text-xs text-zoru-ink-muted">Displayed to the visitor when routing to a human.</p>
+                    <p className="text-xs text-[var(--st-text-secondary)]">Displayed to the visitor when routing to a human.</p>
                   </div>
                 </ZoruTabsContent>
 
@@ -351,25 +351,25 @@ export default function SabChatAiRepliesPage() {
           {/* Right Column: AI Sandbox */}
           <div className="lg:col-span-1">
             <div className="sticky top-6">
-              <Card className="h-[600px] flex flex-col border-zoru-line dark:border-zoru-line/50 shadow-md">
-                <ZoruCardHeader className="border-b border-zoru-line py-4 bg-zoru-surface-2/50 dark:bg-zoru-ink/20">
+              <Card className="h-[600px] flex flex-col border-[var(--st-border)] dark:border-[var(--st-border)]/50 shadow-md">
+                <ZoruCardHeader className="border-b border-[var(--st-border)] py-4 bg-[var(--st-bg-muted)]/50 dark:bg-[var(--st-text)]/20">
                   <div className="flex items-center gap-2">
-                    <Wand2 className="h-4 w-4 text-zoru-ink" />
-                    <ZoruCardTitle className="text-base text-zoru-ink dark:text-white">AI Sandbox</ZoruCardTitle>
+                    <Wand2 className="h-4 w-4 text-[var(--st-text)]" />
+                    <ZoruCardTitle className="text-base text-[var(--st-text)] dark:text-white">AI Sandbox</ZoruCardTitle>
                   </div>
                   <ZoruCardDescription className="text-xs">
                     Test your current configuration in real-time.
                   </ZoruCardDescription>
                 </ZoruCardHeader>
                 
-                <ZoruCardContent className="flex-1 p-0 flex flex-col bg-zoru-surface-2/30">
+                <ZoruCardContent className="flex-1 p-0 flex flex-col bg-[var(--st-bg-muted)]/30">
                   <div className="flex-1 p-4 space-y-4 overflow-y-auto">
                     {testHistory.map((msg, idx) => (
                       <div key={idx} className={`flex ${msg.sender === 'bot' ? 'justify-start' : 'justify-end'}`}>
                         <div className={`max-w-[85%] rounded-lg p-3 text-sm shadow-sm ${
                           msg.sender === 'bot' 
-                            ? 'bg-white dark:bg-zoru-bg border border-zoru-line text-zoru-ink' 
-                            : 'bg-zoru-ink text-white'
+                            ? 'bg-white dark:bg-[var(--st-bg)] border border-[var(--st-border)] text-[var(--st-text)]' 
+                            : 'bg-[var(--st-text)] text-white'
                         }`}>
                           {msg.text}
                         </div>
@@ -377,24 +377,24 @@ export default function SabChatAiRepliesPage() {
                     ))}
                     {isSimulating && (
                       <div className="flex justify-start">
-                        <div className="bg-white dark:bg-zoru-bg border border-zoru-line rounded-lg p-3 text-sm shadow-sm flex items-center gap-1">
-                          <span className="h-2 w-2 bg-zoru-surface-2 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                          <span className="h-2 w-2 bg-zoru-surface-2 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                          <span className="h-2 w-2 bg-zoru-surface-2 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                        <div className="bg-white dark:bg-[var(--st-bg)] border border-[var(--st-border)] rounded-lg p-3 text-sm shadow-sm flex items-center gap-1">
+                          <span className="h-2 w-2 bg-[var(--st-bg-muted)] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                          <span className="h-2 w-2 bg-[var(--st-bg-muted)] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                          <span className="h-2 w-2 bg-[var(--st-bg-muted)] rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
                         </div>
                       </div>
                     )}
                   </div>
                   
-                  <div className="p-3 bg-white dark:bg-zoru-bg border-t border-zoru-line">
+                  <div className="p-3 bg-white dark:bg-[var(--st-bg)] border-t border-[var(--st-border)]">
                     <form onSubmit={handleTestChat} className="flex items-center gap-2">
                       <Input 
                         value={testMessage}
                         onChange={(e) => setTestMessage(e.target.value)}
                         placeholder="Message AI..." 
-                        className="flex-1 bg-zoru-surface-2 border-0"
+                        className="flex-1 bg-[var(--st-bg-muted)] border-0"
                       />
-                      <Button type="submit" size="icon-sm" className="bg-zoru-ink hover:bg-zoru-ink text-white rounded-full h-8 w-8">
+                      <Button type="submit" size="icon-sm" className="bg-[var(--st-text)] hover:bg-[var(--st-text)] text-white rounded-full h-8 w-8">
                         <Send className="h-3 w-3" />
                       </Button>
                     </form>

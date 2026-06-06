@@ -86,16 +86,16 @@ export default function SabCreatorWorkflowsPage() {
               <TableRow key={wf.id}>
                 <TableCell>
                   <div className="flex flex-col">
-                    <span className="font-medium text-zoru-ink">{wf.name}</span>
-                    <span className="text-xs text-zoru-ink/60">{wf.description}</span>
+                    <span className="font-medium text-[var(--st-text)]">{wf.name}</span>
+                    <span className="text-xs text-[var(--st-text)]/60">{wf.description}</span>
                   </div>
                 </TableCell>
                 <TableCell>
                   <Badge variant="outline">{wf.app}</Badge>
                 </TableCell>
                 <TableCell>
-                  <div className="flex items-center text-sm text-zoru-ink/80">
-                    <Clock className="w-4 h-4 mr-1.5 text-zoru-ink/50" />
+                  <div className="flex items-center text-sm text-[var(--st-text)]/80">
+                    <Clock className="w-4 h-4 mr-1.5 text-[var(--st-text)]/50" />
                     {wf.trigger}
                   </div>
                 </TableCell>
@@ -112,19 +112,19 @@ export default function SabCreatorWorkflowsPage() {
                     {wf.status}
                   </Badge>
                 </TableCell>
-                <TableCell className="text-sm text-zoru-ink/70">
+                <TableCell className="text-sm text-[var(--st-text)]/70">
                   {wf.lastRun}
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
                     <Button variant="ghost" size="icon">
-                      <Play className="w-4 h-4 text-zoru-ink/60" />
+                      <Play className="w-4 h-4 text-[var(--st-text)]/60" />
                     </Button>
                     <Button variant="ghost" size="icon">
-                      <Settings className="w-4 h-4 text-zoru-ink/60" />
+                      <Settings className="w-4 h-4 text-[var(--st-text)]/60" />
                     </Button>
                     <Button variant="ghost" size="icon">
-                      <MoreHorizontal className="w-4 h-4 text-zoru-ink/60" />
+                      <MoreHorizontal className="w-4 h-4 text-[var(--st-text)]/60" />
                     </Button>
                   </div>
                 </TableCell>

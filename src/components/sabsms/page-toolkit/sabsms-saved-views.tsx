@@ -126,7 +126,7 @@ export function SabsmsSavedViews({ scope }: SabsmsSavedViewsProps) {
             <Bookmark className="mr-1.5 h-3.5 w-3.5" />
             Views
             {pinned.length > 0 && (
-              <span className="ml-1.5 text-xs text-zoru-ink">
+              <span className="ml-1.5 text-xs text-[var(--st-text)]">
                 ({pinned.length} pinned)
               </span>
             )}
@@ -136,7 +136,7 @@ export function SabsmsSavedViews({ scope }: SabsmsSavedViewsProps) {
           <ZoruDropdownMenuLabel>Saved views</ZoruDropdownMenuLabel>
           <ZoruDropdownMenuSeparator />
           {views.length === 0 && (
-            <div className="px-2 py-1.5 text-xs text-zoru-ink">
+            <div className="px-2 py-1.5 text-xs text-[var(--st-text)]">
               No views saved yet.
             </div>
           )}
@@ -210,7 +210,7 @@ function ViewRow({
   onRemove: (id: string) => void;
 }) {
   return (
-    <div className="group flex items-center gap-1 px-2 py-1.5 text-sm hover:bg-zoru-surface-2">
+    <div className="group flex items-center gap-1 px-2 py-1.5 text-sm hover:bg-[var(--st-bg-muted)]">
       <button
         type="button"
         className="flex-1 truncate text-left"
@@ -228,9 +228,9 @@ function ViewRow({
         aria-label={view.pinned ? "Unpin view" : "Pin view"}
       >
         {view.pinned ? (
-          <PinOff className="h-3.5 w-3.5 text-zoru-ink" />
+          <PinOff className="h-3.5 w-3.5 text-[var(--st-text)]" />
         ) : (
-          <Pin className="h-3.5 w-3.5 text-zoru-ink" />
+          <Pin className="h-3.5 w-3.5 text-[var(--st-text)]" />
         )}
       </button>
       <button
@@ -242,7 +242,7 @@ function ViewRow({
         }}
         aria-label="Delete view"
       >
-        <Trash2 className="h-3.5 w-3.5 text-zoru-ink" />
+        <Trash2 className="h-3.5 w-3.5 text-[var(--st-text)]" />
       </button>
     </div>
   );

@@ -74,7 +74,7 @@ export function CrmNotes({ recordId, recordType, notes: initialNotes }: CrmNotes
     return (
         <Card className="p-6">
             <div className="mb-4">
-                <h2 className="text-lg font-semibold text-zoru-ink">Notes &amp; Activity</h2>
+                <h2 className="text-lg font-semibold text-[var(--st-text)]">Notes &amp; Activity</h2>
             </div>
             <div>
                 <form action={formAction} ref={formRef}>
@@ -93,10 +93,10 @@ export function CrmNotes({ recordId, recordType, notes: initialNotes }: CrmNotes
                             <Avatar className="h-8 w-8 mt-1"><ZoruAvatarFallback>{note.author.charAt(0)}</ZoruAvatarFallback></Avatar>
                             <div className="flex-1">
                                 <div className="flex justify-between items-center">
-                                    <p className="font-semibold text-sm text-zoru-ink">{note.author}</p>
-                                    <p className="text-xs text-zoru-ink-muted">{new Date(note.createdAt).toLocaleDateString()}</p>
+                                    <p className="font-semibold text-sm text-[var(--st-text)]">{note.author}</p>
+                                    <p className="text-xs text-[var(--st-text-secondary)]">{new Date(note.createdAt).toLocaleDateString()}</p>
                                 </div>
-                                <p className="text-sm text-zoru-ink-muted whitespace-pre-wrap">{note.content}</p>
+                                <p className="text-sm text-[var(--st-text-secondary)] whitespace-pre-wrap">{note.content}</p>
                             </div>
                         </div>
                     ))}

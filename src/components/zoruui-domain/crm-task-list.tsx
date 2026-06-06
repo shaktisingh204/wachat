@@ -76,7 +76,7 @@ export function CrmTaskList({ tasks, onTaskUpdated }: { tasks: WithId<CrmTask>[]
     return (
         <Card className="h-full">
             <div className="p-0">
-                <div className="border border-zoru-line rounded-lg">
+                <div className="border border-[var(--st-border)] rounded-lg">
                     <Table>
                         <ZoruTableHeader>
                             <ZoruTableRow>
@@ -101,8 +101,8 @@ export function CrmTaskList({ tasks, onTaskUpdated }: { tasks: WithId<CrmTask>[]
                                                 <Select value={task.status} onValueChange={(val) => handleStatusChange(task._id.toString(), val as any)}>
                                                     <ZoruSelectTrigger className={cn(
                                                         'h-8 text-xs w-32',
-                                                        task.status === 'Completed' && 'border-zoru-line text-zoru-ink',
-                                                        task.status === 'In Progress' && 'border-zoru-line text-zoru-ink'
+                                                        task.status === 'Completed' && 'border-[var(--st-border)] text-[var(--st-text)]',
+                                                        task.status === 'In Progress' && 'border-[var(--st-border)] text-[var(--st-text)]'
                                                     )}>
                                                         <ZoruSelectValue />
                                                     </ZoruSelectTrigger>
@@ -117,7 +117,7 @@ export function CrmTaskList({ tasks, onTaskUpdated }: { tasks: WithId<CrmTask>[]
                                                 <EntityRowLink
                                                     href={`/dashboard/crm/tasks/${task._id.toString()}`}
                                                     label={
-                                                        <span className={cn(task.status === 'Completed' && 'line-through text-zoru-ink-muted')}>
+                                                        <span className={cn(task.status === 'Completed' && 'line-through text-[var(--st-text-secondary)]')}>
                                                             {task.title}
                                                         </span>
                                                     }
@@ -127,13 +127,13 @@ export function CrmTaskList({ tasks, onTaskUpdated }: { tasks: WithId<CrmTask>[]
                                             <ZoruTableCell>
                                                  <ZoruTooltipProvider>
                                                     <Tooltip>
-                                                        <ZoruTooltipTrigger><TypeIcon className="h-4 w-4 text-zoru-ink-muted"/></ZoruTooltipTrigger>
+                                                        <ZoruTooltipTrigger><TypeIcon className="h-4 w-4 text-[var(--st-text-secondary)]"/></ZoruTooltipTrigger>
                                                         <ZoruTooltipContent>{task.type}</ZoruTooltipContent>
                                                     </Tooltip>
                                                  </ZoruTooltipProvider>
                                             </ZoruTableCell>
                                             <ZoruTableCell>
-                                                <span className={cn('text-sm', isOverdue ? 'text-zoru-danger-ink font-semibold' : 'text-zoru-ink')}>
+                                                <span className={cn('text-sm', isOverdue ? 'text-[var(--st-danger)] font-semibold' : 'text-[var(--st-text)]')}>
                                                     {task.dueDate ? format(new Date(task.dueDate), 'PPP') : 'No due date'}
                                                 </span>
                                             </ZoruTableCell>
@@ -142,7 +142,7 @@ export function CrmTaskList({ tasks, onTaskUpdated }: { tasks: WithId<CrmTask>[]
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-right">
                                                 <Button variant="ghost" size="icon" onClick={() => handleDelete(task._id.toString())} disabled={isUpdating}>
-                                                    <Trash2 className="h-4 w-4 text-zoru-danger-ink"/>
+                                                    <Trash2 className="h-4 w-4 text-[var(--st-danger)]"/>
                                                 </Button>
                                             </ZoruTableCell>
                                         </ZoruTableRow>
@@ -150,7 +150,7 @@ export function CrmTaskList({ tasks, onTaskUpdated }: { tasks: WithId<CrmTask>[]
                                 })
                             ) : (
                                 <ZoruTableRow>
-                                    <ZoruTableCell colSpan={6} className="h-24 text-center text-zoru-ink-muted">No tasks in this category.</ZoruTableCell>
+                                    <ZoruTableCell colSpan={6} className="h-24 text-center text-[var(--st-text-secondary)]">No tasks in this category.</ZoruTableCell>
                                 </ZoruTableRow>
                             )}
                         </ZoruTableBody>

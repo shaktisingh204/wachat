@@ -77,7 +77,7 @@ export function CrmAddContactDialog({ onAdded }: CrmAddContactDialogProps) {
       </ZoruDialogTrigger>
       <ZoruDialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0 gap-0">
         <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
-          <ZoruDialogHeader className="px-6 pt-6 pb-3 border-b border-zoru-line">
+          <ZoruDialogHeader className="px-6 pt-6 pb-3 border-b border-[var(--st-border)]">
             <ZoruDialogTitle>Add New Contact</ZoruDialogTitle>
             <ZoruDialogDescription>
               Manually add a new contact or lead to your CRM.
@@ -222,7 +222,7 @@ export function CrmAddContactDialog({ onAdded }: CrmAddContactDialogProps) {
             </div>
           </div>
 
-          <ZoruDialogFooter className="shrink-0 border-t border-zoru-line bg-zoru-bg px-6 pb-5 pt-4 gap-2">
+          <ZoruDialogFooter className="shrink-0 border-t border-[var(--st-border)] bg-[var(--st-bg)] px-6 pb-5 pt-4 gap-2">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancel
             </Button>

@@ -166,7 +166,7 @@ export function JobsView({ initial }: { initial: Job[] }) {
       render: (r) => (
         <Link
           href={`/dashboard/hrm/hr/jobs/${r._id}`}
-          className="font-medium text-zoru-ink hover:underline"
+          className="font-medium text-[var(--st-text)] hover:underline"
         >
           {r.title || '—'}
         </Link>

@@ -170,7 +170,7 @@ export function DetailDrawer({
         <ZoruDrawerHeader>
           <ZoruDrawerTitle>
             {app.name}
-            <span className="ml-2 text-[11px] text-zoru-ink-muted font-normal">
+            <span className="ml-2 text-[11px] text-[var(--st-text-secondary)] font-normal">
               @{app.botUsername || '—'} / {app.slug}
             </span>
           </ZoruDrawerTitle>
@@ -194,8 +194,8 @@ export function DetailDrawer({
               className={cn(
                 'rounded-full px-3 py-1.5 text-[12px]',
                 tab === k
-                  ? 'bg-zoru-bg-zoru-surface-2 text-zoru-ink'
-                  : 'text-zoru-ink-muted hover:text-zoru-ink',
+                  ? 'bg-zoru-bg-[var(--st-bg-muted)] text-[var(--st-text)]'
+                  : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
               )}
             >
               {label}
@@ -211,7 +211,7 @@ export function DetailDrawer({
                   href={app.webAppUrl}
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="inline-flex items-center gap-1 text-[12px] text-zoru-ink hover:underline"
+                  className="inline-flex items-center gap-1 text-[12px] text-[var(--st-text)] hover:underline"
                 >
                   <LinkIcon className="h-3.5 w-3.5" /> {app.webAppUrl}
                 </a>
@@ -220,18 +220,18 @@ export function DetailDrawer({
                     href={link}
                     target="_blank"
                     rel="noreferrer noopener"
-                    className="inline-flex items-center gap-1 text-[12px] text-zoru-ink hover:underline"
+                    className="inline-flex items-center gap-1 text-[12px] text-[var(--st-text)] hover:underline"
                   >
                     <ExternalLink className="h-3.5 w-3.5" /> {link}
                   </a>
                 )}
-                <div className="ml-auto inline-flex overflow-hidden rounded-md border border-zoru-line">
+                <div className="ml-auto inline-flex overflow-hidden rounded-md border border-[var(--st-border)]">
                   <button
                     type="button"
                     onClick={() => setDevice('desktop')}
                     className={cn(
                       'px-2 py-1 text-[11px]',
-                      device === 'desktop' && 'bg-zoru-bg-zoru-surface-2',
+                      device === 'desktop' && 'bg-zoru-bg-[var(--st-bg-muted)]',
                     )}
                   >
                     <Monitor className="h-3.5 w-3.5" />
@@ -241,16 +241,16 @@ export function DetailDrawer({
                     onClick={() => setDevice('mobile')}
                     className={cn(
                       'px-2 py-1 text-[11px]',
-                      device === 'mobile' && 'bg-zoru-bg-zoru-surface-2',
+                      device === 'mobile' && 'bg-zoru-bg-[var(--st-bg-muted)]',
                     )}
                   >
                     <Smartphone className="h-3.5 w-3.5" />
                   </button>
                 </div>
               </div>
-              <div className="flex justify-center rounded-md border border-zoru-line bg-zoru-bg-zoru-surface-2 p-3">
+              <div className="flex justify-center rounded-md border border-[var(--st-border)] bg-zoru-bg-[var(--st-bg-muted)] p-3">
                 <div
-                  className="overflow-hidden rounded-md border border-zoru-line bg-white"
+                  className="overflow-hidden rounded-md border border-[var(--st-border)] bg-white"
                   style={{
                     width: device === 'desktop' ? 720 : 360,
                     height: device === 'desktop' ? 480 : 640,
@@ -264,8 +264,8 @@ export function DetailDrawer({
                   />
                 </div>
               </div>
-              <div className="rounded-md border border-zoru-line p-3">
-                <div className="text-[11px] uppercase tracking-wider text-zoru-ink-muted">
+              <div className="rounded-md border border-[var(--st-border)] p-3">
+                <div className="text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)]">
                   Test init-data
                 </div>
                 <Textarea
@@ -292,8 +292,8 @@ export function DetailDrawer({
                       className={cn(
                         'text-[11px]',
                         initDataResult.ok
-                          ? 'text-zoru-ink'
-                          : 'text-zoru-ink',
+                          ? 'text-[var(--st-text)]'
+                          : 'text-[var(--st-text)]',
                       )}
                     >
                       {initDataResult.ok ? 'Signature OK' : 'Signature failed'}
@@ -301,7 +301,7 @@ export function DetailDrawer({
                   )}
                 </div>
                 {initDataResult && (
-                  <pre className="mt-2 max-h-40 overflow-auto rounded bg-zoru-bg-zoru-surface-2 p-2 text-[11px]">
+                  <pre className="mt-2 max-h-40 overflow-auto rounded bg-zoru-bg-[var(--st-bg-muted)] p-2 text-[11px]">
                     {initDataResult.body}
                   </pre>
                 )}
@@ -325,14 +325,14 @@ export function DetailDrawer({
               <Button variant="outline" onClick={onEdit}>
                 <Pencil className="mr-1.5 h-3.5 w-3.5" /> Edit mini app
               </Button>
-              <div className="rounded-md border border-zoru-line p-3 text-[12px]">
-                <div className="text-zoru-ink-muted">App id</div>
-                <div className="font-mono text-zoru-ink">{app._id}</div>
-                <div className="mt-2 text-zoru-ink-muted">Bot id</div>
-                <div className="font-mono text-zoru-ink">{app.botId}</div>
-                <div className="mt-2 text-zoru-ink-muted">Created</div>
+              <div className="rounded-md border border-[var(--st-border)] p-3 text-[12px]">
+                <div className="text-[var(--st-text-secondary)]">App id</div>
+                <div className="font-mono text-[var(--st-text)]">{app._id}</div>
+                <div className="mt-2 text-[var(--st-text-secondary)]">Bot id</div>
+                <div className="font-mono text-[var(--st-text)]">{app.botId}</div>
+                <div className="mt-2 text-[var(--st-text-secondary)]">Created</div>
                 <div><ClientDate date={app.createdAt} /></div>
-                <div className="mt-2 text-zoru-ink-muted">Updated</div>
+                <div className="mt-2 text-[var(--st-text-secondary)]">Updated</div>
                 <div><ClientDate date={app.updatedAt} /></div>
               </div>
             </div>
@@ -353,7 +353,7 @@ function SessionsTable({
   if (loading) return <Skeleton className="h-40 w-full" />;
   if (sessions.length === 0)
     return (
-      <div className="rounded-md border border-zoru-line p-6 text-center text-[12px] text-zoru-ink-muted">
+      <div className="rounded-md border border-[var(--st-border)] p-6 text-center text-[12px] text-[var(--st-text-secondary)]">
         No validated sessions yet.
       </div>
     );
@@ -396,7 +396,7 @@ function AnalyticsView({
 }) {
   if (loading) return <Skeleton className="h-40 w-full" />;
   if (!analytics)
-    return <div className="text-[12px] text-zoru-ink-muted">No data.</div>;
+    return <div className="text-[12px] text-[var(--st-text-secondary)]">No data.</div>;
   const max = analytics.byDay.reduce((m, d) => Math.max(m, d.opens), 0) || 1;
   return (
     <div className="flex flex-col gap-3">
@@ -409,13 +409,13 @@ function AnalyticsView({
           hint="unique / opens"
         />
       </div>
-      <div className="rounded-md border border-zoru-line p-3">
-        <div className="mb-2 text-[11px] uppercase tracking-wider text-zoru-ink-muted">
+      <div className="rounded-md border border-[var(--st-border)] p-3">
+        <div className="mb-2 text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)]">
           Opens by day
         </div>
         <div className="flex h-32 items-end gap-1">
           {analytics.byDay.length === 0 ? (
-            <span className="text-[11px] text-zoru-ink-muted">No data.</span>
+            <span className="text-[11px] text-[var(--st-text-secondary)]">No data.</span>
           ) : (
             analytics.byDay.map((d) => (
               <div
@@ -431,7 +431,7 @@ function AnalyticsView({
                     minHeight: 2,
                   }}
                 />
-                <span className="text-[9px] text-zoru-ink-muted">
+                <span className="text-[9px] text-[var(--st-text-secondary)]">
                   {d.date.slice(5)}
                 </span>
               </div>

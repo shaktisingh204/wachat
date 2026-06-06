@@ -104,10 +104,10 @@ export default async function AttendanceReportPage(props: PageProps) {
 
       <Card className="p-6 mb-4">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-[16px] font-semibold text-zoru-ink">
+          <h2 className="text-[16px] font-semibold text-[var(--st-text)]">
             Daily attendance
           </h2>
-          <span className="text-[12px] text-zoru-ink-muted">
+          <span className="text-[12px] text-[var(--st-text-secondary)]">
             {fmtNumber(totals.presentCount)} present · {fmtNumber(totals.absentCount)} absent · {fmtNumber(totals.leaveCount)} on leave
           </span>
         </div>

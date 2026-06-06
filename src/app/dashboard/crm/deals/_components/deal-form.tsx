@@ -97,13 +97,13 @@ export function DealForm({ initial, customFields }: DealFormProps) {
       <input type="hidden" name="customFields" value={JSON.stringify(customFieldValues)} />
 
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Basics
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div className="md:col-span-2">
             <Label htmlFor="title">
-              Title <span className="text-zoru-danger-ink">*</span>
+              Title <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <Input
               id="title"
@@ -116,7 +116,7 @@ export function DealForm({ initial, customFields }: DealFormProps) {
           </div>
           <div>
             <Label>
-              Counter-party type <span className="text-zoru-danger-ink">*</span>
+              Counter-party type <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <div className="mt-1.5">
               <EnumFormField
@@ -133,7 +133,7 @@ export function DealForm({ initial, customFields }: DealFormProps) {
           <div>
             <Label>
               {partyKind === 'client' ? 'Client' : 'Lead'}{' '}
-              <span className="text-zoru-danger-ink">*</span>
+              <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <div className="mt-1.5">
               <EntityPicker
@@ -147,13 +147,13 @@ export function DealForm({ initial, customFields }: DealFormProps) {
       </Card>
 
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Pipeline & Ownership
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <Label>
-              Pipeline <span className="text-zoru-danger-ink">*</span>
+              Pipeline <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <div className="mt-1.5">
               <EntityFormField
@@ -167,7 +167,7 @@ export function DealForm({ initial, customFields }: DealFormProps) {
           </div>
           <div>
             <Label>
-              Stage <span className="text-zoru-danger-ink">*</span>
+              Stage <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <div className="mt-1.5">
               <EntityFormField
@@ -181,7 +181,7 @@ export function DealForm({ initial, customFields }: DealFormProps) {
           </div>
           <div>
             <Label>
-              Owner <span className="text-zoru-danger-ink">*</span>
+              Owner <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <div className="mt-1.5">
               <EntityFormField
@@ -207,13 +207,13 @@ export function DealForm({ initial, customFields }: DealFormProps) {
       </Card>
 
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Value & Forecast
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <Label htmlFor="amount">
-              Amount <span className="text-zoru-danger-ink">*</span>
+              Amount <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <Input
               id="amount"
@@ -250,7 +250,7 @@ export function DealForm({ initial, customFields }: DealFormProps) {
           </div>
           <div>
             <Label htmlFor="expectedClose">
-              Expected close date <span className="text-zoru-danger-ink">*</span>
+              Expected close date <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <Input
               id="expectedClose"
@@ -280,7 +280,7 @@ export function DealForm({ initial, customFields }: DealFormProps) {
 
       {customFields.length > 0 ? (
         <Card className="p-6">
-          <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
             Custom fields
           </h3>
           <div className="grid gap-4 md:grid-cols-2">

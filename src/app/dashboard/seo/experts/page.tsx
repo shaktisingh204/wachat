@@ -114,20 +114,20 @@ function ExpertCard({ expert }: { expert: typeof MOCK_EXPERTS[0] }) {
                             <ZoruCardTitle className="flex items-center gap-1.5 text-lg">
                                 {expert.name}
                                 {expert.verified && (
-                                    <CheckCircle2 className="h-4 w-4 text-zoru-ink" />
+                                    <CheckCircle2 className="h-4 w-4 text-[var(--st-text)]" />
                                 )}
                             </ZoruCardTitle>
-                            <p className="text-sm text-zoru-ink-muted">{expert.title}</p>
+                            <p className="text-sm text-[var(--st-text-secondary)]">{expert.title}</p>
                         </div>
                         <div className="text-right">
-                            <div className="font-semibold text-zoru-ink">{expert.rate}</div>
+                            <div className="font-semibold text-[var(--st-text)]">{expert.rate}</div>
                         </div>
                     </div>
                     
-                    <div className="mt-2 flex items-center gap-3 text-sm text-zoru-ink-muted">
+                    <div className="mt-2 flex items-center gap-3 text-sm text-[var(--st-text-secondary)]">
                         <div className="flex items-center gap-1">
-                            <Star className="h-4 w-4 fill-zoru-ink-muted text-zoru-ink-muted" />
-                            <span className="font-medium text-zoru-ink">{expert.rating}</span>
+                            <Star className="h-4 w-4 fill-[var(--st-text-secondary)] text-[var(--st-text-secondary)]" />
+                            <span className="font-medium text-[var(--st-text)]">{expert.rating}</span>
                             <span>({expert.reviews})</span>
                         </div>
                         <div className="flex items-center gap-1">
@@ -138,7 +138,7 @@ function ExpertCard({ expert }: { expert: typeof MOCK_EXPERTS[0] }) {
                 </div>
             </ZoruCardHeader>
             <ZoruCardContent className="flex-1 pb-4">
-                <ZoruCardDescription className="line-clamp-3 text-sm text-zoru-ink-muted">
+                <ZoruCardDescription className="line-clamp-3 text-sm text-[var(--st-text-secondary)]">
                     {expert.description}
                 </ZoruCardDescription>
                 <div className="mt-4 flex flex-wrap gap-2">
@@ -217,16 +217,16 @@ export default function ExpertsDirectoryPage() {
         <div className="flex flex-col gap-8">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
                 <div className="max-w-2xl">
-                    <h1 className="text-3xl font-semibold text-zoru-ink">Hire a Vetted Expert</h1>
-                    <p className="text-zoru-ink-muted mt-2">
+                    <h1 className="text-3xl font-semibold text-[var(--st-text)]">Hire a Vetted Expert</h1>
+                    <p className="text-[var(--st-text-secondary)] mt-2">
                         Need help fixing those Critical Issues? Match with a pro who knows this platform.
                     </p>
                 </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 items-center bg-zoru-surface border border-zoru-border p-4 rounded-xl shadow-sm">
+            <div className="flex flex-col sm:flex-row gap-4 items-center bg-[var(--st-bg-secondary)] border border-[var(--st-border)] p-4 rounded-xl shadow-sm">
                 <div className="relative flex-1 w-full">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zoru-ink-muted" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--st-text-secondary)]" />
                     <Input 
                         placeholder="Search by name, title, or keyword..." 
                         className="pl-9 w-full bg-white"
@@ -263,12 +263,12 @@ export default function ExpertsDirectoryPage() {
             </div>
 
             {filteredExperts.length === 0 ? (
-                <div className="text-center py-16 px-4 border border-dashed border-zoru-border rounded-xl bg-zoru-surface/50">
-                    <div className="mx-auto w-12 h-12 rounded-full bg-zoru-surface border border-zoru-border flex items-center justify-center mb-4">
-                        <Search className="h-6 w-6 text-zoru-ink-muted" />
+                <div className="text-center py-16 px-4 border border-dashed border-[var(--st-border)] rounded-xl bg-[var(--st-bg-secondary)]/50">
+                    <div className="mx-auto w-12 h-12 rounded-full bg-[var(--st-bg-secondary)] border border-[var(--st-border)] flex items-center justify-center mb-4">
+                        <Search className="h-6 w-6 text-[var(--st-text-secondary)]" />
                     </div>
-                    <h3 className="text-lg font-medium text-zoru-ink mb-1">No experts found</h3>
-                    <p className="text-zoru-ink-muted max-w-sm mx-auto">
+                    <h3 className="text-lg font-medium text-[var(--st-text)] mb-1">No experts found</h3>
+                    <p className="text-[var(--st-text-secondary)] max-w-sm mx-auto">
                         We couldn't find any experts matching your current search criteria. Try adjusting your filters or search term.
                     </p>
                     <Button 

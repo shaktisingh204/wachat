@@ -20,7 +20,7 @@ export function DeveloperOptions() {
       <Card>
         <ZoruCardHeader>
           <ZoruCardTitle className="flex items-center gap-2">
-            <Key className="h-5 w-5 text-zoru-ink" /> Developer Options
+            <Key className="h-5 w-5 text-[var(--st-text)]" /> Developer Options
           </ZoruCardTitle>
           <ZoruCardDescription>
             Proprietary access for programmatic URL shortening.
@@ -35,7 +35,7 @@ export function DeveloperOptions() {
                 Regenerate
               </Button>
             </div>
-            <p className="text-xs text-zoru-ink-muted">
+            <p className="text-xs text-[var(--st-text-secondary)]">
               API access for creating short links is currently in closed beta.
             </p>
           </div>
@@ -50,14 +50,14 @@ export function DeveloperOptions() {
       <Card>
         <ZoruCardHeader>
           <ZoruCardTitle className="flex items-center gap-2">
-            <Webhook className="h-5 w-5 text-zoru-ink" /> Webhooks
+            <Webhook className="h-5 w-5 text-[var(--st-text)]" /> Webhooks
           </ZoruCardTitle>
           <ZoruCardDescription>
             Receive real-time notifications for link clicks and system events.
           </ZoruCardDescription>
         </ZoruCardHeader>
         <ZoruCardContent>
-          <p className="text-sm text-zoru-ink-muted">
+          <p className="text-sm text-[var(--st-text-secondary)]">
             Configure webhook endpoints to get real-time analytics data whenever someone clicks your shortened URLs or when link statuses change.
           </p>
         </ZoruCardContent>

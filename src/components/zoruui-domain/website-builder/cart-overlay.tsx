@@ -21,7 +21,7 @@ export function CartOverlay({ shopSlug }: { shopSlug: string }) {
             <Button asChild size="lg" className="rounded-full h-16 w-16 shadow-2xl relative" style={{ backgroundColor: 'var(--shop-primary-color)', color: 'var(--st-text-inverted)' }}>
                 <Link href={`/shop/${shopSlug}/cart`}>
                     <ShoppingCart className="h-6 w-6" />
-                    <span className="absolute -top-2 -right-2 bg-zoru-ink text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center border-2 border-background">
+                    <span className="absolute -top-2 -right-2 bg-[var(--st-text)] text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center border-2 border-background">
                         {itemCount}
                     </span>
                 </Link>

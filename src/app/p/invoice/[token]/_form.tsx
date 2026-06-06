@@ -79,18 +79,18 @@ export function InvoicePayForm({
     <Card className="shadow-md border-foreground/10">
       <ZoruCardContent className="flex flex-col gap-4 p-5">
         <div className="flex items-center justify-between">
-          <h2 className="text-[13px] font-mono uppercase tracking-wider text-zoru-ink flex items-center gap-1.5">
-            <Terminal className="h-4 w-4 text-zoru-ink-muted" />
+          <h2 className="text-[13px] font-mono uppercase tracking-wider text-[var(--st-text)] flex items-center gap-1.5">
+            <Terminal className="h-4 w-4 text-[var(--st-text-secondary)]" />
             Payload parameters
           </h2>
-          <span className="text-[10px] font-mono bg-zoru-surface-2 px-1.5 py-0.5 rounded text-zoru-ink-muted">
+          <span className="text-[10px] font-mono bg-[var(--st-bg-muted)] px-1.5 py-0.5 rounded text-[var(--st-text-secondary)]">
             application/json
           </span>
         </div>
 
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="payment_gateway" className="text-[12px] font-mono uppercase tracking-tight text-zoru-ink-muted">
+            <Label htmlFor="payment_gateway" className="text-[12px] font-mono uppercase tracking-tight text-[var(--st-text-secondary)]">
               payment_gateway <span className="text-danger">*</span>
             </Label>
             <Select
@@ -104,10 +104,10 @@ export function InvoicePayForm({
           </div>
 
           {(gateway === 'bank-transfer' || gateway === 'other') && (
-            <div className="bg-zoru-surface-2/40 border border-zoru-line p-3 rounded-lg flex items-start gap-2">
-              <Info className="h-4 w-4 text-zoru-ink-muted mt-0.5 shrink-0" />
-              <div className="text-[12px] text-zoru-ink-muted">
-                <p className="font-semibold text-zoru-ink mb-1">Offline Payment Instructions</p>
+            <div className="bg-[var(--st-bg-muted)]/40 border border-[var(--st-border)] p-3 rounded-lg flex items-start gap-2">
+              <Info className="h-4 w-4 text-[var(--st-text-secondary)] mt-0.5 shrink-0" />
+              <div className="text-[12px] text-[var(--st-text-secondary)]">
+                <p className="font-semibold text-[var(--st-text)] mb-1">Offline Payment Instructions</p>
                 <p>Please transfer the total amount to the following bank account:</p>
                 <ul className="list-disc list-inside mt-1 space-y-0.5 font-mono text-[11px]">
                   <li>Bank: Acme Global Bank</li>
@@ -121,7 +121,7 @@ export function InvoicePayForm({
           )}
 
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="transaction_id" className="text-[12px] font-mono uppercase tracking-tight text-zoru-ink-muted">
+            <Label htmlFor="transaction_id" className="text-[12px] font-mono uppercase tracking-tight text-[var(--st-text-secondary)]">
               transaction_id <span className="text-danger">*</span>
             </Label>
             <Input
@@ -134,8 +134,8 @@ export function InvoicePayForm({
             />
           </div>
 
-          <div className="flex flex-col gap-2 pt-2 border-t border-zoru-line">
-            <Label className="text-[12px] font-mono uppercase tracking-tight text-zoru-ink-muted flex items-center gap-1.5">
+          <div className="flex flex-col gap-2 pt-2 border-t border-[var(--st-border)]">
+            <Label className="text-[12px] font-mono uppercase tracking-tight text-[var(--st-text-secondary)] flex items-center gap-1.5">
               <HeartHandshake className="w-3.5 h-3.5" /> add_tip (optional)
             </Label>
             <div className="flex flex-wrap gap-2">
@@ -154,7 +154,7 @@ export function InvoicePayForm({
               ))}
             </div>
             <div className="flex items-center gap-2 mt-1">
-              <span className="text-[12px] font-mono text-zoru-ink-muted">or custom:</span>
+              <span className="text-[12px] font-mono text-[var(--st-text-secondary)]">or custom:</span>
               <Input
                 type="number"
                 min="0"
@@ -171,18 +171,18 @@ export function InvoicePayForm({
             </div>
           </div>
 
-          <div className="flex flex-col gap-1.5 mt-2 bg-zoru-surface-2/20 p-3 rounded-lg border border-zoru-line">
-            <div className="flex justify-between items-center text-[12px] text-zoru-ink-muted font-mono">
+          <div className="flex flex-col gap-1.5 mt-2 bg-[var(--st-bg-muted)]/20 p-3 rounded-lg border border-[var(--st-border)]">
+            <div className="flex justify-between items-center text-[12px] text-[var(--st-text-secondary)] font-mono">
               <span>Invoice Due:</span>
               <span>{due.toFixed(2)} {currency}</span>
             </div>
             {tipAmount > 0 && (
-              <div className="flex justify-between items-center text-[12px] text-zoru-ink-muted font-mono">
+              <div className="flex justify-between items-center text-[12px] text-[var(--st-text-secondary)] font-mono">
                 <span>Tip Amount:</span>
                 <span>{tipAmount.toFixed(2)} {currency}</span>
               </div>
             )}
-            <div className="flex justify-between items-center text-[13px] font-bold text-zoru-ink font-mono mt-1 pt-1 border-t border-zoru-line/50">
+            <div className="flex justify-between items-center text-[13px] font-bold text-[var(--st-text)] font-mono mt-1 pt-1 border-t border-[var(--st-border)]/50">
               <span>payment_amount:</span>
               <span>{totalAmount} {currency}</span>
             </div>
@@ -217,15 +217,15 @@ export function InvoicePayForm({
         </div>
 
         {/* DETAILS */}
-        <p className="mt-1 text-[11px] font-mono text-zoru-ink-muted leading-normal border-t border-zoru-line pt-3">
+        <p className="mt-1 text-[11px] font-mono text-[var(--st-text-secondary)] leading-normal border-t border-[var(--st-border)] pt-3">
           // Submit the verified payment receipt transaction from your selected clearing provider.
           Balances reconcile in near-realtime after posting.
         </p>
 
         {/* CURL SAMPLE */}
-        <div className="mt-2 rounded-lg bg-zoru-surface-2/40 border border-zoru-line p-3">
-          <p className="text-[10px] font-mono uppercase tracking-wider text-zoru-ink-muted mb-1.5">// Curl representation</p>
-          <pre className="text-[10.5px] font-mono text-zoru-ink whitespace-pre-wrap leading-tight bg-zoru-surface-2/80 p-2.5 rounded border border-zoru-line/50">
+        <div className="mt-2 rounded-lg bg-[var(--st-bg-muted)]/40 border border-[var(--st-border)] p-3">
+          <p className="text-[10px] font-mono uppercase tracking-wider text-[var(--st-text-secondary)] mb-1.5">// Curl representation</p>
+          <pre className="text-[10.5px] font-mono text-[var(--st-text)] whitespace-pre-wrap leading-tight bg-[var(--st-bg-muted)]/80 p-2.5 rounded border border-[var(--st-border)]/50">
             {`curl -X POST https://api.sabnode.com/v1/invoices/${token.slice(0, 6)}/pay \\
   -H "Content-Type: application/json" \\
   -d '{"amount": ${totalAmount}, "gateway": "${gateway}", "transaction_id": "${txId || '...'}"}'`}

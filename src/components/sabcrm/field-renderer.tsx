@@ -193,7 +193,7 @@ export const FieldValue = React.memo(function FieldValue({
   const { fmt } = useSabcrmSettings();
 
   const empty = (
-    <span className="text-zoru-ink-muted/60" aria-label="Empty">
+    <span className="text-[var(--st-text-secondary)]/60" aria-label="Empty">
       <Minus className="h-3.5 w-3.5" />
     </span>
   );
@@ -214,7 +214,7 @@ export const FieldValue = React.memo(function FieldValue({
       }
       if (!text) return empty;
       return (
-        <span className={cn('text-zoru-ink', dense && 'truncate', className)}>
+        <span className={cn('text-[var(--st-text)]', dense && 'truncate', className)}>
           {text}
         </span>
       );
@@ -226,7 +226,7 @@ export const FieldValue = React.memo(function FieldValue({
         <span
           className={cn(
             'inline-flex items-center gap-1 text-sm',
-            on ? 'text-zoru-ink' : 'text-zoru-ink-muted',
+            on ? 'text-[var(--st-text)]' : 'text-[var(--st-text-secondary)]',
             className,
           )}
         >
@@ -242,7 +242,7 @@ export const FieldValue = React.memo(function FieldValue({
         field.type === 'DATE_TIME' ? fmt.dateTime(value) : fmt.date(value);
       if (!text) return empty;
       return (
-        <span className={cn('tabular-nums text-zoru-ink', className)}>{text}</span>
+        <span className={cn('tabular-nums text-[var(--st-text)]', className)}>{text}</span>
       );
     }
 
@@ -253,13 +253,13 @@ export const FieldValue = React.memo(function FieldValue({
         <a
           href={`mailto:${text}`}
           className={cn(
-            'inline-flex items-center gap-1 text-zoru-ink hover:underline',
+            'inline-flex items-center gap-1 text-[var(--st-text)] hover:underline',
             dense && 'truncate',
             className,
           )}
           onClick={(e) => e.stopPropagation()}
         >
-          <Mail className="h-3.5 w-3.5 shrink-0 text-zoru-ink-muted" />
+          <Mail className="h-3.5 w-3.5 shrink-0 text-[var(--st-text-secondary)]" />
           {text}
         </a>
       );
@@ -272,13 +272,13 @@ export const FieldValue = React.memo(function FieldValue({
         <a
           href={`tel:${text}`}
           className={cn(
-            'inline-flex items-center gap-1 text-zoru-ink hover:underline',
+            'inline-flex items-center gap-1 text-[var(--st-text)] hover:underline',
             dense && 'truncate',
             className,
           )}
           onClick={(e) => e.stopPropagation()}
         >
-          <Phone className="h-3.5 w-3.5 shrink-0 text-zoru-ink-muted" />
+          <Phone className="h-3.5 w-3.5 shrink-0 text-[var(--st-text-secondary)]" />
           {text}
         </a>
       );
@@ -294,15 +294,15 @@ export const FieldValue = React.memo(function FieldValue({
           target="_blank"
           rel="noopener noreferrer"
           className={cn(
-            'inline-flex items-center gap-1 text-zoru-ink hover:underline',
+            'inline-flex items-center gap-1 text-[var(--st-text)] hover:underline',
             dense && 'truncate',
             className,
           )}
           onClick={(e) => e.stopPropagation()}
         >
-          <LinkIcon className="h-3.5 w-3.5 shrink-0 text-zoru-ink-muted" />
+          <LinkIcon className="h-3.5 w-3.5 shrink-0 text-[var(--st-text-secondary)]" />
           {text}
-          <ExternalLink className="h-3 w-3 shrink-0 text-zoru-ink-muted" />
+          <ExternalLink className="h-3 w-3 shrink-0 text-[var(--st-text-secondary)]" />
         </a>
       );
     }
@@ -359,8 +359,8 @@ export const FieldValue = React.memo(function FieldValue({
               className={cn(
                 'h-3.5 w-3.5',
                 i < filled
-                  ? 'fill-zoru-ink text-zoru-ink'
-                  : 'text-zoru-ink-muted/40',
+                  ? 'fill-[var(--st-text)] text-[var(--st-text)]'
+                  : 'text-[var(--st-text-secondary)]/40',
               )}
             />
           ))}
@@ -390,13 +390,13 @@ export const FieldValue = React.memo(function FieldValue({
           target="_blank"
           rel="noopener noreferrer"
           className={cn(
-            'inline-flex items-center gap-1 text-zoru-ink hover:underline',
+            'inline-flex items-center gap-1 text-[var(--st-text)] hover:underline',
             dense && 'truncate',
             className,
           )}
           onClick={(e) => e.stopPropagation()}
         >
-          <Paperclip className="h-3.5 w-3.5 shrink-0 text-zoru-ink-muted" />
+          <Paperclip className="h-3.5 w-3.5 shrink-0 text-[var(--st-text-secondary)]" />
           {name}
         </a>
       );
@@ -486,8 +486,8 @@ const MultiSelectInput = React.memo(function MultiSelectInput({
       aria-labelledby={`${groupId}-label`}
       aria-describedby={errorId}
       className={cn(
-        'flex flex-wrap gap-1.5 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-2',
-        invalid && 'border-zoru-danger',
+        'flex flex-wrap gap-1.5 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2',
+        invalid && 'border-[var(--st-danger)]',
         disabled && 'opacity-60',
         className,
       )}
@@ -510,8 +510,8 @@ const MultiSelectInput = React.memo(function MultiSelectInput({
             className={cn(
               'inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors',
               on
-                ? 'border-zoru-ink bg-zoru-ink text-zoru-on-primary'
-                : 'border-zoru-line bg-zoru-bg text-zoru-ink-muted hover:border-zoru-ink/30 hover:text-zoru-ink',
+                ? 'border-[var(--st-text)] bg-[var(--st-text)] text-[var(--st-text-inverted)]'
+                : 'border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text-secondary)] hover:border-[var(--st-text)]/30 hover:text-[var(--st-text)]',
             )}
           >
             {on && <Check className="h-3 w-3" aria-hidden="true" />}
@@ -520,7 +520,7 @@ const MultiSelectInput = React.memo(function MultiSelectInput({
         );
       })}
       {(field.options ?? []).length === 0 && (
-        <span className="text-xs text-zoru-ink-muted">
+        <span className="text-xs text-[var(--st-text-secondary)]">
           No options configured.
         </span>
       )}
@@ -579,8 +579,8 @@ const RatingInput = React.memo(function RatingInput({
             className={cn(
               'h-5 w-5',
               star <= current
-                ? 'fill-zoru-ink text-zoru-ink'
-                : 'text-zoru-ink-muted/40',
+                ? 'fill-[var(--st-text)] text-[var(--st-text)]'
+                : 'text-[var(--st-text-secondary)]/40',
             )}
           />
         </button>
@@ -626,7 +626,7 @@ export const FieldInput = React.memo(function FieldInput({
   className,
 }: FieldInputProps): React.ReactElement {
   const invalidRing = invalid
-    ? 'border-zoru-danger focus-visible:ring-zoru-danger/30'
+    ? 'border-[var(--st-danger)] focus-visible:ring-[var(--st-danger)]/30'
     : undefined;
   // Forwarded to every underlying control so assistive technology reads the
   // validation message element when the field is in an error state.
@@ -789,7 +789,7 @@ export const FieldInput = React.memo(function FieldInput({
           />
           <span
             id={boolLabelId}
-            className="text-sm text-zoru-ink-muted"
+            className="text-sm text-[var(--st-text-secondary)]"
             aria-hidden="true"
           >
             {boolLabel}

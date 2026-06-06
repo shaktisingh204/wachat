@@ -82,11 +82,11 @@ function StarRating({ score = 0 }: { score?: number }) {
   return (
     <div className="flex items-center gap-0.5" title={`Score: ${score}/5`}>
       {Array.from({ length: fullStars }).map((_, i) => (
-        <Star key={`full-${i}`} className="h-3.5 w-3.5 fill-zoru-ink-muted text-zoru-ink-muted" />
+        <Star key={`full-${i}`} className="h-3.5 w-3.5 fill-[var(--st-text-secondary)] text-[var(--st-text-secondary)]" />
       ))}
-      {halfStar && <StarHalf className="h-3.5 w-3.5 fill-zoru-ink-muted text-zoru-ink-muted" />}
+      {halfStar && <StarHalf className="h-3.5 w-3.5 fill-[var(--st-text-secondary)] text-[var(--st-text-secondary)]" />}
       {Array.from({ length: emptyStars }).map((_, i) => (
-        <Star key={`empty-${i}`} className="h-3.5 w-3.5 text-zoru-line" />
+        <Star key={`empty-${i}`} className="h-3.5 w-3.5 text-[var(--st-border)]" />
       ))}
     </div>
   );
@@ -296,7 +296,7 @@ export function VendorsListClient({ initialVendors = [] }: VendorsListClientProp
             subtitle={row.email || row.phone || undefined}
           />
           {(!row.attachments || row.attachments.length === 0) && (
-            <div title="Missing compliance docs" className="text-zoru-warning-ink">
+            <div title="Missing compliance docs" className="text-[var(--st-warn)]">
               <FileWarning className="h-4 w-4" />
             </div>
           )}
@@ -307,13 +307,13 @@ export function VendorsListClient({ initialVendors = [] }: VendorsListClientProp
       key: 'email',
       header: 'Email',
       sortable: true,
-      render: (row) => <span className="text-[13px] text-zoru-ink">{row.email || '—'}</span>,
+      render: (row) => <span className="text-[13px] text-[var(--st-text)]">{row.email || '—'}</span>,
     },
     {
       key: 'phone',
       header: 'Phone',
       sortable: true,
-      render: (row) => <span className="text-[13px] text-zoru-ink">{row.phone || '—'}</span>,
+      render: (row) => <span className="text-[13px] text-[var(--st-text)]">{row.phone || '—'}</span>,
     },
     {
       key: 'vendorType',
@@ -325,12 +325,12 @@ export function VendorsListClient({ initialVendors = [] }: VendorsListClientProp
             {row.vendorType}
           </Badge>
         ) : (
-          <span className="text-[13px] text-zoru-ink-muted">—</span>
+          <span className="text-[13px] text-[var(--st-text-secondary)]">—</span>
         )
       ),
       editRender: (row, value, onChange) => (
         <select
-          className="bg-zoru-surface-2 border border-zoru-line rounded px-1.5 py-0.5 text-xs text-zoru-ink focus:outline-none"
+          className="bg-[var(--st-bg-muted)] border border-[var(--st-border)] rounded px-1.5 py-0.5 text-xs text-[var(--st-text)] focus:outline-none"
           value={value || ''}
           onChange={(e) => onChange(e.target.value)}
         >
@@ -347,7 +347,7 @@ export function VendorsListClient({ initialVendors = [] }: VendorsListClientProp
       key: 'gstin',
       header: 'GSTIN',
       sortable: true,
-      render: (row) => <span className="text-[12.5px] font-mono text-zoru-ink">{row.gstin || '—'}</span>,
+      render: (row) => <span className="text-[12.5px] font-mono text-[var(--st-text)]">{row.gstin || '—'}</span>,
     },
     {
       key: 'health',
@@ -365,7 +365,7 @@ export function VendorsListClient({ initialVendors = [] }: VendorsListClientProp
               href={`/dashboard/crm/purchases/vendors/${row._id}/edit`}
               aria-label={`Edit ${row.name}`}
             >
-              <Edit className="h-4 w-4 text-zoru-ink-muted" />
+              <Edit className="h-4 w-4 text-[var(--st-text-secondary)]" />
             </Link>
           </Button>
           <Button
@@ -373,12 +373,12 @@ export function VendorsListClient({ initialVendors = [] }: VendorsListClientProp
             size="icon"
             onClick={() => setPendingDelete(row)}
           >
-            <Trash2 className="h-4 w-4 text-zoru-danger-ink" />
+            <Trash2 className="h-4 w-4 text-[var(--st-danger)]" />
           </Button>
           <ZoruDropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon">
-                <MoreHorizontal className="h-4 w-4 text-zoru-ink-muted" />
+                <MoreHorizontal className="h-4 w-4 text-[var(--st-text-secondary)]" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -453,17 +453,17 @@ export function VendorsListClient({ initialVendors = [] }: VendorsListClientProp
         bulkBar={
           bulky.selected.size > 0 ? (
             <div className="flex flex-wrap items-center gap-2 text-[13px]">
-              <span className="font-medium text-zoru-ink">
+              <span className="font-medium text-[var(--st-text)]">
                 {bulky.selected.size} selected
               </span>
-              <span className="text-zoru-ink-muted">·</span>
+              <span className="text-[var(--st-text-secondary)]">·</span>
               <Button
                 variant="ghost"
                 size="sm"
                 disabled={bulkDeleting}
                 onClick={handleBulkDelete}
               >
-                <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                 Delete
               </Button>
               <Button
@@ -494,7 +494,7 @@ export function VendorsListClient({ initialVendors = [] }: VendorsListClientProp
         }
         loading={isLoading && vendors.length === 0}
       >
-        <div className="overflow-hidden rounded-lg border border-zoru-line bg-zoru-surface">
+        <div className="overflow-hidden rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
           <CrmBulkyGrid<VendorRow>
             columns={columns}
             data={filtered}

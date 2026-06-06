@@ -63,15 +63,15 @@ export function AddUnitDialog({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <ZoruDialogContent className="sm:max-w-[425px]">
                 <ZoruDialogHeader>
-                    <ZoruDialogTitle className="text-zoru-ink">Add Unit</ZoruDialogTitle>
-                    <ZoruDialogDescription className="text-zoru-ink-muted">
+                    <ZoruDialogTitle className="text-[var(--st-text)]">Add Unit</ZoruDialogTitle>
+                    <ZoruDialogDescription className="text-[var(--st-text-secondary)]">
                         Create a new unit of measure (e.g. Kilogram, Piece).
                     </ZoruDialogDescription>
                 </ZoruDialogHeader>
                 <form onSubmit={handleSubmit}>
                     <div className="grid gap-4 py-4">
                         <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="name" className="text-right text-zoru-ink">
+                            <Label htmlFor="name" className="text-right text-[var(--st-text)]">
                                 Name
                             </Label>
                             <Input
@@ -84,7 +84,7 @@ export function AddUnitDialog({
                             />
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="symbol" className="text-right text-zoru-ink">
+                            <Label htmlFor="symbol" className="text-right text-[var(--st-text)]">
                                 Symbol
                             </Label>
                             <Input

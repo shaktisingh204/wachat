@@ -43,7 +43,7 @@ export function MetaFlowProperties({
 }: MetaFlowPropertiesProps) {
     if (!selectedScreen && !selectedComponent) {
         return (
-            <div className="flex h-full flex-col items-center justify-center p-4 text-center text-zoru-ink-muted">
+            <div className="flex h-full flex-col items-center justify-center p-4 text-center text-[var(--st-text-secondary)]">
                 <Settings2 className="mb-2 h-8 w-8 opacity-50" />
                 <p>Select a screen or component to edit its properties.</p>
             </div>
@@ -178,7 +178,7 @@ export function MetaFlowProperties({
 
             default:
                 return (
-                    <div className="rounded-md border border-dashed p-3 text-xs text-zoru-ink-muted">
+                    <div className="rounded-md border border-dashed p-3 text-xs text-[var(--st-text-secondary)]">
                         No dedicated editor for <span className="font-mono">{selectedComponent.type}</span> yet.
                         Use the JSON tab to edit.
                     </div>
@@ -187,7 +187,7 @@ export function MetaFlowProperties({
     };
 
     return (
-        <div className="flex h-full flex-col border-l bg-zoru-surface">
+        <div className="flex h-full flex-col border-l bg-[var(--st-bg-secondary)]">
             <div className="border-b p-4">
                 <h3 className="flex items-center gap-2 text-sm font-semibold">
                     <Settings2 className="h-4 w-4" /> Properties
@@ -198,10 +198,10 @@ export function MetaFlowProperties({
                 {selectedComponent ? (
                     <div className="space-y-6">
                         <div className="flex items-center justify-between">
-                            <h4 className="text-sm font-medium text-zoru-ink">{selectedComponent.type}</h4>
+                            <h4 className="text-sm font-medium text-[var(--st-text)]">{selectedComponent.type}</h4>
                             <Button
                                 variant="ghost" size="icon"
-                                className="h-6 w-6 text-zoru-ink"
+                                className="h-6 w-6 text-[var(--st-text)]"
                                 onClick={() => onDeleteComponent(selectedComponent.name || selectedComponent)}
                             >
                                 <Trash2 className="h-4 w-4" />
@@ -218,7 +218,7 @@ export function MetaFlowProperties({
                                         onChange={(e) => updateComponentField('name', e.target.value)}
                                         className="font-mono text-xs"
                                     />
-                                    <p className="text-[10px] text-zoru-ink-muted">
+                                    <p className="text-[10px] text-[var(--st-text-secondary)]">
                                         Used in <code>data</code> payload and <code>${'{form.NAME}'}</code> references.
                                     </p>
                                 </div>
@@ -249,8 +249,8 @@ function ScreenSettings({
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <h4 className="text-sm font-medium text-zoru-ink">Screen settings</h4>
-                <Button variant="ghost" size="icon" className="h-6 w-6 text-zoru-ink" onClick={() => onDeleteScreen(selectedScreen.id)}>
+                <h4 className="text-sm font-medium text-[var(--st-text)]">Screen settings</h4>
+                <Button variant="ghost" size="icon" className="h-6 w-6 text-[var(--st-text)]" onClick={() => onDeleteScreen(selectedScreen.id)}>
                     <Trash2 className="h-4 w-4" />
                 </Button>
             </div>
@@ -259,7 +259,7 @@ function ScreenSettings({
             <div className="space-y-4">
                 <div className="space-y-2">
                     <Label>Screen ID</Label>
-                    <Input disabled value={selectedScreen.id} className="bg-zoru-surface-2 font-mono text-xs" />
+                    <Input disabled value={selectedScreen.id} className="bg-[var(--st-bg-muted)] font-mono text-xs" />
                 </div>
 
                 <div className="space-y-2">
@@ -305,7 +305,7 @@ function ScreenSettings({
                         placeholder="ssn, card_number"
                         className="font-mono text-xs"
                     />
-                    <p className="text-[10px] text-zoru-ink-muted">
+                    <p className="text-[10px] text-[var(--st-text-secondary)]">
                         Values marked sensitive aren't cached on the client for session restore.
                     </p>
                 </div>
@@ -338,7 +338,7 @@ function ImageCarouselEditor({
                     <select
                         value={component['aspect-ratio'] || '4:3'}
                         onChange={(e) => updateField('aspect-ratio', e.target.value)}
-                        className="h-9 w-full rounded-md border bg-zoru-surface px-2 text-xs"
+                        className="h-9 w-full rounded-md border bg-[var(--st-bg-secondary)] px-2 text-xs"
                     >
                         <option value="4:3">4:3</option>
                         <option value="16:9">16:9</option>
@@ -349,7 +349,7 @@ function ImageCarouselEditor({
                     <select
                         value={component['scale-type'] || 'cover'}
                         onChange={(e) => updateField('scale-type', e.target.value)}
-                        className="h-9 w-full rounded-md border bg-zoru-surface px-2 text-xs"
+                        className="h-9 w-full rounded-md border bg-[var(--st-bg-secondary)] px-2 text-xs"
                     >
                         <option value="cover">cover</option>
                         <option value="contain">contain</option>
@@ -363,13 +363,13 @@ function ImageCarouselEditor({
                     <Button size="sm" variant="outline" onClick={addImage}>Add image</Button>
                 </div>
                 {images.length === 0 ? (
-                    <p className="text-[11px] text-zoru-ink-muted">Paste a base64 data URI in src for each image.</p>
+                    <p className="text-[11px] text-[var(--st-text-secondary)]">Paste a base64 data URI in src for each image.</p>
                 ) : null}
                 {images.map((img, idx) => (
                     <div key={idx} className="space-y-2 rounded-md border p-2">
                         <div className="flex items-center justify-between">
                             <span className="text-[11px] font-semibold">Image {idx + 1}</span>
-                            <Button size="icon" variant="ghost" className="h-6 w-6 text-zoru-ink" onClick={() => removeImage(idx)}>
+                            <Button size="icon" variant="ghost" className="h-6 w-6 text-[var(--st-text)]" onClick={() => removeImage(idx)}>
                                 <Trash2 className="h-3 w-3" />
                             </Button>
                         </div>

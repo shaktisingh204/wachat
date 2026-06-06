@@ -277,7 +277,7 @@ export default function NewFileRecordPage() {
             </Label>
           </div>
 
-          <div className="flex items-center justify-end gap-3 border-t border-zoru-line pt-4">
+          <div className="flex items-center justify-end gap-3 border-t border-[var(--st-border)] pt-4">
             <Link href="/dashboard/crm/files">
               <Button variant="ghost">Cancel</Button>
             </Link>

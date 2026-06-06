@@ -316,7 +316,7 @@ export default function CustomConversionsPage() {
         description="Define URL-based or rule-based conversion events without code changes."
         actions={
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="icon" onClick={() => setAiDialogOpen(true)} className="text-zoru-ink hover:text-zoru-ink hover:bg-zoru-surface-2">
+            <Button variant="outline" size="icon" onClick={() => setAiDialogOpen(true)} className="text-[var(--st-text)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]">
               <Sparkles className="h-4 w-4" />
             </Button>
             <Button variant="outline" size="icon" onClick={fetchData} disabled={loading}>
@@ -333,13 +333,13 @@ export default function CustomConversionsPage() {
                 <ZoruDropdownMenuItem 
                   onClick={handleBulkDelete} 
                   disabled={selectedIds.size === 0}
-                  className="text-zoru-ink"
+                  className="text-[var(--st-text)]"
                 >
                   <Trash2 className="mr-2 h-4 w-4" /> Delete Selected ({selectedIds.size})
                 </ZoruDropdownMenuItem>
               </ZoruDropdownMenuContent>
             </DropdownMenu>
-            <Button className="bg-zoru-ink hover:bg-zoru-ink/90 text-white" onClick={() => setDialogOpen(true)}>
+            <Button className="bg-[var(--st-text)] hover:bg-[var(--st-text)]/90 text-white" onClick={() => setDialogOpen(true)}>
               <Plus className="h-4 w-4 mr-1" /> New conversion
             </Button>
           </div>
@@ -347,13 +347,13 @@ export default function CustomConversionsPage() {
       />
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-2 text-sm text-zoru-ink-muted">
+        <div className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
           <Target className="h-4 w-4" />
           <span>Conversions for {activeAccount.name || activeAccount.account_id}</span>
         </div>
         
         <div className="relative w-full sm:w-72">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
           <Input 
             type="search" 
             placeholder="Search conversions..." 
@@ -391,7 +391,7 @@ export default function CustomConversionsPage() {
               <ZoruTableBody>
                 {filteredConversions.length === 0 ? (
                   <ZoruTableRow>
-                    <ZoruTableCell colSpan={6} className="h-24 text-center text-zoru-ink-muted">
+                    <ZoruTableCell colSpan={6} className="h-24 text-center text-[var(--st-text-secondary)]">
                       {conversions.length === 0 ? 'No custom conversions yet.' : 'No matching conversions found.'}
                     </ZoruTableCell>
                   </ZoruTableRow>
@@ -408,13 +408,13 @@ export default function CustomConversionsPage() {
                       <ZoruTableCell className="font-medium">
                         {c.name}
                         {c.description && (
-                          <div className="text-xs text-zoru-ink-muted">{c.description}</div>
+                          <div className="text-xs text-[var(--st-text-secondary)]">{c.description}</div>
                         )}
                       </ZoruTableCell>
                       <ZoruTableCell>
                         <Badge variant="outline">{c.custom_event_type || 'OTHER'}</Badge>
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-xs text-zoru-ink-muted">
+                      <ZoruTableCell className="text-xs text-[var(--st-text-secondary)]">
                         {mounted && c.last_fired_time
                           ? new Date(c.last_fired_time).toLocaleString()
                           : '—'}
@@ -426,7 +426,7 @@ export default function CustomConversionsPage() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 text-zoru-ink hover:text-zoru-ink"
+                          className="h-8 w-8 text-[var(--st-text)] hover:text-[var(--st-text)]"
                           onClick={() => setDeleteId(c.id)}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -456,7 +456,7 @@ export default function CustomConversionsPage() {
                 value={name} 
                 onChange={e => { setName(e.target.value); if (errors.name) setErrors({...errors, name: ''}); }} 
               />
-              {errors.name && <p className="text-xs text-zoru-ink">{errors.name}</p>}
+              {errors.name && <p className="text-xs text-[var(--st-text)]">{errors.name}</p>}
             </div>
             <div className="space-y-2">
               <Label>Pixel *</Label>
@@ -470,7 +470,7 @@ export default function CustomConversionsPage() {
                   ))}
                 </ZoruSelectContent>
               </Select>
-              {errors.pixelId && <p className="text-xs text-zoru-ink">{errors.pixelId}</p>}
+              {errors.pixelId && <p className="text-xs text-[var(--st-text)]">{errors.pixelId}</p>}
             </div>
             <div className="space-y-2">
               <Label>Event type *</Label>
@@ -482,7 +482,7 @@ export default function CustomConversionsPage() {
                   ))}
                 </ZoruSelectContent>
               </Select>
-              {errors.eventName && <p className="text-xs text-zoru-ink">{errors.eventName}</p>}
+              {errors.eventName && <p className="text-xs text-[var(--st-text)]">{errors.eventName}</p>}
             </div>
             <div className="space-y-2">
               <Label>URL rule (contains) *</Label>
@@ -491,7 +491,7 @@ export default function CustomConversionsPage() {
                 value={urlRule} 
                 onChange={e => { setUrlRule(e.target.value); if (errors.urlRule) setErrors({...errors, urlRule: ''}); }} 
               />
-              {errors.urlRule && <p className="text-xs text-zoru-ink">{errors.urlRule}</p>}
+              {errors.urlRule && <p className="text-xs text-[var(--st-text)]">{errors.urlRule}</p>}
             </div>
             <div className="space-y-2">
               <Label>Default conversion value</Label>
@@ -505,7 +505,7 @@ export default function CustomConversionsPage() {
           </div>
           <ZoruDialogFooter>
             <Button variant="outline" onClick={() => { setDialogOpen(false); resetForm(); }}>Cancel</Button>
-            <Button className="bg-zoru-ink hover:bg-zoru-ink/90 text-white" onClick={handleCreate} disabled={submitting}>
+            <Button className="bg-[var(--st-text)] hover:bg-[var(--st-text)]/90 text-white" onClick={handleCreate} disabled={submitting}>
               {submitting ? 'Creating…' : 'Create'}
             </Button>
           </ZoruDialogFooter>
@@ -517,7 +517,7 @@ export default function CustomConversionsPage() {
         <ZoruDialogContent className="max-w-md">
           <ZoruDialogHeader>
             <ZoruDialogTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-zoru-ink" />
+              <Sparkles className="h-5 w-5 text-[var(--st-text)]" />
               AI Conversion Assistant
             </ZoruDialogTitle>
             <ZoruDialogDescription>Describe what you want to track, and AI will configure the conversion rule.</ZoruDialogDescription>
@@ -535,7 +535,7 @@ export default function CustomConversionsPage() {
           </div>
           <ZoruDialogFooter>
             <Button variant="outline" onClick={() => setAiDialogOpen(false)}>Cancel</Button>
-            <Button className="bg-zoru-ink hover:bg-zoru-ink text-white" onClick={handleAIGenerate}>
+            <Button className="bg-[var(--st-text)] hover:bg-[var(--st-text)] text-white" onClick={handleAIGenerate}>
               Generate Rules
             </Button>
           </ZoruDialogFooter>

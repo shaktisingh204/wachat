@@ -89,7 +89,7 @@ export function AppsClient({ initialApps, usageData = [] }: Props): JSX.Element 
             <p className="font-semibold text-sm">Save this client secret — shown once.</p>
             <p className="text-xs">Configure it alongside the client_id in your OAuth client.</p>
             <div className="flex items-center gap-2">
-              <code className="flex-1 text-xs font-mono bg-zoru-surface border border-zoru-line rounded px-3 py-2 text-zoru-ink overflow-x-auto">
+              <code className="flex-1 text-xs font-mono bg-[var(--st-bg-secondary)] border border-[var(--st-border)] rounded px-3 py-2 text-[var(--st-text)] overflow-x-auto">
                 {secret}
               </code>
               <Button size="sm" variant="outline" onClick={() => navigator.clipboard.writeText(secret)}>
@@ -166,9 +166,9 @@ export function AppsClient({ initialApps, usageData = [] }: Props): JSX.Element 
               <ZoruCardContent className="pt-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="text-sm font-semibold text-zoru-ink">{a.name}</p>
+                    <p className="text-sm font-semibold text-[var(--st-text)]">{a.name}</p>
                     {a.description ? (
-                      <p className="text-xs text-zoru-ink-muted mt-0.5">{a.description}</p>
+                      <p className="text-xs text-[var(--st-text-secondary)] mt-0.5">{a.description}</p>
                     ) : null}
                   </div>
                   <Button
@@ -176,7 +176,7 @@ export function AppsClient({ initialApps, usageData = [] }: Props): JSX.Element 
                     size="sm"
                     onClick={() => handleDelete(a._id)}
                     disabled={busy}
-                    className="text-zoru-danger hover:text-zoru-danger"
+                    className="text-[var(--st-danger)] hover:text-[var(--st-danger)]"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -184,40 +184,40 @@ export function AppsClient({ initialApps, usageData = [] }: Props): JSX.Element 
                 <Separator className="my-3" />
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                   <div>
-                    <p className="text-zoru-ink-subtle mb-0.5">Client ID</p>
-                    <code className="font-mono text-zoru-ink">{a.clientId}</code>
+                    <p className="text-[var(--st-text-tertiary)] mb-0.5">Client ID</p>
+                    <code className="font-mono text-[var(--st-text)]">{a.clientId}</code>
                   </div>
                   <div>
-                    <p className="text-zoru-ink-subtle mb-0.5">Created</p>
-                    <p className="text-zoru-ink">{new Date(a.createdAt).toLocaleString()}</p>
+                    <p className="text-[var(--st-text-tertiary)] mb-0.5">Created</p>
+                    <p className="text-[var(--st-text)]">{new Date(a.createdAt).toLocaleString()}</p>
                   </div>
                   <div className="sm:col-span-2">
-                    <p className="text-zoru-ink-subtle mb-0.5">Redirect URIs</p>
-                    <ul className="font-mono text-zoru-ink space-y-0.5">
+                    <p className="text-[var(--st-text-tertiary)] mb-0.5">Redirect URIs</p>
+                    <ul className="font-mono text-[var(--st-text)] space-y-0.5">
                       {a.redirectUris.map((u) => (
                         <li key={u}>{u}</li>
                       ))}
                     </ul>
                   </div>
                   <div className="sm:col-span-2">
-                    <p className="text-zoru-ink-subtle mb-0.5">Allowed scopes</p>
-                    <code className="font-mono text-zoru-ink">{a.scopes.join(' ')}</code>
+                    <p className="text-[var(--st-text-tertiary)] mb-0.5">Allowed scopes</p>
+                    <code className="font-mono text-[var(--st-text)]">{a.scopes.join(' ')}</code>
                   </div>
                 </div>
                 
                 <Separator className="my-3" />
                 
-                <div className="bg-zoru-surface-2/50 rounded-lg p-3">
-                  <div className="flex items-center gap-2 mb-3 text-sm font-medium text-zoru-ink">
-                    <BarChart2 className="h-4 w-4 text-zoru-brand" />
+                <div className="bg-[var(--st-bg-muted)]/50 rounded-lg p-3">
+                  <div className="flex items-center gap-2 mb-3 text-sm font-medium text-[var(--st-text)]">
+                    <BarChart2 className="h-4 w-4 text-[var(--st-accent)]" />
                     Usage & Rate Limit
                   </div>
                   
                   <div className="space-y-4 text-xs">
                     <div>
                       <div className="flex justify-between items-end mb-1">
-                        <p className="text-zoru-ink-subtle">API Requests (30d)</p>
-                        <p className="text-zoru-ink font-medium">
+                        <p className="text-[var(--st-text-tertiary)]">API Requests (30d)</p>
+                        <p className="text-[var(--st-text)] font-medium">
                           {usageData.find((u) => u.keyId === a.clientId)?.count || 0} / 10,000
                         </p>
                       </div>
@@ -229,7 +229,7 @@ export function AppsClient({ initialApps, usageData = [] }: Props): JSX.Element 
                     
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-zoru-ink-subtle mb-1">Status</p>
+                        <p className="text-[var(--st-text-tertiary)] mb-1">Status</p>
                         <Badge 
                           variant={((usageData.find((u) => u.keyId === a.clientId)?.count || 0) >= 10000) ? 'danger' : 'success'}
                         >
@@ -237,14 +237,14 @@ export function AppsClient({ initialApps, usageData = [] }: Props): JSX.Element 
                         </Badge>
                       </div>
                       <div>
-                        <p className="text-zoru-ink-subtle mb-1">Errors (30d)</p>
-                        <p className={`font-medium ${(usageData.find((u) => u.keyId === a.clientId)?.errorCount || 0) > 0 ? 'text-zoru-ink' : 'text-zoru-ink'}`}>
+                        <p className="text-[var(--st-text-tertiary)] mb-1">Errors (30d)</p>
+                        <p className={`font-medium ${(usageData.find((u) => u.keyId === a.clientId)?.errorCount || 0) > 0 ? 'text-[var(--st-text)]' : 'text-[var(--st-text)]'}`}>
                           {usageData.find((u) => u.keyId === a.clientId)?.errorCount || 0}
                         </p>
                       </div>
                       <div className="col-span-2">
-                        <p className="text-zoru-ink-subtle mb-1">Last used</p>
-                        <p className="text-zoru-ink font-medium">
+                        <p className="text-[var(--st-text-tertiary)] mb-1">Last used</p>
+                        <p className="text-[var(--st-text)] font-medium">
                           {usageData.find((u) => u.keyId === a.clientId)?.lastUsedAt 
                             ? new Date(usageData.find((u) => u.keyId === a.clientId)?.lastUsedAt as string).toLocaleString() 
                             : 'Never'}

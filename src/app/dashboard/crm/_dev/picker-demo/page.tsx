@@ -45,8 +45,8 @@ export default function PickerDemoPage() {
   return (
     <div className="flex w-full flex-col gap-6 p-6">
       <div>
-        <h1 className="text-lg font-semibold text-zoru-ink">Reference-data picker demo</h1>
-        <p className="text-sm text-zoru-ink-muted">
+        <h1 className="text-lg font-semibold text-[var(--st-text)]">Reference-data picker demo</h1>
+        <p className="text-sm text-[var(--st-text-secondary)]">
           Phase-1 sanity check — try searching, picking, and inline-creating values.
           Stored values are JSON-dumped below for round-trip verification.
         </p>
@@ -126,10 +126,10 @@ export default function PickerDemoPage() {
       </Card>
 
       <Card className="p-4">
-        <p className="mb-2 text-xs font-medium uppercase tracking-wide text-zoru-ink-muted">
+        <p className="mb-2 text-xs font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
           Stored values
         </p>
-        <pre className="overflow-x-auto rounded-md bg-zoru-bg p-3 text-[12px] text-zoru-ink">
+        <pre className="overflow-x-auto rounded-md bg-[var(--st-bg)] p-3 text-[12px] text-[var(--st-text)]">
           {JSON.stringify(allValues, null, 2)}
         </pre>
       </Card>

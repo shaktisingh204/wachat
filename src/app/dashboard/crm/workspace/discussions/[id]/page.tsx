@@ -106,10 +106,10 @@ function Field({
 }) {
     return (
         <div>
-            <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+            <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                 {label}
             </div>
-            <div className="mt-1 text-[13px] text-zoru-ink">{children}</div>
+            <div className="mt-1 text-[13px] text-[var(--st-text)]">{children}</div>
         </div>
     );
 }
@@ -125,7 +125,7 @@ function SectionNav() {
     return (
         <nav
             aria-label="Discussion sections"
-            className="flex flex-wrap gap-1 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-1 text-[12.5px]"
+            className="flex flex-wrap gap-1 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1 text-[12.5px]"
         >
             {items.map((item, i) => (
                 <a
@@ -133,8 +133,8 @@ function SectionNav() {
                     href={`#section-${item.id}`}
                     className={
                         i === 0
-                            ? 'rounded-[calc(var(--zoru-radius)-2px)] bg-zoru-bg px-3 py-1.5 font-medium text-zoru-ink shadow-sm'
-                            : 'rounded-[calc(var(--zoru-radius)-2px)] px-3 py-1.5 text-zoru-ink-muted hover:text-zoru-ink'
+                            ? 'rounded-[calc(var(--zoru-radius)-2px)] bg-[var(--st-bg)] px-3 py-1.5 font-medium text-[var(--st-text)] shadow-sm'
+                            : 'rounded-[calc(var(--zoru-radius)-2px)] px-3 py-1.5 text-[var(--st-text-secondary)] hover:text-[var(--st-text)]'
                     }
                 >
                     {item.label}
@@ -188,32 +188,32 @@ export default async function DiscussionDetailPage({
                             </ZoruCardHeader>
                             <ZoruCardContent>
                                 <dl className="grid grid-cols-2 gap-y-1.5 text-[12.5px]">
-                                    <dt className="text-zoru-ink-muted">Status</dt>
+                                    <dt className="text-[var(--st-text-secondary)]">Status</dt>
                                     <dd>
                                         <Badge variant="outline">
                                             {status.label}
                                         </Badge>
                                     </dd>
-                                    <dt className="text-zoru-ink-muted">Category</dt>
-                                    <dd className="text-zoru-ink">
+                                    <dt className="text-[var(--st-text-secondary)]">Category</dt>
+                                    <dd className="text-[var(--st-text)]">
                                         {cat?.name ?? 'Uncategorized'}
                                     </dd>
-                                    <dt className="text-zoru-ink-muted">Replies</dt>
-                                    <dd className="text-zoru-ink">{replies.length}</dd>
-                                    <dt className="text-zoru-ink-muted">
+                                    <dt className="text-[var(--st-text-secondary)]">Replies</dt>
+                                    <dd className="text-[var(--st-text)]">{replies.length}</dd>
+                                    <dt className="text-[var(--st-text-secondary)]">
                                         Participants
                                     </dt>
-                                    <dd className="text-zoru-ink">
+                                    <dd className="text-[var(--st-text)]">
                                         {participantIds.length}
                                     </dd>
-                                    <dt className="text-zoru-ink-muted">Opened</dt>
-                                    <dd className="text-zoru-ink">
+                                    <dt className="text-[var(--st-text-secondary)]">Opened</dt>
+                                    <dd className="text-[var(--st-text)]">
                                         {fmtDate(d.createdAt)}
                                     </dd>
-                                    <dt className="text-zoru-ink-muted">
+                                    <dt className="text-[var(--st-text-secondary)]">
                                         Last activity
                                     </dt>
-                                    <dd className="text-zoru-ink">
+                                    <dd className="text-[var(--st-text)]">
                                         {lastActivity(d, replies)}
                                     </dd>
                                 </dl>
@@ -228,7 +228,7 @@ export default async function DiscussionDetailPage({
                             </ZoruCardHeader>
                             <ZoruCardContent>
                                 {participantIds.length === 0 ? (
-                                    <p className="text-[12.5px] text-zoru-ink-muted">
+                                    <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                                         No replies yet — the participant roster
                                         populates from the thread.
                                     </p>
@@ -242,7 +242,7 @@ export default async function DiscussionDetailPage({
                                             />
                                         ))}
                                         {participantIds.length > 6 ? (
-                                            <span className="text-[11.5px] text-zoru-ink-muted">
+                                            <span className="text-[11.5px] text-[var(--st-text-secondary)]">
                                                 +{participantIds.length - 6} more
                                             </span>
                                         ) : null}
@@ -314,9 +314,9 @@ export default async function DiscussionDetailPage({
                                 {replies.length === 1 ? 'reply' : 'replies'}
                             </Badge>
                         </div>
-                        <p className="whitespace-pre-wrap text-[14px] leading-relaxed text-zoru-ink">
+                        <p className="whitespace-pre-wrap text-[14px] leading-relaxed text-[var(--st-text)]">
                             {d.description || (
-                                <span className="text-zoru-ink-muted">
+                                <span className="text-[var(--st-text-secondary)]">
                                     No description provided.
                                 </span>
                             )}
@@ -382,7 +382,7 @@ export default async function DiscussionDetailPage({
                         <ZoruCardTitle>Moderation</ZoruCardTitle>
                     </ZoruCardHeader>
                     <ZoruCardContent>
-                        <p className="text-[12.5px] text-zoru-ink-muted">
+                        <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                             Lock thread, pin reply, and mark solved actions are
                             wired through the header action menu (Lock / Pin /
                             Archive) and route to /edit until dedicated server
@@ -422,14 +422,14 @@ export default async function DiscussionDetailPage({
                         <div className="flex flex-col gap-2 text-[12.5px]">
                             <Link
                                 href="/dashboard/crm/workspace/discussions"
-                                className="text-zoru-primary hover:underline"
+                                className="text-[var(--st-text)] hover:underline"
                             >
                                 All discussions →
                             </Link>
                             {cat ? (
                                 <Link
                                     href={`/dashboard/crm/workspace/discussions?category=${String(cat._id)}`}
-                                    className="text-zoru-primary hover:underline"
+                                    className="text-[var(--st-text)] hover:underline"
                                 >
                                     More in {cat.name} →
                                 </Link>
@@ -437,7 +437,7 @@ export default async function DiscussionDetailPage({
                             {d.project_id ? (
                                 <Link
                                     href={`/dashboard/crm/projects/${d.project_id}`}
-                                    className="text-zoru-primary hover:underline"
+                                    className="text-[var(--st-text)] hover:underline"
                                 >
                                     Open project →
                                 </Link>
@@ -446,7 +446,7 @@ export default async function DiscussionDetailPage({
                     </ZoruCardContent>
                 </Card>
 
-                <p className="text-[11px] text-zoru-ink-muted">
+                <p className="text-[11px] text-[var(--st-text-secondary)]">
                     Opened {fmtDate(d.createdAt)} · Last activity{' '}
                     {lastActivity(d, replies)}
                 </p>

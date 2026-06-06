@@ -167,17 +167,17 @@ function StatusPill({ status }: { status: Status }) {
     running: {
       label: 'Running…',
       Icon: LuLoader,
-      className: 'border-zoru-line/40 bg-zoru-ink/10 text-zoru-ink',
+      className: 'border-[var(--st-border)]/40 bg-[var(--st-text)]/10 text-[var(--st-text)]',
     },
     success: {
       label: 'Success',
       Icon: LuCircleCheck,
-      className: 'border-zoru-line/40 bg-zoru-ink/10 text-zoru-ink dark:text-zoru-ink-muted',
+      className: 'border-[var(--st-border)]/40 bg-[var(--st-text)]/10 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',
     },
     error: {
       label: 'Error',
       Icon: LuCircleAlert,
-      className: 'border-zoru-line/40 bg-zoru-ink/10 text-zoru-ink dark:text-zoru-ink-muted',
+      className: 'border-[var(--st-border)]/40 bg-[var(--st-text)]/10 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',
     },
   };
   const { label, Icon, className } = map[status];
@@ -217,9 +217,9 @@ function LogList({ logs }: { logs: NodeTestLog[] }) {
           className={cn(
             'rounded border px-2 py-1',
             log.level === 'error'
-              ? 'border-zoru-line/40 bg-zoru-ink/5 text-zoru-ink dark:text-zoru-ink-muted'
+              ? 'border-[var(--st-border)]/40 bg-[var(--st-text)]/5 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]'
               : log.level === 'warn'
-                ? 'border-zoru-line/40 bg-zoru-ink/5 text-zoru-ink dark:text-zoru-ink-muted'
+                ? 'border-[var(--st-border)]/40 bg-[var(--st-text)]/5 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]'
                 : 'border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-11)]',
           )}
         >
@@ -282,7 +282,7 @@ function ResultPanel({
       </div>
 
       {result?.error ? (
-        <div className="flex items-start gap-2 rounded-md border border-zoru-line/40 bg-zoru-ink/5 p-2.5 text-[11.5px] text-zoru-ink dark:text-zoru-ink-muted">
+        <div className="flex items-start gap-2 rounded-md border border-[var(--st-border)]/40 bg-[var(--st-text)]/5 p-2.5 text-[11.5px] text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
           <LuCircleAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" strokeWidth={2} />
           <span className="break-all">{result.error}</span>
         </div>
@@ -379,10 +379,10 @@ function nodesToSteps(
 
 function LiveTraceStatusIcon({ status }: { status?: string }) {
   if (status === 'success') {
-    return <LuCircleCheck className="h-3 w-3 shrink-0 text-zoru-ink" strokeWidth={2} />;
+    return <LuCircleCheck className="h-3 w-3 shrink-0 text-[var(--st-text)]" strokeWidth={2} />;
   }
   if (status === 'error') {
-    return <LuCircleX className="h-3 w-3 shrink-0 text-zoru-ink" strokeWidth={2} />;
+    return <LuCircleX className="h-3 w-3 shrink-0 text-[var(--st-text)]" strokeWidth={2} />;
   }
   return (
     <LuLoader
@@ -660,14 +660,14 @@ function TestNodePanelInner({ block, flow, onBlockChange }: TestNodePanelProps) 
           className={cn(
             'w-full min-h-[140px] resize-y rounded-md border bg-[var(--gray-2)] p-2 font-mono text-[11.5px] leading-snug text-[var(--gray-12)] outline-none transition-colors',
             activeError
-              ? 'border-zoru-line/60 focus:border-zoru-line'
-              : 'border-[var(--gray-5)] focus:border-zoru-line',
+              ? 'border-[var(--st-border)]/60 focus:border-[var(--st-border)]'
+              : 'border-[var(--gray-5)] focus:border-[var(--st-border)]',
           )}
           aria-invalid={Boolean(activeError)}
           aria-label={tab === 'input' ? 'Sample input JSON' : 'Variables JSON'}
         />
         {activeError ? (
-          <p className="mt-1 text-[10.5px] text-zoru-ink dark:text-zoru-ink-muted">
+          <p className="mt-1 text-[10.5px] text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
             {activeError}
           </p>
         ) : null}
@@ -680,7 +680,7 @@ function TestNodePanelInner({ block, flow, onBlockChange }: TestNodePanelProps) 
         disabled={status === 'running' || Boolean(parseError)}
         className={cn(
           'inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[12px] font-semibold transition-colors',
-          'bg-zoru-ink text-white hover:bg-zoru-ink',
+          'bg-[var(--st-text)] text-white hover:bg-[var(--st-text)]',
           'disabled:cursor-not-allowed disabled:opacity-60',
         )}
       >
@@ -732,7 +732,7 @@ function TestNodePanelInner({ block, flow, onBlockChange }: TestNodePanelProps) 
             <span>Live trace</span>
             {status === 'running' ? (
               <LuLoader
-                className="h-3 w-3 animate-spin text-zoru-ink"
+                className="h-3 w-3 animate-spin text-[var(--st-text)]"
                 strokeWidth={2}
               />
             ) : null}

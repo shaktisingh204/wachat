@@ -78,8 +78,8 @@ export default function SignUpSettingsPage() {
         <div className="flex flex-col gap-6">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-sm text-zoru-ink">Allow client signup</p>
-              <p className="text-[12.5px] text-zoru-ink-muted">
+              <p className="text-sm text-[var(--st-text)]">Allow client signup</p>
+              <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                 When off, the public /signup page shows a "signup unavailable" message.
               </p>
             </div>
@@ -91,8 +91,8 @@ export default function SignUpSettingsPage() {
 
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-sm text-zoru-ink">Require admin approval</p>
-              <p className="text-[12.5px] text-zoru-ink-muted">
+              <p className="text-sm text-[var(--st-text)]">Require admin approval</p>
+              <p className="text-[12.5px] text-[var(--st-text-secondary)]">
                 New accounts stay in `pending` until an admin approves them from the queue.
               </p>
             </div>

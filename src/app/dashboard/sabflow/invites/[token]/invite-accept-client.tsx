@@ -98,16 +98,16 @@ export function InviteAcceptClient({
         </Avatar>
 
         <div className="flex flex-col gap-1">
-          <h1 className="text-[22px] font-semibold text-zoru-ink-strong">
+          <h1 className="text-[22px] font-semibold text-[var(--st-text)]">
             You&apos;re invited to {workspaceName}
           </h1>
-          <p className="text-[13px] text-zoru-ink-muted">
+          <p className="text-[13px] text-[var(--st-text-secondary)]">
             You&apos;ll join as{" "}
-            <span className="font-medium capitalize text-zoru-ink">
+            <span className="font-medium capitalize text-[var(--st-text)]">
               {inviteRole}
             </span>
             . The invite was sent to{" "}
-            <span className="font-medium text-zoru-ink">{inviteEmail}</span>.
+            <span className="font-medium text-[var(--st-text)]">{inviteEmail}</span>.
           </p>
         </div>
 

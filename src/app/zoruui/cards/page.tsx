@@ -195,8 +195,8 @@ export default function CardsPage() {
   return (
     <div className="mx-auto max-w-6xl px-5 py-8 sm:px-8 lg:py-12">
       <div className="mb-8">
-        <h1 className="text-3xl font-semibold tracking-tight text-zoru-ink capitalize">cards</h1>
-        <p className="mt-2 text-base text-zoru-ink-muted">Explore cards components</p>
+        <h1 className="text-3xl font-semibold tracking-tight text-[var(--st-text)] capitalize">cards</h1>
+        <p className="mt-2 text-base text-[var(--st-text-secondary)]">Explore cards components</p>
       </div>
       <Section step="Step 4" title="Cards (5 variants)">
 <SnippetDemo code={`
@@ -207,7 +207,7 @@ export default function CardsPage() {
                 <ZoruCardDescription>Bordered, subtle.</ZoruCardDescription>
               </ZoruCardHeader>
               <ZoruCardContent>
-                <p className="text-sm text-zoru-ink-muted">
+                <p className="text-sm text-[var(--st-text-secondary)]">
                   Quiet container for grouped content.
                 </p>
               </ZoruCardContent>
@@ -218,7 +218,7 @@ export default function CardsPage() {
                 <ZoruCardDescription>Borderless, surface tint.</ZoruCardDescription>
               </ZoruCardHeader>
               <ZoruCardContent>
-                <p className="text-sm text-zoru-ink-muted">Use inside dense layouts.</p>
+                <p className="text-sm text-[var(--st-text-secondary)]">Use inside dense layouts.</p>
               </ZoruCardContent>
             </Card>
             <Card variant="elevated">
@@ -227,7 +227,7 @@ export default function CardsPage() {
                 <ZoruCardDescription>Drop shadow on idle.</ZoruCardDescription>
               </ZoruCardHeader>
               <ZoruCardContent>
-                <p className="text-sm text-zoru-ink-muted">Stands off the canvas.</p>
+                <p className="text-sm text-[var(--st-text-secondary)]">Stands off the canvas.</p>
               </ZoruCardContent>
             </Card>
             <Card variant="outline">
@@ -255,7 +255,7 @@ export default function CardsPage() {
                 <ZoruCardDescription>Bordered, subtle.</ZoruCardDescription>
               </ZoruCardHeader>
               <ZoruCardContent>
-                <p className="text-sm text-zoru-ink-muted">
+                <p className="text-sm text-[var(--st-text-secondary)]">
                   Quiet container for grouped content.
                 </p>
               </ZoruCardContent>
@@ -266,7 +266,7 @@ export default function CardsPage() {
                 <ZoruCardDescription>Borderless, surface tint.</ZoruCardDescription>
               </ZoruCardHeader>
               <ZoruCardContent>
-                <p className="text-sm text-zoru-ink-muted">Use inside dense layouts.</p>
+                <p className="text-sm text-[var(--st-text-secondary)]">Use inside dense layouts.</p>
               </ZoruCardContent>
             </Card>
             <Card variant="elevated">
@@ -275,7 +275,7 @@ export default function CardsPage() {
                 <ZoruCardDescription>Drop shadow on idle.</ZoruCardDescription>
               </ZoruCardHeader>
               <ZoruCardContent>
-                <p className="text-sm text-zoru-ink-muted">Stands off the canvas.</p>
+                <p className="text-sm text-[var(--st-text-secondary)]">Stands off the canvas.</p>
               </ZoruCardContent>
             </Card>
             <Card variant="outline">
@@ -634,7 +634,7 @@ export default function CardsPage() {
             ))}
           </ZoruCarousel>
           <div className="flex items-center gap-3">
-            <span className="text-sm text-zoru-ink-muted">Brand colour:</span>
+            <span className="text-sm text-[var(--st-text-secondary)]">Brand colour:</span>
             <ZoruColorPicker value="#0F0F10" />
           </div>
           `}>
@@ -659,7 +659,7 @@ export default function CardsPage() {
             ))}
           </ZoruCarousel>
           <div className="flex items-center gap-3">
-            <span className="text-sm text-zoru-ink-muted">Brand colour:</span>
+            <span className="text-sm text-[var(--st-text-secondary)]">Brand colour:</span>
             <ZoruColorPicker value="#0F0F10" />
           </div>
           

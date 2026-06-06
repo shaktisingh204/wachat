@@ -349,8 +349,8 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
 
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl text-zoru-ink">Visitor posts</h1>
-          <p className="mt-1 text-sm text-zoru-ink-muted">
+          <h1 className="text-2xl text-[var(--st-text)]">Visitor posts</h1>
+          <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
             Posts submitted by visitors on the connected Facebook Page.
           </p>
         </div>
@@ -389,8 +389,8 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
       )}
 
       {selectedIds.size > 0 && (
-        <div className="flex items-center justify-between rounded-md border border-zoru-line bg-zoru-surface-2 p-3">
-          <div className="text-sm font-medium text-zoru-ink">
+        <div className="flex items-center justify-between rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3">
+          <div className="text-sm font-medium text-[var(--st-text)]">
             {selectedIds.size} post(s) selected
           </div>
           <div className="flex gap-2">
@@ -433,7 +433,7 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
                   onCheckedChange={toggleAll}
                   aria-label="Select all"
                 />
-                <span className="text-sm font-medium text-zoru-ink">Select All</span>
+                <span className="text-sm font-medium text-[var(--st-text)]">Select All</span>
               </div>
               <ul className="flex flex-col gap-2">
                 {filtered.map((p) => {
@@ -455,18 +455,18 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
                           setSelected(p);
                           setReplyText('');
                         }}
-                        className="flex w-full flex-col gap-1 rounded-md border border-zoru-line px-3 py-2 text-left transition hover:bg-zoru-surface-2"
+                        className="flex w-full flex-col gap-1 rounded-md border border-[var(--st-border)] px-3 py-2 text-left transition hover:bg-[var(--st-bg-muted)]"
                       >
                         <div className="flex items-center justify-between gap-2">
-                          <span className="line-clamp-1 text-sm font-medium text-zoru-ink">
+                          <span className="line-clamp-1 text-sm font-medium text-[var(--st-text)]">
                             {p.from?.name ?? 'Unknown visitor'}
                           </span>
                           <Badge variant={statusVariant(status)}>{status}</Badge>
                         </div>
-                        <p className="line-clamp-2 text-xs text-zoru-ink-muted">
+                        <p className="line-clamp-2 text-xs text-[var(--st-text-secondary)]">
                           {preview}
                         </p>
-                        <span className="text-[11px] text-zoru-ink-subtle">
+                        <span className="text-[11px] text-[var(--st-text-tertiary)]">
                           {fmtDate(p.created_time)}
                         </span>
                       </button>
@@ -494,7 +494,7 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
           </ZoruSheetHeader>
           {selected ? (
             <div className="flex flex-col gap-4 pt-4">
-              <div className="rounded-md border border-zoru-line bg-zoru-surface-2 p-3 text-sm text-zoru-ink">
+              <div className="rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-sm text-[var(--st-text)]">
                 {selected.message ?? selected.story ?? '(no text)'}
               </div>
 
@@ -506,7 +506,7 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
               </div>
 
               <div className="flex flex-col gap-2">
-                <p className="text-[11px] uppercase tracking-wide text-zoru-ink-subtle">
+                <p className="text-[11px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                   Reply
                 </p>
                 <Textarea
@@ -527,7 +527,7 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-2 border-t border-zoru-line pt-3">
+              <div className="flex flex-wrap gap-2 border-t border-[var(--st-border)] pt-3">
                 <Button
                   size="sm"
                   variant="ghost"
@@ -581,14 +581,14 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
             <div className="flex items-center justify-between">
               <Label htmlFor="auto-hide" className="flex flex-col gap-1">
                 <span>Auto-Hide</span>
-                <span className="font-normal text-xs text-zoru-ink-muted">Automatically hide posts containing these keywords.</span>
+                <span className="font-normal text-xs text-[var(--st-text-secondary)]">Automatically hide posts containing these keywords.</span>
               </Label>
               <Switch id="auto-hide" checked={autoHide} onCheckedChange={setAutoHide} />
             </div>
             <div className="flex items-center justify-between">
               <Label htmlFor="auto-spam" className="flex flex-col gap-1">
                 <span>Auto-Spam</span>
-                <span className="font-normal text-xs text-zoru-ink-muted">Automatically mark posts containing these keywords as spam.</span>
+                <span className="font-normal text-xs text-[var(--st-text-secondary)]">Automatically mark posts containing these keywords as spam.</span>
               </Label>
               <Switch id="auto-spam" checked={autoSpam} onCheckedChange={setAutoSpam} />
             </div>

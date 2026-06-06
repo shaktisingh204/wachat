@@ -14,7 +14,7 @@ export function GoogleSheetsConnection({ flowId }: { flowId?: string }) {
             <div>
                  <div className="space-y-2">
                     <Label className="text-base font-semibold">Webhook URL</Label>
-                    <p className="text-xs text-zoru-ink-muted">Copy this URL and paste it into the SabFlow Webhooks add-on in your Google Sheet.</p>
+                    <p className="text-xs text-[var(--st-text-secondary)]">Copy this URL and paste it into the SabFlow Webhooks add-on in your Google Sheet.</p>
                     <div style={{ overflow: 'scroll' }}>
                         <CodeBlock code={webhookUrl} />
                     </div>
@@ -22,18 +22,18 @@ export function GoogleSheetsConnection({ flowId }: { flowId?: string }) {
                 
                 <div className="mt-6">
                     <h4 className="font-semibold mb-2">Setup Instructions</h4>
-                    <ol className="list-decimal list-inside space-y-3 instruction-list text-zoru-ink-muted">
+                    <ol className="list-decimal list-inside space-y-3 instruction-list text-[var(--st-text-secondary)]">
                         <li>
                             Log into your Google Sheets account.
                         </li>
                         <li>
-                            Create a new spreadsheet and navigate to <code className="bg-zoru-surface-2 px-1 rounded-sm">Extensions &gt; Add-ons &gt; Get add-ons</code>.
+                            Create a new spreadsheet and navigate to <code className="bg-[var(--st-bg-muted)] px-1 rounded-sm">Extensions &gt; Add-ons &gt; Get add-ons</code>.
                         </li>
                         <li>
                             Search for and install the <strong>"SabFlow Webhooks"</strong> add-on, then refresh the page.
                         </li>
                         <li>
-                            Go back to <code className="bg-zoru-surface-2 px-1 rounded-sm">Extensions</code>, select <strong>SabFlow Webhooks</strong>, and choose "Initial Setup".
+                            Go back to <code className="bg-[var(--st-bg-muted)] px-1 rounded-sm">Extensions</code>, select <strong>SabFlow Webhooks</strong>, and choose "Initial Setup".
                         </li>
                         <li>
                             Paste the Webhook URL from above and select your trigger column (the column that, when updated, will send the data).

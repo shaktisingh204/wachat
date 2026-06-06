@@ -43,13 +43,13 @@ export function HeaderSection({
 }: HeaderSectionProps) {
   return (
     <Card className="p-6">
-      <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+      <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
         Header
       </h3>
       <div className="grid gap-4 md:grid-cols-2">
         <div>
           <Label htmlFor="invoiceNo">
-            Invoice number <span className="text-zoru-danger-ink">*</span>
+            Invoice number <span className="text-[var(--st-danger)]">*</span>
           </Label>
           <Input
             id="invoiceNo"
@@ -62,7 +62,7 @@ export function HeaderSection({
         </div>
         <div>
           <Label htmlFor="date">
-            Invoice date <span className="text-zoru-danger-ink">*</span>
+            Invoice date <span className="text-[var(--st-danger)]">*</span>
           </Label>
           <Input
             id="date"
@@ -75,7 +75,7 @@ export function HeaderSection({
         </div>
         <div>
           <Label htmlFor="dueDate">
-            Due date <span className="text-zoru-danger-ink">*</span>
+            Due date <span className="text-[var(--st-danger)]">*</span>
           </Label>
           <Input
             id="dueDate"
@@ -143,13 +143,13 @@ export function CustomerSection({
 }: CustomerSectionProps) {
   return (
     <Card className="p-6">
-      <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+      <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
         Customer
       </h3>
       <div className="grid gap-4 md:grid-cols-2">
         <div>
           <Label>
-            Customer <span className="text-zoru-danger-ink">*</span>
+            Customer <span className="text-[var(--st-danger)]">*</span>
           </Label>
           <div className="mt-1.5">
             <EntityFormField
@@ -217,7 +217,7 @@ export function NotesSection({
 }: NotesSectionProps) {
   return (
     <Card className="p-6">
-      <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+      <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
         Notes &amp; Terms
       </h3>
       <div className="grid gap-4 md:grid-cols-2">
@@ -286,7 +286,7 @@ export function BankSection({
 }: BankSectionProps) {
   return (
     <Card className="p-6">
-      <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+      <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
         Bank &amp; UPI
       </h3>
       <div className="grid gap-4 md:grid-cols-2">
@@ -324,12 +324,12 @@ export function BankSection({
               {qrImageFileId ? 'Replace image' : 'Pick QR image'}
             </SabFilePickerButton>
             {qrImageFileId ? (
-              <div className="flex items-center gap-1 rounded-[var(--zoru-radius)] bg-zoru-surface px-2 py-1 text-xs text-zoru-ink">
+              <div className="flex items-center gap-1 rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] px-2 py-1 text-xs text-[var(--st-text)]">
                 <span className="max-w-[200px] truncate font-mono">{qrImageFileId}</span>
                 <button
                   type="button"
                   onClick={() => onQrImageFileId('')}
-                  className="text-zoru-ink-muted hover:text-zoru-ink"
+                  className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                   aria-label="Clear QR image"
                 >
                   <X className="h-3 w-3" />
@@ -337,7 +337,7 @@ export function BankSection({
               </div>
             ) : null}
           </div>
-          <p className="mt-1 text-[11px] text-zoru-ink-muted">
+          <p className="mt-1 text-[11px] text-[var(--st-text-secondary)]">
             Pick from your SabFiles library or upload a new image.
           </p>
         </div>
@@ -369,10 +369,10 @@ export function EInvoiceSection({
 }: EInvoiceSectionProps) {
   return (
     <Card className="p-6">
-      <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+      <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
         E-invoice
       </h3>
-      <p className="mb-3 text-[11px] text-zoru-ink-muted">
+      <p className="mb-3 text-[11px] text-[var(--st-text-secondary)]">
         {/* TODO 1D.3: e-invoice auto-fetch (IRP). Manual entry only. */}
         IRP auto-fetch deferred; enter manually if you have the IRN.
       </p>
@@ -446,7 +446,7 @@ export function RecurringSection({
     <Card className="p-6">
       <details open={enabled}>
         <summary className="cursor-pointer list-none">
-          <h3 className="inline text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          <h3 className="inline text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
             Recurring
           </h3>
           <label className="ml-3 inline-flex items-center gap-2 text-[13px]">
@@ -509,7 +509,7 @@ export interface EwayBillSectionProps {
 export function EwayBillSection({ value, onChange }: EwayBillSectionProps) {
   return (
     <Card className="p-6">
-      <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+      <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
         E-way bill
       </h3>
       <div>

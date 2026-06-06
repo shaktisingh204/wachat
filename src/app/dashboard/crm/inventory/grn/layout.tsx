@@ -19,8 +19,8 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
             return (
                 <div className="flex h-full w-full items-center justify-center p-6">
                     <div className="flex max-w-md flex-col items-center text-center">
-                        <h2 className="mb-2 text-lg font-semibold text-zoru-ink">Something went wrong</h2>
-                        <p className="mb-4 text-sm text-zoru-ink-muted">
+                        <h2 className="mb-2 text-lg font-semibold text-[var(--st-text)]">Something went wrong</h2>
+                        <p className="mb-4 text-sm text-[var(--st-text-secondary)]">
                             {this.state.error?.message || 'An unexpected error occurred while loading this page.'}
                         </p>
                         <Button

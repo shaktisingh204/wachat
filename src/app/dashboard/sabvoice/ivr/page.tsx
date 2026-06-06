@@ -107,7 +107,7 @@ function NodeEditor({
 
   return (
     <div
-      className="border-l-2 border-zoru-line pl-3 my-1"
+      className="border-l-2 border-[var(--st-border)] pl-3 my-1"
       style={{ marginLeft: depth * 4 }}
     >
       <div className="flex items-start gap-2 mb-1">
@@ -172,7 +172,7 @@ function NodeEditor({
           <Button
             variant="ghost"
             size="icon-sm"
-            className="text-zoru-ink"
+            className="text-[var(--st-text)]"
             onClick={onDelete}
           >
             <Trash2 className="h-3 w-3" />
@@ -322,7 +322,7 @@ export default function VoiceIvrPage() {
             <Card key={ivr._id} className="p-4 flex flex-col gap-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Workflow className="h-4 w-4 text-zoru-brand" />
+                  <Workflow className="h-4 w-4 text-[var(--st-accent)]" />
                   <span className="font-medium">{ivr.name}</span>
                 </div>
                 <Badge variant={ivr.status === 'active' ? 'default' : 'outline'}>
@@ -330,9 +330,9 @@ export default function VoiceIvrPage() {
                 </Badge>
               </div>
               {ivr.description && (
-                <p className="text-sm text-zoru-ink-muted">{ivr.description}</p>
+                <p className="text-sm text-[var(--st-text-secondary)]">{ivr.description}</p>
               )}
-              <div className="text-xs text-zoru-ink-muted">
+              <div className="text-xs text-[var(--st-text-secondary)]">
                 Root: <span className="font-mono">{ivr.rootNode.type}</span>
                 {' · '}
                 {(ivr.rootNode.children?.length ?? 0)} child node(s)
@@ -344,7 +344,7 @@ export default function VoiceIvrPage() {
                 <Button
                   size="sm"
                   variant="outline"
-                  className="text-zoru-ink"
+                  className="text-[var(--st-text)]"
                   onClick={() => handleDelete(ivr._id)}
                 >
                   <Trash2 className="h-3 w-3 mr-1" /> Archive
@@ -399,7 +399,7 @@ export default function VoiceIvrPage() {
                 {greetingFileId ? 'Change Greeting' : 'Pick from SabFiles'}
               </SabFilePickerButton>
             </div>
-            <div className="border-t border-zoru-line pt-3">
+            <div className="border-t border-[var(--st-border)] pt-3">
               <Label className="mb-2 block flex items-center gap-1">
                 <ChevronRight className="h-3 w-3" /> Call-Flow Tree
               </Label>

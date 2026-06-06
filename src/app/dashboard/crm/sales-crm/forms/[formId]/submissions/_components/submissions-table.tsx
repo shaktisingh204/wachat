@@ -293,14 +293,14 @@ export function SubmissionsTable({
         return (
             <Card className="flex min-h-[240px] items-center justify-center p-8">
                 <div className="text-center">
-                    <p className="text-[14px] font-medium text-zoru-ink">No submissions yet</p>
-                    <p className="mt-1 text-[12.5px] text-zoru-ink-muted">
+                    <p className="text-[14px] font-medium text-[var(--st-text)]">No submissions yet</p>
+                    <p className="mt-1 text-[12.5px] text-[var(--st-text-secondary)]">
                         Once people fill in your form, you&apos;ll see their responses here.
                     </p>
                     <div className="mt-3">
                         <Link
                             href={`/dashboard/crm/sales-crm/forms/${formId}/edit`}
-                            className="text-[13px] font-medium text-zoru-primary hover:underline"
+                            className="text-[13px] font-medium text-[var(--st-text)] hover:underline"
                         >
                             Edit the form →
                         </Link>
@@ -317,9 +317,9 @@ export function SubmissionsTable({
     return (
         <div className="flex flex-col gap-3">
             {selected.size > 0 ? (
-                <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-3 py-2 shadow-[var(--zoru-shadow-sm)]">
-                    <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink">
-                        <ListChecks className="h-4 w-4 text-zoru-primary" />
+                <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 shadow-[var(--zoru-shadow-sm)]">
+                    <div className="flex items-center gap-2 text-[12.5px] text-[var(--st-text)]">
+                        <ListChecks className="h-4 w-4 text-[var(--st-text)]" />
                         {selected.size} selected
                     </div>
                     <div className="flex items-center gap-1">
@@ -386,7 +386,7 @@ export function SubmissionsTable({
             <Card className="overflow-hidden p-0 flex flex-col">
                 <div ref={parentRef} className="max-h-[600px] overflow-auto relative">
                 <Table>
-                    <ZoruTableHeader className="sticky top-0 bg-zoru-surface z-10 shadow-sm">
+                    <ZoruTableHeader className="sticky top-0 bg-[var(--st-bg-secondary)] z-10 shadow-sm">
                         <ZoruTableRow>
                             <ZoruTableHead className="w-8">
                                 <Checkbox
@@ -420,7 +420,7 @@ export function SubmissionsTable({
                                             aria-label="Select submission"
                                         />
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                                    <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                                         {fmtRelative(s.createdAt)}
                                     </ZoruTableCell>
                                     <ZoruTableCell>
@@ -437,7 +437,7 @@ export function SubmissionsTable({
                                             </div>
                                         )}
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                                    <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                                         {safeHost(s.sourceUrl)}
                                     </ZoruTableCell>
                                     <ZoruTableCell>
@@ -471,7 +471,7 @@ export function SubmissionsTable({
                                                 <ZoruDropdownMenuSeparator />
                                                 <ZoruDropdownMenuItem
                                                     onClick={() => singleDelete(id)}
-                                                    className="text-zoru-danger-ink"
+                                                    className="text-[var(--st-danger)]"
                                                 >
                                                     <Trash2 className="h-4 w-4" /> Delete
                                                 </ZoruDropdownMenuItem>
@@ -487,7 +487,7 @@ export function SubmissionsTable({
                     </ZoruTableBody>
                 </Table>
                 </div>
-                <div className="p-2 border-t border-zoru-line bg-zoru-surface">
+                <div className="p-2 border-t border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
                     <PaginationBar page={page} limit={limit} hasMore={hasMore} total={total} />
                 </div>
             </Card>

@@ -68,7 +68,7 @@ export default function HtmlMinifierPage() {
           placeholder="Paste HTML here…" 
         />
         
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4 border rounded-xl bg-zoru-surface-2/10">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4 border rounded-xl bg-[var(--st-bg-muted)]/10">
           {Object.entries(options).map(([key, value]) => (
             <div key={key} className="flex items-center space-x-2">
               <Checkbox 
@@ -84,10 +84,10 @@ export default function HtmlMinifierPage() {
         </div>
 
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4 text-sm text-zoru-ink-muted">
+          <div className="flex items-center gap-4 text-sm text-[var(--st-text-secondary)]">
             <div className="flex items-center min-w-[100px]">
               {isPending ? (
-                <span className="flex items-center text-zoru-ink"><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Minifying...</span>
+                <span className="flex items-center text-[var(--st-text)]"><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Minifying...</span>
               ) : (
                 <span>Processed</span>
               )}
@@ -112,7 +112,7 @@ export default function HtmlMinifierPage() {
         <Textarea 
           readOnly 
           value={minifiedText} 
-          className="min-h-[200px] font-mono text-xs resize-y bg-zoru-surface-2/20" 
+          className="min-h-[200px] font-mono text-xs resize-y bg-[var(--st-bg-muted)]/20" 
           placeholder="Minified HTML will appear here..."
         />
       </div>

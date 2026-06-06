@@ -49,7 +49,7 @@ export default async function CrmSettingsPage() {
 
       {!crmSettings ? (
         <Card className="p-6">
-          <p className="py-8 text-center text-[13px] text-zoru-ink-muted">
+          <p className="py-8 text-center text-[13px] text-[var(--st-text-secondary)]">
             Failed to load settings.
           </p>
         </Card>

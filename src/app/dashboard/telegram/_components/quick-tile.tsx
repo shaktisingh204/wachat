@@ -23,10 +23,10 @@ export function QuickTile({ href, label, description, icon: Icon }: QuickTilePro
                     </div>
                     <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between gap-2">
-                            <p className="text-[13.5px] text-zoru-ink">{label}</p>
-                            <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-zoru-ink-muted opacity-0 transition-opacity group-hover:opacity-100" />
+                            <p className="text-[13.5px] text-[var(--st-text)]">{label}</p>
+                            <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-[var(--st-text-secondary)] opacity-0 transition-opacity group-hover:opacity-100" />
                         </div>
-                        <p className="mt-1 text-[12.5px] leading-relaxed text-zoru-ink-muted">
+                        <p className="mt-1 text-[12.5px] leading-relaxed text-[var(--st-text-secondary)]">
                             {description}
                         </p>
                     </div>

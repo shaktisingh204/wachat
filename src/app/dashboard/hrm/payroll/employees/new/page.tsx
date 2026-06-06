@@ -21,10 +21,10 @@ export default function NewEmployeePage() {
                         Back to Employee Directory
                     </Button>
                 </Link>
-                <h1 className="mt-2 text-[26px] leading-tight text-zoru-ink">
+                <h1 className="mt-2 text-[26px] leading-tight text-[var(--st-text)]">
                     Add New Employee
                 </h1>
-                <p className="mt-1 text-[13px] text-zoru-ink-muted">
+                <p className="mt-1 text-[13px] text-[var(--st-text-secondary)]">
                     Enter the details for the new employee.
                 </p>
             </div>

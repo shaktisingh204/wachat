@@ -179,7 +179,7 @@ export default function CrmWebhookDetailPage() {
 
     if (!row) {
         return (
-            <div className="p-8 text-center text-zoru-ink-muted">
+            <div className="p-8 text-center text-[var(--st-text-secondary)]">
                 Subscription not found.{' '}
                 <Link
                     href="/dashboard/crm/settings/webhooks"
@@ -281,7 +281,7 @@ export default function CrmWebhookDetailPage() {
                         disabled={saving}
                     />
                 </div>
-                <div className="text-xs text-zoru-ink-muted">
+                <div className="text-xs text-[var(--st-text-secondary)]">
                     {row.failureCount > 0 && (
                         <span>
                             {row.failureCount} consecutive failure
@@ -294,7 +294,7 @@ export default function CrmWebhookDetailPage() {
             <Card className="p-4">
                 <div className="mb-3 flex items-center justify-between">
                     <Label>Events</Label>
-                    <span className="text-sm text-zoru-ink-muted">
+                    <span className="text-sm text-[var(--st-text-secondary)]">
                         {selected.size} selected
                     </span>
                 </div>

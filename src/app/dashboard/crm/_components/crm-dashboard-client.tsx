@@ -56,21 +56,21 @@ function StatCard({
   tone?: 'rose' | 'green' | 'amber' | 'blue';
 }) {
   const toneBg: Record<string, string> = {
-    rose: 'bg-zoru-surface-2 text-zoru-ink',
-    green: 'bg-zoru-success/10 text-zoru-success-ink',
-    amber: 'bg-zoru-warning/15 text-zoru-warning-ink',
-    blue: 'bg-zoru-surface-2 text-zoru-ink',
+    rose: 'bg-[var(--st-bg-muted)] text-[var(--st-text)]',
+    green: 'bg-[var(--st-status-ok)]/10 text-[var(--st-status-ok)]',
+    amber: 'bg-[var(--st-warn)]/15 text-[var(--st-warn)]',
+    blue: 'bg-[var(--st-bg-muted)] text-[var(--st-text)]',
   };
 
   return (
     <Card className="p-6">
       <div className="flex items-start justify-between gap-3">
-        <p className="text-[12.5px] text-zoru-ink-muted">{title}</p>
+        <p className="text-[12.5px] text-[var(--st-text-secondary)]">{title}</p>
         <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${toneBg[tone]}`}>
           <Icon className="h-4 w-4" strokeWidth={1.75} />
         </div>
       </div>
-      <p className="mt-3 text-[26px] leading-none text-zoru-ink">{value}</p>
+      <p className="mt-3 text-[26px] leading-none text-[var(--st-text)]">{value}</p>
     </Card>
   );
 }
@@ -84,10 +84,10 @@ function PinnedQuickCard({ items }: { items: PinnedRow[] }) {
     <Card className="p-6">
       <div className="flex items-center justify-between pb-3">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-surface-2">
-            <Pin className="h-4 w-4 text-zoru-ink" strokeWidth={1.75} />
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-bg-muted)]">
+            <Pin className="h-4 w-4 text-[var(--st-text)]" strokeWidth={1.75} />
           </div>
-          <h2 className="text-[15px] text-zoru-ink">{t('crm.dashboard.pinned.title')}</h2>
+          <h2 className="text-[15px] text-[var(--st-text)]">{t('crm.dashboard.pinned.title')}</h2>
           <Badge variant="ghost">{items.length}</Badge>
         </div>
         <Link href="/dashboard/crm/pinned">
@@ -98,10 +98,10 @@ function PinnedQuickCard({ items }: { items: PinnedRow[] }) {
         {items.map((it) => (
           <li
             key={it._id}
-            className="flex items-center gap-2 rounded-lg border border-zoru-line bg-zoru-bg p-2"
+            className="flex items-center gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] p-2"
           >
             <Badge variant="ghost">{it.resource_type}</Badge>
-            <span className="min-w-0 flex-1 truncate text-[12.5px] text-zoru-ink">
+            <span className="min-w-0 flex-1 truncate text-[12.5px] text-[var(--st-text)]">
               {it.title || `${it.resource_type} ${String(it.resource_id).slice(-6)}`}
             </span>
           </li>

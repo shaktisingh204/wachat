@@ -15,8 +15,8 @@ export default function ProductionOrderError({
   }, [error]);
 
   return (
-    <div className="flex h-[50vh] w-full flex-col items-center justify-center gap-4 rounded-lg border border-zoru-line bg-zoru-surface-2 p-6 text-center dark:border-zoru-line/50 dark:bg-zoru-ink/10">
-      <div className="text-zoru-ink dark:text-zoru-ink-muted">
+    <div className="flex h-[50vh] w-full flex-col items-center justify-center gap-4 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-6 text-center dark:border-[var(--st-border)]/50 dark:bg-[var(--st-text)]/10">
+      <div className="text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"

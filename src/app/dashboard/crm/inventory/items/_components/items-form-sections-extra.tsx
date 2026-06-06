@@ -73,7 +73,7 @@ export function ImagesSection(props: ImagesSectionProps) {
             <img
               src={props.thumbnail}
               alt="Thumbnail"
-              className="h-32 w-32 rounded border border-zoru-line object-cover"
+              className="h-32 w-32 rounded border border-[var(--st-border)] object-cover"
             />
           ) : null}
           <input type="hidden" name="imageUrl" value={props.thumbnail} />
@@ -87,14 +87,14 @@ export function ImagesSection(props: ImagesSectionProps) {
                 <img
                   src={url}
                   alt={`Gallery ${idx + 1}`}
-                  className="h-20 w-20 rounded border border-zoru-line object-cover"
+                  className="h-20 w-20 rounded border border-[var(--st-border)] object-cover"
                 />
                 <button
                   type="button"
                   onClick={() =>
                     props.onGallery(props.gallery.filter((_, i) => i !== idx))
                   }
-                  className="absolute -right-1 -top-1 rounded-full bg-zoru-danger p-0.5 text-white"
+                  className="absolute -right-1 -top-1 rounded-full bg-[var(--st-danger)] p-0.5 text-white"
                   aria-label="Remove image"
                 >
                   <X className="h-3 w-3" />

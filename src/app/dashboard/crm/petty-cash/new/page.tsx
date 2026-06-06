@@ -54,7 +54,7 @@ export default function NewPettyCashFloatPage() {
           {/* Float name */}
           <div className="flex flex-col gap-1.5 md:col-span-2">
             <Label htmlFor="name">
-              Float name <span className="text-zoru-danger-ink">*</span>
+              Float name <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <Input
               id="name"
@@ -68,7 +68,7 @@ export default function NewPettyCashFloatPage() {
           {/* Branch name */}
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="branchName">
-              Branch <span className="text-zoru-danger-ink">*</span>
+              Branch <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <Input
               id="branchName"
@@ -130,7 +130,7 @@ export default function NewPettyCashFloatPage() {
 
           {/* Inline error / success */}
           {state?.error ? (
-            <p className="text-[13px] text-zoru-danger-ink md:col-span-2">
+            <p className="text-[13px] text-[var(--st-danger)] md:col-span-2">
               {state.error}
             </p>
           ) : null}

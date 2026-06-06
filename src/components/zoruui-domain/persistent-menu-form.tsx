@@ -107,7 +107,7 @@ export function PersistentMenuForm({ shop }: PersistentMenuFormProps) {
                     {menuItems.map((item, index) => (
                         <div key={index} className="p-4 border rounded-lg space-y-3 relative">
                             <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => handleRemoveItem(index)}>
-                                <Trash2 className="h-4 w-4 text-zoru-ink"/>
+                                <Trash2 className="h-4 w-4 text-[var(--st-text)]"/>
                             </Button>
                             <h4 className="font-medium">Menu Item {index + 1}</h4>
                             <div className="space-y-2">
@@ -122,7 +122,7 @@ export function PersistentMenuForm({ shop }: PersistentMenuFormProps) {
                                 <div className="space-y-2">
                                     <Label htmlFor={`payload-${index}`}>Payload (Trigger Keyword)</Label>
                                     <Input id={`payload-${index}`} value={item.payload || ''} onChange={e => handleItemChange(index, 'payload', e.target.value)} placeholder="e.g., MENU_BROWSE_PRODUCTS" required/>
-                                    <p className="text-xs text-zoru-ink-muted">This keyword will trigger the corresponding flow.</p>
+                                    <p className="text-xs text-[var(--st-text-secondary)]">This keyword will trigger the corresponding flow.</p>
                                 </div>
                              ) : (
                                 <div className="space-y-2">

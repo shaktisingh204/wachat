@@ -107,7 +107,7 @@ function RandomizerPostCard({
     <Card className="overflow-hidden">
       <ZoruCardContent className="flex gap-4 p-4">
         {post.imageUrl && (
-          <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2">
+          <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)]">
             <Image
               src={post.imageUrl}
               alt="Pool post image"
@@ -119,7 +119,7 @@ function RandomizerPostCard({
           </div>
         )}
         <div className="min-w-0 flex-1">
-          <p className="line-clamp-4 text-sm text-zoru-ink-muted">
+          <p className="line-clamp-4 text-sm text-[var(--st-text-secondary)]">
             {post.message}
           </p>
         </div>
@@ -340,7 +340,7 @@ export default function PostRandomizerPage() {
                   </ZoruCardDescription>
                 </ZoruCardHeader>
                 <ZoruCardContent className="flex flex-col gap-4">
-                  <div className="flex items-center justify-between gap-4 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface px-4 py-3">
+                  <div className="flex items-center justify-between gap-4 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-3">
                     <div className="flex flex-col">
                       <Label
                         htmlFor="enabled-switch"
@@ -348,7 +348,7 @@ export default function PostRandomizerPage() {
                       >
                         Enable randomizer
                       </Label>
-                      <span className="text-[12px] text-zoru-ink-muted">
+                      <span className="text-[12px] text-[var(--st-text-secondary)]">
                         Turn on automatic posting.
                       </span>
                     </div>
@@ -376,7 +376,7 @@ export default function PostRandomizerPage() {
                         )
                       }
                     />
-                    <p className="text-[11px] text-zoru-ink-subtle">
+                    <p className="text-[11px] text-[var(--st-text-tertiary)]">
                       Minimum 1 hour. Posts are picked at random from the pool.
                     </p>
                   </div>
@@ -405,14 +405,14 @@ export default function PostRandomizerPage() {
                         handleSettingsChange("blackoutEnd", e.target.value)
                       }
                     />
-                    <p className="text-[11px] text-zoru-ink-subtle">
+                    <p className="text-[11px] text-[var(--st-text-tertiary)]">
                       Randomizer will pause posting during this time window.
                     </p>
                   </div>
                   {settings.enabled && nextScheduled && (
-                    <div className="mt-2 rounded-md bg-zoru-surface-2 p-3 text-sm">
-                      <p className="font-semibold text-zoru-ink">Next scheduled post:</p>
-                      <p className="text-zoru-ink-muted">
+                    <div className="mt-2 rounded-md bg-[var(--st-bg-muted)] p-3 text-sm">
+                      <p className="font-semibold text-[var(--st-text)]">Next scheduled post:</p>
+                      <p className="text-[var(--st-text-secondary)]">
                         ~{nextScheduled.toLocaleString()}
                         {(settings.blackoutStart || settings.blackoutEnd) && " (may be delayed by blackout hours)"}
                       </p>
@@ -504,9 +504,9 @@ export default function PostRandomizerPage() {
                     ) : (
                       <div className="flex max-h-[40vh] flex-col gap-3 overflow-y-auto pr-1">
                         {settings.history.map((h, i) => (
-                          <div key={i} className="flex gap-4 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface px-4 py-3">
+                          <div key={i} className="flex gap-4 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-3">
                             {h.imageUrl && (
-                              <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md bg-zoru-surface-2">
+                              <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md bg-[var(--st-bg-muted)]">
                                 <Image
                                   src={h.imageUrl}
                                   alt="History post image"
@@ -518,8 +518,8 @@ export default function PostRandomizerPage() {
                               </div>
                             )}
                             <div className="min-w-0 flex-1 flex flex-col justify-center">
-                              <p className="line-clamp-2 text-sm text-zoru-ink">{h.message}</p>
-                              <p className="text-xs text-zoru-ink-muted mt-1">{new Date(h.postedAt).toLocaleString()}</p>
+                              <p className="line-clamp-2 text-sm text-[var(--st-text)]">{h.message}</p>
+                              <p className="text-xs text-[var(--st-text-secondary)] mt-1">{new Date(h.postedAt).toLocaleString()}</p>
                             </div>
                           </div>
                         ))}

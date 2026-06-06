@@ -27,17 +27,17 @@ export function RowContextMenu({ children, bomId }: { children: React.ReactNode,
       {open && (
         <div 
           ref={ref}
-          className="fixed z-50 min-w-[8rem] overflow-hidden rounded-md border border-zoru-line bg-white p-1 text-zoru-ink shadow-md dark:border-zoru-line dark:bg-zoru-ink dark:text-white"
+          className="fixed z-50 min-w-[8rem] overflow-hidden rounded-md border border-[var(--st-border)] bg-white p-1 text-[var(--st-text)] shadow-md dark:border-[var(--st-border)] dark:bg-[var(--st-text)] dark:text-white"
           style={{ top: pos.y, left: pos.x }}
           onClick={(e) => e.stopPropagation()}
         >
-          <Link href={`/dashboard/crm/inventory/bom/${bomId}`} className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-zoru-surface-2 dark:hover:bg-zoru-ink">
+          <Link href={`/dashboard/crm/inventory/bom/${bomId}`} className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-[var(--st-bg-muted)] dark:hover:bg-[var(--st-text)]">
             View
           </Link>
-          <Link href={`/dashboard/crm/inventory/bom/${bomId}/edit`} className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-zoru-surface-2 dark:hover:bg-zoru-ink">
+          <Link href={`/dashboard/crm/inventory/bom/${bomId}/edit`} className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-[var(--st-bg-muted)] dark:hover:bg-[var(--st-text)]">
             <Edit className="mr-2 h-4 w-4" /> Edit
           </Link>
-          <Link href={`/dashboard/crm/inventory/production-orders/new?bomId=${bomId}`} className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-zoru-surface-2 dark:hover:bg-zoru-ink">
+          <Link href={`/dashboard/crm/inventory/production-orders/new?bomId=${bomId}`} className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-[var(--st-bg-muted)] dark:hover:bg-[var(--st-text)]">
             <Factory className="mr-2 h-4 w-4" /> Create Production Order
           </Link>
         </div>

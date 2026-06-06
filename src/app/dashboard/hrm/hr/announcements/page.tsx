@@ -192,51 +192,51 @@ export default function AnnouncementsListPage() {
                     }
                     loading={isLoading && items.length === 0}
                 >
-                    <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                    <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                         <Table>
                             <ZoruTableHeader>
-                                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                    <ZoruTableHead className="text-zoru-ink-muted">
+                                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                         Title
                                     </ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                         Category
                                     </ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                         Priority
                                     </ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                         Audience
                                     </ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                         Publish at
                                     </ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                         Pinned
                                     </ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
                                         Status
                                     </ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted text-right">
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">
                                         Actions
                                     </ZoruTableHead>
                                 </ZoruTableRow>
                             </ZoruTableHeader>
                             <ZoruTableBody>
                                 {isLoading ? (
-                                    <ZoruTableRow className="border-zoru-line">
+                                    <ZoruTableRow className="border-[var(--st-border)]">
                                         <ZoruTableCell
                                             colSpan={8}
                                             className="h-24 text-center"
                                         >
-                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
+                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 ) : items.length === 0 ? (
-                                    <ZoruTableRow className="border-zoru-line">
+                                    <ZoruTableRow className="border-[var(--st-border)]">
                                         <ZoruTableCell
                                             colSpan={8}
-                                            className="h-24 text-center text-zoru-ink-muted"
+                                            className="h-24 text-center text-[var(--st-text-secondary)]"
                                         >
                                             No announcements match these filters.
                                         </ZoruTableCell>
@@ -252,9 +252,9 @@ export default function AnnouncementsListPage() {
                                         return (
                                             <ZoruTableRow
                                                 key={a._id}
-                                                className="border-zoru-line"
+                                                className="border-[var(--st-border)]"
                                             >
-                                                <ZoruTableCell className="font-medium text-zoru-ink">
+                                                <ZoruTableCell className="font-medium text-[var(--st-text)]">
                                                     <Link
                                                         href={`${BASE}/${a._id}`}
                                                         className="hover:underline"
@@ -262,7 +262,7 @@ export default function AnnouncementsListPage() {
                                                         {a.title}
                                                     </Link>
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {titleCase(a.category as string)}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
@@ -277,23 +277,23 @@ export default function AnnouncementsListPage() {
                                                         }
                                                     />
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {titleCase(a.audience as string)}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {fmtDate(a.publishAt)}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
                                                     {a.pinned ? (
                                                         <span
-                                                            className="inline-flex items-center gap-1 text-[12px] text-zoru-ink"
+                                                            className="inline-flex items-center gap-1 text-[12px] text-[var(--st-text)]"
                                                             aria-label="Pinned"
                                                         >
                                                             <Pin className="h-3.5 w-3.5" />
                                                             Pinned
                                                         </span>
                                                     ) : (
-                                                        <span className="text-zoru-ink-muted">
+                                                        <span className="text-[var(--st-text-secondary)]">
                                                             —
                                                         </span>
                                                     )}
@@ -328,7 +328,7 @@ export default function AnnouncementsListPage() {
                                                             setPendingDelete(a)
                                                         }
                                                     >
-                                                        <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                                        <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                                     </Button>
                                                 </ZoruTableCell>
                                             </ZoruTableRow>

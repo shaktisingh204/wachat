@@ -43,7 +43,7 @@ export default function CrmAutomationDocsPage() {
       <React.Suspense
         fallback={
           <div className="flex items-center justify-center p-12">
-            <Loader2 className="h-6 w-6 animate-spin text-zoru-ink-muted" />
+            <Loader2 className="h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
           </div>
         }
       >

@@ -8,7 +8,7 @@ import type { PayrollSettings } from '@/app/actions/crm-payroll-settings.actions
 function PayCycleSectionComponent({ settings }: { settings: PayrollSettings }) {
   return (
     <Card className="p-6">
-      <h2 className="mb-4 text-[15px] font-semibold text-zoru-ink">Pay Cycle</h2>
+      <h2 className="mb-4 text-[15px] font-semibold text-[var(--st-text)]">Pay Cycle</h2>
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="space-y-1.5">
           <Label htmlFor="payFrequency">Pay Frequency</Label>

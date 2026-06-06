@@ -72,7 +72,7 @@ export function N8NNodeRegistry({ node, onUpdate, onDelete }: Props) {
             type="text"
             value={node.name}
             onChange={(e) => onUpdate({ name: e.target.value })}
-            className="w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[12.5px] text-[var(--gray-12)] outline-none focus:border-zoru-line"
+            className="w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[12.5px] text-[var(--gray-12)] outline-none focus:border-[var(--st-border)]"
           />
         </div>
 
@@ -100,7 +100,7 @@ export function N8NNodeRegistry({ node, onUpdate, onDelete }: Props) {
               'flex items-center gap-1.5 rounded-full px-2 py-1 text-[11px] font-medium transition-colors',
               node.disabled
                 ? 'bg-[var(--gray-4)] text-[var(--gray-9)]'
-                : 'bg-zoru-surface-2 text-zoru-ink',
+                : 'bg-[var(--st-bg-muted)] text-[var(--st-text)]',
             )}
           >
             {node.disabled ? (
@@ -122,7 +122,7 @@ export function N8NNodeRegistry({ node, onUpdate, onDelete }: Props) {
             onChange={(e) => onUpdate({ notes: e.target.value })}
             rows={3}
             placeholder="Add a note about this node…"
-            className="w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[12px] text-[var(--gray-12)] outline-none focus:border-zoru-line resize-none"
+            className="w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[12px] text-[var(--gray-12)] outline-none focus:border-[var(--st-border)] resize-none"
           />
         </div>
 
@@ -148,7 +148,7 @@ export function N8NNodeRegistry({ node, onUpdate, onDelete }: Props) {
                   </span>
                   <button
                     onClick={() => handleDeleteParam(k)}
-                    className="shrink-0 text-[var(--gray-8)] hover:text-zoru-ink transition-colors"
+                    className="shrink-0 text-[var(--gray-8)] hover:text-[var(--st-text)] transition-colors"
                     title="Remove parameter"
                   >
                     <LuX className="h-3 w-3" strokeWidth={2} />
@@ -169,7 +169,7 @@ export function N8NNodeRegistry({ node, onUpdate, onDelete }: Props) {
               placeholder="key"
               value={paramKey}
               onChange={(e) => setParamKey(e.target.value)}
-              className="w-[80px] rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-2 py-1.5 text-[11.5px] font-mono text-[var(--gray-12)] outline-none focus:border-zoru-line"
+              className="w-[80px] rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-2 py-1.5 text-[11.5px] font-mono text-[var(--gray-12)] outline-none focus:border-[var(--st-border)]"
             />
             <input
               type="text"
@@ -177,7 +177,7 @@ export function N8NNodeRegistry({ node, onUpdate, onDelete }: Props) {
               value={paramVal}
               onChange={(e) => setParamVal(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleAddParam()}
-              className="flex-1 rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-2 py-1.5 text-[11.5px] text-[var(--gray-12)] outline-none focus:border-zoru-line"
+              className="flex-1 rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-2 py-1.5 text-[11.5px] text-[var(--gray-12)] outline-none focus:border-[var(--st-border)]"
             />
             <button
               onClick={handleAddParam}
@@ -197,7 +197,7 @@ export function N8NNodeRegistry({ node, onUpdate, onDelete }: Props) {
             onDelete();
             setSelectedNodeId(null);
           }}
-          className="flex w-full items-center justify-center gap-2 rounded-lg border border-zoru-line bg-zoru-surface-2 px-3 py-2 text-[12.5px] font-medium text-zoru-ink hover:bg-zoru-surface-2 transition-colors"
+          className="flex w-full items-center justify-center gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-[12.5px] font-medium text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] transition-colors"
         >
           <LuTrash2 className="h-3.5 w-3.5" strokeWidth={2} />
           Delete node

@@ -313,15 +313,15 @@ export default function SabWaStatusPage() {
       <div className="flex flex-wrap items-start gap-3">
         <div
           aria-hidden
-          className="rounded-[var(--zoru-radius)] bg-zoru-surface p-3 text-zoru-ink"
+          className="rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] p-3 text-[var(--st-text)]"
         >
           <CircleDot className="h-6 w-6" />
         </div>
         <div className="min-w-0 flex-1">
-          <h1 className="text-[24px] tracking-[-0.015em] text-zoru-ink leading-[1.2]">
+          <h1 className="text-[24px] tracking-[-0.015em] text-[var(--st-text)] leading-[1.2]">
             Status / Stories
           </h1>
-          <p className="mt-1 text-[13px] text-zoru-ink-muted">
+          <p className="mt-1 text-[13px] text-[var(--st-text-secondary)]">
             Post text or media to your audience, and see what your contacts are
             sharing.
           </p>
@@ -344,7 +344,7 @@ export default function SabWaStatusPage() {
             <div
               role="group"
               aria-label="Composer mode"
-              className="inline-flex w-full rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-1"
+              className="inline-flex w-full rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1"
             >
               <Button
                 type="button"
@@ -371,7 +371,7 @@ export default function SabWaStatusPage() {
             {composerMode === "text" ? (
               <div className="space-y-3 pt-4">
                 <div
-                  className="flex min-h-[160px] items-center justify-center rounded-[var(--zoru-radius)] p-6 text-center text-lg font-medium text-zoru-on-primary"
+                  className="flex min-h-[160px] items-center justify-center rounded-[var(--zoru-radius)] p-6 text-center text-lg font-medium text-[var(--st-text-inverted)]"
                   style={{ backgroundColor: composerBg }}
                 >
                   {composerText || "Type your status..."}
@@ -409,7 +409,7 @@ export default function SabWaStatusPage() {
               <div className="space-y-3 pt-4">
                 {composerMedia ? (
                   <div className="space-y-2">
-                    <div className="overflow-hidden rounded-[var(--zoru-radius)] border border-zoru-line">
+                    <div className="overflow-hidden rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={composerMedia.url}
@@ -418,7 +418,7 @@ export default function SabWaStatusPage() {
                       />
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="truncate text-[11.5px] text-zoru-ink-muted">
+                      <span className="truncate text-[11.5px] text-[var(--st-text-secondary)]">
                         {composerMedia.name}
                       </span>
                       <Button
@@ -485,7 +485,7 @@ export default function SabWaStatusPage() {
       <div
         role="group"
         aria-label="Status view"
-        className="inline-flex rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-1"
+        className="inline-flex rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1"
       >
         <Button
           type="button"
@@ -513,15 +513,15 @@ export default function SabWaStatusPage() {
       {view === "my" ? (
         <div className="space-y-3">
           {loadingStatuses ? (
-            <div className="py-10 text-center text-sm text-zoru-ink-muted">Loading statuses...</div>
+            <div className="py-10 text-center text-sm text-[var(--st-text-secondary)]">Loading statuses...</div>
           ) : posted.length === 0 ? (
             <Card className="border-dashed">
               <ZoruCardContent className="flex flex-col items-center gap-3 p-10 text-center">
-                <CircleDot className="h-7 w-7 text-zoru-ink-muted" />
-                <h3 className="text-sm font-semibold text-zoru-ink">
+                <CircleDot className="h-7 w-7 text-[var(--st-text-secondary)]" />
+                <h3 className="text-sm font-semibold text-[var(--st-text)]">
                   You haven&apos;t posted any status yet
                 </h3>
-                <p className="max-w-md text-[11.5px] text-zoru-ink-muted">
+                <p className="max-w-md text-[11.5px] text-[var(--st-text-secondary)]">
                   Hit &ldquo;Post new status&rdquo; to share text with a
                   coloured background or an image from your SabFiles library.
                 </p>
@@ -535,13 +535,13 @@ export default function SabWaStatusPage() {
                     <ZoruCardContent className="space-y-3 p-3">
                       {s.kind === "text" ? (
                         <div
-                          className="flex min-h-[120px] items-center justify-center rounded-[var(--zoru-radius)] p-4 text-center text-base font-medium text-zoru-on-primary"
+                          className="flex min-h-[120px] items-center justify-center rounded-[var(--zoru-radius)] p-4 text-center text-base font-medium text-[var(--st-text-inverted)]"
                           style={{ backgroundColor: s.bgColour }}
                         >
                           {s.body}
                         </div>
                       ) : s.mediaUrl ? (
-                        <div className="overflow-hidden rounded-[var(--zoru-radius)] border border-zoru-line">
+                        <div className="overflow-hidden rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={s.mediaUrl}
@@ -571,7 +571,7 @@ export default function SabWaStatusPage() {
                             )?.label
                           }
                         </Badge>
-                        <span className="ml-auto text-zoru-ink-muted">
+                        <span className="ml-auto text-[var(--st-text-secondary)]">
                           {timeAgo(s.ts)}
                         </span>
                       </div>
@@ -588,11 +588,11 @@ export default function SabWaStatusPage() {
           {friendStatuses.length === 0 ? (
             <Card className="border-dashed">
               <ZoruCardContent className="flex flex-col items-center gap-3 p-10 text-center">
-                <Users className="h-7 w-7 text-zoru-ink-muted" />
-                <h3 className="text-sm font-semibold text-zoru-ink">
+                <Users className="h-7 w-7 text-[var(--st-text-secondary)]" />
+                <h3 className="text-sm font-semibold text-[var(--st-text)]">
                   No friends&apos; statuses
                 </h3>
-                <p className="max-w-md text-[11.5px] text-zoru-ink-muted">
+                <p className="max-w-md text-[11.5px] text-[var(--st-text-secondary)]">
                   When your contacts post a status, you&apos;ll see them as
                   cards here. Tap one to open the swipeable viewer.
                 </p>
@@ -612,21 +612,21 @@ export default function SabWaStatusPage() {
                         <div className="flex items-center gap-3">
                           <div
                             aria-hidden
-                            className="flex h-10 w-10 items-center justify-center rounded-full bg-zoru-surface text-sm font-semibold text-zoru-ink"
+                            className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--st-bg-secondary)] text-sm font-semibold text-[var(--st-text)]"
                           >
                             {f.name.slice(0, 1).toUpperCase()}
                           </div>
                           <div className="min-w-0">
-                            <div className="truncate text-sm font-medium text-zoru-ink">
+                            <div className="truncate text-sm font-medium text-[var(--st-text)]">
                               {f.name}
                             </div>
-                            <div className="text-[11.5px] text-zoru-ink-muted">
+                            <div className="text-[11.5px] text-[var(--st-text-secondary)]">
                               {timeAgo(f.postedAt)}
                             </div>
                           </div>
                         </div>
                         {f.preview && (
-                          <p className="truncate text-[11.5px] text-zoru-ink-muted">
+                          <p className="truncate text-[11.5px] text-[var(--st-text-secondary)]">
                             {f.preview}
                           </p>
                         )}
@@ -656,21 +656,21 @@ export default function SabWaStatusPage() {
           </ZoruDialogHeader>
           <div className="max-h-[300px] overflow-y-auto pt-4 space-y-3">
             {activeStatusForViewers?.viewers.length === 0 ? (
-              <div className="py-4 text-center text-sm text-zoru-ink-muted">No viewers yet.</div>
+              <div className="py-4 text-center text-sm text-[var(--st-text-secondary)]">No viewers yet.</div>
             ) : (
               activeStatusForViewers?.viewers.map((v, i) => (
                 <div key={i} className="flex items-center gap-3">
                   <div
                     aria-hidden
-                    className="flex h-8 w-8 items-center justify-center rounded-full bg-zoru-surface text-xs font-semibold text-zoru-ink"
+                    className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--st-bg-secondary)] text-xs font-semibold text-[var(--st-text)]"
                   >
                     {v.name.slice(0, 1).toUpperCase()}
                   </div>
                   <div className="min-w-0">
-                    <div className="truncate text-sm font-medium text-zoru-ink">
+                    <div className="truncate text-sm font-medium text-[var(--st-text)]">
                       {v.name}
                     </div>
-                    <div className="text-[11.5px] text-zoru-ink-muted">
+                    <div className="text-[11.5px] text-[var(--st-text-secondary)]">
                       {timeAgo(v.ts)}
                     </div>
                   </div>
@@ -696,7 +696,7 @@ export default function SabWaStatusPage() {
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <div className="relative">
-            <div className="flex min-h-[280px] items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface p-6 text-center text-[13px] text-zoru-ink">
+            <div className="flex min-h-[280px] items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] p-6 text-center text-[13px] text-[var(--st-text)]">
               {viewerEntry?.preview ?? "No preview available."}
             </div>
             <div className="absolute inset-y-0 left-0 flex items-center">
@@ -729,7 +729,7 @@ export default function SabWaStatusPage() {
           </div>
           
           {/* Reply section */}
-          <div className="pt-4 mt-2 border-t border-zoru-line flex gap-2">
+          <div className="pt-4 mt-2 border-t border-[var(--st-border)] flex gap-2">
             <Input 
               placeholder="Reply to status..."
               value={replyText}

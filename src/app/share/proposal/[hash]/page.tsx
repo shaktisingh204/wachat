@@ -52,7 +52,7 @@ async function PublicProposalContainer({ hash }: { hash: string }) {
         <ZoruCardHeader className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <ZoruCardTitle>{proposal.title || "Proposal"}</ZoruCardTitle>
-            <p className="mt-1 text-sm text-zoru-ink">
+            <p className="mt-1 text-sm text-[var(--st-text)]">
               Valid till {fmtDate(proposal.validTill)} &middot; Total{" "}
               {fmtINR(proposal.total)}
             </p>
@@ -65,7 +65,7 @@ async function PublicProposalContainer({ hash }: { hash: string }) {
               href={`/share/proposal/${hash}/download`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-md border border-zoru-line bg-white px-3 py-1.5 text-xs font-medium text-zoru-ink shadow-sm hover:bg-zoru-surface-2"
+              className="inline-flex items-center gap-1.5 rounded-md border border-[var(--st-border)] bg-white px-3 py-1.5 text-xs font-medium text-[var(--st-text)] shadow-sm hover:bg-[var(--st-bg-muted)]"
             >
               Download PDF
             </a>
@@ -74,11 +74,11 @@ async function PublicProposalContainer({ hash }: { hash: string }) {
         <ZoruCardContent>
           {cleanBody ? (
             <article
-              className="prose prose-sm max-w-none text-zoru-ink"
+              className="prose prose-sm max-w-none text-[var(--st-text)]"
               dangerouslySetInnerHTML={{ __html: cleanBody }}
             />
           ) : (
-            <p className="text-sm text-zoru-ink">No proposal body provided.</p>
+            <p className="text-sm text-[var(--st-text)]">No proposal body provided.</p>
           )}
         </ZoruCardContent>
       </Card>

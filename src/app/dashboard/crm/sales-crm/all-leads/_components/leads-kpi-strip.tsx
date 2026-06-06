@@ -93,8 +93,8 @@ function KpiCard({
             type="button"
             onClick={onClick}
             className={[
-                'text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-zoru-primary',
-                active ? 'ring-1 ring-zoru-primary rounded-[var(--zoru-radius-lg)]' : '',
+                'text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]',
+                active ? 'ring-1 ring-[var(--st-text)] rounded-[var(--zoru-radius-lg)]' : '',
             ].join(' ')}
         >
             <StatCard label={label} value={value} icon={icon} />
@@ -143,19 +143,19 @@ export function LeadsKpiStripSkeleton() {
     return (
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-6 animate-pulse">
             {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-surface p-4 space-y-2">
+                <div key={i} className="rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4 space-y-2">
                     <Skeleton className="h-4 w-12" />
                     <Skeleton className="h-7 w-20" />
                 </div>
             ))}
-            <div className="md:col-span-2 lg:col-span-2 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-surface p-4 space-y-2">
+            <div className="md:col-span-2 lg:col-span-2 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4 space-y-2">
                 <Skeleton className="h-4 w-24" />
                 <div className="flex gap-1 items-end h-[40px] pt-2">
-                    <Skeleton className="h-full w-full bg-zoru-line/50" />
-                    <Skeleton className="h-[80%] w-full bg-zoru-line/50" />
-                    <Skeleton className="h-[60%] w-full bg-zoru-line/50" />
-                    <Skeleton className="h-[40%] w-full bg-zoru-line/50" />
-                    <Skeleton className="h-[20%] w-full bg-zoru-line/50" />
+                    <Skeleton className="h-full w-full bg-[var(--st-border)]/50" />
+                    <Skeleton className="h-[80%] w-full bg-[var(--st-border)]/50" />
+                    <Skeleton className="h-[60%] w-full bg-[var(--st-border)]/50" />
+                    <Skeleton className="h-[40%] w-full bg-[var(--st-border)]/50" />
+                    <Skeleton className="h-[20%] w-full bg-[var(--st-border)]/50" />
                 </div>
             </div>
         </div>

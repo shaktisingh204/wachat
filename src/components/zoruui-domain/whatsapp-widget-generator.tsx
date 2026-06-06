@@ -234,13 +234,13 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
                                     <div className="space-y-2">
                                         <Label>Auto-Open Delay (seconds)</Label>
                                         <Input type="number" min="0" value={advancedSettings.autoOpenDelay} onChange={e => handleAdvancedSettingChange('autoOpenDelay', parseInt(e.target.value) || 0)} placeholder="0 for disabled" />
-                                        <p className="text-xs text-zoru-ink-muted">Set to 0 to disable auto-open. (e.g. 5 means open after 5 seconds)</p>
+                                        <p className="text-xs text-[var(--st-text-secondary)]">Set to 0 to disable auto-open. (e.g. 5 means open after 5 seconds)</p>
                                     </div>
                                     <Separator />
                                     <div className="space-y-2 flex items-center justify-between">
                                         <div>
                                             <Label>A/B Test Variants</Label>
-                                            <p className="text-xs text-zoru-ink-muted">Test classic vs alternative widget styles on your site</p>
+                                            <p className="text-xs text-[var(--st-text-secondary)]">Test classic vs alternative widget styles on your site</p>
                                         </div>
                                         <Switch checked={advancedSettings.abTestEnabled} onCheckedChange={v => handleAdvancedSettingChange('abTestEnabled', v)} />
                                     </div>
@@ -272,24 +272,24 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
                             <div className="relative h-[500px] bg-white rounded-lg overflow-hidden border">
                                 {/* Dummy Webpage Background */}
                                 <div className="absolute inset-0 pointer-events-none opacity-50 flex flex-col">
-                                    <div className="h-12 border-b flex items-center px-6 gap-4 bg-zoru-surface-2">
-                                        <div className="h-4 w-24 bg-zoru-surface-2 rounded-md"></div>
+                                    <div className="h-12 border-b flex items-center px-6 gap-4 bg-[var(--st-bg-muted)]">
+                                        <div className="h-4 w-24 bg-[var(--st-bg-muted)] rounded-md"></div>
                                         <div className="ml-auto flex gap-4">
-                                            <div className="h-2 w-12 bg-zoru-surface-2 rounded"></div>
-                                            <div className="h-2 w-12 bg-zoru-surface-2 rounded"></div>
-                                            <div className="h-2 w-12 bg-zoru-surface-2 rounded"></div>
+                                            <div className="h-2 w-12 bg-[var(--st-bg-muted)] rounded"></div>
+                                            <div className="h-2 w-12 bg-[var(--st-bg-muted)] rounded"></div>
+                                            <div className="h-2 w-12 bg-[var(--st-bg-muted)] rounded"></div>
                                         </div>
                                     </div>
                                     <div className="p-8 space-y-6 flex-1 overflow-hidden">
                                         <div className="space-y-3 max-w-lg">
-                                            <div className="h-8 w-3/4 bg-zoru-surface-2 rounded-md"></div>
-                                            <div className="h-4 w-full bg-zoru-surface-2 rounded-sm"></div>
-                                            <div className="h-4 w-5/6 bg-zoru-surface-2 rounded-sm"></div>
-                                            <div className="h-4 w-4/6 bg-zoru-surface-2 rounded-sm"></div>
+                                            <div className="h-8 w-3/4 bg-[var(--st-bg-muted)] rounded-md"></div>
+                                            <div className="h-4 w-full bg-[var(--st-bg-muted)] rounded-sm"></div>
+                                            <div className="h-4 w-5/6 bg-[var(--st-bg-muted)] rounded-sm"></div>
+                                            <div className="h-4 w-4/6 bg-[var(--st-bg-muted)] rounded-sm"></div>
                                         </div>
                                         <div className="grid grid-cols-2 gap-4 max-w-lg mt-8">
-                                            <div className="h-32 bg-zoru-surface-2 rounded-lg"></div>
-                                            <div className="h-32 bg-zoru-surface-2 rounded-lg"></div>
+                                            <div className="h-32 bg-[var(--st-bg-muted)] rounded-lg"></div>
+                                            <div className="h-32 bg-[var(--st-bg-muted)] rounded-lg"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -333,7 +333,7 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
                             </div>
                             <div className="space-y-2">
                                 <Label>Embed Code</Label>
-                                <p className="text-xs text-zoru-ink-muted">Copy this single line of code and paste it before the closing `&lt;/body&gt;` tag on your website.</p>
+                                <p className="text-xs text-[var(--st-text-secondary)]">Copy this single line of code and paste it before the closing `&lt;/body&gt;` tag on your website.</p>
                                 <CodeBlock code={embedCode} />
                             </div>
                         </div>

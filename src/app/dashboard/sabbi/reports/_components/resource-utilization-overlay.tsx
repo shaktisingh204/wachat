@@ -16,11 +16,11 @@ export function ResourceUtilizationOverlay({ rows }: { rows: any[] }) {
   return (
     <Card className="p-6 relative overflow-hidden">
       <div className="absolute top-0 right-0 p-2 opacity-10 pointer-events-none">
-        <div className="w-32 h-32 bg-zoru-ink rounded-full blur-3xl"></div>
+        <div className="w-32 h-32 bg-[var(--st-text)] rounded-full blur-3xl"></div>
       </div>
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-[16px] font-semibold text-zoru-ink">Resource Utilization</h2>
-        <span className="text-[12px] text-zoru-ink-muted">Top assigned</span>
+        <h2 className="text-[16px] font-semibold text-[var(--st-text)]">Resource Utilization</h2>
+        <span className="text-[12px] text-[var(--st-text-secondary)]">Top assigned</span>
       </div>
       <div className="space-y-3 relative z-10">
         {entries.map(([owner, count]) => (
@@ -29,9 +29,9 @@ export function ResourceUtilizationOverlay({ rows }: { rows: any[] }) {
               <span>{owner}</span>
               <span className="font-medium">{count} tasks</span>
             </div>
-            <div className="w-full bg-zoru-surface-2 rounded-full h-1.5">
+            <div className="w-full bg-[var(--st-bg-muted)] rounded-full h-1.5">
               <div
-                className="bg-zoru-ink h-1.5 rounded-full"
+                className="bg-[var(--st-text)] h-1.5 rounded-full"
                 style={{ width: `${Math.min(100, (count / (entries[0]?.[1] || 1)) * 100)}%` }}
               ></div>
             </div>

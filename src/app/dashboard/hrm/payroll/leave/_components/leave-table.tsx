@@ -50,7 +50,7 @@ export function LeaveTable({
 
   if (rows.length === 0) {
     return (
-      <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-10 text-center text-[13px] text-zoru-ink-muted">
+      <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-10 text-center text-[13px] text-[var(--st-text-secondary)]">
         {filtersActive
           ? 'No leave requests match the current filters.'
           : 'No leave requests yet — submit one with "Apply leave" above.'}
@@ -59,7 +59,7 @@ export function LeaveTable({
   }
 
   return (
-    <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
+    <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
       <Table>
         <ZoruTableHeader>
           <ZoruTableRow className="hover:bg-transparent">
@@ -84,7 +84,7 @@ export function LeaveTable({
         </ZoruTableHeader>
         <ZoruTableBody>
           {rows.map((row) => (
-            <ZoruTableRow key={row._id} className="border-zoru-line">
+            <ZoruTableRow key={row._id} className="border-[var(--st-border)]">
               <ZoruTableCell>
                 <Checkbox
                   aria-label={`Select leave for ${row.employeeName}`}
@@ -92,7 +92,7 @@ export function LeaveTable({
                   onCheckedChange={() => onToggleOne(row._id)}
                 />
               </ZoruTableCell>
-              <ZoruTableCell className="text-[13px] text-zoru-ink">
+              <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                 <Link
                   href={`/dashboard/hrm/payroll/leave/${row._id}`}
                   className="hover:underline"
@@ -100,7 +100,7 @@ export function LeaveTable({
                   {row.employeeName}
                 </Link>
               </ZoruTableCell>
-              <ZoruTableCell className="text-[13px] text-zoru-ink">
+              <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                 {row.leaveTypeName ? (
                   <span
                     className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11.5px]"
@@ -124,22 +124,22 @@ export function LeaveTable({
                   '—'
                 )}
               </ZoruTableCell>
-              <ZoruTableCell className="text-[13px] text-zoru-ink">
+              <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                 {fmtDate(row.from)}
               </ZoruTableCell>
-              <ZoruTableCell className="text-[13px] text-zoru-ink">
+              <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                 {fmtDate(row.to)}
               </ZoruTableCell>
-              <ZoruTableCell className="text-right text-[13px] tabular-nums text-zoru-ink">
+              <ZoruTableCell className="text-right text-[13px] tabular-nums text-[var(--st-text)]">
                 {Number.isFinite(row.days) ? row.days : '—'}
                 {row.halfDay ? (
-                  <span className="ml-1 text-[11px] text-zoru-ink-muted">
+                  <span className="ml-1 text-[11px] text-[var(--st-text-secondary)]">
                     ½
                   </span>
                 ) : null}
               </ZoruTableCell>
               <ZoruTableCell
-                className="max-w-[220px] truncate text-[13px] text-zoru-ink-muted"
+                className="max-w-[220px] truncate text-[13px] text-[var(--st-text-secondary)]"
                 title={row.reason ?? ''}
               >
                 {row.reason ?? '—'}
@@ -150,10 +150,10 @@ export function LeaveTable({
                   tone={statusToTone(row.status)}
                 />
               </ZoruTableCell>
-              <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+              <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                 {row.approverName ?? '—'}
               </ZoruTableCell>
-              <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+              <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                 {fmtDate(row.submittedAt)}
               </ZoruTableCell>
               <ZoruTableCell>

@@ -25,7 +25,7 @@ export default function PortalLoading() {
         </div>
 
         {/* Table skeleton */}
-        <div className="rounded-xl border border-zoru-line bg-zoru-surface p-4">
+        <div className="rounded-xl border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4">
           <div className="space-y-3">
             <Skeleton className="h-8 w-full" />
             <Skeleton className="h-12 w-full" />

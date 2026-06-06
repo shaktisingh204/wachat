@@ -141,20 +141,20 @@ interface KpiCardProps {
 function KpiCard({ label, value, tone }: KpiCardProps) {
   const ring =
     tone === 'amber'
-      ? 'border-zoru-line/40'
+      ? 'border-[var(--st-border)]/40'
       : tone === 'green'
-        ? 'border-zoru-line/40'
+        ? 'border-[var(--st-border)]/40'
         : tone === 'red'
-          ? 'border-zoru-line/40'
-          : 'border-zoru-line';
+          ? 'border-[var(--st-border)]/40'
+          : 'border-[var(--st-border)]';
   return (
     <div
-      className={`flex flex-1 flex-col gap-1 rounded-md border bg-zoru-surface-2 px-3 py-2.5 ${ring}`}
+      className={`flex flex-1 flex-col gap-1 rounded-md border bg-[var(--st-bg-muted)] px-3 py-2.5 ${ring}`}
     >
-      <span className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+      <span className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
         {label}
       </span>
-      <span className="text-[18px] font-semibold tabular-nums text-zoru-ink">
+      <span className="text-[18px] font-semibold tabular-nums text-[var(--st-text)]">
         {value}
       </span>
     </div>
@@ -386,9 +386,9 @@ export function PaymentReceiptListClient({
 
       <Card className="overflow-hidden p-0">
         {/* Filters bar */}
-        <div className="flex flex-wrap items-center gap-3 border-b border-zoru-line p-3">
+        <div className="flex flex-wrap items-center gap-3 border-b border-[var(--st-border)] p-3">
           <div className="relative max-w-sm flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -447,8 +447,8 @@ export function PaymentReceiptListClient({
                 <CalendarRange className="h-3.5 w-3.5" /> Date range
               </Button>
             </summary>
-            <div className="absolute right-0 z-20 mt-2 grid w-[280px] gap-2 rounded-md border border-zoru-line bg-zoru-surface p-3 shadow-md">
-              <label className="text-[11px] text-zoru-ink-muted">From</label>
+            <div className="absolute right-0 z-20 mt-2 grid w-[280px] gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 shadow-md">
+              <label className="text-[11px] text-[var(--st-text-secondary)]">From</label>
               <Input
                 type="date"
                 value={initialDateFrom}
@@ -457,7 +457,7 @@ export function PaymentReceiptListClient({
                 }
                 className="h-8 text-[12.5px]"
               />
-              <label className="text-[11px] text-zoru-ink-muted">To</label>
+              <label className="text-[11px] text-[var(--st-text-secondary)]">To</label>
               <Input
                 type="date"
                 value={initialDateTo}
@@ -473,7 +473,7 @@ export function PaymentReceiptListClient({
               variant="ghost"
               size="sm"
               onClick={clearAllFilters}
-              className="ml-auto text-[12px] text-zoru-ink-muted"
+              className="ml-auto text-[12px] text-[var(--st-text-secondary)]"
             >
               <X className="h-3.5 w-3.5" /> Clear
             </Button>
@@ -481,7 +481,7 @@ export function PaymentReceiptListClient({
         </div>
 
         {error ? (
-          <div className="flex items-center gap-2 border-b border-zoru-line/40 bg-zoru-ink/10 px-4 py-2.5 text-[13px] text-zoru-ink">
+          <div className="flex items-center gap-2 border-b border-[var(--st-border)]/40 bg-[var(--st-text)]/10 px-4 py-2.5 text-[13px] text-[var(--st-text)]">
             <AlertCircle className="h-4 w-4 shrink-0" />
             {error}
           </div>
@@ -489,12 +489,12 @@ export function PaymentReceiptListClient({
 
         {/* Bulk-action bar */}
         {selected.size > 0 ? (
-          <div className="sticky top-0 z-10 flex flex-wrap items-center gap-2 border-b border-zoru-line bg-zoru-surface px-3 py-2 text-[12.5px]">
-            <span className="font-medium text-zoru-ink">{selected.size} selected</span>
+          <div className="sticky top-0 z-10 flex flex-wrap items-center gap-2 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-[12.5px]">
+            <span className="font-medium text-[var(--st-text)]">{selected.size} selected</span>
             <Button variant="ghost" size="sm" onClick={clearSelection}>
               <X className="h-3.5 w-3.5" /> Clear
             </Button>
-            <span className="mx-1 h-4 w-px bg-zoru-line" />
+            <span className="mx-1 h-4 w-px bg-[var(--st-border)]" />
             <Select onValueChange={(v) => bulkStatus(v as CrmReceiptStatus)}>
               <ZoruSelectTrigger className="h-8 w-[150px] text-[12px]">
                 <ZoruSelectValue placeholder="Change status…" />
@@ -515,7 +515,7 @@ export function PaymentReceiptListClient({
               variant="outline"
               size="sm"
               onClick={() => setPendingBulkDelete(true)}
-              className="text-zoru-danger-ink"
+              className="text-[var(--st-danger)]"
             >
               <Trash2 className="h-3.5 w-3.5" /> Delete
             </Button>
@@ -545,7 +545,7 @@ export function PaymentReceiptListClient({
           <ZoruTableBody>
             {receipts.length === 0 ? (
               <ZoruTableRow>
-                <ZoruTableCell colSpan={9} className="h-24 text-center text-[13px] text-zoru-ink-muted">
+                <ZoruTableCell colSpan={9} className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]">
                   {initialQuery || hasActive
                     ? 'No payment receipts match these filters.'
                     : 'No payment receipts yet — click "New receipt" to add one.'}
@@ -571,20 +571,20 @@ export function PaymentReceiptListClient({
                         subtitle={fmtDate(receipt.date)}
                       />
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                    <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                       {receipt.clientId ? (
                         <EntityPickerChip entity="client" id={receipt.clientId} />
                       ) : (
                         '—'
                       )}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                    <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                       {fmtDate(receipt.date)}
                     </ZoruTableCell>
                     <ZoruTableCell>
                       <Badge variant="outline">{receipt.mode}</Badge>
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                    <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                       <div className="flex flex-col">
                         {receipt.reference ? <span>{receipt.reference}</span> : null}
                         {receipt.txnId ? (
@@ -596,14 +596,14 @@ export function PaymentReceiptListClient({
                         ) : null}
                       </div>
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-zoru-ink">
+                    <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-[var(--st-text)]">
                       {fmtMoney(receipt.amount, receipt.currency)}
                     </ZoruTableCell>
                     <ZoruTableCell>
                       {receipt.status ? (
                         <Badge variant="outline">{receipt.status}</Badge>
                       ) : (
-                        <span className="text-[12.5px] text-zoru-ink-muted">—</span>
+                        <span className="text-[12.5px] text-[var(--st-text-secondary)]">—</span>
                       )}
                     </ZoruTableCell>
                     <ZoruTableCell className="text-right">
@@ -617,7 +617,7 @@ export function PaymentReceiptListClient({
                           size="sm"
                           variant="ghost"
                           onClick={() => setPendingDelete(receipt)}
-                          className="text-zoru-danger-ink"
+                          className="text-[var(--st-danger)]"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                         </Button>
@@ -654,7 +654,7 @@ export function PaymentReceiptListClient({
                 confirmDelete();
               }}
               disabled={busy}
-              className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
+              className="bg-[var(--st-danger)] text-white hover:bg-[var(--st-danger)]/90"
             >
               {busy ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : null}
               Delete permanently
@@ -683,7 +683,7 @@ export function PaymentReceiptListClient({
                 confirmBulkDelete();
               }}
               disabled={busy}
-              className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
+              className="bg-[var(--st-danger)] text-white hover:bg-[var(--st-danger)]/90"
             >
               {busy ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : null}
               Delete permanently

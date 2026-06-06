@@ -144,8 +144,8 @@ export default function VoiceCallsLogPage() {
 
       <Card className="overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="border-b border-zoru-line">
-            <tr className="text-left text-xs uppercase text-zoru-ink-muted">
+          <thead className="border-b border-[var(--st-border)]">
+            <tr className="text-left text-xs uppercase text-[var(--st-text-secondary)]">
               <th className="px-3 py-2">Direction</th>
               <th className="px-3 py-2">From</th>
               <th className="px-3 py-2">To</th>
@@ -157,17 +157,17 @@ export default function VoiceCallsLogPage() {
           </thead>
           <tbody>
             {data.map((c) => (
-              <tr key={c._id} className="border-b border-zoru-line/50">
+              <tr key={c._id} className="border-b border-[var(--st-border)]/50">
                 <td className="px-3 py-2">
                   {c.direction === 'inbound' ? (
-                    <PhoneIncoming className="h-4 w-4 text-zoru-ink" />
+                    <PhoneIncoming className="h-4 w-4 text-[var(--st-text)]" />
                   ) : (
-                    <PhoneOutgoing className="h-4 w-4 text-zoru-ink" />
+                    <PhoneOutgoing className="h-4 w-4 text-[var(--st-text)]" />
                   )}
                 </td>
                 <td className="px-3 py-2 font-mono">{c.fromNumber}</td>
                 <td className="px-3 py-2 font-mono">{c.toNumber}</td>
-                <td className="px-3 py-2 text-xs text-zoru-ink-muted">
+                <td className="px-3 py-2 text-xs text-[var(--st-text-secondary)]">
                   {fmtDate(c.startedAt)}
                 </td>
                 <td className="px-3 py-2">{fmtDuration(c.durationSecs)}</td>
@@ -203,7 +203,7 @@ export default function VoiceCallsLogPage() {
                       )}
                     </Button>
                   ) : (
-                    <span className="text-xs text-zoru-ink-muted">—</span>
+                    <span className="text-xs text-[var(--st-text-secondary)]">—</span>
                   )}
                   {playingId === c._id && c.recordingFileId && (
                     <audio src={c.recordingFileId} controls autoPlay className="mt-1" />
@@ -213,7 +213,7 @@ export default function VoiceCallsLogPage() {
             ))}
             {data.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-3 py-8 text-center text-zoru-ink-muted">
+                <td colSpan={7} className="px-3 py-8 text-center text-[var(--st-text-secondary)]">
                   No calls logged.
                 </td>
               </tr>

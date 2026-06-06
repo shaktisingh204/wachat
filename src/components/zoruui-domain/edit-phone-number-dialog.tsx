@@ -118,7 +118,7 @@ export function EditPhoneNumberDialog({ isOpen, onOpenChange, project, phone, on
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="max-w-[680px] max-h-[85vh] flex flex-col overflow-hidden p-0 rounded-[18px] border border-zoru-line bg-zoru-surface shadow-lg">
+      <ZoruDialogContent className="max-w-[680px] max-h-[85vh] flex flex-col overflow-hidden p-0 rounded-[18px] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] shadow-lg">
         <form
           action={profileFormAction}
           ref={formRef}
@@ -127,15 +127,15 @@ export function EditPhoneNumberDialog({ isOpen, onOpenChange, project, phone, on
           <input type="hidden" name="projectId" value={project._id.toString()} />
           <input type="hidden" name="phoneNumberId" value={phone.id} />
 
-          <ZoruDialogHeader className="flex flex-row items-start gap-3 border-b border-zoru-line px-6 py-5">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-zoru-surface-2 text-zoru-ink">
+          <ZoruDialogHeader className="flex flex-row items-start gap-3 border-b border-[var(--st-border)] px-6 py-5">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
               <LuUserRound className="h-5 w-5" strokeWidth={2} />
             </span>
             <div className="min-w-0 flex-1">
-              <ZoruDialogTitle className="text-[16px] font-semibold text-zoru-ink leading-tight">
+              <ZoruDialogTitle className="text-[16px] font-semibold text-[var(--st-text)] leading-tight">
                 Edit phone number profile
               </ZoruDialogTitle>
-              <ZoruDialogDescription className="mt-0.5 text-[12px] text-zoru-ink-muted leading-snug">
+              <ZoruDialogDescription className="mt-0.5 text-[12px] text-[var(--st-text-secondary)] leading-snug">
                 Update the public business profile details for{' '}
                 {phone.display_phone_number}.
               </ZoruDialogDescription>
@@ -148,7 +148,7 @@ export function EditPhoneNumberDialog({ isOpen, onOpenChange, project, phone, on
               {/* Top Section: Profile Pic & Basic Info */}
               <div className="grid grid-cols-1 md:grid-cols-[180px_1fr] gap-6">
                 <div className="flex flex-col items-center gap-3">
-                  <div className="group relative flex h-36 w-36 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-zoru-line bg-zoru-surface-2 transition-colors hover:bg-zoru-surface-2">
+                  <div className="group relative flex h-36 w-36 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] transition-colors hover:bg-[var(--st-bg-muted)]">
                     {previewUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
@@ -157,7 +157,7 @@ export function EditPhoneNumberDialog({ isOpen, onOpenChange, project, phone, on
                         className="h-full w-full object-cover"
                       />
                     ) : (
-                      <div className="flex flex-col items-center gap-1.5 text-zoru-ink-muted">
+                      <div className="flex flex-col items-center gap-1.5 text-[var(--st-text-secondary)]">
                         <LuCamera className="h-6 w-6" strokeWidth={1.75} />
                         <span className="text-[11px] font-medium">
                           Upload photo
@@ -166,7 +166,7 @@ export function EditPhoneNumberDialog({ isOpen, onOpenChange, project, phone, on
                     )}
                     <label
                       htmlFor="profilePicture"
-                      className="absolute inset-0 flex cursor-pointer items-center justify-center bg-zoru-ink/60 text-[13px] font-medium text-white opacity-0 transition-opacity group-hover:opacity-100"
+                      className="absolute inset-0 flex cursor-pointer items-center justify-center bg-[var(--st-text)]/60 text-[13px] font-medium text-white opacity-0 transition-opacity group-hover:opacity-100"
                     >
                       Change
                     </label>
@@ -180,7 +180,7 @@ export function EditPhoneNumberDialog({ isOpen, onOpenChange, project, phone, on
                       onChange={handleImageChange}
                     />
                   </div>
-                  <p className="px-2 text-center text-[10.5px] text-zoru-ink-muted">
+                  <p className="px-2 text-center text-[10.5px] text-[var(--st-text-secondary)]">
                     Recommended: 500×500 px, JPG or PNG.
                   </p>
                   <SabFileToFileButton
@@ -224,14 +224,14 @@ export function EditPhoneNumberDialog({ isOpen, onOpenChange, project, phone, on
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <Label htmlFor="about">Status (About)</Label>
-                    <span className="text-xs text-zoru-ink-muted">Max 139 chars</span>
+                    <span className="text-xs text-[var(--st-text-secondary)]">Max 139 chars</span>
                   </div>
                   <Input id="about" name="about" defaultValue={phone.profile?.about} maxLength={139} placeholder="Hey there! I am using WhatsApp." />
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <Label htmlFor="description">Business Description</Label>
-                    <span className="text-xs text-zoru-ink-muted">Max 256 chars</span>
+                    <span className="text-xs text-[var(--st-text-secondary)]">Max 256 chars</span>
                   </div>
                   <Textarea id="description" name="description" defaultValue={phone.profile?.description} maxLength={256} className="h-24 resize-none" placeholder="Tell your customers about your business..." />
                 </div>
@@ -256,7 +256,7 @@ export function EditPhoneNumberDialog({ isOpen, onOpenChange, project, phone, on
             </div>
           </div>
 
-          <ZoruDialogFooter className="border-t border-zoru-line px-6 py-4 sm:justify-end gap-2">
+          <ZoruDialogFooter className="border-t border-[var(--st-border)] px-6 py-4 sm:justify-end gap-2">
             <Button
               type="button"
               variant="pill"

@@ -110,7 +110,7 @@ export function EmailSubscribersClient() {
         <div className="flex-1 min-w-[220px] space-y-2">
           <Label>Search</Label>
           <div className="relative">
-            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-zoru-ink-muted" />
+            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--st-text-secondary)]" />
             <Input
               className="pl-8"
               value={search}
@@ -171,7 +171,7 @@ export function EmailSubscribersClient() {
             <ZoruTableBody>
               {subscribers.map((s) => (
                 <ZoruTableRow key={s._id}>
-                  <ZoruTableCell className="font-medium text-zoru-ink">{s.email}</ZoruTableCell>
+                  <ZoruTableCell className="font-medium text-[var(--st-text)]">{s.email}</ZoruTableCell>
                   <ZoruTableCell>
                     {[s.firstName, s.lastName].filter(Boolean).join(' ') || '—'}
                   </ZoruTableCell>
@@ -184,11 +184,11 @@ export function EmailSubscribersClient() {
                         <Badge key={t} variant="outline" className="text-xs">{t}</Badge>
                       ))}
                       {(s.tags?.length ?? 0) > 3 ? (
-                        <span className="text-xs text-zoru-ink-muted">+{(s.tags!.length - 3)}</span>
+                        <span className="text-xs text-[var(--st-text-secondary)]">+{(s.tags!.length - 3)}</span>
                       ) : null}
                     </div>
                   </ZoruTableCell>
-                  <ZoruTableCell className="text-zoru-ink-muted text-sm">
+                  <ZoruTableCell className="text-[var(--st-text-secondary)] text-sm">
                     {new Date(s.createdAt).toLocaleDateString()}
                   </ZoruTableCell>
                 </ZoruTableRow>
@@ -200,7 +200,7 @@ export function EmailSubscribersClient() {
 
       {totalPages > 1 ? (
         <div className="flex items-center justify-between">
-          <span className="text-sm text-zoru-ink-muted">
+          <span className="text-sm text-[var(--st-text-secondary)]">
             Page {page} of {totalPages} · {total.toLocaleString()} subscribers
           </span>
           <div className="flex gap-2">

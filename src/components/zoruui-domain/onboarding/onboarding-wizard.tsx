@@ -158,14 +158,14 @@ export function OnboardingWizard({
             <section className="space-y-6">
                 <header className="space-y-2">
                     <div className="flex items-center justify-between">
-                        <p className="text-xs font-semibold uppercase tracking-wider text-zoru-primary">
+                        <p className="text-xs font-semibold uppercase tracking-wider text-[var(--st-text)]">
                             Step {currentIndex + 1} of {STEP_ORDER.length}
                         </p>
                         {signedInUser && step !== 'account' && step !== 'complete' && (
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                className="text-zoru-ink-muted"
+                                className="text-[var(--st-text-secondary)]"
                                 onClick={handleSkip}
                                 disabled={isSkipping}
                             >
@@ -181,12 +181,12 @@ export function OnboardingWizard({
                     <h1 className="text-3xl font-bold tracking-tight">
                         {STEP_META[step].title}
                     </h1>
-                    <p className="text-zoru-ink-muted">
+                    <p className="text-[var(--st-text-secondary)]">
                         {STEP_META[step].subtitle}
                     </p>
                 </header>
 
-                <div className="rounded-2xl border border-zoru-line bg-zoru-surface p-6 shadow-sm sm:p-8">
+                <div className="rounded-2xl border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-6 shadow-sm sm:p-8">
                     {step === 'account' && (
                         <AccountStep
                             onAccountCreated={handleAccountCreated}
@@ -271,20 +271,20 @@ function StepNav({ currentStep }: { currentStep: WizardStep }) {
                         key={stepKey}
                         className={cn(
                             'flex items-start gap-3 rounded-xl px-3 py-3 transition',
-                            active && 'bg-zoru-primary/10',
-                            !active && 'hover:bg-zoru-surface/60'
+                            active && 'bg-[var(--st-text)]/10',
+                            !active && 'hover:bg-[var(--st-bg-secondary)]/60'
                         )}
                     >
                         <div
                             className={cn(
                                 'mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs font-semibold',
                                 done &&
-                                    'border-zoru-primary bg-zoru-primary text-zoru-primary-ink',
+                                    'border-[var(--st-text)] bg-[var(--st-text)] text-zoru-primary-ink',
                                 active &&
-                                    'border-zoru-primary bg-zoru-primary/20 text-zoru-primary',
+                                    'border-[var(--st-text)] bg-[var(--st-text)]/20 text-[var(--st-text)]',
                                 !done &&
                                     !active &&
-                                    'border-zoru-line bg-zoru-surface text-zoru-ink-muted'
+                                    'border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]'
                             )}
                         >
                             {done ? (
@@ -297,12 +297,12 @@ function StepNav({ currentStep }: { currentStep: WizardStep }) {
                             <p
                                 className={cn(
                                     'text-sm font-semibold',
-                                    active ? 'text-zoru-ink' : 'text-zoru-ink-muted'
+                                    active ? 'text-[var(--st-text)]' : 'text-[var(--st-text-secondary)]'
                                 )}
                             >
                                 {STEP_META[stepKey].title}
                             </p>
-                            <p className="text-xs text-zoru-ink-muted">
+                            <p className="text-xs text-[var(--st-text-secondary)]">
                                 {STEP_META[stepKey].subtitle}
                             </p>
                         </div>

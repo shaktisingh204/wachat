@@ -79,7 +79,7 @@ export default function FacebookWebhooksPage() {
           <ZoruPageEyebrow>Meta Suite · Infrastructure</ZoruPageEyebrow>
           <ZoruPageTitle>
             <span className="inline-flex items-center gap-2.5">
-              <Webhook className="h-6 w-6 text-zoru-ink-muted" />
+              <Webhook className="h-6 w-6 text-[var(--st-text-secondary)]" />
               Webhooks
             </span>
           </ZoruPageTitle>

@@ -72,11 +72,11 @@ export function VendorEditForm({ vendor }: Props) {
                      * All fields additive — legacy vendor rows have
                      * undefined values which coerce to non-MSME.
                      */}
-                    <div className="md:col-span-2 rounded-lg border border-zoru-line bg-zoru-surface-2/20 p-4">
+                    <div className="md:col-span-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)]/20 p-4">
                         <div className="mb-3 flex items-center justify-between">
                             <div>
                                 <div className="text-[13.5px] font-semibold">MSME / Compliance</div>
-                                <p className="text-[11.5px] text-zoru-ink-muted">
+                                <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                                     Bills to MSME-registered vendors must clear in 45 days (MSMED Act + IT §43B(h)).
                                 </p>
                             </div>
@@ -102,7 +102,7 @@ export function VendorEditForm({ vendor }: Props) {
                                     id="msmeCategory"
                                     name="msmeCategory"
                                     defaultValue={vendor.msmeCategory ?? ''}
-                                    className="h-10 w-full rounded-lg border border-zoru-line bg-zoru-surface px-3 text-[13px]"
+                                    className="h-10 w-full rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 text-[13px]"
                                 >
                                     <option value="">—</option>
                                     <option value="Micro">Micro</option>
@@ -125,9 +125,9 @@ export function VendorEditForm({ vendor }: Props) {
                     <div className="md:col-span-2 flex items-center justify-between gap-3">
                         <div className="text-sm">
                             {state?.error ? (
-                                <span className="text-zoru-danger-ink">{state.error}</span>
+                                <span className="text-[var(--st-danger)]">{state.error}</span>
                             ) : state?.message ? (
-                                <span className="text-zoru-success-ink">{state.message}</span>
+                                <span className="text-[var(--st-status-ok)]">{state.message}</span>
                             ) : null}
                         </div>
                         <SubmitButton />
@@ -154,7 +154,7 @@ function Field({
     return (
         <div>
             <Label htmlFor={name}>
-                {label} {required ? <span className="text-zoru-danger-ink">*</span> : null}
+                {label} {required ? <span className="text-[var(--st-danger)]">*</span> : null}
             </Label>
             <Input
                 id={name}

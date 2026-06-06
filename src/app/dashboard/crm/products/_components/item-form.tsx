@@ -119,9 +119,9 @@ export function ItemForm({ initial }: { initial?: any }) {
         </div>
       </ZoruCard>
 
-      <ZoruCard className="p-6 space-y-4 bg-zoru-surface/50 border-dashed">
+      <ZoruCard className="p-6 space-y-4 bg-[var(--st-bg-secondary)]/50 border-dashed">
         <h3 className="font-semibold text-lg">Supplier Information</h3>
-        <p className="text-sm text-zoru-ink-muted">Manage supplier details for this product.</p>
+        <p className="text-sm text-[var(--st-text-secondary)]">Manage supplier details for this product.</p>
         
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">

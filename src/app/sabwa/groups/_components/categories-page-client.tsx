@@ -219,7 +219,7 @@ function EditCategoryDialog({
                   aria-label={`Use ${c}`}
                   className={cn(
                     'h-8 w-8 rounded-full border-2 transition',
-                    color === c ? 'border-zoru-ink' : 'border-transparent',
+                    color === c ? 'border-[var(--st-text)]' : 'border-transparent',
                   )}
                   style={{ backgroundColor: c }}
                 />
@@ -239,8 +239,8 @@ function EditCategoryDialog({
                   className={cn(
                     'flex h-10 items-center justify-center rounded-[var(--zoru-radius)] border transition',
                     icon === n
-                      ? 'border-zoru-ink bg-zoru-surface text-zoru-ink'
-                      : 'border-zoru-line bg-zoru-bg text-zoru-ink hover:border-zoru-line-strong hover:bg-zoru-surface',
+                      ? 'border-[var(--st-text)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]'
+                      : 'border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)] hover:border-[var(--st-border-strong)] hover:bg-[var(--st-bg-secondary)]',
                   )}
                 >
                   <Icon className="h-4 w-4" />
@@ -283,7 +283,7 @@ const CategoryRow = React.memo(function CategoryRow({
 }: CategoryRowProps) {
   const Icon = ICON_BY_NAME.get(category.icon ?? 'Tag') ?? Tag;
   return (
-    <div className="flex items-center gap-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3">
+    <div className="flex items-center gap-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3">
       <div className="flex flex-col">
         <Button
           variant="ghost"
@@ -307,21 +307,21 @@ const CategoryRow = React.memo(function CategoryRow({
         </Button>
       </div>
       <span
-        className="inline-flex h-9 w-9 items-center justify-center rounded-full text-zoru-ink"
+        className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[var(--st-text)]"
         style={{ backgroundColor: category.color + '33' }}
       >
         <Icon className="h-4 w-4" />
       </span>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2 truncate">
-          <span className="truncate font-medium text-zoru-ink">{category.name}</span>
+          <span className="truncate font-medium text-[var(--st-text)]">{category.name}</span>
           <span
             className="inline-block h-2.5 w-2.5 rounded-full"
             style={{ backgroundColor: category.color }}
             aria-hidden
           />
         </div>
-        <div className="text-xs text-zoru-ink-muted">
+        <div className="text-xs text-[var(--st-text-secondary)]">
           {typeof category.groupCount === 'number'
             ? `${category.groupCount} group${category.groupCount === 1 ? '' : 's'}`
             : '— groups'}
@@ -335,7 +335,7 @@ const CategoryRow = React.memo(function CategoryRow({
         size="icon"
         onClick={onDelete}
         aria-label="Delete category"
-        className="text-zoru-danger hover:text-zoru-danger"
+        className="text-[var(--st-danger)] hover:text-[var(--st-danger)]"
       >
         <Trash2 className="h-4 w-4" />
       </Button>
@@ -455,7 +455,7 @@ function BulkAssignDialog({
             <Label>Target category</Label>
             <div className="mt-1 flex flex-wrap gap-2">
               {categories.length === 0 ? (
-                <span className="text-sm text-zoru-ink-muted">
+                <span className="text-sm text-[var(--st-text-secondary)]">
                   Create a category first.
                 </span>
               ) : (
@@ -479,29 +479,29 @@ function BulkAssignDialog({
 
           <div>
             <Label>Uncategorised groups</Label>
-            <ScrollArea className="mt-1 h-64 rounded-[var(--zoru-radius)] border border-zoru-line">
-              <div className="divide-y divide-zoru-line">
+            <ScrollArea className="mt-1 h-64 rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
+              <div className="divide-y divide-[var(--st-border)]">
                 {loading ? (
                   Array.from({ length: 4 }).map((_, i) => (
                     <Skeleton key={i} className="m-2 h-10" />
                   ))
                 ) : uncategorised.length === 0 ? (
-                  <p className="p-3 text-sm text-zoru-ink-muted">
+                  <p className="p-3 text-sm text-[var(--st-text-secondary)]">
                     No uncategorised groups.
                   </p>
                 ) : (
                   uncategorised.map((g) => (
                     <label
                       key={g.jid}
-                      className="flex cursor-pointer items-center gap-3 p-2.5 hover:bg-zoru-surface"
+                      className="flex cursor-pointer items-center gap-3 p-2.5 hover:bg-[var(--st-bg-secondary)]"
                     >
                       <Checkbox
                         checked={selected.has(g.jid)}
                         onCheckedChange={() => toggle(g.jid)}
                       />
                       <div className="min-w-0 flex-1">
-                        <div className="truncate text-sm font-medium text-zoru-ink">{g.subject}</div>
-                        <div className="text-xs text-zoru-ink-muted">
+                        <div className="truncate text-sm font-medium text-[var(--st-text)]">{g.subject}</div>
+                        <div className="text-xs text-[var(--st-text-secondary)]">
                           {g.participantCount} members
                         </div>
                       </div>
@@ -653,14 +653,14 @@ export function CategoriesPageClient() {
 
       <div className="mt-5 flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-3">
-          <div className="rounded-[var(--zoru-radius)] bg-zoru-surface p-3 text-zoru-ink">
+          <div className="rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] p-3 text-[var(--st-text)]">
             <FolderTree className="h-6 w-6" />
           </div>
           <div>
-            <h1 className="text-[26px] font-semibold leading-[1.15] tracking-[-0.015em] text-zoru-ink">
+            <h1 className="text-[26px] font-semibold leading-[1.15] tracking-[-0.015em] text-[var(--st-text)]">
               Group categories
             </h1>
-            <p className="mt-0.5 text-[13px] text-zoru-ink-muted">
+            <p className="mt-0.5 text-[13px] text-[var(--st-text-secondary)]">
               Curate the buckets your groups live in.
             </p>
           </div>
@@ -687,7 +687,7 @@ export function CategoriesPageClient() {
         </ZoruCardHeader>
         <ZoruCardContent className="space-y-2">
           {!sessionId ? (
-            <p className="py-6 text-center text-sm text-zoru-ink-muted">
+            <p className="py-6 text-center text-sm text-[var(--st-text-secondary)]">
               Connect a SabWa session to manage categories.
             </p>
           ) : loading ? (
@@ -696,8 +696,8 @@ export function CategoriesPageClient() {
             ))
           ) : categories.length === 0 ? (
             <div className="flex flex-col items-center gap-2 py-8 text-center">
-              <Tag className="h-8 w-8 text-zoru-ink-muted" />
-              <p className="text-sm text-zoru-ink-muted">
+              <Tag className="h-8 w-8 text-[var(--st-text-secondary)]" />
+              <p className="text-sm text-[var(--st-text-secondary)]">
                 No categories yet. Create one to get started.
               </p>
               <Button onClick={() => onEdit(null)}>
@@ -746,7 +746,7 @@ export function CategoriesPageClient() {
             <ZoruAlertDialogTitle>Delete category?</ZoruAlertDialogTitle>
             <ZoruAlertDialogDescription>
               Groups tagged with{' '}
-              <span className="font-medium text-zoru-ink">{pendingDelete?.name}</span> will become
+              <span className="font-medium text-[var(--st-text)]">{pendingDelete?.name}</span> will become
               uncategorised. This cannot be undone.
             </ZoruAlertDialogDescription>
           </ZoruAlertDialogHeader>

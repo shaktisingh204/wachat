@@ -345,12 +345,12 @@ export function BookingListClient({
           ].map(({ label, value }) => (
             <div
               key={label}
-              className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 px-4 py-3"
+              className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-3"
             >
-              <p className="text-xl font-semibold tabular-nums text-zoru-ink">
+              <p className="text-xl font-semibold tabular-nums text-[var(--st-text)]">
                 {value.toLocaleString()}
               </p>
-              <p className="text-[11.5px] text-zoru-ink-muted">{label}</p>
+              <p className="text-[11.5px] text-[var(--st-text-secondary)]">{label}</p>
             </div>
           ))}
         </div>
@@ -361,7 +361,7 @@ export function BookingListClient({
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative max-w-sm flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -392,7 +392,7 @@ export function BookingListClient({
             <X className="h-3.5 w-3.5" /> Clear
           </Button>
         ) : null}
-        <div className="ml-auto inline-flex rounded-[var(--zoru-radius)] border border-zoru-line p-0.5">
+        <div className="ml-auto inline-flex rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-0.5">
           <Button
             size="sm"
             variant={view === 'table' ? 'default' : 'ghost'}
@@ -414,9 +414,9 @@ export function BookingListClient({
 
       {/* Bulk bar */}
       {selected.size > 0 ? (
-        <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-3 py-2 shadow-[var(--zoru-shadow-sm)]">
-          <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink">
-            <ListChecks className="h-4 w-4 text-zoru-primary" />
+        <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 shadow-[var(--zoru-shadow-sm)]">
+          <div className="flex items-center gap-2 text-[12.5px] text-[var(--st-text)]">
+            <ListChecks className="h-4 w-4 text-[var(--st-text)]" />
             {selected.size} selected
           </div>
           <div className="flex items-center gap-1">
@@ -448,7 +448,7 @@ export function BookingListClient({
 
       <Card className="overflow-hidden p-0">
         {error ? (
-          <div className="flex items-center gap-2 border-b border-zoru-line/40 bg-zoru-ink/10 px-4 py-2.5 text-[13px] text-zoru-ink">
+          <div className="flex items-center gap-2 border-b border-[var(--st-border)]/40 bg-[var(--st-text)]/10 px-4 py-2.5 text-[13px] text-[var(--st-text)]">
             <AlertCircle className="h-4 w-4 shrink-0" />
             {error}
           </div>
@@ -483,7 +483,7 @@ export function BookingListClient({
                 <ZoruTableRow>
                   <ZoruTableCell
                     colSpan={8}
-                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                    className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     {hasActiveFilters
                       ? 'No bookings match these filters.'
@@ -512,13 +512,13 @@ export function BookingListClient({
                           label={bookingLabel(b)}
                         />
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                      <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                         {fmtDateTime(b.slotStart)}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                      <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                         {fmtDateTime(b.slotEnd)}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                      <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                         {b.paymentStatus ?? 'unpaid'}
                       </ZoruTableCell>
                       <ZoruTableCell>
@@ -538,7 +538,7 @@ export function BookingListClient({
                             size="sm"
                             variant="ghost"
                             onClick={() => setPendingDelete(b)}
-                            className="text-zoru-danger-ink"
+                            className="text-[var(--st-danger)]"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </Button>

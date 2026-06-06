@@ -219,14 +219,14 @@ function ShortcutGroup({
 }) {
   return (
     <section className="flex flex-col gap-2">
-      <h3 className="text-[11px] font-medium uppercase tracking-wider text-zoru-ink-muted">
+      <h3 className="text-[11px] font-medium uppercase tracking-wider text-[var(--st-text-secondary)]">
         {heading}
       </h3>
-      <ul className="flex flex-col divide-y divide-zoru-line rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface">
+      <ul className="flex flex-col divide-y divide-[var(--st-border)] rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
         {rows.map((row) => (
           <li
             key={row.chord}
-            className="flex items-center justify-between gap-3 px-3 py-2 text-sm text-zoru-ink"
+            className="flex items-center justify-between gap-3 px-3 py-2 text-sm text-[var(--st-text)]"
           >
             <span className="truncate">{row.label}</span>
             <ChordKbd chord={row.chord} />
@@ -245,7 +245,7 @@ function ChordKbd({ chord }: { chord: string }) {
         <React.Fragment key={`${chord}-${idx}`}>
           <ZoruKbd>{part}</ZoruKbd>
           {idx < parts.length - 1 ? (
-            <span aria-hidden className="text-[10px] text-zoru-ink-subtle">
+            <span aria-hidden className="text-[10px] text-[var(--st-text-tertiary)]">
               then
             </span>
           ) : null}

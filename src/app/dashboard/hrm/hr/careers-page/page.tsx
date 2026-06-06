@@ -270,7 +270,7 @@ export default function CareersPageConfigPage() {
             </ZoruCardContent>
           </Card>
 
-          <div className="sticky bottom-0 -mx-1 flex justify-end gap-2 bg-zoru-bg/95 px-1 py-3 backdrop-blur">
+          <div className="sticky bottom-0 -mx-1 flex justify-end gap-2 bg-[var(--st-bg)]/95 px-1 py-3 backdrop-blur">
             <Button type="submit" disabled={isSaving}>
               {isSaving ? (
                 <LoaderCircle

@@ -131,8 +131,8 @@ export function InboxV2Client({
     return (
         <div className="grid h-[calc(100vh-12rem)] grid-cols-12 gap-3">
             {/* Inbox + filter rail */}
-            <aside className="col-span-2 flex flex-col gap-2 overflow-y-auto rounded border bg-zoru-surface p-2">
-                <div className="text-xs font-semibold uppercase text-zoru-ink-muted">Inboxes</div>
+            <aside className="col-span-2 flex flex-col gap-2 overflow-y-auto rounded border bg-[var(--st-bg-secondary)] p-2">
+                <div className="text-xs font-semibold uppercase text-[var(--st-text-secondary)]">Inboxes</div>
                 {inboxes.map((ix) => (
                     <Button
                         key={ix._id}
@@ -147,7 +147,7 @@ export function InboxV2Client({
                         </Badge>
                     </Button>
                 ))}
-                <div className="mt-3 text-xs font-semibold uppercase text-zoru-ink-muted">Status</div>
+                <div className="mt-3 text-xs font-semibold uppercase text-[var(--st-text-secondary)]">Status</div>
                 {STATUSES.map((s) => (
                     <Button
                         key={s}
@@ -162,9 +162,9 @@ export function InboxV2Client({
             </aside>
 
             {/* Conversation list */}
-            <section className="col-span-3 overflow-y-auto rounded border bg-zoru-surface">
+            <section className="col-span-3 overflow-y-auto rounded border bg-[var(--st-bg-secondary)]">
                 {conversations.length === 0 ? (
-                    <div className="p-6 text-center text-sm text-zoru-ink-muted">
+                    <div className="p-6 text-center text-sm text-[var(--st-text-secondary)]">
                         No conversations.
                     </div>
                 ) : (
@@ -172,15 +172,15 @@ export function InboxV2Client({
                         {conversations.map((c) => (
                             <li
                                 key={c._id}
-                                className={`cursor-pointer p-3 hover:bg-zoru-surface-2 ${
-                                    c._id === selectedId ? 'bg-zoru-surface-2' : ''
+                                className={`cursor-pointer p-3 hover:bg-[var(--st-bg-muted)] ${
+                                    c._id === selectedId ? 'bg-[var(--st-bg-muted)]' : ''
                                 }`}
                                 onClick={() => {
                                     setSelectedId(c._id);
                                     updateUrl({ selected: c._id });
                                 }}
                             >
-                                <div className="flex items-center justify-between text-xs text-zoru-ink-muted">
+                                <div className="flex items-center justify-between text-xs text-[var(--st-text-secondary)]">
                                     <span>{c.priority}</span>
                                     <span>
                                         {c.lastMessageAt
@@ -210,22 +210,22 @@ export function InboxV2Client({
             </section>
 
             {/* Timeline + composer */}
-            <main className="col-span-5 flex flex-col rounded border bg-zoru-surface overflow-hidden">
+            <main className="col-span-5 flex flex-col rounded border bg-[var(--st-bg-secondary)] overflow-hidden">
                 {/* Tabs Bar */}
                 {activeTabs.length > 0 && (
-                    <div className="flex bg-zoru-surface-2/50 border-b overflow-x-auto">
+                    <div className="flex bg-[var(--st-bg-muted)]/50 border-b overflow-x-auto">
                         {activeTabs.map(tabId => {
                             const tConv = conversations.find(c => c._id === tabId);
                             const title = tConv ? (tConv.lastMessagePreview ? tConv.lastMessagePreview.slice(0, 15) + '...' : `Conv ${tabId.slice(-6)}`) : tabId.slice(-6);
                             return (
                                 <div
                                     key={tabId}
-                                    className={`group flex items-center gap-2 px-3 py-2 text-sm border-r cursor-pointer ${selectedId === tabId ? 'bg-zoru-surface font-medium border-b-2 border-b-primary' : 'hover:bg-zoru-surface-2'}`}
+                                    className={`group flex items-center gap-2 px-3 py-2 text-sm border-r cursor-pointer ${selectedId === tabId ? 'bg-[var(--st-bg-secondary)] font-medium border-b-2 border-b-primary' : 'hover:bg-[var(--st-bg-muted)]'}`}
                                     onClick={() => { setSelectedId(tabId); updateUrl({ selected: tabId }); }}
                                 >
                                     <span>{title}</span>
                                     <button
-                                        className="opacity-0 group-hover:opacity-100 p-0.5 rounded-full hover:bg-zoru-surface-2"
+                                        className="opacity-0 group-hover:opacity-100 p-0.5 rounded-full hover:bg-[var(--st-bg-muted)]"
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             const newTabs = activeTabs.filter(id => id !== tabId);
@@ -304,9 +304,9 @@ export function InboxV2Client({
                                     <div
                                         className={`max-w-[70%] rounded-lg px-3 py-2 text-sm ${
                                             m.direction === 'outbound'
-                                                ? 'bg-zoru-ink text-white'
-                                                : 'bg-zoru-surface-2'
-                                        } ${m.private ? 'border-2 border-dashed border-zoru-line' : ''}`}
+                                                ? 'bg-[var(--st-text)] text-white'
+                                                : 'bg-[var(--st-bg-muted)]'
+                                        } ${m.private ? 'border-2 border-dashed border-[var(--st-border)]' : ''}`}
                                     >
                                         {renderContent(m.content)}
                                         <div className="mt-1 text-[10px] opacity-70">
@@ -316,7 +316,7 @@ export function InboxV2Client({
                                 </div>
                             ))}
                             {messages.length === 0 ? (
-                                <div className="py-8 text-center text-xs text-zoru-ink-muted">
+                                <div className="py-8 text-center text-xs text-[var(--st-text-secondary)]">
                                     No messages yet.
                                 </div>
                             ) : null}
@@ -341,7 +341,7 @@ export function InboxV2Client({
                         </footer>
                     </>
                 ) : (
-                    <div className="flex flex-1 items-center justify-center text-sm text-zoru-ink-muted">
+                    <div className="flex flex-1 items-center justify-center text-sm text-[var(--st-text-secondary)]">
                         Pick a conversation.
                     </div>
                 )}

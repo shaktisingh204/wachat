@@ -14,7 +14,7 @@ export default function RequestsLayout({
     return (
         <ZoruProvider>
             <div className="zoruui flex flex-col">
-                <nav className="flex gap-4 border-b border-zoru-line px-6 py-2 text-sm">
+                <nav className="flex gap-4 border-b border-[var(--st-border)] px-6 py-2 text-sm">
                     <Link
                         href="/dashboard/sabrequests"
                         className="hover:underline"

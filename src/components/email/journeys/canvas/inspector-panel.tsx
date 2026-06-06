@@ -57,7 +57,7 @@ export function InspectorPanel({ node, onChange }: InspectorPanelProps) {
   if (!node) {
     return (
       <Card className="p-4">
-        <p className="text-sm text-zoru-ink-muted">Select a step to edit its details.</p>
+        <p className="text-sm text-[var(--st-text-secondary)]">Select a step to edit its details.</p>
       </Card>
     );
   }
@@ -69,10 +69,10 @@ export function InspectorPanel({ node, onChange }: InspectorPanelProps) {
 
   return (
     <Card className="p-4 space-y-4">
-      <div className="flex items-center gap-2 border-b border-zoru-line pb-3">
+      <div className="flex items-center gap-2 border-b border-[var(--st-border)] pb-3">
         {Icon ? <Icon className={`h-4 w-4 ${meta!.accent}`} /> : null}
         <p className="text-sm font-medium">{meta?.label ?? node.type}</p>
-        <span className="ml-auto text-[10px] text-zoru-ink-muted">{node.id}</span>
+        <span className="ml-auto text-[10px] text-[var(--st-text-secondary)]">{node.id}</span>
       </div>
 
       <div className="space-y-1">
@@ -123,7 +123,7 @@ export function InspectorPanel({ node, onChange }: InspectorPanelProps) {
               onChange={(e) => patchData({ emailTemplateId: e.target.value })}
               placeholder="email_template:..."
             />
-            <p className="text-[11px] text-zoru-ink-muted">Pick a template from the Templates tab and paste its id.</p>
+            <p className="text-[11px] text-[var(--st-text-secondary)]">Pick a template from the Templates tab and paste its id.</p>
           </div>
         </>
       ) : null}
@@ -228,7 +228,7 @@ export function InspectorPanel({ node, onChange }: InspectorPanelProps) {
       ) : null}
 
       {node.type === 'exit' ? (
-        <p className="text-sm text-zoru-ink-muted">Subscribers reaching this step leave the journey.</p>
+        <p className="text-sm text-[var(--st-text-secondary)]">Subscribers reaching this step leave the journey.</p>
       ) : null}
     </Card>
   );

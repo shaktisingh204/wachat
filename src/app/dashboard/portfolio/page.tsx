@@ -112,7 +112,7 @@ function DomainMappingDialog({ site, onUpdate }: { site: WithId<Website>, onUpda
               />
             </div>
             {site.customDomain && (
-              <div className="text-sm text-zoru-ink-muted bg-zoru-surface-hover p-3 rounded-md">
+              <div className="text-sm text-[var(--st-text-secondary)] bg-[var(--st-hover)] p-3 rounded-md">
                 <strong>Important:</strong> Please ensure you have added a CNAME or A record in your DNS settings pointing to our servers before linking.
               </div>
             )}
@@ -143,12 +143,12 @@ function SiteCard({ site, onUpdate }: { site: WithId<Website>, onUpdate: () => v
       </ZoruCardHeader>
       <ZoruCardContent className="flex-grow space-y-4">
         <div>
-          <p className="text-sm text-zoru-ink-muted">
+          <p className="text-sm text-[var(--st-text-secondary)]">
             Created: {fmtDate(site.createdAt)}
           </p>
           {site.customDomain && (
             <p className="text-sm font-medium mt-1">
-              Domain: <a href={`https://${site.customDomain}`} target="_blank" rel="noreferrer" className="text-zoru-brand hover:underline">{site.customDomain}</a>
+              Domain: <a href={`https://${site.customDomain}`} target="_blank" rel="noreferrer" className="text-[var(--st-accent)] hover:underline">{site.customDomain}</a>
             </p>
           )}
         </div>
@@ -204,7 +204,7 @@ export default function WebsiteBuilderDashboard() {
             </ZoruPageDescription>
           </ZoruPageHeading>
         </PageHeader>
-        <div className="p-4 bg-zoru-surface-2 text-zoru-ink rounded-md border border-zoru-line">
+        <div className="p-4 bg-[var(--st-bg-muted)] text-[var(--st-text)] rounded-md border border-[var(--st-border)]">
           <p className="font-semibold">Error</p>
           <p>{error}</p>
           <Button variant="outline" className="mt-4" onClick={fetchData}>

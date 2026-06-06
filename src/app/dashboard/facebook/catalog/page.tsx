@@ -131,8 +131,8 @@ export default function FacebookCatalogPage(): React.JSX.Element {
 
       <header className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl text-zoru-ink">Catalogs</h1>
-          <p className="mt-1 text-sm text-zoru-ink-muted">
+          <h1 className="text-2xl text-[var(--st-text)]">Catalogs</h1>
+          <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
             Product catalogs owned by the connected Meta Business. Backed by{' '}
             <code>meta-suite</code>.
           </p>
@@ -199,15 +199,15 @@ export default function FacebookCatalogPage(): React.JSX.Element {
             <Card key={c.id} className="flex flex-col gap-3 p-5">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="line-clamp-1 text-base text-zoru-ink">{c.name}</p>
-                  <p className="font-mono text-[11px] text-zoru-ink-muted">{c.id}</p>
+                  <p className="line-clamp-1 text-base text-[var(--st-text)]">{c.name}</p>
+                  <p className="font-mono text-[11px] text-[var(--st-text-secondary)]">{c.id}</p>
                 </div>
                 <Badge variant="ghost">
                   <Package className="mr-1 h-3 w-3" />
                   {c.product_count ?? 0}
                 </Badge>
               </div>
-              <footer className="flex justify-end border-t border-zoru-line pt-3">
+              <footer className="flex justify-end border-t border-[var(--st-border)] pt-3">
                 <Button asChild size="sm">
                   <Link
                     href={`/dashboard/facebook/commerce/products/${encodeURIComponent(c.id)}`}

@@ -32,7 +32,7 @@ export function TestimonialsBlockRenderer({ settings }: { settings: any }) {
             {(settings.testimonials || []).map((item: any) => (
                 <Card key={item.id} className="flex flex-col">
                     <ZoruCardContent className="p-6 flex-grow">
-                        <p className="italic text-zoru-ink-muted">"{item.quote}"</p>
+                        <p className="italic text-[var(--st-text-secondary)]">"{item.quote}"</p>
                     </ZoruCardContent>
                     <ZoruCardFooter className="flex items-center gap-4 mt-auto">
                         <Avatar>
@@ -43,7 +43,7 @@ export function TestimonialsBlockRenderer({ settings }: { settings: any }) {
                         </Avatar>
                         <div>
                             <p className="font-semibold">{item.author}</p>
-                            <p className="text-sm text-zoru-ink-muted">{item.title}</p>
+                            <p className="text-sm text-[var(--st-text-secondary)]">{item.title}</p>
                         </div>
                     </ZoruCardFooter>
                 </Card>

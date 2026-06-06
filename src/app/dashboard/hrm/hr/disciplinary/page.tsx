@@ -122,42 +122,42 @@ async function DisciplinaryPageContainer() {
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         <Card className="p-3">
-          <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+          <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
             Open
           </div>
-          <div className="mt-1 text-[20px] font-semibold leading-tight text-zoru-warning-ink">
+          <div className="mt-1 text-[20px] font-semibold leading-tight text-[var(--st-warn)]">
             {open}
           </div>
         </Card>
         <Card className="p-3">
-          <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+          <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
             Under review
           </div>
-          <div className="mt-1 text-[20px] font-semibold leading-tight text-zoru-ink">
+          <div className="mt-1 text-[20px] font-semibold leading-tight text-[var(--st-text)]">
             {underReview}
           </div>
         </Card>
         <Card className="p-3">
-          <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+          <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
             Closed
           </div>
-          <div className="mt-1 text-[20px] font-semibold leading-tight text-zoru-success-ink">
+          <div className="mt-1 text-[20px] font-semibold leading-tight text-[var(--st-status-ok)]">
             {closed}
           </div>
         </Card>
         <Card className="p-3">
-          <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+          <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
             Critical / high
           </div>
-          <div className="mt-1 text-[20px] font-semibold leading-tight text-zoru-danger-ink">
+          <div className="mt-1 text-[20px] font-semibold leading-tight text-[var(--st-danger)]">
             {critical}
           </div>
         </Card>
         <Card className="p-3">
-          <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+          <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
             Avg resolution
           </div>
-          <div className="mt-1 text-[20px] font-semibold leading-tight text-zoru-ink">
+          <div className="mt-1 text-[20px] font-semibold leading-tight text-[var(--st-text)]">
             {avgResolutionDays === '—' ? '—' : `${avgResolutionDays}d`}
           </div>
         </Card>
@@ -165,30 +165,30 @@ async function DisciplinaryPageContainer() {
 
       <Card className="p-6">
         <div className="mb-4">
-          <h2 className="text-[16px] text-zoru-ink">All cases</h2>
-          <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+          <h2 className="text-[16px] text-[var(--st-text)]">All cases</h2>
+          <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">
             Confidential register of disciplinary cases logged across the company.
           </p>
         </div>
-        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+        <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
           <Table>
             <ZoruTableHeader>
-              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                <ZoruTableHead className="text-zoru-ink-muted">Case no.</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Employee</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Severity</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Type</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Raised by</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Decision</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
+              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Case no.</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Employee</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Severity</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Type</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Raised by</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Decision</ZoruTableHead>
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
               </ZoruTableRow>
             </ZoruTableHeader>
             <ZoruTableBody>
               {loadError ? (
-                <ZoruTableRow className="border-zoru-line">
+                <ZoruTableRow className="border-[var(--st-border)]">
                   <ZoruTableCell
                     colSpan={7}
-                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                    className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     Could not load disciplinary cases. Please try again.
                   </ZoruTableCell>
@@ -213,8 +213,8 @@ async function DisciplinaryPageContainer() {
                       : (c.raisedById as any)?.toString?.()) ||
                     '—';
                   return (
-                    <ZoruTableRow key={idStr} className="border-zoru-line">
-                      <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
+                    <ZoruTableRow key={idStr} className="border-[var(--st-border)]">
+                      <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
                         <Link
                           href={`/dashboard/hrm/hr/disciplinary/${idStr}`}
                           className="hover:underline"
@@ -222,15 +222,15 @@ async function DisciplinaryPageContainer() {
                           {caseNo}
                         </Link>
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink">{employee}</ZoruTableCell>
+                      <ZoruTableCell className="text-[var(--st-text)]">{employee}</ZoruTableCell>
                       <ZoruTableCell>
                         <Badge variant={getStatusVariant(c.severity)}>
                           {c.severity || 'minor'}
                         </Badge>
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink">{c.type || '—'}</ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink">{raisedBy}</ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink">
+                      <ZoruTableCell className="text-[var(--st-text)]">{c.type || '—'}</ZoruTableCell>
+                      <ZoruTableCell className="text-[var(--st-text)]">{raisedBy}</ZoruTableCell>
+                      <ZoruTableCell className="text-[var(--st-text)]">
                         {c.decision || '—'}
                       </ZoruTableCell>
                       <ZoruTableCell>
@@ -242,10 +242,10 @@ async function DisciplinaryPageContainer() {
                   );
                 })
               ) : (
-                <ZoruTableRow className="border-zoru-line">
+                <ZoruTableRow className="border-[var(--st-border)]">
                   <ZoruTableCell
                     colSpan={7}
-                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                    className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     No disciplinary cases yet. Log an incident to start a confidential trail.
                   </ZoruTableCell>

@@ -40,7 +40,7 @@ export function RedirectSettings({ block, onBlockChange, variables: _variables =
         </div>
         <p className="text-[11px] text-[var(--gray-8)] mt-1">
           Use{' '}
-          <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-zoru-ink">
+          <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-[var(--st-text)]">
             {'{{variable}}'}
           </code>{' '}
           to insert a dynamic URL.

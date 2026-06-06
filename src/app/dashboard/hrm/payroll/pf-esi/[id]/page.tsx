@@ -88,56 +88,56 @@ export default async function PfEsiDetailPage({
 
             <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
-                    <div className="text-[14px] font-medium text-zoru-ink">Overview</div>
+                    <div className="text-[14px] font-medium text-[var(--st-text)]">Overview</div>
                     <StatusPill label={status} tone={tone} />
                 </div>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-3">
                     <div>
-                        <div className="text-zoru-ink-muted">PF employer share</div>
-                        <div className="font-mono text-zoru-ink">{inr(row.pfEmployer)}</div>
+                        <div className="text-[var(--st-text-secondary)]">PF employer share</div>
+                        <div className="font-mono text-[var(--st-text)]">{inr(row.pfEmployer)}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">PF employee share</div>
-                        <div className="font-mono text-zoru-ink">{inr(row.pfEmployee)}</div>
+                        <div className="text-[var(--st-text-secondary)]">PF employee share</div>
+                        <div className="font-mono text-[var(--st-text)]">{inr(row.pfEmployee)}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">UAN</div>
-                        <div className="font-mono text-[12px] text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">UAN</div>
+                        <div className="font-mono text-[12px] text-[var(--st-text)]">
                             {(row.pfUan as string | undefined) ?? '—'}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">ESI employer share</div>
-                        <div className="font-mono text-zoru-ink">{inr(row.esiEmployer)}</div>
+                        <div className="text-[var(--st-text-secondary)]">ESI employer share</div>
+                        <div className="font-mono text-[var(--st-text)]">{inr(row.esiEmployer)}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">ESI employee share</div>
-                        <div className="font-mono text-zoru-ink">{inr(row.esiEmployee)}</div>
+                        <div className="text-[var(--st-text-secondary)]">ESI employee share</div>
+                        <div className="font-mono text-[var(--st-text)]">{inr(row.esiEmployee)}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">ESI IC number</div>
-                        <div className="font-mono text-[12px] text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">ESI IC number</div>
+                        <div className="font-mono text-[12px] text-[var(--st-text)]">
                             {(row.esiIcNumber as string | undefined) ?? '—'}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Challan number</div>
-                        <div className="font-mono text-[12px] text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Challan number</div>
+                        <div className="font-mono text-[12px] text-[var(--st-text)]">
                             {(row.challanNumber as string | undefined) ?? '—'}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Deposit date</div>
-                        <div className="text-zoru-ink">{fmtDate(row.depositDate)}</div>
+                        <div className="text-[var(--st-text-secondary)]">Deposit date</div>
+                        <div className="text-[var(--st-text)]">{fmtDate(row.depositDate)}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Employee ID</div>
-                        <div className="font-mono text-[12px] text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Employee ID</div>
+                        <div className="font-mono text-[12px] text-[var(--st-text)]">
                             {(row.employeeId as string | undefined) ?? '—'}
                         </div>
                     </div>
                     <div className="sm:col-span-3">
-                        <div className="mb-2 text-zoru-ink-muted">Scanned Challan</div>
+                        <div className="mb-2 text-[var(--st-text-secondary)]">Scanned Challan</div>
                         <div className="max-w-md">
                             <ChallanUploader
                                 recordId={id}
@@ -147,8 +147,8 @@ export default async function PfEsiDetailPage({
                     </div>
                     {row.notes ? (
                         <div className="sm:col-span-3">
-                            <div className="text-zoru-ink-muted">Notes</div>
-                            <div className="whitespace-pre-wrap text-zoru-ink">
+                            <div className="text-[var(--st-text-secondary)]">Notes</div>
+                            <div className="whitespace-pre-wrap text-[var(--st-text)]">
                                 {row.notes as string}
                             </div>
                         </div>

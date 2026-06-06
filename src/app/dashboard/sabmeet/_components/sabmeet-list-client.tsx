@@ -55,22 +55,22 @@ export function MeetingsListClient({ upcoming, past }: MeetingsListClientProps) 
       </PageHeader>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="inline-flex rounded-md border border-zoru-line p-1 bg-zoru-surface">
+        <div className="inline-flex rounded-md border border-[var(--st-border)] p-1 bg-[var(--st-bg-secondary)]">
           <button
             onClick={() => setView('upcoming')}
-            className={`px-3 py-1.5 text-sm rounded ${view === 'upcoming' ? 'bg-zoru-bg text-zoru-ink shadow-sm' : 'text-zoru-ink-muted'}`}
+            className={`px-3 py-1.5 text-sm rounded ${view === 'upcoming' ? 'bg-[var(--st-bg)] text-[var(--st-text)] shadow-sm' : 'text-[var(--st-text-secondary)]'}`}
           >
             Upcoming
           </button>
           <button
             onClick={() => setView('past')}
-            className={`px-3 py-1.5 text-sm rounded ${view === 'past' ? 'bg-zoru-bg text-zoru-ink shadow-sm' : 'text-zoru-ink-muted'}`}
+            className={`px-3 py-1.5 text-sm rounded ${view === 'past' ? 'bg-[var(--st-bg)] text-[var(--st-text)] shadow-sm' : 'text-[var(--st-text-secondary)]'}`}
           >
             Past
           </button>
         </div>
         <div className="relative max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zoru-ink-muted" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--st-text-secondary)]" />
           <Input
             value={search}
             onChange={e => setSearch(e.target.value)}
@@ -116,7 +116,7 @@ function MeetingCard({ room }: { room: MeetRoom }) {
           : 'outline';
 
   return (
-    <Card className="hover:border-zoru-brand transition-colors">
+    <Card className="hover:border-[var(--st-accent)] transition-colors">
       <CardHeader>
         <div className="flex items-start justify-between gap-2">
           <CardTitle className="text-base">{room.name}</CardTitle>
@@ -128,21 +128,21 @@ function MeetingCard({ room }: { room: MeetRoom }) {
       </CardHeader>
       <CardContent className="space-y-2 text-sm">
         {start ? (
-          <div className="flex items-center gap-2 text-zoru-ink-muted">
+          <div className="flex items-center gap-2 text-[var(--st-text-secondary)]">
             <Clock className="h-4 w-4" />
             <span>{start.toLocaleString()}</span>
           </div>
         ) : (
-          <div className="flex items-center gap-2 text-zoru-ink-muted">
+          <div className="flex items-center gap-2 text-[var(--st-text-secondary)]">
             <Video className="h-4 w-4" />
             <span>Instant meeting</span>
           </div>
         )}
-        <div className="flex items-center gap-2 text-zoru-ink-muted">
+        <div className="flex items-center gap-2 text-[var(--st-text-secondary)]">
           <Users className="h-4 w-4" />
           <span>{(room.inviteeEmails ?? []).length} invitee(s)</span>
         </div>
-        <div className="text-xs text-zoru-ink-muted">
+        <div className="text-xs text-[var(--st-text-secondary)]">
           Join code: <code className="font-mono">{room.joinCode}</code>
         </div>
         <div className="flex gap-2 pt-2">

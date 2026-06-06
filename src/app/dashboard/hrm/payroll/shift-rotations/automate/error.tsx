@@ -16,8 +16,8 @@ export default function AutomateError({
 
   return (
     <div className="flex h-full flex-col items-center justify-center gap-4 p-8 text-center">
-      <h2 className="text-lg font-medium text-zoru-ink">Failed to load Automate Shift data</h2>
-      <p className="text-sm text-zoru-ink-muted">{error.message}</p>
+      <h2 className="text-lg font-medium text-[var(--st-text)]">Failed to load Automate Shift data</h2>
+      <p className="text-sm text-[var(--st-text-secondary)]">{error.message}</p>
       <Button onClick={() => reset()}>Try again</Button>
     </div>
   );

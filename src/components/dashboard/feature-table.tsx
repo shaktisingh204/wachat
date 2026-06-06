@@ -47,7 +47,7 @@ export function FeatureTable<T>({
 }: FeatureTableProps<T>) {
   if (isLoading && data.length === 0) {
     return (
-      <div className="flex flex-col gap-2 p-4 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg">
+      <div className="flex flex-col gap-2 p-4 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)]">
         {Array.from({ length: 6 }).map((_, i) => (
           <Skeleton key={i} className="h-10 w-full" />
         ))}
@@ -57,7 +57,7 @@ export function FeatureTable<T>({
 
   if (data.length === 0) {
     return (
-      <div className="rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg overflow-hidden">
+      <div className="rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] overflow-hidden">
         <EmptyState
           icon={emptyIcon}
           title={emptyTitle}
@@ -70,9 +70,9 @@ export function FeatureTable<T>({
   }
 
   return (
-    <div className="rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg overflow-hidden flex flex-col">
+    <div className="rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] overflow-hidden flex flex-col">
       {onExportCsv && (
-        <div className="flex items-center justify-end border-b border-zoru-line bg-zoru-surface/50 p-2">
+        <div className="flex items-center justify-end border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 p-2">
           <Button variant="ghost" size="sm" onClick={onExportCsv} className="h-8 text-xs">
             <Download className="mr-2 h-3.5 w-3.5" /> Export CSV
           </Button>
@@ -81,7 +81,7 @@ export function FeatureTable<T>({
       
       <div className="overflow-x-auto">
         <Table className="w-full text-[13px]">
-          <ZoruTableHeader className="border-b border-zoru-line bg-zoru-surface text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+          <ZoruTableHeader className="border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
             <ZoruTableRow className="hover:bg-transparent">
               {columns.map((col, i) => (
                 <ZoruTableHead key={i} className={col.className}>
@@ -90,9 +90,9 @@ export function FeatureTable<T>({
               ))}
             </ZoruTableRow>
           </ZoruTableHeader>
-          <ZoruTableBody className="divide-y divide-zoru-line">
+          <ZoruTableBody className="divide-y divide-[var(--st-border)]">
             {data.map((row, i) => (
-              <ZoruTableRow key={i} className="transition-colors hover:bg-zoru-surface">
+              <ZoruTableRow key={i} className="transition-colors hover:bg-[var(--st-bg-secondary)]">
                 {columns.map((col, j) => (
                   <ZoruTableCell key={j} className={col.className}>
                     {col.cell(row)}
@@ -105,8 +105,8 @@ export function FeatureTable<T>({
       </div>
 
       {(totalPages && totalPages > 1) ? (
-        <div className="flex items-center justify-between gap-3 border-t border-zoru-line p-4">
-          <span className="text-[11.5px] tabular-nums text-zoru-ink-muted">
+        <div className="flex items-center justify-between gap-3 border-t border-[var(--st-border)] p-4">
+          <span className="text-[11.5px] tabular-nums text-[var(--st-text-secondary)]">
             Page {currentPage} of {totalPages} {totalItems !== undefined && `· ${totalItems.toLocaleString()} items`}
           </span>
           <div className="flex items-center gap-2">

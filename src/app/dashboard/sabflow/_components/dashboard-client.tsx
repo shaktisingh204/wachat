@@ -254,22 +254,22 @@ export function DashboardClient({ initialData }: { initialData: any }) {
                          </Button>
                       )}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-zoru-ink-muted whitespace-nowrap">
+                    <ZoruTableCell className="text-right text-[var(--st-text-secondary)] whitespace-nowrap">
                       {activity.time}
                     </ZoruTableCell>
                   </ZoruTableRow>
                 ))}
                 {recentActivity.length === 0 && (
                   <ZoruTableRow>
-                     <ZoruTableCell colSpan={4} className="text-center text-zoru-ink-muted py-4">
+                     <ZoruTableCell colSpan={4} className="text-center text-[var(--st-text-secondary)] py-4">
                         No recent activity.
                      </ZoruTableCell>
                   </ZoruTableRow>
                 )}
               </ZoruTableBody>
             </Table>
-            <div className="p-4 pt-2 border-t border-zoru-line mt-2 flex justify-center">
-              <Button variant="ghost" size="sm" className="w-full text-zoru-ink-muted">
+            <div className="p-4 pt-2 border-t border-[var(--st-border)] mt-2 flex justify-center">
+              <Button variant="ghost" size="sm" className="w-full text-[var(--st-text-secondary)]">
                 View All Activity
               </Button>
             </div>

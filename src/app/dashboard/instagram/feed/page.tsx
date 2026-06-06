@@ -123,7 +123,7 @@ export default function InstagramFeedPage() {
           {media.map((item) => (
             <Card key={item.id} className="flex flex-col p-0">
               <ZoruCardHeader>
-                <p className="text-xs text-zoru-ink-muted">
+                <p className="text-xs text-[var(--st-text-secondary)]">
                   {formatDistanceToNow(new Date(item.timestamp), { addSuffix: true })}
                 </p>
               </ZoruCardHeader>
@@ -148,7 +148,7 @@ export default function InstagramFeedPage() {
                 </div>
                 <p className="text-sm line-clamp-3">{item.caption}</p>
               </ZoruCardContent>
-              <ZoruCardFooter className="flex justify-between items-center text-sm text-zoru-ink-muted">
+              <ZoruCardFooter className="flex justify-between items-center text-sm text-[var(--st-text-secondary)]">
                 <div className="flex gap-4">
                   <span className="flex items-center gap-1">
                     <ThumbsUp className="h-4 w-4" /> {item.like_count}

@@ -72,15 +72,15 @@ export function CrmImportContactsDialog({ onImported }: CrmImportContactsDialogP
       <ZoruDialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden p-0">
         <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
           <ZoruDialogHeader className="px-6 pt-6 pb-2">
-            <ZoruDialogTitle className="text-zoru-ink">Import Contacts</ZoruDialogTitle>
-            <ZoruDialogDescription className="text-zoru-ink-muted">
+            <ZoruDialogTitle className="text-[var(--st-text)]">Import Contacts</ZoruDialogTitle>
+            <ZoruDialogDescription className="text-[var(--st-text-secondary)]">
               Upload a CSV or XLSX file. Ensure columns match: `name`, `email`, `phone`, `company`, `jobTitle`, `status`, `leadScore`.
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="grid gap-4">
               <div className="space-y-2">
-                <Label htmlFor="contactFile" className="text-zoru-ink">File</Label>
+                <Label htmlFor="contactFile" className="text-[var(--st-text)]">File</Label>
                 <Input id="contactFile" name="contactFile" type="file" accept=".csv,.xlsx" required />
               </div>
             </div>

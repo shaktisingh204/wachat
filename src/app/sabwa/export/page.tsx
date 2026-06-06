@@ -238,14 +238,14 @@ export default function ExportPage() {
       </Breadcrumb>
 
       <div className="flex items-start gap-3">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface text-zoru-ink">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
           <Download className="h-5 w-5" />
         </div>
         <div>
-          <h1 className="text-[24px] leading-[1.2] tracking-[-0.015em] text-zoru-ink">
+          <h1 className="text-[24px] leading-[1.2] tracking-[-0.015em] text-[var(--st-text)]">
             Export / Backup
           </h1>
-          <p className="mt-1 text-[13px] text-zoru-ink-muted">
+          <p className="mt-1 text-[13px] text-[var(--st-text-secondary)]">
             Run background exports of selected chats and download from a signed
             R2 link when ready.
           </p>
@@ -263,13 +263,13 @@ export default function ExportPage() {
           </ZoruCardHeader>
           <ZoruCardContent className="space-y-5">
             <div className="space-y-2">
-              <Label className="text-xs uppercase tracking-wide text-zoru-ink-muted">
+              <Label className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Scope
               </Label>
               <div
                 role="group"
                 aria-label="Export scope"
-                className="inline-flex flex-wrap gap-1 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-1"
+                className="inline-flex flex-wrap gap-1 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1"
               >
                 {SCOPE_OPTIONS.map((opt) => (
                   <Button
@@ -291,7 +291,7 @@ export default function ExportPage() {
                     value={jidsRaw}
                     onChange={(e) => setJidsRaw(e.target.value)}
                   />
-                  <p className="text-[11px] text-zoru-ink-muted">
+                  <p className="text-[11px] text-[var(--st-text-secondary)]">
                     Paste JIDs directly to include them in this export.
                   </p>
                   {(() => {
@@ -301,7 +301,7 @@ export default function ExportPage() {
                       .filter(Boolean);
                     if (pasted.length === 0) return null;
                     return (
-                      <ul className="mt-1 max-h-32 overflow-y-auto rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-2 text-[11px]">
+                      <ul className="mt-1 max-h-32 overflow-y-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2 text-[11px]">
                         {pasted.map((jid) => {
                           const resolved = resolve(jid);
                           const pretty = formatJid(jid);
@@ -310,11 +310,11 @@ export default function ExportPage() {
                               key={jid}
                               className="flex items-center gap-2 py-0.5"
                             >
-                              <span className="truncate text-zoru-ink">
+                              <span className="truncate text-[var(--st-text)]">
                                 {resolved}
                               </span>
                               {resolved !== pretty && (
-                                <span className="truncate font-mono text-[10px] text-zoru-ink-muted">
+                                <span className="truncate font-mono text-[10px] text-[var(--st-text-secondary)]">
                                   · {pretty}
                                 </span>
                               )}
@@ -343,7 +343,7 @@ export default function ExportPage() {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-xs uppercase tracking-wide text-zoru-ink-muted">
+              <Label className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Format
               </Label>
               <RadioGroup
@@ -356,7 +356,7 @@ export default function ExportPage() {
                     <Label
                       key={key}
                       htmlFor={`fmt-${key}`}
-                      className="flex cursor-pointer items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 py-2 text-sm text-zoru-ink hover:bg-zoru-surface"
+                      className="flex cursor-pointer items-center gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]"
                     >
                       <ZoruRadioGroupItem id={`fmt-${key}`} value={key} />
                       <span>{FORMAT_LABELS[key]}</span>
@@ -377,7 +377,7 @@ export default function ExportPage() {
                 className="text-sm font-normal leading-tight"
               >
                 Include media attachments
-                <span className="mt-0.5 block text-[11px] text-zoru-ink-muted">
+                <span className="mt-0.5 block text-[11px] text-[var(--st-text-secondary)]">
                   Bundled into the archive — file size can grow quickly.
                 </span>
               </Label>

@@ -20,13 +20,13 @@ export default function DashboardsError({
     return (
         <div className="flex h-full w-full flex-col items-center justify-center p-6 sm:p-8">
             <Card className="flex max-w-md flex-col items-center p-8 text-center shadow-sm">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2/50 text-zoru-ink mb-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)]/50 text-[var(--st-text)] mb-4">
                     <AlertCircle className="h-6 w-6" />
                 </div>
-                <h2 className="mb-2 text-xl font-semibold text-zoru-ink">
+                <h2 className="mb-2 text-xl font-semibold text-[var(--st-text)]">
                     Failed to load Dashboards
                 </h2>
-                <p className="mb-6 text-sm text-zoru-ink-muted">
+                <p className="mb-6 text-sm text-[var(--st-text-secondary)]">
                     {error.message || 'An unexpected error occurred while loading this module.'}
                 </p>
                 <div className="flex gap-3">

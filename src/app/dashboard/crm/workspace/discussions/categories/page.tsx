@@ -408,7 +408,7 @@ export default function DiscussionCategoriesPage(): React.JSX.Element {
         bulkBar={
           selected.size > 0 ? (
             <div className="flex items-center justify-between gap-3">
-              <span className="text-[13px] text-zoru-ink">
+              <span className="text-[13px] text-[var(--st-text)]">
                 {selected.size} selected
               </span>
               <div className="flex gap-2">
@@ -433,8 +433,8 @@ export default function DiscussionCategoriesPage(): React.JSX.Element {
         empty={
           !loading && rows.length === 0 ? (
             <div className="flex flex-col items-center gap-2 p-4">
-              <Folder className="h-5 w-5 text-zoru-ink-muted" />
-              <p className="text-sm text-zoru-ink-muted">
+              <Folder className="h-5 w-5 text-[var(--st-text-secondary)]" />
+              <p className="text-sm text-[var(--st-text-secondary)]">
                 No categories yet — click <strong>New category</strong> above.
               </p>
             </div>
@@ -464,15 +464,15 @@ export default function DiscussionCategoriesPage(): React.JSX.Element {
           <div className="flex justify-end pb-1">
             <Link
               href="/dashboard/crm/workspace/discussions"
-              className="inline-flex items-center gap-1 text-[12.5px] text-zoru-ink-muted hover:underline"
+              className="inline-flex items-center gap-1 text-[12.5px] text-[var(--st-text-secondary)] hover:underline"
             >
               <ArrowLeft className="h-3 w-3" /> Back to discussions
             </Link>
           </div>
 
-          <div className="overflow-x-auto rounded-[var(--zoru-radius-lg)] border border-zoru-line">
+          <div className="overflow-x-auto rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)]">
             <table className="w-full min-w-[720px] text-[13px]">
-              <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
+              <thead className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                 <tr>
                   <th className="w-8 px-3 py-2 text-left">
                     <Checkbox
@@ -494,10 +494,10 @@ export default function DiscussionCategoriesPage(): React.JSX.Element {
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zoru-line bg-zoru-bg">
+              <tbody className="divide-y divide-[var(--st-border)] bg-[var(--st-bg)]">
                 {visible.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="p-6 text-center text-zoru-ink-muted">
+                    <td colSpan={7} className="p-6 text-center text-[var(--st-text-secondary)]">
                       No categories match the current filters.
                     </td>
                   </tr>
@@ -506,7 +506,7 @@ export default function DiscussionCategoriesPage(): React.JSX.Element {
                   const parent = rows.find((x) => x._id === r.parent);
                   const count = discussionCountByCat.get(r._id) ?? 0;
                   return (
-                    <tr key={r._id} className="hover:bg-zoru-surface">
+                    <tr key={r._id} className="hover:bg-[var(--st-bg-secondary)]">
                       <td className="px-3 py-2">
                         <Checkbox
                           checked={selected.has(r._id)}
@@ -527,22 +527,22 @@ export default function DiscussionCategoriesPage(): React.JSX.Element {
                         {r.color ? (
                           <span className="inline-flex items-center gap-2">
                             <span
-                              className="inline-block h-4 w-4 rounded-full border border-zoru-line"
+                              className="inline-block h-4 w-4 rounded-full border border-[var(--st-border)]"
                               style={{ backgroundColor: r.color }}
                             />
-                            <span className="text-[12px] text-zoru-ink-muted">
+                            <span className="text-[12px] text-[var(--st-text-secondary)]">
                               {r.color}
                             </span>
                           </span>
                         ) : (
-                          <span className="text-zoru-ink-muted">—</span>
+                          <span className="text-[var(--st-text-secondary)]">—</span>
                         )}
                       </td>
                       <td className="px-3 py-2">
                         {parent ? (
                           <Badge variant="ghost">{parent.name}</Badge>
                         ) : (
-                          <span className="text-zoru-ink-muted">—</span>
+                          <span className="text-[var(--st-text-secondary)]">—</span>
                         )}
                       </td>
                       <td className="px-3 py-2">
@@ -550,7 +550,7 @@ export default function DiscussionCategoriesPage(): React.JSX.Element {
                           {count}
                         </Badge>
                       </td>
-                      <td className="px-3 py-2 text-zoru-ink-muted">
+                      <td className="px-3 py-2 text-[var(--st-text-secondary)]">
                         {r.description || '—'}
                       </td>
                       <td className="px-3 py-2 text-right">

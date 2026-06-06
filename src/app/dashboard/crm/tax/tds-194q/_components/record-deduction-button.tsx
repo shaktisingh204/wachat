@@ -56,7 +56,7 @@ export function RecordDeductionButton({
         return (
             <button
                 type="button"
-                className="inline-flex h-8 items-center rounded-md border border-zoru-line bg-zoru-surface px-3 text-[12.5px] font-medium text-zoru-ink hover:bg-zoru-surface-2"
+                className="inline-flex h-8 items-center rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 text-[12.5px] font-medium text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
                 onClick={() => setOpen(true)}
                 disabled={suggestedAmount <= 0}
                 title={
@@ -73,9 +73,9 @@ export function RecordDeductionButton({
     return (
         <form
             onSubmit={onSubmit}
-            className="flex flex-col gap-2 rounded-md border border-zoru-line bg-zoru-surface p-2"
+            className="flex flex-col gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2"
         >
-            <div className="flex flex-col gap-1 text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+            <div className="flex flex-col gap-1 text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Bill
                 <EntityFormField
                     entity="vendorBill"
@@ -85,7 +85,7 @@ export function RecordDeductionButton({
                     placeholder="Pick a vendor bill…"
                 />
             </div>
-            <label className="flex flex-col gap-1 text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+            <label className="flex flex-col gap-1 text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Amount (INR)
                 <input
                     type="number"
@@ -93,24 +93,24 @@ export function RecordDeductionButton({
                     min="0.01"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
-                    className="h-8 rounded-md border border-zoru-line bg-zoru-surface px-2 text-[12.5px] text-zoru-ink"
+                    className="h-8 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 text-[12.5px] text-[var(--st-text)]"
                 />
             </label>
             {error ? (
-                <p className="text-[11.5px] text-zoru-ink">{error}</p>
+                <p className="text-[11.5px] text-[var(--st-text)]">{error}</p>
             ) : null}
             <div className="flex gap-2">
                 <button
                     type="submit"
                     disabled={submitting}
-                    className="h-8 flex-1 rounded-md bg-zoru-ink px-3 text-[12.5px] font-medium text-white hover:opacity-90 disabled:opacity-50"
+                    className="h-8 flex-1 rounded-md bg-[var(--st-text)] px-3 text-[12.5px] font-medium text-white hover:opacity-90 disabled:opacity-50"
                 >
                     {submitting ? 'Saving…' : 'Save'}
                 </button>
                 <button
                     type="button"
                     onClick={() => setOpen(false)}
-                    className="h-8 rounded-md border border-zoru-line bg-zoru-surface px-3 text-[12.5px] text-zoru-ink hover:bg-zoru-surface-2"
+                    className="h-8 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 text-[12.5px] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
                 >
                     Cancel
                 </button>

@@ -297,7 +297,7 @@ export default function CustomerListsPage() {
                     <UserPlus className="h-6 w-6" /> Customer list uploader
                     <Badge variant="success">Privacy-safe</Badge>
                 </h1>
-                <p className="text-sm text-zoru-ink-muted mt-1">
+                <p className="text-sm text-[var(--st-text-secondary)] mt-1">
                     Upload {audienceType === 'PHONE' ? 'phone numbers' : 'emails'} to create a Custom Audience. Everything is SHA-256 hashed in your browser before
                     it ever touches the network.
                 </p>
@@ -348,7 +348,7 @@ export default function CustomerListsPage() {
                                 value={audienceType}
                                 onChange={(e) => setAudienceType(e.target.value as any)}
                                 disabled={uploading}
-                                className="flex h-9 w-full rounded-md border border-zoru-line bg-transparent px-3 py-1 text-sm shadow-sm transition-colors"
+                                className="flex h-9 w-full rounded-md border border-[var(--st-border)] bg-transparent px-3 py-1 text-sm shadow-sm transition-colors"
                             >
                                 <option value="EMAIL">Email Only</option>
                                 <option value="PHONE">Phone Number Only</option>
@@ -357,7 +357,7 @@ export default function CustomerListsPage() {
                         </div>
                     </div>
                     <div 
-                        className={`space-y-2 relative rounded-md transition-all ${isDragging ? 'ring-2 ring-zoru-line bg-zoru-surface-2/50' : ''}`}
+                        className={`space-y-2 relative rounded-md transition-all ${isDragging ? 'ring-2 ring-[var(--st-border)] bg-[var(--st-bg-muted)]/50' : ''}`}
                         onDragOver={(e) => { e.preventDefault(); if (!uploading) setIsDragging(true); }}
                         onDragLeave={() => setIsDragging(false)}
                         onDrop={(e) => {
@@ -391,7 +391,7 @@ export default function CustomerListsPage() {
                         />
                         {isDragging && (
                             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                <span className="font-semibold text-zoru-ink bg-white/80 px-4 py-2 rounded-full shadow">Drop CSV here</span>
+                                <span className="font-semibold text-[var(--st-text)] bg-white/80 px-4 py-2 rounded-full shadow">Drop CSV here</span>
                             </div>
                         )}
                     </div>
@@ -406,7 +406,7 @@ export default function CustomerListsPage() {
                     )}
                     
                     <Button
-                        className="bg-zoru-ink hover:bg-zoru-ink/90 text-white relative overflow-hidden"
+                        className="bg-[var(--st-text)] hover:bg-[var(--st-text)]/90 text-white relative overflow-hidden"
                         onClick={upload}
                         disabled={uploading || validItems.length === 0}
                     >

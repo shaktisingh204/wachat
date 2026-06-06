@@ -111,7 +111,7 @@ export function DataRedactionClient({ initialData, total, currentPage, totalPage
       }}
     >
       <div className="mb-4 flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm text-zoru-ink-light">
+        <div className="flex items-center gap-2 text-sm text-[var(--st-text-tertiary)]">
           <span>{total} total policies</span>
         </div>
         
@@ -122,7 +122,7 @@ export function DataRedactionClient({ initialData, total, currentPage, totalPage
                 <Filter className="mr-2 h-4 w-4" />
                 Advanced Activity Log Filters
                 {(statusFilter !== 'all' || targetFieldFilter !== '') && (
-                  <span className="ml-2 rounded-full bg-zoru-ink/20 px-1.5 py-0.5 text-xs font-semibold">
+                  <span className="ml-2 rounded-full bg-[var(--st-text)]/20 px-1.5 py-0.5 text-xs font-semibold">
                     {(statusFilter !== 'all' ? 1 : 0) + (targetFieldFilter !== '' ? 1 : 0)}
                   </span>
                 )}
@@ -132,7 +132,7 @@ export function DataRedactionClient({ initialData, total, currentPage, totalPage
               <div className="grid gap-4">
                 <div className="space-y-2">
                   <h4 className="font-medium leading-none">Advanced Filters</h4>
-                  <p className="text-sm text-zoru-ink-muted">
+                  <p className="text-sm text-[var(--st-text-secondary)]">
                     Filter policies by specific criteria.
                   </p>
                 </div>
@@ -177,7 +177,7 @@ export function DataRedactionClient({ initialData, total, currentPage, totalPage
         </div>
       </div>
 
-      <Card className="border-zoru-line bg-zoru-bg overflow-hidden">
+      <Card className="border-[var(--st-border)] bg-[var(--st-bg)] overflow-hidden">
         <Table>
           <ZoruTableHeader>
             <ZoruTableRow>
@@ -195,17 +195,17 @@ export function DataRedactionClient({ initialData, total, currentPage, totalPage
                 <ZoruTableCell className="font-mono text-sm">{item.targetFields.join(', ')}</ZoruTableCell>
                 <ZoruTableCell>{item.maskPattern}</ZoruTableCell>
                 <ZoruTableCell>
-                  <span className={`px-2 py-1 text-xs rounded-full ${item.status === 'active' ? 'bg-zoru-surface-2 text-zoru-ink' : 'bg-zoru-neutral-hover text-zoru-ink'}`}>
+                  <span className={`px-2 py-1 text-xs rounded-full ${item.status === 'active' ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]' : 'bg-zoru-neutral-hover text-[var(--st-text)]'}`}>
                     {item.status}
                   </span>
                 </ZoruTableCell>
                 <ZoruTableCell className="text-right">
                   <div className="flex justify-end gap-2">
                     <Button variant="ghost" size="icon" onClick={() => handleEdit(item)}>
-                      <Pencil className="w-4 h-4 text-zoru-ink" />
+                      <Pencil className="w-4 h-4 text-[var(--st-text)]" />
                     </Button>
                     <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)}>
-                      <Trash2 className="w-4 h-4 text-zoru-ink" />
+                      <Trash2 className="w-4 h-4 text-[var(--st-text)]" />
                     </Button>
                   </div>
                 </ZoruTableCell>
@@ -213,15 +213,15 @@ export function DataRedactionClient({ initialData, total, currentPage, totalPage
             ))}
             {initialData.length === 0 && (
               <ZoruTableRow>
-                <ZoruTableCell colSpan={5} className="text-center py-8 text-zoru-ink-light">No redaction policies found.</ZoruTableCell>
+                <ZoruTableCell colSpan={5} className="text-center py-8 text-[var(--st-text-tertiary)]">No redaction policies found.</ZoruTableCell>
               </ZoruTableRow>
             )}
           </ZoruTableBody>
         </Table>
 
         {totalPages > 1 && (
-          <div className="flex items-center justify-between px-4 py-4 border-t border-zoru-line">
-            <p className="text-sm text-zoru-ink-light">
+          <div className="flex items-center justify-between px-4 py-4 border-t border-[var(--st-border)]">
+            <p className="text-sm text-[var(--st-text-tertiary)]">
               Page {currentPage} of {totalPages}
             </p>
             <div className="flex gap-2">

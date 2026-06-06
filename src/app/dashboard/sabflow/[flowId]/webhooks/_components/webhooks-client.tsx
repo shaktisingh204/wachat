@@ -111,7 +111,7 @@ export function WebhooksClient({ flowId }: { flowId: string }) {
         >
           <LuArrowLeft className="h-3.5 w-3.5" strokeWidth={2} />
         </Link>
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
           <LuWebhook className="h-4 w-4" strokeWidth={2} />
         </div>
         <div className="flex flex-col leading-tight">
@@ -140,7 +140,7 @@ export function WebhooksClient({ flowId }: { flowId: string }) {
             <span className="text-[12px]">Loading webhooks…</span>
           </div>
         ) : error ? (
-          <div className="flex items-start gap-2 rounded-lg border border-zoru-line bg-zoru-surface-2 px-3 py-2 text-[12px] text-zoru-ink">
+          <div className="flex items-start gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-[12px] text-[var(--st-text)]">
             <LuTriangleAlert className="h-4 w-4 shrink-0 mt-0.5" />
             <span>{error}</span>
           </div>
@@ -165,8 +165,8 @@ export function WebhooksClient({ flowId }: { flowId: string }) {
                     className={cn(
                       'inline-flex items-center rounded-md px-1.5 py-0.5 text-[10.5px] font-semibold uppercase tracking-wide',
                       row.isActive
-                        ? 'bg-zoru-ink/10 text-zoru-ink dark:text-zoru-ink-muted'
-                        : 'bg-zoru-ink/10 text-zoru-ink dark:text-zoru-ink-muted',
+                        ? 'bg-[var(--st-text)]/10 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]'
+                        : 'bg-[var(--st-text)]/10 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',
                     )}
                   >
                     {row.isActive ? 'Active' : 'Inactive'}
@@ -193,7 +193,7 @@ export function WebhooksClient({ flowId }: { flowId: string }) {
                     className="rounded-md p-1.5 text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]"
                   >
                     {copiedId === row.webhookId ? (
-                      <LuCheck className="h-3.5 w-3.5 text-zoru-ink" />
+                      <LuCheck className="h-3.5 w-3.5 text-[var(--st-text)]" />
                     ) : (
                       <LuCopy className="h-3.5 w-3.5" />
                     )}
@@ -232,8 +232,8 @@ export function WebhooksClient({ flowId }: { flowId: string }) {
                     className={cn(
                       'mt-2 rounded-lg border px-3 py-2 text-[11px]',
                       testResult.status >= 200 && testResult.status < 400
-                        ? 'border-zoru-line bg-zoru-surface-2 text-zoru-ink'
-                        : 'border-zoru-line bg-zoru-surface-2 text-zoru-ink',
+                        ? 'border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)]'
+                        : 'border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)]',
                     )}
                   >
                     <div className="font-semibold mb-1">

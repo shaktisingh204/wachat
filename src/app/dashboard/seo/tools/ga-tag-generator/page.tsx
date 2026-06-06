@@ -115,7 +115,7 @@ export default function GaTagGeneratorPage() {
               <div className="flex items-center justify-between pt-2">
                 <div className="space-y-0.5">
                   <Label htmlFor="advanced-config">Advanced Configuration</Label>
-                  <p className="text-[0.8rem] text-zoru-ink-muted">
+                  <p className="text-[0.8rem] text-[var(--st-text-secondary)]">
                     Anonymize IP, User ID, Cross-domain
                   </p>
                 </div>
@@ -131,7 +131,7 @@ export default function GaTagGeneratorPage() {
                   <div className="flex items-center justify-between pt-4">
                     <div className="space-y-0.5">
                       <Label htmlFor="anonymize-ip">Anonymize IP</Label>
-                      <p className="text-[0.8rem] text-zoru-ink-muted">
+                      <p className="text-[0.8rem] text-[var(--st-text-secondary)]">
                         Mask user IP addresses
                       </p>
                     </div>
@@ -145,7 +145,7 @@ export default function GaTagGeneratorPage() {
                   <div className="flex items-center justify-between pt-2">
                     <div className="space-y-0.5">
                       <Label htmlFor="track-user-id">Track User ID</Label>
-                      <p className="text-[0.8rem] text-zoru-ink-muted">
+                      <p className="text-[0.8rem] text-[var(--st-text-secondary)]">
                         Associate sessions with a known user
                       </p>
                     </div>
@@ -176,7 +176,7 @@ export default function GaTagGeneratorPage() {
                       onChange={(e) => setDomains(e.target.value)}
                       placeholder="e.g. example.com, otherdomain.com"
                     />
-                    <p className="text-[0.8rem] text-zoru-ink-muted">
+                    <p className="text-[0.8rem] text-[var(--st-text-secondary)]">
                       Comma-separated list of domains to track across.
                     </p>
                   </div>
@@ -193,7 +193,7 @@ export default function GaTagGeneratorPage() {
               </Button>
             </div>
             <Textarea id="global-snippet" readOnly value={globalSnippet} className="min-h-[260px] font-mono text-xs" />
-            <p className="text-xs text-zoru-ink-muted">
+            <p className="text-xs text-[var(--st-text-secondary)]">
               Paste this snippet just before the closing &lt;/head&gt; tag on every page you want to track.
             </p>
           </div>
@@ -235,7 +235,7 @@ export default function GaTagGeneratorPage() {
               </Button>
             </div>
             <Textarea id="event-snippet" readOnly value={eventSnippet} className="min-h-[120px] font-mono text-xs" />
-            <p className="text-xs text-zoru-ink-muted">
+            <p className="text-xs text-[var(--st-text-secondary)]">
               Trigger this snippet on user actions, such as a button click or form submission.
             </p>
           </div>

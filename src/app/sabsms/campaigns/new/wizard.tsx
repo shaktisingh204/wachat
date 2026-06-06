@@ -274,8 +274,8 @@ export function CampaignWizard({
         <div
           className={`rounded border p-3 text-sm ${
             banner.kind === "ok"
-              ? "border-zoru-line bg-zoru-surface-2 text-zoru-ink"
-              : "border-zoru-line bg-zoru-surface-2 text-zoru-ink"
+              ? "border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)]"
+              : "border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)]"
           }`}
         >
           <div>{banner.message}</div>
@@ -389,7 +389,7 @@ export function CampaignWizard({
           >
             Next
           </Button>
-          <span className="text-xs text-zoru-ink">
+          <span className="text-xs text-[var(--st-text)]">
             <ZoruKbd>⌘</ZoruKbd>
             <ZoruKbd>←</ZoruKbd> /
             <ZoruKbd>⌘</ZoruKbd>
@@ -473,14 +473,14 @@ function SortableStep({
         }}
         className={`flex items-center gap-2 rounded border px-3 py-1.5 text-sm transition ${
           active
-            ? "border-zoru-line bg-zoru-ink text-white"
-            : "border-zoru-line bg-white text-zoru-ink hover:border-zoru-line"
+            ? "border-[var(--st-border)] bg-[var(--st-text)] text-white"
+            : "border-[var(--st-border)] bg-white text-[var(--st-text)] hover:border-[var(--st-border)]"
         } cursor-grab active:cursor-grabbing`}
         aria-current={active ? "step" : undefined}
       >
         <span
           className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-xs ${
-            active ? "bg-white text-zoru-ink" : "bg-zoru-surface-2 text-zoru-ink"
+            active ? "bg-white text-[var(--st-text)]" : "bg-[var(--st-bg-muted)] text-[var(--st-text)]"
           }`}
         >
           {s.index}
@@ -532,7 +532,7 @@ function Stepper({ stepId, steps, setSteps, onJump }: StepperProps) {
               return (
                 <React.Fragment key={s.id}>
                   {i > 0 && (
-                    <span aria-hidden className="h-px w-6 bg-zoru-surface-2" />
+                    <span aria-hidden className="h-px w-6 bg-[var(--st-bg-muted)]" />
                   )}
                   <SortableStep s={s} active={isActive} onJump={onJump} />
                 </React.Fragment>

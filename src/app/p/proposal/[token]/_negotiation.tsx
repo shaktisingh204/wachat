@@ -41,9 +41,9 @@ export function ProposalNegotiation({ token }: { token: string }) {
   };
 
   return (
-    <Card className="border-zoru-line shadow-sm mt-6">
+    <Card className="border-[var(--st-border)] shadow-sm mt-6">
       <ZoruCardContent className="p-5 flex flex-col gap-4">
-        <div className="flex items-center gap-2 text-zoru-ink-muted">
+        <div className="flex items-center gap-2 text-[var(--st-text-secondary)]">
           <MessageSquare className="h-4 w-4" />
           <h3 className="font-mono text-[12px] uppercase tracking-wider font-bold">Negotiation & Comments</h3>
         </div>

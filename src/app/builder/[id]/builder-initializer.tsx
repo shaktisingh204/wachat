@@ -118,7 +118,7 @@ export const BuilderInitializer = ({ initialData, projectId }: { initialData: Pa
     return (
         <>
             {status !== 'connected' && (
-                <div className="absolute top-2 right-2 z-50 text-xs text-zoru-ink bg-zoru-surface-2 dark:bg-zoru-ink/40 px-2 py-1 rounded">
+                <div className="absolute top-2 right-2 z-50 text-xs text-[var(--st-text)] bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/40 px-2 py-1 rounded">
                     {status === 'connecting' ? 'Connecting...' : status === 'reconnecting' ? 'Reconnecting...' : 'Disconnected'}
                 </div>
             )}

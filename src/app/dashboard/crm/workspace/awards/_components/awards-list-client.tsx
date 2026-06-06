@@ -303,7 +303,7 @@ export function AwardsListClient({
                     </div>
                 }
                 viewSwitcher={
-                    <div className="inline-flex rounded-md border border-zoru-line p-0.5">
+                    <div className="inline-flex rounded-md border border-[var(--st-border)] p-0.5">
                         {(['programs', 'appreciations'] as Tab[]).map((t) => (
                             <button
                                 key={t}
@@ -313,8 +313,8 @@ export function AwardsListClient({
                                 className={[
                                     'inline-flex items-center gap-1 rounded-sm px-2 py-1 text-[12px] capitalize',
                                     tab === t
-                                        ? 'bg-zoru-surface text-zoru-ink'
-                                        : 'text-zoru-ink-muted hover:text-zoru-ink',
+                                        ? 'bg-[var(--st-bg-secondary)] text-[var(--st-text)]'
+                                        : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
                                 ].join(' ')}
                             >
                                 {t}
@@ -387,7 +387,7 @@ export function AwardsListClient({
                 bulkBar={
                     selectedSet.size > 0 ? (
                         <div className="flex flex-wrap items-center justify-between gap-2">
-                            <span className="text-[13px] text-zoru-ink-muted">
+                            <span className="text-[13px] text-[var(--st-text-secondary)]">
                                 {selectedSet.size} selected
                             </span>
                             <div className="flex flex-wrap gap-2">
@@ -415,13 +415,13 @@ export function AwardsListClient({
                 empty={
                     !loading && visibleList.length === 0 ? (
                         <div className="flex flex-col items-center gap-3 p-4">
-                            <AwardIcon className="h-6 w-6 text-zoru-ink-muted" />
-                            <h3 className="text-base font-medium text-zoru-ink">
+                            <AwardIcon className="h-6 w-6 text-[var(--st-text-secondary)]" />
+                            <h3 className="text-base font-medium text-[var(--st-text)]">
                                 {tab === 'programs'
                                     ? 'No award programs yet'
                                     : 'No appreciations yet'}
                             </h3>
-                            <p className="max-w-sm text-sm text-zoru-ink-muted">
+                            <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                                 {tab === 'programs'
                                     ? 'Define a recognition program and grant appreciations against it.'
                                     : 'Give your first appreciation from the Appreciations page.'}
@@ -463,9 +463,9 @@ export function AwardsListClient({
 
                     {/* Programs table */}
                     {tab === 'programs' ? (
-                        <div className="overflow-x-auto rounded-[var(--zoru-radius-lg)] border border-zoru-line">
+                        <div className="overflow-x-auto rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)]">
                             <table className="w-full min-w-[700px] text-[13px]">
-                                <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
+                                <thead className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                                     <tr>
                                         <th className="px-3 py-2">
                                             <Checkbox
@@ -486,12 +486,12 @@ export function AwardsListClient({
                                         )}
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-zoru-line bg-zoru-bg">
+                                <tbody className="divide-y divide-[var(--st-border)] bg-[var(--st-bg)]">
                                     {visiblePrograms.length === 0 ? (
                                         <tr>
                                             <td
                                                 colSpan={7}
-                                                className="p-6 text-center text-zoru-ink-muted"
+                                                className="p-6 text-center text-[var(--st-text-secondary)]"
                                             >
                                                 No awards match the current filters.
                                             </td>
@@ -503,7 +503,7 @@ export function AwardsListClient({
                                         ).length;
                                         const checked = selectedPrograms.has(a._id);
                                         return (
-                                            <tr key={a._id} className="hover:bg-zoru-surface">
+                                            <tr key={a._id} className="hover:bg-[var(--st-bg-secondary)]">
                                                 <td className="px-3 py-2">
                                                     <Checkbox
                                                         aria-label={`Select ${a.title}`}
@@ -529,7 +529,7 @@ export function AwardsListClient({
                                                         {a.frequency}
                                                     </Badge>
                                                 </td>
-                                                <td className="px-3 py-2 text-zoru-ink-muted">
+                                                <td className="px-3 py-2 text-[var(--st-text-secondary)]">
                                                     {nominations}
                                                 </td>
                                                 <td className="px-3 py-2">
@@ -556,9 +556,9 @@ export function AwardsListClient({
                         </div>
                     ) : (
                         /* Appreciations table */
-                        <div className="overflow-x-auto rounded-[var(--zoru-radius-lg)] border border-zoru-line">
+                        <div className="overflow-x-auto rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)]">
                             <table className="w-full min-w-[800px] text-[13px]">
-                                <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
+                                <thead className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                                     <tr>
                                         <th className="px-3 py-2">
                                             <Checkbox
@@ -584,12 +584,12 @@ export function AwardsListClient({
                                         ))}
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-zoru-line bg-zoru-bg">
+                                <tbody className="divide-y divide-[var(--st-border)] bg-[var(--st-bg)]">
                                     {visibleApps.length === 0 ? (
                                         <tr>
                                             <td
                                                 colSpan={7}
-                                                className="p-6 text-center text-zoru-ink-muted"
+                                                className="p-6 text-center text-[var(--st-text-secondary)]"
                                             >
                                                 No appreciations match the current filters.
                                             </td>
@@ -602,7 +602,7 @@ export function AwardsListClient({
                                             a.award_id;
                                         const checked = selectedApps.has(a._id);
                                         return (
-                                            <tr key={a._id} className="hover:bg-zoru-surface">
+                                            <tr key={a._id} className="hover:bg-[var(--st-bg-secondary)]">
                                                 <td className="px-3 py-2">
                                                     <Checkbox
                                                         aria-label={`Select appreciation ${a._id}`}
@@ -610,19 +610,19 @@ export function AwardsListClient({
                                                         onCheckedChange={() => toggleOne(a._id)}
                                                     />
                                                 </td>
-                                                <td className="px-3 py-2 font-medium text-zoru-ink">
+                                                <td className="px-3 py-2 font-medium text-[var(--st-text)]">
                                                     {awardTitle}
                                                 </td>
-                                                <td className="px-3 py-2 text-zoru-ink-muted">
+                                                <td className="px-3 py-2 text-[var(--st-text-secondary)]">
                                                     {a.given_to_user_name ?? a.given_to_user_id}
                                                 </td>
-                                                <td className="px-3 py-2 text-zoru-ink-muted">
+                                                <td className="px-3 py-2 text-[var(--st-text-secondary)]">
                                                     {a.given_by_user_name ?? a.given_by_user_id}
                                                 </td>
-                                                <td className="px-3 py-2 text-zoru-ink-muted">
+                                                <td className="px-3 py-2 text-[var(--st-text-secondary)]">
                                                     {fmtDate(a.given_on)}
                                                 </td>
-                                                <td className="max-w-[200px] truncate px-3 py-2 text-zoru-ink-muted">
+                                                <td className="max-w-[200px] truncate px-3 py-2 text-[var(--st-text-secondary)]">
                                                     {a.summary
                                                         ? a.summary.length > 60
                                                             ? `${a.summary.slice(0, 60)}…`

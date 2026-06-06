@@ -35,9 +35,9 @@ export function VariableTag({ variable, onClick, active, className }: Props) {
         'font-mono text-[11px] font-medium leading-none',
         'border select-none',
         active
-          ? 'border-zoru-line/60 bg-zoru-ink/10 text-zoru-ink'
-          : 'border-zoru-line bg-zoru-surface-2 text-zoru-ink dark:border-zoru-line dark:bg-zoru-ink/50 dark:text-zoru-ink-muted',
-        onClick && 'cursor-pointer transition-colors hover:border-zoru-line/60 hover:bg-zoru-ink/10 hover:text-zoru-ink',
+          ? 'border-[var(--st-border)]/60 bg-[var(--st-text)]/10 text-[var(--st-text)]'
+          : 'border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:border-[var(--st-border)] dark:bg-[var(--st-text)]/50 dark:text-[var(--st-text-secondary)]',
+        onClick && 'cursor-pointer transition-colors hover:border-[var(--st-border)]/60 hover:bg-[var(--st-text)]/10 hover:text-[var(--st-text)]',
         className,
       )}
     >

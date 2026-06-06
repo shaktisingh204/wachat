@@ -36,7 +36,7 @@ export function ChartResponseHistogram({ data }: ChartResponseHistogramProps) {
       >
         <ZoruChart.CartesianGrid
           strokeDasharray="3 3"
-          className="stroke-zoru-line"
+          className="stroke-[var(--st-border)]"
         />
         <ZoruChart.XAxis
           dataKey="bucket"

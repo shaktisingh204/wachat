@@ -68,18 +68,18 @@ export function RfqQuickEdits({
   return (
     <dl className="space-y-2 text-[12.5px]">
       <div className="flex items-center justify-between gap-2">
-        <dt className="text-zoru-ink-muted">Owner</dt>
+        <dt className="text-[var(--st-text-secondary)]">Owner</dt>
         <dd>
           {ownerId ? (
             <EntityPickerChip entity="user" id={ownerId} />
           ) : (
-            <span className="text-zoru-ink-muted">—</span>
+            <span className="text-[var(--st-text-secondary)]">—</span>
           )}
         </dd>
       </div>
 
       <div className="flex items-center justify-between gap-2">
-        <dt className="text-zoru-ink-muted">Status</dt>
+        <dt className="text-[var(--st-text-secondary)]">Status</dt>
         <dd>
           <DropdownMenu>
             <ZoruDropdownMenuTrigger asChild>

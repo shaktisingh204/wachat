@@ -37,8 +37,8 @@ export default async function SabsmsListsPage({
   if (!workspaceId) {
     return (
       <div className="space-y-3 p-6">
-        <h1 className="text-2xl font-semibold text-zoru-ink">Lists</h1>
-        <p className="text-sm text-zoru-ink">
+        <h1 className="text-2xl font-semibold text-[var(--st-text)]">Lists</h1>
+        <p className="text-sm text-[var(--st-text)]">
           Sign in to view your SabSMS lists.
         </p>
       </div>

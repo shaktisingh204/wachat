@@ -66,7 +66,7 @@ function SetDefaultButton({
                     }
                 })
             }
-            className="text-[12px] text-zoru-ink-muted"
+            className="text-[12px] text-[var(--st-text-secondary)]"
         >
             <Star className="h-3.5 w-3.5" /> Set default
         </Button>
@@ -135,18 +135,18 @@ export default function LanguagesPage() {
                         >
                             <div className="space-y-3 text-sm">
                                 <div>
-                                    <div className="text-zoru-ink-muted text-xs">Code</div>
+                                    <div className="text-[var(--st-text-secondary)] text-xs">Code</div>
                                     <div className="font-mono">{row.language_code}</div>
                                 </div>
                                 <div>
-                                    <div className="text-zoru-ink-muted text-xs">Enabled</div>
+                                    <div className="text-[var(--st-text-secondary)] text-xs">Enabled</div>
                                     <div>{row.is_enabled ? 'Yes' : 'No'}</div>
                                 </div>
                                 <div>
-                                    <div className="text-zoru-ink-muted text-xs">Default</div>
+                                    <div className="text-[var(--st-text-secondary)] text-xs">Default</div>
                                     <div>{row.is_default ? 'Yes' : 'No'}</div>
                                 </div>
-                                <p className="text-zoru-ink-muted text-xs">
+                                <p className="text-[var(--st-text-secondary)] text-xs">
                                     Edit and delete are available from the row actions.
                                 </p>
                             </div>

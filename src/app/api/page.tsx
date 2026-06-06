@@ -24,14 +24,14 @@ export default function HomePage() {
       <GlobalMonochromeStyles />
 
       {/* Navigation */}
-      <nav className="border-b border-zoru-line sticky top-0 bg-black/80 backdrop-blur-md z-50">
+      <nav className="border-b border-[var(--st-border)] sticky top-0 bg-black/80 backdrop-blur-md z-50">
         <div className="container mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Terminal className="h-5 w-5 text-white" />
             <span className="font-bold tracking-tight text-white">SABNODE_API_DOCS</span>
-            <Badge variant="outline" className="text-zoru-ink-muted border-zoru-line rounded-none text-xs">v2.0.0-rc.4</Badge>
+            <Badge variant="outline" className="text-[var(--st-text-secondary)] border-[var(--st-border)] rounded-none text-xs">v2.0.0-rc.4</Badge>
           </div>
-          <div className="flex items-center gap-6 text-sm text-zoru-ink-muted hidden sm:flex">
+          <div className="flex items-center gap-6 text-sm text-[var(--st-text-secondary)] hidden sm:flex">
             <Link href="#endpoints" className="hover:text-white transition-colors">/endpoints</Link>
             <Link href="#authentication" className="hover:text-white transition-colors">/auth</Link>
             <Link href="#architecture" className="hover:text-white transition-colors">/architecture</Link>
@@ -41,13 +41,13 @@ export default function HomePage() {
             </Link>
             {loading ? null : session?.user ? (
               <Link href="/wachat">
-                <Button className="bg-white text-black hover:bg-zoru-surface-2 rounded-none h-8 font-mono text-xs">
+                <Button className="bg-white text-black hover:bg-[var(--st-bg-muted)] rounded-none h-8 font-mono text-xs">
                   [ENTER_WORKSPACE]
                 </Button>
               </Link>
             ) : (
               <Link href="/signup">
-                <Button className="bg-white text-black hover:bg-zoru-surface-2 rounded-none h-8 font-mono text-xs">
+                <Button className="bg-white text-black hover:bg-[var(--st-bg-muted)] rounded-none h-8 font-mono text-xs">
                   [INITIATE_AUTH]
                 </Button>
               </Link>
@@ -65,7 +65,7 @@ export default function HomePage() {
             <div className="space-y-8 pb-8">
               <div>
                 <h4 className="font-bold text-white mb-3 text-sm uppercase tracking-widest">Introduction</h4>
-                <ul className="space-y-2 text-sm text-zoru-ink-muted">
+                <ul className="space-y-2 text-sm text-[var(--st-text-secondary)]">
                   <li><a href="#" className="hover:text-white">Getting Started</a></li>
                   <li><a href="#authentication" className="hover:text-white">Authentication</a></li>
                   <li><a href="#" className="hover:text-white">Errors</a></li>
@@ -74,7 +74,7 @@ export default function HomePage() {
               </div>
               <div>
                 <h4 className="font-bold text-white mb-3 text-sm uppercase tracking-widest">Resources</h4>
-                <ul className="space-y-2 text-sm text-zoru-ink-muted">
+                <ul className="space-y-2 text-sm text-[var(--st-text-secondary)]">
                   <li><a href="#endpoints" className="hover:text-white">Messages</a></li>
                   <li><a href="#" className="hover:text-white">Conversations</a></li>
                   <li><a href="#" className="hover:text-white">Workflows</a></li>
@@ -89,40 +89,40 @@ export default function HomePage() {
         <main className="flex-1 max-w-4xl">
           <header className="mb-16">
             <h1 className="text-4xl md:text-6xl font-bold tracking-tighter mb-6">SabNode Core API</h1>
-            <p className="text-xl text-zoru-ink-muted leading-relaxed mb-8">
+            <p className="text-xl text-[var(--st-text-secondary)] leading-relaxed mb-8">
               The foundational protocol for unified customer operations. Integrate WhatsApp, AI agents, CRM, and real-time messaging directly into your stack.
             </p>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-              <Button className="bg-white text-black hover:bg-zoru-surface-2 rounded-none font-mono flex items-center gap-2">
+              <Button className="bg-white text-black hover:bg-[var(--st-bg-muted)] rounded-none font-mono flex items-center gap-2">
                 <Terminal className="h-4 w-4" />
                 curl https://api.sabnode.com/v2/init
               </Button>
-              <Button variant="outline" className="border-zoru-line text-white hover:bg-zoru-ink rounded-none font-mono">
+              <Button variant="outline" className="border-[var(--st-border)] text-white hover:bg-[var(--st-text)] rounded-none font-mono">
                 View Swagger JSON
               </Button>
             </div>
           </header>
 
-          <Separator className="bg-zoru-ink my-12" />
+          <Separator className="bg-[var(--st-text)] my-12" />
 
           {/* Setup / Authentication */}
           <section id="authentication" className="mb-16">
             <div className="flex items-center gap-3 mb-6">
-              <Shield className="h-6 w-6 text-zoru-ink-muted" />
+              <Shield className="h-6 w-6 text-[var(--st-text-secondary)]" />
               <h2 className="text-2xl font-bold">Authentication</h2>
             </div>
-            <p className="text-zoru-ink-muted mb-6 leading-relaxed">
+            <p className="text-[var(--st-text-secondary)] mb-6 leading-relaxed">
               Authenticate requests to the SabNode API using Bearer tokens in the Authorization header. Manage your API keys in the dashboard.
             </p>
             
-            <Card className="bg-zoru-ink border-zoru-line rounded-none overflow-hidden mb-8">
-              <div className="bg-zoru-ink border-b border-zoru-line px-4 py-2 flex items-center justify-between">
-                <span className="text-xs text-zoru-ink-muted">Request Example</span>
-                <ZoruKbd className="bg-zoru-ink text-zoru-ink-muted border-none">bash</ZoruKbd>
+            <Card className="bg-[var(--st-text)] border-[var(--st-border)] rounded-none overflow-hidden mb-8">
+              <div className="bg-[var(--st-text)] border-b border-[var(--st-border)] px-4 py-2 flex items-center justify-between">
+                <span className="text-xs text-[var(--st-text-secondary)]">Request Example</span>
+                <ZoruKbd className="bg-[var(--st-text)] text-[var(--st-text-secondary)] border-none">bash</ZoruKbd>
               </div>
-              <div className="p-4 overflow-x-auto text-sm text-zoru-ink-muted whitespace-pre">
+              <div className="p-4 overflow-x-auto text-sm text-[var(--st-text-secondary)] whitespace-pre">
                 <code>
-<span className="text-zoru-ink"># Authenticate your request</span>{'\n'}
+<span className="text-[var(--st-text)]"># Authenticate your request</span>{'\n'}
 curl https://api.sabnode.com/v2/workspaces \{'\n'}
   -H <span className="text-white">"Authorization: Bearer sk_live_..."</span>
                 </code>
@@ -133,41 +133,41 @@ curl https://api.sabnode.com/v2/workspaces \{'\n'}
           {/* Endpoints */}
           <section id="endpoints" className="mb-16">
             <div className="flex items-center gap-3 mb-6">
-              <Code2 className="h-6 w-6 text-zoru-ink-muted" />
+              <Code2 className="h-6 w-6 text-[var(--st-text-secondary)]" />
               <h2 className="text-2xl font-bold">Core Endpoints</h2>
             </div>
             
             <div className="space-y-8">
               {/* Endpoint 1 */}
-              <div className="border border-zoru-line p-6 bg-zoru-ink/50">
+              <div className="border border-[var(--st-border)] p-6 bg-[var(--st-text)]/50">
                 <div className="flex items-center gap-4 mb-4">
-                  <Badge className="bg-white text-black hover:bg-zoru-surface-2 rounded-none font-bold">POST</Badge>
+                  <Badge className="bg-white text-black hover:bg-[var(--st-bg-muted)] rounded-none font-bold">POST</Badge>
                   <code className="text-lg">/v2/messages/send</code>
                 </div>
-                <p className="text-zoru-ink-muted mb-6 text-sm">
+                <p className="text-[var(--st-text-secondary)] mb-6 text-sm">
                   Dispatches a payload through connected channels (WhatsApp, Web Chat, SMS).
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <h5 className="text-xs font-bold uppercase tracking-wider mb-3 text-zoru-ink">Parameters</h5>
+                    <h5 className="text-xs font-bold uppercase tracking-wider mb-3 text-[var(--st-text)]">Parameters</h5>
                     <ul className="space-y-3 text-sm">
-                      <li className="flex justify-between border-b border-zoru-line pb-2">
+                      <li className="flex justify-between border-b border-[var(--st-border)] pb-2">
                         <code className="text-white">channel</code>
-                        <span className="text-zoru-ink">string (required)</span>
+                        <span className="text-[var(--st-text)]">string (required)</span>
                       </li>
-                      <li className="flex justify-between border-b border-zoru-line pb-2">
+                      <li className="flex justify-between border-b border-[var(--st-border)] pb-2">
                         <code className="text-white">to</code>
-                        <span className="text-zoru-ink">string (required)</span>
+                        <span className="text-[var(--st-text)]">string (required)</span>
                       </li>
-                      <li className="flex justify-between border-b border-zoru-line pb-2">
+                      <li className="flex justify-between border-b border-[var(--st-border)] pb-2">
                         <code className="text-white">payload</code>
-                        <span className="text-zoru-ink">object (required)</span>
+                        <span className="text-[var(--st-text)]">object (required)</span>
                       </li>
                     </ul>
                   </div>
                   <div>
-                    <h5 className="text-xs font-bold uppercase tracking-wider mb-3 text-zoru-ink">Response <span className="text-zoru-ink-muted">200 OK</span></h5>
-                    <pre className="text-xs text-zoru-ink-muted bg-black border border-zoru-line p-3 overflow-x-auto">
+                    <h5 className="text-xs font-bold uppercase tracking-wider mb-3 text-[var(--st-text)]">Response <span className="text-[var(--st-text-secondary)]">200 OK</span></h5>
+                    <pre className="text-xs text-[var(--st-text-secondary)] bg-black border border-[var(--st-border)] p-3 overflow-x-auto">
 {`{
   "id": "msg_01H...",
   "status": "queued",
@@ -180,12 +180,12 @@ curl https://api.sabnode.com/v2/workspaces \{'\n'}
               </div>
 
               {/* Endpoint 2 */}
-              <div className="border border-zoru-line p-6 bg-zoru-ink/50">
+              <div className="border border-[var(--st-border)] p-6 bg-[var(--st-text)]/50">
                 <div className="flex items-center gap-4 mb-4">
-                  <Badge variant="outline" className="border-zoru-line text-zoru-ink-muted rounded-none font-bold">GET</Badge>
+                  <Badge variant="outline" className="border-[var(--st-border)] text-[var(--st-text-secondary)] rounded-none font-bold">GET</Badge>
                   <code className="text-lg">/v2/workflows/active</code>
                 </div>
-                <p className="text-zoru-ink-muted mb-6 text-sm">
+                <p className="text-[var(--st-text-secondary)] mb-6 text-sm">
                   Retrieve all actively running workflows for the authenticated workspace.
                 </p>
               </div>
@@ -195,28 +195,28 @@ curl https://api.sabnode.com/v2/workspaces \{'\n'}
           {/* Architecture */}
           <section id="architecture">
             <div className="flex items-center gap-3 mb-6">
-              <Layers className="h-6 w-6 text-zoru-ink-muted" />
+              <Layers className="h-6 w-6 text-[var(--st-text-secondary)]" />
               <h2 className="text-2xl font-bold">System Architecture</h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="border border-zoru-line p-5 hover:border-zoru-line transition-colors bg-zoru-ink">
+              <div className="border border-[var(--st-border)] p-5 hover:border-[var(--st-border)] transition-colors bg-[var(--st-text)]">
                 <Cpu className="h-8 w-8 mb-4 text-white" />
                 <h3 className="font-bold mb-2">Event Engine</h3>
-                <p className="text-xs text-zoru-ink-muted leading-relaxed">
+                <p className="text-xs text-[var(--st-text-secondary)] leading-relaxed">
                   Processes millions of inbound hooks with sub-50ms latency using Rust-based workers.
                 </p>
               </div>
-              <div className="border border-zoru-line p-5 hover:border-zoru-line transition-colors bg-zoru-ink">
+              <div className="border border-[var(--st-border)] p-5 hover:border-[var(--st-border)] transition-colors bg-[var(--st-text)]">
                 <Command className="h-8 w-8 mb-4 text-white" />
                 <h3 className="font-bold mb-2">Agent Matrix</h3>
-                <p className="text-xs text-zoru-ink-muted leading-relaxed">
+                <p className="text-xs text-[var(--st-text-secondary)] leading-relaxed">
                   Distributed LLM orchestration layer routing intents to specialized subagents.
                 </p>
               </div>
-              <div className="border border-zoru-line p-5 hover:border-zoru-line transition-colors bg-zoru-ink">
+              <div className="border border-[var(--st-border)] p-5 hover:border-[var(--st-border)] transition-colors bg-[var(--st-text)]">
                 <FileCode className="h-8 w-8 mb-4 text-white" />
                 <h3 className="font-bold mb-2">State Sync</h3>
-                <p className="text-xs text-zoru-ink-muted leading-relaxed">
+                <p className="text-xs text-[var(--st-text-secondary)] leading-relaxed">
                   Real-time CRDT propagation ensures UI state perfectly mirrors backend realities.
                 </p>
               </div>
@@ -227,8 +227,8 @@ curl https://api.sabnode.com/v2/workspaces \{'\n'}
       </div>
       
       {/* Footer */}
-      <footer className="border-t border-zoru-line py-12 mt-20">
-        <div className="container mx-auto px-6 text-center text-sm text-zoru-ink font-mono">
+      <footer className="border-t border-[var(--st-border)] py-12 mt-20">
+        <div className="container mx-auto px-6 text-center text-sm text-[var(--st-text)] font-mono">
           <p>© {new Date().getFullYear()} SabNode Inc. // SYST_STATUS: ONLINE // LATENCY: 12ms</p>
         </div>
       </footer>

@@ -50,10 +50,10 @@ interface KpiCardProps {
 function KpiCard({ label, value, tone, hint }: KpiCardProps) {
     const toneCls =
         tone === 'red'
-            ? 'border-zoru-line/40 bg-zoru-ink/10 text-zoru-ink dark:text-zoru-ink-muted'
+            ? 'border-[var(--st-border)]/40 bg-[var(--st-text)]/10 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]'
             : tone === 'amber'
-              ? 'border-zoru-line/40 bg-zoru-ink/10 text-zoru-ink dark:text-zoru-ink-muted'
-              : 'border-zoru-line bg-zoru-surface text-zoru-ink';
+              ? 'border-[var(--st-border)]/40 bg-[var(--st-text)]/10 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]'
+              : 'border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]';
     return (
         <div className={`rounded-lg border px-4 py-3 ${toneCls}`}>
             <div className="text-[12px] uppercase tracking-wide opacity-75">{label}</div>
@@ -73,7 +73,7 @@ export default async function MsmeAlertsPage() {
                 subtitle="Indian MSMED Act 2006 & IT §43B(h) compliance."
             >
                 <Card className="p-6">
-                    <div className="rounded-md border border-zoru-line/40 bg-zoru-ink/10 px-4 py-3 text-[13px] text-zoru-ink">
+                    <div className="rounded-md border border-[var(--st-border)]/40 bg-[var(--st-text)]/10 px-4 py-3 text-[13px] text-[var(--st-text)]">
                         Could not load MSME alerts: {result.error}
                     </div>
                 </Card>
@@ -117,17 +117,17 @@ export default async function MsmeAlertsPage() {
             </div>
 
             <Card className="p-0">
-                <div className="flex items-center justify-between gap-3 border-b border-zoru-line/60 px-4 py-3">
+                <div className="flex items-center justify-between gap-3 border-b border-[var(--st-border)]/60 px-4 py-3">
                     <div className="flex items-center gap-2">
-                        <AlertTriangle className="h-4 w-4 text-zoru-ink" />
+                        <AlertTriangle className="h-4 w-4 text-[var(--st-text)]" />
                         <div className="text-[13.5px] font-semibold">Overdue</div>
-                        <div className="text-[12px] text-zoru-ink-muted">
+                        <div className="text-[12px] text-[var(--st-text-secondary)]">
                             {overdue.length} bill{overdue.length === 1 ? '' : 's'}
                         </div>
                     </div>
                     <Link
                         href="/dashboard/crm/purchases/vendors"
-                        className="text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
+                        className="text-[12.5px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                     >
                         Manage MSME vendor flags →
                     </Link>
@@ -136,11 +136,11 @@ export default async function MsmeAlertsPage() {
             </Card>
 
             <Card className="p-0">
-                <div className="flex items-center justify-between gap-3 border-b border-zoru-line/60 px-4 py-3">
+                <div className="flex items-center justify-between gap-3 border-b border-[var(--st-border)]/60 px-4 py-3">
                     <div className="flex items-center gap-2">
-                        <AlertTriangle className="h-4 w-4 text-zoru-ink" />
+                        <AlertTriangle className="h-4 w-4 text-[var(--st-text)]" />
                         <div className="text-[13.5px] font-semibold">At risk</div>
-                        <div className="text-[12px] text-zoru-ink-muted">
+                        <div className="text-[12px] text-[var(--st-text-secondary)]">
                             {atRisk.length} bill{atRisk.length === 1 ? '' : 's'} within 7 days
                         </div>
                     </div>

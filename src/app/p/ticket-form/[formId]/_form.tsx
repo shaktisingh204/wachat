@@ -117,21 +117,21 @@ export function TicketFormRenderer({
       <ClayCard className="flex flex-col items-center justify-center py-12 text-center">
         {submissionSuccess === null ? (
           <>
-            <LoaderCircle className="h-12 w-12 text-zoru-ink animate-spin mb-4" />
-            <h3 className="text-lg font-medium text-zoru-ink">Submitting ticket...</h3>
-            <p className="text-sm text-zoru-ink-muted mt-2">Please wait while we process your request.</p>
+            <LoaderCircle className="h-12 w-12 text-[var(--st-text)] animate-spin mb-4" />
+            <h3 className="text-lg font-medium text-[var(--st-text)]">Submitting ticket...</h3>
+            <p className="text-sm text-[var(--st-text-secondary)] mt-2">Please wait while we process your request.</p>
           </>
         ) : submissionSuccess === true ? (
           <>
-            <CheckCircle2 className="h-12 w-12 text-zoru-ink mb-4" />
-            <h3 className="text-lg font-medium text-zoru-ink">Ticket submitted!</h3>
-            <p className="text-sm text-zoru-ink-muted mt-2">Redirecting you shortly...</p>
+            <CheckCircle2 className="h-12 w-12 text-[var(--st-text)] mb-4" />
+            <h3 className="text-lg font-medium text-[var(--st-text)]">Ticket submitted!</h3>
+            <p className="text-sm text-[var(--st-text-secondary)] mt-2">Redirecting you shortly...</p>
           </>
         ) : (
           <>
-            <AlertCircle className="h-12 w-12 text-zoru-ink mb-4" />
-            <h3 className="text-lg font-medium text-zoru-ink">Submission Failed</h3>
-            <p className="text-sm text-zoru-ink-muted mt-2">{error}</p>
+            <AlertCircle className="h-12 w-12 text-[var(--st-text)] mb-4" />
+            <h3 className="text-lg font-medium text-[var(--st-text)]">Submission Failed</h3>
+            <p className="text-sm text-[var(--st-text-secondary)] mt-2">{error}</p>
             <ClayButton 
               className="mt-6" 
               onClick={() => { setIsSubmittedOptimistically(false); setError(null); }}
@@ -159,7 +159,7 @@ export function TicketFormRenderer({
           ))}
           
           <div className="flex flex-col gap-1">
-            <span className="text-[12.5px] text-zoru-ink">Attachments</span>
+            <span className="text-[12.5px] text-[var(--st-text)]">Attachments</span>
             <FileDropzone 
               files={values.attachments || []} 
               onFilesChange={(files) => setValue('attachments', files)} 
@@ -167,9 +167,9 @@ export function TicketFormRenderer({
             />
           </div>
 
-          <div className="flex flex-col gap-1 rounded-md border border-zoru-line p-3 bg-zoru-surface-2/20">
-            <span className="text-[12.5px] text-zoru-ink font-medium mb-2 flex items-center gap-2">
-              Spam Protection <span className="text-zoru-ink">*</span>
+          <div className="flex flex-col gap-1 rounded-md border border-[var(--st-border)] p-3 bg-[var(--st-bg-muted)]/20">
+            <span className="text-[12.5px] text-[var(--st-text)] font-medium mb-2 flex items-center gap-2">
+              Spam Protection <span className="text-[var(--st-text)]">*</span>
             </span>
             <div className="flex items-center gap-3">
               <span className="text-sm">What is {mathA} + {mathB}?</span>
@@ -186,7 +186,7 @@ export function TicketFormRenderer({
         </div>
         
         {error ? (
-          <p className="mt-4 text-[13px] text-zoru-ink font-medium">{error}</p>
+          <p className="mt-4 text-[13px] text-[var(--st-text)] font-medium">{error}</p>
         ) : null}
         
         <div className="mt-6 flex justify-end">
@@ -208,14 +208,14 @@ export function TicketFormRenderer({
       </ClayCard>
       
       {/* Live Chat Fallback */}
-      <ClayCard className="bg-zoru-surface-2/30 border-dashed">
+      <ClayCard className="bg-[var(--st-bg-muted)]/30 border-dashed">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex flex-col">
-            <h4 className="text-sm font-medium text-zoru-ink flex items-center gap-2">
+            <h4 className="text-sm font-medium text-[var(--st-text)] flex items-center gap-2">
               <MessageCircle className="h-4 w-4" />
               Need faster help?
             </h4>
-            <p className="text-xs text-zoru-ink-muted mt-1">
+            <p className="text-xs text-[var(--st-text-secondary)] mt-1">
               Our support agents are available for live chat.
             </p>
           </div>
@@ -292,7 +292,7 @@ function FileDropzone({
   return (
     <div className="flex flex-col gap-2">
       <div 
-        className={`relative border-2 border-dashed rounded-md p-6 text-center transition-colors ${isDragging ? 'border-primary bg-zoru-ink/5' : 'border-zoru-line bg-zoru-surface-2/10'} ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-zoru-surface-2/20'}`}
+        className={`relative border-2 border-dashed rounded-md p-6 text-center transition-colors ${isDragging ? 'border-primary bg-[var(--st-text)]/5' : 'border-[var(--st-border)] bg-[var(--st-bg-muted)]/10'} ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-[var(--st-bg-muted)]/20'}`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
@@ -304,22 +304,22 @@ function FileDropzone({
           onChange={handleFileInput}
           disabled={disabled}
         />
-        <UploadCloud className="h-6 w-6 text-zoru-ink-muted mx-auto mb-2" />
-        <p className="text-xs text-zoru-ink-muted">
-          <span className="font-medium text-zoru-ink">Click to upload</span> or drag and drop
+        <UploadCloud className="h-6 w-6 text-[var(--st-text-secondary)] mx-auto mb-2" />
+        <p className="text-xs text-[var(--st-text-secondary)]">
+          <span className="font-medium text-[var(--st-text)]">Click to upload</span> or drag and drop
         </p>
       </div>
       
       {files.length > 0 && (
         <div className="flex flex-col gap-2 mt-2">
           {files.map((file, i) => (
-            <div key={i} className="flex items-center justify-between bg-zoru-surface-2/30 p-2 rounded text-xs border border-zoru-line">
+            <div key={i} className="flex items-center justify-between bg-[var(--st-bg-muted)]/30 p-2 rounded text-xs border border-[var(--st-border)]">
               <span className="truncate max-w-[200px] sm:max-w-xs">{file.name}</span>
               <button 
                 type="button" 
                 onClick={() => removeFile(i)}
                 disabled={disabled}
-                className="text-zoru-ink-muted hover:text-zoru-ink disabled:opacity-50"
+                className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)] disabled:opacity-50"
               >
                 <X className="h-3.5 w-3.5" />
               </button>
@@ -344,10 +344,10 @@ function FieldInput({
 }) {
   const labelText = labelize(field.field_name);
   const label = (
-    <span className="text-[12.5px] text-zoru-ink">
+    <span className="text-[12.5px] text-[var(--st-text)]">
       {labelText}
       {field.is_required ? (
-        <span className="text-zoru-ink"> *</span>
+        <span className="text-[var(--st-text)]"> *</span>
       ) : null}
     </span>
   );

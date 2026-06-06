@@ -138,7 +138,7 @@ export function ContractTemplateForm({
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
                         <Label htmlFor="name">
-                            Name <span className="text-zoru-ink">*</span>
+                            Name <span className="text-[var(--st-text)]">*</span>
                         </Label>
                         <Input
                             id="name"
@@ -215,7 +215,7 @@ export function ContractTemplateForm({
                         placeholder="e.g. party_a, party_b, start_date, fee"
                         defaultValue={variablesInitial}
                     />
-                    <p className="text-[11.5px] text-zoru-ink-muted">
+                    <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                         These names are offered as placeholders in the contract
                         editor.
                     </p>

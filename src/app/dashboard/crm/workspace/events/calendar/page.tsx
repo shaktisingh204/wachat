@@ -302,7 +302,7 @@ export default function EventsCalendarPage(): React.JSX.Element {
           placeholder: 'Search events…',
         }}
         viewSwitcher={
-          <div className="inline-flex rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-0.5">
+          <div className="inline-flex rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-0.5">
             {(['month', 'week', 'day'] as const).map((v) => (
               <button
                 key={v}
@@ -311,8 +311,8 @@ export default function EventsCalendarPage(): React.JSX.Element {
                 className={
                   'rounded-[calc(var(--zoru-radius)-2px)] px-2.5 py-1 text-[12.5px] font-medium capitalize transition-colors ' +
                   (view === v
-                    ? 'bg-zoru-bg text-zoru-ink shadow-[var(--zoru-shadow-sm)]'
-                    : 'text-zoru-ink-muted hover:text-zoru-ink')
+                    ? 'bg-[var(--st-bg)] text-[var(--st-text)] shadow-[var(--zoru-shadow-sm)]'
+                    : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]')
                 }
               >
                 {v}
@@ -452,7 +452,7 @@ function MonthGrid({
         {DAYS.map((d) => (
           <div
             key={d}
-            className="py-2 text-center text-[11.5px] font-semibold uppercase tracking-wide text-zoru-ink-muted"
+            className="py-2 text-center text-[11.5px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]"
           >
             {d}
           </div>
@@ -462,7 +462,7 @@ function MonthGrid({
             return (
               <div
                 key={i}
-                className="min-h-[88px] rounded-lg border border-transparent bg-zoru-surface-2 p-1.5"
+                className="min-h-[88px] rounded-lg border border-transparent bg-[var(--st-bg-muted)] p-1.5"
               />
             );
           }
@@ -471,9 +471,9 @@ function MonthGrid({
           return (
             <div
               key={i}
-              className="min-h-[88px] rounded-lg border border-zoru-line bg-zoru-surface p-1.5 text-[12px]"
+              className="min-h-[88px] rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1.5 text-[12px]"
             >
-              <div className="mb-1 text-[11px] font-semibold text-zoru-ink-muted">{d}</div>
+              <div className="mb-1 text-[11px] font-semibold text-[var(--st-text-secondary)]">{d}</div>
               <div className="flex flex-col gap-1">
                 {dayEvents.slice(0, 3).map((e) => (
                   <Link
@@ -487,7 +487,7 @@ function MonthGrid({
                   </Link>
                 ))}
                 {dayEvents.length > 3 ? (
-                  <span className="text-[10.5px] text-zoru-ink-muted">
+                  <span className="text-[10.5px] text-[var(--st-text-secondary)]">
                     +{dayEvents.length - 3} more
                   </span>
                 ) : null}
@@ -518,9 +518,9 @@ function WeekGrid({
         {days.map((d) => (
           <div
             key={d.toISOString()}
-            className="rounded-lg border border-zoru-line bg-zoru-surface p-2 min-h-[200px]"
+            className="rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2 min-h-[200px]"
           >
-            <div className="mb-2 text-[11.5px] font-semibold text-zoru-ink-muted uppercase tracking-wide">
+            <div className="mb-2 text-[11.5px] font-semibold text-[var(--st-text-secondary)] uppercase tracking-wide">
               {DAYS[d.getDay()]} {d.getDate()}
             </div>
             <div className="flex flex-col gap-1">
@@ -530,10 +530,10 @@ function WeekGrid({
                   <Link
                     key={e._id}
                     href={`/dashboard/crm/workspace/events/${e._id}`}
-                    className="block rounded-md border border-zoru-line bg-zoru-surface-2/40 px-2 py-1 text-[12px] hover:bg-zoru-surface-2"
+                    className="block rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)]/40 px-2 py-1 text-[12px] hover:bg-[var(--st-bg-muted)]"
                   >
                     <div className="truncate font-medium">{e.event_name}</div>
-                    <div className="text-[11px] text-zoru-ink-muted">
+                    <div className="text-[11px] text-[var(--st-text-secondary)]">
                       {time
                         ? time.toLocaleTimeString(undefined, {
                             hour: '2-digit',
@@ -562,21 +562,21 @@ function DayList({
   return (
     <Card>
       <div className="flex flex-col gap-2 p-1">
-        <div className="text-[12.5px] font-semibold text-zoru-ink-muted">
+        <div className="text-[12.5px] font-semibold text-[var(--st-text-secondary)]">
           {day.toLocaleDateString(undefined, { weekday: 'long' })}
         </div>
         {events.length === 0 ? (
-          <p className="py-6 text-center text-sm text-zoru-ink-muted">
+          <p className="py-6 text-center text-sm text-[var(--st-text-secondary)]">
             No events scheduled for this day.
           </p>
         ) : (
-          <ul className="divide-y divide-zoru-line">
+          <ul className="divide-y divide-[var(--st-border)]">
             {events.map((e) => {
               const start = fmtDate(e.start_date_time);
               const end = fmtDate(e.end_date_time);
               return (
                 <li key={e._id} className="flex items-center gap-3 py-3">
-                  <div className="w-20 shrink-0 text-[12px] font-medium text-zoru-ink-muted">
+                  <div className="w-20 shrink-0 text-[12px] font-medium text-[var(--st-text-secondary)]">
                     {start
                       ? start.toLocaleTimeString(undefined, {
                           hour: '2-digit',
@@ -598,7 +598,7 @@ function DayList({
                       {e.event_name}
                     </Link>
                     {e.where ? (
-                      <div className="truncate text-[12px] text-zoru-ink-muted">
+                      <div className="truncate text-[12px] text-[var(--st-text-secondary)]">
                         {e.where}
                       </div>
                     ) : null}
@@ -608,7 +608,7 @@ function DayList({
                       href={e.online_link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-[12px] text-zoru-ink hover:underline"
+                      className="inline-flex items-center gap-1 text-[12px] text-[var(--st-text)] hover:underline"
                     >
                       <ExternalLink className="h-3 w-3" /> Join
                     </a>

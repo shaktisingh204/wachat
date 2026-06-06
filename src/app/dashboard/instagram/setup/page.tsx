@@ -145,8 +145,8 @@ export default function InstagramSetupPage(): React.JSX.Element {
 
       <header className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl text-zoru-ink">Instagram setup</h1>
-          <p className="mt-1 text-sm text-zoru-ink-muted">
+          <h1 className="text-2xl text-[var(--st-text)]">Instagram setup</h1>
+          <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
             Connect Instagram Business accounts to your Facebook Pages. Each project
             below shows its current connection status.
           </p>
@@ -203,12 +203,12 @@ export default function InstagramSetupPage(): React.JSX.Element {
                   </Avatar>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <p className="truncate text-sm text-zoru-ink">{p.name}</p>
+                      <p className="truncate text-sm text-[var(--st-text)]">{p.name}</p>
                       {isActive ? (
                         <Badge variant="outline">Active</Badge>
                       ) : null}
                     </div>
-                    <p className="mt-0.5 truncate text-xs text-zoru-ink-muted">
+                    <p className="mt-0.5 truncate text-xs text-[var(--st-text-secondary)]">
                       Page ID: {p.facebookPageId || '—'}
                       {row.igUsername ? <> · @{row.igUsername}</> : null}
                     </p>
@@ -248,8 +248,8 @@ export default function InstagramSetupPage(): React.JSX.Element {
       )}
 
       <Card className="mt-2 p-4">
-        <p className="text-sm text-zoru-ink">Where do I connect Instagram?</p>
-        <p className="mt-1 text-xs text-zoru-ink-muted">
+        <p className="text-sm text-[var(--st-text)]">Where do I connect Instagram?</p>
+        <p className="mt-1 text-xs text-[var(--st-text-secondary)]">
           Instagram Business accounts must be linked to a Facebook Page in Meta
           Business Suite. Once linked there, this page will detect the connection
           and unlock the Instagram modules.

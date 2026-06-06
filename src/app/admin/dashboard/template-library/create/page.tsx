@@ -45,8 +45,8 @@ function AdminCreateLibraryTemplatePage() {
                         Back to Library
                     </Link>
                     </Button>
-                    <h1 className="text-3xl text-zoru-ink font-semibold">Add New Library Template</h1>
-                    <p className="text-zoru-ink-muted mt-1">Create a new template that will be available to all users.</p>
+                    <h1 className="text-3xl text-[var(--st-text)] font-semibold">Add New Library Template</h1>
+                    <p className="text-[var(--st-text-secondary)] mt-1">Create a new template that will be available to all users.</p>
                 </div>
                 
                 <Button 
@@ -62,9 +62,9 @@ function AdminCreateLibraryTemplatePage() {
                 </Button>
             </div>
             
-            <div className={previewMode ? "border-2 border-dashed border-zoru-ink-muted/30 p-6 rounded-xl relative bg-zoru-surface/50" : ""}>
+            <div className={previewMode ? "border-2 border-dashed border-[var(--st-text-secondary)]/30 p-6 rounded-xl relative bg-[var(--st-bg-secondary)]/50" : ""}>
                 {previewMode && (
-                    <div className="absolute -top-3 right-4 bg-zoru-ink text-white px-3 py-1 text-xs font-medium rounded-full z-10 shadow-sm">
+                    <div className="absolute -top-3 right-4 bg-[var(--st-text)] text-white px-3 py-1 text-xs font-medium rounded-full z-10 shadow-sm">
                         Standard User View
                     </div>
                 )}

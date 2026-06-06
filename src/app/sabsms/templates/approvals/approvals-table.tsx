@@ -426,12 +426,12 @@ export function ApprovalsTable({
       header: "Template",
       render: (row) => (
         <div className="flex flex-col gap-1">
-          <span className="font-medium text-zoru-ink">{row.name}</span>
-          <span className="line-clamp-2 max-w-[420px] text-xs text-zoru-ink">
+          <span className="font-medium text-[var(--st-text)]">{row.name}</span>
+          <span className="line-clamp-2 max-w-[420px] text-xs text-[var(--st-text)]">
             {row.bodyPreview}
           </span>
           {row.undeclaredVariables.length > 0 && (
-            <span className="inline-flex items-center gap-1 text-xs text-zoru-ink">
+            <span className="inline-flex items-center gap-1 text-xs text-[var(--st-text)]">
               <ShieldAlert className="h-3 w-3" />
               Undeclared: {row.undeclaredVariables.join(", ")}
             </span>
@@ -444,7 +444,7 @@ export function ApprovalsTable({
       id: "category",
       header: "Category",
       render: (row) => (
-        <span className="text-xs uppercase text-zoru-ink">{row.category}</span>
+        <span className="text-xs uppercase text-[var(--st-text)]">{row.category}</span>
       ),
       width: "120px",
     },
@@ -455,7 +455,7 @@ export function ApprovalsTable({
         <div className="flex flex-col gap-0.5">
           <span
             className={`inline-flex items-center gap-1 text-xs ${
-              row.slaBreached ? "text-zoru-ink" : "text-zoru-ink"
+              row.slaBreached ? "text-[var(--st-text)]" : "text-[var(--st-text)]"
             }`}
           >
             <Clock className="h-3 w-3" />
@@ -478,10 +478,10 @@ export function ApprovalsTable({
           <span
             className={`text-xs font-mono ${
               row.complianceScore >= 70
-                ? "text-zoru-ink"
+                ? "text-[var(--st-text)]"
                 : row.complianceScore >= 40
-                  ? "text-zoru-ink"
-                  : "text-zoru-ink"
+                  ? "text-[var(--st-text)]"
+                  : "text-[var(--st-text)]"
             }`}
           >
             {row.complianceScore}/100
@@ -514,8 +514,8 @@ export function ApprovalsTable({
       id: "reviewer",
       header: "Reviewer",
       render: (row) => (
-        <span className="text-xs text-zoru-ink">
-          {row.reviewerId ?? <em className="text-zoru-ink-muted">unassigned</em>}
+        <span className="text-xs text-[var(--st-text)]">
+          {row.reviewerId ?? <em className="text-[var(--st-text-secondary)]">unassigned</em>}
         </span>
       ),
       width: "140px",
@@ -524,7 +524,7 @@ export function ApprovalsTable({
       id: "submittedAt",
       header: "Submitted",
       render: (row) => (
-        <span className="text-xs text-zoru-ink">
+        <span className="text-xs text-[var(--st-text)]">
           {row.submittedAt
             ? formatUTC(row.submittedAt, true)
             : "—"}
@@ -636,7 +636,7 @@ export function ApprovalsTable({
 
       {/* Approver permission audit (feature 18) — surfaces the current
           session as the de-facto reviewer until RBAC ships. */}
-      <div className="flex flex-wrap items-center gap-2 rounded-md border border-zoru-line bg-zoru-surface-2 px-3 py-2 text-xs text-zoru-ink">
+      <div className="flex flex-wrap items-center gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-xs text-[var(--st-text)]">
         <UserCheck className="h-3.5 w-3.5" />
         <span>
           Reviewing as this workspace. Cross-workspace admin scope is
@@ -648,7 +648,7 @@ export function ApprovalsTable({
           </Button>
           {CATEGORY_OPTIONS.map((c) => (
             <div key={c.value} className="flex items-center gap-1.5">
-              <label className="flex items-center gap-1.5 text-xs text-zoru-ink">
+              <label className="flex items-center gap-1.5 text-xs text-[var(--st-text)]">
                 <Switch
                   checked={
                     autoApprove.enabled[c.value as ApprovalRow["category"]] ?? false
@@ -698,7 +698,7 @@ export function ApprovalsTable({
             },
             {
               label: "Bulk approve selected",
-              icon: <CheckCircle2 className="h-4 w-4 text-zoru-ink" />,
+              icon: <CheckCircle2 className="h-4 w-4 text-[var(--st-text)]" />,
               onSelect: () => {
                 setBulkAction("approve");
                 setBulkNotes("");
@@ -706,7 +706,7 @@ export function ApprovalsTable({
             },
             {
               label: "Bulk reject selected",
-              icon: <XCircle className="h-4 w-4 text-zoru-ink" />,
+              icon: <XCircle className="h-4 w-4 text-[var(--st-text)]" />,
               onSelect: () => {
                 setBulkAction("reject");
                 setBulkNotes("");
@@ -728,25 +728,25 @@ export function ApprovalsTable({
         onSelectionChange={setSelectedIds}
         emptyTitle="Inbox zero"
         emptyDescription="No pending submissions. Approved decisions appear in /sabsms/templates."
-        emptyIcon={<CheckCircle2 className="h-8 w-8 text-zoru-ink" />}
+        emptyIcon={<CheckCircle2 className="h-8 w-8 text-[var(--st-text)]" />}
       />
 
       {perCategoryAvg.length > 0 && (
-        <section className="rounded-md border border-zoru-line bg-white p-3 text-xs">
-          <p className="mb-2 font-medium text-zoru-ink">
+        <section className="rounded-md border border-[var(--st-border)] bg-white p-3 text-xs">
+          <p className="mb-2 font-medium text-[var(--st-text)]">
             Avg time-to-approval (last 30d)
           </p>
           <div className="grid grid-cols-2 gap-2 md:grid-cols-5">
             {perCategoryAvg.map((c) => (
               <div
                 key={c.category}
-                className="rounded-md border border-zoru-line p-2"
+                className="rounded-md border border-[var(--st-border)] p-2"
               >
-                <p className="uppercase text-zoru-ink">{c.category}</p>
-                <p className="font-mono text-base text-zoru-ink">
+                <p className="uppercase text-[var(--st-text)]">{c.category}</p>
+                <p className="font-mono text-base text-[var(--st-text)]">
                   {c.minutes} min
                 </p>
-                <p className="text-[10px] text-zoru-ink">
+                <p className="text-[10px] text-[var(--st-text)]">
                   {c.decisions} decisions
                 </p>
               </div>
@@ -841,22 +841,22 @@ export function ApprovalsTable({
         }
       >
         {diffLoading ? (
-          <p className="text-sm text-zoru-ink">Loading diff…</p>
+          <p className="text-sm text-[var(--st-text)]">Loading diff…</p>
         ) : diffData ? (
           <div className="space-y-4">
             <section>
-              <h3 className="mb-2 text-xs font-semibold uppercase text-zoru-ink">
+              <h3 className="mb-2 text-xs font-semibold uppercase text-[var(--st-text)]">
                 Diff
               </h3>
-              <pre className="whitespace-pre-wrap rounded-md border border-zoru-line bg-zoru-surface-2 p-3 text-sm leading-relaxed">
+              <pre className="whitespace-pre-wrap rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-sm leading-relaxed">
                 {diffData.diff.map((seg, i) => (
                   <span
                     key={i}
                     className={
                       seg.kind === "ins"
-                        ? "rounded bg-zoru-surface-2 text-zoru-ink"
+                        ? "rounded bg-[var(--st-bg-muted)] text-[var(--st-text)]"
                         : seg.kind === "del"
-                          ? "rounded bg-zoru-surface-2 text-zoru-ink line-through"
+                          ? "rounded bg-[var(--st-bg-muted)] text-[var(--st-text)] line-through"
                           : ""
                     }
                   >
@@ -866,20 +866,20 @@ export function ApprovalsTable({
               </pre>
             </section>
             <section>
-              <h3 className="mb-2 text-xs font-semibold uppercase text-zoru-ink">
+              <h3 className="mb-2 text-xs font-semibold uppercase text-[var(--st-text)]">
                 AI advisory
               </h3>
-              <p className="text-sm text-zoru-ink">
+              <p className="text-sm text-[var(--st-text)]">
                 {diffData.row.aiVerdict.rationale} (
                 {Math.round(diffData.row.aiVerdict.confidence * 100)}%
                 confidence)
               </p>
-              <p className="mt-1 text-xs text-zoru-ink">
+              <p className="mt-1 text-xs text-[var(--st-text)]">
                 Compliance score: {diffData.row.complianceScore}/100
               </p>
             </section>
             <section>
-              <h3 className="mb-2 text-xs font-semibold uppercase text-zoru-ink">
+              <h3 className="mb-2 text-xs font-semibold uppercase text-[var(--st-text)]">
                 Decision trail
               </h3>
               <DecisionList decisions={diffData.decisions} />
@@ -1009,7 +1009,7 @@ export function ApprovalsTable({
             {rotation.reviewers.map((r) => (
               <div
                 key={r}
-                className="flex items-center justify-between gap-2 rounded-md border border-zoru-line p-2 text-sm"
+                className="flex items-center justify-between gap-2 rounded-md border border-[var(--st-border)] p-2 text-sm"
               >
                 <span className="font-mono text-xs">{r}</span>
                 <Button
@@ -1050,11 +1050,11 @@ export function ApprovalsTable({
             {reasons.map((r) => (
               <div
                 key={r.code}
-                className="flex items-center justify-between gap-2 rounded-md border border-zoru-line p-2 text-sm"
+                className="flex items-center justify-between gap-2 rounded-md border border-[var(--st-border)] p-2 text-sm"
               >
                 <div>
                   <p className="font-medium">{r.label}</p>
-                  <p className="font-mono text-[10px] text-zoru-ink">{r.code}</p>
+                  <p className="font-mono text-[10px] text-[var(--st-text)]">{r.code}</p>
                 </div>
                 <Button
                   variant="ghost"
@@ -1085,14 +1085,14 @@ export function ApprovalsTable({
 
 function DecisionList({ decisions }: { decisions: ApprovalDecisionRecord[] }) {
   if (decisions.length === 0) {
-    return <p className="text-sm text-zoru-ink">No prior decisions.</p>;
+    return <p className="text-sm text-[var(--st-text)]">No prior decisions.</p>;
   }
   return (
     <ol className="space-y-2">
       {decisions.map((d) => (
         <li
           key={d.id}
-          className="rounded-md border border-zoru-line p-2 text-sm"
+          className="rounded-md border border-[var(--st-border)] p-2 text-sm"
         >
           <div className="flex items-center gap-2">
             <Badge
@@ -1106,13 +1106,13 @@ function DecisionList({ decisions }: { decisions: ApprovalDecisionRecord[] }) {
             >
               {d.kind}
             </Badge>
-            <span className="text-xs text-zoru-ink">
+            <span className="text-xs text-[var(--st-text)]">
               {formatUTC(d.at, true)} · {d.reviewerId}
             </span>
           </div>
-          <p className="mt-1 text-zoru-ink">{d.notes}</p>
+          <p className="mt-1 text-[var(--st-text)]">{d.notes}</p>
           {d.reasonCode && (
-            <p className="mt-0.5 text-[11px] text-zoru-ink">
+            <p className="mt-0.5 text-[11px] text-[var(--st-text)]">
               code: {d.reasonCode}
             </p>
           )}
@@ -1141,6 +1141,6 @@ function AuditFetcher({ id }: { id: string | null }) {
       cancelled = true;
     };
   }, [id]);
-  if (loading) return <p className="text-sm text-zoru-ink">Loading…</p>;
+  if (loading) return <p className="text-sm text-[var(--st-text)]">Loading…</p>;
   return <DecisionList decisions={decisions} />;
 }

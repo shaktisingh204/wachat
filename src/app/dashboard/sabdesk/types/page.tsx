@@ -263,17 +263,17 @@ export default function TicketTypesPage() {
       bulkBar={
         selected.size > 0 ? (
           <div className="flex flex-wrap items-center gap-2 text-[13px]">
-            <span className="font-medium text-zoru-ink">
+            <span className="font-medium text-[var(--st-text)]">
               {selected.size} selected
             </span>
-            <span className="text-zoru-ink-muted">·</span>
+            <span className="text-[var(--st-text-secondary)]">·</span>
             <Button
               variant="ghost"
               size="sm"
               disabled={bulkDeleting}
               onClick={handleBulkDelete}
             >
-              <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+              <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
               Delete
             </Button>
             <Button variant="ghost" size="sm" onClick={handleExportCsv}>
@@ -329,10 +329,10 @@ export default function TicketTypesPage() {
         ) : null}
 
         <Card className="p-6">
-          <div className="overflow-x-auto rounded-lg border border-zoru-line">
+          <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
             <Table>
               <ZoruTableHeader>
-                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                   <ZoruTableHead className="w-10">
                     <Checkbox
                       checked={
@@ -346,13 +346,13 @@ export default function TicketTypesPage() {
                       aria-label="Select all"
                     />
                   </ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
                     Type
                   </ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
                     Colour
                   </ZoruTableHead>
-                  <ZoruTableHead className="w-[120px] text-right text-zoru-ink-muted">
+                  <ZoruTableHead className="w-[120px] text-right text-[var(--st-text-secondary)]">
                     Actions
                   </ZoruTableHead>
                 </ZoruTableRow>
@@ -360,17 +360,17 @@ export default function TicketTypesPage() {
               <ZoruTableBody>
                 {isLoading && rows.length === 0 ? (
                   [...Array(3)].map((_, i) => (
-                    <ZoruTableRow key={i} className="border-zoru-line">
+                    <ZoruTableRow key={i} className="border-[var(--st-border)]">
                       <ZoruTableCell colSpan={4}>
                         <Skeleton className="h-8 w-full" />
                       </ZoruTableCell>
                     </ZoruTableRow>
                   ))
                 ) : filtered.length === 0 ? (
-                  <ZoruTableRow className="border-zoru-line">
+                  <ZoruTableRow className="border-[var(--st-border)]">
                     <ZoruTableCell
                       colSpan={4}
-                      className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                      className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                     >
                       {rows.length === 0
                         ? "No types yet — click Add Type to get started."
@@ -382,8 +382,8 @@ export default function TicketTypesPage() {
                     <ZoruTableRow
                       key={row._id}
                       className={cn(
-                        "border-zoru-line",
-                        selected.has(row._id) && "bg-zoru-surface",
+                        "border-[var(--st-border)]",
+                        selected.has(row._id) && "bg-[var(--st-bg-secondary)]",
                       )}
                     >
                       <ZoruTableCell>
@@ -393,7 +393,7 @@ export default function TicketTypesPage() {
                           aria-label={`Select ${row.type}`}
                         />
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-zoru-ink">
+                      <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                         <RowDrawer
                           label={row.type}
                           subtitle={row.color ?? undefined}
@@ -402,19 +402,19 @@ export default function TicketTypesPage() {
                         >
                           <div className="space-y-3 text-sm">
                             <div>
-                              <div className="text-zoru-ink-muted text-xs">
+                              <div className="text-[var(--st-text-secondary)] text-xs">
                                 Type name
                               </div>
                               <div>{row.type}</div>
                             </div>
                             <div>
-                              <div className="text-zoru-ink-muted text-xs">
+                              <div className="text-[var(--st-text-secondary)] text-xs">
                                 Colour
                               </div>
                               {row.color ? (
                                 <div className="flex items-center gap-2">
                                   <span
-                                    className="inline-block h-4 w-4 rounded-sm border border-zoru-line"
+                                    className="inline-block h-4 w-4 rounded-sm border border-[var(--st-border)]"
                                     style={{ backgroundColor: row.color }}
                                   />
                                   <code className="text-[12px]">
@@ -428,14 +428,14 @@ export default function TicketTypesPage() {
                           </div>
                         </RowDrawer>
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-zoru-ink">
+                      <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                         <div className="flex items-center gap-2">
                           <span
-                            className="inline-block h-4 w-4 rounded-sm border border-zoru-line"
+                            className="inline-block h-4 w-4 rounded-sm border border-[var(--st-border)]"
                             style={{ backgroundColor: row.color || "#6B7280" }}
                             aria-label={`Colour ${row.color || ""}`}
                           />
-                          <code className="text-[12px] text-zoru-ink-muted">
+                          <code className="text-[12px] text-[var(--st-text-secondary)]">
                             {row.color || "—"}
                           </code>
                         </div>
@@ -454,7 +454,7 @@ export default function TicketTypesPage() {
                             size="sm"
                             onClick={() => setDeletingId(row._id)}
                           >
-                            <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                            <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                           </Button>
                         </div>
                       </ZoruTableCell>
@@ -470,10 +470,10 @@ export default function TicketTypesPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
-            <ZoruDialogTitle className="text-zoru-ink">
+            <ZoruDialogTitle className="text-[var(--st-text)]">
               {editing ? "Edit Type" : "Add Type"}
             </ZoruDialogTitle>
-            <ZoruDialogDescription className="text-zoru-ink-muted">
+            <ZoruDialogDescription className="text-[var(--st-text-secondary)]">
               Assign a colour hex code to visually distinguish the type.
             </ZoruDialogDescription>
           </ZoruDialogHeader>
@@ -482,19 +482,19 @@ export default function TicketTypesPage() {
               <input type="hidden" name="_id" value={editing._id} />
             ) : null}
             <div>
-              <Label htmlFor="type" className="text-zoru-ink">
-                Type <span className="text-zoru-danger-ink">*</span>
+              <Label htmlFor="type" className="text-[var(--st-text)]">
+                Type <span className="text-[var(--st-danger)]">*</span>
               </Label>
               <Input
                 id="type"
                 name="type"
                 required
                 defaultValue={editing?.type || ""}
-                className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
               />
             </div>
             <div>
-              <Label className="text-zoru-ink">Colour</Label>
+              <Label className="text-[var(--st-text)]">Colour</Label>
               <input type="hidden" name="color" value={color} />
               <div className="mt-1.5">
                 <ZoruColorPicker value={color} onChange={setColor} />
@@ -528,10 +528,10 @@ export default function TicketTypesPage() {
       >
         <ZoruAlertDialogContent>
           <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle className="text-zoru-ink">
+            <ZoruAlertDialogTitle className="text-[var(--st-text)]">
               Delete Type?
             </ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription className="text-zoru-ink-muted">
+            <ZoruAlertDialogDescription className="text-[var(--st-text-secondary)]">
               This action cannot be undone.
             </ZoruAlertDialogDescription>
           </ZoruAlertDialogHeader>

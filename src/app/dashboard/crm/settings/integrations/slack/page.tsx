@@ -128,7 +128,7 @@ export default function SlackIntegrationPage() {
   if (!mounted) {
     return (
       <div className="flex h-60 items-center justify-center">
-        <LoaderCircle className="h-5 w-5 animate-spin text-zoru-ink-muted" />
+        <LoaderCircle className="h-5 w-5 animate-spin text-[var(--st-text-secondary)]" />
       </div>
     );
   }
@@ -234,10 +234,10 @@ export default function SlackIntegrationPage() {
                 </div>
               </div>
 
-              <div className="md:col-span-2 flex items-center justify-between rounded-lg border border-zoru-line bg-zoru-bg px-4 py-3">
+              <div className="md:col-span-2 flex items-center justify-between rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] px-4 py-3">
                 <div>
-                  <div className="text-[13px] text-zoru-ink">Active</div>
-                  <div className="text-[12px] text-zoru-ink-muted">
+                  <div className="text-[13px] text-[var(--st-text)]">Active</div>
+                  <div className="text-[12px] text-[var(--st-text-secondary)]">
                     Enable Slack notifications.
                   </div>
                 </div>
@@ -260,11 +260,11 @@ export default function SlackIntegrationPage() {
 
         {stats?.lastErrorMessage ? (
           <Card>
-            <ZoruCardContent className="flex items-start gap-3 border-l-2 border-zoru-danger/40 p-4">
-              <AlertCircle className="mt-0.5 h-4 w-4 text-zoru-danger" />
+            <ZoruCardContent className="flex items-start gap-3 border-l-2 border-[var(--st-danger)]/40 p-4">
+              <AlertCircle className="mt-0.5 h-4 w-4 text-[var(--st-danger)]" />
               <div>
-                <p className="text-sm font-medium text-zoru-ink">Last error</p>
-                <p className="mt-0.5 text-xs text-zoru-ink-muted break-words">
+                <p className="text-sm font-medium text-[var(--st-text)]">Last error</p>
+                <p className="mt-0.5 text-xs text-[var(--st-text-secondary)] break-words">
                   {stats.lastErrorMessage}
                 </p>
               </div>

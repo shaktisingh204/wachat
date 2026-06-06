@@ -64,13 +64,13 @@ export function StoryCard({
     return (
         <Card className="overflow-hidden">
             <div
-                className="relative flex h-44 w-full cursor-pointer items-center justify-center bg-zoru-surface-2"
+                className="relative flex h-44 w-full cursor-pointer items-center justify-center bg-[var(--st-bg-muted)]"
                 onClick={onOpen}
             >
                 {isPhoto ? (
-                    <ImageIcon className="h-8 w-8 text-zoru-ink-subtle" />
+                    <ImageIcon className="h-8 w-8 text-[var(--st-text-tertiary)]" />
                 ) : (
-                    <VideoIcon className="h-8 w-8 text-zoru-ink-subtle" />
+                    <VideoIcon className="h-8 w-8 text-[var(--st-text-tertiary)]" />
                 )}
                 <div className="absolute left-2 top-2 flex gap-1">
                     <Badge variant={STATUS_VARIANT[row.status] ?? 'secondary'}>
@@ -127,16 +127,16 @@ export function StoryCard({
                 </div>
             </div>
             <div className="flex flex-col gap-1.5 p-3">
-                <p className="line-clamp-2 text-[13px] text-zoru-ink">
+                <p className="line-clamp-2 text-[13px] text-[var(--st-text)]">
                     {row.content.caption || (
-                        <span className="italic text-zoru-ink-muted">
+                        <span className="italic text-[var(--st-text-secondary)]">
                             No caption
                         </span>
                     )}
                 </p>
-                <p className="text-[11.5px] text-zoru-ink-muted h-[16px]">{timestamp}</p>
+                <p className="text-[11.5px] text-[var(--st-text-secondary)] h-[16px]">{timestamp}</p>
                 {isFinal && row.errorMessage ? (
-                    <p className="line-clamp-2 text-[11.5px] text-zoru-danger-ink">
+                    <p className="line-clamp-2 text-[11.5px] text-[var(--st-danger)]">
                         {row.errorMessage}
                     </p>
                 ) : null}

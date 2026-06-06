@@ -28,11 +28,11 @@ export function BrandDashboardClient({ projectId }: { projectId: string }) {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl text-zoru-ink flex items-center gap-3">
-            <Radar className="h-8 w-8 text-zoru-ink" />
+          <h1 className="text-3xl text-[var(--st-text)] flex items-center gap-3">
+            <Radar className="h-8 w-8 text-[var(--st-text)]" />
             Brand Radar
           </h1>
-          <p className="text-zoru-ink-muted mt-1">Monitor sentiment and unlinked mentions across social media and the web.</p>
+          <p className="text-[var(--st-text-secondary)] mt-1">Monitor sentiment and unlinked mentions across social media and the web.</p>
         </div>
         <div className="flex items-center gap-3">
           <Button variant="outline" size="icon" onClick={handleRefresh} disabled={mentionsFetching}>
@@ -53,8 +53,8 @@ export function BrandDashboardClient({ projectId }: { projectId: string }) {
               <Skeleton className="h-10 w-24 mb-1" />
             ) : (
               <>
-                <div className="text-4xl text-zoru-success">{sentiment?.positiveSentiment}</div>
-                <p className="text-sm text-zoru-ink-muted mt-1">Positive Sentiment</p>
+                <div className="text-4xl text-[var(--st-status-ok)]">{sentiment?.positiveSentiment}</div>
+                <p className="text-sm text-[var(--st-text-secondary)] mt-1">Positive Sentiment</p>
               </>
             )}
           </ZoruCardContent>
@@ -69,8 +69,8 @@ export function BrandDashboardClient({ projectId }: { projectId: string }) {
               <Skeleton className="h-10 w-24 mb-1" />
             ) : (
               <>
-                <div className="text-4xl text-zoru-ink">{sentiment?.newMentions}</div>
-                <p className="text-sm text-zoru-ink-muted mt-1">{sentiment?.mentionsDiff} from previous week</p>
+                <div className="text-4xl text-[var(--st-text)]">{sentiment?.newMentions}</div>
+                <p className="text-sm text-[var(--st-text-secondary)] mt-1">{sentiment?.mentionsDiff} from previous week</p>
               </>
             )}
           </ZoruCardContent>
@@ -85,8 +85,8 @@ export function BrandDashboardClient({ projectId }: { projectId: string }) {
               <Skeleton className="h-10 w-24 mb-1" />
             ) : (
               <>
-                <div className="text-4xl text-zoru-ink">{sentiment?.shareOfVoice}</div>
-                <p className="text-sm text-zoru-ink-muted mt-1">{sentiment?.rankText}</p>
+                <div className="text-4xl text-[var(--st-text)]">{sentiment?.shareOfVoice}</div>
+                <p className="text-sm text-[var(--st-text-secondary)] mt-1">{sentiment?.rankText}</p>
               </>
             )}
           </ZoruCardContent>
@@ -107,34 +107,34 @@ export function BrandDashboardClient({ projectId }: { projectId: string }) {
           ) : (
             <div className="space-y-4">
               {mentions?.map((m: { id: string; title: string; source: string; unlinked: boolean; date: string; sentiment: string; url?: string; }) => (
-                <div key={m.id} className="flex flex-col sm:flex-row sm:items-center justify-between rounded-[var(--zoru-radius)] border border-zoru-line p-4 gap-4">
+                <div key={m.id} className="flex flex-col sm:flex-row sm:items-center justify-between rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-4 gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <h4 className="text-zoru-ink font-medium">{m.title}</h4>
+                      <h4 className="text-[var(--st-text)] font-medium">{m.title}</h4>
                       {m.unlinked ? (
-                        <Badge variant="outline" className="text-zoru-warning border-zoru-warning/30 bg-zoru-warning/10 text-[10px] py-0">
+                        <Badge variant="outline" className="text-[var(--st-warn)] border-[var(--st-warn)]/30 bg-[var(--st-warn)]/10 text-[10px] py-0">
                           <Unlink className="h-3 w-3 mr-1" /> Unlinked
                         </Badge>
                       ) : (
-                        <Badge variant="outline" className="text-zoru-success border-zoru-success/30 bg-zoru-success/10 text-[10px] py-0">
+                        <Badge variant="outline" className="text-[var(--st-status-ok)] border-[var(--st-status-ok)]/30 bg-[var(--st-status-ok)]/10 text-[10px] py-0">
                           <Link2 className="h-3 w-3 mr-1" /> Linked
                         </Badge>
                       )}
                     </div>
                     <div className="flex items-center gap-2 mt-1">
-                      <p className="text-sm text-zoru-ink-muted font-medium">{m.source}</p>
-                      <span className="text-zoru-ink-muted/50 text-xs">•</span>
-                      <p className="text-xs text-zoru-ink-muted">{new Date(m.date).toLocaleDateString()}</p>
+                      <p className="text-sm text-[var(--st-text-secondary)] font-medium">{m.source}</p>
+                      <span className="text-[var(--st-text-secondary)]/50 text-xs">•</span>
+                      <p className="text-xs text-[var(--st-text-secondary)]">{new Date(m.date).toLocaleDateString()}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <span
                       className={`px-2 py-1 rounded text-xs uppercase font-medium ${
                         m.sentiment === 'positive'
-                          ? 'bg-zoru-success/10 text-zoru-success'
+                          ? 'bg-[var(--st-status-ok)]/10 text-[var(--st-status-ok)]'
                           : m.sentiment === 'negative'
-                            ? 'bg-zoru-danger/10 text-zoru-danger-ink'
-                            : 'bg-zoru-surface-2 text-zoru-ink-muted'
+                            ? 'bg-[var(--st-danger)]/10 text-[var(--st-danger)]'
+                            : 'bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]'
                       }`}
                     >
                       {m.sentiment}

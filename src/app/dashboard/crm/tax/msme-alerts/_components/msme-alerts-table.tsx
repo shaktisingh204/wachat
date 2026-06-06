@@ -196,7 +196,7 @@ export function MsmeAlertsTable({ rows, bucket }: MsmeAlertsTableProps) {
     /* ── render ── */
     if (rows.length === 0) {
         return (
-            <div className="px-4 py-8 text-center text-[13px] text-zoru-ink-muted">
+            <div className="px-4 py-8 text-center text-[13px] text-[var(--st-text-secondary)]">
                 {bucket === 'overdue'
                     ? 'No bills past the 45-day MSME clock.'
                     : 'No bills entering the 7-day at-risk window.'}
@@ -208,7 +208,7 @@ export function MsmeAlertsTable({ rows, bucket }: MsmeAlertsTableProps) {
         <div className="flex flex-col gap-0">
             {/* Bulk action bar — shown when at least one row is selected */}
             {selectionCount > 0 && (
-                <div className="flex flex-wrap items-center gap-2 border-b border-zoru-line/60 bg-zoru-surface-2/40 px-4 py-2 text-[13px]">
+                <div className="flex flex-wrap items-center gap-2 border-b border-[var(--st-border)]/60 bg-[var(--st-bg-muted)]/40 px-4 py-2 text-[13px]">
                     <span className="font-medium">{selectionCount} selected</span>
                     <Button
                         size="sm"
@@ -273,7 +273,7 @@ export function MsmeAlertsTable({ rows, bucket }: MsmeAlertsTableProps) {
 
             {/* Export all (no selection) */}
             {selectionCount === 0 && (
-                <div className="flex items-center justify-end gap-2 border-b border-zoru-line/60 px-4 py-2">
+                <div className="flex items-center justify-end gap-2 border-b border-[var(--st-border)]/60 px-4 py-2">
                     <Button size="sm" variant="outline" onClick={handleCsv}>
                         <Download className="h-3.5 w-3.5" />
                         Export CSV
@@ -287,7 +287,7 @@ export function MsmeAlertsTable({ rows, bucket }: MsmeAlertsTableProps) {
 
             {/* Feedback messages */}
             {(bulkError || bulkSuccess) && (
-                <div className={`px-4 py-2 text-[12.5px] ${bulkError ? 'text-zoru-ink' : 'text-zoru-ink'}`}>
+                <div className={`px-4 py-2 text-[12.5px] ${bulkError ? 'text-[var(--st-text)]' : 'text-[var(--st-text)]'}`}>
                     {bulkError ?? bulkSuccess}
                 </div>
             )}
@@ -295,7 +295,7 @@ export function MsmeAlertsTable({ rows, bucket }: MsmeAlertsTableProps) {
             {/* Table */}
             <div className="overflow-x-auto">
                 <table className="w-full text-[13px]">
-                    <thead className="border-b border-zoru-line/60 bg-zoru-surface-2/30 text-[12px] uppercase tracking-wide text-zoru-ink-muted">
+                    <thead className="border-b border-[var(--st-border)]/60 bg-[var(--st-bg-muted)]/30 text-[12px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                         <tr>
                             <th className="px-4 py-2 text-left font-medium">
                                 <Checkbox
@@ -324,7 +324,7 @@ export function MsmeAlertsTable({ rows, bucket }: MsmeAlertsTableProps) {
                             return (
                                 <tr
                                     key={r.billId}
-                                    className={`border-b border-zoru-line/40 last:border-b-0 ${selected.has(r.billId) ? 'bg-zoru-surface-2/30' : ''}`}
+                                    className={`border-b border-[var(--st-border)]/40 last:border-b-0 ${selected.has(r.billId) ? 'bg-[var(--st-bg-muted)]/30' : ''}`}
                                 >
                                     <td className="px-4 py-2.5">
                                         <Checkbox
@@ -336,7 +336,7 @@ export function MsmeAlertsTable({ rows, bucket }: MsmeAlertsTableProps) {
                                     <td className="px-4 py-2.5">
                                         <Link
                                             href={`/dashboard/crm/purchases/expenses/${r.billId}`}
-                                            className="font-medium text-zoru-ink hover:underline"
+                                            className="font-medium text-[var(--st-text)] hover:underline"
                                         >
                                             {r.billNo ?? `#${r.billId.slice(-6)}`}
                                         </Link>
@@ -345,18 +345,18 @@ export function MsmeAlertsTable({ rows, bucket }: MsmeAlertsTableProps) {
                                         <div className="flex flex-col">
                                             <Link
                                                 href={`/dashboard/crm/purchases/vendors/${r.vendorId}`}
-                                                className="text-zoru-ink hover:underline"
+                                                className="text-[var(--st-text)] hover:underline"
                                             >
                                                 {r.vendorName}
                                             </Link>
                                             {r.msmeCategory ? (
-                                                <span className="mt-0.5 text-[11px] text-zoru-ink-muted">
+                                                <span className="mt-0.5 text-[11px] text-[var(--st-text-secondary)]">
                                                     MSME · {r.msmeCategory}
                                                 </span>
                                             ) : null}
                                         </div>
                                     </td>
-                                    <td className="px-4 py-2.5 text-zoru-ink-muted">
+                                    <td className="px-4 py-2.5 text-[var(--st-text-secondary)]">
                                         {formatDate(r.billDate)}
                                     </td>
                                     <td className="px-4 py-2.5 text-right">
@@ -369,7 +369,7 @@ export function MsmeAlertsTable({ rows, bucket }: MsmeAlertsTableProps) {
                                     <td className="px-4 py-2.5 text-right font-medium">
                                         {formatINR(r.amountOutstanding)}
                                     </td>
-                                    <td className="px-4 py-2.5 text-right text-zoru-ink-muted">
+                                    <td className="px-4 py-2.5 text-right text-[var(--st-text-secondary)]">
                                         {r.msmePaymentTermsDays} d
                                     </td>
                                     <td className="px-4 py-2.5">

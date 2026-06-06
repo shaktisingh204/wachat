@@ -59,7 +59,7 @@ function PrimaryImage({ state, className }: { state: CreateFormState; className?
         return <img src={state.imageUrl} alt="" className={cn('w-full h-full object-cover', className)} />;
     }
     return (
-        <div className={cn('w-full h-full bg-gradient-to-br from-zoru-surface-2 to-zoru-surface-2 flex items-center justify-center text-xs text-zoru-ink', className)}>
+        <div className={cn('w-full h-full bg-gradient-to-br from-[var(--st-bg-muted)] to-[var(--st-bg-muted)] flex items-center justify-center text-xs text-[var(--st-text)]', className)}>
             Image placeholder
         </div>
     );
@@ -67,7 +67,7 @@ function PrimaryImage({ state, className }: { state: CreateFormState; className?
 
 function CtaButton({ state }: { state: CreateFormState }) {
     return (
-        <button type="button" className="shrink-0 bg-zoru-surface-2 hover:bg-zoru-surface-2 text-zoru-ink text-xs font-semibold px-3 py-1.5 rounded-md">
+        <button type="button" className="shrink-0 bg-[var(--st-bg-muted)] hover:bg-[var(--st-bg-muted)] text-[var(--st-text)] text-xs font-semibold px-3 py-1.5 rounded-md">
             {state.callToAction.replace(/_/g, ' ')}
         </button>
     );
@@ -77,43 +77,43 @@ function CtaButton({ state }: { state: CreateFormState }) {
 
 function FacebookDesktopFeed({ state, page }: PreviewProps) {
     return (
-        <div className="w-full max-w-[280px] bg-white text-[13px] text-zoru-ink border rounded-lg overflow-hidden shadow-sm font-sans">
+        <div className="w-full max-w-[280px] bg-white text-[13px] text-[var(--st-text)] border rounded-lg overflow-hidden shadow-sm font-sans">
             <div className="flex items-center gap-2 p-3">
-                <div className="h-10 w-10 rounded-full bg-zoru-ink/10 text-zoru-ink flex items-center justify-center font-bold text-sm">
+                <div className="h-10 w-10 rounded-full bg-[var(--st-text)]/10 text-[var(--st-text)] flex items-center justify-center font-bold text-sm">
                     {pageInitials(page?.name)}
                 </div>
                 <div className="flex-1 min-w-0">
                     <div className="font-semibold text-[13px] truncate">{page?.name || 'Your Page'}</div>
-                    <div className="text-[11px] text-zoru-ink flex items-center gap-1">
+                    <div className="text-[11px] text-[var(--st-text)] flex items-center gap-1">
                         Sponsored · <Globe className="h-3 w-3" />
                     </div>
                 </div>
-                <MoreHorizontal className="h-4 w-4 text-zoru-ink-muted" />
+                <MoreHorizontal className="h-4 w-4 text-[var(--st-text-secondary)]" />
             </div>
             <div className="px-3 pb-2 text-[13px] whitespace-pre-wrap line-clamp-3">
                 {state.primaryTexts[0] || 'Your ad copy will appear here.'}
             </div>
-            <div className="aspect-[1.91/1] bg-zoru-surface-2">
+            <div className="aspect-[1.91/1] bg-[var(--st-bg-muted)]">
                 <PrimaryImage state={state} />
             </div>
-            <div className="flex items-center justify-between p-3 bg-zoru-surface-2 border-t">
+            <div className="flex items-center justify-between p-3 bg-[var(--st-bg-muted)] border-t">
                 <div className="min-w-0 flex-1 pr-2">
-                    <div className="text-[10px] text-zoru-ink uppercase truncate">
+                    <div className="text-[10px] text-[var(--st-text)] uppercase truncate">
                         {state.displayLink || extractDomain(state.destinationUrl)}
                     </div>
                     <div className="font-semibold text-[14px] truncate">{state.headlines[0] || 'Headline'}</div>
-                    <div className="text-[11px] text-zoru-ink truncate">{state.descriptions[0] || 'Description'}</div>
+                    <div className="text-[11px] text-[var(--st-text)] truncate">{state.descriptions[0] || 'Description'}</div>
                 </div>
                 <CtaButton state={state} />
             </div>
-            <div className="flex items-center justify-around p-1 border-t text-zoru-ink">
-                <button type="button" className="flex items-center gap-1 text-[12px] px-3 py-1 hover:bg-zoru-surface-2 rounded flex-1 justify-center">
+            <div className="flex items-center justify-around p-1 border-t text-[var(--st-text)]">
+                <button type="button" className="flex items-center gap-1 text-[12px] px-3 py-1 hover:bg-[var(--st-bg-muted)] rounded flex-1 justify-center">
                     <ThumbsUp className="h-4 w-4" /> Like
                 </button>
-                <button type="button" className="flex items-center gap-1 text-[12px] px-3 py-1 hover:bg-zoru-surface-2 rounded flex-1 justify-center">
+                <button type="button" className="flex items-center gap-1 text-[12px] px-3 py-1 hover:bg-[var(--st-bg-muted)] rounded flex-1 justify-center">
                     <MessageCircle className="h-4 w-4" /> Comment
                 </button>
-                <button type="button" className="flex items-center gap-1 text-[12px] px-3 py-1 hover:bg-zoru-surface-2 rounded flex-1 justify-center">
+                <button type="button" className="flex items-center gap-1 text-[12px] px-3 py-1 hover:bg-[var(--st-bg-muted)] rounded flex-1 justify-center">
                     <Share2 className="h-4 w-4" /> Share
                 </button>
             </div>
@@ -125,31 +125,31 @@ function FacebookDesktopFeed({ state, page }: PreviewProps) {
 
 function FacebookMobileFeed({ state, page }: PreviewProps) {
     return (
-        <div className="w-full max-w-[280px] bg-white text-[13px] text-zoru-ink rounded-[32px] overflow-hidden border-4 border-zoru-line shadow-xl font-sans">
+        <div className="w-full max-w-[280px] bg-white text-[13px] text-[var(--st-text)] rounded-[32px] overflow-hidden border-4 border-[var(--st-border)] shadow-xl font-sans">
             <div className="bg-white px-4 py-2 flex items-center justify-between text-[10px] font-semibold">
                 <span>9:41</span>
                 <div className="flex items-center gap-1">
-                    <div className="w-3 h-1.5 bg-zoru-ink rounded-sm" />
-                    <div className="w-3 h-1.5 bg-zoru-ink rounded-sm" />
+                    <div className="w-3 h-1.5 bg-[var(--st-text)] rounded-sm" />
+                    <div className="w-3 h-1.5 bg-[var(--st-text)] rounded-sm" />
                 </div>
             </div>
-            <div className="bg-zoru-ink text-white px-3 py-2 text-sm font-bold">facebook</div>
+            <div className="bg-[var(--st-text)] text-white px-3 py-2 text-sm font-bold">facebook</div>
             <div className="p-3 flex items-center gap-2">
-                <div className="h-9 w-9 rounded-full bg-zoru-ink/10 text-zoru-ink flex items-center justify-center font-bold text-xs">
+                <div className="h-9 w-9 rounded-full bg-[var(--st-text)]/10 text-[var(--st-text)] flex items-center justify-center font-bold text-xs">
                     {pageInitials(page?.name)}
                 </div>
                 <div className="flex-1 min-w-0">
                     <div className="font-semibold text-[12px] truncate">{page?.name || 'Your Page'}</div>
-                    <div className="text-[10px] text-zoru-ink">Sponsored</div>
+                    <div className="text-[10px] text-[var(--st-text)]">Sponsored</div>
                 </div>
             </div>
             <div className="px-3 pb-2 text-[12px] line-clamp-3">
                 {state.primaryTexts[0] || 'Your ad copy will appear here.'}
             </div>
-            <div className="aspect-square bg-zoru-surface-2"><PrimaryImage state={state} /></div>
-            <div className="p-3 bg-zoru-surface-2 flex items-center justify-between">
+            <div className="aspect-square bg-[var(--st-bg-muted)]"><PrimaryImage state={state} /></div>
+            <div className="p-3 bg-[var(--st-bg-muted)] flex items-center justify-between">
                 <div className="min-w-0 pr-2">
-                    <div className="text-[9px] text-zoru-ink uppercase truncate">
+                    <div className="text-[9px] text-[var(--st-text)] uppercase truncate">
                         {state.displayLink || extractDomain(state.destinationUrl)}
                     </div>
                     <div className="font-semibold text-[12px] truncate">{state.headlines[0] || 'Headline'}</div>
@@ -163,11 +163,11 @@ function FacebookMobileFeed({ state, page }: PreviewProps) {
 /* ── Facebook / IG Story & Reels (vertical 9:16) ───────────────── */
 
 function VerticalStory({ state, page, ig, variant }: PreviewProps & { variant: 'fb-story' | 'ig-story' | 'fb-reels' | 'ig-reels' | 'msg-story' }) {
-    const bg = variant === 'ig-story' || variant === 'ig-reels' ? 'bg-gradient-to-br from-zoru-ink via-zoru-ink to-zoru-surface-2' : 'bg-zoru-ink';
+    const bg = variant === 'ig-story' || variant === 'ig-reels' ? 'bg-gradient-to-br from-[var(--st-text)] via-zoru-ink to-[var(--st-bg-muted)]' : 'bg-[var(--st-text)]';
     const isReels = variant === 'fb-reels' || variant === 'ig-reels';
     const handle = variant.startsWith('ig-') ? `@${ig?.username || 'yourhandle'}` : page?.name || 'Your Page';
     return (
-        <div className={cn('w-full max-w-[240px] aspect-[9/16] rounded-[32px] overflow-hidden border-4 border-zoru-line shadow-xl relative font-sans', bg)}>
+        <div className={cn('w-full max-w-[240px] aspect-[9/16] rounded-[32px] overflow-hidden border-4 border-[var(--st-border)] shadow-xl relative font-sans', bg)}>
             {state.imageUrl && (
                 <img src={state.imageUrl} alt="" className="absolute inset-0 w-full h-full object-cover opacity-90" />
             )}
@@ -205,7 +205,7 @@ function VerticalStory({ state, page, ig, variant }: PreviewProps & { variant: '
             </div>
 
             <div className="absolute bottom-3 left-3 right-3">
-                <button className="w-full bg-white text-zoru-ink text-xs font-semibold py-2 rounded-full">
+                <button className="w-full bg-white text-[var(--st-text)] text-xs font-semibold py-2 rounded-full">
                     {state.callToAction.replace(/_/g, ' ')}
                 </button>
             </div>
@@ -217,7 +217,7 @@ function VerticalStory({ state, page, ig, variant }: PreviewProps & { variant: '
 
 function InstagramFeed({ state, ig, page }: PreviewProps) {
     return (
-        <div className="w-full max-w-[280px] bg-white text-[13px] text-zoru-ink rounded-[32px] overflow-hidden border-4 border-zoru-line shadow-xl font-sans">
+        <div className="w-full max-w-[280px] bg-white text-[13px] text-[var(--st-text)] rounded-[32px] overflow-hidden border-4 border-[var(--st-border)] shadow-xl font-sans">
             <div className="bg-white px-3 py-2 flex items-center justify-between">
                 <Instagram className="h-5 w-5" />
                 <div className="flex items-center gap-3">
@@ -226,7 +226,7 @@ function InstagramFeed({ state, ig, page }: PreviewProps) {
                 </div>
             </div>
             <div className="p-2.5 flex items-center gap-2 border-t">
-                <div className="h-8 w-8 rounded-full bg-gradient-to-br from-zoru-ink via-zoru-ink to-zoru-surface-2 p-0.5">
+                <div className="h-8 w-8 rounded-full bg-gradient-to-br from-[var(--st-text)] via-zoru-ink to-[var(--st-bg-muted)] p-0.5">
                     <div className="bg-white rounded-full h-full w-full flex items-center justify-center text-[9px] font-bold">
                         {pageInitials(page?.name)}
                     </div>
@@ -235,11 +235,11 @@ function InstagramFeed({ state, ig, page }: PreviewProps) {
                     <div className="font-semibold text-[12px] truncate">
                         {ig?.username || page?.name || 'yourhandle'}
                     </div>
-                    <div className="text-[10px] text-zoru-ink">Sponsored</div>
+                    <div className="text-[10px] text-[var(--st-text)]">Sponsored</div>
                 </div>
                 <MoreHorizontal className="h-4 w-4" />
             </div>
-            <div className="aspect-square bg-zoru-surface-2"><PrimaryImage state={state} /></div>
+            <div className="aspect-square bg-[var(--st-bg-muted)]"><PrimaryImage state={state} /></div>
             <div className="p-2.5 flex items-center justify-between border-t">
                 <div className="flex items-center gap-3">
                     <Heart className="h-5 w-5" />
@@ -267,16 +267,16 @@ function InstagramFeed({ state, ig, page }: PreviewProps) {
 
 function InstagramGrid({ state, page, ig, label }: PreviewProps & { label: string }) {
     return (
-        <div className="w-full max-w-[280px] rounded-[32px] overflow-hidden border-4 border-zoru-line shadow-xl font-sans bg-white">
+        <div className="w-full max-w-[280px] rounded-[32px] overflow-hidden border-4 border-[var(--st-border)] shadow-xl font-sans bg-white">
             <div className="bg-white px-3 py-2 flex items-center justify-between">
                 <div className="text-sm font-semibold">{label}</div>
                 <Instagram className="h-5 w-5" />
             </div>
-            <div className="grid grid-cols-3 gap-px bg-zoru-surface-2 border-t">
+            <div className="grid grid-cols-3 gap-px bg-[var(--st-bg-muted)] border-t">
                 {Array.from({ length: 9 }).map((_, i) => {
                     const isAd = i === 4;
                     return (
-                        <div key={i} className="aspect-square bg-zoru-surface-2 relative">
+                        <div key={i} className="aspect-square bg-[var(--st-bg-muted)] relative">
                             {isAd ? (
                                 <>
                                     <PrimaryImage state={state} />
@@ -285,7 +285,7 @@ function InstagramGrid({ state, page, ig, label }: PreviewProps & { label: strin
                                     </div>
                                 </>
                             ) : (
-                                <div className="w-full h-full bg-gradient-to-br from-zoru-surface-2 to-zoru-surface-2" />
+                                <div className="w-full h-full bg-gradient-to-br from-[var(--st-bg-muted)] to-[var(--st-bg-muted)]" />
                             )}
                         </div>
                     );
@@ -299,17 +299,17 @@ function InstagramGrid({ state, page, ig, label }: PreviewProps & { label: strin
 
 function FacebookMarketplace({ state, page }: PreviewProps) {
     return (
-        <div className="w-full max-w-[280px] bg-white rounded-[32px] overflow-hidden border-4 border-zoru-line shadow-xl font-sans">
-            <div className="bg-zoru-ink text-white px-3 py-2 text-sm font-bold flex items-center gap-2">
+        <div className="w-full max-w-[280px] bg-white rounded-[32px] overflow-hidden border-4 border-[var(--st-border)] shadow-xl font-sans">
+            <div className="bg-[var(--st-text)] text-white px-3 py-2 text-sm font-bold flex items-center gap-2">
                 <Facebook className="h-4 w-4" /> Marketplace
             </div>
             <div className="p-3 space-y-2">
                 <div className="rounded-lg overflow-hidden border">
-                    <div className="aspect-square bg-zoru-surface-2"><PrimaryImage state={state} /></div>
+                    <div className="aspect-square bg-[var(--st-bg-muted)]"><PrimaryImage state={state} /></div>
                     <div className="p-2">
-                        <div className="text-[10px] text-zoru-ink">Sponsored · {page?.name || 'Your Page'}</div>
+                        <div className="text-[10px] text-[var(--st-text)]">Sponsored · {page?.name || 'Your Page'}</div>
                         <div className="text-[12px] font-semibold truncate">{state.headlines[0] || 'Headline'}</div>
-                        <div className="text-[10px] text-zoru-ink line-clamp-2">
+                        <div className="text-[10px] text-[var(--st-text)] line-clamp-2">
                             {state.primaryTexts[0] || 'Your ad copy will appear here.'}
                         </div>
                     </div>
@@ -324,14 +324,14 @@ function FacebookMarketplace({ state, page }: PreviewProps) {
 function FacebookRightColumn({ state, page }: PreviewProps) {
     return (
         <div className="w-full max-w-[240px] bg-white border rounded-lg overflow-hidden shadow-sm font-sans text-[12px]">
-            <div className="p-2 text-[10px] text-zoru-ink border-b">Sponsored</div>
+            <div className="p-2 text-[10px] text-[var(--st-text)] border-b">Sponsored</div>
             <div className="flex gap-2 p-2">
-                <div className="w-16 h-16 rounded overflow-hidden shrink-0 bg-zoru-surface-2">
+                <div className="w-16 h-16 rounded overflow-hidden shrink-0 bg-[var(--st-bg-muted)]">
                     <PrimaryImage state={state} />
                 </div>
                 <div className="min-w-0">
                     <div className="font-semibold line-clamp-2 text-[11px]">{state.headlines[0] || 'Headline'}</div>
-                    <div className="text-[10px] text-zoru-ink truncate">
+                    <div className="text-[10px] text-[var(--st-text)] truncate">
                         {state.displayLink || extractDomain(state.destinationUrl)}
                     </div>
                 </div>
@@ -344,33 +344,33 @@ function FacebookRightColumn({ state, page }: PreviewProps) {
 
 function MessengerInbox({ state, page }: PreviewProps) {
     return (
-        <div className="w-full max-w-[280px] bg-white rounded-[32px] overflow-hidden border-4 border-zoru-line shadow-xl font-sans">
+        <div className="w-full max-w-[280px] bg-white rounded-[32px] overflow-hidden border-4 border-[var(--st-border)] shadow-xl font-sans">
             <div className="px-3 py-2 flex items-center gap-2 border-b">
-                <MessageSquare className="h-5 w-5 text-zoru-ink" />
+                <MessageSquare className="h-5 w-5 text-[var(--st-text)]" />
                 <span className="text-sm font-bold">Chats</span>
             </div>
             <div className="space-y-1">
                 {['Mom', 'Work group'].map((c) => (
                     <div key={c} className="flex items-center gap-2 p-2">
-                        <div className="h-9 w-9 rounded-full bg-zoru-surface-2" />
+                        <div className="h-9 w-9 rounded-full bg-[var(--st-bg-muted)]" />
                         <div className="flex-1 text-[12px] font-semibold">{c}</div>
                     </div>
                 ))}
-                <div className="flex gap-2 p-2 bg-zoru-surface-2 border-y border-zoru-line">
-                    <div className="h-9 w-9 rounded-full bg-zoru-surface-2 overflow-hidden shrink-0">
+                <div className="flex gap-2 p-2 bg-[var(--st-bg-muted)] border-y border-[var(--st-border)]">
+                    <div className="h-9 w-9 rounded-full bg-[var(--st-bg-muted)] overflow-hidden shrink-0">
                         <PrimaryImage state={state} />
                     </div>
                     <div className="min-w-0">
                         <div className="text-[12px] font-semibold truncate">{page?.name || 'Your Page'}</div>
-                        <div className="text-[10px] text-zoru-ink truncate">
+                        <div className="text-[10px] text-[var(--st-text)] truncate">
                             {state.primaryTexts[0] || 'Your ad copy will appear here.'}
                         </div>
-                        <div className="text-[9px] text-zoru-ink mt-0.5">Sponsored</div>
+                        <div className="text-[9px] text-[var(--st-text)] mt-0.5">Sponsored</div>
                     </div>
                 </div>
                 {['Alex', 'Sam', 'Chris'].map((c) => (
                     <div key={c} className="flex items-center gap-2 p-2">
-                        <div className="h-9 w-9 rounded-full bg-zoru-surface-2" />
+                        <div className="h-9 w-9 rounded-full bg-[var(--st-bg-muted)]" />
                         <div className="flex-1 text-[12px] font-semibold">{c}</div>
                     </div>
                 ))}
@@ -384,21 +384,21 @@ function MessengerInbox({ state, page }: PreviewProps) {
 function AudienceNetwork({ state, page }: PreviewProps) {
     return (
         <div className="w-full max-w-[280px] bg-white rounded-lg overflow-hidden shadow-sm border font-sans">
-            <div className="p-2 text-[10px] text-zoru-ink border-b flex items-center justify-between">
+            <div className="p-2 text-[10px] text-[var(--st-text)] border-b flex items-center justify-between">
                 <span>Inside a partner app</span>
                 <Globe className="h-3 w-3" />
             </div>
-            <div className="aspect-[1.91/1] bg-zoru-surface-2"><PrimaryImage state={state} /></div>
+            <div className="aspect-[1.91/1] bg-[var(--st-bg-muted)]"><PrimaryImage state={state} /></div>
             <div className="p-2 flex items-center justify-between gap-2">
                 <div className="min-w-0">
-                    <div className="text-[10px] text-zoru-ink truncate">
+                    <div className="text-[10px] text-[var(--st-text)] truncate">
                         {state.displayLink || extractDomain(state.destinationUrl)}
                     </div>
                     <div className="text-[12px] font-semibold truncate">{state.headlines[0] || 'Headline'}</div>
                 </div>
                 <CtaButton state={state} />
             </div>
-            <div className="px-2 pb-1 text-[9px] text-zoru-ink-muted">Ad · {page?.name || 'Your Page'}</div>
+            <div className="px-2 pb-1 text-[9px] text-[var(--st-text-secondary)]">Ad · {page?.name || 'Your Page'}</div>
         </div>
     );
 }
@@ -498,7 +498,7 @@ export function AdPreviewSwitcher({
                             platform === 'messenger' ? MessageSquare : Globe;
                         return (
                             <div key={platform} className="flex items-center gap-1 pr-2 border-r last:border-0">
-                                <PlatformIcon className="h-3 w-3 text-zoru-ink-muted shrink-0" />
+                                <PlatformIcon className="h-3 w-3 text-[var(--st-text-secondary)] shrink-0" />
                                 {variants.map((v) => {
                                     const active = v.id === activeId;
                                     return (
@@ -509,8 +509,8 @@ export function AdPreviewSwitcher({
                                             className={cn(
                                                 'text-[10px] px-2 py-1 rounded-full whitespace-nowrap transition-colors',
                                                 active
-                                                    ? 'bg-zoru-ink text-white font-semibold'
-                                                    : 'bg-zoru-surface-2 hover:bg-zoru-surface-2/80 text-zoru-ink-muted',
+                                                    ? 'bg-[var(--st-text)] text-white font-semibold'
+                                                    : 'bg-[var(--st-bg-muted)] hover:bg-[var(--st-bg-muted)]/80 text-[var(--st-text-secondary)]',
                                             )}
                                         >
                                             {v.channel}
@@ -540,7 +540,7 @@ export function AdPreviewSwitcher({
                 </div>
             </div>
 
-            <div className="flex items-center justify-center py-4 px-2 bg-gradient-to-br from-zoru-surface-2 to-zoru-surface-2 rounded-xl min-h-[360px]">
+            <div className="flex items-center justify-center py-4 px-2 bg-gradient-to-br from-[var(--st-bg-muted)] to-[var(--st-bg-muted)] rounded-xl min-h-[360px]">
                 <div className="w-full flex items-center justify-center">
                     {renderVariant(activeId, props)}
                 </div>

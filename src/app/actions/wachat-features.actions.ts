@@ -1067,3 +1067,63 @@ export async function replayWebhookLog(projectId: string, payload: any) {
         return { success: false, error: getErrorMessage(e) };
     }
 }
+
+// =================================================================
+//  SCHEDULED ANALYTICS REPORTS
+// =================================================================
+
+import type {
+    ScheduledReport,
+    ScheduledReportFrequency,
+} from '@/lib/rust-client/wachat-features';
+
+const _SCHEDULED_REPORT_FREQUENCIES: readonly ScheduledReportFrequency[] = [
+    'daily',
+    'weekly',
+    'monthly',
+];
+
+export async function getScheduledReports(
+    projectId: string,
+): Promise<{ reports: ScheduledReport[] } | { error: string }> {
+    if (!projectId) return { error: 'Project ID is required.' };
+    try {
+        const r = await rustClient.wachatFeatures.getScheduledReports(projectId);
+        return { reports: r.reports ?? [] };
+    } catch (e: any) { return { error: getErrorMessage(e) }; }
+}
+
+export async function createScheduledReport(
+    projectId: string,
+    recipient: string,
+    frequency: string,
+) {
+    if (!projectId) return { error: 'Project ID is required.' };
+    const trimmed = recipient?.trim() ?? '';
+    if (!trimmed) return { error: 'Recipient email is required.' };
+    // Light email shape check; Rust enforces non-empty + frequency too.
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+        return { error: 'Enter a valid email address.' };
+    }
+    const freq = frequency?.trim().toLowerCase();
+    if (!_SCHEDULED_REPORT_FREQUENCIES.includes(freq as ScheduledReportFrequency)) {
+        return { error: 'Frequency must be one of: daily, weekly, monthly.' };
+    }
+    try {
+        const r = await rustClient.wachatFeatures.createScheduledReport(projectId, {
+            recipient: trimmed,
+            frequency: freq as ScheduledReportFrequency,
+        });
+        revalidatePath('/wachat/response-time-tracker');
+        return { message: r.message };
+    } catch (e: any) { return { error: getErrorMessage(e) }; }
+}
+
+export async function deleteScheduledReport(reportId: string) {
+    if (!reportId) return { success: false, error: 'Report ID is required.' };
+    try {
+        const r = await rustClient.wachatFeatures.deleteScheduledReport(reportId);
+        revalidatePath('/wachat/response-time-tracker');
+        return { success: r.success };
+    } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
+}

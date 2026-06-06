@@ -363,10 +363,10 @@ function CannedFormModal({ open, onClose, projectId, existing, onSaved }: Canned
           )}
 
           {/* Favourite toggle */}
-          <div className="flex items-center justify-between rounded-[12px] border border-zoru-line bg-zoru-surface-2 px-4 py-3">
+          <div className="flex items-center justify-between rounded-[12px] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-3">
             <div>
               <Label htmlFor="isFavourite">Mark as favourite</Label>
-              <div className="mt-0.5 text-[11px] text-zoru-ink-muted">
+              <div className="mt-0.5 text-[11px] text-[var(--st-text-secondary)]">
                 Pins this message to the top of the canned list.
               </div>
             </div>
@@ -514,7 +514,7 @@ function CannedMessagesList({ projectId }: { projectId: string }) {
             </div>
             <div className="flex items-center gap-2">
               <div className="relative w-full sm:w-auto">
-                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zoru-ink-muted" />
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--st-text-secondary)]" />
                 <Input
                   placeholder="Search by name…"
                   className="pl-8 w-full sm:w-64"
@@ -559,7 +559,7 @@ function CannedMessagesList({ projectId }: { projectId: string }) {
               }
             />
           ) : (
-            <div className="overflow-x-auto rounded-md border border-zoru-line">
+            <div className="overflow-x-auto rounded-md border border-[var(--st-border)]">
               <Table hover>
                 <THead>
                   <Tr>
@@ -576,7 +576,7 @@ function CannedMessagesList({ projectId }: { projectId: string }) {
                     <Tr key={msg._id}>
                       <Td>
                         {msg.isFavourite && (
-                          <Star className="h-4 w-4 text-zoru-warning-ink fill-current" />
+                          <Star className="h-4 w-4 text-[var(--st-warn)] fill-current" />
                         )}
                       </Td>
                       <Td className="font-medium">{msg.name}</Td>
@@ -585,10 +585,10 @@ function CannedMessagesList({ projectId }: { projectId: string }) {
                           <span className="capitalize">{msg.type}</span>
                         </Badge>
                       </Td>
-                      <Td className="text-zoru-ink-muted max-w-xs truncate">
+                      <Td className="text-[var(--st-text-secondary)] max-w-xs truncate">
                         {msg.content?.text || msg.content?.mediaUrl}
                       </Td>
-                      <Td className="text-zoru-ink-muted">{msg.createdBy}</Td>
+                      <Td className="text-[var(--st-text-secondary)]">{msg.createdBy}</Td>
                       <Td className="text-right whitespace-nowrap">
                         <Button
                           variant="ghost"

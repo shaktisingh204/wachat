@@ -119,7 +119,7 @@ export default function ApiKeysPage() {
                 ) : keys.length === 0 ? (
                     <EmptyState onCreated={refresh} />
                 ) : (
-                    <ul className="divide-y divide-zoru-line">
+                    <ul className="divide-y divide-[var(--st-border)]">
                         {keys.map((k) => (
                             <KeyRowItem key={k._id} row={k} onRevoked={refresh} />
                         ))}
@@ -129,13 +129,13 @@ export default function ApiKeysPage() {
 
             <Card className="p-6">
                 <div className="flex items-start gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                         <Key className="h-4 w-4" />
                     </div>
                     <div>
-                        <p className="text-sm text-zoru-ink">{t('settings.apiKeys.usingKey.title')}</p>
-                        <p className="mt-1 text-xs text-zoru-ink-muted">
-                            {t('settings.apiKeys.usingKey.descBefore')}<code className="rounded bg-zoru-surface-2 px-1">X-Api-Key</code>{t('settings.apiKeys.usingKey.descAfter')}
+                        <p className="text-sm text-[var(--st-text)]">{t('settings.apiKeys.usingKey.title')}</p>
+                        <p className="mt-1 text-xs text-[var(--st-text-secondary)]">
+                            {t('settings.apiKeys.usingKey.descBefore')}<code className="rounded bg-[var(--st-bg-muted)] px-1">X-Api-Key</code>{t('settings.apiKeys.usingKey.descAfter')}
                         </p>
                     </div>
                 </div>
@@ -217,7 +217,7 @@ function CreateKeyDialog({ onCreated }: { onCreated: () => void }) {
                                 <button
                                     type="button"
                                     onClick={copy}
-                                    className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-zoru-ink-muted hover:text-zoru-ink"
+                                    className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                                 >
                                     {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
                                     {copied ? t('settings.apiKeys.copied') : t('action.copy')}
@@ -283,14 +283,14 @@ function KeyRowItem({ row, onRevoked }: { row: KeyRow; onRevoked: () => void }) 
         <li className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
             <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                    <p className="truncate text-sm text-zoru-ink">{row.name}</p>
+                    <p className="truncate text-sm text-[var(--st-text)]">{row.name}</p>
                     {row.revoked ? (
                         <Badge variant="danger">{t('settings.apiKeys.status.revoked')}</Badge>
                     ) : (
                         <Badge variant="success">{t('settings.apiKeys.status.active')}</Badge>
                     )}
                 </div>
-                <p className="mt-1 text-xs text-zoru-ink-muted">
+                <p className="mt-1 text-xs text-[var(--st-text-secondary)]">
                     {t('settings.apiKeys.row.requests', { count: row.requestCount.toLocaleString(locale) })} ·
                     {row.lastUsed ? ` ${t('settings.apiKeys.row.lastUsed', { date: formatDate(row.lastUsed, locale) })}` : ` ${t('settings.apiKeys.row.neverUsed')}`} · {t('settings.apiKeys.row.created', { date: formatDate(row.createdAt, locale) })}
                 </p>
@@ -314,7 +314,7 @@ function KeyRowItem({ row, onRevoked }: { row: KeyRow; onRevoked: () => void }) 
                             <ZoruAlertDialogCancel>{t('action.cancel')}</ZoruAlertDialogCancel>
                             <ZoruAlertDialogAction
                                 onClick={handleRevoke}
-                                className="bg-zoru-danger text-zoru-danger-foreground hover:bg-zoru-danger/90"
+                                className="bg-[var(--st-danger)] text-zoru-danger-foreground hover:bg-[var(--st-danger)]/90"
                             >
                                 {t('settings.apiKeys.revokeKey')}
                             </ZoruAlertDialogAction>
@@ -330,11 +330,11 @@ function EmptyState({ onCreated }: { onCreated: () => void }) {
     const { t } = useT();
     return (
         <div className="p-10 text-center">
-            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                 <Key className="h-5 w-5" />
             </div>
-            <p className="text-sm text-zoru-ink">{t('settings.apiKeys.empty.title')}</p>
-            <p className="mt-1 text-xs text-zoru-ink-muted">
+            <p className="text-sm text-[var(--st-text)]">{t('settings.apiKeys.empty.title')}</p>
+            <p className="mt-1 text-xs text-[var(--st-text-secondary)]">
                 {t('settings.apiKeys.empty.description')}
             </p>
             <div className="mt-4 inline-flex">
@@ -356,9 +356,9 @@ function StatCard({
     const { t } = useT();
     return (
         <Card className="p-6">
-            <p className="text-xs uppercase tracking-wide text-zoru-ink-muted">{label}</p>
+            <p className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">{label}</p>
             <div className="mt-1 flex items-baseline gap-2">
-                <p className="text-[26px] leading-none text-zoru-ink">{value}</p>
+                <p className="text-[26px] leading-none text-[var(--st-text)]">{value}</p>
                 {tone === 'green' && value > 0 && <Badge variant="success">{t('settings.apiKeys.inUse')}</Badge>}
                 {tone === 'red' && value > 0 && <Badge variant="danger">{t('settings.apiKeys.status.revoked')}</Badge>}
             </div>

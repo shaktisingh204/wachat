@@ -69,10 +69,10 @@ function Field({
 }) {
   return (
     <div>
-      <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
         {label}
       </div>
-      <div className="mt-1 text-[13px] text-zoru-ink">{children}</div>
+      <div className="mt-1 text-[13px] text-[var(--st-text)]">{children}</div>
     </div>
   );
 }
@@ -122,18 +122,18 @@ export default async function ContractTemplateDetailPage(props: {
             <ZoruCardContent>
               <div className="space-y-2 text-[12.5px]">
                 <div className="flex items-center justify-between">
-                  <span className="text-zoru-ink-muted">State</span>
+                  <span className="text-[var(--st-text-secondary)]">State</span>
                   <Badge variant="outline">{status}</Badge>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-zoru-ink-muted">Variables</span>
-                  <span className="font-mono tabular-nums text-zoru-ink">
+                  <span className="text-[var(--st-text-secondary)]">Variables</span>
+                  <span className="font-mono tabular-nums text-[var(--st-text)]">
                     {variables.length}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-zoru-ink-muted">Body size</span>
-                  <span className="font-mono tabular-nums text-zoru-ink">
+                  <span className="text-[var(--st-text-secondary)]">Body size</span>
+                  <span className="font-mono tabular-nums text-[var(--st-text)]">
                     {body.length}
                   </span>
                 </div>
@@ -149,13 +149,13 @@ export default async function ContractTemplateDetailPage(props: {
               <div className="flex flex-col gap-2 text-[12.5px]">
                 <Link
                   href={`/dashboard/crm/sales/contracts/new?templateId=${templateId}`}
-                  className="text-zoru-primary hover:underline"
+                  className="text-[var(--st-text)] hover:underline"
                 >
                   Use to create contract →
                 </Link>
                 <Link
                   href="/dashboard/crm/contracts/templates"
-                  className="text-zoru-primary hover:underline"
+                  className="text-[var(--st-text)] hover:underline"
                 >
                   All templates →
                 </Link>
@@ -170,11 +170,11 @@ export default async function ContractTemplateDetailPage(props: {
             <ZoruCardContent>
               <div className="space-y-1.5 text-[12.5px]">
                 <div className="flex justify-between">
-                  <span className="text-zoru-ink-muted">Created</span>
+                  <span className="text-[var(--st-text-secondary)]">Created</span>
                   <span>{fmtDate(tpl.createdAt)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-zoru-ink-muted">Updated</span>
+                  <span className="text-[var(--st-text-secondary)]">Updated</span>
                   <span>{fmtDate(tpl.updatedAt)}</span>
                 </div>
               </div>
@@ -196,7 +196,7 @@ export default async function ContractTemplateDetailPage(props: {
           </div>
           <div className="mt-4">
             <Field label="Body (raw)">
-              <pre className="mt-1 max-h-64 overflow-auto whitespace-pre-wrap rounded-md border border-zoru-line bg-zoru-surface p-3 font-mono text-[12px] leading-relaxed text-zoru-ink">
+              <pre className="mt-1 max-h-64 overflow-auto whitespace-pre-wrap rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 font-mono text-[12px] leading-relaxed text-[var(--st-text)]">
                 {body || '—'}
               </pre>
             </Field>
@@ -219,7 +219,7 @@ export default async function ContractTemplateDetailPage(props: {
         </ZoruCardHeader>
         <ZoruCardContent>
           {variables.length === 0 ? (
-            <p className="text-[13px] text-zoru-ink-muted">
+            <p className="text-[13px] text-[var(--st-text-secondary)]">
               No <code>{'{{variables}}'}</code> detected in the body.
             </p>
           ) : (
@@ -227,7 +227,7 @@ export default async function ContractTemplateDetailPage(props: {
               {variables.map((v) => (
                 <li
                   key={v}
-                  className="rounded-md border border-zoru-line bg-zoru-surface px-2 py-1 font-mono text-zoru-ink"
+                  className="rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1 font-mono text-[var(--st-text)]"
                 >
                   {'{{'}
                   {v}
@@ -244,14 +244,14 @@ export default async function ContractTemplateDetailPage(props: {
           <ZoruCardTitle>Linked contracts</ZoruCardTitle>
         </ZoruCardHeader>
         <ZoruCardContent>
-          <p className="text-[13px] text-zoru-ink-muted">
+          <p className="text-[13px] text-[var(--st-text-secondary)]">
             Contracts created from this template will appear here once the
             `templateId` linkage is persisted on the contract record.
           </p>
           <div className="mt-2">
             <Link
               href={`/dashboard/crm/sales/contracts?templateId=${templateId}`}
-              className="text-[12.5px] text-zoru-primary hover:underline"
+              className="text-[12.5px] text-[var(--st-text)] hover:underline"
             >
               Search contracts with this template →
             </Link>
@@ -259,7 +259,7 @@ export default async function ContractTemplateDetailPage(props: {
         </ZoruCardContent>
       </Card>
 
-      <p className="text-[11px] text-zoru-ink-muted">
+      <p className="text-[11px] text-[var(--st-text-secondary)]">
         Created {fmtDate(tpl.createdAt)} · Updated {fmtDate(tpl.updatedAt)}
       </p>
     </EntityDetailShell>

@@ -40,7 +40,7 @@ export function TimeSeriesTile({
         <div className="flex items-center gap-2 text-xs">
           <Link
             href={drilldownHref}
-            className="text-zoru-ink-muted hover:text-zoru-ink"
+            className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
           >
             Open in logs
           </Link>
@@ -53,7 +53,7 @@ export function TimeSeriesTile({
       </ZoruCardHeader>
       <ZoruCardContent>
         {data.length === 0 ? (
-          <p className="py-12 text-center text-sm text-zoru-ink-muted">
+          <p className="py-12 text-center text-sm text-[var(--st-text-secondary)]">
             No traffic in this window.
           </p>
         ) : (
@@ -64,7 +64,7 @@ export function TimeSeriesTile({
             >
               <ZoruChart.CartesianGrid
                 strokeDasharray="3 3"
-                className="stroke-zoru-line"
+                className="stroke-[var(--st-border)]"
               />
               <ZoruChart.XAxis
                 dataKey="date"

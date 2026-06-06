@@ -19,10 +19,10 @@ export default function ActivityError({
     <div className="flex h-[50vh] w-full items-center justify-center p-6">
       <Card className="flex max-w-md flex-col items-center p-8 text-center shadow-sm">
         <div className="mb-4 rounded-full bg-zoru-danger-surface p-3">
-          <AlertCircle className="h-6 w-6 text-zoru-danger-ink" />
+          <AlertCircle className="h-6 w-6 text-[var(--st-danger)]" />
         </div>
-        <h2 className="mb-2 text-lg font-semibold text-zoru-ink">Something went wrong</h2>
-        <p className="mb-6 text-sm text-zoru-ink-muted">
+        <h2 className="mb-2 text-lg font-semibold text-[var(--st-text)]">Something went wrong</h2>
+        <p className="mb-6 text-sm text-[var(--st-text-secondary)]">
           We encountered an error loading the activity feed. This could be due to a network issue or missing data.
         </p>
         <Button onClick={() => reset()} className="w-full sm:w-auto">

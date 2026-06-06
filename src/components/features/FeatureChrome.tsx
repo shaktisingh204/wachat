@@ -76,13 +76,13 @@ export function FeatureHeroPattern({
  */
 export function FeatureCategoryStrip({ active }: { active?: string }) {
   return (
-    <div className="border-b sn-hair bg-zoru-surface">
+    <div className="border-b sn-hair bg-[var(--st-bg-secondary)]">
       <div className="container mx-auto px-4 md:px-6 overflow-x-auto">
         <div className="flex items-center gap-1 h-11 min-w-max">
           <Link
             href="/features"
             className={`h-8 inline-flex items-center px-3 rounded-full text-[12.5px] font-semibold transition-colors ${
-              !active ? 'bg-zoru-ink text-white' : 'text-zoru-ink hover:text-zoru-ink'
+              !active ? 'bg-[var(--st-text)] text-white' : 'text-[var(--st-text)] hover:text-[var(--st-text)]'
             }`}
           >
             All
@@ -95,8 +95,8 @@ export function FeatureCategoryStrip({ active }: { active?: string }) {
                 href={`/features#${c.id}`}
                 className={`h-8 inline-flex items-center px-3 rounded-full text-[12.5px] font-semibold transition-colors ${
                   isActive
-                    ? 'bg-zoru-ink text-white'
-                    : 'text-zoru-ink hover:text-zoru-ink'
+                    ? 'bg-[var(--st-text)] text-white'
+                    : 'text-[var(--st-text)] hover:text-[var(--st-text)]'
                 }`}
                 style={isActive ? undefined : undefined}
               >
@@ -107,7 +107,7 @@ export function FeatureCategoryStrip({ active }: { active?: string }) {
           <span className="mx-2 h-4 w-px bg-black/10" />
           <Link
             href="/products"
-            className="h-8 inline-flex items-center gap-1 px-3 text-[12px] font-bold uppercase tracking-[0.12em] text-zoru-ink hover:text-zoru-ink"
+            className="h-8 inline-flex items-center gap-1 px-3 text-[12px] font-bold uppercase tracking-[0.12em] text-[var(--st-text)] hover:text-[var(--st-text)]"
           >
             Explore products <ChevronRight className="h-3 w-3" />
           </Link>
@@ -119,12 +119,12 @@ export function FeatureCategoryStrip({ active }: { active?: string }) {
 
 export function FeatureFooter() {
   return (
-    <footer className="border-t sn-hair bg-zoru-surface">
+    <footer className="border-t sn-hair bg-[var(--st-bg-secondary)]">
       <div className="container mx-auto px-4 md:px-6 py-12">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
           <div className="md:col-span-4">
             <SabNodeLogo className="h-7 w-auto" />
-            <p className="mt-4 text-[13px] text-zoru-ink leading-relaxed max-w-xs">
+            <p className="mt-4 text-[13px] text-[var(--st-text)] leading-relaxed max-w-xs">
               SabNode is the operating layer for customer conversations — chat,
               automation, CRM, broadcasts, commerce and AI in one workspace.
             </p>
@@ -132,7 +132,7 @@ export function FeatureFooter() {
               <Link href="/signup" className="sn-btn-primary inline-flex h-10 items-center gap-1.5 rounded-full px-5 text-[13px] font-semibold">
                 Start free
               </Link>
-              <Link href="/contact" className="inline-flex h-10 items-center gap-1.5 px-3 text-[13px] font-medium text-zoru-ink hover:text-zoru-ink">
+              <Link href="/contact" className="inline-flex h-10 items-center gap-1.5 px-3 text-[13px] font-medium text-[var(--st-text)] hover:text-[var(--st-text)]">
                 Talk to sales <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
@@ -140,23 +140,23 @@ export function FeatureFooter() {
 
           {FEATURE_CATEGORIES.slice(0, 4).map(c => (
             <div key={c.id} className="md:col-span-2">
-              <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-zoru-ink">
+              <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--st-text)]">
                 {c.label}
               </div>
-              <Link href={`/features#${c.id}`} className="mt-3 block text-[13px] text-zoru-ink hover:text-zoru-ink">
+              <Link href={`/features#${c.id}`} className="mt-3 block text-[13px] text-[var(--st-text)] hover:text-[var(--st-text)]">
                 Browse →
               </Link>
             </div>
           ))}
         </div>
 
-        <div className="mt-10 pt-6 border-t sn-hair flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-[12px] text-zoru-ink">
+        <div className="mt-10 pt-6 border-t sn-hair flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-[12px] text-[var(--st-text)]">
           <div>© {new Date().getFullYear()} SabNode. All rights reserved.</div>
           <div className="flex items-center gap-4">
-            <Link href="/privacy-policy" className="hover:text-zoru-ink">Privacy</Link>
-            <Link href="/terms-and-conditions" className="hover:text-zoru-ink">Terms</Link>
-            <Link href="/status" className="hover:text-zoru-ink">Status</Link>
-            <Link href="/contact" className="hover:text-zoru-ink">Contact</Link>
+            <Link href="/privacy-policy" className="hover:text-[var(--st-text)]">Privacy</Link>
+            <Link href="/terms-and-conditions" className="hover:text-[var(--st-text)]">Terms</Link>
+            <Link href="/status" className="hover:text-[var(--st-text)]">Status</Link>
+            <Link href="/contact" className="hover:text-[var(--st-text)]">Contact</Link>
           </div>
         </div>
       </div>

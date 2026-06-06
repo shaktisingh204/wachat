@@ -56,7 +56,7 @@ export default async function SubtaskDetailPage({
     >
       <Card className="p-6 animate-in fade-in-50">
         <div className="mb-4 flex flex-wrap items-center gap-2">
-          <div className="text-[14px] font-medium text-zoru-ink">
+          <div className="text-[14px] font-medium text-[var(--st-text)]">
             Overview
           </div>
           <StatusPill
@@ -67,20 +67,20 @@ export default async function SubtaskDetailPage({
         <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
           {subtask.projectId ? (
             <div>
-              <div className="text-zoru-ink-muted">Project</div>
-              <div className="text-zoru-ink font-medium">
+              <div className="text-[var(--st-text-secondary)]">Project</div>
+              <div className="text-[var(--st-text)] font-medium">
                 <EntityPickerChip entity="project" id={String(subtask.projectId)} fallback="—" />
               </div>
             </div>
           ) : (
             <div>
-              <div className="text-zoru-ink-muted">Parent kind</div>
-              <div className="text-zoru-ink font-medium">CRM task</div>
+              <div className="text-[var(--st-text-secondary)]">Parent kind</div>
+              <div className="text-[var(--st-text)] font-medium">CRM task</div>
             </div>
           )}
           <div>
-            <div className="text-zoru-ink-muted">Parent task</div>
-            <div className="font-mono text-[12px] text-zoru-ink font-medium">
+            <div className="text-[var(--st-text-secondary)]">Parent task</div>
+            <div className="font-mono text-[12px] text-[var(--st-text)] font-medium">
               {subtask.taskId ? (
                 <EntityPickerChip entity="task" id={String(subtask.taskId)} fallback={String(subtask.taskId)} />
               ) : (
@@ -89,8 +89,8 @@ export default async function SubtaskDetailPage({
             </div>
           </div>
           <div>
-            <div className="text-zoru-ink-muted">Assignee</div>
-            <div className="text-zoru-ink font-medium">
+            <div className="text-[var(--st-text-secondary)]">Assignee</div>
+            <div className="text-[var(--st-text)] font-medium">
               {subtask.assignedTo ? (
                 <EntityPickerChip entity="employee" id={String(subtask.assignedTo)} fallback={subtask.assignedToName || '—'} />
               ) : (
@@ -99,12 +99,12 @@ export default async function SubtaskDetailPage({
             </div>
           </div>
           <div>
-            <div className="text-zoru-ink-muted">Due date</div>
-            <div className="text-zoru-ink font-medium">{fmtDateUTC(subtask.dueDate)}</div>
+            <div className="text-[var(--st-text-secondary)]">Due date</div>
+            <div className="text-[var(--st-text)] font-medium">{fmtDateUTC(subtask.dueDate)}</div>
           </div>
           <div>
-            <div className="text-zoru-ink-muted">Predecessor / Dependency</div>
-            <div className="text-zoru-ink font-medium">
+            <div className="text-[var(--st-text-secondary)]">Predecessor / Dependency</div>
+            <div className="text-[var(--st-text)] font-medium">
               {subtask.dependencyId ? (
                 <EntityPickerChip entity="subtask" id={String(subtask.dependencyId)} fallback="Predecessor Subtask" />
               ) : (
@@ -113,15 +113,15 @@ export default async function SubtaskDetailPage({
             </div>
           </div>
           <div>
-            <div className="text-zoru-ink-muted">Completed date</div>
-            <div className="text-zoru-ink font-medium">
+            <div className="text-[var(--st-text-secondary)]">Completed date</div>
+            <div className="text-[var(--st-text)] font-medium">
               {subtask.status === 'completed' || subtask.status === 'done' ? fmtDateUTC(subtask.dueDate) : '—'}
             </div>
           </div>
           {subtask.description ? (
             <div className="sm:col-span-2">
-              <div className="text-zoru-ink-muted">Description</div>
-              <div className="whitespace-pre-wrap text-zoru-ink mt-1 font-medium bg-zoru-surface p-3 rounded-lg border">
+              <div className="text-[var(--st-text-secondary)]">Description</div>
+              <div className="whitespace-pre-wrap text-[var(--st-text)] mt-1 font-medium bg-[var(--st-bg-secondary)] p-3 rounded-lg border">
                 {subtask.description}
               </div>
             </div>
@@ -130,12 +130,12 @@ export default async function SubtaskDetailPage({
       </Card>
 
       <Card className="p-6">
-        <h2 className="text-[14px] font-semibold text-zoru-ink">Audit</h2>
+        <h2 className="text-[14px] font-semibold text-[var(--st-text)]">Audit</h2>
         <div className="mt-3 grid grid-cols-2 gap-x-6 gap-y-2 text-[12.5px]">
-          <div className="text-zoru-ink-muted">Created</div>
-          <div className="text-zoru-ink font-medium">{fmtDateUTC(subtask.createdAt)}</div>
-          <div className="text-zoru-ink-muted">Updated</div>
-          <div className="text-zoru-ink font-medium">{fmtDateUTC(subtask.updatedAt)}</div>
+          <div className="text-[var(--st-text-secondary)]">Created</div>
+          <div className="text-[var(--st-text)] font-medium">{fmtDateUTC(subtask.createdAt)}</div>
+          <div className="text-[var(--st-text-secondary)]">Updated</div>
+          <div className="text-[var(--st-text)] font-medium">{fmtDateUTC(subtask.updatedAt)}</div>
         </div>
       </Card>
     </EntityDetailShell>

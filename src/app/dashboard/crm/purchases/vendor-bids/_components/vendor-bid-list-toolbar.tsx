@@ -51,7 +51,7 @@ export function VendorBidKpiStrip({ kpi, onSegmentClick }: KpiStripProps) {
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
       <button
         type="button"
-        className="text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-zoru-primary"
+        className="text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]"
         onClick={() => onSegmentClick('draft')}
         aria-label="Filter to draft vendor bids"
       >
@@ -64,7 +64,7 @@ export function VendorBidKpiStrip({ kpi, onSegmentClick }: KpiStripProps) {
       </button>
       <button
         type="button"
-        className="text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-zoru-primary"
+        className="text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]"
         onClick={() => onSegmentClick('submitted')}
         aria-label="Filter to submitted vendor bids"
       >
@@ -76,7 +76,7 @@ export function VendorBidKpiStrip({ kpi, onSegmentClick }: KpiStripProps) {
       </button>
       <button
         type="button"
-        className="text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-zoru-primary"
+        className="text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]"
         onClick={() => onSegmentClick('shortlisted')}
         aria-label="Filter to shortlisted vendor bids"
       >
@@ -88,7 +88,7 @@ export function VendorBidKpiStrip({ kpi, onSegmentClick }: KpiStripProps) {
       </button>
       <button
         type="button"
-        className="text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-zoru-primary"
+        className="text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]"
         onClick={() => onSegmentClick('awarded')}
         aria-label="Filter to awarded vendor bids"
       >
@@ -100,7 +100,7 @@ export function VendorBidKpiStrip({ kpi, onSegmentClick }: KpiStripProps) {
       </button>
       <button
         type="button"
-        className="text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-zoru-primary"
+        className="text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]"
         onClick={() => onSegmentClick('rejected')}
         aria-label="Filter to rejected vendor bids"
       >
@@ -137,9 +137,9 @@ export function VendorBidListToolbar({
   onExportCsv,
 }: ToolbarProps) {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zoru-line p-3">
+    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--st-border)] p-3">
       <div className="relative w-full max-w-sm">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
         <Input
           value={query}
           onChange={(e) => onQueryChange(e.target.value)}
@@ -161,7 +161,7 @@ export function VendorBidListToolbar({
           </ZoruSelectContent>
         </Select>
 
-        <div className="flex items-center rounded border border-zoru-line bg-zoru-surface p-0.5">
+        <div className="flex items-center rounded border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-0.5">
           <Button
             type="button"
             variant={view === 'table' ? 'default' : 'ghost'}

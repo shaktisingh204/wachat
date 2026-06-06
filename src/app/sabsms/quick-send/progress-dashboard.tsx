@@ -153,8 +153,8 @@ export function QuickSendProgressDashboard({
       <ZoruCardHeader className="flex flex-row items-start justify-between gap-3">
         <div className="space-y-1">
           <ZoruCardTitle>Run progress</ZoruCardTitle>
-          <div className="flex flex-wrap items-center gap-2 text-xs text-zoru-ink">
-            <code className="rounded bg-zoru-surface-2 px-2 py-0.5">{runId}</code>
+          <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--st-text)]">
+            <code className="rounded bg-[var(--st-bg-muted)] px-2 py-0.5">{runId}</code>
             {run && (
               <Badge variant={terminal ? "secondary" : "default"}>
                 {run.status}
@@ -176,20 +176,20 @@ export function QuickSendProgressDashboard({
       </ZoruCardHeader>
       <ZoruCardContent className="space-y-4">
         {error && (
-          <p className="rounded border border-zoru-line bg-zoru-surface-2 p-3 text-sm text-zoru-ink">
+          <p className="rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-sm text-[var(--st-text)]">
             {error}
           </p>
         )}
 
         <div>
           <Progress value={pct} />
-          <div className="mt-2 flex flex-wrap gap-4 text-xs text-zoru-ink">
+          <div className="mt-2 flex flex-wrap gap-4 text-xs text-[var(--st-text)]">
             <span>
               {processed} / {run?.total ?? 0} processed
             </span>
             <span>queued: {run?.queued ?? 0}</span>
             <span>skipped: {run?.skipped ?? 0}</span>
-            <span className="text-zoru-ink">failed: {run?.failed ?? 0}</span>
+            <span className="text-[var(--st-text)]">failed: {run?.failed ?? 0}</span>
             <span>throttle: {run?.throttlePerSecond ?? 0}/s</span>
           </div>
         </div>
@@ -236,7 +236,7 @@ export function QuickSendProgressDashboard({
           )}
         </div>
 
-        <div className="overflow-hidden rounded border border-zoru-line">
+        <div className="overflow-hidden rounded border border-[var(--st-border)]">
           <Table>
             <ZoruTableHeader>
               <ZoruTableRow>
@@ -260,11 +260,11 @@ export function QuickSendProgressDashboard({
                       {r.status}
                     </Badge>
                   </ZoruTableCell>
-                  <ZoruTableCell className="max-w-[320px] truncate text-xs text-zoru-ink">
+                  <ZoruTableCell className="max-w-[320px] truncate text-xs text-[var(--st-text)]">
                     {r.status === "failed" ? (
                       <button
                         type="button"
-                        className="text-zoru-ink underline"
+                        className="text-[var(--st-text)] underline"
                         onClick={() => setDrawerRow(r)}
                       >
                         {r.error ?? "view"}
@@ -279,7 +279,7 @@ export function QuickSendProgressDashboard({
                 <ZoruTableRow>
                   <ZoruTableCell
                     colSpan={4}
-                    className="py-8 text-center text-sm text-zoru-ink"
+                    className="py-8 text-center text-sm text-[var(--st-text)]"
                   >
                     Waiting for the first row to land…
                   </ZoruTableCell>
@@ -298,28 +298,28 @@ export function QuickSendProgressDashboard({
           {drawerRow && (
             <div className="space-y-3 text-sm">
               <div>
-                <div className="text-xs font-semibold uppercase tracking-wide text-zoru-ink">
+                <div className="text-xs font-semibold uppercase tracking-wide text-[var(--st-text)]">
                   Source line
                 </div>
                 <div className="font-mono">{drawerRow.sourceLine}</div>
               </div>
               <div>
-                <div className="text-xs font-semibold uppercase tracking-wide text-zoru-ink">
+                <div className="text-xs font-semibold uppercase tracking-wide text-[var(--st-text)]">
                   Phone
                 </div>
                 <div className="font-mono">{drawerRow.phone}</div>
               </div>
               <div>
-                <div className="text-xs font-semibold uppercase tracking-wide text-zoru-ink">
+                <div className="text-xs font-semibold uppercase tracking-wide text-[var(--st-text)]">
                   Status
                 </div>
                 <Badge variant="destructive">{drawerRow.status}</Badge>
               </div>
               <div>
-                <div className="text-xs font-semibold uppercase tracking-wide text-zoru-ink">
+                <div className="text-xs font-semibold uppercase tracking-wide text-[var(--st-text)]">
                   Error
                 </div>
-                <pre className="overflow-x-auto rounded bg-zoru-surface-2 p-2 text-xs">
+                <pre className="overflow-x-auto rounded bg-[var(--st-bg-muted)] p-2 text-xs">
                   {drawerRow.error ?? "(none)"}
                 </pre>
               </div>

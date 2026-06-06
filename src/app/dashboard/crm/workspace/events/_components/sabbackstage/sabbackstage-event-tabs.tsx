@@ -33,7 +33,7 @@ export function SabbackstageEventTabs({
 }: SabbackstageEventTabsProps): React.JSX.Element {
   return (
     <Card>
-      <h3 className="mb-3 text-[13.5px] font-semibold text-zoru-ink">
+      <h3 className="mb-3 text-[13.5px] font-semibold text-[var(--st-text)]">
         SabBackstage — public ticketing
       </h3>
       <Tabs defaultValue="ticketing">

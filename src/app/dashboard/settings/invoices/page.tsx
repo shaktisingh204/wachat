@@ -91,7 +91,7 @@ export default function InvoicesPage() {
             description={t('settings.invoices.empty.description')}
           />
         ) : (
-          <ul className="divide-y divide-zoru-line">
+          <ul className="divide-y divide-[var(--st-border)]">
             {rows.map((tx, idx) => {
               const r = tx as any;
               const amount = Number(r.amount ?? 0) / 100;
@@ -105,17 +105,17 @@ export default function InvoicesPage() {
                 >
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <p className="truncate text-sm text-zoru-ink">{prettyLabel(type)}</p>
+                      <p className="truncate text-sm text-[var(--st-text)]">{prettyLabel(type)}</p>
                       <StatusBadge status={status} />
                     </div>
-                    <p className="mt-1 flex items-center gap-1.5 text-xs text-zoru-ink-muted">
+                    <p className="mt-1 flex items-center gap-1.5 text-xs text-[var(--st-text-secondary)]">
                       <Calendar className="h-3 w-3" />
                       {formatDate(r.createdAt ?? r.date ?? new Date(), locale)}
                       {r.description && ` · ${r.description}`}
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-sm text-zoru-ink">
+                    <span className="text-sm text-[var(--st-text)]">
                       {formatCurrency(amount, currency, locale)}
                     </span>
                     <Button variant="ghost" size="sm">

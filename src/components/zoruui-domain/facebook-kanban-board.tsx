@@ -66,7 +66,7 @@ function AddList({ onAddList }: { onAddList: (name: string) => void }) {
     }
 
     return (
-        <div className="w-72 flex-shrink-0 p-2 bg-zoru-surface-2 rounded-lg h-fit">
+        <div className="w-72 flex-shrink-0 p-2 bg-[var(--st-bg-muted)] rounded-lg h-fit">
             <Input
                 placeholder="Enter list title..."
                 value={listName}

@@ -37,10 +37,10 @@ const StatCard = ({ title, value, icon: Icon }: { title: string; value: string |
     <Card>
         <ZoruCardHeader className="flex flex-row items-center justify-between pb-2">
             <ZoruCardTitle className="text-sm">{title}</ZoruCardTitle>
-            <Icon className="h-4 w-4 text-zoru-ink-muted" />
+            <Icon className="h-4 w-4 text-[var(--st-text-secondary)]" />
         </ZoruCardHeader>
         <ZoruCardContent>
-            <div className="text-2xl text-zoru-ink">
+            <div className="text-2xl text-[var(--st-text)]">
                 {typeof value === 'number' ? value.toLocaleString() : value}
             </div>
         </ZoruCardContent>
@@ -142,11 +142,11 @@ export default function SiteExplorerPage() {
         return (
             <div className="flex flex-col gap-8">
                 <div>
-                    <h1 className="text-3xl text-zoru-ink flex items-center gap-3">
+                    <h1 className="text-3xl text-[var(--st-text)] flex items-center gap-3">
                         <Globe className="h-8 w-8" />
                         Site Explorer
                     </h1>
-                    <p className="text-zoru-ink-muted mt-2">Analyze domain-level SEO metrics for any website.</p>
+                    <p className="text-[var(--st-text-secondary)] mt-2">Analyze domain-level SEO metrics for any website.</p>
                 </div>
 
                 <div className="flex gap-2">
@@ -163,13 +163,13 @@ export default function SiteExplorerPage() {
                     </Button>
                 </div>
                 {error && (
-                    <div className="flex items-center gap-2 text-zoru-ink bg-zoru-ink/10 p-4 rounded-[var(--zoru-radius)]">
+                    <div className="flex items-center gap-2 text-[var(--st-text)] bg-[var(--st-text)]/10 p-4 rounded-[var(--zoru-radius)]">
                         <AlertCircle className="h-5 w-5" />
                         <p>{error}</p>
                     </div>
                 )}
 
-                <div className="rounded-[var(--zoru-radius)] border-2 border-dashed border-zoru-line p-12 text-center text-zoru-ink-muted">
+                <div className="rounded-[var(--zoru-radius)] border-2 border-dashed border-[var(--st-border)] p-12 text-center text-[var(--st-text-secondary)]">
                     Enter a domain above to start analyzing.
                 </div>
             </div>
@@ -190,11 +190,11 @@ export default function SiteExplorerPage() {
     return (
         <div className="flex flex-col gap-8">
             <div>
-                <h1 className="text-3xl text-zoru-ink flex items-center gap-3">
+                <h1 className="text-3xl text-[var(--st-text)] flex items-center gap-3">
                     <Globe className="h-8 w-8" />
                     Site Explorer
                 </h1>
-                <p className="text-zoru-ink-muted mt-2">Analyze domain-level SEO metrics for any website.</p>
+                <p className="text-[var(--st-text-secondary)] mt-2">Analyze domain-level SEO metrics for any website.</p>
             </div>
 
             <div className="flex gap-2">
@@ -211,7 +211,7 @@ export default function SiteExplorerPage() {
                 </Button>
             </div>
             {error && (
-                <div className="flex items-center gap-2 text-zoru-ink bg-zoru-ink/10 p-4 rounded-[var(--zoru-radius)]">
+                <div className="flex items-center gap-2 text-[var(--st-text)] bg-[var(--st-text)]/10 p-4 rounded-[var(--zoru-radius)]">
                     <AlertCircle className="h-5 w-5" />
                     <p>{error}</p>
                 </div>
@@ -260,8 +260,8 @@ export default function SiteExplorerPage() {
                             {anchorTextData.map((item, index) => (
                                 <div key={`${item.text}-${index}`} className="space-y-1">
                                     <div className="flex justify-between items-baseline">
-                                        <p className="text-sm text-zoru-ink truncate">{item.text}</p>
-                                        <p className="text-xs text-zoru-ink-muted">{item.percentage.toFixed(0)}%</p>
+                                        <p className="text-sm text-[var(--st-text)] truncate">{item.text}</p>
+                                        <p className="text-xs text-[var(--st-text-secondary)]">{item.percentage.toFixed(0)}%</p>
                                     </div>
                                     <Progress value={item.percentage} />
                                 </div>
@@ -306,11 +306,11 @@ export default function SiteExplorerPage() {
                     </Button>
                 </ZoruCardHeader>
                 <ZoruCardContent>
-                    <div ref={parentRef} className="h-[400px] overflow-auto border border-zoru-line rounded-[var(--zoru-radius)] bg-transparent">
+                    <div ref={parentRef} className="h-[400px] overflow-auto border border-[var(--st-border)] rounded-[var(--zoru-radius)] bg-transparent">
                         <div className="w-full text-sm">
-                            <div className="flex border-b border-zoru-line sticky top-0 bg-[var(--zoru-background)] z-10 font-medium">
-                                <div className="p-3 w-1/2 text-left text-zoru-ink">Domain / URL</div>
-                                <div className="p-3 w-1/2 text-right text-zoru-ink">Type</div>
+                            <div className="flex border-b border-[var(--st-border)] sticky top-0 bg-[var(--zoru-background)] z-10 font-medium">
+                                <div className="p-3 w-1/2 text-left text-[var(--st-text)]">Domain / URL</div>
+                                <div className="p-3 w-1/2 text-right text-[var(--st-text)]">Type</div>
                             </div>
                             
                             <div style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
@@ -319,14 +319,14 @@ export default function SiteExplorerPage() {
                                     return (
                                         <div
                                             key={virtualRow.key}
-                                            className="flex border-b border-zoru-line absolute top-0 left-0 w-full items-center bg-transparent"
+                                            className="flex border-b border-[var(--st-border)] absolute top-0 left-0 w-full items-center bg-transparent"
                                             style={{
                                                 height: `${virtualRow.size}px`,
                                                 transform: `translateY(${virtualRow.start}px)`
                                             }}
                                         >
                                             <div className="p-3 w-1/2 flex flex-col justify-center overflow-hidden">
-                                                <span className="font-medium text-zoru-ink truncate">
+                                                <span className="font-medium text-[var(--st-text)] truncate">
                                                     {(() => {
                                                         try {
                                                             return new URL(item.sourceUrl).hostname;
@@ -335,7 +335,7 @@ export default function SiteExplorerPage() {
                                                         }
                                                     })()}
                                                 </span>
-                                                <span className="text-xs text-zoru-ink-muted truncate">
+                                                <span className="text-xs text-[var(--st-text-secondary)] truncate">
                                                     {item.sourceUrl}
                                                 </span>
                                             </div>

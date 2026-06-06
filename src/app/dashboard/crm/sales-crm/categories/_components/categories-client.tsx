@@ -176,8 +176,8 @@ export function CategoriesClient({ rows: initialRows, kpi }: Props) {
   const bulkBar =
     selected.size > 0 ? (
       <div className="flex flex-wrap items-center justify-between gap-2 text-[12.5px]">
-        <div className="flex items-center gap-2 text-zoru-ink">
-          <ListChecks className="h-4 w-4 text-zoru-primary" />
+        <div className="flex items-center gap-2 text-[var(--st-text)]">
+          <ListChecks className="h-4 w-4 text-[var(--st-text)]" />
           {selected.size} selected
         </div>
         <div className="flex items-center gap-1">
@@ -197,8 +197,8 @@ export function CategoriesClient({ rows: initialRows, kpi }: Props) {
   const empty =
     filtered.length === 0 ? (
       <div className="flex flex-col items-center gap-3 py-10 text-center">
-        <Tags className="h-8 w-8 text-zoru-ink-muted" strokeWidth={1.5} />
-        <p className="text-[13px] text-zoru-ink-muted">
+        <Tags className="h-8 w-8 text-[var(--st-text-secondary)]" strokeWidth={1.5} />
+        <p className="text-[13px] text-[var(--st-text-secondary)]">
           {search ? 'No categories match your search.' : 'No categories yet.'}
         </p>
       </div>
@@ -227,7 +227,7 @@ export function CategoriesClient({ rows: initialRows, kpi }: Props) {
         empty={empty}
         loading={false}
       >
-        <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
+        <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
           <Table>
             <ZoruTableHeader>
               <ZoruTableRow>
@@ -237,7 +237,7 @@ export function CategoriesClient({ rows: initialRows, kpi }: Props) {
                     checked={allSelectedOnPage}
                     onChange={toggleAll}
                     aria-label="Select all"
-                    className="rounded border-zoru-line"
+                    className="rounded border-[var(--st-border)]"
                   />
                 </ZoruTableHead>
                 <ZoruTableHead>Name</ZoruTableHead>
@@ -255,10 +255,10 @@ export function CategoriesClient({ rows: initialRows, kpi }: Props) {
                       checked={selected.has(row._id)}
                       onChange={() => toggleRow(row._id)}
                       aria-label={`Select ${row.category_name}`}
-                      className="rounded border-zoru-line"
+                      className="rounded border-[var(--st-border)]"
                     />
                   </ZoruTableCell>
-                  <ZoruTableCell className="font-medium text-zoru-ink">
+                  <ZoruTableCell className="font-medium text-[var(--st-text)]">
                     <RowDrawer
                       label={row.category_name}
                       title="Edit Category"
@@ -278,14 +278,14 @@ export function CategoriesClient({ rows: initialRows, kpi }: Props) {
                     <span
                       className={
                         row.is_default
-                          ? 'inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium bg-zoru-surface-2 text-zoru-ink'
-                          : 'text-[12px] text-zoru-ink-muted'
+                          ? 'inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium bg-[var(--st-bg-muted)] text-[var(--st-text)]'
+                          : 'text-[12px] text-[var(--st-text-secondary)]'
                       }
                     >
                       {row.is_default ? 'Yes' : 'No'}
                     </span>
                   </ZoruTableCell>
-                  <ZoruTableCell className="text-[12px] text-zoru-ink-muted">
+                  <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
                     {fmtDate(row.createdAt)}
                   </ZoruTableCell>
                   <ZoruTableCell>
@@ -296,7 +296,7 @@ export function CategoriesClient({ rows: initialRows, kpi }: Props) {
                       disabled={isPending}
                       aria-label={`Delete ${row.category_name}`}
                     >
-                      <Trash2 className="h-3.5 w-3.5 text-zoru-danger" />
+                      <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                     </Button>
                   </ZoruTableCell>
                 </ZoruTableRow>

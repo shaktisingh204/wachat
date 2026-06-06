@@ -75,8 +75,8 @@ function DetailRow({
 }) {
     return (
         <div className={fullWidth ? 'col-span-2' : undefined}>
-            <div className="text-[12px] text-zoru-ink-muted">{label}</div>
-            <div className="mt-0.5 text-[13px] text-zoru-ink">{children}</div>
+            <div className="text-[12px] text-[var(--st-text-secondary)]">{label}</div>
+            <div className="mt-0.5 text-[13px] text-[var(--st-text)]">{children}</div>
         </div>
     );
 }
@@ -205,7 +205,7 @@ export default async function AwardProgramDetailPage({
 
             <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-                    <h2 className="text-[15px] font-medium text-zoru-ink">Program Details</h2>
+                    <h2 className="text-[15px] font-medium text-[var(--st-text)]">Program Details</h2>
                     <Badge variant={statusVariant(status)}>{status}</Badge>
                 </div>
 
@@ -237,15 +237,15 @@ export default async function AwardProgramDetailPage({
             {/* Nominations */}
             <Card className="p-6">
                 <div className="mb-4 flex items-center justify-between">
-                    <h2 className="text-[15px] font-medium text-zoru-ink">Nominations</h2>
-                    <span className="text-[12px] text-zoru-ink-muted">{nominations} total</span>
+                    <h2 className="text-[15px] font-medium text-[var(--st-text)]">Nominations</h2>
+                    <span className="text-[12px] text-[var(--st-text-secondary)]">{nominations} total</span>
                 </div>
                 {nominationsList.length === 0 ? (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No nominations yet.
                     </div>
                 ) : (
-                    <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
+                    <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
                         <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow>
@@ -281,15 +281,15 @@ export default async function AwardProgramDetailPage({
             {/* Winners */}
             <Card className="p-6">
                 <div className="mb-4 flex items-center justify-between">
-                    <h2 className="text-[15px] font-medium text-zoru-ink">Winners</h2>
-                    <span className="text-[12px] text-zoru-ink-muted">{winners} total</span>
+                    <h2 className="text-[15px] font-medium text-[var(--st-text)]">Winners</h2>
+                    <span className="text-[12px] text-[var(--st-text-secondary)]">{winners} total</span>
                 </div>
                 {winnersList.length === 0 ? (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No winners declared yet.
                     </div>
                 ) : (
-                    <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
+                    <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
                         <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow>

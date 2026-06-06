@@ -103,18 +103,18 @@ export function EmailClient() {
 
     const renderInbox = () => {
         return (
-            <div className="flex h-full w-full bg-zoru-background border border-zoru-border rounded-lg overflow-hidden">
+            <div className="flex h-full w-full bg-[var(--st-bg)] border border-[var(--st-border)] rounded-lg overflow-hidden">
                 {/* Email List (Left Pane) */}
-                <div className="w-1/3 border-r border-zoru-border flex flex-col bg-white">
-                    <div className="p-4 border-b border-zoru-border flex items-center justify-between">
-                        <h2 className="font-semibold text-zoru-ink">Inbox</h2>
+                <div className="w-1/3 border-r border-[var(--st-border)] flex flex-col bg-white">
+                    <div className="p-4 border-b border-[var(--st-border)] flex items-center justify-between">
+                        <h2 className="font-semibold text-[var(--st-text)]">Inbox</h2>
                         <Button variant="ghost" size="sm" onClick={handleSync} disabled={isSyncing}>
                             <RefreshCw className={`h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
                         </Button>
                     </div>
-                    <div className="p-3 border-b border-zoru-border">
+                    <div className="p-3 border-b border-[var(--st-border)]">
                         <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zoru-ink-muted" />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--st-text-secondary)]" />
                             <Input placeholder="Search emails..." className="pl-9 h-9" />
                         </div>
                     </div>
@@ -123,18 +123,18 @@ export function EmailClient() {
                             <div 
                                 key={email.id} 
                                 onClick={() => setSelectedEmail(email)}
-                                className={`p-4 border-b border-zoru-border cursor-pointer hover:bg-zoru-surface-2 transition-colors ${selectedEmail?.id === email.id ? 'bg-zoru-surface' : ''}`}
+                                className={`p-4 border-b border-[var(--st-border)] cursor-pointer hover:bg-[var(--st-bg-muted)] transition-colors ${selectedEmail?.id === email.id ? 'bg-[var(--st-bg-secondary)]' : ''}`}
                             >
                                 <div className="flex justify-between items-start mb-1">
-                                    <span className={`font-medium text-[14px] truncate pr-2 ${!email.isRead ? 'text-zoru-ink font-bold' : 'text-zoru-ink'}`}>
+                                    <span className={`font-medium text-[14px] truncate pr-2 ${!email.isRead ? 'text-[var(--st-text)] font-bold' : 'text-[var(--st-text)]'}`}>
                                         {email.sender.split(' ')[0]}
                                     </span>
-                                    <span className="text-[12px] text-zoru-ink-muted whitespace-nowrap">{email.date}</span>
+                                    <span className="text-[12px] text-[var(--st-text-secondary)] whitespace-nowrap">{email.date}</span>
                                 </div>
-                                <div className={`text-[13px] truncate mb-1 ${!email.isRead ? 'text-zoru-ink font-semibold' : 'text-zoru-ink'}`}>
+                                <div className={`text-[13px] truncate mb-1 ${!email.isRead ? 'text-[var(--st-text)] font-semibold' : 'text-[var(--st-text)]'}`}>
                                     {email.subject}
                                 </div>
-                                <div className="text-[13px] text-zoru-ink-muted truncate">
+                                <div className="text-[13px] text-[var(--st-text-secondary)] truncate">
                                     {email.snippet}
                                 </div>
                             </div>
@@ -146,7 +146,7 @@ export function EmailClient() {
                 <div className="w-2/3 flex flex-col bg-white">
                     {selectedEmail ? (
                         <>
-                            <div className="p-4 border-b border-zoru-border flex justify-between items-center bg-white">
+                            <div className="p-4 border-b border-[var(--st-border)] flex justify-between items-center bg-white">
                                 <div className="flex gap-2">
                                     <Button variant="outline" size="sm"><Archive className="h-4 w-4 mr-1" /> Archive</Button>
                                     <Button variant="outline" size="sm"><Trash className="h-4 w-4 mr-1" /> Delete</Button>
@@ -156,19 +156,19 @@ export function EmailClient() {
                                     <Button variant="outline" size="sm"><Send className="h-4 w-4 mr-1" /> Reply</Button>
                                 </div>
                             </div>
-                            <div className="p-6 border-b border-zoru-border">
-                                <h1 className="text-xl font-semibold text-zoru-ink mb-4">{selectedEmail.subject}</h1>
+                            <div className="p-6 border-b border-[var(--st-border)]">
+                                <h1 className="text-xl font-semibold text-[var(--st-text)] mb-4">{selectedEmail.subject}</h1>
                                 <div className="flex justify-between items-center">
                                     <div className="flex items-center gap-3">
-                                        <div className="h-10 w-10 rounded-full bg-zoru-surface-2 flex items-center justify-center">
-                                            <User className="h-5 w-5 text-zoru-ink-muted" />
+                                        <div className="h-10 w-10 rounded-full bg-[var(--st-bg-muted)] flex items-center justify-center">
+                                            <User className="h-5 w-5 text-[var(--st-text-secondary)]" />
                                         </div>
                                         <div>
-                                            <div className="text-[14px] font-medium text-zoru-ink">{selectedEmail.sender}</div>
-                                            <div className="text-[12px] text-zoru-ink-muted">to me</div>
+                                            <div className="text-[14px] font-medium text-[var(--st-text)]">{selectedEmail.sender}</div>
+                                            <div className="text-[12px] text-[var(--st-text-secondary)]">to me</div>
                                         </div>
                                     </div>
-                                    <div className="text-[12px] text-zoru-ink-muted">{selectedEmail.date}</div>
+                                    <div className="text-[12px] text-[var(--st-text-secondary)]">{selectedEmail.date}</div>
                                 </div>
                             </div>
                             <div className="flex-1 overflow-auto p-6">
@@ -182,7 +182,7 @@ export function EmailClient() {
                             </div>
                         </>
                     ) : (
-                        <div className="flex-1 flex flex-col items-center justify-center text-zoru-ink-muted">
+                        <div className="flex-1 flex flex-col items-center justify-center text-[var(--st-text-secondary)]">
                             <Mail className="h-12 w-12 mb-4 opacity-20" />
                             <p>Select an email to view</p>
                         </div>
@@ -193,19 +193,19 @@ export function EmailClient() {
     };
 
     const renderTemplates = () => (
-        <div className="p-6 bg-white border border-zoru-border rounded-lg h-full">
+        <div className="p-6 bg-white border border-[var(--st-border)] rounded-lg h-full">
             <div className="flex justify-between items-center mb-6">
-                <h2 className="text-lg font-semibold text-zoru-ink">Email Templates</h2>
+                <h2 className="text-lg font-semibold text-[var(--st-text)]">Email Templates</h2>
                 <Button size="sm"><Plus className="h-4 w-4 mr-2" /> New Template</Button>
             </div>
             <div className="grid gap-4">
                 {mockTemplates.map(template => (
-                    <Card key={template.id} className="p-4 flex justify-between items-center hover:border-zoru-brand transition-colors cursor-pointer">
+                    <Card key={template.id} className="p-4 flex justify-between items-center hover:border-[var(--st-accent)] transition-colors cursor-pointer">
                         <div>
-                            <div className="font-medium text-zoru-ink mb-1">{template.name}</div>
-                            <div className="text-[13px] text-zoru-ink-muted">Subject: {template.subject}</div>
+                            <div className="font-medium text-[var(--st-text)] mb-1">{template.name}</div>
+                            <div className="text-[13px] text-[var(--st-text-secondary)]">Subject: {template.subject}</div>
                         </div>
-                        <div className="text-[12px] text-zoru-ink-muted">
+                        <div className="text-[12px] text-[var(--st-text-secondary)]">
                             Updated {template.lastUpdated}
                         </div>
                     </Card>
@@ -215,51 +215,51 @@ export function EmailClient() {
     );
 
     const renderAnalytics = () => (
-        <div className="p-6 bg-white border border-zoru-border rounded-lg h-full">
+        <div className="p-6 bg-white border border-[var(--st-border)] rounded-lg h-full">
             <div className="mb-6">
-                <h2 className="text-lg font-semibold text-zoru-ink mb-1">Open/Click Tracking Analytics</h2>
-                <p className="text-[13px] text-zoru-ink-muted">Track the performance of your sent emails and campaigns.</p>
+                <h2 className="text-lg font-semibold text-[var(--st-text)] mb-1">Open/Click Tracking Analytics</h2>
+                <p className="text-[13px] text-[var(--st-text-secondary)]">Track the performance of your sent emails and campaigns.</p>
             </div>
             
             <div className="grid grid-cols-3 gap-4 mb-8">
                 <Card className="p-4">
-                    <div className="text-[13px] text-zoru-ink-muted mb-2">Total Sent</div>
-                    <div className="text-2xl font-semibold text-zoru-ink">5,000</div>
+                    <div className="text-[13px] text-[var(--st-text-secondary)] mb-2">Total Sent</div>
+                    <div className="text-2xl font-semibold text-[var(--st-text)]">5,000</div>
                 </Card>
                 <Card className="p-4">
-                    <div className="text-[13px] text-zoru-ink-muted mb-2">Avg. Open Rate</div>
-                    <div className="text-2xl font-semibold text-zoru-ink">61.2%</div>
+                    <div className="text-[13px] text-[var(--st-text-secondary)] mb-2">Avg. Open Rate</div>
+                    <div className="text-2xl font-semibold text-[var(--st-text)]">61.2%</div>
                 </Card>
                 <Card className="p-4">
-                    <div className="text-[13px] text-zoru-ink-muted mb-2">Avg. Click Rate</div>
-                    <div className="text-2xl font-semibold text-zoru-ink">28.3%</div>
+                    <div className="text-[13px] text-[var(--st-text-secondary)] mb-2">Avg. Click Rate</div>
+                    <div className="text-2xl font-semibold text-[var(--st-text)]">28.3%</div>
                 </Card>
             </div>
 
-            <div className="border border-zoru-border rounded-lg overflow-hidden">
+            <div className="border border-[var(--st-border)] rounded-lg overflow-hidden">
                 <table className="w-full text-left text-[14px]">
-                    <thead className="bg-zoru-surface-2 border-b border-zoru-border">
+                    <thead className="bg-[var(--st-bg-muted)] border-b border-[var(--st-border)]">
                         <tr>
-                            <th className="p-3 font-medium text-zoru-ink-muted">Campaign</th>
-                            <th className="p-3 font-medium text-zoru-ink-muted text-right">Sent</th>
-                            <th className="p-3 font-medium text-zoru-ink-muted text-right">Opens</th>
-                            <th className="p-3 font-medium text-zoru-ink-muted text-right">Clicks</th>
+                            <th className="p-3 font-medium text-[var(--st-text-secondary)]">Campaign</th>
+                            <th className="p-3 font-medium text-[var(--st-text-secondary)] text-right">Sent</th>
+                            <th className="p-3 font-medium text-[var(--st-text-secondary)] text-right">Opens</th>
+                            <th className="p-3 font-medium text-[var(--st-text-secondary)] text-right">Clicks</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-zoru-border bg-white">
+                    <tbody className="divide-y divide-[var(--st-border)] bg-white">
                         {mockAnalytics.map(stat => (
                             <tr key={stat.id}>
-                                <td className="p-3 text-zoru-ink font-medium">{stat.campaign}</td>
-                                <td className="p-3 text-zoru-ink text-right">{stat.sent.toLocaleString()}</td>
-                                <td className="p-3 text-zoru-ink text-right">
+                                <td className="p-3 text-[var(--st-text)] font-medium">{stat.campaign}</td>
+                                <td className="p-3 text-[var(--st-text)] text-right">{stat.sent.toLocaleString()}</td>
+                                <td className="p-3 text-[var(--st-text)] text-right">
                                     <div className="flex items-center justify-end gap-2">
-                                        <Eye className="h-3.5 w-3.5 text-zoru-ink-muted" />
+                                        <Eye className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                                         {stat.opens.toLocaleString()} ({(stat.opens/stat.sent*100).toFixed(1)}%)
                                     </div>
                                 </td>
-                                <td className="p-3 text-zoru-ink text-right">
+                                <td className="p-3 text-[var(--st-text)] text-right">
                                     <div className="flex items-center justify-end gap-2">
-                                        <MousePointerClick className="h-3.5 w-3.5 text-zoru-ink-muted" />
+                                        <MousePointerClick className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                                         {stat.clicks.toLocaleString()} ({(stat.clicks/stat.sent*100).toFixed(1)}%)
                                     </div>
                                 </td>
@@ -272,54 +272,54 @@ export function EmailClient() {
     );
 
     const renderSettings = () => (
-        <div className="p-6 bg-white border border-zoru-border rounded-lg h-full w-full">
+        <div className="p-6 bg-white border border-[var(--st-border)] rounded-lg h-full w-full">
             <div className="mb-6">
-                <h2 className="text-lg font-semibold text-zoru-ink mb-1">IMAP/SMTP Settings</h2>
-                <p className="text-[13px] text-zoru-ink-muted">Configure your email provider to sync inbox and send emails.</p>
+                <h2 className="text-lg font-semibold text-[var(--st-text)] mb-1">IMAP/SMTP Settings</h2>
+                <p className="text-[13px] text-[var(--st-text-secondary)]">Configure your email provider to sync inbox and send emails.</p>
             </div>
 
             <div className="space-y-6">
                 <div className="space-y-4">
-                    <h3 className="text-[14px] font-semibold text-zoru-ink flex items-center gap-2">
+                    <h3 className="text-[14px] font-semibold text-[var(--st-text)] flex items-center gap-2">
                         <Inbox className="h-4 w-4" /> Incoming Mail (IMAP)
                     </h3>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-[12px] font-medium text-zoru-ink-muted mb-1">Host</label>
+                            <label className="block text-[12px] font-medium text-[var(--st-text-secondary)] mb-1">Host</label>
                             <Input defaultValue="imap.gmail.com" />
                         </div>
                         <div>
-                            <label className="block text-[12px] font-medium text-zoru-ink-muted mb-1">Port</label>
+                            <label className="block text-[12px] font-medium text-[var(--st-text-secondary)] mb-1">Port</label>
                             <Input defaultValue="993" />
                         </div>
                     </div>
                 </div>
 
                 <div className="space-y-4">
-                    <h3 className="text-[14px] font-semibold text-zoru-ink flex items-center gap-2">
+                    <h3 className="text-[14px] font-semibold text-[var(--st-text)] flex items-center gap-2">
                         <Send className="h-4 w-4" /> Outgoing Mail (SMTP)
                     </h3>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-[12px] font-medium text-zoru-ink-muted mb-1">Host</label>
+                            <label className="block text-[12px] font-medium text-[var(--st-text-secondary)] mb-1">Host</label>
                             <Input defaultValue="smtp.gmail.com" />
                         </div>
                         <div>
-                            <label className="block text-[12px] font-medium text-zoru-ink-muted mb-1">Port</label>
+                            <label className="block text-[12px] font-medium text-[var(--st-text-secondary)] mb-1">Port</label>
                             <Input defaultValue="465" />
                         </div>
                     </div>
                 </div>
 
                 <div className="space-y-4">
-                    <h3 className="text-[14px] font-semibold text-zoru-ink">Credentials</h3>
+                    <h3 className="text-[14px] font-semibold text-[var(--st-text)]">Credentials</h3>
                     <div className="space-y-3">
                         <div>
-                            <label className="block text-[12px] font-medium text-zoru-ink-muted mb-1">Email Address</label>
+                            <label className="block text-[12px] font-medium text-[var(--st-text-secondary)] mb-1">Email Address</label>
                             <Input defaultValue="user@sabnode.com" />
                         </div>
                         <div>
-                            <label className="block text-[12px] font-medium text-zoru-ink-muted mb-1">Password / App Password</label>
+                            <label className="block text-[12px] font-medium text-[var(--st-text-secondary)] mb-1">Password / App Password</label>
                             <Input type="password" defaultValue="********" />
                         </div>
                     </div>
@@ -337,10 +337,10 @@ export function EmailClient() {
     return (
         <div className="flex flex-col h-[800px]">
             {/* Top Navigation */}
-            <div className="flex border-b border-zoru-border mb-6 space-x-1">
+            <div className="flex border-b border-[var(--st-border)] mb-6 space-x-1">
                 <button
                     onClick={() => setActiveTab('inbox')}
-                    className={`px-4 py-2 text-[14px] font-medium border-b-2 transition-colors ${activeTab === 'inbox' ? 'border-zoru-brand text-zoru-brand' : 'border-transparent text-zoru-ink-muted hover:text-zoru-ink'}`}
+                    className={`px-4 py-2 text-[14px] font-medium border-b-2 transition-colors ${activeTab === 'inbox' ? 'border-[var(--st-accent)] text-[var(--st-accent)]' : 'border-transparent text-[var(--st-text-secondary)] hover:text-[var(--st-text)]'}`}
                 >
                     <div className="flex items-center gap-2">
                         <Inbox className="h-4 w-4" />
@@ -349,7 +349,7 @@ export function EmailClient() {
                 </button>
                 <button
                     onClick={() => setActiveTab('templates')}
-                    className={`px-4 py-2 text-[14px] font-medium border-b-2 transition-colors ${activeTab === 'templates' ? 'border-zoru-brand text-zoru-brand' : 'border-transparent text-zoru-ink-muted hover:text-zoru-ink'}`}
+                    className={`px-4 py-2 text-[14px] font-medium border-b-2 transition-colors ${activeTab === 'templates' ? 'border-[var(--st-accent)] text-[var(--st-accent)]' : 'border-transparent text-[var(--st-text-secondary)] hover:text-[var(--st-text)]'}`}
                 >
                     <div className="flex items-center gap-2">
                         <FileText className="h-4 w-4" />
@@ -358,7 +358,7 @@ export function EmailClient() {
                 </button>
                 <button
                     onClick={() => setActiveTab('analytics')}
-                    className={`px-4 py-2 text-[14px] font-medium border-b-2 transition-colors ${activeTab === 'analytics' ? 'border-zoru-brand text-zoru-brand' : 'border-transparent text-zoru-ink-muted hover:text-zoru-ink'}`}
+                    className={`px-4 py-2 text-[14px] font-medium border-b-2 transition-colors ${activeTab === 'analytics' ? 'border-[var(--st-accent)] text-[var(--st-accent)]' : 'border-transparent text-[var(--st-text-secondary)] hover:text-[var(--st-text)]'}`}
                 >
                     <div className="flex items-center gap-2">
                         <BarChart className="h-4 w-4" />
@@ -367,7 +367,7 @@ export function EmailClient() {
                 </button>
                 <button
                     onClick={() => setActiveTab('settings')}
-                    className={`px-4 py-2 text-[14px] font-medium border-b-2 transition-colors ${activeTab === 'settings' ? 'border-zoru-brand text-zoru-brand' : 'border-transparent text-zoru-ink-muted hover:text-zoru-ink'}`}
+                    className={`px-4 py-2 text-[14px] font-medium border-b-2 transition-colors ${activeTab === 'settings' ? 'border-[var(--st-accent)] text-[var(--st-accent)]' : 'border-transparent text-[var(--st-text-secondary)] hover:text-[var(--st-text)]'}`}
                 >
                     <div className="flex items-center gap-2">
                         <Settings className="h-4 w-4" />

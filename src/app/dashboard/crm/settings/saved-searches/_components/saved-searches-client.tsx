@@ -248,7 +248,7 @@ export function SavedSearchesClient(): React.JSX.Element {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-2 text-[12.5px]">
                 <Badge variant="default">{selected.size} selected</Badge>
-                <button type="button" onClick={() => setSelected(new Set())} className="text-zoru-ink-muted hover:text-zoru-ink">Clear</button>
+                <button type="button" onClick={() => setSelected(new Set())} className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]">Clear</button>
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <Button variant="outline" size="sm" onClick={handleExportCsv}>
@@ -299,10 +299,10 @@ export function SavedSearchesClient(): React.JSX.Element {
 
           {/* Table */}
           <Card className="p-0">
-            <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
+            <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
               <Table>
                 <ZoruTableHeader>
-                  <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                  <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                     <ZoruTableHead className="w-10">
                       <Checkbox
                         checked={allSelected ? true : someSelected ? 'indeterminate' : false}
@@ -310,12 +310,12 @@ export function SavedSearchesClient(): React.JSX.Element {
                         aria-label="Select all on page"
                       />
                     </ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Name / Term</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Module</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Results</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Last Used</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Created</ZoruTableHead>
-                    <ZoruTableHead className="text-right text-zoru-ink-muted">Actions</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Name / Term</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Module</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Results</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Last Used</ZoruTableHead>
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Created</ZoruTableHead>
+                    <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">Actions</ZoruTableHead>
                   </ZoruTableRow>
                 </ZoruTableHeader>
                 <ZoruTableBody>
@@ -327,13 +327,13 @@ export function SavedSearchesClient(): React.JSX.Element {
                     ))
                   ) : pageRows.length === 0 ? (
                     <ZoruTableRow>
-                      <ZoruTableCell colSpan={7} className="h-24 text-center text-[13px] text-zoru-ink-muted">
+                      <ZoruTableCell colSpan={7} className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]">
                         No saved searches match this filter.
                       </ZoruTableCell>
                     </ZoruTableRow>
                   ) : (
                     pageRows.map((row) => (
-                      <ZoruTableRow key={row._id} className="border-zoru-line">
+                      <ZoruTableRow key={row._id} className="border-[var(--st-border)]">
                         <ZoruTableCell>
                           <Checkbox
                             checked={selected.has(row._id)}
@@ -341,7 +341,7 @@ export function SavedSearchesClient(): React.JSX.Element {
                             aria-label={`Select ${row.search_term}`}
                           />
                         </ZoruTableCell>
-                        <ZoruTableCell className="font-medium text-zoru-ink">
+                        <ZoruTableCell className="font-medium text-[var(--st-text)]">
                           <RowDrawer
                             label={row.search_term || '—'}
                             title={`Saved Search · ${row.search_term}`}
@@ -349,23 +349,23 @@ export function SavedSearchesClient(): React.JSX.Element {
                           >
                             <div className="space-y-3 text-sm">
                               <div>
-                                <div className="text-xs text-zoru-ink-muted">Search Term</div>
+                                <div className="text-xs text-[var(--st-text-secondary)]">Search Term</div>
                                 <div>{row.search_term}</div>
                               </div>
                               <div>
-                                <div className="text-xs text-zoru-ink-muted">Module</div>
+                                <div className="text-xs text-[var(--st-text-secondary)]">Module</div>
                                 <div>{row.module ?? '—'}</div>
                               </div>
                               <div>
-                                <div className="text-xs text-zoru-ink-muted">Result Count</div>
+                                <div className="text-xs text-[var(--st-text-secondary)]">Result Count</div>
                                 <div>{row.result_count ?? '—'}</div>
                               </div>
                               <div>
-                                <div className="text-xs text-zoru-ink-muted">Last Used</div>
+                                <div className="text-xs text-[var(--st-text-secondary)]">Last Used</div>
                                 <div>{fmt(row.last_used_at)}</div>
                               </div>
                               <div>
-                                <div className="text-xs text-zoru-ink-muted">Created</div>
+                                <div className="text-xs text-[var(--st-text-secondary)]">Created</div>
                                 <div>{fmt(row.createdAt)}</div>
                               </div>
                             </div>
@@ -374,13 +374,13 @@ export function SavedSearchesClient(): React.JSX.Element {
                         <ZoruTableCell className="text-[13px]">
                           <Badge variant="ghost">{row.module ?? '—'}</Badge>
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-zoru-ink">
+                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                           {row.result_count ?? '—'}
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-zoru-ink">
+                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                           {fmt(row.last_used_at)}
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-zoru-ink">
+                        <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                           {fmt(row.createdAt)}
                         </ZoruTableCell>
                         <ZoruTableCell className="text-right">
@@ -390,7 +390,7 @@ export function SavedSearchesClient(): React.JSX.Element {
                             onClick={() => setPendingDelete(row)}
                             aria-label={`Delete ${row.search_term}`}
                           >
-                            <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                            <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                           </Button>
                         </ZoruTableCell>
                       </ZoruTableRow>

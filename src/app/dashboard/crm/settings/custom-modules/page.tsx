@@ -376,7 +376,7 @@ export default function CustomModulesPage() {
       }}
       filters={
         <div className="flex items-center gap-2">
-          <Label className="text-[12px] text-zoru-ink-muted">
+          <Label className="text-[12px] text-[var(--st-text-secondary)]">
             Entity kind
           </Label>
           <Select
@@ -403,17 +403,17 @@ export default function CustomModulesPage() {
       bulkBar={
         selected.size > 0 ? (
           <div className="flex flex-wrap items-center gap-2 text-[13px]">
-            <span className="font-medium text-zoru-ink">
+            <span className="font-medium text-[var(--st-text)]">
               {selected.size} selected
             </span>
-            <span className="text-zoru-ink-muted">·</span>
+            <span className="text-[var(--st-text-secondary)]">·</span>
             <Button
               variant="ghost"
               size="sm"
               disabled={bulkDeleting}
               onClick={() => setBulkDeleteOpen(true)}
             >
-              <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+              <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
               Delete
             </Button>
             <Button
@@ -487,19 +487,19 @@ export default function CustomModulesPage() {
                       aria-label="Select all on page"
                     />
                   </ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
                     Name
                   </ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
                     Slug
                   </ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
                     Table
                   </ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">
+                  <ZoruTableHead className="text-[var(--st-text-secondary)]">
                     Kind
                   </ZoruTableHead>
-                  <ZoruTableHead className="w-[120px] text-right text-zoru-ink-muted">
+                  <ZoruTableHead className="w-[120px] text-right text-[var(--st-text-secondary)]">
                     Actions
                   </ZoruTableHead>
                 </ZoruTableRow>
@@ -509,7 +509,7 @@ export default function CustomModulesPage() {
                   <ZoruTableRow>
                     <ZoruTableCell
                       colSpan={6}
-                      className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                      className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                     >
                       <LoaderCircle className="mx-auto h-4 w-4 animate-spin" />
                     </ZoruTableCell>
@@ -518,7 +518,7 @@ export default function CustomModulesPage() {
                   <ZoruTableRow>
                     <ZoruTableCell
                       colSpan={6}
-                      className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                      className="h-20 text-center text-[13px] text-[var(--st-text-secondary)]"
                     >
                       No custom modules match the current filters.
                     </ZoruTableCell>
@@ -533,7 +533,7 @@ export default function CustomModulesPage() {
                           aria-label={`Select ${row.name}`}
                         />
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-zoru-ink">
+                      <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                         <RowDrawer
                           label={row.display_name || row.name}
                           subtitle={row.description || undefined}
@@ -542,13 +542,13 @@ export default function CustomModulesPage() {
                         >
                           <div className="space-y-3 text-sm">
                             <div>
-                              <div className="text-zoru-ink-muted text-xs">
+                              <div className="text-[var(--st-text-secondary)] text-xs">
                                 Slug
                               </div>
                               <div className="font-mono">{row.name}</div>
                             </div>
                             <div>
-                              <div className="text-zoru-ink-muted text-xs">
+                              <div className="text-[var(--st-text-secondary)] text-xs">
                                 Table
                               </div>
                               <div className="font-mono">
@@ -556,19 +556,19 @@ export default function CustomModulesPage() {
                               </div>
                             </div>
                             <div>
-                              <div className="text-zoru-ink-muted text-xs">
+                              <div className="text-[var(--st-text-secondary)] text-xs">
                                 Entity kind
                               </div>
                               <div>{entityKindOf(row)}</div>
                             </div>
                             <div>
-                              <div className="text-zoru-ink-muted text-xs">
+                              <div className="text-[var(--st-text-secondary)] text-xs">
                                 Icon
                               </div>
                               <div>{row.icon || '—'}</div>
                             </div>
                             <div>
-                              <div className="text-zoru-ink-muted text-xs">
+                              <div className="text-[var(--st-text-secondary)] text-xs">
                                 Description
                               </div>
                               <div>{row.description || '—'}</div>
@@ -594,10 +594,10 @@ export default function CustomModulesPage() {
                           <code>{row.name}</code>
                         </Badge>
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-[12px] text-zoru-ink-muted">
+                      <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
                         {row.table || '—'}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-[12px] text-zoru-ink-muted">
+                      <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
                         {entityKindOf(row)}
                       </ZoruTableCell>
                       <ZoruTableCell className="text-right">
@@ -619,7 +619,7 @@ export default function CustomModulesPage() {
                             onClick={() => setDeletingId(row._id)}
                             aria-label="Delete"
                           >
-                            <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                            <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                           </Button>
                         </div>
                       </ZoruTableCell>
@@ -645,9 +645,9 @@ export default function CustomModulesPage() {
 
         {rows.length > 0 && roles.length > 0 ? (
           <Card className="p-0">
-            <div className="border-b border-zoru-line p-5">
-              <h2 className="text-[15px] text-zoru-ink">Permission matrix</h2>
-              <p className="text-[13px] text-zoru-ink-muted">
+            <div className="border-b border-[var(--st-border)] p-5">
+              <h2 className="text-[15px] text-[var(--st-text)]">Permission matrix</h2>
+              <p className="text-[13px] text-[var(--st-text-secondary)]">
                 For each custom module × role pair, toggle the CRUD flags.
                 {isBusy ? (
                   <LoaderCircle className="ml-2 inline h-3 w-3 animate-spin" />
@@ -658,22 +658,22 @@ export default function CustomModulesPage() {
               <Table>
                 <ZoruTableHeader>
                   <ZoruTableRow className="hover:bg-transparent">
-                    <ZoruTableHead className="text-zoru-ink-muted">
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
                       Module
                     </ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">
+                    <ZoruTableHead className="text-[var(--st-text-secondary)]">
                       Role
                     </ZoruTableHead>
-                    <ZoruTableHead className="text-center text-zoru-ink-muted">
+                    <ZoruTableHead className="text-center text-[var(--st-text-secondary)]">
                       View
                     </ZoruTableHead>
-                    <ZoruTableHead className="text-center text-zoru-ink-muted">
+                    <ZoruTableHead className="text-center text-[var(--st-text-secondary)]">
                       Create
                     </ZoruTableHead>
-                    <ZoruTableHead className="text-center text-zoru-ink-muted">
+                    <ZoruTableHead className="text-center text-[var(--st-text-secondary)]">
                       Edit
                     </ZoruTableHead>
-                    <ZoruTableHead className="text-center text-zoru-ink-muted">
+                    <ZoruTableHead className="text-center text-[var(--st-text-secondary)]">
                       Delete
                     </ZoruTableHead>
                   </ZoruTableRow>
@@ -684,10 +684,10 @@ export default function CustomModulesPage() {
                       const p = permFor(m._id, r._id);
                       return (
                         <ZoruTableRow key={`${m._id}:${r._id}`}>
-                          <ZoruTableCell className="text-[13px] text-zoru-ink">
+                          <ZoruTableCell className="text-[13px] text-[var(--st-text)]">
                             {m.display_name || m.name}
                           </ZoruTableCell>
-                          <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                          <ZoruTableCell className="text-[13px] text-[var(--st-text-secondary)]">
                             {r.display_name || r.name}
                           </ZoruTableCell>
                           {(
@@ -704,7 +704,7 @@ export default function CustomModulesPage() {
                             >
                               <input
                                 type="checkbox"
-                                className="h-4 w-4 cursor-pointer accent-zoru-ink"
+                                className="h-4 w-4 cursor-pointer accent-[var(--st-text)]"
                                 checked={!!p?.[key]}
                                 disabled={isBusy}
                                 onChange={() => togglePerm(m._id, r._id, key)}
@@ -741,7 +741,7 @@ export default function CustomModulesPage() {
             ) : null}
             <div>
               <Label htmlFor="display_name">
-                Display name <span className="text-zoru-danger-ink">*</span>
+                Display name <span className="text-[var(--st-danger)]">*</span>
               </Label>
               <Input
                 id="display_name"

@@ -359,14 +359,14 @@ export default function TasksPage() {
             bulkBar={
                 selected.size > 0 ? (
                     <div className="flex flex-wrap items-center justify-between gap-3">
-                        <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink">
+                        <div className="flex items-center gap-2 text-[12.5px] text-[var(--st-text)]">
                             <Badge variant="info">
                                 {selected.size} selected
                             </Badge>
                             <button
                                 type="button"
                                 onClick={() => setSelected(new Set())}
-                                className="text-zoru-ink-muted hover:text-zoru-ink"
+                                className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                             >
                                 Clear
                             </button>
@@ -441,7 +441,7 @@ export default function TasksPage() {
                     <div className="overflow-x-auto">
                         <Table>
                             <ZoruTableHeader>
-                                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                                     <ZoruTableHead className="w-8">
                                         <Checkbox
                                             checked={headChecked}
@@ -466,7 +466,7 @@ export default function TasksPage() {
                                     [...Array(5)].map((_, i) => (
                                         <ZoruTableRow
                                             key={i}
-                                            className="border-zoru-line"
+                                            className="border-[var(--st-border)]"
                                         >
                                             <ZoruTableCell colSpan={7}>
                                                 <Skeleton className="h-10 w-full" />
@@ -474,10 +474,10 @@ export default function TasksPage() {
                                         </ZoruTableRow>
                                     ))
                                 ) : visibleTasks.length === 0 ? (
-                                    <ZoruTableRow className="border-zoru-line">
+                                    <ZoruTableRow className="border-[var(--st-border)]">
                                         <ZoruTableCell
                                             colSpan={7}
-                                            className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                                            className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                                         >
                                             {hasActiveFilters
                                                 ? 'No tasks match these filters.'
@@ -491,7 +491,7 @@ export default function TasksPage() {
                                         return (
                                             <ZoruTableRow
                                                 key={id}
-                                                className="border-zoru-line"
+                                                className="border-[var(--st-border)]"
                                             >
                                                 <ZoruTableCell>
                                                     <Checkbox
@@ -543,7 +543,7 @@ export default function TasksPage() {
                                                             {task.priority}
                                                         </Badge>
                                                     ) : (
-                                                        <span className="text-[12px] text-zoru-ink-muted">
+                                                        <span className="text-[12px] text-[var(--st-text-secondary)]">
                                                             —
                                                         </span>
                                                     )}
@@ -551,8 +551,8 @@ export default function TasksPage() {
                                                 <ZoruTableCell
                                                     className={
                                                         overdue
-                                                            ? 'text-[13px] font-medium text-zoru-danger-ink'
-                                                            : 'text-[13px] text-zoru-ink'
+                                                            ? 'text-[13px] font-medium text-[var(--st-danger)]'
+                                                            : 'text-[13px] text-[var(--st-text)]'
                                                     }
                                                 >
                                                     {fmtDate(
@@ -564,7 +564,7 @@ export default function TasksPage() {
                                                         </span>
                                                     ) : null}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                                                <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                                                     {task.type || '—'}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="text-right">

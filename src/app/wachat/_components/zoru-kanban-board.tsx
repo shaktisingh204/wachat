@@ -57,25 +57,21 @@ import { CSS } from '@dnd-kit/utilities';
 // the move handler already runs on Rust via `handleUpdateContactStatus`
 // (→ `rustClient.wachatContacts.updateStatus`).
 //
-// TODO(rust-kanban): there is no WhatsApp-contacts kanban endpoint on the Rust
-// BFF yet. The only `/kanban` Rust route is `wachatFacebookCrm.getKanbanData`
-// (`/v1/facebook/crm/projects/{id}/kanban`), which returns Messenger
-// *subscribers* as `columns[].conversations: FacebookSubscriber[]` — a
-// different domain from these `columns[].contacts: Contact[]`. Repointing here
-// would feed PSID subscribers into a waId UI and break the board, so the load +
-// status-list still use the native-mongo `getKanbanData`/`saveKanbanStatuses`.
-// When a contacts-domain Rust kanban endpoint exists (e.g. under
-// `/v1/contacts/.../kanban` on the `wachat-contacts` crate), swap these two
-// imports for its `rustClient.wachatContacts.*` wrappers.
+// The board load + custom-status list now run on Rust too, via the
+// contacts-domain kanban endpoints (`wachat-contacts` crate):
+//   GET  /v1/contacts/kanban          → getChatKanbanData
+//   POST /v1/contacts/kanban/statuses → saveChatKanbanStatuses
+// The Rust column shape ({ id, title, contacts }) is mapped to the board's
+// { name, contacts } shape inside the server action. Per-card status moves
+// continue through `handleUpdateContactStatus` (PATCH /{id}/status).
 import {
-  getKanbanData,
-  saveKanbanStatuses,
-  } from "@/app/actions/project.actions";
+  getChatKanbanData,
+  saveChatKanbanStatuses,
+  } from "@/app/actions/wachat-kanban.actions";
 import { handleUpdateContactStatus } from "@/app/actions/contact.actions";
 import type {
   WithId,
   Contact,
-  Project,
   KanbanColumnData,
   } from "@/lib/definitions";
 
@@ -332,7 +328,7 @@ function ZoruKanbanColumn({ title, count, children }: KanbanColumnProps) {
 /* ── main ─────────────────────────────────────────────────────────── */
 
 export function ZoruKanbanBoard() {
-  const [project, setProject] = useState<WithId<Project> | null>(null);
+  const [projectId, setProjectId] = useState<string | null>(null);
   const [boardData, setBoardData] = useState<KanbanColumnData[]>([]);
   const [isLoading, startLoadingTransition] = useTransition();
   const [isClient, setIsClient] = useState(false);
@@ -354,15 +350,16 @@ export function ZoruKanbanBoard() {
     setLoadError(null);
     startLoadingTransition(async () => {
       try {
-        const data = await getKanbanData(storedProjectId);
-        if (data.project) {
-          setProject(data.project);
+        const data = await getChatKanbanData(storedProjectId);
+        if (data.projectId) {
+          setProjectId(data.projectId);
           setBoardData(data.columns ?? []);
         } else {
           // A real project id was stored but the load returned nothing —
           // surface it as an error rather than the "no project" empty state.
           setLoadError(
-            "Could not load the chat board for this project. It may have been removed, or the request failed.",
+            data.error ??
+              "Could not load the chat board for this project. It may have been removed, or the request failed.",
           );
         }
       } catch {
@@ -377,14 +374,14 @@ export function ZoruKanbanBoard() {
   }, [fetchData]);
 
   const handleAddList = (name: string) => {
-    if (!project) return;
+    if (!projectId) return;
     const newBoardData = [...boardData, { name, contacts: [] }];
     setBoardData(newBoardData);
 
     const allStatusNames = newBoardData.map((col) => col.name);
     startLoadingTransition(async () => {
-      const result = await saveKanbanStatuses(
-        project._id.toString(),
+      const result = await saveChatKanbanStatuses(
+        projectId,
         allStatusNames,
       );
       if (!result.success) {
@@ -586,7 +583,7 @@ export function ZoruKanbanBoard() {
     );
   }
 
-  if (!hasProjectId || !project) {
+  if (!hasProjectId || !projectId) {
     return (
       <div className="p-4">
         <Alert tone="danger" icon={AlertCircle} title="No project selected">

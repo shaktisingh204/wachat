@@ -275,40 +275,40 @@ export function PosHoldRecallClient({ holds }: Props) {
                 <Card>
                     <ZoruCardContent className="flex items-start justify-between p-3.5">
                         <div>
-                            <p className="text-[10.5px] uppercase tracking-wide text-zoru-ink-muted">
+                            <p className="text-[10.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                                 Cashiers holding
                             </p>
-                            <p className="mt-0.5 text-xl font-semibold text-zoru-ink">
+                            <p className="mt-0.5 text-xl font-semibold text-[var(--st-text)]">
                                 {kpis.byCashierCount}
                             </p>
                         </div>
-                        <ListChecks className="h-4 w-4 text-zoru-ink-muted" />
+                        <ListChecks className="h-4 w-4 text-[var(--st-text-secondary)]" />
                     </ZoruCardContent>
                 </Card>
                 <Card>
                     <ZoruCardContent className="flex items-start justify-between p-3.5">
                         <div>
-                            <p className="text-[10.5px] uppercase tracking-wide text-zoru-ink-muted">
+                            <p className="text-[10.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                                 Most holds by
                             </p>
-                            <p className="mt-0.5 truncate text-[13px] font-medium text-zoru-ink">
+                            <p className="mt-0.5 truncate text-[13px] font-medium text-[var(--st-text)]">
                                 {kpis.topCashierLabel}
                             </p>
                         </div>
-                        <ListChecks className="h-4 w-4 text-zoru-ink-muted" />
+                        <ListChecks className="h-4 w-4 text-[var(--st-text-secondary)]" />
                     </ZoruCardContent>
                 </Card>
                 <Card>
                     <ZoruCardContent className="flex items-start justify-between p-3.5">
                         <div>
-                            <p className="text-[10.5px] uppercase tracking-wide text-zoru-ink-muted">
+                            <p className="text-[10.5px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                                 Oldest hold
                             </p>
-                            <p className="mt-0.5 text-[13px] font-medium text-zoru-ink">
+                            <p className="mt-0.5 text-[13px] font-medium text-[var(--st-text)]">
                                 {kpis.oldestLabel}
                             </p>
                         </div>
-                        <Clock className="h-4 w-4 text-zoru-ink-muted" />
+                        <Clock className="h-4 w-4 text-[var(--st-text-secondary)]" />
                     </ZoruCardContent>
                 </Card>
             </div>
@@ -316,7 +316,7 @@ export function PosHoldRecallClient({ holds }: Props) {
             {/* Filters */}
             <div className="flex flex-wrap items-center gap-2">
                 <div className="relative max-w-sm flex-1">
-                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
                     <Input
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
@@ -363,9 +363,9 @@ export function PosHoldRecallClient({ holds }: Props) {
 
             {/* Bulk bar */}
             {selected.size > 0 ? (
-                <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-3 py-2 shadow-[var(--zoru-shadow-sm)]">
-                    <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink">
-                        <ListChecks className="h-4 w-4 text-zoru-primary" />
+                <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 shadow-[var(--zoru-shadow-sm)]">
+                    <div className="flex items-center gap-2 text-[12.5px] text-[var(--st-text)]">
+                        <ListChecks className="h-4 w-4 text-[var(--st-text)]" />
                         {selected.size} selected
                     </div>
                     <div className="flex items-center gap-1">
@@ -405,7 +405,7 @@ export function PosHoldRecallClient({ holds }: Props) {
                 <div className="overflow-x-auto">
                     <Table>
                         <ZoruTableHeader>
-                            <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                            <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                                 <ZoruTableHead className="w-8">
                                     <Checkbox
                                         checked={headChecked}
@@ -433,7 +433,7 @@ export function PosHoldRecallClient({ holds }: Props) {
                                 <ZoruTableRow>
                                     <ZoruTableCell
                                         colSpan={8}
-                                        className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                                        className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                                     >
                                         {holds.length === 0
                                             ? 'No held tickets right now.'
@@ -477,7 +477,7 @@ export function PosHoldRecallClient({ holds }: Props) {
                                             <ZoruTableCell>
                                                 {fmtDateTime(h.heldAt)}
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="max-w-[200px] truncate text-[12px] text-zoru-ink-muted">
+                                            <ZoruTableCell className="max-w-[200px] truncate text-[12px] text-[var(--st-text-secondary)]">
                                                 {h.holdReason || '—'}
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-right">
@@ -500,7 +500,7 @@ export function PosHoldRecallClient({ holds }: Props) {
                                                             voidOne(h._id)
                                                         }
                                                         disabled={voiding}
-                                                        className="text-zoru-danger-ink"
+                                                        className="text-[var(--st-danger)]"
                                                         aria-label="Void hold"
                                                     >
                                                         <Trash2 className="h-3.5 w-3.5" />

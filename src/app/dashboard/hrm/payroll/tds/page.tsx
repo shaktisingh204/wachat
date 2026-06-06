@@ -118,7 +118,7 @@ export default function TdsPage() {
         return (
             <EntityListShell title="TDS Management" subtitle="Tax Deducted at Source tracking">
                 <div className="flex justify-center p-24">
-                    <LoaderCircle className="h-8 w-8 animate-spin text-zoru-brand" />
+                    <LoaderCircle className="h-8 w-8 animate-spin text-[var(--st-accent)]" />
                 </div>
             </EntityListShell>
         );
@@ -143,7 +143,7 @@ export default function TdsPage() {
                 <TdsErrorBoundary onReset={handleReset}>
                     <Suspense fallback={
                         <div className="flex justify-center p-24">
-                            <LoaderCircle className="h-8 w-8 animate-spin text-zoru-brand" />
+                            <LoaderCircle className="h-8 w-8 animate-spin text-[var(--st-accent)]" />
                         </div>
                     }>
                         {dataPromise && <TdsDataView dataPromise={dataPromise} periodLabel={periodLabel} />}

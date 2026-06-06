@@ -76,7 +76,7 @@ export default function UiPreferencesPage() {
 
     if (!user) {
         return (
-            <div className="text-center py-10 text-zoru-ink-muted">
+            <div className="text-center py-10 text-[var(--st-text-secondary)]">
                 <p>Unable to load user preferences. Please try refreshing the page.</p>
             </div>
         );

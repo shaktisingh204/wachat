@@ -97,7 +97,7 @@ export default function QueryBuilderPage() {
                 rows={4}
             />
             {errors.length > 0 && (
-                <div className="bg-zoru-ink/10 text-zoru-ink text-sm p-3 rounded-md space-y-1">
+                <div className="bg-[var(--st-text)]/10 text-[var(--st-text)] text-sm p-3 rounded-md space-y-1">
                     <div className="font-semibold flex items-center gap-1"><AlertCircle className="w-4 h-4"/> Validation Errors:</div>
                     <ul className="list-disc pl-5">
                         {errors.map((err, i) => (
@@ -137,7 +137,7 @@ export default function QueryBuilderPage() {
                         </Button>
                     </div>
                 </div>
-                <div className="font-mono text-xs bg-zoru-surface-2 p-3 rounded overflow-x-auto whitespace-pre">
+                <div className="font-mono text-xs bg-[var(--st-bg-muted)] p-3 rounded overflow-x-auto whitespace-pre">
                     {results.join('\n')}
                 </div>
             </div>

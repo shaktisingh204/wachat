@@ -104,10 +104,10 @@ export function ClayProjectGate({ children }: ClayProjectGateProps) {
 
       <div className="mt-5 flex items-center justify-between gap-6">
         <div className="min-w-0">
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-zoru-ink leading-[1.1]">
+          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-[var(--st-text)] leading-[1.1]">
             Select a project
           </h1>
-          <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
+          <p className="mt-1.5 text-[13px] text-[var(--st-text-secondary)]">
             Wachat is scoped per WhatsApp Business Account. Pick the
             project you want to work in to continue.
           </p>
@@ -148,7 +148,7 @@ export function ClayProjectGate({ children }: ClayProjectGateProps) {
           {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
-              className="h-[118px] animate-pulse rounded-[14px] bg-zoru-surface-2"
+              className="h-[118px] animate-pulse rounded-[14px] bg-[var(--st-bg-muted)]"
             />
           ))}
         </div>
@@ -156,13 +156,13 @@ export function ClayProjectGate({ children }: ClayProjectGateProps) {
         <Card variant="default" className="mt-8 p-10 text-center">
           {filter ? (
             <>
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                 <LuSearch className="h-5 w-5" strokeWidth={1.5} />
               </div>
-              <div className="mt-4 text-[15px] font-semibold text-zoru-ink">
+              <div className="mt-4 text-[15px] font-semibold text-[var(--st-text)]">
                 No projects match your search
               </div>
-              <div className="mt-1.5 text-[12.5px] text-zoru-ink-muted">
+              <div className="mt-1.5 text-[12.5px] text-[var(--st-text-secondary)]">
                 Try a different name, or clear the filter to see all your projects.
               </div>
               <Button
@@ -176,13 +176,13 @@ export function ClayProjectGate({ children }: ClayProjectGateProps) {
             </>
           ) : (
             <>
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-zoru-surface-2">
-                <LuMessageSquare className="h-6 w-6 text-zoru-ink" strokeWidth={1.75} />
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--st-bg-muted)]">
+                <LuMessageSquare className="h-6 w-6 text-[var(--st-text)]" strokeWidth={1.75} />
               </div>
-              <div className="mt-4 text-[18px] font-semibold text-zoru-ink">
+              <div className="mt-4 text-[18px] font-semibold text-[var(--st-text)]">
                 Connect your WhatsApp Business
               </div>
-              <div className="mx-auto mt-1.5 max-w-sm text-[13px] text-zoru-ink-muted leading-relaxed">
+              <div className="mx-auto mt-1.5 max-w-sm text-[13px] text-[var(--st-text-secondary)] leading-relaxed">
                 Link your WhatsApp Business Account via Meta to start sending
                 broadcasts, managing chats, and building automations.
               </div>
@@ -198,16 +198,16 @@ export function ClayProjectGate({ children }: ClayProjectGateProps) {
               </div>
               <div className="mx-auto mt-6 grid max-w-lg grid-cols-3 gap-4 text-left">
                 <div>
-                  <div className="text-[12px] font-semibold text-zoru-ink">1. Click connect</div>
-                  <div className="mt-0.5 text-[11px] text-zoru-ink-muted">Open the Meta guided signup</div>
+                  <div className="text-[12px] font-semibold text-[var(--st-text)]">1. Click connect</div>
+                  <div className="mt-0.5 text-[11px] text-[var(--st-text-secondary)]">Open the Meta guided signup</div>
                 </div>
                 <div>
-                  <div className="text-[12px] font-semibold text-zoru-ink">2. Login to Meta</div>
-                  <div className="mt-0.5 text-[11px] text-zoru-ink-muted">Grant WhatsApp permissions</div>
+                  <div className="text-[12px] font-semibold text-[var(--st-text)]">2. Login to Meta</div>
+                  <div className="mt-0.5 text-[11px] text-[var(--st-text-secondary)]">Grant WhatsApp permissions</div>
                 </div>
                 <div>
-                  <div className="text-[12px] font-semibold text-zoru-ink">3. Auto-sync</div>
-                  <div className="mt-0.5 text-[11px] text-zoru-ink-muted">Your WABA appears instantly</div>
+                  <div className="text-[12px] font-semibold text-[var(--st-text)]">3. Auto-sync</div>
+                  <div className="mt-0.5 text-[11px] text-[var(--st-text-secondary)]">Your WABA appears instantly</div>
                 </div>
               </div>
             </>
@@ -235,33 +235,33 @@ export function ClayProjectGate({ children }: ClayProjectGateProps) {
                     <div
                       className={cn(
                         'flex h-9 w-9 items-center justify-center rounded-[10px] text-[13px] font-semibold uppercase',
-                        'bg-zoru-surface-2 text-zoru-ink',
+                        'bg-[var(--st-bg-muted)] text-[var(--st-text)]',
                       )}
                     >
                       {(p.name || '?').slice(0, 2)}
                     </div>
                     <LuArrowRight
-                      className="h-4 w-4 text-zoru-ink-muted/70 transition-[color,transform] group-hover:text-zoru-ink group-hover:translate-x-0.5"
+                      className="h-4 w-4 text-[var(--st-text-secondary)]/70 transition-[color,transform] group-hover:text-[var(--st-text)] group-hover:translate-x-0.5"
                       strokeWidth={2}
                     />
                   </div>
-                  <div className="mt-3.5 text-[11.5px] font-medium text-zoru-ink-muted">
+                  <div className="mt-3.5 text-[11.5px] font-medium text-[var(--st-text-secondary)]">
                     WhatsApp project
                   </div>
-                  <div className="mt-1 text-[15px] font-semibold text-zoru-ink leading-tight truncate">
+                  <div className="mt-1 text-[15px] font-semibold text-[var(--st-text)] leading-tight truncate">
                     {p.name || 'Untitled project'}
                   </div>
-                  <div className="mt-2 flex items-center gap-2 text-[11px] text-zoru-ink-muted">
+                  <div className="mt-2 flex items-center gap-2 text-[11px] text-[var(--st-text-secondary)]">
                     <span
                       className={cn(
                         'inline-flex h-1.5 w-1.5 rounded-full',
-                        hasPhone ? 'bg-zoru-ink' : 'bg-zoru-ink',
+                        hasPhone ? 'bg-[var(--st-text)]' : 'bg-[var(--st-text)]',
                       )}
                     />
                     {hasPhone ? 'Phone connected' : 'Setup incomplete'}
                     {p.wabaId ? (
                       <>
-                        <span className="text-zoru-ink-muted/70">·</span>
+                        <span className="text-[var(--st-text-secondary)]/70">·</span>
                         <span className="truncate font-mono text-[10px]">
                           WABA {String(p.wabaId).slice(-6)}
                         </span>
@@ -275,7 +275,7 @@ export function ClayProjectGate({ children }: ClayProjectGateProps) {
         </div>
       )}
 
-      <div className="mt-8 flex items-center gap-2 text-[11.5px] text-zoru-ink-muted">
+      <div className="mt-8 flex items-center gap-2 text-[11.5px] text-[var(--st-text-secondary)]">
         <LuCheck className="h-3 w-3" strokeWidth={2.5} />
         Your selection is remembered on this device.
       </div>

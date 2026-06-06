@@ -49,27 +49,27 @@ export default async function SabbiginContactsPage({ searchParams }: PageProps) 
                 <SabbiginNav active="/dashboard/sabbigin/contacts" />
 
                 {contacts.length === 0 ? (
-                    <Card className="p-6 text-sm text-zoru-ink-muted">
-                        No contacts yet. Click <strong className="text-zoru-ink">New contact</strong> to add your first one.
+                    <Card className="p-6 text-sm text-[var(--st-text-secondary)]">
+                        No contacts yet. Click <strong className="text-[var(--st-text)]">New contact</strong> to add your first one.
                     </Card>
                 ) : (
                     <Card className="overflow-hidden p-0">
-                        <ul className="divide-y divide-zoru-border">
+                        <ul className="divide-y divide-[var(--st-border)]">
                             {contacts.map((c) => {
                                 const id = String(c._id);
                                 return (
                                     <li key={id}>
                                         <Link
                                             href={`/dashboard/sabbigin/contacts/${id}`}
-                                            className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-zoru-surface-2"
+                                            className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-[var(--st-bg-muted)]"
                                         >
                                             <div className="min-w-0">
-                                                <p className="truncate text-sm font-medium text-zoru-ink">{c.name ?? 'Contact'}</p>
-                                                <p className="truncate text-xs text-zoru-ink-muted">
+                                                <p className="truncate text-sm font-medium text-[var(--st-text)]">{c.name ?? 'Contact'}</p>
+                                                <p className="truncate text-xs text-[var(--st-text-secondary)]">
                                                     {c.company ?? '—'} {c.email ? `· ${c.email}` : ''}
                                                 </p>
                                             </div>
-                                            <p className="shrink-0 text-xs text-zoru-ink-muted">{c.phone ?? ''}</p>
+                                            <p className="shrink-0 text-xs text-[var(--st-text-secondary)]">{c.phone ?? ''}</p>
                                         </Link>
                                     </li>
                                 );

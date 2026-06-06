@@ -122,7 +122,7 @@ export function ManualSetupDialog({
                 placeholder="e.g. My Facebook Page"
                 required
               />
-              <p className="text-[11.5px] text-zoru-ink-muted">
+              <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                 A name for you to identify this connection.
               </p>
             </div>

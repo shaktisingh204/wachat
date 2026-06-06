@@ -60,7 +60,7 @@ export function NewWorkbookButton() {
                 if (e.key === 'Enter') submit();
               }}
             />
-            {error ? <p className="text-sm text-zoru-ink">{error}</p> : null}
+            {error ? <p className="text-sm text-[var(--st-text)]">{error}</p> : null}
           </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setOpen(false)} disabled={pending}>

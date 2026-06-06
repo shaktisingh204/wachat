@@ -279,31 +279,31 @@ def verify_signature(payload: str, signature: str, timestamp: str, secret: str) 
 
 const getMethodColor = (method: string) => {
   switch (method) {
-    case "GET": return "bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/20 dark:text-zoru-ink-muted border-zoru-line dark:border-zoru-line/30";
-    case "POST": return "bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/20 dark:text-zoru-ink-muted border-zoru-line dark:border-zoru-line/30";
-    case "PUT": return "bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/20 dark:text-zoru-ink-muted border-zoru-line dark:border-zoru-line/30";
-    case "DELETE": return "bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/20 dark:text-zoru-ink-muted border-zoru-line dark:border-zoru-line/30";
-    case "PATCH": return "bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/20 dark:text-zoru-ink-muted border-zoru-line dark:border-zoru-line/30";
-    default: return "bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink dark:text-zoru-ink-muted border-zoru-line dark:border-zoru-line";
+    case "GET": return "bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/20 dark:text-[var(--st-text-secondary)] border-[var(--st-border)] dark:border-[var(--st-border)]/30";
+    case "POST": return "bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/20 dark:text-[var(--st-text-secondary)] border-[var(--st-border)] dark:border-[var(--st-border)]/30";
+    case "PUT": return "bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/20 dark:text-[var(--st-text-secondary)] border-[var(--st-border)] dark:border-[var(--st-border)]/30";
+    case "DELETE": return "bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/20 dark:text-[var(--st-text-secondary)] border-[var(--st-border)] dark:border-[var(--st-border)]/30";
+    case "PATCH": return "bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/20 dark:text-[var(--st-text-secondary)] border-[var(--st-border)] dark:border-[var(--st-border)]/30";
+    default: return "bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)] dark:text-[var(--st-text-secondary)] border-[var(--st-border)] dark:border-[var(--st-border)]";
   }
 };
 
 const highlightJSON = (json: string) => {
   if (typeof json !== 'string') return json;
   return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, (match) => {
-    let cls = 'text-zoru-ink-muted';
+    let cls = 'text-[var(--st-text-secondary)]';
     if (/^"/.test(match)) {
       if (/:$/.test(match)) {
-        cls = 'text-zoru-ink-muted';
+        cls = 'text-[var(--st-text-secondary)]';
       } else {
-        cls = 'text-zoru-ink-muted'; // string value
+        cls = 'text-[var(--st-text-secondary)]'; // string value
       }
     } else if (/true|false/.test(match)) {
-      cls = 'text-zoru-ink-muted';
+      cls = 'text-[var(--st-text-secondary)]';
     } else if (/null/.test(match)) {
-      cls = 'text-zoru-ink';
+      cls = 'text-[var(--st-text)]';
     } else {
-      cls = 'text-zoru-ink-muted'; // number
+      cls = 'text-[var(--st-text-secondary)]'; // number
     }
     return `<span class="${cls}">${match}</span>`;
   });
@@ -312,13 +312,13 @@ const highlightJSON = (json: string) => {
 const highlightCode = (code: string) => {
   // Simple regex-based highlighter for non-JSON code (JS/Python/cURL)
   let highlighted = code
-    .replace(/\b(const|let|var|function|return|import|from|require|await|async|def|import|class|print)\b/g, '<span class="text-zoru-ink-muted">$1</span>')
-    .replace(/\b(true|false|null)\b/g, '<span class="text-zoru-ink-muted">$1</span>')
-    .replace(/(["'])(?:(?=(\\?))\2.)*?\1/g, '<span class="text-zoru-ink-muted">$&</span>')
-    .replace(/\b(\d+)\b/g, '<span class="text-zoru-ink-muted">$1</span>')
+    .replace(/\b(const|let|var|function|return|import|from|require|await|async|def|import|class|print)\b/g, '<span class="text-[var(--st-text-secondary)]">$1</span>')
+    .replace(/\b(true|false|null)\b/g, '<span class="text-[var(--st-text-secondary)]">$1</span>')
+    .replace(/(["'])(?:(?=(\\?))\2.)*?\1/g, '<span class="text-[var(--st-text-secondary)]">$&</span>')
+    .replace(/\b(\d+)\b/g, '<span class="text-[var(--st-text-secondary)]">$1</span>')
     // Highlight cURL specific flags
-    .replace(/(-\w|--\w+)/g, '<span class="text-zoru-ink-muted">$1</span>')
-    .replace(/(https?:\/\/[\w\.\/\-]+)/g, '<span class="text-zoru-ink-muted underline decoration-zoru-ink-muted/30 underline-offset-2">$1</span>');
+    .replace(/(-\w|--\w+)/g, '<span class="text-[var(--st-text-secondary)]">$1</span>')
+    .replace(/(https?:\/\/[\w\.\/\-]+)/g, '<span class="text-[var(--st-text-secondary)] underline decoration-[var(--st-text-secondary)]/30 underline-offset-2">$1</span>');
   return highlighted;
 };
 
@@ -339,27 +339,27 @@ function CodeBlock({ code, language = "json", className }: { code: string; langu
   const processedCode = isJson ? highlightJSON(code) : highlightCode(code);
 
   return (
-    <div className={cn("group relative rounded-xl bg-zoru-ink border border-zoru-line shadow-2xl overflow-hidden", className)}>
-      <div className="flex items-center justify-between px-4 py-2 border-b border-zoru-line/60 bg-zoru-ink">
+    <div className={cn("group relative rounded-xl bg-[var(--st-text)] border border-[var(--st-border)] shadow-2xl overflow-hidden", className)}>
+      <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--st-border)]/60 bg-[var(--st-text)]">
         <div className="flex items-center gap-2">
           <div className="flex gap-1.5">
-            <div className="w-3 h-3 rounded-full bg-zoru-ink/50" />
-            <div className="w-3 h-3 rounded-full bg-zoru-ink/50" />
-            <div className="w-3 h-3 rounded-full bg-zoru-ink/50" />
+            <div className="w-3 h-3 rounded-full bg-[var(--st-text)]/50" />
+            <div className="w-3 h-3 rounded-full bg-[var(--st-text)]/50" />
+            <div className="w-3 h-3 rounded-full bg-[var(--st-text)]/50" />
           </div>
-          <span className="ml-2 text-xs font-medium text-zoru-ink-muted uppercase tracking-wider">{language}</span>
+          <span className="ml-2 text-xs font-medium text-[var(--st-text-secondary)] uppercase tracking-wider">{language}</span>
         </div>
         <Button
           variant="ghost"
           size="sm"
-          className="h-8 text-xs text-zoru-ink-muted hover:text-white hover:bg-zoru-ink transition-colors"
+          className="h-8 text-xs text-[var(--st-text-secondary)] hover:text-white hover:bg-[var(--st-text)] transition-colors"
           onClick={handleCopy}
         >
-          {copied ? <Check className="h-3.5 w-3.5 text-zoru-ink-muted" /> : <Copy className="h-3.5 w-3.5" />}
+          {copied ? <Check className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" /> : <Copy className="h-3.5 w-3.5" />}
         </Button>
       </div>
       <div className="p-4 overflow-x-auto">
-        <pre className="text-[13px] leading-relaxed font-mono text-zoru-ink-muted">
+        <pre className="text-[13px] leading-relaxed font-mono text-[var(--st-text-secondary)]">
           <code dangerouslySetInnerHTML={{ __html: processedCode }} />
         </pre>
       </div>
@@ -380,14 +380,14 @@ function InteractivePlayground({ endpoint }: { endpoint: Endpoint }) {
   };
 
   return (
-    <div className="mt-8 rounded-2xl border border-zoru-line bg-white shadow-sm overflow-hidden dark:bg-zoru-ink dark:border-zoru-line">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-zoru-line bg-zoru-surface-2/50 dark:bg-zoru-ink/50 dark:border-zoru-line">
-        <div className="flex items-center gap-2 text-sm font-medium text-zoru-ink dark:text-zoru-ink-muted">
-          <Play className="h-4 w-4 text-zoru-ink" />
+    <div className="mt-8 rounded-2xl border border-[var(--st-border)] bg-white shadow-sm overflow-hidden dark:bg-[var(--st-text)] dark:border-[var(--st-border)]">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]/50 dark:bg-[var(--st-text)]/50 dark:border-[var(--st-border)]">
+        <div className="flex items-center gap-2 text-sm font-medium text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
+          <Play className="h-4 w-4 text-[var(--st-text)]" />
           Test Endpoint
         </div>
         <div className="flex items-center gap-2">
-          <Badge variant="outline" className="text-xs bg-zoru-surface-2 dark:bg-zoru-ink border-none">
+          <Badge variant="outline" className="text-xs bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] border-none">
             Using Test Key
           </Badge>
         </div>
@@ -397,13 +397,13 @@ function InteractivePlayground({ endpoint }: { endpoint: Endpoint }) {
           <div className="space-y-3">
             {endpoint.parameters.filter(p => p.required).map(p => (
               <div key={p.name} className="flex flex-col gap-1.5">
-                <Label className="text-xs font-semibold text-zoru-ink dark:text-zoru-ink-muted">{p.name}</Label>
+                <Label className="text-xs font-semibold text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">{p.name}</Label>
                 <Input placeholder={`Enter ${p.name}...`} className="h-9 font-mono text-xs" />
               </div>
             ))}
           </div>
         )}
-        <Button onClick={handleRun} disabled={loading} className="w-full bg-zoru-ink hover:bg-zoru-ink text-white shadow-sm transition-all active:scale-[0.98]">
+        <Button onClick={handleRun} disabled={loading} className="w-full bg-[var(--st-text)] hover:bg-[var(--st-text)] text-white shadow-sm transition-all active:scale-[0.98]">
           {loading ? (
             <div className="flex items-center gap-2">
               <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
@@ -420,8 +420,8 @@ function InteractivePlayground({ endpoint }: { endpoint: Endpoint }) {
         {result && (
           <div className="mt-4 animate-in fade-in slide-in-from-top-2 duration-300">
             <div className="flex items-center gap-2 mb-2">
-              <div className="h-2 w-2 rounded-full bg-zoru-ink" />
-              <span className="text-xs font-medium text-zoru-ink dark:text-zoru-ink-muted">200 OK</span>
+              <div className="h-2 w-2 rounded-full bg-[var(--st-text)]" />
+              <span className="text-xs font-medium text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">200 OK</span>
             </div>
             <CodeBlock code={result} language="json" />
           </div>
@@ -452,16 +452,16 @@ export default function ApiDocsClient() {
   const endpointData = ENDPOINTS.find(e => e.id === activeEndpoint) || ENDPOINTS[0];
 
   return (
-    <div className="min-h-screen bg-zoru-surface-2 dark:bg-zoru-ink font-sans text-zoru-ink dark:text-white">
+    <div className="min-h-screen bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] font-sans text-[var(--st-text)] dark:text-white">
       
       {/* Top Navbar */}
-      <header className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-zoru-line bg-white/80 px-4 backdrop-blur-md dark:border-zoru-line dark:bg-zoru-ink/80 sm:px-6 lg:px-8">
+      <header className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-[var(--st-border)] bg-white/80 px-4 backdrop-blur-md dark:border-[var(--st-border)] dark:bg-[var(--st-text)]/80 sm:px-6 lg:px-8">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
             {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-ink text-white shadow-sm">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-text)] text-white shadow-sm">
               <Code className="h-4 w-4" />
             </div>
             <span className="text-lg font-bold tracking-tight">API Reference</span>
@@ -471,17 +471,17 @@ export default function ApiDocsClient() {
 
         <div className="flex flex-1 items-center justify-end gap-3 sm:gap-6">
           <div className="hidden max-w-sm flex-1 items-center md:flex relative group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zoru-ink-muted group-focus-within:text-zoru-ink transition-colors" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--st-text-secondary)] group-focus-within:text-[var(--st-text)] transition-colors" />
             <Input 
               placeholder="Search endpoints, guides..." 
-              className="pl-9 bg-zoru-surface-2/50 border-transparent focus:bg-white focus:border-zoru-line focus:ring-2 focus:ring-zoru-line/20 transition-all dark:bg-zoru-ink dark:focus:bg-zoru-ink h-9 rounded-full"
+              className="pl-9 bg-[var(--st-bg-muted)]/50 border-transparent focus:bg-white focus:border-[var(--st-border)] focus:ring-2 focus:ring-[var(--st-border)]/20 transition-all dark:bg-[var(--st-text)] dark:focus:bg-[var(--st-text)] h-9 rounded-full"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
           
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-zoru-line bg-white shadow-sm dark:border-zoru-line dark:bg-zoru-ink">
-            <div className="h-2 w-2 rounded-full bg-zoru-ink animate-pulse" />
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-[var(--st-border)] bg-white shadow-sm dark:border-[var(--st-border)] dark:bg-[var(--st-text)]">
+            <div className="h-2 w-2 rounded-full bg-[var(--st-text)] animate-pulse" />
             <span className="text-xs font-medium">API Status: Operational</span>
           </div>
         </div>
@@ -490,14 +490,14 @@ export default function ApiDocsClient() {
       <div className="flex w-full">
         {/* Sidebar Navigation */}
         <aside className={cn(
-          "fixed inset-y-0 left-0 z-40 mt-16 w-72 border-r border-zoru-line bg-white transition-transform duration-300 ease-in-out dark:border-zoru-line dark:bg-zoru-ink lg:static lg:mt-0 lg:translate-x-0 lg:h-[calc(100vh-4rem)] lg:sticky lg:top-16",
+          "fixed inset-y-0 left-0 z-40 mt-16 w-72 border-r border-[var(--st-border)] bg-white transition-transform duration-300 ease-in-out dark:border-[var(--st-border)] dark:bg-[var(--st-text)] lg:static lg:mt-0 lg:translate-x-0 lg:h-[calc(100vh-4rem)] lg:sticky lg:top-16",
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         )}>
           <ScrollArea className="h-full py-6">
             <div className="px-6 pb-4 md:hidden">
               <Input 
                 placeholder="Search..." 
-                className="h-9 w-full bg-zoru-surface-2 dark:bg-zoru-ink"
+                className="h-9 w-full bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -510,7 +510,7 @@ export default function ApiDocsClient() {
                 
                 return (
                   <div key={group} className="space-y-3">
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-zoru-ink px-3">{group}</h4>
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--st-text)] px-3">{group}</h4>
                     <div className="space-y-1">
                       {groupEndpoints.map(endpoint => {
                         const isActive = activeEndpoint === endpoint.id;
@@ -524,8 +524,8 @@ export default function ApiDocsClient() {
                             className={cn(
                               "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
                               isActive 
-                                ? "bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/10 dark:text-zoru-ink-muted" 
-                                : "text-zoru-ink hover:bg-zoru-surface-2 hover:text-zoru-ink dark:text-zoru-ink-muted dark:hover:bg-zoru-ink/50 dark:hover:text-white"
+                                ? "bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/10 dark:text-[var(--st-text-secondary)]" 
+                                : "text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] dark:text-[var(--st-text-secondary)] dark:hover:bg-[var(--st-text)]/50 dark:hover:text-white"
                             )}
                           >
                             <span className={cn(
@@ -544,15 +544,15 @@ export default function ApiDocsClient() {
               })}
 
               <div className="space-y-3">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-zoru-ink px-3">Resources</h4>
-                <div className="space-y-1 text-sm font-medium text-zoru-ink dark:text-zoru-ink-muted">
-                  <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 hover:bg-zoru-surface-2 hover:text-zoru-ink dark:hover:bg-zoru-ink/50">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--st-text)] px-3">Resources</h4>
+                <div className="space-y-1 text-sm font-medium text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
+                  <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] dark:hover:bg-[var(--st-text)]/50">
                     <Book className="h-4 w-4" /> Authentication
                   </button>
-                  <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 hover:bg-zoru-surface-2 hover:text-zoru-ink dark:hover:bg-zoru-ink/50">
+                  <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] dark:hover:bg-[var(--st-text)]/50">
                     <AlertTriangle className="h-4 w-4" /> Errors
                   </button>
-                  <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 hover:bg-zoru-surface-2 hover:text-zoru-ink dark:hover:bg-zoru-ink/50">
+                  <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] dark:hover:bg-[var(--st-text)]/50">
                     <Activity className="h-4 w-4" /> Rate Limits
                   </button>
                 </div>
@@ -564,7 +564,7 @@ export default function ApiDocsClient() {
         {/* Backdrop for mobile */}
         {mobileMenuOpen && (
           <div 
-            className="fixed inset-0 z-30 bg-zoru-ink/50 backdrop-blur-sm lg:hidden"
+            className="fixed inset-0 z-30 bg-[var(--st-text)]/50 backdrop-blur-sm lg:hidden"
             onClick={() => setMobileMenuOpen(false)}
           />
         )}
@@ -579,22 +579,22 @@ export default function ApiDocsClient() {
                 
                 <div className="flex items-center gap-3 mb-4">
                   {endpointData.badges.map(badge => (
-                    <Badge key={badge} variant="secondary" className="bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted border-none font-medium">
+                    <Badge key={badge} variant="secondary" className="bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)] border-none font-medium">
                       <Sparkles className="h-3 w-3 mr-1" />
                       {badge}
                     </Badge>
                   ))}
                 </div>
 
-                <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-zoru-ink dark:text-white mb-4">
+                <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-[var(--st-text)] dark:text-white mb-4">
                   {endpointData.title}
                 </h1>
                 
-                <p className="text-lg text-zoru-ink dark:text-zoru-ink-muted mb-8 leading-relaxed">
+                <p className="text-lg text-[var(--st-text)] dark:text-[var(--st-text-secondary)] mb-8 leading-relaxed">
                   {endpointData.description}
                 </p>
 
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-12 p-1 rounded-xl bg-zoru-surface-2 dark:bg-zoru-ink/50 border border-zoru-line dark:border-zoru-line w-fit">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-12 p-1 rounded-xl bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/50 border border-[var(--st-border)] dark:border-[var(--st-border)] w-fit">
                   <span className={cn(
                     "px-3 py-1.5 rounded-lg text-sm font-bold shadow-sm",
                     getMethodColor(endpointData.method).split(" ")[0],
@@ -604,57 +604,57 @@ export default function ApiDocsClient() {
                     {endpointData.method}
                   </span>
                   <div className="flex items-center px-2 py-1.5 overflow-x-auto w-full">
-                    <span className="text-zoru-ink font-mono text-sm shrink-0">https://api.sabsms.com</span>
-                    <span className="text-zoru-ink dark:text-white font-mono text-sm font-semibold whitespace-nowrap ml-1">{endpointData.path}</span>
+                    <span className="text-[var(--st-text)] font-mono text-sm shrink-0">https://api.sabsms.com</span>
+                    <span className="text-[var(--st-text)] dark:text-white font-mono text-sm font-semibold whitespace-nowrap ml-1">{endpointData.path}</span>
                   </div>
                 </div>
 
                 <div className="mb-12">
-                  <h2 className="text-xl font-bold text-zoru-ink dark:text-white mb-6 flex items-center gap-2 border-b border-zoru-line dark:border-zoru-line pb-2">
-                    <div className="h-6 w-1 bg-zoru-ink rounded-full" />
+                  <h2 className="text-xl font-bold text-[var(--st-text)] dark:text-white mb-6 flex items-center gap-2 border-b border-[var(--st-border)] dark:border-[var(--st-border)] pb-2">
+                    <div className="h-6 w-1 bg-[var(--st-text)] rounded-full" />
                     Parameters
                   </h2>
                   
                   {endpointData.parameters.length > 0 ? (
                     <div className="space-y-6">
                       {endpointData.parameters.map(param => (
-                        <div key={param.name} className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-6 border-b border-zoru-line dark:border-zoru-line/50 pb-6 last:border-0 last:pb-0">
+                        <div key={param.name} className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-6 border-b border-[var(--st-border)] dark:border-[var(--st-border)]/50 pb-6 last:border-0 last:pb-0">
                           <div className="w-full sm:w-48 shrink-0 space-y-1">
                             <div className="flex items-center gap-2">
-                              <code className="text-sm font-semibold text-zoru-ink dark:text-white bg-zoru-surface-2 dark:bg-zoru-ink px-1.5 py-0.5 rounded">
+                              <code className="text-sm font-semibold text-[var(--st-text)] dark:text-white bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] px-1.5 py-0.5 rounded">
                                 {param.name}
                               </code>
                               {param.required && (
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-zoru-ink bg-zoru-surface-2 dark:bg-zoru-ink/10 px-1.5 py-0.5 rounded">Required</span>
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--st-text)] bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/10 px-1.5 py-0.5 rounded">Required</span>
                               )}
                             </div>
-                            <div className="text-xs font-mono text-zoru-ink">{param.type}</div>
+                            <div className="text-xs font-mono text-[var(--st-text)]">{param.type}</div>
                           </div>
-                          <div className="text-zoru-ink dark:text-zoru-ink-muted text-sm leading-relaxed mt-1 sm:mt-0">
+                          <div className="text-[var(--st-text)] dark:text-[var(--st-text-secondary)] text-sm leading-relaxed mt-1 sm:mt-0">
                             {param.description}
                           </div>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <p className="text-sm text-zoru-ink italic">No parameters required for this endpoint.</p>
+                    <p className="text-sm text-[var(--st-text)] italic">No parameters required for this endpoint.</p>
                   )}
                 </div>
 
                 <div className="mb-12">
-                  <h2 className="text-xl font-bold text-zoru-ink dark:text-white mb-6 flex items-center gap-2 border-b border-zoru-line dark:border-zoru-line pb-2">
-                    <div className="h-6 w-1 bg-zoru-ink rounded-full" />
+                  <h2 className="text-xl font-bold text-[var(--st-text)] dark:text-white mb-6 flex items-center gap-2 border-b border-[var(--st-border)] dark:border-[var(--st-border)] pb-2">
+                    <div className="h-6 w-1 bg-[var(--st-text)] rounded-full" />
                     Authentication
                   </h2>
-                  <div className="rounded-xl border border-zoru-line bg-zoru-surface-2 p-4 dark:border-zoru-line/50 dark:bg-zoru-ink/20">
+                  <div className="rounded-xl border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 dark:border-[var(--st-border)]/50 dark:bg-[var(--st-text)]/20">
                     <div className="flex gap-3">
-                      <Lock className="h-5 w-5 text-zoru-ink dark:text-zoru-ink-muted shrink-0 mt-0.5" />
+                      <Lock className="h-5 w-5 text-[var(--st-text)] dark:text-[var(--st-text-secondary)] shrink-0 mt-0.5" />
                       <div>
-                        <h4 className="font-semibold text-zoru-ink dark:text-zoru-ink-muted">Bearer Token</h4>
-                        <p className="mt-1 text-sm text-zoru-ink/80 dark:text-white/70">
+                        <h4 className="font-semibold text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">Bearer Token</h4>
+                        <p className="mt-1 text-sm text-[var(--st-text)]/80 dark:text-white/70">
                           Authenticate your API requests using your workspace's API keys. Pass the key in the Authorization header.
                         </p>
-                        <code className="mt-3 block text-xs bg-white/60 dark:bg-zoru-ink/50 p-2 rounded text-zoru-ink dark:text-zoru-ink-muted font-mono border border-zoru-line dark:border-zoru-line/30">
+                        <code className="mt-3 block text-xs bg-white/60 dark:bg-[var(--st-text)]/50 p-2 rounded text-[var(--st-text)] dark:text-[var(--st-text-secondary)] font-mono border border-[var(--st-border)] dark:border-[var(--st-border)]/30">
                           Authorization: Bearer sk_live_...
                         </code>
                       </div>
@@ -664,11 +664,11 @@ export default function ApiDocsClient() {
 
                 {/* Mobile-only Code and Playground section */}
                 <div className="xl:hidden mt-12 space-y-8">
-                  <h2 className="text-xl font-bold text-zoru-ink dark:text-white border-b border-zoru-line dark:border-zoru-line pb-2">
+                  <h2 className="text-xl font-bold text-[var(--st-text)] dark:text-white border-b border-[var(--st-border)] dark:border-[var(--st-border)] pb-2">
                     Request & Response
                   </h2>
                   
-                  <div className="bg-zoru-ink rounded-2xl p-1 pb-4 shadow-xl">
+                  <div className="bg-[var(--st-text)] rounded-2xl p-1 pb-4 shadow-xl">
                     <div className="flex gap-1 mb-2 px-3 pt-3 overflow-x-auto hide-scrollbar">
                       {Object.keys(endpointData.codeExamples).map(lang => (
                         <button
@@ -677,8 +677,8 @@ export default function ApiDocsClient() {
                           className={cn(
                             "px-4 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap",
                             activeLang === lang 
-                              ? "bg-zoru-ink text-white" 
-                              : "text-zoru-ink-muted hover:text-white hover:bg-zoru-ink/50"
+                              ? "bg-[var(--st-text)] text-white" 
+                              : "text-[var(--st-text-secondary)] hover:text-white hover:bg-[var(--st-text)]/50"
                           )}
                         >
                           {lang}
@@ -694,8 +694,8 @@ export default function ApiDocsClient() {
 
                   {endpointData.response && (
                     <div className="space-y-3 mt-8">
-                      <h3 className="text-sm font-bold text-zoru-ink dark:text-white uppercase tracking-wider flex items-center gap-2">
-                        <div className="h-2 w-2 rounded-full bg-zoru-ink" />
+                      <h3 className="text-sm font-bold text-[var(--st-text)] dark:text-white uppercase tracking-wider flex items-center gap-2">
+                        <div className="h-2 w-2 rounded-full bg-[var(--st-text)]" />
                         Example Response
                       </h3>
                       <CodeBlock code={endpointData.response} language="json" />
@@ -709,7 +709,7 @@ export default function ApiDocsClient() {
             </div>
 
             {/* Right Column: Code snippets & Playground (Desktop only) */}
-            <div className="hidden xl:flex w-[480px] 2xl:w-[560px] flex-col border-l border-zoru-line bg-zoru-ink dark:border-zoru-line overflow-y-auto">
+            <div className="hidden xl:flex w-[480px] 2xl:w-[560px] flex-col border-l border-[var(--st-border)] bg-[var(--st-text)] dark:border-[var(--st-border)] overflow-y-auto">
               <div className="p-6 space-y-8">
                 
                 <div className="space-y-4">
@@ -717,8 +717,8 @@ export default function ApiDocsClient() {
                     <h3 className="text-sm font-bold text-white uppercase tracking-wider">Request</h3>
                   </div>
                   
-                  <div className="bg-zoru-ink rounded-2xl border border-zoru-line/60 overflow-hidden shadow-2xl">
-                    <div className="flex gap-1 p-2 border-b border-zoru-line/60 bg-zoru-ink overflow-x-auto hide-scrollbar">
+                  <div className="bg-[var(--st-text)] rounded-2xl border border-[var(--st-border)]/60 overflow-hidden shadow-2xl">
+                    <div className="flex gap-1 p-2 border-b border-[var(--st-border)]/60 bg-[var(--st-text)] overflow-x-auto hide-scrollbar">
                       {Object.keys(endpointData.codeExamples).map(lang => (
                         <button
                           key={lang}
@@ -726,8 +726,8 @@ export default function ApiDocsClient() {
                           className={cn(
                             "px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-200",
                             activeLang === lang 
-                              ? "bg-zoru-ink/10 text-zoru-ink-muted shadow-[inset_0_0_0_1px_rgba(59,130,246,0.2)]" 
-                              : "text-zoru-ink-muted hover:text-white hover:bg-zoru-ink/50"
+                              ? "bg-[var(--st-text)]/10 text-[var(--st-text-secondary)] shadow-[inset_0_0_0_1px_rgba(59,130,246,0.2)]" 
+                              : "text-[var(--st-text-secondary)] hover:text-white hover:bg-[var(--st-text)]/50"
                           )}
                         >
                           {lang}
@@ -745,33 +745,33 @@ export default function ApiDocsClient() {
                 {endpointData.response && (
                   <div className="space-y-4">
                     <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                      <div className="h-2 w-2 rounded-full bg-zoru-ink shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+                      <div className="h-2 w-2 rounded-full bg-[var(--st-text)] shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
                       Response
                     </h3>
                     <CodeBlock code={endpointData.response} language="json" />
                   </div>
                 )}
 
-                <div className="pt-8 border-t border-zoru-line/50">
+                <div className="pt-8 border-t border-[var(--st-border)]/50">
                   <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-6">Playground</h3>
-                  <div className="bg-zoru-ink border border-zoru-line rounded-2xl p-5 shadow-2xl">
+                  <div className="bg-[var(--st-text)] border border-[var(--st-border)] rounded-2xl p-5 shadow-2xl">
                     <div className="flex items-center justify-between mb-4">
-                      <span className="text-sm font-medium text-zoru-ink-muted">Sandbox Test</span>
+                      <span className="text-sm font-medium text-[var(--st-text-secondary)]">Sandbox Test</span>
                       <Switch defaultChecked id="desktop-sandbox" />
                     </div>
                     
                     <div className="space-y-4">
                       {endpointData.parameters.filter(p => p.required).map(p => (
                         <div key={p.name} className="space-y-1.5">
-                          <label className="text-xs font-medium text-zoru-ink-muted block">{p.name}</label>
+                          <label className="text-xs font-medium text-[var(--st-text-secondary)] block">{p.name}</label>
                           <Input 
                             placeholder={`Enter ${p.name}...`} 
-                            className="bg-zoru-ink border-zoru-line text-white placeholder:text-zoru-ink focus:border-zoru-line focus:ring-zoru-line/20" 
+                            className="bg-[var(--st-text)] border-[var(--st-border)] text-white placeholder:text-[var(--st-text)] focus:border-[var(--st-border)] focus:ring-[var(--st-border)]/20" 
                           />
                         </div>
                       ))}
                       
-                      <Button className="w-full mt-2 bg-zoru-ink hover:bg-zoru-ink text-white border-none shadow-[0_0_15px_rgba(37,99,235,0.3)]">
+                      <Button className="w-full mt-2 bg-[var(--st-text)] hover:bg-[var(--st-text)] text-white border-none shadow-[0_0_15px_rgba(37,99,235,0.3)]">
                         <Play className="h-4 w-4 mr-2" />
                         Send API Request
                       </Button>

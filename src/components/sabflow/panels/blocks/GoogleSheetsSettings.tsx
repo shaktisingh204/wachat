@@ -41,7 +41,7 @@ function AddButton({ onClick, label }: { onClick: () => void; label: string }) {
     <button
       type="button"
       onClick={onClick}
-      className="flex items-center gap-1 rounded-md px-2 py-1 text-[11px] text-zoru-ink hover:bg-zoru-ink transition-colors"
+      className="flex items-center gap-1 rounded-md px-2 py-1 text-[11px] text-[var(--st-text)] hover:bg-[var(--st-text)] transition-colors"
     >
       <LuPlus className="h-3 w-3" strokeWidth={2.5} />
       {label}
@@ -55,7 +55,7 @@ function RemoveButton({ onClick }: { onClick: () => void }) {
       type="button"
       onClick={onClick}
       aria-label="Remove row"
-      className="flex h-7 w-7 shrink-0 items-center justify-center rounded text-[var(--gray-8)] hover:bg-[var(--gray-4)] hover:text-zoru-ink-muted transition-colors"
+      className="flex h-7 w-7 shrink-0 items-center justify-center rounded text-[var(--gray-8)] hover:bg-[var(--gray-4)] hover:text-[var(--st-text-secondary)] transition-colors"
     >
       <LuTrash2 className="h-3.5 w-3.5" strokeWidth={1.8} />
     </button>
@@ -173,7 +173,7 @@ export function GoogleSheetsSettings({ block, onBlockChange, variables = [] }: P
         />
         <p className="text-[10.5px] text-[var(--gray-8)] mt-1">
           Found in the Google Sheets URL. Supports{' '}
-          <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-zoru-ink">
+          <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-[var(--st-text)]">
             {'{{variable}}'}
           </code>
           .
@@ -231,9 +231,9 @@ export function GoogleSheetsSettings({ block, onBlockChange, variables = [] }: P
             />
             <p className="text-[10.5px] text-[var(--gray-8)] mt-1">
               The row used to locate data. Accepts a cell reference like{' '}
-              <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-zoru-ink">A1</code>{' '}
+              <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-[var(--st-text)]">A1</code>{' '}
               or a{' '}
-              <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-zoru-ink">
+              <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-[var(--st-text)]">
                 {'{{variable}}'}
               </code>
               .
@@ -344,7 +344,7 @@ export function GoogleSheetsSettings({ block, onBlockChange, variables = [] }: P
             />
             <p className="text-[10.5px] text-[var(--gray-8)] mt-1">
               1-based row index. Supports{' '}
-              <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-zoru-ink">
+              <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-[var(--st-text)]">
                 {'{{variable}}'}
               </code>
               .
@@ -409,7 +409,7 @@ export function GoogleSheetsSettings({ block, onBlockChange, variables = [] }: P
             />
             <p className="text-[10.5px] text-[var(--gray-8)] mt-1">
               1-based row index of the row to delete. Supports{' '}
-              <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-zoru-ink">
+              <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-[var(--st-text)]">
                 {'{{variable}}'}
               </code>
               .

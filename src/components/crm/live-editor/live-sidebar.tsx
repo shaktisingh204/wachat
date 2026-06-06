@@ -21,17 +21,17 @@ interface LiveSidebarProps {
 function Accordion({ title, icon: Icon, children, defaultOpen = false }: { title: string, icon: any, children: React.ReactNode, defaultOpen?: boolean }) {
     const [isOpen, setIsOpen] = useState(defaultOpen);
     return (
-        <div className="border-b border-zoru-line">
+        <div className="border-b border-[var(--st-border)]">
             <button
-                className="flex w-full items-center justify-between px-4 py-3 hover:bg-zoru-surface-2"
+                className="flex w-full items-center justify-between px-4 py-3 hover:bg-[var(--st-bg-muted)]"
                 onClick={() => setIsOpen(!isOpen)}
                 type="button"
             >
-                <div className="flex items-center gap-2 text-sm font-medium text-zoru-ink">
-                    <Icon className="h-4 w-4 text-zoru-ink-muted" />
+                <div className="flex items-center gap-2 text-sm font-medium text-[var(--st-text)]">
+                    <Icon className="h-4 w-4 text-[var(--st-text-secondary)]" />
                     {title}
                 </div>
-                {isOpen ? <ChevronDown className="h-4 w-4 text-zoru-ink-muted" /> : <ChevronRight className="h-4 w-4 text-zoru-ink-muted" />}
+                {isOpen ? <ChevronDown className="h-4 w-4 text-[var(--st-text-secondary)]" /> : <ChevronRight className="h-4 w-4 text-[var(--st-text-secondary)]" />}
             </button>
             {isOpen && (
                 <div className="px-4 pb-4 pt-1">
@@ -98,9 +98,9 @@ export function LiveSidebar({ docState, updateDocState, updateDesignMetadata, do
 
     return (
         <div className="flex h-full flex-col overflow-y-auto">
-            <div className="p-4 border-b border-zoru-line">
-                <h2 className="text-sm font-semibold text-zoru-ink">Document Customization</h2>
-                <p className="text-xs text-zoru-ink-muted">Configure your live document</p>
+            <div className="p-4 border-b border-[var(--st-border)]">
+                <h2 className="text-sm font-semibold text-[var(--st-text)]">Document Customization</h2>
+                <p className="text-xs text-[var(--st-text-secondary)]">Configure your live document</p>
             </div>
 
             <Accordion title="Document Settings" icon={Settings} defaultOpen>
@@ -166,9 +166,9 @@ export function LiveSidebar({ docState, updateDocState, updateDesignMetadata, do
                                 type="checkbox"
                                 checked={designMetadata.showLogo}
                                 onChange={(e) => updateDesignMetadata({ showLogo: e.target.checked })}
-                                className="h-4 w-4 rounded border-zoru-line text-zoru-primary focus:ring-zoru-primary"
+                                className="h-4 w-4 rounded border-[var(--st-border)] text-[var(--st-text)] focus:ring-[var(--st-text)]"
                             />
-                            <span className="text-sm text-zoru-ink">Display company logo in header</span>
+                            <span className="text-sm text-[var(--st-text)]">Display company logo in header</span>
                         </div>
                     </div>
                 </div>
@@ -250,8 +250,8 @@ export function LiveSidebar({ docState, updateDocState, updateDesignMetadata, do
                     {docState.attachments.length > 0 && (
                         <ul className="flex flex-col gap-1.5 mt-2">
                             {docState.attachments.map((a: any, idx: number) => (
-                                <li key={idx} className="flex items-center gap-2 rounded border border-zoru-line bg-zoru-surface-2 px-2 py-1">
-                                    <span className="min-w-0 flex-1 truncate text-xs text-zoru-ink">{a.name}</span>
+                                <li key={idx} className="flex items-center gap-2 rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2 py-1">
+                                    <span className="min-w-0 flex-1 truncate text-xs text-[var(--st-text)]">{a.name}</span>
                                     <Button variant="ghost" size="icon" onClick={() => removeAttachment(idx)} className="h-5 w-5">
                                         <X className="h-3 w-3" />
                                     </Button>

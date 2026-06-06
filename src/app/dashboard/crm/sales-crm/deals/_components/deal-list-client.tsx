@@ -366,7 +366,7 @@ export function DealListClient({
         } else if (row.contactId) {
           return <EntityPickerChip entity="contact" id={row.contactId} />;
         }
-        return <span className="text-zoru-ink-muted">{row.clientLabel ?? '—'}</span>;
+        return <span className="text-[var(--st-text-secondary)]">{row.clientLabel ?? '—'}</span>;
       },
       editRender: (row, value, onChange) => {
         return (
@@ -444,7 +444,7 @@ export function DealListClient({
         <div>
           <span>{row.probability}%</span>
           {typeof row.amount === 'number' && (
-            <span className="block text-[10px] text-zoru-ink-muted">
+            <span className="block text-[10px] text-[var(--st-text-secondary)]">
               EV: {fmtMoney(row.amount * (row.probability / 100), row.currency ?? defaultCurrency)}
             </span>
           )}
@@ -483,12 +483,12 @@ export function DealListClient({
           <Button
             size="sm"
             variant="ghost"
-            className="h-7 px-2 text-[11px] text-zoru-ink hover:bg-zoru-surface-2"
+            className="h-7 px-2 text-[11px] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
             onClick={() => handleOpenDrawerForEdit(row)}
           >
             Edit Drawer
           </Button>
-          <Link href={`/dashboard/crm/sales-crm/deals/${row._id}`} className="text-[11px] text-zoru-ink hover:underline font-medium">
+          <Link href={`/dashboard/crm/sales-crm/deals/${row._id}`} className="text-[11px] text-[var(--st-text)] hover:underline font-medium">
             360° View
           </Link>
         </div>
@@ -553,7 +553,7 @@ export function DealListClient({
               }}
             />
           </div>
-          <div className="text-center text-xs text-zoru-ink-muted my-2">— OR —</div>
+          <div className="text-center text-xs text-[var(--st-text-secondary)] my-2">— OR —</div>
           <div className="space-y-1.5">
             <Label>Associated Contact</Label>
             <EntityFormField
@@ -589,7 +589,7 @@ export function DealListClient({
           <div className="space-y-1.5">
             <Label>Priority</Label>
             <select
-              className="flex h-9 w-full rounded-md border border-zoru-line bg-zoru-bg px-3 py-1.5 text-[13px] text-zoru-ink shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zoru-line"
+              className="flex h-9 w-full rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-1.5 text-[13px] text-[var(--st-text)] shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--st-border)]"
               value={formPriority}
               onChange={(e) => setFormPriority(e.target.value)}
             >
@@ -832,7 +832,7 @@ export function DealListClient({
       />
 
       {error ? (
-        <div className="rounded border border-zoru-line/40 bg-zoru-ink/10 px-3 py-2 text-[12.5px] text-zoru-ink dark:text-zoru-ink-muted">
+        <div className="rounded border border-[var(--st-border)]/40 bg-[var(--st-text)]/10 px-3 py-2 text-[12.5px] text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
           {error}
         </div>
       ) : null}
@@ -853,9 +853,9 @@ export function DealListClient({
         />
 
         {/* Filters */}
-        <details className="border-b border-zoru-line bg-zoru-surface-2/40" open>
-          <summary className="cursor-pointer list-none px-3 py-2 text-[12px] font-medium uppercase tracking-wide text-zoru-ink-muted">
-            Filters {filtersActive ? <span className="ml-2 text-zoru-ink">·</span> : null}
+        <details className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]/40" open>
+          <summary className="cursor-pointer list-none px-3 py-2 text-[12px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
+            Filters {filtersActive ? <span className="ml-2 text-[var(--st-text)]">·</span> : null}
             {filtersActive ? (
               <button
                 type="button"
@@ -863,7 +863,7 @@ export function DealListClient({
                   e.preventDefault();
                   clearFilters();
                 }}
-                className="ml-1 text-zoru-primary hover:underline"
+                className="ml-1 text-[var(--st-text)] hover:underline"
               >
                 clear all
               </button>
@@ -1006,7 +1006,7 @@ export function DealListClient({
         )}
 
         {view === 'table' ? (
-          <div className="border-t border-zoru-line p-3">
+          <div className="border-t border-[var(--st-border)] p-3">
             <PaginationBar
               page={page}
               limit={limit}

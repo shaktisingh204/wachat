@@ -85,18 +85,18 @@ export default function SabCreatorFormsPage() {
             {MOCK_FORMS.map((form) => (
               <TableRow key={form.id}>
                 <TableCell>
-                  <span className="font-medium text-zoru-ink">{form.name}</span>
+                  <span className="font-medium text-[var(--st-text)]">{form.name}</span>
                 </TableCell>
                 <TableCell>
-                  <span className="text-sm text-zoru-ink/80">{form.app}</span>
+                  <span className="text-sm text-[var(--st-text)]/80">{form.app}</span>
                 </TableCell>
                 <TableCell>
-                  <div className="flex items-center text-sm text-zoru-ink/80">
-                    <Database className="w-4 h-4 mr-1.5 text-zoru-ink/50" />
+                  <div className="flex items-center text-sm text-[var(--st-text)]/80">
+                    <Database className="w-4 h-4 mr-1.5 text-[var(--st-text)]/50" />
                     {form.table}
                   </div>
                 </TableCell>
-                <TableCell className="text-sm text-zoru-ink/70">
+                <TableCell className="text-sm text-[var(--st-text)]/70">
                   {form.submissions.toLocaleString()}
                 </TableCell>
                 <TableCell>
@@ -111,13 +111,13 @@ export default function SabCreatorFormsPage() {
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
                     <Button variant="ghost" size="icon">
-                      <Eye className="w-4 h-4 text-zoru-ink/60" />
+                      <Eye className="w-4 h-4 text-[var(--st-text)]/60" />
                     </Button>
                     <Button variant="ghost" size="icon">
-                      <Edit className="w-4 h-4 text-zoru-ink/60" />
+                      <Edit className="w-4 h-4 text-[var(--st-text)]/60" />
                     </Button>
                     <Button variant="ghost" size="icon">
-                      <MoreHorizontal className="w-4 h-4 text-zoru-ink/60" />
+                      <MoreHorizontal className="w-4 h-4 text-[var(--st-text)]/60" />
                     </Button>
                   </div>
                 </TableCell>

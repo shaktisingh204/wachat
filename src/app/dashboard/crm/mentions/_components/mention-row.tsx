@@ -39,26 +39,26 @@ export function MentionRow({ mention }: MentionRowProps) {
 
   return (
     <li className="flex items-start gap-3 px-4 py-3">
-      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zoru-surface-2">
-        <AtSign className="h-4 w-4 text-zoru-ink" strokeWidth={1.75} />
+      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--st-bg-muted)]">
+        <AtSign className="h-4 w-4 text-[var(--st-text)]" strokeWidth={1.75} />
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-[13px] font-medium text-zoru-ink">
+          <span className="text-[13px] font-medium text-[var(--st-text)]">
             {mention.mentioner_user_id}
           </span>
-          <span className="text-[12px] text-zoru-ink-muted">
+          <span className="text-[12px] text-[var(--st-text-secondary)]">
             mentioned you in
           </span>
           <Badge variant="ghost">{mention.resource_type}</Badge>
           {!read ? <Badge variant="danger">Unread</Badge> : null}
         </div>
         {mention.body ? (
-          <p className="mt-1 whitespace-pre-wrap text-[13px] text-zoru-ink">
+          <p className="mt-1 whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
             {mention.body}
           </p>
         ) : null}
-        <p className="mt-1 text-[11.5px] text-zoru-ink-muted">
+        <p className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">
           {formatStamp(mention.createdAt)}
         </p>
       </div>

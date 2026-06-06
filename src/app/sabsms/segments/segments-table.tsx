@@ -328,18 +328,18 @@ export function SegmentsTable({
           <div className="flex items-center gap-2">
             <Link
               href={`/sabsms/segments/new?id=${row.id}`}
-              className="font-medium text-zoru-ink hover:underline"
+              className="font-medium text-[var(--st-text)] hover:underline"
             >
               {row.name}
             </Link>
             {row.tags?.includes("crm") && (
-              <Badge variant="secondary" className="bg-zoru-surface-2 text-zoru-ink text-[9px] hover:bg-zoru-surface-2 px-1 py-0 h-4">
+              <Badge variant="secondary" className="bg-[var(--st-bg-muted)] text-[var(--st-text)] text-[9px] hover:bg-[var(--st-bg-muted)] px-1 py-0 h-4">
                 CRM
               </Badge>
             )}
           </div>
           {row.description && (
-            <div className="line-clamp-1 text-xs text-zoru-ink">
+            <div className="line-clamp-1 text-xs text-[var(--st-text)]">
               {row.description}
             </div>
           )}
@@ -382,7 +382,7 @@ export function SegmentsTable({
       header: "Campaigns",
       align: "right",
       render: (row) => (
-        <span className="text-sm text-zoru-ink">{row.campaignsUsing}</span>
+        <span className="text-sm text-[var(--st-text)]">{row.campaignsUsing}</span>
       ),
     },
     {
@@ -390,7 +390,7 @@ export function SegmentsTable({
       header: "Drips",
       align: "right",
       render: (row) => (
-        <span className="text-sm text-zoru-ink">{row.dripsUsing}</span>
+        <span className="text-sm text-[var(--st-text)]">{row.dripsUsing}</span>
       ),
     },
     {
@@ -398,11 +398,11 @@ export function SegmentsTable({
       header: "Last refresh",
       render: (row) => (
         <div className="flex flex-col">
-          <span className="text-sm text-zoru-ink">
+          <span className="text-sm text-[var(--st-text)]">
             {formatRelative(row.lastRefreshedAt)}
           </span>
           {row.autoRefreshSeconds ? (
-            <span className="text-[11px] text-zoru-ink">
+            <span className="text-[11px] text-[var(--st-text)]">
               auto: {row.autoRefreshSeconds}s
             </span>
           ) : null}
@@ -414,7 +414,7 @@ export function SegmentsTable({
       header: "Send cost",
       align: "right",
       render: (row) => (
-        <span className="text-sm tabular-nums text-zoru-ink">
+        <span className="text-sm tabular-nums text-[var(--st-text)]">
           {formatCents(row.costEstimateCents)}
         </span>
       ),
@@ -610,8 +610,8 @@ export function SegmentsTable({
         <div
           className={`rounded-md border px-3 py-2 text-sm ${
             banner.kind === "ok"
-              ? "border-zoru-line bg-zoru-surface-2 text-zoru-ink"
-              : "border-zoru-line bg-zoru-surface-2 text-zoru-ink"
+              ? "border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)]"
+              : "border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)]"
           }`}
         >
           {banner.message}
@@ -652,23 +652,23 @@ export function SegmentsTable({
         {activity && (
           <ul className="space-y-3">
             {activity.entries.length === 0 ? (
-              <li className="text-sm text-zoru-ink">No activity yet.</li>
+              <li className="text-sm text-[var(--st-text)]">No activity yet.</li>
             ) : (
               activity.entries.map((e, i) => (
                 <li
                   key={i}
-                  className="flex items-start gap-3 rounded-md border border-zoru-line p-3"
+                  className="flex items-start gap-3 rounded-md border border-[var(--st-border)] p-3"
                 >
                   <Badge variant="outline" className="mt-0.5 text-[10px]">
                     {e.kind}
                   </Badge>
                   <div className="flex-1">
-                    <div className="text-sm text-zoru-ink">{e.message}</div>
-                    <div className="text-[11px] text-zoru-ink">
+                    <div className="text-sm text-[var(--st-text)]">{e.message}</div>
+                    <div className="text-[11px] text-[var(--st-text)]">
                       {new Date(e.at).toLocaleString()}
                     </div>
                     {e.delta && (
-                      <div className="mt-1 text-[11px] text-zoru-ink">
+                      <div className="mt-1 text-[11px] text-[var(--st-text)]">
                         +{e.delta.added ?? 0} / -{e.delta.removed ?? 0}
                       </div>
                     )}
@@ -714,7 +714,7 @@ export function SegmentsTable({
               value={formatCents(costState.totalCents)}
               emphasised
             />
-            <p className="text-xs text-zoru-ink">
+            <p className="text-xs text-[var(--st-text)]">
               Estimate uses the workspace default price. Final billed cost
               varies by destination country and provider tier.
             </p>
@@ -776,7 +776,7 @@ export function SegmentsTable({
         )}
       </SabsmsDetailDrawer>
 
-      <div className="flex items-center justify-between text-xs text-zoru-ink">
+      <div className="flex items-center justify-between text-xs text-[var(--st-text)]">
         <div>
           {selected.length > 0 ? (
             <span>{selected.length} selected of {total.toLocaleString()}</span>
@@ -803,10 +803,10 @@ function Row({
 }) {
   return (
     <div className="flex items-center justify-between">
-      <span className="text-sm text-zoru-ink">{label}</span>
+      <span className="text-sm text-[var(--st-text)]">{label}</span>
       <span
         className={`text-sm tabular-nums ${
-          emphasised ? "font-semibold text-zoru-ink" : "text-zoru-ink"
+          emphasised ? "font-semibold text-[var(--st-text)]" : "text-[var(--st-text)]"
         }`}
       >
         {value}
@@ -864,7 +864,7 @@ function ExportSelectedButton({
  * an SVG polyline.
  */
 function MembershipChart({ points }: { points: { date: string; size: number }[] }) {
-  if (points.length === 0) return <p className="text-sm text-zoru-ink">No data.</p>;
+  if (points.length === 0) return <p className="text-sm text-[var(--st-text)]">No data.</p>;
   const max = Math.max(...points.map((p) => p.size), 1);
   const width = 480;
   const height = 140;
@@ -880,7 +880,7 @@ function MembershipChart({ points }: { points: { date: string; size: number }[] 
     <div className="space-y-3">
       <svg
         viewBox={`0 0 ${width} ${height}`}
-        className="w-full rounded-md border border-zoru-line bg-zoru-surface-2"
+        className="w-full rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)]"
         role="img"
         aria-label="Segment size over time"
       >
@@ -904,7 +904,7 @@ function MembershipChart({ points }: { points: { date: string; size: number }[] 
           );
         })}
       </svg>
-      <div className="flex items-center justify-between text-xs text-zoru-ink">
+      <div className="flex items-center justify-between text-xs text-[var(--st-text)]">
         <span>{points[0].date}</span>
         <span>peak: {max.toLocaleString()}</span>
         <span>{points[points.length - 1].date}</span>

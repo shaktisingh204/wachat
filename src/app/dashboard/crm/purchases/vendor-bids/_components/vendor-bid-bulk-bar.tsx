@@ -49,9 +49,9 @@ export function VendorBidBulkBar({
   if (count === 0) return null;
 
   return (
-    <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 border-b border-zoru-line bg-zoru-surface px-3 py-2 shadow-sm">
-      <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink">
-        <ListChecks className="h-4 w-4 text-zoru-primary" />
+    <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 shadow-sm">
+      <div className="flex items-center gap-2 text-[12.5px] text-[var(--st-text)]">
+        <ListChecks className="h-4 w-4 text-[var(--st-text)]" />
         {count} selected
       </div>
       <div className="flex items-center gap-1">
@@ -61,10 +61,10 @@ export function VendorBidBulkBar({
         <Button size="sm" variant="outline" onClick={onExportCsv}>
           <Download className="h-3.5 w-3.5" /> Export CSV
         </Button>
-        <Button size="sm" variant="outline" onClick={onApprove} className="text-zoru-success-ink">
+        <Button size="sm" variant="outline" onClick={onApprove} className="text-[var(--st-status-ok)]">
           Approve
         </Button>
-        <Button size="sm" variant="outline" onClick={onReject} className="text-zoru-danger-ink">
+        <Button size="sm" variant="outline" onClick={onReject} className="text-[var(--st-danger)]">
           Reject
         </Button>
         <DropdownMenu>

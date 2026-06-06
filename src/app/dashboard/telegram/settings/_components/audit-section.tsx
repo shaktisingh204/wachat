@@ -106,13 +106,13 @@ export function AuditSection({ projectId }: { projectId: string }) {
                                         {r.field}
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-xs">
-                                        <span className="font-mono text-zoru-ink">
+                                        <span className="font-mono text-[var(--st-text)]">
                                             {r.oldValue.length > 60
                                                 ? `${r.oldValue.slice(0, 60)}…`
                                                 : r.oldValue || '∅'}
                                         </span>
                                         <ChevronRight className="mx-1 inline h-3 w-3 align-middle" />
-                                        <span className="font-mono text-zoru-ink">
+                                        <span className="font-mono text-[var(--st-text)]">
                                             {r.newValue.length > 60
                                                 ? `${r.newValue.slice(0, 60)}…`
                                                 : r.newValue || '∅'}
@@ -123,7 +123,7 @@ export function AuditSection({ projectId }: { projectId: string }) {
                         </ZoruTableBody>
                     </Table>
                     {filteredRows.length === 0 && (
-                        <p className="text-sm text-center text-zoru-fg/60 mt-4">No matching audit entries.</p>
+                        <p className="text-sm text-center text-[var(--st-text)]/60 mt-4">No matching audit entries.</p>
                     )}
                     {nextCursor ? (
                         <div className="flex justify-center pt-3">

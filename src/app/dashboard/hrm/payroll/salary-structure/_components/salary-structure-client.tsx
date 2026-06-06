@@ -239,9 +239,9 @@ export function SalaryStructureClient({
                 }
             >
                 {selected.size > 0 ? (
-                    <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-3 py-2 shadow-[var(--zoru-shadow-sm)]">
-                        <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink">
-                            <ListChecks className="h-4 w-4 text-zoru-primary" />
+                    <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 shadow-[var(--zoru-shadow-sm)]">
+                        <div className="flex items-center gap-2 text-[12.5px] text-[var(--st-text)]">
+                            <ListChecks className="h-4 w-4 text-[var(--st-text)]" />
                             {selected.size} selected
                         </div>
                         <div className="flex items-center gap-1">
@@ -262,27 +262,27 @@ export function SalaryStructureClient({
                 ) : null}
 
                 <Card className="p-0 overflow-hidden flex flex-col">
-                    <div className="p-4 border-b border-zoru-line flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+                    <div className="p-4 border-b border-[var(--st-border)] flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
                         <div>
-                            <h2 className="text-[16px] text-zoru-ink">Your Structures</h2>
-                            <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+                            <h2 className="text-[16px] text-[var(--st-text)]">Your Structures</h2>
+                            <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">
                                 {filteredStructures.length} structure{filteredStructures.length !== 1 ? 's' : ''} defined.
                             </p>
                         </div>
                         <div className="relative w-full sm:w-64">
-                            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+                            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
                             <Input
                                 placeholder="Search structures..."
                                 value={searchQuery}
                                 onChange={e => setSearchQuery(e.target.value)}
-                                className="pl-9 h-9 text-[13px] rounded-lg border-zoru-line bg-zoru-bg"
+                                className="pl-9 h-9 text-[13px] rounded-lg border-[var(--st-border)] bg-[var(--st-bg)]"
                             />
                         </div>
                     </div>
 
                     <div ref={parentRef} className="max-h-[600px] overflow-auto relative rounded-b-lg">
                         <table className="w-full text-left text-[13px]">
-                            <thead className="sticky top-0 bg-zoru-surface-2 z-10 shadow-sm border-b border-zoru-line">
+                            <thead className="sticky top-0 bg-[var(--st-bg-muted)] z-10 shadow-sm border-b border-[var(--st-border)]">
                                 <tr>
                                     <th className="px-4 py-3 w-10">
                                         <Checkbox
@@ -291,12 +291,12 @@ export function SalaryStructureClient({
                                             aria-label="Select all"
                                         />
                                     </th>
-                                    <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">Name</th>
-                                    <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">Description</th>
-                                    <th className="px-4 py-3 text-center text-[12px] uppercase text-zoru-ink-muted">Earnings</th>
-                                    <th className="px-4 py-3 text-center text-[12px] uppercase text-zoru-ink-muted">Deductions</th>
-                                    <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">Components</th>
-                                    <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">Actions</th>
+                                    <th className="px-4 py-3 text-[12px] uppercase text-[var(--st-text-secondary)]">Name</th>
+                                    <th className="px-4 py-3 text-[12px] uppercase text-[var(--st-text-secondary)]">Description</th>
+                                    <th className="px-4 py-3 text-center text-[12px] uppercase text-[var(--st-text-secondary)]">Earnings</th>
+                                    <th className="px-4 py-3 text-center text-[12px] uppercase text-[var(--st-text-secondary)]">Deductions</th>
+                                    <th className="px-4 py-3 text-[12px] uppercase text-[var(--st-text-secondary)]">Components</th>
+                                    <th className="px-4 py-3 text-right text-[12px] uppercase text-[var(--st-text-secondary)]">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -311,7 +311,7 @@ export function SalaryStructureClient({
                                             const isSelected = selected.has(id);
 
                                             return (
-                                                <tr key={id} ref={rowVirtualizer.measureElement} data-index={virtualRow.index} className="border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2/50 transition-colors">
+                                                <tr key={id} ref={rowVirtualizer.measureElement} data-index={virtualRow.index} className="border-b border-[var(--st-border)] last:border-0 hover:bg-[var(--st-bg-muted)]/50 transition-colors">
                                                     <td className="px-4 py-3">
                                                         <Checkbox
                                                             checked={isSelected}
@@ -319,8 +319,8 @@ export function SalaryStructureClient({
                                                             aria-label={`Select ${s.name}`}
                                                         />
                                                     </td>
-                                                    <td className="px-4 py-3 font-medium text-zoru-ink">{s.name}</td>
-                                                    <td className="px-4 py-3 text-zoru-ink-muted">{s.description ?? '—'}</td>
+                                                    <td className="px-4 py-3 font-medium text-[var(--st-text)]">{s.name}</td>
+                                                    <td className="px-4 py-3 text-[var(--st-text-secondary)]">{s.description ?? '—'}</td>
                                                     <td className="px-4 py-3 text-center">
                                                         <Badge variant="success">{earnings.length} earning{earnings.length !== 1 ? 's' : ''}</Badge>
                                                     </td>
@@ -344,7 +344,7 @@ export function SalaryStructureClient({
                                                             </Button>
                                                             <ZoruAlertDialog>
                                                                 <ZoruAlertDialogTrigger asChild>
-                                                                    <Button variant="ghost" size="icon" className="text-zoru-danger-ink hover:text-zoru-danger-ink">
+                                                                    <Button variant="ghost" size="icon" className="text-[var(--st-danger)] hover:text-[var(--st-danger)]">
                                                                         <Trash2 className="h-4 w-4" />
                                                                     </Button>
                                                                 </ZoruAlertDialogTrigger>
@@ -370,7 +370,7 @@ export function SalaryStructureClient({
                                     </>
                                 ) : (
                                     <tr>
-                                        <td colSpan={7} className="h-24 text-center text-[13px] text-zoru-ink-muted">
+                                        <td colSpan={7} className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]">
                                             {searchQuery ? 'No structures match your search.' : 'No salary structures created yet.'}
                                         </td>
                                     </tr>

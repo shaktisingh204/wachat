@@ -17,10 +17,10 @@ export default function ErrorBoundary({
   }, [error]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[400px] gap-4 p-8 text-center bg-zoru-surface rounded-lg border border-zoru-danger-ink/20">
-      <ShieldAlert className="h-12 w-12 text-zoru-danger-ink" />
-      <h2 className="text-xl font-bold text-zoru-ink">Failed to load permission group</h2>
-      <p className="text-sm text-zoru-ink-muted max-w-md">
+    <div className="flex flex-col items-center justify-center min-h-[400px] gap-4 p-8 text-center bg-[var(--st-bg-secondary)] rounded-lg border border-[var(--st-danger)]/20">
+      <ShieldAlert className="h-12 w-12 text-[var(--st-danger)]" />
+      <h2 className="text-xl font-bold text-[var(--st-text)]">Failed to load permission group</h2>
+      <p className="text-sm text-[var(--st-text-secondary)] max-w-md">
         {error.message || 'There was an error while loading the group details.'}
       </p>
       <Button onClick={() => reset()} variant="default">

@@ -259,12 +259,12 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
   /* ── Render ───────────────────────────────────────────────── */
 
   return (
-    <div className="zoruui flex h-full min-h-0 flex-1 gap-0 overflow-hidden border-t border-zoru-line">
+    <div className="zoruui flex h-full min-h-0 flex-1 gap-0 overflow-hidden border-t border-[var(--st-border)]">
       {/* LEFT: ticket list */}
-      <aside className="flex h-full w-[320px] min-w-[280px] shrink-0 flex-col border-r border-zoru-line bg-zoru-surface">
-        <div className="flex flex-col gap-2 border-b border-zoru-line px-3 py-3">
+      <aside className="flex h-full w-[320px] min-w-[280px] shrink-0 flex-col border-r border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+        <div className="flex flex-col gap-2 border-b border-[var(--st-border)] px-3 py-3">
           <div className="flex items-center justify-between gap-2">
-            <span className="text-sm font-semibold text-zoru-ink">Tickets</span>
+            <span className="text-sm font-semibold text-[var(--st-text)]">Tickets</span>
             <Button asChild size="sm" variant="outline">
               <Link href="/dashboard/sabdesk/new">
                 <Plus className="mr-1 h-3 w-3" /> New
@@ -272,7 +272,7 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
             </Button>
           </div>
           <div className="relative">
-            <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zoru-ink-muted" />
+            <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--st-text-secondary)]" />
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -298,15 +298,15 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
 
         <ScrollArea className="flex-1">
           {props.initialError ? (
-            <div className="p-4 text-[13px] text-zoru-danger">
+            <div className="p-4 text-[13px] text-[var(--st-danger)]">
               {props.initialError}
             </div>
           ) : filtered.length === 0 ? (
-            <div className="p-4 text-[13px] text-zoru-ink-muted">
+            <div className="p-4 text-[13px] text-[var(--st-text-secondary)]">
               No tickets match these filters.
             </div>
           ) : (
-            <ul className="divide-y divide-zoru-line">
+            <ul className="divide-y divide-[var(--st-border)]">
               {filtered.map((t) => {
                 const isActive = t._id === selectedId;
                 const sla = slaState(t.dueBy, t.status);
@@ -316,12 +316,12 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
                     <button
                       type="button"
                       onClick={() => setSelectedId(t._id)}
-                      className={`flex w-full flex-col gap-1.5 px-3 py-3 text-left transition-colors hover:bg-zoru-surface-2 ${
-                        isActive ? "bg-zoru-surface-2" : ""
+                      className={`flex w-full flex-col gap-1.5 px-3 py-3 text-left transition-colors hover:bg-[var(--st-bg-muted)] ${
+                        isActive ? "bg-[var(--st-bg-muted)]" : ""
                       }`}
                     >
                       <div className="flex items-start justify-between gap-2">
-                        <span className="line-clamp-2 text-[13px] font-medium text-zoru-ink">
+                        <span className="line-clamp-2 text-[13px] font-medium text-[var(--st-text)]">
                           {t.subject ?? "(no subject)"}
                         </span>
                         <Badge
@@ -330,7 +330,7 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
                           {t.status ?? "open"}
                         </Badge>
                       </div>
-                      <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-zoru-ink-muted">
+                      <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-[var(--st-text-secondary)]">
                         <Badge variant="ghost" className="gap-1">
                           {CHANNEL_ICONS[channel] ?? (
                             <MessageSquare className="h-3 w-3" />
@@ -364,18 +364,18 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
       </aside>
 
       {/* CENTER: conversation + composer */}
-      <section className="flex h-full min-w-0 flex-1 flex-col bg-zoru-surface">
+      <section className="flex h-full min-w-0 flex-1 flex-col bg-[var(--st-bg-secondary)]">
         {selected ? (
           <>
-            <header className="flex flex-wrap items-center justify-between gap-3 border-b border-zoru-line px-5 py-3">
+            <header className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--st-border)] px-5 py-3">
               <div className="min-w-0 flex-1">
                 <Link
                   href={`/dashboard/sabdesk/${selected._id}`}
-                  className="block truncate text-[15px] font-semibold text-zoru-ink hover:underline"
+                  className="block truncate text-[15px] font-semibold text-[var(--st-text)] hover:underline"
                 >
                   {selected.subject ?? "(no subject)"}
                 </Link>
-                <div className="mt-1 flex flex-wrap items-center gap-2 text-[12px] text-zoru-ink-muted">
+                <div className="mt-1 flex flex-wrap items-center gap-2 text-[12px] text-[var(--st-text-secondary)]">
                   <Badge variant="ghost" className="gap-1">
                     {CHANNEL_ICONS[(selected.channel ?? "web").toLowerCase()] ??
                       null}
@@ -410,10 +410,10 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
                   ).map((n, i) => (
                     <Card
                       key={String(n._id ?? i)}
-                      className={n.isInternal ? "border-zoru-line/30" : ""}
+                      className={n.isInternal ? "border-[var(--st-border)]/30" : ""}
                     >
                       <ZoruCardContent className="space-y-1 p-3 text-[13px]">
-                        <div className="flex items-center gap-2 text-[11px] text-zoru-ink-muted">
+                        <div className="flex items-center gap-2 text-[11px] text-[var(--st-text-secondary)]">
                           {n.isInternal ? (
                             <Badge variant="warning">Internal</Badge>
                           ) : (
@@ -423,7 +423,7 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
                             {formatRelative(n.createdAt as string | undefined)}
                           </span>
                         </div>
-                        <p className="whitespace-pre-wrap text-zoru-ink">
+                        <p className="whitespace-pre-wrap text-[var(--st-text)]">
                           {String(n.body ?? "")}
                         </p>
                       </ZoruCardContent>
@@ -438,7 +438,7 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
               </div>
             </ScrollArea>
 
-            <footer className="border-t border-zoru-line bg-zoru-surface-2 px-5 py-3">
+            <footer className="border-t border-[var(--st-border)] bg-[var(--st-bg-muted)] px-5 py-3">
               <div className="mb-2 flex items-center gap-2">
                 <Button
                   variant={tab === "reply" ? "default" : "outline"}
@@ -466,7 +466,7 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
                       className="max-h-[300px] overflow-y-auto"
                     >
                       {props.templates.items.length === 0 ? (
-                        <div className="px-3 py-2 text-[12px] text-zoru-ink-muted">
+                        <div className="px-3 py-2 text-[12px] text-[var(--st-text-secondary)]">
                           No templates yet.{" "}
                           <Link
                             href="/dashboard/sabdesk/reply-templates/new"
@@ -486,7 +486,7 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
                                 {tpl.name}
                               </span>
                               {tpl.shortcut ? (
-                                <span className="text-[11px] text-zoru-ink-muted">
+                                <span className="text-[11px] text-[var(--st-text-secondary)]">
                                   /{tpl.shortcut}
                                 </span>
                               ) : null}
@@ -530,17 +530,17 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
       </section>
 
       {/* RIGHT: properties panel */}
-      <aside className="hidden h-full w-[320px] min-w-[260px] shrink-0 flex-col border-l border-zoru-line bg-zoru-surface lg:flex">
+      <aside className="hidden h-full w-[320px] min-w-[260px] shrink-0 flex-col border-l border-[var(--st-border)] bg-[var(--st-bg-secondary)] lg:flex">
         {selected ? (
           <ScrollArea className="flex-1">
             <div className="space-y-4 p-4 text-[13px]">
               <section>
-                <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-zoru-ink-muted">
+                <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-[var(--st-text-secondary)]">
                   Workflow
                 </h3>
                 <div className="space-y-3">
                   <div>
-                    <Label className="text-[12px] text-zoru-ink-muted">
+                    <Label className="text-[12px] text-[var(--st-text-secondary)]">
                       Status
                     </Label>
                     <Select
@@ -565,7 +565,7 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
                     </Select>
                   </div>
                   <div>
-                    <Label className="text-[12px] text-zoru-ink-muted">
+                    <Label className="text-[12px] text-[var(--st-text-secondary)]">
                       Priority
                     </Label>
                     <Select
@@ -584,7 +584,7 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
                     </Select>
                   </div>
                   <div>
-                    <Label className="text-[12px] text-zoru-ink-muted">
+                    <Label className="text-[12px] text-[var(--st-text-secondary)]">
                       Assignee
                     </Label>
                     <Input
@@ -604,11 +604,11 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
               <Separator />
 
               <section>
-                <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-zoru-ink-muted">
+                <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-[var(--st-text-secondary)]">
                   SLA
                 </h3>
                 <div className="flex items-center justify-between">
-                  <span className="text-zoru-ink-muted">Due by</span>
+                  <span className="text-[var(--st-text-secondary)]">Due by</span>
                   <Badge
                     variant={slaState(selected.dueBy, selected.status).variant}
                   >
@@ -616,7 +616,7 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
                   </Badge>
                 </div>
                 {selected.dueBy ? (
-                  <p className="mt-1 text-[11.5px] text-zoru-ink-muted">
+                  <p className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">
                     {new Date(selected.dueBy).toLocaleString()}
                   </p>
                 ) : null}
@@ -625,29 +625,29 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
               <Separator />
 
               <section>
-                <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-zoru-ink-muted">
+                <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-[var(--st-text-secondary)]">
                   Classification
                 </h3>
                 <dl className="space-y-1.5">
                   <div className="flex justify-between">
-                    <dt className="text-zoru-ink-muted">Channel</dt>
-                    <dd className="text-zoru-ink">{selected.channel ?? "—"}</dd>
+                    <dt className="text-[var(--st-text-secondary)]">Channel</dt>
+                    <dd className="text-[var(--st-text)]">{selected.channel ?? "—"}</dd>
                   </div>
                   <div className="flex justify-between">
-                    <dt className="text-zoru-ink-muted">Severity</dt>
-                    <dd className="text-zoru-ink">
+                    <dt className="text-[var(--st-text-secondary)]">Severity</dt>
+                    <dd className="text-[var(--st-text)]">
                       {selected.severity ?? "—"}
                     </dd>
                   </div>
                   <div className="flex justify-between">
-                    <dt className="text-zoru-ink-muted">Category</dt>
-                    <dd className="text-zoru-ink">
+                    <dt className="text-[var(--st-text-secondary)]">Category</dt>
+                    <dd className="text-[var(--st-text)]">
                       {selected.category ?? "—"}
                     </dd>
                   </div>
                   <div className="flex justify-between">
-                    <dt className="text-zoru-ink-muted">Requester</dt>
-                    <dd className="truncate text-zoru-ink">
+                    <dt className="text-[var(--st-text-secondary)]">Requester</dt>
+                    <dd className="truncate text-[var(--st-text)]">
                       {selected.requesterId ?? "—"}
                     </dd>
                   </div>
@@ -664,7 +664,7 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
             </div>
           </ScrollArea>
         ) : (
-          <div className="flex flex-1 items-center justify-center p-8 text-[13px] text-zoru-ink-muted">
+          <div className="flex flex-1 items-center justify-center p-8 text-[13px] text-[var(--st-text-secondary)]">
             Pick a ticket to see properties.
           </div>
         )}

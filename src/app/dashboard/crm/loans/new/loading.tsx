@@ -2,9 +2,9 @@ import { Skeleton } from '@/components/sabcrm/20ui/compat';
 
 export default function Loading() {
   return (
-    <div className="flex flex-col h-full bg-zoru-background">
+    <div className="flex flex-col h-full bg-[var(--st-bg)]">
       {/* Shell Header Skeleton */}
-      <div className="sticky top-0 z-10 border-b border-zoru-line bg-zoru-background/95 backdrop-blur-sm">
+      <div className="sticky top-0 z-10 border-b border-[var(--st-border)] bg-[var(--st-bg)]/95 backdrop-blur-sm">
         <div className="flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-4">
             <Skeleton className="h-8 w-8 rounded-md" /> {/* Back button */}
@@ -18,7 +18,7 @@ export default function Loading() {
 
       {/* Content Skeleton */}
       <div className="flex-1 overflow-auto p-6 w-full">
-        <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-6 shadow-sm">
+        <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-6 shadow-sm">
           <div className="flex flex-col gap-6">
             {/* Form Fields */}
             {Array.from({ length: 6 }).map((_, i) => (

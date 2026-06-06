@@ -20,14 +20,14 @@ class LocalErrorBoundary extends Component<{ children?: ReactNode }, { hasError:
   render() {
     if (this.state.hasError) {
       return (
-        <Card className="border-zoru-line m-4">
-          <ZoruCardContent className="p-4 text-zoru-ink">
+        <Card className="border-[var(--st-border)] m-4">
+          <ZoruCardContent className="p-4 text-[var(--st-text)]">
             <div className="flex items-center gap-2 font-bold mb-2">
               <AlertCircle className="w-5 h-5" />
               <p>Something went wrong</p>
             </div>
             <p className="text-sm">{this.state.error?.message || 'An unexpected error occurred.'}</p>
-            <Button variant="outline" className="mt-4 border-zoru-line text-zoru-ink" onClick={() => this.setState({ hasError: false, error: null })}>
+            <Button variant="outline" className="mt-4 border-[var(--st-border)] text-[var(--st-text)]" onClick={() => this.setState({ hasError: false, error: null })}>
               Try again
             </Button>
           </ZoruCardContent>
@@ -158,8 +158,8 @@ function DomainAgeContent() {
       </div>
 
       {error && (
-        <Card className="border-zoru-line mb-6">
-          <ZoruCardContent className="p-4 text-zoru-ink text-sm flex items-start gap-2">
+        <Card className="border-[var(--st-border)] mb-6">
+          <ZoruCardContent className="p-4 text-[var(--st-text)] text-sm flex items-start gap-2">
             <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
             <p>{error}</p>
           </ZoruCardContent>
@@ -184,24 +184,24 @@ function DomainAgeContent() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card>
-              <ZoruCardContent className="p-4 flex flex-col justify-center items-center text-center h-full min-h-[120px] bg-zoru-ink/5">
-                <div className="text-sm text-zoru-ink-muted mb-1">Domain Age</div>
-                <div className="text-3xl font-bold text-zoru-ink">{info.age}</div>
+              <ZoruCardContent className="p-4 flex flex-col justify-center items-center text-center h-full min-h-[120px] bg-[var(--st-text)]/5">
+                <div className="text-sm text-[var(--st-text-secondary)] mb-1">Domain Age</div>
+                <div className="text-3xl font-bold text-[var(--st-text)]">{info.age}</div>
               </ZoruCardContent>
             </Card>
             
             <Card>
               <ZoruCardContent className="p-4 space-y-3">
                 <div className="grid grid-cols-3 gap-2 border-b pb-2">
-                  <span className="font-semibold text-zoru-ink-muted col-span-1">Created:</span>
+                  <span className="font-semibold text-[var(--st-text-secondary)] col-span-1">Created:</span>
                   <span className="col-span-2 text-right">{info.created || '—'}</span>
                 </div>
                 <div className="grid grid-cols-3 gap-2 border-b pb-2">
-                  <span className="font-semibold text-zoru-ink-muted col-span-1">Expires:</span>
+                  <span className="font-semibold text-[var(--st-text-secondary)] col-span-1">Expires:</span>
                   <span className="col-span-2 text-right">{info.expires || '—'}</span>
                 </div>
                 <div className="grid grid-cols-3 gap-2">
-                  <span className="font-semibold text-zoru-ink-muted col-span-1">Registrar:</span>
+                  <span className="font-semibold text-[var(--st-text-secondary)] col-span-1">Registrar:</span>
                   <span className="col-span-2 text-right truncate" title={info.registrar}>{info.registrar || '—'}</span>
                 </div>
               </ZoruCardContent>
@@ -222,7 +222,7 @@ function DomainAgeContent() {
                     Copy Raw
                   </Button>
                 </div>
-                <div className="bg-zoru-surface-2 p-4 rounded-md overflow-x-auto text-xs font-mono whitespace-pre-wrap max-h-96 overflow-y-auto">
+                <div className="bg-[var(--st-bg-muted)] p-4 rounded-md overflow-x-auto text-xs font-mono whitespace-pre-wrap max-h-96 overflow-y-auto">
                   {info.raw}
                 </div>
               </ZoruCardContent>

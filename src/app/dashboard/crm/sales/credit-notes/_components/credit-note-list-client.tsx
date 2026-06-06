@@ -144,7 +144,7 @@ export function CreditNoteListClient({
                         <TableRow>
                             <TableCell
                                 colSpan={10}
-                                className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                                className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                             >
                                 {loading ? 'Loading…' : 'No credit notes.'}
                             </TableCell>
@@ -170,14 +170,14 @@ export function CreditNoteListClient({
                                             subtitle={fmtDate(cn.date)}
                                         />
                                     </TableCell>
-                                    <TableCell className="text-[12.5px] text-zoru-ink-muted">
+                                    <TableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                                         {cn.clientId ? (
                                             <EntityPickerChip entity="client" id={cn.clientId} />
                                         ) : (
                                             '—'
                                         )}
                                     </TableCell>
-                                    <TableCell className="text-[12.5px] text-zoru-ink-muted">
+                                    <TableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                                         {cn.linkedInvoiceId ? (
                                             <Link
                                                 href={`/dashboard/crm/sales/invoices/${cn.linkedInvoiceId}`}
@@ -189,7 +189,7 @@ export function CreditNoteListClient({
                                             '—'
                                         )}
                                     </TableCell>
-                                    <TableCell className="text-[12.5px] text-zoru-ink-muted">
+                                    <TableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                                         {fmtDate(cn.date)}
                                     </TableCell>
                                     <TableCell>
@@ -197,10 +197,10 @@ export function CreditNoteListClient({
                                             {reasonLabel(cn.reason)}
                                         </Badge>
                                     </TableCell>
-                                    <TableCell className="text-right tabular-nums text-[12.5px] text-zoru-ink">
+                                    <TableCell className="text-right tabular-nums text-[12.5px] text-[var(--st-text)]">
                                         {fmtINR(cn.totals?.total, cn.currency)}
                                     </TableCell>
-                                    <TableCell className="text-[12.5px] text-zoru-ink-muted">
+                                    <TableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                                         {refundModeLabel(cn.refundMode)}
                                     </TableCell>
                                     <TableCell>
@@ -238,7 +238,7 @@ export function CreditNoteListClient({
                                                     <DropdownMenuSeparator />
                                                     <DropdownMenuItem
                                                         onClick={() => onDelete(id)}
-                                                        className="text-zoru-danger-ink"
+                                                        className="text-[var(--st-danger)]"
                                                     >
                                                         <Trash2 className="h-3.5 w-3.5" />
                                                         Delete

@@ -716,13 +716,13 @@ function TelegramStoriesContent() {
                     />
                 </div>
                 <div className="flex-1">
-                    <p className="text-[11px] uppercase tracking-[0.14em] text-zoru-ink-subtle">
+                    <p className="text-[11px] uppercase tracking-[0.14em] text-[var(--st-text-tertiary)]">
                         Telegram
                     </p>
-                    <h1 className="mt-0.5 text-[22px] leading-tight text-zoru-ink">
+                    <h1 className="mt-0.5 text-[22px] leading-tight text-[var(--st-text)]">
                         Telegram Stories
                     </h1>
-                    <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-zoru-ink-muted">
+                    <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-[var(--st-text-secondary)]">
                         Compose, schedule, and post 24-hour stories — on channels
                         where your bot has <code>can_post_stories</code>, or on
                         business accounts via a saved business connection.
@@ -795,7 +795,7 @@ function TelegramStoriesContent() {
             <Card className="p-3">
                 <div className="flex flex-wrap items-center gap-3">
                     <div className="relative min-w-[220px] flex-1">
-                        <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zoru-ink-subtle" />
+                        <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--st-text-tertiary)]" />
                         <Input
                             placeholder="Search captions or errors"
                             value={search}
@@ -865,7 +865,7 @@ function TelegramStoriesContent() {
                             </ZoruSelectContent>
                         </Select>
                     </div>
-                    <div className="min-w-[150px] flex items-center gap-1 border border-zoru-line rounded-md px-2 h-9 bg-zoru-surface">
+                    <div className="min-w-[150px] flex items-center gap-1 border border-[var(--st-border)] rounded-md px-2 h-9 bg-[var(--st-bg-secondary)]">
                         <select 
                             className="bg-transparent text-sm focus:outline-none flex-1" 
                             value={sortField} 
@@ -895,7 +895,7 @@ function TelegramStoriesContent() {
                     ))}
                 </div>
             ) : error ? (
-                <Card className="p-6 text-sm text-zoru-danger-ink">
+                <Card className="p-6 text-sm text-[var(--st-danger)]">
                     <div className="flex items-center gap-2">
                         <AlertCircle className="h-4 w-4" />
                         {error}
@@ -937,7 +937,7 @@ function TelegramStoriesContent() {
                     </div>
                     {/* Pagination */}
                     {data.total > PAGE_SIZE ? (
-                        <div className="flex items-center justify-between rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-3 py-2 text-[12px] text-zoru-ink-muted">
+                        <div className="flex items-center justify-between rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-[12px] text-[var(--st-text-secondary)]">
                             <span>
                                 {(page - 1) * PAGE_SIZE + 1}–
                                 {(page - 1) * PAGE_SIZE + rows.length} of{' '}
@@ -1046,16 +1046,16 @@ function TelegramStoriesContent() {
                                         key={c._id}
                                         className={`flex items-center justify-between rounded-md border p-3 ${
                                             selectedBcId === c._id
-                                                ? 'border-zoru-ink bg-zoru-surface-2'
-                                                : 'border-zoru-line'
+                                                ? 'border-[var(--st-text)] bg-[var(--st-bg-muted)]'
+                                                : 'border-[var(--st-border)]'
                                         }`}
                                         onClick={() => setSelectedBcId(c._id)}
                                     >
                                         <div>
-                                            <p className="font-mono text-[13px] text-zoru-ink">
+                                            <p className="font-mono text-[13px] text-[var(--st-text)]">
                                                 {c.connectionId}
                                             </p>
-                                            <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+                                            <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">
                                                 Bot {c.botId.slice(-6)}
                                                 {c.userId
                                                     ? ` · user ${c.userId}`
@@ -1281,11 +1281,11 @@ function Section({
     return (
         <section className="flex flex-col gap-3">
             <div>
-                <h3 className="text-[14px] font-medium text-zoru-ink">
+                <h3 className="text-[14px] font-medium text-[var(--st-text)]">
                     {title}
                 </h3>
                 {description ? (
-                    <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+                    <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">
                         {description}
                     </p>
                 ) : null}
@@ -1304,7 +1304,7 @@ function Field({
 }) {
     return (
         <label className="flex flex-col gap-1.5">
-            <span className="text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
+            <span className="text-[11.5px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
                 {label}
             </span>
             {children}
@@ -1324,13 +1324,13 @@ function KpiCard({
     return (
         <Card>
             <ZoruCardContent className="flex flex-col gap-1 pt-5">
-                <p className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-subtle">
+                <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-tertiary)]">
                     {label}
                 </p>
                 {loading ? (
                     <Skeleton className="h-7 w-24" />
                 ) : (
-                    <p className="text-2xl font-semibold tracking-tight text-zoru-ink">
+                    <p className="text-2xl font-semibold tracking-tight text-[var(--st-text)]">
                         {value}
                     </p>
                 )}

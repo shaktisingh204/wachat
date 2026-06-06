@@ -50,16 +50,16 @@ interface FileManagerProps {
 
 function Breadcrumb({ crumbs }: { crumbs: SabfilesBreadcrumbEntry[] }) {
     return (
-        <nav className="flex flex-wrap items-center gap-1 text-sm text-zoru-ink-muted">
+        <nav className="flex flex-wrap items-center gap-1 text-sm text-[var(--st-text-secondary)]">
             {crumbs.map((c, i) => {
                 const last = i === crumbs.length - 1;
                 const href = c.id ? `/dashboard/sabfiles/folder/${c.id}` : '/dashboard/sabfiles';
                 return (
                     <React.Fragment key={`${c.id ?? 'root'}-${i}`}>
                         {last ? (
-                            <span className="font-medium text-zoru-ink">{c.name}</span>
+                            <span className="font-medium text-[var(--st-text)]">{c.name}</span>
                         ) : (
-                            <Link href={href} className="hover:text-zoru-ink hover:underline">
+                            <Link href={href} className="hover:text-[var(--st-text)] hover:underline">
                                 {c.name}
                             </Link>
                         )}
@@ -84,13 +84,13 @@ function UploadDock({
     const inFlight = tasks.filter((t) => t.status === 'uploading' || t.status === 'queued').length;
     return (
         <div className="fixed bottom-24 right-6 z-40 w-[360px] max-w-[calc(100vw-3rem)]">
-            <Card className="border-zoru-ink/20 shadow-[var(--zoru-shadow-lg)]">
+            <Card className="border-[var(--st-text)]/20 shadow-[var(--zoru-shadow-lg)]">
                 <ZoruCardContent className="p-3">
                     <div className="mb-2 flex items-center justify-between">
-                        <span className="text-sm font-medium text-zoru-ink">
+                        <span className="text-sm font-medium text-[var(--st-text)]">
                             Uploads ({tasks.length})
                             {inFlight > 0 && (
-                                <Loader2 className="ml-2 inline h-3.5 w-3.5 animate-spin text-zoru-ink-muted" />
+                                <Loader2 className="ml-2 inline h-3.5 w-3.5 animate-spin text-[var(--st-text-secondary)]" />
                             )}
                         </span>
                         <Button variant="ghost" size="sm" onClick={onClear}>
@@ -105,14 +105,14 @@ function UploadDock({
                                     <button
                                         type="button"
                                         aria-label="Dismiss"
-                                        className="text-zoru-ink-muted hover:text-zoru-ink"
+                                        className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                                         onClick={() => onDismiss(t.id)}
                                     >
                                         <X className="h-3 w-3" />
                                     </button>
                                 </div>
                                 {t.status === 'error' ? (
-                                    <span className="text-[11px] text-zoru-ink">{t.error}</span>
+                                    <span className="text-[11px] text-[var(--st-text)]">{t.error}</span>
                                 ) : (
                                     <Progress value={t.progress} className="h-1" />
                                 )}
@@ -373,10 +373,10 @@ export function FileManager({
                 shareUrlFor={shareUrlFor}
                 empty={
                     <Card className="flex flex-col items-center justify-center gap-3 p-12 text-center bg-transparent border-0 shadow-none">
-                        <Folder className="h-12 w-12 text-zoru-ink-muted" />
+                        <Folder className="h-12 w-12 text-[var(--st-text-secondary)]" />
                         <div>
-                            <div className="text-base font-medium text-zoru-ink">This folder is empty</div>
-                            <div className="text-sm text-zoru-ink-muted">
+                            <div className="text-base font-medium text-[var(--st-text)]">This folder is empty</div>
+                            <div className="text-sm text-[var(--st-text-secondary)]">
                                 Drop files anywhere on this page, or upload to get started.
                             </div>
                         </div>
@@ -419,8 +419,8 @@ export function FileManager({
             </Dialog>
 
             {isDragging && (
-                <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center rounded-[var(--zoru-radius-lg)] border-2 border-dashed border-zoru-ink/40 bg-zoru-bg/80 backdrop-blur">
-                    <div className="flex flex-col items-center gap-2 text-zoru-ink">
+                <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center rounded-[var(--zoru-radius-lg)] border-2 border-dashed border-[var(--st-text)]/40 bg-[var(--st-bg)]/80 backdrop-blur">
+                    <div className="flex flex-col items-center gap-2 text-[var(--st-text)]">
                         <Upload className="h-8 w-8" />
                         <span className="text-base font-medium">Drop to upload</span>
                     </div>

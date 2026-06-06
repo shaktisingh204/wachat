@@ -80,7 +80,7 @@ function CalendarView({ rows }: { rows: Row[] }) {
 
   return (
     <Card className="p-4">
-      <div className="mb-2 grid grid-cols-7 gap-1 text-center text-[11px] text-zoru-ink-muted">
+      <div className="mb-2 grid grid-cols-7 gap-1 text-center text-[11px] text-[var(--st-text-secondary)]">
         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d) => (
           <div key={d}>{d}</div>
         ))}
@@ -95,7 +95,7 @@ function CalendarView({ rows }: { rows: Row[] }) {
               className={
                 'min-h-[72px] rounded border p-1 text-[11px] ' +
                 (c.day
-                  ? 'border-zoru-line bg-zoru-bg text-zoru-ink'
+                  ? 'border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)]'
                   : 'border-transparent bg-transparent')
               }
             >
@@ -106,14 +106,14 @@ function CalendarView({ rows }: { rows: Row[] }) {
                     {list.slice(0, 3).map((r) => (
                       <div
                         key={String(r._id)}
-                        className="truncate rounded bg-zoru-surface-2 px-1 py-0.5 text-[10px]"
+                        className="truncate rounded bg-[var(--st-bg-muted)] px-1 py-0.5 text-[10px]"
                         title={r.agenda || r.managerName || '1:1'}
                       >
                         {r.managerName || '1:1'}
                       </div>
                     ))}
                     {list.length > 3 ? (
-                      <div className="text-[10px] text-zoru-ink-muted">
+                      <div className="text-[10px] text-[var(--st-text-secondary)]">
                         +{list.length - 3} more
                       </div>
                     ) : null}
@@ -196,7 +196,7 @@ export default function OneOnOnesPage() {
       onAfterChange={refresh}
       emptyText="No 1:1s yet"
       viewSwitcher={
-        <div className="inline-flex overflow-hidden rounded-[var(--zoru-radius)] border border-zoru-line">
+        <div className="inline-flex overflow-hidden rounded-[var(--zoru-radius)] border border-[var(--st-border)]">
           <Button
             size="sm"
             variant={view === 'table' ? 'default' : 'ghost'}
@@ -230,14 +230,14 @@ export default function OneOnOnesPage() {
           label: 'Duration',
           render: (r) => {
             const d = r.duration_minutes ?? r.durationMinutes;
-            return d ? <span className="tabular-nums">{d}m</span> : <span className="text-zoru-ink-muted">—</span>;
+            return d ? <span className="tabular-nums">{d}m</span> : <span className="text-[var(--st-text-secondary)]">—</span>;
           },
         },
         {
           key: 'agenda',
           label: 'Agenda',
           render: (r) => (
-            <span className="block max-w-[260px] truncate text-zoru-ink-muted">
+            <span className="block max-w-[260px] truncate text-[var(--st-text-secondary)]">
               {r.agenda ?? '—'}
             </span>
           ),

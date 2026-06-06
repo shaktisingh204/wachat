@@ -154,7 +154,7 @@ export default function KeywordMixerPage() {
         />
       </div>
       
-      <div className="flex flex-col lg:flex-row lg:items-center gap-6 mt-4 p-4 bg-zoru-surface-2/30 rounded-lg border">
+      <div className="flex flex-col lg:flex-row lg:items-center gap-6 mt-4 p-4 bg-[var(--st-bg-muted)]/30 rounded-lg border">
         <div className="flex flex-col gap-2">
           <span className="text-sm font-medium">Match Types (Wrapper Outputs):</span>
           <div className="flex flex-wrap items-center gap-4">
@@ -181,7 +181,7 @@ export default function KeywordMixerPage() {
               onChange={(e) => setPrefix(e.target.value)}
               className="max-w-[150px]"
             />
-            <span className="text-zoru-ink-muted text-sm">keyword</span>
+            <span className="text-[var(--st-text-secondary)] text-sm">keyword</span>
             <Input 
               placeholder="Suffix (e.g. online)" 
               value={suffix} 
@@ -209,7 +209,7 @@ export default function KeywordMixerPage() {
       {results.length > 0 && (
         <Card className="mt-4">
           <ZoruCardContent className="p-4">
-            <div className="text-xs text-zoru-ink-muted mb-2 flex justify-between items-center">
+            <div className="text-xs text-[var(--st-text-secondary)] mb-2 flex justify-between items-center">
               <span>Showing {results.length.toLocaleString()} of {totalGen.toLocaleString()} combinations</span>
               <Button 
                 variant="ghost" 

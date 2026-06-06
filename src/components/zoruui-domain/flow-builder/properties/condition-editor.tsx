@@ -25,7 +25,7 @@ export function ConditionEditor({ node, onUpdate }: EditorProps) {
                 <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="variable" id="type-variable" /><Label htmlFor="type-variable" className="font-normal">Variable</Label></div>
                 <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="user_response" id="type-user-response" /><Label htmlFor="type-user-response" className="font-normal">User Response</Label></div>
             </RadioGroup>
-            <p className="text-xs text-zoru-ink-muted">"User Response" will pause the flow and wait for the user's next message.</p>
+            <p className="text-xs text-[var(--st-text-secondary)]">"User Response" will pause the flow and wait for the user's next message.</p>
         </div>
         {(node.data.conditionType === 'variable' || !node.data.conditionType) && (
             <div className="space-y-2">

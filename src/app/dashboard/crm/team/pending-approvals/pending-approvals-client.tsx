@@ -139,7 +139,7 @@ export function PendingApprovalsClient({
   if (loadError) {
     return (
       <Card className="p-8 text-center">
-        <p className="text-sm text-zoru-danger">{loadError}</p>
+        <p className="text-sm text-[var(--st-danger)]">{loadError}</p>
       </Card>
     );
   }
@@ -159,21 +159,21 @@ export function PendingApprovalsClient({
       <div className="grid gap-4 md:grid-cols-2">
         <Card className="p-6">
           <div className="flex items-center justify-between">
-            <p className="text-[12.5px] text-zoru-ink-muted">Total pending</p>
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-surface-2">
+            <p className="text-[12.5px] text-[var(--st-text-secondary)]">Total pending</p>
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-bg-muted)]">
               <UserCheck className="h-4 w-4" strokeWidth={1.75} />
             </div>
           </div>
-          <p className="mt-3 text-[26px] leading-none text-zoru-ink">{kpis.totalPending}</p>
+          <p className="mt-3 text-[26px] leading-none text-[var(--st-text)]">{kpis.totalPending}</p>
         </Card>
         <Card className="p-6">
           <div className="flex items-center justify-between">
-            <p className="text-[12.5px] text-zoru-ink-muted">Oldest pending</p>
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-surface-2">
+            <p className="text-[12.5px] text-[var(--st-text-secondary)]">Oldest pending</p>
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-bg-muted)]">
               <Clock className="h-4 w-4" strokeWidth={1.75} />
             </div>
           </div>
-          <p className="mt-3 text-[26px] leading-none text-zoru-ink">
+          <p className="mt-3 text-[26px] leading-none text-[var(--st-text)]">
             {kpis.oldestDays} day{kpis.oldestDays === 1 ? '' : 's'}
           </p>
         </Card>
@@ -182,7 +182,7 @@ export function PendingApprovalsClient({
       {/* Bulk action bar */}
       {selected.size > 0 && (
         <Card className="flex flex-wrap items-center justify-between gap-3 p-4">
-          <span className="text-sm text-zoru-ink-muted">
+          <span className="text-sm text-[var(--st-text-secondary)]">
             {selected.size} selected
           </span>
           <div className="flex items-center gap-2">
@@ -224,7 +224,7 @@ export function PendingApprovalsClient({
           <ZoruTableBody>
             {rows.length === 0 ? (
               <ZoruTableRow>
-                <ZoruTableCell colSpan={7} className="py-12 text-center text-sm text-zoru-ink-muted">
+                <ZoruTableCell colSpan={7} className="py-12 text-center text-sm text-[var(--st-text-secondary)]">
                   No signups awaiting approval.
                 </ZoruTableCell>
               </ZoruTableRow>
@@ -239,9 +239,9 @@ export function PendingApprovalsClient({
                     />
                   </ZoruTableCell>
                   <ZoruTableCell className="font-medium">{row.name}</ZoruTableCell>
-                  <ZoruTableCell className="text-zoru-ink-muted">{row.email}</ZoruTableCell>
+                  <ZoruTableCell className="text-[var(--st-text-secondary)]">{row.email}</ZoruTableCell>
                   <ZoruTableCell>{row.company || '—'}</ZoruTableCell>
-                  <ZoruTableCell className="text-zoru-ink-muted">
+                  <ZoruTableCell className="text-[var(--st-text-secondary)]">
                     {(() => {
                       const date = new Date(row.signedUpAt);
                       if (Number.isNaN(date.getTime())) return '—';

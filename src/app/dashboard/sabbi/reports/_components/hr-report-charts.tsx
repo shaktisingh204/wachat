@@ -53,7 +53,7 @@ export function HorizontalBarChart({
 }) {
   if (data.length === 0) {
     return (
-      <div className="flex h-[200px] items-center justify-center text-[13px] text-zoru-ink-muted">
+      <div className="flex h-[200px] items-center justify-center text-[13px] text-[var(--st-text-secondary)]">
         No data.
       </div>
     );
@@ -118,7 +118,7 @@ export function DailyAttendanceChart({
 }) {
   if (data.length === 0) {
     return (
-      <div className="flex h-[200px] items-center justify-center text-[13px] text-zoru-ink-muted">
+      <div className="flex h-[200px] items-center justify-center text-[13px] text-[var(--st-text-secondary)]">
         No attendance recorded.
       </div>
     );
@@ -188,7 +188,7 @@ export function CategoryPieChart({
 }) {
   if (data.length === 0) {
     return (
-      <div className="flex h-[200px] items-center justify-center text-[13px] text-zoru-ink-muted">
+      <div className="flex h-[200px] items-center justify-center text-[13px] text-[var(--st-text-secondary)]">
         No data.
       </div>
     );
@@ -241,7 +241,7 @@ export function MonthlyTrendChart({
 }) {
   if (data.length === 0) {
     return (
-      <div className="flex h-[200px] items-center justify-center text-[13px] text-zoru-ink-muted">
+      <div className="flex h-[200px] items-center justify-center text-[13px] text-[var(--st-text-secondary)]">
         No data.
       </div>
     );
@@ -287,7 +287,7 @@ export function StackedBarChart({
 }) {
   if (data.length === 0 || keys.length === 0) {
     return (
-      <div className="flex h-[200px] items-center justify-center text-[13px] text-zoru-ink-muted">
+      <div className="flex h-[200px] items-center justify-center text-[13px] text-[var(--st-text-secondary)]">
         No data.
       </div>
     );

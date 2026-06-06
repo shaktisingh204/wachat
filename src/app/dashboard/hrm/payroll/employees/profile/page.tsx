@@ -252,9 +252,9 @@ export default function EmployeeProfilePage() {
 
       <Card className="p-6">
         <div className="flex flex-col gap-1.5">
-          <Label className="text-zoru-ink">Select Employee</Label>
+          <Label className="text-[var(--st-text)]">Select Employee</Label>
           <Select value={selectedEmpId} onValueChange={handleEmpChange}>
-            <ZoruSelectTrigger className="h-10 w-full max-w-sm rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+            <ZoruSelectTrigger className="h-10 w-full max-w-sm rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
               <ZoruSelectValue placeholder="Choose an employee…" />
             </ZoruSelectTrigger>
             <ZoruSelectContent>
@@ -269,7 +269,7 @@ export default function EmployeeProfilePage() {
       </Card>
 
       {isLoading && (
-        <div className="flex items-center justify-center py-10 text-[13px] text-zoru-ink-muted">
+        <div className="flex items-center justify-center py-10 text-[13px] text-[var(--st-text-secondary)]">
           <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
           Loading…
         </div>
@@ -278,14 +278,14 @@ export default function EmployeeProfilePage() {
       {!isLoading && selectedEmpId && (
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           <Card className="p-6">
-            <h2 className="mb-4 text-[15px] text-zoru-ink">Personal Info</h2>
+            <h2 className="mb-4 text-[15px] text-[var(--st-text)]">Personal Info</h2>
             <div className="grid gap-4 md:grid-cols-2">
               <Field label="About Me" fullWidth>
                 <Textarea
                   rows={3}
                   value={form.about_me ?? ''}
                   onChange={(e) => set('about_me', e.target.value)}
-                  className="rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 />
               </Field>
 
@@ -339,7 +339,7 @@ export default function EmployeeProfilePage() {
                   rows={2}
                   value={form.hobbies ?? ''}
                   onChange={(e) => set('hobbies', e.target.value)}
-                  className="rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 />
               </Field>
 
@@ -348,7 +348,7 @@ export default function EmployeeProfilePage() {
                   rows={2}
                   value={form.address ?? ''}
                   onChange={(e) => set('address', e.target.value)}
-                  className="rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 />
               </Field>
 
@@ -361,7 +361,7 @@ export default function EmployeeProfilePage() {
           </Card>
 
           <Card className="p-6">
-            <h2 className="mb-4 text-[15px] text-zoru-ink">Employment</h2>
+            <h2 className="mb-4 text-[15px] text-[var(--st-text)]">Employment</h2>
             <div className="grid gap-4 md:grid-cols-2">
               <EnumSelectField
                 label="Employment Type"
@@ -394,7 +394,7 @@ export default function EmployeeProfilePage() {
                   min="0"
                   value={form.notice_period ?? ''}
                   onChange={(e) => set('notice_period', e.target.value ? Number(e.target.value) : undefined)}
-                  className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 />
               </Field>
 
@@ -421,7 +421,7 @@ export default function EmployeeProfilePage() {
                   value={form.reporting_to ?? '__none__'}
                   onValueChange={(v) => set('reporting_to', v === '__none__' ? '' : v)}
                 >
-                  <ZoruSelectTrigger className="h-10 w-full rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                  <ZoruSelectTrigger className="h-10 w-full rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
                     <ZoruSelectValue placeholder="Select manager…" />
                   </ZoruSelectTrigger>
                   <ZoruSelectContent>
@@ -444,7 +444,7 @@ export default function EmployeeProfilePage() {
                   onChange={(e) =>
                     set('overtime_hourly_rate', e.target.value ? Number(e.target.value) : undefined)
                   }
-                  className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 />
               </Field>
 
@@ -457,7 +457,7 @@ export default function EmployeeProfilePage() {
                   onChange={(e) =>
                     set('hourly_rate', e.target.value ? Number(e.target.value) : undefined)
                   }
-                  className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 />
               </Field>
 
@@ -480,7 +480,7 @@ export default function EmployeeProfilePage() {
           </Card>
 
           <Card className="p-6">
-            <h2 className="mb-4 text-[15px] text-zoru-ink">Banking &amp; Tax</h2>
+            <h2 className="mb-4 text-[15px] text-[var(--st-text)]">Banking &amp; Tax</h2>
             <div className="grid gap-4 md:grid-cols-2">
               <TextField
                 label="Bank Account Number"
@@ -533,7 +533,7 @@ function Field({
 }) {
   return (
     <div className={fullWidth ? 'md:col-span-2' : ''}>
-      <Label className="text-zoru-ink">{label}</Label>
+      <Label className="text-[var(--st-text)]">{label}</Label>
       <div className="mt-1.5">{children}</div>
     </div>
   );
@@ -555,7 +555,7 @@ function TextField({
       <Input
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+        className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
       />
     </Field>
   );
@@ -576,7 +576,7 @@ function DateField({
         type="date"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+        className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
       />
     </Field>
   );
@@ -598,7 +598,7 @@ function SelectField({
   return (
     <Field label={label} fullWidth={fullWidth}>
       <Select value={value || '__none__'} onValueChange={(v) => onChange(v === '__none__' ? '' : v)}>
-        <ZoruSelectTrigger className="h-10 w-full rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+        <ZoruSelectTrigger className="h-10 w-full rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
           <ZoruSelectValue placeholder="Select…" />
         </ZoruSelectTrigger>
         <ZoruSelectContent>

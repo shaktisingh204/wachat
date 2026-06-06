@@ -619,7 +619,7 @@ export function ChatWindow({ flow }: ChatWindowProps) {
 
         {/* ── Error banner ──────────────────────────────────── */}
         {error && (
-          <div className="shrink-0 flex items-center justify-between gap-3 px-4 py-2.5 text-[12.5px] bg-zoru-surface-2 border-t border-zoru-line text-zoru-ink dark:bg-zoru-ink/30 dark:border-zoru-line dark:text-zoru-ink-muted">
+          <div className="shrink-0 flex items-center justify-between gap-3 px-4 py-2.5 text-[12.5px] bg-[var(--st-bg-muted)] border-t border-[var(--st-border)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:border-[var(--st-border)] dark:text-[var(--st-text-secondary)]">
             <span className="flex-1">{error}</span>
             <button
               type="button"

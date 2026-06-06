@@ -108,22 +108,22 @@ export default async function StoreOverviewPage() {
                     return (
                         <Card key={link.href} className="p-5">
                             <div className="flex items-start gap-3">
-                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2">
+                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)]">
                                     <Icon
-                                        className="h-4.5 w-4.5 text-zoru-ink"
+                                        className="h-4.5 w-4.5 text-[var(--st-text)]"
                                         strokeWidth={1.75}
                                     />
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                    <h3 className="text-[14px] font-medium text-zoru-ink">
+                                    <h3 className="text-[14px] font-medium text-[var(--st-text)]">
                                         {link.label}
                                     </h3>
-                                    <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+                                    <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">
                                         {link.description}
                                     </p>
                                     <Link
                                         href={link.href}
-                                        className="mt-3 inline-flex items-center gap-1 text-[12.5px] text-zoru-primary hover:underline"
+                                        className="mt-3 inline-flex items-center gap-1 text-[12.5px] text-[var(--st-text)] hover:underline"
                                     >
                                         Open <ArrowRight className="h-3 w-3" />
                                     </Link>

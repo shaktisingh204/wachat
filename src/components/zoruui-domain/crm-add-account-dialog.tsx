@@ -106,17 +106,17 @@ export function CrmAddAccountDialog({ onAdded }: CrmAddAccountDialogProps) {
       <ZoruDialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden p-0">
         <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
           <ZoruDialogHeader className="px-6 pt-6 pb-2">
-            <ZoruDialogTitle className="text-zoru-ink">Add New Account</ZoruDialogTitle>
-            <ZoruDialogDescription className="text-zoru-ink-muted">Create a new company record in your CRM.</ZoruDialogDescription>
+            <ZoruDialogTitle className="text-[var(--st-text)]">Add New Account</ZoruDialogTitle>
+            <ZoruDialogDescription className="text-[var(--st-text-secondary)]">Create a new company record in your CRM.</ZoruDialogDescription>
           </ZoruDialogHeader>
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="grid gap-4">
               <div className="space-y-2">
-                <Label htmlFor="name" className="text-zoru-ink">Company Name</Label>
+                <Label htmlFor="name" className="text-[var(--st-text)]">Company Name</Label>
                 <Input id="name" name="name" required />
               </div>
               <div className="space-y-2">
-                <Label className="text-zoru-ink">Industry</Label>
+                <Label className="text-[var(--st-text)]">Industry</Label>
                 <input type="hidden" name="industry" value={industry} />
                 <SmartCombobox
                   options={industryOptions}
@@ -129,18 +129,18 @@ export function CrmAddAccountDialog({ onAdded }: CrmAddAccountDialogProps) {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="website" className="text-zoru-ink">Website</Label>
+                  <Label htmlFor="website" className="text-[var(--st-text)]">Website</Label>
                   <Input id="website" name="website" type="url" placeholder="https://example.com" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="phone" className="text-zoru-ink">Phone</Label>
+                  <Label htmlFor="phone" className="text-[var(--st-text)]">Phone</Label>
                   <Input id="phone" name="phone" />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-zoru-ink">Country</Label>
+                  <Label className="text-[var(--st-text)]">Country</Label>
                   <input type="hidden" name="country" value={country} />
                   <SmartCombobox
                     options={countryOptions}
@@ -152,7 +152,7 @@ export function CrmAddAccountDialog({ onAdded }: CrmAddAccountDialogProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-zoru-ink">State</Label>
+                  <Label className="text-[var(--st-text)]">State</Label>
                   <input type="hidden" name="state" value={addressState} />
                   <SmartCombobox
                     options={stateOptions}

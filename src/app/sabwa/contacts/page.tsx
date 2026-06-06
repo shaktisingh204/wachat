@@ -326,14 +326,14 @@ export default function Page() {
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface text-zoru-ink">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
             <BookUser className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-[24px] tracking-[-0.015em] text-zoru-ink leading-[1.2]">
+            <h1 className="text-[24px] tracking-[-0.015em] text-[var(--st-text)] leading-[1.2]">
               Contacts
             </h1>
-            <p className="mt-1 text-[13px] text-zoru-ink-muted max-w-2xl">
+            <p className="mt-1 text-[13px] text-[var(--st-text-secondary)] max-w-2xl">
               Unified contact book — search, tag, segment, and segment-export
               your audience.
             </p>
@@ -354,7 +354,7 @@ export default function Page() {
         <ZoruCardHeader className="gap-3">
           <div className="flex flex-wrap items-center gap-2">
             <div className="relative min-w-[220px] flex-1">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -393,8 +393,8 @@ export default function Page() {
             </Select>
           </div>
           {selected.size > 0 && (
-            <div className="flex flex-wrap items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-2 text-sm">
-              <span className="text-zoru-ink-muted">
+            <div className="flex flex-wrap items-center gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2 text-sm">
+              <span className="text-[var(--st-text-secondary)]">
                 {selected.size} selected
               </span>
               <Separator orientation="vertical" className="h-5" />
@@ -407,7 +407,7 @@ export default function Page() {
               <Button size="sm" variant="ghost">
                 <Users className="mr-1.5 h-3.5 w-3.5" /> Add to broadcast
               </Button>
-              <Button size="sm" variant="ghost" className="text-zoru-danger">
+              <Button size="sm" variant="ghost" className="text-[var(--st-danger)]">
                 <Ban className="mr-1.5 h-3.5 w-3.5" /> Block
               </Button>
               <Button
@@ -433,9 +433,9 @@ export default function Page() {
                     className="inline-flex h-5 w-5 items-center justify-center"
                   >
                     {allSelected ? (
-                      <CheckSquare className="h-4 w-4 text-zoru-ink" />
+                      <CheckSquare className="h-4 w-4 text-[var(--st-text)]" />
                     ) : (
-                      <Square className="h-4 w-4 text-zoru-ink-muted" />
+                      <Square className="h-4 w-4 text-[var(--st-text-secondary)]" />
                     )}
                   </button>
                 </ZoruTableHead>
@@ -488,7 +488,7 @@ export default function Page() {
                     key={c.id}
                     className={cn(
                       'cursor-pointer',
-                      checked && 'bg-zoru-surface',
+                      checked && 'bg-[var(--st-bg-secondary)]',
                     )}
                     onClick={() => openContact(c)}
                   >
@@ -500,9 +500,9 @@ export default function Page() {
                         className="inline-flex h-5 w-5 items-center justify-center"
                       >
                         {checked ? (
-                          <CheckSquare className="h-4 w-4 text-zoru-ink" />
+                          <CheckSquare className="h-4 w-4 text-[var(--st-text)]" />
                         ) : (
-                          <Square className="h-4 w-4 text-zoru-ink-muted" />
+                          <Square className="h-4 w-4 text-[var(--st-text-secondary)]" />
                         )}
                       </button>
                     </ZoruTableCell>
@@ -518,7 +518,7 @@ export default function Page() {
                         </Avatar>
                         <div className="min-w-0">
                           <div className="flex items-center gap-1.5">
-                            <span className="truncate font-medium text-zoru-ink">
+                            <span className="truncate font-medium text-[var(--st-text)]">
                               {c.name ?? c.pushName ?? resolve(c.jid)}
                             </span>
                             {c.isBusiness && (
@@ -527,7 +527,7 @@ export default function Page() {
                               </Badge>
                             )}
                           </div>
-                          <div className="truncate text-xs text-zoru-ink-muted">
+                          <div className="truncate text-xs text-[var(--st-text-secondary)]">
                             {formatJid(c.jid)}
                           </div>
                         </div>
@@ -536,13 +536,13 @@ export default function Page() {
                     <ZoruTableCell className="font-mono text-xs">
                       {c.phoneE164 ?? '—'}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-sm text-zoru-ink-muted">
+                    <ZoruTableCell className="text-sm text-[var(--st-text-secondary)]">
                       {formatRelative(c.lastInteractionAt)}
                     </ZoruTableCell>
                     <ZoruTableCell>
                       <div className="flex flex-wrap gap-1">
                         {c.tags.length === 0 && (
-                          <span className="text-xs text-zoru-ink-muted">—</span>
+                          <span className="text-xs text-[var(--st-text-secondary)]">—</span>
                         )}
                         {c.tags.slice(0, 3).map((t) => (
                           <Badge key={t} variant="secondary" className="text-[10px]">
@@ -744,7 +744,7 @@ function ContactDrawer({
           </Avatar>
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
-              <p className="truncate text-base font-semibold text-zoru-ink">
+              <p className="truncate text-base font-semibold text-[var(--st-text)]">
                 {contact.name ?? contact.pushName ?? formatJid(contact.jid)}
               </p>
               {contact.isBusiness && (
@@ -758,7 +758,7 @@ function ContactDrawer({
                 </Badge>
               )}
             </div>
-            <p className="truncate font-mono text-xs text-zoru-ink-muted">
+            <p className="truncate font-mono text-xs text-[var(--st-text-secondary)]">
               {contact.phoneE164 ?? formatJid(contact.jid)}
             </p>
           </div>
@@ -775,7 +775,7 @@ function ContactDrawer({
           <Button size="sm" variant="outline">
             <TagIcon className="mr-1.5 h-3.5 w-3.5" /> Add to label
           </Button>
-          <Button size="sm" variant="outline" className="text-zoru-danger">
+          <Button size="sm" variant="outline" className="text-[var(--st-danger)]">
             <Ban className="mr-1.5 h-3.5 w-3.5" />{' '}
             {contact.isBlocked ? 'Unblock' : 'Block'}
           </Button>
@@ -787,7 +787,7 @@ function ContactDrawer({
         <div
           role="group"
           aria-label="Contact section"
-          className="flex w-full rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-1"
+          className="flex w-full rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1"
         >
           {DRAWER_SECTIONS.map((s) => (
             <Button
@@ -807,10 +807,10 @@ function ContactDrawer({
           <div className="space-y-4 pt-4">
             {/* Tags */}
             <section className="space-y-2">
-              <h3 className="text-sm font-medium text-zoru-ink">Tags</h3>
+              <h3 className="text-sm font-medium text-[var(--st-text)]">Tags</h3>
               <div className="flex flex-wrap gap-1.5">
                 {contact.tags.length === 0 && (
-                  <span className="text-xs text-zoru-ink-muted">No tags yet.</span>
+                  <span className="text-xs text-[var(--st-text-secondary)]">No tags yet.</span>
                 )}
                 {contact.tags.map((t) => (
                   <Badge key={t} variant="secondary" className="gap-1">
@@ -847,7 +847,7 @@ function ContactDrawer({
 
             {/* Custom fields */}
             <section className="space-y-2">
-              <h3 className="text-sm font-medium text-zoru-ink">Custom fields</h3>
+              <h3 className="text-sm font-medium text-[var(--st-text)]">Custom fields</h3>
               <CustomFieldsEditor
                 value={contact.customFields ?? {}}
                 onChange={(next) => {
@@ -868,7 +868,7 @@ function ContactDrawer({
             {/* Notes */}
             <section className="space-y-2">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-medium text-zoru-ink">Notes</h3>
+                <h3 className="text-sm font-medium text-[var(--st-text)]">Notes</h3>
                 <Button
                   size="sm"
                   variant="ghost"
@@ -892,20 +892,20 @@ function ContactDrawer({
           <div className="pt-4">
             <ul className="space-y-2 text-sm">
               {(contact.lastMessages ?? []).length === 0 && (
-                <li className="text-zoru-ink-muted">
+                <li className="text-[var(--st-text-secondary)]">
                   No recent messages with this contact.
                 </li>
               )}
               {(contact.lastMessages ?? []).slice(0, 5).map((m) => (
                 <li
                   key={m.id}
-                  className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-2"
+                  className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2"
                 >
-                  <div className="flex justify-between gap-2 text-[11px] text-zoru-ink-muted">
+                  <div className="flex justify-between gap-2 text-[11px] text-[var(--st-text-secondary)]">
                     <span>{m.fromMe ? 'You' : contact.name ?? 'Contact'}</span>
                     <span>{formatRelative(m.ts)}</span>
                   </div>
-                  <p className="mt-1 line-clamp-2 text-zoru-ink">{m.body}</p>
+                  <p className="mt-1 line-clamp-2 text-[var(--st-text)]">{m.body}</p>
                 </li>
               ))}
             </ul>
@@ -916,16 +916,16 @@ function ContactDrawer({
           <div className="pt-4">
             <ul className="space-y-1.5 text-sm">
               {(contact.mutualGroups ?? []).length === 0 && (
-                <li className="text-zoru-ink-muted">
+                <li className="text-[var(--st-text-secondary)]">
                   No mutual groups detected yet.
                 </li>
               )}
               {(contact.mutualGroups ?? []).map((g) => (
                 <li
                   key={g.jid}
-                  className="flex items-center justify-between rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-2 py-1.5"
+                  className="flex items-center justify-between rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-1.5"
                 >
-                  <span className="truncate text-zoru-ink">{g.subject}</span>
+                  <span className="truncate text-[var(--st-text)]">{g.subject}</span>
                   <Badge variant="outline" className="text-[10px]">
                     Group
                   </Badge>
@@ -939,20 +939,20 @@ function ContactDrawer({
           <div className="pt-4">
             <ul className="space-y-1.5 text-sm">
               {(contact.scheduledForContact ?? []).length === 0 && (
-                <li className="text-zoru-ink-muted">
+                <li className="text-[var(--st-text-secondary)]">
                   Nothing scheduled to this contact.
                 </li>
               )}
               {(contact.scheduledForContact ?? []).map((s) => (
                 <li
                   key={s.id}
-                  className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-2"
+                  className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2"
                 >
-                  <div className="flex justify-between text-[11px] text-zoru-ink-muted">
+                  <div className="flex justify-between text-[11px] text-[var(--st-text-secondary)]">
                     <span>Scheduled</span>
                     <span>{formatRelative(s.scheduledFor)}</span>
                   </div>
-                  <p className="mt-1 line-clamp-2 text-zoru-ink">{s.body}</p>
+                  <p className="mt-1 line-clamp-2 text-[var(--st-text)]">{s.body}</p>
                 </li>
               ))}
             </ul>
@@ -993,13 +993,13 @@ function CustomFieldsEditor({ value, onChange }: CustomFieldsEditorProps) {
   return (
     <div className="space-y-2">
       {entries.length === 0 && (
-        <p className="text-xs text-zoru-ink-muted">No custom fields yet.</p>
+        <p className="text-xs text-[var(--st-text-secondary)]">No custom fields yet.</p>
       )}
       <ul className="space-y-1.5">
         {entries.map(([k, v]) => (
           <li key={k} className="flex items-center gap-2 text-sm">
-            <span className="min-w-[100px] truncate font-medium text-zoru-ink">{k}</span>
-            <span className="flex-1 truncate text-zoru-ink-muted">{v}</span>
+            <span className="min-w-[100px] truncate font-medium text-[var(--st-text)]">{k}</span>
+            <span className="flex-1 truncate text-[var(--st-text-secondary)]">{v}</span>
             <Button
               type="button"
               size="icon"

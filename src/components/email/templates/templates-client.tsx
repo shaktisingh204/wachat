@@ -119,7 +119,7 @@ export function TemplatesClient() {
       />
 
       {loadError ? (
-        <p className="rounded border border-zoru-danger/40 bg-zoru-danger/10 p-3 text-sm text-zoru-danger">
+        <p className="rounded border border-[var(--st-danger)]/40 bg-[var(--st-danger)]/10 p-3 text-sm text-[var(--st-danger)]">
           Failed to load: {loadError}
         </p>
       ) : null}
@@ -169,7 +169,7 @@ function SegmentedButton<V extends string>({
     <div
       role="radiogroup"
       aria-label="Section"
-      className="inline-flex overflow-hidden rounded-md border border-zoru-line bg-zoru-surface"
+      className="inline-flex overflow-hidden rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)]"
     >
       {options.map((opt) => {
         const Icon = opt.icon;
@@ -184,8 +184,8 @@ function SegmentedButton<V extends string>({
             className={cn(
               'inline-flex items-center gap-2 px-4 py-2 text-sm transition-colors',
               active
-                ? 'bg-zoru-primary text-zoru-primary-foreground'
-                : 'text-zoru-ink hover:bg-zoru-surface-2',
+                ? 'bg-[var(--st-text)] text-[var(--st-text-inverted)]'
+                : 'text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]',
             )}
           >
             <Icon className="h-4 w-4" />
@@ -193,7 +193,7 @@ function SegmentedButton<V extends string>({
             {typeof opt.count === 'number' ? (
               <span className={cn(
                 'rounded-full px-1.5 py-0.5 text-xs',
-                active ? 'bg-white/20' : 'bg-zoru-surface-2 text-zoru-ink-muted',
+                active ? 'bg-white/20' : 'bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]',
               )}>
                 {opt.count}
               </span>

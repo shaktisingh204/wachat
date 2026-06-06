@@ -12,10 +12,10 @@ export function StartTimerCard({ memo, setMemo, isPending, onStartTimer }: Start
   return (
     <Card className="p-6">
       <div className="flex flex-wrap items-center gap-3">
-        <Timer className="h-5 w-5 shrink-0 text-zoru-ink-muted" strokeWidth={1.75} />
+        <Timer className="h-5 w-5 shrink-0 text-[var(--st-text-secondary)]" strokeWidth={1.75} />
         <Input
           placeholder="What are you working on? (optional memo)"
-          className="h-9 min-w-[220px] flex-1 rounded-lg border-zoru-line bg-zoru-bg text-[13px] placeholder:text-zoru-ink-muted focus-visible:ring-primary"
+          className="h-9 min-w-[220px] flex-1 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px] placeholder:text-[var(--st-text-secondary)] focus-visible:ring-primary"
           value={memo}
           onChange={(e) => setMemo(e.target.value)}
           onKeyDown={(e) => {

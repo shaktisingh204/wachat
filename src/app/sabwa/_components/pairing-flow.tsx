@@ -117,7 +117,7 @@ export function PairingFlow({
         <div className="flex flex-col items-center gap-3">
           <div
             aria-label="WhatsApp pairing QR code"
-            className="relative max-w-full rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-white p-4 shadow-[var(--zoru-shadow-sm)]"
+            className="relative max-w-full rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-white p-4 shadow-[var(--zoru-shadow-sm)]"
             style={{ width: 296, height: 296, maxWidth: '100%' }}
           >
             {qr ? (
@@ -129,19 +129,19 @@ export function PairingFlow({
               />
             ) : (
               <div className="flex h-[264px] w-[264px] items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-zoru-ink-muted" />
+                <Loader2 className="h-8 w-8 animate-spin text-[var(--st-text-secondary)]" />
               </div>
             )}
             <div
               aria-hidden
               className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-md bg-white p-1 shadow-[var(--zoru-shadow-sm)]"
             >
-              <div className="flex h-6 w-6 items-center justify-center rounded-md bg-zoru-ink text-zoru-on-primary">
+              <div className="flex h-6 w-6 items-center justify-center rounded-md bg-[var(--st-text)] text-[var(--st-text-inverted)]">
                 <Smartphone className="h-3.5 w-3.5" />
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-2 text-[12px] text-zoru-ink-muted">
+          <div className="flex items-center gap-2 text-[12px] text-[var(--st-text-secondary)]">
             <span>QR refreshes in {secondsLeft}s</span>
             {onRefresh && (
               <Button
@@ -159,21 +159,21 @@ export function PairingFlow({
         </div>
       ) : (
         <div className="flex flex-col items-center gap-3">
-          <div className="rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg px-6 py-5 text-center">
-            <p className="text-[10.5px] uppercase tracking-[0.12em] text-zoru-ink-muted">
+          <div className="rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] px-6 py-5 text-center">
+            <p className="text-[10.5px] uppercase tracking-[0.12em] text-[var(--st-text-secondary)]">
               Your pairing code
             </p>
-            <p className="mt-2 font-mono text-[28px] font-bold tracking-[0.3em] text-zoru-ink">
+            <p className="mt-2 font-mono text-[28px] font-bold tracking-[0.3em] text-[var(--st-text)]">
               {pairCode ? (
                 // Engine already formats as XXXX-XXXX; normalise here so
                 // both the initial value from pairSession and live SSE
                 // events (which may arrive as raw 8 chars) render uniformly.
                 pairCode.replace(/-/g, '').replace(/^(.{4})(.{4})$/, '$1-$2') || pairCode
               ) : (
-                <Loader2 className="inline h-7 w-7 animate-spin text-zoru-ink-muted" />
+                <Loader2 className="inline h-7 w-7 animate-spin text-[var(--st-text-secondary)]" />
               )}
             </p>
-            <p className="mt-3 max-w-xs text-[12px] text-zoru-ink-muted">
+            <p className="mt-3 max-w-xs text-[12px] text-[var(--st-text-secondary)]">
               Enter this 8-character code on your phone under{' '}
               <strong>Linked devices → Link with phone number</strong>.
             </p>

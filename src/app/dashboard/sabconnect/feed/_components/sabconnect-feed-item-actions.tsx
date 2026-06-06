@@ -64,7 +64,7 @@ export function SabConnectFeedItemActions({ itemId }: Props) {
     };
 
     return (
-        <div className="flex flex-col gap-2 border-t border-zoru-line pt-3">
+        <div className="flex flex-col gap-2 border-t border-[var(--st-border)] pt-3">
             <div className="flex flex-wrap items-center gap-1">
                 {QUICK_EMOJIS.map((e) => (
                     <button
@@ -72,12 +72,12 @@ export function SabConnectFeedItemActions({ itemId }: Props) {
                         type="button"
                         onClick={() => onReact(e)}
                         disabled={pending}
-                        className="rounded-full border border-zoru-line bg-transparent px-2.5 py-1 text-sm transition-colors hover:bg-zoru-surface-hover"
+                        className="rounded-full border border-[var(--st-border)] bg-transparent px-2.5 py-1 text-sm transition-colors hover:bg-[var(--st-hover)]"
                         aria-label={`React with ${e}`}
                     >
                         <span>{e}</span>
                         {counts[e] ? (
-                            <span className="ml-1 text-xs text-zoru-muted">{counts[e]}</span>
+                            <span className="ml-1 text-xs text-[var(--st-bg-muted)]">{counts[e]}</span>
                         ) : null}
                     </button>
                 ))}
@@ -94,13 +94,13 @@ export function SabConnectFeedItemActions({ itemId }: Props) {
             {comments !== null ? (
                 <div className="flex flex-col gap-2 pt-2">
                     {comments.length === 0 ? (
-                        <p className="text-xs text-zoru-muted">No comments yet.</p>
+                        <p className="text-xs text-[var(--st-bg-muted)]">No comments yet.</p>
                     ) : (
                         <ul className="flex flex-col gap-2">
                             {comments.map((c) => (
                                 <li
                                     key={c._id}
-                                    className="rounded-lg bg-zoru-surface-hover px-3 py-2"
+                                    className="rounded-lg bg-[var(--st-hover)] px-3 py-2"
                                 >
                                     <p className="text-xs font-semibold text-zoru-text">
                                         {c.authorName ?? 'Teammate'}

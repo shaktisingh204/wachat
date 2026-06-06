@@ -96,11 +96,11 @@ export function EntityListShell({
             {/* Toolbar */}
             <header className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                 <div className="min-w-0 flex-1">
-                    <h1 className="truncate text-2xl font-semibold text-zoru-ink">
+                    <h1 className="truncate text-2xl font-semibold text-[var(--st-text)]">
                         {title}
                     </h1>
                     {subtitle ? (
-                        <p className="mt-1 text-sm text-zoru-ink-muted">{subtitle}</p>
+                        <p className="mt-1 text-sm text-[var(--st-text-secondary)]">{subtitle}</p>
                     ) : null}
                 </div>
                 <div className="flex shrink-0 flex-wrap items-center gap-2">
@@ -132,7 +132,7 @@ export function EntityListShell({
                 <div
                     role="region"
                     aria-label="Bulk actions"
-                    className="sticky top-0 z-10 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-3 py-2 shadow-[var(--zoru-shadow-sm)]"
+                    className="sticky top-0 z-10 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 shadow-[var(--zoru-shadow-sm)]"
                 >
                     {bulkBar}
                 </div>

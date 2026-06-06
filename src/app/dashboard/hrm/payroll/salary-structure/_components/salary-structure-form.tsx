@@ -234,7 +234,7 @@ export function SalaryStructureForm({ initialData }: SalaryStructureFormProps) {
 
                 {/* Row 3: Earnings */}
                 <div>
-                    <div className="mb-2 text-[13px] font-medium text-zoru-ink">
+                    <div className="mb-2 text-[13px] font-medium text-[var(--st-text)]">
                         Earnings
                     </div>
                     <div className="grid gap-4 sm:grid-cols-4">
@@ -258,7 +258,7 @@ export function SalaryStructureForm({ initialData }: SalaryStructureFormProps) {
 
                 {/* Row 4: Deductions */}
                 <div>
-                    <div className="mb-2 text-[13px] font-medium text-zoru-ink">
+                    <div className="mb-2 text-[13px] font-medium text-[var(--st-text)]">
                         Deductions
                     </div>
                     <div className="grid gap-4 sm:grid-cols-4">
@@ -282,22 +282,22 @@ export function SalaryStructureForm({ initialData }: SalaryStructureFormProps) {
 
                 {/* Preview */}
                 <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-3 text-[13px]">
-                        <div className="text-zoru-ink-muted">Preview gross</div>
-                        <div className="font-mono text-[15px] text-zoru-ink">
+                    <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-[13px]">
+                        <div className="text-[var(--st-text-secondary)]">Preview gross</div>
+                        <div className="font-mono text-[15px] text-[var(--st-text)]">
                             {fmtINR(previewGross)}
                         </div>
                     </div>
-                    <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-3 text-[13px]">
-                        <div className="text-zoru-ink-muted">Preview net</div>
-                        <div className="font-mono text-[15px] text-zoru-ink">
+                    <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-[13px]">
+                        <div className="text-[var(--st-text-secondary)]">Preview net</div>
+                        <div className="font-mono text-[15px] text-[var(--st-text)]">
                             {fmtINR(previewNet)}
                         </div>
                     </div>
                 </div>
 
                 {/* Footer */}
-                <div className="flex flex-wrap items-center justify-between gap-2 pt-4 border-t border-zoru-line">
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-4 border-t border-[var(--st-border)]">
                     <div className="flex gap-2">
                         <Button variant="ghost" asChild>
                             <Link href={BASE}>

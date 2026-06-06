@@ -38,24 +38,24 @@ export function EmailActivityFeed({ campaigns, accountId }: EmailActivityFeedPro
       </ZoruCardHeader>
       <ZoruCardContent>
         {campaigns.length === 0 ? (
-          <div className="flex flex-col items-center justify-center gap-2 py-10 text-center text-zoru-ink-muted">
+          <div className="flex flex-col items-center justify-center gap-2 py-10 text-center text-[var(--st-text-secondary)]">
             <Send className="h-6 w-6" />
             <p className="text-sm">No campaigns yet.</p>
           </div>
         ) : (
-          <ul className="divide-y divide-zoru-line">
+          <ul className="divide-y divide-[var(--st-border)]">
             {campaigns.map((c) => (
               <li
                 key={c._id.toString()}
                 className="flex items-center justify-between py-3 first:pt-0 last:pb-0 gap-3"
               >
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-zoru-ink">{c.name}</p>
-                  <p className="truncate text-xs text-zoru-ink-muted">{c.subject}</p>
+                  <p className="truncate text-sm font-medium text-[var(--st-text)]">{c.name}</p>
+                  <p className="truncate text-xs text-[var(--st-text-secondary)]">{c.subject}</p>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <Badge variant={STATUS_COLOR[c.status] ?? 'outline'}>{c.status}</Badge>
-                  <span className="text-xs text-zoru-ink-muted hidden md:inline">
+                  <span className="text-xs text-[var(--st-text-secondary)] hidden md:inline">
                     {c.sentAt
                       ? formatDistanceToNow(new Date(c.sentAt), { addSuffix: true })
                       : 'Draft'}

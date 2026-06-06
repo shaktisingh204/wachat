@@ -41,7 +41,7 @@ export function FacebookProjectSwitcher({ projects, activeProject }: FacebookPro
 
     if (!activeProject) {
         return (
-            <div className="hidden md:flex items-center gap-2 text-sm font-semibold text-zoru-ink">
+            <div className="hidden md:flex items-center gap-2 text-sm font-semibold text-[var(--st-text)]">
                 <Briefcase className="h-4 w-4" />
                 <span>No Project Selected</span>
             </div>

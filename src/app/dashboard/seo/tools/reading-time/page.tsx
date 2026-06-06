@@ -61,10 +61,10 @@ export default function ReadingTimePage() {
       </div>
       
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{words}</div><div className="text-xs text-zoru-ink-muted">Words</div></ZoruCardContent></Card>
-        <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{chars}</div><div className="text-xs text-zoru-ink-muted">Characters</div></ZoruCardContent></Card>
-        <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{readingDisplay}</div><div className="text-xs text-zoru-ink-muted">Reading time (w/ images)</div></ZoruCardContent></Card>
-        <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{speakingDisplay}</div><div className="text-xs text-zoru-ink-muted">Speaking / TTS time</div></ZoruCardContent></Card>
+        <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{words}</div><div className="text-xs text-[var(--st-text-secondary)]">Words</div></ZoruCardContent></Card>
+        <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{chars}</div><div className="text-xs text-[var(--st-text-secondary)]">Characters</div></ZoruCardContent></Card>
+        <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{readingDisplay}</div><div className="text-xs text-[var(--st-text-secondary)]">Reading time (w/ images)</div></ZoruCardContent></Card>
+        <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{speakingDisplay}</div><div className="text-xs text-[var(--st-text-secondary)]">Speaking / TTS time</div></ZoruCardContent></Card>
       </div>
     </ToolShell>
   );

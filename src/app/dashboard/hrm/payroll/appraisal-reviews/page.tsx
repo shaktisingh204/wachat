@@ -50,10 +50,10 @@ function StarBar({ value }: { value: number }) {
       {[1, 2, 3, 4, 5].map((i) => (
         <Star
           key={i}
-          className={`h-3 w-3 ${i <= n ? 'fill-zoru-ink-muted text-zoru-ink-muted' : 'fill-transparent text-zoru-line'}`}
+          className={`h-3 w-3 ${i <= n ? 'fill-[var(--st-text-secondary)] text-[var(--st-text-secondary)]' : 'fill-transparent text-[var(--st-border)]'}`}
         />
       ))}
-      <span className="ml-1 text-[12px] tabular-nums text-zoru-ink-muted">
+      <span className="ml-1 text-[12px] tabular-nums text-[var(--st-text-secondary)]">
         {value > 0 ? value.toFixed(1) : '—'}
       </span>
     </div>
@@ -140,7 +140,7 @@ export default function AppraisalReviewsPage() {
         {
           key: 'cycle',
           label: 'Cycle',
-          render: (r) => (r.cycle ? <HrChip>{r.cycle}</HrChip> : <span className="text-zoru-ink-muted">—</span>),
+          render: (r) => (r.cycle ? <HrChip>{r.cycle}</HrChip> : <span className="text-[var(--st-text-secondary)]">—</span>),
         },
         {
           key: 'period',

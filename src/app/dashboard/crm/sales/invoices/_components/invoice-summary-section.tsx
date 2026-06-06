@@ -53,7 +53,7 @@ function SummaryRow({
 }) {
   return (
     <div className="flex items-center justify-between gap-3">
-      <Label className="text-zoru-ink-muted">{label}</Label>
+      <Label className="text-[var(--st-text-secondary)]">{label}</Label>
       <Input
         type="number"
         step="0.01"
@@ -86,7 +86,7 @@ export function SummarySection({
 }: SummarySectionProps) {
   return (
     <Card className="p-6">
-      <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+      <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
         Summary
       </h3>
       <div className="grid gap-4 md:grid-cols-2">
@@ -162,8 +162,8 @@ export function SummarySection({
           ) : null}
           <Separator />
           <div className="flex justify-between">
-            <span className="font-medium text-zoru-ink">Total</span>
-            <span className="text-base font-semibold tabular-nums text-zoru-ink">
+            <span className="font-medium text-[var(--st-text)]">Total</span>
+            <span className="text-base font-semibold tabular-nums text-[var(--st-text)]">
               {fmtMoney(total, currency)}
             </span>
           </div>
@@ -173,7 +173,7 @@ export function SummarySection({
               <Row label="Balance" value={fmtMoney(balance ?? total, currency)} />
             </>
           ) : null}
-          <p className="text-[11px] text-zoru-ink-muted">
+          <p className="text-[11px] text-[var(--st-text-secondary)]">
             Server recomputes authoritatively on save.
           </p>
         </div>
@@ -185,8 +185,8 @@ export function SummarySection({
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between">
-      <span className="text-zoru-ink-muted">{label}</span>
-      <span className="tabular-nums text-zoru-ink">{value}</span>
+      <span className="text-[var(--st-text-secondary)]">{label}</span>
+      <span className="tabular-nums text-[var(--st-text)]">{value}</span>
     </div>
   );
 }

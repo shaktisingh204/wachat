@@ -69,10 +69,10 @@ export default function ProfilePage() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold tracking-tight">Profile & Settings</h1>
-                    <p className="text-zoru-ink-muted">Manage your account settings and preferences.</p>
+                    <p className="text-[var(--st-text-secondary)]">Manage your account settings and preferences.</p>
                 </div>
                 <div className="relative w-full md:w-72">
-                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
                     <Input
                         type="search"
                         placeholder="Search settings..."
@@ -101,7 +101,7 @@ export default function ProfilePage() {
             )}
 
             {!Object.values(filteredSections).some(Boolean) && (
-                <div className="text-center py-12 text-zoru-ink-muted">
+                <div className="text-center py-12 text-[var(--st-text-secondary)]">
                     <p>No settings matched your search query "{searchQuery}".</p>
                 </div>
             )}

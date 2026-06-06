@@ -46,12 +46,12 @@ export default async function FacebookCallbackPage({
   // 2. Inline fallback for invalid code or errors (fails entirely)
   if (error || !code || !state) {
     return (
-      <div className="zoruui min-h-screen bg-zoru-bg text-zoru-ink">
-        <div className="flex h-screen w-screen items-center justify-center bg-zoru-surface">
+      <div className="zoruui min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
+        <div className="flex h-screen w-screen items-center justify-center bg-[var(--st-bg-secondary)]">
           <Card className="max-w-sm text-center">
             <ZoruCardHeader>
               <div className="flex justify-center mb-4">
-                <AlertCircle className="h-10 w-10 text-zoru-ink" />
+                <AlertCircle className="h-10 w-10 text-[var(--st-text)]" />
               </div>
               <ZoruCardTitle>Connection Failed</ZoruCardTitle>
               <ZoruCardDescription>
@@ -72,14 +72,14 @@ export default async function FacebookCallbackPage({
   }
 
   return (
-    <div className="zoruui min-h-screen bg-zoru-bg text-zoru-ink">
+    <div className="zoruui min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
       <Suspense
         fallback={
-          <div className="flex h-screen w-screen items-center justify-center bg-zoru-surface">
+          <div className="flex h-screen w-screen items-center justify-center bg-[var(--st-bg-secondary)]">
             <Card className="max-w-sm text-center">
               <ZoruCardHeader>
                 <div className="flex justify-center mb-4">
-                  <LoaderCircle className="h-10 w-10 animate-spin text-zoru-primary" />
+                  <LoaderCircle className="h-10 w-10 animate-spin text-[var(--st-text)]" />
                 </div>
                 <ZoruCardTitle>Loading...</ZoruCardTitle>
               </ZoruCardHeader>

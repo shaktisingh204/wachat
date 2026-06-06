@@ -205,7 +205,7 @@ export default function CommerceAnalyticsPage() {
         accessorKey: "name",
         header: "Customer",
         cell: ({ row }) => (
-          <span className="font-medium text-zoru-ink">{row.original.name}</span>
+          <span className="font-medium text-[var(--st-text)]">{row.original.name}</span>
         ),
       },
       {

@@ -99,11 +99,11 @@ CPM: $${r.cpm.toFixed(2)}`;
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-          <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{r.ctr.toFixed(2)}%</div><div className="text-xs text-zoru-ink-muted">CTR</div></ZoruCardContent></Card>
-          <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">${r.cpc.toFixed(2)}</div><div className="text-xs text-zoru-ink-muted">CPC</div></ZoruCardContent></Card>
-          <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{r.cvr.toFixed(2)}%</div><div className="text-xs text-zoru-ink-muted">CVR</div></ZoruCardContent></Card>
-          <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">${r.cpa.toFixed(2)}</div><div className="text-xs text-zoru-ink-muted">CPA</div></ZoruCardContent></Card>
-          <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">${r.cpm.toFixed(2)}</div><div className="text-xs text-zoru-ink-muted">CPM</div></ZoruCardContent></Card>
+          <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{r.ctr.toFixed(2)}%</div><div className="text-xs text-[var(--st-text-secondary)]">CTR</div></ZoruCardContent></Card>
+          <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">${r.cpc.toFixed(2)}</div><div className="text-xs text-[var(--st-text-secondary)]">CPC</div></ZoruCardContent></Card>
+          <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{r.cvr.toFixed(2)}%</div><div className="text-xs text-[var(--st-text-secondary)]">CVR</div></ZoruCardContent></Card>
+          <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">${r.cpa.toFixed(2)}</div><div className="text-xs text-[var(--st-text-secondary)]">CPA</div></ZoruCardContent></Card>
+          <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">${r.cpm.toFixed(2)}</div><div className="text-xs text-[var(--st-text-secondary)]">CPM</div></ZoruCardContent></Card>
         </div>
       </div>
     </ToolShell>
@@ -124,7 +124,7 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
   render() {
     if (this.state.hasError) {
       return (
-        <div className="p-4 border border-zoru-line bg-zoru-surface-2 text-zoru-ink rounded-md">
+        <div className="p-4 border border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)] rounded-md">
           <h2 className="text-lg font-bold">Something went wrong.</h2>
           <p className="text-sm">{this.state.error?.message}</p>
         </div>

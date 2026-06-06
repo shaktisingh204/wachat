@@ -60,16 +60,16 @@ export function ComingSoon({
       <header className="flex items-start gap-3">
         <div
           aria-hidden
-          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius-lg)] bg-zoru-surface text-zoru-ink"
+          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius-lg)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
         >
           <Icon className="h-6 w-6" />
         </div>
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-2xl font-semibold tracking-tight text-zoru-ink">{title}</h1>
+            <h1 className="text-2xl font-semibold tracking-tight text-[var(--st-text)]">{title}</h1>
             <Badge variant="secondary">Coming soon</Badge>
           </div>
-          <p className="mt-1 text-sm text-zoru-ink-muted">{description}</p>
+          <p className="mt-1 text-sm text-[var(--st-text-secondary)]">{description}</p>
         </div>
       </header>
 
@@ -82,7 +82,7 @@ export function ComingSoon({
             ) : null}
           </ZoruCardHeader>
           <ZoruCardContent>
-            <ul className="list-disc space-y-2 pl-5 text-sm text-zoru-ink">
+            <ul className="list-disc space-y-2 pl-5 text-sm text-[var(--st-text)]">
               {features.map((feature, i) => (
                 <li key={i}>{feature}</li>
               ))}

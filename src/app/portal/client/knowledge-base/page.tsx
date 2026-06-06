@@ -45,8 +45,8 @@ async function ClientKnowledgeBasePageContent({
     return (
         <div className="flex flex-col gap-4">
             <div>
-                <h1 className="text-2xl font-semibold text-zoru-ink">Knowledge Base</h1>
-                <p className="text-sm text-zoru-ink-muted">
+                <h1 className="text-2xl font-semibold text-[var(--st-text)]">Knowledge Base</h1>
+                <p className="text-sm text-[var(--st-text-secondary)]">
                     Browse help articles and guides.
                 </p>
             </div>
@@ -60,8 +60,8 @@ async function ClientKnowledgeBasePageContent({
                         className={cn(
                             'rounded-[var(--zoru-radius-sm)] px-3 py-1.5 text-sm transition-colors',
                             !sp.category
-                                ? 'bg-zoru-surface-2 text-zoru-ink'
-                                : 'text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink',
+                                ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
+                                : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]',
                         )}
                     >
                         All categories
@@ -73,8 +73,8 @@ async function ClientKnowledgeBasePageContent({
                             className={cn(
                                 'rounded-[var(--zoru-radius-sm)] px-3 py-1.5 text-sm transition-colors',
                                 sp.category === c
-                                    ? 'bg-zoru-surface-2 text-zoru-ink'
-                                    : 'text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink',
+                                    ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
+                                    : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]',
                             )}
                         >
                             {c}
@@ -91,15 +91,15 @@ async function ClientKnowledgeBasePageContent({
                     ) : (
                         articles.map((a) => (
                             <Link key={a._id} href={`/portal/client/knowledge-base/${a._id}`}>
-                                <Card className="transition-colors hover:bg-zoru-surface-2">
+                                <Card className="transition-colors hover:bg-[var(--st-bg-muted)]">
                                     <ZoruCardHeader>
                                         <ZoruCardTitle>{a.title}</ZoruCardTitle>
                                     </ZoruCardHeader>
                                     <ZoruCardContent>
                                         {a.excerpt ? (
-                                            <p className="line-clamp-2 text-sm text-zoru-ink-muted">{a.excerpt}</p>
+                                            <p className="line-clamp-2 text-sm text-[var(--st-text-secondary)]">{a.excerpt}</p>
                                         ) : null}
-                                        <div className="mt-2 text-xs text-zoru-ink-muted">
+                                        <div className="mt-2 text-xs text-[var(--st-text-secondary)]">
                                             {a.category ? `${a.category} · ` : ''}
                                             Updated {fmtDate(a.updatedAt)}
                                         </div>

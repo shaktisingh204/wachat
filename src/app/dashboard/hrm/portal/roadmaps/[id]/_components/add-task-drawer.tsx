@@ -106,7 +106,7 @@ export function AddTaskDrawer({
               }}
             />
             {titleError && (
-              <p className="text-xs text-zoru-danger">Title is required.</p>
+              <p className="text-xs text-[var(--st-danger)]">Title is required.</p>
             )}
           </div>
 

@@ -54,13 +54,13 @@ export function SabpublishLocationsListClient({
                   </Link>
                   <Badge variant="outline">{loc.status ?? 'draft'}</Badge>
                 </div>
-                <div className="text-sm text-zoru-ink-muted">
+                <div className="text-sm text-[var(--st-text-secondary)]">
                   {[loc.addressLine1, loc.city, loc.region]
                     .filter(Boolean)
                     .join(', ') || 'No address yet'}
                 </div>
                 {loc.phone ? (
-                  <div className="text-sm text-zoru-ink-muted">
+                  <div className="text-sm text-[var(--st-text-secondary)]">
                     {loc.phone}
                   </div>
                 ) : null}

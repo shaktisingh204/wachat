@@ -82,9 +82,9 @@ export function ThreadView({
 }: ThreadViewProps) {
   if (!thread) {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-2 bg-zoru-bg p-10 text-center text-sm text-zoru-ink-muted">
-        <FileText className="h-7 w-7 text-zoru-ink-muted/70" />
-        <div className="font-medium text-zoru-ink">No conversation selected</div>
+      <div className="flex h-full flex-col items-center justify-center gap-2 bg-[var(--st-bg)] p-10 text-center text-sm text-[var(--st-text-secondary)]">
+        <FileText className="h-7 w-7 text-[var(--st-text-secondary)]/70" />
+        <div className="font-medium text-[var(--st-text)]">No conversation selected</div>
         <div className="max-w-sm text-xs">
           Pick a conversation from the list to read it and reply here.
         </div>
@@ -96,18 +96,18 @@ export function ThreadView({
   const isClosed = thread.status === 'closed';
 
   return (
-    <div className="flex h-full min-h-0 flex-col bg-zoru-bg">
-      <header className="flex items-start gap-3 border-b border-zoru-line bg-zoru-surface px-4 py-3">
+    <div className="flex h-full min-h-0 flex-col bg-[var(--st-bg)]">
+      <header className="flex items-start gap-3 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-3">
         <div className="flex min-w-0 flex-1 flex-col gap-1">
           <div className="flex items-center gap-2">
-            <h2 className="truncate text-base font-semibold text-zoru-ink">
+            <h2 className="truncate text-base font-semibold text-[var(--st-text)]">
               {thread.subject || '(no subject)'}
             </h2>
             <Badge variant="outline" className="text-[10px] uppercase">
               {thread.status}
             </Badge>
           </div>
-          <div className="flex flex-wrap items-center gap-1.5 text-xs text-zoru-ink-muted">
+          <div className="flex flex-wrap items-center gap-1.5 text-xs text-[var(--st-text-secondary)]">
             <span>
               {thread.messageCount} message
               {thread.messageCount === 1 ? '' : 's'}
@@ -117,7 +117,7 @@ export function ThreadView({
             {(thread.labels ?? []).map((l) => (
               <span
                 key={l}
-                className="rounded-full border border-zoru-line bg-zoru-bg px-1.5 py-px text-[10px]"
+                className="rounded-full border border-[var(--st-border)] bg-[var(--st-bg)] px-1.5 py-px text-[10px]"
               >
                 {l}
               </span>
@@ -134,7 +134,7 @@ export function ThreadView({
             onClick={onToggleStar}
           >
             {thread.starred ? (
-              <Star className="fill-zoru-ink-muted text-zoru-ink" />
+              <Star className="fill-[var(--st-text-secondary)] text-[var(--st-text)]" />
             ) : (
               <StarOff />
             )}
@@ -183,12 +183,12 @@ export function ThreadView({
       <ScrollArea className="min-h-0 flex-1">
         <div className="flex flex-col gap-3 p-4">
           {loading && messages.length === 0 ? (
-            <div className="flex h-40 items-center justify-center text-sm text-zoru-ink-muted">
+            <div className="flex h-40 items-center justify-center text-sm text-[var(--st-text-secondary)]">
               <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading
               messages…
             </div>
           ) : messages.length === 0 ? (
-            <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface/40 p-6 text-center text-sm text-zoru-ink-muted">
+            <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40 p-6 text-center text-sm text-[var(--st-text-secondary)]">
               No messages in this thread yet.
             </div>
           ) : (
@@ -200,7 +200,7 @@ export function ThreadView({
       </ScrollArea>
 
       <Separator />
-      <div className="border-t border-zoru-line bg-zoru-surface/40">
+      <div className="border-t border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40">
         <ReplyComposer {...composer} />
       </div>
     </div>
@@ -225,14 +225,14 @@ function MessageBubble({ message }: { message: EmailInboxMessageDoc }) {
         className={cn(
           'max-w-[75%] rounded-[var(--zoru-radius-lg)] border px-3 py-2 shadow-sm',
           outbound
-            ? 'border-zoru-line bg-zoru-ink text-zoru-on-primary'
-            : 'border-zoru-line bg-zoru-surface-raised text-zoru-ink',
+            ? 'border-[var(--st-border)] bg-[var(--st-text)] text-[var(--st-text-inverted)]'
+            : 'border-[var(--st-border)] bg-zoru-surface-raised text-[var(--st-text)]',
         )}
       >
         <div
           className={cn(
             'flex items-baseline gap-2 text-[11px]',
-            outbound ? 'text-zoru-on-primary/80' : 'text-zoru-ink-muted',
+            outbound ? 'text-[var(--st-text-inverted)]/80' : 'text-[var(--st-text-secondary)]',
           )}
         >
           <span className="truncate font-medium">
@@ -246,8 +246,8 @@ function MessageBubble({ message }: { message: EmailInboxMessageDoc }) {
             className={cn(
               'prose prose-sm mt-1 max-w-none break-words text-sm',
               outbound
-                ? 'prose-invert text-zoru-on-primary'
-                : 'text-zoru-ink',
+                ? 'prose-invert text-[var(--st-text-inverted)]'
+                : 'text-[var(--st-text)]',
             )}
             // The Rust backend is responsible for storing only sanitised
             // HTML; inbound MIME parsing strips scripts before insert. We
@@ -258,7 +258,7 @@ function MessageBubble({ message }: { message: EmailInboxMessageDoc }) {
           <div
             className={cn(
               'mt-1 whitespace-pre-wrap text-sm',
-              outbound ? 'text-zoru-on-primary' : 'text-zoru-ink',
+              outbound ? 'text-[var(--st-text-inverted)]' : 'text-[var(--st-text)]',
             )}
           >
             {message.bodyText ?? ''}
@@ -275,8 +275,8 @@ function MessageBubble({ message }: { message: EmailInboxMessageDoc }) {
                 className={cn(
                   'inline-flex max-w-[14rem] items-center gap-2 truncate rounded-[var(--zoru-radius-sm)] border px-2 py-1.5 text-xs transition-colors',
                   outbound
-                    ? 'border-zoru-on-primary/30 bg-zoru-on-primary/10 text-zoru-on-primary hover:bg-zoru-on-primary/20'
-                    : 'border-zoru-line bg-zoru-bg text-zoru-ink hover:bg-zoru-surface',
+                    ? 'border-[var(--st-text-inverted)]/30 bg-[var(--st-text-inverted)]/10 text-[var(--st-text-inverted)] hover:bg-[var(--st-text-inverted)]/20'
+                    : 'border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]',
                 )}
               >
                 <Paperclip className="h-3.5 w-3.5 shrink-0" />
@@ -284,7 +284,7 @@ function MessageBubble({ message }: { message: EmailInboxMessageDoc }) {
                 <span
                   className={cn(
                     'shrink-0 text-[10px]',
-                    outbound ? 'text-zoru-on-primary/70' : 'text-zoru-ink-muted',
+                    outbound ? 'text-[var(--st-text-inverted)]/70' : 'text-[var(--st-text-secondary)]',
                   )}
                 >
                   {fmtBytes(a.size)}
@@ -295,7 +295,7 @@ function MessageBubble({ message }: { message: EmailInboxMessageDoc }) {
         )}
       </div>
       {outbound ? null : (
-        <div className="hidden shrink-0 self-end text-[10px] text-zoru-ink-muted sm:block">
+        <div className="hidden shrink-0 self-end text-[10px] text-[var(--st-text-secondary)] sm:block">
           <CornerUpLeft className="h-3 w-3" />
         </div>
       )}

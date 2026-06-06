@@ -100,6 +100,44 @@ export interface ClearLinkClicksResponse {
 }
 
 // ---------------------------------------------------------------------------
+// Wave D: scheduled analytics reports.
+// Shapes mirror `rust/crates/wachat-features/src/messaging/scheduled_reports.rs`
+// exactly. Rows live in the `wa_scheduled_reports` collection; `docs_to_json`
+// renders `_id` as a hex string and BSON `DateTime` as an ISO 8601 string.
+// ---------------------------------------------------------------------------
+
+/** Report-digest cadence accepted by `POST .../scheduled-reports`. */
+export type ScheduledReportFrequency = 'daily' | 'weekly' | 'monthly';
+
+/** One `wa_scheduled_reports` row, as serialized by `docs_to_json`. */
+export interface ScheduledReport {
+    /** Hex ObjectId string. */
+    _id: string;
+    /** Owning project (hex ObjectId string). */
+    projectId: string;
+    /** Email address (or other delivery handle) the digest is sent to. */
+    recipient: string;
+    /** `daily` | `weekly` | `monthly` (lower-cased server-side). */
+    frequency: ScheduledReportFrequency | string;
+    /** Whether the schedule is currently active. */
+    active: boolean;
+    /** ISO 8601 timestamp. */
+    createdAt: string;
+}
+
+/** Result of `GET /projects/{projectId}/scheduled-reports` (`ReportsResp`). */
+export interface ScheduledReportsResponse {
+    /** Newest first. */
+    reports: ScheduledReport[];
+}
+
+/** Body for `POST /projects/{projectId}/scheduled-reports` (`CreateBody`). */
+export interface CreateScheduledReportBody {
+    recipient: string;
+    frequency: ScheduledReportFrequency | string;
+}
+
+// ---------------------------------------------------------------------------
 // Public namespace, grouped by domain
 // ---------------------------------------------------------------------------
 
@@ -507,6 +545,19 @@ export const wachatFeaturesApi = {
         del<ClearLinkClicksResponse>(
             `/projects/${enc(projectId)}/analytics/link-clicks`,
         ),
+
+    // ---- Wave D: scheduled analytics reports ------------------------------
+    getScheduledReports: (projectId: string) =>
+        get<ScheduledReportsResponse>(
+            `/projects/${enc(projectId)}/scheduled-reports`,
+        ),
+    createScheduledReport: (projectId: string, body: CreateScheduledReportBody) =>
+        post<MessageEnvelope>(
+            `/projects/${enc(projectId)}/scheduled-reports`,
+            body,
+        ),
+    deleteScheduledReport: (reportId: string) =>
+        del<OkEnvelope>(`/scheduled-reports/${enc(reportId)}`),
 };
 
 export type WachatFeaturesApi = typeof wachatFeaturesApi;

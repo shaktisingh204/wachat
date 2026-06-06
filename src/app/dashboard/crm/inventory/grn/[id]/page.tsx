@@ -40,10 +40,10 @@ export const dynamic = 'force-dynamic';
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
     return (
         <div>
-            <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+            <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                 {label}
             </div>
-            <div className="mt-1 text-[13px] text-zoru-ink">{children}</div>
+            <div className="mt-1 text-[13px] text-[var(--st-text)]">{children}</div>
         </div>
     );
 }
@@ -60,7 +60,7 @@ export default async function GrnDetailPage({
         if (error) {
             return (
                 <div className="flex w-full flex-col gap-4 p-6">
-                    <p className="text-[14px] text-zoru-ink">
+                    <p className="text-[14px] text-[var(--st-text)]">
                         Couldn&apos;t load this GRN — {error}
                     </p>
                     <Button variant="outline" asChild>
@@ -135,7 +135,7 @@ export default async function GrnDetailPage({
                     {/* Header card */}
                     <Card className="p-6">
                         <div className="mb-4 flex items-center justify-between gap-3">
-                            <h3 className="text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                            <h3 className="text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                                 Header
                             </h3>
                             <StatusPill label={status} tone={statusToTone(status)} />
@@ -161,7 +161,7 @@ export default async function GrnDetailPage({
                                 {grn.poId ? (
                                     <Link
                                         href={`/dashboard/crm/purchases/orders/${grn.poId}`}
-                                        className="text-zoru-primary hover:underline"
+                                        className="text-[var(--st-text)] hover:underline"
                                     >
                                         {grn.poId.slice(-8)}
                                     </Link>
@@ -187,7 +187,7 @@ export default async function GrnDetailPage({
                                 {linkedBillId ? (
                                     <Link
                                         href={`/dashboard/crm/purchases/expenses/${linkedBillId}`}
-                                        className="text-zoru-primary hover:underline"
+                                        className="text-[var(--st-text)] hover:underline"
                                     >
                                         {linkedBillId.slice(-8)}
                                     </Link>
@@ -201,15 +201,15 @@ export default async function GrnDetailPage({
                     <GrnTabsClient
                         itemsContent={
                             <Card className="overflow-hidden p-0">
-                                <div className="border-b border-zoru-line p-3">
-                                    <h3 className="text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                                <div className="border-b border-[var(--st-border)] p-3">
+                                    <h3 className="text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                                         Line items
                                     </h3>
                                 </div>
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-[12.5px]">
                                         <thead>
-                                            <tr className="border-b border-zoru-line bg-zoru-surface-2 text-left text-zoru-ink-muted">
+                                            <tr className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)] text-left text-[var(--st-text-secondary)]">
                                                 <th className="px-3 py-2 font-medium">Item</th>
                                                 <th className="px-3 py-2 text-right font-medium">Ordered</th>
                                                 <th className="px-3 py-2 text-right font-medium">Received</th>
@@ -225,7 +225,7 @@ export default async function GrnDetailPage({
                                                 <tr>
                                                     <td
                                                         colSpan={8}
-                                                        className="h-20 px-3 text-center text-zoru-ink-muted"
+                                                        className="h-20 px-3 text-center text-[var(--st-text-secondary)]"
                                                     >
                                                         No line items.
                                                     </td>
@@ -234,7 +234,7 @@ export default async function GrnDetailPage({
                                                 items.map((it, idx) => (
                                                     <tr
                                                         key={idx}
-                                                        className="border-b border-zoru-line/60 text-zoru-ink"
+                                                        className="border-b border-[var(--st-border)]/60 text-[var(--st-text)]"
                                                     >
                                                         <td className="px-3 py-2">
                                                             {it.itemId ? (
@@ -258,13 +258,13 @@ export default async function GrnDetailPage({
                                                         <td className="px-3 py-2 text-right tabular-nums">
                                                             {fmtQty(it.rejectedQty)}
                                                         </td>
-                                                        <td className="px-3 py-2 text-zoru-ink-muted">
+                                                        <td className="px-3 py-2 text-[var(--st-text-secondary)]">
                                                             {it.batch || '—'}
                                                         </td>
-                                                        <td className="px-3 py-2 text-zoru-ink-muted">
+                                                        <td className="px-3 py-2 text-[var(--st-text-secondary)]">
                                                             {fmtDate(it.expiry)}
                                                         </td>
-                                                        <td className="px-3 py-2 text-zoru-ink-muted">
+                                                        <td className="px-3 py-2 text-[var(--st-text-secondary)]">
                                                             {Array.isArray(it.serialNos) &&
                                                             it.serialNos.length > 0
                                                                 ? it.serialNos.join(', ')
@@ -285,7 +285,7 @@ export default async function GrnDetailPage({
                                 transport.lrNumber ||
                                 transport.mode) ? (
                                 <Card className="p-6">
-                                    <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                                    <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                                         Vehicle & transport
                                     </h3>
                                     <div className="grid gap-4 md:grid-cols-3">
@@ -305,14 +305,14 @@ export default async function GrnDetailPage({
                         attachmentsContent={
                             Array.isArray(grn.attachments) && grn.attachments.length > 0 ? (
                                 <Card className="p-6">
-                                    <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                                    <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                                         Photos & attachments ({grn.attachments.length})
                                     </h3>
                                     <ul className="grid grid-cols-2 gap-2 md:grid-cols-4">
                                         {grn.attachments.map((a, idx) => (
                                             <li
                                                 key={idx}
-                                                className="overflow-hidden rounded-md border border-zoru-line bg-zoru-surface-2 p-2 text-[12px] text-zoru-ink-muted"
+                                                className="overflow-hidden rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2 text-[12px] text-[var(--st-text-secondary)]"
                                             >
                                                 <span className="line-clamp-2">
                                                     {a.name || a.url || `Attachment ${idx + 1}`}
@@ -326,10 +326,10 @@ export default async function GrnDetailPage({
                         notesContent={
                             extra.notes ? (
                                 <Card className="p-6">
-                                    <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                                    <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                                         Notes
                                     </h3>
-                                    <div className="whitespace-pre-wrap text-[13px] text-zoru-ink">
+                                    <div className="whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
                                         {extra.notes}
                                     </div>
                                 </Card>
@@ -337,7 +337,7 @@ export default async function GrnDetailPage({
                         }
                     />
 
-                    <div className="text-[11px] text-zoru-ink-muted">
+                    <div className="text-[11px] text-[var(--st-text-secondary)]">
                         Created {fmtDate(grn.createdAt || grn.audit?.createdAt)} · Updated{' '}
                         {fmtDate(grn.updatedAt || grn.audit?.updatedAt)}
                     </div>
@@ -345,7 +345,7 @@ export default async function GrnDetailPage({
 
                 <div className="flex flex-col gap-4">
                     <Card className="p-6">
-                        <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                        <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                             Counterpart links
                         </h3>
                         <div className="flex flex-col gap-3 text-[13px]">
@@ -378,7 +378,7 @@ export default async function GrnDetailPage({
                 </div>
             </div>
 
-            <Suspense fallback={<div className="h-48 w-full animate-pulse rounded-lg bg-zoru-surface-2" />}>
+            <Suspense fallback={<div className="h-48 w-full animate-pulse rounded-lg bg-[var(--st-bg-muted)]" />}>
                 <EntityAuditTimeline entityKind="grn" entityId={id} />
             </Suspense>
         </EntityDetailShell>

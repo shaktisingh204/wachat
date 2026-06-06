@@ -69,15 +69,15 @@ export default function SabwriterVersionHistoryPage() {
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        <h1 className="text-xl font-semibold text-zoru-ink inline-flex items-center gap-2">
+        <h1 className="text-xl font-semibold text-[var(--st-text)] inline-flex items-center gap-2">
           <History className="h-5 w-5" /> Version history
         </h1>
       </div>
 
       {loading ? (
-        <p className="text-sm text-zoru-ink-muted">Loading versions…</p>
+        <p className="text-sm text-[var(--st-text-secondary)]">Loading versions…</p>
       ) : versions.length === 0 ? (
-        <p className="text-sm text-zoru-ink-muted">
+        <p className="text-sm text-[var(--st-text-secondary)]">
           No saved versions yet. Use "Save version" from the editor to create
           one.
         </p>
@@ -90,12 +90,12 @@ export default function SabwriterVersionHistoryPage() {
                   <div>
                     <div className="flex items-center gap-2">
                       <Badge variant="outline">v{v.version}</Badge>
-                      <span className="text-sm text-zoru-ink">
+                      <span className="text-sm text-[var(--st-text)]">
                         {new Date(v.savedAt).toLocaleString()}
                       </span>
                     </div>
                     {v.comment ? (
-                      <p className="text-sm text-zoru-ink-muted mt-1">
+                      <p className="text-sm text-[var(--st-text-secondary)] mt-1">
                         {v.comment}
                       </p>
                     ) : null}

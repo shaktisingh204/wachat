@@ -15,11 +15,11 @@ export default function AutoLeadsSetupLoading() {
 
       <Card className="p-4">
         <Progress value={0} />
-        <div className="mt-3 flex h-6 animate-pulse bg-zoru-surface-2 rounded-full w-1/2" />
+        <div className="mt-3 flex h-6 animate-pulse bg-[var(--st-bg-muted)] rounded-full w-1/2" />
       </Card>
 
       <Card className="p-6">
-        <div className="h-40 animate-pulse bg-zoru-surface-2 rounded-xl" />
+        <div className="h-40 animate-pulse bg-[var(--st-bg-muted)] rounded-xl" />
       </Card>
     </EntityListShell>
   );

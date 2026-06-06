@@ -150,13 +150,13 @@ function Numeric({
 }) {
   return (
     <div>
-      <Label className="text-zoru-ink">{label}</Label>
+      <Label className="text-[var(--st-text)]">{label}</Label>
       <Input
         type="number"
         min="0"
         value={value ?? 0}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+        className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
       />
     </div>
   );
@@ -172,8 +172,8 @@ function Toggle({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <div className="flex items-center justify-between rounded-lg border border-zoru-line bg-zoru-surface-2 px-3 py-2.5">
-      <Label className="text-[13px] text-zoru-ink">{label}</Label>
+    <div className="flex items-center justify-between rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2.5">
+      <Label className="text-[13px] text-[var(--st-text)]">{label}</Label>
       <Switch checked={Boolean(checked)} onCheckedChange={onChange} />
     </div>
   );

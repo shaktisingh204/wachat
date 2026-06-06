@@ -24,11 +24,11 @@ function makeKV(): KVPair {
 
 function methodColor(method: HttpMethod): string {
   const map: Record<HttpMethod, string> = {
-    GET: 'border-zoru-line/40 bg-zoru-ink/10 text-zoru-ink-muted',
-    POST: 'border-zoru-line/40 bg-zoru-ink/10 text-zoru-ink-muted',
-    PUT: 'border-zoru-line/40 bg-zoru-ink/10 text-zoru-ink-muted',
-    PATCH: 'border-zoru-line/40 bg-zoru-ink/10 text-zoru-ink-muted',
-    DELETE: 'border-zoru-line/40 bg-zoru-ink/10 text-zoru-ink-muted',
+    GET: 'border-[var(--st-border)]/40 bg-[var(--st-text)]/10 text-[var(--st-text-secondary)]',
+    POST: 'border-[var(--st-border)]/40 bg-[var(--st-text)]/10 text-[var(--st-text-secondary)]',
+    PUT: 'border-[var(--st-border)]/40 bg-[var(--st-text)]/10 text-[var(--st-text-secondary)]',
+    PATCH: 'border-[var(--st-border)]/40 bg-[var(--st-text)]/10 text-[var(--st-text-secondary)]',
+    DELETE: 'border-[var(--st-border)]/40 bg-[var(--st-text)]/10 text-[var(--st-text-secondary)]',
   };
   return map[method];
 }
@@ -144,7 +144,7 @@ export function WebhookSettings({ block, onBlockChange, variables = [] }: Props)
                   <button
                     type="button"
                     onClick={() => removeHeader(h.id)}
-                    className="shrink-0 flex h-7 w-7 items-center justify-center rounded text-[var(--gray-8)] hover:text-zoru-ink hover:bg-[var(--gray-3)] transition-colors"
+                    className="shrink-0 flex h-7 w-7 items-center justify-center rounded text-[var(--gray-8)] hover:text-[var(--st-text)] hover:bg-[var(--gray-3)] transition-colors"
                     aria-label="Remove header"
                   >
                     <LuTrash2 className="h-3.5 w-3.5" strokeWidth={1.8} />
@@ -186,7 +186,7 @@ export function WebhookSettings({ block, onBlockChange, variables = [] }: Props)
               />
               <p className="text-[11px] text-[var(--gray-8)] mt-1">
                 Use{' '}
-                <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-zoru-ink">
+                <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-[var(--st-text)]">
                   {'{{variable}}'}
                 </code>{' '}
                 to inject dynamic values.

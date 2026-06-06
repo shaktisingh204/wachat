@@ -226,8 +226,8 @@ export default function FacebookInsightsPage(): React.JSX.Element {
 
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl text-zoru-ink">Insights</h1>
-          <p className="mt-1 text-sm text-zoru-ink-muted">
+          <h1 className="text-2xl text-[var(--st-text)]">Insights</h1>
+          <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
             Reach, engagement, and audience growth from the Facebook Graph
             Insights API.
           </p>
@@ -371,29 +371,29 @@ export default function FacebookInsightsPage(): React.JSX.Element {
         </ZoruCardHeader>
         <ZoruCardContent>
           {series.length === 0 ? (
-            <p className="text-xs text-zoru-ink-muted">No additional metrics.</p>
+            <p className="text-xs text-[var(--st-text-secondary)]">No additional metrics.</p>
           ) : (
             <ul className="grid grid-cols-1 gap-2 md:grid-cols-2">
               {series.map((m) => (
                 <li
                   key={m.name}
-                  className="flex items-center justify-between rounded-md border border-zoru-line px-3 py-2 text-sm"
+                  className="flex items-center justify-between rounded-md border border-[var(--st-border)] px-3 py-2 text-sm"
                 >
-                  <span className="text-zoru-ink">{m.title ?? m.name}</span>
+                  <span className="text-[var(--st-text)]">{m.title ?? m.name}</span>
                   <div className="flex items-center gap-2">
                     {m.period ? (
                       <Badge variant="outline">{m.period}</Badge>
                     ) : null}
-                    <span className="font-medium text-zoru-ink">
+                    <span className="font-medium text-[var(--st-text)]">
                       {metricTotal(m).toLocaleString()}
                     </span>
                   </div>
                 </li>
               ))}
               {newFans ? (
-                <li className="flex items-center justify-between rounded-md border border-zoru-line px-3 py-2 text-sm">
-                  <span className="text-zoru-ink">New fans</span>
-                  <span className="font-medium text-zoru-ink">
+                <li className="flex items-center justify-between rounded-md border border-[var(--st-border)] px-3 py-2 text-sm">
+                  <span className="text-[var(--st-text)]">New fans</span>
+                  <span className="font-medium text-[var(--st-text)]">
                     {metricTotal(newFans).toLocaleString()}
                   </span>
                 </li>

@@ -130,8 +130,8 @@ export function CoaFilters({ value, onChange, groups, subNatures, currencies }: 
                     </>
                 ) : (
                     <>
-                        <div className="h-9 w-[100px] animate-pulse rounded-md bg-zoru-surface-2" />
-                        <div className="h-9 w-[130px] animate-pulse rounded-md bg-zoru-surface-2" />
+                        <div className="h-9 w-[100px] animate-pulse rounded-md bg-[var(--st-bg-muted)]" />
+                        <div className="h-9 w-[130px] animate-pulse rounded-md bg-[var(--st-bg-muted)]" />
                     </>
                 )}
             </div>

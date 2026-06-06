@@ -31,8 +31,8 @@ export function DealCompetitorsEditor({
   return (
     <>
       <div>
-        <h2 className="text-[15px] font-semibold text-zoru-ink">Competitors</h2>
-        <p className="text-[12.5px] text-zoru-ink-muted">
+        <h2 className="text-[15px] font-semibold text-[var(--st-text)]">Competitors</h2>
+        <p className="text-[12.5px] text-[var(--st-text-secondary)]">
           Free-text chips for now — wire to a vendor picker in a follow-up.
         </p>
       </div>
@@ -40,13 +40,13 @@ export function DealCompetitorsEditor({
         {competitors.map((c) => (
           <span
             key={c}
-            className="inline-flex items-center gap-1 rounded-full border border-zoru-line bg-zoru-surface-2 px-2 py-0.5 text-[12px]"
+            className="inline-flex items-center gap-1 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2 py-0.5 text-[12px]"
           >
             {c}
             <button
               type="button"
               onClick={() => onRemove(c)}
-              className="text-zoru-ink-muted hover:text-zoru-ink"
+              className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
               aria-label={`Remove ${c}`}
             >
               ×

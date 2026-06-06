@@ -154,21 +154,21 @@ export function ReportsClient() {
               </ZoruCardHeader>
               <ZoruCardContent>
                 <div className="grid gap-3 sm:grid-cols-3">
-                  <div className="rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-3">
-                    <p className="text-xs uppercase tracking-wide text-zoru-ink-muted">Revenue</p>
-                    <p className="text-2xl font-semibold text-zoru-ink">
+                  <div className="rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+                    <p className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">Revenue</p>
+                    <p className="text-2xl font-semibold text-[var(--st-text)]">
                       {formatRevenue(revenue.totals.revenue, revenue.totals.currency)}
                     </p>
                   </div>
-                  <div className="rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-3">
-                    <p className="text-xs uppercase tracking-wide text-zoru-ink-muted">Conversions</p>
-                    <p className="text-2xl font-semibold text-zoru-ink">
+                  <div className="rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+                    <p className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">Conversions</p>
+                    <p className="text-2xl font-semibold text-[var(--st-text)]">
                       {revenue.totals.conversions.toLocaleString()}
                     </p>
                   </div>
-                  <div className="rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-3">
-                    <p className="text-xs uppercase tracking-wide text-zoru-ink-muted">Sent</p>
-                    <p className="text-2xl font-semibold text-zoru-ink">
+                  <div className="rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+                    <p className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">Sent</p>
+                    <p className="text-2xl font-semibold text-[var(--st-text)]">
                       {revenue.totals.sent.toLocaleString()}
                     </p>
                   </div>
@@ -178,7 +178,7 @@ export function ReportsClient() {
           ) : null}
 
           <section className="space-y-3">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-zoru-ink-muted">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
               Top campaigns {comparing ? '· loading…' : null}
             </h2>
             <CompareTable rows={compareRows} />
@@ -186,7 +186,7 @@ export function ReportsClient() {
         </>
       ) : (
         <Card>
-          <ZoruCardContent className="p-6 text-sm text-zoru-ink-muted">
+          <ZoruCardContent className="p-6 text-sm text-[var(--st-text-secondary)]">
             No report data available yet.
           </ZoruCardContent>
         </Card>

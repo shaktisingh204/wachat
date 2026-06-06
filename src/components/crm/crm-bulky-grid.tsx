@@ -104,10 +104,10 @@ export function CrmBulkyGrid<T extends { _id: string | any }>({
   const activeColumns = columns.filter((col) => visibleColumns[col.key] !== false);
 
   return (
-    <Card className="p-0 border border-zoru-line overflow-hidden bg-zoru-surface">
+    <Card className="p-0 border border-[var(--st-border)] overflow-hidden bg-[var(--st-bg-secondary)]">
       {/* Grid Settings Bar */}
-      <div className="flex items-center justify-between border-b border-zoru-line px-4 py-2.5 bg-zoru-surface-2/50">
-        <span className="text-[12px] font-medium text-zoru-ink-muted">
+      <div className="flex items-center justify-between border-b border-[var(--st-border)] px-4 py-2.5 bg-[var(--st-bg-muted)]/50">
+        <span className="text-[12px] font-medium text-[var(--st-text-secondary)]">
           Showing {data.length} records
         </span>
         <div className="flex items-center gap-2">
@@ -121,7 +121,7 @@ export function CrmBulkyGrid<T extends { _id: string | any }>({
               </Button>
             </ZoruDropdownMenuTrigger>
             <ZoruDropdownMenuContent align="end" className="w-[200px]">
-              <ZoruDropdownMenuLabel className="text-[11.5px] uppercase tracking-wider text-zoru-ink-muted px-2 py-1">
+              <ZoruDropdownMenuLabel className="text-[11.5px] uppercase tracking-wider text-[var(--st-text-secondary)] px-2 py-1">
                 Toggle Columns
               </ZoruDropdownMenuLabel>
               <ZoruDropdownMenuSeparator />
@@ -143,12 +143,12 @@ export function CrmBulkyGrid<T extends { _id: string | any }>({
       {/* Grid Table */}
       <div className="w-full overflow-x-auto">
         <Table className="min-w-full">
-          <ZoruTableHeader className="border-b border-zoru-line bg-zoru-surface-2/30">
+          <ZoruTableHeader className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]/30">
             <ZoruTableRow className="hover:bg-transparent">
               <ZoruTableHead className="w-10 px-4 text-center">
                 <input
                   type="checkbox"
-                  className="rounded border-zoru-line text-zoru-ink focus:ring-primary h-3.5 w-3.5 cursor-pointer"
+                  className="rounded border-[var(--st-border)] text-[var(--st-text)] focus:ring-primary h-3.5 w-3.5 cursor-pointer"
                   checked={
                     data.length > 0 &&
                     data.every((r) => selectedIds.has(r._id.toString()))
@@ -159,11 +159,11 @@ export function CrmBulkyGrid<T extends { _id: string | any }>({
               {activeColumns.map((col) => (
                 <ZoruTableHead
                   key={col.key}
-                  className="text-zoru-ink-muted font-semibold text-left select-none text-[12px] py-3 px-4"
+                  className="text-[var(--st-text-secondary)] font-semibold text-left select-none text-[12px] py-3 px-4"
                 >
                   <div
                     className={`flex items-center gap-1.5 ${
-                      col.sortable && onSort ? 'cursor-pointer hover:text-zoru-ink' : ''
+                      col.sortable && onSort ? 'cursor-pointer hover:text-[var(--st-text)]' : ''
                     }`}
                     onClick={() => col.sortable && onSort && onSort(col.key)}
                   >
@@ -181,9 +181,9 @@ export function CrmBulkyGrid<T extends { _id: string | any }>({
           <ZoruTableBody>
             {isLoading ? (
               Array.from({ length: 5 }).map((_, idx) => (
-                <ZoruTableRow key={idx} className="animate-pulse border-b border-zoru-line">
+                <ZoruTableRow key={idx} className="animate-pulse border-b border-[var(--st-border)]">
                   <ZoruTableCell colSpan={activeColumns.length + 2} className="py-4">
-                    <div className="h-6 w-full rounded bg-zoru-surface-2" />
+                    <div className="h-6 w-full rounded bg-[var(--st-bg-muted)]" />
                   </ZoruTableCell>
                 </ZoruTableRow>
               ))
@@ -195,15 +195,15 @@ export function CrmBulkyGrid<T extends { _id: string | any }>({
                 return (
                   <ZoruTableRow
                     key={id}
-                    className={`border-b border-zoru-line transition-colors ${
-                      isEditing ? 'bg-zoru-surface-2/40' : 'hover:bg-zoru-surface-2/10'
+                    className={`border-b border-[var(--st-border)] transition-colors ${
+                      isEditing ? 'bg-[var(--st-bg-muted)]/40' : 'hover:bg-[var(--st-bg-muted)]/10'
                     }`}
                   >
                     {/* Selection Checkbox */}
                     <ZoruTableCell className="px-4 text-center">
                       <input
                         type="checkbox"
-                        className="rounded border-zoru-line text-zoru-ink focus:ring-primary h-3.5 w-3.5 cursor-pointer"
+                        className="rounded border-[var(--st-border)] text-[var(--st-text)] focus:ring-primary h-3.5 w-3.5 cursor-pointer"
                         checked={selectedIds.has(id)}
                         onChange={() => onSelectOne(id)}
                         disabled={isEditing}
@@ -245,7 +245,7 @@ export function CrmBulkyGrid<T extends { _id: string | any }>({
                               (val) => onUpdateEditBuffer && onUpdateEditBuffer(col.key as keyof T, val)
                             )
                           ) : (
-                            <span className="text-zoru-ink">{String(cellValue ?? '')}</span>
+                            <span className="text-[var(--st-text)]">{String(cellValue ?? '')}</span>
                           )}
                         </ZoruTableCell>
                       );
@@ -258,7 +258,7 @@ export function CrmBulkyGrid<T extends { _id: string | any }>({
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="h-7 w-7 p-0 text-zoru-success-ink hover:bg-zoru-success/15"
+                            className="h-7 w-7 p-0 text-[var(--st-status-ok)] hover:bg-[var(--st-status-ok)]/15"
                             onClick={() => handleSave(id)}
                             aria-label="Save changes"
                           >
@@ -267,7 +267,7 @@ export function CrmBulkyGrid<T extends { _id: string | any }>({
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="h-7 w-7 p-0 text-zoru-danger-ink hover:bg-zoru-danger/15"
+                            className="h-7 w-7 p-0 text-[var(--st-danger)] hover:bg-[var(--st-danger)]/15"
                             onClick={onCancelInlineEdit}
                             aria-label="Cancel editing"
                           >
@@ -279,7 +279,7 @@ export function CrmBulkyGrid<T extends { _id: string | any }>({
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 focus:opacity-100 hover:bg-zoru-surface-2 text-zoru-ink-muted"
+                            className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 focus:opacity-100 hover:bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]"
                             onClick={() => onStartInlineEdit(row)}
                             aria-label="Edit record inline"
                           >
@@ -295,7 +295,7 @@ export function CrmBulkyGrid<T extends { _id: string | any }>({
               <ZoruTableRow>
                 <ZoruTableCell
                   colSpan={activeColumns.length + 2}
-                  className="py-12 text-center text-[13px] text-zoru-ink-muted"
+                  className="py-12 text-center text-[13px] text-[var(--st-text-secondary)]"
                 >
                   No records found. Try modifying your search or filter settings.
                 </ZoruTableCell>

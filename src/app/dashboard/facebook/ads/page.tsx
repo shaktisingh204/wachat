@@ -146,8 +146,8 @@ export default function FacebookAdsPage(): React.JSX.Element {
 
       <header className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl text-zoru-ink">Facebook Ads</h1>
-          <p className="mt-1 text-sm text-zoru-ink-muted">
+          <h1 className="text-2xl text-[var(--st-text)]">Facebook Ads</h1>
+          <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
             Quick-access tiles into the full Ads Manager workspace.
           </p>
         </div>
@@ -163,13 +163,13 @@ export default function FacebookAdsPage(): React.JSX.Element {
         {TILES.map((t) => (
           <Card key={t.key} className="flex flex-col gap-3 p-5">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-zoru-surface-2 text-zoru-ink-muted [&_svg]:size-4">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] [&_svg]:size-4">
                 {t.icon}
               </div>
-              <p className="text-sm text-zoru-ink">{t.label}</p>
+              <p className="text-sm text-[var(--st-text)]">{t.label}</p>
             </div>
-            <p className="text-xs text-zoru-ink-muted">{t.description}</p>
-            <footer className="flex items-center justify-between border-t border-zoru-line pt-3">
+            <p className="text-xs text-[var(--st-text-secondary)]">{t.description}</p>
+            <footer className="flex items-center justify-between border-t border-[var(--st-border)] pt-3">
               <Badge variant="ghost">live</Badge>
               <Button asChild variant="ghost" size="sm">
                 <Link href={t.href} className="inline-flex items-center">

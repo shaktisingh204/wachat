@@ -60,7 +60,7 @@ const HIGHLIGHTS = [
 // 1. Improved Skeleton
 function LoginFormSkeleton() {
     return (
-        <div className="w-full max-w-md space-y-6 rounded-2xl border border-zoru-line bg-zoru-bg p-8 shadow-2xl animate-pulse">
+        <div className="w-full max-w-md space-y-6 rounded-2xl border border-[var(--st-border)] bg-[var(--st-bg)] p-8 shadow-2xl animate-pulse">
             <div className="space-y-2">
                 <Skeleton className="h-8 w-3/5 rounded-md" />
                 <Skeleton className="h-4 w-4/5 rounded-md" />
@@ -121,8 +121,8 @@ function LiveStatus() {
     return (
         <div className="flex items-center gap-2">
             <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-zoru-surface-2 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-zoru-ink"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--st-bg-muted)] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--st-text)]"></span>
             </span>
             <span className={`transition-opacity duration-300 ${fade ? 'opacity-0' : 'opacity-100'}`}>
                 {statusText}
@@ -149,7 +149,7 @@ function BrandSidebar() {
     }, [searchQuery, sortAsc]);
 
     return (
-        <aside className="relative hidden overflow-hidden bg-zoru-ink text-zoru-on-primary lg:flex lg:flex-col lg:justify-between lg:p-12">
+        <aside className="relative hidden overflow-hidden bg-[var(--st-text)] text-[var(--st-text-inverted)] lg:flex lg:flex-col lg:justify-between lg:p-12">
             <div
                 aria-hidden
                 className="pointer-events-none absolute inset-0 opacity-20"
@@ -171,7 +171,7 @@ function BrandSidebar() {
                         <br />
                         messaging, CRM & growth.
                     </h1>
-                    <p className="max-w-md text-base text-zoru-on-primary/80">
+                    <p className="max-w-md text-base text-[var(--st-text-inverted)]/80">
                         Sign in to continue managing your WhatsApp
                         campaigns, customers, and automations.
                     </p>
@@ -179,11 +179,11 @@ function BrandSidebar() {
                 
                 {/* Robust filtering and sorting */}
                 <div className="flex max-w-md items-center gap-2 rounded-lg bg-black/20 p-2 backdrop-blur-md">
-                    <Search className="ml-2 h-4 w-4 text-zoru-on-primary/70" />
+                    <Search className="ml-2 h-4 w-4 text-[var(--st-text-inverted)]/70" />
                     <input
                         type="text"
                         placeholder="Filter tools..."
-                        className="flex-1 bg-transparent px-2 py-1 text-sm text-white placeholder-zoru-on-primary/60 outline-none"
+                        className="flex-1 bg-transparent px-2 py-1 text-sm text-white placeholder-[var(--st-text-inverted)]/60 outline-none"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
@@ -209,21 +209,21 @@ function BrandSidebar() {
                                     <h3 className="text-sm font-semibold">
                                         {title}
                                     </h3>
-                                    <p className="mt-1 text-xs text-zoru-on-primary/80">
+                                    <p className="mt-1 text-xs text-[var(--st-text-inverted)]/80">
                                         {description}
                                     </p>
                                 </li>
                             )
                         )
                     ) : (
-                        <li className="col-span-full py-4 text-sm text-zoru-on-primary/70">
+                        <li className="col-span-full py-4 text-sm text-[var(--st-text-inverted)]/70">
                             No tools matched your search.
                         </li>
                     )}
                 </ul>
             </div>
 
-            <div className="relative text-xs text-zoru-on-primary/70 flex justify-between items-center">
+            <div className="relative text-xs text-[var(--st-text-inverted)]/70 flex justify-between items-center">
                 <span>
                     © <CurrentYear /> SabNode — all rights reserved.
                 </span>
@@ -247,11 +247,11 @@ function LoginMain() {
                     <LoginForm />
                 </Suspense>
 
-                <p className="text-center text-xs text-zoru-ink-muted">
+                <p className="text-center text-xs text-[var(--st-text-secondary)]">
                     By signing in you agree to our{' '}
                     <Link
                         href="/privacy-policy"
-                        className="underline hover:text-zoru-ink"
+                        className="underline hover:text-[var(--st-text)]"
                     >
                         Privacy Policy
                     </Link>{' '}
@@ -264,7 +264,7 @@ function LoginMain() {
 
 export default function LoginPage() {
     return (
-        <div className="min-h-screen w-full bg-zoru-bg">
+        <div className="min-h-screen w-full bg-[var(--st-bg)]">
             <div className="grid min-h-screen lg:grid-cols-2">
                 <BrandSidebar />
                 <LoginMain />

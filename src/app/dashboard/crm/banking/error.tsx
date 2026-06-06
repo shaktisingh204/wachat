@@ -19,7 +19,7 @@ export default function BankingErrorBoundary({
     return (
         <div className="flex h-[60vh] w-full items-center justify-center p-6">
             <EmptyState
-                icon={<AlertTriangle className="text-zoru-danger-ink" />}
+                icon={<AlertTriangle className="text-[var(--st-danger)]" />}
                 title="Failed to load banking data"
                 description={error.message || 'An unexpected error occurred while loading banking data. Please try again.'}
                 action={

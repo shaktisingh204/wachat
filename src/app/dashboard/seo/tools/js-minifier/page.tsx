@@ -54,8 +54,8 @@ export default function JsMinifierPage() {
         </label>
       </div>
       <Textarea value={text} onChange={(e) => setText(e.target.value)} className="min-h-[200px] font-mono text-xs" placeholder="Paste JS…" />
-      <div className="text-sm text-zoru-ink-muted my-2">
-        {error ? <span className="text-zoru-ink">Error: {error}</span> : `${text.length} → ${minified.length} bytes`}
+      <div className="text-sm text-[var(--st-text-secondary)] my-2">
+        {error ? <span className="text-[var(--st-text)]">Error: {error}</span> : `${text.length} → ${minified.length} bytes`}
       </div>
       <Textarea readOnly value={minified} className="min-h-[200px] font-mono text-xs" placeholder="Minified code will appear here..." />
     </ToolShell>

@@ -26,11 +26,11 @@ export function EmployeeSelectField({
 
   return (
     <div className="md:col-span-2">
-      <Label className="text-[12px] text-zoru-ink-muted">
-        Employee <span className="text-zoru-danger-ink">*</span>
+      <Label className="text-[12px] text-[var(--st-text-secondary)]">
+        Employee <span className="text-[var(--st-danger)]">*</span>
       </Label>
       <Select value={value} onValueChange={onChange} disabled={disabled}>
-        <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+        <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
           <ZoruSelectValue placeholder="Select employee" />
         </ZoruSelectTrigger>
         <ZoruSelectContent>
@@ -52,8 +52,8 @@ export function WeekStartField({
 }) {
   return (
     <div>
-      <Label className="text-[12px] text-zoru-ink-muted">
-        Week Start <span className="text-zoru-danger-ink">*</span>
+      <Label className="text-[12px] text-[var(--st-text-secondary)]">
+        Week Start <span className="text-[var(--st-danger)]">*</span>
       </Label>
       <Input
         type="date"
@@ -61,7 +61,7 @@ export function WeekStartField({
         onChange={(e) => onChange(e.target.value)}
         required
         disabled={disabled}
-        className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+        className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
       />
     </div>
   );
@@ -70,14 +70,14 @@ export function WeekStartField({
 export function WeekEndField({ value }: { value: string }) {
   return (
     <div>
-      <Label className="text-[12px] text-zoru-ink-muted">
+      <Label className="text-[12px] text-[var(--st-text-secondary)]">
         Week End (auto)
       </Label>
       <Input
         type="date"
         value={value}
         readOnly
-        className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px] opacity-60"
+        className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px] opacity-60"
       />
     </div>
   );

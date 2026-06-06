@@ -114,16 +114,16 @@ export function LogUploader({ projectId }: { projectId: string }) {
         <div className="flex h-[300px] flex-col items-center justify-center p-4">
             {status === 'idle' && !file && (
                 <div 
-                    className={`flex h-full w-full cursor-pointer flex-col items-center justify-center rounded-[var(--zoru-radius)] border-2 border-dashed transition-colors ${isDragging ? 'border-zoru-primary bg-zoru-surface-2/80' : 'border-zoru-line hover:bg-zoru-surface-2/50'}`}
+                    className={`flex h-full w-full cursor-pointer flex-col items-center justify-center rounded-[var(--zoru-radius)] border-2 border-dashed transition-colors ${isDragging ? 'border-[var(--st-text)] bg-[var(--st-bg-muted)]/80' : 'border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]/50'}`}
                     onDragOver={onDragOver}
                     onDragEnter={onDragEnter}
                     onDragLeave={onDragLeave}
                     onDrop={onDrop}
                     onClick={() => fileInputRef.current?.click()}
                 >
-                    <Upload className={`mb-4 h-10 w-10 ${isDragging ? 'text-zoru-primary' : 'text-zoru-ink-muted'}`} />
-                    <h3 className="text-zoru-ink mb-1">Drag .log files here</h3>
-                    <p className="text-xs text-zoru-ink-muted">Or click to select (Supports Apache/Nginx formats)</p>
+                    <Upload className={`mb-4 h-10 w-10 ${isDragging ? 'text-[var(--st-text)]' : 'text-[var(--st-text-secondary)]'}`} />
+                    <h3 className="text-[var(--st-text)] mb-1">Drag .log files here</h3>
+                    <p className="text-xs text-[var(--st-text-secondary)]">Or click to select (Supports Apache/Nginx formats)</p>
                     <input 
                         type="file" 
                         ref={fileInputRef} 
@@ -139,25 +139,25 @@ export function LogUploader({ projectId }: { projectId: string }) {
             )}
 
             {(file && (status === 'idle' || status === 'uploading' || status === 'parsing')) && (
-                <div className="flex h-full w-full flex-col items-center justify-center rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2/30 p-6">
-                    <FileText className="mb-4 h-12 w-12 text-zoru-primary" />
-                    <div className="mb-2 text-center text-zoru-ink font-medium">{file.name}</div>
-                    <div className="mb-6 text-sm text-zoru-ink-muted">{(file.size / 1024 / 1024).toFixed(2)} MB</div>
+                <div className="flex h-full w-full flex-col items-center justify-center rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)]/30 p-6">
+                    <FileText className="mb-4 h-12 w-12 text-[var(--st-text)]" />
+                    <div className="mb-2 text-center text-[var(--st-text)] font-medium">{file.name}</div>
+                    <div className="mb-6 text-sm text-[var(--st-text-secondary)]">{(file.size / 1024 / 1024).toFixed(2)} MB</div>
                     
                     {status === 'uploading' ? (
                         <div className="flex flex-col items-center gap-2">
-                            <Loader2 className="h-6 w-6 animate-spin text-zoru-primary" />
-                            <span className="text-sm text-zoru-ink-muted">Streaming to S3...</span>
+                            <Loader2 className="h-6 w-6 animate-spin text-[var(--st-text)]" />
+                            <span className="text-sm text-[var(--st-text-secondary)]">Streaming to S3...</span>
                         </div>
                     ) : status === 'parsing' ? (
                         <div className="flex w-full max-w-xs flex-col items-center gap-3">
                             <div className="flex items-center gap-2">
-                                <Loader2 className="h-5 w-5 animate-spin text-zoru-primary" />
-                                <span className="text-sm text-zoru-ink-muted">Parsing via Web Worker... {progress}%</span>
+                                <Loader2 className="h-5 w-5 animate-spin text-[var(--st-text)]" />
+                                <span className="text-sm text-[var(--st-text-secondary)]">Parsing via Web Worker... {progress}%</span>
                             </div>
-                            <div className="h-2 w-full overflow-hidden rounded-full bg-zoru-surface-2">
+                            <div className="h-2 w-full overflow-hidden rounded-full bg-[var(--st-bg-muted)]">
                                 <div 
-                                    className="h-full bg-zoru-primary transition-all duration-300" 
+                                    className="h-full bg-[var(--st-text)] transition-all duration-300" 
                                     style={{ width: `${progress}%` }}
                                 />
                             </div>
@@ -173,18 +173,18 @@ export function LogUploader({ projectId }: { projectId: string }) {
 
             {status === 'success' && (
                 <div className="flex h-full w-full flex-col items-center justify-center rounded-[var(--zoru-radius)] border border-zoru-success-line bg-zoru-success-surface/20 p-6 text-center">
-                    <CheckCircle className="mb-4 h-12 w-12 text-zoru-success-ink" />
-                    <h3 className="mb-2 text-lg text-zoru-success-ink font-medium">Upload Complete!</h3>
-                    <p className="mb-6 text-sm text-zoru-success-ink/80">Log file has been streamed and parsed successfully.</p>
+                    <CheckCircle className="mb-4 h-12 w-12 text-[var(--st-status-ok)]" />
+                    <h3 className="mb-2 text-lg text-[var(--st-status-ok)] font-medium">Upload Complete!</h3>
+                    <p className="mb-6 text-sm text-[var(--st-status-ok)]/80">Log file has been streamed and parsed successfully.</p>
                     <Button variant="outline" onClick={reset}>Upload Another</Button>
                 </div>
             )}
 
             {status === 'error' && (
                 <div className="flex h-full w-full flex-col items-center justify-center rounded-[var(--zoru-radius)] border border-zoru-danger-line bg-zoru-danger-surface/20 p-6 text-center">
-                    <AlertCircle className="mb-4 h-12 w-12 text-zoru-danger-ink" />
-                    <h3 className="mb-2 text-lg text-zoru-danger-ink font-medium">Upload Failed</h3>
-                    <p className="mb-6 text-sm text-zoru-danger-ink/80">{errorMessage}</p>
+                    <AlertCircle className="mb-4 h-12 w-12 text-[var(--st-danger)]" />
+                    <h3 className="mb-2 text-lg text-[var(--st-danger)] font-medium">Upload Failed</h3>
+                    <p className="mb-6 text-sm text-[var(--st-danger)]/80">{errorMessage}</p>
                     <div className="flex gap-4">
                         <Button variant="outline" onClick={reset}>Try Again</Button>
                     </div>

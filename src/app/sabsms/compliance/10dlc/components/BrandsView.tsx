@@ -66,7 +66,7 @@ export function BrandsView() {
           value="95 / 100"
           delta={5}
           period="Excellent standing based on recent vetting"
-          className="bg-gradient-to-br from-zoru-bg to-zoru-surface-2/30 dark:to-zoru-ink/10 border-zoru-line/50"
+          className="bg-gradient-to-br from-[var(--st-bg)] to-[var(--st-bg-muted)]/30 dark:to-[var(--st-text)]/10 border-[var(--st-border)]/50"
         />
         <ZoruStatCard
           label="Registered Brands"
@@ -82,14 +82,14 @@ export function BrandsView() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
-          <Card className="border-zoru-line overflow-hidden shadow-sm">
-            <div className="bg-zoru-surface border-b px-4 sm:px-6 py-4 flex items-center gap-3">
-              <div className="h-10 w-10 shrink-0 rounded-full bg-zoru-primary/10 flex items-center justify-center text-zoru-primary">
+          <Card className="border-[var(--st-border)] overflow-hidden shadow-sm">
+            <div className="bg-[var(--st-bg-secondary)] border-b px-4 sm:px-6 py-4 flex items-center gap-3">
+              <div className="h-10 w-10 shrink-0 rounded-full bg-[var(--st-text)]/10 flex items-center justify-center text-[var(--st-text)]">
                 <Building2 className="h-5 w-5" />
               </div>
               <div>
                 <h2 className="text-lg font-semibold">Premium Brand Registration</h2>
-                <p className="text-sm text-zoru-ink-muted">Complete the multi-step verification process to register a new entity.</p>
+                <p className="text-sm text-[var(--st-text-secondary)]">Complete the multi-step verification process to register a new entity.</p>
               </div>
             </div>
             <form onSubmit={handleSubmit}>
@@ -182,21 +182,21 @@ export function BrandsView() {
                         <div className="space-y-2">
                           <Label>Support Email</Label>
                           <div className="relative">
-                            <Mail className="absolute left-3 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+                            <Mail className="absolute left-3 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
                             <Input name="email" type="email" placeholder="support@acme.com" className="pl-9" required />
                           </div>
                         </div>
                         <div className="space-y-2">
                           <Label>Support Phone</Label>
                           <div className="relative">
-                            <Phone className="absolute left-3 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+                            <Phone className="absolute left-3 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
                             <Input name="phone" type="tel" placeholder="+1 (800) 555-0199" className="pl-9" required />
                           </div>
                         </div>
                         <div className="space-y-2 sm:col-span-2">
                           <Label>Website URL</Label>
                           <div className="relative">
-                            <Globe className="absolute left-3 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+                            <Globe className="absolute left-3 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
                             <Input name="website" type="url" placeholder="https://www.acme.com" className="pl-9" required />
                           </div>
                         </div>
@@ -205,7 +205,7 @@ export function BrandsView() {
                   </ZoruAccordion03Item>
                 </ZoruAccordion03>
               </ZoruCardContent>
-              <div className="p-4 sm:p-6 bg-zoru-surface border-t flex flex-col sm:flex-row justify-end gap-3">
+              <div className="p-4 sm:p-6 bg-[var(--st-bg-secondary)] border-t flex flex-col sm:flex-row justify-end gap-3">
                 <Button type="button" variant="outline" className="w-full sm:w-auto">Save Draft</Button>
                 <Button type="submit" className="w-full sm:w-auto" disabled={isSubmitting}>
                   {isSubmitting ? "Submitting..." : "Submit for Verification"}
@@ -219,28 +219,28 @@ export function BrandsView() {
           <Card>
             <ZoruCardHeader>
               <ZoruCardTitle className="text-base flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-zoru-primary" /> TCR Verification Status
+                <ShieldCheck className="h-4 w-4 text-[var(--st-text)]" /> TCR Verification Status
               </ZoruCardTitle>
             </ZoruCardHeader>
             <ZoruCardContent className="space-y-4">
               <div className="flex flex-col gap-3">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-zoru-ink-muted">EIN Verification</span>
-                  <Badge variant="secondary" className="bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted">Verified</Badge>
+                  <span className="text-[var(--st-text-secondary)]">EIN Verification</span>
+                  <Badge variant="secondary" className="bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]">Verified</Badge>
                 </div>
                 <Separator />
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-zoru-ink-muted">Address Matching</span>
-                  <Badge variant="secondary" className="bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted">Pending</Badge>
+                  <span className="text-[var(--st-text-secondary)]">Address Matching</span>
+                  <Badge variant="secondary" className="bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]">Pending</Badge>
                 </div>
                 <Separator />
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-zoru-ink-muted">Vetting Class</span>
+                  <span className="text-[var(--st-text-secondary)]">Vetting Class</span>
                   <span className="font-medium">Standard</span>
                 </div>
               </div>
               <Button variant="outline" className="w-full mt-4">
-                <Zap className="mr-2 h-4 w-4 text-zoru-ink" /> Apply for Enhanced Vetting
+                <Zap className="mr-2 h-4 w-4 text-[var(--st-text)]" /> Apply for Enhanced Vetting
               </Button>
             </ZoruCardContent>
           </Card>
@@ -282,7 +282,7 @@ export function BrandsView() {
               { id: "campaign", header: "Assigned Campaign", render: (r) => <span className="font-medium whitespace-nowrap">{r.campaign}</span> },
               { id: "throughput", header: "Throughput (TPM)", render: (r) => <span className="whitespace-nowrap">{r.throughput}</span> },
               { id: "status", header: "Status", render: (r) => (
-                <Badge variant="secondary" className={r.status === 'Active' ? 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted whitespace-nowrap' : 'whitespace-nowrap'}>
+                <Badge variant="secondary" className={r.status === 'Active' ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)] whitespace-nowrap' : 'whitespace-nowrap'}>
                   {r.status}
                 </Badge>
               )},

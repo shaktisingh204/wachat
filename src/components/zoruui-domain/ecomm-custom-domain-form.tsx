@@ -76,7 +76,7 @@ function DeleteButton({ domainId, onActionComplete }: { domainId: string, onActi
         });
     }
 
-    return <Button variant="ghost" size="icon" onClick={onDelete} disabled={isPending}>{isPending ? <LoaderCircle className="h-4 w-4 animate-spin"/> : <Trash2 className="h-4 w-4 text-zoru-ink"/>}</Button>;
+    return <Button variant="ghost" size="icon" onClick={onDelete} disabled={isPending}>{isPending ? <LoaderCircle className="h-4 w-4 animate-spin"/> : <Trash2 className="h-4 w-4 text-[var(--st-text)]"/>}</Button>;
 }
 
 export function EcommCustomDomainForm() {
@@ -143,11 +143,11 @@ export function EcommCustomDomainForm() {
                                     <DeleteButton domainId={domain._id.toString()} onActionComplete={fetchData} />
                                 </div>
                                 {domain.verified ? (
-                                    <div className="p-3 bg-zoru-surface-2 dark:bg-zoru-ink rounded-md text-sm space-y-3 border border-zoru-line dark:border-zoru-line">
+                                    <div className="p-3 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] rounded-md text-sm space-y-3 border border-[var(--st-border)] dark:border-[var(--st-border)]">
                                         <div className="grid grid-cols-[auto,1fr] gap-x-4 gap-y-1 font-mono text-xs">
-                                            <span className="text-zoru-ink-muted">Type:</span> <span>CNAME</span>
-                                            <span className="text-zoru-ink-muted">Host/Name:</span> <span>{domain.hostname}</span>
-                                            <span className="text-zoru-ink-muted">Value/Target:</span>
+                                            <span className="text-[var(--st-text-secondary)]">Type:</span> <span>CNAME</span>
+                                            <span className="text-[var(--st-text-secondary)]">Host/Name:</span> <span>{domain.hostname}</span>
+                                            <span className="text-[var(--st-text-secondary)]">Value/Target:</span>
                                             <div className="flex items-center gap-2">
                                                 <span className="break-all">cname.sabnode.com</span>
                                                 <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => copy('cname.sabnode.com')}><Copy className="h-3 w-3"/></Button>
@@ -155,11 +155,11 @@ export function EcommCustomDomainForm() {
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="p-3 bg-zoru-surface-2/50 rounded-md text-sm space-y-3">
+                                    <div className="p-3 bg-[var(--st-bg-muted)]/50 rounded-md text-sm space-y-3">
                                         <div className="grid grid-cols-[auto,1fr] gap-x-4 gap-y-1 font-mono text-xs">
-                                            <span className="text-zoru-ink-muted">Type:</span> <span>TXT</span>
-                                            <span className="text-zoru-ink-muted">Host:</span> <span>@ or {domain.hostname}</span>
-                                            <span className="text-zoru-ink-muted">Value:</span>
+                                            <span className="text-[var(--st-text-secondary)]">Type:</span> <span>TXT</span>
+                                            <span className="text-[var(--st-text-secondary)]">Host:</span> <span>@ or {domain.hostname}</span>
+                                            <span className="text-[var(--st-text-secondary)]">Value:</span>
                                             <div className="flex items-center gap-2">
                                                 <span className="break-all">{domain.verificationCode}</span>
                                                 <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => copy(domain.verificationCode)}><Key className="h-3 w-3"/></Button>
@@ -173,7 +173,7 @@ export function EcommCustomDomainForm() {
                             </div>
                         ))
                     ) : (
-                        <p className="text-sm text-center text-zoru-ink-muted py-4">No custom domains added yet.</p>
+                        <p className="text-sm text-center text-[var(--st-text-secondary)] py-4">No custom domains added yet.</p>
                     )}
                 </div>
             </ZoruCardContent>

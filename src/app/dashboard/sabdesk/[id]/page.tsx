@@ -110,10 +110,10 @@ function Field({
 }) {
   return (
     <div>
-      <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
         {label}
       </div>
-      <div className="mt-1 text-[13px] text-zoru-ink">{children}</div>
+      <div className="mt-1 text-[13px] text-[var(--st-text)]">{children}</div>
     </div>
   );
 }
@@ -134,7 +134,7 @@ export default async function TicketDetailPage({
     if (error) {
       return (
         <div className="flex w-full flex-col gap-4 p-6">
-          <p className="text-[14px] text-zoru-ink">
+          <p className="text-[14px] text-[var(--st-text)]">
             Couldn&apos;t load this ticket — {error}
           </p>
           <Button variant="outline" asChild>
@@ -171,7 +171,7 @@ export default async function TicketDetailPage({
       <TicketDetailClient ticket={ticket}>
         <Suspense
           fallback={
-            <div className="p-3 text-center text-zoru-ink-muted">
+            <div className="p-3 text-center text-[var(--st-text-secondary)]">
               Loading conversation thread...
             </div>
           }
@@ -183,7 +183,7 @@ export default async function TicketDetailPage({
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="flex flex-col gap-4 lg:col-span-2">
           <Card className="p-6">
-            <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+            <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
               Basics
             </h3>
             <div className="grid gap-4 md:grid-cols-2">
@@ -232,10 +232,10 @@ export default async function TicketDetailPage({
               </Field>
               {description ? (
                 <div className="md:col-span-2">
-                  <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+                  <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                     Description
                   </div>
-                  <p className="mt-1 whitespace-pre-wrap text-[13px] text-zoru-ink">
+                  <p className="mt-1 whitespace-pre-wrap text-[13px] text-[var(--st-text)]">
                     {description}
                   </p>
                 </div>
@@ -245,7 +245,7 @@ export default async function TicketDetailPage({
 
           {customFields.length > 0 ? (
             <Card className="p-6">
-              <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+              <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Custom fields
               </h3>
               <div className="grid gap-4 md:grid-cols-2">
@@ -340,7 +340,7 @@ export default async function TicketDetailPage({
                 {ticket.parentTicketId ? (
                   <Link
                     href={`/dashboard/sabdesk/${ticket.parentTicketId}`}
-                    className="text-[13px] text-zoru-ink hover:underline"
+                    className="text-[13px] text-[var(--st-text)] hover:underline"
                   >
                     #{ticket.parentTicketId.slice(-6).toUpperCase()}
                   </Link>
@@ -396,7 +396,7 @@ export default async function TicketDetailPage({
         </aside>
       </div>
 
-      <div className="text-[11px] text-zoru-ink-muted">
+      <div className="text-[11px] text-[var(--st-text-secondary)]">
         Created {fmtDate(ticket.createdAt || ticket.audit?.createdAt)} · Updated{" "}
         {fmtDate(ticket.updatedAt || ticket.audit?.updatedAt)}
       </div>

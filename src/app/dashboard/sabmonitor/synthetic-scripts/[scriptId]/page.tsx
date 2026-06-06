@@ -18,7 +18,7 @@ export default async function EditSyntheticScriptPage({
     if (!script) notFound();
     return (
         <div className="flex flex-col gap-4">
-            <h2 className="text-sm font-semibold text-zoru-ink">{script.name}</h2>
+            <h2 className="text-sm font-semibold text-[var(--st-text)]">{script.name}</h2>
             <SyntheticScriptEditClient
                 id={scriptId}
                 initialName={script.name}

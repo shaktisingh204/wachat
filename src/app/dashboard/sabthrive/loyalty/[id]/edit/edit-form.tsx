@@ -70,8 +70,8 @@ export function EditLoyaltyForm({
 
                 <div className="space-y-5">
                     <div className="space-y-1.5">
-                        <Label htmlFor="name" className="text-zoru-ink">
-                            Program Name <span className="text-zoru-danger-ink">*</span>
+                        <Label htmlFor="name" className="text-[var(--st-text)]">
+                            Program Name <span className="text-[var(--st-danger)]">*</span>
                         </Label>
                         <Input
                             id="name"
@@ -84,7 +84,7 @@ export function EditLoyaltyForm({
 
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div className="space-y-1.5">
-                            <Label htmlFor="pointsPerCurrencyUnit" className="text-zoru-ink">
+                            <Label htmlFor="pointsPerCurrencyUnit" className="text-[var(--st-text)]">
                                 Points per ₹1 Spent
                             </Label>
                             <Input
@@ -97,7 +97,7 @@ export function EditLoyaltyForm({
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <Label htmlFor="redemptionRatio" className="text-zoru-ink">
+                            <Label htmlFor="redemptionRatio" className="text-[var(--st-text)]">
                                 Points needed per ₹1 Redemption
                             </Label>
                             <Input
@@ -113,7 +113,7 @@ export function EditLoyaltyForm({
 
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div className="space-y-1.5">
-                            <Label htmlFor="minRedemptionPoints" className="text-zoru-ink">
+                            <Label htmlFor="minRedemptionPoints" className="text-[var(--st-text)]">
                                 Min Redemption Points
                             </Label>
                             <Input
@@ -126,7 +126,7 @@ export function EditLoyaltyForm({
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <Label htmlFor="expiryDays" className="text-zoru-ink">
+                            <Label htmlFor="expiryDays" className="text-[var(--st-text)]">
                                 Points Expiry (days)
                             </Label>
                             <Input
@@ -141,7 +141,7 @@ export function EditLoyaltyForm({
                     </div>
 
                     <div className="space-y-1.5">
-                        <Label htmlFor="welcomeBonus" className="text-zoru-ink">
+                        <Label htmlFor="welcomeBonus" className="text-[var(--st-text)]">
                             Welcome Bonus Points
                         </Label>
                         <Input
@@ -155,7 +155,7 @@ export function EditLoyaltyForm({
                     </div>
 
                     <div className="space-y-1.5">
-                        <Label className="text-zoru-ink">Status</Label>
+                        <Label className="text-[var(--st-text)]">Status</Label>
                         <EnumFormField
                             enumName="loyaltyStatus"
                             name="status"
@@ -164,7 +164,7 @@ export function EditLoyaltyForm({
                     </div>
 
                     <div className="space-y-1.5">
-                        <Label htmlFor="notes" className="text-zoru-ink">
+                        <Label htmlFor="notes" className="text-[var(--st-text)]">
                             Notes
                         </Label>
                         <Textarea

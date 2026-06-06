@@ -71,7 +71,7 @@ export default async function ContractTemplateDetailPage({
 
             <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
-                    <div className="text-[14px] font-medium text-zoru-ink">
+                    <div className="text-[14px] font-medium text-[var(--st-text)]">
                         Overview
                     </div>
                     <StatusPill label={pretty(status)} tone={tone} />
@@ -86,18 +86,18 @@ export default async function ContractTemplateDetailPage({
                 </div>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
                     <div>
-                        <div className="text-zoru-ink-muted">Default term</div>
-                        <div className="font-mono text-zoru-ink">
+                        <div className="text-[var(--st-text-secondary)]">Default term</div>
+                        <div className="font-mono text-[var(--st-text)]">
                             {template.defaultTermMonths != null
                                 ? `${template.defaultTermMonths} month(s)`
                                 : '—'}
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">
+                        <div className="text-[var(--st-text-secondary)]">
                             Default auto-renew
                         </div>
-                        <div className="text-zoru-ink">
+                        <div className="text-[var(--st-text)]">
                             {template.defaultAutoRenew ? 'Yes' : 'No'}
                         </div>
                     </div>
@@ -106,7 +106,7 @@ export default async function ContractTemplateDetailPage({
 
             {variables.length > 0 ? (
                 <Card className="p-6">
-                    <div className="mb-3 text-[15px] font-medium text-zoru-ink">
+                    <div className="mb-3 text-[15px] font-medium text-[var(--st-text)]">
                         Variables
                     </div>
                     <div className="flex flex-wrap gap-1.5">
@@ -124,15 +124,15 @@ export default async function ContractTemplateDetailPage({
             ) : null}
 
             <Card className="p-6">
-                <div className="mb-3 text-[15px] font-medium text-zoru-ink">
+                <div className="mb-3 text-[15px] font-medium text-[var(--st-text)]">
                     Body (markdown)
                 </div>
                 {template.body ? (
-                    <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-4 font-mono text-[12.5px] text-zoru-ink">
+                    <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 font-mono text-[12.5px] text-[var(--st-text)]">
                         {template.body}
                     </pre>
                 ) : (
-                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                         No body content yet.
                     </div>
                 )}

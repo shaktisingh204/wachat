@@ -78,7 +78,7 @@ export function BulkActionsClient({
             ink/muted tokens (no shadcn-button-as-card hack). */}
         <Card className="flex h-full flex-col">
           <ZoruCardHeader>
-            <div className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink">
+            <div className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
               <FileText className="h-5 w-5" />
             </div>
             <ZoruCardTitle className="mt-3">Create &amp; Apply New Template</ZoruCardTitle>

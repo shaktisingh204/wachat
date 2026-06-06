@@ -38,7 +38,7 @@ export default function EditSurveyPage() {
   }, [id]);
 
   if (loading) {
-    return <div className="text-[13px] text-zoru-ink-muted">Loading…</div>;
+    return <div className="text-[13px] text-[var(--st-text-secondary)]">Loading…</div>;
   }
 
   return (

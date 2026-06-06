@@ -90,14 +90,14 @@ export function AssetHandoverDocument({ assignment }: { assignment: any }) {
 
     return (
         <Card className="p-6 mt-6 overflow-hidden">
-            <h3 className="text-lg font-semibold text-zoru-ink mb-4">Asset Handover Document</h3>
+            <h3 className="text-lg font-semibold text-[var(--st-text)] mb-4">Asset Handover Document</h3>
             
             {/* The Document Preview */}
-            <div className="border border-zoru-line rounded-lg p-8 mb-6 bg-white overflow-x-auto">
+            <div className="border border-[var(--st-border)] rounded-lg p-8 mb-6 bg-white overflow-x-auto">
                 <div ref={documentRef} className="min-w-[600px] text-black">
                     <div className="text-center mb-8 border-b pb-4">
                         <h2 className="text-2xl font-bold uppercase tracking-wider">Asset Handover Form</h2>
-                        <p className="text-sm text-zoru-ink mt-1">Generated on {fmtDate()}</p>
+                        <p className="text-sm text-[var(--st-text)] mt-1">Generated on {fmtDate()}</p>
                     </div>
 
                     <div className="grid grid-cols-2 gap-8 mb-8">
@@ -134,11 +134,11 @@ export function AssetHandoverDocument({ assignment }: { assignment: any }) {
                             {signatureData ? (
                                 <img src={signatureData} alt="Signature" className="h-16 mx-auto mb-2" />
                             ) : (
-                                <div className="h-16 mb-2 border-b-2 border-dashed border-zoru-line"></div>
+                                <div className="h-16 mb-2 border-b-2 border-dashed border-[var(--st-border)]"></div>
                             )}
                             <div className="border-t border-black pt-2">
                                 <p className="font-semibold text-sm">Employee Signature</p>
-                                <p className="text-xs text-zoru-ink">{assignment.employee_name || assignment.employee_id}</p>
+                                <p className="text-xs text-[var(--st-text)]">{assignment.employee_name || assignment.employee_id}</p>
                             </div>
                         </div>
                         
@@ -146,7 +146,7 @@ export function AssetHandoverDocument({ assignment }: { assignment: any }) {
                             <div className="h-16 mb-2"></div>
                             <div className="border-t border-black pt-2">
                                 <p className="font-semibold text-sm">Authorized By (HR)</p>
-                                <p className="text-xs text-zoru-ink">Date: {fmtDate(assignment.assigned_at)}</p>
+                                <p className="text-xs text-[var(--st-text)]">Date: {fmtDate(assignment.assigned_at)}</p>
                             </div>
                         </div>
                     </div>
@@ -157,7 +157,7 @@ export function AssetHandoverDocument({ assignment }: { assignment: any }) {
             {!signatureData ? (
                 <div className="mb-6">
                     <p className="text-sm font-medium mb-2">Please sign below to acknowledge receipt:</p>
-                    <div className="border border-zoru-line rounded bg-zoru-surface-2 inline-block">
+                    <div className="border border-[var(--st-border)] rounded bg-[var(--st-bg-muted)] inline-block">
                         <canvas
                             ref={canvasRef}
                             width={400}
@@ -182,10 +182,10 @@ export function AssetHandoverDocument({ assignment }: { assignment: any }) {
                     </div>
                 </div>
             ) : (
-                <div className="mb-6 flex gap-2 items-center text-sm text-zoru-ink bg-zoru-surface-2 p-3 rounded-lg border border-zoru-line">
+                <div className="mb-6 flex gap-2 items-center text-sm text-[var(--st-text)] bg-[var(--st-bg-muted)] p-3 rounded-lg border border-[var(--st-border)]">
                     <CheckCircle2 className="w-5 h-5" />
                     Signature captured successfully.
-                    <Button variant="link" size="sm" onClick={() => setSignatureData(null)} className="ml-auto text-zoru-ink">
+                    <Button variant="link" size="sm" onClick={() => setSignatureData(null)} className="ml-auto text-[var(--st-text)]">
                         Sign again
                     </Button>
                 </div>

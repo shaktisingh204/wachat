@@ -27,7 +27,7 @@ export function BulkUploadAction() {
             toast({
                 title: 'Upload Successful',
                 description: 'Bulk salary structures have been processed.',
-                icon: <CheckCircle2 className="w-4 h-4 text-zoru-success" />
+                icon: <CheckCircle2 className="w-4 h-4 text-[var(--st-status-ok)]" />
             });
         }, 1500);
     };
@@ -47,7 +47,7 @@ export function BulkUploadAction() {
                         Upload a CSV file containing bulk salary structures. Ensure headers match exactly: basic, hra, da, pfEmployer, pfEmployee, esi, professionalTax.
                     </DialogDescription>
                 </DialogHeader>
-                <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-zoru-line rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink-muted">
+                <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-[var(--st-border)] rounded-[var(--zoru-radius)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                     <FileText className="w-8 h-8 mb-4 opacity-50" />
                     <p className="text-[13px] text-center max-w-[250px]">
                         Drag and drop your CSV file here, or click to browse.

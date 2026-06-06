@@ -106,7 +106,7 @@ export function NewTicketDrawer() {
                                     id="ct-priority"
                                     value={priority}
                                     onChange={(e) => setPriority(e.target.value as Priority)}
-                                    className="h-9 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-bg px-2 text-sm text-zoru-ink"
+                                    className="h-9 rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2 text-sm text-[var(--st-text)]"
                                 >
                                     {PRIORITIES.map((p) => (
                                         <option key={p} value={p}>
@@ -127,7 +127,7 @@ export function NewTicketDrawer() {
                                 />
                             </div>
                             {error ? (
-                                <div className="text-sm text-zoru-danger-ink" role="alert">
+                                <div className="text-sm text-[var(--st-danger)]" role="alert">
                                     {error}
                                 </div>
                             ) : null}

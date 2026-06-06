@@ -94,15 +94,15 @@ export default function BillingPage() {
                 ) : (
                     <div className="flex flex-wrap items-start justify-between gap-4">
                         <div className="flex items-center gap-3">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-zoru-surface-2 text-zoru-ink">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                                 <Star className="h-6 w-6" />
                             </div>
                             <div>
                                 <div className="flex items-center gap-2">
-                                    <p className="text-base text-zoru-ink">{planName}</p>
+                                    <p className="text-base text-[var(--st-text)]">{planName}</p>
                                     <Badge variant="info">{t('settings.billing.currentPlan')}</Badge>
                                 </div>
-                                <p className="mt-1 text-xs text-zoru-ink-muted">
+                                <p className="mt-1 text-xs text-[var(--st-text-secondary)]">
                                     {price > 0
                                         ? t('settings.billing.billedMonthly', { price: formatCurrency(price, currency, locale) })
                                         : t('settings.billing.freeUpgradeHint')}
@@ -124,15 +124,15 @@ export default function BillingPage() {
             {/* Features */}
             <Card className="p-6">
                 <div className="mb-4">
-                    <p className="text-sm text-zoru-ink">{t('settings.billing.whatsIncluded')}</p>
-                    <p className="text-xs text-zoru-ink-muted">
+                    <p className="text-sm text-[var(--st-text)]">{t('settings.billing.whatsIncluded')}</p>
+                    <p className="text-xs text-[var(--st-text-secondary)]">
                         {t('settings.billing.featuresHint')}
                     </p>
                 </div>
                 {loading ? (
                     <Skeleton className="h-40 w-full" />
                 ) : featureEntries.length === 0 ? (
-                    <div className="rounded-xl border border-dashed border-zoru-line bg-zoru-surface-2 p-6 text-center text-xs text-zoru-ink-muted">
+                    <div className="rounded-xl border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] p-6 text-center text-xs text-[var(--st-text-secondary)]">
                         {t('settings.billing.noFeatureMatrix')}
                     </div>
                 ) : (
@@ -142,13 +142,13 @@ export default function BillingPage() {
                                 <div
                                     className={
                                         on
-                                            ? 'flex h-5 w-5 items-center justify-center rounded-full bg-zoru-success/10 text-zoru-success-ink'
-                                            : 'flex h-5 w-5 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted'
+                                            ? 'flex h-5 w-5 items-center justify-center rounded-full bg-[var(--st-status-ok)]/10 text-[var(--st-status-ok)]'
+                                            : 'flex h-5 w-5 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]'
                                     }
                                 >
                                     {on ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
                                 </div>
-                                <span className={on ? 'text-zoru-ink' : 'text-zoru-ink-muted line-through'}>
+                                <span className={on ? 'text-[var(--st-text)]' : 'text-[var(--st-text-secondary)] line-through'}>
                                     {prettyFeature(name)}
                                 </span>
                             </div>
@@ -160,12 +160,12 @@ export default function BillingPage() {
             {/* Payment method */}
             <Card className="p-6">
                 <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                         <CreditCard className="h-4 w-4" />
                     </div>
                     <div className="flex-1">
-                        <p className="text-sm text-zoru-ink">{t('settings.billing.paymentMethod')}</p>
-                        <p className="text-xs text-zoru-ink-muted">
+                        <p className="text-sm text-[var(--st-text)]">{t('settings.billing.paymentMethod')}</p>
+                        <p className="text-xs text-[var(--st-text-secondary)]">
                             {user?.wallet?.balance
                                 ? t('settings.billing.walletBalance', {
                                       balance: formatCurrency(

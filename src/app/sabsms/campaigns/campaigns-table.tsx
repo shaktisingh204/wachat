@@ -224,11 +224,11 @@ export function CampaignsTable({
         <div className="flex flex-col">
           <Link
             href={`/sabsms/campaigns/${row.id}`}
-            className="text-sm font-medium text-zoru-ink hover:underline"
+            className="text-sm font-medium text-[var(--st-text)] hover:underline"
           >
             {row.name}
           </Link>
-          <span className="text-xs text-zoru-ink-muted">
+          <span className="text-xs text-[var(--st-text-secondary)]">
             {row.templateName ?? row.templateId}
           </span>
         </div>
@@ -266,7 +266,7 @@ export function CampaignsTable({
       render: (row) => (
         <div className="flex flex-col gap-1">
           <Progress value={row.progressPct} className="h-1.5" />
-          <span className="text-[10px] text-zoru-ink-muted">
+          <span className="text-[10px] text-[var(--st-text-secondary)]">
             {row.progressPct}% · ETA {formatEta(row.estimatedFinishAt)}
           </span>
         </div>
@@ -297,7 +297,7 @@ export function CampaignsTable({
       render: (row) => (
         <div className="flex flex-col text-right">
           <span className="text-xs">{formatCents(row.costSoFar)}</span>
-          <span className="text-[10px] text-zoru-ink-muted">
+          <span className="text-[10px] text-[var(--st-text-secondary)]">
             of {formatCents(row.costForecast)}
           </span>
         </div>
@@ -308,7 +308,7 @@ export function CampaignsTable({
       header: "Tags",
       render: (row) =>
         row.tags.length === 0 ? (
-          <span className="text-xs text-zoru-ink-muted">—</span>
+          <span className="text-xs text-[var(--st-text-secondary)]">—</span>
         ) : (
           <div className="flex flex-wrap gap-1">
             {row.tags.slice(0, 3).map((t) => (
@@ -333,14 +333,14 @@ export function CampaignsTable({
             tail
           </Badge>
         ) : (
-          <span className="text-xs text-zoru-ink-muted">—</span>
+          <span className="text-xs text-[var(--st-text-secondary)]">—</span>
         ),
     },
     {
       id: "createdAt",
       header: "Created",
       render: (row) => (
-        <span className="text-xs text-zoru-ink-muted">
+        <span className="text-xs text-[var(--st-text-secondary)]">
           {new Date(row.createdAt).toLocaleDateString()}
         </span>
       ),
@@ -519,7 +519,7 @@ export function CampaignsTable({
               >
                 <ZoruChart.CartesianGrid
                   strokeDasharray="3 3"
-                  className="stroke-zoru-line"
+                  className="stroke-[var(--st-border)]"
                 />
                 <ZoruChart.XAxis
                   dataKey="date"
@@ -572,7 +572,7 @@ export function CampaignsTable({
       />
 
       {compareError && (
-        <div className="rounded-md border border-zoru-line bg-zoru-surface-2 px-3 py-2 text-sm text-zoru-ink">
+        <div className="rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-sm text-[var(--st-text)]">
           {compareError}
         </div>
       )}
@@ -598,15 +598,15 @@ export function CampaignsTable({
           <ZoruCardHeader>
             <ZoruCardTitle>Compare</ZoruCardTitle>
             <ZoruCardDescription>
-              {comparison.a.name} <span className="text-zoru-ink-muted">vs</span>{" "}
+              {comparison.a.name} <span className="text-[var(--st-text-secondary)]">vs</span>{" "}
               {comparison.b.name}
             </ZoruCardDescription>
           </ZoruCardHeader>
           <ZoruCardContent>
             <div className="grid grid-cols-3 gap-2 text-sm">
-              <div className="text-xs font-medium text-zoru-ink-subtle">Metric</div>
-              <div className="text-xs font-medium text-zoru-ink-subtle text-right">A</div>
-              <div className="text-xs font-medium text-zoru-ink-subtle text-right">B</div>
+              <div className="text-xs font-medium text-[var(--st-text-tertiary)]">Metric</div>
+              <div className="text-xs font-medium text-[var(--st-text-tertiary)] text-right">A</div>
+              <div className="text-xs font-medium text-[var(--st-text-tertiary)] text-right">B</div>
               {comparison.stats.map((s) => (
                 <React.Fragment key={s.metric}>
                   <div>{s.metric}</div>

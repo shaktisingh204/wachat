@@ -244,17 +244,17 @@ export function ReportsHubClient({
                     return (
                         <Card key={cat.id} className="p-4">
                             <div className="flex items-start justify-between gap-2">
-                                <div className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink">
+                                <div className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                                     <Icon className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
                                 </div>
-                                <span className="text-[11px] text-zoru-ink-subtle">
+                                <span className="text-[11px] text-[var(--st-text-tertiary)]">
                                     {cat.items.length} reports
                                 </span>
                             </div>
-                            <p className="mt-3 truncate text-[13px] font-medium text-zoru-ink">
+                            <p className="mt-3 truncate text-[13px] font-medium text-[var(--st-text)]">
                                 {cat.title}
                             </p>
-                            <p className="mt-1 text-[11.5px] text-zoru-ink-muted">
+                            <p className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">
                                 Last run {fmtRel(cat.lastRefreshAt)}
                             </p>
                         </Card>
@@ -267,7 +267,7 @@ export function ReportsHubClient({
                 <div className="lg:col-span-2 flex flex-col gap-4">
                     {filteredCategories.length === 0 ? (
                         <Card className="flex min-h-[160px] items-center justify-center p-6">
-                            <p className="text-[13px] text-zoru-ink-muted">
+                            <p className="text-[13px] text-[var(--st-text-secondary)]">
                                 No reports match your search.
                             </p>
                         </Card>
@@ -286,28 +286,28 @@ export function ReportsHubClient({
                                                 aria-label={`Toggle ${cat.title}`}
                                             >
                                                 <Icon
-                                                    className="h-4 w-4 text-zoru-ink-muted"
+                                                    className="h-4 w-4 text-[var(--st-text-secondary)]"
                                                     strokeWidth={1.75}
                                                     aria-hidden="true"
                                                 />
-                                                <h2 className="text-[15px] font-semibold text-zoru-ink">
+                                                <h2 className="text-[15px] font-semibold text-[var(--st-text)]">
                                                     {cat.title}
                                                 </h2>
-                                                <span className="text-[11.5px] text-zoru-ink-subtle">
+                                                <span className="text-[11.5px] text-[var(--st-text-tertiary)]">
                                                     {cat.items.length}
                                                 </span>
                                                 <ChevronDown
                                                     className={
                                                         open
-                                                            ? 'h-3.5 w-3.5 text-zoru-ink-muted transition-transform'
-                                                            : 'h-3.5 w-3.5 -rotate-90 text-zoru-ink-muted transition-transform'
+                                                            ? 'h-3.5 w-3.5 text-[var(--st-text-secondary)] transition-transform'
+                                                            : 'h-3.5 w-3.5 -rotate-90 text-[var(--st-text-secondary)] transition-transform'
                                                     }
                                                     strokeWidth={1.75}
                                                     aria-hidden="true"
                                                 />
                                             </button>
                                         </ZoruCollapsibleTrigger>
-                                        <span className="text-[11.5px] text-zoru-ink-muted">
+                                        <span className="text-[11.5px] text-[var(--st-text-secondary)]">
                                             Last run {fmtRel(cat.lastRefreshAt)}
                                         </span>
                                     </div>
@@ -320,31 +320,31 @@ export function ReportsHubClient({
                                                     <Link
                                                         key={href}
                                                         href={href}
-                                                        className="relative group flex h-full flex-col rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-4 shadow-sm transition-shadow hover:shadow-[var(--zoru-shadow-md)]"
+                                                        className="relative group flex h-full flex-col rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4 shadow-sm transition-shadow hover:shadow-[var(--zoru-shadow-md)]"
                                                     >
                                                         <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
                                                             <button 
                                                                 type="button" 
                                                                 onClick={(e) => toggleFavorite(e, href)}
-                                                                className={`text-zoru-ink-muted hover:text-zoru-ink transition-colors ${isFav ? 'text-zoru-ink opacity-100' : ''}`}
+                                                                className={`text-[var(--st-text-secondary)] hover:text-[var(--st-text)] transition-colors ${isFav ? 'text-[var(--st-text)] opacity-100' : ''}`}
                                                                 aria-label={isFav ? 'Remove from favorites' : 'Add to favorites'}
                                                             >
                                                                 <Star className="h-4 w-4" fill={isFav ? "currentColor" : "none"} />
                                                             </button>
                                                         </div>
                                                         <div className="flex items-start gap-3">
-                                                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2">
+                                                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-[var(--st-bg-muted)]">
                                                                 <ItemIcon
-                                                                    className="h-[18px] w-[18px] text-zoru-ink"
+                                                                    className="h-[18px] w-[18px] text-[var(--st-text)]"
                                                                     strokeWidth={1.75}
                                                                     aria-hidden="true"
                                                                 />
                                                             </div>
                                                             <div className="min-w-0 flex-1 pr-6">
-                                                                <h3 className="text-[14px] font-medium text-zoru-ink">
+                                                                <h3 className="text-[14px] font-medium text-[var(--st-text)]">
                                                                     {label}
                                                                 </h3>
-                                                                <p className="mt-1 text-[12.5px] leading-snug text-zoru-ink-muted">
+                                                                <p className="mt-1 text-[12.5px] leading-snug text-[var(--st-text-secondary)]">
                                                                     {description}
                                                                 </p>
                                                             </div>
@@ -363,26 +363,26 @@ export function ReportsHubClient({
                 <aside className="flex flex-col gap-4">
                     <Card className="p-5">
                         <div className="mb-3 flex items-center justify-between gap-2">
-                            <h2 className="text-[14px] font-medium text-zoru-ink">Recently viewed</h2>
+                            <h2 className="text-[14px] font-medium text-[var(--st-text)]">Recently viewed</h2>
                         </div>
                         {recentRuns.length === 0 ? (
-                            <p className="py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                            <p className="py-6 text-center text-[12.5px] text-[var(--st-text-secondary)]">
                                 No report runs yet. Run any report to see history here.
                             </p>
                         ) : (
-                            <ul className="divide-y divide-zoru-line">
+                            <ul className="divide-y divide-[var(--st-border)]">
                                 {recentRuns.map((run) => (
                                     <li key={run.runId}>
                                         <Link
                                             href={`/dashboard/sabbi/reports/${run.definitionId}/runs/${run.runId}`}
-                                            className="block py-2.5 hover:bg-zoru-surface-2"
+                                            className="block py-2.5 hover:bg-[var(--st-bg-muted)]"
                                         >
                                             <div className="flex items-center justify-between gap-3">
                                                 <div className="min-w-0 flex-1">
-                                                    <div className="truncate text-[13px] text-zoru-ink">
+                                                    <div className="truncate text-[13px] text-[var(--st-text)]">
                                                         {run.name}
                                                     </div>
-                                                    <div className="mt-0.5 text-[11.5px] text-zoru-ink-muted">
+                                                    <div className="mt-0.5 text-[11.5px] text-[var(--st-text-secondary)]">
                                                         {run.rowCount} rows · {fmtRel(run.startedAt)}
                                                     </div>
                                                 </div>
@@ -401,7 +401,7 @@ export function ReportsHubClient({
                         <div className="mt-3">
                             <Link
                                 href="/dashboard/sabbi/reports/saved"
-                                className="text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
+                                className="text-[12.5px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                             >
                                 View saved reports
                             </Link>

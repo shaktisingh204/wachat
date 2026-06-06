@@ -8,17 +8,17 @@ import { SnippetDemo } from "./components/SnippetDemo";
 
 function Header() {
   return (
-    <header className="overflow-hidden rounded-[var(--zoru-radius-xl)] border border-zoru-line bg-zoru-bg/95 shadow-[var(--zoru-shadow-lg)]">
-      <div className="border-b border-zoru-line bg-zoru-surface/70 px-5 py-3 sm:px-7">
+    <header className="overflow-hidden rounded-[var(--zoru-radius-xl)] border border-[var(--st-border)] bg-[var(--st-bg)]/95 shadow-[var(--zoru-shadow-lg)]">
+      <div className="border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)]/70 px-5 py-3 sm:px-7">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="text-[11px] uppercase tracking-[0.2em] text-zoru-ink-muted">
+          <p className="text-[11px] uppercase tracking-[0.2em] text-[var(--st-text-secondary)]">
             ZoruUI · component gallery
           </p>
-          <div className="flex flex-wrap items-center gap-2 text-xs text-zoru-ink-muted">
-            <span className="rounded-full border border-zoru-line bg-zoru-bg px-3 py-1">
+          <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--st-text-secondary)]">
+            <span className="rounded-full border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-1">
               10-step rollout
             </span>
-            <span className="rounded-full border border-zoru-line bg-zoru-bg px-3 py-1">
+            <span className="rounded-full border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-1">
               Neutral system
             </span>
           </div>
@@ -27,23 +27,23 @@ function Header() {
       <div className="grid gap-8 px-5 py-8 sm:px-7 lg:grid-cols-[1fr_320px] lg:items-end">
         <div>
           <ZoruHeroPill icon={<Sparkles className="size-3" />} text="Minimal premium refresh" />
-          <h1 className="mt-5 max-w-3xl text-4xl font-semibold tracking-tight text-zoru-ink sm:text-5xl">
+          <h1 className="mt-5 max-w-3xl text-4xl font-semibold tracking-tight text-[var(--st-text)] sm:text-5xl">
             ZoruUI component showcase
           </h1>
-          <p className="mt-4 max-w-2xl text-base leading-relaxed text-zoru-ink-muted">
+          <p className="mt-4 max-w-2xl text-base leading-relaxed text-[var(--st-text-secondary)]">
             Tokens, atoms, overlays, layout, data, and marketing primitives in a
             calmer gallery with sharper hierarchy and more breathing room.
           </p>
         </div>
-        <div className="grid grid-cols-3 overflow-hidden rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-surface">
+        <div className="grid grid-cols-3 overflow-hidden rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
           {[
             ["60+", "Primitives"],
             ["6", "Steps shown"],
             ["B/W", "Palette"],
           ].map(([value, label]) => (
-            <div key={label} className="border-r border-zoru-line p-4 last:border-r-0">
-              <p className="text-2xl font-semibold text-zoru-ink">{value}</p>
-              <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-zoru-ink-muted">
+            <div key={label} className="border-r border-[var(--st-border)] p-4 last:border-r-0">
+              <p className="text-2xl font-semibold text-[var(--st-text)]">{value}</p>
+              <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-[var(--st-text-secondary)]">
                 {label}
               </p>
             </div>
@@ -56,14 +56,14 @@ function Header() {
 
 function SwatchCard({ label, varName }: { label: string; varName: string }) {
   return (
-    <div className="rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-4 shadow-[var(--zoru-shadow-sm)]">
+    <div className="rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4 shadow-[var(--zoru-shadow-sm)]">
       <div
-        className="h-16 w-full rounded-[var(--zoru-radius-sm)] border border-zoru-line"
+        className="h-16 w-full rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)]"
         style={{ backgroundColor: `hsl(var(${varName}))` }}
       />
       <div className="mt-3 flex items-center justify-between">
-        <span className="text-sm font-medium text-zoru-ink">{label}</span>
-        <code className="text-[11px] text-zoru-ink-muted">{varName}</code>
+        <span className="text-sm font-medium text-[var(--st-text)]">{label}</span>
+        <code className="text-[11px] text-[var(--st-text-secondary)]">{varName}</code>
       </div>
     </div>
   );

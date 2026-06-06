@@ -324,7 +324,7 @@ export function ImportsWizard({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="flex max-h-[90vh] w-full max-w-3xl flex-col gap-0 p-0">
-        <ZoruDialogHeader className="border-b border-zoru-line px-6 py-4">
+        <ZoruDialogHeader className="border-b border-[var(--st-border)] px-6 py-4">
           <ZoruDialogTitle>New import</ZoruDialogTitle>
           <ZoruDialogDescription>
             Step {stepIndex + 1} of {STEPS.length} — {step}
@@ -403,7 +403,7 @@ export function ImportsWizard({
           )}
         </div>
 
-        <ZoruDialogFooter className="border-t border-zoru-line px-6 py-3">
+        <ZoruDialogFooter className="border-t border-[var(--st-border)] px-6 py-3">
           <div className="flex w-full items-center justify-between gap-2">
             <Button
               variant="ghost"
@@ -465,13 +465,13 @@ function UploadStep({
 }) {
   return (
     <div className="space-y-4">
-      <p className="text-sm text-zoru-ink">
+      <p className="text-sm text-[var(--st-text)]">
         Drag your CSV into SabFiles, or pick a file already in your library.
         Every imported file lives in SabFiles — we never accept external URLs.
       </p>
-      <div className="rounded-md border-2 border-dashed border-zoru-line bg-zoru-surface-2 px-6 py-8 text-center">
-        <Upload className="mx-auto mb-3 h-6 w-6 text-zoru-ink" />
-        <p className="mb-3 text-sm text-zoru-ink">
+      <div className="rounded-md border-2 border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-6 py-8 text-center">
+        <Upload className="mx-auto mb-3 h-6 w-6 text-[var(--st-text)]" />
+        <p className="mb-3 text-sm text-[var(--st-text)]">
           Pick a CSV from SabFiles to begin.
         </p>
         <SabFilePickerButton
@@ -495,13 +495,13 @@ function UploadStep({
             {parsing
               ? "Parsing…"
               : `${rowsCount.toLocaleString()} data row${rowsCount === 1 ? "" : "s"}.`}
-            {parseError && <span className="block text-zoru-ink">{parseError}</span>}
+            {parseError && <span className="block text-[var(--st-text)]">{parseError}</span>}
           </ZoruAlertDescription>
         </Alert>
       )}
 
       {lastImport && (
-        <p className="text-xs text-zoru-ink">
+        <p className="text-xs text-[var(--st-text)]">
           Last import: <strong>{lastImport.name}</strong> ·{" "}
           {lastImport.counts.imported.toLocaleString()} contacts imported.
         </p>
@@ -542,7 +542,7 @@ function MappingStep({
   return (
     <div className="space-y-5">
       <div className="flex items-start justify-between">
-        <p className="text-sm text-zoru-ink max-w-xl">
+        <p className="text-sm text-[var(--st-text)] max-w-xl">
           Match each contact field to a column in your CSV. We've auto-detected
           the most likely matches — adjust as needed.
         </p>
@@ -658,19 +658,19 @@ function PreviewStep({
         )}
       </div>
 
-      <div className="overflow-hidden rounded-md border border-zoru-line">
+      <div className="overflow-hidden rounded-md border border-[var(--st-border)]">
         <div className="max-h-[40vh] overflow-auto">
           <table className="w-full text-xs">
-            <thead className="sticky top-0 bg-zoru-surface-2">
+            <thead className="sticky top-0 bg-[var(--st-bg-muted)]">
               <tr>
                 {headers.map((h) => (
                   <th
                     key={h}
-                    className="border-b border-zoru-line px-3 py-2 text-left font-medium text-zoru-ink"
+                    className="border-b border-[var(--st-border)] px-3 py-2 text-left font-medium text-[var(--st-text)]"
                   >
                     {h}
                     {h === phoneCol && (
-                      <span className="ml-1.5 text-[10px] text-zoru-ink">
+                      <span className="ml-1.5 text-[10px] text-[var(--st-text)]">
                         normalised
                       </span>
                     )}
@@ -680,7 +680,7 @@ function PreviewStep({
             </thead>
             <tbody>
               {rows.map((r, i) => (
-                <tr key={i} className="even:bg-zoru-surface-2/50">
+                <tr key={i} className="even:bg-[var(--st-bg-muted)]/50">
                   {headers.map((h) => {
                     const raw = r[h] ?? "";
                     const isPhone = h === phoneCol;
@@ -688,18 +688,18 @@ function PreviewStep({
                     return (
                       <td
                         key={h}
-                        className="border-b border-zoru-line px-3 py-1.5 align-top text-zoru-ink"
+                        className="border-b border-[var(--st-border)] px-3 py-1.5 align-top text-[var(--st-text)]"
                       >
                         {isPhone ? (
                           <span>
                             <code className="text-[11px]">{raw}</code>
                             {norm && norm !== raw && (
-                              <span className="ml-1 text-[10px] text-zoru-ink">
+                              <span className="ml-1 text-[10px] text-[var(--st-text)]">
                                 → <code>{norm}</code>
                               </span>
                             )}
                             {!norm && (
-                              <span className="ml-1 text-[10px] text-zoru-ink">
+                              <span className="ml-1 text-[10px] text-[var(--st-text)]">
                                 invalid
                               </span>
                             )}
@@ -776,12 +776,12 @@ function OptionsStep({
             Skip duplicate phones within this file.
           </span>
         </label>
-        <label className="flex items-start gap-2 rounded-md bg-zoru-surface-2 p-3">
+        <label className="flex items-start gap-2 rounded-md bg-[var(--st-bg-muted)] p-3">
           <Checkbox
             checked={consentAttested}
             onCheckedChange={(v) => onConsentAttested(v === true)}
           />
-          <span className="text-sm text-zoru-ink">
+          <span className="text-sm text-[var(--st-text)]">
             <strong>Consent attestation (required).</strong> I confirm every
             recipient in this file has given prior express written consent to
             receive SMS messages, and that consent records are retained.
@@ -903,16 +903,16 @@ function SummaryStat({
     <div
       className={`rounded-md border px-3 py-2 ${
         tone === "ok"
-          ? "border-zoru-line bg-zoru-surface-2"
-          : "border-zoru-line bg-zoru-surface-2"
+          ? "border-[var(--st-border)] bg-[var(--st-bg-muted)]"
+          : "border-[var(--st-border)] bg-[var(--st-bg-muted)]"
       }`}
     >
-      <div className="text-[10px] font-medium uppercase tracking-wide text-zoru-ink">
+      <div className="text-[10px] font-medium uppercase tracking-wide text-[var(--st-text)]">
         {label}
       </div>
       <div
         className={`text-lg font-semibold ${
-          tone === "ok" ? "text-zoru-ink" : "text-zoru-ink"
+          tone === "ok" ? "text-[var(--st-text)]" : "text-[var(--st-text)]"
         }`}
       >
         {value}

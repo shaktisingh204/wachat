@@ -122,7 +122,7 @@ export default function CreateAdPage() {
         <React.Suspense
             fallback={
                 <div className="flex items-center justify-center min-h-[400px]">
-                    <LoaderCircle className="h-8 w-8 animate-spin text-zoru-ink-muted" />
+                    <LoaderCircle className="h-8 w-8 animate-spin text-[var(--st-text-secondary)]" />
                 </div>
             }
         >
@@ -447,7 +447,7 @@ function CreateAdForm() {
     if (accountLoading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <LoaderCircle className="h-8 w-8 animate-spin text-zoru-ink-muted" />
+                <LoaderCircle className="h-8 w-8 animate-spin text-[var(--st-text-secondary)]" />
             </div>
         );
     }
@@ -478,7 +478,7 @@ function CreateAdForm() {
 
             <div className="flex gap-4 min-h-[600px]">
                 {/* Form card — always full width except at 2xl+ where preview joins in */}
-                <div className="flex flex-col min-w-0 flex-1 border rounded-xl bg-zoru-surface overflow-hidden">
+                <div className="flex flex-col min-w-0 flex-1 border rounded-xl bg-[var(--st-bg-secondary)] overflow-hidden">
                     <div className="flex flex-wrap items-center gap-3 border-b px-4 py-3">
                         <Button variant="ghost" size="icon-sm" asChild>
                             <Link href="/dashboard/ad-manager/campaigns">
@@ -487,7 +487,7 @@ function CreateAdForm() {
                         </Button>
                         <div className="flex-1 min-w-0">
                             <div className="text-sm font-medium truncate">Create new campaign</div>
-                            <div className="text-xs text-zoru-ink-muted truncate">
+                            <div className="text-xs text-[var(--st-text-secondary)] truncate">
                                 {state.buyingType} • {activeAccount.name}
                             </div>
                         </div>
@@ -538,18 +538,18 @@ function CreateAdForm() {
                         </div>
                     </div>
 
-                    <div className="border-t px-4 py-3 flex flex-wrap items-center justify-between gap-2 bg-zoru-surface">
+                    <div className="border-t px-4 py-3 flex flex-wrap items-center justify-between gap-2 bg-[var(--st-bg-secondary)]">
                         <Button variant="ghost" size="sm" onClick={goPrev} disabled={step === 1}>
                             Previous
                         </Button>
                         <div className="flex items-center gap-2 order-last sm:order-none w-full sm:w-auto justify-center">
-                            <span className="text-xs text-zoru-ink-muted">Step {step} of 3</span>
+                            <span className="text-xs text-[var(--st-text-secondary)]">Step {step} of 3</span>
                             <Sheet>
                                 <ZoruSheetTrigger asChild>
                                     <Button
                                         variant="outline"
                                         size="sm"
-                                        className="2xl:hidden bg-zoru-ink/5 border-zoru-line/30 text-zoru-ink hover:bg-zoru-ink/10"
+                                        className="2xl:hidden bg-[var(--st-text)]/5 border-[var(--st-border)]/30 text-[var(--st-text)] hover:bg-[var(--st-text)]/10"
                                     >
                                         <Eye className="h-4 w-4 mr-1" /> Preview
                                     </Button>
@@ -565,14 +565,14 @@ function CreateAdForm() {
                                         {reach && (
                                             <Card>
                                                 <ZoruCardContent className="p-4 space-y-2">
-                                                    <div className="text-xs text-zoru-ink-muted">Estimated audience</div>
+                                                    <div className="text-xs text-[var(--st-text-secondary)]">Estimated audience</div>
                                                     <div className="text-lg font-semibold tabular-nums">
                                                         {formatNumber(reach.lower)} – {formatNumber(reach.upper)}
                                                     </div>
-                                                    <div className="h-1.5 rounded-full bg-zoru-surface-2 overflow-hidden">
-                                                        <div className="h-full w-3/5 bg-gradient-to-r from-zoru-surface-2 to-zoru-ink" />
+                                                    <div className="h-1.5 rounded-full bg-[var(--st-bg-muted)] overflow-hidden">
+                                                        <div className="h-full w-3/5 bg-gradient-to-r from-[var(--st-bg-muted)] to-[var(--st-text)]" />
                                                     </div>
-                                                    <div className="flex justify-between text-[10px] text-zoru-ink-muted">
+                                                    <div className="flex justify-between text-[10px] text-[var(--st-text-secondary)]">
                                                         <span>Specific</span><span>Broad</span>
                                                     </div>
                                                 </ZoruCardContent>
@@ -583,13 +583,13 @@ function CreateAdForm() {
                             </Sheet>
                         </div>
                         {step < 3 ? (
-                            <Button size="sm" className="bg-zoru-ink hover:bg-zoru-ink/90 text-white" onClick={goNext}>
+                            <Button size="sm" className="bg-[var(--st-text)] hover:bg-[var(--st-text)]/90 text-white" onClick={goNext}>
                                 Next
                             </Button>
                         ) : (
                             <Button
                                 size="sm"
-                                className="bg-zoru-ink hover:bg-zoru-ink/90 text-white"
+                                className="bg-[var(--st-text)] hover:bg-[var(--st-text)]/90 text-white"
                                 onClick={submit}
                                 disabled={submitting}
                             >
@@ -601,7 +601,7 @@ function CreateAdForm() {
                 </div>
 
                 {/* Inline preview — only at 2xl (1536px+) where there's guaranteed room */}
-                <aside className="hidden 2xl:flex flex-col w-[420px] shrink-0 bg-zoru-surface border rounded-xl overflow-hidden">
+                <aside className="hidden 2xl:flex flex-col w-[420px] shrink-0 bg-[var(--st-bg-secondary)] border rounded-xl overflow-hidden">
                     <div className="px-3 py-2 border-b text-sm font-medium flex items-center gap-2 shrink-0">
                         <Eye className="h-4 w-4" /> Ad preview
                     </div>
@@ -610,14 +610,14 @@ function CreateAdForm() {
                         {reach && (
                             <Card>
                                 <ZoruCardContent className="p-3 space-y-1.5">
-                                    <div className="text-[10px] text-zoru-ink-muted">Estimated audience</div>
+                                    <div className="text-[10px] text-[var(--st-text-secondary)]">Estimated audience</div>
                                     <div className="text-base font-semibold tabular-nums">
                                         {formatNumber(reach.lower)} – {formatNumber(reach.upper)}
                                     </div>
-                                    <div className="h-1.5 rounded-full bg-zoru-surface-2 overflow-hidden">
-                                        <div className="h-full w-3/5 bg-gradient-to-r from-zoru-surface-2 to-zoru-ink" />
+                                    <div className="h-1.5 rounded-full bg-[var(--st-bg-muted)] overflow-hidden">
+                                        <div className="h-full w-3/5 bg-gradient-to-r from-[var(--st-bg-muted)] to-[var(--st-text)]" />
                                     </div>
-                                    <div className="flex justify-between text-[9px] text-zoru-ink-muted">
+                                    <div className="flex justify-between text-[9px] text-[var(--st-text-secondary)]">
                                         <span>Specific</span><span>Broad</span>
                                     </div>
                                 </ZoruCardContent>
@@ -636,7 +636,7 @@ function CreateAdForm() {
 
 function StepHeader({ current, setCurrent, max }: { current: Step; setCurrent: (s: Step) => void; max: Step }) {
     return (
-        <div className="flex items-center gap-1 bg-zoru-surface border rounded-xl p-1.5">
+        <div className="flex items-center gap-1 bg-[var(--st-bg-secondary)] border rounded-xl p-1.5">
             {STEPS.map((s, i) => {
                 const active = current === s.id;
                 const done = current > s.id;
@@ -649,9 +649,9 @@ function StepHeader({ current, setCurrent, max }: { current: Step; setCurrent: (
                             onClick={() => setCurrent(s.id)}
                             className={cn(
                                 'flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-colors',
-                                active && 'bg-zoru-ink text-white font-medium',
-                                !active && done && 'bg-zoru-surface-2 hover:bg-zoru-surface-2/80',
-                                !active && !done && 'text-zoru-ink-muted hover:bg-zoru-surface-2/60',
+                                active && 'bg-[var(--st-text)] text-white font-medium',
+                                !active && done && 'bg-[var(--st-bg-muted)] hover:bg-[var(--st-bg-muted)]/80',
+                                !active && !done && 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)]/60',
                                 s.id > max && 'opacity-50 cursor-not-allowed',
                             )}
                         >
@@ -659,9 +659,9 @@ function StepHeader({ current, setCurrent, max }: { current: Step; setCurrent: (
                                 variant="secondary"
                                 className={cn(
                                     'h-5 w-5 p-0 rounded-full flex items-center justify-center text-[11px] font-semibold',
-                                    active && 'bg-zoru-bg/20 text-white border-transparent',
-                                    !active && done && 'bg-zoru-ink text-white border-transparent',
-                                    !active && !done && 'bg-zoru-surface-2-foreground/20 border-transparent',
+                                    active && 'bg-[var(--st-bg)]/20 text-white border-transparent',
+                                    !active && done && 'bg-[var(--st-text)] text-white border-transparent',
+                                    !active && !done && 'bg-[var(--st-text)]/20 border-transparent',
                                 )}
                             >
                                 {done ? <Check className="h-3 w-3" /> : s.id}
@@ -692,12 +692,12 @@ function Section({
 }) {
     return (
         <ZoruCollapsible defaultOpen={defaultOpen}>
-            <div className="rounded-xl border bg-zoru-surface">
-                <ZoruCollapsibleTrigger className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-zoru-surface-2/50 rounded-t-xl data-[state=closed]:rounded-b-xl">
-                    <Icon className="h-4 w-4 text-zoru-ink" />
+            <div className="rounded-xl border bg-[var(--st-bg-secondary)]">
+                <ZoruCollapsibleTrigger className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-[var(--st-bg-muted)]/50 rounded-t-xl data-[state=closed]:rounded-b-xl">
+                    <Icon className="h-4 w-4 text-[var(--st-text)]" />
                     <div className="flex-1">
                         <div className="text-sm font-semibold">{title}</div>
-                        {description && <div className="text-xs text-zoru-ink-muted mt-0.5">{description}</div>}
+                        {description && <div className="text-xs text-[var(--st-text-secondary)] mt-0.5">{description}</div>}
                     </div>
                 </ZoruCollapsibleTrigger>
                 <ZoruCollapsibleContent>
@@ -711,7 +711,7 @@ function Section({
 function FieldError({ issue }: { issue?: ValidationIssue }) {
     if (!issue) return null;
     return (
-        <p className="flex items-center gap-1 text-xs text-zoru-ink">
+        <p className="flex items-center gap-1 text-xs text-[var(--st-text)]">
             <AlertTriangle className="h-3 w-3" /> {issue.message}
         </p>
     );
@@ -733,7 +733,7 @@ function Step1Campaign({
         <>
             <div>
                 <h2 className="text-xl font-semibold">Choose a campaign objective</h2>
-                <p className="text-sm text-zoru-ink-muted mt-1">
+                <p className="text-sm text-[var(--st-text-secondary)] mt-1">
                     Tell Meta what result you want so it can optimize delivery for you.
                 </p>
             </div>
@@ -745,18 +745,18 @@ function Step1Campaign({
                         type="button"
                         onClick={() => setField('objective', obj.id)}
                         className={cn(
-                            'text-left p-4 rounded-xl border-2 transition-all bg-zoru-surface',
+                            'text-left p-4 rounded-xl border-2 transition-all bg-[var(--st-bg-secondary)]',
                             state.objective === obj.id
-                                ? 'border-zoru-line ring-2 ring-zoru-line/20 shadow-sm'
-                                : 'border-zoru-line hover:border-zoru-line/40',
+                                ? 'border-[var(--st-border)] ring-2 ring-[var(--st-border)]/20 shadow-sm'
+                                : 'border-[var(--st-border)] hover:border-[var(--st-border)]/40',
                         )}
                     >
                         <div className="flex items-center gap-2 mb-1">
-                            <Sparkles className="h-4 w-4 text-zoru-ink" />
+                            <Sparkles className="h-4 w-4 text-[var(--st-text)]" />
                             <span className="font-medium">{obj.label}</span>
-                            {state.objective === obj.id && <Check className="ml-auto h-4 w-4 text-zoru-ink" />}
+                            {state.objective === obj.id && <Check className="ml-auto h-4 w-4 text-[var(--st-text)]" />}
                         </div>
-                        <p className="text-xs text-zoru-ink-muted">{obj.description}</p>
+                        <p className="text-xs text-[var(--st-text-secondary)]">{obj.description}</p>
                     </button>
                 ))}
             </div>
@@ -800,14 +800,14 @@ function Step1Campaign({
                 <div className="flex items-center gap-4">
                     <div className="flex-1">
                         <div className="text-sm font-medium">Advantage+ campaign budget</div>
-                        <div className="text-xs text-zoru-ink-muted">
+                        <div className="text-xs text-[var(--st-text-secondary)]">
                             Distribute your budget across ad sets for best results.
                         </div>
                     </div>
                     <Switch
                         checked={state.cbo}
                         onCheckedChange={(v) => setField('cbo', v)}
-                        className="data-[state=checked]:bg-zoru-ink"
+                        className="data-[state=checked]:bg-[var(--st-text)]"
                     />
                 </div>
 
@@ -942,7 +942,7 @@ function Step2AdSet({
                                 key={c.id}
                                 className={cn(
                                     'flex items-center gap-2 rounded-lg border-2 p-3 cursor-pointer',
-                                    state.conversionLocation === c.id ? 'border-zoru-line' : 'border-zoru-line',
+                                    state.conversionLocation === c.id ? 'border-[var(--st-border)]' : 'border-[var(--st-border)]',
                                 )}
                             >
                                 <ZoruRadioGroupItem value={c.id} />
@@ -1092,14 +1092,14 @@ function Step2AdSet({
                 <div className="flex items-center gap-4">
                     <div className="flex-1">
                         <div className="text-sm font-medium">Advantage+ audience</div>
-                        <div className="text-xs text-zoru-ink-muted">
+                        <div className="text-xs text-[var(--st-text-secondary)]">
                             Let Meta find your audience automatically. Recommended for most campaigns.
                         </div>
                     </div>
                     <Switch
                         checked={state.advantageAudience}
                         onCheckedChange={(v) => setField('advantageAudience', v)}
-                        className="data-[state=checked]:bg-zoru-ink"
+                        className="data-[state=checked]:bg-[var(--st-text)]"
                     />
                 </div>
 
@@ -1181,8 +1181,8 @@ function Step2AdSet({
                                             className={cn(
                                                 'text-xs px-2.5 py-1 rounded-full border transition-colors',
                                                 selected
-                                                    ? 'bg-zoru-ink text-white border-zoru-line'
-                                                    : 'bg-zoru-surface hover:bg-zoru-surface-2',
+                                                    ? 'bg-[var(--st-text)] text-white border-[var(--st-border)]'
+                                                    : 'bg-[var(--st-bg-secondary)] hover:bg-[var(--st-bg-muted)]',
                                             )}
                                         >
                                             {c.name}
@@ -1191,7 +1191,7 @@ function Step2AdSet({
                                 })}
                             </div>
                             <FieldError issue={err('countries')} />
-                            <div className="flex items-center gap-2 text-xs text-zoru-ink-muted mt-2">
+                            <div className="flex items-center gap-2 text-xs text-[var(--st-text-secondary)] mt-2">
                                 Include:
                                 {['home', 'recent', 'travel_in'].map((lt) => (
                                     <label key={lt} className="flex items-center gap-1">
@@ -1222,7 +1222,7 @@ function Step2AdSet({
                                         onChange={(e) => setField('minAge', Number(e.target.value))}
                                         className="w-20"
                                     />
-                                    <span className="text-zoru-ink-muted">to</span>
+                                    <span className="text-[var(--st-text-secondary)]">to</span>
                                     <Input
                                         type="number"
                                         value={state.maxAge}
@@ -1277,7 +1277,7 @@ function Step2AdSet({
                                             }
                                             className={cn(
                                                 'text-xs px-2.5 py-1 rounded-full border transition-colors',
-                                                sel ? 'bg-zoru-ink text-white border-zoru-line' : 'bg-zoru-surface hover:bg-zoru-surface-2',
+                                                sel ? 'bg-[var(--st-text)] text-white border-[var(--st-border)]' : 'bg-[var(--st-bg-secondary)] hover:bg-[var(--st-bg-muted)]',
                                             )}
                                         >
                                             {l.name}
@@ -1294,14 +1294,14 @@ function Step2AdSet({
                 <div className="flex items-center gap-4">
                     <div className="flex-1">
                         <div className="text-sm font-medium">Advantage+ placements</div>
-                        <div className="text-xs text-zoru-ink-muted">
+                        <div className="text-xs text-[var(--st-text-secondary)]">
                             Show your ads where they're likely to perform best. Recommended.
                         </div>
                     </div>
                     <Switch
                         checked={state.advantagePlacements}
                         onCheckedChange={(v) => setField('advantagePlacements', v)}
-                        className="data-[state=checked]:bg-zoru-ink"
+                        className="data-[state=checked]:bg-[var(--st-text)]"
                     />
                 </div>
 
@@ -1313,7 +1313,7 @@ function Step2AdSet({
                                 {['mobile', 'desktop'].map((d) => (
                                     <label key={d} className={cn(
                                         'flex items-center gap-2 rounded-lg border-2 p-3 cursor-pointer flex-1',
-                                        state.devices.includes(d) ? 'border-zoru-line' : 'border-zoru-line',
+                                        state.devices.includes(d) ? 'border-[var(--st-border)]' : 'border-[var(--st-border)]',
                                     )}>
                                         <Checkbox
                                             checked={state.devices.includes(d)}
@@ -1340,7 +1340,7 @@ function Step2AdSet({
                                             key={p.id}
                                             className={cn(
                                                 'flex items-center gap-2 rounded-lg border-2 p-3 cursor-pointer',
-                                                state.platforms.includes(p.id) ? 'border-zoru-line' : 'border-zoru-line',
+                                                state.platforms.includes(p.id) ? 'border-[var(--st-border)]' : 'border-[var(--st-border)]',
                                             )}
                                         >
                                             <Checkbox
@@ -1376,7 +1376,7 @@ function Step2AdSet({
                                                 }
                                                 className={cn(
                                                     'text-xs px-2.5 py-1 rounded-full border',
-                                                    sel ? 'bg-zoru-ink text-white border-zoru-line' : 'bg-zoru-surface hover:bg-zoru-surface-2',
+                                                    sel ? 'bg-[var(--st-text)] text-white border-[var(--st-border)]' : 'bg-[var(--st-bg-secondary)] hover:bg-[var(--st-bg-muted)]',
                                                 )}
                                             >
                                                 {p.replace(/_/g, ' ')}
@@ -1407,7 +1407,7 @@ function Step2AdSet({
                                                 }
                                                 className={cn(
                                                     'text-xs px-2.5 py-1 rounded-full border',
-                                                    sel ? 'bg-zoru-ink text-white border-zoru-line' : 'bg-zoru-surface hover:bg-zoru-surface-2',
+                                                    sel ? 'bg-[var(--st-text)] text-white border-[var(--st-border)]' : 'bg-[var(--st-bg-secondary)] hover:bg-[var(--st-bg-muted)]',
                                                 )}
                                             >
                                                 {p.replace(/_/g, ' ')}
@@ -1486,7 +1486,7 @@ function DetailedTargetingPicker({
             <Label>{label}</Label>
             <Popover open={open} onOpenChange={setOpen}>
                 <ZoruPopoverTrigger asChild>
-                    <Button variant="outline" className="w-full justify-start text-zoru-ink-muted font-normal">
+                    <Button variant="outline" className="w-full justify-start text-[var(--st-text-secondary)] font-normal">
                         Search interests, behaviors, demographics…
                     </Button>
                 </ZoruPopoverTrigger>
@@ -1511,7 +1511,7 @@ function DetailedTargetingPicker({
                                         >
                                             <Check className={cn('h-4 w-4 mr-2', sel ? 'opacity-100' : 'opacity-0')} />
                                             <span className="flex-1">{r.name}</span>
-                                            <span className="text-[10px] text-zoru-ink-muted ml-2">
+                                            <span className="text-[10px] text-[var(--st-text-secondary)] ml-2">
                                                 {r.audience_size_lower_bound ? formatNumber(r.audience_size_lower_bound) : ''}
                                             </span>
                                         </ZoruCommandItem>
@@ -1614,12 +1614,12 @@ function Step3Ad({
                 <div className="flex items-center gap-4">
                     <div className="flex-1">
                         <div className="text-sm font-medium">Use an existing post</div>
-                        <div className="text-xs text-zoru-ink-muted">Promote a post you already published.</div>
+                        <div className="text-xs text-[var(--st-text-secondary)]">Promote a post you already published.</div>
                     </div>
                     <Switch
                         checked={state.useExistingPost}
                         onCheckedChange={(v) => setField('useExistingPost', v)}
-                        className="data-[state=checked]:bg-zoru-ink"
+                        className="data-[state=checked]:bg-[var(--st-text)]"
                     />
                 </div>
 
@@ -1651,7 +1651,7 @@ function Step3Ad({
                                         key={f.id}
                                         className={cn(
                                             'flex items-center gap-2 rounded-lg border-2 p-3 cursor-pointer',
-                                            state.adFormat === f.id ? 'border-zoru-line' : 'border-zoru-line',
+                                            state.adFormat === f.id ? 'border-[var(--st-border)]' : 'border-[var(--st-border)]',
                                         )}
                                     >
                                         <ZoruRadioGroupItem value={f.id} />
@@ -1670,7 +1670,7 @@ function Step3Ad({
                         {state.adFormat === 'SINGLE_IMAGE' && (
                             <div>
                                 {/* Zoru has no tab primitive — use a segmented Button group */}
-                                <div className="grid grid-cols-2 gap-1 p-1 bg-zoru-surface-2 rounded-lg">
+                                <div className="grid grid-cols-2 gap-1 p-1 bg-[var(--st-bg-muted)] rounded-lg">
                                     <Button
                                         type="button"
                                         size="sm"
@@ -1705,9 +1705,9 @@ function Step3Ad({
                                                 </div>
                                             ) : (
                                                 <div className="relative">
-                                                    <Upload className="h-10 w-10 mx-auto text-zoru-ink-muted mb-2" />
+                                                    <Upload className="h-10 w-10 mx-auto text-[var(--st-text-secondary)] mb-2" />
                                                     <p className="text-sm font-medium">Drag & drop or click to upload</p>
-                                                    <p className="text-xs text-zoru-ink-muted mt-1">PNG, JPG up to 30MB</p>
+                                                    <p className="text-xs text-[var(--st-text-secondary)] mt-1">PNG, JPG up to 30MB</p>
                                                     <input
                                                         type="file"
                                                         accept="image/*"
@@ -1740,7 +1740,7 @@ function Step3Ad({
                                                     }}
                                                     className={cn(
                                                         'aspect-square rounded-lg overflow-hidden border-2',
-                                                        state.imageHash === img.hash ? 'border-zoru-line' : 'border-zoru-line',
+                                                        state.imageHash === img.hash ? 'border-[var(--st-border)]' : 'border-[var(--st-border)]',
                                                     )}
                                                 >
                                                     <img src={img.url} alt="" className="w-full h-full object-cover" />

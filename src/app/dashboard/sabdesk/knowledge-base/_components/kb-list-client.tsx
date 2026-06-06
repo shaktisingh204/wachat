@@ -358,7 +358,7 @@ export function KbListClient() {
               <ZoruDropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm">
                   <ListChecks className="h-3.5 w-3.5" /> {activePreset.label}
-                  <ChevronDown className="h-3.5 w-3.5 text-zoru-ink-subtle" />
+                  <ChevronDown className="h-3.5 w-3.5 text-[var(--st-text-tertiary)]" />
                 </Button>
               </ZoruDropdownMenuTrigger>
               <ZoruDropdownMenuContent align="start" className="w-64">
@@ -374,7 +374,7 @@ export function KbListClient() {
                         {preset.label}
                       </span>
                       {preset.description ? (
-                        <span className="text-[11.5px] text-zoru-ink-muted">
+                        <span className="text-[11.5px] text-[var(--st-text-secondary)]">
                           {preset.description}
                         </span>
                       ) : null}
@@ -383,7 +383,7 @@ export function KbListClient() {
                 ))}
               </ZoruDropdownMenuContent>
             </DropdownMenu>
-            <div className="inline-flex rounded-md border border-zoru-line p-0.5">
+            <div className="inline-flex rounded-md border border-[var(--st-border)] p-0.5">
               <button
                 type="button"
                 onClick={() => setView("table")}
@@ -391,8 +391,8 @@ export function KbListClient() {
                 className={[
                   "inline-flex items-center gap-1 rounded-sm px-2 py-1 text-[12px]",
                   view === "table"
-                    ? "bg-zoru-surface text-zoru-ink"
-                    : "text-zoru-ink-muted hover:text-zoru-ink",
+                    ? "bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
+                    : "text-[var(--st-text-secondary)] hover:text-[var(--st-text)]",
                 ].join(" ")}
               >
                 <LayoutList className="h-3.5 w-3.5" /> Table
@@ -404,8 +404,8 @@ export function KbListClient() {
                 className={[
                   "inline-flex items-center gap-1 rounded-sm px-2 py-1 text-[12px]",
                   view === "tree"
-                    ? "bg-zoru-surface text-zoru-ink"
-                    : "text-zoru-ink-muted hover:text-zoru-ink",
+                    ? "bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
+                    : "text-[var(--st-text-secondary)] hover:text-[var(--st-text)]",
                 ].join(" ")}
               >
                 Tree
@@ -476,10 +476,10 @@ export function KbListClient() {
         empty={
           !loading && visibleArticles.length === 0 && articles.length === 0 ? (
             <div className="flex flex-col items-center gap-3 p-4">
-              <h3 className="text-base font-medium text-zoru-ink">
+              <h3 className="text-base font-medium text-[var(--st-text)]">
                 No articles yet
               </h3>
-              <p className="max-w-sm text-sm text-zoru-ink-muted">
+              <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                 Author your first help article to deflect common tickets and
                 empower your support agents.
               </p>

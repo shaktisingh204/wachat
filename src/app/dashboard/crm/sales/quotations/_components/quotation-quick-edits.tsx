@@ -103,11 +103,11 @@ export function QuotationQuickEdits({
     <>
       <dl className="space-y-2 text-[12.5px]">
         <div className="flex items-center justify-between gap-2">
-          <dt className="text-zoru-ink-muted">Sales agent</dt>
+          <dt className="text-[var(--st-text-secondary)]">Sales agent</dt>
           <dd>
             <button
               type="button"
-              className="rounded transition-opacity hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-zoru-primary"
+              className="rounded transition-opacity hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]"
               onClick={() => {
                 setDraftAgent(currentAgent);
                 setAgentDialogOpen(true);
@@ -117,7 +117,7 @@ export function QuotationQuickEdits({
               {currentAgent ? (
                 <EntityPickerChip entity="user" id={currentAgent} />
               ) : (
-                <span className="text-zoru-ink-muted underline-offset-2 hover:underline">
+                <span className="text-[var(--st-text-secondary)] underline-offset-2 hover:underline">
                   — assign agent
                 </span>
               )}
@@ -126,7 +126,7 @@ export function QuotationQuickEdits({
         </div>
 
         <div className="flex items-center justify-between gap-2">
-          <dt className="text-zoru-ink-muted">Status</dt>
+          <dt className="text-[var(--st-text-secondary)]">Status</dt>
           <dd>
             <DropdownMenu>
               <ZoruDropdownMenuTrigger asChild>

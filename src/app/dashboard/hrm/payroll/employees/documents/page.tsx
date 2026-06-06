@@ -181,29 +181,29 @@ export default function EmployeeDocumentsPage() {
       <Card className="p-6">
         {isLoading ? (
           <div className="flex h-32 items-center justify-center">
-            <LoaderCircle className="h-6 w-6 animate-spin text-zoru-ink-muted" />
+            <LoaderCircle className="h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-lg border border-zoru-line">
+          <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
             <table className="w-full text-[13px]">
               <thead>
-                <tr className="border-b border-zoru-line bg-zoru-surface-2">
-                  <th className="px-4 py-2.5 text-left text-[12px] text-zoru-ink-muted">
+                <tr className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]">
+                  <th className="px-4 py-2.5 text-left text-[12px] text-[var(--st-text-secondary)]">
                     Employee
                   </th>
-                  <th className="px-4 py-2.5 text-left text-[12px] text-zoru-ink-muted">
+                  <th className="px-4 py-2.5 text-left text-[12px] text-[var(--st-text-secondary)]">
                     Document
                   </th>
-                  <th className="px-4 py-2.5 text-left text-[12px] text-zoru-ink-muted">
+                  <th className="px-4 py-2.5 text-left text-[12px] text-[var(--st-text-secondary)]">
                     Uploaded
                   </th>
-                  <th className="px-4 py-2.5 text-left text-[12px] text-zoru-ink-muted">
+                  <th className="px-4 py-2.5 text-left text-[12px] text-[var(--st-text-secondary)]">
                     Expires
                   </th>
-                  <th className="px-4 py-2.5 text-left text-[12px] text-zoru-ink-muted">
+                  <th className="px-4 py-2.5 text-left text-[12px] text-[var(--st-text-secondary)]">
                     File
                   </th>
-                  <th className="px-4 py-2.5 text-right text-[12px] text-zoru-ink-muted">
+                  <th className="px-4 py-2.5 text-right text-[12px] text-[var(--st-text-secondary)]">
                     Actions
                   </th>
                 </tr>
@@ -211,7 +211,7 @@ export default function EmployeeDocumentsPage() {
               <tbody>
                 {docs.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="py-10 text-center text-[13px] text-zoru-ink-muted">
+                    <td colSpan={6} className="py-10 text-center text-[13px] text-[var(--st-text-secondary)]">
                       No documents found.
                     </td>
                   </tr>
@@ -219,13 +219,13 @@ export default function EmployeeDocumentsPage() {
                   docs.map((d) => (
                     <tr
                       key={String(d._id)}
-                      className="border-t border-zoru-line hover:bg-zoru-surface-2/50"
+                      className="border-t border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]/50"
                     >
-                      <td className="px-4 py-2.5 text-zoru-ink">
+                      <td className="px-4 py-2.5 text-[var(--st-text)]">
                         {empMap.get(String(d.user_id)) || d.user_id}
                       </td>
-                      <td className="px-4 py-2.5 text-zoru-ink">{d.name}</td>
-                      <td className="px-4 py-2.5 text-zoru-ink">
+                      <td className="px-4 py-2.5 text-[var(--st-text)]">{d.name}</td>
+                      <td className="px-4 py-2.5 text-[var(--st-text)]">
                         {d.uploaded_at ? new Date(d.uploaded_at).toLocaleDateString() : '—'}
                       </td>
                       <td className="px-4 py-2.5">
@@ -234,7 +234,7 @@ export default function EmployeeDocumentsPage() {
                             {expiryLabel(d.expiry_date)}
                           </Badge>
                         ) : (
-                          <span className="text-zoru-ink-muted">—</span>
+                          <span className="text-[var(--st-text-secondary)]">—</span>
                         )}
                       </td>
                       <td className="px-4 py-2.5">
@@ -243,13 +243,13 @@ export default function EmployeeDocumentsPage() {
                             href={d.file}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-zoru-ink hover:underline"
+                            className="inline-flex items-center gap-1 text-[var(--st-text)] hover:underline"
                           >
                             <ExternalLink className="h-3.5 w-3.5" />
                             View
                           </a>
                         ) : (
-                          <span className="text-zoru-ink-muted">—</span>
+                          <span className="text-[var(--st-text-secondary)]">—</span>
                         )}
                       </td>
                       <td className="px-4 py-2.5 text-right">
@@ -262,7 +262,7 @@ export default function EmployeeDocumentsPage() {
                             size="sm"
                             onClick={() => handleDelete(String(d._id))}
                           >
-                            <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                            <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                           </Button>
                         </div>
                       </td>
@@ -276,23 +276,23 @@ export default function EmployeeDocumentsPage() {
       </Card>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <ZoruDialogContent className="max-w-md border-zoru-line bg-zoru-bg">
+        <ZoruDialogContent className="max-w-md border-[var(--st-border)] bg-[var(--st-bg)]">
           <ZoruDialogHeader>
-            <ZoruDialogTitle className="text-zoru-ink">
+            <ZoruDialogTitle className="text-[var(--st-text)]">
               {form._id ? 'Edit Document' : 'Add Document'}
             </ZoruDialogTitle>
           </ZoruDialogHeader>
 
           <div className="grid gap-4 py-2">
             <div>
-              <Label className="text-[12px] text-zoru-ink-muted">
-                Employee <span className="text-zoru-danger-ink">*</span>
+              <Label className="text-[12px] text-[var(--st-text-secondary)]">
+                Employee <span className="text-[var(--st-danger)]">*</span>
               </Label>
               <Select
                 value={form.user_id || '__none__'}
                 onValueChange={(v) => set('user_id', v === '__none__' ? '' : v)}
               >
-                <ZoruSelectTrigger className="mt-1.5 h-10 w-full rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                <ZoruSelectTrigger className="mt-1.5 h-10 w-full rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]">
                   <ZoruSelectValue placeholder="Select employee…" />
                 </ZoruSelectTrigger>
                 <ZoruSelectContent>
@@ -307,26 +307,26 @@ export default function EmployeeDocumentsPage() {
             </div>
 
             <div>
-              <Label className="text-[12px] text-zoru-ink-muted">
-                Document Name <span className="text-zoru-danger-ink">*</span>
+              <Label className="text-[12px] text-[var(--st-text-secondary)]">
+                Document Name <span className="text-[var(--st-danger)]">*</span>
               </Label>
               <Input
                 value={form.name}
                 onChange={(e) => set('name', e.target.value)}
                 placeholder="e.g. Passport, ID Card…"
-                className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
               />
             </div>
 
             <div>
-              <Label className="text-[12px] text-zoru-ink-muted">File URL</Label>
+              <Label className="text-[12px] text-[var(--st-text-secondary)]">File URL</Label>
               <div className="mt-1.5 flex items-center gap-2">
                 <Input
                   type="url"
                   value={form.file}
                   onChange={(e) => set('file', e.target.value)}
                   placeholder="https://…"
-                  className="h-10 flex-1 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="h-10 flex-1 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 />
                 <SabFilePickerButton
                   accept="all"
@@ -339,21 +339,21 @@ export default function EmployeeDocumentsPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label className="text-[12px] text-zoru-ink-muted">Uploaded Date</Label>
+                <Label className="text-[12px] text-[var(--st-text-secondary)]">Uploaded Date</Label>
                 <Input
                   type="date"
                   value={form.uploaded_at}
                   onChange={(e) => set('uploaded_at', e.target.value)}
-                  className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 />
               </div>
               <div>
-                <Label className="text-[12px] text-zoru-ink-muted">Expiry Date</Label>
+                <Label className="text-[12px] text-[var(--st-text-secondary)]">Expiry Date</Label>
                 <Input
                   type="date"
                   value={form.expiry_date}
                   onChange={(e) => set('expiry_date', e.target.value)}
-                  className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
                 />
               </div>
             </div>

@@ -35,12 +35,12 @@ export function PreviewRunnerClient({ forms, pages }: Props) {
   );
   return (
     <div className="space-y-4">
-      <div className="inline-flex border rounded-md p-1 bg-zoru-surface-2/30">
+      <div className="inline-flex border rounded-md p-1 bg-[var(--st-bg-muted)]/30">
         <button
           type="button"
           onClick={() => setTab('forms')}
           className={`px-3 py-1.5 text-sm rounded ${
-            tab === 'forms' ? 'bg-zoru-surface shadow-sm' : 'text-zoru-ink-muted'
+            tab === 'forms' ? 'bg-[var(--st-bg-secondary)] shadow-sm' : 'text-[var(--st-text-secondary)]'
           }`}
         >
           Forms ({forms.length})
@@ -49,7 +49,7 @@ export function PreviewRunnerClient({ forms, pages }: Props) {
           type="button"
           onClick={() => setTab('pages')}
           className={`px-3 py-1.5 text-sm rounded ${
-            tab === 'pages' ? 'bg-zoru-surface shadow-sm' : 'text-zoru-ink-muted'
+            tab === 'pages' ? 'bg-[var(--st-bg-secondary)] shadow-sm' : 'text-[var(--st-text-secondary)]'
           }`}
         >
           Pages ({pages.length})
@@ -97,14 +97,14 @@ function FormRuntime({ form }: { form: SabcreatorFormDoc }) {
       <div className="flex items-center justify-between mb-3">
         <div>
           <div className="font-semibold">{form.name}</div>
-          <div className="text-xs text-zoru-ink-muted">
+          <div className="text-xs text-[var(--st-text-secondary)]">
             on submit: {form.submitAction}
           </div>
         </div>
         <Badge variant="outline">{form.status}</Badge>
       </div>
       {fields.length === 0 ? (
-        <div className="text-sm text-zoru-ink-muted">No fields defined.</div>
+        <div className="text-sm text-[var(--st-text-secondary)]">No fields defined.</div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-3">
           {fields
@@ -113,7 +113,7 @@ function FormRuntime({ form }: { form: SabcreatorFormDoc }) {
               <div key={f.tableFieldId} className="space-y-1">
                 <Label>
                   {f.label}
-                  {f.required ? <span className="text-zoru-ink"> *</span> : null}
+                  {f.required ? <span className="text-[var(--st-text)]"> *</span> : null}
                 </Label>
                 <Input
                   required={!!f.required}
@@ -123,7 +123,7 @@ function FormRuntime({ form }: { form: SabcreatorFormDoc }) {
                   }
                 />
                 {f.helpText ? (
-                  <p className="text-xs text-zoru-ink-muted">{f.helpText}</p>
+                  <p className="text-xs text-[var(--st-text-secondary)]">{f.helpText}</p>
                 ) : null}
               </div>
             ))}
@@ -148,13 +148,13 @@ function PageStub({ page }: { page: SabcreatorPageDoc }) {
       <div className="flex items-center justify-between">
         <div>
           <div className="font-semibold">{page.name}</div>
-          <div className="text-xs text-zoru-ink-muted">
+          <div className="text-xs text-[var(--st-text-secondary)]">
             {page.kind} · /{page.slug} · visibility {page.roleVisibility}
           </div>
         </div>
         <Badge variant="outline">{count} widgets</Badge>
       </div>
-      <p className="text-xs text-zoru-ink-muted mt-3">
+      <p className="text-xs text-[var(--st-text-secondary)] mt-3">
         Widget rendering is stubbed in preview. Use the page designer to inspect the
         config tree.
       </p>

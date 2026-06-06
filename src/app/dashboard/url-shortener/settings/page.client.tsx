@@ -54,8 +54,8 @@ export default function UrlShortenerSettingsPage() {
   return (
     <div className="flex flex-col gap-8 max-w-5xl">
       <div>
-        <h1 className="text-3xl text-zoru-ink">URL Shortener Settings</h1>
-        <p className="text-zoru-ink-muted">Configure custom domains, tags, and developer settings for your short links.</p>
+        <h1 className="text-3xl text-[var(--st-text)]">URL Shortener Settings</h1>
+        <p className="text-[var(--st-text-secondary)]">Configure custom domains, tags, and developer settings for your short links.</p>
       </div>
 
       <Card>

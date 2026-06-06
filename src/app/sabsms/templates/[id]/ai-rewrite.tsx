@@ -80,8 +80,8 @@ export function AiRewriteToolbar({
   const disabled = pending || !currentBody.trim();
 
   return (
-    <div className="space-y-3 rounded border border-zoru-line bg-zoru-surface-2 p-3">
-      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-zoru-ink">
+    <div className="space-y-3 rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3">
+      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--st-text)]">
         <Sparkles className="h-3.5 w-3.5" />
         AI assistance
       </div>
@@ -115,9 +115,9 @@ export function AiRewriteToolbar({
         </Button>
       </div>
 
-      <div className="flex flex-wrap items-end gap-2 border-t border-zoru-line pt-3">
+      <div className="flex flex-wrap items-end gap-2 border-t border-[var(--st-border)] pt-3">
         <div className="flex-1 min-w-[140px] space-y-1">
-          <div className="text-[11px] font-medium text-zoru-ink">
+          <div className="text-[11px] font-medium text-[var(--st-text)]">
             Translate to
           </div>
           <Select value={target} onValueChange={(v) => setTarget(v as LocaleCode)}>
@@ -145,10 +145,10 @@ export function AiRewriteToolbar({
       </div>
 
       {busy.error && (
-        <p className="text-xs text-zoru-ink">{busy.error}</p>
+        <p className="text-xs text-[var(--st-text)]">{busy.error}</p>
       )}
       {busy.note && (
-        <p className="text-[11px] text-zoru-ink">{busy.note}</p>
+        <p className="text-[11px] text-[var(--st-text)]">{busy.note}</p>
       )}
     </div>
   );

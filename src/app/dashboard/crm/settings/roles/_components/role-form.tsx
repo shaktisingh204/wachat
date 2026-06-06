@@ -70,7 +70,7 @@ export function RoleForm({
 
         <div>
           <Label htmlFor="display_name">
-            Display name <span className="text-zoru-danger-ink">*</span>
+            Display name <span className="text-[var(--st-danger)]">*</span>
           </Label>
           <Input
             id="display_name"
@@ -91,7 +91,7 @@ export function RoleForm({
             readOnly={isEditing}
             className={isEditing ? 'cursor-not-allowed opacity-70' : undefined}
           />
-          <p className="mt-1 text-[12px] text-zoru-ink-muted">
+          <p className="mt-1 text-[12px] text-[var(--st-text-secondary)]">
             Lowercase identifier used in permission checks.
             {isEditing ? ' Slug is locked once a role is created.' : null}
           </p>
@@ -116,11 +116,11 @@ export function RoleForm({
             disabled={initialData?.is_system ?? false}
           />
           <div className="space-y-1">
-            <Label htmlFor="is_admin" className="text-[13px] text-zoru-ink">
+            <Label htmlFor="is_admin" className="text-[13px] text-[var(--st-text)]">
               Admin role — grants all permissions automatically
             </Label>
             {initialData?.is_system ? (
-              <p className="text-[12px] text-zoru-ink-muted">
+              <p className="text-[12px] text-[var(--st-text-secondary)]">
                 System roles cannot have their admin flag changed.
               </p>
             ) : null}

@@ -93,9 +93,9 @@ function SortableFieldItem({ field, isSelected, onClick }: { field: FormField; i
 
     return (
         <div ref={setNodeRef} style={style} {...attributes} {...listeners} onClick={onClick}>
-            <Card className={`p-3 cursor-pointer hover:bg-zoru-surface-2 ${isSelected ? 'ring-2 ring-zoru-ink' : ''}`}>
-                <p className="font-semibold text-sm text-zoru-ink">{field.label || 'Untitled Field'}</p>
-                <p className="text-xs text-zoru-ink-muted">{field.type} {field.required && '*'}</p>
+            <Card className={`p-3 cursor-pointer hover:bg-[var(--st-bg-muted)] ${isSelected ? 'ring-2 ring-[var(--st-text)]' : ''}`}>
+                <p className="font-semibold text-sm text-[var(--st-text)]">{field.label || 'Untitled Field'}</p>
+                <p className="text-xs text-[var(--st-text-secondary)]">{field.type} {field.required && '*'}</p>
             </Card>
         </div>
     );
@@ -169,12 +169,12 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
 
     return (
         <div className="h-full flex flex-col">
-            <header className="flex-shrink-0 flex items-center justify-between p-3 border-b border-zoru-line bg-zoru-surface">
+            <header className="flex-shrink-0 flex items-center justify-between p-3 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
                 <div className="flex items-center gap-2">
                     <Button variant="ghost" size="icon" onClick={() => router.back()}>
                         <ArrowLeft className="h-4 w-4" />
                     </Button>
-                    <Input value={formName} onChange={e => setFormName(e.target.value)} className="text-lg font-semibold text-zoru-ink border-none shadow-none focus-visible:ring-0 p-1 h-auto" />
+                    <Input value={formName} onChange={e => setFormName(e.target.value)} className="text-lg font-semibold text-[var(--st-text)] border-none shadow-none focus-visible:ring-0 p-1 h-auto" />
                 </div>
                 <div className="flex items-center gap-2">
                     {initialForm?._id && (
@@ -196,9 +196,9 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                 </div>
             </header>
             <div className="flex-1 grid grid-cols-12 min-h-0">
-                 <div className="col-span-3 border-r border-zoru-line p-4 overflow-y-auto">
+                 <div className="col-span-3 border-r border-[var(--st-border)] p-4 overflow-y-auto">
                     <div className="space-y-4">
-                        <h2 className="text-lg font-semibold text-zoru-ink">Form Fields</h2>
+                        <h2 className="text-lg font-semibold text-[var(--st-text)]">Form Fields</h2>
                         <Button variant="outline" size="sm" onClick={() => addField('text')} leading={<Plus className="h-4 w-4"/>}>Add Field</Button>
                         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
                             <SortableContext items={fields.map(f => f.id)} strategy={verticalListSortingStrategy}>
@@ -216,12 +216,12 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                         </DndContext>
                     </div>
                 </div>
-                <main className="col-span-6 bg-zoru-surface-2 overflow-y-auto p-4 md:p-8">
+                <main className="col-span-6 bg-[var(--st-bg-muted)] overflow-y-auto p-4 md:p-8">
                      <CrmFormPreview settings={{...settings, fields}} />
                 </main>
-                 <aside className="col-span-3 border-l border-zoru-line p-4 overflow-y-auto">
+                 <aside className="col-span-3 border-l border-[var(--st-border)] p-4 overflow-y-auto">
                     <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-lg font-semibold text-zoru-ink">Properties</h2>
+                        <h2 className="text-lg font-semibold text-[var(--st-text)]">Properties</h2>
                          {selectedFieldId && (
                             <Button variant="ghost" size="sm" onClick={() => setSelectedFieldId(null)}>
                                 <ArrowLeft className="mr-2 h-4 w-4" />

@@ -69,22 +69,22 @@ export function ContractStatusTimeline({
                 <div className="timeline-step flex flex-col items-center relative z-10 w-20">
                   <div
                     className={`h-10 w-10 rounded-full flex items-center justify-center border-2 transition-colors duration-300
-                      ${isError ? 'border-destructive bg-zoru-ink/10 text-zoru-ink' 
-                        : isActive ? 'border-primary bg-zoru-ink/10 text-zoru-ink' : 'border-muted bg-zoru-surface-2/20 text-zoru-ink-muted'}`}
+                      ${isError ? 'border-destructive bg-[var(--st-text)]/10 text-[var(--st-text)]' 
+                        : isActive ? 'border-primary bg-[var(--st-text)]/10 text-[var(--st-text)]' : 'border-muted bg-[var(--st-bg-muted)]/20 text-[var(--st-text-secondary)]'}`}
                   >
                     {step === 'draft' && <FileText className="h-5 w-5" />}
                     {step === 'sent' && <Send className="h-5 w-5" />}
                     {step === 'signed' && (isError ? <XCircle className="h-5 w-5" /> : <CheckCircle2 className="h-5 w-5" />)}
                   </div>
                   <span className={`mt-2 text-[11px] font-medium uppercase tracking-wider text-center
-                    ${isError ? 'text-zoru-ink' : isActive ? 'text-zoru-ink' : 'text-zoru-ink-muted'}`}>
+                    ${isError ? 'text-[var(--st-text)]' : isActive ? 'text-[var(--st-text)]' : 'text-[var(--st-text-secondary)]'}`}>
                     {isError && step === 'signed' ? status : step}
                   </span>
                 </div>
                 {i < ALL_STEPS.length - 1 && (
                   <div className="flex-1 px-2">
                     <div className={`timeline-connector h-1 w-full rounded-full transition-colors duration-300
-                      ${isCompleted && !isTerminated ? 'bg-zoru-ink' : 'bg-zoru-surface-2'}`} 
+                      ${isCompleted && !isTerminated ? 'bg-[var(--st-text)]' : 'bg-[var(--st-bg-muted)]'}`} 
                     />
                   </div>
                 )}

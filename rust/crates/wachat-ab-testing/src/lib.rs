@@ -35,15 +35,17 @@ pub use state::WachatAbTestingState;
 /// ```text
 /// GET    /                      — list_tests (?projectId=)
 /// POST   /                      — create_test (create + launch)
-/// GET    /{id}                  — get_test (detail + per-variant results)
-/// DELETE /{id}                  — delete_test
-/// POST   /{id}/stop             — stop_test
-/// POST   /{id}/promote-winner   — promote_winner
+/// GET    /{id}                              — get_test (detail + live stats)
+/// DELETE /{id}                              — delete_test
+/// POST   /{id}/variants/{variant}/broadcast — attach_broadcast (variant=A|B)
+/// POST   /{id}/stop                         — stop_test
+/// POST   /{id}/promote-winner               — promote_winner
 /// ```
 ///
 /// Routes with literal segments after the `{id}` param (`/{id}/stop`,
-/// `/{id}/promote-winner`) are registered alongside the bare `/{id}`
-/// route — axum 0.8 matches the more specific path first.
+/// `/{id}/promote-winner`, `/{id}/variants/{variant}/broadcast`) are
+/// registered alongside the bare `/{id}` route — axum 0.8 matches the more
+/// specific path first.
 pub fn router<S>() -> Router<S>
 where
     S: Clone + Send + Sync + 'static,
@@ -55,6 +57,10 @@ where
         .route(
             "/{id}",
             get(handlers::get_test).delete(handlers::delete_test),
+        )
+        .route(
+            "/{id}/variants/{variant}/broadcast",
+            post(handlers::attach_broadcast),
         )
         .route("/{id}/stop", post(handlers::stop_test))
         .route("/{id}/promote-winner", post(handlers::promote_winner))

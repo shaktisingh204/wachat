@@ -112,13 +112,13 @@ export function LinkItemActions({ url, onUpdate }: LinkItemActionsProps) {
                                 <Skeleton className="h-10 w-full" />
                             </div>
                         ) : geoData?.length === 0 ? (
-                            <p className="text-sm text-zoru-ink-muted text-center py-4">No geographic data available yet.</p>
+                            <p className="text-sm text-[var(--st-text-secondary)] text-center py-4">No geographic data available yet.</p>
                         ) : (
                             <div className="space-y-3 max-h-[300px] overflow-y-auto">
                                 {geoData?.map((item) => (
-                                    <div key={item.country} className="flex justify-between items-center p-3 rounded-lg border border-zoru-border bg-zoru-ink/50">
+                                    <div key={item.country} className="flex justify-between items-center p-3 rounded-lg border border-[var(--st-border)] bg-[var(--st-text)]/50">
                                         <span className="text-sm font-medium">{item.country || 'Unknown'}</span>
-                                        <span className="text-sm text-zoru-ink-muted">{item.count} clicks</span>
+                                        <span className="text-sm text-[var(--st-text-secondary)]">{item.count} clicks</span>
                                     </div>
                                 ))}
                             </div>
@@ -140,7 +140,7 @@ export function LinkItemActions({ url, onUpdate }: LinkItemActionsProps) {
                         {splitTargets.map((target, index) => (
                             <div key={index} className="flex gap-2 items-end">
                                 <div className="flex-1 space-y-1">
-                                    <Label className="text-xs text-zoru-ink-muted">URL</Label>
+                                    <Label className="text-xs text-[var(--st-text-secondary)]">URL</Label>
                                     <Input 
                                         value={target.url} 
                                         onChange={(e) => handleUpdateTarget(index, 'url', e.target.value)} 
@@ -148,7 +148,7 @@ export function LinkItemActions({ url, onUpdate }: LinkItemActionsProps) {
                                     />
                                 </div>
                                 <div className="w-20 space-y-1">
-                                    <Label className="text-xs text-zoru-ink-muted">Weight (%)</Label>
+                                    <Label className="text-xs text-[var(--st-text-secondary)]">Weight (%)</Label>
                                     <Input 
                                         type="number"
                                         min={1}
@@ -156,7 +156,7 @@ export function LinkItemActions({ url, onUpdate }: LinkItemActionsProps) {
                                         onChange={(e) => handleUpdateTarget(index, 'weight', parseInt(e.target.value) || 0)} 
                                     />
                                 </div>
-                                <Button variant="ghost" size="icon" className="mb-[2px] text-zoru-ink-muted hover:text-zoru-ink-muted hover:bg-zoru-ink" onClick={() => handleRemoveTarget(index)}>
+                                <Button variant="ghost" size="icon" className="mb-[2px] text-[var(--st-text-secondary)] hover:text-[var(--st-text-secondary)] hover:bg-[var(--st-text)]" onClick={() => handleRemoveTarget(index)}>
                                     <Trash className="h-4 w-4" />
                                 </Button>
                             </div>

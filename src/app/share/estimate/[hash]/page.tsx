@@ -31,7 +31,7 @@ async function PublicEstimateContainer({ hash }: { hash: string }) {
         <ZoruCardHeader className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <ZoruCardTitle>Estimate {estimate.estimateNumber}</ZoruCardTitle>
-            <p className="mt-1 text-sm text-zoru-ink">
+            <p className="mt-1 text-sm text-[var(--st-text)]">
               Valid till {fmtDate(estimate.validTill)}
             </p>
           </div>
@@ -43,7 +43,7 @@ async function PublicEstimateContainer({ hash }: { hash: string }) {
               href={`/share/estimate/${hash}/download`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-md border border-zoru-line bg-white px-3 py-1.5 text-xs font-medium text-zoru-ink shadow-sm hover:bg-zoru-surface-2"
+              className="inline-flex items-center gap-1.5 rounded-md border border-[var(--st-border)] bg-white px-3 py-1.5 text-xs font-medium text-[var(--st-text)] shadow-sm hover:bg-[var(--st-bg-muted)]"
             >
               Download PDF
             </a>
@@ -51,12 +51,12 @@ async function PublicEstimateContainer({ hash }: { hash: string }) {
         </ZoruCardHeader>
         <ZoruCardContent className="space-y-6">
           <section>
-            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-zoru-ink">
+            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--st-text)]">
               Line items
             </h3>
-            <div className="overflow-x-auto rounded-md border border-zoru-line">
-              <table className="min-w-full divide-y divide-zoru-line text-sm">
-                <thead className="bg-zoru-surface-2 text-left text-xs uppercase text-zoru-ink">
+            <div className="overflow-x-auto rounded-md border border-[var(--st-border)]">
+              <table className="min-w-full divide-y divide-[var(--st-border)] text-sm">
+                <thead className="bg-[var(--st-bg-muted)] text-left text-xs uppercase text-[var(--st-text)]">
                   <tr>
                     <th className="px-3 py-2">Description</th>
                     <th className="px-3 py-2 text-right">Qty</th>
@@ -64,10 +64,10 @@ async function PublicEstimateContainer({ hash }: { hash: string }) {
                     <th className="px-3 py-2 text-right">Amount</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zoru-line bg-white">
+                <tbody className="divide-y divide-[var(--st-border)] bg-white">
                   {estimate.lineItems.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="px-3 py-4 text-center text-zoru-ink-muted">
+                      <td colSpan={4} className="px-3 py-4 text-center text-[var(--st-text-secondary)]">
                         No line items.
                       </td>
                     </tr>
@@ -91,15 +91,15 @@ async function PublicEstimateContainer({ hash }: { hash: string }) {
           </section>
 
           <section className="flex justify-end text-sm">
-            <div className="flex w-full max-w-xs justify-between border-t border-zoru-line pt-1 text-base font-semibold">
+            <div className="flex w-full max-w-xs justify-between border-t border-[var(--st-border)] pt-1 text-base font-semibold">
               <span>Total</span>
               <span>{fmtINR(estimate.total)}</span>
             </div>
           </section>
 
           {estimate.notes ? (
-            <section className="rounded-md bg-zoru-surface-2 p-3 text-sm text-zoru-ink">
-              <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-zoru-ink">
+            <section className="rounded-md bg-[var(--st-bg-muted)] p-3 text-sm text-[var(--st-text)]">
+              <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-[var(--st-text)]">
                 Notes
               </h3>
               <p className="whitespace-pre-line">{estimate.notes}</p>

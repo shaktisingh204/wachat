@@ -48,11 +48,11 @@ export function HandleDot({ state, scale, className }: Props) {
           state === 'default' &&
             'border-2 border-[var(--gray-7)] bg-[var(--gray-1)]',
           state === 'hover' &&
-            'border-2 border-zoru-line bg-zoru-ink shadow-[0_0_8px_rgba(247,104,8,0.4)]',
+            'border-2 border-[var(--st-border)] bg-[var(--st-text)] shadow-[0_0_8px_rgba(247,104,8,0.4)]',
           state === 'valid-target' &&
-            'border-2 border-zoru-line bg-zoru-ink/20 shadow-[0_0_10px_rgba(16,185,129,0.5)]',
+            'border-2 border-[var(--st-border)] bg-[var(--st-text)]/20 shadow-[0_0_10px_rgba(16,185,129,0.5)]',
           state === 'invalid-target' &&
-            'border-2 border-zoru-line bg-zoru-ink/20',
+            'border-2 border-[var(--st-border)] bg-[var(--st-text)]/20',
           state === 'connected' &&
             'border-2 border-[var(--gray-8)] bg-[var(--gray-8)]',
         )}

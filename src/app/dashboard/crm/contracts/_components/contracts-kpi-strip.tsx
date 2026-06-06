@@ -138,8 +138,8 @@ function KpiCard({
       type="button"
       onClick={onClick}
       className={[
-        'text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-zoru-primary',
-        active ? 'rounded-[var(--zoru-radius-lg)] ring-1 ring-zoru-primary' : '',
+        'text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]',
+        active ? 'rounded-[var(--zoru-radius-lg)] ring-1 ring-[var(--st-text)]' : '',
       ].join(' ')}
     >
       <StatCard label={label} value={value} icon={icon} />

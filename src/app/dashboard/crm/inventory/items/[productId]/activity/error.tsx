@@ -23,12 +23,12 @@ export default function ActivityError({
       eyebrow="ITEM ACTIVITY"
     >
       <div className="flex h-[400px] flex-col items-center justify-center space-y-4 rounded-xl border border-dashed p-8 text-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2/10">
-          <AlertCircle className="h-6 w-6 text-zoru-ink" />
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)]/10">
+          <AlertCircle className="h-6 w-6 text-[var(--st-text)]" />
         </div>
         <div className="space-y-1 text-center">
           <h3 className="text-lg font-medium">Something went wrong!</h3>
-          <p className="text-sm text-zoru-ink-muted">
+          <p className="text-sm text-[var(--st-text-secondary)]">
             {error.message || "We couldn't load the item activity at this time."}
           </p>
         </div>

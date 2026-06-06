@@ -77,12 +77,12 @@ function Kpi({
 }) {
     const toneClass =
         tone === 'danger'
-            ? 'text-zoru-ink'
+            ? 'text-[var(--st-text)]'
             : tone === 'warning'
-              ? 'text-zoru-ink'
+              ? 'text-[var(--st-text)]'
               : tone === 'ok'
-                ? 'text-zoru-ink'
-                : 'text-zoru-ink';
+                ? 'text-[var(--st-text)]'
+                : 'text-[var(--st-text)]';
     return (
         <Card>
             <ZoruCardHeader className="pb-2">
@@ -93,7 +93,7 @@ function Kpi({
             <ZoruCardContent>
                 <div className={`text-3xl font-semibold tabular-nums ${toneClass}`}>{value}</div>
                 {sub ? (
-                    <div className="mt-1 text-xs text-zoru-ink-muted">{sub}</div>
+                    <div className="mt-1 text-xs text-[var(--st-text-secondary)]">{sub}</div>
                 ) : null}
             </ZoruCardContent>
         </Card>
@@ -175,7 +175,7 @@ export default async function SabChatReportsPage({
                             </ZoruCardDescription>
                         </div>
                         {anyError ? (
-                            <Badge variant="outline" className="border-zoru-line text-zoru-ink">
+                            <Badge variant="outline" className="border-[var(--st-border)] text-[var(--st-text)]">
                                 Partial data
                             </Badge>
                         ) : null}
@@ -407,15 +407,15 @@ export default async function SabChatReportsPage({
                                                             <span className="w-8 font-mono">
                                                                 {rating}
                                                             </span>
-                                                            <div className="h-2 flex-1 overflow-hidden rounded bg-zoru-surface-2">
+                                                            <div className="h-2 flex-1 overflow-hidden rounded bg-[var(--st-bg-muted)]">
                                                                 <div
-                                                                    className="h-full bg-zoru-ink"
+                                                                    className="h-full bg-[var(--st-text)]"
                                                                     style={{
                                                                         width: `${pct.toFixed(1)}%`,
                                                                     }}
                                                                 />
                                                             </div>
-                                                            <span className="w-12 text-right tabular-nums text-zoru-ink-muted">
+                                                            <span className="w-12 text-right tabular-nums text-[var(--st-text-secondary)]">
                                                                 {fmtNum(count)}
                                                             </span>
                                                         </div>
@@ -442,7 +442,7 @@ export default async function SabChatReportsPage({
 function Stat({ label, value }: { label: string; value: string }) {
     return (
         <div className="flex flex-col gap-1">
-            <span className="text-xs uppercase tracking-wide text-zoru-ink-muted">{label}</span>
+            <span className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">{label}</span>
             <span className="text-xl font-semibold tabular-nums">{value}</span>
         </div>
     );
@@ -450,7 +450,7 @@ function Stat({ label, value }: { label: string; value: string }) {
 
 function EmptyHint({ message }: { message: string }) {
     return (
-        <div className="rounded border border-dashed p-6 text-center text-sm text-zoru-ink-muted">
+        <div className="rounded border border-dashed p-6 text-center text-sm text-[var(--st-text-secondary)]">
             {message}
         </div>
     );
@@ -464,10 +464,10 @@ function SimpleTable({
     rows: React.ReactNode[][];
 }) {
     return (
-        <div className="overflow-x-auto rounded border bg-zoru-surface">
+        <div className="overflow-x-auto rounded border bg-[var(--st-bg-secondary)]">
             <table className="w-full text-sm">
                 <thead>
-                    <tr className="border-b bg-zoru-surface-2/40 text-left text-xs uppercase tracking-wide text-zoru-ink-muted">
+                    <tr className="border-b bg-[var(--st-bg-muted)]/40 text-left text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
                         {head.map((h, i) => (
                             <th key={i} className="px-3 py-2 font-medium">
                                 {h}
@@ -479,7 +479,7 @@ function SimpleTable({
                     {rows.map((row, i) => (
                         <tr
                             key={i}
-                            className="border-b last:border-b-0 hover:bg-zoru-surface-2/20"
+                            className="border-b last:border-b-0 hover:bg-[var(--st-bg-muted)]/20"
                         >
                             {row.map((cell, j) => (
                                 <td key={j} className="px-3 py-2 align-middle">

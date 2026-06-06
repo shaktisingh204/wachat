@@ -58,7 +58,7 @@ export function ClientSalesForecastingPage({ initialData }: { initialData: AISal
       primaryAction={<Button onClick={() => setDialogOpen(true)}><Plus className="w-4 h-4 mr-2" />Run Forecast</Button>}
       search={{ value: query, onChange: setQuery, placeholder: 'Search by period...' }}
     >
-      <Card className="border-zoru-line bg-zoru-bg overflow-hidden">
+      <Card className="border-[var(--st-border)] bg-[var(--st-bg)] overflow-hidden">
         <Table>
           <ZoruTableHeader>
             <ZoruTableRow>
@@ -80,14 +80,14 @@ export function ClientSalesForecastingPage({ initialData }: { initialData: AISal
                 <ZoruTableCell>{item.drivers.join(', ')}</ZoruTableCell>
                 <ZoruTableCell className="text-right">
                   <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)}>
-                    <Trash2 className="w-4 h-4 text-zoru-ink" />
+                    <Trash2 className="w-4 h-4 text-[var(--st-text)]" />
                   </Button>
                 </ZoruTableCell>
               </ZoruTableRow>
             ))}
             {filteredData.length === 0 && (
               <ZoruTableRow>
-                <ZoruTableCell colSpan={6} className="text-center py-8 text-zoru-ink-light">No forecasts found.</ZoruTableCell>
+                <ZoruTableCell colSpan={6} className="text-center py-8 text-[var(--st-text-tertiary)]">No forecasts found.</ZoruTableCell>
               </ZoruTableRow>
             )}
           </ZoruTableBody>

@@ -63,15 +63,15 @@ export function AddBrandDialog({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <ZoruDialogContent className="sm:max-w-[425px]">
                 <ZoruDialogHeader>
-                    <ZoruDialogTitle className="text-zoru-ink">Add Brand</ZoruDialogTitle>
-                    <ZoruDialogDescription className="text-zoru-ink-muted">
+                    <ZoruDialogTitle className="text-[var(--st-text)]">Add Brand</ZoruDialogTitle>
+                    <ZoruDialogDescription className="text-[var(--st-text-secondary)]">
                         Create a new product brand.
                     </ZoruDialogDescription>
                 </ZoruDialogHeader>
                 <form onSubmit={handleSubmit}>
                     <div className="grid gap-4 py-4">
                         <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="name" className="text-right text-zoru-ink">
+                            <Label htmlFor="name" className="text-right text-[var(--st-text)]">
                                 Name
                             </Label>
                             <Input
@@ -83,7 +83,7 @@ export function AddBrandDialog({
                             />
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="description" className="text-right text-zoru-ink">
+                            <Label htmlFor="description" className="text-right text-[var(--st-text)]">
                                 Description
                             </Label>
                             <Textarea

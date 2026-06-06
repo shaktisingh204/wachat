@@ -123,7 +123,7 @@ export function CannedMessagesSettingsTab({ project }: CannedMessagesSettingsTab
                         </div>
                         <div className="flex items-center gap-2">
                             <div className="relative w-full sm:w-auto">
-                                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zoru-ink-muted" />
+                                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--st-text-secondary)]" />
                                 <Input
                                     placeholder="Search by name..."
                                     className="pl-8 w-full sm:w-64"
@@ -162,17 +162,17 @@ export function CannedMessagesSettingsTab({ project }: CannedMessagesSettingsTab
                                     filteredMessages.map(msg => (
                                         <ZoruTableRow key={msg._id.toString()}>
                                             <ZoruTableCell>
-                                                {msg.isFavourite && <Star className="h-5 w-5 text-zoru-ink-muted fill-zoru-ink-muted" />}
+                                                {msg.isFavourite && <Star className="h-5 w-5 text-[var(--st-text-secondary)] fill-[var(--st-text-secondary)]" />}
                                             </ZoruTableCell>
                                             <ZoruTableCell className="font-medium">{msg.name}</ZoruTableCell>
                                             <ZoruTableCell><Badge variant="outline" className="capitalize">{msg.type}</Badge></ZoruTableCell>
-                                            <ZoruTableCell className="text-zoru-ink-muted truncate max-w-xs">{msg.content.text || msg.content.mediaUrl}</ZoruTableCell>
-                                            <ZoruTableCell className="text-zoru-ink-muted">{msg.createdBy}</ZoruTableCell>
+                                            <ZoruTableCell className="text-[var(--st-text-secondary)] truncate max-w-xs">{msg.content.text || msg.content.mediaUrl}</ZoruTableCell>
+                                            <ZoruTableCell className="text-[var(--st-text-secondary)]">{msg.createdBy}</ZoruTableCell>
                                             <ZoruTableCell className="text-right">
                                                 <Button variant="ghost" size="icon" onClick={() => handleEdit(msg)}><Edit className="h-4 w-4"/></Button>
                                                 <ZoruAlertDialog>
                                                     <ZoruAlertDialogTrigger asChild>
-                                                        <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-zoru-ink"/></Button>
+                                                        <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-[var(--st-text)]"/></Button>
                                                     </ZoruAlertDialogTrigger>
                                                     <ZoruAlertDialogContent>
                                                         <ZoruAlertDialogHeader>
@@ -209,7 +209,7 @@ export function CannedMessagesSettingsTab({ project }: CannedMessagesSettingsTab
                                     <ZoruCardHeader className="flex flex-row justify-between items-start p-4">
                                         <div>
                                             <ZoruCardTitle className="text-base flex items-center gap-2">
-                                                {msg.isFavourite && <Star className="h-5 w-5 text-zoru-ink-muted fill-zoru-ink-muted" />}
+                                                {msg.isFavourite && <Star className="h-5 w-5 text-[var(--st-text-secondary)] fill-[var(--st-text-secondary)]" />}
                                                 {msg.name}
                                             </ZoruCardTitle>
                                             <ZoruCardDescription>
@@ -220,7 +220,7 @@ export function CannedMessagesSettingsTab({ project }: CannedMessagesSettingsTab
                                             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(msg)}><Edit className="h-4 w-4"/></Button>
                                             <ZoruAlertDialog>
                                                 <ZoruAlertDialogTrigger asChild>
-                                                    <Button variant="ghost" size="icon" className="h-8 w-8"><Trash2 className="h-4 w-4 text-zoru-ink"/></Button>
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8"><Trash2 className="h-4 w-4 text-[var(--st-text)]"/></Button>
                                                 </ZoruAlertDialogTrigger>
                                                 <ZoruAlertDialogContent>
                                                     <ZoruAlertDialogHeader><ZoruAlertDialogTitle>Are you sure?</ZoruAlertDialogTitle><ZoruAlertDialogDescription>This will permanently delete the "{msg.name}" canned message.</ZoruAlertDialogDescription></ZoruAlertDialogHeader>
@@ -230,9 +230,9 @@ export function CannedMessagesSettingsTab({ project }: CannedMessagesSettingsTab
                                         </div>
                                     </ZoruCardHeader>
                                     <ZoruCardContent className="p-4 pt-0">
-                                        <p className="text-sm text-zoru-ink-muted truncate">{msg.content.text || msg.content.mediaUrl}</p>
+                                        <p className="text-sm text-[var(--st-text-secondary)] truncate">{msg.content.text || msg.content.mediaUrl}</p>
                                     </ZoruCardContent>
-                                    <ZoruCardFooter className="p-4 pt-0 text-xs text-zoru-ink-muted">
+                                    <ZoruCardFooter className="p-4 pt-0 text-xs text-[var(--st-text-secondary)]">
                                         Created by: {msg.createdBy}
                                     </ZoruCardFooter>
                                 </Card>

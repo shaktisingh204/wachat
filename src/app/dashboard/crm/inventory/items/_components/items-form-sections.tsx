@@ -343,7 +343,7 @@ export function PricingSection(props: PricingSectionProps) {
               checked={props.taxInclusive}
               onCheckedChange={(c) => props.onTaxInclusive(Boolean(c))}
             />
-            <span className="text-[12.5px] text-zoru-ink-muted">
+            <span className="text-[12.5px] text-[var(--st-text-secondary)]">
               Prices already include tax
             </span>
             <input
@@ -497,7 +497,7 @@ export function InventorySection(props: InventorySectionProps) {
                 </Field>
               ) : (
                 <Field label="Opening stock">
-                  <p className="text-[11.5px] text-zoru-ink-muted">
+                  <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                     Use Stock Adjustments to change on-hand once an item exists.
                   </p>
                 </Field>

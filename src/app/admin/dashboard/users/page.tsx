@@ -67,20 +67,20 @@ export default async function AdminUsersPage({
             {/* Header */}
             <div className="flex flex-wrap items-end justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-zoru-ink">Users</h1>
-                    <p className="text-sm text-zoru-ink-muted mt-1">Manage accounts, permissions, and plans.</p>
+                    <h1 className="text-2xl font-bold text-[var(--st-text)]">Users</h1>
+                    <p className="text-sm text-[var(--st-text-secondary)] mt-1">Manage accounts, permissions, and plans.</p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-1.5 rounded-full border border-zoru-line bg-zoru-surface-2 px-3 py-1.5 text-xs font-medium text-zoru-ink">
+                    <div className="flex items-center gap-1.5 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-1.5 text-xs font-medium text-[var(--st-text)]">
                         <CheckCircle className="h-3.5 w-3.5" />
                         {approved} approved
                     </div>
-                    <div className="flex items-center gap-1.5 rounded-full border border-zoru-line bg-zoru-surface-2 px-3 py-1.5 text-xs font-medium text-zoru-ink">
+                    <div className="flex items-center gap-1.5 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-1.5 text-xs font-medium text-[var(--st-text)]">
                         <Clock className="h-3.5 w-3.5" />
                         {pending} pending
                     </div>
                     {suspended > 0 && (
-                        <div className="flex items-center gap-1.5 rounded-full border border-zoru-line bg-zoru-surface-2 px-3 py-1.5 text-xs font-medium text-zoru-ink">
+                        <div className="flex items-center gap-1.5 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-1.5 text-xs font-medium text-[var(--st-text)]">
                             <Ban className="h-3.5 w-3.5" />
                             {suspended} suspended
                         </div>

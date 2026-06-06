@@ -116,9 +116,9 @@ export function SprintBoard({ projectId, sprint, initialStories }: Props) {
     <div className="flex flex-col gap-4">
       <Card className="flex items-center justify-between gap-3 p-4">
         <div className="flex flex-col gap-1">
-          <h2 className="text-lg font-semibold text-zoru-ink">{sprint.name}</h2>
+          <h2 className="text-lg font-semibold text-[var(--st-text)]">{sprint.name}</h2>
           {sprint.goal ? (
-            <p className="text-sm text-zoru-ink-muted">{sprint.goal}</p>
+            <p className="text-sm text-[var(--st-text-secondary)]">{sprint.goal}</p>
           ) : null}
         </div>
         <div className="flex items-center gap-2">
@@ -157,11 +157,11 @@ export function SprintBoard({ projectId, sprint, initialStories }: Props) {
                     className="inline-block h-2 w-2 rounded-full"
                     style={{ backgroundColor: col.tint }}
                   />
-                  <h3 className="text-sm font-semibold text-zoru-ink">
+                  <h3 className="text-sm font-semibold text-[var(--st-text)]">
                     {col.label}
                   </h3>
                 </div>
-                <span className="text-xs text-zoru-ink-subtle">
+                <span className="text-xs text-[var(--st-text-tertiary)]">
                   {items.length} &middot; {sumPoints(items)} pts
                 </span>
               </header>
@@ -172,12 +172,12 @@ export function SprintBoard({ projectId, sprint, initialStories }: Props) {
                     draggable
                     onDragStart={() => setDraggingId(s._id)}
                     onDragEnd={() => setDraggingId(null)}
-                    className="cursor-grab rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-bg p-2"
+                    className="cursor-grab rounded-[var(--zoru-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2"
                   >
-                    <p className="text-sm text-zoru-ink line-clamp-2">{s.title}</p>
+                    <p className="text-sm text-[var(--st-text)] line-clamp-2">{s.title}</p>
                     <div className="mt-1 flex items-center justify-between text-xs">
                       <Badge variant="ghost">{s.priority}</Badge>
-                      <span className="text-zoru-ink-subtle">
+                      <span className="text-[var(--st-text-tertiary)]">
                         {s.points ?? 0} pts
                       </span>
                     </div>

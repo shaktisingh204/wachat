@@ -105,15 +105,15 @@ export default async function KbArticleDetailPage({
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="flex flex-col gap-4 lg:col-span-2">
           <Card className="p-6">
-            <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">
+            <h2 className="mb-4 text-[14px] font-medium text-[var(--st-text)]">
               Content
             </h2>
             {article.body ? (
-              <div className="prose-zoru whitespace-pre-wrap rounded-lg bg-zoru-surface-2 p-4 text-[14px] leading-relaxed text-zoru-ink">
+              <div className="prose-zoru whitespace-pre-wrap rounded-lg bg-[var(--st-bg-muted)] p-4 text-[14px] leading-relaxed text-[var(--st-text)]">
                 {article.body}
               </div>
             ) : (
-              <div className="rounded-lg bg-zoru-surface-2 p-4 text-[13px] text-zoru-ink-muted">
+              <div className="rounded-lg bg-[var(--st-bg-muted)] p-4 text-[13px] text-[var(--st-text-secondary)]">
                 No content yet.
               </div>
             )}
@@ -121,21 +121,21 @@ export default async function KbArticleDetailPage({
 
           {article.seoTitle || article.seoDescription ? (
             <Card className="p-6">
-              <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">
+              <h2 className="mb-4 text-[14px] font-medium text-[var(--st-text)]">
                 SEO meta
               </h2>
               <div className="grid gap-3 text-[13px]">
                 <div>
-                  <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                  <div className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                     SEO title
                   </div>
-                  <div className="text-zoru-ink">{article.seoTitle || "—"}</div>
+                  <div className="text-[var(--st-text)]">{article.seoTitle || "—"}</div>
                 </div>
                 <div>
-                  <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                  <div className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                     SEO description
                   </div>
-                  <div className="text-zoru-ink">
+                  <div className="text-[var(--st-text)]">
                     {article.seoDescription || "—"}
                   </div>
                 </div>
@@ -151,18 +151,18 @@ export default async function KbArticleDetailPage({
             </ZoruCardHeader>
             <ZoruCardContent className="space-y-3 text-[13px]">
               <div>
-                <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                <div className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                   Slug
                 </div>
-                <div className="font-mono text-zoru-ink">
+                <div className="font-mono text-[var(--st-text)]">
                   {article.slug || "—"}
                 </div>
               </div>
               <div>
-                <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                <div className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                   Category
                 </div>
-                <div className="text-zoru-ink">
+                <div className="text-[var(--st-text)]">
                   {article.category ? (
                     <EntityPickerChip
                       entity="category"
@@ -175,12 +175,12 @@ export default async function KbArticleDetailPage({
                 </div>
               </div>
               <div>
-                <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                <div className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                   Tags
                 </div>
                 <div className="flex flex-wrap gap-1">
                   {tags.length === 0 ? (
-                    <span className="text-zoru-ink-muted">—</span>
+                    <span className="text-[var(--st-text-secondary)]">—</span>
                   ) : (
                     tags.map((t) => (
                       <Badge key={t} variant="ghost">
@@ -191,24 +191,24 @@ export default async function KbArticleDetailPage({
                 </div>
               </div>
               <div>
-                <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                <div className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                   Views
                 </div>
-                <div className="text-zoru-ink">{article.viewCount ?? 0}</div>
+                <div className="text-[var(--st-text)]">{article.viewCount ?? 0}</div>
               </div>
               <div>
-                <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                <div className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                   Created
                 </div>
-                <div className="text-zoru-ink">
+                <div className="text-[var(--st-text)]">
                   {fmtDate(article.createdAt)}
                 </div>
               </div>
               <div>
-                <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                <div className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                   Updated
                 </div>
-                <div className="text-zoru-ink">
+                <div className="text-[var(--st-text)]">
                   {fmtDate(article.updatedAt)}
                 </div>
               </div>

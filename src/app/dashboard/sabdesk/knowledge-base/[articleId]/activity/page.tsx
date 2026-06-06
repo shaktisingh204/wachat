@@ -98,13 +98,13 @@ export default async function KbArticleActivityPage({
           {rows.map((r) => (
             <li
               key={r.label}
-              className="flex items-center justify-between rounded-md border border-zoru-line bg-zoru-surface-2/40 p-3"
+              className="flex items-center justify-between rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)]/40 p-3"
             >
-              <span className="inline-flex items-center gap-2 text-[12.5px] text-zoru-ink-muted">
+              <span className="inline-flex items-center gap-2 text-[12.5px] text-[var(--st-text-secondary)]">
                 <BookOpen className="h-3.5 w-3.5" />
                 {r.label}
               </span>
-              <span className="text-[13px] text-zoru-ink">{r.value}</span>
+              <span className="text-[13px] text-[var(--st-text)]">{r.value}</span>
             </li>
           ))}
         </ul>

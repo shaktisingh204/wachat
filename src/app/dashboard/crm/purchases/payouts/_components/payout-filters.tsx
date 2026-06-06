@@ -57,7 +57,7 @@ export function PayoutFiltersRow(props: PayoutFiltersRowProps) {
         <div className="flex w-full flex-col gap-3">
             {/* Saved presets row */}
             <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+                <span className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                     Views
                 </span>
                 {PRESETS.map((p) => {
@@ -70,8 +70,8 @@ export function PayoutFiltersRow(props: PayoutFiltersRowProps) {
                             className={[
                                 'rounded-full border px-2.5 py-1 text-[12px] transition',
                                 active
-                                    ? 'border-zoru-primary bg-zoru-primary/10 text-zoru-primary'
-                                    : 'border-zoru-line text-zoru-ink-muted hover:text-zoru-ink',
+                                    ? 'border-[var(--st-text)] bg-[var(--st-text)]/10 text-[var(--st-text)]'
+                                    : 'border-[var(--st-border)] text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
                             ].join(' ')}
                         >
                             {p.label}

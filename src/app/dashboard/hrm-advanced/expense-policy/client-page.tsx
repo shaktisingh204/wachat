@@ -220,7 +220,7 @@ export function ClientPage({ initialData }: { initialData: ExpenseClaim[] }) {
   const filters = (
     <div className="flex gap-2 items-center">
       <select
-        className="h-9 rounded-md border border-zoru-line bg-transparent px-3 text-sm focus:outline-none focus:ring-2 focus:ring-zoru-brand"
+        className="h-9 rounded-md border border-[var(--st-border)] bg-transparent px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--st-accent)]"
         value={statusFilter}
         onChange={(e) => setStatusFilter(e.target.value)}
       >
@@ -229,7 +229,7 @@ export function ClientPage({ initialData }: { initialData: ExpenseClaim[] }) {
         <option value="Approved">Approved</option>
         <option value="Rejected">Rejected</option>
       </select>
-      <div className="flex items-center gap-2 border-l pl-2 border-zoru-line">
+      <div className="flex items-center gap-2 border-l pl-2 border-[var(--st-border)]">
         <Button variant="ghost" size="sm" onClick={handleExportCSV} title="Export CSV">
           <Download className="h-4 w-4" />
         </Button>
@@ -268,10 +268,10 @@ export function ClientPage({ initialData }: { initialData: ExpenseClaim[] }) {
           />
         }
       >
-        <div className="rounded-md border border-zoru-line overflow-hidden bg-zoru-surface">
+        <div className="rounded-md border border-[var(--st-border)] overflow-hidden bg-[var(--st-bg-secondary)]">
           <div ref={parentRef} className="max-h-[600px] overflow-auto relative">
             <Table>
-              <ZoruTableHeader className="sticky top-0 bg-zoru-surface z-10 shadow-sm">
+              <ZoruTableHeader className="sticky top-0 bg-[var(--st-bg-secondary)] z-10 shadow-sm">
                 <ZoruTableRow>
                   <ZoruTableHead className="w-12 text-center">
                     <Checkbox
@@ -323,7 +323,7 @@ export function ClientPage({ initialData }: { initialData: ExpenseClaim[] }) {
                       <ZoruTableCell className="text-right">
                         <div className="flex justify-end gap-2">
                           <Button variant="ghost" size="sm" onClick={() => { setEditingClaim(row); setIsFormOpen(true); }}>Edit</Button>
-                          <Button variant="ghost" size="sm" className="text-zoru-ink hover:text-zoru-ink" onClick={() => handleDelete(id)}>Del</Button>
+                          <Button variant="ghost" size="sm" className="text-[var(--st-text)] hover:text-[var(--st-text)]" onClick={() => handleDelete(id)}>Del</Button>
                         </div>
                       </ZoruTableCell>
                     </ZoruTableRow>

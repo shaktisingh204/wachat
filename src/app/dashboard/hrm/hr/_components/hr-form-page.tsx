@@ -168,11 +168,11 @@ function FieldCell({
     <div className={field.fullWidth ? 'md:col-span-2' : ''}>
       <Label htmlFor={field.name}>
         {field.label}
-        {field.required ? <span className="text-zoru-danger-ink"> *</span> : null}
+        {field.required ? <span className="text-[var(--st-danger)]"> *</span> : null}
       </Label>
       <div className="mt-1.5">{renderField(field, raw)}</div>
       {field.help ? (
-        <p className="mt-1 text-[11.5px] text-zoru-ink-muted">{field.help}</p>
+        <p className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">{field.help}</p>
       ) : null}
     </div>
   );
@@ -298,7 +298,7 @@ function FieldArray({
       <input type="hidden" name={field.name} value={hiddenValue} />
 
       {rows.length === 0 ? (
-        <p className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-2.5 text-center text-[12px] text-zoru-ink-muted">
+        <p className="rounded-[var(--zoru-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2.5 text-center text-[12px] text-[var(--st-text-secondary)]">
           No rows yet — click Add below to start.
         </p>
       ) : (
@@ -306,7 +306,7 @@ function FieldArray({
           {rows.map((row, i) => (
             <div
               key={i}
-              className="flex flex-wrap items-end gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-2"
+              className="flex flex-wrap items-end gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2"
             >
               {subs.map((s) => {
                 const fieldId = `${field.name}-${i}-${s.name}`;
@@ -364,7 +364,7 @@ function FieldArray({
                 variant="ghost"
                 size="sm"
                 aria-label="Remove row"
-                className="text-zoru-danger-ink"
+                className="text-[var(--st-danger)]"
                 onClick={() =>
                   setRows((prev) => prev.filter((_, idx) => idx !== i))
                 }

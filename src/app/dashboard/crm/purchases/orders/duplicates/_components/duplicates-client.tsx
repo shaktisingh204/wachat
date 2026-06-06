@@ -250,7 +250,7 @@ export function DuplicatesClient({
 
       {/* No results */}
       {visible.length === 0 && (
-        <Card className="p-6 text-center text-[13px] text-zoru-ink-muted">
+        <Card className="p-6 text-center text-[13px] text-[var(--st-text-secondary)]">
           {groups.length === 0
             ? 'No duplicate clusters found. Purchase orders are matched when they share a vendor and either the same PO number or totals within 1% issued within 7 days.'
             : 'No groups match the selected confidence filter.'}
@@ -260,11 +260,11 @@ export function DuplicatesClient({
       {/* Group cards */}
       {visible.map(({ group, confidence }) => (
         <Card key={group.key} className="overflow-hidden p-0">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zoru-line bg-zoru-surface-2 px-4 py-3">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-3">
             <div className="flex items-center gap-2">
               <Badge variant={CONFIDENCE_BADGE[confidence]}>{confidence} confidence</Badge>
               <Badge variant="outline">{group.members.length} POs</Badge>
-              <span className="text-[12px] text-zoru-ink-muted">
+              <span className="text-[12px] text-[var(--st-text-secondary)]">
                 Vendor: {group.members[0].vendorId ?? 'unknown'}
               </span>
             </div>
@@ -312,11 +312,11 @@ export function DuplicatesClient({
                   const refMax = Math.max(Math.abs(refAmt), 1);
                   if (Math.abs(m.total - refAmt) / refMax <= 0.01) matchFields.push('amount');
                   return (
-                    <ZoruTableRow key={m._id} className={idx === 0 ? 'bg-zoru-surface-2/50' : ''}>
+                    <ZoruTableRow key={m._id} className={idx === 0 ? 'bg-[var(--st-bg-muted)]/50' : ''}>
                       <ZoruTableCell className="font-medium">
                         <Link
                           href={`/dashboard/crm/purchases/orders/${m._id}`}
-                          className="text-zoru-ink hover:underline"
+                          className="text-[var(--st-text)] hover:underline"
                         >
                           {m.poNo || m._id.slice(-6)}
                         </Link>
@@ -338,10 +338,10 @@ export function DuplicatesClient({
                       <ZoruTableCell className="text-right font-mono tabular-nums">
                         {fmtMoney(m.total, m.currency ?? 'INR')}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink-muted">
+                      <ZoruTableCell className="text-[var(--st-text-secondary)]">
                         {m.status ?? '—'}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink-muted">
+                      <ZoruTableCell className="text-[var(--st-text-secondary)]">
                         {fmtDate(m.date)}
                       </ZoruTableCell>
                       <ZoruTableCell>

@@ -142,30 +142,30 @@ export function VendorBidsListPage() {
                     }
                     loading={isLoading && bids.length === 0}
                 >
-                    <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                    <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
                         <Table>
                             <ZoruTableHeader>
-                                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                    <ZoruTableHead className="text-zoru-ink-muted">Vendor</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">RFQ id</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Items</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Amount</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted text-right">Actions</ZoruTableHead>
+                                <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Vendor</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">RFQ id</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Items</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Amount</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
+                                    <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">Actions</ZoruTableHead>
                                 </ZoruTableRow>
                             </ZoruTableHeader>
                             <ZoruTableBody>
                                 {isLoading ? (
-                                    <ZoruTableRow className="border-zoru-line">
+                                    <ZoruTableRow className="border-[var(--st-border)]">
                                         <ZoruTableCell colSpan={6} className="h-24 text-center">
-                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
+                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 ) : bids.length === 0 ? (
-                                    <ZoruTableRow className="border-zoru-line">
+                                    <ZoruTableRow className="border-[var(--st-border)]">
                                         <ZoruTableCell
                                             colSpan={6}
-                                            className="h-24 text-center text-zoru-ink-muted"
+                                            className="h-24 text-center text-[var(--st-text-secondary)]"
                                         >
                                             No vendor bids match this filter.
                                         </ZoruTableCell>
@@ -175,8 +175,8 @@ export function VendorBidsListPage() {
                                         const status = (b.status ?? 'submitted') as CrmVendorBidStatus;
                                         const tone = STATUS_TONE[status] ?? 'neutral';
                                         return (
-                                            <ZoruTableRow key={b._id} className="border-zoru-line">
-                                                <ZoruTableCell className="font-medium text-zoru-ink">
+                                            <ZoruTableRow key={b._id} className="border-[var(--st-border)]">
+                                                <ZoruTableCell className="font-medium text-[var(--st-text)]">
                                                     <Link
                                                         href={`${BASE}/${b._id}`}
                                                         className="hover:underline"
@@ -184,13 +184,13 @@ export function VendorBidsListPage() {
                                                         {b.vendorName ?? b.vendorId}
                                                     </Link>
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
+                                                <ZoruTableCell className="font-mono text-[12px] text-[var(--st-text)]">
                                                     {b.rfqId}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {Array.isArray(b.items) ? b.items.length : 0}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
+                                                <ZoruTableCell className="text-[var(--st-text)]">
                                                     {fmtMoney(b.totals?.total, b.currency)}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
@@ -207,7 +207,7 @@ export function VendorBidsListPage() {
                                                         size="icon"
                                                         onClick={() => setPendingDelete(b)}
                                                     >
-                                                        <Trash2 className="h-4 w-4 text-zoru-ink" />
+                                                        <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
                                                     </Button>
                                                 </ZoruTableCell>
                                             </ZoruTableRow>

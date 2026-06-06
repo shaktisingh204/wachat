@@ -321,7 +321,7 @@ export function FixedAssetListClient({
 
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative max-w-sm flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -405,9 +405,9 @@ export function FixedAssetListClient({
       </div>
 
       {selected.size > 0 ? (
-        <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-3 py-2 shadow-[var(--zoru-shadow-sm)]">
-          <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink">
-            <ListChecks className="h-4 w-4 text-zoru-primary" />
+        <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 shadow-[var(--zoru-shadow-sm)]">
+          <div className="flex items-center gap-2 text-[12.5px] text-[var(--st-text)]">
+            <ListChecks className="h-4 w-4 text-[var(--st-text)]" />
             {selected.size} selected
           </div>
           <div className="flex items-center gap-1">
@@ -436,7 +436,7 @@ export function FixedAssetListClient({
 
       <Card className="overflow-hidden p-0">
         {error ? (
-          <div className="flex items-center gap-2 border-b border-zoru-line/40 bg-zoru-ink/10 px-4 py-2.5 text-[13px] text-zoru-ink">
+          <div className="flex items-center gap-2 border-b border-[var(--st-border)]/40 bg-[var(--st-text)]/10 px-4 py-2.5 text-[13px] text-[var(--st-text)]">
             <AlertCircle className="h-4 w-4 shrink-0" />
             {error}
           </div>
@@ -469,7 +469,7 @@ export function FixedAssetListClient({
               <ZoruTableRow>
                 <ZoruTableCell
                   colSpan={11}
-                  className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                  className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                 >
                   {initialQuery || hasActiveFilters
                     ? 'No fixed assets match these filters.'
@@ -496,17 +496,17 @@ export function FixedAssetListClient({
                         subtitle={asset.name || undefined}
                       />
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                    <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                       {asset.category || '—'}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                    <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                       {asset.supplierId ? (
                         <EntityPickerChip entity="vendor" id={asset.supplierId} />
                       ) : (
                         '—'
                       )}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                    <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                       {asset.custodianEmployeeId ? (
                         <EntityPickerChip
                           entity="employee"
@@ -516,23 +516,23 @@ export function FixedAssetListClient({
                         '—'
                       )}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                    <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                       {asset.location || '—'}
                     </ZoruTableCell>
                     <ZoruTableCell>
                       {asset.condition ? (
                         <Badge variant="outline">{asset.condition}</Badge>
                       ) : (
-                        <span className="text-[12.5px] text-zoru-ink-muted">—</span>
+                        <span className="text-[12.5px] text-[var(--st-text-secondary)]">—</span>
                       )}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[12.5px] tabular-nums text-zoru-ink">
+                    <ZoruTableCell className="text-[12.5px] tabular-nums text-[var(--st-text)]">
                       {fmtMoney(asset.cost, asset.currency)}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[12.5px] tabular-nums text-zoru-ink">
+                    <ZoruTableCell className="text-[12.5px] tabular-nums text-[var(--st-text)]">
                       {fmtMoney(asset.netBookValue, asset.currency)}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                    <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                       {fmtDate(asset.purchaseDate)}
                     </ZoruTableCell>
                     <ZoruTableCell className="text-right">
@@ -546,7 +546,7 @@ export function FixedAssetListClient({
                           size="sm"
                           variant="ghost"
                           onClick={() => setPendingDelete(asset)}
-                          className="text-zoru-danger-ink"
+                          className="text-[var(--st-danger)]"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                         </Button>

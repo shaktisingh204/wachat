@@ -449,14 +449,14 @@ export function InvoiceListClient({
       render: (row) => row.clientId ? (
         <EntityPickerChip entity="client" id={row.clientId} />
       ) : (
-        <span className="text-zoru-ink-muted">{row.clientLabel ?? '—'}</span>
+        <span className="text-[var(--st-text-secondary)]">{row.clientLabel ?? '—'}</span>
       ),
     },
     {
       key: 'date',
       header: 'Invoice Date',
       sortable: true,
-      render: (row) => <span className="text-zoru-ink-muted">{fmtDate(row.date)}</span>,
+      render: (row) => <span className="text-[var(--st-text-secondary)]">{fmtDate(row.date)}</span>,
     },
     {
       key: 'dueDate',
@@ -464,11 +464,11 @@ export function InvoiceListClient({
       sortable: true,
       render: (row) => {
         const overdue = isOverdue(row);
-        const overdueClass = overdue ? 'text-zoru-danger-ink font-semibold' : 'text-zoru-ink-muted';
+        const overdueClass = overdue ? 'text-[var(--st-danger)] font-semibold' : 'text-[var(--st-text-secondary)]';
         return (
           <span className={overdueClass} title={relativeDays(row.dueDate)}>
             {fmtDate(row.dueDate)}
-            {overdue && <span className="ml-1 text-[10px] uppercase font-bold text-zoru-danger-ink">overdue</span>}
+            {overdue && <span className="ml-1 text-[10px] uppercase font-bold text-[var(--st-danger)]">overdue</span>}
           </span>
         );
       },
@@ -485,7 +485,7 @@ export function InvoiceListClient({
     {
       key: 'currency',
       header: 'Currency',
-      render: (row) => <span className="text-zoru-ink-muted">{row.currency || 'INR'}</span>,
+      render: (row) => <span className="text-[var(--st-text-secondary)]">{row.currency || 'INR'}</span>,
       editRender: (row, value, onChange) => (
         <Input
           size="sm"
@@ -500,7 +500,7 @@ export function InvoiceListClient({
       header: 'Total',
       sortable: true,
       render: (row) => (
-        <span className="font-mono tabular-nums text-zoru-ink font-semibold">
+        <span className="font-mono tabular-nums text-[var(--st-text)] font-semibold">
           {fmtMoney(row.total, row.currency ?? 'INR')}
         </span>
       ),
@@ -509,7 +509,7 @@ export function InvoiceListClient({
       key: 'paid',
       header: 'Paid',
       render: (row) => (
-        <span className="font-mono tabular-nums text-zoru-ink-muted">
+        <span className="font-mono tabular-nums text-[var(--st-text-secondary)]">
           {fmtMoney(row.paid, row.currency ?? 'INR')}
         </span>
       ),
@@ -521,7 +521,7 @@ export function InvoiceListClient({
       render: (row) => {
         const overdue = isOverdue(row);
         return (
-          <span className={`font-mono tabular-nums ${overdue && row.balance > 0 ? 'text-zoru-danger-ink font-bold' : 'text-zoru-ink'}`}>
+          <span className={`font-mono tabular-nums ${overdue && row.balance > 0 ? 'text-[var(--st-danger)] font-bold' : 'text-[var(--st-text)]'}`}>
             {fmtMoney(row.balance, row.currency ?? 'INR')}
           </span>
         );
@@ -537,13 +537,13 @@ export function InvoiceListClient({
           tone={statusToTone(row.status)}
         />
       ) : (
-        <span className="text-zoru-ink-muted">—</span>
+        <span className="text-[var(--st-text-secondary)]">—</span>
       ),
       editRender: (row, value, onChange) => {
         const options = ['draft', 'sent', 'paid', 'cancelled', 'overdue'];
         return (
           <select
-            className="h-8 w-28 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg text-zoru-ink text-[12.5px] p-1 outline-none"
+            className="h-8 w-28 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)] text-[12.5px] p-1 outline-none"
             value={value !== undefined ? String(value) : 'draft'}
             onChange={(e) => onChange(e.target.value)}
           >
@@ -562,14 +562,14 @@ export function InvoiceListClient({
       render: (row) => row.salesAgentId ? (
         <EntityPickerChip entity="user" id={row.salesAgentId} />
       ) : (
-        <span className="text-zoru-ink-muted">—</span>
+        <span className="text-[var(--st-text-secondary)]">—</span>
       ),
     },
     {
       key: 'createdAt',
       header: 'Created',
       sortable: true,
-      render: (row) => <span className="text-zoru-ink-muted">{fmtDate(row.createdAt)}</span>,
+      render: (row) => <span className="text-[var(--st-text-secondary)]">{fmtDate(row.createdAt)}</span>,
     },
   ], [serverInvoices]);
 
@@ -603,11 +603,11 @@ export function InvoiceListClient({
         empty={
           invoices.length === 0 && !filtersActive ? (
             <div className="flex flex-col items-center gap-3 p-4">
-              <Receipt className="h-8 w-8 text-zoru-ink-muted" />
-              <h3 className="text-base font-medium text-zoru-ink">
+              <Receipt className="h-8 w-8 text-[var(--st-text-secondary)]" />
+              <h3 className="text-base font-medium text-[var(--st-text)]">
                 No invoices yet
               </h3>
-              <p className="max-w-sm text-sm text-zoru-ink-muted">
+              <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                 Bill your first customer to start tracking sales revenue.
               </p>
               <Button asChild>
@@ -641,7 +641,7 @@ export function InvoiceListClient({
           />
 
           {error ? (
-            <div className="rounded border border-zoru-line/40 bg-zoru-ink/10 px-3 py-2 text-[12.5px] text-zoru-ink dark:text-zoru-ink-muted">
+            <div className="rounded border border-[var(--st-border)]/40 bg-[var(--st-text)]/10 px-3 py-2 text-[12.5px] text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
               {error}
             </div>
           ) : null}

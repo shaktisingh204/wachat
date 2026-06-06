@@ -10,8 +10,8 @@ export default function ErrorBoundary({ error, reset }: { error: Error & { diges
 
   return (
     <div className="p-4 space-y-4">
-      <h2 className="text-xl font-bold text-zoru-ink">Something went wrong!</h2>
-      <p className="text-sm text-zoru-ink-muted">{error.message || 'An unexpected error occurred.'}</p>
+      <h2 className="text-xl font-bold text-[var(--st-text)]">Something went wrong!</h2>
+      <p className="text-sm text-[var(--st-text-secondary)]">{error.message || 'An unexpected error occurred.'}</p>
       <Button onClick={() => reset()}>Try again</Button>
     </div>
   );

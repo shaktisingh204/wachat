@@ -104,26 +104,26 @@ function KpiCard({ label, value, icon: Icon, tone, hint }: KpiCardProps) {
         <Card className="overflow-hidden">
             <ZoruCardContent className="flex items-start justify-between gap-3 p-4">
                 <div className="min-w-0">
-                    <p className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                    <p className="text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                         {label}
                     </p>
                     <p
                         className={
                             tone === 'accent'
-                                ? 'mt-1 text-2xl font-semibold text-zoru-accent'
-                                : 'mt-1 text-2xl font-semibold text-zoru-ink'
+                                ? 'mt-1 text-2xl font-semibold text-[var(--st-accent)]'
+                                : 'mt-1 text-2xl font-semibold text-[var(--st-text)]'
                         }
                     >
                         {value}
                     </p>
                     {hint ? (
-                        <p className="mt-0.5 truncate text-[11px] text-zoru-ink-muted">
+                        <p className="mt-0.5 truncate text-[11px] text-[var(--st-text-secondary)]">
                             {hint}
                         </p>
                     ) : null}
                 </div>
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-zoru-surface-2">
-                    <Icon className="h-4 w-4 text-zoru-ink" strokeWidth={1.75} />
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-[var(--st-bg-muted)]">
+                    <Icon className="h-4 w-4 text-[var(--st-text)]" strokeWidth={1.75} />
                 </div>
             </ZoruCardContent>
         </Card>
@@ -141,15 +141,15 @@ function QuickActionCard({ href, title, description, icon: Icon }: QuickActionCa
     return (
         <Link
             href={href}
-            className="block rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-4 transition-colors hover:border-zoru-ink/30"
+            className="block rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4 transition-colors hover:border-[var(--st-text)]/30"
         >
             <div className="flex items-start gap-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-zoru-surface-2">
-                    <Icon className="h-4 w-4 text-zoru-ink" strokeWidth={1.75} />
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-[var(--st-bg-muted)]">
+                    <Icon className="h-4 w-4 text-[var(--st-text)]" strokeWidth={1.75} />
                 </div>
                 <div className="min-w-0">
-                    <p className="text-sm font-medium text-zoru-ink">{title}</p>
-                    <p className="mt-0.5 text-xs text-zoru-ink-muted">{description}</p>
+                    <p className="text-sm font-medium text-[var(--st-text)]">{title}</p>
+                    <p className="mt-0.5 text-xs text-[var(--st-text-secondary)]">{description}</p>
                 </div>
             </div>
         </Link>
@@ -328,31 +328,31 @@ async function PosDashboardContainer() {
                         <ZoruCardTitle>Today's transactions</ZoruCardTitle>
                         <Link
                             href="/dashboard/crm/pos/sessions"
-                            className="text-[12px] text-zoru-ink-muted hover:text-zoru-ink hover:underline"
+                            className="text-[12px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:underline"
                         >
                             View all sessions
                         </Link>
                     </ZoruCardHeader>
                     <ZoruCardContent className="p-0">
                         {recentTxns.length === 0 ? (
-                            <p className="px-6 pb-6 text-[13px] text-zoru-ink-muted">
+                            <p className="px-6 pb-6 text-[13px] text-[var(--st-text-secondary)]">
                                 No transactions yet today. Open the terminal to ring
                                 up sales.
                             </p>
                         ) : (
-                            <div className="divide-y divide-zoru-line">
+                            <div className="divide-y divide-[var(--st-border)]">
                                 {recentTxns.map((t) => (
                                     <Link
                                         key={t._id}
                                         href={`/dashboard/crm/pos/sessions/${t.sessionId}`}
-                                        className="flex items-center justify-between gap-3 px-4 py-2.5 text-[13px] hover:bg-zoru-surface-2"
+                                        className="flex items-center justify-between gap-3 px-4 py-2.5 text-[13px] hover:bg-[var(--st-bg-muted)]"
                                     >
                                         <div className="flex min-w-0 items-center gap-3">
-                                            <Receipt className="h-3.5 w-3.5 shrink-0 text-zoru-ink-muted" />
-                                            <span className="truncate font-mono text-[12px] text-zoru-ink">
+                                            <Receipt className="h-3.5 w-3.5 shrink-0 text-[var(--st-text-secondary)]" />
+                                            <span className="truncate font-mono text-[12px] text-[var(--st-text)]">
                                                 {t.transactionNumber}
                                             </span>
-                                            <span className="truncate text-zoru-ink-muted">
+                                            <span className="truncate text-[var(--st-text-secondary)]">
                                                 {t.customerName || 'Walk-in'}
                                             </span>
                                             <Badge
@@ -363,7 +363,7 @@ async function PosDashboardContainer() {
                                             </Badge>
                                         </div>
                                         <div className="flex shrink-0 items-center gap-3">
-                                            <span className="text-zoru-ink-muted">
+                                            <span className="text-[var(--st-text-secondary)]">
                                                 <Clock className="mr-1 inline h-3 w-3" />
                                                 {fmtTime(t.createdAt)}
                                             </span>
@@ -387,18 +387,18 @@ async function PosDashboardContainer() {
                         <ZoruCardTitle>Recent refunds</ZoruCardTitle>
                         <Link
                             href="/dashboard/crm/pos/refunds"
-                            className="text-[12px] text-zoru-ink-muted hover:text-zoru-ink hover:underline"
+                            className="text-[12px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:underline"
                         >
                             All
                         </Link>
                     </ZoruCardHeader>
                     <ZoruCardContent className="p-0">
                         {recentRefunds.length === 0 ? (
-                            <p className="px-6 pb-6 text-[13px] text-zoru-ink-muted">
+                            <p className="px-6 pb-6 text-[13px] text-[var(--st-text-secondary)]">
                                 No refunds recorded.
                             </p>
                         ) : (
-                            <div className="divide-y divide-zoru-line">
+                            <div className="divide-y divide-[var(--st-border)]">
                                 {recentRefunds.map((r) => (
                                     <div
                                         key={r._id}
@@ -414,7 +414,7 @@ async function PosDashboardContainer() {
                                             </span>
                                         </div>
                                         <div className="flex items-center justify-between gap-2">
-                                            <span className="truncate text-zoru-ink-muted">
+                                            <span className="truncate text-[var(--st-text-secondary)]">
                                                 {r.reason}
                                             </span>
                                             <StatusPill

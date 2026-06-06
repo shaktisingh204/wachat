@@ -103,18 +103,18 @@ export function NewMeetingForm() {
             <button
               type="button"
               onClick={() => setMode('instant')}
-              className={`flex-1 rounded-lg border p-4 text-left transition ${mode === 'instant' ? 'border-zoru-brand bg-zoru-brand/5' : 'border-zoru-line'}`}
+              className={`flex-1 rounded-lg border p-4 text-left transition ${mode === 'instant' ? 'border-[var(--st-accent)] bg-[var(--st-accent)]/5' : 'border-[var(--st-border)]'}`}
             >
-              <div className="font-medium text-zoru-ink">Instant</div>
-              <div className="text-xs text-zoru-ink-muted mt-1">Start the meeting immediately.</div>
+              <div className="font-medium text-[var(--st-text)]">Instant</div>
+              <div className="text-xs text-[var(--st-text-secondary)] mt-1">Start the meeting immediately.</div>
             </button>
             <button
               type="button"
               onClick={() => setMode('scheduled')}
-              className={`flex-1 rounded-lg border p-4 text-left transition ${mode === 'scheduled' ? 'border-zoru-brand bg-zoru-brand/5' : 'border-zoru-line'}`}
+              className={`flex-1 rounded-lg border p-4 text-left transition ${mode === 'scheduled' ? 'border-[var(--st-accent)] bg-[var(--st-accent)]/5' : 'border-[var(--st-border)]'}`}
             >
-              <div className="font-medium text-zoru-ink">Scheduled</div>
-              <div className="text-xs text-zoru-ink-muted mt-1">Pick a start/end time and invite people.</div>
+              <div className="font-medium text-[var(--st-text)]">Scheduled</div>
+              <div className="text-xs text-[var(--st-text-secondary)] mt-1">Pick a start/end time and invite people.</div>
             </button>
           </CardContent>
         </Card>
@@ -172,21 +172,21 @@ export function NewMeetingForm() {
             </div>
             <label className="flex items-center gap-2 cursor-pointer">
               <Checkbox name="lobbyEnabled" defaultChecked />
-              <span className="text-sm text-zoru-ink">Enable waiting lobby (host admits guests)</span>
+              <span className="text-sm text-[var(--st-text)]">Enable waiting lobby (host admits guests)</span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
               <Checkbox name="recordingEnabled" />
-              <span className="text-sm text-zoru-ink">Record this meeting</span>
+              <span className="text-sm text-[var(--st-text)]">Record this meeting</span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
               <Checkbox name="requireAuth" />
-              <span className="text-sm text-zoru-ink">Require signed-in users only (no guests)</span>
+              <span className="text-sm text-[var(--st-text)]">Require signed-in users only (no guests)</span>
             </label>
           </CardContent>
         </Card>
 
         {error ? (
-          <div className="rounded-md border border-zoru-line/40 bg-zoru-ink/5 text-sm text-zoru-ink px-3 py-2">
+          <div className="rounded-md border border-[var(--st-border)]/40 bg-[var(--st-text)]/5 text-sm text-[var(--st-text)] px-3 py-2">
             {error}
           </div>
         ) : null}

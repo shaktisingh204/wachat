@@ -102,17 +102,17 @@ export default function SkillsMasterPage() {
       <Card className="p-6">
         {isLoading ? (
           <div className="flex h-32 items-center justify-center">
-            <LoaderCircle className="h-6 w-6 animate-spin text-zoru-ink-muted" />
+            <LoaderCircle className="h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-lg border border-zoru-line">
+          <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
             <table className="w-full text-[13px]">
               <thead>
-                <tr className="border-b border-zoru-line bg-zoru-surface-2">
-                  <th className="px-4 py-2.5 text-left text-[12px] text-zoru-ink-muted">
+                <tr className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]">
+                  <th className="px-4 py-2.5 text-left text-[12px] text-[var(--st-text-secondary)]">
                     Skill Name
                   </th>
-                  <th className="px-4 py-2.5 text-right text-[12px] text-zoru-ink-muted">
+                  <th className="px-4 py-2.5 text-right text-[12px] text-[var(--st-text-secondary)]">
                     Actions
                   </th>
                 </tr>
@@ -120,7 +120,7 @@ export default function SkillsMasterPage() {
               <tbody>
                 {skills.length === 0 ? (
                   <tr>
-                    <td colSpan={2} className="py-10 text-center text-[13px] text-zoru-ink-muted">
+                    <td colSpan={2} className="py-10 text-center text-[13px] text-[var(--st-text-secondary)]">
                       No skills defined yet.
                     </td>
                   </tr>
@@ -128,9 +128,9 @@ export default function SkillsMasterPage() {
                   skills.map((s) => (
                     <tr
                       key={String(s._id)}
-                      className="border-t border-zoru-line hover:bg-zoru-surface-2/50"
+                      className="border-t border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]/50"
                     >
-                      <td className="px-4 py-2.5 text-zoru-ink">{s.name}</td>
+                      <td className="px-4 py-2.5 text-[var(--st-text)]">{s.name}</td>
                       <td className="px-4 py-2.5 text-right">
                         <div className="flex justify-end gap-1">
                           <Button variant="ghost" size="sm" onClick={() => openEdit(s)}>
@@ -141,7 +141,7 @@ export default function SkillsMasterPage() {
                             size="sm"
                             onClick={() => handleDelete(String(s._id))}
                           >
-                            <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                            <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                           </Button>
                         </div>
                       </td>
@@ -155,23 +155,23 @@ export default function SkillsMasterPage() {
       </Card>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <ZoruDialogContent className="max-w-sm border-zoru-line bg-zoru-bg">
+        <ZoruDialogContent className="max-w-sm border-[var(--st-border)] bg-[var(--st-bg)]">
           <ZoruDialogHeader>
-            <ZoruDialogTitle className="text-zoru-ink">
+            <ZoruDialogTitle className="text-[var(--st-text)]">
               {form._id ? 'Edit Skill' : 'Add Skill'}
             </ZoruDialogTitle>
           </ZoruDialogHeader>
 
           <div className="py-2">
-            <Label className="text-[12px] text-zoru-ink-muted">
-              Skill Name <span className="text-zoru-danger-ink">*</span>
+            <Label className="text-[12px] text-[var(--st-text-secondary)]">
+              Skill Name <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <Input
               value={form.name}
               onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
               onKeyDown={(e) => { if (e.key === 'Enter') handleSave(); }}
               placeholder="e.g. JavaScript, Project Management…"
-              className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+              className="mt-1.5 h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[13px]"
               autoFocus
             />
           </div>

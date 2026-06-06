@@ -186,7 +186,7 @@ export default function GlobalSettingsPage() {
         <form action={formAction} className="flex flex-col gap-4">
           {/* Section: Identity */}
           <Card className="p-6">
-            <h3 className="mb-4 text-[13px] uppercase tracking-wide text-zoru-ink-muted">
+            <h3 className="mb-4 text-[13px] uppercase tracking-wide text-[var(--st-text-secondary)]">
               Identity
             </h3>
             <div className="grid gap-4 md:grid-cols-2">
@@ -221,7 +221,7 @@ export default function GlobalSettingsPage() {
 
           {/* Section: Locale */}
           <Card className="p-6">
-            <h3 className="mb-4 text-[13px] uppercase tracking-wide text-zoru-ink-muted">
+            <h3 className="mb-4 text-[13px] uppercase tracking-wide text-[var(--st-text-secondary)]">
               Locale &amp; Date Formats
             </h3>
             <div className="grid gap-4 md:grid-cols-2">
@@ -267,18 +267,18 @@ export default function GlobalSettingsPage() {
               </div>
 
               <div className="md:col-span-2 border-t border-dashed pt-4 mt-2">
-                <div className="rounded-lg bg-zoru-surface-2 p-4 border border-zoru-line flex items-center justify-between flex-wrap gap-4">
+                <div className="rounded-lg bg-[var(--st-bg-muted)] p-4 border border-[var(--st-border)] flex items-center justify-between flex-wrap gap-4">
                   <div>
-                    <span className="text-[12px] font-semibold text-zoru-ink uppercase tracking-wide">Live Preview (Today)</span>
-                    <p className="text-[11.5px] text-zoru-ink-muted mt-0.5">See how dates will look across the workspace based on your settings.</p>
+                    <span className="text-[12px] font-semibold text-[var(--st-text)] uppercase tracking-wide">Live Preview (Today)</span>
+                    <p className="text-[11.5px] text-[var(--st-text-secondary)] mt-0.5">See how dates will look across the workspace based on your settings.</p>
                   </div>
                   <div className="flex gap-4">
-                    <div className="rounded bg-zoru-surface px-3 py-1.5 border border-zoru-line font-mono text-[13px] text-zoru-ink">
-                      <span className="text-[10px] block text-zoru-ink-muted font-sans font-normal mb-0.5">Date-picker Preview</span>
+                    <div className="rounded bg-[var(--st-bg-secondary)] px-3 py-1.5 border border-[var(--st-border)] font-mono text-[13px] text-[var(--st-text)]">
+                      <span className="text-[10px] block text-[var(--st-text-secondary)] font-sans font-normal mb-0.5">Date-picker Preview</span>
                       {preview.picker}
                     </div>
-                    <div className="rounded bg-zoru-surface px-3 py-1.5 border border-zoru-line font-mono text-[13px] text-zoru-ink">
-                      <span className="text-[10px] block text-zoru-ink-muted font-sans font-normal mb-0.5">Moment.js Preview</span>
+                    <div className="rounded bg-[var(--st-bg-secondary)] px-3 py-1.5 border border-[var(--st-border)] font-mono text-[13px] text-[var(--st-text)]">
+                      <span className="text-[10px] block text-[var(--st-text-secondary)] font-sans font-normal mb-0.5">Moment.js Preview</span>
                       {preview.moment}
                     </div>
                   </div>
@@ -289,7 +289,7 @@ export default function GlobalSettingsPage() {
 
           {/* Section: Behaviour */}
           <Card className="p-6">
-            <h3 className="mb-4 text-[13px] uppercase tracking-wide text-zoru-ink-muted">
+            <h3 className="mb-4 text-[13px] uppercase tracking-wide text-[var(--st-text-secondary)]">
               Behaviour
             </h3>
             <div className="grid gap-4 md:grid-cols-3">

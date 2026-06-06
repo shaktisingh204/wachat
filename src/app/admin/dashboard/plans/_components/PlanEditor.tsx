@@ -86,47 +86,47 @@ function SectionCard({
 }) {
     const accentMap: Record<string, { tile: string; icon: string; glow: string }> = {
         primary: {
-            tile: 'bg-zoru-ink/10 border-primary/30',
-            icon: 'text-zoru-ink',
+            tile: 'bg-[var(--st-text)]/10 border-primary/30',
+            icon: 'text-[var(--st-text)]',
             glow: 'from-primary/10',
         },
         amber: {
-            tile: 'bg-zoru-surface-2 border-zoru-line',
-            icon: 'text-zoru-ink',
-            glow: 'from-zoru-ink/10',
+            tile: 'bg-[var(--st-bg-muted)] border-[var(--st-border)]',
+            icon: 'text-[var(--st-text)]',
+            glow: 'from-[var(--st-text)]/10',
         },
         violet: {
-            tile: 'bg-zoru-surface-2 border-zoru-line',
-            icon: 'text-zoru-ink',
-            glow: 'from-zoru-ink/10',
+            tile: 'bg-[var(--st-bg-muted)] border-[var(--st-border)]',
+            icon: 'text-[var(--st-text)]',
+            glow: 'from-[var(--st-text)]/10',
         },
         emerald: {
-            tile: 'bg-zoru-surface-2 border-zoru-line',
-            icon: 'text-zoru-ink',
-            glow: 'from-zoru-ink/10',
+            tile: 'bg-[var(--st-bg-muted)] border-[var(--st-border)]',
+            icon: 'text-[var(--st-text)]',
+            glow: 'from-[var(--st-text)]/10',
         },
         sky: {
-            tile: 'bg-zoru-surface-2 border-zoru-line',
-            icon: 'text-zoru-ink',
-            glow: 'from-zoru-ink/10',
+            tile: 'bg-[var(--st-bg-muted)] border-[var(--st-border)]',
+            icon: 'text-[var(--st-text)]',
+            glow: 'from-[var(--st-text)]/10',
         },
         rose: {
-            tile: 'bg-zoru-surface-2 border-zoru-line',
-            icon: 'text-zoru-ink',
-            glow: 'from-zoru-ink/10',
+            tile: 'bg-[var(--st-bg-muted)] border-[var(--st-border)]',
+            icon: 'text-[var(--st-text)]',
+            glow: 'from-[var(--st-text)]/10',
         },
     };
     const styles = accentMap[accent || 'primary'];
     return (
         <Card
             className={cn(
-                'rounded-2xl border-zoru-line bg-zoru-bg backdrop-blur-xl shadow-sm overflow-hidden',
-                premium && 'ring-1 ring-zoru-line/40 shadow-zoru-line/10',
+                'rounded-2xl border-[var(--st-border)] bg-[var(--st-bg)] backdrop-blur-xl shadow-sm overflow-hidden',
+                premium && 'ring-1 ring-[var(--st-border)]/40 shadow-zoru-line/10',
             )}
         >
             <ZoruCardHeader
                 className={cn(
-                    'border-b border-zoru-line bg-gradient-to-r to-transparent',
+                    'border-b border-[var(--st-border)] bg-gradient-to-r to-transparent',
                     styles.glow,
                 )}
             >
@@ -145,7 +145,7 @@ function SectionCard({
                         <div className="flex items-center gap-2 flex-wrap">
                             <ZoruCardTitle className="text-base">{title}</ZoruCardTitle>
                             {premium && (
-                                <Badge className="rounded-full text-[9px] h-5 px-2 gap-1 bg-gradient-to-r from-zoru-ink/80 to-zoru-surface-2/80 text-zoru-ink border-0 font-bold uppercase tracking-wider">
+                                <Badge className="rounded-full text-[9px] h-5 px-2 gap-1 bg-gradient-to-r from-[var(--st-text)]/80 to-[var(--st-bg-muted)]/80 text-[var(--st-text)] border-0 font-bold uppercase tracking-wider">
                                     <Crown className="h-2.5 w-2.5" />
                                     Premium
                                 </Badge>
@@ -175,14 +175,14 @@ function Field({
 }) {
     return (
         <div className="space-y-1.5">
-            <Label className="text-xs font-medium text-zoru-ink-muted">{label}</Label>
+            <Label className="text-xs font-medium text-[var(--st-text-secondary)]">{label}</Label>
             {children}
-            {hint && <p className="text-[10px] text-zoru-ink-muted/70">{hint}</p>}
+            {hint && <p className="text-[10px] text-[var(--st-text-secondary)]/70">{hint}</p>}
         </div>
     );
 }
 
-const inputClass = 'rounded-xl bg-zoru-bg border-zoru-line backdrop-blur focus-visible:ring-primary/40';
+const inputClass = 'rounded-xl bg-[var(--st-bg)] border-[var(--st-border)] backdrop-blur focus-visible:ring-primary/40';
 
 export function PlanEditor({ planId }: { planId: string }) {
     const router = useRouter();
@@ -261,37 +261,37 @@ export function PlanEditor({ planId }: { planId: string }) {
             <input type="hidden" name="planId" value={plan?._id?.toString() || 'new'} />
 
             {/* Header */}
-            <div className="relative overflow-hidden rounded-2xl border border-zoru-line bg-gradient-to-br from-primary/5 via-zoru-bg to-zoru-surface-2 p-6">
-                <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-zoru-ink/20 blur-3xl pointer-events-none" />
-                <div className="absolute -bottom-24 -left-16 h-64 w-64 rounded-full bg-zoru-surface-2 blur-3xl pointer-events-none" />
+            <div className="relative overflow-hidden rounded-2xl border border-[var(--st-border)] bg-gradient-to-br from-primary/5 via-zoru-bg to-[var(--st-bg-muted)] p-6">
+                <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-[var(--st-text)]/20 blur-3xl pointer-events-none" />
+                <div className="absolute -bottom-24 -left-16 h-64 w-64 rounded-full bg-[var(--st-bg-muted)] blur-3xl pointer-events-none" />
                 <div className="relative">
                     <Button
                         type="button"
                         variant="ghost"
                         asChild
                         size="sm"
-                        className="-ml-2 mb-2 hover:bg-zoru-surface rounded-lg"
+                        className="-ml-2 mb-2 hover:bg-[var(--st-bg-secondary)] rounded-lg"
                     >
                         <Link href="/admin/dashboard/plans">
                             <ChevronLeft className="mr-1 h-4 w-4" />
                             Back to Plans
                         </Link>
                     </Button>
-                    <div className="inline-flex items-center gap-2 text-xs font-medium text-zoru-ink mb-1">
+                    <div className="inline-flex items-center gap-2 text-xs font-medium text-[var(--st-text)] mb-1">
                         <Sparkles className="h-3.5 w-3.5" />
                         {isNew ? 'New Plan' : 'Editing Plan'}
                     </div>
-                    <h1 className="text-2xl md:text-3xl text-zoru-ink">
+                    <h1 className="text-2xl md:text-3xl text-[var(--st-text)]">
                         {isNew ? 'Create a new plan' : plan?.name}
                     </h1>
-                    <p className="text-sm text-zoru-ink-muted mt-1 max-w-2xl">
+                    <p className="text-sm text-[var(--st-text-secondary)] mt-1 max-w-2xl">
                         Configure pricing, usage limits, and the master permission ceiling for
                         every module in the app.
                     </p>
 
                     {isNew && allPlans.length > 0 && (
                         <div className="mt-6 flex items-center gap-3">
-                            <Label htmlFor="clonePlan" className="text-sm font-medium text-zoru-ink whitespace-nowrap">
+                            <Label htmlFor="clonePlan" className="text-sm font-medium text-[var(--st-text)] whitespace-nowrap">
                                 Clone from:
                             </Label>
                             <Select
@@ -310,7 +310,7 @@ export function PlanEditor({ planId }: { planId: string }) {
                                     }
                                 }}
                             >
-                                <ZoruSelectTrigger id="clonePlan" className="w-[280px] bg-zoru-bg">
+                                <ZoruSelectTrigger id="clonePlan" className="w-[280px] bg-[var(--st-bg)]">
                                     <ZoruSelectValue placeholder="Start from blank plan" />
                                 </ZoruSelectTrigger>
                                 <ZoruSelectContent>
@@ -329,7 +329,7 @@ export function PlanEditor({ planId }: { planId: string }) {
 
             {/* We use a key on the segmented tab strip / form content so that changing the cloned plan re-mounts the uncontrolled inputs */}
             <div key={plan ? plan.name + cloneSourceId : 'blank'} className="space-y-5">
-                <div className="flex w-full flex-wrap justify-start gap-1 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-1">
+                <div className="flex w-full flex-wrap justify-start gap-1 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1">
                     {(
                         [
                             { key: 'overview', icon: CreditCard, label: 'Overview' },
@@ -347,8 +347,8 @@ export function PlanEditor({ planId }: { planId: string }) {
                             className={cn(
                                 'flex items-center gap-2 rounded-[var(--zoru-radius-sm)] px-3 py-1.5 text-sm transition-colors',
                                 activeTab === key
-                                    ? 'bg-zoru-ink text-zoru-bg'
-                                    : 'text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink',
+                                    ? 'bg-[var(--st-text)] text-[var(--st-bg)]'
+                                    : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]',
                             )}
                         >
                             <Icon className="h-4 w-4" />
@@ -428,8 +428,8 @@ export function PlanEditor({ planId }: { planId: string }) {
                             </Field>
                         </div>
 
-                        <div className="mt-6 flex flex-wrap gap-4 pt-4 border-t border-zoru-line">
-                            <div className="flex items-center gap-2 rounded-xl bg-zoru-bg border border-zoru-line px-4 py-2">
+                        <div className="mt-6 flex flex-wrap gap-4 pt-4 border-t border-[var(--st-border)]">
+                            <div className="flex items-center gap-2 rounded-xl bg-[var(--st-bg)] border border-[var(--st-border)] px-4 py-2">
                                 <Switch
                                     id="isPublic"
                                     name="isPublic"
@@ -439,7 +439,7 @@ export function PlanEditor({ planId }: { planId: string }) {
                                     Publicly visible
                                 </Label>
                             </div>
-                            <div className="flex items-center gap-2 rounded-xl bg-zoru-bg border border-zoru-line px-4 py-2">
+                            <div className="flex items-center gap-2 rounded-xl bg-[var(--st-bg)] border border-[var(--st-border)] px-4 py-2">
                                 <Switch
                                     id="isDefault"
                                     name="isDefault"
@@ -554,7 +554,7 @@ export function PlanEditor({ planId }: { planId: string }) {
                     <SectionCard title="Credit rates" description="Credits deducted per unit per channel.">
                         <div className="space-y-5">
                             <div>
-                                <div className="text-xs font-semibold text-zoru-ink mb-3 uppercase tracking-wide">
+                                <div className="text-xs font-semibold text-[var(--st-text)] mb-3 uppercase tracking-wide">
                                     WhatsApp
                                 </div>
                                 <div className="grid gap-4 md:grid-cols-3">
@@ -593,8 +593,8 @@ export function PlanEditor({ planId }: { planId: string }) {
                                     </Field>
                                 </div>
                             </div>
-                            <div className="pt-4 border-t border-zoru-line">
-                                <div className="text-xs font-semibold text-zoru-ink mb-3 uppercase tracking-wide">
+                            <div className="pt-4 border-t border-[var(--st-border)]">
+                                <div className="text-xs font-semibold text-[var(--st-text)] mb-3 uppercase tracking-wide">
                                     Other channels
                                 </div>
                                 <div className="grid gap-4 md:grid-cols-3">
@@ -1189,8 +1189,8 @@ export function PlanEditor({ planId }: { planId: string }) {
                     'fixed bottom-6 inset-x-0 z-20 flex justify-center pointer-events-none px-4',
                 )}
             >
-                <div className="pointer-events-auto flex items-center gap-3 rounded-2xl border border-zoru-line bg-zoru-bg/90 backdrop-blur-xl shadow-2xl shadow-zoru-ink/10 px-4 py-3">
-                    <span className="text-xs text-zoru-ink-muted hidden sm:inline">
+                <div className="pointer-events-auto flex items-center gap-3 rounded-2xl border border-[var(--st-border)] bg-[var(--st-bg)]/90 backdrop-blur-xl shadow-2xl shadow-zoru-ink/10 px-4 py-3">
+                    <span className="text-xs text-[var(--st-text-secondary)] hidden sm:inline">
                         Changes take effect immediately after saving.
                     </span>
                     <SubmitButton />

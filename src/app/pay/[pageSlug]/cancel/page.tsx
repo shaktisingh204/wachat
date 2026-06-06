@@ -15,15 +15,15 @@ export default async function PublicCheckoutCancelPage({
   const { pageSlug } = await params;
   return (
     <main className="min-h-screen w-full px-4 py-16">
-      <div className="mx-auto max-w-md space-y-6 rounded-xl border border-zoru-line bg-white p-8 text-center shadow-sm">
+      <div className="mx-auto max-w-md space-y-6 rounded-xl border border-[var(--st-border)] bg-white p-8 text-center shadow-sm">
         <h1 className="text-xl font-semibold">Payment cancelled</h1>
-        <p className="text-sm text-zoru-ink">
+        <p className="text-sm text-[var(--st-text)]">
           You closed the payment window before completing the transaction.
           You can try again whenever you're ready.
         </p>
         <a
           href={`/pay/${encodeURIComponent(pageSlug)}`}
-          className="inline-block rounded-md bg-zoru-ink px-4 py-2 text-sm font-medium text-white"
+          className="inline-block rounded-md bg-[var(--st-text)] px-4 py-2 text-sm font-medium text-white"
         >
           Try again
         </a>

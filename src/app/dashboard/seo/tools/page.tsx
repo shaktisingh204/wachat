@@ -112,16 +112,16 @@ export default function SeoToolsHubPage() {
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-          <Wrench className="h-8 w-8 text-zoru-ink" />
+          <Wrench className="h-8 w-8 text-[var(--st-text)]" />
           SEO Tools
         </h1>
-        <p className="text-zoru-ink-muted mt-1">
+        <p className="text-[var(--st-text-secondary)] mt-1">
           {SEO_TOOLS.length} tools across {SEO_TOOL_CATEGORIES.length} categories · {readyCount} ready
         </p>
       </div>
 
       <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zoru-ink-muted" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--st-text-secondary)]" />
         <Input
           className="pl-9"
           placeholder="Search tools…"
@@ -134,7 +134,7 @@ export default function SeoToolsHubPage() {
         <button
           onClick={() => setCategory('all')}
           className={`px-3 py-1.5 text-sm rounded-full border transition flex items-center gap-2 ${
-            category === 'all' ? 'bg-zoru-ink text-white border-primary' : 'bg-zoru-surface hover:bg-zoru-surface-2'
+            category === 'all' ? 'bg-[var(--st-text)] text-white border-primary' : 'bg-[var(--st-bg-secondary)] hover:bg-[var(--st-bg-muted)]'
           }`}
         >
           All ({SEO_TOOLS.length})
@@ -147,7 +147,7 @@ export default function SeoToolsHubPage() {
               key={c.id}
               onClick={() => setCategory(c.id)}
               className={`px-3 py-1.5 text-sm rounded-full border transition flex items-center gap-2 ${
-                category === c.id ? 'bg-zoru-ink text-white border-primary' : 'bg-zoru-surface hover:bg-zoru-surface-2'
+                category === c.id ? 'bg-[var(--st-text)] text-white border-primary' : 'bg-[var(--st-bg-secondary)] hover:bg-[var(--st-bg-muted)]'
               }`}
             >
               {Icon && <Icon className="w-4 h-4" />}
@@ -184,7 +184,7 @@ export default function SeoToolsHubPage() {
                   type="button"
                   onClick={(e) => toggleFavorite(e, tool.slug)}
                   className={`absolute top-3 right-3 p-1.5 rounded-md transition-opacity z-10 ${
-                    isFav ? 'opacity-100 text-zoru-ink hover:text-zoru-ink' : 'opacity-0 group-hover:opacity-100 text-zoru-ink-muted hover:bg-zoru-surface-2'
+                    isFav ? 'opacity-100 text-[var(--st-text)] hover:text-[var(--st-text)]' : 'opacity-0 group-hover:opacity-100 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)]'
                   }`}
                   aria-label={isFav ? "Remove from favorites" : "Add to favorites"}
                 >
@@ -199,8 +199,8 @@ export default function SeoToolsHubPage() {
                       </Badge>
                     )}
                   </div>
-                  <p className="text-xs text-zoru-ink-muted flex-1">{tool.description}</p>
-                  <div className="text-[10px] uppercase tracking-wide text-zoru-ink-muted flex items-center gap-1.5 mt-2">
+                  <p className="text-xs text-[var(--st-text-secondary)] flex-1">{tool.description}</p>
+                  <div className="text-[10px] uppercase tracking-wide text-[var(--st-text-secondary)] flex items-center gap-1.5 mt-2">
                     {Icon && <Icon className="w-3.5 h-3.5" />}
                     {SEO_TOOL_CATEGORIES.find((c) => c.id === tool.category)?.label}
                   </div>
@@ -213,7 +213,7 @@ export default function SeoToolsHubPage() {
 
       {filtered.length === 0 && (
         <Card className="border-dashed">
-          <ZoruCardContent className="p-12 text-center text-zoru-ink-muted">
+          <ZoruCardContent className="p-12 text-center text-[var(--st-text-secondary)]">
             No tools match your search.
           </ZoruCardContent>
         </Card>

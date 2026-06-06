@@ -135,7 +135,7 @@ export function ShopSubNav({ items, pathname, basePath }: ShopSubNavProps) {
   return (
     <nav
       aria-label="Shop sections"
-      className="mt-6 flex flex-wrap items-center gap-2 border-b border-zoru-line pb-4"
+      className="mt-6 flex flex-wrap items-center gap-2 border-b border-[var(--st-border)] pb-4"
     >
       {items.map((item) => {
         const href = `${basePath}${item.href}`;

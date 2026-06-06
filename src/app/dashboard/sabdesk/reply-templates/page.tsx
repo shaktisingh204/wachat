@@ -103,15 +103,15 @@ function KpiStrip({ kpis, loading }: KpiStripProps) {
           className={t.wide ? "col-span-2 sm:col-span-1" : ""}
         >
           <ZoruCardHeader className="pb-1 pt-4">
-            <ZoruCardTitle className="text-[12px] font-medium text-zoru-ink-muted">
+            <ZoruCardTitle className="text-[12px] font-medium text-[var(--st-text-secondary)]">
               {t.label}
             </ZoruCardTitle>
           </ZoruCardHeader>
           <ZoruCardContent className="pb-4">
             {loading ? (
-              <div className="h-6 w-16 animate-pulse rounded bg-zoru-surface-2" />
+              <div className="h-6 w-16 animate-pulse rounded bg-[var(--st-bg-muted)]" />
             ) : (
-              <p className="truncate text-xl font-semibold text-zoru-ink">
+              <p className="truncate text-xl font-semibold text-[var(--st-text)]">
                 {t.value}
               </p>
             )}
@@ -142,7 +142,7 @@ function BulkBar({
   const n = selectedIds.length;
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <span className="text-sm font-medium text-zoru-ink">{n} selected</span>
+      <span className="text-sm font-medium text-[var(--st-text)]">{n} selected</span>
       <Button variant="outline" size="sm" onClick={onActivate} disabled={busy}>
         <ToggleRight className="mr-1.5 h-3.5 w-3.5" />
         Activate
@@ -412,7 +412,7 @@ export default function TicketReplyTemplatesPage() {
 
       {/* Confirm delete prompt */}
       {confirmDelete ? (
-        <div className="rounded-lg border border-zoru-line bg-zoru-surface-2 px-4 py-3 text-sm text-zoru-ink dark:border-zoru-line dark:bg-zoru-ink/30 dark:text-zoru-ink-muted">
+        <div className="rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-3 text-sm text-[var(--st-text)] dark:border-[var(--st-border)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]">
           <span className="font-medium">Confirm delete:</span> This will
           permanently delete {selectedIds.length} template
           {selectedIds.length !== 1 ? "s" : ""}. Click Delete again to confirm
@@ -433,7 +433,7 @@ export default function TicketReplyTemplatesPage() {
         <div className="overflow-x-auto">
           <Table>
             <ZoruTableHeader>
-              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+              <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
                 <ZoruTableHead className="w-10">
                   <Checkbox
                     checked={
@@ -443,58 +443,58 @@ export default function TicketReplyTemplatesPage() {
                     aria-label="Select all visible"
                   />
                 </ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                   Name
                 </ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                   Category
                 </ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                   Preview
                 </ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted text-right">
+                <ZoruTableHead className="text-[var(--st-text-secondary)] text-right">
                   Used
                 </ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                   Status
                 </ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">
+                <ZoruTableHead className="text-[var(--st-text-secondary)]">
                   Actions
                 </ZoruTableHead>
               </ZoruTableRow>
             </ZoruTableHeader>
             <ZoruTableBody>
               {loading ? (
-                <ZoruTableRow className="border-zoru-line">
+                <ZoruTableRow className="border-[var(--st-border)]">
                   <ZoruTableCell
                     colSpan={7}
-                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                    className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
                     Loading templates…
                   </ZoruTableCell>
                 </ZoruTableRow>
               ) : loadError ? (
-                <ZoruTableRow className="border-zoru-line">
+                <ZoruTableRow className="border-[var(--st-border)]">
                   <ZoruTableCell
                     colSpan={7}
-                    className="h-24 text-center text-[13px] text-zoru-ink"
+                    className="h-24 text-center text-[13px] text-[var(--st-text)]"
                   >
                     {loadError}
                   </ZoruTableCell>
                 </ZoruTableRow>
               ) : filtered.length === 0 ? (
-                <ZoruTableRow className="border-zoru-line">
+                <ZoruTableRow className="border-[var(--st-border)]">
                   <ZoruTableCell
                     colSpan={7}
-                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                    className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
                   >
-                    <MessageSquareText className="mx-auto mb-2 h-6 w-6 text-zoru-ink-muted/50" />
+                    <MessageSquareText className="mx-auto mb-2 h-6 w-6 text-[var(--st-text-secondary)]/50" />
                     No templates match your filters.
                   </ZoruTableCell>
                 </ZoruTableRow>
               ) : (
                 filtered.map((t) => (
-                  <ZoruTableRow key={t._id} className="border-zoru-line">
+                  <ZoruTableRow key={t._id} className="border-[var(--st-border)]">
                     <ZoruTableCell>
                       <Checkbox
                         checked={selected.has(t._id)}
@@ -513,14 +513,14 @@ export default function TicketReplyTemplatesPage() {
                       {t.category ? (
                         <Badge variant="secondary">{t.category}</Badge>
                       ) : (
-                        <span className="text-zoru-ink-muted">—</span>
+                        <span className="text-[var(--st-text-secondary)]">—</span>
                       )}
                     </ZoruTableCell>
-                    <ZoruTableCell className="max-w-[280px] truncate text-[12.5px] text-zoru-ink-muted">
+                    <ZoruTableCell className="max-w-[280px] truncate text-[12.5px] text-[var(--st-text-secondary)]">
                       {(t.body ?? "").slice(0, 50)}
                       {(t.body ?? "").length > 50 ? "…" : ""}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right tabular-nums text-zoru-ink">
+                    <ZoruTableCell className="text-right tabular-nums text-[var(--st-text)]">
                       {t.usageCount}
                     </ZoruTableCell>
                     <ZoruTableCell>

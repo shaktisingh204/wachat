@@ -114,10 +114,10 @@ export default function PlanEditorPage() {
                         Back to Plans
                     </Link>
                 </Button>
-                <h1 className="text-3xl text-zoru-ink">
+                <h1 className="text-3xl text-[var(--st-text)]">
                     {isNew ? 'Create New Plan' : `Edit Plan: ${plan?.name}`}
                 </h1>
-                <p className="text-zoru-ink-muted">Configure the details, limits, and features for this plan.</p>
+                <p className="text-[var(--st-text-secondary)]">Configure the details, limits, and features for this plan.</p>
             </div>
 
             <Card>
@@ -187,12 +187,12 @@ export default function PlanEditorPage() {
                                 min="0"
                                 step="1"
                             />
-                            <p className="text-xs text-zoru-ink-muted">Credits new users get on this plan.</p>
+                            <p className="text-xs text-[var(--st-text-secondary)]">Credits new users get on this plan.</p>
                         </div>
                     </div>
                     <div>
                         <Label className="text-base">Per-Message Costs</Label>
-                        <div className="mt-2 grid gap-4 rounded-[var(--zoru-radius)] border border-zoru-line p-3 md:grid-cols-3">
+                        <div className="mt-2 grid gap-4 rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-3 md:grid-cols-3">
                             <div className="space-y-2">
                                 <Label htmlFor="cost_marketing" className="text-sm">
                                     Marketing
@@ -348,7 +348,7 @@ export default function PlanEditorPage() {
                             {planFeatureMap.map((feature) => (
                                 <div
                                     key={feature.id}
-                                    className="flex items-center space-x-3 rounded-[var(--zoru-radius)] border border-zoru-line p-3 hover:bg-zoru-surface-2"
+                                    className="flex items-center space-x-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] p-3 hover:bg-[var(--st-bg-muted)]"
                                 >
                                     <Checkbox
                                         id={feature.id}

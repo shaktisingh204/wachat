@@ -36,19 +36,19 @@ function VariableInserter({ onInsert }: { onInsert: (v: string) => void }) {
         { key: '{{custom.', label: 'Custom Variable...' },
     ];
     if (!open) return (
-        <button type="button" onClick={() => setOpen(true)} className="flex items-center gap-1 text-[10px] text-zoru-ink hover:underline">
+        <button type="button" onClick={() => setOpen(true)} className="flex items-center gap-1 text-[10px] text-[var(--st-text)] hover:underline">
             <Variable className="h-3 w-3" /> Insert variable
         </button>
     );
     return (
-        <div className="rounded-md border bg-zoru-surface-2/30 p-2 space-y-1">
+        <div className="rounded-md border bg-[var(--st-bg-muted)]/30 p-2 space-y-1">
             {vars.map(v => (
                 <button key={v.key} type="button" onClick={() => { onInsert(v.key); setOpen(false); }}
-                    className="block w-full text-left text-[11px] px-2 py-1 rounded hover:bg-zoru-surface-2 truncate">
-                    <code className="text-zoru-ink">{v.key}</code> <span className="text-zoru-ink-muted ml-1">{v.label}</span>
+                    className="block w-full text-left text-[11px] px-2 py-1 rounded hover:bg-[var(--st-bg-muted)] truncate">
+                    <code className="text-[var(--st-text)]">{v.key}</code> <span className="text-[var(--st-text-secondary)] ml-1">{v.label}</span>
                 </button>
             ))}
-            <button type="button" onClick={() => setOpen(false)} className="text-[10px] text-zoru-ink-muted hover:text-zoru-ink ml-2">Close</button>
+            <button type="button" onClick={() => setOpen(false)} className="text-[10px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)] ml-2">Close</button>
         </div>
     );
 }
@@ -60,7 +60,7 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
         <div className="space-y-1.5">
             <Label className="text-xs">{label}</Label>
             {children}
-            {hint && <p className="text-[10px] text-zoru-ink-muted">{hint}</p>}
+            {hint && <p className="text-[10px] text-[var(--st-text-secondary)]">{hint}</p>}
         </div>
     );
 }
@@ -381,7 +381,7 @@ function ReactionEditor({ data, onChange }: { data: any; onChange: (d: any) => v
                 <div className="flex flex-wrap gap-1">
                     {emojis.map(e => (
                         <button key={e} type="button" onClick={() => onChange({ emoji: e })}
-                            className={cn('text-xl p-1 rounded hover:bg-zoru-surface-2', data.emoji === e && 'bg-zoru-ink/10 ring-1 ring-primary')}>
+                            className={cn('text-xl p-1 rounded hover:bg-[var(--st-bg-muted)]', data.emoji === e && 'bg-[var(--st-text)]/10 ring-1 ring-primary')}>
                             {e}
                         </button>
                     ))}
@@ -512,7 +512,7 @@ interface PropertiesPanelProps {
 
 export function PropertiesPanel({ node, availableVariables, onUpdate, deleteNode }: PropertiesPanelProps) {
     if (!node) {
-        return <div className="p-6 text-center text-sm text-zoru-ink-muted">Select a block to configure it.</div>;
+        return <div className="p-6 text-center text-sm text-[var(--st-text-secondary)]">Select a block to configure it.</div>;
     }
 
     const handleDataChange = (data: Partial<any>) => onUpdate(node.id, data);
@@ -604,15 +604,15 @@ export function PropertiesPanel({ node, availableVariables, onUpdate, deleteNode
                     { key: 'saveAs', label: 'Save As Variable', placeholder: 'qr_url' },
                 ]} />;
             default:
-                return <p className="text-sm text-zoru-ink-muted italic">No properties for this block type.</p>;
+                return <p className="text-sm text-[var(--st-text-secondary)] italic">No properties for this block type.</p>;
         }
     };
 
     return (
-        <div className="flex flex-col h-full bg-zoru-surface/50 backdrop-blur-sm">
-            <div className="flex items-center justify-between px-4 py-3 border-b shrink-0 bg-zoru-surface/80">
+        <div className="flex flex-col h-full bg-[var(--st-bg-secondary)]/50 backdrop-blur-sm">
+            <div className="flex items-center justify-between px-4 py-3 border-b shrink-0 bg-[var(--st-bg-secondary)]/80">
                 <h3 className="font-semibold text-sm flex items-center gap-2">
-                    <Settings2 className="h-4 w-4 text-zoru-ink-muted" />
+                    <Settings2 className="h-4 w-4 text-[var(--st-text-secondary)]" />
                     {blockInfo?.label || node.type}
                 </h3>
             </div>
@@ -621,7 +621,7 @@ export function PropertiesPanel({ node, availableVariables, onUpdate, deleteNode
                 <div className="p-4 space-y-5">
                     {/* Label */}
                     <Field label="Block Label">
-                        <Input value={node.data.label || ''} onChange={handleLabelChange} placeholder={blockInfo?.label || 'Enter label'} className="bg-zoru-surface" />
+                        <Input value={node.data.label || ''} onChange={handleLabelChange} placeholder={blockInfo?.label || 'Enter label'} className="bg-[var(--st-bg-secondary)]" />
                     </Field>
 
                     <Separator />
@@ -634,8 +634,8 @@ export function PropertiesPanel({ node, availableVariables, onUpdate, deleteNode
             </ScrollArea>
 
             {node.type !== 'start' && (
-                <div className="p-4 border-t bg-zoru-surface/50 mt-auto shrink-0">
-                    <Button variant="ghost" className="w-full hover:bg-zoru-ink/10 hover:text-zoru-ink text-zoru-ink" onClick={() => deleteNode(node.id)}>
+                <div className="p-4 border-t bg-[var(--st-bg-secondary)]/50 mt-auto shrink-0">
+                    <Button variant="ghost" className="w-full hover:bg-[var(--st-text)]/10 hover:text-[var(--st-text)] text-[var(--st-text)]" onClick={() => deleteNode(node.id)}>
                         <Trash2 className="mr-2 h-4 w-4" /> Delete Block
                     </Button>
                 </div>

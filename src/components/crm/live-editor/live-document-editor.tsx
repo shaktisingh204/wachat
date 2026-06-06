@@ -176,11 +176,11 @@ export function LiveDocumentEditor({
     const label = getDocumentLabel(documentType);
 
     return (
-        <div className="flex h-[calc(100vh-4rem)] w-full overflow-hidden bg-zoru-background">
+        <div className="flex h-[calc(100vh-4rem)] w-full overflow-hidden bg-[var(--st-bg)]">
             {/* Main Canvas Area */}
             <div className="flex flex-1 flex-col overflow-hidden">
                 {/* Editor Header */}
-                <div className="flex items-center justify-between border-b border-zoru-line bg-zoru-surface px-4 py-3 shadow-sm">
+                <div className="flex items-center justify-between border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-3 shadow-sm">
                     <div className="flex items-center gap-4">
                         <Button variant="ghost" size="sm" asChild>
                             <Link href={backHref}>
@@ -188,7 +188,7 @@ export function LiveDocumentEditor({
                                 Back
                             </Link>
                         </Button>
-                        <h1 className="text-sm font-medium text-zoru-ink">
+                        <h1 className="text-sm font-medium text-[var(--st-text)]">
                             {isEditing ? `Edit ${label}` : `Create ${label}`}
                         </h1>
                     </div>
@@ -201,7 +201,7 @@ export function LiveDocumentEditor({
                 </div>
 
                 {/* Canvas Container */}
-                <div className="flex-1 overflow-auto bg-zoru-surface-2 p-8">
+                <div className="flex-1 overflow-auto bg-[var(--st-bg-muted)] p-8">
                     <div className="mx-auto flex max-w-5xl justify-center">
                         <LiveCanvas docState={docState} updateDocState={updateDocState} documentType={documentType} />
                     </div>
@@ -209,7 +209,7 @@ export function LiveDocumentEditor({
             </div>
 
             {/* Right Sidebar */}
-            <div className="w-[350px] flex-shrink-0 border-l border-zoru-line bg-zoru-surface">
+            <div className="w-[350px] flex-shrink-0 border-l border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
                 <LiveSidebar
                     docState={docState}
                     updateDocState={updateDocState}

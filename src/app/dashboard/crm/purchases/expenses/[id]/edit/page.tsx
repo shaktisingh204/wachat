@@ -52,22 +52,22 @@ export default async function EditBillPage({
         subtitle="Update vendor invoice details"
         icon={Receipt}
         breadcrumb={
-          <div className="flex items-center gap-2 text-sm text-zoru-ink-muted">
+          <div className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
             <Link
               href={BASE}
-              className="transition-colors hover:text-zoru-ink"
+              className="transition-colors hover:text-[var(--st-text)]"
             >
               Bills &amp; Expenses
             </Link>
             <span>/</span>
             <Link
               href={`${BASE}/${id}`}
-              className="transition-colors hover:text-zoru-ink"
+              className="transition-colors hover:text-[var(--st-text)]"
             >
               {billNo}
             </Link>
             <span>/</span>
-            <span className="font-medium text-zoru-ink">Edit</span>
+            <span className="font-medium text-[var(--st-text)]">Edit</span>
           </div>
         }
       />

@@ -109,7 +109,7 @@ export function SabbackstageSponsorsTab({
 
   return (
     <div className="space-y-5">
-      <div className="grid grid-cols-1 gap-2 rounded-md border border-zoru-line p-3 md:grid-cols-6">
+      <div className="grid grid-cols-1 gap-2 rounded-md border border-[var(--st-border)] p-3 md:grid-cols-6">
         <div className="md:col-span-2">
           <Label htmlFor="sp-name">Sponsor name</Label>
           <Input
@@ -163,7 +163,7 @@ export function SabbackstageSponsorsTab({
             Pick logo from SabFiles
           </SabFilePickerButton>
           {form.logoFileId ? (
-            <span className="text-[12px] text-zoru-ink-muted">
+            <span className="text-[12px] text-[var(--st-text-secondary)]">
               Selected: {form.logoFileName || form.logoFileId}
             </span>
           ) : null}
@@ -171,23 +171,23 @@ export function SabbackstageSponsorsTab({
       </div>
 
       {loading ? (
-        <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink-muted">
+        <div className="flex items-center gap-2 text-[12.5px] text-[var(--st-text-secondary)]">
           <Loader2 className="h-3.5 w-3.5 animate-spin" /> Loading sponsors…
         </div>
       ) : rows.length === 0 ? (
-        <p className="text-[12.5px] text-zoru-ink-muted">No sponsors yet.</p>
+        <p className="text-[12.5px] text-[var(--st-text-secondary)]">No sponsors yet.</p>
       ) : (
-        <ul className="divide-y divide-zoru-line">
+        <ul className="divide-y divide-[var(--st-border)]">
           {rows.map((s) => (
             <li
               key={s._id}
               className="flex flex-wrap items-center justify-between gap-2 py-2"
             >
               <div>
-                <div className="text-[13px] font-medium text-zoru-ink">
+                <div className="text-[13px] font-medium text-[var(--st-text)]">
                   {s.name}
                 </div>
-                <div className="text-[12px] text-zoru-ink-muted">
+                <div className="text-[12px] text-[var(--st-text-secondary)]">
                   {s.websiteUrl || s.contactEmail || '—'}
                 </div>
               </div>

@@ -337,20 +337,20 @@ export function RoadmapEditor({ roadmap, directReports }: RoadmapEditorProps) {
   return (
     <div className="flex h-full flex-col">
       {/* ── Header ── */}
-      <div className="flex flex-wrap items-center gap-3 border-b border-zoru-line bg-zoru-bg px-6 py-4">
+      <div className="flex flex-wrap items-center gap-3 border-b border-[var(--st-border)] bg-[var(--st-bg)] px-6 py-4">
         <button
           type="button"
-          className="mr-1 inline-flex items-center gap-1 text-sm text-zoru-ink-muted hover:text-zoru-ink"
+          className="mr-1 inline-flex items-center gap-1 text-sm text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
           onClick={() => router.push('/dashboard/hrm/portal/roadmaps')}
         >
           <ArrowLeft className="h-4 w-4" />
         </button>
 
-        <h1 className="text-base font-semibold text-zoru-ink">{roadmap.title}</h1>
+        <h1 className="text-base font-semibold text-[var(--st-text)]">{roadmap.title}</h1>
         <Badge variant={STATUS_VARIANT[roadmap.status]}>{roadmap.status}</Badge>
 
         {mounted && (roadmap.startDate || roadmap.endDate) && (
-          <span className="text-xs text-zoru-ink-muted">
+          <span className="text-xs text-[var(--st-text-secondary)]">
             {roadmap.startDate
               ? fmtDate(roadmap.startDate)
               : '—'}
@@ -363,10 +363,10 @@ export function RoadmapEditor({ roadmap, directReports }: RoadmapEditorProps) {
 
         <div className="ml-auto flex items-center gap-2">
           {saveStatus === 'saving' && (
-            <span className="text-xs text-zoru-ink-muted">Saving…</span>
+            <span className="text-xs text-[var(--st-text-secondary)]">Saving…</span>
           )}
           {saveStatus === 'saved' && (
-            <span className="text-xs text-zoru-success-ink">Saved</span>
+            <span className="text-xs text-[var(--st-status-ok)]">Saved</span>
           )}
           <Button variant="outline" size="sm" onClick={handleExportCSV}>
             <Download className="mr-1 h-4 w-4" />
@@ -389,9 +389,9 @@ export function RoadmapEditor({ roadmap, directReports }: RoadmapEditorProps) {
       </div>
 
       {/* ── Toolbar (Filters & Bulk Actions) ── */}
-      <div className="flex flex-wrap items-center gap-3 border-b border-zoru-line bg-zoru-surface px-6 py-2">
+      <div className="flex flex-wrap items-center gap-3 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-6 py-2">
         <div className="flex items-center gap-2 relative">
-          <Filter className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-subtle" />
+          <Filter className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-tertiary)]" />
           <Input 
             placeholder="Search tasks..." 
             value={searchQuery}
@@ -416,7 +416,7 @@ export function RoadmapEditor({ roadmap, directReports }: RoadmapEditorProps) {
         <div className="ml-auto flex items-center gap-2">
           {isBulkMode ? (
             <>
-              <span className="text-sm text-zoru-ink-muted">
+              <span className="text-sm text-[var(--st-text-secondary)]">
                 {selectedTasks.size} selected
               </span>
               <Button size="sm" variant="default" onClick={handleBulkMarkDone} disabled={selectedTasks.size === 0}>
@@ -445,7 +445,7 @@ export function RoadmapEditor({ roadmap, directReports }: RoadmapEditorProps) {
           return (
             <div
               key={phase.id}
-              className="flex w-72 shrink-0 flex-col rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-surface"
+              className="flex w-72 shrink-0 flex-col rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]"
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, phase.id)}
             >
@@ -460,7 +460,7 @@ export function RoadmapEditor({ roadmap, directReports }: RoadmapEditorProps) {
               {/* Task cards */}
               <div className="flex flex-1 flex-col gap-2 overflow-y-auto p-3">
                 {phase.tasks.length === 0 && (
-                  <p className="py-4 text-center text-xs text-zoru-ink-subtle">
+                  <p className="py-4 text-center text-xs text-[var(--st-text-tertiary)]">
                     No tasks yet
                   </p>
                 )}
@@ -480,11 +480,11 @@ export function RoadmapEditor({ roadmap, directReports }: RoadmapEditorProps) {
               </div>
 
               {/* Add task button */}
-              <div className="border-t border-zoru-line p-3">
+              <div className="border-t border-[var(--st-border)] p-3">
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="w-full justify-start text-zoru-ink-muted"
+                  className="w-full justify-start text-[var(--st-text-secondary)]"
                   onClick={() => setDrawerPhaseId(phase.id)}
                 >
                   <Plus className="mr-2 h-4 w-4" />
@@ -499,7 +499,7 @@ export function RoadmapEditor({ roadmap, directReports }: RoadmapEditorProps) {
         <button
           type="button"
           onClick={handleAddPhase}
-          className="flex h-fit w-64 shrink-0 items-center justify-center gap-2 rounded-[var(--zoru-radius-lg)] border border-dashed border-zoru-line bg-zoru-surface/50 px-4 py-6 text-sm text-zoru-ink-muted transition-colors hover:border-zoru-line-strong hover:bg-zoru-surface hover:text-zoru-ink"
+          className="flex h-fit w-64 shrink-0 items-center justify-center gap-2 rounded-[var(--zoru-radius-lg)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 px-4 py-6 text-sm text-[var(--st-text-secondary)] transition-colors hover:border-[var(--st-border-strong)] hover:bg-[var(--st-bg-secondary)] hover:text-[var(--st-text)]"
         >
           <Plus className="mr-2 h-4 w-4" />
           Add Phase

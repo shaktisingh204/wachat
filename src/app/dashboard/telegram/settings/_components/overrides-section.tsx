@@ -387,13 +387,13 @@ function OverrideToggle({
     children: React.ReactNode;
 }) {
     return (
-        <div className="rounded border border-zoru-line bg-zoru-bg p-3">
+        <div className="rounded border border-[var(--st-border)] bg-[var(--st-bg)] p-3">
             <label className="flex items-center justify-between gap-3 pb-2 text-sm font-medium">
                 <span>{label}</span>
                 <Switch checked={on} onCheckedChange={onToggle} />
             </label>
             {on ? <div className="pt-2">{children}</div> : (
-                <div className="text-xs text-zoru-fg/60">Use project default.</div>
+                <div className="text-xs text-[var(--st-text)]/60">Use project default.</div>
             )}
         </div>
     );

@@ -220,8 +220,8 @@ export default function FacebookLeadsPage(): React.JSX.Element {
 
       <header className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl text-zoru-ink">Leads</h1>
-          <p className="mt-1 text-sm text-zoru-ink-muted">
+          <h1 className="text-2xl text-[var(--st-text)]">Leads</h1>
+          <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
             Facebook Lead Gen forms and the leads captured against them.
           </p>
         </div>
@@ -280,14 +280,14 @@ export default function FacebookLeadsPage(): React.JSX.Element {
                         className={
                           'flex w-full flex-col gap-1 rounded-md border px-3 py-2 text-left transition ' +
                           (isActive
-                            ? 'border-zoru-line-strong bg-zoru-surface-2'
-                            : 'border-zoru-line hover:bg-zoru-surface-2')
+                            ? 'border-[var(--st-border-strong)] bg-[var(--st-bg-muted)]'
+                            : 'border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]')
                         }
                       >
-                        <span className="line-clamp-1 text-sm text-zoru-ink">
+                        <span className="line-clamp-1 text-sm text-[var(--st-text)]">
                           {f.name}
                         </span>
-                        <div className="flex items-center gap-2 text-[11px] text-zoru-ink-muted">
+                        <div className="flex items-center gap-2 text-[11px] text-[var(--st-text-secondary)]">
                           <Badge variant="secondary">
                             {f.leads_count ?? 0} leads
                           </Badge>
@@ -349,25 +349,25 @@ export default function FacebookLeadsPage(): React.JSX.Element {
                         onClick={() => setSelectedLead(l)}
                         className="cursor-pointer"
                       >
-                        <ZoruTableCell className="font-medium text-zoru-ink">
+                        <ZoruTableCell className="font-medium text-[var(--st-text)]">
                           <span className="inline-flex items-center gap-2">
-                            <User className="h-3.5 w-3.5 text-zoru-ink-muted" />
+                            <User className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
                             {name}
                           </span>
                         </ZoruTableCell>
                         <ZoruTableCell>
-                          <span className="inline-flex items-center gap-2 text-zoru-ink-muted">
+                          <span className="inline-flex items-center gap-2 text-[var(--st-text-secondary)]">
                             <Mail className="h-3.5 w-3.5" />
                             {email}
                           </span>
                         </ZoruTableCell>
                         <ZoruTableCell>
-                          <span className="inline-flex items-center gap-2 text-zoru-ink-muted">
+                          <span className="inline-flex items-center gap-2 text-[var(--st-text-secondary)]">
                             <Phone className="h-3.5 w-3.5" />
                             {phone}
                           </span>
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-right text-xs text-zoru-ink-muted">
+                        <ZoruTableCell className="text-right text-xs text-[var(--st-text-secondary)]">
                           {fmtDate(l.created_time)}
                         </ZoruTableCell>
                       </ZoruTableRow>
@@ -394,10 +394,10 @@ export default function FacebookLeadsPage(): React.JSX.Element {
           {selectedLead ? (
             <div className="flex flex-col gap-4 pt-4">
               <div className="flex flex-col gap-1">
-                <p className="text-[11px] uppercase tracking-wide text-zoru-ink-subtle">
+                <p className="text-[11px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                   Submitted
                 </p>
-                <p className="text-sm text-zoru-ink">
+                <p className="text-sm text-[var(--st-text)]">
                   {fmtDate(selectedLead.created_time)}
                 </p>
               </div>
@@ -405,12 +405,12 @@ export default function FacebookLeadsPage(): React.JSX.Element {
                 {(selectedLead.field_data ?? []).map((f, idx) => (
                   <li
                     key={`${f.name}-${idx}`}
-                    className="flex flex-col gap-0.5 rounded-md border border-zoru-line px-3 py-2"
+                    className="flex flex-col gap-0.5 rounded-md border border-[var(--st-border)] px-3 py-2"
                   >
-                    <span className="text-[11px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <span className="text-[11px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
                       {f.name}
                     </span>
-                    <span className="break-words text-sm text-zoru-ink">
+                    <span className="break-words text-sm text-[var(--st-text)]">
                       {(f.values ?? []).join(', ') || '—'}
                     </span>
                   </li>

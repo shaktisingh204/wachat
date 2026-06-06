@@ -24,7 +24,7 @@ export interface ClientPortalTopbarProps {
 
 export function ClientPortalTopbar({ brandName, brandLogo, user }: ClientPortalTopbarProps) {
     return (
-        <header className="flex h-14 shrink-0 items-center justify-between border-b border-zoru-line bg-zoru-surface px-6">
+        <header className="flex h-14 shrink-0 items-center justify-between border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-6">
             <a href="/portal/client" className="flex items-center gap-3" aria-label={`${brandName} home`}>
                 {brandLogo ? (
                     <Image
@@ -38,12 +38,12 @@ export function ClientPortalTopbar({ brandName, brandLogo, user }: ClientPortalT
                 ) : (
                     <span
                         aria-hidden
-                        className="grid h-8 w-8 place-items-center rounded-md bg-zoru-ink text-xs font-semibold text-zoru-on-primary"
+                        className="grid h-8 w-8 place-items-center rounded-md bg-[var(--st-text)] text-xs font-semibold text-[var(--st-text-inverted)]"
                     >
                         {brandName.slice(0, 1).toUpperCase()}
                     </span>
                 )}
-                <span className="text-sm font-medium text-zoru-ink">{brandName}</span>
+                <span className="text-sm font-medium text-[var(--st-text)]">{brandName}</span>
             </a>
             <ZoruUserDropdown
                 name={user.name || 'Account'}

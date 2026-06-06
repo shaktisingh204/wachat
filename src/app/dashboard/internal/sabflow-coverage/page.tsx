@@ -157,28 +157,28 @@ export default async function SabFlowCoveragePage() {
     const data = await loadCoverageData();
 
     return (
-        <div className="min-h-screen bg-zoru-ink text-white">
+        <div className="min-h-screen bg-[var(--st-text)] text-white">
             <div className="mx-auto max-w-7xl space-y-8 p-6 md:p-8 lg:p-10">
                 <header className="space-y-3">
-                    <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-zoru-ink-muted/80">
+                    <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-[var(--st-text-secondary)]/80">
                         <ShieldCheck className="h-3.5 w-3.5" />
                         Internal · Track C
                     </div>
                     <h1 className="text-3xl font-semibold text-white">
                         SabFlow coverage
                     </h1>
-                    <p className="max-w-3xl text-sm text-zoru-ink-muted">
+                    <p className="max-w-3xl text-sm text-[var(--st-text-secondary)]">
                         Live snapshot of the five Track C gaps — Rust stubs,
                         missing n8n integrations, collab GA, execution
                         playback, and the marketplace content library.
                         Inventories are produced by Phase C.1 sub-tasks
                         (#1 → #7) and read from{' '}
-                        <code className="text-zoru-ink-muted">
+                        <code className="text-[var(--st-text-secondary)]">
                             docs/inventory/
                         </code>{' '}
                         at request time.
                     </p>
-                    <div className="rounded-xl border border-zoru-line/30 bg-zoru-ink/10 p-4 text-xs text-white">
+                    <div className="rounded-xl border border-[var(--st-border)]/30 bg-[var(--st-text)]/10 p-4 text-xs text-white">
                         <div className="font-semibold text-white">
                             RBAC reservation note
                         </div>

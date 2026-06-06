@@ -88,13 +88,13 @@ export function GanttGrid({
     >
       {/* Month header */}
       <div
-        className="relative border-b border-zoru-line bg-zoru-surface-2"
+        className="relative border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]"
         style={{ height: GANTT_HEADER_HEIGHT }}
       >
         {monthSpans.map((span, i) => (
           <div
             key={`${span.label}-${i}`}
-            className="absolute top-0 flex h-full items-center border-l border-zoru-line px-2 text-[11.5px] font-medium text-zoru-ink-muted"
+            className="absolute top-0 flex h-full items-center border-l border-[var(--st-border)] px-2 text-[11.5px] font-medium text-[var(--st-text-secondary)]"
             style={{
               left: span.start * dayWidth,
               width: span.days * dayWidth,
@@ -114,8 +114,8 @@ export function GanttGrid({
         {days.map((d, i) => (
           <div
             key={d.iso}
-            className={`absolute top-0 border-l border-zoru-line ${
-              d.isWeekend ? 'bg-zoru-surface-2/60' : ''
+            className={`absolute top-0 border-l border-[var(--st-border)] ${
+              d.isWeekend ? 'bg-[var(--st-bg-muted)]/60' : ''
             }`}
             style={{
               left: i * dayWidth,
@@ -128,7 +128,7 @@ export function GanttGrid({
         {Array.from({ length: rowCount }).map((_, r) => (
           <div
             key={`row-${r}`}
-            className="absolute left-0 right-0 border-b border-zoru-line"
+            className="absolute left-0 right-0 border-b border-[var(--st-border)]"
             style={{ top: (r + 1) * GANTT_ROW_HEIGHT - 1 }}
           />
         ))}
@@ -144,7 +144,7 @@ export function GanttGrid({
               const left = offsetDays * dayWidth + dayWidth / 2;
               return (
                 <div
-                  className="pointer-events-none absolute top-0 z-10 w-px bg-zoru-ink/80"
+                  className="pointer-events-none absolute top-0 z-10 w-px bg-[var(--st-text)]/80"
                   style={{ left, height: totalHeight }}
                   title="Today"
                 />

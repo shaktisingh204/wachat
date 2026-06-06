@@ -35,10 +35,10 @@ const StatCard = ({
   <Card className="p-0">
     <ZoruCardHeader className="flex flex-row items-center justify-between pb-2">
       <ZoruCardTitle className="text-sm">{title}</ZoruCardTitle>
-      <Icon className="h-4 w-4 text-zoru-ink-muted" />
+      <Icon className="h-4 w-4 text-[var(--st-text-secondary)]" />
     </ZoruCardHeader>
     <ZoruCardContent>
-      <div className="text-2xl text-zoru-ink">
+      <div className="text-2xl text-[var(--st-text)]">
         {typeof value === 'number' ? value.toLocaleString() : value}
       </div>
     </ZoruCardContent>
@@ -118,13 +118,13 @@ export default function InstagramDashboardPage() {
   return (
     <div className="flex flex-col gap-8">
       <div className="flex items-center gap-4">
-        <Avatar className="h-16 w-16 border-2 border-zoru-line">
+        <Avatar className="h-16 w-16 border-2 border-[var(--st-border)]">
           <ZoruAvatarImage src={account.profile_picture_url} alt={account.username} />
           <ZoruAvatarFallback>{account.username.charAt(0).toUpperCase()}</ZoruAvatarFallback>
         </Avatar>
         <div>
-          <h1 className="text-3xl text-zoru-ink">@{account.username}</h1>
-          <p className="text-zoru-ink-muted capitalize">{account.account_type?.toLowerCase()}</p>
+          <h1 className="text-3xl text-[var(--st-text)]">@{account.username}</h1>
+          <p className="text-[var(--st-text-secondary)] capitalize">{account.account_type?.toLowerCase()}</p>
         </div>
       </div>
 
@@ -144,29 +144,29 @@ export default function InstagramDashboardPage() {
               <li className="flex items-center gap-3">
                 <Link
                   href="/dashboard/instagram/feed"
-                  className="flex-1 text-zoru-ink underline-offset-2 hover:underline"
+                  className="flex-1 text-[var(--st-text)] underline-offset-2 hover:underline"
                 >
                   New post published
                 </Link>
-                <span className="text-xs text-zoru-ink-muted">2 hours ago</span>
+                <span className="text-xs text-[var(--st-text-secondary)]">2 hours ago</span>
               </li>
               <li className="flex items-center gap-3">
                 <Link
                   href="/dashboard/instagram/messages"
-                  className="flex-1 text-zoru-ink underline-offset-2 hover:underline"
+                  className="flex-1 text-[var(--st-text)] underline-offset-2 hover:underline"
                 >
                   New message from @user
                 </Link>
-                <span className="text-xs text-zoru-ink-muted">5 hours ago</span>
+                <span className="text-xs text-[var(--st-text-secondary)]">5 hours ago</span>
               </li>
               <li className="flex items-center gap-3">
                 <Link
                   href="/dashboard/instagram/stories"
-                  className="flex-1 text-zoru-ink underline-offset-2 hover:underline"
+                  className="flex-1 text-[var(--st-text)] underline-offset-2 hover:underline"
                 >
                   Story mentioned you
                 </Link>
-                <span className="text-xs text-zoru-ink-muted">1 day ago</span>
+                <span className="text-xs text-[var(--st-text-secondary)]">1 day ago</span>
               </li>
             </ul>
           </ZoruCardContent>
@@ -177,26 +177,26 @@ export default function InstagramDashboardPage() {
           </ZoruCardHeader>
           <ZoruCardContent className="grid grid-cols-2 gap-4">
             <Link href="/dashboard/instagram/feed">
-              <Card className="p-4 text-center hover:bg-zoru-surface-2">
-                <Newspaper className="mx-auto h-8 w-8 text-zoru-ink mb-2" />
+              <Card className="p-4 text-center hover:bg-[var(--st-bg-muted)]">
+                <Newspaper className="mx-auto h-8 w-8 text-[var(--st-text)] mb-2" />
                 Feed
               </Card>
             </Link>
             <Link href="/dashboard/instagram/stories">
-              <Card className="p-4 text-center hover:bg-zoru-surface-2">
-                <Clapperboard className="mx-auto h-8 w-8 text-zoru-ink mb-2" />
+              <Card className="p-4 text-center hover:bg-[var(--st-bg-muted)]">
+                <Clapperboard className="mx-auto h-8 w-8 text-[var(--st-text)] mb-2" />
                 Stories
               </Card>
             </Link>
             <Link href="/dashboard/instagram/reels">
-              <Card className="p-4 text-center hover:bg-zoru-surface-2">
-                <Video className="mx-auto h-8 w-8 text-zoru-ink mb-2" />
+              <Card className="p-4 text-center hover:bg-[var(--st-bg-muted)]">
+                <Video className="mx-auto h-8 w-8 text-[var(--st-text)] mb-2" />
                 Reels
               </Card>
             </Link>
             <Link href="/dashboard/instagram/messages">
-              <Card className="p-4 text-center hover:bg-zoru-surface-2">
-                <MessageSquare className="mx-auto h-8 w-8 text-zoru-ink mb-2" />
+              <Card className="p-4 text-center hover:bg-[var(--st-bg-muted)]">
+                <MessageSquare className="mx-auto h-8 w-8 text-[var(--st-text)] mb-2" />
                 Messages
               </Card>
             </Link>

@@ -49,7 +49,7 @@ export function SwitchEditor({ component, updateField }: SwitchEditorProps) {
                     placeholder="${form.plan}"
                     className="font-mono text-xs"
                 />
-                <p className="text-[10.5px] text-zoru-ink-muted">
+                <p className="text-[10.5px] text-[var(--st-text-secondary)]">
                     Dynamic expression resolved against screen/form data. Meta matches its
                     string value against the keys below; falls back to <code>default</code>.
                 </p>
@@ -58,12 +58,12 @@ export function SwitchEditor({ component, updateField }: SwitchEditorProps) {
             <div className="space-y-2">
                 <div className="flex items-center justify-between">
                     <Label>Cases ({caseKeys.length})</Label>
-                    <button type="button" onClick={addCase} className="text-[11px] font-medium text-zoru-ink hover:underline">
+                    <button type="button" onClick={addCase} className="text-[11px] font-medium text-[var(--st-text)] hover:underline">
                         + Add case
                     </button>
                 </div>
                 {caseKeys.length === 0 ? (
-                    <p className="rounded-md border border-dashed p-2 text-[11px] text-zoru-ink-muted">
+                    <p className="rounded-md border border-dashed p-2 text-[11px] text-[var(--st-text-secondary)]">
                         No cases. Add at least one plus a <code>default</code>.
                     </p>
                 ) : caseKeys.map((k) => (
@@ -73,12 +73,12 @@ export function SwitchEditor({ component, updateField }: SwitchEditorProps) {
                             onChange={(e) => renameCase(k, e.target.value)}
                             className="font-mono text-xs"
                         />
-                        <span className="text-[10.5px] text-zoru-ink-muted">{cases[k]?.length ?? 0} child</span>
+                        <span className="text-[10.5px] text-[var(--st-text-secondary)]">{cases[k]?.length ?? 0} child</span>
                         {k === 'default' ? null : (
                             <button
                                 type="button"
                                 onClick={() => removeCase(k)}
-                                className="text-[11px] text-zoru-ink hover:underline"
+                                className="text-[11px] text-[var(--st-text)] hover:underline"
                             >
                                 remove
                             </button>

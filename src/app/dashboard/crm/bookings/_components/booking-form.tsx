@@ -122,13 +122,13 @@ export function BookingForm({ initial }: BookingFormProps) {
       <input type="hidden" name="paymentStatus" value={paymentStatus} />
 
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Basics
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <Label>
-              Customer <span className="text-zoru-danger-ink">*</span>
+              Customer <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <div className="mt-1.5">
               <EntityFormField
@@ -152,7 +152,7 @@ export function BookingForm({ initial }: BookingFormProps) {
           </div>
           <div>
             <Label>
-              Assigned staff / resource <span className="text-zoru-danger-ink">*</span>
+              Assigned staff / resource <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <div className="mt-1.5">
               <EntityFormField
@@ -178,13 +178,13 @@ export function BookingForm({ initial }: BookingFormProps) {
       </Card>
 
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Scheduling
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <Label htmlFor="slotStart">
-              Slot start <span className="text-zoru-danger-ink">*</span>
+              Slot start <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <Input
               key={`start-${mounted}`}
@@ -198,7 +198,7 @@ export function BookingForm({ initial }: BookingFormProps) {
           </div>
           <div>
             <Label htmlFor="slotEnd">
-              Slot end <span className="text-zoru-danger-ink">*</span>
+              Slot end <span className="text-[var(--st-danger)]">*</span>
             </Label>
             <Input
               key={`end-${mounted}`}
@@ -234,10 +234,10 @@ export function BookingForm({ initial }: BookingFormProps) {
       </Card>
 
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Reminders
         </h3>
-        <p className="mb-4 text-[12px] text-zoru-ink-muted">Automated reminder emails/SMS configured for this booking.</p>
+        <p className="mb-4 text-[12px] text-[var(--st-text-secondary)]">Automated reminder emails/SMS configured for this booking.</p>
         <div className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div>
@@ -252,7 +252,7 @@ export function BookingForm({ initial }: BookingFormProps) {
             </div>
             <div>
               <Label>Channel</Label>
-              <select name="reminderChannel_0" defaultValue={initial?.reminders?.[0]?.channel || ''} className="flex h-9 w-full rounded-[var(--zoru-radius)] border border-zoru-line bg-transparent px-3 py-1 text-sm shadow-sm transition-colors mt-1.5 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zoru-ring">
+              <select name="reminderChannel_0" defaultValue={initial?.reminders?.[0]?.channel || ''} className="flex h-9 w-full rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-transparent px-3 py-1 text-sm shadow-sm transition-colors mt-1.5 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--st-accent)]">
                 <option value="">None</option>
                 <option value="email">Email</option>
                 <option value="sms">SMS</option>
@@ -263,7 +263,7 @@ export function BookingForm({ initial }: BookingFormProps) {
       </Card>
 
       <Card className="p-6">
-        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Status
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
@@ -277,7 +277,7 @@ export function BookingForm({ initial }: BookingFormProps) {
               />
             </div>
             {editing ? (
-              <p className="mt-1.5 text-[11.5px] text-zoru-ink-muted">
+              <p className="mt-1.5 text-[11.5px] text-[var(--st-text-secondary)]">
                 Lifecycle transitions belong to dedicated actions
                 (check-in, cancel) — this select is ignored on save.
               </p>

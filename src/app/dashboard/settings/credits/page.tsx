@@ -99,17 +99,17 @@ export default function CreditsSettingsPage() {
             <Card className="p-6">
                 <div className="flex flex-wrap items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-zoru-surface-2 text-zoru-ink">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                             <Star className="h-6 w-6" />
                         </div>
                         <div>
-                            <p className="text-xs uppercase tracking-wide text-zoru-ink-muted">
+                            <p className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
                                 {t('settings.credits.walletBalance')}
                             </p>
                             {loading ? (
                                 <Skeleton className="mt-1 h-8 w-40" />
                             ) : (
-                                <p className="mt-0.5 text-[24px] text-zoru-ink">
+                                <p className="mt-0.5 text-[24px] text-[var(--st-text)]">
                                     {formatCurrency((wallet?.balance ?? 0) / 100, wallet?.currency ?? 'INR', locale)}
                                 </p>
                             )}
@@ -136,21 +136,21 @@ export default function CreditsSettingsPage() {
                     return (
                         <Card key={row.id} className="p-6">
                             <div className="mb-3 flex items-start justify-between">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-zoru-surface-2 text-zoru-ink">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                                     <row.icon className="h-5 w-5" />
                                 </div>
                                 {value === 0 && <Badge variant="danger">{t('settings.credits.badges.empty')}</Badge>}
                                 {value > 0 && value < 100 && <Badge variant="warning">{t('settings.credits.badges.low')}</Badge>}
                             </div>
-                            <p className="text-xs text-zoru-ink-muted">{t(row.labelKey)}</p>
+                            <p className="text-xs text-[var(--st-text-secondary)]">{t(row.labelKey)}</p>
                             {loading ? (
                                 <Skeleton className="mt-1 h-8 w-24" />
                             ) : (
-                                <p className="mt-0.5 text-[26px] leading-none text-zoru-ink">
+                                <p className="mt-0.5 text-[26px] leading-none text-[var(--st-text)]">
                                     {value.toLocaleString(locale)}
                                 </p>
                             )}
-                            <p className="mt-2 text-xs text-zoru-ink-muted">{t(row.descriptionKey)}</p>
+                            <p className="mt-2 text-xs text-[var(--st-text-secondary)]">{t(row.descriptionKey)}</p>
                         </Card>
                     );
                 })}
@@ -158,12 +158,12 @@ export default function CreditsSettingsPage() {
 
             <Card className="p-6">
                 <div className="flex items-start gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                         <Zap className="h-4 w-4" />
                     </div>
                     <div>
-                        <p className="text-sm text-zoru-ink">{t('settings.credits.howConsumed.title')}</p>
-                        <p className="mt-1 text-xs text-zoru-ink-muted">
+                        <p className="text-sm text-[var(--st-text)]">{t('settings.credits.howConsumed.title')}</p>
+                        <p className="mt-1 text-xs text-[var(--st-text-secondary)]">
                             {t('settings.credits.howConsumed.description')}
                         </p>
                     </div>

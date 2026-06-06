@@ -232,7 +232,7 @@ export function KnowledgeClient({
     if (portals.length === 0) {
         return (
             <div className="space-y-4">
-                <div className="rounded border border-dashed bg-zoru-surface p-6 text-center text-sm text-zoru-ink-muted">
+                <div className="rounded border border-dashed bg-[var(--st-bg-secondary)] p-6 text-center text-sm text-[var(--st-text-secondary)]">
                     No knowledge portals yet. Create one to start authoring articles.
                 </div>
                 <PortalForm pending={isPending} onSubmit={onCreatePortal} />
@@ -244,7 +244,7 @@ export function KnowledgeClient({
         <div className="flex flex-col gap-4">
             {/* Top toolbar — portal selector + new portal trigger */}
             <div className="flex flex-wrap items-center gap-2">
-                <Label className="text-xs font-semibold uppercase text-zoru-ink-muted">
+                <Label className="text-xs font-semibold uppercase text-[var(--st-text-secondary)]">
                     Portal
                 </Label>
                 <Select
@@ -352,7 +352,7 @@ export function KnowledgeClient({
                                 />
                             ) : null}
                             {categories.length === 0 ? (
-                                <div className="rounded border border-dashed p-3 text-center text-xs text-zoru-ink-muted">
+                                <div className="rounded border border-dashed p-3 text-center text-xs text-[var(--st-text-secondary)]">
                                     No categories yet.
                                 </div>
                             ) : (
@@ -360,11 +360,11 @@ export function KnowledgeClient({
                                     {categories.map((c) => (
                                         <li
                                             key={c._id}
-                                            className="flex items-center justify-between rounded border bg-zoru-surface px-2 py-1 text-xs"
+                                            className="flex items-center justify-between rounded border bg-[var(--st-bg-secondary)] px-2 py-1 text-xs"
                                         >
                                             <span className="truncate">
                                                 {c.name}
-                                                <span className="ml-1 text-zoru-ink-muted">
+                                                <span className="ml-1 text-[var(--st-text-secondary)]">
                                                     /{c.slug}
                                                 </span>
                                             </span>
@@ -391,7 +391,7 @@ export function KnowledgeClient({
                         </ZoruCardHeader>
                         <ZoruCardContent>
                             {articles.length === 0 ? (
-                                <div className="rounded border border-dashed p-4 text-center text-xs text-zoru-ink-muted">
+                                <div className="rounded border border-dashed p-4 text-center text-xs text-[var(--st-text-secondary)]">
                                     No articles yet. Use the editor to create one.
                                 </div>
                             ) : (
@@ -399,8 +399,8 @@ export function KnowledgeClient({
                                     {articles.map((a) => (
                                         <li
                                             key={a._id}
-                                            className={`cursor-pointer rounded px-2 py-2 text-sm hover:bg-zoru-surface-2 ${
-                                                a._id === selectedArticleId ? 'bg-zoru-surface-2' : ''
+                                            className={`cursor-pointer rounded px-2 py-2 text-sm hover:bg-[var(--st-bg-muted)] ${
+                                                a._id === selectedArticleId ? 'bg-[var(--st-bg-muted)]' : ''
                                             }`}
                                             onClick={() => pushQuery({ selected: a._id })}
                                         >
@@ -415,7 +415,7 @@ export function KnowledgeClient({
                                                     {a.status}
                                                 </Badge>
                                             </div>
-                                            <div className="mt-1 flex items-center justify-between text-[10px] text-zoru-ink-muted">
+                                            <div className="mt-1 flex items-center justify-between text-[10px] text-[var(--st-text-secondary)]">
                                                 <span className="truncate">/{a.slug}</span>
                                                 <span>
                                                     {a.viewCount} views ·{' '}
@@ -546,7 +546,7 @@ function CategoryForm({
     return (
         <form
             action={(fd) => onSubmit(fd)}
-            className="space-y-2 rounded border bg-zoru-surface p-2"
+            className="space-y-2 rounded border bg-[var(--st-bg-secondary)] p-2"
         >
             <input type="hidden" name="portalId" value={portalId} />
             <Input name="name" placeholder="Category name" required className="text-sm" />
@@ -555,7 +555,7 @@ function CategoryForm({
                 <select
                     name="parentId"
                     defaultValue=""
-                    className="w-full rounded border bg-zoru-surface px-2 py-1 text-sm"
+                    className="w-full rounded border bg-[var(--st-bg-secondary)] px-2 py-1 text-sm"
                 >
                     <option value="">No parent</option>
                     {parents.map((p) => (
@@ -714,7 +714,7 @@ function ArticleEditor({
                             id="article-category"
                             name="categoryId"
                             defaultValue={article?.categoryId ?? ''}
-                            className="h-9 w-full rounded border bg-zoru-surface px-2 text-sm"
+                            className="h-9 w-full rounded border bg-[var(--st-bg-secondary)] px-2 text-sm"
                         >
                             <option value="">— None —</option>
                             {categories.map((c) => (
@@ -730,7 +730,7 @@ function ArticleEditor({
                             id="article-status"
                             name="status"
                             defaultValue={article?.status ?? 'draft'}
-                            className="h-9 w-full rounded border bg-zoru-surface px-2 text-sm"
+                            className="h-9 w-full rounded border bg-[var(--st-bg-secondary)] px-2 text-sm"
                         >
                             {STATUSES.map((s) => (
                                 <option key={s} value={s}>

@@ -142,7 +142,7 @@ export function ApiKeysTab({ projectId, initialKeys }: Props) {
                                     </SelectContent>
                                 </Select>
                             </div>
-                            {err ? <p className="text-sm text-zoru-ink">{err}</p> : null}
+                            {err ? <p className="text-sm text-[var(--st-text)]">{err}</p> : null}
                         </div>
                     )}
                     <DialogFooter>

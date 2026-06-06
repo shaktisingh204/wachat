@@ -36,7 +36,7 @@ type Props = {
 };
 
 const inputClass =
-  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-zoru-line transition-colors';
+  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[var(--st-border)] transition-colors';
 
 /** appEvents that are generic primitives — show full editor for these. */
 const GENERIC_APP_EVENTS = new Set([
@@ -238,7 +238,7 @@ function WebhookFields({
               className={cn(
                 'rounded-md border px-2.5 py-1 text-[11.5px] font-mono font-semibold transition-colors',
                 method === m
-                  ? 'border-zoru-line bg-zoru-ink/10 text-zoru-ink'
+                  ? 'border-[var(--st-border)] bg-[var(--st-text)]/10 text-[var(--st-text)]'
                   : 'border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-9)] hover:text-[var(--gray-12)]',
               )}
             >
@@ -435,7 +435,7 @@ function FiltersSection({
             key={field.path}
             type="button"
             onClick={() => addFilter(field)}
-            className="inline-flex items-center gap-1 rounded-md border border-dashed border-[var(--gray-6)] bg-[var(--gray-2)] px-2 py-1 text-[11px] text-[var(--gray-10)] hover:border-zoru-line hover:text-zoru-ink transition-colors"
+            className="inline-flex items-center gap-1 rounded-md border border-dashed border-[var(--gray-6)] bg-[var(--gray-2)] px-2 py-1 text-[11px] text-[var(--gray-10)] hover:border-[var(--st-border)] hover:text-[var(--st-text)] transition-colors"
           >
             <LuPlus className="h-3 w-3" />
             {field.label}
@@ -471,7 +471,7 @@ function FilterRow({
         <button
           type="button"
           onClick={onRemove}
-          className="rounded p-1 text-[var(--gray-8)] hover:text-zoru-ink hover:bg-zoru-ink/10 transition-colors"
+          className="rounded p-1 text-[var(--gray-8)] hover:text-[var(--st-text)] hover:bg-[var(--st-text)]/10 transition-colors"
           aria-label="Remove filter"
         >
           <LuTrash2 className="h-3.5 w-3.5" />
@@ -639,7 +639,7 @@ function DocsSection({ doc }: { doc: ReturnType<typeof getNodeDoc> & object }) {
             {doc.fields.map((f) => (
               <li key={f.name} className="text-[11.5px] leading-snug text-[var(--gray-11)]">
                 <span className="font-semibold text-[var(--gray-12)]">{f.name}</span>
-                {f.required ? <span className="ml-1 text-zoru-ink">*</span> : null}
+                {f.required ? <span className="ml-1 text-[var(--st-text)]">*</span> : null}
                 {f.defaultValue ? (
                   <span className="ml-1 rounded bg-[var(--gray-3)] px-1 font-mono text-[10.5px] text-[var(--gray-10)]">
                     default: {f.defaultValue}
@@ -660,7 +660,7 @@ function DocsSection({ doc }: { doc: ReturnType<typeof getNodeDoc> & object }) {
           <ul className="mt-1 space-y-1">
             {doc.outputs.map((o) => (
               <li key={o.token} className="flex items-start gap-1.5 text-[11.5px]">
-                <code className="shrink-0 rounded bg-[var(--gray-3)] px-1 py-0.5 font-mono text-[10.5px] text-zoru-ink">
+                <code className="shrink-0 rounded bg-[var(--gray-3)] px-1 py-0.5 font-mono text-[10.5px] text-[var(--st-text)]">
                   {o.token}
                 </code>
                 <span className="text-[var(--gray-10)]">{o.description}</span>
@@ -678,7 +678,7 @@ function DocsSection({ doc }: { doc: ReturnType<typeof getNodeDoc> & object }) {
           <ul className="mt-1 space-y-1">
             {doc.examples.map((ex) => (
               <li key={ex} className="flex items-start gap-1.5 text-[11.5px] text-[var(--gray-11)]">
-                <LuCircleCheck className="mt-[1px] h-3 w-3 shrink-0 text-zoru-ink" />
+                <LuCircleCheck className="mt-[1px] h-3 w-3 shrink-0 text-[var(--st-text)]" />
                 <span>{ex}</span>
               </li>
             ))}

@@ -190,11 +190,11 @@ export function AuditPageClient({ projectId, initialHistory }: { projectId: stri
             
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl text-zoru-ink flex items-center gap-3">
-                        <RefreshCw className={`h-8 w-8 text-zoru-ink ${status === 'running' ? 'animate-spin' : ''}`} />
+                    <h1 className="text-3xl text-[var(--st-text)] flex items-center gap-3">
+                        <RefreshCw className={`h-8 w-8 text-[var(--st-text)] ${status === 'running' ? 'animate-spin' : ''}`} />
                         Technical Audit
                     </h1>
-                    <p className="text-zoru-ink-muted mt-1">Deep crawl analysis using distributed cloud workers.</p>
+                    <p className="text-[var(--st-text-secondary)] mt-1">Deep crawl analysis using distributed cloud workers.</p>
                 </div>
                 <div className="flex items-center gap-2 no-print">
                     <Button onClick={scheduleWeekly} disabled={scheduling} variant="outline" className="text-sm">
@@ -209,13 +209,13 @@ export function AuditPageClient({ projectId, initialHistory }: { projectId: stri
             </div>
 
             {status === 'running' && (
-                <Card className="bg-zoru-info/10 border-zoru-info/40 no-print">
+                <Card className="bg-[var(--st-text-secondary)]/10 border-[var(--st-text-secondary)]/40 no-print">
                     <ZoruCardContent className="p-6 flex items-center gap-4">
-                        <Loader2 className="h-8 w-8 text-zoru-info animate-spin" />
+                        <Loader2 className="h-8 w-8 text-[var(--st-text-secondary)] animate-spin" />
                         <div className="flex-1">
                             <div className="flex justify-between mb-2">
-                                <span className="text-zoru-ink">Audit in Progress</span>
-                                <span className="text-zoru-ink-muted">{progress.crawled} Pages Crawled</span>
+                                <span className="text-[var(--st-text)]">Audit in Progress</span>
+                                <span className="text-[var(--st-text-secondary)]">{progress.crawled} Pages Crawled</span>
                             </div>
                             <Progress value={30} className="h-2" />
                         </div>
@@ -225,7 +225,7 @@ export function AuditPageClient({ projectId, initialHistory }: { projectId: stri
 
             {!audit ? (
                 <Card className="border-dashed py-12 flex flex-col items-center justify-center text-center">
-                    <p className="text-zoru-ink-muted mb-4">No audit history found.</p>
+                    <p className="text-[var(--st-text-secondary)] mb-4">No audit history found.</p>
                     <Button onClick={handleStartAudit} className="no-print">Start First Crawl</Button>
                 </Card>
             ) : (
@@ -251,19 +251,19 @@ export function AuditPageClient({ projectId, initialHistory }: { projectId: stri
                             </ZoruCardHeader>
                             <ZoruCardContent>
                                 <div className="flex items-center justify-between mb-2">
-                                    <span className="text-4xl text-zoru-ink">{audit.totalScore || 0}</span>
-                                    <span className="text-zoru-ink-muted">/ 100</span>
+                                    <span className="text-4xl text-[var(--st-text)]">{audit.totalScore || 0}</span>
+                                    <span className="text-[var(--st-text-secondary)]">/ 100</span>
                                 </div>
                                 <Progress value={audit.totalScore || 0} className="h-2" />
                                 {pastAudits.length > 0 && (
-                                    <div className="mt-4 text-sm text-zoru-ink-muted flex items-center gap-1">
+                                    <div className="mt-4 text-sm text-[var(--st-text-secondary)] flex items-center gap-1">
                                         <span>Previous: {pastAudits[0].totalScore || 0}</span>
                                         {(audit.totalScore || 0) > (pastAudits[0].totalScore || 0) ? (
-                                            <span className="text-zoru-success flex items-center font-medium"><ArrowRight className="h-3 w-3 inline -rotate-45" /> (+{(audit.totalScore || 0) - (pastAudits[0].totalScore || 0)})</span>
+                                            <span className="text-[var(--st-status-ok)] flex items-center font-medium"><ArrowRight className="h-3 w-3 inline -rotate-45" /> (+{(audit.totalScore || 0) - (pastAudits[0].totalScore || 0)})</span>
                                         ) : (audit.totalScore || 0) < (pastAudits[0].totalScore || 0) ? (
-                                            <span className="text-zoru-danger-ink flex items-center font-medium"><ArrowRight className="h-3 w-3 inline rotate-45" /> ({(audit.totalScore || 0) - (pastAudits[0].totalScore || 0)})</span>
+                                            <span className="text-[var(--st-danger)] flex items-center font-medium"><ArrowRight className="h-3 w-3 inline rotate-45" /> ({(audit.totalScore || 0) - (pastAudits[0].totalScore || 0)})</span>
                                         ) : (
-                                            <span className="text-zoru-ink flex items-center">(=)</span>
+                                            <span className="text-[var(--st-text)] flex items-center">(=)</span>
                                         )}
                                     </div>
                                 )}
@@ -275,14 +275,14 @@ export function AuditPageClient({ projectId, initialHistory }: { projectId: stri
                                 <ZoruCardTitle className="text-sm">Critical Errors</ZoruCardTitle>
                             </ZoruCardHeader>
                             <ZoruCardContent className="flex items-center gap-4">
-                                <div className="p-3 rounded-full bg-zoru-danger/10 text-zoru-danger-ink">
+                                <div className="p-3 rounded-full bg-[var(--st-danger)]/10 text-[var(--st-danger)]">
                                     <AlertCircle className="h-6 w-6" />
                                 </div>
                                 <div>
-                                    <div className="text-2xl text-zoru-ink">{audit.summary?.criticalIssues || 0}</div>
-                                    <p className="text-xs text-zoru-ink-muted">Require attention</p>
+                                    <div className="text-2xl text-[var(--st-text)]">{audit.summary?.criticalIssues || 0}</div>
+                                    <p className="text-xs text-[var(--st-text-secondary)]">Require attention</p>
                                     {pastAudits.length > 0 && (
-                                        <p className="text-xs text-zoru-ink-muted mt-2">Previous: {pastAudits[0].summary?.criticalIssues || 0}</p>
+                                        <p className="text-xs text-[var(--st-text-secondary)] mt-2">Previous: {pastAudits[0].summary?.criticalIssues || 0}</p>
                                     )}
                                 </div>
                             </ZoruCardContent>
@@ -293,14 +293,14 @@ export function AuditPageClient({ projectId, initialHistory }: { projectId: stri
                                 <ZoruCardTitle className="text-sm">Warnings</ZoruCardTitle>
                             </ZoruCardHeader>
                             <ZoruCardContent className="flex items-center gap-4">
-                                <div className="p-3 rounded-full bg-zoru-warning/10 text-zoru-warning">
+                                <div className="p-3 rounded-full bg-[var(--st-warn)]/10 text-[var(--st-warn)]">
                                     <AlertCircle className="h-6 w-6" />
                                 </div>
                                 <div>
-                                    <div className="text-2xl text-zoru-ink">{audit.summary?.warningIssues || 0}</div>
-                                    <p className="text-xs text-zoru-ink-muted">Optimization tips</p>
+                                    <div className="text-2xl text-[var(--st-text)]">{audit.summary?.warningIssues || 0}</div>
+                                    <p className="text-xs text-[var(--st-text-secondary)]">Optimization tips</p>
                                     {pastAudits.length > 0 && (
-                                        <p className="text-xs text-zoru-ink-muted mt-2">Previous: {pastAudits[0].summary?.warningIssues || 0}</p>
+                                        <p className="text-xs text-[var(--st-text-secondary)] mt-2">Previous: {pastAudits[0].summary?.warningIssues || 0}</p>
                                     )}
                                 </div>
                             </ZoruCardContent>

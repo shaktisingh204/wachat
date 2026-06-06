@@ -97,7 +97,7 @@ export function TransactionChart({ transactions, dateRange }: TransactionChartPr
                             </AreaChart>
                         </ResponsiveContainer>
                     ) : (
-                        <div className="flex h-full items-center justify-center text-zoru-ink-muted">
+                        <div className="flex h-full items-center justify-center text-[var(--st-text-secondary)]">
                             No data available for the selected period
                         </div>
                     )}

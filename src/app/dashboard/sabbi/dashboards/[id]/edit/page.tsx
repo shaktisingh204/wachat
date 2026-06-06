@@ -57,7 +57,7 @@ export default async function DashboardEditPage({ params }: PageProps) {
         >
             <DashboardEditForm dashboard={{ ...d, _id: String(d._id ?? id) }} />
             <section className="space-y-2">
-                <h2 className="text-[14px] font-medium text-zoru-ink">Widgets</h2>
+                <h2 className="text-[14px] font-medium text-[var(--st-text)]">Widgets</h2>
                 <DashboardEditor dashboardId={String(d._id ?? id)} initialWidgets={widgets} />
             </section>
         </EntityDetailShell>

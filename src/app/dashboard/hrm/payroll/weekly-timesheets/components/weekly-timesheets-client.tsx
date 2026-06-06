@@ -309,10 +309,10 @@ export function WeeklyTimesheetsClient({
       primaryAction={
         <div className="flex items-center gap-2">
           {isLive && (
-            <div className="flex items-center gap-1.5 text-xs text-zoru-ink-muted mr-2" title="Collaborative connection active">
+            <div className="flex items-center gap-1.5 text-xs text-[var(--st-text-secondary)] mr-2" title="Collaborative connection active">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-zoru-surface-2 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-zoru-ink"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--st-bg-muted)] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--st-text)]"></span>
               </span>
               Live
             </div>
@@ -339,10 +339,10 @@ export function WeeklyTimesheetsClient({
       }
     >
       <Card className="flex flex-col flex-1 min-h-0">
-        <div className="p-4 border-b border-zoru-line bg-zoru-surface-1 flex flex-wrap items-center justify-between gap-3">
+        <div className="p-4 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-col">
-            <h2 className="text-[16px] text-zoru-ink">All Timesheets</h2>
-            <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+            <h2 className="text-[16px] text-[var(--st-text)]">All Timesheets</h2>
+            <p className="mt-0.5 text-[12.5px] text-[var(--st-text-secondary)]">
               {filtered.length} timesheet{filtered.length === 1 ? '' : 's'}
             </p>
           </div>
@@ -373,7 +373,7 @@ export function WeeklyTimesheetsClient({
                   <DropdownMenuItem onClick={handleBulkSubmit}>Submit Selected</DropdownMenuItem>
                   <DropdownMenuItem onClick={handleBulkApprove}>Approve Selected</DropdownMenuItem>
                   <DropdownMenuItem onClick={handleBulkReject}>Reject Selected</DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleBulkDelete} className="text-zoru-danger-ink">Delete Selected</DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleBulkDelete} className="text-[var(--st-danger)]">Delete Selected</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
@@ -381,7 +381,7 @@ export function WeeklyTimesheetsClient({
         </div>
 
         {/* Header Row */}
-        <div className="flex items-center px-4 py-2.5 bg-zoru-surface-2 border-b border-zoru-line text-[12px] font-medium text-zoru-ink-muted">
+        <div className="flex items-center px-4 py-2.5 bg-[var(--st-bg-muted)] border-b border-[var(--st-border)] text-[12px] font-medium text-[var(--st-text-secondary)]">
           <div className="w-[40px]">
             <Checkbox 
               checked={selectedIds.size > 0 && selectedIds.size === filtered.length} 
@@ -399,7 +399,7 @@ export function WeeklyTimesheetsClient({
         {/* Virtualized Body */}
         <div 
           ref={parentRef} 
-          className="flex-1 overflow-auto bg-zoru-surface"
+          className="flex-1 overflow-auto bg-[var(--st-bg-secondary)]"
           style={{ minHeight: '300px', maxHeight: '600px' }}
         >
           <div
@@ -410,7 +410,7 @@ export function WeeklyTimesheetsClient({
             }}
           >
             {filtered.length === 0 ? (
-               <div className="h-full flex items-center justify-center text-sm text-zoru-ink-muted p-8">
+               <div className="h-full flex items-center justify-center text-sm text-[var(--st-text-secondary)] p-8">
                  No timesheets found.
                </div>
             ) : (
@@ -420,7 +420,7 @@ export function WeeklyTimesheetsClient({
                 return (
                   <div
                     key={id}
-                    className="absolute top-0 left-0 w-full flex items-center px-4 py-2 border-b border-zoru-line hover:bg-zoru-surface-2/50 transition-colors text-[13px]"
+                    className="absolute top-0 left-0 w-full flex items-center px-4 py-2 border-b border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]/50 transition-colors text-[13px]"
                     style={{
                       height: `${virtualRow.size}px`,
                       transform: `translateY(${virtualRow.start}px)`,
@@ -432,12 +432,12 @@ export function WeeklyTimesheetsClient({
                         onCheckedChange={() => toggleSelect(id)} 
                       />
                     </div>
-                    <div className="flex-1 min-w-[150px] font-medium text-zoru-ink truncate pr-2">
+                    <div className="flex-1 min-w-[150px] font-medium text-[var(--st-text)] truncate pr-2">
                       {empMap.get(String(s.user_id)) || `…${String(s.user_id).slice(-6)}`}
                     </div>
-                    <div className="w-[120px] text-zoru-ink">{fmtDate(s.week_start_date, isMounted)}</div>
-                    <div className="w-[120px] text-zoru-ink">{fmtDate(s.week_end_date, isMounted)}</div>
-                    <div className="w-[100px] font-mono text-zoru-ink">{fmtHours(s.total_hours, s.total_minutes)}</div>
+                    <div className="w-[120px] text-[var(--st-text)]">{fmtDate(s.week_start_date, isMounted)}</div>
+                    <div className="w-[120px] text-[var(--st-text)]">{fmtDate(s.week_end_date, isMounted)}</div>
+                    <div className="w-[100px] font-mono text-[var(--st-text)]">{fmtHours(s.total_hours, s.total_minutes)}</div>
                     <div className="w-[100px]">
                       <Badge variant={STATUS_VARIANT[s.status]}>{s.status}</Badge>
                     </div>
@@ -455,15 +455,15 @@ export function WeeklyTimesheetsClient({
                       {s.status === 'submitted' && (
                         <>
                           <Button variant="outline" size="sm" onClick={() => handleApprove(id)} title="Approve">
-                            <Check className="h-3.5 w-3.5 text-zoru-ink" />
+                            <Check className="h-3.5 w-3.5 text-[var(--st-text)]" />
                           </Button>
                           <Button variant="outline" size="sm" onClick={() => handleReject(id)} title="Reject">
-                            <X className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                            <X className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                           </Button>
                         </>
                       )}
                       <Button variant="outline" size="sm" onClick={() => handleDelete(id)} title="Delete">
-                        <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                        <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                       </Button>
                     </div>
                   </div>

@@ -39,8 +39,8 @@ export default function TaxesPage() {
     if (!mounted) {
         return (
             <div className="flex h-60 items-center justify-center">
-                <span className="flex items-center gap-2 text-sm text-zoru-ink-muted">
-                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-zoru-ink-muted border-t-transparent" />
+                <span className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--st-text-secondary)] border-t-transparent" />
                     Loading taxes...
                 </span>
             </div>
@@ -110,11 +110,11 @@ export default function TaxesPage() {
                         >
                             <div className="space-y-3 text-sm">
                                 <div>
-                                    <div className="text-zoru-ink-muted text-xs">Rate</div>
+                                    <div className="text-[var(--st-text-secondary)] text-xs">Rate</div>
                                     <div className="font-mono">{Number(row.rate_percent ?? 0)}%</div>
                                 </div>
                                 <div>
-                                    <div className="text-zoru-ink-muted text-xs">Default</div>
+                                    <div className="text-[var(--st-text-secondary)] text-xs">Default</div>
                                     <div>{row.is_default ? 'Yes' : 'No'}</div>
                                 </div>
                             </div>

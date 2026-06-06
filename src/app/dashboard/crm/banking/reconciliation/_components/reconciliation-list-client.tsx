@@ -130,12 +130,12 @@ function KpiStrip({ kpis }: { kpis: CrmReconciliationKpis }) {
       <StatCard
         label="Reconciled"
         value={kpis.reconciled.toLocaleString()}
-        icon={<CheckCircle2 className="h-4 w-4 text-zoru-ink" />}
+        icon={<CheckCircle2 className="h-4 w-4 text-[var(--st-text)]" />}
       />
       <StatCard
         label="Unreconciled"
         value={kpis.unreconciled.toLocaleString()}
-        icon={<ListChecks className="h-4 w-4 text-zoru-ink" />}
+        icon={<ListChecks className="h-4 w-4 text-[var(--st-text)]" />}
       />
       <StatCard
         label="Last reconciled"
@@ -163,7 +163,7 @@ function RecordsTable({
   if (records.length === 0) {
     return (
       <Card>
-        <p className="text-[13px] text-zoru-ink-muted">
+        <p className="text-[13px] text-[var(--st-text-secondary)]">
           No saved reconciliation records yet. Use the matcher below to reconcile
           your first period.
         </p>
@@ -172,8 +172,8 @@ function RecordsTable({
   }
   return (
     <Card className="overflow-hidden p-0">
-      <div className="flex items-center justify-between border-b border-zoru-line px-4 py-3">
-        <h2 className="text-[14px] font-semibold text-zoru-ink">
+      <div className="flex items-center justify-between border-b border-[var(--st-border)] px-4 py-3">
+        <h2 className="text-[14px] font-semibold text-[var(--st-text)]">
           Saved reconciliations
         </h2>
         <Button variant="outline" size="sm" onClick={onExport}>
@@ -183,45 +183,45 @@ function RecordsTable({
       <div className="overflow-x-auto">
         <Table>
           <ZoruTableHeader>
-            <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-              <ZoruTableHead className="text-zoru-ink-muted">Period</ZoruTableHead>
-              <ZoruTableHead className="text-zoru-ink-muted">Account</ZoruTableHead>
-              <ZoruTableHead className="text-right text-zoru-ink-muted">
+            <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+              <ZoruTableHead className="text-[var(--st-text-secondary)]">Period</ZoruTableHead>
+              <ZoruTableHead className="text-[var(--st-text-secondary)]">Account</ZoruTableHead>
+              <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                 Opening
               </ZoruTableHead>
-              <ZoruTableHead className="text-right text-zoru-ink-muted">
+              <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                 Closing
               </ZoruTableHead>
-              <ZoruTableHead className="text-right text-zoru-ink-muted">
+              <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                 Matched
               </ZoruTableHead>
-              <ZoruTableHead className="text-right text-zoru-ink-muted">
+              <ZoruTableHead className="text-right text-[var(--st-text-secondary)]">
                 Unmatched
               </ZoruTableHead>
-              <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-              <ZoruTableHead className="text-zoru-ink-muted">Date</ZoruTableHead>
+              <ZoruTableHead className="text-[var(--st-text-secondary)]">Status</ZoruTableHead>
+              <ZoruTableHead className="text-[var(--st-text-secondary)]">Date</ZoruTableHead>
             </ZoruTableRow>
           </ZoruTableHeader>
           <ZoruTableBody>
             {records.map((rec) => (
-              <ZoruTableRow key={rec._id} className="border-zoru-line">
-                <ZoruTableCell className="text-[12.5px] text-zoru-ink">
+              <ZoruTableRow key={rec._id} className="border-[var(--st-border)]">
+                <ZoruTableCell className="text-[12.5px] text-[var(--st-text)]">
                   {rec.periodStart ? fmtDate(rec.periodStart) : '—'} -{' '}
                   {rec.periodEnd ? fmtDate(rec.periodEnd) : '—'}
                 </ZoruTableCell>
-                <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                <ZoruTableCell className="text-[12.5px] text-[var(--st-text-secondary)]">
                   {rec.accountId ?? '—'}
                 </ZoruTableCell>
-                <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-zoru-ink">
+                <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-[var(--st-text)]">
                   {rec.openingBalance != null ? fmtInr(rec.openingBalance) : '—'}
                 </ZoruTableCell>
-                <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-zoru-ink">
+                <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-[var(--st-text)]">
                   {rec.closingBalance != null ? fmtInr(rec.closingBalance) : '—'}
                 </ZoruTableCell>
-                <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-zoru-ink">
+                <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-[var(--st-text)]">
                   {rec.matchedCount ?? 0}
                 </ZoruTableCell>
-                <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-zoru-ink">
+                <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-[var(--st-text)]">
                   {rec.unmatchedCount ?? 0}
                 </ZoruTableCell>
                 <ZoruTableCell>
@@ -229,14 +229,14 @@ function RecordsTable({
                     className={[
                       'rounded-full px-2 py-0.5 text-[11px] font-medium',
                       rec.status === 'Completed' || rec.status === 'completed'
-                        ? 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted'
-                        : 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted',
+                        ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]'
+                        : 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]',
                     ].join(' ')}
                   >
                     {rec.status ?? 'in_progress'}
                   </span>
                 </ZoruTableCell>
-                <ZoruTableCell className="text-[12px] text-zoru-ink-muted">
+                <ZoruTableCell className="text-[12px] text-[var(--st-text-secondary)]">
                   {fmtDate(rec.reconciledDate ?? rec.createdAt)}
                 </ZoruTableCell>
               </ZoruTableRow>
@@ -270,24 +270,24 @@ const TransactionTable = ({
   isBankStatement?: boolean;
   onFxAdjust?: (id: string, amount: number, originalCurrency: string) => void;
 }) => (
-  <Card className="border border-zoru-line overflow-hidden p-0 shadow-[var(--zoru-shadow-sm)]">
-    <div className="flex items-center justify-between px-4 py-3 border-b border-zoru-line bg-zoru-surface-2">
-      <h3 className="text-[13.5px] font-bold uppercase tracking-wider text-zoru-ink">{title}</h3>
+  <Card className="border border-[var(--st-border)] overflow-hidden p-0 shadow-[var(--zoru-shadow-sm)]">
+    <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]">
+      <h3 className="text-[13.5px] font-bold uppercase tracking-wider text-[var(--st-text)]">{title}</h3>
       <Badge variant="secondary">
         {entries.length} {entries.length === 1 ? 'row' : 'rows'}
       </Badge>
     </div>
     <div className="max-h-[420px] overflow-x-auto overflow-y-auto">
       <Table>
-        <ZoruTableHeader className="sticky top-0 bg-zoru-surface-2 z-10">
-          <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-            <ZoruTableHead className="w-10 text-zoru-ink-muted">
+        <ZoruTableHeader className="sticky top-0 bg-[var(--st-bg-muted)] z-10">
+          <ZoruTableRow className="border-[var(--st-border)] hover:bg-transparent">
+            <ZoruTableHead className="w-10 text-[var(--st-text-secondary)]">
               <Check className="h-3.5 w-3.5" />
             </ZoruTableHead>
-            <ZoruTableHead className="text-zoru-ink-muted text-[11px] font-bold uppercase tracking-wider">Date</ZoruTableHead>
-            <ZoruTableHead className="text-zoru-ink-muted text-[11px] font-bold uppercase tracking-wider">Description</ZoruTableHead>
-            <ZoruTableHead className="text-right text-zoru-ink-muted text-[11px] font-bold uppercase tracking-wider">Debit</ZoruTableHead>
-            <ZoruTableHead className="text-right text-zoru-ink-muted text-[11px] font-bold uppercase tracking-wider">Credit</ZoruTableHead>
+            <ZoruTableHead className="text-[var(--st-text-secondary)] text-[11px] font-bold uppercase tracking-wider">Date</ZoruTableHead>
+            <ZoruTableHead className="text-[var(--st-text-secondary)] text-[11px] font-bold uppercase tracking-wider">Description</ZoruTableHead>
+            <ZoruTableHead className="text-right text-[var(--st-text-secondary)] text-[11px] font-bold uppercase tracking-wider">Debit</ZoruTableHead>
+            <ZoruTableHead className="text-right text-[var(--st-text-secondary)] text-[11px] font-bold uppercase tracking-wider">Credit</ZoruTableHead>
           </ZoruTableRow>
         </ZoruTableHeader>
         <ZoruTableBody>
@@ -314,28 +314,28 @@ const TransactionTable = ({
             // Build the row cell styling classes
             const cellClass = isMatched
               ? isAiMatched
-                ? "bg-zoru-ink/10 dark:bg-zoru-ink/20 border-y border-zoru-line/40 text-zoru-ink dark:text-zoru-ink-muted font-semibold"
-                : "bg-zoru-ink/5 dark:bg-zoru-ink/10 border-y border-zoru-line/20 text-zoru-ink"
-              : "text-zoru-ink border-b border-zoru-line";
+                ? "bg-[var(--st-text)]/10 dark:bg-[var(--st-text)]/20 border-y border-[var(--st-border)]/40 text-[var(--st-text)] dark:text-[var(--st-text-secondary)] font-semibold"
+                : "bg-[var(--st-text)]/5 dark:bg-[var(--st-text)]/10 border-y border-[var(--st-border)]/20 text-[var(--st-text)]"
+              : "text-[var(--st-text)] border-b border-[var(--st-border)]";
 
             return (
               <ZoruTableRow
                 key={e._id}
                 className={[
                   "transition-all duration-200",
-                  isMatched ? "hover:bg-zoru-ink/15" : "hover:bg-zoru-surface-2",
+                  isMatched ? "hover:bg-[var(--st-text)]/15" : "hover:bg-[var(--st-bg-muted)]",
                   isAiMatched ? "shadow-[inset_4px_0_0_0_#10b981]" : ""
                 ].join(' ')}
                 data-state={isMatched ? 'selected' : ''}
               >
-                <ZoruTableCell className={[cellClass, isAiMatched ? "border-l border-zoru-line/40" : ""].join(' ')}>
+                <ZoruTableCell className={[cellClass, isAiMatched ? "border-l border-[var(--st-border)]/40" : ""].join(' ')}>
                   <div className="flex items-center gap-1.5">
                     <Checkbox
                       checked={isMatched}
                       onCheckedChange={() => onMatchToggle(e._id)}
                     />
                     {isAiMatched && (
-                      <Sparkles className="h-3.5 w-3.5 text-zoru-success-ink shrink-0 animate-pulse" title="AI Matched" />
+                      <Sparkles className="h-3.5 w-3.5 text-[var(--st-status-ok)] shrink-0 animate-pulse" title="AI Matched" />
                     )}
                   </div>
                 </ZoruTableCell>
@@ -346,7 +346,7 @@ const TransactionTable = ({
                   <div className="flex flex-col">
                     <span className="truncate">{e.description}</span>
                     {isAiMatched && (
-                      <span className="text-[10px] text-zoru-success-ink font-semibold flex items-center gap-0.5 mt-0.5">
+                      <span className="text-[10px] text-[var(--st-status-ok)] font-semibold flex items-center gap-0.5 mt-0.5">
                         Matched ±3d Window
                       </span>
                     )}
@@ -369,7 +369,7 @@ const TransactionTable = ({
         </ZoruTableBody>
       </Table>
     </div>
-    <div className="p-4 flex justify-end gap-6 border-t border-zoru-line bg-zoru-surface-2 text-[12.5px] font-bold text-zoru-ink">
+    <div className="p-4 flex justify-end gap-6 border-t border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[12.5px] font-bold text-[var(--st-text)]">
       <div className="text-right">
         Debit: <span className="font-mono">{fmtInr(totalDebit)}</span>
       </div>
@@ -735,7 +735,7 @@ export function ReconciliationListClient({
   if (!mounted) {
     return (
       <div className="flex h-40 items-center justify-center">
-        <LoaderCircle className="h-6 w-6 animate-spin text-zoru-ink-muted" />
+        <LoaderCircle className="h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
       </div>
     );
   }
@@ -777,14 +777,14 @@ export function ReconciliationListClient({
       <RecordsTable records={records} onExport={handleExportRecords} />
 
       {/* Interactive matcher */}
-      <Card className="border border-zoru-line p-6 bg-zoru-bg shadow-[var(--zoru-shadow-sm)]">
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-4 border-b border-zoru-line pb-3">
+      <Card className="border border-[var(--st-border)] p-6 bg-[var(--st-bg)] shadow-[var(--zoru-shadow-sm)]">
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-4 border-b border-[var(--st-border)] pb-3">
           <div>
-            <h2 className="text-[15px] font-bold text-zoru-ink flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-zoru-primary animate-pulse" />
+            <h2 className="text-[15px] font-bold text-[var(--st-text)] flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-[var(--st-text)] animate-pulse" />
               Split-Screen Bank Reconciliation Console
             </h2>
-            <p className="text-[12px] text-zoru-ink-muted">Match statement bank transactions to books General Ledger instantly</p>
+            <p className="text-[12px] text-[var(--st-text-secondary)]">Match statement bank transactions to books General Ledger instantly</p>
           </div>
           <div className="flex items-center gap-2">
             <Button
@@ -792,7 +792,7 @@ export function ReconciliationListClient({
               size="sm"
               onClick={handleAIAutoMatch}
               disabled={!reconciliationData || isLoading}
-              className="border-zoru-line/30 text-zoru-success-ink bg-zoru-ink/5 hover:bg-zoru-ink/10 hover:border-zoru-line/50 flex items-center gap-1.5 shadow-[var(--zoru-shadow-sm)]"
+              className="border-[var(--st-border)]/30 text-[var(--st-status-ok)] bg-[var(--st-text)]/5 hover:bg-[var(--st-text)]/10 hover:border-[var(--st-border)]/50 flex items-center gap-1.5 shadow-[var(--zoru-shadow-sm)]"
             >
               <Sparkles className="h-3.5 w-3.5" />
               AI Auto-Matcher
@@ -802,7 +802,7 @@ export function ReconciliationListClient({
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-2">
-            <Label className="text-[11.5px] font-semibold text-zoru-ink-muted uppercase">Bank Account</Label>
+            <Label className="text-[11.5px] font-semibold text-[var(--st-text-secondary)] uppercase">Bank Account</Label>
             <Select
               value={selectedAccountId}
               onValueChange={handleAccountChange}
@@ -823,25 +823,25 @@ export function ReconciliationListClient({
             </Select>
           </div>
           <div className="space-y-2">
-            <Label className="text-[11.5px] font-semibold text-zoru-ink-muted uppercase">From</Label>
+            <Label className="text-[11.5px] font-semibold text-[var(--st-text-secondary)] uppercase">From</Label>
             <DatePicker value={startDate} onChange={setStartDate} />
           </div>
           <div className="space-y-2">
-            <Label className="text-[11.5px] font-semibold text-zoru-ink-muted uppercase">To</Label>
+            <Label className="text-[11.5px] font-semibold text-[var(--st-text-secondary)] uppercase">To</Label>
             <DatePicker value={endDate} onChange={setEndDate} />
           </div>
           <div className="space-y-2">
-            <Label className="text-[11.5px] font-semibold text-zoru-ink-muted uppercase">Bank Statement CSV</Label>
+            <Label className="text-[11.5px] font-semibold text-[var(--st-text-secondary)] uppercase">Bank Statement CSV</Label>
             <Input
               type="file"
               accept=".csv"
               onChange={(e) => setStatementFile(e.target.files?.[0] ?? null)}
-              className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[12.5px]"
+              className="h-10 rounded-lg border-[var(--st-border)] bg-[var(--st-bg)] text-[12.5px]"
             />
           </div>
         </div>
 
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-zoru-line">
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-[var(--st-border)]">
           <div className="flex gap-2">
             <Button
               onClick={() => void handleFetchData()}
@@ -878,17 +878,17 @@ export function ReconciliationListClient({
             <StatCard
               label="Cleared in books"
               value={fmtInr(clearedBookAmount)}
-              icon={<CheckCircle2 className="h-4 w-4 text-zoru-ink" />}
+              icon={<CheckCircle2 className="h-4 w-4 text-[var(--st-text)]" />}
             />
             <StatCard
               label="Cleared in bank"
               value={fmtInr(clearedStatementAmount)}
-              icon={<CheckCircle2 className="h-4 w-4 text-zoru-ink" />}
+              icon={<CheckCircle2 className="h-4 w-4 text-[var(--st-text)]" />}
             />
             <StatCard
               label="Uncleared amount"
               value={fmtInr(unclearedBookAmount)}
-              icon={<Clock className="h-4 w-4 text-zoru-ink" />}
+              icon={<Clock className="h-4 w-4 text-[var(--st-text)]" />}
             />
             <StatCard
               label="Difference"
@@ -897,7 +897,7 @@ export function ReconciliationListClient({
                 <GitCompare 
                   className={[
                     "h-4 w-4", 
-                    difference === 0 ? "text-zoru-ink animate-pulse" : "text-zoru-danger-ink"
+                    difference === 0 ? "text-[var(--st-text)] animate-pulse" : "text-[var(--st-danger)]"
                   ].join(' ')} 
                 />
               }
@@ -935,13 +935,13 @@ export function ReconciliationListClient({
       {/* CSV Mapping Modal */}
       {showMappingModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <Card className="w-full max-w-md p-6 bg-zoru-bg shadow-xl">
-            <h3 className="text-lg font-bold mb-4 text-zoru-ink">Map CSV Columns</h3>
-            <p className="text-sm text-zoru-ink-muted mb-4">Select the corresponding columns from your CSV.</p>
+          <Card className="w-full max-w-md p-6 bg-[var(--st-bg)] shadow-xl">
+            <h3 className="text-lg font-bold mb-4 text-[var(--st-text)]">Map CSV Columns</h3>
+            <p className="text-sm text-[var(--st-text-secondary)] mb-4">Select the corresponding columns from your CSV.</p>
             <div className="space-y-4">
               {['dateCol', 'descCol', 'debitCol', 'creditCol'].map((field) => (
                 <div key={field} className="space-y-1">
-                  <Label className="text-sm font-semibold text-zoru-ink capitalize">{field.replace('Col', ' Column')}</Label>
+                  <Label className="text-sm font-semibold text-[var(--st-text)] capitalize">{field.replace('Col', ' Column')}</Label>
                   <Select value={csvMapping[field as keyof CsvMapping]} onValueChange={(val) => setCsvMapping(prev => ({ ...prev, [field]: val }))}>
                     <ZoruSelectTrigger>
                       <ZoruSelectValue placeholder={`Select ${field}`} />

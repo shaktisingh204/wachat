@@ -22,7 +22,7 @@ type ClientSeoPageAudit = Omit<SeoPageAudit, 'crawledAt'> & { crawledAt: string 
 
 function IssueBadge({ severity }: { severity: 'critical' | 'warning' | 'info' }) {
     if (severity === 'critical') return <Badge variant="destructive" className="h-5 text-[10px]">Critical</Badge>;
-    if (severity === 'warning') return <Badge variant="secondary" className="h-5 text-[10px] bg-zoru-surface-2 text-zoru-ink hover:bg-zoru-surface-2">Warning</Badge>;
+    if (severity === 'warning') return <Badge variant="secondary" className="h-5 text-[10px] bg-[var(--st-bg-muted)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]">Warning</Badge>;
     return <Badge variant="outline" className="h-5 text-[10px]">Info</Badge>;
 }
 
@@ -48,7 +48,7 @@ export function AuditTable({ pages }: { pages: ClientSeoPageAudit[] }) {
                     ))}
                     {pages.length === 0 && (
                         <TableRow>
-                            <TableCell colSpan={6} className="text-center h-24 text-zoru-ink-muted">
+                            <TableCell colSpan={6} className="text-center h-24 text-[var(--st-text-secondary)]">
                                 No pages crawled yet.
                             </TableCell>
                         </TableRow>
@@ -113,22 +113,22 @@ function AuditRow({ page }: { page: ClientSeoPageAudit }) {
                         {page.url}
                         <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-50" />
                     </a>
-                    {page.title && <div className="text-xs text-zoru-ink-muted truncate">{page.title}</div>}
+                    {page.title && <div className="text-xs text-[var(--st-text-secondary)] truncate">{page.title}</div>}
                 </TableCell>
                 <TableCell>
-                    <Badge variant={page.status >= 400 ? "destructive" : "outline"} className={page.status >= 200 && page.status < 300 ? "border-zoru-line text-zoru-ink" : ""}>
+                    <Badge variant={page.status >= 400 ? "destructive" : "outline"} className={page.status >= 200 && page.status < 300 ? "border-[var(--st-border)] text-[var(--st-text)]" : ""}>
                         {page.status}
                     </Badge>
                 </TableCell>
-                <TableCell className={page.loadTime > 2000 ? "text-zoru-ink font-medium" : ""}>
+                <TableCell className={page.loadTime > 2000 ? "text-[var(--st-text)] font-medium" : ""}>
                     {page.loadTime}ms
                 </TableCell>
                 <TableCell>{page.wordCount}</TableCell>
                 <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
                         {critical > 0 && <Badge variant="destructive">{critical} Major</Badge>}
-                        {warning > 0 && <Badge variant="secondary" className="bg-zoru-surface-2 text-zoru-ink">{warning} Warn</Badge>}
-                        {critical === 0 && warning === 0 && <CheckCircle className="h-5 w-5 text-zoru-ink" />}
+                        {warning > 0 && <Badge variant="secondary" className="bg-[var(--st-bg-muted)] text-[var(--st-text)]">{warning} Warn</Badge>}
+                        {critical === 0 && warning === 0 && <CheckCircle className="h-5 w-5 text-[var(--st-text)]" />}
                     </div>
                 </TableCell>
                 <TableCell>
@@ -138,16 +138,16 @@ function AuditRow({ page }: { page: ClientSeoPageAudit }) {
                 </TableCell>
             </TableRow>
             {isOpen && (
-                <TableRow className="bg-zoru-surface-2/30">
+                <TableRow className="bg-[var(--st-bg-muted)]/30">
                     <TableCell colSpan={6} className="p-4">
                         <div className="space-y-2">
                             <h4 className="text-sm font-semibold">Identified Issues</h4>
                             {page.issues.length === 0 ? (
-                                <p className="text-sm text-zoru-ink-muted">No issues found on this page.</p>
+                                <p className="text-sm text-[var(--st-text-secondary)]">No issues found on this page.</p>
                             ) : (
                                 <ul className="grid gap-2">
                                     {page.issues.map((issue, i) => (
-                                        <li key={i} className="text-sm flex items-center justify-between border p-2 rounded bg-zoru-surface">
+                                        <li key={i} className="text-sm flex items-center justify-between border p-2 rounded bg-[var(--st-bg-secondary)]">
                                             <div className="flex items-center gap-2">
                                                 <IssueBadge severity={issue.severity} />
                                                 <span>{issue.message}</span>
@@ -163,12 +163,12 @@ function AuditRow({ page }: { page: ClientSeoPageAudit }) {
                             {/* ... (H1/Meta Box kept same) ... */}
                             <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t">
                                 <div>
-                                    <span className="text-xs font-semibold text-zoru-ink-muted uppercase">H1 Tag</span>
-                                    <p className="text-sm border p-2 rounded mt-1 bg-zoru-surface">{page.h1 || "Missing"}</p>
+                                    <span className="text-xs font-semibold text-[var(--st-text-secondary)] uppercase">H1 Tag</span>
+                                    <p className="text-sm border p-2 rounded mt-1 bg-[var(--st-bg-secondary)]">{page.h1 || "Missing"}</p>
                                 </div>
                                 <div>
-                                    <span className="text-xs font-semibold text-zoru-ink-muted uppercase">Meta Description</span>
-                                    <p className="text-sm border p-2 rounded mt-1 bg-zoru-surface">{page.metaDescription || "Missing"}</p>
+                                    <span className="text-xs font-semibold text-[var(--st-text-secondary)] uppercase">Meta Description</span>
+                                    <p className="text-sm border p-2 rounded mt-1 bg-[var(--st-bg-secondary)]">{page.metaDescription || "Missing"}</p>
                                 </div>
                             </div>
                         </div>
@@ -185,28 +185,28 @@ function AuditRow({ page }: { page: ClientSeoPageAudit }) {
 
                     {generating ? (
                         <div className="py-12 flex flex-col items-center justify-center">
-                            <Loader2 className="h-10 w-10 animate-spin text-zoru-ink mb-4" />
+                            <Loader2 className="h-10 w-10 animate-spin text-[var(--st-text)] mb-4" />
                             <p>Analyzing content and generating tags...</p>
                         </div>
                     ) : aiResult ? (
                         <div className="space-y-4">
-                            <div className="bg-zoru-surface-2 p-4 rounded-md">
+                            <div className="bg-[var(--st-bg-muted)] p-4 rounded-md">
                                 <h4 className="font-semibold text-sm mb-2">Reasoning</h4>
-                                <p className="text-sm text-zoru-ink-muted">{aiResult.reasoning}</p>
+                                <p className="text-sm text-[var(--st-text-secondary)]">{aiResult.reasoning}</p>
                             </div>
 
                             <div className="grid gap-4">
                                 <div>
-                                    <Label className="text-xs uppercase text-zoru-ink-muted">Optimized Title ({aiResult.optimizedTitle.length} chars)</Label>
+                                    <Label className="text-xs uppercase text-[var(--st-text-secondary)]">Optimized Title ({aiResult.optimizedTitle.length} chars)</Label>
                                     <div className="flex gap-2 mt-1">
-                                        <div className="border p-2 rounded flex-1 bg-zoru-surface text-sm">{aiResult.optimizedTitle}</div>
+                                        <div className="border p-2 rounded flex-1 bg-[var(--st-bg-secondary)] text-sm">{aiResult.optimizedTitle}</div>
                                         <Button size="sm" variant="outline" onClick={() => { navigator.clipboard.writeText(aiResult.optimizedTitle); toast({ title: "Copied!" }); }}>Copy</Button>
                                     </div>
                                 </div>
                                 <div>
-                                    <Label className="text-xs uppercase text-zoru-ink-muted">Optimized Description ({aiResult.optimizedDesc.length} chars)</Label>
+                                    <Label className="text-xs uppercase text-[var(--st-text-secondary)]">Optimized Description ({aiResult.optimizedDesc.length} chars)</Label>
                                     <div className="flex gap-2 mt-1">
-                                        <div className="border p-2 rounded flex-1 bg-zoru-surface text-sm">{aiResult.optimizedDesc}</div>
+                                        <div className="border p-2 rounded flex-1 bg-[var(--st-bg-secondary)] text-sm">{aiResult.optimizedDesc}</div>
                                         <Button size="sm" variant="outline" onClick={() => { navigator.clipboard.writeText(aiResult.optimizedDesc); toast({ title: "Copied!" }); }}>Copy</Button>
                                     </div>
                                 </div>

@@ -112,7 +112,7 @@ export default async function IntegrationDetailPage({
         {/* Summary */}
         <Card className="p-6">
           <div className="mb-4 flex flex-wrap items-center gap-2">
-            <div className="text-[14px] font-medium text-zoru-ink">
+            <div className="text-[14px] font-medium text-[var(--st-text)]">
               Overview
             </div>
             <Badge variant="outline" className="capitalize">
@@ -131,32 +131,32 @@ export default async function IntegrationDetailPage({
 
           <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
             <div>
-              <div className="text-zoru-ink-muted">Provider</div>
-              <div className="text-zoru-ink capitalize">
+              <div className="text-[var(--st-text-secondary)]">Provider</div>
+              <div className="text-[var(--st-text)] capitalize">
                 {integration.provider}
               </div>
             </div>
             <div>
-              <div className="text-zoru-ink-muted">Status</div>
-              <div className="text-zoru-ink capitalize">
+              <div className="text-[var(--st-text-secondary)]">Status</div>
+              <div className="text-[var(--st-text)] capitalize">
                 {integration.status}
               </div>
             </div>
             <div className="sm:col-span-2">
-              <div className="text-zoru-ink-muted">Webhook URL</div>
-              <div className="break-all font-mono text-zoru-ink">
+              <div className="text-[var(--st-text-secondary)]">Webhook URL</div>
+              <div className="break-all font-mono text-[var(--st-text)]">
                 {integration.webhookUrl || '—'}
               </div>
             </div>
             <div>
-              <div className="text-zoru-ink-muted">Last sync</div>
-              <div suppressHydrationWarning className="text-zoru-ink">
+              <div className="text-[var(--st-text-secondary)]">Last sync</div>
+              <div suppressHydrationWarning className="text-[var(--st-text)]">
                 {fmtDate(integration.lastSyncAt)}
               </div>
             </div>
             <div>
-              <div className="text-zoru-ink-muted">Last updated</div>
-              <div suppressHydrationWarning className="text-zoru-ink">
+              <div className="text-[var(--st-text-secondary)]">Last updated</div>
+              <div suppressHydrationWarning className="text-[var(--st-text)]">
                 {fmtDate(integration.updatedAt)}
               </div>
             </div>
@@ -165,15 +165,15 @@ export default async function IntegrationDetailPage({
 
         {/* Config */}
         <Card className="p-6">
-          <div className="mb-3 text-[14px] font-medium text-zoru-ink">
+          <div className="mb-3 text-[14px] font-medium text-[var(--st-text)]">
             Config
           </div>
           {configKeys.length === 0 ? (
-            <p className="text-[13px] text-zoru-ink-muted">
+            <p className="text-[13px] text-[var(--st-text-secondary)]">
               No non-secret configuration set.
             </p>
           ) : (
-            <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-4 font-mono text-[12.5px] text-zoru-ink">
+            <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 font-mono text-[12.5px] text-[var(--st-text)]">
               {JSON.stringify(integration.config, null, 2)}
             </pre>
           )}
@@ -181,16 +181,16 @@ export default async function IntegrationDetailPage({
 
         {/* Credentials — never plaintext */}
         <Card className="p-6">
-          <div className="mb-3 flex items-center gap-1.5 text-[14px] font-medium text-zoru-ink">
-            <ShieldAlert className="h-4 w-4 text-zoru-ink" />
+          <div className="mb-3 flex items-center gap-1.5 text-[14px] font-medium text-[var(--st-text)]">
+            <ShieldAlert className="h-4 w-4 text-[var(--st-text)]" />
             Credentials
           </div>
-          <p className="text-[13px] text-zoru-ink-muted">
+          <p className="text-[13px] text-[var(--st-text-secondary)]">
             Encrypted at rest. Never displayed back to the UI — even to the
             owner. To rotate secrets, open Edit and paste a fresh JSON
             payload into the credentials field.
           </p>
-          <div className="mt-3 inline-flex items-center gap-2 rounded-md border border-zoru-line bg-zoru-surface-2 px-3 py-1.5 font-mono text-[12.5px] text-zoru-ink">
+          <div className="mt-3 inline-flex items-center gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-1.5 font-mono text-[12.5px] text-[var(--st-text)]">
             ***hidden***
           </div>
         </Card>

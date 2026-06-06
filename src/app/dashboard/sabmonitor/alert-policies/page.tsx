@@ -13,7 +13,7 @@ export default async function AlertPoliciesPage(): Promise<React.JSX.Element> {
     return (
         <div className="flex flex-col gap-4">
             <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-zoru-ink">Alert policies</h2>
+                <h2 className="text-sm font-semibold text-[var(--st-text)]">Alert policies</h2>
                 <Button asChild>
                     <Link href="/dashboard/sabmonitor/alert-policies/new">New policy</Link>
                 </Button>
@@ -21,9 +21,9 @@ export default async function AlertPoliciesPage(): Promise<React.JSX.Element> {
             <Card className="zoruui">
                 <CardContent className="p-0">
                     {res.items.length === 0 ? (
-                        <p className="p-4 text-sm text-zoru-ink-muted">No alert policies yet.</p>
+                        <p className="p-4 text-sm text-[var(--st-text-secondary)]">No alert policies yet.</p>
                     ) : (
-                        <ul className="divide-y divide-zoru-line">
+                        <ul className="divide-y divide-[var(--st-border)]">
                             {res.items.map((p) => (
                                 <li
                                     key={p._id}
@@ -31,12 +31,12 @@ export default async function AlertPoliciesPage(): Promise<React.JSX.Element> {
                                 >
                                     <div className="flex flex-col gap-1">
                                         <Link
-                                            className="text-sm font-medium text-zoru-ink hover:underline"
+                                            className="text-sm font-medium text-[var(--st-text)] hover:underline"
                                             href={`/dashboard/sabmonitor/alert-policies/${p._id}`}
                                         >
                                             {p.name}
                                         </Link>
-                                        <span className="text-[12px] text-zoru-ink-muted">
+                                        <span className="text-[12px] text-[var(--st-text-secondary)]">
                                             {(p.channels ?? []).length} channels ·{' '}
                                             {(p.checkIds ?? []).length} checks
                                         </span>

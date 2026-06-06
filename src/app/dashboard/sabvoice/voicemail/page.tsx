@@ -118,9 +118,9 @@ export default function VoicemailInboxPage() {
           <Card key={v._id} className="p-4 flex flex-col gap-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Voicemail className="h-4 w-4 text-zoru-brand" />
+                <Voicemail className="h-4 w-4 text-[var(--st-accent)]" />
                 <span className="font-mono">{v.fromNumber}</span>
-                <span className="text-xs text-zoru-ink-muted">
+                <span className="text-xs text-[var(--st-text-secondary)]">
                   {fmtDate(v.createdAt)}
                 </span>
               </div>
@@ -140,7 +140,7 @@ export default function VoicemailInboxPage() {
               <audio src={v.audioFileId} controls autoPlay className="w-full" />
             )}
             {v.transcript && (
-              <div className="text-sm bg-zoru-surface-2 rounded p-2 text-zoru-ink-muted italic">
+              <div className="text-sm bg-[var(--st-bg-muted)] rounded p-2 text-[var(--st-text-secondary)] italic">
                 "{v.transcript}"
               </div>
             )}
@@ -151,7 +151,7 @@ export default function VoicemailInboxPage() {
               <Button
                 size="sm"
                 variant="outline"
-                className="text-zoru-ink"
+                className="text-[var(--st-text)]"
                 onClick={() => handleArchive(v._id)}
               >
                 <Archive className="h-3 w-3 mr-1" /> Archive
@@ -160,7 +160,7 @@ export default function VoicemailInboxPage() {
           </Card>
         ))}
         {data.length === 0 && (
-          <Card className="p-8 text-center text-zoru-ink-muted">
+          <Card className="p-8 text-center text-[var(--st-text-secondary)]">
             No voicemails in this view.
           </Card>
         )}

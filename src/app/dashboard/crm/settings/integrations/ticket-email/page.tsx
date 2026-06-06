@@ -50,11 +50,11 @@ export default function TicketEmailPage() {
             ].map((p) => (
               <div
                 key={p.title}
-                className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-4"
+                className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4"
               >
-                <p.icon className="h-5 w-5 text-zoru-ink" />
+                <p.icon className="h-5 w-5 text-[var(--st-text)]" />
                 <p className="mt-2 text-sm font-medium">{p.title}</p>
-                <p className="mt-1 text-xs text-zoru-ink-muted">{p.body}</p>
+                <p className="mt-1 text-xs text-[var(--st-text-secondary)]">{p.body}</p>
               </div>
             ))}
           </div>
@@ -77,7 +77,7 @@ export default function TicketEmailPage() {
                 placeholder="support@acme.com"
               />
             </div>
-            <label className="flex items-start gap-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3">
+            <label className="flex items-start gap-3 rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
               <Switch
                 checked={draft.autoCreateTicket}
                 onCheckedChange={(v) => setDraft({ autoCreateTicket: v })}
@@ -85,7 +85,7 @@ export default function TicketEmailPage() {
               />
               <div>
                 <Label className="text-sm">Auto-create ticket</Label>
-                <p className="text-xs text-zoru-ink-muted">
+                <p className="text-xs text-[var(--st-text-secondary)]">
                   Off = emails appear in the inbox only, no ticket is created.
                 </p>
               </div>
@@ -133,23 +133,23 @@ export default function TicketEmailPage() {
         render: ({ draft }) => (
           <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
             <div>
-              <dt className="text-xs text-zoru-ink-muted">Inbox</dt>
+              <dt className="text-xs text-[var(--st-text-secondary)]">Inbox</dt>
               <dd className="mt-0.5 font-medium">{draft.inboxAddress}</dd>
             </div>
             <div>
-              <dt className="text-xs text-zoru-ink-muted">Auto-create ticket</dt>
+              <dt className="text-xs text-[var(--st-text-secondary)]">Auto-create ticket</dt>
               <dd className="mt-0.5 font-medium">
                 {draft.autoCreateTicket ? 'On' : 'Off'}
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-zoru-ink-muted">Default category</dt>
+              <dt className="text-xs text-[var(--st-text-secondary)]">Default category</dt>
               <dd className="mt-0.5 font-medium">
                 {draft.defaultCategory || '—'}
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-zoru-ink-muted">Default assignee</dt>
+              <dt className="text-xs text-[var(--st-text-secondary)]">Default assignee</dt>
               <dd className="mt-0.5 font-medium">
                 {draft.defaultAssignee || '—'}
               </dd>
@@ -179,13 +179,13 @@ export default function TicketEmailPage() {
             <ZoruCardContent className="p-6 space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
                 <div>
-                  <p className="text-xs text-zoru-ink-muted">Inbox</p>
+                  <p className="text-xs text-[var(--st-text-secondary)]">Inbox</p>
                   <p className="mt-0.5 font-medium">
                     {connection.config.inboxAddress}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-zoru-ink-muted">Auto-create ticket</p>
+                  <p className="text-xs text-[var(--st-text-secondary)]">Auto-create ticket</p>
                   <Badge
                     variant={
                       connection.config.autoCreateTicket ? 'default' : 'outline'
@@ -195,7 +195,7 @@ export default function TicketEmailPage() {
                   </Badge>
                 </div>
                 <div>
-                  <p className="text-xs text-zoru-ink-muted">Default category</p>
+                  <p className="text-xs text-[var(--st-text-secondary)]">Default category</p>
                   <p className="mt-0.5 font-medium">
                     {connection.config.defaultCategory || '—'}
                   </p>

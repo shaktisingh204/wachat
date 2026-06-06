@@ -358,7 +358,7 @@ export function DiscussionsListClient({
                 title="Discussions"
                 subtitle="Threaded team conversations grouped by category."
                 viewSwitcher={
-                    <div className="inline-flex rounded-md border border-zoru-line p-0.5">
+                    <div className="inline-flex rounded-md border border-[var(--st-border)] p-0.5">
                         {(['table', 'kanban'] as DiscussionsViewMode[]).map((v) => (
                             <button
                                 key={v}
@@ -368,8 +368,8 @@ export function DiscussionsListClient({
                                 className={[
                                     'inline-flex items-center gap-1 rounded-sm px-2 py-1 text-[12px] capitalize',
                                     view === v
-                                        ? 'bg-zoru-surface text-zoru-ink'
-                                        : 'text-zoru-ink-muted hover:text-zoru-ink',
+                                        ? 'bg-[var(--st-bg-secondary)] text-[var(--st-text)]'
+                                        : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
                                 ].join(' ')}
                             >
                                 {v === 'table' ? (
@@ -462,7 +462,7 @@ export function DiscussionsListClient({
                 bulkBar={
                     selected.size > 0 ? (
                         <div className="flex flex-wrap items-center justify-between gap-2">
-                            <span className="text-[13px] text-zoru-ink-muted">
+                            <span className="text-[13px] text-[var(--st-text-secondary)]">
                                 {selected.size} selected
                             </span>
                             <div className="flex flex-wrap gap-2">
@@ -501,10 +501,10 @@ export function DiscussionsListClient({
                 empty={
                     !loading && discussions.length === 0 ? (
                         <div className="flex flex-col items-center gap-3 p-4">
-                            <h3 className="text-base font-medium text-zoru-ink">
+                            <h3 className="text-base font-medium text-[var(--st-text)]">
                                 No discussions yet
                             </h3>
-                            <p className="max-w-sm text-sm text-zoru-ink-muted">
+                            <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
                                 Start a thread to surface a question or proposal for the team.
                             </p>
                             <Button asChild>
@@ -639,9 +639,9 @@ function DiscussionsTable({
     onPin: (id: string) => void;
 }) {
     return (
-        <div className="overflow-x-auto rounded-[var(--zoru-radius-lg)] border border-zoru-line">
+        <div className="overflow-x-auto rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)]">
             <table className="w-full min-w-[900px] text-[13px]">
-                <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
+                <thead className="bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
                     <tr>
                         <th className="px-3 py-2">
                             <Checkbox
@@ -665,12 +665,12 @@ function DiscussionsTable({
                         ))}
                     </tr>
                 </thead>
-                <tbody className="divide-y divide-zoru-line bg-zoru-bg">
+                <tbody className="divide-y divide-[var(--st-border)] bg-[var(--st-bg)]">
                     {visible.length === 0 ? (
                         <tr>
                             <td
                                 colSpan={8}
-                                className="p-6 text-center text-zoru-ink-muted"
+                                className="p-6 text-center text-[var(--st-text-secondary)]"
                             >
                                 No discussions match the current filters.
                             </td>
@@ -684,7 +684,7 @@ function DiscussionsTable({
                         const pinned = pinnedIds.has(d._id);
                         const checked = selected.has(d._id);
                         return (
-                            <tr key={d._id} className="hover:bg-zoru-surface">
+                            <tr key={d._id} className="hover:bg-[var(--st-bg-secondary)]">
                                 <td className="px-3 py-2">
                                     <Checkbox
                                         aria-label={`Select ${d.title}`}
@@ -703,10 +703,10 @@ function DiscussionsTable({
                                         {cat?.name ?? 'Uncategorized'}
                                     </Badge>
                                 </td>
-                                <td className="px-3 py-2 text-zoru-ink-muted">
+                                <td className="px-3 py-2 text-[var(--st-text-secondary)]">
                                     {replies.length}
                                 </td>
-                                <td className="px-3 py-2 text-zoru-ink-muted">
+                                <td className="px-3 py-2 text-[var(--st-text-secondary)]">
                                     {la ? la.toLocaleDateString() : '—'}
                                 </td>
                                 <td className="px-3 py-2">
@@ -721,7 +721,7 @@ function DiscussionsTable({
                                             <Pin className="h-3 w-3" /> Pinned
                                         </Badge>
                                     ) : (
-                                        <span className="text-zoru-ink-muted">—</span>
+                                        <span className="text-[var(--st-text-secondary)]">—</span>
                                     )}
                                 </td>
                                 <td className="px-3 py-2 text-right">
@@ -776,10 +776,10 @@ function DiscussionsKanban({
                     return (
                         <div
                             key={col.id}
-                            className="flex w-72 shrink-0 flex-col gap-2 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-surface-2 p-2"
+                            className="flex w-72 shrink-0 flex-col gap-2 rounded-[var(--zoru-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2"
                         >
                             <div className="mb-1 flex items-center justify-between px-1">
-                                <h4 className="text-[12.5px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                                <h4 className="text-[12.5px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                                     {col.name}
                                 </h4>
                                 <Badge variant="ghost">{items.length}</Badge>
@@ -793,16 +793,16 @@ function DiscussionsKanban({
                                             href={`/dashboard/crm/workspace/discussions/${d._id}`}
                                             className="block"
                                         >
-                                            <Card className="text-[12.5px] hover:bg-zoru-bg">
-                                                <p className="font-semibold text-zoru-ink">
+                                            <Card className="text-[12.5px] hover:bg-[var(--st-bg)]">
+                                                <p className="font-semibold text-[var(--st-text)]">
                                                     {d.title}
                                                 </p>
                                                 {d.description ? (
-                                                    <p className="mt-1 line-clamp-2 text-zoru-ink-muted">
+                                                    <p className="mt-1 line-clamp-2 text-[var(--st-text-secondary)]">
                                                         {d.description}
                                                     </p>
                                                 ) : null}
-                                                <div className="mt-2 flex items-center gap-2 text-[11.5px] text-zoru-ink-muted">
+                                                <div className="mt-2 flex items-center gap-2 text-[11.5px] text-[var(--st-text-secondary)]">
                                                     <MessageSquare className="h-3 w-3" />
                                                     {replies.length} reply
                                                     {replies.length === 1 ? '' : 's'}

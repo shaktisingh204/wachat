@@ -63,7 +63,7 @@ export default function SabwriterTemplateGalleryPage() {
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        <h1 className="text-xl font-semibold text-zoru-ink inline-flex items-center gap-2">
+        <h1 className="text-xl font-semibold text-[var(--st-text)] inline-flex items-center gap-2">
           <Layers className="h-5 w-5" /> Document templates
         </h1>
       </div>
@@ -82,10 +82,10 @@ export default function SabwriterTemplateGalleryPage() {
       </div>
 
       {loading ? (
-        <p className="text-sm text-zoru-ink-muted">Loading templates…</p>
+        <p className="text-sm text-[var(--st-text-secondary)]">Loading templates…</p>
       ) : templates.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-zoru-line p-12 text-center">
-          <p className="text-sm text-zoru-ink-muted">
+        <div className="rounded-xl border border-dashed border-[var(--st-border)] p-12 text-center">
+          <p className="text-sm text-[var(--st-text-secondary)]">
             No templates in this scope yet.
           </p>
         </div>
@@ -95,7 +95,7 @@ export default function SabwriterTemplateGalleryPage() {
             <Card key={t._id}>
               <CardContent className="p-4 flex flex-col gap-2">
                 <div className="flex items-start justify-between gap-2">
-                  <h3 className="font-medium text-zoru-ink line-clamp-1">
+                  <h3 className="font-medium text-[var(--st-text)] line-clamp-1">
                     {t.name}
                   </h3>
                   {t.public ? (
@@ -110,7 +110,7 @@ export default function SabwriterTemplateGalleryPage() {
                   </Badge>
                 ) : null}
                 {t.description ? (
-                  <p className="text-xs text-zoru-ink-muted line-clamp-3">
+                  <p className="text-xs text-[var(--st-text-secondary)] line-clamp-3">
                     {t.description}
                   </p>
                 ) : null}

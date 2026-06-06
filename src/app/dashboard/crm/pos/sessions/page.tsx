@@ -46,7 +46,7 @@ function PosSessionsListSkeleton() {
             {/* KPI strip skeleton */}
             <div className="grid grid-cols-2 gap-2.5 md:grid-cols-5">
                 {[...Array(5)].map((_, i) => (
-                    <div key={i} className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3.5 flex items-start justify-between gap-2">
+                    <div key={i} className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3.5 flex items-start justify-between gap-2">
                         <div className="min-w-0 space-y-2">
                             <Skeleton className="h-3 w-16" />
                             <Skeleton className="h-6 w-12" />
@@ -69,11 +69,11 @@ function PosSessionsListSkeleton() {
             </div>
 
             {/* Table Card skeleton */}
-            <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface overflow-hidden">
+            <div className="rounded-[var(--zoru-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full border-collapse">
                         <thead>
-                            <tr className="border-b border-zoru-line">
+                            <tr className="border-b border-[var(--st-border)]">
                                 <th className="p-3 w-8 text-left"><Skeleton className="h-4 w-4 rounded" /></th>
                                 <th className="p-3 text-left"><Skeleton className="h-4 w-20" /></th>
                                 <th className="p-3 text-left"><Skeleton className="h-4 w-16" /></th>
@@ -86,7 +86,7 @@ function PosSessionsListSkeleton() {
                         </thead>
                         <tbody>
                             {[...Array(5)].map((_, i) => (
-                                <tr key={i} className="border-b border-zoru-line last:border-0">
+                                <tr key={i} className="border-b border-[var(--st-border)] last:border-0">
                                     <td className="p-3"><Skeleton className="h-4 w-4 rounded" /></td>
                                     <td className="p-3">
                                         <div className="space-y-1">
