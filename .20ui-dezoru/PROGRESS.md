@@ -54,7 +54,13 @@ Every file imports CLEAN names from `@/components/sabcrm/20ui`. No legacy, no zo
 - [ ] WAVE 3: when 298 -> 0, delete compat.ts + zoru/ folder + fold zoru-legacy.css into 20ui (rename). Final tsc.
 
 ## Current metrics (update each wave)
-- checker missing-export: 0 (APP BUILDS) | compat importers: **128** (was 4221) | clean-barrel: ~3995
+- DONE since: Badge/Button/Alert variant-compat; chart cluster -> Recharts namespace + CHART_PALETTE;
+  RadioGroupItem=Radio (FIXED split-context radios); CardContent->CardBody; toast unification.
+- tsc total errors 113151 -> 111118 (-2033, net IMPROVEMENT).
+- REMAINING compat importers: **53** (9 = legacy /app/zoruui showcase; ~44 = file-manager ZoruFile* (13+11),
+  ZoruProvider(10), ZoruAccordion03*(10), ZoruToaster(9), ZoruStatisticsCard1(8), ZoruAppSidebar/shell(8)).
+  ALL render-sensitive -> finish with visual checks (radio/chart already safe-done).
+- checker missing-export: 0 (APP BUILDS) | compat importers: **53** (was 4221) | clean-barrel: ~4030
 - Pass A2 + Pass B2 done: CardContent->CardBody, zoruToast/zoruSonnerToast->toast(+toast.loading),
   Badge/Button/Alert accept legacy `variant` props (map to tones) -> ~480 prop regressions fixed.
 - tsc baseline ~113151; rose to 114062 after /zoru->20ui swap (legacy->20ui prop diffs, NON-build-breaking),
