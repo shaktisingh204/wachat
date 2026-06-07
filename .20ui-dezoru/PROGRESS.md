@@ -1,5 +1,36 @@
 # De-zoru migration — autonomous overnight run
 
+## ============ FINALE COMPLETE (2026-06-07, pushed to origin/main) ============
+HARD residuals == 0 (all 139 sabflow files migrated). SOFT inline-style sweep done (297 files,
+runtime-legit kept). All pushed. Then build broke (Turbopack) from migration-agent artifacts ->
+fixed 7 issues + comprehensive verification, then ran the FULL ZORU PURGE the user chose:
+  - Build fixes (commit f60972c73): removed leaked </content></invoke> XML artifacts (3 files),
+    <Button></button> mismatch, dup ChartContainer/ChartTooltip, dup EmptyState (2), missing
+    ToastAction, tag-picker TagPicker self-collision. check-imports only validates barrel name-
+    matching -> added 3 verifiers in .20ui-dezoru/: syntax-scan.js (esbuild parse, catches tag
+    mismatch+artifacts+dup-const), dup-imports.js (dup VALUE imports - esbuild misses these),
+    dup-and-missing.js (dup bindings + missing barrel exports).
+  - FINALE T1 (790a8bfdc): git mv legacy/ -> composites/, legacy-public.ts -> composites-public.ts.
+  - FINALE P1 (e4c71a76f): purge-zoru-tokens.js -> all 67 zoru-legacy tokens cleansed to --st
+    across 147 files (var(--zoru-X) + -zoru-X tailwind classes), longest-key-first, var-before-class.
+  - FINALE P3 (1191e1df6): deleted zoru-legacy.css + tailwind `zoru` color group + 5 css imports.
+  - FINALE P2 (f8a323dea): dropped the now-dead .zoruui class (37 files) via drop-zoruui-class.js.
+VERIFIED at every step: esbuild syntax scan 0 errors/16458 files; check-imports 0; 0 residual
+zoru-legacy tokens/classes; zoruui-domain imports intact (173).
+ZORU DS IS GONE: no legacy/ folder, no legacy-public.ts, no zoru-legacy.css, no tailwind zoru group,
+no .zoruui scope, all 67 tokens -> --st (global :root). composites/ = relocated+cleansed ex-legacy DS.
+DEFERRED (documented, NOT done - risky/low-value, offered to user):
+  1. composites/ dead-file prune (~49 unused files): needs slimming the 603-line composites/index.ts
+     barrel (real breakage risk); files are harmless cleansed/tree-shaken code. legacy/ deliverable
+     already met (folder gone). Several "dead" files kept alive by Legacy* type re-exports (1 consumer each).
+  2. file-manager -> @/components/sabfiles: sabfiles exports ONLY pickers, NO FilesPage/FileUploadCard/
+     FileCardCollections equivalents -> would be a per-consumer rebuild of 15 mostly-out-of-scope
+     (crm/facebook/wachat/admin) WORKING consumers. Components are already cleansed 20ui in composites/.
+  3. Foreign zoru token family (--zoru-spacing-*/background-transparent-*/font-*/border-color-strong):
+     2 files in components/sabcrm only, NOT defined by zoru-legacy.css (Twenty/sabcrm subsystem) -> untouched.
+  4. Internal Zoru* symbol names inside composites/ (consumer-invisible; cosmetic).
+## =========================================================================
+
 ## ============ ACTIVE RUN (2026-06-07, manifest-based, RESUMABLE) ============
 Orchestration rebuilt around a deterministic manifest + sharded background workflows.
 Tooling (.20ui-dezoru/):
