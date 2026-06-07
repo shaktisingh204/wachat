@@ -54,8 +54,8 @@ export function N8NNodeRegistry({ node, onUpdate, onDelete }: Props) {
       {/* Header */}
       <div className="flex items-center gap-2 px-4 py-3 border-b border-[var(--st-border)]">
         <div
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--st-radius)]"
-          style={{ background: meta.color, color: 'var(--st-text-inverted)' }}
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--st-radius)] text-[var(--st-text-inverted)]"
+          style={{ background: meta.color }}
         >
           <Icon className="h-3.5 w-3.5" aria-hidden="true" />
         </div>

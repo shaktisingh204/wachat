@@ -5,6 +5,7 @@ import { ElementNode } from '@/lib/builder/builder-types';
 import { useEditor } from '@/components/builder/editor-provider';
 import { getWidgetComponent } from '@/components/builder/registry';
 import { cn } from '@/lib/utils';
+import { Badge } from '@/components/sabcrm/20ui';
 
 interface ElementWrapperProps {
     element: ElementNode;
@@ -23,15 +24,6 @@ export const ElementWrapper = ({ element }: ElementWrapperProps) => {
         ? getWidgetComponent(element.widgetType)
         : null;
 
-    // Base styles for the wrapper ensuring it can receive clicks and has layout
-    const baseStyles = {
-        ...element.style,
-        border: isSelected ? '2px solid var(--st-accent)' : '1px dashed transparent', // Visual feedback
-        position: 'relative' as const,
-        minHeight: element.type === 'SECTION' ? '100px' : 'auto',
-        padding: element.type === 'SECTION' || element.type === 'COLUMN' ? '10px' : '0',
-    };
-
     const renderChildren = () => {
         return element.children.map((child) => (
             <ElementWrapper key={child.id} element={child} />
@@ -42,14 +34,25 @@ export const ElementWrapper = ({ element }: ElementWrapperProps) => {
         return (
             <div
                 onClick={handleSelect}
-                className={cn("w-full transition-all hover:border-[var(--st-border)] border-dashed border", isSelected ? "border-[var(--st-border)] z-10" : "border-[var(--st-border)]")}
+                className={cn(
+                    "relative w-full border border-dashed border-[var(--st-border)] transition-all hover:border-[var(--st-border)]",
+                    isSelected && "z-10",
+                )}
                 style={element.style}
             >
                 {/* Placeholder for Section controls (drag handle, delete) */}
-                {isSelected && <div className="absolute -top-6 left-0 bg-[var(--st-text)] text-white text-xs px-2 py-1 rounded-t">Section</div>}
-                <div className="flex flex-wrap" style={{ minHeight: '50px' }}>
+                {isSelected && (
+                    <Badge tone="accent" kind="solid" className="absolute -top-6 left-0">
+                        Section
+                    </Badge>
+                )}
+                <div className="flex min-h-[50px] flex-wrap">
                     {renderChildren()}
-                    {element.children.length === 0 && <div className="w-full text-center text-[var(--st-text-secondary)] py-4">Drop Columns Here</div>}
+                    {element.children.length === 0 && (
+                        <div className="w-full py-4 text-center text-[var(--st-text-secondary)]">
+                            Drop Columns Here
+                        </div>
+                    )}
                 </div>
             </div>
         );
@@ -59,12 +62,23 @@ export const ElementWrapper = ({ element }: ElementWrapperProps) => {
         return (
             <div
                 onClick={handleSelect}
-                className={cn("flex-1 min-w-[50px] transition-all hover:border-[var(--st-border)] border-dashed border", isSelected ? "border-[var(--st-border)] z-10" : "border-[var(--st-border)]")}
+                className={cn(
+                    "relative min-w-[50px] flex-1 border border-dashed border-[var(--st-border)] transition-all hover:border-[var(--st-border)]",
+                    isSelected && "z-10",
+                )}
                 style={element.style}
             >
-                {isSelected && <div className="absolute -top-5 left-0 bg-[var(--st-text)] text-white text-xs px-2 rounded-t">Column</div>}
+                {isSelected && (
+                    <Badge tone="accent" kind="solid" className="absolute -top-5 left-0">
+                        Column
+                    </Badge>
+                )}
                 {renderChildren()}
-                {element.children.length === 0 && <div className="text-center text-[var(--st-text-secondary)] py-2 text-sm">Drop Widgets Here</div>}
+                {element.children.length === 0 && (
+                    <div className="py-2 text-center text-sm text-[var(--st-text-secondary)]">
+                        Drop Widgets Here
+                    </div>
+                )}
             </div>
         );
     }
@@ -73,10 +87,21 @@ export const ElementWrapper = ({ element }: ElementWrapperProps) => {
     return (
         <div
             onClick={handleSelect}
-            className={cn("relative transition-all hover:border-[var(--st-border)] border-dashed border", isSelected ? "border-[var(--st-border)] z-10" : "border-transparent")}
+            className={cn(
+                "relative border border-dashed transition-all hover:border-[var(--st-border)]",
+                isSelected ? "z-10 border-[var(--st-border)]" : "border-transparent",
+            )}
         >
-            {isSelected && <div className="absolute -top-5 right-0 bg-[var(--st-text)] text-white text-xs px-2 rounded-t">Widget</div>}
-            {WidgetComponent ? <WidgetComponent content={element.content} style={element.style} /> : <div>Unknown Widget</div>}
+            {isSelected && (
+                <Badge tone="accent" kind="solid" className="absolute -top-5 right-0">
+                    Widget
+                </Badge>
+            )}
+            {WidgetComponent ? (
+                <WidgetComponent content={element.content} style={element.style} />
+            ) : (
+                <div className="text-sm text-[var(--st-text-secondary)]">Unknown Widget</div>
+            )}
         </div>
     );
 };

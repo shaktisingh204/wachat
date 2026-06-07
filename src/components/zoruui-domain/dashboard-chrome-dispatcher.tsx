@@ -43,7 +43,7 @@ import { getSession } from '@/app/actions/user.actions';
  * This module-level record survives unmount/remount (it's just a
  * JS module scope) so subsequent entries render instantly from cache
  * and we refresh in the background. It DOES reset on a hard page
- * reload — that's intentional: a reload should always refetch.
+ * reload, that's intentional: a reload should always refetch.
  */
 type WachatBootstrap = { user: any; projects: any[] };
 let bootstrapCache: WachatBootstrap | null = null;
@@ -74,7 +74,7 @@ async function fetchBootstrap(): Promise<WachatBootstrap | null> {
 /**
  * Route prefixes owned by the Wachat module. If the current pathname
  * starts with any of these, Clay chrome (context="wachat") wraps the
- * children. Order doesn't matter — startsWith is evaluated in `some`.
+ * children. Order doesn't matter, startsWith is evaluated in `some`.
  */
 const WACHAT_PREFIXES = [
   '/wachat/chat',
@@ -218,7 +218,7 @@ function isTelegramRoute(pathname: string | null): boolean {
 
 /**
  * URL Shortener routes get their own Clay context="url-shortener" with
- * a dedicated sidebar (Links, Custom Domains). User-scoped — not tied
+ * a dedicated sidebar (Links, Custom Domains). User-scoped, not tied
  * to a WABA project, so it bypasses the "select a project" gate.
  */
 function isUrlShortenerRoute(pathname: string | null): boolean {
@@ -242,7 +242,7 @@ function isQrCodeMakerRoute(pathname: string | null): boolean {
 /**
  * Team routes get their own Clay context="team" with a dedicated
  * sidebar for members, roles, invites, tasks, activity, chat, and
- * workspace settings. User-scoped — works across projects.
+ * workspace settings. User-scoped, works across projects.
  */
 function isTeamRoute(pathname: string | null): boolean {
   if (!pathname) return false;
@@ -308,7 +308,7 @@ function isSmsRoute(pathname: string | null): boolean {
  *
  * NOTE: the legacy project-scoped Wachat settings pages
  * (`/dashboard/settings/{general,agents,attributes,canned}`) stay in
- * the Wachat module — they consume `useProject()` and belong beside
+ * the Wachat module. They consume `useProject()` and belong beside
  * the rest of the Wachat nav. They're excluded here so the Wachat
  * branch matches them instead.
  */
@@ -343,10 +343,7 @@ export interface DashboardChromeDispatcherProps {
 function ClayBootSkeleton() {
   return (
     <div className="clay-outer-shell relative w-full p-3 md:p-4">
-      <div
-        className="clay-panel"
-        style={{ height: 'calc(100vh - 2rem)' }}
-      />
+      <div className="clay-panel h-[calc(100vh-2rem)]" />
     </div>
   );
 }
@@ -514,7 +511,7 @@ export function DashboardChromeDispatcher({
   useEffect(() => {
     if (!needsBootstrap) return;
 
-    // If cache is fresh, don't refetch — the sidebar already has
+    // If cache is fresh, don't refetch. The sidebar already has
     // the data and a background refresh would cause needless flicker.
     if (bootstrapCache) {
       // Ensure React state is synced with the module cache (covers the
@@ -552,7 +549,7 @@ export function DashboardChromeDispatcher({
     return () => {
       cancelled = true;
     };
-    // `wachatData` intentionally omitted — we only want this to run when
+    // `wachatData` intentionally omitted. We only want this to run when
     // the route context switches, not on every state change.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [needsBootstrap, router]);
@@ -847,6 +844,6 @@ export function DashboardChromeDispatcher({
     );
   }
 
-  // Legacy chrome — every other /dashboard/* route owns its own providers
+  // Legacy chrome: every other /dashboard/* route owns its own providers
   return <DashboardClientLayout>{children}</DashboardClientLayout>;
 }

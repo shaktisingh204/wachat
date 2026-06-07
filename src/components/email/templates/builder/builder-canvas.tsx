@@ -8,7 +8,7 @@
 import { useMemo } from 'react';
 import { ArrowDown, ArrowUp, Copy, Trash2 } from 'lucide-react';
 
-import { Button, EmptyState, ScrollArea, cn } from '@/components/sabcrm/20ui';
+import { EmptyState, IconButton, ScrollArea, cn } from '@/components/sabcrm/20ui';
 import type {
   EmailBuilderBlock,
   EmailBuilderDocument,
@@ -59,7 +59,7 @@ export function BuilderCanvas({
           </p>
         ) : null}
         <div
-          className="mx-auto rounded-md shadow-sm"
+          className="mx-auto rounded-[var(--st-radius)] shadow-sm"
           style={contentStyle}
         >
           {doc.blocks.length === 0 ? (
@@ -128,66 +128,58 @@ function BlockRow({
       className={cn(
         'group relative cursor-pointer border border-transparent transition-colors',
         selected
-          ? 'border-primary ring-2 ring-primary/30'
-          : 'hover:border-primary/40',
+          ? 'border-[var(--st-accent)] ring-2 ring-[var(--st-accent-ring)]'
+          : 'hover:border-[var(--st-accent)]/40',
       )}
       aria-label={`Block: ${block.type}`}
       aria-pressed={selected}
     >
       <div
         className={cn(
-          'pointer-events-none absolute right-2 top-2 z-10 flex items-center gap-1 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1 opacity-0 shadow-sm transition-opacity',
+          'pointer-events-none absolute right-2 top-2 z-10 flex items-center gap-1 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1 opacity-0 shadow-sm transition-opacity',
           'group-hover:pointer-events-auto group-hover:opacity-100',
           selected && 'pointer-events-auto opacity-100',
         )}
         onClick={(e) => e.stopPropagation()}
       >
-        <Button
-          type="button"
+        <IconButton
+          label="Move up"
+          icon={ArrowUp}
           variant="ghost"
-          size="icon-sm"
-          aria-label="Move up"
+          size="sm"
           disabled={isFirst}
           onClick={() => onMove(block.id, 'up')}
-        >
-          <ArrowUp className="h-3.5 w-3.5" />
-        </Button>
-        <Button
-          type="button"
+        />
+        <IconButton
+          label="Move down"
+          icon={ArrowDown}
           variant="ghost"
-          size="icon-sm"
-          aria-label="Move down"
+          size="sm"
           disabled={isLast}
           onClick={() => onMove(block.id, 'down')}
-        >
-          <ArrowDown className="h-3.5 w-3.5" />
-        </Button>
-        <Button
-          type="button"
+        />
+        <IconButton
+          label="Duplicate block"
+          icon={Copy}
           variant="ghost"
-          size="icon-sm"
-          aria-label="Duplicate block"
+          size="sm"
           onClick={() => onDuplicate(block.id)}
-        >
-          <Copy className="h-3.5 w-3.5" />
-        </Button>
-        <Button
-          type="button"
+        />
+        <IconButton
+          label="Delete block"
+          icon={Trash2}
           variant="ghost"
-          size="icon-sm"
-          aria-label="Delete block"
+          size="sm"
           onClick={() => onDelete(block.id)}
           className="text-[var(--st-danger)]"
-        >
-          <Trash2 className="h-3.5 w-3.5" />
-        </Button>
+        />
       </div>
       <BlockPreview block={block} />
     </div>
   );
 }
 
-/* ────────── Per-type previews ────────── */
+/* Per-type previews */
 
 function BlockPreview({ block }: { block: EmailBuilderBlock }) {
   const p = block.props as Record<string, unknown>;

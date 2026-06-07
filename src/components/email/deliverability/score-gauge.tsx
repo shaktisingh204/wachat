@@ -1,8 +1,8 @@
 'use client';
 
 /**
- * Circular score gauge for deliverability (0..100). Pure SVG — we don't
- * use Progress here because the zoruui progress primitive is linear-only.
+ * Circular score gauge for deliverability (0..100). Pure SVG, because the
+ * 20ui Progress primitive is linear-only and cannot render a radial gauge.
  */
 import { cn } from '@/components/sabcrm/20ui';
 

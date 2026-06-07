@@ -1,6 +1,25 @@
 'use client';
 
-import { Button, Card, Checkbox, Input, Label, RadioGroup, RadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    Card,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+    Checkbox,
+    Field,
+    Input,
+    Label,
+    RadioGroup,
+    RadioGroupItem,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    Textarea,
+} from '@/components/sabcrm/20ui';
+import { SabFilePickerButton } from '@/components/sabfiles';
 import React from 'react';
 import Image from 'next/image';
 
@@ -66,37 +85,37 @@ export function CrmFormPreview({ settings }: CrmFormPreviewProps) {
     const SubmitIcon = settings.buttonIcon ? LucideIcons[settings.buttonIcon] : null;
 
     return (
-        <Card className="shadow-md w-full" id={`preview-${uniqueId}`}>
+        <Card variant="elevated" padding="none" className="w-full" id={`preview-${uniqueId}`}>
             <style>{dynamicStyles}</style>
-            <div className="flex flex-col items-center text-center p-6 pb-4 gap-1.5">
-                 {settings.logoUrl && <Image src={settings.logoUrl} alt="Logo" width={80} height={80} className="object-contain" />}
-                <h3 className="text-lg font-semibold text-[var(--st-text)]">{title}</h3>
-                <p className="text-sm text-[var(--st-text-secondary)]">{description}</p>
-            </div>
-            <div className="px-6 pb-4 grid grid-cols-12" style={{gap: `${settings.fieldSpacing || 24}px`}}>
+            <CardHeader className="flex flex-col items-center text-center gap-1.5">
+                {settings.logoUrl && <Image src={settings.logoUrl} alt="Logo" width={80} height={80} className="object-contain" />}
+                <CardTitle>{title}</CardTitle>
+                <CardDescription>{description}</CardDescription>
+            </CardHeader>
+            <div className="px-6 pb-4 grid grid-cols-12" style={{ gap: `${settings.fieldSpacing || 24}px` }}>
                 {fields.map(field => {
                     const widthClasses: { [key: string]: string } = { '100%': 'col-span-12', '50%': 'col-span-12 sm:col-span-6', '33.33%': 'col-span-12 sm:col-span-4', '25%': 'col-span-12 sm:col-span-3' };
-                    const sizeClasses = { sm: 'h-8 text-xs', md: 'h-10 text-sm', lg: 'h-12 text-base'}[field.size || 'md'];
+                    const sizeClasses = { sm: 'h-8 text-xs', md: 'h-10 text-sm', lg: 'h-12 text-base' }[field.size || 'md'];
 
                     if (!isFieldVisible(field)) return null;
 
                     const fieldContent = () => {
-                        const commonProps = { 
-                            id: `preview-${field.id}`, 
-                            placeholder: field.placeholder, 
+                        const commonProps = {
+                            id: `preview-${field.id}`,
+                            placeholder: field.placeholder,
                             className: cn('form-field-preview', sizeClasses),
                             value: formValues[field.fieldId || field.id] || '',
                             onChange: (e: any) => handleValueChange(field.fieldId || field.id, e.target.value)
                         };
                         const fieldOptions = (field.options || '').split('\n').map(o => o.trim());
 
-                        switch(field.type) {
+                        switch (field.type) {
                             case 'textarea': return <Textarea {...commonProps} />;
-                            case 'select': return <Select value={formValues[field.fieldId || field.id] || ''} onValueChange={v => handleValueChange(field.fieldId || field.id, v)}><SelectTrigger className={cn('form-field-preview', sizeClasses)}><SelectValue placeholder={field.placeholder || "Select..."} /></SelectTrigger><SelectContent>{fieldOptions.map(opt => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}</SelectContent></Select>;
-                            case 'checkbox': return <div className="flex items-center gap-2 pt-2"><Checkbox id={`preview-${field.id}`} checked={formValues[field.fieldId || field.id] === 'true'} onCheckedChange={(c) => handleValueChange(field.fieldId || field.id, c ? 'true' : '')} /><Label htmlFor={`preview-${field.id}`} className="font-normal">{field.label}</Label></div>;
-                            case 'acceptance': return <div className="flex items-center gap-2 pt-2"><Checkbox id={`preview-${field.id}`} checked={formValues[field.fieldId || field.id] === 'true'} onCheckedChange={(c) => handleValueChange(field.fieldId || field.id, c ? 'true' : '')} /><Label htmlFor={`preview-${field.id}`} className="font-normal">{field.defaultValue || 'I agree to the terms.'}</Label></div>;
-                            case 'radio': return <RadioGroup value={formValues[field.fieldId || field.id] || field.defaultValue || ''} onValueChange={(v) => handleValueChange(field.fieldId || field.id, v)} className="flex flex-col gap-2 pt-2">{fieldOptions.map(opt => <div key={opt} className="flex items-center space-x-2"><RadioGroupItem value={opt} id={`preview-${field.id}-${opt}`} /><Label htmlFor={`preview-${field.id}-${opt}`} className="font-normal">{opt}</Label></div>)}</RadioGroup>
-                            case 'file': return <Input id={`preview-${field.id}`} className={cn('form-field-preview', sizeClasses)} type="file" />;
+                            case 'select': return <Select value={formValues[field.fieldId || field.id] || ''} onValueChange={v => handleValueChange(field.fieldId || field.id, v)}><SelectTrigger className={cn('form-field-preview', sizeClasses)} aria-label={field.label || 'Select an option'}><SelectValue placeholder={field.placeholder || "Select..."} /></SelectTrigger><SelectContent>{fieldOptions.map(opt => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}</SelectContent></Select>;
+                            case 'checkbox': return <div className="flex items-center gap-2 pt-2"><Checkbox id={`preview-${field.id}`} checked={formValues[field.fieldId || field.id] === 'true'} onChange={(e) => handleValueChange(field.fieldId || field.id, e.target.checked ? 'true' : '')} /><Label htmlFor={`preview-${field.id}`} className="font-normal">{field.label}</Label></div>;
+                            case 'acceptance': return <div className="flex items-center gap-2 pt-2"><Checkbox id={`preview-${field.id}`} checked={formValues[field.fieldId || field.id] === 'true'} onChange={(e) => handleValueChange(field.fieldId || field.id, e.target.checked ? 'true' : '')} /><Label htmlFor={`preview-${field.id}`} className="font-normal">{field.defaultValue || 'I agree to the terms.'}</Label></div>;
+                            case 'radio': return <RadioGroup value={formValues[field.fieldId || field.id] || field.defaultValue || ''} onValueChange={(v) => handleValueChange(field.fieldId || field.id, v)} className="flex flex-col gap-2 pt-2" aria-label={field.label || 'Choose an option'}>{fieldOptions.map(opt => <div key={opt} className="flex items-center gap-2"><RadioGroupItem value={opt} id={`preview-${field.id}-${opt}`} /><Label htmlFor={`preview-${field.id}-${opt}`} className="font-normal">{opt}</Label></div>)}</RadioGroup>
+                            case 'file': return <SabFilePickerButton variant="outline" onPick={() => { /* preview only */ }}>{field.placeholder || 'Choose file'}</SabFilePickerButton>;
                             case 'phone': return <Input {...commonProps} type="tel" placeholder={field.placeholder || '+1 555 123 4567'} />;
                             case 'address': return (
                                 <div className="grid grid-cols-2 gap-2">
@@ -111,7 +130,7 @@ export function CrmFormPreview({ settings }: CrmFormPreviewProps) {
                             case 'rating': return (
                                 <div className="flex items-center gap-1" aria-label="Star rating preview">
                                     {Array.from({ length: field.maxRating || 5 }).map((_, i) => (
-                                        <LucideIcons.Star key={i} className="h-5 w-5 text-[var(--st-text-secondary)]" />
+                                        <LucideIcons.Star key={i} className="h-5 w-5 text-[var(--st-text-secondary)]" aria-hidden="true" />
                                     ))}
                                 </div>
                             );
@@ -131,11 +150,17 @@ export function CrmFormPreview({ settings }: CrmFormPreviewProps) {
                     );
                 })}
             </div>
-            <div className="flex flex-col p-6 pt-0" style={{justifyContent: settings.buttonAlign || 'flex-start', alignItems: settings.buttonAlign === 'center' ? 'center' : settings.buttonAlign === 'right' ? 'flex-end' : 'flex-start' }}>
+            <div
+                className="flex flex-col p-6 pt-0"
+                style={{
+                    justifyContent: settings.buttonAlign || 'flex-start',
+                    alignItems: settings.buttonAlign === 'center' ? 'center' : settings.buttonAlign === 'right' ? 'flex-end' : 'flex-start',
+                }}
+            >
                 <Button disabled className="w-full submit-button-preview" size={settings.buttonSize}>
-                    {SubmitIcon && settings.buttonIconPosition === 'left' && <SubmitIcon className="mr-2 h-4 w-4" style={{marginRight: `${settings.buttonIconSpacing || 8}px`}}/>}
+                    {SubmitIcon && settings.buttonIconPosition === 'left' && <SubmitIcon className="h-4 w-4" aria-hidden="true" style={{ marginRight: `${settings.buttonIconSpacing || 8}px` }} />}
                     {settings.submitButtonText || 'Submit'}
-                    {SubmitIcon && settings.buttonIconPosition === 'right' && <SubmitIcon className="ml-2 h-4 w-4" style={{marginLeft: `${settings.buttonIconSpacing || 8}px`}}/>}
+                    {SubmitIcon && settings.buttonIconPosition === 'right' && <SubmitIcon className="h-4 w-4" aria-hidden="true" style={{ marginLeft: `${settings.buttonIconSpacing || 8}px` }} />}
                 </Button>
                 {settings.footerText && <p className="text-xs text-[var(--st-text-secondary)] text-center pt-2" dangerouslySetInnerHTML={{ __html: settings.footerText }}></p>}
             </div>

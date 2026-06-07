@@ -1,6 +1,6 @@
 'use client';
 
-import { LuGitFork, LuPlus, LuX, LuArrowRight } from 'react-icons/lu';
+import { GitFork, Plus, X, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   Button,
@@ -117,7 +117,7 @@ export function SwitchNode({ config, onChange, className }: SwitchNodeProps) {
       {/* Header */}
       <div className="flex items-center gap-2">
         <div className="flex h-8 w-8 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-accent-soft)] text-[var(--st-accent)]">
-          <LuGitFork className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
+          <GitFork className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
         </div>
         <div>
           <p className="text-[12.5px] font-semibold text-[var(--st-text)]">Switch</p>
@@ -145,7 +145,7 @@ export function SwitchNode({ config, onChange, className }: SwitchNodeProps) {
 
         {config.cases.length === 0 && (
           <EmptyState
-            icon={LuGitFork}
+            icon={GitFork}
             size="sm"
             title="No cases yet"
             description="Add one below to start routing items."
@@ -162,7 +162,7 @@ export function SwitchNode({ config, onChange, className }: SwitchNodeProps) {
           />
         ))}
 
-        <Button variant="ghost" size="sm" iconLeft={LuPlus} onClick={addCase}>
+        <Button variant="ghost" size="sm" iconLeft={Plus} onClick={addCase}>
           Add case
         </Button>
       </div>
@@ -204,7 +204,7 @@ export function SwitchNode({ config, onChange, className }: SwitchNodeProps) {
                 style={{ background: c.color }}
               />
               <span className="text-[11.5px] font-medium text-[var(--st-text)]">{idx}</span>
-              <LuArrowRight className="h-3 w-3 text-[var(--st-text-tertiary)]" strokeWidth={2} aria-hidden="true" />
+              <ArrowRight className="h-3 w-3 text-[var(--st-text-tertiary)]" strokeWidth={2} aria-hidden="true" />
               <span className="text-[11.5px] text-[var(--st-text-secondary)] truncate">{c.label || `Case ${idx + 1}`}</span>
             </div>
           ))}
@@ -212,7 +212,7 @@ export function SwitchNode({ config, onChange, className }: SwitchNodeProps) {
             <div className="flex items-center gap-2 rounded-[var(--st-radius-sm)] px-2 py-1.5">
               <span className="h-2.5 w-2.5 rounded-full shrink-0 bg-[var(--st-text-tertiary)]" />
               <span className="text-[11.5px] font-medium text-[var(--st-text)]">{config.cases.length}</span>
-              <LuArrowRight className="h-3 w-3 text-[var(--st-text-tertiary)]" strokeWidth={2} aria-hidden="true" />
+              <ArrowRight className="h-3 w-3 text-[var(--st-text-tertiary)]" strokeWidth={2} aria-hidden="true" />
               <span className="text-[11.5px] text-[var(--st-text-secondary)]">{config.defaultLabel || 'Default'}</span>
             </div>
           )}
@@ -258,7 +258,7 @@ function CaseRow({
           aria-label={`Case ${index + 1} label`}
         />
         <IconButton
-          icon={LuX}
+          icon={X}
           label={`Remove case ${index + 1}`}
           size="sm"
           onClick={() => onRemove(case_.id)}

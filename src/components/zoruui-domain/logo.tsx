@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { getAppLogoUrl } from '@/app/actions/admin.actions';
 
 let cachedLogoUrl: string | null = null;
@@ -45,9 +44,8 @@ export const SabNodeLogo = ({ className }: { className?: string }) => {
         alt="SabNode Logo"
         width={128}
         height={32}
-        className={className}
+        className={`object-contain ${className ?? ''}`.trim()}
         priority
-        style={{ objectFit: 'contain' }}
       />
     );
   }

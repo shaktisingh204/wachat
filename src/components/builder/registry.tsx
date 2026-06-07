@@ -22,7 +22,7 @@ const ImageWidget = ({ content, style }: any) => (
   <img src={content.src} alt={content.alt || 'Image widget'} style={style} />
 );
 
-const SpacerWidget = ({ style }: any) => <div style={{ height: '50px', ...style }} />;
+const SpacerWidget = ({ style }: any) => <div className="h-[50px]" style={style} />;
 
 export const WIDGET_REGISTRY: Record<string, React.FC<any>> = {
   HEADING: HeadingWidget,

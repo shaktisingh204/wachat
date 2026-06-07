@@ -8,7 +8,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Monitor, Moon, Smartphone, Sun } from 'lucide-react';
 
-import { Button, Drawer, DrawerContent, DrawerHeader, DrawerTitle, cn } from '@/components/sabcrm/20ui';
+import {
+  Alert,
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  SegmentedControl,
+} from '@/components/sabcrm/20ui';
 
 type DeviceMode = 'desktop' | 'mobile';
 type ColorMode = 'light' | 'dark';
@@ -61,18 +68,22 @@ export function DevicePreview({
         <DrawerHeader className="flex flex-row items-center justify-between">
           <DrawerTitle>Preview</DrawerTitle>
           <div className="flex items-center gap-2">
-            <ToggleGroup
+            <SegmentedControl
+              size="sm"
+              aria-label="Preview device"
               value={device}
               onChange={setDevice}
-              options={[
+              items={[
                 { value: 'desktop', label: 'Desktop', icon: Monitor },
                 { value: 'mobile', label: 'Mobile', icon: Smartphone },
               ]}
             />
-            <ToggleGroup
+            <SegmentedControl
+              size="sm"
+              aria-label="Preview color scheme"
               value={color}
               onChange={setColor}
-              options={[
+              items={[
                 { value: 'light', label: 'Light', icon: Sun },
                 { value: 'dark', label: 'Dark', icon: Moon },
               ]}
@@ -81,14 +92,13 @@ export function DevicePreview({
         </DrawerHeader>
 
         {warnings.length > 0 ? (
-          <div className="mx-4 mb-2 rounded border border-[var(--st-border)]/50 bg-[var(--st-bg-muted)] px-3 py-2 text-xs text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-white">
-            <strong>Renderer warnings:</strong>
+          <Alert tone="warning" title="Renderer warnings" className="mx-4 mb-2">
             <ul className="ml-4 list-disc">
               {warnings.map((w, i) => (
                 <li key={`${w}-${i}`}>{w}</li>
               ))}
             </ul>
-          </div>
+          </Alert>
         ) : null}
 
         <div className="flex h-full justify-center overflow-auto px-4 pb-6">
@@ -97,49 +107,11 @@ export function DevicePreview({
             sandbox=""
             title="Email preview"
             srcDoc={srcDoc}
-            style={{ width, maxWidth: '100%', height: '100%', border: '1px solid var(--st-border)', borderRadius: 8, background: 'var(--st-bg-secondary)' }}
+            className="h-full max-w-full rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]"
+            style={{ width }}
           />
         </div>
       </DrawerContent>
     </Drawer>
-  );
-}
-
-interface ToggleOption<V extends string> {
-  value: V;
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-}
-
-function ToggleGroup<V extends string>({
-  value,
-  onChange,
-  options,
-}: {
-  value: V;
-  onChange: (v: V) => void;
-  options: ToggleOption<V>[];
-}) {
-  return (
-    <div className="inline-flex overflow-hidden rounded-md border border-[var(--st-border)]">
-      {options.map((opt) => {
-        const Icon = opt.icon;
-        const active = opt.value === value;
-        return (
-          <Button
-            key={opt.value}
-            type="button"
-            variant={active ? 'default' : 'ghost'}
-            size="sm"
-            onClick={() => onChange(opt.value)}
-            className={cn('rounded-none gap-1.5', active ? '' : 'text-[var(--st-text-secondary)]')}
-            aria-pressed={active}
-          >
-            <Icon className="h-3.5 w-3.5" />
-            {opt.label}
-          </Button>
-        );
-      })}
-    </div>
   );
 }

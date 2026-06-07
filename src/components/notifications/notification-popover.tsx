@@ -1,16 +1,42 @@
 'use client';
 
-import { useState, useEffect, useTransition, useRef } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import * as React from 'react';
-import { Button, Popover, PopoverContent, PopoverTrigger, Tabs, TabsContent, TabsList, TabsTrigger, ScrollArea } from '@/components/sabcrm/20ui';
-import { Bell, Check, Loader2, Info, Target, ChevronLeft, ChevronRight } from "lucide-react";
-import { WhatsAppIcon, MetaIcon, CrmIcon, SabChatIcon } from '@/components/zoruui-domain/custom-sidebar-components';
-import { cn } from "@/lib/utils";
+import {
+    Button,
+    IconButton,
+    Badge,
+    EmptyState,
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+    Tabs,
+    TabsContent,
+    TabsList,
+    TabsTrigger,
+    ScrollArea,
+    cn,
+} from '@/components/sabcrm/20ui';
+import {
+    Bell,
+    Check,
+    CheckCheck,
+    Loader2,
+    Info,
+    Target,
+    ChevronLeft,
+    ChevronRight,
+    MessageCircle,
+    Facebook,
+    Users,
+    MessagesSquare,
+    type LucideIcon,
+} from 'lucide-react';
 import { getAllNotifications, markNotificationAsRead, markAllNotificationsAsRead } from '@/app/actions/notification.actions';
 import type { NotificationWithProject } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 import { useRouter } from 'next/navigation';
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 
 interface NotificationPopoverProps {
@@ -19,7 +45,7 @@ interface NotificationPopoverProps {
 
 export function NotificationPopover({ className }: NotificationPopoverProps) {
     const [open, setOpen] = useState(false);
-    const [activeTab, setActiveTab] = useState("all");
+    const [activeTab, setActiveTab] = useState('all');
     const [notifications, setNotifications] = useState<WithId<NotificationWithProject>[]>([]);
     const [loading, setLoading] = useState(false);
     const [isPending, startTransition] = useTransition();
@@ -32,7 +58,7 @@ export function NotificationPopover({ className }: NotificationPopoverProps) {
             const { notifications: data } = await getAllNotifications(1, 100); // Fetch more to filter client-side for now
             setNotifications(data);
         } catch (error) {
-            console.error("Failed to fetch notifications", error);
+            console.error('Failed to fetch notifications', error);
         } finally {
             setLoading(false);
         }
@@ -56,13 +82,13 @@ export function NotificationPopover({ className }: NotificationPopoverProps) {
         }
     }, [open]);
 
-    const handleMarkAsRead = async (id: string, e: React.MouseEvent) => {
-        e.stopPropagation();
+    const handleMarkAsRead = async (id: string, e?: React.MouseEvent) => {
+        e?.stopPropagation();
         try {
             await markNotificationAsRead(id);
-            setNotifications(prev => prev.map(n => n._id.toString() === id ? { ...n, isRead: true } : n));
+            setNotifications((prev) => prev.map((n) => (n._id.toString() === id ? { ...n, isRead: true } : n)));
         } catch (error) {
-            toast({ title: "Error", description: "Failed to mark as read", variant: "destructive" });
+            toast({ title: 'Failed to mark as read', tone: 'danger' });
         }
     };
 
@@ -70,29 +96,29 @@ export function NotificationPopover({ className }: NotificationPopoverProps) {
         startTransition(async () => {
             try {
                 await markAllNotificationsAsRead();
-                setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
-                toast({ title: "Success", description: "All notifications marked as read" });
+                setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+                toast({ title: 'All notifications marked as read', tone: 'success' });
             } catch (error) {
-                toast({ title: "Error", description: "Failed to mark all as read", variant: "destructive" });
+                toast({ title: 'Failed to mark all as read', tone: 'danger' });
             }
         });
     };
 
-    const unreadCount = notifications.filter(n => !n.isRead).length;
+    const unreadCount = notifications.filter((n) => !n.isRead).length;
 
     const getFilteredNotifications = (tab: string) => {
         if (tab === 'all') return notifications;
-        if (tab === 'system') return notifications.filter(n => !n.sourceApp || n.sourceApp === 'system');
-        return notifications.filter(n => n.sourceApp === tab);
+        if (tab === 'system') return notifications.filter((n) => !n.sourceApp || n.sourceApp === 'system');
+        return notifications.filter((n) => n.sourceApp === tab);
     };
 
-    const categories = [
+    const categories: { id: string; label: string; icon: LucideIcon }[] = [
         { id: 'all', label: 'All', icon: Bell },
-        { id: 'wachat', label: 'WaChat', icon: WhatsAppIcon },
-        { id: 'facebook', label: 'Meta Suite', icon: MetaIcon },
+        { id: 'wachat', label: 'WaChat', icon: MessageCircle },
+        { id: 'facebook', label: 'Meta Suite', icon: Facebook },
         { id: 'ad-manager', label: 'Ads', icon: Target },
-        { id: 'crm', label: 'CRM', icon: CrmIcon },
-        { id: 'sabchat', label: 'SabChat', icon: SabChatIcon },
+        { id: 'crm', label: 'CRM', icon: Users },
+        { id: 'sabchat', label: 'SabChat', icon: MessagesSquare },
         { id: 'system', label: 'System', icon: Info },
     ];
 
@@ -101,13 +127,14 @@ export function NotificationPopover({ className }: NotificationPopoverProps) {
     const scroll = (direction: 'left' | 'right') => {
         if (scrollContainerRef.current) {
             const scrollAmount = 150;
-            const newScrollLeft = direction === 'left'
-                ? scrollContainerRef.current.scrollLeft - scrollAmount
-                : scrollContainerRef.current.scrollLeft + scrollAmount;
+            const newScrollLeft =
+                direction === 'left'
+                    ? scrollContainerRef.current.scrollLeft - scrollAmount
+                    : scrollContainerRef.current.scrollLeft + scrollAmount;
 
             scrollContainerRef.current.scrollTo({
                 left: newScrollLeft,
-                behavior: 'smooth'
+                behavior: 'smooth',
             });
         }
     };
@@ -115,130 +142,181 @@ export function NotificationPopover({ className }: NotificationPopoverProps) {
     return (
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
-                <Button variant="ghost" size="icon" className={cn("relative h-10 w-10 rounded-xl text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]", className)}>
-                    <Bell className="h-5 w-5" />
+                <span className={cn('relative inline-flex', className)}>
+                    <IconButton
+                        label="Notifications"
+                        icon={Bell}
+                        variant="ghost"
+                        className="h-10 w-10 rounded-[var(--st-radius)]"
+                    />
                     {unreadCount > 0 && (
-                        <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-[var(--st-text)] ring-2 ring-background" />
+                        <span
+                            aria-hidden="true"
+                            className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-[var(--st-accent)] ring-2 ring-[var(--st-bg)]"
+                        />
                     )}
-                </Button>
+                </span>
             </PopoverTrigger>
             <PopoverContent className="w-[380px] p-0" align="start" side="right" sideOffset={20}>
-                <div className="flex items-center justify-between p-4 border-b">
-                    <h4 className="font-semibold">Notifications</h4>
+                <div className="flex items-center justify-between p-4 border-b border-[var(--st-border)]">
+                    <div className="flex items-center gap-2">
+                        <h4 className="font-semibold text-[var(--st-text)]">Notifications</h4>
+                        {unreadCount > 0 && (
+                            <Badge tone="accent" kind="soft">
+                                {unreadCount}
+                            </Badge>
+                        )}
+                    </div>
                     {unreadCount > 0 && (
-                        <Button variant="ghost" size="sm" onClick={handleMarkAllRead} disabled={isPending} className="text-xs h-6 px-2 py-0">
-                            {isPending ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Check className="h-3 w-3 mr-1" />}
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleMarkAllRead}
+                            disabled={isPending}
+                            iconLeft={isPending ? Loader2 : CheckCheck}
+                            className={cn(isPending && '[&_svg]:animate-spin')}
+                        >
                             Mark all read
                         </Button>
                     )}
                 </div>
 
                 <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-full">
-                    <div className="border-b bg-[var(--st-bg-muted)]/30 relative flex items-center">
-                        <Button
+                    <div className="border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] relative flex items-center">
+                        <IconButton
+                            label="Scroll categories left"
+                            icon={ChevronLeft}
                             variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 absolute left-0 z-10 bg-[var(--st-bg-secondary)]/80 backdrop-blur-sm rounded-none border-r shadow-sm"
-                            onClick={(e) => { e.stopPropagation(); scroll('left'); }}
-                        >
-                            <ChevronLeft className="h-4 w-4" />
-                        </Button>
+                            size="sm"
+                            className="absolute left-0 z-10 h-8 w-8 rounded-none border-r border-[var(--st-border)] bg-[var(--st-bg-secondary)] backdrop-blur-sm"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                scroll('left');
+                            }}
+                        />
 
                         <div
                             ref={scrollContainerRef}
-                            className="flex overflow-x-auto no-scrollbar scroll-smooth px-8 w-full"
-                            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                            className="flex overflow-x-auto scroll-smooth px-8 w-full [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
                         >
-                            <TabsList className="w-auto inline-flex justify-start rounded-none h-12 bg-transparent p-0">
-                                {categories.map(cat => (
-                                    <TabsTrigger
-                                        key={cat.id}
-                                        value={cat.id}
-                                        className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-3 pb-2 pt-3 text-xs whitespace-nowrap flex-shrink-0"
-                                    >
-                                        <cat.icon className="h-3.5 w-3.5 mr-1.5 opacity-70" />
-                                        {cat.label}
-                                    </TabsTrigger>
-                                ))}
+                            <TabsList className="w-auto inline-flex justify-start rounded-none h-12 bg-transparent p-0 border-0">
+                                {categories.map((cat) => {
+                                    const Icon = cat.icon;
+                                    return (
+                                        <TabsTrigger
+                                            key={cat.id}
+                                            value={cat.id}
+                                            className="rounded-none px-3 pb-2 pt-3 text-xs whitespace-nowrap flex-shrink-0"
+                                        >
+                                            <span className="inline-flex items-center gap-1.5">
+                                                <Icon className="h-3.5 w-3.5 opacity-70" aria-hidden="true" />
+                                                {cat.label}
+                                            </span>
+                                        </TabsTrigger>
+                                    );
+                                })}
                             </TabsList>
                         </div>
 
-                        <Button
+                        <IconButton
+                            label="Scroll categories right"
+                            icon={ChevronRight}
                             variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 absolute right-0 z-10 bg-[var(--st-bg-secondary)]/80 backdrop-blur-sm rounded-none border-l shadow-sm"
-                            onClick={(e) => { e.stopPropagation(); scroll('right'); }}
-                        >
-                            <ChevronRight className="h-4 w-4" />
-                        </Button>
+                            size="sm"
+                            className="absolute right-0 z-10 h-8 w-8 rounded-none border-l border-[var(--st-border)] bg-[var(--st-bg-secondary)] backdrop-blur-sm"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                scroll('right');
+                            }}
+                        />
                     </div>
 
-                    <TabsContent value={activeTab} className="m-0 focus-visible:ring-0 focus-visible:outline-none">
+                    <TabsContent value={activeTab} className="m-0 focus-visible:outline-none">
                         <ScrollArea className="h-[400px]">
                             {loading ? (
                                 <div className="flex flex-col items-center justify-center h-48 text-[var(--st-text-secondary)] gap-2">
-                                    <Loader2 className="h-8 w-8 animate-spin" />
+                                    <Loader2 className="h-8 w-8 animate-spin" aria-hidden="true" />
                                     <p className="text-sm">Loading updates...</p>
                                 </div>
                             ) : getFilteredNotifications(activeTab).length > 0 ? (
-                                <div className="divide-y">
+                                <div className="divide-y divide-[var(--st-border)]">
                                     {getFilteredNotifications(activeTab).map((notification) => (
                                         <div
                                             key={notification._id.toString()}
+                                            role="button"
+                                            tabIndex={0}
                                             className={cn(
-                                                "p-4 hover:bg-[var(--st-bg-muted)]/50 transition-colors cursor-pointer group relative",
-                                                !notification.isRead ? "bg-[var(--st-bg-muted)]/30" : ""
+                                                'p-4 hover:bg-[var(--st-bg-secondary)] transition-colors cursor-pointer group relative outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent)]',
+                                                !notification.isRead ? 'bg-[var(--st-bg-secondary)]' : '',
                                             )}
                                             onClick={() => {
-                                                if (!notification.isRead) handleMarkAsRead(notification._id.toString(), { stopPropagation: () => { } } as any);
+                                                if (!notification.isRead) handleMarkAsRead(notification._id.toString());
                                                 if (notification.link) {
                                                     setOpen(false);
                                                     router.push(notification.link);
                                                 }
                                             }}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter' || e.key === ' ') {
+                                                    e.preventDefault();
+                                                    if (!notification.isRead) handleMarkAsRead(notification._id.toString());
+                                                    if (notification.link) {
+                                                        setOpen(false);
+                                                        router.push(notification.link);
+                                                    }
+                                                }
+                                            }}
                                         >
                                             <div className="flex gap-3">
-                                                <div className={cn(
-                                                    "mt-1 h-2 w-2 rounded-full shrink-0",
-                                                    !notification.isRead ? "bg-[var(--st-text)]" : "bg-transparent"
-                                                )} />
+                                                <span
+                                                    aria-hidden="true"
+                                                    className={cn(
+                                                        'mt-1 h-2 w-2 rounded-full shrink-0',
+                                                        !notification.isRead ? 'bg-[var(--st-accent)]' : 'bg-transparent',
+                                                    )}
+                                                />
                                                 <div className="space-y-1 flex-1">
-                                                    <p className={cn("text-sm leading-snug", !notification.isRead && "font-medium")}>
+                                                    <p
+                                                        className={cn(
+                                                            'text-sm leading-snug text-[var(--st-text)]',
+                                                            !notification.isRead && 'font-medium',
+                                                        )}
+                                                    >
                                                         {notification.message}
                                                     </p>
                                                     <div className="flex items-center gap-2 text-xs text-[var(--st-text-secondary)]">
                                                         <span>{new Date(notification.createdAt).toLocaleDateString()}</span>
-                                                        <span>•</span>
+                                                        <span aria-hidden="true">·</span>
                                                         <span className="capitalize">{notification.sourceApp || 'System'}</span>
                                                     </div>
                                                 </div>
                                             </div>
 
                                             {!notification.isRead && (
-                                                <Button
+                                                <IconButton
+                                                    label="Mark as read"
+                                                    icon={Check}
                                                     variant="ghost"
-                                                    size="icon"
+                                                    size="sm"
                                                     className="absolute right-2 top-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
                                                     onClick={(e) => handleMarkAsRead(notification._id.toString(), e)}
-                                                    title="Mark as read"
-                                                >
-                                                    <Check className="h-3 w-3" />
-                                                </Button>
+                                                />
                                             )}
                                         </div>
                                     ))}
                                 </div>
                             ) : (
-                                <div className="flex flex-col items-center justify-center h-48 text-[var(--st-text-secondary)] text-center p-4">
-                                    <Bell className="h-10 w-10 mb-2 opacity-20" />
-                                    <p className="text-sm font-medium">No notifications</p>
-                                    <p className="text-xs text-[var(--st-text-secondary)]/70 mt-1">
-                                        You're all caught up!
-                                    </p>
+                                <div className="flex items-center justify-center h-48 p-4">
+                                    <EmptyState
+                                        icon={Bell}
+                                        size="sm"
+                                        title="No notifications"
+                                        description="You're all caught up."
+                                    />
                                 </div>
                             )}
                         </ScrollArea>
-                        <div className="p-2 border-t bg-[var(--st-bg-muted)]/10 text-center">
+                        <div className="p-2 border-t border-[var(--st-border)] text-center">
                             <Link
                                 href="/dashboard/notifications"
                                 className="text-xs text-[var(--st-text)] hover:underline"

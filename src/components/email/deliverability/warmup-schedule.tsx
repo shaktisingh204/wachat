@@ -7,29 +7,41 @@ import {
   Play,
   X,
 } from 'lucide-react';
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, EmptyState, toast } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  EmptyState,
+  Progress,
+  cn,
+  toast,
+  type BadgeTone,
+} from '@/components/sabcrm/20ui';
 import {
   actionUpdateWarmupRun,
   type WarmupRunDoc,
 } from '@/app/actions/email/deliverability.actions';
-import { cn } from '@/components/sabcrm/20ui';
 
 interface WarmupScheduleProps {
   runs: WarmupRunDoc[];
   onUpdated: () => void;
 }
 
-function statusVariant(status: WarmupRunDoc['status']): 'success' | 'warning' | 'destructive' | 'secondary' {
+function statusTone(status: WarmupRunDoc['status']): BadgeTone {
   switch (status) {
     case 'active':
       return 'success';
     case 'paused':
       return 'warning';
     case 'cancelled':
-      return 'destructive';
+      return 'danger';
     case 'completed':
     default:
-      return 'secondary';
+      return 'neutral';
   }
 }
 
@@ -39,7 +51,7 @@ export function WarmupSchedule({ runs, onUpdated }: WarmupScheduleProps) {
   if (runs.length === 0) {
     return (
       <EmptyState
-        icon={<Flame />}
+        icon={Flame}
         title="No warmup in progress"
         description="Start a warmup to gradually ramp send volume on a new domain and build inbox trust."
       />
@@ -50,10 +62,10 @@ export function WarmupSchedule({ runs, onUpdated }: WarmupScheduleProps) {
     startTransition(async () => {
       const result = await actionUpdateWarmupRun(id, action);
       if (!result.ok) {
-        toast({ title: 'Warmup update failed', description: result.error, variant: 'destructive' });
+        toast.error({ title: 'Warmup update failed', description: result.error });
         return;
       }
-      toast({ title: `Warmup ${action}d` });
+      toast.success({ title: `Warmup ${action}d` });
       onUpdated();
     });
   };
@@ -72,54 +84,57 @@ export function WarmupSchedule({ runs, onUpdated }: WarmupScheduleProps) {
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <CardTitle className="flex items-center gap-2">
-                    <Flame className="h-4 w-4" /> {run.domain}
+                    <Flame className="h-4 w-4" aria-hidden="true" /> {run.domain}
                   </CardTitle>
                   <CardDescription>
-                    Day {run.currentDay} of {totalDays} · peak {peakCap.toLocaleString()} / day
+                    Day {run.currentDay} of {totalDays}, peak {peakCap.toLocaleString()} / day
                   </CardDescription>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge variant={statusVariant(run.status)}>{run.status}</Badge>
+                  <Badge tone={statusTone(run.status)}>{run.status}</Badge>
                   {run.status === 'active' ? (
                     <Button
                       size="sm"
                       variant="outline"
+                      iconLeft={Pause}
                       onClick={() => handleAction(run._id, 'pause')}
                       disabled={pending}
                     >
-                      <Pause className="h-3.5 w-3.5" /> Pause
+                      Pause
                     </Button>
                   ) : null}
                   {run.status === 'paused' ? (
                     <Button
                       size="sm"
                       variant="outline"
+                      iconLeft={Play}
                       onClick={() => handleAction(run._id, 'resume')}
                       disabled={pending}
                     >
-                      <Play className="h-3.5 w-3.5" /> Resume
+                      Resume
                     </Button>
                   ) : null}
                   {run.status === 'active' || run.status === 'paused' ? (
                     <Button
                       size="sm"
                       variant="ghost"
+                      iconLeft={X}
                       onClick={() => handleAction(run._id, 'cancel')}
                       disabled={pending}
                     >
-                      <X className="h-3.5 w-3.5" /> Cancel
+                      Cancel
                     </Button>
                   ) : null}
                 </div>
               </div>
             </CardHeader>
             <CardBody>
-              <div className="mb-2 h-2 w-full overflow-hidden rounded-full bg-[var(--st-bg-muted)]">
-                <div
-                  className="h-full bg-[var(--st-text)] transition-[width] duration-500"
-                  style={{ width: `${progressPct}%` }}
-                />
-              </div>
+              <Progress
+                value={progressPct}
+                size="sm"
+                className="mb-2"
+                aria-label={`Warmup progress for ${run.domain}`}
+              />
               <div className="grid grid-cols-7 gap-1 sm:grid-cols-14">
                 {schedule.map((d) => {
                   const isPast = d.day < run.currentDay;

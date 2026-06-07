@@ -46,16 +46,18 @@ function AddList({ onAddList }: { onAddList: (name: string) => void }) {
             <Button
                 variant="outline"
                 className="w-72 flex-shrink-0 h-12"
+                iconLeft={Plus}
                 onClick={() => setIsAdding(true)}
             >
-                <Plus className="mr-2 h-4 w-4" /> Add another list
+                Add another list
             </Button>
         );
     }
 
     return (
-        <div className="w-72 flex-shrink-0 p-2 bg-[var(--st-bg-muted)] rounded-lg h-fit">
+        <div className="w-72 flex-shrink-0 p-2 bg-[var(--st-bg-secondary)] rounded-[var(--st-radius)] h-fit">
             <Input
+                aria-label="List title"
                 placeholder="Enter list title..."
                 value={listName}
                 onChange={(e) => setListName(e.target.value)}
@@ -63,7 +65,7 @@ function AddList({ onAddList }: { onAddList: (name: string) => void }) {
                 autoFocus
             />
             <div className="mt-2 flex items-center gap-2">
-                <Button onClick={handleAdd}>Add list</Button>
+                <Button variant="primary" onClick={handleAdd}>Add list</Button>
                 <Button variant="ghost" onClick={() => setIsAdding(false)}>Cancel</Button>
             </div>
         </div>
@@ -156,8 +158,7 @@ export function KanbanBoard() {
     if (!project) {
         return (
             <div className="p-4">
-                <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
+                <Alert variant="destructive" icon={AlertCircle}>
                     <AlertTitle>No Project Selected</AlertTitle>
                     <AlertDescription>
                         Please select a project from the main dashboard page to view the chat kanban board.
@@ -171,7 +172,7 @@ export function KanbanBoard() {
         <DndContext sensors={sensors} collisionDetection={closestCorners} onDragEnd={handleOnDragEnd}>
             <div className="h-full w-full">
                 <ScrollArea className="h-full w-full">
-                    <div style={{ minWidth: "100%", display: "table", height: '100%' }}>
+                    <div className="table h-full min-w-full">
                         <div className="flex h-full w-max p-4 gap-4">
                             {boardData.map(column => (
                                 <KanbanColumn key={column.name} columnId={column.name} title={column.name} count={column.contacts.length}>

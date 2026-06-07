@@ -79,7 +79,7 @@ export function FlowCanvas({
   const [linking, setLinking] = useState<string | null>(null);
   const [pointer, setPointer] = useState<{ x: number; y: number } | null>(null);
 
-  /* ── add a node from the palette ─────────────────────────────────────── */
+  /* -- add a node from the palette -------------------------------------- */
   const addNode = useCallback(
     (meta: NodeTypeMeta) => {
       if (disabled) return;
@@ -99,7 +99,7 @@ export function FlowCanvas({
     [disabled, nodes, onChangeNodes, onSelectNode],
   );
 
-  /* ── delete the selected node ────────────────────────────────────────── */
+  /* -- delete the selected node ----------------------------------------- */
   const deleteNode = useCallback(
     (id: string) => {
       if (disabled) return;
@@ -110,7 +110,7 @@ export function FlowCanvas({
     [disabled, edges, nodes, onChangeEdges, onChangeNodes, onSelectNode, selectedId],
   );
 
-  /* ── drag handling ──────────────────────────────────────────────────── */
+  /* -- drag handling ---------------------------------------------------- */
   const onPointerDownNode = (e: ReactPointerEvent<HTMLDivElement>, node: FlowNode) => {
     if (disabled) return;
     e.stopPropagation();
@@ -147,7 +147,7 @@ export function FlowCanvas({
     setDragging(null);
   };
 
-  /* ── linking ────────────────────────────────────────────────────────── */
+  /* -- linking ---------------------------------------------------------- */
   const startLink = (e: ReactPointerEvent<HTMLButtonElement>, fromId: string) => {
     if (disabled) return;
     e.stopPropagation();
@@ -176,7 +176,7 @@ export function FlowCanvas({
     onChangeEdges(edges.filter((e) => e.id !== id));
   };
 
-  /* ── node lookup for edge endpoints ─────────────────────────────────── */
+  /* -- node lookup for edge endpoints ----------------------------------- */
   const nodeById = useMemo(() => {
     const m = new Map<string, FlowNode>();
     nodes.forEach((n) => m.set(n.id, n));
@@ -186,12 +186,12 @@ export function FlowCanvas({
   const triggerCard = useMemo(() => {
     return {
       id: 'trigger',
-      label: `Trigger · ${trigger?.kind ?? 'incoming_message'}`,
+      label: `Trigger - ${trigger?.kind ?? 'incoming_message'}`,
       position: { x: 40, y: 40 },
     };
   }, [trigger]);
 
-  /* ── render ─────────────────────────────────────────────────────────── */
+  /* -- render ----------------------------------------------------------- */
 
   // Auto-cancel a pending link if the user presses Escape.
   useEffect(() => {

@@ -1,6 +1,6 @@
 'use client';
 
-import { Skeleton, Button, Alert, AlertDescription, AlertTitle, ScrollArea, ScrollBar, Input } from '@/components/sabcrm/20ui';
+import { Skeleton, Button, Alert, ScrollArea, ScrollBar, Field, Input } from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,
@@ -12,7 +12,7 @@ import type { WithId,
   FacebookSubscriber,
   Project } from '@/lib/definitions';
 import { FacebookKanbanColumn } from '@/components/zoruui-domain/facebook-kanban-column';
-import { AlertCircle, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 import { useToast } from '@/hooks/use-toast';
 import { DndContext, DragEndEvent, PointerSensor, useSensor, useSensors, closestCorners } from '@dnd-kit/core';
@@ -49,24 +49,27 @@ function AddList({ onAddList }: { onAddList: (name: string) => void }) {
             <Button
                 variant="outline"
                 className="w-72 flex-shrink-0 h-12"
+                iconLeft={Plus}
                 onClick={() => setIsAdding(true)}
             >
-                <Plus className="mr-2 h-4 w-4" /> Add another list
+                Add another list
             </Button>
         );
     }
 
     return (
-        <div className="w-72 flex-shrink-0 p-2 bg-[var(--st-bg-muted)] rounded-lg h-fit">
-            <Input
-                placeholder="Enter list title..."
-                value={listName}
-                onChange={(e) => setListName(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
-                autoFocus
-            />
+        <div className="w-72 flex-shrink-0 p-2 bg-[var(--st-bg-muted)] rounded-[var(--st-radius)] h-fit">
+            <Field label="List title">
+                <Input
+                    placeholder="Enter list title..."
+                    value={listName}
+                    onChange={(e) => setListName(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
+                    autoFocus
+                />
+            </Field>
             <div className="mt-2 flex items-center gap-2">
-                <Button onClick={handleAdd}>Add list</Button>
+                <Button variant="primary" onClick={handleAdd}>Add list</Button>
                 <Button variant="ghost" onClick={() => setIsAdding(false)}>Cancel</Button>
             </div>
         </div>
@@ -109,10 +112,10 @@ export function FacebookKanbanBoard() {
         startLoadingTransition(async () => {
             const result = await saveFacebookKanbanStatuses(project._id.toString(), allStatusNames);
             if (!result.success) {
-                toast({ title: "Error", description: "Could not save new list.", variant: "destructive" });
+                toast({ title: "Error", description: "Could not save new list.", tone: "danger" });
                 fetchData(); // Revert on failure
             } else {
-                 toast({ title: "Success", description: `List "${name}" added.`});
+                 toast({ title: "Success", description: `List "${name}" added.`, tone: "success" });
             }
         });
     };
@@ -157,12 +160,8 @@ export function FacebookKanbanBoard() {
     if (!project) {
         return (
              <div className="p-4">
-                <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>No Project Selected</AlertTitle>
-                    <AlertDescription>
-                        Please select a project from the main dashboard page to view the chat kanban board.
-                    </AlertDescription>
+                <Alert tone="danger" title="No Project Selected">
+                    Please select a project from the main dashboard page to view the chat kanban board.
                 </Alert>
              </div>
         );
@@ -172,7 +171,7 @@ export function FacebookKanbanBoard() {
         <DndContext sensors={sensors} collisionDetection={closestCorners} onDragEnd={handleOnDragEnd}>
             <div className="h-full w-full">
                 <ScrollArea className="h-full w-full">
-                    <div style={{minWidth: "100%", display: "table", height: '100%'}}>
+                    <div className="table min-w-full h-full">
                         <div className="flex h-full w-max p-4 gap-4">
                             {boardData.map(column => (
                                 <FacebookKanbanColumn key={column.name} title={column.name} conversations={column.conversations} />

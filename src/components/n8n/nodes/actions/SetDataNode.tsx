@@ -159,7 +159,6 @@ export function SetDataNode({ config, onChange, className }: SetDataNodeProps) {
       )}
 
       <OutputSchema
-        accent="#fb923c"
         fields={[
           { key: '...keys', type: 'any', description: 'Each key defined above is available as output' },
         ]}
@@ -283,14 +282,14 @@ function buildPreview(entries: DataEntry[]): string {
 
 type OutputField = { key: string; type: string; description: string };
 
-function OutputSchema({ accent, fields }: { accent: string; fields: OutputField[] }) {
+function OutputSchema({ fields }: { fields: OutputField[] }) {
   return (
     <div className="space-y-1.5">
       <Label>Output</Label>
       <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-secondary)] divide-y divide-[var(--st-border)]">
         {fields.map((f) => (
           <div key={f.key} className="flex items-center gap-2 px-3 py-1.5">
-            <code className="min-w-[70px] text-[11.5px] font-mono font-medium" style={{ color: accent }}>{f.key}</code>
+            <code className="min-w-[70px] text-[11.5px] font-mono font-medium text-[var(--st-accent)]">{f.key}</code>
             <Badge tone="neutral" kind="soft" className="font-mono text-[10px]">{f.type}</Badge>
             <span className="flex-1 text-[11px] text-[var(--st-text-tertiary)] truncate">{f.description}</span>
           </div>

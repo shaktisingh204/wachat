@@ -1,12 +1,11 @@
 'use client';
 
-import { Card, Button } from '@/components/sabcrm/20ui';
-import { LuTag } from 'react-icons/lu';
-
 import * as React from 'react';
 
+import { Card, Button } from '@/components/sabcrm/20ui';
+import { Tag } from 'lucide-react';
+
 import { cn } from '@/lib/utils';
-import { } from './clay-button';
 
 export interface ClayPromoCardProps {
   eyebrow?: string;
@@ -20,10 +19,9 @@ export interface ClayPromoCardProps {
 }
 
 /**
- * ClayPromoCard — gradient-mesh "You're now in PRO mode!" sidebar block.
- * Uses the shadcn `ZoruCard` primitive for the surface, and styles the
- * mesh hero via `style={{ background: 'var(--prism-mesh)' }}` (with a
- * radial-gradient fallback for environments without the prism token).
+ * ClayPromoCard - gradient-mesh "You're now in PRO mode!" sidebar block.
+ * Uses the 20ui Card primitive for the surface and renders the decorative
+ * mesh hero with a Tailwind radial-gradient stack built from 20ui tokens.
  */
 export function ClayPromoCard({
   title,
@@ -36,28 +34,18 @@ export function ClayPromoCard({
 }: ClayPromoCardProps) {
   return (
     <Card
-      variant="default"
-      className={cn('rounded-2xl overflow-hidden p-0', className)}
+      variant="outlined"
+      padding="none"
+      className={cn('overflow-hidden rounded-[var(--st-radius-lg)]', className)}
     >
-      {/* Large gradient-mesh hero */}
-      <div className="relative h-[128px] w-full overflow-hidden">
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              'var(--prism-mesh, ' +
-              'radial-gradient(at 18% 18%, hsl(340 90% 85%) 0px, transparent 52%),' +
-              'radial-gradient(at 82% 22%, hsl(262 85% 88%) 0px, transparent 52%),' +
-              'radial-gradient(at 68% 82%, hsl(198 90% 86%) 0px, transparent 55%),' +
-              'radial-gradient(at 22% 80%, hsl(28  95% 86%) 0px, transparent 55%),' +
-              'hsl(var(--card)))',
-            filter: 'saturate(1.05)',
-          }}
-        />
-      </div>
+      {/* Decorative gradient-mesh hero */}
+      <div
+        aria-hidden="true"
+        className="relative h-[128px] w-full overflow-hidden bg-[var(--st-bg)] bg-[radial-gradient(at_18%_18%,hsl(340_90%_85%)_0px,transparent_52%),radial-gradient(at_82%_22%,hsl(262_85%_88%)_0px,transparent_52%),radial-gradient(at_68%_82%,hsl(198_90%_86%)_0px,transparent_55%),radial-gradient(at_22%_80%,hsl(28_95%_86%)_0px,transparent_55%)] [filter:saturate(1.05)]"
+      />
 
       <div className="p-4">
-        <h4 className="text-sm font-semibold tracking-tight text-[var(--st-text)] leading-tight">
+        <h4 className="text-sm font-semibold leading-tight tracking-tight text-[var(--st-text)]">
           {title}
         </h4>
         {description ? (
@@ -67,8 +55,9 @@ export function ClayPromoCard({
         ) : null}
 
         {discountLabel ? (
-          <div className="mt-3 flex items-center gap-2 rounded-lg bg-[var(--st-bg-muted)] px-2.5 py-1.5">
-            <LuTag
+          <div className="mt-3 flex items-center gap-2 rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] px-2.5 py-1.5">
+            <Tag
+              aria-hidden="true"
               className="h-3 w-3 text-[var(--st-text)]"
               strokeWidth={2.25}
             />
@@ -84,10 +73,11 @@ export function ClayPromoCard({
         ) : null}
 
         <Button
-          variant="obsidian"
+          variant="primary"
           size="sm"
+          block
           onClick={onCtaClick}
-          className="mt-3 w-full justify-center"
+          className="mt-3 justify-center"
         >
           {ctaLabel}
         </Button>

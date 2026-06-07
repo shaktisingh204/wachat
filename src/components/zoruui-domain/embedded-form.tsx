@@ -15,6 +15,9 @@ import {
   RadioGroup,
   RadioGroupItem,
   Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
   Alert,
   EmptyState,
   Badge,
@@ -504,11 +507,13 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
             <style>{dynamicStyles}</style>
             <Card padding="none" className="shadow-md w-full" id={uniqueId}>
                 <form onSubmit={handleSubmit(onSubmit)}>
-                    <div className="text-center my-6 px-6">
+                    <CardHeader className="text-center my-6 px-6 flex-col items-center">
                         {logoSrc && <Image src={logoSrc} alt="Logo" width={80} height={80} className="object-contain mx-auto" />}
-                        <h1 className="text-2xl font-bold mt-4 text-[var(--st-text)]">{(settings.title as string) || 'Form Title'}</h1>
-                        <p className="text-[var(--st-text-secondary)]">{(settings.description as string) || ''}</p>
-                    </div>
+                        <CardTitle className="text-2xl font-bold mt-4">{(settings.title as string) || 'Form Title'}</CardTitle>
+                        {(settings.description as string) ? (
+                            <CardDescription>{settings.description as string}</CardDescription>
+                        ) : null}
+                    </CardHeader>
 
                     {isMultiStep && (
                         <div className="px-6 pb-4 flex items-center justify-center gap-2 flex-wrap">

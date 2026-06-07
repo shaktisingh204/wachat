@@ -1,7 +1,20 @@
 'use client';
 
 import { PieChart as PieIcon } from 'lucide-react';
-import { CHART_PALETTE, Card, CardBody, CardDescription, CardHeader, CardTitle, Recharts, ChartContainer, ChartTooltip, EmptyState } from '@/components/sabcrm/20ui';
+import {
+  CHART_PALETTE,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Recharts,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  EmptyState,
+  type ChartConfig,
+} from '@/components/sabcrm/20ui';
 import type { EmailDeviceBreakdown } from '@/lib/rust-client/email-reports';
 
 interface DeviceBreakdownProps {
@@ -9,8 +22,12 @@ interface DeviceBreakdownProps {
   title?: string;
 }
 
-const { Pie, Tooltip, Cell } = Recharts as unknown as typeof import('recharts');
-const RechartsPieChart = (Recharts as unknown as typeof import('recharts')).PieChart;
+const { Pie, Cell } = Recharts;
+const RechartsPieChart = Recharts.PieChart;
+
+const chartConfig: ChartConfig = {
+  count: { label: 'Opens' },
+};
 
 export function DeviceBreakdown({ data, title = 'Device breakdown' }: DeviceBreakdownProps) {
   const rows = data ?? [];
@@ -20,16 +37,14 @@ export function DeviceBreakdown({ data, title = 'Device breakdown' }: DeviceBrea
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <PieIcon className="h-4 w-4" /> {title}
+          <PieIcon className="h-4 w-4" aria-hidden="true" /> {title}
         </CardTitle>
-        <CardDescription>
-          Share of opens by client device
-        </CardDescription>
+        <CardDescription>Share of opens by client device</CardDescription>
       </CardHeader>
       <CardBody>
         {total > 0 ? (
           <div className="grid items-center gap-4 sm:grid-cols-[1fr_auto]">
-            <ChartContainer height={220}>
+            <ChartContainer config={chartConfig} className="h-[220px] w-full">
               <RechartsPieChart>
                 <Pie
                   data={rows}
@@ -40,21 +55,18 @@ export function DeviceBreakdown({ data, title = 'Device breakdown' }: DeviceBrea
                   paddingAngle={2}
                   stroke="var(--st-bg)"
                 >
-                  {rows.map((_, i) => (
-                    <Cell
-                      key={i}
-                      fill={CHART_PALETTE[i % CHART_PALETTE.length]}
-                    />
+                  {rows.map((row, i) => (
+                    <Cell key={row.device} fill={CHART_PALETTE[i % CHART_PALETTE.length]} />
                   ))}
                 </Pie>
-                <Tooltip content={<ChartTooltip />} />
+                <ChartTooltip content={<ChartTooltipContent nameKey="device" />} />
               </RechartsPieChart>
             </ChartContainer>
             <ul className="space-y-1.5 text-sm">
               {rows.map((d, i) => (
                 <li key={d.device} className="flex items-center gap-2">
                   <span
-                    aria-hidden
+                    aria-hidden="true"
                     className="h-2 w-2 rounded-full"
                     style={{ backgroundColor: CHART_PALETTE[i % CHART_PALETTE.length] }}
                   />
@@ -68,9 +80,10 @@ export function DeviceBreakdown({ data, title = 'Device breakdown' }: DeviceBrea
           </div>
         ) : (
           <EmptyState
-            icon={<PieIcon />}
+            icon={PieIcon}
             title="No device data"
             description="Open events with user-agent metadata will populate this chart."
+            size="sm"
           />
         )}
       </CardBody>

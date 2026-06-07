@@ -200,7 +200,7 @@ export function WhatsAppSendNode({ config, onChange, className }: WhatsAppSendNo
       </Field>
 
       <OutputSchema
-        accent="var(--st-status-ok)"
+        accentClassName="text-[var(--st-status-ok)]"
         fields={[
           { key: 'messageId', type: 'string', description: 'Meta WABA message ID' },
           { key: 'status',    type: 'string', description: 'sent, queued, or failed' },
@@ -375,7 +375,7 @@ function MediaEditor({ config, onChange }: WhatsAppSendNodeProps) {
 
 type OutputField = { key: string; type: string; description: string };
 
-function OutputSchema({ accent, fields }: { accent: string; fields: OutputField[] }) {
+function OutputSchema({ accentClassName, fields }: { accentClassName: string; fields: OutputField[] }) {
   return (
     <Card variant="outlined" padding="none">
       <CardHeader className="px-3 pt-3">
@@ -385,7 +385,7 @@ function OutputSchema({ accent, fields }: { accent: string; fields: OutputField[
       <CardBody className="divide-y divide-[var(--st-border)] p-0">
         {fields.map((f) => (
           <div key={f.key} className="flex items-center gap-2 px-3 py-1.5">
-            <code className="min-w-[90px] font-mono text-[11.5px] font-medium" style={{ color: accent }}>{f.key}</code>
+            <code className={cn('min-w-[90px] font-mono text-[11.5px] font-medium', accentClassName)}>{f.key}</code>
             <span className="rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] px-1 py-0.5 font-mono text-[10px] text-[var(--st-text-tertiary)]">{f.type}</span>
             <span className="flex-1 truncate text-[11px] text-[var(--st-text-tertiary)]">{f.description}</span>
           </div>

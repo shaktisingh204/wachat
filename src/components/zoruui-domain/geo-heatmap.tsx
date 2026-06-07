@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Skeleton } from '@/components/sabcrm/20ui';
+import { Card, CardBody, CardHeader, CardTitle, EmptyState, Skeleton } from '@/components/sabcrm/20ui';
 import { Globe2 } from 'lucide-react';
 
 interface GeoHeatmapProps {
@@ -33,13 +33,17 @@ function getFlag(code: string): string {
 export function GeoHeatmap({ data, isLoading }: GeoHeatmapProps) {
   if (isLoading) {
     return (
-      <Card className="p-5">
-        <Skeleton className="h-5 w-32 mb-4" />
-        <div className="space-y-2.5">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-7 w-full rounded" />
-          ))}
-        </div>
+      <Card>
+        <CardHeader>
+          <Skeleton className="h-5 w-32" />
+        </CardHeader>
+        <CardBody>
+          <div className="space-y-2.5">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} className="h-7 w-full rounded-[var(--st-radius)]" />
+            ))}
+          </div>
+        </CardBody>
       </Card>
     );
   }
@@ -49,46 +53,52 @@ export function GeoHeatmap({ data, isLoading }: GeoHeatmapProps) {
   const total = sorted.reduce((sum, r) => sum + r.count, 0);
 
   return (
-    <Card className="p-5">
-      <div className="flex items-center gap-2 mb-4">
-        <Globe2 className="h-4 w-4 text-[var(--st-text-secondary)]" />
-        <span className="text-[13px] text-[var(--st-text)]">Top Countries</span>
-      </div>
+    <Card>
+      <CardHeader className="flex items-center gap-2">
+        <Globe2 className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
+        <CardTitle>Top Countries</CardTitle>
+      </CardHeader>
 
-      {sorted.length === 0 ? (
-        <div className="py-10 text-center text-[13px] text-[var(--st-text-secondary)]">No geo data yet</div>
-      ) : (
-        <div className="space-y-2">
-          {sorted.map((row) => {
-            const pct = total > 0 ? ((row.count / total) * 100).toFixed(1) : '0.0';
-            const barWidth = max > 0 ? (row.count / max) * 100 : 0;
-            return (
-              <div key={row.country} className="flex items-center gap-3 text-[12.5px]">
-                <span className="w-7 text-center text-base leading-none shrink-0">
-                  {getFlag(row.country)}
-                </span>
-                <span className="w-8 shrink-0 text-[var(--st-text-secondary)] font-mono uppercase">
-                  {row.country}
-                </span>
-                <div className="flex-1 min-w-0">
-                  <div className="h-1.5 w-full rounded-full bg-[var(--st-bg-muted)] overflow-hidden">
-                    <div
-                      className="h-full rounded-full bg-[var(--st-text)] transition-all"
-                      style={{ width: `${barWidth}%` }}
-                    />
+      <CardBody>
+        {sorted.length === 0 ? (
+          <EmptyState
+            icon={Globe2}
+            title="No geo data yet"
+            description="Country breakdowns appear here once your audience grows."
+          />
+        ) : (
+          <div className="space-y-2">
+            {sorted.map((row) => {
+              const pct = total > 0 ? ((row.count / total) * 100).toFixed(1) : '0.0';
+              const barWidth = max > 0 ? (row.count / max) * 100 : 0;
+              return (
+                <div key={row.country} className="flex items-center gap-3 text-[12.5px]">
+                  <span className="w-7 text-center text-base leading-none shrink-0" aria-hidden="true">
+                    {getFlag(row.country)}
+                  </span>
+                  <span className="w-8 shrink-0 text-[var(--st-text-secondary)] font-mono uppercase">
+                    {row.country}
+                  </span>
+                  <div className="flex-1 min-w-0" aria-hidden="true">
+                    <div className="h-1.5 w-full rounded-[var(--st-radius-pill)] bg-[var(--st-bg-muted)] overflow-hidden">
+                      <div
+                        className="h-full rounded-[var(--st-radius-pill)] bg-[var(--st-text)] transition-all"
+                        style={{ width: `${barWidth}%` }}
+                      />
+                    </div>
                   </div>
+                  <span className="w-10 text-right tabular-nums text-[var(--st-text)] shrink-0">
+                    {row.count.toLocaleString()}
+                  </span>
+                  <span className="w-10 text-right tabular-nums text-[var(--st-text-secondary)] shrink-0">
+                    {pct}%
+                  </span>
                 </div>
-                <span className="w-10 text-right tabular-nums text-[var(--st-text)] shrink-0">
-                  {row.count.toLocaleString()}
-                </span>
-                <span className="w-10 text-right tabular-nums text-[var(--st-text-secondary)] shrink-0">
-                  {pct}%
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      )}
+              );
+            })}
+          </div>
+        )}
+      </CardBody>
     </Card>
   );
 }

@@ -81,7 +81,7 @@ export function N8NNode({
       data-node-id={node.id}
       data-node-name={node.name}
       className={cn(
-        'absolute select-none rounded-xl border-2 bg-[var(--st-bg)] shadow-md',
+        'absolute cursor-grab select-none rounded-xl border-2 bg-[var(--st-bg)] shadow-md',
         'transition-[border-color,box-shadow] duration-100',
         isSelected
           ? 'border-[var(--st-accent)] shadow-[0_0_0_3px_var(--st-accent-ring)]'
@@ -94,7 +94,6 @@ export function N8NNode({
         left: posX,
         top: posY,
         width: NODE_WIDTH,
-        cursor: 'grab',
       }}
       onMouseDown={handleMouseDown}
     >
