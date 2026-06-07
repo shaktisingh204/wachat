@@ -24,7 +24,7 @@ export interface SabSidebarLeaf {
   defaultOpen?: boolean;
   /**
    * Restrict the entry to the tenant owner / admin role (Worksuite parity).
-   * Filtered out for invited team members in `zoru-home-shell` before render.
+   * Filtered out for invited team members in `home-shell` before render.
    */
   adminOnly?: boolean;
 }

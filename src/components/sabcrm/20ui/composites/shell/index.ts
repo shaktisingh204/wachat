@@ -4,21 +4,21 @@
  * dock slots. Step 8 wires the admin instance, step 9 wires the
  * dashboard instance.
  */
-export { SabShell, type SabShellProps } from "./zoru-shell";
+export { SabShell, type SabShellProps } from "./shell-root";
 export {
   SabAppRail,
   type SabAppRailItem,
   type SabAppRailProps,
-} from "./zoru-app-rail";
+} from "./app-rail";
 export {
   SabAppSidebar,
   type SabAppSidebarProps,
   type SabSidebarGroup,
   type SabSidebarLeaf,
-} from "./zoru-app-sidebar";
-export { SabHeader, type SabHeaderProps } from "./zoru-header";
-export { SabDock, SabDockIcon, type SabDockAccent } from "./zoru-dock";
+} from "./app-sidebar";
+export { SabHeader, type SabHeaderProps } from "./header";
+export { SabDock, SabDockIcon, type SabDockAccent } from "./dock";
 export {
   SabHomeShell,
   type SabHomeShellProps,
-} from "./zoru-home-shell";
+} from "./home-shell";

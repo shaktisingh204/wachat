@@ -24,9 +24,9 @@ import {
   SabAppSidebar,
   type SabSidebarGroup,
   type SabSidebarLeaf,
-} from "./zoru-app-sidebar";
-import { SAB_APPS } from "./zoru-apps";
-import { findAppSidebarConfig } from "./zoru-app-sidebars";
+} from "./app-sidebar";
+import { SAB_APPS } from "./apps";
+import { findAppSidebarConfig } from "./app-sidebars";
 import { useProject } from "@/context/project-context";
 import { isElevatedRole } from "@/lib/rbac";
 import { Button } from "../button";
@@ -178,7 +178,7 @@ function SabHomeShellContent({
 
   // Auto-select per-app sidebar groups from the central registry based on
   // the current pathname. Each app declares its own grouped menu in
-  // `zoru-app-sidebars.tsx`; the active config wins, the fallback is the
+  // `app-sidebars.tsx`; the active config wins, the fallback is the
   // home Workspace + Shortcuts pair.
   const activeAppConfig = React.useMemo(
     () => findAppSidebarConfig(pathname),

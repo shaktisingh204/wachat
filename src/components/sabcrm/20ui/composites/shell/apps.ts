@@ -49,7 +49,7 @@ import {
   TelegramIcon,
   UrlShortenerIcon,
   WaChatIcon,
-} from "./zoru-app-icons";
+} from "./app-icons";
 
 export type SabAppMigrationStatus = "done" | "partial" | "pending";
 

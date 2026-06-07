@@ -30,7 +30,7 @@ export {
   SabNodeSidebar,
 } from './composites';
 
-export { SAB_APPS } from './composites/shell/zoru-apps';
+export { SAB_APPS } from './composites/shell/apps';
 export { applyTheme, useHtmlDark, AppThemeToggle } from './composites/shell/app-theme';
 
 // File-manager — relocated to SabFiles, which owns all file UX.

@@ -10,8 +10,8 @@
  */
 
 // Foundation
-export { SabProvider } from "./lib/zoru-provider";
-export type { SabProviderProps } from "./lib/zoru-provider";
+export { SabProvider } from "./lib/provider";
+export type { SabProviderProps } from "./lib/provider";
 export { cn } from "./lib/cn";
 export { SabDock, SabDockIcon, type SabDockAccent } from "./dock";
 
@@ -184,7 +184,7 @@ export {
   sabToast,
   useSabToast,
   type SabToastInput,
-} from "./use-zoru-toast";
+} from "./use-toast";
 
 export {
   SabHeroPill,

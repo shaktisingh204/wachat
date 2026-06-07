@@ -41,7 +41,7 @@ import { Button } from "./button";
 import { EmptyState } from "./empty-state";
 import { Popover, SabPopoverContent, SabPopoverTrigger } from "./popover";
 import { ScrollArea } from "./scroll-area";
-import { useSabToast } from "./use-zoru-toast";
+import { useSabToast } from "./use-toast";
 import { cn } from "./lib/cn";
 
 type CategoryId =

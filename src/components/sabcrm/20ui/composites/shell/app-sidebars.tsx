@@ -144,7 +144,7 @@ import {
   Zap,
 } from "lucide-react";
 
-import type { SabSidebarGroup } from "./zoru-app-sidebar";
+import type { SabSidebarGroup } from "./app-sidebar";
 
 export interface SabAppSidebarConfig {
   prefix: string;
