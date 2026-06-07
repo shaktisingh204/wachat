@@ -4,19 +4,18 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 import {
-  LuPencil,
-  LuTrash2,
-  LuCopy,
-  LuChartColumn,
-  LuShare2,
-  LuWorkflow,
-  LuZap,
-  LuCircle,
-  LuDownload,
-} from 'react-icons/lu';
-import { cn } from '@/lib/utils';
+  Pencil,
+  Trash2,
+  Copy,
+  ChartColumn,
+  Share2,
+  Workflow,
+  Zap,
+  Download,
+} from 'lucide-react';
+import { Badge, IconButton, Input, cn } from '@/components/sabcrm/20ui';
 
-/* ── Types ─────────────────────────────────────────────────────────────── */
+/* -- Types --------------------------------------------------------------- */
 
 export type FlowItem = {
   _id: string;
@@ -28,7 +27,7 @@ export type FlowItem = {
   createdAt: string;
   /** Lower-case tags surfaced by the flow-list filter chips. */
   tags?: string[];
-  /** Folder id the flow lives in — null/undefined means "root". */
+  /** Folder id the flow lives in. null/undefined means "root". */
   folderId?: string;
 };
 
@@ -40,7 +39,7 @@ type Props = {
   onExport?: (flowId: string) => void;
 };
 
-/* ── FlowCard ───────────────────────────────────────────────────────────── */
+/* -- FlowCard ------------------------------------------------------------- */
 
 export function FlowCard({ flow, onDelete, onDuplicate, onRename, onExport }: Props) {
   const router = useRouter();
@@ -82,7 +81,7 @@ export function FlowCard({ flow, onDelete, onDuplicate, onRename, onExport }: Pr
 
   const updatedLabel = flow.updatedAt
     ? format(new Date(flow.updatedAt), 'MMM d, yyyy')
-    : '—';
+    : '-';
 
   return (
     <div
@@ -92,21 +91,21 @@ export function FlowCard({ flow, onDelete, onDuplicate, onRename, onExport }: Pr
       onClick={handleCardClick}
       onKeyDown={(e) => e.key === 'Enter' && handleCardClick()}
       className={cn(
-        'group relative flex flex-col rounded-xl border border-[var(--st-border)]',
+        'group relative flex flex-col rounded-[var(--st-radius)] border border-[var(--st-border)]',
         'bg-[var(--st-bg)] overflow-hidden cursor-pointer',
         'shadow-sm hover:shadow-md transition-all duration-200',
         'hover:border-[var(--st-border-strong)]',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]/30',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent)]/40',
       )}
     >
-      {/* ── Thumbnail ─────────────────────────────────────────────────── */}
-      <div className="relative flex h-[130px] items-center justify-center overflow-hidden border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]">
+      {/* -- Thumbnail ------------------------------------------------------ */}
+      <div className="relative flex h-[130px] items-center justify-center overflow-hidden border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
         <div className="absolute inset-0 opacity-60 [background-image:linear-gradient(var(--st-border)_1px,transparent_1px),linear-gradient(90deg,var(--st-border)_1px,transparent_1px)] [background-size:22px_22px]" />
         <div className="relative flex w-44 items-center justify-between">
           {[0, 1, 2].map((node) => (
             <React.Fragment key={node}>
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--st-border)] bg-[var(--st-bg)] shadow-sm">
-                <LuWorkflow className="h-5 w-5 text-[var(--st-text)]" strokeWidth={1.7} />
+              <div className="flex h-11 w-11 items-center justify-center rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] shadow-sm">
+                <Workflow className="h-5 w-5 text-[var(--st-text)]" strokeWidth={1.7} aria-hidden="true" />
               </div>
               {node < 2 ? (
                 <div className="h-px flex-1 bg-[var(--st-border-strong)]" />
@@ -115,20 +114,12 @@ export function FlowCard({ flow, onDelete, onDuplicate, onRename, onExport }: Pr
           ))}
         </div>
 
-        {/* Status badge — top right corner */}
-        <span
-          className={cn(
-            'absolute top-2.5 right-2.5 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold backdrop-blur-sm',
-            isPublished
-              ? 'bg-[var(--st-status-ok)]/10 text-[var(--st-status-ok)] border-[var(--st-status-ok)]/30'
-              : 'bg-[var(--st-warn)]/15 text-[var(--st-warn)] border-[var(--st-warn)]/30',
-          )}
-        >
-          <LuCircle
-            className={cn('h-1.5 w-1.5 fill-current', isPublished ? 'text-[var(--st-text)]' : 'text-[var(--st-text)]')}
-          />
-          {isPublished ? 'Published' : 'Draft'}
-        </span>
+        {/* Status badge, top-right corner */}
+        <div className="absolute top-2.5 right-2.5">
+          <Badge tone={isPublished ? 'success' : 'warning'} dot>
+            {isPublished ? 'Published' : 'Draft'}
+          </Badge>
+        </div>
 
         {/* Hover action overlay */}
         <div
@@ -139,28 +130,40 @@ export function FlowCard({ flow, onDelete, onDuplicate, onRename, onExport }: Pr
           onClick={(e) => e.stopPropagation()}
           role="presentation"
         >
-          <ActionIconBtn
+          <IconButton
             label="Edit"
-            icon={<LuPencil className="h-4 w-4" />}
-            onClick={() => router.push(`/dashboard/sabflow/flow-builder/${flow._id}`)}
+            icon={Pencil}
+            variant="secondary"
+            onClick={(e) => {
+              e.stopPropagation();
+              router.push(`/dashboard/sabflow/flow-builder/${flow._id}`);
+            }}
           />
-          <ActionIconBtn
+          <IconButton
             label="Results"
-            icon={<LuChartColumn className="h-4 w-4" />}
-            onClick={() => router.push(`/dashboard/sabflow/logs?flowId=${flow._id}`)}
+            icon={ChartColumn}
+            variant="secondary"
+            onClick={(e) => {
+              e.stopPropagation();
+              router.push(`/dashboard/sabflow/logs?flowId=${flow._id}`);
+            }}
           />
-          <ActionIconBtn
+          <IconButton
             label="Share"
-            icon={<LuShare2 className="h-4 w-4" />}
-            onClick={() => {
+            icon={Share2}
+            variant="secondary"
+            onClick={(e) => {
+              e.stopPropagation();
               const url = `${window.location.origin}/flow/${flow._id}`;
               void navigator.clipboard.writeText(url);
             }}
           />
-          <ActionIconBtn
+          <IconButton
             label="Export"
-            icon={<LuDownload className="h-4 w-4" />}
-            onClick={() => {
+            icon={Download}
+            variant="secondary"
+            onClick={(e) => {
+              e.stopPropagation();
               if (onExport) {
                 onExport(flow._id);
               } else {
@@ -174,33 +177,41 @@ export function FlowCard({ flow, onDelete, onDuplicate, onRename, onExport }: Pr
               }
             }}
           />
-          <ActionIconBtn
+          <IconButton
             label="Duplicate"
-            icon={<LuCopy className="h-4 w-4" />}
-            onClick={() => onDuplicate(flow._id)}
+            icon={Copy}
+            variant="secondary"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDuplicate(flow._id);
+            }}
           />
-          <ActionIconBtn
+          <IconButton
             label="Delete"
-            icon={<LuTrash2 className="h-4 w-4" />}
-            onClick={() => onDelete(flow)}
-            danger
+            icon={Trash2}
+            variant="danger"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(flow);
+            }}
           />
         </div>
       </div>
 
-      {/* ── Card body ─────────────────────────────────────────────────── */}
+      {/* -- Card body ----------------------------------------------------- */}
       <div className="flex flex-col gap-1 px-3 py-3">
-        {/* Flow name — double-click to rename */}
+        {/* Flow name, double-click to rename */}
         {isRenaming ? (
-          <input
+          <Input
             ref={inputRef}
+            inputSize="sm"
             autoFocus
+            aria-label="Flow name"
             value={nameValue}
             onChange={(e) => setNameValue(e.target.value)}
             onBlur={commitRename}
             onKeyDown={handleKeyDown}
             onClick={(e) => e.stopPropagation()}
-            className="w-full rounded-md border border-[var(--st-border-strong)] bg-[var(--st-bg)] px-2 py-0.5 text-[13px] font-semibold text-[var(--st-text)] outline-none ring-2 ring-[var(--st-text)]/20"
           />
         ) : (
           <p
@@ -214,47 +225,12 @@ export function FlowCard({ flow, onDelete, onDuplicate, onRename, onExport }: Pr
 
         <div className="flex items-center justify-between mt-0.5">
           <span className="flex items-center gap-1 text-[10.5px] text-[var(--st-text-secondary)]">
-            <LuZap className="h-3 w-3" />
+            <Zap className="h-3 w-3" aria-hidden="true" />
             {flow.groups?.length ?? 0} groups
           </span>
           <span className="text-[10.5px] text-[var(--st-text-secondary)]">{updatedLabel}</span>
         </div>
       </div>
     </div>
-  );
-}
-
-/* ── ActionIconBtn (internal helper) ─────────────────────────────────────── */
-
-function ActionIconBtn({
-  label,
-  icon,
-  onClick,
-  danger = false,
-}: {
-  label: string;
-  icon: React.ReactNode;
-  onClick: () => void;
-  danger?: boolean;
-}) {
-  return (
-    <button
-      type="button"
-      aria-label={label}
-      title={label}
-      onClick={(e) => {
-        e.stopPropagation();
-        onClick();
-      }}
-      className={cn(
-        'flex h-8 w-8 items-center justify-center rounded-full border shadow-sm',
-        'backdrop-blur-sm transition-colors duration-150',
-        danger
-          ? 'border-[var(--st-danger)] bg-[var(--st-danger)] text-[var(--st-text-inverted)] hover:bg-[var(--st-danger)]/90'
-          : 'border-white/70 bg-white text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]',
-      )}
-    >
-      {icon}
-    </button>
   );
 }

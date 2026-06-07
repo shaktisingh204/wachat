@@ -1,83 +1,42 @@
 'use client';
 /**
- * EmptyCanvasOverlay — port of n8n's "Add first step" empty-canvas CTA.
+ * EmptyCanvasOverlay - port of n8n's "Add first step" empty-canvas CTA.
  *
  * Shown when a workflow has zero nodes. Centered card with a single button
  * that pops the node creator (we don't filter to triggers here because SabFlow
  * chats can also start from a regular block).
  */
-import { LuPlus, LuSparkles } from 'react-icons/lu';
+import { Plus, Sparkles } from 'lucide-react';
+
+import { Button, Card } from '@/components/sabcrm/20ui';
 
 type Props = { onAdd: () => void };
 
 export function EmptyCanvasOverlay({ onAdd }: Props) {
   return (
-    <div
-      style={{
-        position: 'absolute',
-        inset: 0,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        pointerEvents: 'none',
-        zIndex: 5,
-      }}
-    >
-      <div
-        style={{
-          pointerEvents: 'auto',
-          background: 'var(--gray-1)',
-          border: '1px dashed var(--gray-6)',
-          borderRadius: 16,
-          padding: '24px 28px',
-          textAlign: 'center',
-          boxShadow: '0 10px 30px -10px rgba(0,0,0,0.18)',
-          maxWidth: 320,
-        }}
+    <div className="pointer-events-none absolute inset-0 z-[5] flex items-center justify-center">
+      <Card
+        variant="outlined"
+        padding="lg"
+        className="pointer-events-auto max-w-[320px] border-dashed text-center shadow-[0_10px_30px_-10px_rgba(0,0,0,0.18)]"
       >
-        <div
-          style={{
-            width: 46,
-            height: 46,
-            margin: '0 auto 12px',
-            borderRadius: 999,
-            background: 'rgba(247, 104, 8, 0.1)',
-            color: '#f76808',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
+        <span
+          className="mx-auto mb-3 flex h-[46px] w-[46px] items-center justify-center rounded-full bg-[var(--st-accent-soft)] text-[var(--st-accent)]"
+          aria-hidden="true"
         >
-          <LuSparkles className="h-5 w-5" />
-        </div>
-        <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--gray-12)', marginBottom: 4 }}>
+          <Sparkles className="h-5 w-5" />
+        </span>
+        <div className="mb-1 text-[15px] font-semibold text-[var(--st-text)]">
           Start your workflow
         </div>
-        <div style={{ fontSize: 12, color: 'var(--gray-10)', lineHeight: 1.45, marginBottom: 14 }}>
-          Add a first step — a trigger, message, or integration — and wire
-          nodes together by dragging from a handle.
-        </div>
-        <button
-          type="button"
-          onClick={onAdd}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            background: '#f76808',
-            color: 'white',
-            border: 0,
-            padding: '8px 14px',
-            borderRadius: 8,
-            fontSize: 12.5,
-            fontWeight: 500,
-            cursor: 'pointer',
-          }}
-        >
-          <LuPlus className="h-3.5 w-3.5" />
+        <p className="mb-3.5 text-xs leading-relaxed text-[var(--st-text-secondary)]">
+          Add a first step, a trigger, message, or integration, and wire nodes
+          together by dragging from a handle.
+        </p>
+        <Button variant="primary" size="sm" iconLeft={Plus} onClick={onAdd}>
           Add first step
-        </button>
-      </div>
+        </Button>
+      </Card>
     </div>
   );
 }

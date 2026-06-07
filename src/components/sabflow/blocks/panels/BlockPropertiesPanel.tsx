@@ -11,8 +11,22 @@ import {
 import { getBlockBrandIcon } from '@/lib/sabflow/blocks/icons';
 import { cn } from '@/lib/utils';
 import { Icon as IconifyIcon } from '@iconify/react';
-import { LuX, LuSettings } from 'react-icons/lu';
+import { X } from 'lucide-react';
 import { useGraph } from '@/components/sabflow/graph/providers/GraphProvider';
+
+import {
+  Field,
+  Input,
+  Textarea,
+  IconButton,
+  Button,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/sabcrm/20ui';
+import { SabFileUrlInput } from '@/components/sabfiles';
 
 import { NodeSettings } from '@/components/sabflow/panels/blocks/shared/NodeSettings';
 import { TextBlockSettings } from './settings/TextBlockSettings';
@@ -44,40 +58,39 @@ export function BlockPropertiesPanel({ block, onUpdate, variables = [] }: Props)
     <div
       className={cn(
         'w-[340px] shrink-0 flex flex-col',
-        'border-l border-[var(--gray-5)] bg-[var(--gray-1)]',
+        'border-l border-[var(--st-border)] bg-[var(--st-bg)]',
         'z-20 overflow-hidden',
-        // Slide-in from right — the parent holds it in a flex row so it
+        // Slide-in from right. The parent holds it in a flex row so it
         // naturally animates on mount/unmount via CSS transitions when wrapped.
       )}
     >
-      {/* ── Panel header ────────────────────────────────────── */}
-      <div className="flex items-center gap-2.5 border-b border-[var(--gray-4)] px-4 py-3 shrink-0">
+      {/* Panel header */}
+      <div className="flex items-center gap-2.5 border-b border-[var(--st-border)] px-4 py-3 shrink-0">
         <div
           className={cn(
-            'flex h-7 w-7 shrink-0 items-center justify-center rounded-lg',
-            brand && 'bg-[var(--gray-2)]',
+            'flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--st-radius)]',
+            brand && 'bg-[var(--st-bg-secondary)]',
           )}
           style={brand ? undefined : { background: `${color}22`, color }}
         >
           {brand ? (
             <IconifyIcon icon={brand} className="h-4 w-4" aria-hidden />
           ) : (
-            Icon && <Icon className="h-4 w-4" />
+            Icon && <Icon className="h-4 w-4" aria-hidden="true" />
           )}
         </div>
-        <span className="flex-1 text-[13px] font-semibold text-[var(--gray-12)] truncate">
+        <span className="flex-1 text-[13px] font-semibold text-[var(--st-text)] truncate">
           {label}
         </span>
-        <button
+        <IconButton
+          label="Close panel"
+          icon={X}
+          size="sm"
           onClick={() => setOpenedNodeId(undefined)}
-          className="flex h-6 w-6 items-center justify-center rounded text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] transition-colors"
-          aria-label="Close panel"
-        >
-          <LuX className="h-3.5 w-3.5" strokeWidth={2} />
-        </button>
+        />
       </div>
 
-      {/* ── Panel content ───────────────────────────────────── */}
+      {/* Panel content */}
       <div className="flex-1 overflow-y-auto p-4">
         {isIntegration ? (
           <IntegrationPanel block={block} onUpdate={onUpdate} variables={variableNames} />
@@ -89,7 +102,7 @@ export function BlockPropertiesPanel({ block, onUpdate, variables = [] }: Props)
   );
 }
 
-/* ── Typebot-style blocks (bubbles, inputs, logic) ────────── */
+/* Typebot-style blocks (bubbles, inputs, logic) */
 type InnerProps = {
   block: Block;
   onUpdate: (changes: Partial<Block>) => void;
@@ -140,7 +153,7 @@ function BlockSettings({ block, onUpdate, variables }: InnerProps) {
   return <FallbackSettings block={block} onUpdate={onUpdate} />;
 }
 
-/* ── n8n-style integration panel ─────────────────────────── */
+/* n8n-style integration panel */
 function IntegrationPanel({ block, onUpdate, variables }: InnerProps) {
   const [activeTab, setActiveTab] = useState<'params' | 'output'>('params');
   const options = block.options ?? {};
@@ -151,20 +164,17 @@ function IntegrationPanel({ block, onUpdate, variables }: InnerProps) {
   return (
     <div className="space-y-4">
       {/* Tabs */}
-      <div className="flex gap-1 rounded-lg bg-[var(--gray-3)] p-1">
+      <div className="flex gap-1 rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] p-1">
         {(['params', 'output'] as const).map((tab) => (
-          <button
+          <Button
             key={tab}
+            variant={activeTab === tab ? 'secondary' : 'ghost'}
+            size="sm"
+            block
             onClick={() => setActiveTab(tab)}
-            className={cn(
-              'flex-1 rounded-md py-1.5 text-[12px] font-medium transition-colors',
-              activeTab === tab
-                ? 'bg-[var(--gray-1)] text-[var(--gray-12)] shadow-sm'
-                : 'text-[var(--gray-9)] hover:text-[var(--gray-12)]',
-            )}
           >
             {tab === 'params' ? 'Parameters' : 'Output'}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -179,15 +189,14 @@ function IntegrationPanel({ block, onUpdate, variables }: InnerProps) {
       {activeTab === 'output' && (
         <div className="space-y-3">
           <Field label="Save response to variable">
-            <input
+            <Input
               type="text"
-              className={inputClass}
               value={String(options.outputVariable ?? '')}
               onChange={(e) => update({ outputVariable: e.target.value })}
               placeholder="{{responseData}}"
             />
           </Field>
-          <div className="rounded-lg border border-dashed border-[var(--gray-6)] p-3 text-[12px] text-[var(--gray-9)] leading-relaxed">
+          <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] p-3 text-[12px] text-[var(--st-text-secondary)] leading-relaxed">
             The full response is stored in the variable above and available
             in subsequent blocks.
           </div>
@@ -212,29 +221,27 @@ function IntegrationParamsContent({ block, onUpdate, variables }: InnerProps) {
     return (
       <div className="space-y-3">
         <Field label="To">
-          <input
+          <Input
             type="text"
-            className={inputClass}
             value={String(options.to ?? '')}
             onChange={(e) => update({ to: e.target.value })}
             placeholder="recipient@example.com or {{email}}"
           />
         </Field>
         <Field label="Subject">
-          <input
+          <Input
             type="text"
-            className={inputClass}
             value={String(options.subject ?? '')}
             onChange={(e) => update({ subject: e.target.value })}
-            placeholder="Your subject…"
+            placeholder="Your subject"
           />
         </Field>
         <Field label="Body">
-          <textarea
-            className={cn(inputClass, 'min-h-[100px] resize-y')}
+          <Textarea
+            className="min-h-[100px] resize-y"
             value={String(options.body ?? '')}
             onChange={(e) => update({ body: e.target.value })}
-            placeholder="Email body… use {{variable}} for dynamic content."
+            placeholder="Email body. Use {{variable}} for dynamic content."
           />
         </Field>
       </div>
@@ -246,25 +253,24 @@ function IntegrationParamsContent({ block, onUpdate, variables }: InnerProps) {
     return (
       <div className="space-y-3">
         <Field label="System prompt">
-          <textarea
-            className={cn(inputClass, 'min-h-[80px] resize-y')}
+          <Textarea
+            className="min-h-[80px] resize-y"
             value={String(options.systemPrompt ?? '')}
             onChange={(e) => update({ systemPrompt: e.target.value })}
-            placeholder="You are a helpful assistant…"
+            placeholder="You are a helpful assistant."
           />
         </Field>
         <Field label="User message">
-          <textarea
-            className={cn(inputClass, 'min-h-[60px] resize-y')}
+          <Textarea
+            className="min-h-[60px] resize-y"
             value={String(options.userMessage ?? '')}
             onChange={(e) => update({ userMessage: e.target.value })}
             placeholder="{{userMessage}}"
           />
         </Field>
         <Field label="Save response to">
-          <input
+          <Input
             type="text"
-            className={inputClass}
             value={String(options.responseVariable ?? '')}
             onChange={(e) => update({ responseVariable: e.target.value })}
             placeholder="{{aiResponse}}"
@@ -285,32 +291,59 @@ function IntegrationParamsContent({ block, onUpdate, variables }: InnerProps) {
   );
 }
 
-/* ── Inline mini settings for non-dedicated block types ───── */
+/* Inline mini settings for non-dedicated block types */
 
 function MediaBubbleSettings({ block, onUpdate }: Omit<InnerProps, 'variables'>) {
   const options = block.options ?? {};
-  const typeLabel: Record<string, string> = {
-    image: 'Image URL',
-    video: 'Video URL',
-    audio: 'Audio URL',
-    embed: 'Embed URL',
+  const url = String(options.url ?? '');
+  const setUrl = (next: string) =>
+    onUpdate({ options: { ...options, url: next } });
+
+  // Embed bubbles point at external content (e.g. a YouTube or iframe URL),
+  // which is not a SabFiles asset, so they take a plain URL field. Image,
+  // video, and audio bubbles source from the user's SabFiles library.
+  if (block.type === 'embed') {
+    return (
+      <div className="space-y-4">
+        <Field label="Embed URL">
+          <Input
+            type="text"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            placeholder="https://"
+          />
+        </Field>
+      </div>
+    );
+  }
+
+  const accept =
+    block.type === 'image'
+      ? 'image'
+      : block.type === 'video'
+        ? 'video'
+        : 'audio';
+  const fieldLabel: Record<string, string> = {
+    image: 'Image file',
+    video: 'Video file',
+    audio: 'Audio file',
   };
+
   return (
     <div className="space-y-4">
-      <Field label={typeLabel[block.type] ?? 'URL'}>
-        <input
-          type="text"
-          className={inputClass}
-          value={String(options.url ?? '')}
-          onChange={(e) => onUpdate({ options: { ...options, url: e.target.value } })}
-          placeholder="https://…"
+      <Field label={fieldLabel[block.type] ?? 'File'}>
+        <SabFileUrlInput
+          value={url}
+          onChange={setUrl}
+          accept={accept}
+          placeholder="No file chosen"
         />
       </Field>
     </div>
   );
 }
 
-function GenericInputSettings({ block, onUpdate, variables }: InnerProps) {
+function GenericInputSettings({ block, onUpdate }: InnerProps) {
   const options = block.options ?? {};
   const update = (patch: Record<string, unknown>) =>
     onUpdate({ options: { ...options, ...patch } });
@@ -318,18 +351,16 @@ function GenericInputSettings({ block, onUpdate, variables }: InnerProps) {
   return (
     <div className="space-y-4">
       <Field label="Placeholder">
-        <input
+        <Input
           type="text"
-          className={inputClass}
           value={String(options.placeholder ?? '')}
           onChange={(e) => update({ placeholder: e.target.value })}
-          placeholder="Enter placeholder…"
+          placeholder="Enter placeholder"
         />
       </Field>
       <Field label="Save answer to variable">
-        <input
+        <Input
           type="text"
-          className={inputClass}
           value={String(options.variableName ?? '')}
           onChange={(e) => update({ variableName: e.target.value })}
           placeholder="{{answerVariable}}"
@@ -344,23 +375,26 @@ function RedirectSettings({ block, onUpdate }: Omit<InnerProps, 'variables'>) {
   return (
     <div className="space-y-4">
       <Field label="Redirect URL">
-        <input
+        <Input
           type="text"
-          className={inputClass}
           value={String(options.url ?? '')}
           onChange={(e) => onUpdate({ options: { ...options, url: e.target.value } })}
-          placeholder="https://…"
+          placeholder="https://"
         />
       </Field>
       <Field label="Open in">
-        <select
-          className={inputClass}
+        <Select
           value={String(options.target ?? '_blank')}
-          onChange={(e) => onUpdate({ options: { ...options, target: e.target.value } })}
+          onValueChange={(value) => onUpdate({ options: { ...options, target: value } })}
         >
-          <option value="_blank">New tab</option>
-          <option value="_self">Same tab</option>
-        </select>
+          <SelectTrigger aria-label="Open in">
+            <SelectValue placeholder="Open in" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="_blank">New tab</SelectItem>
+            <SelectItem value="_self">Same tab</SelectItem>
+          </SelectContent>
+        </Select>
       </Field>
     </div>
   );
@@ -375,18 +409,3 @@ function FallbackSettings({ block, onUpdate }: { block: Block; onUpdate: (change
     />
   );
 }
-
-/* ── Shared primitives ────────────────────────────────────── */
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="space-y-1.5">
-      <label className="text-[11.5px] font-medium text-[var(--gray-10)] uppercase tracking-wide">
-        {label}
-      </label>
-      {children}
-    </div>
-  );
-}
-
-const inputClass =
-  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[var(--st-border)] transition-colors';

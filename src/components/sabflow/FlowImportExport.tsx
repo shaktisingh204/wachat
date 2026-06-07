@@ -2,23 +2,22 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { LuDownload, LuUpload, LuLoader } from 'react-icons/lu';
-import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
+import { Download, Upload } from 'lucide-react';
+import { Button, useToast } from '@/components/sabcrm/20ui';
 
-/* ── Types ─────────────────────────────────────────────────────────────── */
+/* Types */
 
 type ImportResponse = { flowId: string };
 type ErrorResponse = { error: string };
 
-/* ── FlowImportExport ───────────────────────────────────────────────────── */
+/* FlowImportExport */
 
 /**
  * Renders an Import button (and optionally an Export button when `flowId` is
- * provided).  Both are self-contained — no parent state required.
+ * provided). Both are self-contained, no parent state required.
  *
- * Import: file picker → POST /api/sabflow/import → redirect to editor
- * Export: GET /api/sabflow/export/[flowId]       → browser download
+ * Import: file picker, POST /api/sabflow/import, redirect to editor.
+ * Export: GET /api/sabflow/export/[flowId], browser download.
  */
 export function FlowImportExport({ flowId }: { flowId?: string }) {
   const router = useRouter();
@@ -27,7 +26,7 @@ export function FlowImportExport({ flowId }: { flowId?: string }) {
   const [importing, setImporting] = React.useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-  /* ── Export ─────────────────────────────────────────────────────────── */
+  /* Export */
   const handleExport = () => {
     if (!flowId) return;
     // Trigger a browser download by pointing a hidden anchor at the export API.
@@ -39,7 +38,7 @@ export function FlowImportExport({ flowId }: { flowId?: string }) {
     document.body.removeChild(a);
   };
 
-  /* ── Import ─────────────────────────────────────────────────────────── */
+  /* Import */
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     // Reset the input so the same file can be re-selected if needed.
@@ -47,7 +46,7 @@ export function FlowImportExport({ flowId }: { flowId?: string }) {
 
     if (!file) return;
 
-    /* Parse JSON ──────────────────────────────────────────────────────── */
+    /* Parse JSON */
     let parsed: unknown;
     try {
       const text = await file.text();
@@ -56,12 +55,12 @@ export function FlowImportExport({ flowId }: { flowId?: string }) {
       toast({
         title: 'Invalid file',
         description: 'The selected file is not valid JSON.',
-        variant: 'destructive',
+        tone: 'danger',
       });
       return;
     }
 
-    /* Basic shape check ───────────────────────────────────────────────── */
+    /* Basic shape check */
     if (
       typeof parsed !== 'object' ||
       parsed === null ||
@@ -71,12 +70,12 @@ export function FlowImportExport({ flowId }: { flowId?: string }) {
       toast({
         title: 'Invalid flow file',
         description: 'File must contain a top-level `flow` object.',
-        variant: 'destructive',
+        tone: 'danger',
       });
       return;
     }
 
-    /* POST to import API ──────────────────────────────────────────────── */
+    /* POST to import API */
     setImporting(true);
     try {
       const res = await fetch('/api/sabflow/import', {
@@ -91,18 +90,18 @@ export function FlowImportExport({ flowId }: { flowId?: string }) {
         toast({
           title: 'Import failed',
           description: 'error' in data ? data.error : 'Unknown error',
-          variant: 'destructive',
+          tone: 'danger',
         });
         return;
       }
 
-      toast({ title: 'Flow imported', description: 'Redirecting to editor…' });
+      toast({ title: 'Flow imported', description: 'Redirecting to editor.', tone: 'success' });
       router.push(`/dashboard/sabflow/flow-builder/${data.flowId}`);
     } catch {
       toast({
         title: 'Import failed',
         description: 'Could not reach the server. Please try again.',
-        variant: 'destructive',
+        tone: 'danger',
       });
     } finally {
       setImporting(false);
@@ -111,7 +110,7 @@ export function FlowImportExport({ flowId }: { flowId?: string }) {
 
   return (
     <div className="flex items-center gap-2">
-      {/* Hidden file input */}
+      {/* Hidden file input, programmatic flow-JSON trigger */}
       <input
         ref={fileInputRef}
         type="file"
@@ -119,48 +118,32 @@ export function FlowImportExport({ flowId }: { flowId?: string }) {
         className="hidden"
         onChange={handleFileChange}
         aria-hidden="true"
+        tabIndex={-1}
       />
 
       {/* Import button */}
-      <button
-        type="button"
-        disabled={importing}
+      <Button
+        variant="outline"
+        size="sm"
+        iconLeft={Upload}
+        loading={importing}
         onClick={() => fileInputRef.current?.click()}
-        className={cn(
-          'flex items-center gap-1.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-colors',
-          'border border-[var(--st-border)] dark:border-[var(--st-border)]',
-          'bg-white dark:bg-[var(--st-text)]',
-          'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',
-          'hover:bg-[var(--st-bg-muted)] dark:hover:bg-[var(--st-text)] hover:border-[var(--st-border)] dark:hover:border-[var(--st-border)]',
-          'disabled:opacity-50 disabled:cursor-not-allowed',
-        )}
         aria-label="Import flow from JSON file"
       >
-        {importing ? (
-          <LuLoader className="h-3.5 w-3.5 animate-spin" />
-        ) : (
-          <LuUpload className="h-3.5 w-3.5" strokeWidth={2} />
-        )}
-        <span>{importing ? 'Importing…' : 'Import'}</span>
-      </button>
+        {importing ? 'Importing' : 'Import'}
+      </Button>
 
-      {/* Export button — only rendered when a flowId is supplied */}
+      {/* Export button, only rendered when a flowId is supplied */}
       {flowId && (
-        <button
-          type="button"
+        <Button
+          variant="outline"
+          size="sm"
+          iconLeft={Download}
           onClick={handleExport}
-          className={cn(
-            'flex items-center gap-1.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-colors',
-            'border border-[var(--st-border)] dark:border-[var(--st-border)]',
-            'bg-white dark:bg-[var(--st-text)]',
-            'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',
-            'hover:bg-[var(--st-bg-muted)] dark:hover:bg-[var(--st-text)] hover:border-[var(--st-border)] dark:hover:border-[var(--st-border)]',
-          )}
           aria-label="Export flow as JSON file"
         >
-          <LuDownload className="h-3.5 w-3.5" strokeWidth={2} />
-          <span>Export</span>
-        </button>
+          Export
+        </Button>
       )}
     </div>
   );

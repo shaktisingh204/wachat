@@ -2,6 +2,7 @@
 
 import React, { PropsWithChildren, useCallback, useEffect, useState } from 'react'
 import { EmblaCarouselType } from 'embla-carousel'
+import { Button } from '@/components/sabcrm/20ui'
 
 type UseDotButtonType = {
   selectedIndex: number
@@ -59,8 +60,8 @@ export const DotButton: React.FC<PropType> = (props) => {
   const { children, ...restProps } = props
 
   return (
-    <button type="button" {...restProps}>
+    <Button type="button" variant="ghost" size="sm" {...restProps}>
       {children}
-    </button>
+    </Button>
   )
 }

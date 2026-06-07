@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useId, useState } from 'react';
+import { Copy, Check, Braces } from 'lucide-react';
+
 import type { Block } from '@/lib/sabflow/types';
-import { cn } from '@/lib/utils';
-import { LuCopy, LuCheck, LuBraces } from 'react-icons/lu';
+import { Button, Field, Input, Textarea } from '@/components/sabcrm/20ui';
 
 type Props = {
   block: Block;
@@ -22,6 +23,7 @@ return result;
 export function ScriptSettings({ block, onUpdate, variables = [] }: Props) {
   const options = block.options ?? {};
   const [copied, setCopied] = useState(false);
+  const scriptId = useId();
 
   const update = (patch: Record<string, unknown>) =>
     onUpdate({ options: { ...options, ...patch } });
@@ -42,100 +44,70 @@ export function ScriptSettings({ block, onUpdate, variables = [] }: Props) {
   return (
     <div className="space-y-4">
       {/* Code editor */}
-      <Field
-        label="Script (JavaScript)"
-        action={
-          <button
-            onClick={handleCopyBoilerplate}
-            className="flex items-center gap-1 text-[11px] text-[var(--gray-8)] hover:text-[var(--gray-12)] transition-colors"
+      <div className="flex flex-col gap-1.5">
+        <div className="flex items-center justify-between">
+          <label
+            htmlFor={scriptId}
+            className="text-xs font-medium text-[var(--st-text-secondary)]"
           >
-            {copied ? (
-              <LuCheck className="h-3 w-3 text-[var(--st-text)]" strokeWidth={2} />
-            ) : (
-              <LuCopy className="h-3 w-3" strokeWidth={1.8} />
-            )}
+            Script (JavaScript)
+          </label>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleCopyBoilerplate}
+            iconLeft={copied ? Check : Copy}
+          >
             {copied ? 'Applied' : 'Use template'}
-          </button>
-        }
-      >
-        <textarea
+          </Button>
+        </div>
+        <Textarea
+          id={scriptId}
           value={code}
           onChange={(e) => update({ code: e.target.value })}
           rows={12}
-          placeholder={`// Write your JavaScript here…\n// Use {{variableName}} to access flow variables\n\nreturn "result";`}
+          placeholder={'// Write your JavaScript here.\n// Use {{variableName}} to access flow variables\n\nreturn "result";'}
           spellCheck={false}
-          className={cn(
-            'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--st-text)]',
-            'px-3 py-3 font-mono text-[12px] text-[var(--st-text-secondary)] leading-relaxed',
-            'outline-none focus:border-[var(--st-border)] resize-y min-h-[200px]',
-            'placeholder:text-[var(--gray-7)]',
-            'transition-colors',
-          )}
+          className="font-mono text-[12px] leading-relaxed min-h-[200px]"
         />
-      </Field>
+      </div>
 
       {/* Variable reference panel */}
       {variables.length > 0 && (
-        <Field label="Available variables">
-          <div className="rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] divide-y divide-[var(--gray-4)]">
+        <Field
+          label="Available variables"
+          help="Click a variable to insert it at the end of your script."
+        >
+          <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] divide-y divide-[var(--st-border)]">
             {variables.map((v) => (
-              <button
+              <Button
                 key={v}
+                variant="ghost"
+                block
                 onClick={() => insertVariable(v)}
-                className={cn(
-                  'flex w-full items-center gap-2 px-3 py-2',
-                  'text-left text-[12px] transition-colors',
-                  'text-[var(--gray-11)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
-                  'first:rounded-t-lg last:rounded-b-lg',
-                )}
+                iconLeft={Braces}
                 title={`Insert {{${v}}}`}
+                className="justify-start rounded-none first:rounded-t-[var(--st-radius)] last:rounded-b-[var(--st-radius)] font-mono text-[12px]"
               >
-                <LuBraces className="h-3 w-3 shrink-0 text-[var(--gray-8)]" strokeWidth={1.8} />
-                <span className="font-mono">{`{{${v}}}`}</span>
-              </button>
+                {`{{${v}}}`}
+              </Button>
             ))}
           </div>
-          <p className="text-[11px] text-[var(--gray-8)] mt-1">
-            Click a variable to insert it at the end of your script.
-          </p>
         </Field>
       )}
 
       {/* Output variable */}
-      <Field label="Save return value to">
-        <input
+      <Field
+        label="Save return value to"
+        help="The value returned by the script is stored in this variable."
+      >
+        <Input
           type="text"
           value={String(options.outputVariable ?? '')}
           onChange={(e) => update({ outputVariable: e.target.value })}
           placeholder="scriptOutput"
-          className="w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[var(--st-border)] transition-colors"
         />
-        <p className="text-[11px] text-[var(--gray-8)] mt-1">
-          The value returned by the script is stored in this variable.
-        </p>
       </Field>
-    </div>
-  );
-}
-
-function Field({
-  label,
-  children,
-  action,
-}: {
-  label: string;
-  children: React.ReactNode;
-  action?: React.ReactNode;
-}) {
-  return (
-    <div className="space-y-1.5">
-      <div className="flex items-center justify-between">
-        <label className="text-[11.5px] font-medium text-[var(--gray-10)] uppercase tracking-wide">
-          {label}
-        </label>
-        {action}
-      </div>
-      {children}
     </div>
   );
 }

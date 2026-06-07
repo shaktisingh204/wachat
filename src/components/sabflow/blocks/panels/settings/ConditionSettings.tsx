@@ -1,9 +1,18 @@
 'use client';
 
-import { useId } from 'react';
 import type { Block } from '@/lib/sabflow/types';
-import { cn } from '@/lib/utils';
-import { LuPlus, LuTrash2 } from 'react-icons/lu';
+import { Plus, Trash2 } from 'lucide-react';
+import {
+  Button,
+  Card,
+  Field,
+  SegmentedControl,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/sabcrm/20ui';
 import { VariableInput } from '../VariableInput';
 
 type LogicalOp = 'AND' | 'OR';
@@ -39,6 +48,11 @@ const OPERATOR_LABELS: Record<Operator, string> = {
 
 /** Operators that don't need a value input */
 const VALUE_LESS_OPERATORS: Operator[] = ['is_empty', 'is_not_empty'];
+
+const LOGICAL_OPS: ReadonlyArray<{ value: LogicalOp; label: string }> = [
+  { value: 'AND', label: 'AND' },
+  { value: 'OR', label: 'OR' },
+];
 
 type Condition = {
   id: string;
@@ -84,24 +98,15 @@ export function ConditionSettings({ block, onUpdate, variables = [] }: Props) {
       {/* Logical operator toggle */}
       {conditions.length > 1 && (
         <div className="flex items-center gap-2">
-          <span className="text-[11.5px] text-[var(--gray-9)]">Match</span>
-          <div className="flex rounded-lg bg-[var(--gray-3)] p-0.5">
-            {(['AND', 'OR'] as LogicalOp[]).map((op) => (
-              <button
-                key={op}
-                onClick={() => onUpdate({ options: { ...options, logicalOperator: op } })}
-                className={cn(
-                  'rounded-md px-3 py-1 text-[12px] font-medium transition-colors',
-                  logicalOp === op
-                    ? 'bg-[var(--gray-1)] text-[var(--gray-12)] shadow-sm'
-                    : 'text-[var(--gray-9)] hover:text-[var(--gray-12)]',
-                )}
-              >
-                {op}
-              </button>
-            ))}
-          </div>
-          <span className="text-[11.5px] text-[var(--gray-9)]">conditions</span>
+          <span className="text-[11.5px] text-[var(--st-text-secondary)]">Match</span>
+          <SegmentedControl
+            items={LOGICAL_OPS}
+            value={logicalOp}
+            onChange={(op) => onUpdate({ options: { ...options, logicalOperator: op } })}
+            size="sm"
+            aria-label="Match conditions with"
+          />
+          <span className="text-[11.5px] text-[var(--st-text-secondary)]">conditions</span>
         </div>
       )}
 
@@ -120,19 +125,16 @@ export function ConditionSettings({ block, onUpdate, variables = [] }: Props) {
         ))}
       </div>
 
-      <button
+      <Button
+        variant="outline"
+        size="sm"
+        block
+        iconLeft={Plus}
         onClick={addCondition}
-        className={cn(
-          'flex w-full items-center justify-center gap-1.5 rounded-lg',
-          'border border-dashed border-[var(--gray-6)] py-2',
-          'text-[12px] text-[var(--gray-9)] hover:text-[var(--gray-12)]',
-          'hover:border-[var(--gray-8)] hover:bg-[var(--gray-2)]',
-          'transition-colors',
-        )}
+        className="border-dashed"
       >
-        <LuPlus className="h-3.5 w-3.5" strokeWidth={2} />
         Add condition
-      </button>
+      </Button>
     </div>
   );
 }
@@ -155,65 +157,62 @@ function ConditionRow({
   const needsValue = !VALUE_LESS_OPERATORS.includes(condition.operator);
 
   return (
-    <div className="rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] p-3 space-y-2">
+    <Card variant="outlined" padding="sm" className="space-y-2 bg-[var(--st-bg-secondary)]">
       {index > 0 && (
-        <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--gray-8)] -mt-1">
-          — OR / AND (see above)
+        <div className="-mt-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--st-text-tertiary)]">
+          OR / AND (see above)
         </div>
       )}
 
       {/* Variable */}
-      <div className="space-y-1">
-        <label className="text-[11px] text-[var(--gray-9)] uppercase tracking-wide">Variable</label>
+      <Field label="Variable" className="uppercase">
         <VariableInput
           value={condition.variable}
           onChange={(variable) => onUpdate({ variable })}
           placeholder="{{variable}}"
           variables={variables}
         />
-      </div>
+      </Field>
 
       {/* Operator */}
-      <div className="space-y-1">
-        <label className="text-[11px] text-[var(--gray-9)] uppercase tracking-wide">Operator</label>
-        <select
+      <Field label="Operator" className="uppercase">
+        <Select
           value={condition.operator}
-          onChange={(e) => onUpdate({ operator: e.target.value as Operator })}
-          className="w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-1)] px-3 py-1.5 text-[12.5px] text-[var(--gray-12)] outline-none focus:border-[var(--st-border)] transition-colors"
+          onValueChange={(operator) => onUpdate({ operator: operator as Operator })}
         >
-          {(Object.keys(OPERATOR_LABELS) as Operator[]).map((op) => (
-            <option key={op} value={op}>
-              {OPERATOR_LABELS[op]}
-            </option>
-          ))}
-        </select>
-      </div>
+          <SelectTrigger aria-label="Operator">
+            <SelectValue placeholder="Pick an operator" />
+          </SelectTrigger>
+          <SelectContent>
+            {(Object.keys(OPERATOR_LABELS) as Operator[]).map((op) => (
+              <SelectItem key={op} value={op}>
+                {OPERATOR_LABELS[op]}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </Field>
 
       {/* Value */}
       {needsValue && (
-        <div className="space-y-1">
-          <label className="text-[11px] text-[var(--gray-9)] uppercase tracking-wide">Value</label>
+        <Field label="Value" className="uppercase">
           <VariableInput
             value={condition.value}
             onChange={(value) => onUpdate({ value })}
             placeholder="value or {{variable}}"
             variables={variables}
           />
-        </div>
+        </Field>
       )}
 
       {/* Remove button */}
       {canRemove && (
         <div className="flex justify-end pt-1">
-          <button
-            onClick={onRemove}
-            className="flex items-center gap-1 text-[11px] text-[var(--gray-8)] hover:text-[var(--st-text)] transition-colors"
-          >
-            <LuTrash2 className="h-3 w-3" strokeWidth={1.8} />
+          <Button variant="ghost" size="sm" iconLeft={Trash2} onClick={onRemove}>
             Remove
-          </button>
+          </Button>
         </div>
       )}
-    </div>
+    </Card>
   );
 }

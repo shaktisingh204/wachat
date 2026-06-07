@@ -2,7 +2,16 @@
 
 import type { Block } from '@/lib/sabflow/types';
 import { VariableInput } from '../VariableInput';
-import { cn } from '@/lib/utils';
+import {
+  Field,
+  Input,
+  SegmentedControl,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/sabcrm/20ui';
 
 type ValueMode = 'static' | 'expression';
 
@@ -12,12 +21,15 @@ type Props = {
   variables?: string[];
 };
 
-const inputClass =
-  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[var(--st-border)] transition-colors';
+const VALUE_MODES: ReadonlyArray<{ value: ValueMode; label: string }> = [
+  { value: 'static', label: 'Static value' },
+  { value: 'expression', label: 'Expression' },
+];
 
 export function SetVariableSettings({ block, onUpdate, variables = [] }: Props) {
   const options = block.options ?? {};
   const valueMode: ValueMode = (options.valueMode as ValueMode) ?? 'static';
+  const variableName = String(options.variableName ?? '');
 
   const update = (patch: Record<string, unknown>) =>
     onUpdate({ options: { ...options, ...patch } });
@@ -27,81 +39,66 @@ export function SetVariableSettings({ block, onUpdate, variables = [] }: Props) 
       <Field label="Variable name">
         {variables.length > 0 ? (
           <div className="space-y-2">
-            <select
-              value={String(options.variableName ?? '')}
-              onChange={(e) => update({ variableName: e.target.value })}
-              className={inputClass}
+            <Select
+              value={variableName || undefined}
+              onValueChange={(value) => update({ variableName: value })}
             >
-              <option value="">— Select variable —</option>
-              {variables.map((v) => (
-                <option key={v} value={v}>
-                  {v}
-                </option>
-              ))}
-            </select>
-            <p className="text-[11px] text-[var(--gray-8)]">
+              <SelectTrigger aria-label="Existing variable">
+                <SelectValue placeholder="Select variable" />
+              </SelectTrigger>
+              <SelectContent>
+                {variables.map((v) => (
+                  <SelectItem key={v} value={v}>
+                    {v}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-[11px] text-[var(--st-text-tertiary)]">
               Or type a new variable name:
             </p>
           </div>
         ) : null}
-        <input
+        <Input
           type="text"
-          value={String(options.variableName ?? '')}
+          value={variableName}
           onChange={(e) => update({ variableName: e.target.value })}
           placeholder="myVariable"
-          className={cn(inputClass, variables.length > 0 ? 'mt-1' : '')}
+          aria-label="New variable name"
+          className={variables.length > 0 ? 'mt-1' : undefined}
         />
       </Field>
 
       <Field label="Value type">
-        <div className="flex gap-1 rounded-lg bg-[var(--gray-3)] p-0.5">
-          {(['static', 'expression'] as ValueMode[]).map((mode) => (
-            <button
-              key={mode}
-              onClick={() => update({ valueMode: mode })}
-              className={cn(
-                'flex-1 rounded-md py-1.5 text-[12px] font-medium transition-colors capitalize',
-                valueMode === mode
-                  ? 'bg-[var(--gray-1)] text-[var(--gray-12)] shadow-sm'
-                  : 'text-[var(--gray-9)] hover:text-[var(--gray-12)]',
-              )}
-            >
-              {mode === 'static' ? 'Static value' : 'Expression'}
-            </button>
-          ))}
-        </div>
+        <SegmentedControl<ValueMode>
+          items={VALUE_MODES}
+          value={valueMode}
+          onChange={(mode) => update({ valueMode: mode })}
+          fullWidth
+          aria-label="Value type"
+        />
       </Field>
 
-      <Field label={valueMode === 'expression' ? 'Expression' : 'Value'}>
+      <Field
+        label={valueMode === 'expression' ? 'Expression' : 'Value'}
+        help={
+          valueMode === 'expression'
+            ? 'Combine variables and text. Result is stored in the variable above.'
+            : undefined
+        }
+      >
         <VariableInput
           value={String(options.value ?? '')}
           onChange={(value) => update({ value })}
           placeholder={
             valueMode === 'expression'
               ? '{{firstName}} + " " + {{lastName}}'
-              : 'Enter a static value…'
+              : 'Enter a static value'
           }
           variables={variables}
           multiline={valueMode === 'expression'}
         />
-        {valueMode === 'expression' && (
-          <p className="text-[11px] text-[var(--gray-8)] mt-1.5 leading-relaxed">
-            Combine variables and text.
-            Result is stored in the variable above.
-          </p>
-        )}
       </Field>
-    </div>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="space-y-1.5">
-      <label className="text-[11.5px] font-medium text-[var(--gray-10)] uppercase tracking-wide">
-        {label}
-      </label>
-      {children}
     </div>
   );
 }

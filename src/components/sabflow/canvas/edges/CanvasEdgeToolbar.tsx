@@ -3,7 +3,9 @@
  * CanvasEdgeToolbar — port of n8n's CanvasEdgeToolbar.vue.
  * Midpoint "+ insert node" and "trash" buttons, shown when the edge is hovered.
  */
-import { LuPlus, LuTrash2 } from 'react-icons/lu';
+import { Plus, Trash2 } from 'lucide-react';
+
+import { IconButton } from '@/components/sabcrm/20ui';
 
 type Props = {
   onAdd?: () => void;
@@ -20,31 +22,26 @@ export function CanvasEdgeToolbar({ onAdd, onDelete, canAdd = true }: Props) {
       onMouseDown={(e) => e.stopPropagation()}
     >
       {canAdd ? (
-        <button
-          type="button"
-          className="sabflow-edge-toolbar__btn"
-          aria-label="Insert node on this connection"
-          title="Insert node"
+        <IconButton
+          label="Insert node on this connection"
+          icon={Plus}
+          size="sm"
           onClick={(e) => {
             e.stopPropagation();
             onAdd?.();
           }}
-        >
-          <LuPlus className="h-3.5 w-3.5" />
-        </button>
+        />
       ) : null}
-      <button
-        type="button"
-        className="sabflow-edge-toolbar__btn is-danger"
-        aria-label="Delete connection"
-        title="Delete connection"
+      <IconButton
+        label="Delete connection"
+        icon={Trash2}
+        variant="danger"
+        size="sm"
         onClick={(e) => {
           e.stopPropagation();
           onDelete?.();
         }}
-      >
-        <LuTrash2 className="h-3.5 w-3.5" />
-      </button>
+      />
     </div>
   );
 }

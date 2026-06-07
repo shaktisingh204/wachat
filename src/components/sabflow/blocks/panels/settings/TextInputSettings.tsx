@@ -3,7 +3,15 @@
 import { useState } from 'react';
 import type { Block } from '@/lib/sabflow/types';
 import { VariableInput } from '../VariableInput';
-import { cn } from '@/lib/utils';
+import {
+  Field,
+  Input,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/sabcrm/20ui';
 
 type Props = {
   block: Block;
@@ -32,12 +40,11 @@ export function TextInputSettings({ block, onUpdate, variables = [] }: Props) {
   return (
     <div className="space-y-4">
       <Field label="Placeholder text">
-        <input
+        <Input
           type="text"
           value={String(options.placeholder ?? '')}
           onChange={(e) => update({ placeholder: e.target.value })}
-          placeholder="e.g. Type your answer…"
-          className={inputClass}
+          placeholder="e.g. Type your answer"
         />
       </Field>
 
@@ -50,90 +57,74 @@ export function TextInputSettings({ block, onUpdate, variables = [] }: Props) {
         />
       </Field>
 
-      <div className="h-px bg-[var(--gray-4)]" />
+      <div className="h-px bg-[var(--st-border)]" />
 
       <Field label="Validation">
-        <select
+        <Select
           value={validationRule}
-          onChange={(e) => {
-            const rule = e.target.value as ValidationRule;
+          onValueChange={(value) => {
+            const rule = value as ValidationRule;
             setValidationRule(rule);
             update({ validationRule: rule });
           }}
-          className={selectClass}
         >
-          {(Object.keys(VALIDATION_LABELS) as ValidationRule[]).map((rule) => (
-            <option key={rule} value={rule}>
-              {VALIDATION_LABELS[rule]}
-            </option>
-          ))}
-        </select>
+          <SelectTrigger aria-label="Validation">
+            <SelectValue placeholder="None" />
+          </SelectTrigger>
+          <SelectContent>
+            {(Object.keys(VALIDATION_LABELS) as ValidationRule[]).map((rule) => (
+              <SelectItem key={rule} value={rule}>
+                {VALIDATION_LABELS[rule]}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </Field>
 
       {validationRule === 'minLength' && (
         <Field label="Minimum characters">
-          <input
+          <Input
             type="number"
             min={0}
             value={Number(options.minLength ?? 1)}
             onChange={(e) => update({ minLength: Number(e.target.value) })}
-            className={inputClass}
           />
         </Field>
       )}
 
       {validationRule === 'maxLength' && (
         <Field label="Maximum characters">
-          <input
+          <Input
             type="number"
             min={1}
             value={Number(options.maxLength ?? 255)}
             onChange={(e) => update({ maxLength: Number(e.target.value) })}
-            className={inputClass}
           />
         </Field>
       )}
 
       {validationRule === 'regex' && (
         <Field label="Pattern (regex)">
-          <input
+          <Input
             type="text"
             value={String(options.regexPattern ?? '')}
             onChange={(e) => update({ regexPattern: e.target.value })}
             placeholder="e.g. ^[a-zA-Z]+$"
-            className={cn(inputClass, 'font-mono text-[12px]')}
+            className="font-mono text-[12px]"
           />
         </Field>
       )}
 
       {validationRule !== 'none' && (
         <Field label="Error message">
-          <input
+          <Input
             type="text"
             value={String(options.validationErrorMessage ?? '')}
             onChange={(e) => update({ validationErrorMessage: e.target.value })}
             placeholder="Invalid input. Please try again."
-            className={inputClass}
           />
         </Field>
       )}
     </div>
   );
 }
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="space-y-1.5">
-      <label className="text-[11.5px] font-medium text-[var(--gray-10)] uppercase tracking-wide">
-        {label}
-      </label>
-      {children}
-    </div>
-  );
-}
-
-const inputClass =
-  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[var(--st-border)] transition-colors';
-
-const selectClass =
-  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] outline-none focus:border-[var(--st-border)] transition-colors';

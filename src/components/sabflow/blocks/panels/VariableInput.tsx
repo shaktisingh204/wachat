@@ -1,8 +1,8 @@
 'use client';
 
 import { useRef, useState, useCallback, useId } from 'react';
-import { cn } from '@/lib/utils';
-import { LuBraces } from 'react-icons/lu';
+import { Braces } from 'lucide-react';
+import { cn, Input, Textarea } from '@/components/sabcrm/20ui';
 
 type Props = {
   value: string;
@@ -99,19 +99,10 @@ export function VariableInput({
     }
   };
 
-  const sharedInputClass = cn(
-    'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)]',
-    'px-3 py-2 text-[13px] text-[var(--gray-12)]',
-    'outline-none focus:border-[var(--st-border)]',
-    'placeholder:text-[var(--gray-8)]',
-    'transition-colors',
-    className,
-  );
-
   return (
     <div className="relative">
       {multiline ? (
-        <textarea
+        <Textarea
           ref={inputRef as React.RefObject<HTMLTextAreaElement>}
           id={id}
           value={value}
@@ -119,25 +110,20 @@ export function VariableInput({
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           rows={3}
-          className={cn(sharedInputClass, 'resize-y min-h-[76px]')}
+          className={cn('resize-y min-h-[76px]', className)}
         />
       ) : (
-        <div className="relative flex items-center">
-          <input
-            ref={inputRef as React.RefObject<HTMLInputElement>}
-            id={id}
-            type="text"
-            value={value}
-            onChange={handleChange}
-            onKeyDown={handleKeyDown}
-            placeholder={placeholder}
-            className={cn(sharedInputClass, 'pr-8')}
-          />
-          <LuBraces
-            className="absolute right-2.5 h-3.5 w-3.5 text-[var(--gray-7)] pointer-events-none"
-            strokeWidth={1.8}
-          />
-        </div>
+        <Input
+          ref={inputRef as React.RefObject<HTMLInputElement>}
+          id={id}
+          type="text"
+          value={value}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
+          placeholder={placeholder}
+          iconRight={Braces}
+          className={className}
+        />
       )}
 
       {/* Autocomplete dropdown */}
@@ -145,8 +131,9 @@ export function VariableInput({
         <ul
           role="listbox"
           className={cn(
-            'absolute z-50 mt-1 w-full rounded-lg border border-[var(--gray-5)]',
-            'bg-[var(--gray-2)] shadow-lg overflow-hidden',
+            'absolute z-50 mt-1 w-full overflow-hidden rounded-[var(--st-radius)]',
+            'border border-[var(--st-border)] bg-[var(--st-bg)]',
+            'shadow-[var(--st-shadow-pop)]',
           )}
         >
           {suggestions.map((varName, idx) => (
@@ -160,14 +147,18 @@ export function VariableInput({
               }}
               onMouseEnter={() => setActiveIndex(idx)}
               className={cn(
-                'flex items-center gap-2 px-3 py-2 text-[12px] cursor-pointer',
+                'flex cursor-pointer items-center gap-2 px-3 py-2 text-[12px]',
                 'transition-colors',
                 idx === activeIndex
-                  ? 'bg-[var(--gray-4)] text-[var(--gray-12)]'
-                  : 'text-[var(--gray-11)] hover:bg-[var(--gray-3)]',
+                  ? 'bg-[var(--st-accent-soft)] text-[var(--st-text)]'
+                  : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)]',
               )}
             >
-              <LuBraces className="h-3 w-3 shrink-0 text-[var(--gray-9)]" strokeWidth={1.8} />
+              <Braces
+                className="h-3 w-3 shrink-0 text-[var(--st-text-tertiary)]"
+                aria-hidden="true"
+                strokeWidth={1.8}
+              />
               <span className="font-mono">{`{{${varName}}}`}</span>
             </li>
           ))}

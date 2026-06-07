@@ -3,8 +3,22 @@
 import * as React from 'react';
 import { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { LuChevronRight, LuLoader, LuSparkles } from 'react-icons/lu';
-import { cn } from '@/lib/utils';
+import { ArrowRight, ChevronRight, Sparkles } from 'lucide-react';
+import {
+  Badge,
+  Button,
+  Card,
+  EmptyState,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  SegmentedControl,
+  Spinner,
+  cn,
+  type SegmentedItem,
+} from '@/components/sabcrm/20ui';
 import { createSabFlow, saveSabFlow } from '@/app/actions/sabflow';
 import {
   TEMPLATES,
@@ -26,104 +40,100 @@ type FilterBarProps = {
 };
 
 function FilterBar({ value, onChange, counts }: FilterBarProps) {
-  return (
-    <div className="flex flex-wrap items-center gap-1.5">
-      {FILTERS.map((cat) => {
-        const isActive = value === cat;
-        const count = counts[cat] ?? 0;
-        return (
-          <button
-            key={cat}
-            type="button"
-            onClick={() => onChange(cat)}
-            className={cn(
-              'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-medium',
-              'transition-colors duration-150',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-border)]',
-              isActive
-                ? 'border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:border-[var(--st-border)]/70 dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]'
-                : 'border-[var(--st-border)] bg-white text-[var(--st-text)] hover:border-[var(--st-border)] hover:text-[var(--st-text)] dark:border-[var(--st-border)] dark:bg-[var(--st-text)] dark:text-[var(--st-text-secondary)] dark:hover:border-[var(--st-border)] dark:hover:text-white',
-            )}
-          >
+  const items = useMemo<ReadonlyArray<SegmentedItem<CategoryFilter>>>(
+    () =>
+      FILTERS.map((cat) => ({
+        value: cat,
+        label: (
+          <span className="inline-flex items-center gap-1.5">
             <span>{cat}</span>
-            <span
-              className={cn(
-                'inline-flex h-4 min-w-[1rem] items-center justify-center rounded-full px-1 text-[10px]',
-                isActive
-                  ? 'bg-[var(--st-text)]/20 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]'
-                  : 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)] dark:text-[var(--st-text-secondary)]',
-              )}
-            >
-              {count}
-            </span>
-          </button>
-        );
-      })}
-    </div>
+            <Badge tone={value === cat ? 'accent' : 'neutral'} kind="soft">
+              {counts[cat] ?? 0}
+            </Badge>
+          </span>
+        ),
+      })),
+    [counts, value],
+  );
+
+  return (
+    <SegmentedControl<CategoryFilter>
+      items={items}
+      value={value}
+      onChange={onChange}
+      size="sm"
+      aria-label="Filter templates by category"
+    />
   );
 }
 
 /* ── Template card ──────────────────────────────────────── */
 
-type CardProps = {
+type CardComponentProps = {
   template: TemplateDefinition;
   isLoading: boolean;
   isBusy: boolean;
   onSelect: (t: TemplateDefinition) => void;
 };
 
-function TemplateCard({ template, isLoading, isBusy, onSelect }: CardProps) {
+function TemplateCard({ template, isLoading, isBusy, onSelect }: CardComponentProps) {
   const Icon = template.icon;
+  const disabled = isBusy && !isLoading;
+
+  const activate = () => {
+    if (disabled) return;
+    onSelect(template);
+  };
+
   return (
-    <button
-      type="button"
-      disabled={isBusy}
-      onClick={() => onSelect(template)}
-      className={cn(
-        'group relative flex flex-col gap-3 rounded-xl border p-4 text-left',
-        'transition-all duration-200',
-        template.bgColor,
-        'hover:shadow-md hover:scale-[1.02]',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-border)]',
-        isBusy && !isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer',
-      )}
+    <Card
+      variant="interactive"
+      padding="md"
+      role="button"
+      tabIndex={disabled ? -1 : 0}
+      aria-disabled={disabled || undefined}
       aria-label={`Use template ${template.name}`}
+      onClick={activate}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          activate();
+        }
+      }}
+      className={cn(
+        'group relative flex flex-col gap-3 text-left',
+        disabled ? 'pointer-events-none opacity-50' : 'cursor-pointer',
+      )}
     >
-      <div
-        className={cn(
-          'flex h-9 w-9 items-center justify-center rounded-lg bg-white dark:bg-[var(--st-text)] shadow-sm border border-[var(--st-border)] dark:border-[var(--st-border)]',
-          template.color,
-        )}
-      >
+      <span className="flex h-9 w-9 items-center justify-center rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-accent)] shadow-sm">
         {isLoading ? (
-          <LuLoader className="h-4 w-4 animate-spin" />
+          <Spinner size={16} label={`Creating ${template.name}`} />
         ) : (
           <Icon className="h-4 w-4" strokeWidth={1.75} />
         )}
-      </div>
+      </span>
 
-      <div className="flex flex-col gap-0.5">
-        <span className="text-[13px] font-semibold text-[var(--st-text)] dark:text-white flex items-center gap-1">
-          <span aria-hidden>{template.emoji}</span>
+      <span className="flex flex-col gap-0.5">
+        <span className="flex items-center gap-1 text-[13px] font-semibold text-[var(--st-text)]">
+          <span aria-hidden="true">{template.emoji}</span>
           <span>{template.name}</span>
         </span>
-        <span className="text-[11px] text-[var(--st-text)] dark:text-[var(--st-text-secondary)] leading-snug">
+        <span className="text-[11px] leading-snug text-[var(--st-text-secondary)]">
           {template.description}
         </span>
-        <span className="mt-1 inline-flex w-fit items-center rounded-full bg-white/60 px-1.5 py-0.5 text-[10px] font-medium text-[var(--st-text)] dark:bg-[var(--st-text)]/50 dark:text-[var(--st-text-secondary)]">
-          {template.category}
+        <span className="mt-1 inline-flex w-fit">
+          <Badge tone="neutral" kind="soft">
+            {template.category}
+          </Badge>
         </span>
-      </div>
+      </span>
 
-      <LuChevronRight
-        className={cn(
-          'absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 transition-transform',
-          template.color,
-          'opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5',
-        )}
+      <ChevronRight
+        aria-hidden="true"
+        className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-tertiary)] opacity-0 transition-transform group-hover:translate-x-0.5 group-hover:opacity-100"
         strokeWidth={2}
       />
-    </button>
+    </Card>
   );
 }
 
@@ -207,24 +217,24 @@ export function FlowTemplates({ onFlowCreated }: Props) {
 
   return (
     <section className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--st-border)] dark:border-[var(--st-border)] pb-3">
-        <div className="flex items-center gap-3">
-          <h2 className="text-[15px] font-semibold text-[var(--st-text)] dark:text-white">
-            Start from a template
-          </h2>
-          <span className="text-[11px] text-[var(--st-text-secondary)] dark:text-[var(--st-text-secondary)]">
+      <PageHeader compact>
+        <PageHeaderHeading>
+          <PageTitle>Start from a template</PageTitle>
+          <PageDescription>
             {filtered.length} of {TEMPLATES.length} templates
-          </span>
-        </div>
-        <button
-          type="button"
-          onClick={() => router.push('/dashboard/sabflow/marketplace')}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--st-text)] hover:bg-[var(--st-text)] px-3 py-1.5 text-[11.5px] font-semibold text-white transition-all shadow-sm duration-150 hover:shadow cursor-pointer"
-        >
-          <LuSparkles className="w-3.5 h-3.5" />
-          <span>Browse 250+ workflow templates in Marketplace →</span>
-        </button>
-      </div>
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button
+            variant="primary"
+            iconLeft={Sparkles}
+            iconRight={ArrowRight}
+            onClick={() => router.push('/dashboard/sabflow/marketplace')}
+          >
+            Browse 250+ workflow templates in Marketplace
+          </Button>
+        </PageActions>
+      </PageHeader>
 
       <FilterBar value={filter} onChange={setFilter} counts={counts} />
 
@@ -241,9 +251,11 @@ export function FlowTemplates({ onFlowCreated }: Props) {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-[var(--st-border)] p-6 text-center text-[12px] text-[var(--st-text)] dark:border-[var(--st-border)] dark:text-[var(--st-text-secondary)]">
-          No templates in this category yet.
-        </div>
+        <EmptyState
+          icon={Sparkles}
+          title="No templates yet"
+          description="There are no templates in this category yet. Try another category or browse the Marketplace."
+        />
       ) : null}
     </section>
   );
