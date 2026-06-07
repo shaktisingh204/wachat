@@ -260,10 +260,10 @@ export function CanvasContextMenu({
 
   return (
     <div
-      className="sabflow-context-menu u-menu"
+      className="ui20 sabflow-context-menu u-menu fixed z-[60]"
       role="menu"
       aria-label="Canvas actions"
-      style={{ position: 'fixed', zIndex: 60, left: state.x, top: state.y }}
+      style={{ left: state.x, top: state.y }}
       onMouseDown={(e) => e.stopPropagation()}
     >
       <div className="u-menu__list" role="presentation">

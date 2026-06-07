@@ -39,11 +39,8 @@ export function Edges({ edges, groups, events, onEdgeDelete, onInsertNode }: Pro
   );
 
   return (
-    <svg
-      className="absolute left-0 top-0 overflow-visible w-full h-full"
-      style={{ zIndex: 0 }}
-    >
-      {/* All arrow marker definitions — one per status colour */}
+    <svg className="absolute left-0 top-0 z-0 overflow-visible w-full h-full">
+      {/* All arrow marker definitions, one per status colour */}
       <ArrowMarkers />
 
       {/* Running edge animation keyframes */}
@@ -56,7 +53,7 @@ export function Edges({ edges, groups, events, onEdgeDelete, onInsertNode }: Pro
         `}</style>
       </defs>
 
-      <g style={{ pointerEvents: 'all' }}>
+      <g className="pointer-events-auto">
         {connectingIds && <DrawingEdge connectingIds={connectingIds} />}
         {edges.map((edge) => {
           // Determine the "from" group ID for coordinate lookups.

@@ -18,7 +18,7 @@ type Props = {
   events: SabFlowEvent[];
 };
 
-/* ── Color interpolation (cold → hot) ─────────────────────── */
+/* Color interpolation (cold to hot). */
 // Returns an rgb(...) string interpolating from blue (cold, t=0) to red (hot, t=1).
 function heatColor(t: number): string {
   const clamped = Math.min(1, Math.max(0, t));
@@ -40,7 +40,7 @@ function heatColor(t: number): string {
   return `rgb(${r}, ${g}, ${b})`;
 }
 
-/* ── Main ─────────────────────────────────────────────────── */
+/* Main. */
 
 export function HeatmapOverlay({ isHeatmapEnabled, edges, groups, events }: Props) {
   const { isEnabled, edgeTraversals } = useAnalytics();
@@ -50,8 +50,8 @@ export function HeatmapOverlay({ isHeatmapEnabled, edges, groups, events }: Prop
     useShallow((s) => s.elementsCoordinates),
   );
 
-  // Precompute lookups even when disabled — cheap and kept outside early return
-  // so hook order stays stable.
+  // Precompute lookups even when disabled. Cheap, and kept outside the early
+  // return so hook order stays stable.
   const blockToGroup = useMemo(() => {
     const map = new Map<string, string>();
     groups.forEach((g) => g.blocks.forEach((b) => map.set(b.id, g.id)));
@@ -136,8 +136,7 @@ export function HeatmapOverlay({ isHeatmapEnabled, edges, groups, events }: Prop
 
   return (
     <svg
-      className="absolute left-0 top-0 overflow-visible w-full h-full pointer-events-none"
-      style={{ zIndex: 0, mixBlendMode: 'multiply' }}
+      className="absolute left-0 top-0 z-0 h-full w-full overflow-visible mix-blend-multiply pointer-events-none"
       aria-hidden
     >
       <g>

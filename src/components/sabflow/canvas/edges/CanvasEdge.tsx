@@ -160,13 +160,11 @@ export const CanvasEdge = memo(function CanvasEdge(
       <EdgeLabelRenderer>
         <div
           style={{
-            position: 'absolute',
             transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
-            pointerEvents: 'all',
           }}
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
-          className="nodrag nopan"
+          className="nodrag nopan absolute pointer-events-auto"
         >
           {delayedHovered && !readOnly ? (
             <CanvasEdgeToolbar

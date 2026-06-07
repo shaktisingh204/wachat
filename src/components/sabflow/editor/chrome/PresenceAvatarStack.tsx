@@ -253,12 +253,11 @@ const OverflowPill = React.memo(function OverflowPill({
 					variant="ghost"
 					aria-label={`${count} more ${count === 1 ? 'collaborator' : 'collaborators'}`}
 					className={cn(
-						'relative inline-flex h-7 min-w-7 items-center justify-center rounded-[var(--st-radius)]',
+						'relative z-0 inline-flex h-7 min-w-7 items-center justify-center rounded-[var(--st-radius)]',
 						'border-2 border-[var(--st-bg)] bg-[var(--st-bg-muted)] px-1.5 text-[10px] font-semibold text-[var(--st-text)]',
 						'hover:bg-[var(--st-bg-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent)]',
 						'focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--st-bg)]',
 					)}
-					style={{ zIndex: 0 }}
 				>
 					+{count}
 				</Button>

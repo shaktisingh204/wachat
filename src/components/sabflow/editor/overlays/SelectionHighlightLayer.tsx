@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * SabFlow editor — `<SelectionHighlightLayer />` render layer.
+ * SabFlow editor - `<SelectionHighlightLayer />` render layer.
  *
  * Track A · Phase 7 · sub-task #4 of 10.
  *
@@ -9,8 +9,8 @@
  * --------------
  * The viewport-culled render fan-out for collaborative selection halos.
  * Walks the canvas's block list, projects each block's screen rect from
- * `block.position` + the canvas viewport, and — for blocks inside the
- * visible viewport (plus a 200 px margin) — mounts one
+ * `block.position` + the canvas viewport, and, for blocks inside the
+ * visible viewport (plus a 200 px margin), mounts one
  * `<FocusedNodeHighlight />` per block with the subset of peer selections
  * targeting that block.
  *
@@ -19,7 +19,7 @@
  *   - PRESENCE: we take the same `presence` handle the rest of the editor
  *     uses and feed it to `useSelectionAwareness` to materialize a
  *     `Map<userId, Set<blockId>>`. The hook handles debounce, blur-clear
- *     and reference-stable projection — we just consume.
+ *     and reference-stable projection, we just consume.
  *   - GEOMETRY: each block carries an `{ x, y, width?, height? }` position;
  *     `canvasRef` is the scrollable/transformed parent. We translate world
  *     space → screen space by reading `canvasRef.current` scroll + bounding
@@ -28,7 +28,7 @@
  *   - CULLING: a 200 px-margin intersection check trims the render set so
  *     a 10 000-block canvas pays only for what's on-screen. Cheaper than a
  *     real `IntersectionObserver` here because the blocks aren't actual DOM
- *     children of the layer — they're virtual rects we compute.
+ *     children of the layer, they're virtual rects we compute.
  *
  * File ownership (per the brief)
  * ------------------------------
@@ -43,7 +43,7 @@
  *     `peerSelections` + `blocks` so frequent presence churn doesn't
  *     rebuild on every parent render.
  *   - `rerender-derived-state-no-effect`: viewport rect is derived during
- *     render from `canvasRef.current` — no `useEffect` round-trip.
+ *     render from `canvasRef.current`, no `useEffect` round-trip.
  *   - `js-set-map-lookups`: block-id → PeerSelection[] is a Map, peer
  *     membership inside a block is a Set walk (already a Set on the hook
  *     side).
@@ -68,7 +68,7 @@ import {
 
 /**
  * Structural slice of a canvas block we render against. Matches the shape
- * the SabFlow canvas store publishes — `id` + `position` (`x`, `y`, and
+ * the SabFlow canvas store publishes: `id` + `position` (`x`, `y`, and
  * optional `width`/`height`). We never mutate this; the layer is read-only.
  */
 export interface CanvasBlockLike {
@@ -87,14 +87,14 @@ export interface CanvasBlockLike {
  * & avatars into the hover group; if absent we fall back to `userId`.
  */
 export interface SelectionHighlightLayerProps<PeerKey = unknown> {
-	/** Live presence handle — same one fed to the rest of the editor. */
+	/** Live presence handle, same one fed to the rest of the editor. */
 	readonly presence: PresenceHandleLike<PeerKey>;
 	/** Block list rendered on the canvas (visible *and* off-screen). */
 	readonly blocks: ReadonlyArray<CanvasBlockLike>;
 	/**
 	 * Ref to the scrollable canvas container. Used for world→screen
 	 * translation and viewport culling. May be `null` during initial
-	 * mount — we render nothing until it's attached.
+	 * mount. We render nothing until it's attached.
 	 */
 	readonly canvasRef: RefObject<HTMLElement | null>;
 	/**
@@ -114,7 +114,7 @@ export interface SelectionHighlightLayerProps<PeerKey = unknown> {
 	};
 	/**
 	 * Viewport-culling margin in CSS pixels. Defaults to
-	 * {@link DEFAULT_CULL_MARGIN_PX} (200 px) per the brief — enough that
+	 * {@link DEFAULT_CULL_MARGIN_PX} (200 px) per the brief, enough that
 	 * a quick pan reveals halos without the user seeing them pop in.
 	 */
 	readonly cullMarginPx?: number;
@@ -143,11 +143,11 @@ const DEFAULT_BLOCK_SIZE = { width: 220, height: 96 } as const;
 /**
  * Subscribe to scroll/resize on the canvas + window so the layer recomputes
  * which blocks are in-viewport. We use `useSyncExternalStore` instead of
- * `useEffect`+`useState` so the snapshot lives outside the render loop —
+ * `useEffect`+`useState` so the snapshot lives outside the render loop,
  * per `react-best-practices` (`rerender-use-ref-transient-values`-style:
  * frequent scroll updates don't trash component identity).
  *
- * The snapshot is a monotonically-increasing tick — we never return the
+ * The snapshot is a monotonically-increasing tick. We never return the
  * rect itself, because doing so would require allocating a new object on
  * every scroll frame (defeats SES bail-out). Consumers read the rect
  * lazily inside render via `canvasRef.current`.
@@ -170,7 +170,7 @@ function useViewportTick(canvasRef: RefObject<HTMLElement | null>): number {
 		[canvasRef],
 	);
 
-	// A monotone counter is enough — we just need React to re-derive the
+	// A monotone counter is enough - we just need React to re-derive the
 	// per-block rects whenever scroll fires.
 	const tickRef = useMemo(() => ({ value: 0 }), []);
 	const getSnapshot = useMemo(
@@ -186,7 +186,7 @@ function useViewportTick(canvasRef: RefObject<HTMLElement | null>): number {
 }
 
 // ---------------------------------------------------------------------------
-// Pure helpers (hoisted — `rendering-hoist-jsx` adjacent)
+// Pure helpers (hoisted, `rendering-hoist-jsx` adjacent)
 // ---------------------------------------------------------------------------
 
 /**
@@ -240,7 +240,7 @@ function readViewport(el: HTMLElement | null): {
  * Renders inside the canvas's transformed inner surface so block
  * `position.x` / `position.y` map 1:1 to layer CSS coordinates. Parents
  * that compose with a CSS `transform: scale(…)` zoom will see halos
- * inherit the same transform — no extra math required here.
+ * inherit the same transform, no extra math required here.
  */
 export function SelectionHighlightLayer<PeerKey = unknown>(
 	props: SelectionHighlightLayerProps<PeerKey>,
@@ -280,7 +280,7 @@ export function SelectionHighlightLayer<PeerKey = unknown>(
 		const out = new Map<string, PeerSelection[]>();
 		for (const [userId, blockIds] of peerSelections) {
 			const meta = peerMetaForUserId?.(userId);
-			// One PeerSelection per peer — the child filters by `blockId`
+			// One PeerSelection per peer. The child filters by `blockId`
 			// against `selectedBlockIds`, so we hand each block only its
 			// peers (not every peer's full set).
 			for (const blockId of blockIds) {
@@ -304,7 +304,7 @@ export function SelectionHighlightLayer<PeerKey = unknown>(
 	}, [peerSelections, peerMetaForUserId]);
 
 	// ------------------------------------------------------------------
-	// Viewport rect — derived during render (no effect round-trip)
+	// Viewport rect, derived during render (no effect round-trip)
 	// ------------------------------------------------------------------
 
 	const viewport = readViewport(canvasRef.current);
@@ -318,7 +318,7 @@ export function SelectionHighlightLayer<PeerKey = unknown>(
 	for (let i = 0; i < blocks.length; i++) {
 		const block = blocks[i];
 		// Skip blocks no peer has selected. Cheaper than rendering a
-		// `<FocusedNodeHighlight />` that itself returns `null` — saves
+		// `<FocusedNodeHighlight />` that itself returns `null` - saves
 		// the child's `useMemo`/`useState`/effect setup on cold blocks.
 		const peers = peerListByBlock.get(block.id);
 		if (!peers || peers.length === 0) continue;

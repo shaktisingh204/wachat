@@ -29,21 +29,26 @@ export function ChatBubble({
 }: ChatBubbleProps) {
   const isBot = variant === 'bot';
 
+  // Only prop overrides are runtime-computed; defaults live in Tailwind + 20ui tokens.
+  const overrideStyle =
+    backgroundColor || color
+      ? {
+          ...(backgroundColor ? { backgroundColor } : null),
+          ...(color ? { color } : null),
+        }
+      : undefined;
+
   return (
     <div className={cn('flex', isBot ? 'justify-start' : 'justify-end')}>
       <div
         className={cn(
-          'max-w-[82%] px-4 py-2.5 text-[13.5px] leading-relaxed shadow-sm',
+          'max-w-[82%] px-4 py-2.5 text-[13.5px] leading-relaxed shadow-[var(--st-shadow-sm)]',
           isBot
-            ? 'rounded-2xl rounded-tl-sm'
-            : 'rounded-2xl rounded-tr-sm',
+            ? 'rounded-2xl rounded-tl-sm bg-[var(--st-bg-secondary)] text-[var(--st-text)]'
+            : 'rounded-2xl rounded-tr-sm bg-[var(--st-accent)] text-[var(--st-text-inverted)]',
           className,
         )}
-        style={{
-          backgroundColor:
-            backgroundColor ?? (isBot ? 'var(--gray-3)' : 'var(--orange-8)'),
-          color: color ?? (isBot ? 'var(--gray-12)' : 'var(--st-text-inverted)'),
-        }}
+        style={overrideStyle}
       >
         {children}
       </div>

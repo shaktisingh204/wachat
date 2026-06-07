@@ -12,12 +12,12 @@ import {
 
 import type { N8NConnection } from '../types';
 
-/* ── Constants ───────────────────────────────────────────── */
+/* Constants */
 
 const PATH_RADIUS = 16;
 const STUB = 32;
 
-/* ── Path builder ────────────────────────────────────────── */
+/* Path builder */
 
 /**
  * Builds an n8n-style bezier-ish path with rounded corners.
@@ -44,7 +44,7 @@ function buildEdgePath(
   return roundCorners(raw, PATH_RADIUS).path;
 }
 
-/* ── Types ───────────────────────────────────────────────── */
+/* Types */
 
 type PortPositionFn = (
   nodeId: string,
@@ -60,7 +60,7 @@ type Props = {
   isReadOnly?: boolean;
 };
 
-/* ── WorkflowEdge ────────────────────────────────────────── */
+/* WorkflowEdge */
 
 export function WorkflowEdge({
   connection,

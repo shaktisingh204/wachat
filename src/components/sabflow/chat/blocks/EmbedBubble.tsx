@@ -1,7 +1,9 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { LuLoader, LuExternalLink, LuTriangleAlert } from 'react-icons/lu';
+import { AlertTriangle, ExternalLink } from 'lucide-react';
+
+import { Button, Spinner } from '@/components/sabcrm/20ui';
 
 export interface EmbedBubbleProps {
   /** URL to embed. */
@@ -20,7 +22,7 @@ export interface EmbedBubbleProps {
   color?: string;
 }
 
-/** Small guard — only allow embedding of http(s) URLs. */
+/** Small guard, only allow embedding of http(s) URLs. */
 function isSafeEmbedUrl(raw: string): boolean {
   if (!raw || typeof raw !== 'string' || !raw.trim()) return false;
   try {
@@ -45,8 +47,8 @@ export function EmbedBubble({
   aspectRatio = '16 / 9',
   height,
   maxWidth = '420px',
-  backgroundColor = 'var(--gray-3)',
-  color = 'var(--gray-11)',
+  backgroundColor = 'var(--st-bg-secondary)',
+  color = 'var(--st-text-secondary)',
 }: EmbedBubbleProps) {
   const safe = useMemo(() => isSafeEmbedUrl(url), [url]);
   const [loaded, setLoaded] = useState(false);
@@ -72,12 +74,12 @@ export function EmbedBubble({
 
   if (!safe) {
     return (
-      <div className="flex justify-start">
+      <div className="ui20 flex justify-start">
         <div
           className="flex items-center gap-2 rounded-2xl rounded-tl-sm px-4 py-3 text-[12.5px]"
           style={{ backgroundColor, color, maxWidth }}
         >
-          <LuTriangleAlert className="h-4 w-4 shrink-0" strokeWidth={1.8} />
+          <AlertTriangle className="h-4 w-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
           <span>Invalid embed URL</span>
         </div>
       </div>
@@ -86,24 +88,23 @@ export function EmbedBubble({
 
   if (errored) {
     return (
-      <div className="flex justify-start">
+      <div className="ui20 flex justify-start">
         <div
-          className="flex flex-col items-start gap-1.5 rounded-2xl rounded-tl-sm px-4 py-3 text-[12.5px]"
+          className="flex flex-col items-start gap-2 rounded-2xl rounded-tl-sm px-4 py-3 text-[12.5px]"
           style={{ backgroundColor, color, maxWidth }}
         >
           <div className="flex items-center gap-2">
-            <LuTriangleAlert className="h-4 w-4 shrink-0" strokeWidth={1.8} />
-            <span>This site can't be embedded here.</span>
+            <AlertTriangle className="h-4 w-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+            <span>This site cannot be embedded here.</span>
           </div>
-          <a
-            href={url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-[11.5px] underline opacity-80 hover:opacity-100"
+          <Button
+            variant="ghost"
+            size="sm"
+            iconRight={ExternalLink}
+            onClick={() => window.open(url, '_blank', 'noopener,noreferrer')}
           >
             Open in new tab
-            <LuExternalLink className="h-3 w-3" strokeWidth={2} />
-          </a>
+          </Button>
         </div>
       </div>
     );
@@ -114,19 +115,15 @@ export function EmbedBubble({
     : { width: '100%', maxWidth, aspectRatio, backgroundColor };
 
   return (
-    <div className="flex justify-start">
+    <div className="ui20 flex justify-start">
       <div
         className="relative overflow-hidden rounded-2xl rounded-tl-sm shadow-sm"
         style={style}
       >
         {/* Loading spinner overlay */}
         {!loaded && (
-          <div
-            className="absolute inset-0 flex items-center justify-center"
-            style={{ color }}
-            aria-hidden="true"
-          >
-            <LuLoader className="h-5 w-5 animate-spin" strokeWidth={2} />
+          <div className="absolute inset-0 flex items-center justify-center" aria-hidden="true">
+            <Spinner size="md" label="Loading embed" />
           </div>
         )}
 
@@ -144,8 +141,8 @@ export function EmbedBubble({
             }
           }}
           onError={() => setErrored(true)}
-          className="absolute inset-0 h-full w-full border-0"
-          style={{ opacity: loaded ? 1 : 0, transition: 'opacity 200ms ease' }}
+          className="absolute inset-0 h-full w-full border-0 transition-opacity duration-200 ease-out"
+          style={{ opacity: loaded ? 1 : 0 }}
         />
       </div>
     </div>

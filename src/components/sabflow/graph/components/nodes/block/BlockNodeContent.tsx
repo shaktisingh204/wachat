@@ -184,7 +184,7 @@ export function BlockNodeContent({ block }: Props) {
     <div className="flex items-start gap-2 flex-1 min-w-0">
       {/* Brand logo or category icon */}
       {brand ? (
-        // Real provider logo (Slack, OpenAI, Notion, …) — bigger and on a
+        // Real provider logo (Slack, OpenAI, Notion, etc.), bigger and on a
         // transparent tile so the official multi-colour brand mark reads
         // clearly. Matches n8n's canvas exactly.
         <div className="flex h-7 w-7 shrink-0 items-center justify-center mt-0.5">
@@ -192,28 +192,29 @@ export function BlockNodeContent({ block }: Props) {
         </div>
       ) : (
         // Generic Lucide icon for built-in primitives + unmapped providers,
-        // tinted with the category colour.
+        // tinted with the category colour. Background + text colour are
+        // runtime-computed from the block category, so they stay inline.
         <div
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md mt-0.5"
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--st-radius)] mt-0.5"
           style={{ backgroundColor: `${iconColor}18`, color: iconColor }}
         >
-          <FallbackIcon className="h-3.5 w-3.5" />
+          <FallbackIcon className="h-3.5 w-3.5" aria-hidden />
         </div>
       )}
 
       {/* Label + preview */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5">
-          <span className="text-[12.5px] font-medium text-[var(--gray-12)] truncate">
+          <span className="text-[12.5px] font-medium text-[var(--st-text)] truncate">
             {label}
           </span>
           {block.pinData !== undefined && (
             <span
-              title="Output is pinned — block will not run; downstream uses the stored payload."
+              title="Output is pinned. Block will not run; downstream uses the stored payload."
               aria-label="Pinned output"
-              className="shrink-0 inline-flex items-center justify-center rounded-full bg-[var(--amber-3)] p-0.5 text-[var(--amber-11)]"
+              className="shrink-0 inline-flex items-center justify-center rounded-[var(--st-radius-pill)] bg-[color-mix(in_srgb,var(--st-warn)_16%,transparent)] p-0.5 text-[var(--st-warn)]"
             >
-              <LuPin className="h-2.5 w-2.5" strokeWidth={2.5} />
+              <LuPin className="h-2.5 w-2.5" strokeWidth={2.5} aria-hidden />
             </span>
           )}
         </div>
@@ -238,7 +239,7 @@ function BlockPreview({ block }: { block: Block }) {
           <WithVariableContent
             text={raw}
             maxLength={80}
-            className="text-[11px] text-[var(--gray-9)] mt-0.5"
+            className="text-[11px] text-[var(--st-text-tertiary)] mt-0.5"
           />
         );
       }
@@ -292,7 +293,7 @@ function BlockPreview({ block }: { block: Block }) {
       }
       case 'rating_input': {
         const max = typeof opts.maximum === 'number' ? opts.maximum : 5;
-        return <PreviewText>1 – {max} stars</PreviewText>;
+        return <PreviewText>1 - {max} stars</PreviewText>;
       }
       case 'choice_input':
       case 'picture_choice_input': {
@@ -405,7 +406,7 @@ function BlockPreview({ block }: { block: Block }) {
 
 function PreviewText({ children }: { children: React.ReactNode }) {
   return (
-    <div className="text-[11px] text-[var(--gray-9)] truncate mt-0.5 leading-snug">
+    <div className="text-[11px] text-[var(--st-text-tertiary)] truncate mt-0.5 leading-snug">
       {children}
     </div>
   );
@@ -413,7 +414,7 @@ function PreviewText({ children }: { children: React.ReactNode }) {
 
 function PreviewEmpty({ label }: { label: string }) {
   return (
-    <div className="text-[11px] text-[var(--gray-7)] italic truncate mt-0.5">{label}</div>
+    <div className="text-[11px] text-[var(--st-text-tertiary)] italic truncate mt-0.5">{label}</div>
   );
 }
 

@@ -9,7 +9,7 @@
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Search, X } from 'lucide-react';
-import { Button, IconButton, Input, EmptyState } from '@/components/sabcrm/20ui';
+import { Field, Input, IconButton, EmptyState } from '@/components/sabcrm/20ui';
 import type { EventType } from '@/lib/sabflow/types';
 import {
   TRIGGER_OPTIONS,
@@ -98,12 +98,14 @@ export function TriggerStartPanel({ open, onClose, onPick }: Props) {
   let runningIndex = 0;
   return (
     <div
-      className="ui20 sabflow-trigger-panel"
+      className="ui20 absolute right-3 top-3 z-30 flex max-h-[calc(100%-1.5rem)] w-[360px] flex-col overflow-hidden rounded-[12px] border border-[var(--st-border)] bg-[var(--st-bg)] shadow-[0_24px_48px_-12px_var(--st-border)]"
       onMouseDown={(e) => e.stopPropagation()}
     >
-      <div className="sabflow-trigger-panel__head">
-        <div className="sabflow-trigger-panel__title">What triggers this workflow?</div>
-        <div className="sabflow-trigger-panel__subtitle">
+      <div className="relative border-b border-[var(--st-border)] px-4 pb-3 pt-4">
+        <div className="text-[14px] font-semibold leading-[1.3] text-[var(--st-text)]">
+          What triggers this workflow?
+        </div>
+        <div className="mt-1 pr-6 text-[12px] leading-[1.4] text-[var(--st-text-secondary)]">
           A trigger is a step that starts your workflow
         </div>
         <IconButton
@@ -111,28 +113,29 @@ export function TriggerStartPanel({ open, onClose, onPick }: Props) {
           icon={X}
           variant="ghost"
           size="sm"
-          className="sabflow-trigger-panel__close"
+          className="absolute right-3 top-3"
           onClick={onClose}
         />
       </div>
 
-      <div className="sabflow-trigger-panel__search">
-        <Input
-          ref={inputRef}
-          type="text"
-          inputSize="sm"
-          value={query}
-          placeholder="Search triggers..."
-          aria-label="Search triggers"
-          iconLeft={Search}
-          onChange={(e) => {
-            setQuery(e.target.value);
-            setActiveIndex(0);
-          }}
-        />
+      <div className="border-b border-[var(--st-border)] p-3">
+        <Field label="Search triggers">
+          <Input
+            ref={inputRef}
+            type="text"
+            inputSize="sm"
+            value={query}
+            placeholder="Search triggers..."
+            iconLeft={Search}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setActiveIndex(0);
+            }}
+          />
+        </Field>
       </div>
 
-      <div className="sabflow-trigger-panel__body">
+      <div className="flex-1 overflow-y-auto p-1.5" role="listbox" aria-label="Triggers">
         {grouped.length === 0 ? (
           <EmptyState
             icon={Search}
@@ -142,9 +145,9 @@ export function TriggerStartPanel({ open, onClose, onPick }: Props) {
           />
         ) : (
           grouped.map((group) => (
-            <div key={group.key} className="sabflow-trigger-panel__group">
+            <div key={group.key} className="mb-1">
               <div
-                className="sabflow-trigger-panel__group-label"
+                className="sticky top-0 z-[1] bg-[var(--st-bg)] px-3 pb-1.5 pt-2.5 text-[10px] font-semibold uppercase tracking-[0.06em]"
                 style={{ color: group.meta?.color }}
               >
                 {group.meta?.label ?? group.key}
@@ -154,17 +157,25 @@ export function TriggerStartPanel({ open, onClose, onPick }: Props) {
                 const idx = runningIndex++;
                 const isActive = idx === activeIndex;
                 return (
-                  <Button
+                  <div
                     key={option.appEvent}
-                    variant="ghost"
                     role="option"
                     aria-selected={isActive}
-                    className={`sabflow-trigger-panel__item${isActive ? ' is-active' : ''}`}
+                    tabIndex={0}
+                    className={`flex w-full cursor-pointer items-start gap-3 rounded-[var(--st-radius)] px-3 py-2.5 text-left text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]${
+                      isActive ? ' bg-[var(--st-bg-secondary)]' : ''
+                    }`}
                     onMouseEnter={() => setActiveIndex(idx)}
                     onClick={() => onPick(option.eventType, option.appEvent)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        onPick(option.eventType, option.appEvent);
+                      }
+                    }}
                   >
                     <span
-                      className="sabflow-trigger-panel__item-icon"
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--st-radius)]"
                       style={{
                         backgroundColor: option.color + '1f',
                         color: option.color,
@@ -172,11 +183,15 @@ export function TriggerStartPanel({ open, onClose, onPick }: Props) {
                     >
                       <Icon className="h-4 w-4" aria-hidden="true" />
                     </span>
-                    <span className="sabflow-trigger-panel__item-text">
-                      <span className="sabflow-trigger-panel__item-label">{option.label}</span>
-                      <span className="sabflow-trigger-panel__item-desc">{option.description}</span>
+                    <span className="flex min-w-0 flex-col gap-0.5">
+                      <span className="text-[13px] font-medium leading-[1.3] text-[var(--st-text)]">
+                        {option.label}
+                      </span>
+                      <span className="text-[11.5px] leading-[1.4] text-[var(--st-text-secondary)]">
+                        {option.description}
+                      </span>
                     </span>
-                  </Button>
+                  </div>
                 );
               })}
             </div>

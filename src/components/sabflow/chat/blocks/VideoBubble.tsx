@@ -1,7 +1,8 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { LuVideoOff, LuExternalLink } from 'react-icons/lu';
+import { VideoOff, ExternalLink } from 'lucide-react';
+import { Button } from '@/components/sabcrm/20ui';
 import {
   buildVimeoEmbedUrl,
   buildYouTubeEmbedUrl,
@@ -12,13 +13,13 @@ import {
 } from '../helpers/mediaParsers';
 
 export interface VideoBubbleProps {
-  /** Video URL — YouTube, Vimeo, TikTok, Instagram, or direct MP4. */
+  /** Video URL. YouTube, Vimeo, TikTok, Instagram, or direct MP4. */
   url: string;
   /** CSS aspect ratio, e.g. `"16/9"`. Defaults to `16 / 9`. */
   aspectRatio?: string;
   /** Max CSS width. Defaults to `360px`. */
   maxWidth?: string;
-  /** Autoplay (only applies to direct video elements — muted for browsers). */
+  /** Autoplay (only applies to direct video elements, muted for browsers). */
   isAutoplayEnabled?: boolean;
   /** Show browser controls on direct videos (defaults true). */
   areControlsDisplayed?: boolean;
@@ -63,14 +64,14 @@ function resolveSource(url: string): ResolvedSource {
 
   if (provider === 'direct') return { kind: 'video', src: url };
 
-  // TikTok / Instagram / unknown — their iframes reliably break with X-Frame-
+  // TikTok / Instagram / unknown. Their iframes reliably break with X-Frame-
   // Options / CSP when embedded cross-origin from non-whitelisted domains, so
   // we render a clickable link card instead of a dead iframe.
   if (provider === 'tiktok' || provider === 'instagram') {
     return { kind: 'link-only', href: url, provider };
   }
 
-  // Unknown — attempt a sandboxed iframe; CSP failures will surface the
+  // Unknown. Attempt a sandboxed iframe; CSP failures will surface the
   // error fallback via the iframe's onError hook.
   return { kind: 'error' };
 }
@@ -79,10 +80,10 @@ function resolveSource(url: string): ResolvedSource {
  * Video bubble renderer.
  *
  * Detects the provider from the URL and renders the most appropriate player:
- * - YouTube / Vimeo → privacy-enhanced iframe embed at 16:9
- * - Direct MP4/WebM → native `<video>` with browser controls
- * - TikTok / Instagram → clickable link card (their embeds require scripts)
- * - Anything unparseable → error fallback
+ * - YouTube / Vimeo, privacy-enhanced iframe embed at 16:9
+ * - Direct MP4/WebM, native `<video>` with browser controls
+ * - TikTok / Instagram, clickable link card (their embeds require scripts)
+ * - Anything unparseable, error fallback
  */
 export function VideoBubble({
   url,
@@ -90,13 +91,19 @@ export function VideoBubble({
   maxWidth = '360px',
   isAutoplayEnabled = false,
   areControlsDisplayed = true,
-  backgroundColor = 'var(--gray-3)',
-  color = 'var(--gray-11)',
+  backgroundColor = 'var(--st-bg-secondary)',
+  color = 'var(--st-text)',
 }: VideoBubbleProps) {
   const source = useMemo(() => resolveSource(url), [url]);
   const [errored, setErrored] = useState(false);
 
   const showError = source.kind === 'error' || errored;
+
+  const openOriginal = () => {
+    if (typeof window !== 'undefined') {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+  };
 
   if (showError) {
     return (
@@ -106,19 +113,18 @@ export function VideoBubble({
           style={{ backgroundColor, color, maxWidth }}
         >
           <div className="flex items-center gap-2">
-            <LuVideoOff className="h-4 w-4 shrink-0" strokeWidth={1.8} />
+            <VideoOff className="h-4 w-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
             <span>Video unavailable</span>
           </div>
           {url ? (
-            <a
-              href={url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-[11.5px] underline opacity-80 hover:opacity-100"
+            <Button
+              variant="ghost"
+              size="sm"
+              iconRight={ExternalLink}
+              onClick={openOriginal}
             >
               Open original
-              <LuExternalLink className="h-3 w-3" strokeWidth={2} />
-            </a>
+            </Button>
           ) : null}
         </div>
       </div>
@@ -128,18 +134,27 @@ export function VideoBubble({
   if (source.kind === 'link-only') {
     const label =
       source.provider === 'tiktok' ? 'Watch on TikTok' : 'Watch on Instagram';
+    const href = source.href;
     return (
       <div className="flex justify-start">
-        <a
-          href={source.href}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-2 rounded-2xl rounded-tl-sm px-4 py-3 text-[13px] font-medium shadow-sm transition-opacity hover:opacity-90"
+        <div
+          className="rounded-2xl rounded-tl-sm"
           style={{ backgroundColor, color, maxWidth }}
         >
-          <LuExternalLink className="h-4 w-4 shrink-0" strokeWidth={2} />
-          {label}
-        </a>
+          <Button
+            variant="ghost"
+            size="md"
+            block
+            iconLeft={ExternalLink}
+            onClick={() => {
+              if (typeof window !== 'undefined') {
+                window.open(href, '_blank', 'noopener,noreferrer');
+              }
+            }}
+          >
+            {label}
+          </Button>
+        </div>
       </div>
     );
   }
@@ -147,8 +162,8 @@ export function VideoBubble({
   return (
     <div className="flex justify-start">
       <div
-        className="relative overflow-hidden rounded-2xl rounded-tl-sm shadow-sm"
-        style={{ width: '100%', maxWidth, aspectRatio, backgroundColor }}
+        className="relative w-full overflow-hidden rounded-2xl rounded-tl-sm shadow-sm"
+        style={{ maxWidth, aspectRatio, backgroundColor }}
       >
         {source.kind === 'iframe' ? (
           <iframe

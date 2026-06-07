@@ -11,16 +11,16 @@ import type { Group } from '@/lib/sabflow/types';
 type Props = {
   /** The block that has no outgoing edge. */
   blockId: string;
-  /** All groups in the flow — used to locate the block's parent group. */
+  /** All groups in the flow, used to locate the block's parent group. */
   groups: Group[];
 };
 
 /**
  * Renders a short curved "drop-off" arc at the right edge of a block that has
- * no outgoing connection. The arc is drawn in orange to visually indicate that
- * the flow ends here without an explicit target.
+ * no outgoing connection. The arc is drawn in the warning tone to visually
+ * indicate that the flow ends here without an explicit target.
  *
- * Behaviour mirrors Typebot's DropOffEdge but without the analytics overlay —
+ * Behaviour mirrors Typebot's DropOffEdge but without the analytics overlay.
  * SabFlow does not yet expose per-block drop-off metrics.
  */
 export function DropOffEdge({ blockId, groups }: Props) {
@@ -79,7 +79,7 @@ export function DropOffEdge({ blockId, groups }: Props) {
       {/* The arc path */}
       <path
         d={pathD}
-        stroke="#f76808"
+        stroke="var(--st-warn)"
         strokeWidth={2}
         fill="none"
         strokeDasharray="6 3"
@@ -94,21 +94,8 @@ export function DropOffEdge({ blockId, groups }: Props) {
         y={badgeY}
       >
         <div
-          style={{
-            width: '100%',
-            height: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderRadius: '6px',
-            backgroundColor: '#f76808',
-            color: '#fff',
-            fontSize: '11px',
-            fontWeight: 600,
-            letterSpacing: '0.02em',
-            userSelect: 'none',
-            pointerEvents: 'none',
-          }}
+          className="flex h-full w-full select-none items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-warn)] text-[11px] font-semibold tracking-[0.02em] text-[var(--st-text-inverted)] pointer-events-none"
+          aria-hidden="true"
         >
           No connection
         </div>

@@ -224,14 +224,12 @@ export function AudioBubble({
               return (
                 <span
                   key={i}
-                  className={`block w-[3px] rounded-full transition-colors${
+                  className={`block w-[3px] rounded-full transition-colors bg-[color-mix(in_srgb,currentColor_25%,transparent)]${
                     playing ? ` sabflow-wave sabflow-wave-${i % 4}` : ''
                   }`}
                   style={{
                     height: `${Math.round(h * 100)}%`,
-                    backgroundColor: isActive
-                      ? accentColor
-                      : 'color-mix(in srgb, currentColor 25%, transparent)',
+                    backgroundColor: isActive ? accentColor : undefined,
                     animationDelay: playing ? `${i * 40}ms` : undefined,
                   }}
                 />
@@ -272,8 +270,7 @@ export function AudioBubble({
             aria-valuenow={Math.round(current)}
             tabIndex={0}
             onClick={handleSeek}
-            className="relative h-1.5 flex-1 cursor-pointer overflow-hidden rounded-full"
-            style={{ backgroundColor: 'color-mix(in srgb, currentColor 18%, transparent)' }}
+            className="relative h-1.5 flex-1 cursor-pointer overflow-hidden rounded-full bg-[color-mix(in_srgb,currentColor_18%,transparent)]"
           >
             <div
               className="absolute inset-y-0 left-0 rounded-full transition-[width] duration-100"

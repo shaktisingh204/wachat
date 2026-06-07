@@ -17,7 +17,7 @@ type Props = {
 };
 
 /**
- * Input handle — positioned on the left edge of a block card.
+ * Input handle, positioned on the left edge of a block card.
  *
  * Registers its Y offset with EndpointsProvider using the composite key
  * `{blockId}:{handleId}` so multiple handles per block are supported.
@@ -114,25 +114,19 @@ export function InputHandle({ port, blockId, groupId, topOffset, className }: Pr
       data-handle-id={port.id}
       data-handle-mode="input"
       className={cn(
-        'prevent-group-drag absolute flex items-center justify-center cursor-pointer pointer-events-auto',
+        'prevent-group-drag absolute -left-5 flex h-5 w-5 cursor-pointer items-center justify-center pointer-events-auto',
         className,
       )}
-      style={{
-        left: -20,
-        top: topOffset,
-        width: 20,
-        height: 20,
-      }}
+      // `top` is a runtime-computed per-handle vertical offset within the block card.
+      style={{ top: topOffset }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
       <HandleDot state={handleState} scale={graphPosition.scale} />
 
-      {/* Label tooltip — shown on hover when zoomed in enough */}
+      {/* Label tooltip, shown on hover when zoomed in enough */}
       {isHovered && port.label && graphPosition.scale > 0.6 && (
-        <div
-          className="absolute right-[calc(100%+6px)] top-1/2 -translate-y-1/2 whitespace-nowrap rounded bg-[var(--gray-12)] px-1.5 py-0.5 text-[10px] text-[var(--gray-1)] shadow-sm pointer-events-none z-50"
-        >
+        <div className="absolute right-[calc(100%+6px)] top-1/2 z-50 -translate-y-1/2 whitespace-nowrap rounded-[var(--st-radius-sm)] bg-[var(--st-text)] px-1.5 py-0.5 text-[10px] text-[var(--st-text-inverted)] shadow-sm pointer-events-none">
           {port.label}
         </div>
       )}

@@ -71,17 +71,18 @@ export const CanvasNodeStickyNote = memo(function CanvasNodeStickyNote({
 
   return (
     <div
-      className="ui20 sabflow-sticky relative overflow-visible p-3 text-[13px] text-[var(--st-text)]"
+      className={[
+        'ui20 sabflow-sticky relative overflow-visible rounded-[var(--st-radius-lg)] p-3 text-[13px] text-[var(--st-text)]',
+        selected
+          ? 'shadow-[0_0_0_3px_var(--st-accent-ring),var(--st-shadow-md)]'
+          : 'shadow-[var(--st-shadow-md)]',
+      ].join(' ')}
       data-testid="canvas-sticky-note"
       style={{
         width: w,
         height: h,
         background: palette.bg,
         border: `1px solid ${palette.border}`,
-        borderRadius: 10,
-        boxShadow: selected
-          ? `0 0 0 3px rgba(247, 104, 8, 0.25), 0 8px 20px -6px rgba(0,0,0,0.18)`
-          : `0 4px 12px -4px rgba(0,0,0,0.12)`,
       }}
       onDoubleClick={(e) => {
         e.stopPropagation();
@@ -122,8 +123,10 @@ export const CanvasNodeStickyNote = memo(function CanvasNodeStickyNote({
         />
       ) : (
         <div
-          className="h-full overflow-hidden whitespace-pre-wrap leading-snug"
-          style={{ color: d.content ? 'var(--st-text)' : 'var(--st-text-tertiary)' }}
+          className={[
+            'h-full overflow-hidden whitespace-pre-wrap leading-snug',
+            d.content ? 'text-[var(--st-text)]' : 'text-[var(--st-text-tertiary)]',
+          ].join(' ')}
         >
           {d.content || 'Double-click to edit'}
         </div>
@@ -131,7 +134,7 @@ export const CanvasNodeStickyNote = memo(function CanvasNodeStickyNote({
 
       {selected && !isReadOnly && !editing ? (
         <div
-          className="nodrag nopan absolute -top-[34px] right-0 flex gap-1 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] p-1 shadow-[0_4px_14px_-4px_rgba(0,0,0,0.18)]"
+          className="nodrag nopan absolute -top-[34px] right-0 flex gap-1 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1 shadow-[var(--st-shadow-pop)]"
           onMouseDown={(e) => e.stopPropagation()}
         >
           <IconButton
@@ -148,7 +151,7 @@ export const CanvasNodeStickyNote = memo(function CanvasNodeStickyNote({
             onClick={() => onDelete?.(id)}
           />
           {showPalette ? (
-            <div className="absolute right-0 top-[34px] flex gap-1 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] p-1.5 shadow-[0_4px_14px_-4px_rgba(0,0,0,0.18)]">
+            <div className="absolute right-0 top-[34px] flex gap-1 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1.5 shadow-[var(--st-shadow-pop)]">
               {COLOR_KEYS.map((k) => (
                 <Button
                   key={k}

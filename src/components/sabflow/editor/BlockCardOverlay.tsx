@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { useBlockDnd } from '@/components/sabflow/graph/providers/GraphDndProvider';
+import { Card } from '@/components/sabcrm/20ui';
 import { getRegistryEntry } from './blockRegistry';
 
 /**
@@ -54,29 +55,25 @@ export function BlockCardOverlay() {
   const { icon: Icon, label, color } = entry;
 
   return (
-    <div
+    <Card
+      variant="elevated"
+      padding="none"
       aria-hidden="true"
-      className="pointer-events-none fixed z-50 flex items-center gap-2.5 px-3 py-2.5 rounded-lg border border-[var(--gray-5)] bg-[var(--gray-1)] shadow-lg opacity-90"
-      style={{
-        left: pos.x + 14,
-        top: pos.y - 14,
-        transform: 'rotate(-2deg)',
-        willChange: 'left, top',
-        minWidth: '140px',
-      }}
+      className="pointer-events-none fixed z-50 flex min-w-[140px] -rotate-2 items-center gap-2.5 px-3 py-2.5 opacity-90 will-change-[left,top]"
+      style={{ left: pos.x + 14, top: pos.y - 14 }}
     >
-      {/* Icon badge */}
+      {/* Icon badge: color is runtime-computed from the block registry entry */}
       <div
-        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md"
+        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--st-radius)]"
         style={{ backgroundColor: color + '20', color }}
       >
-        <Icon className="h-3.5 w-3.5" />
+        <Icon className="h-3.5 w-3.5" aria-hidden="true" />
       </div>
 
       {/* Label */}
-      <span className="text-[12px] font-medium text-[var(--gray-12)] whitespace-nowrap">
+      <span className="whitespace-nowrap text-[12px] font-medium text-[var(--st-text)]">
         {label}
       </span>
-    </div>
+    </Card>
   );
 }

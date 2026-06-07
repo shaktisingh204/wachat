@@ -32,7 +32,7 @@ type Props = {
   blockId: string;
   groupId: string;
   pins: OutputPin[];
-  /** Edge ids currently originating from this block — used to draw persistent dots. */
+  /** Edge ids currently originating from this block, used to draw persistent dots. */
   outgoingPinIds?: ReadonlySet<string>;
   className?: string;
 };
@@ -69,7 +69,7 @@ export function MultiSourceEndpoints({
   );
 }
 
-/* ── Single pin ──────────────────────────────────────────────────────────── */
+/* Single pin */
 
 type PinProps = {
   pin: OutputPin;
@@ -97,7 +97,7 @@ function PinEndpoint({ pin, blockId, groupId, hasOutgoingEdge }: PinProps) {
 
   const isParentHovered = mouseOverBlock?.id === blockId;
 
-  // Canvas-space Y — recomputed on canvas move / group resize / group move.
+  // Canvas-space Y, recomputed on canvas move / group resize / group move.
   const endpointY = useMemo(
     () => {
       if (!ref.current) return undefined;
@@ -156,7 +156,7 @@ function PinEndpoint({ pin, blockId, groupId, hasOutgoingEdge }: PinProps) {
   const isHighlighted =
     isParentHovered || isDraggingFromHere || isPreviewingFromHere || isPinHovered;
 
-  const color = pin.color ?? 'var(--gray-9)';
+  const color = pin.color ?? 'var(--st-text-tertiary)';
 
   return (
     <div
@@ -174,15 +174,15 @@ function PinEndpoint({ pin, blockId, groupId, hasOutgoingEdge }: PinProps) {
       }}
       onMouseDown={(e) => e.stopPropagation()}
     >
-      {/* Outer ring — always visible so pins read as pins even at rest */}
+      {/* Outer ring, always visible so pins read as pins even at rest */}
       <div
         className={cn(
-          'flex h-4 w-4 items-center justify-center rounded-full border-2 bg-[var(--gray-1)] transition-transform duration-150',
+          'flex h-4 w-4 items-center justify-center rounded-full border-2 bg-[var(--st-bg)] transition-transform duration-150',
           isHighlighted ? 'scale-125' : 'scale-100',
         )}
         style={{ borderColor: color }}
       >
-        {/* Inner dot — fills when active or already has an edge */}
+        {/* Inner dot, fills when active or already has an edge */}
         <div
           className="h-[7px] w-[7px] rounded-full transition-opacity duration-150"
           style={{
@@ -192,11 +192,11 @@ function PinEndpoint({ pin, blockId, groupId, hasOutgoingEdge }: PinProps) {
         />
       </div>
 
-      {/* Hover tooltip — label shown to the right of the pin */}
+      {/* Hover tooltip, label shown to the right of the pin */}
       {isPinHovered && (
         <div
           role="tooltip"
-          className="pointer-events-none absolute left-full top-1/2 ml-2 -translate-y-1/2 whitespace-nowrap rounded border border-[var(--gray-5)] bg-[var(--gray-1)] px-1.5 py-0.5 text-[10.5px] font-medium text-[var(--gray-12)] shadow-sm z-10"
+          className="pointer-events-none absolute left-full top-1/2 z-10 ml-2 -translate-y-1/2 whitespace-nowrap rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)] px-1.5 py-0.5 text-[10.5px] font-medium text-[var(--st-text)] shadow-sm"
         >
           {pin.label}
         </div>

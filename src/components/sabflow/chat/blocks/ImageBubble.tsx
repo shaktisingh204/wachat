@@ -76,12 +76,8 @@ export function ImageBubble({
           {/* Loading state */}
           {!loaded && !errored && (
             <div
-              className="flex items-center justify-center"
-              style={{
-                width: maxWidth,
-                aspectRatio: '4 / 3',
-                backgroundColor,
-              }}
+              className="flex aspect-[4/3] items-center justify-center"
+              style={{ width: maxWidth, backgroundColor }}
             >
               <Spinner size="md" label="Loading image" />
             </div>
@@ -90,12 +86,8 @@ export function ImageBubble({
           {/* Error fallback */}
           {errored && (
             <div
-              className="flex flex-col items-center justify-center gap-1.5 px-6 py-8 text-[12px]"
-              style={{
-                width: maxWidth,
-                aspectRatio: '4 / 3',
-                color,
-              }}
+              className="flex aspect-[4/3] flex-col items-center justify-center gap-1.5 px-6 py-8 text-[12px]"
+              style={{ width: maxWidth, color }}
             >
               <ImageOff className="h-6 w-6" strokeWidth={1.5} aria-hidden="true" />
               <span>Image failed to load</span>
@@ -119,7 +111,7 @@ export function ImageBubble({
               style={{
                 opacity: loaded ? 1 : 0,
                 position: loaded ? 'static' : 'absolute',
-                inset: 0,
+                inset: loaded ? undefined : 0,
               }}
             />
           )}

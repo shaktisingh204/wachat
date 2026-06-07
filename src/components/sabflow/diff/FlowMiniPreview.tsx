@@ -3,16 +3,18 @@
 /**
  * FlowMiniPreview
  *
- * Tiny read-only canvas preview — groups rendered as rectangles, events
- * rendered as smaller rectangles, edges rendered as SVG lines.
+ * Tiny read-only canvas preview. Groups render as rectangles, events render
+ * as smaller rectangles, and edges render as SVG lines.
  *
- * Used for the before/after thumbnails in the flow diff view.  Designed to
- * be deterministic and dependency-free so it can render server-side or
+ * Used for the before/after thumbnails in the flow diff view. Designed to be
+ * deterministic and dependency-free so it can render server-side or
  * client-side without relying on any graph state.
  */
 
 import { useMemo } from 'react';
+import { Workflow } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { EmptyState } from '@/components/sabcrm/20ui';
 import type {
   Group,
   Edge,
@@ -20,7 +22,7 @@ import type {
   Coordinates,
 } from '@/lib/sabflow/types';
 
-/* ── Rendering constants ────────────────────────────────────────────────── */
+/* Rendering constants */
 
 const GROUP_W = 300;
 const GROUP_H = 100;
@@ -29,7 +31,7 @@ const EVENT_H = 70;
 /** Canvas padding so elements never touch the preview frame. */
 const CONTENT_PADDING = 160;
 
-/* ── Props ──────────────────────────────────────────────────────────────── */
+/* Props */
 
 export interface FlowMiniPreviewProps {
   groups: Group[];
@@ -59,7 +61,7 @@ export interface FlowMiniPreviewProps {
   className?: string;
 }
 
-/* ── Bounds computation ─────────────────────────────────────────────────── */
+/* Bounds computation */
 
 interface Bounds {
   minX: number;
@@ -99,7 +101,7 @@ function computeBounds(groups: Group[], events: SabFlowEvent[]): Bounds {
   };
 }
 
-/* ── Edge anchor calculation ────────────────────────────────────────────── */
+/* Edge anchor calculation */
 
 interface EdgeAnchor {
   id: string;
@@ -112,8 +114,8 @@ interface EdgeAnchor {
 
 /**
  * Derive approximate edge endpoints from its `from` / `to` group coordinates.
- * Uses the centre of the owning group / event as the anchor — good enough
- * for a minimap-style preview.
+ * Uses the centre of the owning group / event as the anchor, which is good
+ * enough for a minimap-style preview.
  */
 function computeEdgeAnchors(
   edges: Edge[],
@@ -167,7 +169,7 @@ function computeEdgeAnchors(
   return anchors;
 }
 
-/* ── Component ──────────────────────────────────────────────────────────── */
+/* Component */
 
 const DEFAULT_ADDED = new Set<string>();
 const DEFAULT_REMOVED = new Set<string>();
@@ -213,20 +215,16 @@ export function FlowMiniPreview({
       role="img"
       aria-label={label ?? 'Flow preview'}
       className={cn(
-        'relative overflow-hidden rounded-lg border border-[var(--gray-5)]',
+        'relative overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]',
+        '[background-image:radial-gradient(var(--st-border)_1px,transparent_0)] [background-size:8px_8px]',
         className,
       )}
-      style={{
-        width,
-        height,
-        backgroundColor: 'var(--gray-2)',
-        backgroundImage: 'radial-gradient(var(--gray-5) 1px, transparent 0)',
-        backgroundSize: '8px 8px',
-      }}
+      // Runtime-computed frame size from props.
+      style={{ width, height }}
     >
       {isEmpty ? (
-        <div className="absolute inset-0 flex items-center justify-center text-[11px] text-[var(--gray-9)]">
-          Empty flow
+        <div className="absolute inset-0 flex items-center justify-center">
+          <EmptyState icon={Workflow} title="Empty flow" size="sm" />
         </div>
       ) : (
         <>
@@ -242,10 +240,10 @@ export function FlowMiniPreview({
               const end = toSvg(a.x2, a.y2);
               const stroke =
                 a.highlight === 'added'
-                  ? 'rgba(34, 197, 94, 0.85)'
+                  ? 'var(--st-status-ok)'
                   : a.highlight === 'removed'
-                    ? 'rgba(239, 68, 68, 0.75)'
-                    : 'rgba(156, 163, 175, 0.55)';
+                    ? 'var(--st-danger)'
+                    : 'var(--st-text-tertiary)';
               const strokeWidth = a.highlight ? 1.4 : 0.9;
               const dashArray = a.highlight === 'removed' ? '3 2' : undefined;
               return (
@@ -258,6 +256,8 @@ export function FlowMiniPreview({
                   stroke={stroke}
                   strokeWidth={strokeWidth}
                   strokeDasharray={dashArray}
+                  // Edge endpoints are runtime-computed from graph coordinates.
+                  style={{ opacity: a.highlight ? 0.85 : 0.5 }}
                 />
               );
             })}
@@ -271,6 +271,7 @@ export function FlowMiniPreview({
               <div
                 key={ev.id}
                 className="absolute rounded-[1px]"
+                // Position, scaled size, and diff tint are runtime-computed.
                 style={{
                   left: pos.left,
                   top: pos.top,
@@ -291,6 +292,7 @@ export function FlowMiniPreview({
               <div
                 key={g.id}
                 className="absolute rounded-[2px]"
+                // Position, scaled size, and diff tint are runtime-computed.
                 style={{
                   left: pos.left,
                   top: pos.top,
@@ -308,7 +310,7 @@ export function FlowMiniPreview({
   );
 }
 
-/* ── Highlight helpers ──────────────────────────────────────────────────── */
+/* Highlight helpers */
 
 type Highlight = 'added' | 'removed' | 'modified' | null;
 
@@ -327,37 +329,37 @@ function resolveHighlight(
 function groupColor(h: Highlight): string {
   switch (h) {
     case 'added':
-      return 'rgba(34, 197, 94, 0.75)';
+      return 'color-mix(in srgb, var(--st-status-ok) 75%, transparent)';
     case 'removed':
-      return 'rgba(239, 68, 68, 0.6)';
+      return 'color-mix(in srgb, var(--st-danger) 60%, transparent)';
     case 'modified':
-      return 'rgba(245, 158, 11, 0.75)';
+      return 'color-mix(in srgb, var(--st-warn) 75%, transparent)';
     default:
-      return 'rgba(249, 115, 22, 0.7)';
+      return 'color-mix(in srgb, var(--st-accent) 70%, transparent)';
   }
 }
 
 function eventColor(h: Highlight): string {
   switch (h) {
     case 'added':
-      return 'rgba(34, 197, 94, 0.75)';
+      return 'color-mix(in srgb, var(--st-status-ok) 75%, transparent)';
     case 'removed':
-      return 'rgba(239, 68, 68, 0.6)';
+      return 'color-mix(in srgb, var(--st-danger) 60%, transparent)';
     case 'modified':
-      return 'rgba(245, 158, 11, 0.75)';
+      return 'color-mix(in srgb, var(--st-warn) 75%, transparent)';
     default:
-      return 'rgba(107, 114, 128, 0.7)';
+      return 'color-mix(in srgb, var(--st-text-secondary) 70%, transparent)';
   }
 }
 
 function outlineColor(h: Highlight): string {
   switch (h) {
     case 'added':
-      return 'rgb(22, 163, 74)';
+      return 'var(--st-status-ok)';
     case 'removed':
-      return 'rgb(220, 38, 38)';
+      return 'var(--st-danger)';
     case 'modified':
-      return 'rgb(217, 119, 6)';
+      return 'var(--st-warn)';
     default:
       return 'transparent';
   }
