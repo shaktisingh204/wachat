@@ -13,7 +13,6 @@ export const dynamic = 'force-dynamic';
  * is the constant.
  */
 
-import "@/components/sabcrm/20ui/zoru-legacy.css";
 
 import React from "react";
 import { redirect } from "next/navigation";

@@ -84,68 +84,6 @@ export default {
           border: 'hsl(var(--sidebar-border))',
           ring: 'hsl(var(--sidebar-ring))',
         },
-        // ZoruUI palette — tokens defined in src/styles/zoruui.css under `.zoruui`.
-        // Use as `bg-zoru-bg`, `text-zoru-ink`, `border-zoru-line`, etc.
-        zoru: {
-          bg: 'hsl(var(--zoru-bg))',
-          surface: 'hsl(var(--zoru-surface))',
-          'surface-2': 'hsl(var(--zoru-surface-2))',
-          'surface-3': 'hsl(var(--zoru-surface-3))',
-          ink: 'hsl(var(--zoru-ink))',
-          'ink-strong': 'hsl(var(--zoru-ink-strong))',
-          'ink-muted': 'hsl(var(--zoru-ink-muted))',
-          'ink-subtle': 'hsl(var(--zoru-ink-subtle))',
-          line: 'hsl(var(--zoru-line))',
-          'line-strong': 'hsl(var(--zoru-line-strong))',
-          // `on-*` aliases — many call sites already use `text-zoru-on-primary`
-          // / `bg-zoru-on-primary` etc. Expose them as real Tailwind utilities
-          // so the existing JSX renders correctly without rewriting every
-          // call site to `text-zoru-primary-foreground`.
-          'on-primary': 'hsl(var(--zoru-on-primary))',
-          'on-danger': 'hsl(var(--zoru-on-danger))',
-          'on-success': 'hsl(var(--zoru-on-success))',
-          'on-warning': 'hsl(var(--zoru-on-warning))',
-          'on-info': 'hsl(var(--zoru-on-info))',
-          primary: {
-            DEFAULT: 'hsl(var(--zoru-primary))',
-            hover: 'hsl(var(--zoru-primary-hover))',
-            active: 'hsl(var(--zoru-primary-active))',
-            foreground: 'hsl(var(--zoru-on-primary))',
-          },
-          // `brand` is an alias for `primary` — many call sites use
-          // `bg-zoru-brand`, `text-zoru-brand`, `from-zoru-brand`, etc.
-          // Without these tokens Tailwind drops the classes and gradient
-          // buttons render as transparent + text-white = invisible.
-          brand: {
-            DEFAULT: 'hsl(var(--zoru-primary))',
-            hover: 'hsl(var(--zoru-primary-hover))',
-            active: 'hsl(var(--zoru-primary-active))',
-            foreground: 'hsl(var(--zoru-on-primary))',
-            ink: 'hsl(var(--zoru-ink))',
-            line: 'hsl(var(--zoru-line))',
-          },
-          danger: {
-            DEFAULT: 'hsl(var(--zoru-danger))',
-            foreground: 'hsl(var(--zoru-on-danger))',
-            ink: 'hsl(var(--zoru-danger-ink))',
-          },
-          success: {
-            DEFAULT: 'hsl(var(--zoru-success))',
-            foreground: 'hsl(var(--zoru-on-success))',
-            ink: 'hsl(var(--zoru-success-ink))',
-          },
-          warning: {
-            DEFAULT: 'hsl(var(--zoru-warning))',
-            foreground: 'hsl(var(--zoru-on-warning))',
-            ink: 'hsl(var(--zoru-warning-ink))',
-          },
-          info: {
-            DEFAULT: 'hsl(var(--zoru-info))',
-            foreground: 'hsl(var(--zoru-on-info))',
-            ink: 'hsl(var(--zoru-info-ink))',
-          },
-          ring: 'hsl(var(--zoru-ring))',
-        },
       },
       boxShadow: {},
       borderRadius: {

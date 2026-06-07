@@ -13,7 +13,6 @@ export const dynamic = 'force-dynamic';
  * the position that suits its layout).
  */
 
-import "@/components/sabcrm/20ui/zoru-legacy.css";
 
 import * as React from "react";
 import type { Metadata } from "next";

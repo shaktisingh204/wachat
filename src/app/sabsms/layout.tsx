@@ -1,4 +1,3 @@
-import "@/components/sabcrm/20ui/zoru-legacy.css";
 
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
